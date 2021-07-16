@@ -6,7 +6,7 @@ import Animated from 'react-native-reanimated';
 type ScrollBlockingModalStatus = 'open' | 'closed' | 'closing';
 export type OverlayContextType = {|
   // position and isDismissing are local to the current route
-  +position: Animated.Value,
+  +position: Animated.Node,
   +isDismissing: boolean,
   // The rest are global to the entire OverlayNavigator
   +visibleOverlays: $ReadOnlyArray<{|

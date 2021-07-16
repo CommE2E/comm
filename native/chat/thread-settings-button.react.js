@@ -45,10 +45,12 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedThreadSettingsButton(
-  props: BaseProps,
-) {
-  const styles = useStyles(unboundStyles);
+const ConnectedThreadSettingsButton: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedThreadSettingsButton(props: BaseProps) {
+    const styles = useStyles(unboundStyles);
 
-  return <ThreadSettingsButton {...props} styles={styles} />;
-});
+    return <ThreadSettingsButton {...props} styles={styles} />;
+  },
+);
+
+export default ConnectedThreadSettingsButton;

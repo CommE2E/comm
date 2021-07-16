@@ -21,7 +21,7 @@ type Props = {|
   +pendingUpload: ?PendingMultimediaUpload,
   +spinnerColor: string,
 |};
-function InlineMultimedia(props: Props) {
+function InlineMultimedia(props: Props): React.Node {
   const { mediaInfo, pendingUpload, postInProgress } = props;
 
   let failed = isLocalUploadID(mediaInfo.id) && !postInProgress;

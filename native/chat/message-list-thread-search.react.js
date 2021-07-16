@@ -28,106 +28,108 @@ const inputProps = {
   returnKeyType: 'go',
 };
 
-export default React.memo<Props>(function MessageListThreadSearch({
-  usernameInputText,
-  updateUsernameInput,
-  userInfoInputArray,
-  updateTagInput,
-  resolveToUser,
-  otherUserInfos,
-  userSearchResults,
-}) {
-  const styles = useStyles(unboundStyles);
+const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
+  function MessageListThreadSearch({
+    usernameInputText,
+    updateUsernameInput,
+    userInfoInputArray,
+    updateTagInput,
+    resolveToUser,
+    otherUserInfos,
+    userSearchResults,
+  }) {
+    const styles = useStyles(unboundStyles);
 
-  const [userListItems, nonFriends] = React.useMemo(() => {
-    const nonFriendsSet = new Set();
-    if (userInfoInputArray.length > 0) {
-      return [userSearchResults, nonFriendsSet];
-    }
-
-    const userListItemsArr = [];
-    for (const searchResult of userSearchResults) {
-      if (searchResult.notice !== notFriendNotice) {
-        userListItemsArr.push(searchResult);
-        continue;
+    const [userListItems, nonFriends] = React.useMemo(() => {
+      const nonFriendsSet = new Set();
+      if (userInfoInputArray.length > 0) {
+        return [userSearchResults, nonFriendsSet];
       }
-      nonFriendsSet.add(searchResult.id);
-      const { alertText, alertTitle, ...rest } = searchResult;
-      userListItemsArr.push(rest);
-    }
-    return [userListItemsArr, nonFriendsSet];
-  }, [userSearchResults, userInfoInputArray]);
 
-  const onUserSelect = React.useCallback(
-    (userID: string) => {
-      for (const existingUserInfo of userInfoInputArray) {
-        if (userID === existingUserInfo.id) {
+      const userListItemsArr = [];
+      for (const searchResult of userSearchResults) {
+        if (searchResult.notice !== notFriendNotice) {
+          userListItemsArr.push(searchResult);
+          continue;
+        }
+        nonFriendsSet.add(searchResult.id);
+        const { alertText, alertTitle, ...rest } = searchResult;
+        userListItemsArr.push(rest);
+      }
+      return [userListItemsArr, nonFriendsSet];
+    }, [userSearchResults, userInfoInputArray]);
+
+    const onUserSelect = React.useCallback(
+      (userID: string) => {
+        for (const existingUserInfo of userInfoInputArray) {
+          if (userID === existingUserInfo.id) {
+            return;
+          }
+        }
+        const userInfo = otherUserInfos[userID];
+        if (nonFriends.has(userID)) {
+          resolveToUser(userInfo);
           return;
         }
-      }
-      const userInfo = otherUserInfos[userID];
-      if (nonFriends.has(userID)) {
-        resolveToUser(userInfo);
-        return;
-      }
-      const newUserInfoInputArray = [...userInfoInputArray, userInfo];
-      updateUsernameInput('');
-      updateTagInput(newUserInfoInputArray);
-    },
-    [
-      userInfoInputArray,
-      nonFriends,
-      otherUserInfos,
-      updateTagInput,
-      resolveToUser,
-      updateUsernameInput,
-    ],
-  );
-
-  const tagDataLabelExtractor = React.useCallback(
-    (userInfo: AccountUserInfo) => userInfo.username,
-    [],
-  );
-
-  const isSearchResultVisible =
-    (userInfoInputArray.length === 0 || usernameInputText.length > 0) &&
-    userSearchResults.length > 0;
-
-  let separator = null;
-  let userList = null;
-  let userSelectionAdditionalStyles = styles.userSelectionLimitedHeight;
-  if (isSearchResultVisible) {
-    userList = (
-      <View style={styles.userList}>
-        <UserList userInfos={userListItems} onSelect={onUserSelect} />
-      </View>
+        const newUserInfoInputArray = [...userInfoInputArray, userInfo];
+        updateUsernameInput('');
+        updateTagInput(newUserInfoInputArray);
+      },
+      [
+        userInfoInputArray,
+        nonFriends,
+        otherUserInfos,
+        updateTagInput,
+        resolveToUser,
+        updateUsernameInput,
+      ],
     );
-    separator = <View style={styles.separator} />;
-    userSelectionAdditionalStyles = null;
-  }
 
-  return (
-    <>
-      <View style={[styles.userSelection, userSelectionAdditionalStyles]}>
-        <View style={styles.tagInputContainer}>
-          <Text style={styles.tagInputLabel}>To: </Text>
-          <View style={styles.tagInput}>
-            <TagInput
-              value={userInfoInputArray}
-              onChange={updateTagInput}
-              text={usernameInputText}
-              onChangeText={updateUsernameInput}
-              labelExtractor={tagDataLabelExtractor}
-              inputProps={inputProps}
-            />
-          </View>
+    const tagDataLabelExtractor = React.useCallback(
+      (userInfo: AccountUserInfo) => userInfo.username,
+      [],
+    );
+
+    const isSearchResultVisible =
+      (userInfoInputArray.length === 0 || usernameInputText.length > 0) &&
+      userSearchResults.length > 0;
+
+    let separator = null;
+    let userList = null;
+    let userSelectionAdditionalStyles = styles.userSelectionLimitedHeight;
+    if (isSearchResultVisible) {
+      userList = (
+        <View style={styles.userList}>
+          <UserList userInfos={userListItems} onSelect={onUserSelect} />
         </View>
-        {userList}
-      </View>
-      {separator}
-    </>
-  );
-});
+      );
+      separator = <View style={styles.separator} />;
+      userSelectionAdditionalStyles = null;
+    }
+
+    return (
+      <>
+        <View style={[styles.userSelection, userSelectionAdditionalStyles]}>
+          <View style={styles.tagInputContainer}>
+            <Text style={styles.tagInputLabel}>To: </Text>
+            <View style={styles.tagInput}>
+              <TagInput
+                value={userInfoInputArray}
+                onChange={updateTagInput}
+                text={usernameInputText}
+                onChangeText={updateUsernameInput}
+                labelExtractor={tagDataLabelExtractor}
+                inputProps={inputProps}
+              />
+            </View>
+          </View>
+          {userList}
+        </View>
+        {separator}
+      </>
+    );
+  },
+);
 
 const unboundStyles = {
   userSelection: {
@@ -164,3 +166,5 @@ const unboundStyles = {
     backgroundColor: 'modalForegroundBorder',
   },
 };
+
+export default MessageListThreadSearch;

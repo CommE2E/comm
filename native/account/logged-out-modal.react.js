@@ -29,7 +29,6 @@ import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
-import type { EmitterSubscription } from '../types/react-native';
 import {
   type KeyboardEvent,
   addKeyboardShowListener,
@@ -46,6 +45,7 @@ import {
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
 import { splashStyleSelector } from '../splash';
+import type { EmitterSubscription } from '../types/react-native';
 import type { ImageStyle } from '../types/styles';
 import {
   runTiming,
@@ -619,9 +619,9 @@ const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
 );
 
-export default React.memo<{ ... }>(function ConnectedLoggedOutModal(props: {
+const ConnectedLoggedOutModal: React.ComponentType<{ ... }> = React.memo<{
   ...
-}) {
+}>(function ConnectedLoggedOutModal(props: { ... }) {
   const navContext = React.useContext(NavContext);
   const isForeground = isForegroundSelector(navContext);
 
@@ -649,3 +649,5 @@ export default React.memo<{ ... }>(function ConnectedLoggedOutModal(props: {
     />
   );
 });
+
+export default ConnectedLoggedOutModal;

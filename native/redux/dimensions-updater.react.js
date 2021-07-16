@@ -49,14 +49,14 @@ function dimensionsUpdateFromMetrics(metrics: ?Metrics): BaseDimensionsInfo {
 }
 
 const defaultDimensionsInfo = {
-  ...dimensionsUpdateFromMetrics(initialWindowMetrics),
+  ...(dimensionsUpdateFromMetrics(initialWindowMetrics): BaseDimensionsInfo),
   tabBarHeight: 50,
   rotated: false,
 };
 const defaultIsPortrait =
   defaultDimensionsInfo.height >= defaultDimensionsInfo.width;
 
-function DimensionsUpdater() {
+function DimensionsUpdater(): null {
   const dimensions = useSelector(state => state.dimensions);
   const dispatch = useDispatch();
 

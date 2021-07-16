@@ -13,7 +13,7 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
   lastMessageSent: ?string;
   queuedResolve: ?() => mixed;
 
-  onChangeText = (inputText: string) => {
+  onChangeText: (inputText: string) => void = inputText => {
     let text;
     if (this.lastMessageSent && inputText.startsWith(this.lastMessageSent)) {
       text = inputText.substring(this.lastMessageSent.length);
@@ -48,7 +48,7 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
     }
   }
 
-  render() {
+  render(): React.Node {
     const { textInputRef, ...props } = this.props;
     return (
       <View style={styles.textInputContainer}>
@@ -61,7 +61,9 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
     );
   }
 
-  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
+  textInputRef: (
+    textInput: ?React.ElementRef<typeof TextInput>,
+  ) => void = textInput => {
     this.textInput = textInput;
     this.props.textInputRef(textInput);
   };

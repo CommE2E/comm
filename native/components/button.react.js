@@ -14,7 +14,14 @@ import type { ViewStyle } from '../types/styles';
 
 const ANDROID_VERSION_LOLLIPOP = 21;
 
+type DefaultProps = {
+  +androidBorderlessRipple: boolean,
+  +iosFormat: 'highlight' | 'opacity',
+  +iosActiveOpacity: number,
+  +androidFormat: 'ripple' | 'highlight' | 'opacity',
+};
 type Props = {
+  ...DefaultProps,
   +onPress: () => *,
   +disabled?: boolean,
   +style?: ViewStyle,
@@ -24,21 +31,17 @@ type Props = {
   // colors etc.
   +topStyle?: ViewStyle,
   +children?: React.Node,
-  +androidBorderlessRipple: boolean,
-  +iosFormat: 'highlight' | 'opacity',
-  +androidFormat: 'ripple' | 'highlight' | 'opacity',
   +iosHighlightUnderlayColor?: string,
-  +iosActiveOpacity: number,
 };
 class Button extends React.PureComponent<Props> {
-  static defaultProps = {
+  static defaultProps: DefaultProps = {
     androidBorderlessRipple: false,
     iosFormat: 'opacity',
     androidFormat: 'ripple',
     iosActiveOpacity: 0.2,
   };
 
-  render() {
+  render(): React.Node {
     if (
       Platform.OS === 'android' &&
       this.props.androidFormat === 'ripple' &&

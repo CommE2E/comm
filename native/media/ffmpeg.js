@@ -3,7 +3,11 @@
 import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 
 import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils';
-import type { FFmpegStatistics } from 'lib/types/media-types';
+import type {
+  Dimensions,
+  FFmpegStatistics,
+  VideoInfo,
+} from 'lib/types/media-types';
 
 const maxSimultaneousCalls = {
   process: 1,
@@ -78,7 +82,7 @@ class FFmpeg {
     ffmpegCommand: string,
     inputVideoDuration: number,
     onTranscodingProgress: (percent: number) => void,
-  ) {
+  ): Promise<{ rc: number, lastStats: ?FFmpegStatistics }> {
     const duration = inputVideoDuration > 0 ? inputVideoDuration : 0.001;
     const wrappedCommand = async () => {
       RNFFmpegConfig.resetStatistics();
@@ -96,24 +100,27 @@ class FFmpeg {
     return this.queueCommand('process', wrappedCommand);
   }
 
-  generateThumbnail(videoPath: string, outputPath: string) {
+  generateThumbnail(videoPath: string, outputPath: string): Promise<number> {
     const wrappedCommand = () =>
       FFmpeg.innerGenerateThumbnail(videoPath, outputPath);
     return this.queueCommand('process', wrappedCommand);
   }
 
-  static async innerGenerateThumbnail(videoPath: string, outputPath: string) {
+  static async innerGenerateThumbnail(
+    videoPath: string,
+    outputPath: string,
+  ): Promise<number> {
     const thumbnailCommand = `-i ${videoPath} -frames 1 -f singlejpeg ${outputPath}`;
     const { rc } = await RNFFmpeg.execute(thumbnailCommand);
     return rc;
   }
 
-  getVideoInfo(path: string) {
+  getVideoInfo(path: string): Promise<VideoInfo> {
     const wrappedCommand = () => FFmpeg.innerGetVideoInfo(path);
     return this.queueCommand('probe', wrappedCommand);
   }
 
-  static async innerGetVideoInfo(path: string) {
+  static async innerGetVideoInfo(path: string): Promise<VideoInfo> {
     const info = await RNFFprobe.getMediaInformation(path);
     const videoStreamInfo = FFmpeg.getVideoStreamInfo(info);
     const codec = videoStreamInfo?.codec;
@@ -123,7 +130,9 @@ class FFmpeg {
     return { codec, format, dimensions, duration };
   }
 
-  static getVideoStreamInfo(info: Object) {
+  static getVideoStreamInfo(
+    info: Object,
+  ): ?{ +codec: string, +dimensions: Dimensions } {
     if (!info.streams) {
       return null;
     }
@@ -138,12 +147,12 @@ class FFmpeg {
     return null;
   }
 
-  hasMultipleFrames(path: string) {
+  hasMultipleFrames(path: string): Promise<boolean> {
     const wrappedCommand = () => FFmpeg.innerHasMultipleFrames(path);
     return this.queueCommand('probe', wrappedCommand);
   }
 
-  static async innerHasMultipleFrames(path: string) {
+  static async innerHasMultipleFrames(path: string): Promise<boolean> {
     await RNFFprobe.execute(getHasMultipleFramesProbeCommand(path));
     const probeOutput = await RNFFmpegConfig.getLastCommandOutput();
     const numFrames = parseInt(probeOutput.lastCommandOutput);
@@ -151,6 +160,6 @@ class FFmpeg {
   }
 }
 
-const ffmpeg = new FFmpeg();
+const ffmpeg: FFmpeg = new FFmpeg();
 
 export { ffmpeg };

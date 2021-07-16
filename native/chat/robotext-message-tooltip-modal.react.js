@@ -1,9 +1,12 @@
 // @flow
 
+import * as React from 'react';
+
 import {
   createTooltip,
   tooltipHeight,
   type TooltipParams,
+  type BaseTooltipProps,
 } from '../navigation/tooltip.react';
 import RobotextMessageTooltipButton from './robotext-message-tooltip-button.react';
 import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
@@ -28,10 +31,13 @@ const spec = {
   ],
 };
 
-const RobotextMessageTooltipModal = createTooltip<
-  'RobotextMessageTooltipModal',
->(RobotextMessageTooltipButton, spec);
+const RobotextMessageTooltipModal: React.ComponentType<
+  BaseTooltipProps<'RobotextMessageTooltipModal'>,
+> = createTooltip<'RobotextMessageTooltipModal'>(
+  RobotextMessageTooltipButton,
+  spec,
+);
 
-const robotextMessageTooltipHeight = tooltipHeight(spec.entries.length);
+const robotextMessageTooltipHeight: number = tooltipHeight(spec.entries.length);
 
 export { RobotextMessageTooltipModal, robotextMessageTooltipHeight };

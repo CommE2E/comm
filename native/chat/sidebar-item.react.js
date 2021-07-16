@@ -19,7 +19,7 @@ type Props = {|
   +style?: ?ViewStyle,
   +unreadIndicator?: boolean,
 |};
-function SidebarItem(props: Props) {
+function SidebarItem(props: Props): React.Node {
   const { lastUpdatedTime } = props.sidebarInfo;
   const lastActivity = shortAbsoluteDate(lastUpdatedTime);
 

@@ -276,8 +276,8 @@ const persistConfig = {
   ],
   debug: __DEV__,
   version: 27,
-  migrate: createMigrate(migrations, { debug: __DEV__ }),
-  timeout: __DEV__ ? 0 : undefined,
+  migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
+  timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
 
 const codeVersion = 91;
@@ -289,7 +289,7 @@ let storedPersistor = null;
 function setPersistor(persistor: *) {
   storedPersistor = persistor;
 }
-function getPersistor() {
+function getPersistor(): empty {
   invariant(storedPersistor, 'should be set');
   return storedPersistor;
 }

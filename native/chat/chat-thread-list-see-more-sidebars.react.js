@@ -16,7 +16,7 @@ type Props = {|
   +showingSidebarsInline: boolean,
   +onPress: (threadInfo: ThreadInfo) => void,
 |};
-function ChatThreadListSeeMoreSidebars(props: Props) {
+function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   const { onPress, threadInfo, unread, showingSidebarsInline } = props;
   const onPressButton = React.useCallback(() => onPress(threadInfo), [
     onPress,

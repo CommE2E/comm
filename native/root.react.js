@@ -273,11 +273,13 @@ const styles = StyleSheet.create({
   },
 });
 
-const AppRoot = () => (
-  <Provider store={store}>
-    <ErrorBoundary>
-      <Root />
-    </ErrorBoundary>
-  </Provider>
-);
+function AppRoot(): React.Node {
+  return (
+    <Provider store={store}>
+      <ErrorBoundary>
+        <Root />
+      </ErrorBoundary>
+    </Provider>
+  );
+}
 export default AppRoot;

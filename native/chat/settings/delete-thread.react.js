@@ -276,36 +276,40 @@ const loadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedDeleteThread(
-  props: BaseProps,
-) {
-  const threadID = props.route.params.threadInfo.id;
-  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
+const ConnectedDeleteThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedDeleteThread(props: BaseProps) {
+    const threadID = props.route.params.threadInfo.id;
+    const threadInfo = useSelector(
+      state => threadInfoSelector(state)[threadID],
+    );
 
-  const loadingStatus = useSelector(loadingStatusSelector);
-  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+    const loadingStatus = useSelector(loadingStatusSelector);
+    const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
 
-  const colors = useColors();
-  const styles = useStyles(unboundStyles);
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callDeleteThread = useServerCall(deleteThread);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callDeleteThread = useServerCall(deleteThread);
 
-  const navContext = React.useContext(NavContext);
-  invariant(navContext, 'NavContext should be set in DeleteThread');
-  const navDispatch = navContext.dispatch;
+    const navContext = React.useContext(NavContext);
+    invariant(navContext, 'NavContext should be set in DeleteThread');
+    const navDispatch = navContext.dispatch;
 
-  return (
-    <DeleteThread
-      {...props}
-      threadInfo={threadInfo}
-      loadingStatus={loadingStatus}
-      activeTheme={activeTheme}
-      colors={colors}
-      styles={styles}
-      dispatchActionPromise={dispatchActionPromise}
-      deleteThread={callDeleteThread}
-      navDispatch={navDispatch}
-    />
-  );
-});
+    return (
+      <DeleteThread
+        {...props}
+        threadInfo={threadInfo}
+        loadingStatus={loadingStatus}
+        activeTheme={activeTheme}
+        colors={colors}
+        styles={styles}
+        dispatchActionPromise={dispatchActionPromise}
+        deleteThread={callDeleteThread}
+        navDispatch={navDispatch}
+      />
+    );
+  },
+);
+
+export default ConnectedDeleteThread;

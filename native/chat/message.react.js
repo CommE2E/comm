@@ -36,7 +36,7 @@ export type ChatMessageInfoItemWithHeight =
   | ChatTextMessageInfoItemWithHeight
   | ChatMultimediaMessageInfoItem;
 
-function messageItemHeight(item: ChatMessageInfoItemWithHeight) {
+function messageItemHeight(item: ChatMessageInfoItemWithHeight): number {
   let height = 0;
   if (item.messageShapeType === 'text') {
     height += textMessageItemHeight(item);
@@ -152,11 +152,11 @@ class Message extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedMessage = React.memo<BaseProps>(function ConnectedMessage(
-  props: BaseProps,
-) {
-  const keyboardState = React.useContext(KeyboardContext);
-  return <Message {...props} keyboardState={keyboardState} />;
-});
+const ConnectedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedMessage(props: BaseProps) {
+    const keyboardState = React.useContext(KeyboardContext);
+    return <Message {...props} keyboardState={keyboardState} />;
+  },
+);
 
 export { ConnectedMessage as Message, messageItemHeight };

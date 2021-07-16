@@ -148,24 +148,26 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedColorPickerModal(
-  props: BaseProps,
-) {
-  const styles = useStyles(unboundStyles);
-  const colors = useColors();
-  const windowWidth = useSelector(state => state.dimensions.width);
+const ConnectedColorPickerModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedColorPickerModal(props: BaseProps) {
+    const styles = useStyles(unboundStyles);
+    const colors = useColors();
+    const windowWidth = useSelector(state => state.dimensions.width);
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callChangeThreadSettings = useServerCall(changeThreadSettings);
 
-  return (
-    <ColorPickerModal
-      {...props}
-      styles={styles}
-      colors={colors}
-      windowWidth={windowWidth}
-      dispatchActionPromise={dispatchActionPromise}
-      changeThreadSettings={callChangeThreadSettings}
-    />
-  );
-});
+    return (
+      <ColorPickerModal
+        {...props}
+        styles={styles}
+        colors={colors}
+        windowWidth={windowWidth}
+        dispatchActionPromise={dispatchActionPromise}
+        changeThreadSettings={callChangeThreadSettings}
+      />
+    );
+  },
+);
+
+export default ConnectedColorPickerModal;

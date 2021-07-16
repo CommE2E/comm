@@ -269,21 +269,25 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo<BaseProps>(function ConnectedCrash(props: BaseProps) {
-  const preRequestUserState = useSelector(preRequestUserStateSelector);
+const ConnectedCrash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedCrash(props: BaseProps) {
+    const preRequestUserState = useSelector(preRequestUserStateSelector);
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callSendReport = useServerCall(sendReport);
-  const callLogOut = useServerCall(logOut);
-  const crashReportingEnabled = useIsReportEnabled('crashReports');
-  return (
-    <Crash
-      {...props}
-      preRequestUserState={preRequestUserState}
-      dispatchActionPromise={dispatchActionPromise}
-      sendReport={callSendReport}
-      logOut={callLogOut}
-      crashReportingEnabled={crashReportingEnabled}
-    />
-  );
-});
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callSendReport = useServerCall(sendReport);
+    const callLogOut = useServerCall(logOut);
+    const crashReportingEnabled = useIsReportEnabled('crashReports');
+    return (
+      <Crash
+        {...props}
+        preRequestUserState={preRequestUserState}
+        dispatchActionPromise={dispatchActionPromise}
+        sendReport={callSendReport}
+        logOut={callLogOut}
+        crashReportingEnabled={crashReportingEnabled}
+      />
+    );
+  },
+);
+
+export default ConnectedCrash;

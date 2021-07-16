@@ -36,7 +36,7 @@ export type ChatRobotextMessageInfoItemWithHeight = {|
 
 function robotextMessageItemHeight(
   item: ChatRobotextMessageInfoItemWithHeight,
-) {
+): number {
   if (item.threadCreatedFromMessage) {
     return item.contentHeight + inlineSidebarHeight;
   }
@@ -52,7 +52,7 @@ type Props = {|
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
 |};
-function RobotextMessage(props: Props) {
+function RobotextMessage(props: Props): React.Node {
   const {
     item,
     navigation,

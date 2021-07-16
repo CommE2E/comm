@@ -17,7 +17,7 @@ type Props = {|
   +focused: boolean,
   +display: DisplayType,
 |};
-function MessageHeader(props: Props) {
+function MessageHeader(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { item, focused, display } = props;
   const { creator, time } = item.messageInfo;

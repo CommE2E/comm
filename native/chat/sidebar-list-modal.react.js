@@ -33,7 +33,7 @@ type Props = {|
   +navigation: RootNavigationProp<'SidebarListModal'>,
   +route: NavigationRoute<'SidebarListModal'>,
 |};
-function SidebarListModal(props: Props) {
+function SidebarListModal(props: Props): React.Node {
   const threadID = props.route.params.threadInfo.id;
   const sidebarInfos = useSelector(
     state => sidebarInfoSelector(state)[threadID] ?? [],

@@ -50,8 +50,6 @@ suppress_type=$FlowFixMe
 suppress_type=$FlowFixMeProps
 suppress_type=$FlowFixMeState
 
-types_first=false
-
 [lints]
 sketchy-null-number=warn
 sketchy-null-mixed=warn

@@ -535,38 +535,40 @@ const unboundStyles = {
 registerFetchKey(searchUsersActionTypes);
 registerFetchKey(updateRelationshipsActionTypes);
 
-export default React.memo<BaseProps>(function ConnectedRelationshipList(
-  props: BaseProps,
-) {
-  const relationships = useSelector(userRelationshipsSelector);
-  const userInfos = useSelector(state => state.userStore.userInfos);
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
-  const styles = useStyles(unboundStyles);
-  const indicatorStyle = useIndicatorStyle();
-  const overlayContext = React.useContext(OverlayContext);
-  const keyboardState = React.useContext(KeyboardContext);
+const ConnectedRelationshipList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedRelationshipList(props: BaseProps) {
+    const relationships = useSelector(userRelationshipsSelector);
+    const userInfos = useSelector(state => state.userStore.userInfos);
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
+    const styles = useStyles(unboundStyles);
+    const indicatorStyle = useIndicatorStyle();
+    const overlayContext = React.useContext(OverlayContext);
+    const keyboardState = React.useContext(KeyboardContext);
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callSearchUsers = useServerCall(searchUsers);
-  const callUpdateRelationships = useServerCall(updateRelationships);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callSearchUsers = useServerCall(searchUsers);
+    const callUpdateRelationships = useServerCall(updateRelationships);
 
-  return (
-    <RelationshipList
-      {...props}
-      relationships={relationships}
-      userInfos={userInfos}
-      viewerID={viewerID}
-      userStoreSearchIndex={userStoreSearchIndex}
-      styles={styles}
-      indicatorStyle={indicatorStyle}
-      overlayContext={overlayContext}
-      keyboardState={keyboardState}
-      dispatchActionPromise={dispatchActionPromise}
-      searchUsers={callSearchUsers}
-      updateRelationships={callUpdateRelationships}
-    />
-  );
-});
+    return (
+      <RelationshipList
+        {...props}
+        relationships={relationships}
+        userInfos={userInfos}
+        viewerID={viewerID}
+        userStoreSearchIndex={userStoreSearchIndex}
+        styles={styles}
+        indicatorStyle={indicatorStyle}
+        overlayContext={overlayContext}
+        keyboardState={keyboardState}
+        dispatchActionPromise={dispatchActionPromise}
+        searchUsers={callSearchUsers}
+        updateRelationships={callUpdateRelationships}
+      />
+    );
+  },
+);
+
+export default ConnectedRelationshipList;

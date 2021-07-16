@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedComposedMessage = React.memo<BaseProps>(
+const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedComposedMessage(props: BaseProps) {
     const composedMessageMaxWidth = useSelector(
       composedMessageMaxWidthSelector,

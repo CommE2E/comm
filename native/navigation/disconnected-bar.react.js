@@ -19,7 +19,7 @@ const timingConfig = {
 type Props = {|
   +visible: boolean,
 |};
-function DisconnectedBar(props: Props) {
+function DisconnectedBar(props: Props): React.Node {
   const disconnected = useSelector(
     state => state.connection.showDisconnectedBar,
   );

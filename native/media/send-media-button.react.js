@@ -20,7 +20,7 @@ type Props = {|
   containerStyle?: ViewStyle,
   style?: ViewStyle,
 |};
-function SendMediaButton(props: Props) {
+function SendMediaButton(props: Props): React.Node {
   const {
     onPress,
     queueCount,

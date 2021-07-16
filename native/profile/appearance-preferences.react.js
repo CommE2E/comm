@@ -150,21 +150,25 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<{ ... }>(
-  function ConnectedAppearancePreferences(props: { ... }) {
-    const globalThemeInfo = useSelector(state => state.globalThemeInfo);
-    const styles = useStyles(unboundStyles);
-    const colors = useColors();
-    const dispatch = useDispatch();
+const ConnectedAppearancePreferences: React.ComponentType<{
+  ...
+}> = React.memo<{ ... }>(function ConnectedAppearancePreferences(props: {
+  ...
+}) {
+  const globalThemeInfo = useSelector(state => state.globalThemeInfo);
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+  const dispatch = useDispatch();
 
-    return (
-      <AppearancePreferences
-        {...props}
-        globalThemeInfo={globalThemeInfo}
-        styles={styles}
-        colors={colors}
-        dispatch={dispatch}
-      />
-    );
-  },
-);
+  return (
+    <AppearancePreferences
+      {...props}
+      globalThemeInfo={globalThemeInfo}
+      styles={styles}
+      colors={colors}
+      dispatch={dispatch}
+    />
+  );
+});
+
+export default ConnectedAppearancePreferences;

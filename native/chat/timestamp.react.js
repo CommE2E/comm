@@ -13,7 +13,7 @@ type Props = {|
   +time: number,
   +display: DisplayType,
 |};
-function Timestamp(props: Props) {
+function Timestamp(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const style = [styles.timestamp];
   if (props.display === 'modal') {

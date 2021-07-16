@@ -29,12 +29,12 @@ type Props = {|
     initialCoordinates: LayoutCoordinates,
   ) => void,
   +clickable: boolean,
-  +setClickable: (boolean) => void,
+  +setClickable: boolean => void,
   +onPress?: () => void,
   +onLongPress?: () => void,
 |};
 class InnerMultimediaMessage extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     const { item } = this.props;
     const containerStyle = {
       height: item.contentHeight,

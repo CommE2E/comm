@@ -14,11 +14,13 @@ export type MessagesMeasurer = (
   ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
 ) => void;
 
+export type RegisteredMeasurer = {|
+  +measure: MessagesMeasurer,
+  +unregister: () => void,
+|};
+
 export type ChatContextType = {|
-  +registerMeasurer: () => {|
-    +measure: MessagesMeasurer,
-    +unregister: () => void,
-  |},
+  +registerMeasurer: () => RegisteredMeasurer,
 |};
 const ChatContext: React.Context<?ChatContextType> = React.createContext(null);
 

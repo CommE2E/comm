@@ -107,10 +107,12 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo<BaseProps>(function ConnectedRemoteImage(
-  props: BaseProps,
-) {
-  const connectionStatus = useSelector(state => state.connection.status);
+const ConnectedRemoteImage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedRemoteImage(props: BaseProps) {
+    const connectionStatus = useSelector(state => state.connection.status);
 
-  return <RemoteImage {...props} connectionStatus={connectionStatus} />;
-});
+    return <RemoteImage {...props} connectionStatus={connectionStatus} />;
+  },
+);
+
+export default ConnectedRemoteImage;

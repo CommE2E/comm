@@ -6,7 +6,8 @@ import { View, Text, ScrollView } from 'react-native';
 import { persistConfig, codeVersion } from '../redux/persist';
 import { useStyles } from '../themes/colors';
 
-function BuildInfo() {
+// eslint-disable-next-line no-unused-vars
+function BuildInfo(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <ScrollView

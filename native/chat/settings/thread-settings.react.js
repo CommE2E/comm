@@ -50,8 +50,8 @@ import {
   AddUsersModalRouteName,
   ComposeSubthreadModalRouteName,
 } from '../../navigation/route-names';
-import type { AppState } from '../../redux/state-types';
 import { useSelector } from '../../redux/redux-utils';
+import type { AppState } from '../../redux/state-types';
 import {
   useStyles,
   type IndicatorStyle,
@@ -1101,50 +1101,52 @@ const somethingIsSaving = (
   return false;
 };
 
-export default React.memo<BaseProps>(function ConnectedThreadSettings(
-  props: BaseProps,
-) {
-  const userInfos = useSelector(state => state.userStore.userInfos);
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const threadID = props.route.params.threadInfo.id;
-  const threadInfo: ?ThreadInfo = useSelector(
-    state => threadInfoSelector(state)[threadID],
-  );
-  const parentThreadID = threadInfo
-    ? threadInfo.parentThreadID
-    : props.route.params.threadInfo.parentThreadID;
-  const parentThreadInfo: ?ThreadInfo = useSelector(state =>
-    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-  );
-  const threadMembers = useSelector(
-    relativeMemberInfoSelectorForMembersOfThread(threadID),
-  );
-  const boundChildThreadInfos = useSelector(
-    state => childThreadInfos(state)[threadID],
-  );
-  const boundSomethingIsSaving = useSelector(state =>
-    somethingIsSaving(state, threadMembers),
-  );
-  const styles = useStyles(unboundStyles);
-  const indicatorStyle = useIndicatorStyle();
-  const overlayContext = React.useContext(OverlayContext);
-  const keyboardState = React.useContext(KeyboardContext);
-  return (
-    <ThreadSettings
-      {...props}
-      userInfos={userInfos}
-      viewerID={viewerID}
-      threadInfo={threadInfo}
-      parentThreadInfo={parentThreadInfo}
-      threadMembers={threadMembers}
-      childThreadInfos={boundChildThreadInfos}
-      somethingIsSaving={boundSomethingIsSaving}
-      styles={styles}
-      indicatorStyle={indicatorStyle}
-      overlayContext={overlayContext}
-      keyboardState={keyboardState}
-    />
-  );
-});
+const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedThreadSettings(props: BaseProps) {
+    const userInfos = useSelector(state => state.userStore.userInfos);
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const threadID = props.route.params.threadInfo.id;
+    const threadInfo: ?ThreadInfo = useSelector(
+      state => threadInfoSelector(state)[threadID],
+    );
+    const parentThreadID = threadInfo
+      ? threadInfo.parentThreadID
+      : props.route.params.threadInfo.parentThreadID;
+    const parentThreadInfo: ?ThreadInfo = useSelector(state =>
+      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
+    const threadMembers = useSelector(
+      relativeMemberInfoSelectorForMembersOfThread(threadID),
+    );
+    const boundChildThreadInfos = useSelector(
+      state => childThreadInfos(state)[threadID],
+    );
+    const boundSomethingIsSaving = useSelector(state =>
+      somethingIsSaving(state, threadMembers),
+    );
+    const styles = useStyles(unboundStyles);
+    const indicatorStyle = useIndicatorStyle();
+    const overlayContext = React.useContext(OverlayContext);
+    const keyboardState = React.useContext(KeyboardContext);
+    return (
+      <ThreadSettings
+        {...props}
+        userInfos={userInfos}
+        viewerID={viewerID}
+        threadInfo={threadInfo}
+        parentThreadInfo={parentThreadInfo}
+        threadMembers={threadMembers}
+        childThreadInfos={boundChildThreadInfos}
+        somethingIsSaving={boundSomethingIsSaving}
+        styles={styles}
+        indicatorStyle={indicatorStyle}
+        overlayContext={overlayContext}
+        keyboardState={keyboardState}
+      />
+    );
+  },
+);
+
+export default ConnectedThreadSettings;

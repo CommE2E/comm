@@ -32,7 +32,9 @@ import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import { messageItemHeight } from './message.react';
 import NewMessagesPill from './new-messages-pill.react';
 
-function chatMessageItemKey(item: ChatMessageItemWithHeight | ChatMessageItem) {
+function chatMessageItemKey(
+  item: ChatMessageItemWithHeight | ChatMessageItem,
+): string {
   if (item.itemType === 'loader') {
     return 'loader';
   }
@@ -305,16 +307,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const ConnectedChatList = React.memo<BaseProps>(function ConnectedChatList(
-  props: BaseProps,
-) {
-  const keyboardState = React.useContext(KeyboardContext);
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  return (
-    <ChatList {...props} keyboardState={keyboardState} viewerID={viewerID} />
-  );
-});
+const ConnectedChatList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedChatList(props: BaseProps) {
+    const keyboardState = React.useContext(KeyboardContext);
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    return (
+      <ChatList {...props} keyboardState={keyboardState} viewerID={viewerID} />
+    );
+  },
+);
 
 export { ConnectedChatList as ChatList, chatMessageItemKey };

@@ -11,7 +11,7 @@ import Button from './button.react';
 import { SingleLine } from './single-line.react';
 
 // eslint-disable-next-line no-unused-vars
-const getUserListItemHeight = (item: UserListItem) => {
+const getUserListItemHeight = (item: UserListItem): number => {
   // TODO consider parent thread notice
   return Platform.OS === 'ios' ? 31.5 : 33.5;
 };
@@ -83,7 +83,7 @@ const unboundStyles = {
   },
 };
 
-const ConnectedUserListUser = React.memo<BaseProps>(
+const ConnectedUserListUser: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedUserListUser(props: BaseProps) {
     const colors = useColors();
     const styles = useStyles(unboundStyles);

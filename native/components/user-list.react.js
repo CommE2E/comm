@@ -1,7 +1,7 @@
 // @flow
 
 import _sum from 'lodash/fp/sum';
-import React from 'react';
+import * as React from 'react';
 import { FlatList } from 'react-native';
 
 import type { UserListItem } from 'lib/types/user-types';
@@ -63,9 +63,11 @@ class UserList extends React.PureComponent<Props> {
   }
 }
 
-export default React.memo<BaseProps>(function ConnectedUserList(
-  props: BaseProps,
-) {
-  const indicatorStyle = useIndicatorStyle();
-  return <UserList {...props} indicatorStyle={indicatorStyle} />;
-});
+const ConnectedUserList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedUserList(props: BaseProps) {
+    const indicatorStyle = useIndicatorStyle();
+    return <UserList {...props} indicatorStyle={indicatorStyle} />;
+  },
+);
+
+export default ConnectedUserList;

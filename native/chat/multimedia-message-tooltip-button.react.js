@@ -54,4 +54,8 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
   );
 }
 
-export default React.memo<Props>(MultimediaMessageTooltipButton);
+const ConnectedMultimediaMessageTooltipButton: React.ComponentType<Props> = React.memo<Props>(
+  MultimediaMessageTooltipButton,
+);
+
+export default ConnectedMultimediaMessageTooltipButton;

@@ -7,7 +7,7 @@ import { updateDisconnectedBarActionType } from 'lib/types/socket-types';
 
 import { useSelector } from '../redux/redux-utils';
 
-function DisconnectedBarVisibilityHandler() {
+function DisconnectedBarVisibilityHandler(): null {
   const dispatch = useDispatch();
   const disconnected = useSelector(
     state => state.connection.showDisconnectedBar,

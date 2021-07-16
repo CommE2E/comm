@@ -9,43 +9,45 @@ import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import { appBecameInactive } from '../redux/redux-setup';
 import { addLifecycleListener } from './lifecycle';
 
-const LifecycleHandler = React.memo<{||}>(() => {
-  const dispatch = useDispatch();
+const LifecycleHandler: React.ComponentType<{}> = React.memo<{}>(
+  function LifecycleHandler() {
+    const dispatch = useDispatch();
 
-  const currentState = useSelector(state => state.lifecycleState);
-  const lastStateRef = React.useRef(currentState);
+    const currentState = useSelector(state => state.lifecycleState);
+    const lastStateRef = React.useRef(currentState);
 
-  const onLifecycleChange = React.useCallback(
-    (nextState: ?(LifecycleState | 'unknown')) => {
-      if (!nextState || nextState === 'unknown') {
-        return;
-      }
-      const lastState = lastStateRef.current;
-      lastStateRef.current = nextState;
-      if (nextState !== lastState) {
-        dispatch({
-          type: updateLifecycleStateActionType,
-          payload: nextState,
-        });
-      }
-      if (
-        lastState !== 'background' &&
-        lastState !== 'inactive' &&
-        (nextState === 'background' || nextState === 'inactive')
-      ) {
-        appBecameInactive();
-      }
-    },
-    [lastStateRef, dispatch],
-  );
+    const onLifecycleChange = React.useCallback(
+      (nextState: ?(LifecycleState | 'unknown')) => {
+        if (!nextState || nextState === 'unknown') {
+          return;
+        }
+        const lastState = lastStateRef.current;
+        lastStateRef.current = nextState;
+        if (nextState !== lastState) {
+          dispatch({
+            type: updateLifecycleStateActionType,
+            payload: nextState,
+          });
+        }
+        if (
+          lastState !== 'background' &&
+          lastState !== 'inactive' &&
+          (nextState === 'background' || nextState === 'inactive')
+        ) {
+          appBecameInactive();
+        }
+      },
+      [lastStateRef, dispatch],
+    );
 
-  React.useEffect(() => {
-    const subscription = addLifecycleListener(onLifecycleChange);
-    return () => subscription.remove();
-  }, [onLifecycleChange]);
+    React.useEffect(() => {
+      const subscription = addLifecycleListener(onLifecycleChange);
+      return () => subscription.remove();
+    }, [onLifecycleChange]);
 
-  return null;
-});
+    return null;
+  },
+);
 LifecycleHandler.displayName = 'LifecycleHandler';
 
 export default LifecycleHandler;

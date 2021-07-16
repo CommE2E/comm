@@ -49,7 +49,7 @@ const createIsForegroundSelector: (
   baseCreateIsForegroundSelector,
 );
 
-function useIsAppLoggedIn() {
+function useIsAppLoggedIn(): boolean {
   const navContext = React.useContext(NavContext);
   return React.useMemo(() => {
     if (!navContext) {
@@ -112,7 +112,7 @@ const scrollBlockingModalsClosedSelector: (
 function selectBackgroundIsDark(
   navigationState: ?PossiblyStaleNavigationState,
   theme: ?GlobalTheme,
-) {
+): boolean {
   if (!navigationState) {
     return false;
   }
@@ -185,7 +185,7 @@ const activeMessageListSelector: (
     activeThread(navigationState, messageListRouteNames),
 );
 
-function useActiveThread() {
+function useActiveThread(): ?string {
   const navContext = React.useContext(NavContext);
   return React.useMemo(() => {
     if (!navContext) {
@@ -196,7 +196,7 @@ function useActiveThread() {
   }, [navContext]);
 }
 
-function useActiveMessageList() {
+function useActiveMessageList(): ?string {
   const navContext = React.useContext(NavContext);
   return React.useMemo(() => {
     if (!navContext) {

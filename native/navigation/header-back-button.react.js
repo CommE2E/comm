@@ -6,7 +6,7 @@ import * as React from 'react';
 import { useColors } from '../themes/colors';
 
 type Props = React.ElementConfig<typeof BaseHeaderBackButton>;
-function HeaderBackButton(props: Props) {
+function HeaderBackButton(props: Props): React.Node {
   const { headerChevron } = useColors();
   if (!props.canGoBack) {
     return null;

@@ -18,4 +18,6 @@ export interface Spec extends TurboModule {
   +removeAllDrafts: () => Promise<void>;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('CommTurboModule');
+export default (TurboModuleRegistry.getEnforcing<Spec>(
+  'CommTurboModule',
+): Spec);

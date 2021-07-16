@@ -138,7 +138,7 @@ const Root = createRootNavigator<
   RootParamList,
   RootNavigationProp<>,
 >();
-const RootComponent = () => {
+function RootComponent(): React.Node {
   return (
     <Root.Navigator
       mode="modal"
@@ -188,5 +188,5 @@ const RootComponent = () => {
       />
     </Root.Navigator>
   );
-};
+}
 export default RootComponent;

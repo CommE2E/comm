@@ -338,33 +338,35 @@ const loadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedEditPassword(
-  props: BaseProps,
-) {
-  const loadingStatus = useSelector(loadingStatusSelector);
-  const username = useSelector(state => {
-    if (state.currentUserInfo && !state.currentUserInfo.anonymous) {
-      return state.currentUserInfo.username;
-    }
-    return undefined;
-  });
-  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
-  const colors = useColors();
-  const styles = useStyles(unboundStyles);
+const ConnectedEditPassword: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedEditPassword(props: BaseProps) {
+    const loadingStatus = useSelector(loadingStatusSelector);
+    const username = useSelector(state => {
+      if (state.currentUserInfo && !state.currentUserInfo.anonymous) {
+        return state.currentUserInfo.username;
+      }
+      return undefined;
+    });
+    const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeUserSettings = useServerCall(changeUserSettings);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callChangeUserSettings = useServerCall(changeUserSettings);
 
-  return (
-    <EditPassword
-      {...props}
-      loadingStatus={loadingStatus}
-      username={username}
-      activeTheme={activeTheme}
-      colors={colors}
-      styles={styles}
-      dispatchActionPromise={dispatchActionPromise}
-      changeUserSettings={callChangeUserSettings}
-    />
-  );
-});
+    return (
+      <EditPassword
+        {...props}
+        loadingStatus={loadingStatus}
+        username={username}
+        activeTheme={activeTheme}
+        colors={colors}
+        styles={styles}
+        dispatchActionPromise={dispatchActionPromise}
+        changeUserSettings={callChangeUserSettings}
+      />
+    );
+  },
+);
+
+export default ConnectedEditPassword;

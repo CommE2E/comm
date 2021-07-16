@@ -12,7 +12,7 @@ type Props = {|
   +canChangeSettings: boolean,
   +style?: TextStyle,
 |};
-function EditSettingButton(props: Props) {
+function EditSettingButton(props: Props): React.Node {
   const colors = useColors();
   if (!props.canChangeSettings) {
     return null;

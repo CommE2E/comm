@@ -4,7 +4,16 @@ import type { Corners } from 'lib/types/media-types';
 
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 
-function filterCorners(corners: Corners, item: ChatMessageInfoItemWithHeight) {
+type FilteredCorners = {
+  +bottomLeft: void | boolean,
+  +bottomRight: void | boolean,
+  +topLeft: void | boolean,
+  +topRight: void | boolean,
+};
+function filterCorners(
+  corners: Corners,
+  item: ChatMessageInfoItemWithHeight,
+): FilteredCorners {
   const { startsCluster, endsCluster } = item;
   const { isViewer } = item.messageInfo.creator;
   const { topLeft, topRight, bottomLeft, bottomRight } = corners;
@@ -16,14 +25,23 @@ function filterCorners(corners: Corners, item: ChatMessageInfoItemWithHeight) {
   };
 }
 
-const allCorners = {
+const allCorners: FilteredCorners = {
   topLeft: true,
   topRight: true,
   bottomLeft: true,
   bottomRight: true,
 };
 
-function getRoundedContainerStyle(corners: Corners, borderRadius?: number = 8) {
+type RoundedContainerStyle = {
+  +borderBottomLeftRadius: number,
+  +borderBottomRightRadius: number,
+  +borderTopLeftRadius: number,
+  +borderTopRightRadius: number,
+};
+function getRoundedContainerStyle(
+  corners: Corners,
+  borderRadius?: number = 8,
+): RoundedContainerStyle {
   const { topLeft, topRight, bottomLeft, bottomRight } = corners;
   return {
     borderTopLeftRadius: topLeft ? borderRadius : 0,

@@ -1,9 +1,12 @@
 // @flow
 
+import * as React from 'react';
+
 import {
   createTooltip,
   tooltipHeight,
   type TooltipParams,
+  type BaseTooltipProps,
 } from '../navigation/tooltip.react';
 import type { VerticalBounds } from '../types/layout-types';
 import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react';
@@ -30,10 +33,15 @@ const spec = {
   ],
 };
 
-const MultimediaMessageTooltipModal = createTooltip<
-  'MultimediaMessageTooltipModal',
->(MultimediaMessageTooltipButton, spec);
+const MultimediaMessageTooltipModal: React.ComponentType<
+  BaseTooltipProps<'MultimediaMessageTooltipModal'>,
+> = createTooltip<'MultimediaMessageTooltipModal'>(
+  MultimediaMessageTooltipButton,
+  spec,
+);
 
-const multimediaMessageTooltipHeight = tooltipHeight(spec.entries.length);
+const multimediaMessageTooltipHeight: number = tooltipHeight(
+  spec.entries.length,
+);
 
 export { MultimediaMessageTooltipModal, multimediaMessageTooltipHeight };

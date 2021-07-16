@@ -1,6 +1,6 @@
 // @flow
 
-import React from 'react';
+import * as React from 'react';
 import { StatusBar, Platform } from 'react-native';
 
 import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -12,7 +12,7 @@ type Props = {|
   +animated?: boolean,
   +hidden?: boolean,
 |};
-export default function ConnectedStatusBar(props: Props) {
+export default function ConnectedStatusBar(props: Props): React.Node {
   const globalLoadingStatus = useSelector(globalLoadingStatusSelector);
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const { barStyle: inBarStyle, ...statusBarProps } = props;

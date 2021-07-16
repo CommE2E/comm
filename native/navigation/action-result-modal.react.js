@@ -20,7 +20,7 @@ type Props = {|
   navigation: AppNavigationProp<'ActionResultModal'>,
   route: NavigationRoute<'ActionResultModal'>,
 |};
-function ActionResultModal(props: Props) {
+function ActionResultModal(props: Props): React.Node {
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'ActionResultModal should have OverlayContext');
   const { position } = overlayContext;

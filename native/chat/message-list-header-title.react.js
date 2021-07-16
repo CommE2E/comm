@@ -99,10 +99,12 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedMessageListHeaderTitle(
-  props: BaseProps,
-) {
-  const styles = useStyles(unboundStyles);
+const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedMessageListHeaderTitle(props: BaseProps) {
+    const styles = useStyles(unboundStyles);
 
-  return <MessageListHeaderTitle {...props} styles={styles} />;
-});
+    return <MessageListHeaderTitle {...props} styles={styles} />;
+  },
+);
+
+export default ConnectedMessageListHeaderTitle;

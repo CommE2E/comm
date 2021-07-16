@@ -11,7 +11,7 @@ type Props = {
   ...
 };
 class ThreadSettingsMemberTooltipButton extends React.PureComponent<Props> {
-  render() {
+  render(): React.Node {
     return (
       <TouchableOpacity onPress={this.onPress}>
         <PencilIcon />
@@ -19,7 +19,7 @@ class ThreadSettingsMemberTooltipButton extends React.PureComponent<Props> {
     );
   }
 
-  onPress = () => {
+  onPress: () => void = () => {
     this.props.navigation.goBackOnce();
   };
 }

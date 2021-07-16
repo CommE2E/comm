@@ -13,7 +13,7 @@ type Props = {|
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId: string,
 |};
-function ChatThreadListSidebar(props: Props) {
+function ChatThreadListSidebar(props: Props): React.Node {
   const {
     sidebarInfo,
     onSwipeableWillOpen,

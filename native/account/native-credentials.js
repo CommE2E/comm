@@ -70,7 +70,7 @@ async function setNativeKeychainCredentials(credentials: UserCredentials) {
   }
 }
 
-function setNativeCredentials(credentials: UserCredentials) {
+function setNativeCredentials(credentials: UserCredentials): Promise<void> {
   return setNativeKeychainCredentials(credentials);
 }
 
@@ -89,7 +89,7 @@ async function deleteNativeKeychainCredentials() {
   }
 }
 
-function deleteNativeCredentialsFor() {
+function deleteNativeCredentialsFor(): Promise<void> {
   return deleteNativeKeychainCredentials();
 }
 

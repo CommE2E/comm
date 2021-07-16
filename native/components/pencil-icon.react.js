@@ -6,7 +6,7 @@ import { Platform } from 'react-native';
 import { useStyles } from '../themes/colors';
 import SWMansionIcon from './swmansion-icon.react';
 
-function PencilIcon() {
+function PencilIcon(): React.Node {
   const styles = useStyles(unboundStyles);
   return <SWMansionIcon name="edit-1" size={20} style={styles.editIcon} />;
 }

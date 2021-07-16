@@ -8,6 +8,8 @@ import * as TurboModuleRegistry from 'react-native/Libraries/TurboModule/TurboMo
 
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 
+import type { EmitterSubscription } from '../types/react-native';
+
 interface Spec extends TurboModule {
   +getConstants: () => {|
     initialStatus: string,
@@ -30,7 +32,9 @@ class LifecycleEventEmitter extends NativeEventEmitter {
     });
   }
 
-  addLifecycleListener = (listener: (state: ?LifecycleState) => mixed) => {
+  addLifecycleListener: (
+    listener: (state: ?LifecycleState) => mixed,
+  ) => EmitterSubscription = listener => {
     return this.addListener('LIFECYCLE_CHANGE', event => {
       listener(event.status);
     });
@@ -38,7 +42,7 @@ class LifecycleEventEmitter extends NativeEventEmitter {
 }
 
 let lifecycleEventEmitter;
-function getLifecycleEventEmitter() {
+function getLifecycleEventEmitter(): LifecycleEventEmitter {
   if (lifecycleEventEmitter) {
     return lifecycleEventEmitter;
   }

@@ -24,7 +24,7 @@ type Props = {|
   +navigation: RootNavigationProp<'ImagePasteModal'>,
   +route: NavigationRoute<'ImagePasteModal'>,
 |};
-function ImagePasteModal(props: Props) {
+function ImagePasteModal(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const inputState = React.useContext(InputStateContext);
   const {

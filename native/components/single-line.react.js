@@ -9,7 +9,7 @@ type Props = {|
   ...React.ElementConfig<typeof Text>,
   children: ?string,
 |};
-function SingleLine(props: Props) {
+function SingleLine(props: Props): React.Node {
   const text = firstLine(props.children);
   return (
     <Text {...props} numberOfLines={1}>

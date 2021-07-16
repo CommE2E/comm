@@ -636,9 +636,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo<BaseProps>(function ConnectedColorPicker(
-  props: BaseProps,
-) {
-  const colors = useColors();
-  return <ColorPicker {...props} colors={colors} />;
-});
+const ConnectedColorPicker: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedColorPicker(props: BaseProps) {
+    const colors = useColors();
+    return <ColorPicker {...props} colors={colors} />;
+  },
+);
+
+export default ConnectedColorPicker;

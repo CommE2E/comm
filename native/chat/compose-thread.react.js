@@ -442,40 +442,42 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedComposeThread(
-  props: BaseProps,
-) {
-  const parentThreadInfoID = props.route.params.parentThreadInfo?.id;
+const ConnectedComposeThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedComposeThread(props: BaseProps) {
+    const parentThreadInfoID = props.route.params.parentThreadInfo?.id;
 
-  const reduxParentThreadInfo = useSelector(state =>
-    parentThreadInfoID ? threadInfoSelector(state)[parentThreadInfoID] : null,
-  );
-  const loadingStatus = useSelector(
-    createLoadingStatusSelector(newThreadActionTypes),
-  );
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
-  const threadInfos = useSelector(threadInfoSelector);
-  const styles = useStyles(unboundStyles);
+    const reduxParentThreadInfo = useSelector(state =>
+      parentThreadInfoID ? threadInfoSelector(state)[parentThreadInfoID] : null,
+    );
+    const loadingStatus = useSelector(
+      createLoadingStatusSelector(newThreadActionTypes),
+    );
+    const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+    const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
+    const threadInfos = useSelector(threadInfoSelector);
+    const styles = useStyles(unboundStyles);
 
-  const calendarQuery = useCalendarQuery();
-  const navigateToThread = useNavigateToThread();
+    const calendarQuery = useCalendarQuery();
+    const navigateToThread = useNavigateToThread();
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callNewThread = useServerCall(newThread);
-  return (
-    <ComposeThread
-      {...props}
-      parentThreadInfo={reduxParentThreadInfo}
-      loadingStatus={loadingStatus}
-      otherUserInfos={otherUserInfos}
-      userSearchIndex={userSearchIndex}
-      threadInfos={threadInfos}
-      styles={styles}
-      calendarQuery={calendarQuery}
-      navigateToThread={navigateToThread}
-      dispatchActionPromise={dispatchActionPromise}
-      newThread={callNewThread}
-    />
-  );
-});
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callNewThread = useServerCall(newThread);
+    return (
+      <ComposeThread
+        {...props}
+        parentThreadInfo={reduxParentThreadInfo}
+        loadingStatus={loadingStatus}
+        otherUserInfos={otherUserInfos}
+        userSearchIndex={userSearchIndex}
+        threadInfos={threadInfos}
+        styles={styles}
+        calendarQuery={calendarQuery}
+        navigateToThread={navigateToThread}
+        dispatchActionPromise={dispatchActionPromise}
+        newThread={callNewThread}
+      />
+    );
+  },
+);
+
+export default ConnectedComposeThread;

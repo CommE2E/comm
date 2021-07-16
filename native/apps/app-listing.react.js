@@ -21,7 +21,7 @@ type Props = {|
   +appIcon: 'calendar' | 'document-filled' | 'check-round' | 'package',
   +appCopy: string,
 |};
-function AppListing(props: Props) {
+function AppListing(props: Props): React.Node {
   const { id, available, enabled, appName, appIcon, appCopy } = props;
   const styles = useStyles(unboundStyles);
   const dispatch = useDispatch();

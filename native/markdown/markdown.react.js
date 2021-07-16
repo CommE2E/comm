@@ -16,7 +16,7 @@ type Props = {|
   +children: string,
   +rules: MarkdownRules,
 |};
-function Markdown(props: Props) {
+function Markdown(props: Props): React.Node {
   const { style, children, rules } = props;
   const { simpleMarkdownRules, emojiOnlyFactor, container } = rules;
 

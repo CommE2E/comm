@@ -10,7 +10,7 @@ import { NavContext } from '../navigation/navigation-context';
 import { setReduxStateActionType } from './action-types';
 import { useSelector } from './redux-utils';
 
-const DevTools = React.memo<{||}>(() => {
+const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
   const devToolsRef = React.useRef();
   if (
     global.__REDUX_DEVTOOLS_EXTENSION__ &&

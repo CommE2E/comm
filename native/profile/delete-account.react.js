@@ -232,7 +232,9 @@ const loadingStatusSelector = createLoadingStatusSelector(
   deleteAccountActionTypes,
 );
 
-export default React.memo<{ ... }>(function ConnectedDeleteAccount() {
+const ConnectedDeleteAccount: React.ComponentType<{ ... }> = React.memo<{
+  ...
+}>(function ConnectedDeleteAccount() {
   const loadingStatus = useSelector(loadingStatusSelector);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
@@ -254,3 +256,5 @@ export default React.memo<{ ... }>(function ConnectedDeleteAccount() {
     />
   );
 });
+
+export default ConnectedDeleteAccount;

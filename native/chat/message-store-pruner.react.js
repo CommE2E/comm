@@ -13,7 +13,7 @@ import {
   pruneThreadIDsSelector,
 } from '../selectors/message-selectors';
 
-function MessageStorePruner() {
+function MessageStorePruner(): null {
   const nextMessagePruneTime = useSelector(nextMessagePruneTimeSelector);
   const prevNextMessagePruneTimeRef = React.useRef(nextMessagePruneTime);
 

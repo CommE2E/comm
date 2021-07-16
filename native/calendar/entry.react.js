@@ -36,6 +36,7 @@ import type {
   CreateEntryInfo,
   SaveEntryInfo,
   SaveEntryResult,
+  SaveEntryPayload,
   CreateEntryPayload,
   DeleteEntryInfo,
   DeleteEntryResult,
@@ -83,7 +84,9 @@ function hueDistance(firstColor: string, secondColor: string): number {
 }
 const omitEntryInfo = _omit(['entryInfo']);
 
-function dummyNodeForEntryHeightMeasurement(entryText: string) {
+function dummyNodeForEntryHeightMeasurement(
+  entryText: string,
+): React.Element<typeof View> {
   const text = entryText === '' ? ' ' : entryText;
   return (
     <View style={[unboundStyles.entry, unboundStyles.textContainer]}>
@@ -129,12 +132,12 @@ type State = {|
 |};
 class InternalEntry extends React.Component<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
-  creating = false;
-  needsUpdateAfterCreation = false;
-  needsDeleteAfterCreation = false;
-  nextSaveAttemptIndex = 0;
-  mounted = false;
-  deleted = false;
+  creating: boolean = false;
+  needsUpdateAfterCreation: boolean = false;
+  needsDeleteAfterCreation: boolean = false;
+  nextSaveAttemptIndex: number = 0;
+  mounted: boolean = false;
+  deleted: boolean = false;
   currentlySaving: ?string;
 
   constructor(props: Props) {
@@ -157,7 +160,7 @@ class InternalEntry extends React.Component<Props, State> {
     }
   }
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     return (
       !shallowequal(nextState, this.state) ||
       !shallowequal(omitEntryInfo(nextProps), omitEntryInfo(this.props)) ||
@@ -240,7 +243,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.props.onConcludeEditMode(this.props.entryInfo);
   }
 
-  static isActive(props: Props, state: State) {
+  static isActive(props: Props, state: State): boolean {
     return (
       props.active ||
       state.editing ||
@@ -249,7 +252,7 @@ class InternalEntry extends React.Component<Props, State> {
     );
   }
 
-  render() {
+  render(): React.Node {
     const active = InternalEntry.isActive(this.props, this.state);
     const { editing } = this.state;
     const threadColor = `#${this.props.threadInfo.color}`;
@@ -425,14 +428,16 @@ class InternalEntry extends React.Component<Props, State> {
     );
   }
 
-  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
+  textInputRef: (
+    textInput: ?React.ElementRef<typeof TextInput>,
+  ) => void = textInput => {
     this.textInput = textInput;
     if (textInput && this.state.editing) {
       this.enterEditMode();
     }
   };
 
-  enterEditMode = async () => {
+  enterEditMode: () => Promise<void> = async () => {
     this.setActive();
     this.props.onEnterEditMode(this.props.entryInfo);
     if (Platform.OS === 'android') {
@@ -443,7 +448,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.focus();
   };
 
-  focus = () => {
+  focus: () => void = () => {
     const { textInput } = this;
     if (!textInput) {
       return;
@@ -451,15 +456,15 @@ class InternalEntry extends React.Component<Props, State> {
     textInput.focus();
   };
 
-  onFocus = () => {
+  onFocus: () => void = () => {
     if (this.props.threadPickerActive) {
       this.props.navigation.goBack();
     }
   };
 
-  setActive = () => this.makeActive(true);
+  setActive: () => void = () => this.makeActive(true);
 
-  completeEdit = () => {
+  completeEdit: () => void = () => {
     // This gets called from CalendarInputBar (save button above keyboard),
     // onPressEdit (save button in Entry action links), and in
     // componentDidUpdate above when Calendar sets this Entry to inactive.
@@ -473,7 +478,7 @@ class InternalEntry extends React.Component<Props, State> {
     this.onBlur();
   };
 
-  onBlur = () => {
+  onBlur: () => void = () => {
     if (this.state.text.trim() === '') {
       this.delete();
     } else if (this.props.entryInfo.text !== this.state.text) {
@@ -484,17 +489,17 @@ class InternalEntry extends React.Component<Props, State> {
     this.props.onConcludeEditMode(this.props.entryInfo);
   };
 
-  save = () => {
+  save: () => void = () => {
     this.dispatchSave(this.props.entryInfo.id, this.state.text);
   };
 
-  onTextContainerLayout = (event: LayoutEvent) => {
+  onTextContainerLayout: (event: LayoutEvent) => void = event => {
     this.guardedSetState({
       height: Math.ceil(event.nativeEvent.layout.height),
     });
   };
 
-  onChangeText = (newText: string) => {
+  onChangeText: (newText: string) => void = newText => {
     this.guardedSetState({ text: newText });
   };
 
@@ -543,7 +548,7 @@ class InternalEntry extends React.Component<Props, State> {
     }
   }
 
-  async createAction(text: string) {
+  async createAction(text: string): Promise<CreateEntryPayload> {
     const localID = this.props.entryInfo.localID;
     invariant(localID, "if there's no serverID, there should be a localID");
     const curSaveAttempt = this.nextSaveAttemptIndex++;
@@ -583,7 +588,10 @@ class InternalEntry extends React.Component<Props, State> {
     }
   }
 
-  async saveAction(entryID: string, newText: string) {
+  async saveAction(
+    entryID: string,
+    newText: string,
+  ): Promise<SaveEntryPayload> {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     try {
       const response = await this.props.saveEntry({
@@ -626,11 +634,11 @@ class InternalEntry extends React.Component<Props, State> {
     }
   }
 
-  delete = () => {
+  delete: () => void = () => {
     this.dispatchDelete(this.props.entryInfo.id);
   };
 
-  onPressEdit = () => {
+  onPressEdit: () => void = () => {
     if (this.state.editing) {
       this.completeEdit();
     } else {
@@ -653,7 +661,7 @@ class InternalEntry extends React.Component<Props, State> {
     );
   }
 
-  async deleteAction(serverID: ?string) {
+  async deleteAction(serverID: ?string): Promise<?DeleteEntryResult> {
     if (serverID) {
       return await this.props.deleteEntry({
         entryID: serverID,
@@ -666,7 +674,7 @@ class InternalEntry extends React.Component<Props, State> {
     return null;
   }
 
-  onPressThreadName = () => {
+  onPressThreadName: () => void = () => {
     Keyboard.dismiss();
     this.props.navigateToThread({ threadInfo: this.props.threadInfo });
   };
@@ -730,20 +738,20 @@ const unboundStyles = {
     paddingLeft: 10,
     paddingRight: 10,
     paddingTop: 5,
-    transform: Platform.select({
+    transform: (Platform.select({
       ios: [{ translateY: -1 / 3 }],
-      default: undefined,
-    }),
+      default: [],
+    }): $ReadOnlyArray<{ +translateY: number }>),
   },
   textInput: {
     fontFamily: 'System',
     fontSize: 16,
-    left: Platform.OS === 'android' ? 9.8 : 10,
+    left: ((Platform.OS === 'android' ? 9.8 : 10): number),
     margin: 0,
     padding: 0,
     position: 'absolute',
     right: 10,
-    top: Platform.OS === 'android' ? 4.8 : 0.5,
+    top: ((Platform.OS === 'android' ? 4.8 : 0.5): number),
   },
 };
 
@@ -753,42 +761,46 @@ const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
 
-const Entry = React.memo<BaseProps>(function ConnectedEntry(props: BaseProps) {
-  const navContext = React.useContext(NavContext);
-  const threadPickerActive = activeThreadPickerSelector(navContext);
+const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedEntry(props: BaseProps) {
+    const navContext = React.useContext(NavContext);
+    const threadPickerActive = activeThreadPickerSelector(navContext);
 
-  const calendarQuery = useSelector(state =>
-    nonThreadCalendarQuery({
-      redux: state,
-      navContext,
-    }),
-  );
-  const online = useSelector(state => state.connection.status === 'connected');
-  const styles = useStyles(unboundStyles);
+    const calendarQuery = useSelector(state =>
+      nonThreadCalendarQuery({
+        redux: state,
+        navContext,
+      }),
+    );
+    const online = useSelector(
+      state => state.connection.status === 'connected',
+    );
+    const styles = useStyles(unboundStyles);
 
-  const navigateToThread = useNavigateToThread();
+    const navigateToThread = useNavigateToThread();
 
-  const dispatch = useDispatch();
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callCreateEntry = useServerCall(createEntry);
-  const callSaveEntry = useServerCall(saveEntry);
-  const callDeleteEntry = useServerCall(deleteEntry);
+    const dispatch = useDispatch();
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callCreateEntry = useServerCall(createEntry);
+    const callSaveEntry = useServerCall(saveEntry);
+    const callDeleteEntry = useServerCall(deleteEntry);
 
-  return (
-    <InternalEntry
-      {...props}
-      threadPickerActive={threadPickerActive}
-      calendarQuery={calendarQuery}
-      online={online}
-      styles={styles}
-      navigateToThread={navigateToThread}
-      dispatch={dispatch}
-      dispatchActionPromise={dispatchActionPromise}
-      createEntry={callCreateEntry}
-      saveEntry={callSaveEntry}
-      deleteEntry={callDeleteEntry}
-    />
-  );
-});
+    return (
+      <InternalEntry
+        {...props}
+        threadPickerActive={threadPickerActive}
+        calendarQuery={calendarQuery}
+        online={online}
+        styles={styles}
+        navigateToThread={navigateToThread}
+        dispatch={dispatch}
+        dispatchActionPromise={dispatchActionPromise}
+        createEntry={callCreateEntry}
+        saveEntry={callSaveEntry}
+        deleteEntry={callDeleteEntry}
+      />
+    );
+  },
+);
 
 export { InternalEntry, Entry, dummyNodeForEntryHeightMeasurement };

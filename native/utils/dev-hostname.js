@@ -1,6 +1,6 @@
 // @flow
 
-let natDevHostname;
+let natDevHostname: string;
 let warnNatDevHostnameUndefined = true;
 const defaultNatDevHostname = '192.168.1.1';
 
@@ -11,7 +11,8 @@ try {
   // example of native/facts/network.json:
   // { "natDevHostname": "192.168.1.x" }
   // $FlowExpectedError: That's a conditional require so the file may not exist
-  natDevHostname = require('../facts/network').natDevHostname;
+  const hostname: string = require('../facts/network').natDevHostname;
+  natDevHostname = hostname;
   warnNatDevHostnameUndefined = false;
 } catch (e) {
   natDevHostname = defaultNatDevHostname;

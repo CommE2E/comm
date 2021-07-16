@@ -14,7 +14,7 @@ type Props = {|
   message: string,
   activeTheme: ?GlobalTheme,
 |};
-function InAppNotif(props: Props) {
+function InAppNotif(props: Props): React.Node {
   const useLightStyle = Platform.OS === 'ios' && props.activeTheme !== 'dark';
 
   let title = null;

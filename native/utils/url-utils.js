@@ -7,8 +7,8 @@ import type { Store } from 'redux';
 
 import { setURLPrefix } from 'lib/utils/url-utils';
 
-import type { AppState } from '../redux/state-types';
 import type { Action } from '../redux/action-types';
+import type { AppState } from '../redux/state-types';
 import { natDevHostname, checkForMissingNatDevHostname } from './dev-hostname';
 
 const localhostHostname = 'localhost';
@@ -54,7 +54,7 @@ if (Platform.OS === 'android') {
   nodeServerOptions.push(getDevNodeServerURLFromHostname(localhostHostname));
 }
 
-const defaultURLPrefix = __DEV__
+const defaultURLPrefix: string = __DEV__
   ? getDevNodeServerURL(true)
   : productionNodeServerURL;
 
@@ -73,10 +73,13 @@ async function updateURLPrefixAfterCheckingIfEmulator(
   ) {
     return;
   }
-  store.dispatch({ type: (setURLPrefix: typeof setURLPrefix), payload: urlPrefix });
+  store.dispatch({
+    type: (setURLPrefix: typeof setURLPrefix),
+    payload: urlPrefix,
+  });
 }
 
-const natNodeServer = getDevNodeServerURLFromHostname(natDevHostname);
+const natNodeServer: string = getDevNodeServerURLFromHostname(natDevHostname);
 
 const setCustomServer = 'SET_CUSTOM_SERVER';
 

@@ -22,15 +22,22 @@ export type CoreData = {|
 
 const defaultCoreData = Object.freeze({
   drafts: {
-    data: {},
+    data: ({}: { +[key: string]: string }),
     updateDraft: global.CommCoreModule.updateDraft,
     moveDraft: global.CommCoreModule.moveDraft,
   },
 });
 
-const CoreDataContext = React.createContext<CoreData>(defaultCoreData);
+const CoreDataContext: React.Context<CoreData> = React.createContext<CoreData>(
+  defaultCoreData,
+);
 
-const useDrafts = (threadID: ?string) => {
+type ThreadDrafts = {
+  +draft: string,
+  +moveDraft: MoveDraft,
+  +updateDraft: UpdateDraft,
+};
+const useDrafts = (threadID: ?string): ThreadDrafts => {
   const coreData = React.useContext(CoreDataContext);
   return React.useMemo(
     () => ({

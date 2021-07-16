@@ -7,6 +7,8 @@ export type RootContextType = {|
   +setNavStateInitialized: () => void,
 |};
 
-const RootContext = React.createContext<?RootContextType>(null);
+const RootContext: React.Context<?RootContextType> = React.createContext<?RootContextType>(
+  null,
+);
 
 export { RootContext };

@@ -28,6 +28,7 @@ import SWMansionIcon from '../components/swmansion-icon.react';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
+import type { KeyPressEvent } from '../types/react-native';
 import type { StateContainer } from '../utils/state-container';
 import { TextInput } from './modal-components.react';
 import {
@@ -94,7 +95,7 @@ class LogInPanel extends React.PureComponent<Props> {
     });
   }
 
-  render() {
+  render(): React.Node {
     return (
       <Panel opacityValue={this.props.opacityValue}>
         <View style={styles.row}>
@@ -156,34 +157,32 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   }
 
-  usernameInputRef = (usernameInput: ?TextInput) => {
+  usernameInputRef: (usernameInput: ?TextInput) => void = usernameInput => {
     this.usernameInput = usernameInput;
     if (Platform.OS === 'ios' && usernameInput) {
       setTimeout(() => usernameInput.focus());
     }
   };
 
-  focusUsernameInput = () => {
+  focusUsernameInput: () => void = () => {
     invariant(this.usernameInput, 'ref should be set');
     this.usernameInput.focus();
   };
 
-  passwordInputRef = (passwordInput: ?TextInput) => {
+  passwordInputRef: (passwordInput: ?TextInput) => void = passwordInput => {
     this.passwordInput = passwordInput;
   };
 
-  focusPasswordInput = () => {
+  focusPasswordInput: () => void = () => {
     invariant(this.passwordInput, 'ref should be set');
     this.passwordInput.focus();
   };
 
-  onChangeUsernameInputText = (text: string) => {
+  onChangeUsernameInputText: (text: string) => void = text => {
     this.props.logInState.setState({ usernameInputText: text });
   };
 
-  onUsernameKeyPress = (
-    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>,
-  ) => {
+  onUsernameKeyPress: (event: KeyPressEvent) => void = event => {
     const { key } = event.nativeEvent;
     if (
       key.length > 1 &&
@@ -195,11 +194,11 @@ class LogInPanel extends React.PureComponent<Props> {
     }
   };
 
-  onChangePasswordInputText = (text: string) => {
+  onChangePasswordInputText: (text: string) => void = text => {
     this.props.logInState.setState({ passwordInputText: text });
   };
 
-  onSubmit = () => {
+  onSubmit: () => void = () => {
     this.props.setActiveAlert(true);
     if (this.usernameInputText.search(validEmailRegex) > -1) {
       Alert.alert(
@@ -237,7 +236,7 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   };
 
-  onUsernameAlertAcknowledged = () => {
+  onUsernameAlertAcknowledged: () => void = () => {
     this.props.setActiveAlert(false);
     this.props.logInState.setState(
       {
@@ -247,7 +246,7 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   };
 
-  async logInAction(extraInfo: LogInExtraInfo) {
+  async logInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
     try {
       const result = await this.props.logIn({
         username: this.usernameInputText,
@@ -299,7 +298,7 @@ class LogInPanel extends React.PureComponent<Props> {
     }
   }
 
-  onPasswordAlertAcknowledged = () => {
+  onPasswordAlertAcknowledged: () => void = () => {
     this.props.setActiveAlert(false);
     this.props.logInState.setState(
       {
@@ -309,7 +308,7 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   };
 
-  onUnknownErrorAlertAcknowledged = () => {
+  onUnknownErrorAlertAcknowledged: () => void = () => {
     this.props.setActiveAlert(false);
     this.props.logInState.setState(
       {
@@ -320,7 +319,7 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   };
 
-  onAppOutOfDateAlertAcknowledged = () => {
+  onAppOutOfDateAlertAcknowledged: () => void = () => {
     this.props.setActiveAlert(false);
   };
 }
@@ -347,29 +346,31 @@ const styles = StyleSheet.create({
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
-export default React.memo<BaseProps>(function ConnectedLogInPanel(
-  props: BaseProps,
-) {
-  const loadingStatus = useSelector(loadingStatusSelector);
+const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedLogInPanel(props: BaseProps) {
+    const loadingStatus = useSelector(loadingStatusSelector);
 
-  const navContext = React.useContext(NavContext);
-  const logInExtraInfo = useSelector(state =>
-    nativeLogInExtraInfoSelector({
-      redux: state,
-      navContext,
-    }),
-  );
+    const navContext = React.useContext(NavContext);
+    const logInExtraInfo = useSelector(state =>
+      nativeLogInExtraInfoSelector({
+        redux: state,
+        navContext,
+      }),
+    );
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callLogIn = useServerCall(logIn);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callLogIn = useServerCall(logIn);
 
-  return (
-    <LogInPanel
-      {...props}
-      loadingStatus={loadingStatus}
-      logInExtraInfo={logInExtraInfo}
-      dispatchActionPromise={dispatchActionPromise}
-      logIn={callLogIn}
-    />
-  );
-});
+    return (
+      <LogInPanel
+        {...props}
+        loadingStatus={loadingStatus}
+        logInExtraInfo={logInExtraInfo}
+        dispatchActionPromise={dispatchActionPromise}
+        logIn={callLogIn}
+      />
+    );
+  },
+);
+
+export default ConnectedLogInPanel;

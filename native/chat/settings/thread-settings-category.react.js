@@ -11,7 +11,7 @@ type HeaderProps = {|
   +type: CategoryType,
   +title: string,
 |};
-function ThreadSettingsCategoryHeader(props: HeaderProps) {
+function ThreadSettingsCategoryHeader(props: HeaderProps): React.Node {
   const styles = useStyles(unboundStyles);
   let contentStyle, paddingStyle;
   if (props.type === 'full') {
@@ -37,7 +37,7 @@ function ThreadSettingsCategoryHeader(props: HeaderProps) {
 type FooterProps = {|
   +type: CategoryType,
 |};
-function ThreadSettingsCategoryFooter(props: FooterProps) {
+function ThreadSettingsCategoryFooter(props: FooterProps): React.Node {
   const styles = useStyles(unboundStyles);
   let contentStyle, paddingStyle;
   if (props.type === 'full') {

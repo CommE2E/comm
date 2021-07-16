@@ -29,7 +29,7 @@ type Props = {|
   navigation: RootNavigationProp<'ThreadPickerModal'>,
   route: NavigationRoute<'ThreadPickerModal'>,
 |};
-function ThreadPickerModal(props: Props) {
+function ThreadPickerModal(props: Props): React.Node {
   const {
     navigation,
     route: {

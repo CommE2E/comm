@@ -14,7 +14,7 @@ type Props = {|
   +threadType: ThreadType,
   +color: string,
 |};
-function ThreadVisibility(props: Props) {
+function ThreadVisibility(props: Props): React.Node {
   const { threadType, color } = props;
   const label = threadLabel(threadType);
 

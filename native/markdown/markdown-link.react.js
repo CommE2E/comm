@@ -44,7 +44,7 @@ type Props = {|
   +children: React.Node,
   ...TextProps,
 |};
-function MarkdownLink(props: Props) {
+function MarkdownLink(props: Props): React.Node {
   const { target, ...rest } = props;
   const onPressLink = useDisplayLinkPrompt(target);
   return <Text onPress={onPressLink} {...rest} />;

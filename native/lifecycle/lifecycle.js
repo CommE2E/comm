@@ -4,9 +4,12 @@ import { Platform, AppState as NativeAppState } from 'react-native';
 
 import { type LifecycleState } from 'lib/types/lifecycle-state-types';
 
+import type { EmitterSubscription } from '../types/react-native';
 import { getLifecycleEventEmitter } from './lifecycle-event-emitter';
 
-function addLifecycleListener(listener: (state: ?LifecycleState) => mixed) {
+function addLifecycleListener(
+  listener: (state: ?LifecycleState) => mixed,
+): EmitterSubscription {
   if (Platform.OS === 'android') {
     return getLifecycleEventEmitter().addLifecycleListener(listener);
   }
@@ -19,7 +22,7 @@ function addLifecycleListener(listener: (state: ?LifecycleState) => mixed) {
   };
 }
 
-function getCurrentLifecycleState() {
+function getCurrentLifecycleState(): ?string {
   return Platform.OS === 'android'
     ? getLifecycleEventEmitter().currentLifecycleStatus
     : NativeAppState.currentState;

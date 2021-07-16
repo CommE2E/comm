@@ -312,31 +312,33 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedRelationshipListItem(
-  props: BaseProps,
-) {
-  const removeUserLoadingStatus = useSelector(state =>
-    createLoadingStatusSelector(
-      updateRelationshipsActionTypes,
-      `${updateRelationshipsActionTypes.started}:${props.userInfo.id}`,
-    )(state),
-  );
-  const colors = useColors();
-  const styles = useStyles(unboundStyles);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const boundUpdateRelationships = useServerCall(updateRelationships);
-  const overlayContext = React.useContext(OverlayContext);
-  const keyboardState = React.useContext(KeyboardContext);
-  return (
-    <RelationshipListItem
-      {...props}
-      removeUserLoadingStatus={removeUserLoadingStatus}
-      colors={colors}
-      styles={styles}
-      dispatchActionPromise={dispatchActionPromise}
-      updateRelationships={boundUpdateRelationships}
-      overlayContext={overlayContext}
-      keyboardState={keyboardState}
-    />
-  );
-});
+const ConnectedRelationshipListItem: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedRelationshipListItem(props: BaseProps) {
+    const removeUserLoadingStatus = useSelector(state =>
+      createLoadingStatusSelector(
+        updateRelationshipsActionTypes,
+        `${updateRelationshipsActionTypes.started}:${props.userInfo.id}`,
+      )(state),
+    );
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const boundUpdateRelationships = useServerCall(updateRelationships);
+    const overlayContext = React.useContext(OverlayContext);
+    const keyboardState = React.useContext(KeyboardContext);
+    return (
+      <RelationshipListItem
+        {...props}
+        removeUserLoadingStatus={removeUserLoadingStatus}
+        colors={colors}
+        styles={styles}
+        dispatchActionPromise={dispatchActionPromise}
+        updateRelationships={boundUpdateRelationships}
+        overlayContext={overlayContext}
+        keyboardState={keyboardState}
+      />
+    );
+  },
+);
+
+export default ConnectedRelationshipListItem;

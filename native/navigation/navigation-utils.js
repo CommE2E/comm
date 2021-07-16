@@ -54,7 +54,7 @@ function getParentThreadIDFromParams(params: ?ScreenParams): ?string {
 function getThreadIDFromRoute(
   route: PossiblyStaleRoute<>,
   routes?: $ReadOnlyArray<string> = threadRoutes,
-) {
+): ?string {
   if (!routes.includes(route.name)) {
     return null;
   }
@@ -138,7 +138,7 @@ function removeScreensFromStack<
   };
 }
 
-function validNavState(state: PossiblyStaleNavigationState) {
+function validNavState(state: PossiblyStaleNavigationState): boolean {
   if (state.routes.length === 0) {
     return false;
   }

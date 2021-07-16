@@ -587,43 +587,45 @@ AppRegistry.registerHeadlessTask(
   () => androidBackgroundMessageTask,
 );
 
-export default React.memo<BaseProps>(function ConnectedPushHandler(
-  props: BaseProps,
-) {
-  const navContext = React.useContext(NavContext);
-  const activeThread = activeMessageListSelector(navContext);
-  const boundUnreadCount = useSelector(unreadCount);
-  const deviceToken = useSelector(state => state.deviceToken);
-  const threadInfos = useSelector(threadInfoSelector);
-  const notifPermissionAlertInfo = useSelector(
-    state => state.notifPermissionAlertInfo,
-  );
-  const connection = useSelector(state => state.connection);
-  const updatesCurrentAsOf = useSelector(state => state.updatesCurrentAsOf);
-  const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
-  const loggedIn = useSelector(isLoggedIn);
-  const navigateToThread = useNavigateToThread();
-  const dispatch = useDispatch();
-  const dispatchActionPromise = useDispatchActionPromise();
-  const boundSetDeviceToken = useServerCall(setDeviceToken);
-  const rootContext = React.useContext(RootContext);
-  return (
-    <PushHandler
-      {...props}
-      activeThread={activeThread}
-      unreadCount={boundUnreadCount}
-      deviceToken={deviceToken}
-      threadInfos={threadInfos}
-      notifPermissionAlertInfo={notifPermissionAlertInfo}
-      connection={connection}
-      updatesCurrentAsOf={updatesCurrentAsOf}
-      activeTheme={activeTheme}
-      loggedIn={loggedIn}
-      navigateToThread={navigateToThread}
-      dispatch={dispatch}
-      dispatchActionPromise={dispatchActionPromise}
-      setDeviceToken={boundSetDeviceToken}
-      rootContext={rootContext}
-    />
-  );
-});
+const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedPushHandler(props: BaseProps) {
+    const navContext = React.useContext(NavContext);
+    const activeThread = activeMessageListSelector(navContext);
+    const boundUnreadCount = useSelector(unreadCount);
+    const deviceToken = useSelector(state => state.deviceToken);
+    const threadInfos = useSelector(threadInfoSelector);
+    const notifPermissionAlertInfo = useSelector(
+      state => state.notifPermissionAlertInfo,
+    );
+    const connection = useSelector(state => state.connection);
+    const updatesCurrentAsOf = useSelector(state => state.updatesCurrentAsOf);
+    const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
+    const loggedIn = useSelector(isLoggedIn);
+    const navigateToThread = useNavigateToThread();
+    const dispatch = useDispatch();
+    const dispatchActionPromise = useDispatchActionPromise();
+    const boundSetDeviceToken = useServerCall(setDeviceToken);
+    const rootContext = React.useContext(RootContext);
+    return (
+      <PushHandler
+        {...props}
+        activeThread={activeThread}
+        unreadCount={boundUnreadCount}
+        deviceToken={deviceToken}
+        threadInfos={threadInfos}
+        notifPermissionAlertInfo={notifPermissionAlertInfo}
+        connection={connection}
+        updatesCurrentAsOf={updatesCurrentAsOf}
+        activeTheme={activeTheme}
+        loggedIn={loggedIn}
+        navigateToThread={navigateToThread}
+        dispatch={dispatch}
+        dispatchActionPromise={dispatchActionPromise}
+        setDeviceToken={boundSetDeviceToken}
+        rootContext={rootContext}
+      />
+    );
+  },
+);
+
+export default ConnectedPushHandler;

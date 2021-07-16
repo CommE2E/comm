@@ -19,9 +19,9 @@ class ClearableTextInput extends React.PureComponent<
   };
   pendingMessage: ?{| value: string, resolve: (value: string) => void |};
   lastKeyPressed: ?string;
-  lastTextInputSent = -1;
+  lastTextInputSent: number = -1;
   currentTextInput: ?React.ElementRef<typeof TextInput>;
-  focused = false;
+  focused: boolean = false;
 
   sendMessage() {
     if (this.pendingMessageSent) {
@@ -37,11 +37,11 @@ class ClearableTextInput extends React.PureComponent<
     }
   }
 
-  get pendingMessageSent() {
+  get pendingMessageSent(): boolean {
     return this.lastTextInputSent >= this.state.textInputKey - 1;
   }
 
-  onOldInputChangeText = (text: string) => {
+  onOldInputChangeText: (text: string) => void = text => {
     const { pendingMessage, lastKeyPressed } = this;
     invariant(
       pendingMessage,
@@ -79,7 +79,7 @@ class ClearableTextInput extends React.PureComponent<
     this.props.onChangeText(newValue);
   }
 
-  onOldInputKeyPress = (event: KeyPressEvent) => {
+  onOldInputKeyPress: (event: KeyPressEvent) => void = event => {
     const { key } = event.nativeEvent;
     if (this.lastKeyPressed && this.lastKeyPressed.length > key.length) {
       return;
@@ -88,11 +88,11 @@ class ClearableTextInput extends React.PureComponent<
     this.props.onKeyPress && this.props.onKeyPress(event);
   };
 
-  onOldInputBlur = () => {
+  onOldInputBlur: () => void = () => {
     this.sendMessage();
   };
 
-  onOldInputFocus = () => {
+  onOldInputFocus: () => void = () => {
     // It's possible for the user to press the old input after the new one
     // appears. We can prevent that with pointerEvents="none", but that causes a
     // blur event when we set it, which makes the keyboard briefly pop down
@@ -103,7 +103,9 @@ class ClearableTextInput extends React.PureComponent<
     }
   };
 
-  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
+  textInputRef: (
+    textInput: ?React.ElementRef<typeof TextInput>,
+  ) => void = textInput => {
     if (this.focused && textInput) {
       textInput.focus();
     }
@@ -125,11 +127,11 @@ class ClearableTextInput extends React.PureComponent<
     });
   }
 
-  onFocus = () => {
+  onFocus: () => void = () => {
     this.focused = true;
   };
 
-  onBlur = () => {
+  onBlur: () => void = () => {
     this.focused = false;
     if (this.pendingMessage) {
       // This is to catch a race condition where somebody hits the send button
@@ -141,7 +143,7 @@ class ClearableTextInput extends React.PureComponent<
     }
   };
 
-  render() {
+  render(): React.Node {
     const { textInputRef, ...props } = this.props;
 
     const textInputs = [];

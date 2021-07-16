@@ -50,6 +50,7 @@ import {
   useStyles,
 } from '../themes/colors';
 import type { ScrollEvent } from '../types/react-native';
+import { AnimatedView, type AnimatedStyleObj } from '../types/styles';
 import { animateTowards } from '../utils/animation-utils';
 import {
   ChatThreadListItem,
@@ -65,7 +66,6 @@ import {
   useNavigateToThread,
 } from './message-list-types';
 import { sidebarHeight } from './sidebar-item.react';
-import { AnimatedView, type AnimatedStyleObj } from '../types/styles';
 
 const floatingActions = [
   {
@@ -249,7 +249,10 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     const animatedSearchBoxStyle: AnimatedStyleObj = {
       marginRight: this.searchCancelButtonOffset,
     };
-    const searchBoxStyle = [this.props.styles.searchBox, animatedSearchBoxStyle];
+    const searchBoxStyle = [
+      this.props.styles.searchBox,
+      animatedSearchBoxStyle,
+    ];
     const buttonStyle = [
       this.props.styles.cancelSearchButtonText,
       { opacity: this.searchCancelButtonProgress },
@@ -608,32 +611,36 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedChatThreadList(
-  props: BaseProps,
-) {
-  const boundChatListData = useFlattenedChatListData();
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const threadSearchIndex = useSelector(threadSearchIndexSelector);
-  const styles = useStyles(unboundStyles);
-  const indicatorStyle = useSelector(indicatorStyleSelector);
-  const callSearchUsers = useServerCall(searchUsers);
-  const usersWithPersonalThread = useSelector(usersWithPersonalThreadSelector);
+const ConnectedChatThreadList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedChatThreadList(props: BaseProps) {
+    const boundChatListData = useFlattenedChatListData();
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const threadSearchIndex = useSelector(threadSearchIndexSelector);
+    const styles = useStyles(unboundStyles);
+    const indicatorStyle = useSelector(indicatorStyleSelector);
+    const callSearchUsers = useServerCall(searchUsers);
+    const usersWithPersonalThread = useSelector(
+      usersWithPersonalThreadSelector,
+    );
 
-  const navigateToThread = useNavigateToThread();
+    const navigateToThread = useNavigateToThread();
 
-  return (
-    <ChatThreadList
-      {...props}
-      chatListData={boundChatListData}
-      viewerID={viewerID}
-      threadSearchIndex={threadSearchIndex}
-      styles={styles}
-      indicatorStyle={indicatorStyle}
-      searchUsers={callSearchUsers}
-      usersWithPersonalThread={usersWithPersonalThread}
-      navigateToThread={navigateToThread}
-    />
-  );
-});
+    return (
+      <ChatThreadList
+        {...props}
+        chatListData={boundChatListData}
+        viewerID={viewerID}
+        threadSearchIndex={threadSearchIndex}
+        styles={styles}
+        indicatorStyle={indicatorStyle}
+        searchUsers={callSearchUsers}
+        usersWithPersonalThread={usersWithPersonalThread}
+        navigateToThread={navigateToThread}
+      />
+    );
+  },
+);
+
+export default ConnectedChatThreadList;

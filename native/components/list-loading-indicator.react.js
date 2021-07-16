@@ -5,7 +5,7 @@ import { ActivityIndicator } from 'react-native';
 
 import { useStyles, useColors } from '../themes/colors';
 
-function ListLoadingIndicator() {
+function ListLoadingIndicator(): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   const { listBackgroundLabel } = colors;

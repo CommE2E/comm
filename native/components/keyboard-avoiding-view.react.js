@@ -16,7 +16,11 @@ import {
   type KeyboardState,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
-import type { Layout, LayoutEvent, EmitterSubscription } from '../types/react-native';
+import type {
+  Layout,
+  LayoutEvent,
+  EmitterSubscription,
+} from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 
 type ViewProps = React.ElementConfig<typeof View>;
@@ -25,28 +29,28 @@ type BaseProps = {|
   +behavior: 'height' | 'position' | 'padding',
   +contentContainerStyle?: ?ViewStyle,
 |};
-export default React.memo<BaseProps>(function KeyboardAvoidingView(
-  props: BaseProps,
-) {
-  const keyboardState = React.useContext(KeyboardContext);
-  if (!androidKeyboardResizesFrame) {
+const KeyboardAvoidingView: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function KeyboardAvoidingView(props: BaseProps) {
+    const keyboardState = React.useContext(KeyboardContext);
+    if (!androidKeyboardResizesFrame) {
+      return (
+        <InnerKeyboardAvoidingView {...props} keyboardState={keyboardState} />
+      );
+    }
+
+    const { behavior, contentContainerStyle, ...viewProps } = props;
+    if (behavior !== 'position') {
+      return <View {...viewProps} />;
+    }
+
+    const { children, ...restViewProps } = viewProps;
     return (
-      <InnerKeyboardAvoidingView {...props} keyboardState={keyboardState} />
+      <View {...restViewProps}>
+        <View style={contentContainerStyle}>{children}</View>
+      </View>
     );
-  }
-
-  const { behavior, contentContainerStyle, ...viewProps } = props;
-  if (behavior !== 'position') {
-    return <View {...viewProps} />;
-  }
-
-  const { children, ...restViewProps } = viewProps;
-  return (
-    <View {...restViewProps}>
-      <View style={contentContainerStyle}>{children}</View>
-    </View>
-  );
-});
+  },
+);
 
 type Props = {|
   ...BaseProps,
@@ -215,3 +219,5 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     invariant(false, `invalid KeyboardAvoidingView behavior ${behavior}`);
   }
 }
+
+export default KeyboardAvoidingView;

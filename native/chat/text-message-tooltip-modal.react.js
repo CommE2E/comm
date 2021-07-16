@@ -2,6 +2,7 @@
 
 import Clipboard from '@react-native-community/clipboard';
 import invariant from 'invariant';
+import * as React from 'react';
 
 import { createMessageReply } from 'lib/shared/message-utils';
 import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
@@ -13,6 +14,7 @@ import {
   tooltipHeight,
   type TooltipParams,
   type TooltipRoute,
+  type BaseTooltipProps,
 } from '../navigation/tooltip.react';
 import { navigateToSidebar } from './sidebar-navigation';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
@@ -59,11 +61,10 @@ const spec = {
   ],
 };
 
-const TextMessageTooltipModal = createTooltip<'TextMessageTooltipModal'>(
-  TextMessageTooltipButton,
-  spec,
-);
+const TextMessageTooltipModal: React.ComponentType<
+  BaseTooltipProps<'TextMessageTooltipModal'>,
+> = createTooltip<'TextMessageTooltipModal'>(TextMessageTooltipButton, spec);
 
-const textMessageTooltipHeight = tooltipHeight(spec.entries.length);
+const textMessageTooltipHeight: number = tooltipHeight(spec.entries.length);
 
 export { TextMessageTooltipModal, textMessageTooltipHeight };

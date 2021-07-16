@@ -10,11 +10,13 @@ const granted = new Set();
 type CheckOrRequest = 'check' | 'request';
 type ThrowExceptions = 'throw' | typeof undefined;
 
+type PermissionsResult = { +[permission: string]: boolean };
+
 async function getAndroidPermissions(
   permissions: $ReadOnlyArray<string>,
   checkOrRequest: CheckOrRequest,
   throwExceptions?: ThrowExceptions,
-) {
+): Promise<PermissionsResult> {
   const result = {},
     missing = [];
 
@@ -71,14 +73,14 @@ function printException(e: mixed, caller: string) {
 function requestAndroidPermissions(
   permissions: $ReadOnlyArray<string>,
   throwExceptions?: ThrowExceptions,
-) {
+): Promise<PermissionsResult> {
   return getAndroidPermissions(permissions, 'request', throwExceptions);
 }
 
 function checkAndroidPermissions(
   permissions: $ReadOnlyArray<string>,
   throwExceptions?: ThrowExceptions,
-) {
+): Promise<PermissionsResult> {
   return getAndroidPermissions(permissions, 'check', throwExceptions);
 }
 
@@ -86,26 +88,26 @@ async function getAndroidPermission(
   permission: string,
   checkOrRequest: CheckOrRequest,
   throwExceptions?: ThrowExceptions,
-) {
+): Promise<boolean> {
   const result = await getAndroidPermissions(
     [permission],
     checkOrRequest,
     throwExceptions,
   );
-  return result[permission];
+  return !!result[permission];
 }
 
 function requestAndroidPermission(
   permission: string,
   throwExceptions?: ThrowExceptions,
-) {
+): Promise<boolean> {
   return getAndroidPermission(permission, 'request', throwExceptions);
 }
 
 function checkAndroidPermission(
   permission: string,
   throwExceptions?: ThrowExceptions,
-) {
+): Promise<boolean> {
   return getAndroidPermission(permission, 'check', throwExceptions);
 }
 

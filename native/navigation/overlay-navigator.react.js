@@ -4,6 +4,7 @@ import type {
   StackNavigationState,
   NavigatorPropsBase,
   ExtraNavigatorPropsBase,
+  CreateNavigator,
 } from '@react-navigation/native';
 import {
   useNavigationBuilder,
@@ -427,7 +428,12 @@ const OverlayNavigator = React.memo<Props>(
   },
 );
 OverlayNavigator.displayName = 'OverlayNavigator';
-const createOverlayNavigator = createNavigatorFactory<
+const createOverlayNavigator: CreateNavigator<
+  StackNavigationState,
+  {},
+  {},
+  ExtraNavigatorPropsBase,
+> = createNavigatorFactory<
   StackNavigationState,
   {||},
   {||},

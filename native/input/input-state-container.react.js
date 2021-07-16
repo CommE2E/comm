@@ -1346,49 +1346,51 @@ const textCreationLoadingStatusSelector = createLoadingStatusSelector(
   sendTextMessageActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedInputStateContainer(
-  props: BaseProps,
-) {
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const nextLocalID = useSelector(state => state.nextLocalID);
-  const messageStoreMessages = useSelector(
-    state => state.messageStore.messages,
-  );
-  const ongoingMessageCreation = useSelector(
-    state =>
-      combineLoadingStatuses(
-        mediaCreationLoadingStatusSelector(state),
-        textCreationLoadingStatusSelector(state),
-      ) === 'loading',
-  );
-  const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
-  const calendarQuery = useCalendarQuery();
-  const callUploadMultimedia = useServerCall(uploadMultimedia);
-  const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
-  const callSendTextMessage = useServerCall(sendTextMessage);
-  const callNewThread = useServerCall(newThread);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const dispatch = useDispatch();
-  const mediaReportsEnabled = useIsReportEnabled('mediaReports');
+const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedInputStateContainer(props: BaseProps) {
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const nextLocalID = useSelector(state => state.nextLocalID);
+    const messageStoreMessages = useSelector(
+      state => state.messageStore.messages,
+    );
+    const ongoingMessageCreation = useSelector(
+      state =>
+        combineLoadingStatuses(
+          mediaCreationLoadingStatusSelector(state),
+          textCreationLoadingStatusSelector(state),
+        ) === 'loading',
+    );
+    const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
+    const calendarQuery = useCalendarQuery();
+    const callUploadMultimedia = useServerCall(uploadMultimedia);
+    const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
+    const callSendTextMessage = useServerCall(sendTextMessage);
+    const callNewThread = useServerCall(newThread);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const dispatch = useDispatch();
+    const mediaReportsEnabled = useIsReportEnabled('mediaReports');
 
-  return (
-    <InputStateContainer
-      {...props}
-      viewerID={viewerID}
-      nextLocalID={nextLocalID}
-      messageStoreMessages={messageStoreMessages}
-      ongoingMessageCreation={ongoingMessageCreation}
-      hasWiFi={hasWiFi}
-      mediaReportsEnabled={mediaReportsEnabled}
-      calendarQuery={calendarQuery}
-      uploadMultimedia={callUploadMultimedia}
-      sendMultimediaMessage={callSendMultimediaMessage}
-      sendTextMessage={callSendTextMessage}
-      newThread={callNewThread}
-      dispatchActionPromise={dispatchActionPromise}
-      dispatch={dispatch}
-    />
-  );
-});
+    return (
+      <InputStateContainer
+        {...props}
+        viewerID={viewerID}
+        nextLocalID={nextLocalID}
+        messageStoreMessages={messageStoreMessages}
+        ongoingMessageCreation={ongoingMessageCreation}
+        hasWiFi={hasWiFi}
+        mediaReportsEnabled={mediaReportsEnabled}
+        calendarQuery={calendarQuery}
+        uploadMultimedia={callUploadMultimedia}
+        sendMultimediaMessage={callSendMultimediaMessage}
+        sendTextMessage={callSendTextMessage}
+        newThread={callNewThread}
+        dispatchActionPromise={dispatchActionPromise}
+        dispatch={dispatch}
+      />
+    );
+  },
+);
+
+export default ConnectedInputStateContainer;

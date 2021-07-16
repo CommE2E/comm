@@ -20,6 +20,20 @@ index 228a72d..982a997 100644
    +nativeErrorCode: string | number;
    +nativeErrorMessage: string;
  }
+diff --git a/node_modules/react-native-firebase/dist/index.js.flow b/node_modules/react-native-firebase/dist/index.js.flow
+index 04ee2d9..ba9fdcf 100644
+--- a/node_modules/react-native-firebase/dist/index.js.flow
++++ b/node_modules/react-native-firebase/dist/index.js.flow
+@@ -9,7 +9,8 @@ export * from './modules/core/firebase';
+ /*
+  * Export App types
+  */
+-export type { default as App } from './modules/core/app';
++import type AppModule from './modules/core/app';
++export type App = AppModule;
+ 
+ /*
+  * Export Auth types
 diff --git a/node_modules/react-native-firebase/dist/modules/admob/AdRequest.js.flow b/node_modules/react-native-firebase/dist/modules/admob/AdRequest.js.flow
 index 41d2d5d..c2f5e0a 100644
 --- a/node_modules/react-native-firebase/dist/modules/admob/AdRequest.js.flow
@@ -219,10 +233,36 @@ index 96026b6..86c9b24 100644
  export default class User {
    _auth: Auth;
 diff --git a/node_modules/react-native-firebase/dist/modules/core/app.js.flow b/node_modules/react-native-firebase/dist/modules/core/app.js.flow
-index 6e27c61..c9019c3 100644
+index 6e27c61..27d226d 100644
 --- a/node_modules/react-native-firebase/dist/modules/core/app.js.flow
 +++ b/node_modules/react-native-firebase/dist/modules/core/app.js.flow
-@@ -77,7 +77,7 @@ export default class App {
+@@ -21,7 +21,9 @@ import Links, { NAMESPACE as LinksNamespace } from '../links';
+ import Messaging, { NAMESPACE as MessagingNamespace } from '../messaging';
+ import Notifications, {
+   NAMESPACE as NotificationsNamespace,
++  statics as NotificationsStatics,
+ } from '../notifications';
++import type { NativeNotification } from '../notifications/types';
+ import Performance, { NAMESPACE as PerfNamespace } from '../perf';
+ import Storage, { NAMESPACE as StorageNamespace } from '../storage';
+ import Utils, { NAMESPACE as UtilsNamespace } from '../utils';
+@@ -63,7 +65,14 @@ export default class App {
+ 
+   messaging: () => Messaging;
+ 
+-  notifications: () => Notifications;
++  notifications: {
++    (): Notifications,
++    +Android: NotificationsStatics.Android,
++    +Notification: (
++      nativeNotification?: NativeNotification,
++      notifications?: Notifications,
++    ) => NotificationsStatics.Notification,
++  };
+ 
+   perf: () => Performance;
+ 
+@@ -77,7 +86,7 @@ export default class App {
      fromNative: boolean = false
    ) {
      this._name = name;
@@ -231,7 +271,7 @@ index 6e27c61..c9019c3 100644
  
      if (fromNative) {
        this._initialized = true;
-@@ -129,7 +129,7 @@ export default class App {
+@@ -129,7 +138,7 @@ export default class App {
     * @return {*}
     */
    get options(): FirebaseOptions {

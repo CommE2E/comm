@@ -22,7 +22,7 @@ type ButtonProps = {|
   +loadingStatus: LoadingStatus,
   +onSubmit: () => void,
 |};
-function PanelButton(props: ButtonProps) {
+function PanelButton(props: ButtonProps): React.Node {
   let buttonIcon;
   if (props.loadingStatus === 'loading') {
     buttonIcon = (

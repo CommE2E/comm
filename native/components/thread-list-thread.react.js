@@ -60,11 +60,13 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedThreadListThread(
-  props: BaseProps,
-) {
-  const styles = useStyles(unboundStyles);
-  const colors = useColors();
+const ConnectedThreadListThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedThreadListThread(props: BaseProps) {
+    const styles = useStyles(unboundStyles);
+    const colors = useColors();
 
-  return <ThreadListThread {...props} styles={styles} colors={colors} />;
-});
+    return <ThreadListThread {...props} styles={styles} colors={colors} />;
+  },
+);
+
+export default ConnectedThreadListThread;

@@ -13,6 +13,8 @@ import {
   Platform,
 } from 'react-native';
 
+import type { Shape } from 'lib/types/core';
+
 import { useSelector } from '../redux/redux-utils';
 import { useColors, type Colors } from '../themes/colors';
 import type {
@@ -22,7 +24,24 @@ import type {
 } from '../types/react-native';
 import type { ViewStyle, TextStyle } from '../types/styles';
 
-type TagInputProps<T> = {|
+type DefaultProps = {
+  /**
+   * Min height of the tag input on screen
+   */
+  +minHeight: number,
+  /**
+   * Max height of the tag input on screen (will scroll if max height reached)
+   */
+  +maxHeight: number,
+  /**
+   * inputWidth if text === "". we want this number explicitly because if we're
+   * forced to measure the component, there can be a short jump between the old
+   * value and the new value, which looks sketchy.
+   */
+  +defaultInputWidth: number,
+};
+type TagInputProps<T> = {
+  ...DefaultProps,
   /**
    * An array of tags, which can be any type, as long as labelExtractor below
    * can extract a string from it.
@@ -75,24 +94,10 @@ type TagInputProps<T> = {|
    */
   +inputProps?: React.ElementConfig<typeof TextInput>,
   /**
-   * Min height of the tag input on screen
-   */
-  +minHeight: number,
-  /**
-   * Max height of the tag input on screen (will scroll if max height reached)
-   */
-  +maxHeight: number,
-  /**
    * Callback that gets passed the new component height when it changes
    */
   +onHeightChange?: (height: number) => void,
-  /**
-   * inputWidth if text === "". we want this number explicitly because if we're
-   * forced to measure the component, there can be a short jump between the old
-   * value and the new value, which looks sketchy.
-   */
-  +defaultInputWidth: number,
-|};
+};
 type BaseTagInputProps<T> = {|
   ...TagInputProps<T>,
   +windowWidth: number,
@@ -106,14 +111,14 @@ type State = {|
 |};
 class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
   // scroll to bottom
-  scrollViewHeight = 0;
-  scrollToBottomAfterNextScrollViewLayout = false;
+  scrollViewHeight: number = 0;
+  scrollToBottomAfterNextScrollViewLayout: boolean = false;
   // refs
   tagInput: ?React.ElementRef<typeof TextInput> = null;
   scrollView: ?React.ElementRef<typeof ScrollView> = null;
   lastChange: ?{| time: number, prevText: string |};
 
-  static defaultProps = {
+  static defaultProps: DefaultProps = {
     minHeight: 30,
     maxHeight: 75,
     defaultInputWidth: 90,
@@ -130,7 +135,10 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     };
   }
 
-  static getDerivedStateFromProps(props: BaseTagInputProps<T>, state: State) {
+  static getDerivedStateFromProps(
+    props: BaseTagInputProps<T>,
+    state: State,
+  ): Shape<State> {
     const wrapperHeight = Math.max(
       Math.min(props.maxHeight, state.contentHeight),
       props.minHeight,
@@ -147,19 +155,19 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     }
   }
 
-  measureWrapper = (event: LayoutEvent) => {
+  measureWrapper: (event: LayoutEvent) => void = event => {
     const wrapperWidth = event.nativeEvent.layout.width;
     if (wrapperWidth !== this.state.wrapperWidth) {
       this.setState({ wrapperWidth });
     }
   };
 
-  onChangeText = (text: string) => {
+  onChangeText: (text: string) => void = text => {
     this.lastChange = { time: Date.now(), prevText: this.props.text };
     this.props.onChangeText(text);
   };
 
-  onBlur = (event: BlurEvent) => {
+  onBlur: (event: BlurEvent) => void = event => {
     invariant(Platform.OS === 'ios', 'only iOS gets text on TextInput.onBlur');
     const nativeEvent: $ReadOnly<{
       target: number,
@@ -168,7 +176,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     this.onChangeText(nativeEvent.text);
   };
 
-  onKeyPress = (event: KeyPressEvent) => {
+  onKeyPress: (event: KeyPressEvent) => void = event => {
     const { lastChange } = this;
     let { text } = this.props;
     if (
@@ -188,18 +196,18 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     this.focus();
   };
 
-  focus = () => {
+  focus: () => void = () => {
     invariant(this.tagInput, 'should be set');
     this.tagInput.focus();
   };
 
-  removeIndex = (index: number) => {
+  removeIndex: (index: number) => void = index => {
     const tags = [...this.props.value];
     tags.splice(index, 1);
     this.props.onChange(tags);
   };
 
-  scrollToBottom = () => {
+  scrollToBottom: () => void = () => {
     const scrollView = this.scrollView;
     invariant(
       scrollView,
@@ -208,7 +216,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     scrollView.scrollToEnd();
   };
 
-  render() {
+  render(): React.Node {
     const tagColor = this.props.tagColor || this.props.colors.modalSubtext;
     const tagTextColor =
       this.props.tagTextColor || this.props.colors.modalForegroundLabel;
@@ -294,15 +302,19 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     );
   }
 
-  tagInputRef = (tagInput: ?React.ElementRef<typeof TextInput>) => {
+  tagInputRef: (
+    tagInput: ?React.ElementRef<typeof TextInput>,
+  ) => void = tagInput => {
     this.tagInput = tagInput;
   };
 
-  scrollViewRef = (scrollView: ?React.ElementRef<typeof ScrollView>) => {
+  scrollViewRef: (
+    scrollView: ?React.ElementRef<typeof ScrollView>,
+  ) => void = scrollView => {
     this.scrollView = scrollView;
   };
 
-  onScrollViewContentSizeChange = (w: number, h: number) => {
+  onScrollViewContentSizeChange: (w: number, h: number) => void = (w, h) => {
     const oldContentHeight = this.state.contentHeight;
     if (h === oldContentHeight) {
       return;
@@ -322,7 +334,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     this.setState({ contentHeight: h }, callback);
   };
 
-  onScrollViewLayout = (event: LayoutEvent) => {
+  onScrollViewLayout: (event: LayoutEvent) => void = event => {
     this.scrollViewHeight = event.nativeEvent.layout.height;
     if (this.scrollToBottomAfterNextScrollViewLayout) {
       this.scrollToBottom();
@@ -330,7 +342,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
     }
   };
 
-  onLayoutLastTag = (endPosOfTag: number) => {
+  onLayoutLastTag: (endPosOfTag: number) => void = endPosOfTag => {
     const margin = 3;
     const spaceLeft = this.state.wrapperWidth - endPosOfTag - margin - 10;
     if (spaceLeft !== this.state.spaceLeft) {

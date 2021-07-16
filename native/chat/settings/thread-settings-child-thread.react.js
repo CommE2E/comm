@@ -16,7 +16,7 @@ type Props = {|
   +firstListItem: boolean,
   +lastListItem: boolean,
 |};
-function ThreadSettingsChildThread(props: Props) {
+function ThreadSettingsChildThread(props: Props): React.Node {
   const { threadInfo } = props;
 
   const navigateToThread = useNavigateToThread();

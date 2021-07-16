@@ -17,7 +17,7 @@ import {
   osCanTheme,
 } from '../types/themes';
 
-function ThemeHandler() {
+function ThemeHandler(): null {
   const globalThemeInfo = useSelector(state => state.globalThemeInfo);
   const dispatch = useDispatch();
   const updateSystemTheme = React.useCallback(

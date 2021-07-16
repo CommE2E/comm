@@ -9,7 +9,7 @@ type Props = {|
   fillType: 'flex' | 'absolute',
   colors: Colors,
 |};
-function ContentLoading(props: Props) {
+function ContentLoading(props: Props): React.Node {
   const viewStyle =
     props.fillType === 'flex' ? styles.fullFlex : styles.absoluteContainer;
   return (

@@ -9,7 +9,7 @@ import { type CoreData, defaultCoreData, CoreDataContext } from './core-data';
 type Props = {|
   +children: React.Node,
 |};
-function CoreDataProvider(props: Props) {
+function CoreDataProvider(props: Props): React.Node {
   const [draftCache, setDraftCache] = React.useState<
     $PropertyType<$PropertyType<CoreData, 'drafts'>, 'data'>,
   >(defaultCoreData.drafts.data);

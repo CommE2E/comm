@@ -32,103 +32,103 @@ type Props = {|
   +relationshipButton: RelationshipButton,
 |};
 
-export default React.memo<Props>(function ThreadSettingsEditRelationship(
-  props: Props,
-) {
-  const otherUserInfo = useSelector(state => {
-    const currentUserID = state.currentUserInfo?.id;
-    const otherUserID = getSingleOtherUser(props.threadInfo, currentUserID);
-    invariant(otherUserID, 'Other user should be specified');
+const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo<Props>(
+  function ThreadSettingsEditRelationship(props: Props) {
+    const otherUserInfo = useSelector(state => {
+      const currentUserID = state.currentUserInfo?.id;
+      const otherUserID = getSingleOtherUser(props.threadInfo, currentUserID);
+      invariant(otherUserID, 'Other user should be specified');
 
-    const { userInfos } = state.userStore;
-    return userInfos[otherUserID];
-  });
-  invariant(otherUserInfo, 'Other user info should be specified');
+      const { userInfos } = state.userStore;
+      return userInfos[otherUserID];
+    });
+    invariant(otherUserInfo, 'Other user info should be specified');
 
-  const callUpdateRelationships = useServerCall(serverUpdateRelationships);
-  const updateRelationship = React.useCallback(
-    async (action: RelationshipAction) => {
-      try {
-        return await callUpdateRelationships({
-          action,
-          userIDs: [otherUserInfo.id],
-        });
-      } catch (e) {
-        Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
-          cancelable: true,
-        });
-        throw e;
-      }
-    },
-    [callUpdateRelationships, otherUserInfo],
-  );
-
-  const { relationshipButton } = props;
-  const relationshipAction = React.useMemo(() => {
-    if (relationshipButton === relationshipButtons.BLOCK) {
-      return relationshipActions.BLOCK;
-    } else if (
-      relationshipButton === relationshipButtons.FRIEND ||
-      relationshipButton === relationshipButtons.ACCEPT
-    ) {
-      return relationshipActions.FRIEND;
-    } else if (
-      relationshipButton === relationshipButtons.UNFRIEND ||
-      relationshipButton === relationshipButtons.REJECT ||
-      relationshipButton === relationshipButtons.WITHDRAW
-    ) {
-      return relationshipActions.UNFRIEND;
-    } else if (relationshipButton === relationshipButtons.UNBLOCK) {
-      return relationshipActions.UNBLOCK;
-    }
-    invariant(false, 'relationshipButton conditions should be exhaustive');
-  }, [relationshipButton]);
-
-  const dispatchActionPromise = useDispatchActionPromise();
-  const onButtonPress = React.useCallback(() => {
-    dispatchActionPromise(
-      updateRelationshipsActionTypes,
-      updateRelationship(relationshipAction),
+    const callUpdateRelationships = useServerCall(serverUpdateRelationships);
+    const updateRelationship = React.useCallback(
+      async (action: RelationshipAction) => {
+        try {
+          return await callUpdateRelationships({
+            action,
+            userIDs: [otherUserInfo.id],
+          });
+        } catch (e) {
+          Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
+            cancelable: true,
+          });
+          throw e;
+        }
+      },
+      [callUpdateRelationships, otherUserInfo],
     );
-  }, [dispatchActionPromise, relationshipAction, updateRelationship]);
 
-  const colors = useColors();
-  const { panelIosHighlightUnderlay } = colors;
+    const { relationshipButton } = props;
+    const relationshipAction = React.useMemo(() => {
+      if (relationshipButton === relationshipButtons.BLOCK) {
+        return relationshipActions.BLOCK;
+      } else if (
+        relationshipButton === relationshipButtons.FRIEND ||
+        relationshipButton === relationshipButtons.ACCEPT
+      ) {
+        return relationshipActions.FRIEND;
+      } else if (
+        relationshipButton === relationshipButtons.UNFRIEND ||
+        relationshipButton === relationshipButtons.REJECT ||
+        relationshipButton === relationshipButtons.WITHDRAW
+      ) {
+        return relationshipActions.UNFRIEND;
+      } else if (relationshipButton === relationshipButtons.UNBLOCK) {
+        return relationshipActions.UNBLOCK;
+      }
+      invariant(false, 'relationshipButton conditions should be exhaustive');
+    }, [relationshipButton]);
 
-  const styles = useStyles(unboundStyles);
-  const otherUserInfoUsername = otherUserInfo.username;
-  invariant(otherUserInfoUsername, 'Other user username should be specified');
+    const dispatchActionPromise = useDispatchActionPromise();
+    const onButtonPress = React.useCallback(() => {
+      dispatchActionPromise(
+        updateRelationshipsActionTypes,
+        updateRelationship(relationshipAction),
+      );
+    }, [dispatchActionPromise, relationshipAction, updateRelationship]);
 
-  let relationshipButtonText;
-  if (relationshipButton === relationshipButtons.BLOCK) {
-    relationshipButtonText = `Block ${otherUserInfoUsername}`;
-  } else if (relationshipButton === relationshipButtons.FRIEND) {
-    relationshipButtonText = `Add ${otherUserInfoUsername} to friends`;
-  } else if (relationshipButton === relationshipButtons.UNFRIEND) {
-    relationshipButtonText = `Unfriend ${otherUserInfoUsername}`;
-  } else if (relationshipButton === relationshipButtons.UNBLOCK) {
-    relationshipButtonText = `Unblock ${otherUserInfoUsername}`;
-  } else if (relationshipButton === relationshipButtons.ACCEPT) {
-    relationshipButtonText = `Accept friend request from ${otherUserInfoUsername}`;
-  } else if (relationshipButton === relationshipButtons.REJECT) {
-    relationshipButtonText = `Reject friend request from ${otherUserInfoUsername}`;
-  } else if (relationshipButton === relationshipButtons.WITHDRAW) {
-    relationshipButtonText = `Withdraw request to friend ${otherUserInfoUsername}`;
-  }
+    const colors = useColors();
+    const { panelIosHighlightUnderlay } = colors;
 
-  return (
-    <View style={styles.container}>
-      <Button
-        onPress={onButtonPress}
-        style={[styles.button, props.buttonStyle]}
-        iosFormat="highlight"
-        iosHighlightUnderlayColor={panelIosHighlightUnderlay}
-      >
-        <Text style={styles.text}>{relationshipButtonText}</Text>
-      </Button>
-    </View>
-  );
-});
+    const styles = useStyles(unboundStyles);
+    const otherUserInfoUsername = otherUserInfo.username;
+    invariant(otherUserInfoUsername, 'Other user username should be specified');
+
+    let relationshipButtonText;
+    if (relationshipButton === relationshipButtons.BLOCK) {
+      relationshipButtonText = `Block ${otherUserInfoUsername}`;
+    } else if (relationshipButton === relationshipButtons.FRIEND) {
+      relationshipButtonText = `Add ${otherUserInfoUsername} to friends`;
+    } else if (relationshipButton === relationshipButtons.UNFRIEND) {
+      relationshipButtonText = `Unfriend ${otherUserInfoUsername}`;
+    } else if (relationshipButton === relationshipButtons.UNBLOCK) {
+      relationshipButtonText = `Unblock ${otherUserInfoUsername}`;
+    } else if (relationshipButton === relationshipButtons.ACCEPT) {
+      relationshipButtonText = `Accept friend request from ${otherUserInfoUsername}`;
+    } else if (relationshipButton === relationshipButtons.REJECT) {
+      relationshipButtonText = `Reject friend request from ${otherUserInfoUsername}`;
+    } else if (relationshipButton === relationshipButtons.WITHDRAW) {
+      relationshipButtonText = `Withdraw request to friend ${otherUserInfoUsername}`;
+    }
+
+    return (
+      <View style={styles.container}>
+        <Button
+          onPress={onButtonPress}
+          style={[styles.button, props.buttonStyle]}
+          iosFormat="highlight"
+          iosHighlightUnderlayColor={panelIosHighlightUnderlay}
+        >
+          <Text style={styles.text}>{relationshipButtonText}</Text>
+        </Button>
+      </View>
+    );
+  },
+);
 
 const unboundStyles = {
   button: {
@@ -146,3 +146,5 @@ const unboundStyles = {
     fontSize: 16,
   },
 };
+
+export default ThreadSettingsEditRelationship;

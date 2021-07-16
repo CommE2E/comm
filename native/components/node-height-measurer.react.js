@@ -30,7 +30,7 @@ type Props<Item, MergedItem> = {
   +itemToMeasureKey: Item => ?string,
   // The "dummy" is the component whose height we will be measuring
   // We will only call this with items for which itemToMeasureKey returns truthy
-  +itemToDummy: Item => React.Element<any>,
+  +itemToDummy: Item => React.Element<mixed>,
   // Once we have the height, we need to merge it into the item
   +mergeItemWithHeight: (item: Item, height: ?number) => MergedItem,
   // We'll pass our results here when we're done
@@ -420,7 +420,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     }
   }
 
-  onContainerLayout = (event: LayoutEvent) => {
+  onContainerLayout: (event: LayoutEvent) => void = event => {
     const { width, height } = event.nativeEvent.layout;
     if (width > height) {
       // We currently only use NodeHeightMeasurer on interfaces that are
@@ -448,7 +448,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     this.possiblyIssueNewBatch();
   }
 
-  render() {
+  render(): React.Node {
     const { currentlyMeasuring, iteration } = this.state;
     const dummies = currentlyMeasuring.map(({ measureKey, dummy }) => {
       const { children } = dummy.props;

@@ -16,7 +16,7 @@ type Props = {|
   +navigate: ThreadSettingsNavigate,
   +buttonStyle: ViewStyle,
 |};
-function ThreadSettingsDeleteThread(props: Props) {
+function ThreadSettingsDeleteThread(props: Props): React.Node {
   const { navigate, threadInfo } = props;
   const onPress = React.useCallback(() => {
     navigate({

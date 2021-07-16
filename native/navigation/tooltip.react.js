@@ -82,16 +82,16 @@ export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = {|
   +params: $ElementType<TooltipModalParamList, RouteName>,
 |};
 
-type BaseTooltipProps<RouteName> = {|
+export type BaseTooltipProps<RouteName> = {|
   +navigation: AppNavigationProp<RouteName>,
   +route: TooltipRoute<RouteName>,
 |};
-type ButtonProps<RouteName> = {|
-  ...BaseTooltipProps<RouteName>,
+type ButtonProps<Base> = {|
+  ...Base,
   +progress: Node,
 |};
-type TooltipProps<RouteName> = {|
-  ...BaseTooltipProps<RouteName>,
+type TooltipProps<Base> = {|
+  ...Base,
   // Redux state
   +dimensions: DimensionsInfo,
   +serverCallState: ServerCallState,
@@ -104,10 +104,13 @@ type TooltipProps<RouteName> = {|
   // withInputState
   +inputState: ?InputState,
 |};
-function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
-  ButtonComponent: React.ComponentType<ButtonProps<RouteName>>,
+function createTooltip<
+  RouteName: $Keys<TooltipModalParamList>,
+  BaseTooltipPropsType: BaseTooltipProps<RouteName> = BaseTooltipProps<RouteName>,
+>(
+  ButtonComponent: React.ComponentType<ButtonProps<BaseTooltipPropsType>>,
   tooltipSpec: TooltipSpec<RouteName>,
-): React.ComponentType<BaseTooltipProps<RouteName>> {
+): React.ComponentType<BaseTooltipPropsType> {
   class TooltipItem extends React.PureComponent<TooltipItemProps<RouteName>> {
     render() {
       return (
@@ -126,15 +129,17 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
       this.props.onPress(this.props.spec);
     };
   }
-  class Tooltip extends React.PureComponent<TooltipProps<RouteName>> {
+  class Tooltip extends React.PureComponent<
+    TooltipProps<BaseTooltipPropsType>,
+  > {
     backdropOpacity: Node;
     tooltipContainerOpacity: Node;
     tooltipVerticalAbove: Node;
     tooltipVerticalBelow: Node;
-    tooltipHorizontalOffset = new Value(0);
+    tooltipHorizontalOffset: Value = new Value(0);
     tooltipHorizontal: Node;
 
-    constructor(props: TooltipProps<RouteName>) {
+    constructor(props: TooltipProps<BaseTooltipPropsType>) {
       super(props);
 
       const { overlayContext } = props;
@@ -298,7 +303,16 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
     }
 
     render() {
-      const { navigation, route, dimensions } = this.props;
+      const {
+        dimensions,
+        serverCallState,
+        viewerID,
+        dispatch,
+        dispatchActionPromise,
+        overlayContext,
+        inputState,
+        ...navAndRouteForFlow
+      } = this.props;
 
       const { entries } = this;
       const items = entries.map((entry, index) => {
@@ -315,6 +329,7 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
       });
 
       let triangleStyle;
+      const { route } = this.props;
       const { initialCoordinates } = route.params;
       const { x, width } = initialCoordinates;
       const extraLeftSpace = x;
@@ -340,9 +355,13 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
         triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
       }
 
-      const { overlayContext } = this.props;
       invariant(overlayContext, 'Tooltip should have OverlayContext');
       const { position } = overlayContext;
+
+      const buttonProps: ButtonProps<BaseTooltipPropsType> = {
+        ...navAndRouteForFlow,
+        progress: position,
+      };
 
       return (
         <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
@@ -350,11 +369,7 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
             <AnimatedView style={this.opacityStyle} />
             <View style={this.contentContainerStyle}>
               <View style={this.buttonStyle}>
-                <ButtonComponent
-                  navigation={navigation}
-                  route={route}
-                  progress={position}
-                />
+                <ButtonComponent {...buttonProps} />
               </View>
             </View>
             <AnimatedView
@@ -425,8 +440,8 @@ function createTooltip<RouteName: $Keys<TooltipModalParamList>>(
       }
     };
   }
-  return React.memo<BaseTooltipProps<RouteName>>(function ConnectedTooltip(
-    props: BaseTooltipProps<RouteName>,
+  return React.memo<BaseTooltipPropsType>(function ConnectedTooltip(
+    props: BaseTooltipPropsType,
   ) {
     const dimensions = useSelector(state => state.dimensions);
     const serverCallState = useSelector(serverCallStateSelector);
@@ -516,7 +531,7 @@ const styles = StyleSheet.create({
   },
 });
 
-function tooltipHeight(numEntries: number) {
+function tooltipHeight(numEntries: number): number {
   // 10 (triangle) + 37 * numEntries (entries) + numEntries - 1 (padding)
   return 9 + 38 * numEntries;
 }

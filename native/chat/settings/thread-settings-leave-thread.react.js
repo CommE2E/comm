@@ -149,7 +149,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
   leaveThreadActionTypes,
 );
 
-export default React.memo<BaseProps>(
+const ConnectedThreadSettingsLeaveThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedThreadSettingsLeaveThread(props: BaseProps) {
     const loadingStatus = useSelector(loadingStatusSelector);
     const otherUsersButNoOtherAdminsValue = useSelector(
@@ -174,3 +174,5 @@ export default React.memo<BaseProps>(
     );
   },
 );
+
+export default ConnectedThreadSettingsLeaveThread;

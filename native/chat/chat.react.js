@@ -240,7 +240,8 @@ const Chat = createChatNavigator<
   ChatParamList,
   ChatNavigationProp<>,
 >();
-export default function ChatComponent() {
+// eslint-disable-next-line no-unused-vars
+export default function ChatComponent(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   const behavior = Platform.select({

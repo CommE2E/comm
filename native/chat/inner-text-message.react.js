@@ -25,7 +25,9 @@ function useTextMessageMarkdownRules(useDarkStyle: boolean) {
   return messageListContext.getTextMessageMarkdownRules(useDarkStyle);
 }
 
-function dummyNodeForTextMessageHeightMeasurement(text: string) {
+function dummyNodeForTextMessageHeightMeasurement(
+  text: string,
+): React.Element<typeof DummyTextNode> {
   return <DummyTextNode>{text}</DummyTextNode>;
 }
 
@@ -33,7 +35,7 @@ type DummyTextNodeProps = {|
   ...React.ElementConfig<typeof View>,
   +children: string,
 |};
-function DummyTextNode(props: DummyTextNodeProps) {
+function DummyTextNode(props: DummyTextNodeProps): React.Node {
   const { children, style, ...rest } = props;
   const maxWidth = useSelector(state => composedMessageMaxWidthSelector(state));
   const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
@@ -52,7 +54,7 @@ type Props = {|
   +onPress: () => void,
   +messageRef?: (message: ?React.ElementRef<typeof View>) => void,
 |};
-function InnerTextMessage(props: Props) {
+function InnerTextMessage(props: Props): React.Node {
   const { item } = props;
   const { text, creator } = item.messageInfo;
   const { isViewer } = creator;

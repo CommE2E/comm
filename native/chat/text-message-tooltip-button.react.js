@@ -19,7 +19,7 @@ type Props = {|
   +route: TooltipRoute<'TextMessageTooltipModal'>,
   +progress: Node,
 |};
-function TextMessageTooltipButton(props: Props) {
+function TextMessageTooltipButton(props: Props): React.Node {
   const { progress } = props;
   const windowWidth = useSelector(state => state.dimensions.width);
   const { initialCoordinates } = props.route.params;

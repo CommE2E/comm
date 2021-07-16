@@ -47,7 +47,9 @@ export type ChatTextMessageInfoItemWithHeight = {|
   +threadCreatedFromMessage: ?ThreadInfo,
 |};
 
-function textMessageItemHeight(item: ChatTextMessageInfoItemWithHeight) {
+function textMessageItemHeight(
+  item: ChatTextMessageInfoItemWithHeight,
+): number {
   const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
   const { isViewer } = messageInfo.creator;
   let height = 5 + contentHeight; // 5 from marginBottom in ComposedMessage
@@ -210,7 +212,7 @@ class TextMessage extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedTextMessage = React.memo<BaseProps>(
+const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedTextMessage(props: BaseProps) {
     const overlayContext = React.useContext(OverlayContext);
 

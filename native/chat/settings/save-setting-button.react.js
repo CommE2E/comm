@@ -9,7 +9,7 @@ import { useStyles } from '../../themes/colors';
 type Props = {|
   +onPress: () => void,
 |};
-function SaveSettingButton(props: Props) {
+function SaveSettingButton(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <TouchableOpacity onPress={props.onPress}>

@@ -131,4 +131,6 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<Props>(Search);
+const MemoizedSearch: React.ComponentType<Props> = React.memo<Props>(Search);
+
+export default MemoizedSearch;

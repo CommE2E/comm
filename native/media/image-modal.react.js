@@ -1145,7 +1145,7 @@ class ImageModal extends React.PureComponent<Props, State> {
 
   copy = () => {
     const { uri } = this.props.route.params.mediaInfo;
-    Clipboard.setImageFromURL(uri, (success) => {
+    Clipboard.setImageFromURL(uri, success => {
       displayActionResultModal(success ? 'copied!' : 'failed to copy :(');
     });
   };
@@ -1261,18 +1261,20 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo<BaseProps>(function ConnectedImageModal(
-  props: BaseProps,
-) {
-  const dimensions = useSelector(derivedDimensionsInfoSelector);
-  const overlayContext = React.useContext(OverlayContext);
-  const mediaReportsEnabled = useIsReportEnabled('mediaReports');
-  return (
-    <ImageModal
-      {...props}
-      dimensions={dimensions}
-      overlayContext={overlayContext}
-      mediaReportsEnabled={mediaReportsEnabled}
-    />
-  );
-});
+const ConnectedImageModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedImageModal(props: BaseProps) {
+    const dimensions = useSelector(derivedDimensionsInfoSelector);
+    const overlayContext = React.useContext(OverlayContext);
+    const mediaReportsEnabled = useIsReportEnabled('mediaReports');
+    return (
+      <ImageModal
+        {...props}
+        dimensions={dimensions}
+        overlayContext={overlayContext}
+        mediaReportsEnabled={mediaReportsEnabled}
+      />
+    );
+  },
+);
+
+export default ConnectedImageModal;

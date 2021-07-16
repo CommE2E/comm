@@ -13,7 +13,11 @@ import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
 
 import PencilIcon from '../components/pencil-icon.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import { createTooltip, type TooltipParams } from '../navigation/tooltip.react';
+import {
+  createTooltip,
+  type TooltipParams,
+  type BaseTooltipProps,
+} from '../navigation/tooltip.react';
 
 type Action = 'unfriend' | 'unblock';
 
@@ -116,8 +120,11 @@ class RelationshipListItemTooltipButton extends React.PureComponent<Props> {
   };
 }
 
-const RelationshipListItemTooltipModal = createTooltip<
-  'RelationshipListItemTooltipModal',
->(RelationshipListItemTooltipButton, spec);
+const RelationshipListItemTooltipModal: React.ComponentType<
+  BaseTooltipProps<'RelationshipListItemTooltipModal'>,
+> = createTooltip<'RelationshipListItemTooltipModal'>(
+  RelationshipListItemTooltipButton,
+  spec,
+);
 
 export default RelationshipListItemTooltipModal;

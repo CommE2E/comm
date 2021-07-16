@@ -157,7 +157,7 @@ type AppNavigatorProps = {
   navigation: RootNavigationProp<'App'>,
   ...
 };
-function AppNavigator(props: AppNavigatorProps) {
+function AppNavigator(props: AppNavigatorProps): React.Node {
   const { navigation } = props;
 
   const rootContext = React.useContext(RootContext);

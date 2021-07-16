@@ -40,7 +40,8 @@ const APP_DIRECTORY_DATA = [
   },
 ];
 
-function AppsDirectory() {
+// eslint-disable-next-line no-unused-vars
+function AppsDirectory(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
   const enabledApps = useSelector(state => state.enabledApps);
 

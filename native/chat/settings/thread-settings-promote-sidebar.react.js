@@ -112,7 +112,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
 );
 
-export default React.memo<BaseProps>(
+const ConnectedThreadSettingsPromoteSidebar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedThreadSettingsPromoteSidebar(props: BaseProps) {
     const loadingStatus = useSelector(loadingStatusSelector);
     const colors = useColors();
@@ -131,3 +131,5 @@ export default React.memo<BaseProps>(
     );
   },
 );
+
+export default ConnectedThreadSettingsPromoteSidebar;

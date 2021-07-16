@@ -14,7 +14,7 @@ type Props = {|
   style?: ViewStyle,
   ...React.ElementConfig<typeof View>,
 |};
-function NewMessagesPill(props: Props) {
+function NewMessagesPill(props: Props): React.Node {
   const {
     onPress,
     newMessageCount,

@@ -276,36 +276,38 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedThreadSettingsMember(
-  props: BaseProps,
-) {
-  const memberID = props.memberInfo.id;
-  const removeUserLoadingStatus = useSelector(state =>
-    createLoadingStatusSelector(
-      removeUsersFromThreadActionTypes,
-      `${removeUsersFromThreadActionTypes.started}:${memberID}`,
-    )(state),
-  );
-  const changeRoleLoadingStatus = useSelector(state =>
-    createLoadingStatusSelector(
-      changeThreadMemberRolesActionTypes,
-      `${changeThreadMemberRolesActionTypes.started}:${memberID}`,
-    )(state),
-  );
+const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedThreadSettingsMember(props: BaseProps) {
+    const memberID = props.memberInfo.id;
+    const removeUserLoadingStatus = useSelector(state =>
+      createLoadingStatusSelector(
+        removeUsersFromThreadActionTypes,
+        `${removeUsersFromThreadActionTypes.started}:${memberID}`,
+      )(state),
+    );
+    const changeRoleLoadingStatus = useSelector(state =>
+      createLoadingStatusSelector(
+        changeThreadMemberRolesActionTypes,
+        `${changeThreadMemberRolesActionTypes.started}:${memberID}`,
+      )(state),
+    );
 
-  const colors = useColors();
-  const styles = useStyles(unboundStyles);
-  const keyboardState = React.useContext(KeyboardContext);
-  const overlayContext = React.useContext(OverlayContext);
-  return (
-    <ThreadSettingsMember
-      {...props}
-      removeUserLoadingStatus={removeUserLoadingStatus}
-      changeRoleLoadingStatus={changeRoleLoadingStatus}
-      colors={colors}
-      styles={styles}
-      keyboardState={keyboardState}
-      overlayContext={overlayContext}
-    />
-  );
-});
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
+    const keyboardState = React.useContext(KeyboardContext);
+    const overlayContext = React.useContext(OverlayContext);
+    return (
+      <ThreadSettingsMember
+        {...props}
+        removeUserLoadingStatus={removeUserLoadingStatus}
+        changeRoleLoadingStatus={changeRoleLoadingStatus}
+        colors={colors}
+        styles={styles}
+        keyboardState={keyboardState}
+        overlayContext={overlayContext}
+      />
+    );
+  },
+);
+
+export default ConnectedThreadSettingsMember;

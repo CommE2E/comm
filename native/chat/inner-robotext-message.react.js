@@ -18,7 +18,9 @@ import { useOverlayStyles } from '../themes/colors';
 import { useNavigateToThread } from './message-list-types';
 import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
 
-function dummyNodeForRobotextMessageHeightMeasurement(robotext: string) {
+function dummyNodeForRobotextMessageHeightMeasurement(
+  robotext: string,
+): React.Element<typeof View> {
   return (
     <View style={unboundStyles.robotextContainer}>
       <Text style={unboundStyles.dummyRobotext}>
@@ -33,7 +35,7 @@ type InnerRobotextMessageProps = {|
   +onPress: () => void,
   +onLongPress?: () => void,
 |};
-function InnerRobotextMessage(props: InnerRobotextMessageProps) {
+function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   const { item, onLongPress, onPress } = props;
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const styles = useOverlayStyles(unboundStyles);

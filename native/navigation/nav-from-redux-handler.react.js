@@ -6,32 +6,34 @@ import { useSelector } from 'react-redux';
 import { setNavStateActionType } from './action-types';
 import { NavContext } from './navigation-context';
 
-const NavFromReduxHandler = React.memo<{||}>(() => {
-  const navContext = React.useContext(NavContext);
+const NavFromReduxHandler: React.ComponentType<{}> = React.memo<{}>(
+  function NavFromReduxHandler() {
+    const navContext = React.useContext(NavContext);
 
-  const navStateInRedux = useSelector(state => state.navState);
+    const navStateInRedux = useSelector(state => state.navState);
 
-  const dispatch = React.useMemo(() => {
-    if (!navContext) {
-      return null;
-    }
-    return navContext.dispatch;
-  }, [navContext]);
+    const dispatch = React.useMemo(() => {
+      if (!navContext) {
+        return null;
+      }
+      return navContext.dispatch;
+    }, [navContext]);
 
-  React.useEffect(() => {
-    if (!dispatch) {
-      return;
-    }
-    if (navStateInRedux) {
-      dispatch({
-        type: setNavStateActionType,
-        payload: { state: navStateInRedux },
-      });
-    }
-  }, [dispatch, navStateInRedux]);
+    React.useEffect(() => {
+      if (!dispatch) {
+        return;
+      }
+      if (navStateInRedux) {
+        dispatch({
+          type: setNavStateActionType,
+          payload: { state: navStateInRedux },
+        });
+      }
+    }, [dispatch, navStateInRedux]);
 
-  return null;
-});
+    return null;
+  },
+);
 NavFromReduxHandler.displayName = 'NavFromReduxHandler';
 
 export default NavFromReduxHandler;

@@ -413,27 +413,30 @@ const logOutLoadingStatusSelector = createLoadingStatusSelector(
   logOutActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedProfileScreen(
-  props: BaseProps,
-) {
-  const currentUserInfo = useSelector(state => state.currentUserInfo);
-  const preRequestUserState = useSelector(preRequestUserStateSelector);
-  const logOutLoading = useSelector(logOutLoadingStatusSelector) === 'loading';
-  const colors = useColors();
-  const styles = useStyles(unboundStyles);
-  const callLogOut = useServerCall(logOut);
-  const dispatchActionPromise = useDispatchActionPromise();
+const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedProfileScreen(props: BaseProps) {
+    const currentUserInfo = useSelector(state => state.currentUserInfo);
+    const preRequestUserState = useSelector(preRequestUserStateSelector);
+    const logOutLoading =
+      useSelector(logOutLoadingStatusSelector) === 'loading';
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
+    const callLogOut = useServerCall(logOut);
+    const dispatchActionPromise = useDispatchActionPromise();
 
-  return (
-    <ProfileScreen
-      {...props}
-      currentUserInfo={currentUserInfo}
-      preRequestUserState={preRequestUserState}
-      logOutLoading={logOutLoading}
-      colors={colors}
-      styles={styles}
-      logOut={callLogOut}
-      dispatchActionPromise={dispatchActionPromise}
-    />
-  );
-});
+    return (
+      <ProfileScreen
+        {...props}
+        currentUserInfo={currentUserInfo}
+        preRequestUserState={preRequestUserState}
+        logOutLoading={logOutLoading}
+        colors={colors}
+        styles={styles}
+        logOut={callLogOut}
+        dispatchActionPromise={dispatchActionPromise}
+      />
+    );
+  },
+);
+
+export default ConnectedProfileScreen;

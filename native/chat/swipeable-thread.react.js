@@ -29,7 +29,7 @@ type Props = {|
   +iconSize: number,
   +children: React.Node,
 |};
-function SwipeableThread(props: Props) {
+function SwipeableThread(props: Props): React.Node {
   const swipeable = React.useRef();
   const navigation = useNavigation();
   React.useEffect(() => {

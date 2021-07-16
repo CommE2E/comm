@@ -1,5 +1,8 @@
 // @flow
 
+import type ReactNativeAnimatedValue from 'react-native/Libraries/Animated/nodes/AnimatedValue';
+import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+
 export type {
   Layout,
   LayoutEvent,
@@ -14,7 +17,7 @@ export type {
 
 export type { NativeMethods } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 
-import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+export type AnimatedValue = ReactNativeAnimatedValue;
 
 export type ViewableItemsChange = {
   +viewableItems: ViewToken[],

@@ -6,7 +6,8 @@ import { View, Text, ScrollView } from 'react-native';
 import { useStyles } from '../themes/colors';
 import ToggleReport from './toggle-report.react';
 
-function PrivacyPreferences(): React.Node {
+// eslint-disable-next-line no-unused-vars
+function PrivacyPreferences(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
 
   return (

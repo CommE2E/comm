@@ -4,10 +4,11 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
 
-class TextInput extends React.PureComponent<*> {
+type Props = React.ElementConfig<typeof BaseTextInput>;
+class TextInput extends React.PureComponent<Props> {
   innerTextInput: ?React.ElementRef<typeof BaseTextInput>;
 
-  render() {
+  render(): React.Node {
     const style = [styles.textInput, this.props.style];
     return (
       <View style={styles.textInputWrapperView}>
@@ -21,9 +22,9 @@ class TextInput extends React.PureComponent<*> {
     );
   }
 
-  innerTextInputRef = (
+  innerTextInputRef: (
     innerTextInput: ?React.ElementRef<typeof BaseTextInput>,
-  ) => {
+  ) => void = innerTextInput => {
     this.innerTextInput = innerTextInput;
   };
 

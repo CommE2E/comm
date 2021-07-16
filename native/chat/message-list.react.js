@@ -332,43 +332,45 @@ const unboundStyles = {
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-export default React.memo<BaseProps>(function ConnectedMessageList(
-  props: BaseProps,
-) {
-  const keyboardState = React.useContext(KeyboardContext);
-  const overlayContext = React.useContext(OverlayContext);
+const ConnectedMessageList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedMessageList(props: BaseProps) {
+    const keyboardState = React.useContext(KeyboardContext);
+    const overlayContext = React.useContext(OverlayContext);
 
-  const threadID = props.threadInfo.id;
-  const startReached = useSelector(
-    state =>
-      !!(
-        state.messageStore.threads[threadID] &&
-        state.messageStore.threads[threadID].startReached
-      ),
-  );
+    const threadID = props.threadInfo.id;
+    const startReached = useSelector(
+      state =>
+        !!(
+          state.messageStore.threads[threadID] &&
+          state.messageStore.threads[threadID].startReached
+        ),
+    );
 
-  const styles = useStyles(unboundStyles);
-  const indicatorStyle = useIndicatorStyle();
+    const styles = useStyles(unboundStyles);
+    const indicatorStyle = useIndicatorStyle();
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callFetchMessagesBeforeCursor = useServerCall(
-    fetchMessagesBeforeCursor,
-  );
-  const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callFetchMessagesBeforeCursor = useServerCall(
+      fetchMessagesBeforeCursor,
+    );
+    const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
 
-  useWatchThread(props.threadInfo);
+    useWatchThread(props.threadInfo);
 
-  return (
-    <MessageList
-      {...props}
-      startReached={startReached}
-      styles={styles}
-      indicatorStyle={indicatorStyle}
-      dispatchActionPromise={dispatchActionPromise}
-      fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
-      fetchMostRecentMessages={callFetchMostRecentMessages}
-      overlayContext={overlayContext}
-      keyboardState={keyboardState}
-    />
-  );
-});
+    return (
+      <MessageList
+        {...props}
+        startReached={startReached}
+        styles={styles}
+        indicatorStyle={indicatorStyle}
+        dispatchActionPromise={dispatchActionPromise}
+        fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
+        fetchMostRecentMessages={callFetchMostRecentMessages}
+        overlayContext={overlayContext}
+        keyboardState={keyboardState}
+      />
+    );
+  },
+);
+
+export default ConnectedMessageList;

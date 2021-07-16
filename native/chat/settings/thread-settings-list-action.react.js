@@ -36,7 +36,7 @@ function ThreadSettingsListAction(props: ListActionProps) {
 type SeeMoreProps = {|
   +onPress: () => void,
 |};
-function ThreadSettingsSeeMore(props: SeeMoreProps) {
+function ThreadSettingsSeeMore(props: SeeMoreProps): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.seeMoreRow}>
@@ -58,7 +58,7 @@ function ThreadSettingsSeeMore(props: SeeMoreProps) {
 type AddMemberProps = {|
   +onPress: () => void,
 |};
-function ThreadSettingsAddMember(props: AddMemberProps) {
+function ThreadSettingsAddMember(props: AddMemberProps): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.addItemRow}>
@@ -78,7 +78,7 @@ function ThreadSettingsAddMember(props: AddMemberProps) {
 type AddChildThreadProps = {|
   +onPress: () => void,
 |};
-function ThreadSettingsAddSubthread(props: AddChildThreadProps) {
+function ThreadSettingsAddSubthread(props: AddChildThreadProps): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.addItemRow}>

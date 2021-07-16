@@ -9,7 +9,7 @@ type Props = {|
   ...StackHeaderProps,
   activeTab: boolean,
 |};
-export default function CustomHeader(props: Props) {
+export default function CustomHeader(props: Props): React.Node {
   const { activeTab, ...rest } = props;
   return (
     <>

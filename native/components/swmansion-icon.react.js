@@ -1,10 +1,10 @@
 // @flow
 
-import { createIconSetFromIcoMoon } from 'react-native-vector-icons';
+import { createIconSetFromIcoMoon, type Icon } from 'react-native-vector-icons';
 
 import icoMoonConfig from './swmansion-icon-config.json';
 
-const SWMansionIcon = createIconSetFromIcoMoon(
+const SWMansionIcon: Class<Icon<string>> = createIconSetFromIcoMoon(
   icoMoonConfig,
   'swmansion',
   'swmansion.ttf',

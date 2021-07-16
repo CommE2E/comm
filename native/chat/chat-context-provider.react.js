@@ -5,7 +5,7 @@ import * as React from 'react';
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import { ChatContext } from './chat-context';
+import { ChatContext, type RegisteredMeasurer } from './chat-context';
 import ChatItemHeightMeasurer from './chat-item-height-measurer.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 
@@ -26,15 +26,17 @@ export type MeasurementTask = {|
 type State = {|
   +measurements: $ReadOnlyArray<MeasurementTask>,
 |};
-
 class ChatContextProvider extends React.PureComponent<Props, State> {
   state: State = {
     measurements: [],
   };
   nextMeasurerID: number = 0;
-  measuredHeights = new Map<number, $ReadOnlyMap<string, number>>();
+  measuredHeights: Map<number, $ReadOnlyMap<string, number>> = new Map<
+    number,
+    $ReadOnlyMap<string, number>,
+  >();
 
-  registerMeasurer = () => {
+  registerMeasurer: () => RegisteredMeasurer = () => {
     const measurerID = this.nextMeasurerID++;
     return {
       measure: (
@@ -61,12 +63,12 @@ class ChatContextProvider extends React.PureComponent<Props, State> {
     };
   };
 
-  measureMessages = (
+  measureMessages: (
     messages: $ReadOnlyArray<ChatMessageItem>,
     threadInfo: ThreadInfo,
     onMessagesMeasured: ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
     measurerID: number,
-  ) => {
+  ) => void = (messages, threadInfo, onMessagesMeasured, measurerID) => {
     const measureCallback = (
       messagesWithHeight: $ReadOnlyArray<ChatMessageItemWithHeight>,
       measuredHeights: $ReadOnlyMap<string, number>,
@@ -103,11 +105,11 @@ class ChatContextProvider extends React.PureComponent<Props, State> {
     });
   };
 
-  contextValue = {
+  contextValue: { +registerMeasurer: () => RegisteredMeasurer } = {
     registerMeasurer: this.registerMeasurer,
   };
 
-  render() {
+  render(): React.Node {
     const heightMeasurers = this.state.measurements.map(measurement => (
       <ChatItemHeightMeasurer
         key={measurement.measurerID}

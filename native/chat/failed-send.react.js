@@ -138,24 +138,24 @@ const unboundStyles = {
   },
 };
 
-const ConnectedFailedSend = React.memo<BaseProps>(function ConnectedFailedSend(
-  props: BaseProps,
-) {
-  const id = messageID(props.item.messageInfo);
-  const rawMessageInfo = useSelector(state => {
-    const message = state.messageStore.messages[id];
-    return message ? assertComposableRawMessage(message) : null;
-  });
-  const styles = useStyles(unboundStyles);
-  const inputState = React.useContext(InputStateContext);
-  return (
-    <FailedSend
-      {...props}
-      rawMessageInfo={rawMessageInfo}
-      styles={styles}
-      inputState={inputState}
-    />
-  );
-});
+const ConnectedFailedSend: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedFailedSend(props: BaseProps) {
+    const id = messageID(props.item.messageInfo);
+    const rawMessageInfo = useSelector(state => {
+      const message = state.messageStore.messages[id];
+      return message ? assertComposableRawMessage(message) : null;
+    });
+    const styles = useStyles(unboundStyles);
+    const inputState = React.useContext(InputStateContext);
+    return (
+      <FailedSend
+        {...props}
+        rawMessageInfo={rawMessageInfo}
+        styles={styles}
+        inputState={inputState}
+      />
+    );
+  },
+);
 
 export { ConnectedFailedSend as FailedSend, failedSendHeight };

@@ -58,13 +58,17 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo<BaseProps>(function ConnectedComposeThreadButton(
-  props,
-) {
-  const colors = useColors();
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
+const ConnectedComposeThreadButton: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedComposeThreadButton(props) {
+    const colors = useColors();
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
 
-  return <ComposeThreadButton {...props} colors={colors} viewerID={viewerID} />;
-});
+    return (
+      <ComposeThreadButton {...props} colors={colors} viewerID={viewerID} />
+    );
+  },
+);
+
+export default ConnectedComposeThreadButton;

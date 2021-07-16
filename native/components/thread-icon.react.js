@@ -12,7 +12,7 @@ type Props = {|
   +threadType: ThreadType,
   +color: string,
 |};
-function ThreadIcon(props: Props) {
+function ThreadIcon(props: Props): React.Node {
   const { threadType, color } = props;
   if (
     threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||

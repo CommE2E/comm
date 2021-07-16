@@ -136,11 +136,13 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedComposeSubthreadModal(
-  props: BaseProps,
-) {
-  const styles = useStyles(unboundStyles);
-  const colors = useColors();
+const ConnectedComposeSubthreadModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedComposeSubthreadModal(props: BaseProps) {
+    const styles = useStyles(unboundStyles);
+    const colors = useColors();
 
-  return <ComposeSubthreadModal {...props} styles={styles} colors={colors} />;
-});
+    return <ComposeSubthreadModal {...props} styles={styles} colors={colors} />;
+  },
+);
+
+export default ConnectedComposeSubthreadModal;

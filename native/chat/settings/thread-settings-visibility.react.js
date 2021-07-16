@@ -11,7 +11,7 @@ import { useStyles, useColors } from '../../themes/colors';
 type Props = {|
   +threadInfo: ThreadInfo,
 |};
-function ThreadSettingsVisibility(props: Props) {
+function ThreadSettingsVisibility(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 

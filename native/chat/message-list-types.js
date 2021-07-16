@@ -20,7 +20,7 @@ export type MessageListContextType = {|
   +getTextMessageMarkdownRules: (useDarkStyle: boolean) => MarkdownRules,
 |};
 
-const MessageListContext = React.createContext<?MessageListContextType>();
+const MessageListContext: React.Context<?MessageListContextType> = React.createContext<?MessageListContextType>();
 
 function useMessageListContext(threadID: ?string) {
   const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadID);
@@ -36,7 +36,7 @@ type Props = {|
   +children: React.Node,
   +threadID: ?string,
 |};
-function MessageListContextProvider(props: Props) {
+function MessageListContextProvider(props: Props): React.Node {
   const context = useMessageListContext(props.threadID);
   return (
     <MessageListContext.Provider value={context}>

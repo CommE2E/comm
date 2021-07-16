@@ -55,7 +55,8 @@ const Profile = createStackNavigator<
   ProfileParamList,
   ProfileNavigationProp<>,
 >();
-function ProfileComponent() {
+// eslint-disable-next-line no-unused-vars
+function ProfileComponent(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 

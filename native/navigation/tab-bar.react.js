@@ -145,6 +145,6 @@ const styles = StyleSheet.create({
 
 // This is a render prop, not a component
 // eslint-disable-next-line react/display-name
-const tabBar = (props: Props) => <TabBar {...props} />;
+const tabBar = (props: Props): React.Node => <TabBar {...props} />;
 
 export { tabBarAnimationDuration, tabBar };

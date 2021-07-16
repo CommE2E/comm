@@ -46,7 +46,7 @@ class ErrorBoundary extends React.PureComponent<Props, State> {
     }));
   }
 
-  render() {
+  render(): React.Node {
     if (this.state.errorData.length > 0) {
       return <Crash errorData={this.state.errorData} />;
     }

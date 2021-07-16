@@ -218,129 +218,136 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedMessageListContainer(
-  props: BaseProps,
-) {
-  const [usernameInputText, setUsernameInputText] = React.useState('');
-  const [userInfoInputArray, setUserInfoInputArray] = React.useState<
-    $ReadOnlyArray<AccountUserInfo>,
-  >([]);
+const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedMessageListContainer(props: BaseProps) {
+    const [usernameInputText, setUsernameInputText] = React.useState('');
+    const [userInfoInputArray, setUserInfoInputArray] = React.useState<
+      $ReadOnlyArray<AccountUserInfo>,
+    >([]);
 
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
-  const userSearchResults = React.useMemo(
-    () =>
-      getPotentialMemberItems(
-        usernameInputText,
-        otherUserInfos,
-        userSearchIndex,
-        userInfoInputArray.map(userInfo => userInfo.id),
-      ),
-    [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputArray],
-  );
+    const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+    const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
+    const userSearchResults = React.useMemo(
+      () =>
+        getPotentialMemberItems(
+          usernameInputText,
+          otherUserInfos,
+          userSearchIndex,
+          userInfoInputArray.map(userInfo => userInfo.id),
+        ),
+      [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputArray],
+    );
 
-  const [baseThreadInfo, setBaseThreadInfo] = React.useState(
-    props.route.params.threadInfo,
-  );
+    const [baseThreadInfo, setBaseThreadInfo] = React.useState(
+      props.route.params.threadInfo,
+    );
 
-  const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
+    const existingThreadInfoFinder = useExistingThreadInfoFinder(
+      baseThreadInfo,
+    );
 
-  const isSearching = !!props.route.params.searching;
-  const threadInfo = React.useMemo(
-    () =>
-      existingThreadInfoFinder({
-        searching: isSearching,
-        userInfoInputArray,
-      }),
-    [existingThreadInfoFinder, isSearching, userInfoInputArray],
-  );
-  invariant(threadInfo, 'threadInfo must be specified in messageListContainer');
+    const isSearching = !!props.route.params.searching;
+    const threadInfo = React.useMemo(
+      () =>
+        existingThreadInfoFinder({
+          searching: isSearching,
+          userInfoInputArray,
+        }),
+      [existingThreadInfoFinder, isSearching, userInfoInputArray],
+    );
+    invariant(
+      threadInfo,
+      'threadInfo must be specified in messageListContainer',
+    );
 
-  const inputState = React.useContext(InputStateContext);
-  invariant(inputState, 'inputState should be set in MessageListContainer');
-  const hideSearch = React.useCallback(() => {
-    setBaseThreadInfo(threadInfo);
-    props.navigation.setParams({
-      searching: false,
-    });
-  }, [props.navigation, threadInfo]);
-  React.useEffect(() => {
-    if (!isSearching) {
-      return;
-    }
-    inputState.registerSendCallback(hideSearch);
-    return () => inputState.unregisterSendCallback(hideSearch);
-  }, [hideSearch, inputState, isSearching]);
-
-  const { setParams } = props.navigation;
-  React.useEffect(() => {
-    setParams({ threadInfo });
-  }, [setParams, threadInfo]);
-
-  const updateTagInput = React.useCallback(
-    (input: $ReadOnlyArray<AccountUserInfo>) => setUserInfoInputArray(input),
-    [],
-  );
-  const updateUsernameInput = React.useCallback(
-    (text: string) => setUsernameInputText(text),
-    [],
-  );
-  const { addReply } = inputState;
-  const resolveToUser = React.useCallback(
-    (user: AccountUserInfo) => {
-      const resolvedThreadInfo = existingThreadInfoFinder({
-        searching: true,
-        userInfoInputArray: [user],
+    const inputState = React.useContext(InputStateContext);
+    invariant(inputState, 'inputState should be set in MessageListContainer');
+    const hideSearch = React.useCallback(() => {
+      setBaseThreadInfo(threadInfo);
+      props.navigation.setParams({
+        searching: false,
       });
-      invariant(
-        resolvedThreadInfo,
-        'resolvedThreadInfo must be specified in messageListContainer',
-      );
-      addReply('');
-      setBaseThreadInfo(resolvedThreadInfo);
-      setParams({ searching: false, threadInfo: resolvedThreadInfo });
-    },
-    [setParams, existingThreadInfoFinder, addReply],
-  );
+    }, [props.navigation, threadInfo]);
+    React.useEffect(() => {
+      if (!isSearching) {
+        return;
+      }
+      inputState.registerSendCallback(hideSearch);
+      return () => inputState.unregisterSendCallback(hideSearch);
+    }, [hideSearch, inputState, isSearching]);
 
-  const threadID = threadInfo.id;
-  const messageListData = useMessageListData({
-    searching: isSearching,
-    userInfoInputArray,
-    threadInfo,
-  });
-  invariant(
-    messageListData,
-    'messageListData must be specified in messageListContainer',
-  );
-  const colors = useColors();
-  const styles = useStyles(unboundStyles);
-  const overlayContext = React.useContext(OverlayContext);
-  const measureMessages = useHeightMeasurer();
+    const { setParams } = props.navigation;
+    React.useEffect(() => {
+      setParams({ threadInfo });
+    }, [setParams, threadInfo]);
 
-  const genesisThreadInfo = useSelector(
-    state => threadInfoSelector(state)[genesis.id],
-  );
+    const updateTagInput = React.useCallback(
+      (input: $ReadOnlyArray<AccountUserInfo>) => setUserInfoInputArray(input),
+      [],
+    );
+    const updateUsernameInput = React.useCallback(
+      (text: string) => setUsernameInputText(text),
+      [],
+    );
+    const { addReply } = inputState;
+    const resolveToUser = React.useCallback(
+      (user: AccountUserInfo) => {
+        const resolvedThreadInfo = existingThreadInfoFinder({
+          searching: true,
+          userInfoInputArray: [user],
+        });
+        invariant(
+          resolvedThreadInfo,
+          'resolvedThreadInfo must be specified in messageListContainer',
+        );
+        addReply('');
+        setBaseThreadInfo(resolvedThreadInfo);
+        setParams({ searching: false, threadInfo: resolvedThreadInfo });
+      },
+      [setParams, existingThreadInfoFinder, addReply],
+    );
 
-  return (
-    <MessageListContextProvider threadID={threadID}>
-      <MessageListContainer
-        {...props}
-        usernameInputText={usernameInputText}
-        updateUsernameInput={updateUsernameInput}
-        userInfoInputArray={userInfoInputArray}
-        updateTagInput={updateTagInput}
-        resolveToUser={resolveToUser}
-        otherUserInfos={otherUserInfos}
-        userSearchResults={userSearchResults}
-        threadInfo={threadInfo}
-        genesisThreadInfo={genesisThreadInfo}
-        messageListData={messageListData}
-        colors={colors}
-        styles={styles}
-        overlayContext={overlayContext}
-        measureMessages={measureMessages}
-      />
-    </MessageListContextProvider>
-  );
-});
+    const threadID = threadInfo.id;
+    const messageListData = useMessageListData({
+      searching: isSearching,
+      userInfoInputArray,
+      threadInfo,
+    });
+    invariant(
+      messageListData,
+      'messageListData must be specified in messageListContainer',
+    );
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
+    const overlayContext = React.useContext(OverlayContext);
+    const measureMessages = useHeightMeasurer();
+
+    const genesisThreadInfo = useSelector(
+      state => threadInfoSelector(state)[genesis.id],
+    );
+
+    return (
+      <MessageListContextProvider threadID={threadID}>
+        <MessageListContainer
+          {...props}
+          usernameInputText={usernameInputText}
+          updateUsernameInput={updateUsernameInput}
+          userInfoInputArray={userInfoInputArray}
+          updateTagInput={updateTagInput}
+          resolveToUser={resolveToUser}
+          otherUserInfos={otherUserInfos}
+          userSearchResults={userSearchResults}
+          threadInfo={threadInfo}
+          genesisThreadInfo={genesisThreadInfo}
+          messageListData={messageListData}
+          colors={colors}
+          styles={styles}
+          overlayContext={overlayContext}
+          measureMessages={measureMessages}
+        />
+      </MessageListContextProvider>
+    );
+  },
+);
+
+export default ConnectedMessageListContainer;

@@ -24,7 +24,7 @@ type Props = {|
   +messageInfo: MessageInfo,
   +threadInfo: ThreadInfo,
 |};
-function MessagePreview(props: Props) {
+function MessagePreview(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
     props.messageInfo.type === messageTypes.SIDEBAR_SOURCE

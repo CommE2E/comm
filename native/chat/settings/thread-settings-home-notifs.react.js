@@ -96,18 +96,20 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedThreadSettingsHomeNotifs(
-  props: BaseProps,
-) {
-  const styles = useStyles(unboundStyles);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callUpdateSubscription = useServerCall(updateSubscription);
-  return (
-    <ThreadSettingsHomeNotifs
-      {...props}
-      styles={styles}
-      dispatchActionPromise={dispatchActionPromise}
-      updateSubscription={callUpdateSubscription}
-    />
-  );
-});
+const ConnectedThreadSettingsHomeNotifs: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedThreadSettingsHomeNotifs(props: BaseProps) {
+    const styles = useStyles(unboundStyles);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callUpdateSubscription = useServerCall(updateSubscription);
+    return (
+      <ThreadSettingsHomeNotifs
+        {...props}
+        styles={styles}
+        dispatchActionPromise={dispatchActionPromise}
+        updateSubscription={callUpdateSubscription}
+      />
+    );
+  },
+);
+
+export default ConnectedThreadSettingsHomeNotifs;

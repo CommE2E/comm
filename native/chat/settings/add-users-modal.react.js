@@ -306,32 +306,34 @@ const unboundStyles = {
   },
 };
 
-export default React.memo<BaseProps>(function ConnectedAddUsersModal(
-  props: BaseProps,
-) {
-  const { parentThreadID } = props.route.params.threadInfo;
+const ConnectedAddUsersModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedAddUsersModal(props: BaseProps) {
+    const { parentThreadID } = props.route.params.threadInfo;
 
-  const parentThreadInfo = useSelector(state =>
-    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-  );
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
-  const changeThreadSettingsLoadingStatus = useSelector(
-    createLoadingStatusSelector(changeThreadSettingsActionTypes),
-  );
-  const styles = useStyles(unboundStyles);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callChangeThreadSettings = useServerCall(changeThreadSettings);
-  return (
-    <AddUsersModal
-      {...props}
-      parentThreadInfo={parentThreadInfo}
-      otherUserInfos={otherUserInfos}
-      userSearchIndex={userSearchIndex}
-      changeThreadSettingsLoadingStatus={changeThreadSettingsLoadingStatus}
-      styles={styles}
-      dispatchActionPromise={dispatchActionPromise}
-      changeThreadSettings={callChangeThreadSettings}
-    />
-  );
-});
+    const parentThreadInfo = useSelector(state =>
+      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
+    const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+    const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
+    const changeThreadSettingsLoadingStatus = useSelector(
+      createLoadingStatusSelector(changeThreadSettingsActionTypes),
+    );
+    const styles = useStyles(unboundStyles);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callChangeThreadSettings = useServerCall(changeThreadSettings);
+    return (
+      <AddUsersModal
+        {...props}
+        parentThreadInfo={parentThreadInfo}
+        otherUserInfos={otherUserInfos}
+        userSearchIndex={userSearchIndex}
+        changeThreadSettingsLoadingStatus={changeThreadSettingsLoadingStatus}
+        styles={styles}
+        dispatchActionPromise={dispatchActionPromise}
+        changeThreadSettings={callChangeThreadSettings}
+      />
+    );
+  },
+);
+
+export default ConnectedAddUsersModal;

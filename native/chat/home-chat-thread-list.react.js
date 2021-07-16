@@ -12,7 +12,9 @@ type HomeChatThreadListProps = {|
   navigation: ChatTopTabsNavigationProp<'HomeChatThreadList'>,
   route: NavigationRoute<'HomeChatThreadList'>,
 |};
-export default function HomeChatThreadList(props: HomeChatThreadListProps) {
+export default function HomeChatThreadList(
+  props: HomeChatThreadListProps,
+): React.Node {
   return (
     <ChatThreadList
       navigation={props.navigation}

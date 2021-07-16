@@ -94,7 +94,7 @@ function collectDependencyInfo(
 type Props = {|
   navContext: NavContextType,
 |};
-function ModalPruner(props: Props) {
+function ModalPruner(props: Props): null {
   const { state, dispatch } = props.navContext;
 
   const [pruneRootModals, pruneOverlayModals] = React.useMemo(() => {

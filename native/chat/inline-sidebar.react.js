@@ -18,7 +18,7 @@ type Props = {|
   +threadInfo: ThreadInfo,
   +positioning: 'left' | 'center' | 'right',
 |};
-function InlineSidebar(props: Props) {
+function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;
 
   const navigateToThread = useNavigateToThread();

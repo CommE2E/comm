@@ -20,6 +20,8 @@ export type NavContextType = {|
   +dispatch: (action: NavAction) => void,
 |};
 
-const NavContext = React.createContext<?NavContextType>(null);
+const NavContext: React.Context<?NavContextType> = React.createContext<?NavContextType>(
+  null,
+);
 
 export { NavContext };

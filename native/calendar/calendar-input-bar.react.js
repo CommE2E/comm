@@ -10,7 +10,7 @@ type Props = {|
   +onSave: () => void,
   +disabled: boolean,
 |};
-function CalendarInputBar(props: Props) {
+function CalendarInputBar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const inactiveStyle = props.disabled ? styles.inactiveContainer : undefined;
   return (

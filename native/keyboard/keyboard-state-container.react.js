@@ -38,11 +38,11 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   keyboardShowListener: ?Object;
   keyboardDismissListener: ?Object;
 
-  keyboardShow = () => {
+  keyboardShow: () => void = () => {
     this.setState({ systemKeyboardShowing: true });
   };
 
-  keyboardDismiss = () => {
+  keyboardDismiss: () => void = () => {
     this.setState({ systemKeyboardShowing: false });
   };
 
@@ -77,12 +77,12 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     }
   }
 
-  dismissKeyboard = () => {
+  dismissKeyboard: () => void = () => {
     KeyboardUtils.dismiss();
     this.hideMediaGallery();
   };
 
-  dismissKeyboardIfShowing = () => {
+  dismissKeyboardIfShowing: () => boolean = () => {
     if (!this.keyboardShowing) {
       return false;
     }
@@ -90,12 +90,12 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     return true;
   };
 
-  get keyboardShowing() {
+  get keyboardShowing(): boolean {
     const { systemKeyboardShowing, mediaGalleryOpen } = this.state;
     return systemKeyboardShowing || mediaGalleryOpen;
   }
 
-  showMediaGallery = (thread: ThreadInfo) => {
+  showMediaGallery: (thread: ThreadInfo) => void = (thread: ThreadInfo) => {
     let updates: Shape<State> = {
       mediaGalleryOpen: true,
       mediaGalleryThread: thread,
@@ -106,7 +106,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     this.setState(updates);
   };
 
-  hideMediaGallery = () => {
+  hideMediaGallery: () => void = () => {
     this.setState({
       mediaGalleryOpen: false,
       mediaGalleryThread: null,
@@ -114,9 +114,10 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
     });
   };
 
-  getMediaGalleryThread = () => this.state.mediaGalleryThread;
+  getMediaGalleryThread: () => ?ThreadInfo = () =>
+    this.state.mediaGalleryThread;
 
-  render() {
+  render(): React.Node {
     const {
       systemKeyboardShowing,
       mediaGalleryOpen,

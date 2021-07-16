@@ -35,7 +35,7 @@ function ChatThreadListItem({
   onPressSeeMoreSidebars,
   onSwipeableWillOpen,
   currentlyOpenedSwipeableId,
-}: Props) {
+}: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
 

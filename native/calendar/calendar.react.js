@@ -85,7 +85,11 @@ import {
   type Colors,
   type IndicatorStyle,
 } from '../themes/colors';
-import type { EmitterSubscription, ScrollEvent, ViewableItemsChange } from '../types/react-native';
+import type {
+  EmitterSubscription,
+  ScrollEvent,
+  ViewableItemsChange,
+} from '../types/react-native';
 import CalendarInputBar from './calendar-input-bar.react';
 import {
   Entry,
@@ -1048,43 +1052,45 @@ const activeThreadPickerSelector = createIsForegroundSelector(
   ThreadPickerModalRouteName,
 );
 
-export default React.memo<BaseProps>(function ConnectedCalendar(
-  props: BaseProps,
-) {
-  const navContext = React.useContext(NavContext);
-  const calendarActive =
-    activeTabSelector(navContext) || activeThreadPickerSelector(navContext);
+const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedCalendar(props: BaseProps) {
+    const navContext = React.useContext(NavContext);
+    const calendarActive =
+      activeTabSelector(navContext) || activeThreadPickerSelector(navContext);
 
-  const listData = useSelector(calendarListData);
-  const startDate = useSelector(state => state.navInfo.startDate);
-  const endDate = useSelector(state => state.navInfo.endDate);
-  const calendarFilters = useSelector(state => state.calendarFilters);
-  const dimensions = useSelector(derivedDimensionsInfoSelector);
-  const loadingStatus = useSelector(loadingStatusSelector);
-  const connectionStatus = useSelector(state => state.connection.status);
-  const colors = useColors();
-  const styles = useStyles(unboundStyles);
-  const indicatorStyle = useIndicatorStyle();
+    const listData = useSelector(calendarListData);
+    const startDate = useSelector(state => state.navInfo.startDate);
+    const endDate = useSelector(state => state.navInfo.endDate);
+    const calendarFilters = useSelector(state => state.calendarFilters);
+    const dimensions = useSelector(derivedDimensionsInfoSelector);
+    const loadingStatus = useSelector(loadingStatusSelector);
+    const connectionStatus = useSelector(state => state.connection.status);
+    const colors = useColors();
+    const styles = useStyles(unboundStyles);
+    const indicatorStyle = useIndicatorStyle();
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
 
-  return (
-    <Calendar
-      {...props}
-      calendarActive={calendarActive}
-      listData={listData}
-      startDate={startDate}
-      endDate={endDate}
-      calendarFilters={calendarFilters}
-      dimensions={dimensions}
-      loadingStatus={loadingStatus}
-      connectionStatus={connectionStatus}
-      colors={colors}
-      styles={styles}
-      indicatorStyle={indicatorStyle}
-      dispatchActionPromise={dispatchActionPromise}
-      updateCalendarQuery={callUpdateCalendarQuery}
-    />
-  );
-});
+    return (
+      <Calendar
+        {...props}
+        calendarActive={calendarActive}
+        listData={listData}
+        startDate={startDate}
+        endDate={endDate}
+        calendarFilters={calendarFilters}
+        dimensions={dimensions}
+        loadingStatus={loadingStatus}
+        connectionStatus={connectionStatus}
+        colors={colors}
+        styles={styles}
+        indicatorStyle={indicatorStyle}
+        dispatchActionPromise={dispatchActionPromise}
+        updateCalendarQuery={callUpdateCalendarQuery}
+      />
+    );
+  },
+);
+
+export default ConnectedCalendar;

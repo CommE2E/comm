@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import { updateConnectivityActiveType } from './action-types';
 import { useSelector } from './redux-utils';
 
-export default function ConnectivityUpdater() {
+export default function ConnectivityUpdater(): null {
   const connectivity = useSelector(state => state.connectivity);
   const dispatch = useDispatch();
 

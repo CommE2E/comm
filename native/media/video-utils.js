@@ -272,7 +272,7 @@ async function unlink(path: string) {
   } catch {}
 }
 
-function formatDuration(seconds: number) {
+function formatDuration(seconds: number): string {
   const mm = Math.floor(seconds / 60);
   const ss = (seconds % 60).toFixed(0).padStart(2, '0');
   return `${mm}:${ss}`;

@@ -69,7 +69,7 @@ type Props = {|
   +navigation: AppNavigationProp<'VideoPlaybackModal'>,
   +route: NavigationRoute<'VideoPlaybackModal'>,
 |};
-function VideoPlaybackModal(props: Props) {
+function VideoPlaybackModal(props: Props): React.Node {
   const { mediaInfo } = props.route.params;
 
   const closeButtonX = useValue(-1);
@@ -170,17 +170,18 @@ function VideoPlaybackModal(props: Props) {
   const singleTapX = useValue(0);
   const singleTapY = useValue(0);
 
-  const singleTapEvent = React.useCallback(
-    event([
-      {
-        nativeEvent: {
-          state: singleTapState,
-          x: singleTapX,
-          y: singleTapY,
+  const singleTapEvent = React.useMemo(
+    () =>
+      event([
+        {
+          nativeEvent: {
+            state: singleTapState,
+            x: singleTapX,
+            y: singleTapY,
+          },
         },
-      },
-    ]),
-    [],
+      ]),
+    [singleTapState, singleTapX, singleTapY],
   );
 
   const lastTapX = useValue(-1);

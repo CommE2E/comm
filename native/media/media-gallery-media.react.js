@@ -22,6 +22,7 @@ import { type MediaLibrarySelection } from 'lib/types/media-types';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react';
+import type { AnimatedValue } from '../types/react-native';
 import {
   AnimatedView,
   AnimatedImage,
@@ -52,10 +53,10 @@ type Props = {|
 |};
 class MediaGalleryMedia extends React.PureComponent<Props> {
   // eslint-disable-next-line import/no-named-as-default-member
-  focusProgress = new Reanimated.Value(0);
+  focusProgress: Reanimated.Value = new Reanimated.Value(0);
   buttonsStyle: AnimatedViewStyle;
   mediaStyle: AnimatedStyleObj;
-  checkProgress = new Animated.Value(0);
+  checkProgress: AnimatedValue = new Animated.Value(0);
 
   constructor(props: Props) {
     super(props);
@@ -82,7 +83,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     };
   }
 
-  static isActive(props: Props) {
+  static isActive(props: Props): boolean {
     return props.isFocused || props.isQueued;
   }
 
@@ -120,7 +121,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     }
   }
 
-  render() {
+  render(): React.Node {
     const { selection, containerHeight } = this.props;
     const {
       uri,
@@ -221,7 +222,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     );
   }
 
-  onPressBackdrop = () => {
+  onPressBackdrop: () => void = () => {
     if (this.props.isQueued) {
       this.props.setMediaQueued(this.props.selection, false);
     } else if (this.props.queueModeActive) {
@@ -231,11 +232,11 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     }
   };
 
-  onPressSend = () => {
+  onPressSend: () => void = () => {
     this.props.sendMedia(this.props.selection);
   };
 
-  onPressEnqueue = () => {
+  onPressEnqueue: () => void = () => {
     this.props.setMediaQueued(this.props.selection, true);
   };
 }

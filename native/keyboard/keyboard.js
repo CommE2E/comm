@@ -49,7 +49,9 @@ function callShowCallback(
     callback(event);
   };
 }
-function addKeyboardShowListener(callback: ShowKeyboardCallback) {
+function addKeyboardShowListener(
+  callback: ShowKeyboardCallback,
+): EmitterSubscription {
   return Keyboard.addListener(
     Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
     callShowCallback(callback),
@@ -69,13 +71,17 @@ function callHideCallback(
     callback(event);
   };
 }
-function addKeyboardDismissListener(callback: HideKeyboardCallback) {
+function addKeyboardDismissListener(
+  callback: HideKeyboardCallback,
+): EmitterSubscription {
   return Keyboard.addListener(
     Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
     callHideCallback(callback),
   );
 }
-function addKeyboardDidDismissListener(callback: HideKeyboardCallback) {
+function addKeyboardDidDismissListener(
+  callback: HideKeyboardCallback,
+): EmitterSubscription {
   return Keyboard.addListener('keyboardDidHide', callHideCallback(callback));
 }
 
@@ -85,9 +91,9 @@ function removeKeyboardListener(listener: EmitterSubscription) {
 
 // This happens because we set windowTranslucentStatus and
 // windowTranslucentNavigation
-const androidKeyboardResizesFrame =
+const androidKeyboardResizesFrame: boolean =
   Platform.OS === 'android' && Platform.Version < 21;
-const rnsacThinksAndroidKeyboardResizesFrame =
+const rnsacThinksAndroidKeyboardResizesFrame: boolean =
   Platform.OS === 'android' && Platform.Version < 23;
 
 export {

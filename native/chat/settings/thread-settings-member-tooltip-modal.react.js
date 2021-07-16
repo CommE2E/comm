@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
 import { Alert } from 'react-native';
 
 import {
@@ -18,6 +19,7 @@ import {
   createTooltip,
   type TooltipParams,
   type TooltipRoute,
+  type BaseTooltipProps,
 } from '../../navigation/tooltip.react';
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
 
@@ -107,8 +109,11 @@ const spec = {
   ],
 };
 
-const ThreadSettingsMemberTooltipModal = createTooltip<
-  'ThreadSettingsMemberTooltipModal',
->(ThreadSettingsMemberTooltipButton, spec);
+const ThreadSettingsMemberTooltipModal: React.ComponentType<
+  BaseTooltipProps<'ThreadSettingsMemberTooltipModal'>,
+> = createTooltip<'ThreadSettingsMemberTooltipModal'>(
+  ThreadSettingsMemberTooltipButton,
+  spec,
+);
 
 export default ThreadSettingsMemberTooltipModal;

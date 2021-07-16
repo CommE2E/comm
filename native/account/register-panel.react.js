@@ -1,7 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
-import React from 'react';
+import * as React from 'react';
 import {
   Text,
   View,
@@ -33,6 +33,7 @@ import SWMansionIcon from '../components/swmansion-icon.react';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
+import type { KeyPressEvent } from '../types/react-native';
 import { type StateContainer } from '../utils/state-container';
 import { TextInput } from './modal-components.react';
 import { setNativeCredentials } from './native-credentials';
@@ -87,6 +88,27 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     if (Platform.OS === 'ios') {
       onPasswordKeyPress = this.onPasswordKeyPress;
     }
+
+    /* eslint-disable react-native/no-raw-text */
+    const privatePolicyNotice = (
+      <View style={styles.notice}>
+        <Text style={styles.noticeText}>
+          By signing up, you agree to our{' '}
+          <Text style={styles.hyperlinkText} onPress={this.onTermsOfUsePressed}>
+            Terms
+          </Text>
+          {' & '}
+          <Text
+            style={styles.hyperlinkText}
+            onPress={this.onPrivacyPolicyPressed}
+          >
+            Privacy Policy
+          </Text>
+          .
+        </Text>
+      </View>
+    );
+    /* eslint-enable react-native/no-raw-text */
 
     return (
       <Panel opacityValue={this.props.opacityValue} style={styles.container}>
@@ -155,25 +177,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
           />
         </View>
         <View style={styles.footer}>
-          <View style={styles.notice}>
-            <Text style={styles.noticeText}>
-              By signing up, you agree to our{' '}
-              <Text
-                style={styles.hyperlinkText}
-                onPress={this.onTermsOfUsePressed}
-              >
-                Terms
-              </Text>
-              {' & '}
-              <Text
-                style={styles.hyperlinkText}
-                onPress={this.onPrivacyPolicyPressed}
-              >
-                Privacy Policy
-              </Text>
-              .
-            </Text>
-          </View>
+          {privatePolicyNotice}
           <PanelButton
             text="SIGN UP"
             loadingStatus={this.props.loadingStatus}
@@ -233,9 +237,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
     this.props.registerState.setState(stateUpdate);
   };
 
-  onPasswordKeyPress = (
-    event: $ReadOnly<{ nativeEvent: $ReadOnly<{ key: string }> }>,
-  ) => {
+  onPasswordKeyPress = (event: KeyPressEvent) => {
     const { key } = event.nativeEvent;
     if (
       key.length > 1 &&
@@ -436,29 +438,31 @@ const styles = StyleSheet.create({
 
 const loadingStatusSelector = createLoadingStatusSelector(registerActionTypes);
 
-export default React.memo<BaseProps>(function ConnectedRegisterPanel(
-  props: BaseProps,
-) {
-  const loadingStatus = useSelector(loadingStatusSelector);
+const ConnectedRegisterPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedRegisterPanel(props: BaseProps) {
+    const loadingStatus = useSelector(loadingStatusSelector);
 
-  const navContext = React.useContext(NavContext);
-  const logInExtraInfo = useSelector(state =>
-    nativeLogInExtraInfoSelector({
-      redux: state,
-      navContext,
-    }),
-  );
+    const navContext = React.useContext(NavContext);
+    const logInExtraInfo = useSelector(state =>
+      nativeLogInExtraInfoSelector({
+        redux: state,
+        navContext,
+      }),
+    );
 
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callRegister = useServerCall(register);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callRegister = useServerCall(register);
 
-  return (
-    <RegisterPanel
-      {...props}
-      loadingStatus={loadingStatus}
-      logInExtraInfo={logInExtraInfo}
-      dispatchActionPromise={dispatchActionPromise}
-      register={callRegister}
-    />
-  );
-});
+    return (
+      <RegisterPanel
+        {...props}
+        loadingStatus={loadingStatus}
+        logInExtraInfo={logInExtraInfo}
+        dispatchActionPromise={dispatchActionPromise}
+        register={callRegister}
+      />
+    );
+  },
+);
+
+export default ConnectedRegisterPanel;

@@ -11,7 +11,7 @@ type Props = {|
   color: string,
   canUseRed: boolean,
 |};
-function LoadingIndicator(props: Props) {
+function LoadingIndicator(props: Props): React.Node {
   if (props.loadingStatus === 'error') {
     const colorStyle = props.canUseRed
       ? { color: 'red' }

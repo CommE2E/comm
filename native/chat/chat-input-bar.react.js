@@ -805,100 +805,104 @@ const createThreadLoadingStatusSelector = createLoadingStatusSelector(
   newThreadActionTypes,
 );
 
-export default React.memo<BaseProps>(function ConnectedChatInputBar(
-  props: BaseProps,
-) {
-  const inputState = React.useContext(InputStateContext);
-  const keyboardState = React.useContext(KeyboardContext);
-  const navContext = React.useContext(NavContext);
+const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedChatInputBar(props: BaseProps) {
+    const inputState = React.useContext(InputStateContext);
+    const keyboardState = React.useContext(KeyboardContext);
+    const navContext = React.useContext(NavContext);
 
-  const styles = useStyles(unboundStyles);
-  const colors = useColors();
+    const styles = useStyles(unboundStyles);
+    const colors = useColors();
 
-  const isActive = React.useMemo(
-    () => props.threadInfo.id === activeThreadSelector(navContext),
-    [props.threadInfo.id, navContext],
-  );
-
-  const { draft, updateDraft, moveDraft } = useDrafts(props.threadInfo.id);
-
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
-  const createThreadLoadingStatus = useSelector(
-    createThreadLoadingStatusSelector,
-  );
-  const threadCreationInProgress = createThreadLoadingStatus === 'loading';
-  const calendarQuery = useSelector(state =>
-    nonThreadCalendarQuery({
-      redux: state,
-      navContext,
-    }),
-  );
-  const nextLocalID = useSelector(state => state.nextLocalID);
-  const userInfos = useSelector(state => state.userStore.userInfos);
-
-  const dispatch = useDispatch();
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callJoinThread = useServerCall(joinThread);
-
-  const imagePastedCallback = React.useCallback(
-    imagePastedEvent => {
-      if (props.threadInfo.id !== imagePastedEvent['threadID']) {
-        return;
-      }
-      const pastedImage: PhotoPaste = {
-        step: 'photo_paste',
-        dimensions: {
-          height: imagePastedEvent.height,
-          width: imagePastedEvent.width,
-        },
-        filename: imagePastedEvent.fileName,
-        uri: 'file://' + imagePastedEvent.filePath,
-        selectTime: 0,
-        sendTime: 0,
-        retries: 0,
-      };
-      props.navigation.navigate({
-        name: ImagePasteModalRouteName,
-        params: {
-          imagePasteStagingInfo: pastedImage,
-          thread: props.threadInfo,
-        },
-      });
-    },
-    [props.navigation, props.threadInfo],
-  );
-
-  React.useEffect(() => {
-    const imagePasteListener = NativeAppEventEmitter.addListener(
-      'imagePasted',
-      imagePastedCallback,
+    const isActive = React.useMemo(
+      () => props.threadInfo.id === activeThreadSelector(navContext),
+      [props.threadInfo.id, navContext],
     );
-    return () => imagePasteListener.remove();
-  }, [imagePastedCallback]);
 
-  return (
-    <ChatInputBar
-      {...props}
-      viewerID={viewerID}
-      draft={draft}
-      updateDraft={updateDraft}
-      moveDraft={moveDraft}
-      joinThreadLoadingStatus={joinThreadLoadingStatus}
-      threadCreationInProgress={threadCreationInProgress}
-      calendarQuery={calendarQuery}
-      nextLocalID={nextLocalID}
-      userInfos={userInfos}
-      colors={colors}
-      styles={styles}
-      isActive={isActive}
-      keyboardState={keyboardState}
-      dispatch={dispatch}
-      dispatchActionPromise={dispatchActionPromise}
-      joinThread={callJoinThread}
-      inputState={inputState}
-    />
-  );
-});
+    const { draft, updateDraft, moveDraft } = useDrafts(props.threadInfo.id);
+
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const joinThreadLoadingStatus = useSelector(
+      joinThreadLoadingStatusSelector,
+    );
+    const createThreadLoadingStatus = useSelector(
+      createThreadLoadingStatusSelector,
+    );
+    const threadCreationInProgress = createThreadLoadingStatus === 'loading';
+    const calendarQuery = useSelector(state =>
+      nonThreadCalendarQuery({
+        redux: state,
+        navContext,
+      }),
+    );
+    const nextLocalID = useSelector(state => state.nextLocalID);
+    const userInfos = useSelector(state => state.userStore.userInfos);
+
+    const dispatch = useDispatch();
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callJoinThread = useServerCall(joinThread);
+
+    const imagePastedCallback = React.useCallback(
+      imagePastedEvent => {
+        if (props.threadInfo.id !== imagePastedEvent['threadID']) {
+          return;
+        }
+        const pastedImage: PhotoPaste = {
+          step: 'photo_paste',
+          dimensions: {
+            height: imagePastedEvent.height,
+            width: imagePastedEvent.width,
+          },
+          filename: imagePastedEvent.fileName,
+          uri: 'file://' + imagePastedEvent.filePath,
+          selectTime: 0,
+          sendTime: 0,
+          retries: 0,
+        };
+        props.navigation.navigate({
+          name: ImagePasteModalRouteName,
+          params: {
+            imagePasteStagingInfo: pastedImage,
+            thread: props.threadInfo,
+          },
+        });
+      },
+      [props.navigation, props.threadInfo],
+    );
+
+    React.useEffect(() => {
+      const imagePasteListener = NativeAppEventEmitter.addListener(
+        'imagePasted',
+        imagePastedCallback,
+      );
+      return () => imagePasteListener.remove();
+    }, [imagePastedCallback]);
+
+    return (
+      <ChatInputBar
+        {...props}
+        viewerID={viewerID}
+        draft={draft}
+        updateDraft={updateDraft}
+        moveDraft={moveDraft}
+        joinThreadLoadingStatus={joinThreadLoadingStatus}
+        threadCreationInProgress={threadCreationInProgress}
+        calendarQuery={calendarQuery}
+        nextLocalID={nextLocalID}
+        userInfos={userInfos}
+        colors={colors}
+        styles={styles}
+        isActive={isActive}
+        keyboardState={keyboardState}
+        dispatch={dispatch}
+        dispatchActionPromise={dispatchActionPromise}
+        joinThread={callJoinThread}
+        inputState={inputState}
+      />
+    );
+  },
+);
+
+export default ConnectedChatInputBar;

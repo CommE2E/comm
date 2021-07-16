@@ -15,7 +15,7 @@ type Props = $ReadOnly<{|
   +modalStyle?: ViewStyle,
   +safeAreaEdges?: $ReadOnlyArray<'top' | 'right' | 'bottom' | 'left'>,
 |}>;
-function Modal(props: Props) {
+function Modal(props: Props): React.Node {
   const navigation = useNavigation();
   const close = React.useCallback(() => {
     if (navigation.isFocused()) {

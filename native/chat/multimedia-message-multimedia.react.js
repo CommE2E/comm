@@ -23,7 +23,6 @@ import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutCoordinates } from '../types/layout-types';
 import {
   type ViewStyle,
-  type AnimatedViewStyle,
   type AnimatedStyleObj,
   AnimatedView,
 } from '../types/styles';
@@ -34,7 +33,7 @@ import {
 } from './multimedia-message-utils';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, Node, sub, interpolate, Extrapolate } = Animated;
+const { Node, sub, interpolate, Extrapolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type BaseProps = {|
@@ -49,7 +48,7 @@ type BaseProps = {|
     initialCoordinates: LayoutCoordinates,
   ) => void,
   +clickable: boolean,
-  +setClickable: (boolean) => void,
+  +setClickable: boolean => void,
 |};
 type Props = {|
   ...BaseProps,
@@ -219,7 +218,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export default React.memo<BaseProps>(
+const ConnectedMultimediaMessageMultimedia: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedMultimediaMessageMultimedia(props: BaseProps) {
     const colors = useColors();
     const keyboardState = React.useContext(KeyboardContext);
@@ -236,3 +235,5 @@ export default React.memo<BaseProps>(
     );
   },
 );
+
+export default ConnectedMultimediaMessageMultimedia;

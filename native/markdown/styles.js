@@ -26,14 +26,14 @@ const unboundStyles = {
   },
   inlineCode: {
     backgroundColor: 'codeBackground',
-    fontFamily: Platform.select({
+    fontFamily: (Platform.select({
       ios: 'Menlo',
       default: 'monospace',
-    }),
-    fontSize: Platform.select({
+    }): string),
+    fontSize: (Platform.select({
       ios: 17,
       default: 18,
-    }),
+    }): number),
   },
   h1: {
     fontSize: 32,
@@ -74,14 +74,14 @@ const unboundStyles = {
     marginVertical: 6,
   },
   codeBlockText: {
-    fontFamily: Platform.select({
+    fontFamily: (Platform.select({
       ios: 'Menlo',
       default: 'monospace',
-    }),
-    fontSize: Platform.select({
+    }): string),
+    fontSize: (Platform.select({
       ios: 17,
       default: 18,
-    }),
+    }): number),
   },
   listBulletStyle: {
     fontWeight: 'bold',
