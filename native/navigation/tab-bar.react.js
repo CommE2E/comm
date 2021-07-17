@@ -7,7 +7,6 @@ import Animated, { Easing } from 'react-native-reanimated';
 import { useSafeArea } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
-import { androidKeyboardResizesFrame } from '../keyboard/keyboard';
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import { updateDimensionsActiveType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
@@ -28,10 +27,7 @@ function TabBar(props: Props) {
   const tabBarVisible = tabBarVisibleRef.current;
 
   const keyboardState = React.useContext(KeyboardContext);
-  const shouldHideTabBar =
-    keyboardState &&
-    (keyboardState.mediaGalleryOpen ||
-      (keyboardState.keyboardShowing && androidKeyboardResizesFrame));
+  const shouldHideTabBar = keyboardState?.mediaGalleryOpen;
 
   const prevKeyboardStateRef = React.useRef();
   React.useEffect(() => {

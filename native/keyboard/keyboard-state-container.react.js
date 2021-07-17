@@ -4,7 +4,6 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
-import type { Shape } from 'lib/types/core';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import sleep from 'lib/utils/sleep';
 
@@ -14,7 +13,6 @@ import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-  androidKeyboardResizesFrame,
 } from './keyboard';
 import KeyboardInputHost from './keyboard-input-host.react';
 import { KeyboardContext } from './keyboard-state';
@@ -65,7 +63,7 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    if (Platform.OS !== 'android' || androidKeyboardResizesFrame) {
+    if (Platform.OS !== 'android') {
       return;
     }
     if (this.state.mediaGalleryOpen && !prevState.mediaGalleryOpen) {
@@ -96,14 +94,10 @@ class KeyboardStateContainer extends React.PureComponent<Props, State> {
   }
 
   showMediaGallery: (thread: ThreadInfo) => void = (thread: ThreadInfo) => {
-    let updates: Shape<State> = {
+    this.setState({
       mediaGalleryOpen: true,
       mediaGalleryThread: thread,
-    };
-    if (androidKeyboardResizesFrame) {
-      updates = { ...updates, renderKeyboardInputHost: true };
-    }
-    this.setState(updates);
+    });
   };
 
   hideMediaGallery: () => void = () => {

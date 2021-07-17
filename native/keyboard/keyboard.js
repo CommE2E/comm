@@ -91,8 +91,6 @@ function removeKeyboardListener(listener: EmitterSubscription) {
 
 // This happens because we set windowTranslucentStatus and
 // windowTranslucentNavigation
-const androidKeyboardResizesFrame: boolean =
-  Platform.OS === 'android' && Platform.Version < 21;
 const rnsacThinksAndroidKeyboardResizesFrame: boolean =
   Platform.OS === 'android' && Platform.Version < 23;
 
@@ -102,6 +100,5 @@ export {
   addKeyboardDismissListener,
   addKeyboardDidDismissListener,
   removeKeyboardListener,
-  androidKeyboardResizesFrame,
   rnsacThinksAndroidKeyboardResizesFrame,
 };

@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 
 import type { ScreenRect, KeyboardEvent } from '../keyboard/keyboard';
-import { androidKeyboardResizesFrame } from '../keyboard/keyboard';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -32,22 +31,8 @@ type BaseProps = {
 const KeyboardAvoidingView: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function KeyboardAvoidingView(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
-    if (!androidKeyboardResizesFrame) {
-      return (
-        <InnerKeyboardAvoidingView {...props} keyboardState={keyboardState} />
-      );
-    }
-
-    const { behavior, contentContainerStyle, ...viewProps } = props;
-    if (behavior !== 'position') {
-      return <View {...viewProps} />;
-    }
-
-    const { children, ...restViewProps } = viewProps;
     return (
-      <View {...restViewProps}>
-        <View style={contentContainerStyle}>{children}</View>
-      </View>
+      <InnerKeyboardAvoidingView {...props} keyboardState={keyboardState} />
     );
   },
 );
@@ -119,7 +104,6 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     const mediaGalleryOpen = keyboardState && keyboardState.mediaGalleryOpen;
     if (
       Platform.OS === 'android' &&
-      !androidKeyboardResizesFrame &&
       mediaGalleryOpen &&
       this.keyboardFrame.height > 0 &&
       this.viewFrame

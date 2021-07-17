@@ -14,7 +14,6 @@ import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-  androidKeyboardResizesFrame,
   rnsacThinksAndroidKeyboardResizesFrame,
 } from '../keyboard/keyboard';
 import { updateDimensionsActiveType } from './action-types';
@@ -43,8 +42,8 @@ function dimensionsUpdateFromMetrics(metrics: ?Metrics): BaseDimensionsInfo {
   return {
     height: metrics.frame.height,
     width: metrics.frame.width,
-    topInset: androidKeyboardResizesFrame ? 0 : metrics.insets.top,
-    bottomInset: androidKeyboardResizesFrame ? 0 : metrics.insets.bottom,
+    topInset: metrics.insets.top,
+    bottomInset: metrics.insets.bottom,
   };
 }
 
