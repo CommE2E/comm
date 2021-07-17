@@ -11,7 +11,7 @@
 #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
 #import <EXSplashScreen/EXSplashScreenService.h>
 
-#import <React/JSCExecutorFactory.h>
+#import <reacthermes/HermesExecutorFactory.h>
 #import <React/RCTCxxBridgeDelegate.h>
 #import <React/RCTJSIExecutorRuntimeInstaller.h>
 #import <cxxreact/JSExecutor.h>
@@ -128,7 +128,7 @@ static void InitializeFlipper(UIApplication *application) {
 #endif
 }
 
-using ExecutorFactory = facebook::react::JSCExecutorFactory;
+using ExecutorFactory = facebook::react::HermesExecutorFactory;
 using Runtime = facebook::jsi::Runtime;
 
 - (std::unique_ptr<ExecutorFactory>)jsExecutorFactoryForBridge
