@@ -33,7 +33,7 @@
     "metro-react-native-babel-preset": "^0.64.0",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.0.0",
-    "react-native-flipper": "^0.79.1",
+    "react-native-flipper": "^0.98.0",
     "react-test-renderer": "17.0.1",
     "redux-flipper": "^1.4.2",
     "remote-redux-devtools": "git+https://git@github.com/zalmoxisus/remote-redux-devtools.git",
