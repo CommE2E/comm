@@ -9,7 +9,7 @@ import Button from '../../components/button.react';
 import { useStyles } from '../../themes/colors';
 import type { ViewStyle, TextStyle } from '../../types/styles';
 
-type ListActionProps = {|
+type ListActionProps = {
   +onPress: () => void,
   +text: string,
   +iconName: IoniconsGlyphs,
@@ -17,7 +17,7 @@ type ListActionProps = {|
   +iconStyle?: TextStyle,
   +buttonStyle?: ViewStyle,
   +styles: typeof unboundStyles,
-|};
+};
 function ThreadSettingsListAction(props: ListActionProps) {
   return (
     <Button onPress={props.onPress} style={props.buttonStyle}>
@@ -33,9 +33,9 @@ function ThreadSettingsListAction(props: ListActionProps) {
   );
 }
 
-type SeeMoreProps = {|
+type SeeMoreProps = {
   +onPress: () => void,
-|};
+};
 function ThreadSettingsSeeMore(props: SeeMoreProps): React.Node {
   const styles = useStyles(unboundStyles);
   return (
@@ -55,9 +55,9 @@ function ThreadSettingsSeeMore(props: SeeMoreProps): React.Node {
   );
 }
 
-type AddMemberProps = {|
+type AddMemberProps = {
   +onPress: () => void,
-|};
+};
 function ThreadSettingsAddMember(props: AddMemberProps): React.Node {
   const styles = useStyles(unboundStyles);
   return (
@@ -75,9 +75,9 @@ function ThreadSettingsAddMember(props: AddMemberProps): React.Node {
   );
 }
 
-type AddChildThreadProps = {|
+type AddChildThreadProps = {
   +onPress: () => void,
-|};
+};
 function ThreadSettingsAddSubthread(props: AddChildThreadProps): React.Node {
   const styles = useStyles(unboundStyles);
   return (

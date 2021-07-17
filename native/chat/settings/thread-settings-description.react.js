@@ -38,15 +38,15 @@ import {
   ThreadSettingsCategoryFooter,
 } from './thread-settings-category.react';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +descriptionEditValue: ?string,
   +setDescriptionEditValue: (value: ?string, callback?: () => void) => void,
   +descriptionTextHeight: ?number,
   +setDescriptionTextHeight: (number: number) => void,
   +canChangeSettings: boolean,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
@@ -58,7 +58,7 @@ type Props = {|
   +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
-|};
+};
 class ThreadSettingsDescription extends React.PureComponent<Props> {
   textInput: ?React.ElementRef<typeof TextInput>;
 

@@ -42,11 +42,11 @@ import css from './calendar.css';
 import Day from './day.react';
 import FilterPanel from './filter-panel.react';
 
-type BaseProps = {|
+type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
   +url: string,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +year: number,
   +month: number,
@@ -59,10 +59,10 @@ type Props = {|
     calendarQuery: CalendarQuery,
     reduxAlreadyUpdated?: boolean,
   ) => Promise<CalendarQueryUpdateResult>,
-|};
-type State = {|
+};
+type State = {
   filterPanelOpen: boolean,
-|};
+};
 class Calendar extends React.PureComponent<Props, State> {
   state: State = {
     filterPanelOpen: false,

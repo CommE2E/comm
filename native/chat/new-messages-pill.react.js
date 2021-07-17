@@ -7,13 +7,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 
-type Props = {|
+type Props = {
   onPress: () => mixed,
   newMessageCount: number,
   containerStyle?: ViewStyle,
   style?: ViewStyle,
   ...React.ElementConfig<typeof View>,
-|};
+};
 function NewMessagesPill(props: Props): React.Node {
   const {
     onPress,

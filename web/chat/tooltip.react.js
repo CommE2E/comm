@@ -7,15 +7,15 @@ import css from './chat-message-list.css';
 import type { ItemAndContainerPositionInfo } from './position-types';
 import { findTooltipPosition, type TooltipPosition } from './tooltip-utils';
 
-type Style = {|
+type Style = {
   +left?: number,
   +right?: number,
   +top?: number,
   +bottom?: number,
-|};
-export type TooltipStyle = {| +className: string, +style?: Style |};
+};
+export type TooltipStyle = { +className: string, +style?: Style };
 
-type TooltipMenuProps = {|
+type TooltipMenuProps = {
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
   +targetPositionInfo: ItemAndContainerPositionInfo,
   +layoutPosition: 'relative' | 'absolute',
@@ -23,7 +23,7 @@ type TooltipMenuProps = {|
   +children: React.ChildrenArray<
     React.Element<typeof TooltipButton | typeof TooltipTextItem>,
   >,
-|};
+};
 function TooltipMenu(props: TooltipMenuProps): React.Node {
   const {
     availableTooltipPositions,
@@ -73,10 +73,10 @@ function TooltipMenu(props: TooltipMenuProps): React.Node {
   );
 }
 
-type TooltipButtonProps = {|
+type TooltipButtonProps = {
   +onClick: (event: SyntheticEvent<HTMLButtonElement>) => void,
   +text: string,
-|};
+};
 function TooltipButton(props: TooltipButtonProps): React.Node {
   const { onClick, text } = props;
   return (
@@ -86,9 +86,9 @@ function TooltipButton(props: TooltipButtonProps): React.Node {
   );
 }
 
-type TooltipTextItemProps = {|
+type TooltipTextItemProps = {
   +text: string,
-|};
+};
 function TooltipTextItem(props: TooltipTextItemProps): React.Node {
   return (
     <li>

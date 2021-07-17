@@ -15,14 +15,14 @@ import { getUploadURL } from '../fetchers/upload-fetchers';
 import type { Viewer } from '../session/viewer';
 import createIDs from './id-creator';
 
-export type UploadInput = {|
+export type UploadInput = {
   name: string,
   mime: string,
   mediaType: MediaType,
   buffer: Buffer,
   dimensions: Dimensions,
   loop: boolean,
-|};
+};
 async function createUploads(
   viewer: Viewer,
   uploadInfos: $ReadOnlyArray<UploadInput>,

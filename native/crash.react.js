@@ -47,10 +47,10 @@ import { wipeAndExit } from './utils/crash-utils';
 
 const errorTitles = ['Oh no!!', 'Womp womp womp...'];
 
-type BaseProps = {|
+type BaseProps = {
   +errorData: $ReadOnlyArray<ErrorData>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +preRequestUserState: PreRequestUserState,
@@ -62,11 +62,11 @@ type Props = {|
   ) => Promise<ReportCreationResponse>,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
   +crashReportingEnabled: boolean,
-|};
-type State = {|
+};
+type State = {
   +errorReportID: ?string,
   +doneWaiting: boolean,
-|};
+};
 class Crash extends React.PureComponent<Props, State> {
   errorTitle = _shuffle(errorTitles)[0];
 

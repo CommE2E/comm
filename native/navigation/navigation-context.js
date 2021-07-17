@@ -15,10 +15,10 @@ export type NavAction =
   | RootRouterNavigationAction
   | ChatRouterNavigationAction
   | OverlayRouterNavigationAction;
-export type NavContextType = {|
+export type NavContextType = {
   +state: PossiblyStaleNavigationState,
   +dispatch: (action: NavAction) => void,
-|};
+};
 
 const NavContext: React.Context<?NavContextType> = React.createContext<?NavContextType>(
   null,

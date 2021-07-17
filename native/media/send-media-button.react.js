@@ -13,13 +13,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import type { ViewStyle } from '../types/styles';
 
-type Props = {|
+type Props = {
   ...React.ElementConfig<typeof View>,
   onPress: () => mixed,
   queueCount?: number,
   containerStyle?: ViewStyle,
   style?: ViewStyle,
-|};
+};
 function SendMediaButton(props: Props): React.Node {
   const {
     onPress,

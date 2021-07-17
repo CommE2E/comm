@@ -6,10 +6,10 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Pill from './pill.react';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
-  +roundCorners?: {| +left: boolean, +right: boolean |},
-|};
+  +roundCorners?: { +left: boolean, +right: boolean },
+};
 function ThreadPill(props: Props): React.Node {
   const { threadInfo, roundCorners } = props;
   return (

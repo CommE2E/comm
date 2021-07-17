@@ -220,21 +220,21 @@ function runIndicatorAnimation(
   ]);
 }
 
-export type CameraModalParams = {|
+export type CameraModalParams = {
   +presentedFrom: string,
   +thread: ThreadInfo,
-|};
+};
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
   NativeMethods,
 >;
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: AppNavigationProp<'CameraModal'>,
   +route: NavigationRoute<'CameraModal'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +dimensions: DimensionsInfo,
@@ -247,20 +247,20 @@ type Props = {|
   +inputState: ?InputState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
-|};
-type State = {|
+};
+type State = {
   +zoom: number,
   +useFrontCamera: boolean,
   +hasCamerasOnBothSides: boolean,
   +flashMode: number,
-  +autoFocusPointOfInterest: ?{|
+  +autoFocusPointOfInterest: ?{
     x: number,
     y: number,
     autoExposure?: boolean,
-  |},
+  },
   +stagingMode: boolean,
   +pendingPhotoCapture: ?PhotoCapture,
-|};
+};
 class CameraModal extends React.PureComponent<Props, State> {
   camera: ?RNCamera;
 

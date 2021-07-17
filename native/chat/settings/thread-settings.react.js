@@ -86,9 +86,9 @@ import ThreadSettingsVisibility from './thread-settings-visibility.react';
 
 const itemPageLength = 5;
 
-export type ThreadSettingsParams = {|
+export type ThreadSettingsParams = {
   +threadInfo: ThreadInfo,
-|};
+};
 
 export type ThreadSettingsNavigate = $PropertyType<
   ChatNavigationProp<'ThreadSettings'>,
@@ -96,25 +96,25 @@ export type ThreadSettingsNavigate = $PropertyType<
 >;
 
 type ChatSettingsItem =
-  | {|
+  | {
       +itemType: 'header',
       +key: string,
       +title: string,
       +categoryType: CategoryType,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'footer',
       +key: string,
       +categoryType: CategoryType,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'name',
       +key: string,
       +threadInfo: ThreadInfo,
       +nameEditValue: ?string,
       +canChangeSettings: boolean,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'color',
       +key: string,
       +threadInfo: ThreadInfo,
@@ -122,53 +122,53 @@ type ChatSettingsItem =
       +canChangeSettings: boolean,
       +navigate: ThreadSettingsNavigate,
       +threadSettingsRouteKey: string,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'description',
       +key: string,
       +threadInfo: ThreadInfo,
       +descriptionEditValue: ?string,
       +descriptionTextHeight: ?number,
       +canChangeSettings: boolean,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'parent',
       +key: string,
       +threadInfo: ThreadInfo,
       +parentThreadInfo: ?ThreadInfo,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'visibility',
       +key: string,
       +threadInfo: ThreadInfo,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'pushNotifs',
       +key: string,
       +threadInfo: ThreadInfo,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'homeNotifs',
       +key: string,
       +threadInfo: ThreadInfo,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'seeMore',
       +key: string,
       +onPress: () => void,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'childThread',
       +key: string,
       +threadInfo: ThreadInfo,
       +firstListItem: boolean,
       +lastListItem: boolean,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'addSubthread',
       +key: string,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'member',
       +key: string,
       +memberInfo: RelativeMemberInfo,
@@ -179,32 +179,32 @@ type ChatSettingsItem =
       +lastListItem: boolean,
       +verticalBounds: ?VerticalBounds,
       +threadSettingsRouteKey: string,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'addMember',
       +key: string,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
       +key: string,
       +threadInfo: ThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
-    |}
-  | {|
+    }
+  | {
       +itemType: 'editRelationship',
       +key: string,
       +threadInfo: ThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
       +relationshipButton: RelationshipButton,
-    |};
+    };
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: ChatNavigationProp<'ThreadSettings'>,
   +route: NavigationRoute<'ThreadSettings'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +userInfos: UserInfos,
@@ -220,8 +220,8 @@ type Props = {|
   +overlayContext: ?OverlayContextType,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
-|};
-type State = {|
+};
+type State = {
   +numMembersShowing: number,
   +numSubthreadsShowing: number,
   +numSidebarsShowing: number,
@@ -230,8 +230,8 @@ type State = {|
   +descriptionTextHeight: ?number,
   +colorEditValue: string,
   +verticalBounds: ?VerticalBounds,
-|};
-type PropsAndState = {| ...Props, ...State |};
+};
+type PropsAndState = { ...Props, ...State };
 class ThreadSettings extends React.PureComponent<Props, State> {
   flatListContainer: ?React.ElementRef<typeof View>;
 

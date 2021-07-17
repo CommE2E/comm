@@ -8,9 +8,9 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import ThreadVisibility from '../../components/thread-visibility.react';
 import { useStyles, useColors } from '../../themes/colors';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
-|};
+};
 function ThreadSettingsVisibility(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();

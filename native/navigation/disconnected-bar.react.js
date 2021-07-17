@@ -16,9 +16,9 @@ const timingConfig = {
   easing: Easing.inOut(Easing.ease),
 };
 
-type Props = {|
+type Props = {
   +visible: boolean,
-|};
+};
 function DisconnectedBar(props: Props): React.Node {
   const disconnected = useSelector(
     state => state.connection.showDisconnectedBar,

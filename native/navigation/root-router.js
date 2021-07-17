@@ -30,25 +30,25 @@ import {
   AppRouteName,
 } from './route-names';
 
-type LogInAction = {|
+type LogInAction = {
   +type: 'LOG_IN',
-|};
-type LogOutAction = {|
+};
+type LogOutAction = {
   +type: 'LOG_OUT',
-|};
-type ClearRootModalsAction = {|
+};
+type ClearRootModalsAction = {
   +type: 'CLEAR_ROOT_MODALS',
-  +payload: {|
+  +payload: {
     +keys: $ReadOnlyArray<string>,
-  |},
-|};
-type SetNavStateAction = {|
+  },
+};
+type SetNavStateAction = {
   +type: 'SET_NAV_STATE',
-  +payload: {|
+  +payload: {
     +state: NavigationState,
     +hideFromMonitor?: boolean,
-  |},
-|};
+  },
+};
 export type RootRouterNavigationAction =
   | StackAction
   | LogInAction
@@ -59,14 +59,14 @@ export type RootRouterNavigationAction =
 export type RootRouterNavigationProp<
   ParamList: ParamListBase = ParamListBase,
   RouteName: string = string,
-> = {|
+> = {
   ...StackNavigationProp<ParamList, RouteName>,
   +logIn: () => void,
   +logOut: () => void,
   +clearRootModals: (keys: $ReadOnlyArray<string>) => void,
   +setNavState: (state: NavigationState) => void,
   +goBackOnce: () => void,
-|};
+};
 
 type ResetStateRoute = {
   +name: string,

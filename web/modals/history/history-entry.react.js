@@ -30,12 +30,12 @@ import { useSelector } from '../../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
 import css from './history.css';
 
-type BaseProps = {|
+type BaseProps = {
   +entryInfo: EntryInfo,
   +onClick: (entryID: string) => void,
   +animateAndLoadEntry: (entryID: string) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +threadInfo: ThreadInfo,
   +loggedIn: boolean,
@@ -43,7 +43,7 @@ type Props = {|
   +calendarQuery: () => CalendarQuery,
   +dispatchActionPromise: DispatchActionPromise,
   +restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResult>,
-|};
+};
 
 class HistoryEntry extends React.PureComponent<Props> {
   render() {

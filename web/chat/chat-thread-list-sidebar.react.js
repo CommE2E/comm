@@ -10,9 +10,9 @@ import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import css from './chat-thread-list.css';
 import SidebarItem from './sidebar-item.react';
 
-type Props = {|
+type Props = {
   +sidebarInfo: SidebarInfo,
-|};
+};
 function ChatThreadListSidebar(props: Props): React.Node {
   const { threadInfo, mostRecentNonLocalMessage } = props.sidebarInfo;
   const threadID = threadInfo.id;

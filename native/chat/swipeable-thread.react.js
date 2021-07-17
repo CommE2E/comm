@@ -21,14 +21,14 @@ import {
 import Swipeable from '../components/swipeable';
 import { useColors } from '../themes/colors';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +mostRecentNonLocalMessage: ?string,
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId?: string,
   +iconSize: number,
   +children: React.Node,
-|};
+};
 function SwipeableThread(props: Props): React.Node {
   const swipeable = React.useRef();
   const navigation = useNavigation();

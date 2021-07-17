@@ -10,25 +10,25 @@ import type {
 } from 'lib/types/media-types';
 import { getMessageForException } from 'lib/utils/errors';
 
-type ProcessImageInfo = {|
+type ProcessImageInfo = {
   uri: string,
   dimensions: Dimensions,
   mime: string,
   fileSize: number,
   orientation: ?number,
-|};
-type ProcessImageResponse = {|
+};
+type ProcessImageResponse = {
   success: true,
   uri: string,
   mime: string,
   dimensions: Dimensions,
-|};
+};
 async function processImage(
   input: ProcessImageInfo,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProcessImageResponse,
-|}> {
+}> {
   const steps = [];
   let { uri, dimensions, mime } = input;
 

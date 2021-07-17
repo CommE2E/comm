@@ -98,17 +98,17 @@ type TagInputProps<T> = {
    */
   +onHeightChange?: (height: number) => void,
 };
-type BaseTagInputProps<T> = {|
+type BaseTagInputProps<T> = {
   ...TagInputProps<T>,
   +windowWidth: number,
   +colors: Colors,
-|};
-type State = {|
+};
+type State = {
   +wrapperHeight: number,
   +contentHeight: number,
   +wrapperWidth: number,
   +spaceLeft: number,
-|};
+};
 class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
   // scroll to bottom
   scrollViewHeight: number = 0;
@@ -116,7 +116,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
   // refs
   tagInput: ?React.ElementRef<typeof TextInput> = null;
   scrollView: ?React.ElementRef<typeof ScrollView> = null;
-  lastChange: ?{| time: number, prevText: string |};
+  lastChange: ?{ time: number, prevText: string };
 
   static defaultProps: DefaultProps = {
     minHeight: 30,
@@ -351,7 +351,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
   };
 }
 
-type TagProps = {|
+type TagProps = {
   +index: number,
   +label: string,
   +isLastTag: boolean,
@@ -362,7 +362,7 @@ type TagProps = {|
   +tagContainerStyle?: ViewStyle,
   +tagTextStyle?: TextStyle,
   +disabled?: boolean,
-|};
+};
 class Tag extends React.PureComponent<TagProps> {
   curPos: ?number = null;
 

@@ -15,15 +15,15 @@ import type { RootNavigationProp } from '../navigation/root-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
 
-export type ImagePasteModalParams = {|
+export type ImagePasteModalParams = {
   +imagePasteStagingInfo: PhotoPaste,
   +thread: ThreadInfo,
-|};
+};
 
-type Props = {|
+type Props = {
   +navigation: RootNavigationProp<'ImagePasteModal'>,
   +route: NavigationRoute<'ImagePasteModal'>,
-|};
+};
 function ImagePasteModal(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const inputState = React.useContext(InputStateContext);

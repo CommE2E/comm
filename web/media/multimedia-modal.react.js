@@ -6,10 +6,10 @@ import { XCircle as XCircleIcon } from 'react-feather';
 
 import css from './media.css';
 
-type Props = {|
+type Props = {
   +uri: string,
   +setModal: (modal: ?React.Node) => void,
-|};
+};
 class MultimediaModal extends React.PureComponent<Props> {
   overlay: ?HTMLDivElement;
 

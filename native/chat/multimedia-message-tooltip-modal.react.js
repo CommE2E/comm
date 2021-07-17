@@ -13,10 +13,10 @@ import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.
 import type { ChatMultimediaMessageInfoItem } from './multimedia-message-utils';
 import { navigateToSidebar } from './sidebar-navigation';
 
-export type MultimediaMessageTooltipModalParams = TooltipParams<{|
+export type MultimediaMessageTooltipModalParams = TooltipParams<{
   +item: ChatMultimediaMessageInfoItem,
   +verticalBounds: VerticalBounds,
-|}>;
+}>;
 
 const spec = {
   entries: [

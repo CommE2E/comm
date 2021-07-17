@@ -6,9 +6,9 @@ import { TouchableOpacity } from 'react-native';
 import SWMansionIcon from '../../components/swmansion-icon.react';
 import { useStyles } from '../../themes/colors';
 
-type Props = {|
+type Props = {
   +onPress: () => void,
-|};
+};
 function SaveSettingButton(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   return (

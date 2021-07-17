@@ -16,17 +16,17 @@ const getUserListItemHeight = (item: UserListItem): number => {
   return Platform.OS === 'ios' ? 31.5 : 33.5;
 };
 
-type BaseProps = {|
+type BaseProps = {
   +userInfo: UserListItem,
   +onSelect: (userID: string) => void,
   +textStyle?: TextStyle,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +colors: Colors,
   +styles: typeof unboundStyles,
-|};
+};
 class UserListUser extends React.PureComponent<Props> {
   render() {
     const { userInfo } = this.props;

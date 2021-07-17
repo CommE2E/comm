@@ -7,11 +7,11 @@ import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 
 import { useSelector } from './redux/redux-utils';
 
-type Props = {|
+type Props = {
   +barStyle?: 'default' | 'light-content' | 'dark-content',
   +animated?: boolean,
   +hidden?: boolean,
-|};
+};
 export default function ConnectedStatusBar(props: Props): React.Node {
   const globalLoadingStatus = useSelector(globalLoadingStatusSelector);
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);

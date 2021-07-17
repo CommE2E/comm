@@ -16,10 +16,10 @@ import { useSelector } from '../redux/redux-utils';
 import { useOnClickThread } from '../selectors/nav-selectors';
 import css from './chat-message-list.css';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +positioning: 'left' | 'center' | 'right',
-|};
+};
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;
 

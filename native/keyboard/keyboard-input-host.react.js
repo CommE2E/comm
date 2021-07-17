@@ -14,10 +14,10 @@ import { NavContext } from '../navigation/navigation-context';
 import { useStyles } from '../themes/colors';
 import { type KeyboardState, KeyboardContext } from './keyboard-state';
 
-type BaseProps = {|
+type BaseProps = {
   +textInputRef?: React.ElementRef<typeof TextInput>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +styles: typeof unboundStyles,
@@ -26,7 +26,7 @@ type Props = {|
   +keyboardState: KeyboardState,
   // withInputState
   +inputState: ?InputState,
-|};
+};
 class KeyboardInputHost extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
     if (

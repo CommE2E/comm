@@ -12,9 +12,9 @@ import RobotextMessageTooltipButton from './robotext-message-tooltip-button.reac
 import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
 import { navigateToSidebar } from './sidebar-navigation';
 
-export type RobotextMessageTooltipModalParams = TooltipParams<{|
+export type RobotextMessageTooltipModalParams = TooltipParams<{
   +item: ChatRobotextMessageInfoItemWithHeight,
-|}>;
+}>;
 
 const spec = {
   entries: [

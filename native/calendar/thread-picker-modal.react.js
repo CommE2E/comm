@@ -20,15 +20,15 @@ import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { waitForInteractions } from '../utils/timers';
 
-export type ThreadPickerModalParams = {|
+export type ThreadPickerModalParams = {
   presentedFrom: string,
   dateString: string,
-|};
+};
 
-type Props = {|
+type Props = {
   navigation: RootNavigationProp<'ThreadPickerModal'>,
   route: NavigationRoute<'ThreadPickerModal'>,
-|};
+};
 function ThreadPickerModal(props: Props): React.Node {
   const {
     navigation,

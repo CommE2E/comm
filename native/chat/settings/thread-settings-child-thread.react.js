@@ -11,11 +11,11 @@ import ThreadPill from '../../components/thread-pill.react';
 import { useColors, useStyles } from '../../themes/colors';
 import { useNavigateToThread } from '../message-list-types';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +firstListItem: boolean,
   +lastListItem: boolean,
-|};
+};
 function ThreadSettingsChildThread(props: Props): React.Node {
   const { threadInfo } = props;
 

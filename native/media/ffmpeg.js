@@ -16,10 +16,10 @@ const maxSimultaneousCalls = {
 
 type CallCounter = typeof maxSimultaneousCalls;
 type QueuedCommandType = $Keys<CallCounter>;
-type QueuedCommand = {|
+type QueuedCommand = {
   type: QueuedCommandType,
   runCommand: () => Promise<void>,
-|};
+};
 
 class FFmpeg {
   queue: QueuedCommand[] = [];

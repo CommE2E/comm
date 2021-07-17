@@ -21,14 +21,14 @@ import {
 
 type Action = 'unfriend' | 'unblock';
 
-export type RelationshipListItemTooltipModalParams = TooltipParams<{|
+export type RelationshipListItemTooltipModalParams = TooltipParams<{
   +relativeUserInfo: RelativeUserInfo,
-|}>;
+}>;
 
-type OnRemoveUserProps = {|
+type OnRemoveUserProps = {
   ...RelationshipListItemTooltipModalParams,
   +action: Action,
-|};
+};
 function onRemoveUser(
   props: OnRemoveUserProps,
   dispatchFunctions: DispatchFunctions,

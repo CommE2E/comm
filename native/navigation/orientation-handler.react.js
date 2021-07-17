@@ -10,10 +10,10 @@ import type { Dispatch } from 'lib/types/redux-types';
 import { updateDeviceOrientationActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 
-type Props = {|
+type Props = {
   +deviceOrientation: Orientations,
   +dispatch: Dispatch,
-|};
+};
 class OrientationHandler extends React.PureComponent<Props> {
   componentDidMount() {
     Orientation.addOrientationListener(this.updateOrientation);

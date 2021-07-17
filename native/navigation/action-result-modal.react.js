@@ -11,15 +11,15 @@ import type { AppNavigationProp } from './app-navigator.react';
 import { OverlayContext } from './overlay-context';
 import type { NavigationRoute } from './route-names';
 
-export type ActionResultModalParams = {|
+export type ActionResultModalParams = {
   message: string,
   preventPresses: true,
-|};
+};
 
-type Props = {|
+type Props = {
   navigation: AppNavigationProp<'ActionResultModal'>,
   route: NavigationRoute<'ActionResultModal'>,
-|};
+};
 function ActionResultModal(props: Props): React.Node {
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'ActionResultModal should have OverlayContext');

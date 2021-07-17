@@ -40,40 +40,40 @@ export const backgroundActionTypes: Set<string> = new Set([
 export type Action =
   | BaseAction
   | AndroidNotificationActions
-  | {|
+  | {
       +type: 'SET_REDUX_STATE',
-      +payload: {| +state: AppState, +hideFromMonitor: boolean |},
-    |}
-  | {|
+      +payload: { +state: AppState, +hideFromMonitor: boolean },
+    }
+  | {
       +type: 'SET_CUSTOM_SERVER',
       +payload: string,
-    |}
-  | {|
+    }
+  | {
       +type: 'RECORD_NOTIF_PERMISSION_ALERT',
-      +payload: {| +time: number |},
-    |}
-  | {| +type: 'RESET_USER_STATE' |}
-  | {|
+      +payload: { +time: number },
+    }
+  | { +type: 'RESET_USER_STATE' }
+  | {
       +type: 'UPDATE_DIMENSIONS',
       +payload: Shape<DimensionsInfo>,
-    |}
-  | {|
+    }
+  | {
       +type: 'UPDATE_CONNECTIVITY',
       +payload: ConnectivityInfo,
-    |}
-  | {|
+    }
+  | {
       +type: 'UPDATE_THEME_INFO',
       +payload: Shape<GlobalThemeInfo>,
-    |}
-  | {|
+    }
+  | {
       +type: 'UPDATE_DEVICE_CAMERA_INFO',
       +payload: Shape<DeviceCameraInfo>,
-    |}
-  | {|
+    }
+  | {
       +type: 'UPDATE_DEVICE_ORIENTATION',
       +payload: Orientations,
-    |}
-  | {|
+    }
+  | {
       +type: 'UPDATE_THREAD_LAST_NAVIGATED',
-      +payload: {| +threadID: string, +time: number |},
-    |};
+      +payload: { +threadID: string, +time: number },
+    };

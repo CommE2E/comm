@@ -17,10 +17,10 @@ import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 import css from './chat-thread-list.css';
 import MessagePreview from './message-preview.react';
 
-type Props = {|
+type Props = {
   +item: ChatThreadItem,
   +setModal: (modal: ?React.Node) => void,
-|};
+};
 function ChatThreadListItem(props: Props): React.Node {
   const { item, setModal } = props;
   const threadID = item.threadInfo.id;

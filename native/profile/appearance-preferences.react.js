@@ -26,10 +26,10 @@ const CheckIcon = () => (
   />
 );
 
-type OptionText = {|
+type OptionText = {
   themePreference: GlobalThemePreference,
   text: string,
-|};
+};
 const optionTexts: OptionText[] = [
   { themePreference: 'light', text: 'Light' },
   { themePreference: 'dark', text: 'Dark' },

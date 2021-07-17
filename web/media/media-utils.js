@@ -13,10 +13,10 @@ import { getOrientation } from './image-utils';
 
 async function preloadImage(
   uri: string,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: ?Image,
-|}> {
+}> {
   let image, exceptionMessage;
   const start = Date.now();
   try {
@@ -47,18 +47,18 @@ async function preloadImage(
   return { steps: [step], result: image };
 }
 
-type ProcessFileSuccess = {|
+type ProcessFileSuccess = {
   success: true,
   uri: string,
   dimensions: ?Dimensions,
-|};
+};
 async function processFile(
   file: File,
   exifRotate: boolean,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProcessFileSuccess,
-|}> {
+}> {
   const initialURI = URL.createObjectURL(file);
   if (!exifRotate) {
     const { steps, result } = await preloadImage(initialURI);
@@ -150,20 +150,20 @@ async function processFile(
   return { steps, result: { success: true, uri, dimensions } };
 }
 
-type FileValidationSuccess = {|
+type FileValidationSuccess = {
   success: true,
   file: File,
   mediaType: MediaType,
   uri: string,
   dimensions: ?Dimensions,
-|};
+};
 async function validateFile(
   file: File,
   exifRotate: boolean,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FileValidationSuccess,
-|}> {
+}> {
   const [probeResponse, processResponse] = await Promise.all([
     probeFile(file),
     processFile(file, exifRotate),

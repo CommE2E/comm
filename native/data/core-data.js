@@ -5,20 +5,20 @@ import * as React from 'react';
 
 import { draftKeyFromThreadID } from 'lib/shared/thread-utils';
 
-export type UpdateDraft = (draft: {|
+export type UpdateDraft = (draft: {
   +key: string,
   +text: string,
-|}) => Promise<boolean>;
+}) => Promise<boolean>;
 
 export type MoveDraft = (prevKey: string, nextKey: string) => Promise<boolean>;
 
-export type CoreData = {|
-  +drafts: {|
+export type CoreData = {
+  +drafts: {
     +data: { +[key: string]: string },
     +updateDraft: UpdateDraft,
     +moveDraft: MoveDraft,
-  |},
-|};
+  },
+};
 
 const defaultCoreData = Object.freeze({
   drafts: {

@@ -39,38 +39,38 @@ import createIDs from './id-creator';
 import type { UpdatesForCurrentSession } from './update-creator';
 import { createUpdates } from './update-creator';
 
-type UserThreadInfo = {|
+type UserThreadInfo = {
   +devices: Map<
     string,
-    {|
+    {
       +deviceType: string,
       +deviceToken: string,
       +codeVersion: ?string,
-    |},
+    },
   >,
   +threadIDs: Set<string>,
   +notFocusedThreadIDs: Set<string>,
   +subthreadsCanNotify: Set<string>,
   +subthreadsCanSetToUnread: Set<string>,
-|};
+};
 
 type LatestMessagesPerUser = Map<
   string,
   $ReadOnlyMap<
     string,
-    {|
+    {
       +latestMessage: string,
       +latestReadMessage?: string,
-    |},
+    },
   >,
 >;
 
-type LatestMessages = $ReadOnlyArray<{|
+type LatestMessages = $ReadOnlyArray<{
   +userID: string,
   +threadID: string,
   +latestMessage: string,
   +latestReadMessage: ?string,
-|}>;
+}>;
 
 // Does not do permission checks! (checkThreadPermission)
 async function createMessages(

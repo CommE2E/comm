@@ -1,9 +1,9 @@
 // @flow
 
-export type DeviceCameraInfo = {|
+export type DeviceCameraInfo = {
   +hasCamerasOnBothSides: boolean,
   +defaultUseFrontCamera: boolean,
-|};
+};
 
 export const defaultDeviceCameraInfo = {
   hasCamerasOnBothSides: true,

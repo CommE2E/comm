@@ -54,15 +54,15 @@ import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
 import type { RelationshipListNavigate } from './relationship-list.react';
 
-type BaseProps = {|
+type BaseProps = {
   +userInfo: AccountUserInfo,
   +lastListItem: boolean,
   +verticalBounds: ?VerticalBounds,
   +relationshipListRoute: NavigationRoute<'FriendList' | 'BlockList'>,
   +navigate: RelationshipListNavigate,
   +onSelect: (selectedUser: GlobalAccountUserInfo) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +removeUserLoadingStatus: LoadingStatus,
@@ -78,7 +78,7 @@ type Props = {|
   +overlayContext: ?OverlayContextType,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
-|};
+};
 class RelationshipListItem extends React.PureComponent<Props> {
   editButton = React.createRef<React.ElementRef<typeof View>>();
 

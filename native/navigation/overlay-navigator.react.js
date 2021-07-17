@@ -27,7 +27,7 @@ import { scrollBlockingModals, TabNavigatorRouteName } from './route-names';
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type Props = $Exact<NavigatorPropsBase<{||}, OverlayRouterNavigationProp<>>>;
+type Props = $Exact<NavigatorPropsBase<{}, OverlayRouterNavigationProp<>>>;
 const OverlayNavigator = React.memo<Props>(
   ({ initialRouteName, children, screenOptions }: Props) => {
     const { state, descriptors, navigation } = useNavigationBuilder(
@@ -435,8 +435,8 @@ const createOverlayNavigator: CreateNavigator<
   ExtraNavigatorPropsBase,
 > = createNavigatorFactory<
   StackNavigationState,
-  {||},
-  {||},
+  {},
+  {},
   OverlayRouterNavigationProp<>,
   ExtraNavigatorPropsBase,
 >(OverlayNavigator);

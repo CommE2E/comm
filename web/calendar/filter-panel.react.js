@@ -35,22 +35,22 @@ import {
 import { MagnifyingGlass } from '../vectors.react';
 import css from './filter-panel.css';
 
-type BaseProps = {|
+type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
   +filterThreadSearchIndex: () => SearchIndex,
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
-|};
-type State = {|
+};
+type State = {
   +query: string,
   +searchResults: $ReadOnlyArray<FilterThreadInfo>,
   +collapsed: boolean,
-|};
+};
 class FilterPanel extends React.PureComponent<Props, State> {
   state: State = {
     query: '',
@@ -244,13 +244,13 @@ class FilterPanel extends React.PureComponent<Props, State> {
   };
 }
 
-type ItemProps = {|
+type ItemProps = {
   +filterThreadInfo: FilterThreadInfo,
   +onToggle: (threadID: string, value: boolean) => void,
   +onClickOnly: (threadID: string) => void,
   +onClickSettings: (threadID: string) => void,
   +selected: boolean,
-|};
+};
 class Item extends React.PureComponent<ItemProps> {
   render() {
     const threadInfo = this.props.filterThreadInfo.threadInfo;
@@ -312,13 +312,13 @@ class Item extends React.PureComponent<ItemProps> {
   };
 }
 
-type CategoryProps = {|
+type CategoryProps = {
   +numThreads: number,
   +onToggle: (value: boolean) => void,
   +collapsed: boolean,
   +onCollapse: (value: boolean) => void,
   +selected: boolean,
-|};
+};
 class Category extends React.PureComponent<CategoryProps> {
   render() {
     const beforeCheckStyles = { borderColor: 'white' };

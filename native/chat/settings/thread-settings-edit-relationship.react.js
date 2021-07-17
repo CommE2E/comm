@@ -26,11 +26,11 @@ import { useSelector } from '../../redux/redux-utils';
 import { useStyles, useColors } from '../../themes/colors';
 import type { ViewStyle } from '../../types/styles';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +buttonStyle: ViewStyle,
   +relationshipButton: RelationshipButton,
-|};
+};
 
 const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo<Props>(
   function ThreadSettingsEditRelationship(props: Props) {

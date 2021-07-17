@@ -72,21 +72,21 @@ const tagInputProps = {
 };
 
 type ListItem =
-  | {| +type: 'empty', +because: 'no-relationships' | 'no-results' |}
-  | {| +type: 'header' |}
-  | {| +type: 'footer' |}
-  | {|
+  | { +type: 'empty', +because: 'no-relationships' | 'no-results' }
+  | { +type: 'header' }
+  | { +type: 'footer' }
+  | {
       +type: 'user',
       +userInfo: AccountUserInfo,
       +lastListItem: boolean,
       +verticalBounds: ?VerticalBounds,
-    |};
+    };
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: ProfileNavigationProp<>,
   +route: NavigationRoute<'FriendList' | 'BlockList'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +relationships: UserRelationships,
@@ -106,15 +106,15 @@ type Props = {|
   +overlayContext: ?OverlayContextType,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
-|};
-type State = {|
+};
+type State = {
   +verticalBounds: ?VerticalBounds,
   +searchInputText: string,
   +serverSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
   +currentTags: $ReadOnlyArray<GlobalAccountUserInfo>,
   +userStoreSearchResults: Set<string>,
-|};
-type PropsAndState = {| ...Props, ...State |};
+};
+type PropsAndState = { ...Props, ...State };
 class RelationshipList extends React.PureComponent<Props, State> {
   flatListContainerRef = React.createRef();
   tagInput: ?BaseTagInput<GlobalAccountUserInfo> = null;

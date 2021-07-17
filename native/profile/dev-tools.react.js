@@ -28,18 +28,18 @@ const ServerIcon = () => (
   />
 );
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: ProfileNavigationProp<'DevTools'>,
   +route: NavigationRoute<'DevTools'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +urlPrefix: string,
   +customServer: ?string,
   +colors: Colors,
   +styles: typeof unboundStyles,
   +dispatch: Dispatch,
-|};
+};
 class DevTools extends React.PureComponent<Props> {
   render() {
     const { panelIosHighlightUnderlay: underlay } = this.props.colors;

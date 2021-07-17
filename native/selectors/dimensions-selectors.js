@@ -5,10 +5,10 @@ import { createSelector } from 'reselect';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import type { AppState } from '../redux/state-types';
 
-export type DerivedDimensionsInfo = {|
+export type DerivedDimensionsInfo = {
   ...DimensionsInfo,
   +safeAreaHeight: number,
-|};
+};
 
 const derivedDimensionsInfoSelector: (
   state: AppState,

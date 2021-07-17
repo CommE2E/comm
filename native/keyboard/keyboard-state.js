@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-export type KeyboardState = {|
+export type KeyboardState = {
   +keyboardShowing: boolean,
   +dismissKeyboard: () => void,
   +dismissKeyboardIfShowing: () => boolean,
@@ -13,7 +13,7 @@ export type KeyboardState = {|
   +showMediaGallery: (thread: ThreadInfo) => void,
   +hideMediaGallery: () => void,
   +getMediaGalleryThread: () => ?ThreadInfo,
-|};
+};
 
 const KeyboardContext: React.Context<?KeyboardState> = React.createContext<?KeyboardState>(
   null,

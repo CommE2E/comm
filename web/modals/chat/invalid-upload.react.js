@@ -5,9 +5,9 @@ import * as React from 'react';
 import css from '../../style.css';
 import Modal from '../modal.react';
 
-type Props = {|
+type Props = {
   +setModal: (modal: ?React.Node) => void,
-|};
+};
 class InvalidUploadModal extends React.PureComponent<Props> {
   render(): React.Node {
     return (

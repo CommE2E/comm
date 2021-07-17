@@ -16,35 +16,35 @@ import { processImage } from './image-utils';
 import { saveMedia } from './save-media';
 import { processVideo } from './video-utils';
 
-type MediaProcessConfig = {|
+type MediaProcessConfig = {
   +hasWiFi: boolean,
   // Blocks return until we can confirm result has the correct MIME
   +finalFileHeaderCheck?: boolean,
   +onTranscodingProgress: (percent: number) => void,
-|};
-type SharedMediaResult = {|
+};
+type SharedMediaResult = {
   +success: true,
   +uploadURI: string,
   +shouldDisposePath: ?string,
   +filename: string,
   +mime: string,
   +dimensions: Dimensions,
-|};
+};
 type MediaResult =
-  | {| +mediaType: 'photo', ...SharedMediaResult |}
-  | {|
+  | { +mediaType: 'photo', ...SharedMediaResult }
+  | {
       +mediaType: 'video',
       ...SharedMediaResult,
       +uploadThumbnailURI: string,
       +loop: boolean,
-    |};
+    };
 function processMedia(
   selection: NativeMediaSelection,
   config: MediaProcessConfig,
-): {|
+): {
   resultPromise: Promise<MediaMissionFailure | MediaResult>,
   reportPromise: Promise<$ReadOnlyArray<MediaMissionStep>>,
-|} {
+} {
   let resolveResult;
   const sendResult = result => {
     if (resolveResult) {

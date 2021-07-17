@@ -18,9 +18,9 @@ import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.r
 import { MessageListContextProvider } from './message-list-types';
 import { multimediaMessageContentSizes } from './multimedia-message-utils';
 
-type Props = {|
+type Props = {
   +measurement: MeasurementTask,
-|};
+};
 
 const heightMeasurerKey = (item: ChatMessageItem) => {
   if (item.itemType !== 'message') {

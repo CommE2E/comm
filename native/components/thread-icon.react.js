@@ -8,10 +8,10 @@ import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 
 import SWMansionIcon from './swmansion-icon.react';
 
-type Props = {|
+type Props = {
   +threadType: ThreadType,
   +color: string,
-|};
+};
 function ThreadIcon(props: Props): React.Node {
   const { threadType, color } = props;
   if (

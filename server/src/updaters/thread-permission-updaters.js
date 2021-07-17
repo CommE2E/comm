@@ -42,7 +42,7 @@ import DepthQueue from '../utils/depth-queue';
 import RelationshipChangeset from '../utils/relationship-changeset';
 import { updateChangedUndirectedRelationships } from './relationship-updaters';
 
-export type MembershipRowToSave = {|
+export type MembershipRowToSave = {
   +operation: 'save',
   +intent: 'join' | 'leave' | 'none',
   +userID: string,
@@ -54,31 +54,31 @@ export type MembershipRowToSave = {|
   +role: string,
   +oldRole: string,
   +unread?: boolean,
-|};
-type MembershipRowToDelete = {|
+};
+type MembershipRowToDelete = {
   +operation: 'delete',
   +intent: 'join' | 'leave' | 'none',
   +userID: string,
   +threadID: string,
   +oldRole: string,
-|};
+};
 type MembershipRow = MembershipRowToSave | MembershipRowToDelete;
-type Changeset = {|
+type Changeset = {
   +membershipRows: MembershipRow[],
   +relationshipChangeset: RelationshipChangeset,
-|};
+};
 
 // 0 role means to remove the user from the thread
 // null role means to set the user to the default role
 // string role means to set the user to the role with that ID
 // -1 role means to set the user as a "ghost" (former member)
-type ChangeRoleOptions = {|
+type ChangeRoleOptions = {
   +setNewMembersToUnread?: boolean,
-|};
-type ChangeRoleMemberInfo = {|
+};
+type ChangeRoleMemberInfo = {
   permissionsFromParent?: ?ThreadPermissionsBlob,
   memberOfContainingThread?: boolean,
-|};
+};
 async function changeRole(
   threadID: string,
   userIDs: $ReadOnlyArray<string>,
@@ -290,13 +290,13 @@ async function changeRole(
   return { membershipRows, relationshipChangeset };
 }
 
-type RoleThreadResult = {|
+type RoleThreadResult = {
   +roleColumnValue: string,
   +threadType: ThreadType,
   +hasContainingThreadID: boolean,
   +rolePermissions: ?ThreadRolePermissionsBlob,
   +depth: number,
-|};
+};
 async function changeRoleThreadQuery(
   threadID: string,
   role: string | -1 | 0 | null,
@@ -361,15 +361,15 @@ async function changeRoleThreadQuery(
   }
 }
 
-type ChangedAncestor = {|
+type ChangedAncestor = {
   +threadID: string,
   +depth: number,
   +changesByUser: Map<string, AncestorChanges>,
-|};
-type AncestorChanges = {|
+};
+type AncestorChanges = {
   +userIsMember: boolean,
   +permissionsForChildren: ?ThreadPermissionsBlob,
-|};
+};
 async function updateDescendantPermissions(
   initialChangedAncestor: ChangedAncestor,
 ): Promise<Changeset> {
@@ -512,7 +512,7 @@ async function updateDescendantPermissions(
   return { membershipRows, relationshipChangeset };
 }
 
-type DescendantUserInfo = $Shape<{|
+type DescendantUserInfo = $Shape<{
   curRole?: string,
   curRolePermissions?: ?ThreadRolePermissionsBlob,
   curPermissions?: ?ThreadPermissionsBlob,
@@ -522,15 +522,15 @@ type DescendantUserInfo = $Shape<{|
   nextPermissionsFromParent?: ?ThreadPermissionsBlob,
   nextMemberOfContainingThread?: boolean,
   potentiallyNeedsUpdate?: boolean,
-|}>;
-type DescendantInfo = {|
+}>;
+type DescendantInfo = {
   +threadID: string,
   +parentThreadID: string,
   +containingThreadID: string,
   +threadType: ThreadType,
   +depth: number,
   +users: Map<string, DescendantUserInfo>,
-|};
+};
 const fetchDescendantsBatchSize = 10;
 async function fetchDescendantsForUpdate(
   ancestors: $ReadOnlyArray<ChangedAncestor>,
@@ -656,14 +656,14 @@ function mergeDescendants(
   return { ...a, users: newUsers };
 }
 
-type RecalculatePermissionsMemberInfo = {|
+type RecalculatePermissionsMemberInfo = {
   role?: ?string,
   permissions?: ?ThreadPermissionsBlob,
   permissionsForChildren?: ?ThreadPermissionsBlob,
   rolePermissions?: ?ThreadRolePermissionsBlob,
   memberOfContainingThread?: boolean,
   permissionsFromParent?: ?ThreadPermissionsBlob,
-|};
+};
 async function recalculateThreadPermissions(
   threadID: string,
 ): Promise<Changeset> {
@@ -945,10 +945,10 @@ async function deleteMemberships(
 // threads, presumably for reasons not covered in the changeset. calendarQuery
 // only needs to be specified if a JOIN_THREAD update will be generated for the
 // viewer, in which case it's necessary for knowing the set of entries to fetch.
-type ChangesetCommitResult = {|
+type ChangesetCommitResult = {
   ...FetchThreadInfosResult,
   ...CreateUpdatesResult,
-|};
+};
 async function commitMembershipChangeset(
   viewer: Viewer,
   changeset: Changeset,
@@ -956,11 +956,11 @@ async function commitMembershipChangeset(
     changedThreadIDs = new Set(),
     calendarQuery,
     updatesForCurrentSession = 'return',
-  }: {|
+  }: {
     +changedThreadIDs?: Set<string>,
     +calendarQuery?: ?CalendarQuery,
     +updatesForCurrentSession?: UpdatesForCurrentSession,
-  |} = {},
+  } = {},
 ): Promise<ChangesetCommitResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -1108,10 +1108,10 @@ async function getChangesetCommitResultForExistingThread(
   {
     calendarQuery,
     updatesForCurrentSession = 'return',
-  }: {|
+  }: {
     +calendarQuery?: ?CalendarQuery,
     +updatesForCurrentSession?: UpdatesForCurrentSession,
-  |} = {},
+  } = {},
 ): Promise<CreateUpdatesResult> {
   for (const update of otherUpdates) {
     if (
@@ -1169,7 +1169,7 @@ async function getChangesetCommitResultForExistingThread(
 
 const rescindPushNotifsBatchSize = 3;
 async function rescindPushNotifsForMemberDeletion(
-  toRescindPushNotifs: $ReadOnlyArray<{| +userID: string, +threadID: string |}>,
+  toRescindPushNotifs: $ReadOnlyArray<{ +userID: string, +threadID: string }>,
 ): Promise<void> {
   const queue = [...toRescindPushNotifs];
   while (queue.length > 0) {

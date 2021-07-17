@@ -33,11 +33,11 @@ import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { GlobalTheme } from '../types/themes';
 import type { ProfileNavigationProp } from './profile.react';
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: ProfileNavigationProp<'EditPassword'>,
   +route: NavigationRoute<'EditPassword'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
@@ -49,12 +49,12 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +changeUserSettings: (accountUpdate: AccountUpdate) => Promise<void>,
-|};
-type State = {|
+};
+type State = {
   +currentPassword: string,
   +newPassword: string,
   +confirmPassword: string,
-|};
+};
 class EditPassword extends React.PureComponent<Props, State> {
   state: State = {
     currentPassword: '',

@@ -24,12 +24,12 @@ const font =
   '14px -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
   '"Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", ui-sans-serif';
 
-type FindTooltipPositionArgs = {|
+type FindTooltipPositionArgs = {
   +pointingToInfo: ItemAndContainerPositionInfo,
   +tooltipTexts: $ReadOnlyArray<string>,
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
   +layoutPosition: 'relative' | 'absolute',
-|};
+};
 function findTooltipPosition({
   pointingToInfo,
   tooltipTexts,

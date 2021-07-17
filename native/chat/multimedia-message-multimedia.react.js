@@ -36,7 +36,7 @@ import {
 const { Node, sub, interpolate, Extrapolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type BaseProps = {|
+type BaseProps = {
   +mediaInfo: MediaInfo,
   +item: ChatMultimediaMessageInfoItem,
   +verticalBounds: ?VerticalBounds,
@@ -49,8 +49,8 @@ type BaseProps = {|
   ) => void,
   +clickable: boolean,
   +setClickable: boolean => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +route: LeafRoute<>,
   // Redux state
@@ -59,10 +59,10 @@ type Props = {|
   +keyboardState: ?KeyboardState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
-|};
-type State = {|
+};
+type State = {
   +opacity: number | Node,
-|};
+};
 class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
   view: ?React.ElementRef<typeof View>;
 

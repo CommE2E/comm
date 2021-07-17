@@ -8,21 +8,21 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 export type MultimediaProcessingStep = 'transcoding' | 'uploading';
 
-export type PendingMultimediaUpload = {|
+export type PendingMultimediaUpload = {
   +failed: ?string,
   +progressPercent: number,
   +processingStep: ?MultimediaProcessingStep,
-|};
+};
 
-export type MessagePendingUploads = {|
+export type MessagePendingUploads = {
   [localUploadID: string]: PendingMultimediaUpload,
-|};
+};
 
 export type PendingMultimediaUploads = {
   [localMessageID: string]: MessagePendingUploads,
 };
 
-export type InputState = {|
+export type InputState = {
   +pendingUploads: PendingMultimediaUploads,
   +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
@@ -44,7 +44,7 @@ export type InputState = {|
   +unregisterSendCallback: (() => void) => void,
   +uploadInProgress: () => boolean,
   +reportURIDisplayed: (uri: string, loaded: boolean) => void,
-|};
+};
 
 const InputStateContext: React.Context<?InputState> = React.createContext<?InputState>(
   null,

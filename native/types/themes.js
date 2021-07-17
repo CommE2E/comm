@@ -5,11 +5,11 @@ import { Platform } from 'react-native';
 export type GlobalTheme = 'light' | 'dark';
 export type GlobalThemePreference = GlobalTheme | 'system';
 
-export type GlobalThemeInfo = {|
+export type GlobalThemeInfo = {
   +activeTheme: ?GlobalTheme,
   +systemTheme: ?GlobalTheme,
   +preference: GlobalThemePreference,
-|};
+};
 
 export const osCanTheme: boolean =
   (Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 13) ||

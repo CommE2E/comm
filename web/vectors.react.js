@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
-type SVGProps = {|
+type SVGProps = {
   className?: string,
   viewBox: string,
   preserveAspectRatio?: string,
   children?: React.Node,
-|};
+};
 
 function SVG(props: SVGProps): React.Node {
   return (

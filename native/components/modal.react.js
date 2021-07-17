@@ -9,12 +9,12 @@ import { useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import KeyboardAvoidingView from './keyboard-avoiding-view.react';
 
-type Props = $ReadOnly<{|
+type Props = $ReadOnly<{
   +children: React.Node,
   +containerStyle?: ViewStyle,
   +modalStyle?: ViewStyle,
   +safeAreaEdges?: $ReadOnlyArray<'top' | 'right' | 'bottom' | 'left'>,
-|}>;
+}>;
 function Modal(props: Props): React.Node {
   const navigation = useNavigation();
   const close = React.useCallback(() => {

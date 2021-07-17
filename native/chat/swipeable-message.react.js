@@ -49,12 +49,12 @@ const springConfig = {
   overshootClamping: true,
 };
 
-type Props = {|
+type Props = {
   +onSwipeableWillOpen: () => void,
   +isViewer: boolean,
   +messageBoxStyle: ViewStyle,
   +children: React.Node,
-|};
+};
 function SwipeableMessage(props: Props): React.Node {
   const { isViewer, onSwipeableWillOpen } = props;
   const onPassThreshold = React.useCallback(() => {

@@ -17,7 +17,7 @@ import type {
   OnMessagePositionWithContainerInfo,
 } from './position-types';
 
-type BaseProps = {|
+type BaseProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +setMouseOverMessagePosition: (
@@ -25,12 +25,12 @@ type BaseProps = {|
   ) => void,
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
   +setModal: (modal: ?React.Node) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // withInputState
   +inputState: ?InputState,
-|};
+};
 class MultimediaMessage extends React.PureComponent<Props> {
   render() {
     const { item, setModal, inputState } = this.props;

@@ -50,14 +50,14 @@ import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { HistoryVector, DeleteVector } from '../vectors.react';
 import css from './calendar.css';
 
-type BaseProps = {|
+type BaseProps = {
   +innerRef: (key: string, me: Entry) => void,
   +entryInfo: EntryInfo,
   +focusOnFirstEntryNewerThan: (time: number) => void,
   +setModal: (modal: ?React.Node) => void,
   +tabIndex: number,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +threadInfo: ThreadInfo,
   +loggedIn: boolean,
@@ -68,12 +68,12 @@ type Props = {|
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
-|};
-type State = {|
+};
+type State = {
   +focused: boolean,
   +loadingStatus: LoadingStatus,
   +text: string,
-|};
+};
 class Entry extends React.PureComponent<Props, State> {
   textarea: ?HTMLTextAreaElement;
   creating: boolean;

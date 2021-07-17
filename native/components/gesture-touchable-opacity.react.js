@@ -42,7 +42,7 @@ const resetAnimationSpec = {
   easing: Easing.inOut(Easing.quad),
 };
 
-type Props = {|
+type Props = {
   +activeOpacity?: number,
   +onPress?: () => mixed,
   +onLongPress?: () => mixed,
@@ -54,7 +54,7 @@ type Props = {|
   +stickyActive?: boolean,
   +overlay?: React.Node,
   +disabled?: boolean,
-|};
+};
 function ForwardedGestureTouchableOpacity(
   props: Props,
   ref: React.Ref<typeof TapGestureHandler>,

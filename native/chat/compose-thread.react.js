@@ -57,16 +57,16 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
-export type ComposeThreadParams = {|
+export type ComposeThreadParams = {
   +threadType?: ThreadType,
   +parentThreadInfo?: ThreadInfo,
-|};
+};
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: ChatNavigationProp<'ComposeThread'>,
   +route: NavigationRoute<'ComposeThread'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +parentThreadInfo: ?ThreadInfo,
@@ -81,12 +81,12 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
-|};
-type State = {|
+};
+type State = {
   +usernameInputText: string,
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-|};
-type PropsAndState = {| ...Props, ...State |};
+};
+type PropsAndState = { ...Props, ...State };
 class ComposeThread extends React.PureComponent<Props, State> {
   state: State = {
     usernameInputText: '',

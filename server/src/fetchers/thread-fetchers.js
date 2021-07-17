@@ -16,9 +16,9 @@ import { dbQuery, SQL } from '../database/database';
 import type { SQLStatementType } from '../database/types';
 import type { Viewer } from '../session/viewer';
 
-type FetchServerThreadInfosResult = {|
+type FetchServerThreadInfosResult = {
   +threadInfos: { +[id: string]: ServerThreadInfo },
-|};
+};
 
 async function fetchServerThreadInfos(
   condition?: SQLStatementType,
@@ -99,9 +99,9 @@ async function fetchServerThreadInfos(
   return { threadInfos };
 }
 
-export type FetchThreadInfosResult = {|
+export type FetchThreadInfosResult = {
   +threadInfos: { +[id: string]: RawThreadInfo },
-|};
+};
 
 async function fetchThreadInfos(
   viewer: Viewer,
@@ -170,11 +170,11 @@ async function verifyThreadID(threadID: string): Promise<boolean> {
   return result.length !== 0;
 }
 
-type ThreadAncestry = {|
+type ThreadAncestry = {
   +containingThreadID: ?string,
   +community: ?string,
   +depth: number,
-|};
+};
 async function determineThreadAncestry(
   parentThreadID: ?string,
   threadType: ThreadType,

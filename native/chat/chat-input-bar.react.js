@@ -101,12 +101,12 @@ const sendButtonAnimationConfig = {
   easing: Easing.inOut(Easing.ease),
 };
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +viewerID: ?string,
@@ -131,12 +131,12 @@ type Props = {|
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   // withInputState
   +inputState: ?InputState,
-|};
-type State = {|
+};
+type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
-|};
+};
 class ChatInputBar extends React.PureComponent<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
   clearableTextInput: ?ClearableTextInput;

@@ -25,22 +25,22 @@ import css from './splash.css';
 
 const defaultRequestAccessScrollHeight = 390;
 
-type BaseProps = {|
+type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
   +currentModal: ?React.Node,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +loadingStatus: LoadingStatus,
   +dispatchActionPromise: DispatchActionPromise,
   +requestAccess: (accessRequest: AccessRequest) => Promise<void>,
-|};
-type State = {|
+};
+type State = {
   +platform: DeviceType,
   +email: string,
   +error: ?string,
   +success: ?string,
-|};
+};
 class Splash extends React.PureComponent<Props, State> {
   emailInput: ?HTMLInputElement;
   bottomContainer: ?HTMLDivElement;

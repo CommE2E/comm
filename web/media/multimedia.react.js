@@ -14,14 +14,14 @@ import { type PendingMultimediaUpload } from '../input/input-state';
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react';
 
-type Props = {|
+type Props = {
   uri: string,
   pendingUpload?: ?PendingMultimediaUpload,
   remove?: (uploadID: string) => void,
   setModal?: (modal: ?React.Node) => void,
   multimediaCSSClass: string,
   multimediaImageCSSClass: string,
-|};
+};
 class Multimedia extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
     const { uri, pendingUpload } = this.props;

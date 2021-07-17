@@ -6,9 +6,9 @@ import { useSelector } from 'react-redux';
 
 import { type CoreData, defaultCoreData, CoreDataContext } from './core-data';
 
-type Props = {|
+type Props = {
   +children: React.Node,
-|};
+};
 function CoreDataProvider(props: Props): React.Node {
   const [draftCache, setDraftCache] = React.useState<
     $PropertyType<$PropertyType<CoreData, 'drafts'>, 'data'>,
@@ -69,7 +69,7 @@ function CoreDataProvider(props: Props): React.Node {
    * it will remove this entry from the cache
    */
   const setDrafts = React.useCallback(
-    (newDrafts: $ReadOnlyArray<{| +key: string, +text: ?string |}>) => {
+    (newDrafts: $ReadOnlyArray<{ +key: string, +text: ?string }>) => {
       setDraftCache(prevDrafts => {
         const result = { ...prevDrafts };
         newDrafts.forEach(draft => {
@@ -85,7 +85,7 @@ function CoreDataProvider(props: Props): React.Node {
     [],
   );
   const updateDraft = React.useCallback(
-    async (draft: {| +key: string, +text: string |}) => {
+    async (draft: { +key: string, +text: string }) => {
       const prevDraftText = draftCache[draft.key];
       setDrafts([draft]);
       try {

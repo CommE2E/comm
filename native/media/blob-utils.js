@@ -62,17 +62,17 @@ function stringToIntArray(str: string): Uint8Array {
   return array;
 }
 
-type FetchBlobResult = {|
+type FetchBlobResult = {
   success: true,
   base64: string,
   mime: string,
-|};
+};
 async function fetchBlob(
   inputURI: string,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FetchBlobResult,
-|}> {
+}> {
   const uri = getFetchableURI(inputURI);
   const steps = [];
 

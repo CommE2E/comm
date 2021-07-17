@@ -5,10 +5,10 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 
-type Draft = {|
+type Draft = {
   +key: string,
   +text: string,
-|};
+};
 
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;

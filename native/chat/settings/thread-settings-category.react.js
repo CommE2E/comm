@@ -7,10 +7,10 @@ import { View, Text, Platform } from 'react-native';
 import { useStyles } from '../../themes/colors';
 
 export type CategoryType = 'full' | 'outline' | 'unpadded';
-type HeaderProps = {|
+type HeaderProps = {
   +type: CategoryType,
   +title: string,
-|};
+};
 function ThreadSettingsCategoryHeader(props: HeaderProps): React.Node {
   const styles = useStyles(unboundStyles);
   let contentStyle, paddingStyle;
@@ -34,9 +34,9 @@ function ThreadSettingsCategoryHeader(props: HeaderProps): React.Node {
   );
 }
 
-type FooterProps = {|
+type FooterProps = {
   +type: CategoryType,
-|};
+};
 function ThreadSettingsCategoryFooter(props: FooterProps): React.Node {
   const styles = useStyles(unboundStyles);
   let contentStyle, paddingStyle;

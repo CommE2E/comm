@@ -15,21 +15,21 @@ import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +colorEditValue: string,
   +setColorEditValue: (color: string) => void,
   +canChangeSettings: boolean,
   +navigate: ThreadSettingsNavigate,
   +threadSettingsRouteKey: string,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
   +colors: Colors,
   +styles: typeof unboundStyles,
-|};
+};
 class ThreadSettingsColor extends React.PureComponent<Props> {
   render() {
     let colorButton;

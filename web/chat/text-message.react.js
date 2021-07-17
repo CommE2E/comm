@@ -20,14 +20,14 @@ import type {
 } from './position-types';
 import textMessageSendFailed from './text-message-send-failed';
 
-type Props = {|
+type Props = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
-|};
+};
 function TextMessage(props: Props): React.Node {
   invariant(
     props.item.messageInfo.type === messageTypes.TEXT,

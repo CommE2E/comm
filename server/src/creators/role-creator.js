@@ -13,10 +13,10 @@ import {
 import { dbQuery, SQL } from '../database/database';
 import createIDs from './id-creator';
 
-type InitialRoles = {|
+type InitialRoles = {
   default: RoleInfo,
   creator: RoleInfo,
-|};
+};
 async function createInitialRolesForNewThread(
   threadID: string,
   threadType: ThreadType,
@@ -65,10 +65,10 @@ async function createInitialRolesForNewThread(
   };
 }
 
-type RolePermissionBlobs = {|
+type RolePermissionBlobs = {
   +Members: ThreadRolePermissionsBlob,
   +Admins?: ThreadRolePermissionsBlob,
-|};
+};
 
 const { CHILD, DESCENDANT } = threadPermissionPropagationPrefixes;
 const { OPEN, TOP_LEVEL, OPEN_TOP_LEVEL } = threadPermissionFilterPrefixes;

@@ -74,10 +74,10 @@ const msInDay = 24 * 60 * 60 * 1000;
 const supportsTapticFeedback =
   Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 10;
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: RootNavigationProp<'App'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Navigation state
   +activeThread: ?string,
@@ -98,14 +98,14 @@ type Props = {|
   +setDeviceToken: (deviceToken: string) => Promise<string>,
   // withRootContext
   +rootContext: ?RootContextType,
-|};
-type State = {|
-  +inAppNotifProps: ?{|
+};
+type State = {
+  +inAppNotifProps: ?{
     +customComponent: React.Node,
     +blurType: ?('xlight' | 'dark'),
     +onPress: () => void,
-  |},
-|};
+  },
+};
 class PushHandler extends React.PureComponent<Props, State> {
   state: State = {
     inAppNotifProps: null,
@@ -563,7 +563,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   handleAndroidNotificationIfActive = (
     threadID: string,
-    texts: {| body: string, title: ?string |},
+    texts: { body: string, title: ?string },
   ) => {
     if (this.currentState !== 'active') {
       return false;

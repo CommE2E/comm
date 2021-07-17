@@ -8,9 +8,9 @@ import { updateReportsEnabledActionType } from 'lib/reducers/report-store-reduce
 import { type SupportedReports } from 'lib/types/report-types';
 import { useIsReportEnabled } from 'lib/utils/report-utils';
 
-type Props = {|
+type Props = {
   +reportType: SupportedReports,
-|};
+};
 function ToggleReport(props: Props): React.Node {
   const dispatch = useDispatch();
   const { reportType } = props;

@@ -14,10 +14,10 @@ import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 import { useNavigateToThread } from './message-list-types';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +positioning: 'left' | 'center' | 'right',
-|};
+};
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;
 

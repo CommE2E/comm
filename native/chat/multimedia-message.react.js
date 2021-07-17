@@ -31,23 +31,23 @@ import {
   multimediaMessageSendFailed,
 } from './multimedia-message-utils';
 
-type BaseProps = {|
+type BaseProps = {
   ...React.ElementConfig<typeof View>,
   +item: ChatMultimediaMessageInfoItem,
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +navigation: NavigationProp<ParamListBase>,
   +route: LeafRoute<>,
   +overlayContext: ?OverlayContextType,
   +canCreateSidebarFromMessage: boolean,
-|};
-type State = {|
+};
+type State = {
   +clickable: boolean,
-|};
+};
 class MultimediaMessage extends React.PureComponent<Props, State> {
   state: State = {
     clickable: true,

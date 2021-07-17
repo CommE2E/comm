@@ -5,15 +5,15 @@ import { type ColorResult, ChromePicker } from 'react-color';
 
 import css from '../../style.css';
 
-type Props = {|
+type Props = {
   +id: string,
   +value: string,
   +disabled: boolean,
   +onChange: (hex: string) => void,
-|};
-type State = {|
+};
+type State = {
   +pickerOpen: boolean,
-|};
+};
 
 class ColorPicker extends React.PureComponent<Props, State> {
   constructor(props: Props) {

@@ -20,12 +20,12 @@ import {
 } from './inline-sidebar.react';
 import { authorNameHeight } from './message-header.react';
 
-type ContentSizes = {|
+type ContentSizes = {
   +imageHeight: number,
   +contentHeight: number,
   +contentWidth: number,
-|};
-export type ChatMultimediaMessageInfoItem = {|
+};
+export type ChatMultimediaMessageInfoItem = {
   ...ContentSizes,
   +itemType: 'message',
   +messageShapeType: 'multimedia',
@@ -37,7 +37,7 @@ export type ChatMultimediaMessageInfoItem = {|
   +endsCluster: boolean,
   +threadCreatedFromMessage: ?ThreadInfo,
   +pendingUploads: ?MessagePendingUploads,
-|};
+};
 
 const spaceBetweenImages = 4;
 

@@ -6,11 +6,11 @@ import Icon from 'react-native-vector-icons/Feather';
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 
-type Props = {|
+type Props = {
   loadingStatus: LoadingStatus,
   color: string,
   canUseRed: boolean,
-|};
+};
 function LoadingIndicator(props: Props): React.Node {
   if (props.loadingStatus === 'error') {
     const colorStyle = props.canUseRed

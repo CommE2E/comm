@@ -37,16 +37,16 @@ import {
 } from './native-credentials';
 import { PanelButton, Panel } from './panel-components.react';
 
-export type LogInState = {|
+export type LogInState = {
   +usernameInputText: ?string,
   +passwordInputText: ?string,
-|};
-type BaseProps = {|
+};
+type BaseProps = {
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Node,
   +logInState: StateContainer<LogInState>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
@@ -55,7 +55,7 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-|};
+};
 class LogInPanel extends React.PureComponent<Props> {
   usernameInput: ?TextInput;
   passwordInput: ?TextInput;

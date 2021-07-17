@@ -16,13 +16,13 @@ import { useStyles, useColors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import SWMansionIcon from './swmansion-icon.react';
 
-type Props = {|
+type Props = {
   ...React.ElementConfig<typeof TextInput>,
   +searchText: string,
   +onChangeText: (searchText: string) => mixed,
   +containerStyle?: ViewStyle,
   +active?: boolean,
-|};
+};
 
 function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
   const { onChangeText, searchText, containerStyle, active, ...rest } = props;

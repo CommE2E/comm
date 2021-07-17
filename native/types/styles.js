@@ -27,25 +27,25 @@ export type AnimatedStyleObj = {
 export type AnimatedViewStyle =
   | AnimatedStyleObj
   | $ReadOnlyArray<ViewStyle | AnimatedStyleObj>;
-const AnimatedView: React.ComponentType<{|
+const AnimatedView: React.ComponentType<{
   ...$Diff<ViewProps, { style: ViewStyle }>,
   +style: AnimatedViewStyle,
-|}> = Animated.View;
+}> = Animated.View;
 
 export type AnimatedTextStyle =
   | AnimatedStyleObj
   | $ReadOnlyArray<TextStyle | AnimatedStyleObj>;
-const AnimatedText: React.ComponentType<{|
+const AnimatedText: React.ComponentType<{
   ...$Diff<TextProps, { style: TextStyle }>,
   +style: AnimatedTextStyle,
-|}> = Animated.Text;
+}> = Animated.Text;
 
 export type AnimatedImageStyle =
   | AnimatedStyleObj
   | $ReadOnlyArray<ImageStyle | AnimatedStyleObj>;
-const AnimatedImage: React.ComponentType<{|
+const AnimatedImage: React.ComponentType<{
   ...$Diff<ImageProps, { style: ImageStyle }>,
   +style: AnimatedImageStyle,
-|}> = Animated.Image;
+}> = Animated.Image;
 
 export { AnimatedView, AnimatedText, AnimatedImage };

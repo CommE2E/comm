@@ -6,9 +6,9 @@ import { View } from 'react-native';
 import { useColors } from '../themes/colors';
 import ColorSplotch from './color-splotch.react';
 
-type Props = {|
+type Props = {
   +unread: ?boolean,
-|};
+};
 function UnreadDot(props: Props): React.Node {
   const { unread } = props;
   const colors = useColors();

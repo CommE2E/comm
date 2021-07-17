@@ -7,10 +7,10 @@ import * as SimpleMarkdown from 'simple-markdown';
 import css from './markdown.css';
 import type { MarkdownRules } from './rules.react';
 
-type Props = {|
+type Props = {
   +children: string,
   +rules: MarkdownRules,
-|};
+};
 function Markdown(props: Props): React.Node {
   const { children, rules } = props;
   const { simpleMarkdownRules, useDarkStyle } = rules;

@@ -1,9 +1,9 @@
 // @flow
 
-export type ConnectivityInfo = {|
+export type ConnectivityInfo = {
   +connected: boolean,
   +hasWiFi: boolean,
-|};
+};
 
 export const defaultConnectivityInfo = {
   connected: true,

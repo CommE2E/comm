@@ -15,20 +15,20 @@ import type { NavigationRoute } from '../../navigation/route-names';
 import { ComposeThreadRouteName } from '../../navigation/route-names';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 
-export type ComposeSubthreadModalParams = {|
+export type ComposeSubthreadModalParams = {
   presentedFrom: string,
   threadInfo: ThreadInfo,
-|};
+};
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: RootNavigationProp<'ComposeSubthreadModal'>,
   +route: NavigationRoute<'ComposeSubthreadModal'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +colors: Colors,
   +styles: typeof unboundStyles,
-|};
+};
 class ComposeSubthreadModal extends React.PureComponent<Props> {
   render() {
     return (

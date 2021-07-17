@@ -44,7 +44,7 @@ import { type Colors, useColors, useStyles } from '../../themes/colors';
 import type { VerticalBounds } from '../../types/layout-types';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
-type BaseProps = {|
+type BaseProps = {
   +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo,
   +canEdit: boolean,
@@ -53,8 +53,8 @@ type BaseProps = {|
   +lastListItem: boolean,
   +verticalBounds: ?VerticalBounds,
   +threadSettingsRouteKey: string,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +removeUserLoadingStatus: LoadingStatus,
@@ -65,7 +65,7 @@ type Props = {|
   +keyboardState: ?KeyboardState,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
-|};
+};
 class ThreadSettingsMember extends React.PureComponent<Props> {
   editButton: ?React.ElementRef<typeof View>;
 

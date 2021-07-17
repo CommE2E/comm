@@ -39,17 +39,17 @@ import { TextInput } from './modal-components.react';
 import { setNativeCredentials } from './native-credentials';
 import { PanelButton, Panel } from './panel-components.react';
 
-export type RegisterState = {|
+export type RegisterState = {
   +usernameInputText: string,
   +passwordInputText: string,
   +confirmPasswordInputText: string,
-|};
-type BaseProps = {|
+};
+type BaseProps = {
   +setActiveAlert: (activeAlert: boolean) => void,
   +opacityValue: Animated.Node,
   +registerState: StateContainer<RegisterState>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
@@ -58,10 +58,10 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
-|};
-type State = {|
+};
+type State = {
   +confirmPasswordFocused: boolean,
-|};
+};
 class RegisterPanel extends React.PureComponent<Props, State> {
   state: State = {
     confirmPasswordFocused: false,

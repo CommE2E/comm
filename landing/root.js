@@ -16,6 +16,6 @@ function RootComponent() {
   );
 }
 
-const HotReloadingRootComponent: React.ComponentType<{||}> = hot(RootComponent);
+const HotReloadingRootComponent: React.ComponentType<{}> = hot(RootComponent);
 
 export default HotReloadingRootComponent;

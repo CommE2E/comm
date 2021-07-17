@@ -21,7 +21,7 @@ import type { ConnectivityInfo } from '../types/connectivity';
 import type { GlobalThemeInfo } from '../types/themes';
 import type { DimensionsInfo } from './dimensions-updater.react';
 
-export type AppState = {|
+export type AppState = {
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
   entryStore: EntryStore,
@@ -52,4 +52,4 @@ export type AppState = {|
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
   frozen: boolean,
-|};
+};

@@ -13,14 +13,14 @@ import type { SupportedApps } from 'lib/types/enabled-apps';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { useStyles } from '../themes/colors';
 
-type Props = {|
+type Props = {
   +id: SupportedApps,
   +available: boolean,
   +enabled: boolean,
   +appName: string,
   +appIcon: 'calendar' | 'document-filled' | 'check-round' | 'package',
   +appCopy: string,
-|};
+};
 function AppListing(props: Props): React.Node {
   const { id, available, enabled, appName, appIcon, appCopy } = props;
   const styles = useStyles(unboundStyles);

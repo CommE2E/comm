@@ -36,7 +36,7 @@ async function getFontsURL() {
   }
 }
 
-type AssetInfo = {| +jsURL: string, +fontsURL: string, +cssInclude: string |};
+type AssetInfo = { +jsURL: string, +fontsURL: string, +cssInclude: string };
 let assetInfo: ?AssetInfo = null;
 async function getAssetInfo() {
   if (assetInfo) {

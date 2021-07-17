@@ -32,7 +32,7 @@ import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { GlobalTheme } from '../types/themes';
 
-type Props = {|
+type Props = {
   // Redux state
   +loadingStatus: LoadingStatus,
   +preRequestUserState: PreRequestUserState,
@@ -46,10 +46,10 @@ type Props = {|
     password: string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
-|};
-type State = {|
+};
+type State = {
   +password: string,
-|};
+};
 class DeleteAccount extends React.PureComponent<Props, State> {
   state: State = {
     password: '',

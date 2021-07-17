@@ -17,6 +17,6 @@ const RootComponent = () => (
   </React.Fragment>
 );
 
-const HotReloadingRootComponent: React.ComponentType<{||}> = hot(RootComponent);
+const HotReloadingRootComponent: React.ComponentType<{}> = hot(RootComponent);
 
 export default HotReloadingRootComponent;

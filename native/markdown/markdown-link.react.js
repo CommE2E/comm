@@ -39,11 +39,11 @@ function useDisplayLinkPrompt(inputURL: string) {
 }
 
 type TextProps = React.ElementConfig<typeof Text>;
-type Props = {|
+type Props = {
   +target: string,
   +children: React.Node,
   ...TextProps,
-|};
+};
 function MarkdownLink(props: Props): React.Node {
   const { target, ...rest } = props;
   const onPressLink = useDisplayLinkPrompt(target);

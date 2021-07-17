@@ -21,7 +21,7 @@ import {
 
 const borderRadius = 16;
 
-type Props = {|
+type Props = {
   +item: ChatMultimediaMessageInfoItem,
   +verticalBounds: ?VerticalBounds,
   +onPressMultimedia?: (
@@ -32,7 +32,7 @@ type Props = {|
   +setClickable: boolean => void,
   +onPress?: () => void,
   +onLongPress?: () => void,
-|};
+};
 class InnerMultimediaMessage extends React.PureComponent<Props> {
   render(): React.Node {
     const { item } = this.props;

@@ -48,13 +48,13 @@ import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
 import RelationshipPrompt from './relationship-prompt.react';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +messageListData: $ReadOnlyArray<ChatMessageItemWithHeight>,
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +startReached: boolean,
@@ -74,22 +74,22 @@ type Props = {|
   +overlayContext: ?OverlayContextType,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
-|};
-type State = {|
+};
+type State = {
   +focusedMessageKey: ?string,
   +messageListVerticalBounds: ?VerticalBounds,
   +loadingFromScroll: boolean,
-|};
-type PropsAndState = {|
+};
+type PropsAndState = {
   ...Props,
   ...State,
-|};
-type FlatListExtraData = {|
+};
+type FlatListExtraData = {
   messageListVerticalBounds: ?VerticalBounds,
   focusedMessageKey: ?string,
   navigation: ChatNavigationProp<'MessageList'>,
   route: NavigationRoute<'MessageList'>,
-|};
+};
 class MessageList extends React.PureComponent<Props, State> {
   state: State = {
     focusedMessageKey: null,

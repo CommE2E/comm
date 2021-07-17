@@ -19,7 +19,7 @@ import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
 import MessagePreview from './message-preview.react';
 import SwipeableThread from './swipeable-thread.react';
 
-type Props = {|
+type Props = {
   +data: ChatThreadItem,
   +onPressItem: (
     threadInfo: ThreadInfo,
@@ -28,7 +28,7 @@ type Props = {|
   +onPressSeeMoreSidebars: (threadInfo: ThreadInfo) => void,
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId: string,
-|};
+};
 function ChatThreadListItem({
   data,
   onPressItem,

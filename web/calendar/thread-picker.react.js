@@ -11,10 +11,10 @@ import { htmlTargetFromEvent } from '../vector-utils';
 import { LeftPager, RightPager } from '../vectors.react';
 import css from './thread-picker.css';
 
-type OptionProps = {|
+type OptionProps = {
   +threadInfo: ThreadInfo,
   +createNewEntry: (threadID: string) => void,
-|};
+};
 function ThreadPickerOption(props: OptionProps) {
   const { threadInfo, createNewEntry } = props;
   const onClick = React.useCallback(() => createNewEntry(threadInfo.id), [
@@ -33,17 +33,17 @@ function ThreadPickerOption(props: OptionProps) {
   );
 }
 
-type BaseProps = {|
+type BaseProps = {
   +createNewEntry: (threadID: string) => void,
   +closePicker: () => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
-|};
-type State = {|
+};
+type State = {
   +currentPage: number,
-|};
+};
 
 class ThreadPicker extends React.PureComponent<Props, State> {
   static pageSize = 5;

@@ -7,15 +7,15 @@ import * as React from 'react';
 import css from '../style.css';
 
 export type ModalSize = 'small' | 'large';
-type Props = {|
+type Props = {
   +name: string,
   +onClose: () => void,
   +children?: React.Node,
   +size?: ModalSize,
   +fixedHeight?: boolean,
-|};
+};
 class Modal extends React.PureComponent<Props> {
-  static defaultProps: {| +size: ModalSize, fixedHeight: boolean |} = {
+  static defaultProps: { +size: ModalSize, fixedHeight: boolean } = {
     size: 'small',
     fixedHeight: true,
   };

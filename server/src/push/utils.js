@@ -25,20 +25,20 @@ const apnBadRequestErrorCode = 400;
 const apnBadTokenErrorString = 'BadDeviceToken';
 
 type APNPushResult =
-  | {| +success: true |}
-  | {|
+  | { +success: true }
+  | {
       +errors: $ReadOnlyArray<ResponseFailure>,
       +invalidTokens?: $ReadOnlyArray<string>,
-    |};
+    };
 async function apnPush({
   notification,
   deviceTokens,
   codeVersion,
-}: {|
+}: {
   +notification: apn.Notification,
   +deviceTokens: $ReadOnlyArray<string>,
   +codeVersion: ?number,
-|}): Promise<APNPushResult> {
+}): Promise<APNPushResult> {
   const pushProfile = getAPNPushProfileForCodeVersion(codeVersion);
   const apnProvider = await getAPNProvider(pushProfile);
   if (!apnProvider && process.env.NODE_ENV === 'development') {
@@ -68,23 +68,23 @@ async function apnPush({
   }
 }
 
-type FCMPushResult = {|
+type FCMPushResult = {
   +success?: true,
   +fcmIDs?: $ReadOnlyArray<string>,
   +errors?: $ReadOnlyArray<FirebaseError>,
   +invalidTokens?: $ReadOnlyArray<string>,
-|};
+};
 async function fcmPush({
   notification,
   deviceTokens,
   collapseKey,
   codeVersion,
-}: {|
+}: {
   +notification: Object,
   +deviceTokens: $ReadOnlyArray<string>,
   +codeVersion: ?number,
   +collapseKey?: ?string,
-|}): Promise<FCMPushResult> {
+}): Promise<FCMPushResult> {
   const pushProfile = getFCMPushProfileForCodeVersion(codeVersion);
   const fcmProvider = await getFCMProvider(pushProfile);
   if (!fcmProvider && process.env.NODE_ENV === 'development') {

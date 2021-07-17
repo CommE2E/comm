@@ -28,34 +28,34 @@ const uploadSpeeds = Object.freeze({
 });
 const clientTranscodeSpeed = 1.15; // in seconds of video transcoded per second
 
-type ProcessVideoInfo = {|
+type ProcessVideoInfo = {
   +uri: string,
   +mime: string,
   +filename: string,
   +fileSize: number,
   +dimensions: Dimensions,
   +hasWiFi: boolean,
-|};
+};
 
-type VideoProcessConfig = {|
+type VideoProcessConfig = {
   +onTranscodingProgress: (percent: number) => void,
-|};
+};
 
-type ProcessVideoResponse = {|
+type ProcessVideoResponse = {
   +success: true,
   +uri: string,
   +thumbnailURI: string,
   +mime: string,
   +dimensions: Dimensions,
   +loop: boolean,
-|};
+};
 async function processVideo(
   input: ProcessVideoInfo,
   config: VideoProcessConfig,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProcessVideoResponse,
-|}> {
+}> {
   const steps = [];
 
   const path = pathFromURI(input.uri);

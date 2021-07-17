@@ -1,9 +1,9 @@
 // @flow
 
-export type NotifPermissionAlertInfo = {|
+export type NotifPermissionAlertInfo = {
   +totalAlerts: number,
   +lastAlertTime: number,
-|};
+};
 
 const defaultNotifPermissionAlertInfo: NotifPermissionAlertInfo = {
   totalAlerts: 0,

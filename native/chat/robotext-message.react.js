@@ -21,7 +21,7 @@ import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { robotextMessageTooltipHeight } from './robotext-message-tooltip-modal.react';
 import { Timestamp } from './timestamp.react';
 
-export type ChatRobotextMessageInfoItemWithHeight = {|
+export type ChatRobotextMessageInfoItemWithHeight = {
   +itemType: 'message',
   +messageShapeType: 'robotext',
   +messageInfo: RobotextMessageInfo,
@@ -32,7 +32,7 @@ export type ChatRobotextMessageInfoItemWithHeight = {|
   +robotext: string,
   +threadCreatedFromMessage: ?ThreadInfo,
   +contentHeight: number,
-|};
+};
 
 function robotextMessageItemHeight(
   item: ChatRobotextMessageInfoItemWithHeight,
@@ -43,7 +43,7 @@ function robotextMessageItemHeight(
   return item.contentHeight;
 }
 
-type Props = {|
+type Props = {
   ...React.ElementConfig<typeof View>,
   +item: ChatRobotextMessageInfoItemWithHeight,
   +navigation: ChatNavigationProp<'MessageList'>,
@@ -51,7 +51,7 @@ type Props = {|
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
-|};
+};
 function RobotextMessage(props: Props): React.Node {
   const {
     item,

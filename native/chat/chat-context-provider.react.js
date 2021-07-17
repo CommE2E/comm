@@ -9,11 +9,11 @@ import { ChatContext, type RegisteredMeasurer } from './chat-context';
 import ChatItemHeightMeasurer from './chat-item-height-measurer.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 
-type Props = {|
+type Props = {
   +children: React.Node,
-|};
+};
 
-export type MeasurementTask = {|
+export type MeasurementTask = {
   +messages: $ReadOnlyArray<ChatMessageItem>,
   +threadInfo: ThreadInfo,
   +onMessagesMeasured: (
@@ -22,10 +22,10 @@ export type MeasurementTask = {|
   ) => mixed,
   +measurerID: number,
   +initialMeasuredHeights: ?$ReadOnlyMap<string, number>,
-|};
-type State = {|
+};
+type State = {
   +measurements: $ReadOnlyArray<MeasurementTask>,
-|};
+};
 class ChatContextProvider extends React.PureComponent<Props, State> {
   state: State = {
     measurements: [],

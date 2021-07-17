@@ -57,18 +57,18 @@ const {
   event,
 } = Animated;
 
-export type VideoPlaybackModalParams = {|
+export type VideoPlaybackModalParams = {
   +presentedFrom: string,
   +mediaInfo: MediaInfo,
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
   +item: ChatMultimediaMessageInfoItem,
-|};
+};
 
-type Props = {|
+type Props = {
   +navigation: AppNavigationProp<'VideoPlaybackModal'>,
   +route: NavigationRoute<'VideoPlaybackModal'>,
-|};
+};
 function VideoPlaybackModal(props: Props): React.Node {
   const { mediaInfo } = props.route.params;
 

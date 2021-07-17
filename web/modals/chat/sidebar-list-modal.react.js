@@ -17,10 +17,10 @@ import globalCSS from '../../style.css';
 import { MagnifyingGlass } from '../../vectors.react';
 import Modal from '../modal.react';
 
-type Props = {|
+type Props = {
   +setModal: (modal: ?React.Node) => void,
   +threadInfo: ThreadInfo,
-|};
+};
 function SidebarListModal(props: Props): React.Node {
   const { setModal, threadInfo } = props;
   const [searchState, setSearchState] = React.useState({

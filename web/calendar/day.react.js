@@ -31,13 +31,13 @@ import type { InnerEntry } from './entry.react';
 import Entry from './entry.react';
 import ThreadPicker from './thread-picker.react';
 
-type BaseProps = {|
+type BaseProps = {
   +dayString: string,
   +entryInfos: $ReadOnlyArray<EntryInfo>,
   +setModal: (modal: ?React.Node) => void,
   +startingTabIndex: number,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
   +viewerID: ?string,
@@ -45,11 +45,11 @@ type Props = {|
   +nextLocalID: number,
   +timeZone: ?string,
   +dispatch: Dispatch,
-|};
-type State = {|
+};
+type State = {
   +pickerOpen: boolean,
   +hovered: boolean,
-|};
+};
 class Day extends React.PureComponent<Props, State> {
   state: State = {
     pickerOpen: false,

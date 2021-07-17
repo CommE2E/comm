@@ -44,12 +44,12 @@ import ColorPicker from './color-picker.react';
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
 
 type TabType = 'general' | 'privacy' | 'delete';
-type TabProps = {|
+type TabProps = {
   +name: string,
   +tabType: TabType,
   +selected: boolean,
   +onClick: (tabType: TabType) => void,
-|};
+};
 class Tab extends React.PureComponent<TabProps> {
   render() {
     const classNamesForTab = classNames({
@@ -69,11 +69,11 @@ class Tab extends React.PureComponent<TabProps> {
   };
 }
 
-type BaseProps = {|
+type BaseProps = {
   +threadID: string,
   +onClose: () => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +threadInfo: ThreadInfo,
   +changeInProgress: boolean,
@@ -87,13 +87,13 @@ type Props = {|
   +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
-|};
-type State = {|
+};
+type State = {
   +queuedChanges: ThreadChanges,
   +errorMessage: string,
   +accountPassword: string,
   +currentTabType: TabType,
-|};
+};
 class ThreadSettingsModal extends React.PureComponent<Props, State> {
   nameInput: ?HTMLInputElement;
   newThreadPasswordInput: ?HTMLInputElement;

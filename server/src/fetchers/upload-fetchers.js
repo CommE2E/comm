@@ -9,10 +9,10 @@ import { getAppURLFacts } from '../utils/urls';
 
 const { baseDomain, basePath } = getAppURLFacts();
 
-type UploadInfo = {|
+type UploadInfo = {
   content: Buffer,
   mime: string,
-|};
+};
 async function fetchUpload(
   viewer: Viewer,
   id: string,

@@ -42,26 +42,26 @@ function cookieIsExpired(lastUsed: number) {
   return lastUsed + cookieLifetime <= Date.now();
 }
 
-type SessionParameterInfo = {|
+type SessionParameterInfo = {
   isSocket: boolean,
   sessionID: ?string,
   sessionIdentifierType: SessionIdentifierType,
   ipAddress: string,
   userAgent: ?string,
-|};
+};
 
 type FetchViewerResult =
-  | {| type: 'valid', viewer: Viewer |}
+  | { type: 'valid', viewer: Viewer }
   | InvalidFetchViewerResult;
 
 type InvalidFetchViewerResult =
-  | {|
+  | {
       type: 'nonexistant',
       cookieName: ?string,
       cookieSource: ?CookieSource,
       sessionParameterInfo: SessionParameterInfo,
-    |}
-  | {|
+    }
+  | {
       type: 'invalidated',
       cookieName: string,
       cookieID: string,
@@ -69,7 +69,7 @@ type InvalidFetchViewerResult =
       sessionParameterInfo: SessionParameterInfo,
       platformDetails: ?PlatformDetails,
       deviceToken: ?string,
-    |};
+    };
 
 async function fetchUserViewer(
   cookie: string,
@@ -243,12 +243,12 @@ async function fetchAnonymousViewer(
   return { type: 'valid', viewer };
 }
 
-type SessionInfo = {|
+type SessionInfo = {
   +sessionID: ?string,
   +lastValidated: number,
   +lastUpdate: number,
   +calendarQuery: CalendarQuery,
-|};
+};
 async function fetchSessionInfo(
   sessionParameterInfo: SessionParameterInfo,
   cookieID: string,
@@ -574,10 +574,10 @@ function addSessionChangeInfoToResult(
   result.cookieChange = sessionChange;
 }
 
-type AnonymousCookieCreationParams = Shape<{|
+type AnonymousCookieCreationParams = Shape<{
   +platformDetails: ?PlatformDetails,
   +deviceToken: ?string,
-|}>;
+}>;
 const defaultPlatformDetails = {};
 
 // The result of this function should not be passed directly to the Viewer
@@ -633,10 +633,10 @@ async function createNewAnonymousCookie(
   };
 }
 
-type UserCookieCreationParams = {|
+type UserCookieCreationParams = {
   platformDetails: PlatformDetails,
   deviceToken?: ?string,
-|};
+};
 
 // The result of this function should never be passed directly to the Viewer
 // constructor. Instead, it should be passed to viewer.setNewCookie. There are

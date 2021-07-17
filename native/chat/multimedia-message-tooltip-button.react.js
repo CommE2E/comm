@@ -15,11 +15,11 @@ const { Node } = Animated;
 
 function noop() {}
 
-type Props = {|
+type Props = {
   +navigation: AppNavigationProp<'MultimediaMessageTooltipModal'>,
   +route: TooltipRoute<'MultimediaMessageTooltipModal'>,
   +progress: Node,
-|};
+};
 function MultimediaMessageTooltipButton(props: Props): React.Node {
   const windowWidth = useSelector(state => state.dimensions.width);
   const { progress } = props;

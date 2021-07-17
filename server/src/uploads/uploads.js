@@ -25,18 +25,18 @@ import { validateAndConvert } from './media-utils';
 const upload = multer();
 const multerProcessor: Middleware<> = upload.array('multimedia');
 
-type MulterFile = {|
+type MulterFile = {
   fieldname: string,
   originalname: string,
   encoding: string,
   mimetype: string,
   buffer: Buffer,
   size: number,
-|};
+};
 
-type MultimediaUploadResult = {|
+type MultimediaUploadResult = {
   results: UploadMultimediaResult[],
-|};
+};
 async function multimediaUploadResponder(
   viewer: Viewer,
   req: $Request & { files?: $ReadOnlyArray<MulterFile>, ... },

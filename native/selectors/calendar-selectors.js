@@ -13,27 +13,27 @@ import { dateString } from 'lib/utils/date-utils';
 
 import type { AppState } from '../redux/state-types';
 
-export type SectionHeaderItem = {|
+export type SectionHeaderItem = {
   itemType: 'header',
   dateString: string,
-|};
-export type SectionFooterItem = {|
+};
+export type SectionFooterItem = {
   itemType: 'footer',
   dateString: string,
-|};
-export type LoaderItem = {|
+};
+export type LoaderItem = {
   itemType: 'loader',
   key: string,
-|};
+};
 export type CalendarItem =
   | LoaderItem
   | SectionHeaderItem
   | SectionFooterItem
-  | {|
+  | {
       itemType: 'entryInfo',
       entryInfo: EntryInfo,
       threadInfo: ThreadInfo,
-    |};
+    };
 
 const calendarListData: (state: AppState) => ?(CalendarItem[]) = createSelector(
   isLoggedIn,

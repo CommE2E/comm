@@ -141,35 +141,35 @@ function runDecay(
   ]);
 }
 
-export type ImageModalParams = {|
+export type ImageModalParams = {
   presentedFrom: string,
   mediaInfo: MediaInfo,
   initialCoordinates: LayoutCoordinates,
   verticalBounds: VerticalBounds,
   item: ChatMultimediaMessageInfoItem,
-|};
+};
 
 type TouchableOpacityInstance = React.AbstractComponent<
   React.ElementConfig<typeof TouchableOpacity>,
   NativeMethods,
 >;
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: AppNavigationProp<'ImageModal'>,
   +route: NavigationRoute<'ImageModal'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +dimensions: DerivedDimensionsInfo,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   +mediaReportsEnabled: boolean,
-|};
-type State = {|
+};
+type State = {
   +closeButtonEnabled: boolean,
   +actionLinksEnabled: boolean,
-|};
+};
 class ImageModal extends React.PureComponent<Props, State> {
   state: State = {
     closeButtonEnabled: true,

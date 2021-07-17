@@ -10,12 +10,12 @@ import Button from '../components/button.react';
 import { useColors, useStyles } from '../themes/colors';
 import { sidebarHeight } from './sidebar-item.react';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +unread: boolean,
   +showingSidebarsInline: boolean,
   +onPress: (threadInfo: ThreadInfo) => void,
-|};
+};
 function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   const { onPress, threadInfo, unread, showingSidebarsInline } = props;
   const onPressButton = React.useCallback(() => onPress(threadInfo), [

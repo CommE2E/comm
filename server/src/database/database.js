@@ -79,10 +79,10 @@ function FakeSQLResult() {
 FakeSQLResult.prototype = Array.prototype;
 const fakeResult: QueryResults = (new FakeSQLResult(): any);
 
-type QueryOptions = {|
+type QueryOptions = {
   +triesLeft?: number,
   +multipleStatements?: boolean,
-|};
+};
 async function dbQuery(
   statement: SQLStatementType,
   options?: QueryOptions,

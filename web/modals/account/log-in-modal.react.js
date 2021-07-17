@@ -26,21 +26,21 @@ import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import css from '../../style.css';
 import Modal from '../modal.react';
 
-type BaseProps = {|
+type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +inputDisabled: boolean,
   +logInExtraInfo: () => LogInExtraInfo,
   +dispatchActionPromise: DispatchActionPromise,
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-|};
-type State = {|
+};
+type State = {
   +username: string,
   +password: string,
   +errorMessage: string,
-|};
+};
 class LogInModal extends React.PureComponent<Props, State> {
   usernameInput: ?HTMLInputElement;
   passwordInput: ?HTMLInputElement;

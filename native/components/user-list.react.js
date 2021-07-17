@@ -10,11 +10,11 @@ import { type IndicatorStyle, useIndicatorStyle } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
 import { UserListUser, getUserListItemHeight } from './user-list-user.react';
 
-type BaseProps = {|
+type BaseProps = {
   +userInfos: $ReadOnlyArray<UserListItem>,
   +onSelect: (userID: string) => void,
   +itemTextStyle?: TextStyle,
-|};
+};
 type Props = {
   ...BaseProps,
   // Redux state

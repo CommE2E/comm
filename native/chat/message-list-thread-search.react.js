@@ -12,7 +12,7 @@ import { useStyles } from '../themes/colors';
 
 const TagInput = createTagInput<AccountUserInfo>();
 
-type Props = {|
+type Props = {
   +usernameInputText: string,
   +updateUsernameInput: (text: string) => void,
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
@@ -20,7 +20,7 @@ type Props = {|
   +resolveToUser: (user: AccountUserInfo) => void,
   +otherUserInfos: { [id: string]: AccountUserInfo },
   +userSearchResults: $ReadOnlyArray<UserListItem>,
-|};
+};
 
 const inputProps = {
   placeholder: 'username',

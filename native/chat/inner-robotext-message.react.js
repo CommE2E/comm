@@ -30,11 +30,11 @@ function dummyNodeForRobotextMessageHeightMeasurement(
   );
 }
 
-type InnerRobotextMessageProps = {|
+type InnerRobotextMessageProps = {
   +item: ChatRobotextMessageInfoItemWithHeight,
   +onPress: () => void,
   +onLongPress?: () => void,
-|};
+};
 function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   const { item, onLongPress, onPress } = props;
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
@@ -90,10 +90,10 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   );
 }
 
-type ThreadEntityProps = {|
+type ThreadEntityProps = {
   +id: string,
   +name: string,
-|};
+};
 function ThreadEntity(props: ThreadEntityProps) {
   const threadID = props.id;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
@@ -116,7 +116,7 @@ function ThreadEntity(props: ThreadEntityProps) {
   );
 }
 
-function ColorEntity(props: {| +color: string |}) {
+function ColorEntity(props: { +color: string }) {
   const colorStyle = { color: props.color };
   return <Text style={colorStyle}>{props.color}</Text>;
 }

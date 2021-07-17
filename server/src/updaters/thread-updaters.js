@@ -291,12 +291,12 @@ async function leaveThread(
   };
 }
 
-type UpdateThreadOptions = Shape<{|
+type UpdateThreadOptions = Shape<{
   +forceAddMembers: boolean,
   +forceUpdateRoot: boolean,
   +silenceMessages: boolean,
   +ignorePermissions: boolean,
-|}>;
+}>;
 
 async function updateThread(
   viewer: Viewer,

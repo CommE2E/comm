@@ -14,9 +14,9 @@ import Button from './button.react';
 import CommunityPill from './community-pill.react';
 import ThreadPill from './thread-pill.react';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
-|};
+};
 
 function ThreadAncestors(props: Props): React.Node {
   const { threadInfo } = props;

@@ -41,24 +41,24 @@ import type { Viewer } from '../session/viewer';
 import { getAPNsNotificationTopic } from './providers';
 import { apnPush, fcmPush, getUnreadCounts } from './utils';
 
-type Device = {|
+type Device = {
   +deviceType: DeviceType,
   +deviceToken: string,
   +codeVersion: ?number,
-|};
-type PushUserInfo = {|
+};
+type PushUserInfo = {
   +devices: Device[],
   +messageInfos: RawMessageInfo[],
-|};
-type Delivery = IOSDelivery | AndroidDelivery | {| collapsedInto: string |};
-type NotificationRow = {|
+};
+type Delivery = IOSDelivery | AndroidDelivery | { collapsedInto: string };
+type NotificationRow = {
   +dbID: string,
   +userID: string,
   +threadID?: ?string,
   +messageID?: ?string,
   +collapseKey?: ?string,
   +deliveries: Delivery[],
-|};
+};
 export type PushInfo = { [userID: string]: PushUserInfo };
 
 async function sendPushNotifs(pushInfo: PushInfo) {
@@ -562,7 +562,7 @@ function prepareAndroidNotification(
 }
 
 type NotificationInfo =
-  | {|
+  | {
       +source: 'new_message',
       +dbID: string,
       +userID: string,
@@ -570,27 +570,27 @@ type NotificationInfo =
       +messageID: string,
       +collapseKey: ?string,
       +codeVersion: number,
-    |}
-  | {|
+    }
+  | {
       +source: 'mark_as_unread' | 'mark_as_read' | 'activity_update',
       +dbID: string,
       +userID: string,
       +codeVersion: number,
-    |};
+    };
 
-type IOSDelivery = {|
+type IOSDelivery = {
   source: $PropertyType<NotificationInfo, 'source'>,
   deviceType: 'ios',
   iosID: string,
   deviceTokens: $ReadOnlyArray<string>,
   codeVersion: number,
   errors?: $ReadOnlyArray<ResponseFailure>,
-|};
-type IOSResult = {|
+};
+type IOSResult = {
   info: NotificationInfo,
   delivery: IOSDelivery,
   invalidTokens?: $ReadOnlyArray<string>,
-|};
+};
 async function sendIOSNotification(
   notification: apn.Notification,
   deviceTokens: $ReadOnlyArray<string>,
@@ -618,19 +618,19 @@ async function sendIOSNotification(
   return result;
 }
 
-type AndroidDelivery = {|
+type AndroidDelivery = {
   source: $PropertyType<NotificationInfo, 'source'>,
   deviceType: 'android',
   androidIDs: $ReadOnlyArray<string>,
   deviceTokens: $ReadOnlyArray<string>,
   codeVersion: number,
   errors?: $ReadOnlyArray<Object>,
-|};
-type AndroidResult = {|
+};
+type AndroidResult = {
   info: NotificationInfo,
   delivery: AndroidDelivery,
   invalidTokens?: $ReadOnlyArray<string>,
-|};
+};
 async function sendAndroidNotification(
   notification: Object,
   deviceTokens: $ReadOnlyArray<string>,
@@ -667,10 +667,10 @@ async function sendAndroidNotification(
   return result;
 }
 
-type InvalidToken = {|
+type InvalidToken = {
   +userID: string,
   +tokens: $ReadOnlyArray<string>,
-|};
+};
 async function removeInvalidTokens(
   invalidTokens: $ReadOnlyArray<InvalidToken>,
 ): Promise<void> {

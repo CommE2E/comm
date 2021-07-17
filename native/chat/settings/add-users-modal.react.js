@@ -48,16 +48,16 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
-export type AddUsersModalParams = {|
+export type AddUsersModalParams = {
   +presentedFrom: string,
   +threadInfo: ThreadInfo,
-|};
+};
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: RootNavigationProp<'AddUsersModal'>,
   +route: NavigationRoute<'AddUsersModal'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +parentThreadInfo: ?ThreadInfo,
@@ -71,12 +71,12 @@ type Props = {|
   +changeThreadSettings: (
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
-|};
-type State = {|
+};
+type State = {
   +usernameInputText: string,
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-|};
-type PropsAndState = {| ...Props, ...State |};
+};
+type PropsAndState = { ...Props, ...State };
 class AddUsersModal extends React.PureComponent<Props, State> {
   state: State = {
     usernameInputText: '',

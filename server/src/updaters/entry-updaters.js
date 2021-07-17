@@ -255,11 +255,11 @@ async function createUpdateDatasForChangedEntryInfo(
   };
 }
 
-type CalendarQueryComparisonResult = {|
+type CalendarQueryComparisonResult = {
   +difference: $ReadOnlyArray<CalendarQuery>,
   +oldCalendarQuery: CalendarQuery,
   +sessionUpdate: SessionUpdate,
-|};
+};
 function compareNewCalendarQuery(
   viewer: Viewer,
   newCalendarQuery: CalendarQuery,

@@ -9,9 +9,9 @@ import css from './chat-tabs.css';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import { ThreadListContext } from './thread-list-provider';
 
-type Props = {|
+type Props = {
   +setModal: (modal: ?React.Node) => void,
-|};
+};
 function ChatThreadList(props: Props): React.Node {
   const { setModal } = props;
 

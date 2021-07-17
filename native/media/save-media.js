@@ -39,14 +39,14 @@ import { getMediaLibraryIdentifier } from './identifier-utils';
 
 async function intentionalSaveMedia(
   uri: string,
-  ids: {|
+  ids: {
     uploadID: string,
     messageServerID: ?string,
     messageLocalID: ?string,
-  |},
-  options: {|
+  },
+  options: {
     mediaReportsEnabled: boolean,
-  |},
+  },
 ): Promise<void> {
   const start = Date.now();
   const steps = [{ step: 'save_media', uri, time: start }];
@@ -110,10 +110,10 @@ type Permissions = 'check' | 'request';
 function saveMedia(
   uri: string,
   permissions?: Permissions = 'check',
-): {|
+): {
   resultPromise: Promise<MediaMissionResult>,
   reportPromise: Promise<$ReadOnlyArray<MediaMissionStep>>,
-|} {
+} {
   let resolveResult;
   const sendResult = result => {
     if (resolveResult) {
@@ -326,10 +326,10 @@ async function saveMediaIOS(
   return steps;
 }
 
-type IntermediateSaveResult = {|
-  result: {| success: true, path: string, mime: string |} | MediaMissionFailure,
+type IntermediateSaveResult = {
+  result: { success: true, path: string, mime: string } | MediaMissionFailure,
   steps: $ReadOnlyArray<MediaMissionStep>,
-|};
+};
 
 async function saveRemoteMediaToDisk(
   inputURI: string,

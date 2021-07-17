@@ -6,10 +6,10 @@ import css from '../../style.css';
 import Modal from '../modal.react';
 import LogInModal from './log-in-modal.react';
 
-type Props = {|
+type Props = {
   +inOrderTo: string,
   +setModal: (modal: ?React.Node) => void,
-|};
+};
 class LogInFirstModal extends React.PureComponent<Props> {
   render(): React.Node {
     return (

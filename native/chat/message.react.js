@@ -51,19 +51,19 @@ function messageItemHeight(item: ChatMessageInfoItemWithHeight): number {
   return height;
 }
 
-type BaseProps = {|
+type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,
   +focused: boolean,
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
-|};
+};
 class Message extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
     if (

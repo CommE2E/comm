@@ -13,7 +13,7 @@ export type Pool = {
   ...
 };
 
-export type SQLStatementType = {|
+export type SQLStatementType = {
   +text: string,
   +query: string,
   +sql: string,
@@ -22,6 +22,6 @@ export type SQLStatementType = {|
   +setName: (name: string) => SQLStatementType,
   +useBind: (value?: boolean) => SQLStatementType,
   +values: any[],
-|};
+};
 
 export type SQLOrString = SQLStatementType | string;

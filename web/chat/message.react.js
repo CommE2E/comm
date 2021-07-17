@@ -17,7 +17,7 @@ import {
 import RobotextMessage from './robotext-message.react';
 import TextMessage from './text-message.react';
 
-type Props = {|
+type Props = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +setMouseOverMessagePosition: (
@@ -26,7 +26,7 @@ type Props = {|
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
   +setModal: (modal: ?React.Node) => void,
   +timeZone: ?string,
-|};
+};
 function Message(props: Props): React.Node {
   const { item, timeZone } = props;
 

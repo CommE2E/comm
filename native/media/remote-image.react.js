@@ -9,21 +9,21 @@ import { type ConnectionStatus } from 'lib/types/socket-types';
 import { useSelector } from '../redux/redux-utils';
 import type { ImageStyle } from '../types/styles';
 
-type BaseProps = {|
+type BaseProps = {
   +uri: string,
   +onLoad: (uri: string) => void,
   +spinnerColor: string,
   +style: ImageStyle,
   +invisibleLoad: boolean,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +connectionStatus: ConnectionStatus,
-|};
-type State = {|
+};
+type State = {
   +attempt: number,
   +loaded: boolean,
-|};
+};
 class RemoteImage extends React.PureComponent<Props, State> {
   state: State = {
     attempt: 0,

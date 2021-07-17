@@ -18,9 +18,9 @@ import { waitForModalInputFocus } from '../utils/timers';
 import { useNavigateToThread } from './message-list-types';
 import { SidebarItem } from './sidebar-item.react';
 
-export type SidebarListModalParams = {|
+export type SidebarListModalParams = {
   +threadInfo: ThreadInfo,
-|};
+};
 
 function keyExtractor(sidebarInfo: SidebarInfo) {
   return sidebarInfo.threadInfo.id;
@@ -29,10 +29,10 @@ function getItemLayout(data: ?$ReadOnlyArray<SidebarInfo>, index: number) {
   return { length: 24, offset: 24 * index, index };
 }
 
-type Props = {|
+type Props = {
   +navigation: RootNavigationProp<'SidebarListModal'>,
   +route: NavigationRoute<'SidebarListModal'>,
-|};
+};
 function SidebarListModal(props: Props): React.Node {
   const threadID = props.route.params.threadInfo.id;
   const sidebarInfos = useSelector(

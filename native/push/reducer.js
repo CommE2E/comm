@@ -14,33 +14,33 @@ import {
 } from '../redux/action-types';
 import { getFirebase } from './firebase';
 
-type RecordAndroidNotificationPayload = {|
+type RecordAndroidNotificationPayload = {
   +threadID: string,
   +notifID: string,
-|};
+};
 
-type ClearAndroidNotificationsPayload = {|
+type ClearAndroidNotificationsPayload = {
   +threadID: string,
-|};
+};
 
-type RescindAndroidNotificationPayload = {|
+type RescindAndroidNotificationPayload = {
   +notifID: string,
   +threadID: string,
-|};
+};
 
 export type AndroidNotificationActions =
-  | {|
+  | {
       +type: 'RECORD_ANDROID_NOTIFICATION',
       +payload: RecordAndroidNotificationPayload,
-    |}
-  | {|
+    }
+  | {
       +type: 'CLEAR_ANDROID_NOTIFICATIONS',
       +payload: ClearAndroidNotificationsPayload,
-    |}
-  | {|
+    }
+  | {
       +type: 'RESCIND_ANDROID_NOTIFICATION',
       +payload: RescindAndroidNotificationPayload,
-    |};
+    };
 
 function reduceThreadIDsToNotifIDs(
   state: { [threadID: string]: string[] },

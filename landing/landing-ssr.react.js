@@ -5,10 +5,10 @@ import { StaticRouter } from 'react-router';
 
 import Landing from './landing.react';
 
-export type LandingSSRProps = {|
+export type LandingSSRProps = {
   +url: string,
   +basename: string,
-|};
+};
 function LandingSSR(props: LandingSSRProps): React.Node {
   const { url, basename } = props;
   const routerContext = React.useMemo(() => ({}), []);

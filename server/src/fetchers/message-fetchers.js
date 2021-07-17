@@ -29,11 +29,11 @@ import type { Viewer } from '../session/viewer';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
 import { mediaFromRow } from './upload-fetchers';
 
-export type CollapsableNotifInfo = {|
+export type CollapsableNotifInfo = {
   collapseKey: ?string,
   existingMessageInfos: RawMessageInfo[],
   newMessageInfos: RawMessageInfo[],
-|};
+};
 export type FetchCollapsableNotifsResult = {
   [userID: string]: CollapsableNotifInfo[],
 };
@@ -147,10 +147,10 @@ async function fetchCollapsableNotifs(
   return usersToCollapsableNotifInfo;
 }
 
-type MessageSQLResult = $ReadOnlyArray<{|
+type MessageSQLResult = $ReadOnlyArray<{
   rawMessageInfo: RawMessageInfo,
   rows: $ReadOnlyArray<Object>,
-|}>;
+}>;
 function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
   derivedMessages: $ReadOnlyMap<

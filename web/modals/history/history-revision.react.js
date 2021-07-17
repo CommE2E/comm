@@ -12,10 +12,10 @@ import type { HistoryRevisionInfo } from 'lib/types/history-types';
 import { useSelector } from '../../redux/redux-utils';
 import css from './history.css';
 
-type Props = {|
+type Props = {
   +revisionInfo: HistoryRevisionInfo,
   +isDeletionOrRestoration: boolean,
-|};
+};
 
 export default function HistoryRevision(props: Props): React.Node {
   const threadInfo = useSelector(

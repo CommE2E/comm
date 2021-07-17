@@ -7,10 +7,10 @@ import { validEmailRegex } from 'lib/shared/account-utils';
 import css from './subscription-form.css';
 
 type SubscriptionFormStatus =
-  | {| +status: 'pending' |}
-  | {| +status: 'in_progress' |}
-  | {| +status: 'success' |}
-  | {| +status: 'error', +error: string |};
+  | { +status: 'pending' }
+  | { +status: 'in_progress' }
+  | { +status: 'success' }
+  | { +status: 'error', +error: string };
 
 function SubscriptionForm(): React.Node {
   const [email, setEmail] = React.useState('');

@@ -9,11 +9,11 @@ import type { GlobalTheme } from '../types/themes';
 
 const edges = ['top'];
 
-type Props = {|
+type Props = {
   title: ?string,
   message: string,
   activeTheme: ?GlobalTheme,
-|};
+};
 function InAppNotif(props: Props): React.Node {
   const useLightStyle = Platform.OS === 'ios' && props.activeTheme !== 'dark';
 

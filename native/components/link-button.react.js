@@ -7,16 +7,16 @@ import { useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import Button from './button.react';
 
-type BaseProps = {|
+type BaseProps = {
   +text: string,
   +onPress: () => void,
   +disabled?: boolean,
   +style?: ViewStyle,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +styles: typeof unboundStyles,
-|};
+};
 class LinkButton extends React.PureComponent<Props> {
   render() {
     const disabledStyle = this.props.disabled

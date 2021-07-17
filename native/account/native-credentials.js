@@ -6,15 +6,15 @@ import {
   resetInternetCredentials,
 } from 'react-native-keychain';
 
-type UserCredentials = {|
+type UserCredentials = {
   +username: string,
   +password: string,
-|};
+};
 
-type StoredCredentials = {|
+type StoredCredentials = {
   state: 'undetermined' | 'determined' | 'unsupported',
   credentials: ?UserCredentials,
-|};
+};
 let storedNativeKeychainCredentials: StoredCredentials = {
   state: 'undetermined',
   credentials: null,

@@ -11,11 +11,11 @@ import type { InputState } from '../input/input-state';
 import css from './chat-message-list.css';
 import type { OnMessagePositionWithContainerInfo } from './position-types';
 
-type Props = {|
+type Props = {
   +messagePositionInfo: OnMessagePositionWithContainerInfo,
   +onReplyClick: () => void,
   +inputState: InputState,
-|};
+};
 function MessageReplyButton(props: Props): React.Node {
   const { inputState, onReplyClick, messagePositionInfo } = props;
   const { addReply } = inputState;

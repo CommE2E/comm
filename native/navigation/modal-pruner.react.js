@@ -14,12 +14,12 @@ import {
 import type { NavContextType } from './navigation-context';
 import { AppRouteName } from './route-names';
 
-type DependencyInfo = {|
+type DependencyInfo = {
   status: 'missing' | 'resolved' | 'unresolved',
   presenter: ?string,
   presenting: string[],
   parentRouteName: ?string,
-|};
+};
 function collectDependencyInfo(
   route: PossiblyStaleNavigationState | PossiblyStaleRoute<>,
   dependencyMap?: Map<string, DependencyInfo> = new Map(),
@@ -91,9 +91,9 @@ function collectDependencyInfo(
   return dependencyMap;
 }
 
-type Props = {|
+type Props = {
   navContext: NavContextType,
-|};
+};
 function ModalPruner(props: Props): null {
   const { state, dispatch } = props.navContext;
 

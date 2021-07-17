@@ -8,10 +8,10 @@ const css = `
   font-size: 20px !important;
 }`.trim();
 
-type Props = {|
+type Props = {
   +title: string,
   +children: React.Node,
-|};
+};
 function Template(props: Props): React.Node {
   return (
     <Email title={props.title} headCSS={css} align="left" width="100%">

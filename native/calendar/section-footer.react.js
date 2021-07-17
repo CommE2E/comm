@@ -7,16 +7,16 @@ import Button from '../components/button.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { type Colors, useStyles, useColors } from '../themes/colors';
 
-type BaseProps = {|
+type BaseProps = {
   +dateString: string,
   +onAdd: (dateString: string) => void,
   +onPressWhitespace: () => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +colors: Colors,
   +styles: typeof unboundStyles,
-|};
+};
 class SectionFooter extends React.PureComponent<Props> {
   render() {
     return (

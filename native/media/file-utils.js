@@ -32,28 +32,28 @@ import { ffmpeg } from './ffmpeg';
 const defaultInputs = Object.freeze({});
 const defaultFields = Object.freeze({});
 
-type FetchFileInfoResult = {|
+type FetchFileInfoResult = {
   +success: true,
   +uri: string,
   +orientation: ?number,
   +fileSize: number,
   +mime: ?string,
   +mediaType: ?MediaType,
-|};
-type OptionalInputs = Shape<{| +mediaNativeID: ?string |}>;
-type OptionalFields = Shape<{|
+};
+type OptionalInputs = Shape<{ +mediaNativeID: ?string }>;
+type OptionalFields = Shape<{
   +orientation: boolean,
   +mediaType: boolean,
   +mime: boolean,
-|}>;
+}>;
 async function fetchFileInfo(
   inputURI: string,
   optionalInputs?: OptionalInputs = defaultInputs,
   optionalFields?: OptionalFields = defaultFields,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | FetchFileInfoResult,
-|}> {
+}> {
   const { mediaNativeID } = optionalInputs;
   const steps = [];
 
@@ -177,10 +177,10 @@ async function fetchFileInfo(
 
 async function fetchAssetInfo(
   mediaNativeID: string,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
-  result: {| localURI: ?string, orientation: ?number |},
-|}> {
+  result: { localURI: ?string, orientation: ?number },
+}> {
   let localURI,
     orientation,
     success = false,
@@ -218,10 +218,10 @@ async function fetchAssetInfo(
 
 async function fetchFileSize(
   uri: string,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: ?number,
-|}> {
+}> {
   let fileSize,
     success = false,
     exceptionMessage;
@@ -287,10 +287,10 @@ async function getMediaTypeInfo(
   path: string,
   mime: string,
   baseMediaType: MediaType,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: ?MediaType,
-|}> {
+}> {
   if (!mediaConfig[mime] || mediaConfig[mime].mediaType !== 'photo_or_video') {
     return { steps: [], result: baseMediaType };
   }

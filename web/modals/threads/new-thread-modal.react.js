@@ -32,25 +32,25 @@ import css from '../../style.css';
 import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
 
-type BaseProps = {|
+type BaseProps = {
   +onClose: () => void,
   +parentThreadID?: ?string,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +inputDisabled: boolean,
   +calendarQuery: () => CalendarQuery,
   +parentThreadInfo: ?ThreadInfo,
   +dispatchActionPromise: DispatchActionPromise,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
-|};
-type State = {|
+};
+type State = {
   +threadType: ?ThreadType,
   +name: string,
   +description: string,
   +color: string,
   +errorMessage: string,
-|};
+};
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
 

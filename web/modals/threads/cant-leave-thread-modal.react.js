@@ -5,9 +5,9 @@ import * as React from 'react';
 import css from '../../style.css';
 import Modal from '../modal.react';
 
-type Props = {|
+type Props = {
   +onClose: () => void,
-|};
+};
 function CantLeaveThreadModal(props: Props): React.Node {
   return (
     <Modal name="Cannot leave thread" onClose={props.onClose}>

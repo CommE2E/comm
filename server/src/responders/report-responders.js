@@ -175,9 +175,9 @@ const reportMultiCreationRequestInputValidator = tShape({
   ),
 });
 
-type ReportMultiCreationRequest = {|
+type ReportMultiCreationRequest = {
   reports: $ReadOnlyArray<ReportCreationRequest>,
-|};
+};
 async function reportMultiCreationResponder(
   viewer: Viewer,
   input: any,

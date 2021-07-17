@@ -10,7 +10,7 @@ import {
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-export type PendingMultimediaUpload = {|
+export type PendingMultimediaUpload = {
   localID: string,
   // Pending uploads are assigned a serverID once they are complete
   serverID: ?string,
@@ -32,10 +32,10 @@ export type PendingMultimediaUpload = {|
   abort: ?() => void,
   steps: MediaMissionStep[],
   selectTime: number,
-|};
+};
 
 // This type represents the input state for a particular thread
-export type InputState = {|
+export type InputState = {
   pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
   assignedUploads: {
     [messageID: string]: $ReadOnlyArray<PendingMultimediaUpload>,
@@ -57,7 +57,7 @@ export type InputState = {|
   addReply: (text: string) => void,
   addReplyListener: ((message: string) => void) => void,
   removeReplyListener: ((message: string) => void) => void,
-|};
+};
 
 const InputStateContext: React.Context<?InputState> = React.createContext<?InputState>(
   null,

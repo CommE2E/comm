@@ -21,10 +21,10 @@ import {
 } from '../updaters/relationship-updaters';
 import { createUpdates } from './update-creator';
 
-type QueryResult = {|
+type QueryResult = {
   +thread: number,
   +user: number,
-|};
+};
 async function createUndirectedRelationships(
   dbQueryResult: $ReadOnlyArray<QueryResult>,
   setStatus: UndirectedStatus,

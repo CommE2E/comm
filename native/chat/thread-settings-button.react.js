@@ -10,14 +10,14 @@ import { ThreadSettingsRouteName } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +styles: typeof unboundStyles,
-|};
+};
 
 class ThreadSettingsButton extends React.PureComponent<Props> {
   render() {

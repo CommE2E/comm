@@ -12,9 +12,9 @@ import { useColors } from '../themes/colors';
 import Pill from './pill.react';
 import ThreadPill from './thread-pill.react';
 
-type Props = {|
+type Props = {
   +community: ThreadInfo,
-|};
+};
 function CommunityPill(props: Props): React.Node {
   const { community } = props;
 

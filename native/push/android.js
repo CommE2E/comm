@@ -21,7 +21,7 @@ function handleAndroidMessage(
   updatesCurrentAsOf: number,
   handleIfActive?: (
     threadID: string,
-    texts: {| body: string, title: ?string |},
+    texts: { body: string, title: ?string },
   ) => boolean,
 ) {
   const firebase = getFirebase();

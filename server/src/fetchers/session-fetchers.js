@@ -5,11 +5,11 @@ import type { CalendarQuery } from 'lib/types/entry-types';
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
 
-type CalendarSessionResult = {|
+type CalendarSessionResult = {
   userID: string,
   session: string,
   calendarQuery: CalendarQuery,
-|};
+};
 async function fetchActiveSessionsForThread(
   threadID: string,
 ): Promise<CalendarSessionResult[]> {

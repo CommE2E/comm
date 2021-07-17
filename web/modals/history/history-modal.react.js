@@ -40,13 +40,13 @@ import HistoryEntry from './history-entry.react';
 import HistoryRevision from './history-revision.react';
 import css from './history.css';
 
-type BaseProps = {|
+type BaseProps = {
   +mode: HistoryMode,
   +dayString: string,
   +onClose: () => void,
   +currentEntryID?: ?string,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +entryInfos: ?(EntryInfo[]),
   +dayLoadingStatus: LoadingStatus,
@@ -59,13 +59,13 @@ type Props = {|
   +fetchRevisionsForEntry: (
     entryID: string,
   ) => Promise<$ReadOnlyArray<HistoryRevisionInfo>>,
-|};
-type State = {|
+};
+type State = {
   +mode: HistoryMode,
   +animateModeChange: boolean,
   +currentEntryID: ?string,
   +revisions: $ReadOnlyArray<HistoryRevisionInfo>,
-|};
+};
 class HistoryModal extends React.PureComponent<Props, State> {
   static defaultProps = { currentEntryID: null };
 

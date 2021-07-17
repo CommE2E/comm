@@ -67,7 +67,7 @@ export const ImagePasteModalRouteName = 'ImagePasteModal';
 export const RobotextMessageTooltipModalRouteName =
   'RobotextMessageTooltipModal';
 
-export type RootParamList = {|
+export type RootParamList = {
   +LoggedOutModal: void,
   +App: void,
   +ThreadPickerModal: ThreadPickerModalParams,
@@ -77,51 +77,51 @@ export type RootParamList = {|
   +ComposeSubthreadModal: ComposeSubthreadModalParams,
   +SidebarListModal: SidebarListModalParams,
   +ImagePasteModal: ImagePasteModalParams,
-|};
+};
 
 export type MessageTooltipRouteNames =
   | typeof RobotextMessageTooltipModalRouteName
   | typeof MultimediaMessageTooltipModalRouteName
   | typeof TextMessageTooltipModalRouteName;
 
-export type TooltipModalParamList = {|
+export type TooltipModalParamList = {
   +MultimediaMessageTooltipModal: MultimediaMessageTooltipModalParams,
   +TextMessageTooltipModal: TextMessageTooltipModalParams,
   +ThreadSettingsMemberTooltipModal: ThreadSettingsMemberTooltipModalParams,
   +RelationshipListItemTooltipModal: RelationshipListItemTooltipModalParams,
   +RobotextMessageTooltipModal: RobotextMessageTooltipModalParams,
-|};
+};
 
-export type OverlayParamList = {|
+export type OverlayParamList = {
   +TabNavigator: void,
   +ImageModal: ImageModalParams,
   +ActionResultModal: ActionResultModalParams,
   +CameraModal: CameraModalParams,
   +VideoPlaybackModal: VideoPlaybackModalParams,
   ...TooltipModalParamList,
-|};
+};
 
-export type TabParamList = {|
+export type TabParamList = {
   +Calendar: void,
   +Chat: void,
   +Profile: void,
   +Apps: void,
-|};
+};
 
-export type ChatParamList = {|
+export type ChatParamList = {
   +ChatThreadList: void,
   +MessageList: MessageListParams,
   +ComposeThread: ComposeThreadParams,
   +ThreadSettings: ThreadSettingsParams,
   +DeleteThread: DeleteThreadParams,
-|};
+};
 
-export type ChatTopTabsParamList = {|
+export type ChatTopTabsParamList = {
   +HomeChatThreadList: void,
   +BackgroundChatThreadList: void,
-|};
+};
 
-export type ProfileParamList = {|
+export type ProfileParamList = {
   +ProfileScreen: void,
   +EditPassword: void,
   +DeleteAccount: void,
@@ -131,21 +131,21 @@ export type ProfileParamList = {|
   +PrivacyPreferences: void,
   +FriendList: void,
   +BlockList: void,
-|};
+};
 
-export type ScreenParamList = {|
+export type ScreenParamList = {
   ...RootParamList,
   ...OverlayParamList,
   ...TabParamList,
   ...ChatParamList,
   ...ChatTopTabsParamList,
   ...ProfileParamList,
-|};
+};
 
-export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> = {|
+export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> = {
   ...LeafRoute<RouteName>,
   +params: $ElementType<ScreenParamList, RouteName>,
-|};
+};
 
 export const accountModals = [LoggedOutModalRouteName];
 

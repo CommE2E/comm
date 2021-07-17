@@ -15,10 +15,10 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 import { useSelector } from '../redux/redux-utils';
 import { useColors, useStyles } from '../themes/colors';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +unread: ?boolean,
-|};
+};
 function ThreadAncestorsLabel(props: Props): React.Node {
   const { unread, threadInfo } = props;
   const styles = useStyles(unboundStyles);

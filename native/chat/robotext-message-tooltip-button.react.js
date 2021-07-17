@@ -13,11 +13,11 @@ import { Timestamp } from './timestamp.react';
 const { Node } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type Props = {|
+type Props = {
   +navigation: AppNavigationProp<'RobotextMessageTooltipModal'>,
   +route: TooltipRoute<'RobotextMessageTooltipModal'>,
   +progress: Node,
-|};
+};
 function RobotextMessageTooltipButton(props: Props): React.Node {
   const { progress } = props;
   const windowWidth = useSelector(state => state.dimensions.width);

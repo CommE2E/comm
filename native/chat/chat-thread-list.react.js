@@ -82,10 +82,10 @@ const { Value, Node, interpolate } = Animated;
 
 type Item =
   | ChatThreadItem
-  | {| +type: 'search', +searchText: string |}
-  | {| +type: 'empty', +emptyItem: React.ComponentType<{||}> |};
+  | { +type: 'search', +searchText: string }
+  | { +type: 'empty', +emptyItem: React.ComponentType<{}> };
 
-type BaseProps = {|
+type BaseProps = {
   +navigation:
     | ChatTopTabsNavigationProp<'HomeChatThreadList'>
     | ChatTopTabsNavigationProp<'BackgroundChatThreadList'>,
@@ -93,9 +93,9 @@ type BaseProps = {|
     | NavigationRoute<'HomeChatThreadList'>
     | NavigationRoute<'BackgroundChatThreadList'>,
   +filterThreads: (threadItem: ThreadInfo) => boolean,
-  +emptyItem?: React.ComponentType<{||}>,
-|};
-type Props = {|
+  +emptyItem?: React.ComponentType<{}>,
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +chatListData: $ReadOnlyArray<ChatThreadItem>,
@@ -107,17 +107,17 @@ type Props = {|
   +navigateToThread: (params: MessageListParams) => void,
   // async functions that hit server APIs
   +searchUsers: (usernamePrefix: string) => Promise<UserSearchResult>,
-|};
+};
 type SearchStatus = 'inactive' | 'activating' | 'active';
-type State = {|
+type State = {
   +searchStatus: SearchStatus,
   +searchText: string,
   +threadsSearchResults: Set<string>,
   +usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
   +openedSwipeableId: string,
   +numItemsToDisplay: number,
-|};
-type PropsAndState = {| ...Props, ...State |};
+};
+type PropsAndState = { ...Props, ...State };
 class ChatThreadList extends React.PureComponent<Props, State> {
   state: State = {
     searchStatus: 'inactive',
@@ -369,7 +369,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       searchStatus: SearchStatus,
       searchText: string,
       threadsSearchResults: Set<string>,
-      emptyItem?: React.ComponentType<{||}>,
+      emptyItem?: React.ComponentType<{}>,
       usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
     ): $ReadOnlyArray<Item> => {
       const chatItems = [];

@@ -14,15 +14,15 @@ import { ThreadSettingsRouteName } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +searching: boolean | void,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +styles: typeof unboundStyles,
-|};
+};
 class MessageListHeaderTitle extends React.PureComponent<Props> {
   render() {
     const isSearchEmpty =

@@ -20,10 +20,10 @@ import {
 
 import { useStyles } from '../../themes/colors';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +styles: typeof unboundStyles,
@@ -33,10 +33,10 @@ type Props = {|
   +updateSubscription: (
     subscriptionUpdate: SubscriptionUpdateRequest,
   ) => Promise<SubscriptionUpdateResult>,
-|};
-type State = {|
+};
+type State = {
   +currentValue: boolean,
-|};
+};
 class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);

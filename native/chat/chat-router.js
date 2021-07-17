@@ -31,30 +31,30 @@ import {
 } from '../navigation/route-names';
 import { createNavigateToThreadAction } from './message-list-types';
 
-type ClearScreensAction = {|
+type ClearScreensAction = {
   +type: 'CLEAR_SCREENS',
-  +payload: {|
+  +payload: {
     +routeNames: $ReadOnlyArray<string>,
-  |},
-|};
-type ReplaceWithThreadAction = {|
+  },
+};
+type ReplaceWithThreadAction = {
   +type: 'REPLACE_WITH_THREAD',
-  +payload: {|
+  +payload: {
     +threadInfo: ThreadInfo,
-  |},
-|};
-type ClearThreadsAction = {|
+  },
+};
+type ClearThreadsAction = {
   +type: 'CLEAR_THREADS',
-  +payload: {|
+  +payload: {
     +threadIDs: $ReadOnlyArray<string>,
-  |},
-|};
-type PushNewThreadAction = {|
+  },
+};
+type PushNewThreadAction = {
   +type: 'PUSH_NEW_THREAD',
-  +payload: {|
+  +payload: {
     +threadInfo: ThreadInfo,
-  |},
-|};
+  },
+};
 export type ChatRouterNavigationAction =
   | StackAction
   | ClearScreensAction
@@ -65,13 +65,13 @@ export type ChatRouterNavigationAction =
 export type ChatRouterNavigationProp<
   ParamList: ParamListBase = ParamListBase,
   RouteName: string = string,
-> = {|
+> = {
   ...StackNavigationProp<ParamList, RouteName>,
   +clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
   +replaceWithThread: (threadInfo: ThreadInfo) => void,
   +clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,
   +pushNewThread: (threadInfo: ThreadInfo) => void,
-|};
+};
 
 function ChatRouter(
   routerOptions: StackRouterOptions,

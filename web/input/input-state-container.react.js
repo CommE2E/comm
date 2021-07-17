@@ -77,11 +77,11 @@ import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { type PendingMultimediaUpload, InputStateContext } from './input-state';
 
-type BaseProps = {|
+type BaseProps = {
   +children: React.Node,
   +setModal: (modal: ?React.Node) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +activeChatThreadID: ?string,
   +viewerID: ?string,
@@ -108,13 +108,13 @@ type Props = {|
     text: string,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
-|};
-type State = {|
+};
+type State = {
   +pendingUploads: {
     [threadID: string]: { [localUploadID: string]: PendingMultimediaUpload },
   },
   +drafts: { [threadID: string]: string },
-|};
+};
 class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
@@ -570,7 +570,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     steps: $ReadOnlyArray<MediaMissionStep>,
     result:
       | MediaMissionFailure
-      | {| success: true, pendingUpload: PendingMultimediaUpload |},
+      | { success: true, pendingUpload: PendingMultimediaUpload },
   }> {
     const steps = [
       {
@@ -870,12 +870,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   queueMediaMissionReports(
-    partials: $ReadOnlyArray<{|
+    partials: $ReadOnlyArray<{
       mediaMission: MediaMission,
       uploadLocalID?: ?string,
       uploadServerID?: ?string,
       messageLocalID?: ?string,
-    |}>,
+    }>,
   ) {
     const reports = partials.map(
       ({ mediaMission, uploadLocalID, uploadServerID, messageLocalID }) => ({

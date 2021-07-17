@@ -16,6 +16,7 @@
   "plugins": ["react", "react-hooks", "flowtype", "monorepo", "import"],
   "rules": {
     "flowtype/require-valid-file-annotation": ["error", "always"],
+    "flowtype/require-exact-type": ["error", "never"],
     "curly": "error",
     "linebreak-style": "error",
     "semi": "error",

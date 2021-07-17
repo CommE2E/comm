@@ -36,11 +36,11 @@ import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { ProfileNavigationProp } from './profile.react';
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: ProfileNavigationProp<'ProfileScreen'>,
   +route: NavigationRoute<'ProfileScreen'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +currentUserInfo: ?CurrentUserInfo,
   +preRequestUserState: PreRequestUserState,
@@ -49,7 +49,7 @@ type Props = {|
   +styles: typeof unboundStyles,
   +dispatchActionPromise: DispatchActionPromise,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
-|};
+};
 class ProfileScreen extends React.PureComponent<Props> {
   get username() {
     return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous

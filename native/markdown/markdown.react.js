@@ -11,11 +11,11 @@ import { onlyEmojiRegex } from 'lib/shared/emojis';
 import type { TextStyle } from '../types/styles';
 import type { MarkdownRules } from './rules.react';
 
-type Props = {|
+type Props = {
   +style: TextStyle,
   +children: string,
   +rules: MarkdownRules,
-|};
+};
 function Markdown(props: Props): React.Node {
   const { style, children, rules } = props;
   const { simpleMarkdownRules, emojiOnlyFactor, container } = rules;

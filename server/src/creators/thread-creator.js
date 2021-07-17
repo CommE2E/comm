@@ -55,11 +55,11 @@ const privateThreadDescription: string =
   'This is your private thread, ' +
   'where you can set reminders and jot notes in private!';
 
-type CreateThreadOptions = Shape<{|
+type CreateThreadOptions = Shape<{
   +forceAddMembers: boolean,
   +updatesForCurrentSession: UpdatesForCurrentSession,
   +silentlyFailMembers: boolean,
-|}>;
+}>;
 
 // If forceAddMembers is set, we will allow the viewer to add random users who
 // they aren't friends with. We will only fail if the viewer is trying to add

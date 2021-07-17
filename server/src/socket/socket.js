@@ -152,10 +152,10 @@ function onConnection(ws: WebSocket, req: $Request) {
   new Socket(ws, req);
 }
 
-type StateCheckConditions = {|
+type StateCheckConditions = {
   activityRecentlyOccurred: boolean,
   stateCheckOngoing: boolean,
-|};
+};
 
 class Socket {
   ws: WebSocket;

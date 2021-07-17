@@ -38,15 +38,15 @@ import { type Colors, useColors, useStyles } from '../../themes/colors';
 import type { GlobalTheme } from '../../types/themes';
 import type { ChatNavigationProp } from '../chat.react';
 
-export type DeleteThreadParams = {|
+export type DeleteThreadParams = {
   +threadInfo: ThreadInfo,
-|};
+};
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: ChatNavigationProp<'DeleteThread'>,
   +route: NavigationRoute<'DeleteThread'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +threadInfo: ?ThreadInfo,
@@ -63,10 +63,10 @@ type Props = {|
   ) => Promise<LeaveThreadPayload>,
   // withNavContext
   +navDispatch: (action: NavAction) => void,
-|};
-type State = {|
+};
+type State = {
   +password: string,
-|};
+};
 class DeleteThread extends React.PureComponent<Props, State> {
   state: State = {
     password: '',

@@ -9,10 +9,10 @@ import { useStyles } from '../themes/colors';
 
 export type DisplayType = 'lowContrast' | 'modal';
 
-type Props = {|
+type Props = {
   +time: number,
   +display: DisplayType,
-|};
+};
 function Timestamp(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const style = [styles.timestamp];

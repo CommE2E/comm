@@ -26,9 +26,9 @@ type PanEvent = $ReadOnly<{
   }>,
   ...
 }>;
-type HSVColor = {| h: number, s: number, v: number |};
+type HSVColor = { h: number, s: number, v: number };
 type PickerContainer = React.ElementRef<typeof View>;
-type BaseProps = {|
+type BaseProps = {
   +color?: string | HSVColor,
   +defaultColor?: string,
   +oldColor?: ?string,
@@ -38,15 +38,15 @@ type BaseProps = {|
   +style?: ViewStyle,
   +buttonText?: string,
   +oldButtonText?: string,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +colors: Colors,
-|};
-type State = {|
+};
+type State = {
   +color: HSVColor,
   +pickerSize: ?number,
-|};
+};
 class ColorPicker extends React.PureComponent<Props, State> {
   static defaultProps = {
     buttonText: 'Select',

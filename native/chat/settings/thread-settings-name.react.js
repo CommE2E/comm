@@ -28,13 +28,13 @@ import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 import SaveSettingButton from './save-setting-button.react';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +nameEditValue: ?string,
   +setNameEditValue: (value: ?string, callback?: () => void) => void,
   +canChangeSettings: boolean,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
@@ -46,7 +46,7 @@ type Props = {|
   +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
-|};
+};
 class ThreadSettingsName extends React.PureComponent<Props> {
   textInput: ?React.ElementRef<typeof TextInput>;
 

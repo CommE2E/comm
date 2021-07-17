@@ -4,10 +4,10 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { SquircleView } from 'react-native-figma-squircle';
 
-type Props = {|
+type Props = {
   +color: string,
   +size?: 'large' | 'small' | 'profile' | 'micro',
-|};
+};
 function ColorSplotch(props: Props): React.Node {
   const { color, size } = props;
 

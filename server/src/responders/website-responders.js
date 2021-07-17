@@ -62,7 +62,7 @@ async function getFontsURL() {
   }
 }
 
-type AssetInfo = {| jsURL: string, fontsURL: string, cssInclude: string |};
+type AssetInfo = { jsURL: string, fontsURL: string, cssInclude: string };
 let assetInfo: ?AssetInfo = null;
 async function getAssetInfo() {
   if (assetInfo) {
@@ -93,7 +93,7 @@ async function getAssetInfo() {
   return assetInfo;
 }
 
-let webpackCompiledRootComponent: ?React.ComponentType<{||}> = null;
+let webpackCompiledRootComponent: ?React.ComponentType<{}> = null;
 async function getWebpackCompiledRootComponentForSSR() {
   if (webpackCompiledRootComponent) {
     return webpackCompiledRootComponent;

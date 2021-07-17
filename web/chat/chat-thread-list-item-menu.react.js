@@ -21,10 +21,10 @@ import {
 
 import css from './chat-thread-list.css';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +mostRecentNonLocalMessage: ?string,
-|};
+};
 function ChatThreadListItemMenu(props: Props): React.Node {
   const [menuVisible, setMenuVisible] = React.useState(false);
 

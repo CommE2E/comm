@@ -9,12 +9,12 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import SidebarListModal from '../modals/chat/sidebar-list-modal.react';
 import css from './chat-thread-list.css';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +unread: boolean,
   +showingSidebarsInline: boolean,
   +setModal: (modal: ?React.Node) => void,
-|};
+};
 function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   const { unread, showingSidebarsInline, setModal, threadInfo } = props;
   const onClick = React.useCallback(

@@ -30,19 +30,19 @@ const availableTooltipPositionsForRobotext = [
   tooltipPositions.LEFT,
 ];
 
-type BaseProps = {|
+type BaseProps = {
   +item: RobotextChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +setMouseOverMessagePosition: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +sidebarExistsOrCanBeCreated: boolean,
-|};
+};
 class RobotextMessage extends React.PureComponent<Props> {
   render() {
     let inlineSidebar;
@@ -158,15 +158,15 @@ class RobotextMessage extends React.PureComponent<Props> {
   };
 }
 
-type BaseInnerThreadEntityProps = {|
+type BaseInnerThreadEntityProps = {
   +id: string,
   +name: string,
-|};
-type InnerThreadEntityProps = {|
+};
+type InnerThreadEntityProps = {
   ...BaseInnerThreadEntityProps,
   +threadInfo: ThreadInfo,
   +dispatch: Dispatch,
-|};
+};
 class InnerThreadEntity extends React.PureComponent<InnerThreadEntityProps> {
   render() {
     return <a onClick={this.onClickThread}>{this.props.name}</a>;
@@ -199,7 +199,7 @@ const ThreadEntity = React.memo<BaseInnerThreadEntityProps>(
   },
 );
 
-function ColorEntity(props: {| color: string |}) {
+function ColorEntity(props: { color: string }) {
   const colorStyle = { color: props.color };
   return <span style={colorStyle}>{props.color}</span>;
 }

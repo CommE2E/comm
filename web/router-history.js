@@ -16,11 +16,11 @@ const history: ?HistoryObject = process.env.BROWSER
   ? (createBrowserHistory({ basename: baseURL }): any)
   : null;
 
-type History = {|
+type History = {
   +getHistoryObject: () => HistoryObject,
   +push: (location: string) => void,
   +replace: (location: string) => void,
-|};
+};
 
 const routerHistory: History = {
   getHistoryObject: () => {

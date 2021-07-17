@@ -26,12 +26,12 @@ const ellipsisIconExcessVerticalWhitespace = 10;
 const openSidebarText = 'Go to sidebar';
 const createSidebarText = 'Create sidebar';
 
-type MessageActionTooltipProps = {|
+type MessageActionTooltipProps = {
   +threadInfo: ThreadInfo,
   +item: ChatMessageInfoItem,
   +containerPosition: PositionInfo,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
-|};
+};
 function MessageActionButton(props: MessageActionTooltipProps): React.Node {
   const {
     threadInfo,

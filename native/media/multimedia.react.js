@@ -9,19 +9,19 @@ import { type MediaInfo } from 'lib/types/media-types';
 import { type InputState, InputStateContext } from '../input/input-state';
 import RemoteImage from './remote-image.react';
 
-type BaseProps = {|
+type BaseProps = {
   +mediaInfo: MediaInfo,
   +spinnerColor: string,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // withInputState
   +inputState: ?InputState,
-|};
-type State = {|
+};
+type State = {
   +currentURI: string,
   +departingURI: ?string,
-|};
+};
 class Multimedia extends React.PureComponent<Props, State> {
   static defaultProps = {
     spinnerColor: 'black',

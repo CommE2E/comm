@@ -23,10 +23,10 @@ import {
 } from '../../navigation/tooltip.react';
 import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
 
-export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{|
+export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{
   +memberInfo: RelativeMemberInfo,
   +threadInfo: ThreadInfo,
-|}>;
+}>;
 
 function onRemoveUser(
   route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,

@@ -53,7 +53,7 @@ const animationSpec = {
   useNativeDriver: true,
 };
 
-type BaseProps = {|
+type BaseProps = {
   ...$ReadOnly<
     $Exact<
       React.Config<
@@ -64,17 +64,17 @@ type BaseProps = {|
   >,
   +navigation: ChatNavigationProp<'MessageList'>,
   +data: $ReadOnlyArray<ChatMessageItemWithHeight>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +viewerID: ?string,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
-|};
-type State = {|
+};
+type State = {
   +newMessageCount: number,
-|};
+};
 class ChatList extends React.PureComponent<Props, State> {
   state: State = {
     newMessageCount: 0,

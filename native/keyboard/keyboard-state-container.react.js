@@ -19,15 +19,15 @@ import {
 import KeyboardInputHost from './keyboard-input-host.react';
 import { KeyboardContext } from './keyboard-state';
 
-type Props = {|
+type Props = {
   +children: React.Node,
-|};
-type State = {|
+};
+type State = {
   +systemKeyboardShowing: boolean,
   +mediaGalleryOpen: boolean,
   +mediaGalleryThread: ?ThreadInfo,
   +renderKeyboardInputHost: boolean,
-|};
+};
 class KeyboardStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     systemKeyboardShowing: false,

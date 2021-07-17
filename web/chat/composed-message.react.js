@@ -36,7 +36,7 @@ const availableTooltipPositionsForNonViewerMessage = [
   tooltipPositions.RIGHT,
 ];
 
-type BaseProps = {|
+type BaseProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +sendFailed: boolean,
@@ -48,17 +48,17 @@ type BaseProps = {|
   +children: React.Node,
   +fixedWidth?: boolean,
   +borderRadius: number,
-|};
+};
 type BaseConfig = React.Config<BaseProps, typeof ComposedMessage.defaultProps>;
-type Props = {|
+type Props = {
   ...BaseProps,
   // Redux state
   +sidebarExistsOrCanBeCreated: boolean,
   // withInputState
   +inputState: ?InputState,
-|};
+};
 class ComposedMessage extends React.PureComponent<Props> {
-  static defaultProps: {| +borderRadius: number |} = {
+  static defaultProps: { +borderRadius: number } = {
     borderRadius: 8,
   };
 

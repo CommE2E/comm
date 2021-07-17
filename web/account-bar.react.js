@@ -21,10 +21,10 @@ import css from './style.css';
 import { htmlTargetFromEvent } from './vector-utils';
 import { UpCaret, DownCaret } from './vectors.react';
 
-type BaseProps = {|
+type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +currentUserInfo: ?CurrentUserInfo,
@@ -33,10 +33,10 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
-|};
-type State = {|
+};
+type State = {
   +expanded: boolean,
-|};
+};
 class AccountBar extends React.PureComponent<Props, State> {
   state: State = {
     expanded: false,

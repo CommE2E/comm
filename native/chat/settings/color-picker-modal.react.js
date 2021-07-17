@@ -26,18 +26,18 @@ import type { NavigationRoute } from '../../navigation/route-names';
 import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 
-export type ColorPickerModalParams = {|
+export type ColorPickerModalParams = {
   presentedFrom: string,
   color: string,
   threadInfo: ThreadInfo,
   setColor: (color: string) => void,
-|};
+};
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: RootNavigationProp<'ColorPickerModal'>,
   +route: NavigationRoute<'ColorPickerModal'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +colors: Colors,
@@ -49,7 +49,7 @@ type Props = {|
   +changeThreadSettings: (
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
-|};
+};
 class ColorPickerModal extends React.PureComponent<Props> {
   render() {
     const { color, threadInfo } = this.props.route.params;

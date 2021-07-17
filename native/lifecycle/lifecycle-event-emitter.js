@@ -11,9 +11,9 @@ import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { EmitterSubscription } from '../types/react-native';
 
 interface Spec extends TurboModule {
-  +getConstants: () => {|
+  +getConstants: () => {
     initialStatus: string,
-  |};
+  };
   +addListener: (eventName: string) => void;
   +removeListeners: (count: number) => void;
 }

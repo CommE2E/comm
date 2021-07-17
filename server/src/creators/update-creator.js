@@ -73,24 +73,24 @@ export type UpdatesForCurrentSession =
   // communicating the relevant information to the client.
   | 'ignore';
 
-type DeleteCondition = {|
+type DeleteCondition = {
   +userID: string,
   +target: ?string,
   +types: 'all_types' | $ReadOnlySet<number>,
-|};
+};
 
 export type ViewerInfo =
-  | {|
+  | {
       viewer: Viewer,
       calendarQuery?: ?CalendarQuery,
       updatesForCurrentSession?: UpdatesForCurrentSession,
-    |}
-  | {|
+    }
+  | {
       viewer: Viewer,
       calendarQuery: ?CalendarQuery,
       updatesForCurrentSession?: UpdatesForCurrentSession,
       threadInfos: { +[id: string]: RawThreadInfo },
-    |};
+    };
 const defaultUpdateCreationResult = { viewerUpdates: [], userInfos: {} };
 const sortFunction = (
   a: UpdateData | ServerUpdateInfo,
@@ -368,10 +368,10 @@ async function createUpdates(
   return { viewerUpdates: updateInfos, userInfos };
 }
 
-export type FetchUpdatesResult = {|
+export type FetchUpdatesResult = {
   updateInfos: $ReadOnlyArray<ServerUpdateInfo>,
   userInfos: { [id: string]: AccountUserInfo },
-|};
+};
 async function fetchUpdateInfosWithRawUpdateInfos(
   rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
   viewerInfo: ViewerInfo,
@@ -478,7 +478,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
   });
 }
 
-export type UpdateInfosRawData = {|
+export type UpdateInfosRawData = {
   threadInfosResult: FetchThreadInfosResult,
   messageInfosResult: ?FetchMessageInfosResult,
   calendarResult: ?FetchEntryInfosBase,
@@ -486,7 +486,7 @@ export type UpdateInfosRawData = {|
   currentUserInfosResult: ?$ReadOnlyArray<
     OldLoggedInUserInfo | LoggedInUserInfo,
   >,
-|};
+};
 async function updateInfosFromRawUpdateInfos(
   viewer: Viewer,
   rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
@@ -681,10 +681,10 @@ async function updateInfosFromRawUpdateInfos(
   return { updateInfos: mergedUpdates, userInfos };
 }
 
-type PublishInfo = {|
+type PublishInfo = {
   updateTarget: UpdateTarget,
   rawUpdateInfos: RawUpdateInfo[],
-|};
+};
 async function redisPublish(
   publishInfos: Iterator<PublishInfo>,
   dontBroadcastSession: ?string,

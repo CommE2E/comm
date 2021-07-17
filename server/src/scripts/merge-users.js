@@ -27,10 +27,10 @@ async function main() {
   }
 }
 
-type ReplaceUserInfo = Shape<{|
+type ReplaceUserInfo = Shape<{
   +username: boolean,
   +password: boolean,
-|}>;
+}>;
 async function mergeUsers(
   fromUserID: string,
   toUserID: string,
@@ -141,10 +141,10 @@ async function mergeUsers(
   }
 }
 
-type ReplaceUserResult = {|
+type ReplaceUserResult = {
   sql: ?SQLStatementType,
   updateDatas: UpdateData[],
-|};
+};
 async function replaceUser(
   fromUserID: string,
   toUserID: string,

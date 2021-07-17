@@ -10,10 +10,10 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 
-export type MarkdownRules = {|
+export type MarkdownRules = {
   +simpleMarkdownRules: SharedMarkdown.ParserRules,
   +useDarkStyle: boolean,
-|};
+};
 
 const linkRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   const simpleMarkdownRules = {

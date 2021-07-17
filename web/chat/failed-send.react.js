@@ -18,17 +18,17 @@ import css from './chat-message-list.css';
 import multimediaMessageSendFailed from './multimedia-message-send-failed';
 import textMessageSendFailed from './text-message-send-failed';
 
-type BaseProps = {|
+type BaseProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +rawMessageInfo: RawComposableMessageInfo,
   // withInputState
   +inputState: ?InputState,
-|};
+};
 class FailedSend extends React.PureComponent<Props> {
   retryingText = false;
   retryingMedia = false;

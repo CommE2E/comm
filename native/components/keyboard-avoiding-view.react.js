@@ -24,11 +24,11 @@ import type {
 import type { ViewStyle } from '../types/styles';
 
 type ViewProps = React.ElementConfig<typeof View>;
-type BaseProps = {|
+type BaseProps = {
   ...ViewProps,
   +behavior: 'height' | 'position' | 'padding',
   +contentContainerStyle?: ?ViewStyle,
-|};
+};
 const KeyboardAvoidingView: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function KeyboardAvoidingView(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
@@ -52,14 +52,14 @@ const KeyboardAvoidingView: React.ComponentType<BaseProps> = React.memo<BaseProp
   },
 );
 
-type Props = {|
+type Props = {
   ...BaseProps,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
-|};
-type State = {|
+};
+type State = {
   +bottom: number,
-|};
+};
 class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
   state: State = {
     bottom: 0,

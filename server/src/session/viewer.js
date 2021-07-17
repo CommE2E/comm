@@ -14,7 +14,7 @@ import {
 } from 'lib/types/session-types';
 import { ServerError } from 'lib/utils/errors';
 
-export type UserViewerData = {|
+export type UserViewerData = {
   +loggedIn: true,
   +id: string,
   +platformDetails: ?PlatformDetails,
@@ -31,9 +31,9 @@ export type UserViewerData = {|
   +isSocket?: boolean,
   +ipAddress?: string,
   +userAgent?: ?string,
-|};
+};
 
-export type AnonymousViewerData = {|
+export type AnonymousViewerData = {
   +loggedIn: false,
   +id: string,
   +platformDetails: ?PlatformDetails,
@@ -49,13 +49,13 @@ export type AnonymousViewerData = {|
   +isSocket?: boolean,
   +ipAddress?: string,
   +userAgent?: ?string,
-|};
+};
 
-type SessionInfo = {|
+type SessionInfo = {
   +lastValidated: number,
   +lastUpdate: number,
   +calendarQuery: CalendarQuery,
-|};
+};
 
 export type ViewerData = UserViewerData | AnonymousViewerData;
 

@@ -10,17 +10,17 @@ import Button from './button.react';
 import ColorSplotch from './color-splotch.react';
 import { SingleLine } from './single-line.react';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +onSelect: (threadID: string) => void,
   +style?: ViewStyle,
   +textStyle?: TextStyle,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +colors: Colors,
   +styles: typeof unboundStyles,
-|};
+};
 class ThreadListThread extends React.PureComponent<Props> {
   render() {
     const { modalIosHighlightUnderlay: underlayColor } = this.props.colors;

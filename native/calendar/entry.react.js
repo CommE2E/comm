@@ -95,7 +95,7 @@ function dummyNodeForEntryHeightMeasurement(
   );
 }
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: TabNavigationProp<'Calendar'>,
   +entryInfo: EntryInfoWithHeight,
   +threadInfo: ThreadInfo,
@@ -106,8 +106,8 @@ type BaseProps = {|
   +onConcludeEditMode: (entryInfo: EntryInfoWithHeight) => void,
   +onPressWhitespace: () => void,
   +entryRef: (entryKey: string, entry: ?InternalEntry) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +calendarQuery: () => CalendarQuery,
@@ -123,13 +123,13 @@ type Props = {|
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
-|};
-type State = {|
+};
+type State = {
   +editing: boolean,
   +text: string,
   +loadingStatus: LoadingStatus,
   +height: number,
-|};
+};
 class InternalEntry extends React.Component<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
   creating: boolean = false;

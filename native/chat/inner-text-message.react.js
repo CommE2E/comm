@@ -31,10 +31,10 @@ function dummyNodeForTextMessageHeightMeasurement(
   return <DummyTextNode>{text}</DummyTextNode>;
 }
 
-type DummyTextNodeProps = {|
+type DummyTextNodeProps = {
   ...React.ElementConfig<typeof View>,
   +children: string,
-|};
+};
 function DummyTextNode(props: DummyTextNodeProps): React.Node {
   const { children, style, ...rest } = props;
   const maxWidth = useSelector(state => composedMessageMaxWidthSelector(state));
@@ -49,11 +49,11 @@ function DummyTextNode(props: DummyTextNodeProps): React.Node {
   );
 }
 
-type Props = {|
+type Props = {
   +item: ChatTextMessageInfoItemWithHeight,
   +onPress: () => void,
   +messageRef?: (message: ?React.ElementRef<typeof View>) => void,
-|};
+};
 function InnerTextMessage(props: Props): React.Node {
   const { item } = props;
   const { text, creator } = item.messageInfo;

@@ -160,7 +160,7 @@ function trySaveBackup(
   filePath: string,
   gzippedBuffer: ReReadable,
 ): Promise<void> {
-  const timeoutObject: {| timeout: ?TimeoutID |} = { timeout: null };
+  const timeoutObject: { timeout: ?TimeoutID } = { timeout: null };
   const setBackupTimeout = (alreadyWaited: number) => {
     timeoutObject.timeout = setTimeout(() => {
       const nowWaited = alreadyWaited + backupWatchFrequency;

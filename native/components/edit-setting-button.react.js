@@ -7,11 +7,11 @@ import { useColors } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
 import SWMansionIcon from './swmansion-icon.react';
 
-type Props = {|
+type Props = {
   +onPress: () => void,
   +canChangeSettings: boolean,
   +style?: TextStyle,
-|};
+};
 function EditSettingButton(props: Props): React.Node {
   const colors = useColors();
   if (!props.canChangeSettings) {

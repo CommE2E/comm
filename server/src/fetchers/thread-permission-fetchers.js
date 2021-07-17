@@ -60,8 +60,8 @@ function viewerIsMember(viewer: Viewer, threadID: string): Promise<boolean> {
 }
 
 type Check =
-  | {| +check: 'is_member' |}
-  | {| +check: 'permission', +permission: ThreadPermission |};
+  | { +check: 'is_member' }
+  | { +check: 'permission', +permission: ThreadPermission };
 
 function isThreadValid(
   permissions: ?ThreadPermissionsBlob,
@@ -96,11 +96,11 @@ async function checkThreads(
   return new Set(threadRows.map(row => row.threadID));
 }
 
-type PartialMembershipRow = {|
+type PartialMembershipRow = {
   +threadID: string,
   +role: number,
   +permissions: ThreadPermissionsBlob,
-|};
+};
 async function getValidThreads(
   viewer: Viewer,
   threadIDs: $ReadOnlyArray<string>,
@@ -197,13 +197,13 @@ type CandidateMembers = {
   +[key: string]: ?$ReadOnlyArray<string>,
   ...
 };
-type ValidateCandidateMembersParams = {|
+type ValidateCandidateMembersParams = {
   +threadType: ThreadType,
   +parentThreadID: ?string,
   +containingThreadID: ?string,
   +defaultRolePermissions: ThreadRolePermissionsBlob,
-|};
-type ValidateCandidateMembersOptions = {| +requireRelationship?: boolean |};
+};
+type ValidateCandidateMembersOptions = { +requireRelationship?: boolean };
 async function validateCandidateMembers(
   viewer: Viewer,
   candidates: CandidateMembers,

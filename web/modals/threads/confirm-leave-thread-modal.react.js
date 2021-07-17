@@ -7,11 +7,11 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 import css from '../../style.css';
 import Modal from '../modal.react';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +onClose: () => void,
   +onConfirm: () => void,
-|};
+};
 function ConfirmLeaveThreadModal(props: Props): React.Node {
   return (
     <Modal name="Confirm leave thread" onClose={props.onClose}>

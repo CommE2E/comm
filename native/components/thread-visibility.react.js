@@ -10,10 +10,10 @@ import type { ThreadType } from 'lib/types/thread-types';
 import Pill from './pill.react';
 import ThreadIcon from './thread-icon.react';
 
-type Props = {|
+type Props = {
   +threadType: ThreadType,
   +color: string,
-|};
+};
 function ThreadVisibility(props: Props): React.Node {
   const { threadType, color } = props;
   const label = threadLabel(threadType);

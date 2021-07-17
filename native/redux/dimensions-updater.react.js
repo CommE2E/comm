@@ -20,21 +20,21 @@ import {
 import { updateDimensionsActiveType } from './action-types';
 import { useSelector } from './redux-utils';
 
-type BaseDimensionsInfo = {|
+type BaseDimensionsInfo = {
   ...Dimensions,
   +topInset: number,
   +bottomInset: number,
-|};
-export type DimensionsInfo = {|
+};
+export type DimensionsInfo = {
   ...BaseDimensionsInfo,
   +tabBarHeight: number,
   +rotated: boolean,
-|};
+};
 
-type Metrics = {|
-  +frame: {| +x: number, +y: number, +width: number, +height: number |},
-  +insets: {| +top: number, +left: number, +right: number, +bottom: number |},
-|};
+type Metrics = {
+  +frame: { +x: number, +y: number, +width: number, +height: number },
+  +insets: { +top: number, +left: number, +right: number, +bottom: number },
+};
 function dimensionsUpdateFromMetrics(metrics: ?Metrics): BaseDimensionsInfo {
   if (!metrics) {
     // This happens when the app gets booted to run a background task

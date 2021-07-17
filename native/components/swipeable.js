@@ -8,26 +8,26 @@ import { useSelector } from 'react-redux';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import Button from './button.react';
 
-type BaseProps = {|
+type BaseProps = {
   +buttonWidth: number,
-  +rightActions: $ReadOnlyArray<{|
+  +rightActions: $ReadOnlyArray<{
     +key: string,
     +onPress: () => mixed,
     +color: ?string,
     +content: React.Node,
-  |}>,
+  }>,
   +onSwipeableRightWillOpen?: () => void,
-  +innerRef: {|
+  +innerRef: {
     current: ?SwipeableComponent,
-  |},
+  },
   +children?: React.Node,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +windowWidth: number,
   +colors: Colors,
   +styles: typeof unboundStyles,
-|};
+};
 
 class Swipeable extends React.PureComponent<Props> {
   static defaultProps = {

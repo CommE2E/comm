@@ -29,11 +29,11 @@ import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../../themes/colors';
 import type { ViewStyle } from '../../types/styles';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +buttonStyle: ViewStyle,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +loadingStatus: LoadingStatus,
@@ -46,7 +46,7 @@ type Props = {|
   +leaveThread: (threadID: string) => Promise<LeaveThreadPayload>,
   // withNavContext
   +navContext: ?NavContextType,
-|};
+};
 class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
   render() {
     const {

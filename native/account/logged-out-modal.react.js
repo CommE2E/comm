@@ -117,11 +117,11 @@ type Props = {
   +dispatch: Dispatch,
   ...
 };
-type State = {|
+type State = {
   +mode: LoggedOutMode,
   +logInState: StateContainer<LogInState>,
   +registerState: StateContainer<RegisterState>,
-|};
+};
 class LoggedOutModal extends React.PureComponent<Props, State> {
   keyboardShowListener: ?EmitterSubscription;
   keyboardHideListener: ?EmitterSubscription;

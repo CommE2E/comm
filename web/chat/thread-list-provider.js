@@ -22,17 +22,17 @@ import {
 } from '../selectors/chat-selectors';
 
 type ChatTabType = 'HOME' | 'BACKGROUND';
-type ThreadListContextType = {|
+type ThreadListContextType = {
   +activeTab: ChatTabType,
   +threadList: $ReadOnlyArray<ChatThreadItem>,
   +setActiveTab: (newActiveTab: ChatTabType) => void,
-|};
+};
 
 const ThreadListContext: React.Context<?ThreadListContextType> = React.createContext<?ThreadListContextType>();
 
-type ThreadListProviderProps = {|
+type ThreadListProviderProps = {
   +children: React.Node,
-|};
+};
 function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   const [activeTab, setActiveTab] = React.useState('HOME');
 

@@ -166,7 +166,7 @@ async function convertExistingCommunities() {
 
 async function convertThreads(
   viewer: Viewer,
-  threads: Array<{| +id: number, +name: string |}>,
+  threads: Array<{ +id: number, +name: string }>,
   type: ThreadType,
 ) {
   while (threads.length > 0) {

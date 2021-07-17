@@ -40,7 +40,7 @@ const reanimatedSpec = {
   easing: ReanimatedEasing.inOut(ReanimatedEasing.ease),
 };
 
-type Props = {|
+type Props = {
   +selection: MediaLibrarySelection,
   +containerHeight: number,
   +queueModeActive: boolean,
@@ -50,7 +50,7 @@ type Props = {|
   +isFocused: boolean,
   +setFocus: (media: MediaLibrarySelection, isFocused: boolean) => void,
   +dimensions: DimensionsInfo,
-|};
+};
 class MediaGalleryMedia extends React.PureComponent<Props> {
   // eslint-disable-next-line import/no-named-as-default-member
   focusProgress: Reanimated.Value = new Reanimated.Value(0);
@@ -130,7 +130,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     } = selection;
     const active = MediaGalleryMedia.isActive(this.props);
     const scaledWidth = height ? (width * containerHeight) / height : 0;
-    const dimensionsStyle: {| +height: number, +width: number |} = {
+    const dimensionsStyle: { +height: number, +width: number } = {
       height: containerHeight,
       width: Math.max(Math.min(scaledWidth, this.props.dimensions.width), 150),
     };

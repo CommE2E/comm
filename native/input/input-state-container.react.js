@@ -91,18 +91,18 @@ import {
 } from './input-state';
 
 type MediaIDs =
-  | {| +type: 'photo', +localMediaID: string |}
-  | {| +type: 'video', +localMediaID: string, +localThumbnailID: string |};
-type UploadFileInput = {|
+  | { +type: 'photo', +localMediaID: string }
+  | { +type: 'video', +localMediaID: string, +localThumbnailID: string };
+type UploadFileInput = {
   +selection: NativeMediaSelection,
   +ids: MediaIDs,
-|};
+};
 type CompletedUploads = { +[localMessageID: string]: ?Set<string> };
 
-type BaseProps = {|
+type BaseProps = {
   +children: React.Node,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +viewerID: ?string,
   +nextLocalID: number,
@@ -129,10 +129,10 @@ type Props = {|
     text: string,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
-|};
-type State = {|
+};
+type State = {
   +pendingUploads: PendingMultimediaUploads,
-|};
+};
 class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
@@ -968,7 +968,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   queueMediaMissionReport(
-    ids: {| localID: string, localMessageID: string, serverID: ?string |},
+    ids: { localID: string, localMessageID: string, serverID: ?string },
     mediaMission: MediaMission,
   ) {
     const report: MediaMissionReportCreationRequest = {

@@ -13,14 +13,14 @@ import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
 
-type BaseProps = {|
+type BaseProps = {
   +navigate: $PropertyType<ChatNavigationProp<'ChatThreadList'>, 'navigate'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +colors: Colors,
   +viewerID: ?string,
-|};
+};
 class ComposeThreadButton extends React.PureComponent<Props> {
   render() {
     const { listForegroundSecondaryLabel } = this.props.colors;

@@ -11,10 +11,10 @@ import ThreadPill from '../../components/thread-pill.react';
 import { useStyles } from '../../themes/colors';
 import { useNavigateToThread } from '../message-list-types';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +parentThreadInfo: ?ThreadInfo,
-|};
+};
 function ThreadSettingsParent(props: Props): React.Node {
   const { threadInfo, parentThreadInfo } = props;
   const styles = useStyles(unboundStyles);

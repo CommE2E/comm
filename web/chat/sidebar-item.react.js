@@ -11,9 +11,9 @@ import { useSelector } from '../redux/redux-utils';
 import { useOnClickThread } from '../selectors/nav-selectors';
 import css from './chat-thread-list.css';
 
-type Props = {|
+type Props = {
   +sidebarInfo: SidebarInfo,
-|};
+};
 function SidebarItem(props: Props): React.Node {
   const { threadInfo, lastUpdatedTime } = props.sidebarInfo;
   const threadID = threadInfo.id;

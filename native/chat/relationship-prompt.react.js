@@ -26,10 +26,10 @@ import Button from '../components/button.react';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 
-type Props = {|
+type Props = {
   +pendingPersonalThreadUserInfo: ?UserInfo,
   +threadInfo: ThreadInfo,
-|};
+};
 
 const RelationshipPrompt: React.ComponentType<Props> = React.memo<Props>(
   function RelationshipPrompt({

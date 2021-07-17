@@ -20,10 +20,10 @@ import { SingleLine } from '../components/single-line.react';
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import { useStyles } from '../themes/colors';
 
-type Props = {|
+type Props = {
   +messageInfo: MessageInfo,
   +threadInfo: ThreadInfo,
-|};
+};
 function MessagePreview(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const messageInfo: ComposableMessageInfo | RobotextMessageInfo =

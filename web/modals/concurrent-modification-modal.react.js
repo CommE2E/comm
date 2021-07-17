@@ -5,10 +5,10 @@ import * as React from 'react';
 import css from '../style.css';
 import Modal from './modal.react';
 
-type Props = {|
+type Props = {
   +onRefresh: () => void,
   +onClose: () => void,
-|};
+};
 
 export default function ConcurrentModificationModal(props: Props): React.Node {
   return (

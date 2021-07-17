@@ -6,12 +6,12 @@ import tinycolor from 'tinycolor2';
 
 import { useStyles } from '../themes/colors';
 
-type Props = {|
+type Props = {
   +label: string,
   +backgroundColor: string,
   +icon?: React.Node,
-  +roundCorners?: {| +left: boolean, +right: boolean |},
-|};
+  +roundCorners?: { +left: boolean, +right: boolean },
+};
 function Pill(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 

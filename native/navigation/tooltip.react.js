@@ -45,7 +45,7 @@ import type { TooltipModalParamList } from './route-names';
 const { Value, Node, Extrapolate, add, multiply, interpolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {|
+export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {
   +id: string,
   +text: string,
   +onPress: (
@@ -56,19 +56,19 @@ export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {|
     navigation: AppNavigationProp<RouteName>,
     viewerID: ?string,
   ) => mixed,
-|};
-type TooltipItemProps<RouteName> = {|
+};
+type TooltipItemProps<RouteName> = {
   +spec: TooltipEntry<RouteName>,
   +onPress: (entry: TooltipEntry<RouteName>) => void,
   +containerStyle?: ViewStyle,
   +labelStyle?: TextStyle,
-|};
-type TooltipSpec<RouteName> = {|
+};
+type TooltipSpec<RouteName> = {
   +entries: $ReadOnlyArray<TooltipEntry<RouteName>>,
   +labelStyle?: ViewStyle,
-|};
+};
 
-export type TooltipParams<CustomProps> = {|
+export type TooltipParams<CustomProps> = {
   ...CustomProps,
   +presentedFrom: string,
   +initialCoordinates: LayoutCoordinates,
@@ -76,21 +76,21 @@ export type TooltipParams<CustomProps> = {|
   +location?: 'above' | 'below',
   +margin?: number,
   +visibleEntryIDs?: $ReadOnlyArray<string>,
-|};
-export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = {|
+};
+export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = {
   ...LeafRoute<RouteName>,
   +params: $ElementType<TooltipModalParamList, RouteName>,
-|};
+};
 
-export type BaseTooltipProps<RouteName> = {|
+export type BaseTooltipProps<RouteName> = {
   +navigation: AppNavigationProp<RouteName>,
   +route: TooltipRoute<RouteName>,
-|};
-type ButtonProps<Base> = {|
+};
+type ButtonProps<Base> = {
   ...Base,
   +progress: Node,
-|};
-type TooltipProps<Base> = {|
+};
+type TooltipProps<Base> = {
   ...Base,
   // Redux state
   +dimensions: DimensionsInfo,
@@ -103,7 +103,7 @@ type TooltipProps<Base> = {|
   +overlayContext: ?OverlayContextType,
   // withInputState
   +inputState: ?InputState,
-|};
+};
 function createTooltip<
   RouteName: $Keys<TooltipModalParamList>,
   BaseTooltipPropsType: BaseTooltipProps<RouteName> = BaseTooltipProps<RouteName>,

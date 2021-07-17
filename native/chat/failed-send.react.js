@@ -21,17 +21,17 @@ import textMessageSendFailed from './text-message-send-failed';
 
 const failedSendHeight = 22;
 
-type BaseProps = {|
+type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +rawMessageInfo: ?RawComposableMessageInfo,
   +styles: typeof unboundStyles,
   // withInputState
   +inputState: ?InputState,
-|};
+};
 class FailedSend extends React.PureComponent<Props> {
   retryingText = false;
   retryingMedia = false;

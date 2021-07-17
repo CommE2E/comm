@@ -98,34 +98,34 @@ import {
 } from './entry.react';
 import SectionFooter from './section-footer.react';
 
-export type EntryInfoWithHeight = {|
+export type EntryInfoWithHeight = {
   ...EntryInfo,
   +textHeight: number,
-|};
+};
 type CalendarItemWithHeight =
   | LoaderItem
   | SectionHeaderItem
   | SectionFooterItem
-  | {|
+  | {
       itemType: 'entryInfo',
       entryInfo: EntryInfoWithHeight,
       threadInfo: ThreadInfo,
-    |};
-type ExtraData = {|
+    };
+type ExtraData = {
   +activeEntries: { +[key: string]: boolean },
   +visibleEntries: { +[key: string]: boolean },
-|};
+};
 
 const safeAreaViewForceInset = {
   top: 'always',
   bottom: 'never',
 };
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: TabNavigationProp<'Calendar'>,
   +route: NavigationRoute<'Calendar'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Nav state
   +calendarActive: boolean,
@@ -147,13 +147,13 @@ type Props = {|
     calendarQuery: CalendarQuery,
     reduxAlreadyUpdated?: boolean,
   ) => Promise<CalendarQueryUpdateResult>,
-|};
-type State = {|
+};
+type State = {
   +listDataWithHeights: ?$ReadOnlyArray<CalendarItemWithHeight>,
   +readyToShowList: boolean,
   +extraData: ExtraData,
   +currentlyEditing: $ReadOnlyArray<string>,
-|};
+};
 class Calendar extends React.PureComponent<Props, State> {
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   currentState: ?string = NativeAppState.currentState;

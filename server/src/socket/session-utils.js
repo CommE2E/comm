@@ -109,14 +109,14 @@ const clientResponseInputValidator: TUnion<TInterface> = t.union([
 ]);
 
 type StateCheckStatus =
-  | {| status: 'state_validated' |}
-  | {| status: 'state_invalid', invalidKeys: $ReadOnlyArray<string> |}
-  | {| status: 'state_check' |};
-type ProcessClientResponsesResult = {|
+  | { status: 'state_validated' }
+  | { status: 'state_invalid', invalidKeys: $ReadOnlyArray<string> }
+  | { status: 'state_check' };
+type ProcessClientResponsesResult = {
   serverRequests: ServerServerRequest[],
   stateCheckStatus: ?StateCheckStatus,
   activityUpdateResult: ?UpdateActivityResult,
-|};
+};
 async function processClientResponses(
   viewer: Viewer,
   clientResponses: $ReadOnlyArray<ClientResponse>,
@@ -231,12 +231,12 @@ async function recordEntryInconsistency(
 }
 
 type SessionInitializationResult =
-  | {| sessionContinued: false |}
-  | {|
+  | { sessionContinued: false }
+  | {
       sessionContinued: true,
       deltaEntryInfoResult: DeltaEntryInfosResponse,
       sessionUpdate: SessionUpdate,
-    |};
+    };
 async function initializeSession(
   viewer: Viewer,
   calendarQuery: CalendarQuery,
@@ -284,10 +284,10 @@ async function initializeSession(
   }
 }
 
-type StateCheckResult = {|
+type StateCheckResult = {
   sessionUpdate?: SessionUpdate,
   checkStateRequest?: ServerCheckStateServerRequest,
-|};
+};
 async function checkState(
   viewer: Viewer,
   status: StateCheckStatus,

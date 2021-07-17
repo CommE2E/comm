@@ -134,9 +134,9 @@ function runTiming(
 
 const defaultSpringConfig = SpringUtils.makeDefaultConfig();
 
-type SpringAnimationInitialState = Shape<{|
+type SpringAnimationInitialState = Shape<{
   +velocity: Value | number,
-|}>;
+}>;
 function runSpring(
   clock: Clock,
   initialValue: Node | number,

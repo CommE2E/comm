@@ -35,14 +35,14 @@ const animationSpec = {
   useNativeDriver: true,
 };
 
-type Props = {|
+type Props = {
   // Redux state
   +dimensions: DimensionsInfo,
   +foreground: boolean,
   +colors: Colors,
   +styles: typeof unboundStyles,
-|};
-type State = {|
+};
+type State = {
   +selections: ?$ReadOnlyArray<MediaLibrarySelection>,
   +error: ?string,
   +containerHeight: ?number,
@@ -51,7 +51,7 @@ type State = {|
   +queuedMediaURIs: ?Set<string>,
   +focusedMediaURI: ?string,
   +dimensions: DimensionsInfo,
-|};
+};
 class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
   mounted = false;
   fetchingPhotos = false;

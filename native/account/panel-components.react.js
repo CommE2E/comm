@@ -17,11 +17,11 @@ import Button from '../components/button.react';
 import { useSelector } from '../redux/redux-utils';
 import type { ViewStyle } from '../types/styles';
 
-type ButtonProps = {|
+type ButtonProps = {
   +text: string,
   +loadingStatus: LoadingStatus,
   +onSubmit: () => void,
-|};
+};
 function PanelButton(props: ButtonProps): React.Node {
   let buttonIcon;
   if (props.loadingStatus === 'loading') {
@@ -57,11 +57,11 @@ function PanelButton(props: ButtonProps): React.Node {
   );
 }
 
-type PanelProps = {|
+type PanelProps = {
   +opacityValue: Animated.Node,
   +children: React.Node,
   +style?: ViewStyle,
-|};
+};
 function Panel(props: PanelProps): React.Node {
   const dimensions = useSelector(state => state.dimensions);
   const containerStyle = React.useMemo(

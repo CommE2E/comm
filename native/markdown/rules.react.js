@@ -14,7 +14,7 @@ import { useSelector } from '../redux/redux-utils';
 import MarkdownLink from './markdown-link.react';
 import { getMarkdownStyles } from './styles';
 
-export type MarkdownRules = {|
+export type MarkdownRules = {
   +simpleMarkdownRules: SharedMarkdown.ParserRules,
   +emojiOnlyFactor: ?number,
   // We need to use a Text container for Entry because it needs to match up
@@ -23,7 +23,7 @@ export type MarkdownRules = {|
   // View, and Views can't be nested inside Texts without explicit height and
   // width
   +container: 'View' | 'Text',
-|};
+};
 
 // Entry requires a seamless transition between Markdown and TextInput
 // components, so we can't do anything that would change the position of text

@@ -48,11 +48,11 @@ import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import css from './chat-message-list.css';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfo: ThreadInfo,
   +inputState: InputState,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +viewerID: ?string,
@@ -66,7 +66,7 @@ type Props = {|
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
-|};
+};
 class ChatInputBar extends React.PureComponent<Props> {
   textarea: ?HTMLTextAreaElement;
   multimediaInput: ?HTMLInputElement;

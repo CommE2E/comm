@@ -68,7 +68,7 @@ function canonicalURLFromReduxState(
 // default if they are unspecified.
 function navInfoFromURL(
   url: string,
-  backupInfo: {| now?: Date, navInfo?: NavInfo |},
+  backupInfo: { now?: Date, navInfo?: NavInfo },
 ): NavInfo {
   const urlInfo = infoFromURL(url);
   const { navInfo } = backupInfo;

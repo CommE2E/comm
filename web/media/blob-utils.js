@@ -29,17 +29,17 @@ function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   });
 }
 
-type ProbeFileSuccess = {|
+type ProbeFileSuccess = {
   success: true,
   file: File,
   mediaType: MediaType,
-|};
+};
 async function probeFile(
   file: File,
-): Promise<{|
+): Promise<{
   steps: $ReadOnlyArray<MediaMissionStep>,
   result: MediaMissionFailure | ProbeFileSuccess,
-|}> {
+}> {
   const steps = [];
 
   let arrayBuffer, arrayBufferExceptionMessage;

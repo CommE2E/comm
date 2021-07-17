@@ -16,10 +16,10 @@ import { useStyles } from '../themes/colors';
 import ChatThreadList from './chat-thread-list.react';
 import type { ChatTopTabsNavigationProp } from './chat.react';
 
-type BackgroundChatThreadListProps = {|
+type BackgroundChatThreadListProps = {
   navigation: ChatTopTabsNavigationProp<'BackgroundChatThreadList'>,
   route: NavigationRoute<'BackgroundChatThreadList'>,
-|};
+};
 export default function BackgroundChatThreadList(
   props: BackgroundChatThreadListProps,
 ): React.Node {

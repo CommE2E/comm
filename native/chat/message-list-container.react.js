@@ -41,14 +41,14 @@ import type { ChatMessageInfoItemWithHeight } from './message.react';
 import ParentThreadHeader from './parent-thread-header.react';
 
 export type ChatMessageItemWithHeight =
-  | {| itemType: 'loader' |}
+  | { itemType: 'loader' }
   | ChatMessageInfoItemWithHeight;
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: ChatNavigationProp<'MessageList'>,
   +route: NavigationRoute<'MessageList'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +usernameInputText: string,
@@ -66,10 +66,10 @@ type Props = {|
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   +measureMessages: MessagesMeasurer,
-|};
-type State = {|
+};
+type State = {
   +listDataWithHeights: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
-|};
+};
 class MessageListContainer extends React.PureComponent<Props, State> {
   state: State = {
     listDataWithHeights: null,

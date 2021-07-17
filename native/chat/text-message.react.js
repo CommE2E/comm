@@ -34,7 +34,7 @@ import { authorNameHeight } from './message-header.react';
 import textMessageSendFailed from './text-message-send-failed';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
 
-export type ChatTextMessageInfoItemWithHeight = {|
+export type ChatTextMessageInfoItemWithHeight = {
   +itemType: 'message',
   +messageShapeType: 'text',
   +messageInfo: TextMessageInfo,
@@ -45,7 +45,7 @@ export type ChatTextMessageInfoItemWithHeight = {|
   +endsCluster: boolean,
   +contentHeight: number,
   +threadCreatedFromMessage: ?ThreadInfo,
-|};
+};
 
 function textMessageItemHeight(
   item: ChatTextMessageInfoItemWithHeight,
@@ -69,7 +69,7 @@ function textMessageItemHeight(
   return height;
 }
 
-type BaseProps = {|
+type BaseProps = {
   ...React.ElementConfig<typeof View>,
   +item: ChatTextMessageInfoItemWithHeight,
   +navigation: ChatNavigationProp<'MessageList'>,
@@ -77,8 +77,8 @@ type BaseProps = {|
   +focused: boolean,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +canCreateSidebarFromMessage: boolean,
@@ -86,7 +86,7 @@ type Props = {|
   +overlayContext: ?OverlayContextType,
   // MarkdownLinkContext
   +linkPressActive: boolean,
-|};
+};
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
 

@@ -5,10 +5,10 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
 import type { Colors } from '../themes/colors';
 
-type Props = {|
+type Props = {
   fillType: 'flex' | 'absolute',
   colors: Colors,
-|};
+};
 function ContentLoading(props: Props): React.Node {
   const viewStyle =
     props.fillType === 'flex' ? styles.fullFlex : styles.absoluteContainer;

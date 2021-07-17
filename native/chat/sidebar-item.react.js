@@ -13,12 +13,12 @@ import UnreadDot from '../components/unread-dot.react';
 import { useColors, useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 
-type Props = {|
+type Props = {
   +sidebarInfo: SidebarInfo,
   +onPressItem: (threadInfo: ThreadInfo) => void,
   +style?: ?ViewStyle,
   +unreadIndicator?: boolean,
-|};
+};
 function SidebarItem(props: Props): React.Node {
   const { lastUpdatedTime } = props.sidebarInfo;
   const lastActivity = shortAbsoluteDate(lastUpdatedTime);

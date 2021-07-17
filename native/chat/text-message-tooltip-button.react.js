@@ -14,11 +14,11 @@ import { MessageListContextProvider } from './message-list-types';
 const { Node } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type Props = {|
+type Props = {
   +navigation: AppNavigationProp<'TextMessageTooltipModal'>,
   +route: TooltipRoute<'TextMessageTooltipModal'>,
   +progress: Node,
-|};
+};
 function TextMessageTooltipButton(props: Props): React.Node {
   const { progress } = props;
   const windowWidth = useSelector(state => state.dimensions.width);

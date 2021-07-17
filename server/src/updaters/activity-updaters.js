@@ -29,27 +29,27 @@ import { updateBadgeCount } from '../push/send';
 import type { Viewer } from '../session/viewer';
 import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
 
-type PartialThreadStatus = {|
+type PartialThreadStatus = {
   +focusActive: boolean,
   +threadID: string,
   +newLastReadMessage: ?number,
-|};
+};
 type ThreadStatus =
-  | {|
+  | {
       +focusActive: true,
       +threadID: string,
       +newLastReadMessage: number,
       +curLastReadMessage: number,
       +rescindCondition: SQLStatementType,
-    |}
-  | {|
+    }
+  | {
       +focusActive: false,
       +threadID: string,
       +newLastReadMessage: ?number,
       +curLastReadMessage: number,
       +rescindCondition: ?SQLStatementType,
       +newerMessageFromOtherAuthor: boolean,
-    |};
+    };
 async function activityUpdater(
   viewer: Viewer,
   request: UpdateActivityRequest,
@@ -189,7 +189,7 @@ async function activityUpdater(
   // The following block determines whether to enqueue updates for a given
   // (user, thread) pair and whether to propagate badge count notifs to all of
   // that user's devices
-  const setUnread: Array<{| +threadID: string, +unread: boolean |}> = [];
+  const setUnread: Array<{ +threadID: string, +unread: boolean }> = [];
   for (const threadStatus of threadStatuses) {
     const { threadID, curLastReadMessage } = threadStatus;
     if (!threadStatus.focusActive) {
@@ -507,10 +507,10 @@ async function updateActivityTime(viewer: Viewer): Promise<void> {
   await dbQuery(focusedQuery);
 }
 
-type LastMessageInfo = {|
+type LastMessageInfo = {
   +lastMessage: number,
   +lastReadMessage: number,
-|};
+};
 async function fetchLastMessageInfo(
   viewer: Viewer,
   threadIDs: $ReadOnlyArray<string>,

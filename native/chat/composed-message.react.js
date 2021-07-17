@@ -24,22 +24,22 @@ import SwipeableMessage from './swipeable-message.react';
 
 const clusterEndHeight = 7;
 
-type BaseProps = {|
+type BaseProps = {
   ...React.ElementConfig<typeof View>,
   +item: ChatMessageInfoItemWithHeight,
   +sendFailed: boolean,
   +focused: boolean,
   +canSwipe?: boolean,
   +children: React.Node,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +composedMessageMaxWidth: number,
   +colors: Colors,
   // withInputState
   +inputState: ?InputState,
-|};
+};
 class ComposedMessage extends React.PureComponent<Props> {
   render() {
     assertComposableMessageType(this.props.item.messageInfo.type);

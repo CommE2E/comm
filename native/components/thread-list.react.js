@@ -18,24 +18,24 @@ import { waitForModalInputFocus } from '../utils/timers';
 import Search from './search.react';
 import ThreadListThread from './thread-list-thread.react';
 
-type BaseProps = {|
+type BaseProps = {
   +threadInfos: $ReadOnlyArray<ThreadInfo>,
   +onSelect: (threadID: string) => void,
   +itemStyle?: ViewStyle,
   +itemTextStyle?: TextStyle,
   +searchIndex?: SearchIndex,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
-|};
-type State = {|
+};
+type State = {
   +searchText: string,
   +searchResults: Set<string>,
-|};
-type PropsAndState = {| ...Props, ...State |};
+};
+type PropsAndState = { ...Props, ...State };
 class ThreadList extends React.PureComponent<Props, State> {
   state: State = {
     searchText: '',

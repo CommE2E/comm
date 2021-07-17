@@ -7,12 +7,12 @@ import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 import { SidebarItem } from './sidebar-item.react';
 import SwipeableThread from './swipeable-thread.react';
 
-type Props = {|
+type Props = {
   +sidebarInfo: SidebarInfo,
   +onPressItem: (threadInfo: ThreadInfo) => void,
   +onSwipeableWillOpen: (threadInfo: ThreadInfo) => void,
   +currentlyOpenedSwipeableId: string,
-|};
+};
 function ChatThreadListSidebar(props: Props): React.Node {
   const {
     sidebarInfo,

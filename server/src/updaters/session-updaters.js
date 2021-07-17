@@ -6,11 +6,11 @@ import type { CalendarQuery } from 'lib/types/entry-types';
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
 
-export type SessionUpdate = Shape<{|
+export type SessionUpdate = Shape<{
   +query: CalendarQuery,
   +lastUpdate: number,
   +lastValidated: number,
-|}>;
+}>;
 async function commitSessionUpdate(
   viewer: Viewer,
   sessionUpdate: SessionUpdate,

@@ -11,10 +11,10 @@ import ThreadVisibility from '../components/thread-visibility.react';
 import { useColors, useStyles } from '../themes/colors';
 import { useNavigateToThread } from './message-list-types';
 
-type Props = {|
+type Props = {
   +parentThreadInfo: ThreadInfo,
   +childThreadType: ThreadType,
-|};
+};
 function ParentThreadHeader(props: Props): React.Node {
   const colors = useColors();
   const threadVisibilityColor = colors.modalForegroundLabel;

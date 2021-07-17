@@ -14,13 +14,13 @@ import GestureTouchableOpacity from '../components/gesture-touchable-opacity.rea
 import type { PendingMultimediaUpload } from '../input/input-state';
 import Multimedia from '../media/multimedia.react';
 
-type Props = {|
+type Props = {
   +mediaInfo: MediaInfo,
   +onPress: () => void,
   +postInProgress: boolean,
   +pendingUpload: ?PendingMultimediaUpload,
   +spinnerColor: string,
-|};
+};
 function InlineMultimedia(props: Props): React.Node {
   const { mediaInfo, pendingUpload, postInProgress } = props;
 

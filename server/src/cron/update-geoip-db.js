@@ -49,9 +49,9 @@ function reloadGeoipDB(): Promise<void> {
   return new Promise(resolve => geoip.reloadData(resolve));
 }
 
-type IPCMessage = {|
+type IPCMessage = {
   type: 'geoip_reload',
-|};
+};
 const reloadMessage: IPCMessage = { type: 'geoip_reload' };
 
 async function updateAndReloadGeoipDB(): Promise<void> {

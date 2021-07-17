@@ -7,13 +7,13 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 
 import css from './style.css';
 
-type Props = {|
+type Props = {
   +status: LoadingStatus,
   +size?: 'small' | 'medium' | 'large',
   +color?: 'black' | 'white',
   +loadingClassName?: string,
   +errorClassName?: string,
-|};
+};
 export default function LoadingIndicator(props: Props): React.Node {
   const [hasRendered, setHasRendered] = React.useState(false);
   React.useEffect(() => {

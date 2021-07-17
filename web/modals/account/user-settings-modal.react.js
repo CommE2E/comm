@@ -51,10 +51,10 @@ class Tab extends React.PureComponent<TabProps> {
   };
 }
 
-type BaseProps = {|
+type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +currentUserInfo: ?CurrentUserInfo,
   +preRequestUserState: PreRequestUserState,
@@ -65,7 +65,7 @@ type Props = {|
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
   +changeUserSettings: (accountUpdate: AccountUpdate) => Promise<void>,
-|};
+};
 type State = {
   +newPassword: string,
   +confirmNewPassword: string,

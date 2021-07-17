@@ -11,10 +11,10 @@ import type { LayoutEvent } from '../types/react-native';
 
 const measureBatchSize = 50;
 
-type MergedItemPair<Item, MergedItem> = {|
+type MergedItemPair<Item, MergedItem> = {
   +item: Item,
   +mergedItem: MergedItem,
-|};
+};
 
 type Props<Item, MergedItem> = {
   // What we want to render
@@ -41,12 +41,12 @@ type Props<Item, MergedItem> = {
   +initialMeasuredHeights?: ?$ReadOnlyMap<string, number>,
   ...
 };
-type State<Item, MergedItem> = {|
+type State<Item, MergedItem> = {
   // These are the dummies currently being rendered
-  +currentlyMeasuring: $ReadOnlyArray<{|
+  +currentlyMeasuring: $ReadOnlyArray<{
     +measureKey: string,
     +dummy: React.Element<any>,
-  |}>,
+  }>,
   // When certain parameters change we need to remeasure everything. In order to
   // avoid considering any onLayouts that got queued before we issued the
   // remeasure, we increment the "iteration" and only count onLayouts with the
@@ -60,7 +60,7 @@ type State<Item, MergedItem> = {|
   // We cache the results of calling mergeItemWithHeight on items that aren't
   // measurable (eg. itemToKey reurns falsey), keyed by ID
   +unmeasurableItems: Map<string, MergedItemPair<Item, MergedItem>>,
-|};
+};
 class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
   Props<Item, MergedItem>,
   State<Item, MergedItem>,

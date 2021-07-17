@@ -11,11 +11,11 @@ import { useColors, useStyles } from '../../themes/colors';
 import type { ViewStyle } from '../../types/styles';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
-type Props = {|
+type Props = {
   +threadInfo: ThreadInfo,
   +navigate: ThreadSettingsNavigate,
   +buttonStyle: ViewStyle,
-|};
+};
 function ThreadSettingsDeleteThread(props: Props): React.Node {
   const { navigate, threadInfo } = props;
   const onPress = React.useCallback(() => {

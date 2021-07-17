@@ -10,15 +10,15 @@ import type { MarkdownRules } from '../markdown/rules.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';
 import { MessageListRouteName } from '../navigation/route-names';
 
-export type MessageListParams = {|
+export type MessageListParams = {
   +threadInfo: ThreadInfo,
   +pendingPersonalThreadUserInfo?: UserInfo,
   +searching?: boolean,
-|};
+};
 
-export type MessageListContextType = {|
+export type MessageListContextType = {
   +getTextMessageMarkdownRules: (useDarkStyle: boolean) => MarkdownRules,
-|};
+};
 
 const MessageListContext: React.Context<?MessageListContextType> = React.createContext<?MessageListContextType>();
 
@@ -32,10 +32,10 @@ function useMessageListContext(threadID: ?string) {
   );
 }
 
-type Props = {|
+type Props = {
   +children: React.Node,
   +threadID: ?string,
-|};
+};
 function MessageListContextProvider(props: Props): React.Node {
   const context = useMessageListContext(props.threadID);
   return (
@@ -45,11 +45,11 @@ function MessageListContextProvider(props: Props): React.Node {
   );
 }
 
-type NavigateToThreadAction = {|
+type NavigateToThreadAction = {
   +name: typeof MessageListRouteName,
   +params: MessageListParams,
   +key: string,
-|};
+};
 function createNavigateToThreadAction(
   params: MessageListParams,
 ): NavigateToThreadAction {

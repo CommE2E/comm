@@ -62,13 +62,13 @@ registerConfig({
   platformDetails: { platform: 'web' },
 });
 
-type BaseProps = {|
+type BaseProps = {
   +location: {
     +pathname: string,
     ...
   },
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   // Redux state
   +navInfo: NavInfo,
@@ -80,10 +80,10 @@ type Props = {|
   +unreadCount: number,
   // Redux dispatch functions
   +dispatch: Dispatch,
-|};
-type State = {|
+};
+type State = {
   +currentModal: ?React.Node,
-|};
+};
 class App extends React.PureComponent<Props, State> {
   state: State = {
     currentModal: null,

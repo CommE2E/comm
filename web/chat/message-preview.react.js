@@ -17,10 +17,10 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import css from './chat-thread-list.css';
 
-type Props = {|
+type Props = {
   +messageInfo: ?MessageInfo,
   +threadInfo: ThreadInfo,
-|};
+};
 function MessagePreview(props: Props): React.Node {
   if (!props.messageInfo) {
     return (

@@ -12,11 +12,11 @@ import type { ChatMessageInfoItemWithHeight } from './message.react';
 import type { DisplayType } from './timestamp.react';
 import { Timestamp, timestampHeight } from './timestamp.react';
 
-type Props = {|
+type Props = {
   +item: ChatMessageInfoItemWithHeight,
   +focused: boolean,
   +display: DisplayType,
-|};
+};
 function MessageHeader(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const { item, focused, display } = props;

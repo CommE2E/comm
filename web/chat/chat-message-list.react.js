@@ -45,10 +45,10 @@ import type {
   MessagePositionInfo,
 } from './position-types';
 
-type BaseProps = {|
+type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
-|};
-type PassedProps = {|
+};
+type PassedProps = {
   ...BaseProps,
   // Redux state
   +activeChatThreadID: ?string,
@@ -66,22 +66,22 @@ type PassedProps = {|
   ) => Promise<FetchMessageInfosPayload>,
   // withInputState
   +inputState: ?InputState,
-|};
-type ReactDnDProps = {|
+};
+type ReactDnDProps = {
   isActive: boolean,
   connectDropTarget: (node: React.Node) => React.Node,
-|};
-type Props = {|
+};
+type Props = {
   ...PassedProps,
   ...ReactDnDProps,
-|};
-type State = {|
+};
+type State = {
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
-|};
-type Snapshot = {|
+};
+type Snapshot = {
   +scrollTop: number,
   +scrollHeight: number,
-|};
+};
 class ChatMessageList extends React.PureComponent<Props, State> {
   state: State = {
     mouseOverMessagePosition: null,

@@ -15,24 +15,24 @@ import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 import { setCustomServer } from '../utils/url-utils';
 
-export type CustomServerModalParams = {|
+export type CustomServerModalParams = {
   presentedFrom: string,
-|};
+};
 
-type BaseProps = {|
+type BaseProps = {
   +navigation: RootNavigationProp<'CustomServerModal'>,
   +route: NavigationRoute<'CustomServerModal'>,
-|};
-type Props = {|
+};
+type Props = {
   ...BaseProps,
   +urlPrefix: string,
   +customServer: ?string,
   +styles: typeof unboundStyles,
   +dispatch: Dispatch,
-|};
-type State = {|
+};
+type State = {
   customServer: string,
-|};
+};
 class CustomServerModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);

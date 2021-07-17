@@ -7,9 +7,9 @@ import { TextInput, View, StyleSheet } from 'react-native';
 import type { KeyPressEvent } from '../types/react-native';
 import type { ClearableTextInputProps } from './clearable-text-input';
 
-type State = {|
+type State = {
   textInputKey: number,
-|};
+};
 class ClearableTextInput extends React.PureComponent<
   ClearableTextInputProps,
   State,
@@ -17,7 +17,7 @@ class ClearableTextInput extends React.PureComponent<
   state: State = {
     textInputKey: 0,
   };
-  pendingMessage: ?{| value: string, resolve: (value: string) => void |};
+  pendingMessage: ?{ value: string, resolve: (value: string) => void };
   lastKeyPressed: ?string;
   lastTextInputSent: number = -1;
   currentTextInput: ?React.ElementRef<typeof TextInput>;

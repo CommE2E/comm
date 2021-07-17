@@ -17,10 +17,10 @@ type UserRelationshipOperations = {
   [string]: $ReadOnlyArray<RelationshipOperation>,
 };
 
-type UserRelationshipOperationsResult = {|
+type UserRelationshipOperationsResult = {
   +errors: RelationshipErrors,
   +userRelationshipOperations: UserRelationshipOperations,
-|};
+};
 async function fetchFriendRequestRelationshipOperations(
   viewer: Viewer,
   userIDs: string[],

@@ -29,8 +29,8 @@ import { updateWindowActiveActionType } from './action-types';
 import reduceNavInfo from './nav-reducer';
 import { getVisibility } from './visibility';
 
-export type WindowDimensions = {| width: number, height: number |};
-export type AppState = {|
+export type WindowDimensions = { width: number, height: number };
+export type AppState = {
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
   sessionID: ?string,
@@ -56,21 +56,21 @@ export type AppState = {|
   userAgent: ?string,
   dataLoaded: boolean,
   windowActive: boolean,
-|};
+};
 
 export const updateWindowDimensions = 'UPDATE_WINDOW_DIMENSIONS';
 
 export type Action =
   | BaseAction
-  | {| type: 'UPDATE_NAV_INFO', payload: Shape<NavInfo> |}
-  | {|
+  | { type: 'UPDATE_NAV_INFO', payload: Shape<NavInfo> }
+  | {
       type: 'UPDATE_WINDOW_DIMENSIONS',
       payload: WindowDimensions,
-    |}
-  | {|
+    }
+  | {
       type: 'UPDATE_WINDOW_ACTIVE',
       payload: boolean,
-    |};
+    };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
