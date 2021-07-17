@@ -544,46 +544,46 @@ const changeThreadSettingsLoadingStatusSelector = createLoadingStatusSelector(
   changeThreadSettingsActionTypes,
 );
 
-const ConnectedThreadSettingsModal: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedThreadSettingsModal(
-  props
-) {
-  const changeInProgress = useSelector(
-    state =>
-      deleteThreadLoadingStatusSelector(state) === 'loading' ||
-      changeThreadSettingsLoadingStatusSelector(state) === 'loading',
-  );
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const userInfos = useSelector(state => state.userStore.userInfos);
-  const callDeleteThread = useServerCall(deleteThread);
-  const callChangeThreadSettings = useServerCall(changeThreadSettings);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const threadInfo: ?ThreadInfo = useSelector(
-    state => threadInfoSelector(state)[props.threadID],
-  );
-  if (!threadInfo) {
-    return (
-      <Modal onClose={props.onClose} name="Invalid thread">
-        <div className={css['modal-body']}>
-          <p>You no longer have permission to view this thread</p>
-        </div>
-      </Modal>
+const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedThreadSettingsModal(props) {
+    const changeInProgress = useSelector(
+      state =>
+        deleteThreadLoadingStatusSelector(state) === 'loading' ||
+        changeThreadSettingsLoadingStatusSelector(state) === 'loading',
     );
-  }
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const userInfos = useSelector(state => state.userStore.userInfos);
+    const callDeleteThread = useServerCall(deleteThread);
+    const callChangeThreadSettings = useServerCall(changeThreadSettings);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const threadInfo: ?ThreadInfo = useSelector(
+      state => threadInfoSelector(state)[props.threadID],
+    );
+    if (!threadInfo) {
+      return (
+        <Modal onClose={props.onClose} name="Invalid thread">
+          <div className={css['modal-body']}>
+            <p>You no longer have permission to view this thread</p>
+          </div>
+        </Modal>
+      );
+    }
 
-  return (
-    <ThreadSettingsModal
-      {...props}
-      threadInfo={threadInfo}
-      changeInProgress={changeInProgress}
-      viewerID={viewerID}
-      userInfos={userInfos}
-      deleteThread={callDeleteThread}
-      changeThreadSettings={callChangeThreadSettings}
-      dispatchActionPromise={dispatchActionPromise}
-    />
-  );
-});
+    return (
+      <ThreadSettingsModal
+        {...props}
+        threadInfo={threadInfo}
+        changeInProgress={changeInProgress}
+        viewerID={viewerID}
+        userInfos={userInfos}
+        deleteThread={callDeleteThread}
+        changeThreadSettings={callChangeThreadSettings}
+        dispatchActionPromise={dispatchActionPromise}
+      />
+    );
+  },
+);
 
 export default ConnectedThreadSettingsModal;

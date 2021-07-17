@@ -288,29 +288,32 @@ class NewThreadModal extends React.PureComponent<Props, State> {
 
 const loadingStatusSelector = createLoadingStatusSelector(newThreadActionTypes);
 
-const ConnectedNewThreadModal: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedNewThreadModal(
-  props
-) {
-  const { parentThreadID } = props;
-  const parentThreadInfo: ?ThreadInfo = useSelector(state =>
-    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-  );
-  invariant(!parentThreadID || parentThreadInfo, 'parent thread should exist');
-  const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
-  const calendarQuery = useSelector(nonThreadCalendarQuery);
-  const callNewThread = useServerCall(newThread);
-  const dispatchActionPromise = useDispatchActionPromise();
+const ConnectedNewThreadModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedNewThreadModal(props) {
+    const { parentThreadID } = props;
+    const parentThreadInfo: ?ThreadInfo = useSelector(state =>
+      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
+    invariant(
+      !parentThreadID || parentThreadInfo,
+      'parent thread should exist',
+    );
+    const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+    const calendarQuery = useSelector(nonThreadCalendarQuery);
+    const callNewThread = useServerCall(newThread);
+    const dispatchActionPromise = useDispatchActionPromise();
 
-  return (
-    <NewThreadModal
-      {...props}
-      parentThreadInfo={parentThreadInfo}
-      inputDisabled={inputDisabled}
-      calendarQuery={calendarQuery}
-      newThread={callNewThread}
-      dispatchActionPromise={dispatchActionPromise}
-    />
-  );
-});
+    return (
+      <NewThreadModal
+        {...props}
+        parentThreadInfo={parentThreadInfo}
+        inputDisabled={inputDisabled}
+        calendarQuery={calendarQuery}
+        newThread={callNewThread}
+        dispatchActionPromise={dispatchActionPromise}
+      />
+    );
+  },
+);
 
 export default ConnectedNewThreadModal;

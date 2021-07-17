@@ -174,22 +174,22 @@ class AccountBar extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedAccountBar: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedAccountBar(
-  props
-) {
-  const currentUserInfo = useSelector(state => state.currentUserInfo);
-  const preRequestUserState = useSelector(preRequestUserStateSelector);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const boundLogOut = useServerCall(logOut);
-  return (
-    <AccountBar
-      {...props}
-      currentUserInfo={currentUserInfo}
-      preRequestUserState={preRequestUserState}
-      dispatchActionPromise={dispatchActionPromise}
-      logOut={boundLogOut}
-    />
-  );
-});
+const ConnectedAccountBar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedAccountBar(props) {
+    const currentUserInfo = useSelector(state => state.currentUserInfo);
+    const preRequestUserState = useSelector(preRequestUserStateSelector);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const boundLogOut = useServerCall(logOut);
+    return (
+      <AccountBar
+        {...props}
+        currentUserInfo={currentUserInfo}
+        preRequestUserState={preRequestUserState}
+        dispatchActionPromise={dispatchActionPromise}
+        logOut={boundLogOut}
+      />
+    );
+  },
+);
 
 export default ConnectedAccountBar;

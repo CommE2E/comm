@@ -145,39 +145,39 @@ class HistoryEntry extends React.PureComponent<Props> {
   }
 }
 
-const ConnectedHistoryEntry: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedHistoryEntry(
-  props
-) {
-  const entryID = props.entryInfo.id;
-  invariant(entryID, 'entryInfo.id (serverID) should be set');
-  const threadInfo = useSelector(
-    state => threadInfoSelector(state)[props.entryInfo.threadID],
-  );
-  const loggedIn = useSelector(
-    state =>
-      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
-  );
-  const restoreLoadingStatus = useSelector(
-    createLoadingStatusSelector(
-      restoreEntryActionTypes,
-      `${restoreEntryActionTypes.started}:${entryID}`,
-    ),
-  );
-  const calanderQuery = useSelector(nonThreadCalendarQuery);
-  const callRestoreEntry = useServerCall(restoreEntry);
-  const dispatchActionPromise = useDispatchActionPromise();
+const ConnectedHistoryEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedHistoryEntry(props) {
+    const entryID = props.entryInfo.id;
+    invariant(entryID, 'entryInfo.id (serverID) should be set');
+    const threadInfo = useSelector(
+      state => threadInfoSelector(state)[props.entryInfo.threadID],
+    );
+    const loggedIn = useSelector(
+      state =>
+        !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+    );
+    const restoreLoadingStatus = useSelector(
+      createLoadingStatusSelector(
+        restoreEntryActionTypes,
+        `${restoreEntryActionTypes.started}:${entryID}`,
+      ),
+    );
+    const calanderQuery = useSelector(nonThreadCalendarQuery);
+    const callRestoreEntry = useServerCall(restoreEntry);
+    const dispatchActionPromise = useDispatchActionPromise();
 
-  return (
-    <HistoryEntry
-      {...props}
-      threadInfo={threadInfo}
-      loggedIn={loggedIn}
-      restoreLoadingStatus={restoreLoadingStatus}
-      calendarQuery={calanderQuery}
-      restoreEntry={callRestoreEntry}
-      dispatchActionPromise={dispatchActionPromise}
-    />
-  );
-});
+    return (
+      <HistoryEntry
+        {...props}
+        threadInfo={threadInfo}
+        loggedIn={loggedIn}
+        restoreLoadingStatus={restoreLoadingStatus}
+        calendarQuery={calanderQuery}
+        restoreEntry={callRestoreEntry}
+        dispatchActionPromise={dispatchActionPromise}
+      />
+    );
+  },
+);
 
 export default ConnectedHistoryEntry;

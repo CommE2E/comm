@@ -375,31 +375,31 @@ const changeUserSettingsLoadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
-const ConnectedUserSettingsModal: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedUserSettingsModal(
-  props
-) {
-  const currentUserInfo = useSelector(state => state.currentUserInfo);
-  const preRequestUserState = useSelector(preRequestUserStateSelector);
-  const inputDisabled = useSelector(
-    state =>
-      deleteAccountLoadingStatusSelector(state) === 'loading' ||
-      changeUserSettingsLoadingStatusSelector(state) === 'loading',
-  );
-  const callDeleteAccount = useServerCall(deleteAccount);
-  const callChangeUserSettings = useServerCall(changeUserSettings);
-  const dispatchActionPromise = useDispatchActionPromise();
+const ConnectedUserSettingsModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedUserSettingsModal(props) {
+    const currentUserInfo = useSelector(state => state.currentUserInfo);
+    const preRequestUserState = useSelector(preRequestUserStateSelector);
+    const inputDisabled = useSelector(
+      state =>
+        deleteAccountLoadingStatusSelector(state) === 'loading' ||
+        changeUserSettingsLoadingStatusSelector(state) === 'loading',
+    );
+    const callDeleteAccount = useServerCall(deleteAccount);
+    const callChangeUserSettings = useServerCall(changeUserSettings);
+    const dispatchActionPromise = useDispatchActionPromise();
 
-  return (
-    <UserSettingsModal
-      {...props}
-      currentUserInfo={currentUserInfo}
-      preRequestUserState={preRequestUserState}
-      inputDisabled={inputDisabled}
-      deleteAccount={callDeleteAccount}
-      changeUserSettings={callChangeUserSettings}
-      dispatchActionPromise={dispatchActionPromise}
-    />
-  );
-});
+    return (
+      <UserSettingsModal
+        {...props}
+        currentUserInfo={currentUserInfo}
+        preRequestUserState={preRequestUserState}
+        inputDisabled={inputDisabled}
+        deleteAccount={callDeleteAccount}
+        changeUserSettings={callChangeUserSettings}
+        dispatchActionPromise={dispatchActionPromise}
+      />
+    );
+  },
+);
 
 export default ConnectedUserSettingsModal;

@@ -259,31 +259,31 @@ class Calendar extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedCalendar: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedCalendar(
-  props
-) {
-  const year = useSelector(yearAssertingSelector);
-  const month = useSelector(monthAssertingSelector);
-  const daysToEntries = useSelector(currentDaysToEntries);
-  const navInfo = useSelector(state => state.navInfo);
-  const currentCalendarQuery = useSelector(webCalendarQuery);
-  const loggedIn = useSelector(isLoggedIn);
-  const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
-  const dispatchActionPromise = useDispatchActionPromise();
+const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedCalendar(props) {
+    const year = useSelector(yearAssertingSelector);
+    const month = useSelector(monthAssertingSelector);
+    const daysToEntries = useSelector(currentDaysToEntries);
+    const navInfo = useSelector(state => state.navInfo);
+    const currentCalendarQuery = useSelector(webCalendarQuery);
+    const loggedIn = useSelector(isLoggedIn);
+    const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
+    const dispatchActionPromise = useDispatchActionPromise();
 
-  return (
-    <Calendar
-      {...props}
-      year={year}
-      month={month}
-      daysToEntries={daysToEntries}
-      navInfo={navInfo}
-      currentCalendarQuery={currentCalendarQuery}
-      loggedIn={loggedIn}
-      dispatchActionPromise={dispatchActionPromise}
-      updateCalendarQuery={callUpdateCalendarQuery}
-    />
-  );
-});
+    return (
+      <Calendar
+        {...props}
+        year={year}
+        month={month}
+        daysToEntries={daysToEntries}
+        navInfo={navInfo}
+        currentCalendarQuery={currentCalendarQuery}
+        loggedIn={loggedIn}
+        dispatchActionPromise={dispatchActionPromise}
+        updateCalendarQuery={callUpdateCalendarQuery}
+      />
+    );
+  },
+);
 
 export default ConnectedCalendar;

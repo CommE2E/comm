@@ -264,28 +264,30 @@ class Day extends React.PureComponent<Props, State> {
   };
 }
 
-const ConnectedDay: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedDay(props) {
-  const onScreenThreadInfos = useSelector(onScreenThreadInfosSelector);
-  const viewerID = useSelector(state => state.currentUserInfo?.id);
-  const loggedIn = useSelector(
-    state =>
-      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
-  );
-  const nextLocalID = useSelector(state => state.nextLocalID);
-  const timeZone = useSelector(state => state.timeZone);
-  const dispatch = useDispatch();
+const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedDay(props) {
+    const onScreenThreadInfos = useSelector(onScreenThreadInfosSelector);
+    const viewerID = useSelector(state => state.currentUserInfo?.id);
+    const loggedIn = useSelector(
+      state =>
+        !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+    );
+    const nextLocalID = useSelector(state => state.nextLocalID);
+    const timeZone = useSelector(state => state.timeZone);
+    const dispatch = useDispatch();
 
-  return (
-    <Day
-      {...props}
-      onScreenThreadInfos={onScreenThreadInfos}
-      viewerID={viewerID}
-      loggedIn={loggedIn}
-      nextLocalID={nextLocalID}
-      timeZone={timeZone}
-      dispatch={dispatch}
-    />
-  );
-});
+    return (
+      <Day
+        {...props}
+        onScreenThreadInfos={onScreenThreadInfos}
+        viewerID={viewerID}
+        loggedIn={loggedIn}
+        nextLocalID={nextLocalID}
+        timeZone={timeZone}
+        dispatch={dispatch}
+      />
+    );
+  },
+);
 
 export default ConnectedDay;

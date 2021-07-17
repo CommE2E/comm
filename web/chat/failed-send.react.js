@@ -123,28 +123,30 @@ class FailedSend extends React.PureComponent<Props> {
   };
 }
 
-const ConnectedFailedSend: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedFailedSend(
-  props
-) {
-  const { messageInfo } = props.item;
-  assertComposableMessageType(messageInfo.type);
-  const id = messageID(messageInfo);
-  const rawMessageInfo = useSelector(state => state.messageStore.messages[id]);
-  assertComposableMessageType(rawMessageInfo.type);
-  invariant(
-    rawMessageInfo.type === messageTypes.TEXT ||
-      rawMessageInfo.type === messageTypes.IMAGES ||
-      rawMessageInfo.type === messageTypes.MULTIMEDIA,
-    'FailedSend should only be used for composable message types',
-  );
-  const inputState = React.useContext(InputStateContext);
-  return (
-    <FailedSend
-      {...props}
-      rawMessageInfo={rawMessageInfo}
-      inputState={inputState}
-    />
-  );
-});
+const ConnectedFailedSend: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedFailedSend(props) {
+    const { messageInfo } = props.item;
+    assertComposableMessageType(messageInfo.type);
+    const id = messageID(messageInfo);
+    const rawMessageInfo = useSelector(
+      state => state.messageStore.messages[id],
+    );
+    assertComposableMessageType(rawMessageInfo.type);
+    invariant(
+      rawMessageInfo.type === messageTypes.TEXT ||
+        rawMessageInfo.type === messageTypes.IMAGES ||
+        rawMessageInfo.type === messageTypes.MULTIMEDIA,
+      'FailedSend should only be used for composable message types',
+    );
+    const inputState = React.useContext(InputStateContext);
+    return (
+      <FailedSend
+        {...props}
+        rawMessageInfo={rawMessageInfo}
+        inputState={inputState}
+      />
+    );
+  },
+);
 
 export default ConnectedFailedSend;

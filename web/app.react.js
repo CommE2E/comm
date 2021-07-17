@@ -261,55 +261,57 @@ const updateCalendarQueryLoadingStatusSelector = createLoadingStatusSelector(
   updateCalendarQueryActionTypes,
 );
 
-const ConnectedApp: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedApp(props) {
-  const activeChatThreadID = useSelector(
-    state => state.navInfo.activeChatThreadID,
-  );
-  const navInfo = useSelector(state => state.navInfo);
+const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedApp(props) {
+    const activeChatThreadID = useSelector(
+      state => state.navInfo.activeChatThreadID,
+    );
+    const navInfo = useSelector(state => state.navInfo);
 
-  const fetchEntriesLoadingStatus = useSelector(
-    fetchEntriesLoadingStatusSelector,
-  );
-  const updateCalendarQueryLoadingStatus = useSelector(
-    updateCalendarQueryLoadingStatusSelector,
-  );
-  const entriesLoadingStatus = combineLoadingStatuses(
-    fetchEntriesLoadingStatus,
-    updateCalendarQueryLoadingStatus,
-  );
+    const fetchEntriesLoadingStatus = useSelector(
+      fetchEntriesLoadingStatusSelector,
+    );
+    const updateCalendarQueryLoadingStatus = useSelector(
+      updateCalendarQueryLoadingStatusSelector,
+    );
+    const entriesLoadingStatus = combineLoadingStatuses(
+      fetchEntriesLoadingStatus,
+      updateCalendarQueryLoadingStatus,
+    );
 
-  const loggedIn = useSelector(isLoggedIn);
-  const mostRecentReadThread = useSelector(mostRecentReadThreadSelector);
-  const activeThreadCurrentlyUnread = useSelector(
-    state =>
-      !activeChatThreadID ||
-      !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
-  );
+    const loggedIn = useSelector(isLoggedIn);
+    const mostRecentReadThread = useSelector(mostRecentReadThreadSelector);
+    const activeThreadCurrentlyUnread = useSelector(
+      state =>
+        !activeChatThreadID ||
+        !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
+    );
 
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const boundUnreadCount = useSelector(unreadCount);
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const boundUnreadCount = useSelector(unreadCount);
 
-  React.useEffect(() => {
-    document.title = getTitle(boundUnreadCount);
-  }, [boundUnreadCount]);
+    React.useEffect(() => {
+      document.title = getTitle(boundUnreadCount);
+    }, [boundUnreadCount]);
 
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
-  return (
-    <App
-      {...props}
-      navInfo={navInfo}
-      entriesLoadingStatus={entriesLoadingStatus}
-      loggedIn={loggedIn}
-      mostRecentReadThread={mostRecentReadThread}
-      activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-      viewerID={viewerID}
-      unreadCount={boundUnreadCount}
-      dispatch={dispatch}
-    />
-  );
-});
+    return (
+      <App
+        {...props}
+        navInfo={navInfo}
+        entriesLoadingStatus={entriesLoadingStatus}
+        loggedIn={loggedIn}
+        mostRecentReadThread={mostRecentReadThread}
+        activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
+        viewerID={viewerID}
+        unreadCount={boundUnreadCount}
+        dispatch={dispatch}
+      />
+    );
+  },
+);
 
 export default ConnectedApp;

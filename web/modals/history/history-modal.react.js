@@ -249,31 +249,33 @@ const entryLoadingStatusSelector = createLoadingStatusSelector(
   fetchRevisionsForEntryActionTypes,
 );
 
-const ConnectedHistoryModal: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedHistoryModal(
-  props
-) {
-  const entryInfos = useSelector(
-    state => allDaysToEntries(state)[props.dayString],
-  );
-  const dayLoadingStatus = useSelector(dayLoadingStatusSelector);
-  const entryLoadingStatus = useSelector(entryLoadingStatusSelector);
-  const calendarFilters = useSelector(nonExcludeDeletedCalendarFiltersSelector);
-  const callFetchEntries = useServerCall(fetchEntries);
-  const callFetchRevisionsForEntry = useServerCall(fetchRevisionsForEntry);
-  const dispatchActionPromise = useDispatchActionPromise();
+const ConnectedHistoryModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedHistoryModal(props) {
+    const entryInfos = useSelector(
+      state => allDaysToEntries(state)[props.dayString],
+    );
+    const dayLoadingStatus = useSelector(dayLoadingStatusSelector);
+    const entryLoadingStatus = useSelector(entryLoadingStatusSelector);
+    const calendarFilters = useSelector(
+      nonExcludeDeletedCalendarFiltersSelector,
+    );
+    const callFetchEntries = useServerCall(fetchEntries);
+    const callFetchRevisionsForEntry = useServerCall(fetchRevisionsForEntry);
+    const dispatchActionPromise = useDispatchActionPromise();
 
-  return (
-    <HistoryModal
-      {...props}
-      entryInfos={entryInfos}
-      dayLoadingStatus={dayLoadingStatus}
-      entryLoadingStatus={entryLoadingStatus}
-      calendarFilters={calendarFilters}
-      fetchEntries={callFetchEntries}
-      fetchRevisionsForEntry={callFetchRevisionsForEntry}
-      dispatchActionPromise={dispatchActionPromise}
-    />
-  );
-});
+    return (
+      <HistoryModal
+        {...props}
+        entryInfos={entryInfos}
+        dayLoadingStatus={dayLoadingStatus}
+        entryLoadingStatus={entryLoadingStatus}
+        calendarFilters={calendarFilters}
+        fetchEntries={callFetchEntries}
+        fetchRevisionsForEntry={callFetchRevisionsForEntry}
+        dispatchActionPromise={dispatchActionPromise}
+      />
+    );
+  },
+);
 
 export default ConnectedHistoryModal;

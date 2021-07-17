@@ -1217,52 +1217,54 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 }
 
-const ConnectedInputStateContainer: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedInputStateContainer(
-  props
-) {
-  const exifRotate = useSelector(state => {
-    const browser = detectBrowser(state.userAgent);
-    return !browser || (browser.name !== 'safari' && browser.name !== 'chrome');
-  });
-  const activeChatThreadID = useSelector(
-    state => state.navInfo.activeChatThreadID,
-  );
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const messageStoreMessages = useSelector(
-    state => state.messageStore.messages,
-  );
-  const pendingToRealizedThreadIDs = useSelector(state =>
-    pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
-  );
-  const calendarQuery = useSelector(nonThreadCalendarQuery);
-  const callUploadMultimedia = useServerCall(uploadMultimedia);
-  const callDeleteUpload = useServerCall(deleteUpload);
-  const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
-  const callSendTextMessage = useServerCall(sendTextMessage);
-  const callNewThread = useServerCall(newThread);
-  const dispatch = useDispatch();
-  const dispatchActionPromise = useDispatchActionPromise();
+const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedInputStateContainer(props) {
+    const exifRotate = useSelector(state => {
+      const browser = detectBrowser(state.userAgent);
+      return (
+        !browser || (browser.name !== 'safari' && browser.name !== 'chrome')
+      );
+    });
+    const activeChatThreadID = useSelector(
+      state => state.navInfo.activeChatThreadID,
+    );
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const messageStoreMessages = useSelector(
+      state => state.messageStore.messages,
+    );
+    const pendingToRealizedThreadIDs = useSelector(state =>
+      pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
+    );
+    const calendarQuery = useSelector(nonThreadCalendarQuery);
+    const callUploadMultimedia = useServerCall(uploadMultimedia);
+    const callDeleteUpload = useServerCall(deleteUpload);
+    const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
+    const callSendTextMessage = useServerCall(sendTextMessage);
+    const callNewThread = useServerCall(newThread);
+    const dispatch = useDispatch();
+    const dispatchActionPromise = useDispatchActionPromise();
 
-  return (
-    <InputStateContainer
-      {...props}
-      activeChatThreadID={activeChatThreadID}
-      viewerID={viewerID}
-      messageStoreMessages={messageStoreMessages}
-      exifRotate={exifRotate}
-      pendingToRealizedThreadIDs={pendingToRealizedThreadIDs}
-      calendarQuery={calendarQuery}
-      uploadMultimedia={callUploadMultimedia}
-      deleteUpload={callDeleteUpload}
-      sendMultimediaMessage={callSendMultimediaMessage}
-      sendTextMessage={callSendTextMessage}
-      newThread={callNewThread}
-      dispatch={dispatch}
-      dispatchActionPromise={dispatchActionPromise}
-    />
-  );
-});
+    return (
+      <InputStateContainer
+        {...props}
+        activeChatThreadID={activeChatThreadID}
+        viewerID={viewerID}
+        messageStoreMessages={messageStoreMessages}
+        exifRotate={exifRotate}
+        pendingToRealizedThreadIDs={pendingToRealizedThreadIDs}
+        calendarQuery={calendarQuery}
+        uploadMultimedia={callUploadMultimedia}
+        deleteUpload={callDeleteUpload}
+        sendMultimediaMessage={callSendMultimediaMessage}
+        sendTextMessage={callSendTextMessage}
+        newThread={callNewThread}
+        dispatch={dispatch}
+        dispatchActionPromise={dispatchActionPromise}
+      />
+    );
+  },
+);
 
 export default ConnectedInputStateContainer;

@@ -423,40 +423,42 @@ const createThreadLoadingStatusSelector = createLoadingStatusSelector(
   newThreadActionTypes,
 );
 
-const ConnectedChatInputBar: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedChatInputBar(
-  props
-) {
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const nextLocalID = useSelector(state => state.nextLocalID);
-  const isThreadActive = useSelector(
-    state => props.threadInfo.id === state.navInfo.activeChatThreadID,
-  );
-  const userInfos = useSelector(state => state.userStore.userInfos);
-  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
-  const createThreadLoadingStatus = useSelector(
-    createThreadLoadingStatusSelector,
-  );
-  const threadCreationInProgress = createThreadLoadingStatus === 'loading';
-  const calendarQuery = useSelector(nonThreadCalendarQuery);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const callJoinThread = useServerCall(joinThread);
+const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedChatInputBar(props) {
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const nextLocalID = useSelector(state => state.nextLocalID);
+    const isThreadActive = useSelector(
+      state => props.threadInfo.id === state.navInfo.activeChatThreadID,
+    );
+    const userInfos = useSelector(state => state.userStore.userInfos);
+    const joinThreadLoadingStatus = useSelector(
+      joinThreadLoadingStatusSelector,
+    );
+    const createThreadLoadingStatus = useSelector(
+      createThreadLoadingStatusSelector,
+    );
+    const threadCreationInProgress = createThreadLoadingStatus === 'loading';
+    const calendarQuery = useSelector(nonThreadCalendarQuery);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const callJoinThread = useServerCall(joinThread);
 
-  return (
-    <ChatInputBar
-      {...props}
-      viewerID={viewerID}
-      joinThreadLoadingStatus={joinThreadLoadingStatus}
-      threadCreationInProgress={threadCreationInProgress}
-      calendarQuery={calendarQuery}
-      nextLocalID={nextLocalID}
-      isThreadActive={isThreadActive}
-      userInfos={userInfos}
-      dispatchActionPromise={dispatchActionPromise}
-      joinThread={callJoinThread}
-    />
-  );
-});
+    return (
+      <ChatInputBar
+        {...props}
+        viewerID={viewerID}
+        joinThreadLoadingStatus={joinThreadLoadingStatus}
+        threadCreationInProgress={threadCreationInProgress}
+        calendarQuery={calendarQuery}
+        nextLocalID={nextLocalID}
+        isThreadActive={isThreadActive}
+        userInfos={userInfos}
+        dispatchActionPromise={dispatchActionPromise}
+        joinThread={callJoinThread}
+      />
+    );
+  },
+);
 
 export default ConnectedChatInputBar;

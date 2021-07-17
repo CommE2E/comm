@@ -242,22 +242,25 @@ class ComposedMessage extends React.PureComponent<Props> {
   };
 }
 
-type ConnectedConfig = React.Config<BaseProps, typeof ComposedMessage.defaultProps>;
-const ConnectedComposedMessage: React.AbstractComponent<ConnectedConfig, mixed> = React.memo<BaseConfig>(function ConnectedComposedMessage(
-  props
-) {
-  const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
-    props.threadInfo,
-    props.item,
-  );
-  const inputState = React.useContext(InputStateContext);
-  return (
-    <ComposedMessage
-      {...props}
-      sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
-      inputState={inputState}
-    />
-  );
-});
+type ConnectedConfig = React.Config<
+  BaseProps,
+  typeof ComposedMessage.defaultProps,
+>;
+const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.memo<BaseConfig>(
+  function ConnectedComposedMessage(props) {
+    const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
+      props.threadInfo,
+      props.item,
+    );
+    const inputState = React.useContext(InputStateContext);
+    return (
+      <ComposedMessage
+        {...props}
+        sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
+        inputState={inputState}
+      />
+    );
+  },
+);
 
 export default ConnectedComposedMessage;

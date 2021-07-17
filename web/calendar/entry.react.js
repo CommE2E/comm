@@ -270,7 +270,9 @@ class Entry extends React.PureComponent<Props, State> {
     this.setState({ text: target.value }, this.updateHeight.bind(this));
   };
 
-  onKeyDown: (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => void = event => {
+  onKeyDown: (
+    event: SyntheticKeyboardEvent<HTMLTextAreaElement>,
+  ) => void = event => {
     if (event.keyCode === 27) {
       invariant(
         this.textarea instanceof HTMLTextAreaElement,
@@ -357,7 +359,10 @@ class Entry extends React.PureComponent<Props, State> {
     }
   }
 
-  async saveAction(entryID: string, newText: string): Promise<SaveEntryPayload> {
+  async saveAction(
+    entryID: string,
+    newText: string,
+  ): Promise<SaveEntryPayload> {
     const curSaveAttempt = this.nextSaveAttemptIndex++;
     this.guardedSetState({ loadingStatus: 'loading' });
     try {
@@ -424,7 +429,10 @@ class Entry extends React.PureComponent<Props, State> {
     );
   }
 
-  async deleteAction(serverID: ?string, focusOnNextEntry: boolean): Promise<?DeleteEntryResult> {
+  async deleteAction(
+    serverID: ?string,
+    focusOnNextEntry: boolean,
+  ): Promise<?DeleteEntryResult> {
     invariant(
       this.props.loggedIn,
       'user should be logged in if delete triggered',
@@ -467,35 +475,41 @@ class Entry extends React.PureComponent<Props, State> {
 
 export type InnerEntry = Entry;
 
-const ConnectedEntry: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedEntry(props) {
-  const { threadID } = props.entryInfo;
-  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
-  const loggedIn = useSelector(
-    state =>
-      !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
-  );
-  const calanderQuery = useSelector(nonThreadCalendarQuery);
-  const online = useSelector(state => state.connection.status === 'connected');
-  const callCreateEntry = useServerCall(createEntry);
-  const callSaveEntry = useServerCall(saveEntry);
-  const callDeleteEntry = useServerCall(deleteEntry);
-  const dispatchActionPromise = useDispatchActionPromise();
-  const dispatch = useDispatch();
+const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedEntry(props) {
+    const { threadID } = props.entryInfo;
+    const threadInfo = useSelector(
+      state => threadInfoSelector(state)[threadID],
+    );
+    const loggedIn = useSelector(
+      state =>
+        !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
+    );
+    const calanderQuery = useSelector(nonThreadCalendarQuery);
+    const online = useSelector(
+      state => state.connection.status === 'connected',
+    );
+    const callCreateEntry = useServerCall(createEntry);
+    const callSaveEntry = useServerCall(saveEntry);
+    const callDeleteEntry = useServerCall(deleteEntry);
+    const dispatchActionPromise = useDispatchActionPromise();
+    const dispatch = useDispatch();
 
-  return (
-    <Entry
-      {...props}
-      threadInfo={threadInfo}
-      loggedIn={loggedIn}
-      calendarQuery={calanderQuery}
-      online={online}
-      createEntry={callCreateEntry}
-      saveEntry={callSaveEntry}
-      deleteEntry={callDeleteEntry}
-      dispatchActionPromise={dispatchActionPromise}
-      dispatch={dispatch}
-    />
-  );
-});
+    return (
+      <Entry
+        {...props}
+        threadInfo={threadInfo}
+        loggedIn={loggedIn}
+        calendarQuery={calanderQuery}
+        online={online}
+        createEntry={callCreateEntry}
+        saveEntry={callSaveEntry}
+        deleteEntry={callDeleteEntry}
+        dispatchActionPromise={dispatchActionPromise}
+        dispatch={dispatch}
+      />
+    );
+  },
+);
 
 export default ConnectedEntry;

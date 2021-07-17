@@ -204,19 +204,19 @@ function ColorEntity(props: {| color: string |}) {
   return <span style={colorStyle}>{props.color}</span>;
 }
 
-const ConnectedRobotextMessage: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedRobotextMessage(
-  props
-) {
-  const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
-    props.threadInfo,
-    props.item,
-  );
-  return (
-    <RobotextMessage
-      {...props}
-      sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
-    />
-  );
-});
+const ConnectedRobotextMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedRobotextMessage(props) {
+    const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
+      props.threadInfo,
+      props.item,
+    );
+    return (
+      <RobotextMessage
+        {...props}
+        sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
+      />
+    );
+  },
+);
 
 export default ConnectedRobotextMessage;

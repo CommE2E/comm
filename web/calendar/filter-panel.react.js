@@ -369,25 +369,25 @@ class Category extends React.PureComponent<CategoryProps> {
   };
 }
 
-const ConnectedFilterPanel: React.AbstractComponent<BaseProps, mixed> = React.memo<BaseProps>(function ConnectedFilterPanel(
-  props
-) {
-  const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
-  const filterThreadInfos = useSelector(webFilterThreadInfos);
-  const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
-  const includeDeleted = useSelector(includeDeletedSelector);
-  const dispatch = useDispatch();
+const ConnectedFilterPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedFilterPanel(props) {
+    const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
+    const filterThreadInfos = useSelector(webFilterThreadInfos);
+    const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
+    const includeDeleted = useSelector(includeDeletedSelector);
+    const dispatch = useDispatch();
 
-  return (
-    <FilterPanel
-      {...props}
-      filteredThreadIDs={filteredThreadIDs}
-      filterThreadInfos={filterThreadInfos}
-      filterThreadSearchIndex={filterThreadSearchIndex}
-      includeDeleted={includeDeleted}
-      dispatch={dispatch}
-    />
-  );
-});
+    return (
+      <FilterPanel
+        {...props}
+        filteredThreadIDs={filteredThreadIDs}
+        filterThreadInfos={filterThreadInfos}
+        filterThreadSearchIndex={filterThreadSearchIndex}
+        includeDeleted={includeDeleted}
+        dispatch={dispatch}
+      />
+    );
+  },
+);
 
 export default ConnectedFilterPanel;
