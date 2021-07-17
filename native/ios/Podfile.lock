@@ -118,13 +118,13 @@ PODS:
   - RCT-Folly (2021.04.26.00):
     - boost-for-react-native
     - DoubleConversion
-    - fmt
+    - fmt (~> 6.2.1)
     - glog
     - RCT-Folly/Default (= 2021.04.26.00)
   - RCT-Folly/Default (2021.04.26.00):
     - boost-for-react-native
     - DoubleConversion
-    - fmt
+    - fmt (~> 6.2.1)
     - glog
   - RCTRequired (0.64.0)
   - RCTTypeSafety (0.64.0):
@@ -782,12 +782,12 @@ SPEC CHECKSUMS:
   mobile-ffmpeg-min: d5d22dcef5c8ec56f771258f1f5be245d914f193
   OLMKit: a15f216aa14ba199b4fd827b3d7ef04629b56636
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
-  RCT-Folly: 736f5e696dbcabf6105a547fc2cd7a7001715a32
+  RCT-Folly: a9c51bfbf65605ded97cf280089c71ce1e886fea
   RCTRequired: 2f8cb5b7533219bf4218a045f92768129cf7050a
   RCTTypeSafety: 05e03dbd833af710de3bd73bcaa12d82c076f855
   React: 98eac01574128a790f0bbbafe2d1a8607291ac24
   React-callinvoker: def3f7fae16192df68d9b69fd4bbb59092ee36bc
-  React-Core: eb1582f7f2db218153a41deb682e3d47bc1ae1cc
+  React-Core: 2af3bc1f2c416007d92dc452a58538c4e647162a
   React-CoreModules: d4bd38b4926304e8e53ecda6295d1cb24a53ef90
   React-cxxreact: 5eb9754b2b62a0012d8b3b92139c3c6cbe338f4e
   React-jsi: 633610cb5c9df5c59ad1577ee61bae9c15d84f30
