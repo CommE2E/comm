@@ -40,15 +40,7 @@ import {
   type RootParamList,
 } from './route-names';
 
-if (Platform.OS !== 'android' || Platform.Version >= 21) {
-  // Older Android devices get stack overflows when trying to draw deeply nested
-  // view structures. We've tried to get our draw depth down as much as possible
-  // without going into React Navigation internals or creating a separate render
-  // path for these old Android devices. Because react-native-screens increases
-  // the draw depth enough to cause crashes in some scenarios, we disable it
-  // here for those devices
-  enableScreens();
-}
+enableScreens();
 
 type RootNavigatorProps = StackNavigatorProps<RootRouterNavigationProp<>>;
 function RootNavigator({

@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { StyleSheet, View, Platform } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 
 import { createMessageReply } from 'lib/shared/message-utils';
@@ -92,7 +92,7 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     const fullMessageBoxStyle = [styles.messageBox, messageBoxStyle];
     let messageBox;
-    if (canSwipe && (Platform.OS !== 'android' || Platform.Version >= 21)) {
+    if (canSwipe) {
       messageBox = (
         <SwipeableMessage
           onSwipeableWillOpen={this.reply}
