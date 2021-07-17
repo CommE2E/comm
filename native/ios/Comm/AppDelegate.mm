@@ -13,6 +13,7 @@
 
 #import <React/JSCExecutorFactory.h>
 #import <React/RCTCxxBridgeDelegate.h>
+#import <React/RCTJSIExecutorRuntimeInstaller.h>
 #import <cxxreact/JSExecutor.h>
 
 #import <string>
@@ -133,7 +134,8 @@ using Runtime = facebook::jsi::Runtime;
 - (std::unique_ptr<ExecutorFactory>)jsExecutorFactoryForBridge
     :(RCTBridge *)bridge {
   __weak __typeof(self) weakSelf = self;
-  return std::make_unique<ExecutorFactory>([=](Runtime &rt) {
+
+  const auto executor = [weakSelf, bridge](facebook::jsi::Runtime &rt) {
     if (!bridge) {
       return;
     }
@@ -152,7 +154,11 @@ using Runtime = facebook::jsi::Runtime;
       comm::SQLiteQueryExecutor::sqliteFilePath = 
         std::string([[Tools getSQLiteFilePath] UTF8String]);
     }
-  });
+  };
+
+  return std::make_unique<ExecutorFactory>(
+    facebook::react::RCTJSIExecutorRuntimeInstaller(executor)
+  );
 }
 
 @end
