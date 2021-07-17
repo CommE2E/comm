@@ -124,7 +124,9 @@ const nonThreadCalendarQuery: (
   },
 );
 
-function useOnClickThread(threadID: ?string): (event: SyntheticEvent<HTMLElement>) => void {
+function useOnClickThread(
+  threadID: ?string,
+): (event: SyntheticEvent<HTMLElement>) => void {
   const dispatch = useDispatch();
   return React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {

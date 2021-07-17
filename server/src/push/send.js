@@ -1,12 +1,12 @@
 // @flow
 
 import apn from '@parse/node-apn';
+import type { ResponseFailure } from '@parse/node-apn';
 import invariant from 'invariant';
 import _flow from 'lodash/fp/flow';
 import _mapValues from 'lodash/fp/mapValues';
 import _pickBy from 'lodash/fp/pickBy';
 import uuidv4 from 'uuid/v4';
-import type { ResponseFailure } from '@parse/node-apn';
 
 import { oldValidUsernameRegex } from 'lib/shared/account-utils';
 import {

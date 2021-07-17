@@ -16,7 +16,6 @@ type State = {|
 |};
 
 class ColorPicker extends React.PureComponent<Props, State> {
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -55,7 +54,9 @@ class ColorPicker extends React.PureComponent<Props, State> {
     );
   }
 
-  onPickerKeyDown: (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => void = event => {
+  onPickerKeyDown: (
+    event: SyntheticKeyboardEvent<HTMLTextAreaElement>,
+  ) => void = event => {
     if (event.keyCode === 27) {
       // Esc
       this.setState({ pickerOpen: false });

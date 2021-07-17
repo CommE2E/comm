@@ -1,7 +1,6 @@
 // @flow
 
 import type { $Response } from 'express';
-
 import JSONStream from 'JSONStream';
 import replaceStream from 'replacestream';
 import Combine from 'stream-combiner';
@@ -21,7 +20,7 @@ function streamJSON<T: { [key: string]: Promisable<*> }>(
 }
 
 function resolvePromisesToStream<T: { [key: string]: Promisable<*> }>(
-  stream: { +write: [string, mixed] => mixed, +end: () => mixed, ... },
+  stream: { +write: ([string, mixed]) => mixed, +end: () => mixed, ... },
   input: T,
 ) {
   const blocking = [];

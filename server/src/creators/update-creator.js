@@ -38,11 +38,7 @@ import type {
 } from 'lib/types/user-types';
 import { promiseAll } from 'lib/utils/promises';
 
-import {
-  dbQuery,
-  SQL,
-  mergeAndConditions,
-} from '../database/database';
+import { dbQuery, SQL, mergeAndConditions } from '../database/database';
 import type { SQLStatementType } from '../database/types';
 import { deleteUpdatesByConditions } from '../deleters/update-deleters';
 import {

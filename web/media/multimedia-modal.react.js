@@ -40,13 +40,17 @@ class MultimediaModal extends React.PureComponent<Props> {
     this.overlay = overlay;
   };
 
-  onBackgroundClick: (event: SyntheticEvent<HTMLDivElement>) => void = event => {
+  onBackgroundClick: (
+    event: SyntheticEvent<HTMLDivElement>,
+  ) => void = event => {
     if (event.target === this.overlay) {
       this.close();
     }
   };
 
-  onKeyDown: (event: SyntheticKeyboardEvent<HTMLDivElement>) => void = event => {
+  onKeyDown: (
+    event: SyntheticKeyboardEvent<HTMLDivElement>,
+  ) => void = event => {
     if (event.keyCode === 27) {
       this.close();
     }

@@ -18,17 +18,11 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
       <div className={css['modal-body']}>
         <p>
           {'Are you sure you want to leave "'}
-          <span className={css['thread-name']}>
-            {props.threadInfo.uiName}
-          </span>
+          <span className={css['thread-name']}>{props.threadInfo.uiName}</span>
           {'"?'}
         </p>
         <div className={css['form-footer']}>
-          <input
-            type="submit"
-            value="Leave thread"
-            onClick={props.onConfirm}
-          />
+          <input type="submit" value="Leave thread" onClick={props.onConfirm} />
         </div>
       </div>
     </Modal>

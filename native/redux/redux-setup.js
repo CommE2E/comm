@@ -36,10 +36,7 @@ import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import reactotron from '../reactotron';
 import { defaultDeviceCameraInfo } from '../types/camera';
-import {
-  type ConnectivityInfo,
-  defaultConnectivityInfo,
-} from '../types/connectivity';
+import { defaultConnectivityInfo } from '../types/connectivity';
 import { defaultGlobalThemeInfo } from '../types/themes';
 import {
   defaultURLPrefix,

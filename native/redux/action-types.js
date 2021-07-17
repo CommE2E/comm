@@ -3,16 +3,15 @@
 import type { Orientations } from 'react-native-orientation-locker';
 
 import { saveMessagesActionType } from 'lib/actions/message-actions';
-import type { BaseAction } from 'lib/types/redux-types';
 import type { Shape } from 'lib/types/core';
-
-import type { DimensionsInfo } from './dimensions-updater.react';
-import type { ConnectivityInfo } from '../types/connectivity';
-import type { GlobalThemeInfo } from '../types/themes';
-import type { DeviceCameraInfo } from '../types/camera';
-import type { AppState } from './state-types';
+import type { BaseAction } from 'lib/types/redux-types';
 
 import type { AndroidNotificationActions } from '../push/reducer';
+import type { DeviceCameraInfo } from '../types/camera';
+import type { ConnectivityInfo } from '../types/connectivity';
+import type { GlobalThemeInfo } from '../types/themes';
+import type { DimensionsInfo } from './dimensions-updater.react';
+import type { AppState } from './state-types';
 
 export const resetUserStateActionType = 'RESET_USER_STATE';
 export const recordNotifPermissionAlertActionType =
@@ -56,7 +55,7 @@ export type Action =
   | {| +type: 'RESET_USER_STATE' |}
   | {|
       +type: 'UPDATE_DIMENSIONS',
-      +payload: Shape<DimensionsInfo>
+      +payload: Shape<DimensionsInfo>,
     |}
   | {|
       +type: 'UPDATE_CONNECTIVITY',

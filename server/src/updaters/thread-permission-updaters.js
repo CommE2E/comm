@@ -740,7 +740,7 @@ async function recalculateThreadPermissions(
   if (threadID !== genesis.id) {
     relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   }
-  const parentMemberIDs = parentMembershipResults.map((row) =>
+  const parentMemberIDs = parentMembershipResults.map(row =>
     row.user.toString(),
   );
   if (parentThreadID && parentThreadID !== genesis.id) {

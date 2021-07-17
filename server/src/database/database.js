@@ -1,9 +1,9 @@
 // @flow
 
+import type { QueryResults } from 'mysql';
 import mysql from 'mysql2';
 import mysqlPromise from 'mysql2/promise';
 import SQL from 'sql-template-strings';
-import type { QueryResults } from 'mysql';
 
 import dbConfig from '../../secrets/db_config';
 import { getScriptContext } from '../scripts/script-context';
@@ -60,11 +60,15 @@ function mergeConditions(
   return sql;
 }
 
-function mergeAndConditions(andConditions: $ReadOnlyArray<SQLStatementType>): SQLStatementType {
+function mergeAndConditions(
+  andConditions: $ReadOnlyArray<SQLStatementType>,
+): SQLStatementType {
   return mergeConditions(andConditions, SQL` AND `);
 }
 
-function mergeOrConditions(andConditions: $ReadOnlyArray<SQLStatementType>): SQLStatementType {
+function mergeOrConditions(
+  andConditions: $ReadOnlyArray<SQLStatementType>,
+): SQLStatementType {
   return mergeConditions(andConditions, SQL` OR `);
 }
 
@@ -79,7 +83,10 @@ type QueryOptions = {|
   +triesLeft?: number,
   +multipleStatements?: boolean,
 |};
-async function dbQuery(statement: SQLStatementType, options?: QueryOptions): Promise<QueryResults> {
+async function dbQuery(
+  statement: SQLStatementType,
+  options?: QueryOptions,
+): Promise<QueryResults> {
   const triesLeft = options?.triesLeft ?? 2;
   const multipleStatements = options?.multipleStatements ?? false;
 

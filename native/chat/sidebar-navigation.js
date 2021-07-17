@@ -4,10 +4,10 @@ import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
 
 import type { InputState } from '../input/input-state';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import type { MessageTooltipRouteNames } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { createNavigateToThreadAction } from './message-list-types';
 import { getSidebarThreadInfo } from './utils';
-import type { MessageTooltipRouteNames } from '../navigation/route-names';
 
 function navigateToSidebar<RouteName: MessageTooltipRouteNames>(
   route: TooltipRoute<RouteName>,

@@ -1,9 +1,8 @@
 // @flow
 
-import type { RelationshipErrors } from 'lib/types/relationship-types';
-
 import _groupBy from 'lodash/fp/groupBy';
 
+import type { RelationshipErrors } from 'lib/types/relationship-types';
 import { undirectedStatus, directedStatus } from 'lib/types/relationship-types';
 
 import { dbQuery, SQL } from '../database/database';

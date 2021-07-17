@@ -6,8 +6,8 @@ import { createSelector } from 'reselect';
 
 import { selectBackgroundIsDark } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
-import type { AppState } from '../redux/state-types';
 import { useSelector } from '../redux/redux-utils';
+import type { AppState } from '../redux/state-types';
 import type { GlobalTheme } from '../types/themes';
 
 const light = Object.freeze({

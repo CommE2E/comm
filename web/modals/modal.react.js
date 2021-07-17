@@ -15,7 +15,10 @@ type Props = {|
   +fixedHeight?: boolean,
 |};
 class Modal extends React.PureComponent<Props> {
-  static defaultProps: {| +size: ModalSize, fixedHeight: boolean |} = { size: 'small', fixedHeight: true };
+  static defaultProps: {| +size: ModalSize, fixedHeight: boolean |} = {
+    size: 'small',
+    fixedHeight: true,
+  };
   overlay: ?HTMLDivElement;
 
   componentDidMount() {
@@ -63,13 +66,17 @@ class Modal extends React.PureComponent<Props> {
     this.overlay = overlay;
   };
 
-  onBackgroundClick: (event: SyntheticEvent<HTMLDivElement>) => void = event => {
+  onBackgroundClick: (
+    event: SyntheticEvent<HTMLDivElement>,
+  ) => void = event => {
     if (event.target === this.overlay) {
       this.props.onClose();
     }
   };
 
-  onKeyDown: (event: SyntheticKeyboardEvent<HTMLDivElement>) => void = event => {
+  onKeyDown: (
+    event: SyntheticKeyboardEvent<HTMLDivElement>,
+  ) => void = event => {
     if (event.keyCode === 27) {
       this.props.onClose();
     }

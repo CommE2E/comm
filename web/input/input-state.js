@@ -59,6 +59,8 @@ export type InputState = {|
   removeReplyListener: ((message: string) => void) => void,
 |};
 
-const InputStateContext: React.Context<?InputState> = React.createContext<?InputState>(null);
+const InputStateContext: React.Context<?InputState> = React.createContext<?InputState>(
+  null,
+);
 
 export { InputStateContext };

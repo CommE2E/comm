@@ -153,7 +153,10 @@ type MessageSQLResult = $ReadOnlyArray<{|
 |}>;
 function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
-  derivedMessages: $ReadOnlyMap<string, RawComposableMessageInfo | RawRobotextMessageInfo>,
+  derivedMessages: $ReadOnlyMap<
+    string,
+    RawComposableMessageInfo | RawRobotextMessageInfo,
+  >,
   viewer?: Viewer,
 ): MessageSQLResult {
   const rowsByID = new Map();
@@ -204,7 +207,10 @@ function mostRecentRowType(rows: $ReadOnlyArray<Object>): MessageType {
 function rawMessageInfoFromRows(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
-  derivedMessages: $ReadOnlyMap<string, RawComposableMessageInfo | RawRobotextMessageInfo>,
+  derivedMessages: $ReadOnlyMap<
+    string,
+    RawComposableMessageInfo | RawRobotextMessageInfo,
+  >,
 ): ?RawMessageInfo {
   const type = mostRecentRowType(rows);
   const messageSpec = messageSpecs[type];
@@ -545,7 +551,9 @@ async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
 async function fetchDerivedMessages(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
-): Promise<$ReadOnlyMap<string, RawComposableMessageInfo | RawRobotextMessageInfo>> {
+): Promise<
+  $ReadOnlyMap<string, RawComposableMessageInfo | RawRobotextMessageInfo>,
+> {
   const requiredIDs = new Set<string>();
   for (const row of rows) {
     if (row.type === messageTypes.SIDEBAR_SOURCE) {
@@ -554,7 +562,10 @@ async function fetchDerivedMessages(
     }
   }
 
-  const messagesByID = new Map<string, RawComposableMessageInfo | RawRobotextMessageInfo>();
+  const messagesByID = new Map<
+    string,
+    RawComposableMessageInfo | RawRobotextMessageInfo,
+  >();
   if (requiredIDs.size === 0) {
     return messagesByID;
   }

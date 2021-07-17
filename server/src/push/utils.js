@@ -1,9 +1,9 @@
 // @flow
 
 import apn from '@parse/node-apn';
-import invariant from 'invariant';
-import type { ProviderOptions, ResponseFailure } from '@parse/node-apn';
+import type { ResponseFailure } from '@parse/node-apn';
 import type { FirebaseApp, FirebaseError } from 'firebase-admin';
+import invariant from 'invariant';
 
 import { threadSubscriptions } from 'lib/types/subscription-types';
 import { threadPermissions } from 'lib/types/thread-types';

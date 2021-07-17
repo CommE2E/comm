@@ -77,7 +77,10 @@ class RedisSubscriber {
     }
   }
 
-  onMessage: (channel: string, messageString: string) => void = (channel, messageString) => {
+  onMessage: (channel: string, messageString: string) => void = (
+    channel,
+    messageString,
+  ) => {
     const message = RedisSubscriber.messageFromString(messageString);
     if (!message) {
       return;

@@ -1,8 +1,8 @@
 // @flow
 
 import * as HistoryModule from 'history';
-import type { RouterHistory, LocationShape } from 'react-router';
 import invariant from 'invariant';
+import type { RouterHistory, LocationShape } from 'react-router';
 
 const { createBrowserHistory } = HistoryModule;
 

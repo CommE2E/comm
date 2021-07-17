@@ -1,8 +1,8 @@
 // @flow
 
 import apn from '@parse/node-apn';
-import fcmAdmin from 'firebase-admin';
 import type { Provider as APNProvider } from '@parse/node-apn';
+import fcmAdmin from 'firebase-admin';
 import type { FirebaseApp } from 'firebase-admin';
 
 type APNPushProfile = 'apn_config' | 'comm_apn_config';

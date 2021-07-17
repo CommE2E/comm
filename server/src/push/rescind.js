@@ -9,8 +9,8 @@ import { promiseAll } from 'lib/utils/promises';
 
 import createIDs from '../creators/id-creator';
 import { dbQuery, SQL } from '../database/database';
-import { getAPNsNotificationTopic } from './providers';
 import type { SQLStatementType } from '../database/types';
+import { getAPNsNotificationTopic } from './providers';
 import { apnPush, fcmPush } from './utils';
 
 // Returns list of deviceTokens that have been updated

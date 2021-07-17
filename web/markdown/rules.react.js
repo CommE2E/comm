@@ -145,7 +145,9 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
   };
 });
 
-function useTextMessageRulesFunc(threadID: ?string): ?(boolean => MarkdownRules) {
+function useTextMessageRulesFunc(
+  threadID: ?string,
+): ?(boolean) => MarkdownRules {
   const threadMembers = useSelector(
     relativeMemberInfoSelectorForMembersOfThread(threadID),
   );
