@@ -1,0 +1,12 @@
+{
+  "configurations": [
+    {
+      "name": "Debug iOS Hermes",
+      "cwd": "${workspaceFolder}/native",
+      "type": "reactnativedirect",
+      "request": "attach",
+      "platform": "ios",
+      "trace": "verbose"
+    }
+  ]
+}
