@@ -85,11 +85,17 @@ class MessageListContainer extends React.PureComponent<Props, State> {
     return overlayContext.scrollBlockingModalStatus !== 'closed';
   }
 
+  setListData = (
+    listDataWithHeights: $ReadOnlyArray<ChatMessageItemWithHeight>,
+  ) => {
+    this.setState({ listDataWithHeights });
+  };
+
   componentDidMount() {
     this.props.measureMessages(
       this.props.messageListData,
       this.props.threadInfo,
-      this.allHeightsMeasured,
+      this.setListData,
     );
   }
 
