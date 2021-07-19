@@ -2,17 +2,21 @@
 
 The instructions to set up Comm development environment are only tested and available for Ubuntu 20.04.
 
+## Reference main dev environment instructions
+
+This doc is very incomplete, so you should start by reading through the [main dev environment instructions](dev_environment.md). For anything that isn't mentioned here, you should either try to install it with the same approach described in the main docs, or (if that's not possible) you should try to figure out an alternate approach yourself. The following notes can help you for some of the more complex parts.
+
 ## React Native
 
-To set up the development environment follow the instruction at [reactnative docs](https://reactnative.dev/docs/environment-setup).
+To set up React Native, follow the instructions in the [React Native docs](https://reactnative.dev/docs/environment-setup).
 
-## NVM
+## nvm
 
-Follow [nvm installation instructions](https://github.com/nvm-sh/nvm#installing-and-updating).
+You can install nvm following the [nvm installation instructions](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ## Redis
 
-Install the latest stable version of Redis from the redislabs/redis package repository
+On Ubuntu, you can install the latest stable version of Redis from the `redislabs/redis` package repository via `apt`:
 
 ```
 sudo add-apt-repository ppa:redislabs/redis
@@ -22,11 +26,7 @@ sudo systemctl start redis
 sudo systemctl status redis
 ```
 
-If you're not on Ubuntu, you can look for distro-specific binaries using your preferred package manager, or compile from [source](https://redis.io/download).
-
-## React Native Debugger
-
-Follow installation instructions from [react-native-debugger/issues/116#issuecomment-475866514](https://github.com/jhen0409/react-native-debugger/issues/116#issuecomment-475866514)
+If you’re not on Ubuntu, you can look for distro-specific binaries using your preferred package manager, or compile from [source](https://redis.io/download).
 
 ## Reactotron
 
@@ -40,45 +40,47 @@ If Reactotron does not connect to the Android Emulator, run the following comman
 adb reverse tcp:9090 tcp:9090
 ```
 
-Read more information in the [Reactotron installation instructions](https://github.com/infinitered/reactotron/blob/master/docs/quick-start-react-native.md#configure-reactotron-with-your-project).
+You can see more information on the [Reactotron installation instructions](https://github.com/infinitered/reactotron/blob/master/docs/quick-start-react-native.md#configure-reactotron-with-your-project).
 
 ## phpMyAdmin
 
-Install and run `phpmyadmin`
+On Ubuntu, you can install and run `phpmyadmin` using `apt`:
 
 ```
 sudo apt install phpmyadmin php-mbstring php-zip php-gd php-json php-curl
 phpmyadmin
 ```
 
-For further configurations refer to [dev_environment.md#phpmyadmin](dev_environment.md#phpmyadmin)
+For configuration you should refer to the [main dev environment instructions](dev_environment.md#phpmyadmin).
 
 ## Apache
 
-Install `apache2` webserver:
+On Ubuntu, you can install the Apache webserver using `apt`:
 
 ```
 sudo apt install apache2
 ```
+
+The you can enable it to run on system startup using `systemd`:
 
 ```
 sudo systemctl start apache2
 sudo systemctl status apache2
 ```
 
-Add the following mods:
+You'll also need to add a set of Apache modules:
 
 ```
 sudo a2ensite mod_proxy mod_proxy_http mod_proxy_wstunnel mod_userdir
 ```
 
-Open `000-default.conf` with `vim` text editor
+Finally, you'll need to configure the development site. Open `000-default.conf` with your text editor of choice:
 
 ```
 sudo vim /etc/apache2/sites-enabled/000-default.conf
 ```
 
-Add the content below, but make sure to replace ashoat with your username
+Add the content below, but make sure to replace “ashoat” with your username.
 
 ```
 <Directory "/Users/ashoat/Sites/">
@@ -105,9 +107,9 @@ sudo systemctl restart apache2
 sudo systemctl status apache2
 ```
 
-## MySql
+## MySQL
 
-Install docker with the following commands:
+First, install Docker with the following commands:
 
 ```
 sudo apt-get remove docker docker-engine docker.io
@@ -116,39 +118,27 @@ sudo systemctl start docker
 sudo systemctl enable docker
 ```
 
-Download mysql 5.7 docker image:
+Next you'll download the MySQL 5.7 Docker image:
 
 ```
 docker pull mysql:5.7
 ```
 
-Run mysql docker container, the `password` is defined in [`server/secrets/db_config.json`](dev_environment.md#mysql-2).
+After setting up your MySQL install following the [main dev environment instructions](dev_environment.md#mysql-2), you can use the root password to run your Docker container:
 
 ```
 docker run --name my-mysql -e MYSQL_ROOT_PASSWORD=password --expose 3306 -p 3306:3306 -v $HOME/mysql-data:/var/lib/mysql -d mysql:5.7
 ```
 
-Log in to mysql database in the docker container:
+You can log in to MySQL database in the Docker container using the following command:
 
 ```
 docker exec -it my-mysql mysql -p
 ```
 
-create comm database:
-
-```
-CREATE DATABASE comm;
-```
-
-Replace the ip `172.17.0.1` with the inet entry from `ifconfig docker0` output:
+You may find yourself needing to configure your MySQL user using the IP corresponding to the inet entry from `ifconfig docker0` output, rather than the default (`127.0.0.1`):
 
 ```
 CREATE USER comm@172.17.0.1 IDENTIFIED BY 'password';
 GRANT ALL ON comm.* TO comm@172.17.0.1;
 ```
-
-## Run on Android
-
-You can follow the other steps from the MacOS guide to run the app on Android.
-
-https://github.com/CommE2E/comm/blob/master/docs/dev_environment.md#git-repo
