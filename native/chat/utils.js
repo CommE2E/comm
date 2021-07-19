@@ -1,39 +1,25 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 
 import { useMessageListData } from 'lib/selectors/chat-selectors';
-import { createPendingSidebar } from 'lib/shared/thread-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
 
-import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
 import { useHeightMeasurer } from './chat-context';
-import { chatMessageItemHeight } from './chat-list.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import type { ChatMessageInfoItemWithHeight } from './message.react';
+import {
+  type ChatMessageInfoItemWithHeight,
+  messageItemHeight,
+} from './message.react';
+import { getSidebarThreadInfo } from './sidebar-navigation';
 import { timestampHeight } from './timestamp.react';
 
-function getSidebarThreadInfo(
-  sourceMessage: ChatMessageInfoItemWithHeight,
-  viewerID?: ?string,
-): ThreadInfo {
-  const threadCreatedFromMessage = sourceMessage.threadCreatedFromMessage;
-  if (threadCreatedFromMessage) {
-    return threadCreatedFromMessage;
+function chatMessageItemHeight(item: ChatMessageItemWithHeight): number {
+  if (item.itemType === 'loader') {
+    return 56;
   }
-
-  invariant(viewerID, 'viewerID should be set');
-
-  const { messageInfo, threadInfo } = sourceMessage;
-  return createPendingSidebar(
-    messageInfo,
-    threadInfo,
-    viewerID,
-    getDefaultTextMessageRules().simpleMarkdownRules,
-  );
+  return messageItemHeight(item);
 }
 
 function useMessageTargetPosition(
@@ -102,4 +88,8 @@ function useMessageTargetPosition(
   return targetDistanceFromBottom - currentDistanceFromBottom;
 }
 
-export { getSidebarThreadInfo, useMessageTargetPosition };
+export {
+  getSidebarThreadInfo,
+  chatMessageItemHeight,
+  useMessageTargetPosition,
+};

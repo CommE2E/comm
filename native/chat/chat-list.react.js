@@ -29,8 +29,8 @@ import type { ScrollEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import { messageItemHeight } from './message.react';
 import NewMessagesPill from './new-messages-pill.react';
+import { chatMessageItemHeight } from './utils';
 
 function chatMessageItemKey(
   item: ChatMessageItemWithHeight | ChatMessageItem,
@@ -39,13 +39,6 @@ function chatMessageItemKey(
     return 'loader';
   }
   return messageKey(item.messageInfo);
-}
-
-function chatMessageItemHeight(item: ChatMessageItemWithHeight): number {
-  if (item.itemType === 'loader') {
-    return 56;
-  }
-  return messageItemHeight(item);
 }
 
 const animationSpec = {
@@ -319,8 +312,4 @@ const ConnectedChatList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   },
 );
 
-export {
-  ConnectedChatList as ChatList,
-  chatMessageItemKey,
-  chatMessageItemHeight,
-};
+export { ConnectedChatList as ChatList, chatMessageItemKey };
