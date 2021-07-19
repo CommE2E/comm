@@ -213,6 +213,10 @@ async function createTables() {
       deploy_time bigint(20) DEFAULT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+    CREATE TABLE one_time_keys (
+      user BIGINT(20) NOT NULL,
+      one_time_key CHAR(43) NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
     ALTER TABLE cookies
       ADD PRIMARY KEY (id),
@@ -305,6 +309,8 @@ async function createTables() {
       ADD PRIMARY KEY (id),
       ADD UNIQUE KEY code_version_platform (code_version,platform);
 
+    ALTER TABLE one_time_keys
+      ADD PRIMARY KEY (user, one_time_key);
 
     ALTER TABLE ids
       MODIFY id bigint(20) NOT NULL AUTO_INCREMENT;
