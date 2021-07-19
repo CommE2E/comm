@@ -189,7 +189,8 @@ async function createTables() {
       username varchar(${usernameMaxLength}) COLLATE utf8mb4_bin NOT NULL,
       hash char(60) COLLATE utf8mb4_bin NOT NULL,
       avatar varchar(191) COLLATE utf8mb4_bin DEFAULT NULL,
-      creation_time bigint(20) NOT NULL
+      creation_time bigint(20) NOT NULL,
+      public_key char(116) DEFAULT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
     CREATE TABLE relationships_undirected (
@@ -289,7 +290,8 @@ async function createTables() {
 
     ALTER TABLE users
       ADD PRIMARY KEY (id),
-      ADD UNIQUE KEY username (username);
+      ADD UNIQUE KEY username (username),
+      ADD UNIQUE INDEX public_key (public_key);
 
     ALTER TABLE relationships_undirected
       ADD UNIQUE KEY user1_user2 (user1,user2),
