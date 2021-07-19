@@ -15,6 +15,7 @@ import type {
   SessionIdentification,
   SessionState,
 } from 'lib/types/session-types';
+import type { OneTimeKeyGenerator } from 'lib/types/socket-types';
 
 import { calendarActiveSelector } from '../navigation/nav-selectors';
 import type { AppState } from '../redux/state-types';
@@ -38,6 +39,17 @@ const sessionIdentificationSelector: (
   (cookie: ?string): SessionIdentification => ({ cookie }),
 );
 
+function oneTimeKeyGenerator(inc: number): string {
+  // todo replace this hard code with something like
+  // global.CommCoreModule.generateOneTimeKeys()
+  let str = Date.now().toString() + '_' + inc.toString() + '_';
+  while (str.length < 43) {
+    str += Math.random().toString(36).substr(2, 5);
+  }
+  str = str.substr(0, 43);
+  return str;
+}
+
 const nativeGetClientResponsesSelector: (
   input: NavPlusRedux,
 ) => (
@@ -48,11 +60,12 @@ const nativeGetClientResponsesSelector: (
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
+      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
     calendarActive: boolean,
   ) => (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
-    getClientResponsesFunc(calendarActive, serverRequests),
+    getClientResponsesFunc(calendarActive, oneTimeKeyGenerator, serverRequests),
 );
 
 const nativeSessionStateFuncSelector: (

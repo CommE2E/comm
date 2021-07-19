@@ -15,6 +15,7 @@ import type {
   SessionIdentification,
   SessionState,
 } from 'lib/types/session-types';
+import type { OneTimeKeyGenerator } from 'lib/types/socket-types';
 
 import type { AppState } from '../redux/redux-setup';
 
@@ -40,11 +41,12 @@ const webGetClientResponsesSelector: (
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
+      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
     calendarActive: boolean,
   ) => (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
-    getClientResponsesFunc(calendarActive, serverRequests),
+    getClientResponsesFunc(calendarActive, null, serverRequests),
 );
 
 const webSessionStateFuncSelector: (

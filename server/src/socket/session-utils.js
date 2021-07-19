@@ -34,6 +34,7 @@ import { sessionCheckFrequency } from 'lib/types/session-types';
 import { hash } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
 
+import { saveOneTimeKeys } from '../creators/one-time-keys-creator';
 import createReport from '../creators/report-creator';
 import { SQL } from '../database/database';
 import {
@@ -41,6 +42,7 @@ import {
   fetchEntryInfosByID,
   fetchEntriesForSession,
 } from '../fetchers/entry-fetchers';
+import { checkIfUserHasEnoughOneTimeKeys } from '../fetchers/key-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchCurrentUserInfo,
@@ -48,6 +50,7 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import { activityUpdatesInputValidator } from '../responders/activity-responders';
+import { handleAsyncPromise } from '../responders/handlers';
 import {
   threadInconsistencyReportValidatorShape,
   entryInconsistencyReportValidatorShape,
@@ -105,6 +108,13 @@ const clientResponseInputValidator: TUnion<TInterface> = t.union([
       x => x === serverRequestTypes.INITIAL_ACTIVITY_UPDATES,
     ),
     activityUpdates: activityUpdatesInputValidator,
+  }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.MORE_ONE_TIME_KEYS',
+      x => x === serverRequestTypes.MORE_ONE_TIME_KEYS,
+    ),
+    keys: t.list(t.String),
   }),
 ]);
 
@@ -175,18 +185,38 @@ async function processClientResponses(
         invalidKeys.length > 0
           ? { status: 'state_invalid', invalidKeys }
           : { status: 'state_validated' };
+    } else if (clientResponse.type == serverRequestTypes.MORE_ONE_TIME_KEYS) {
+      invariant(clientResponse.keys, 'keys expected in client response');
+      handleAsyncPromise(saveOneTimeKeys(viewer, clientResponse.keys));
     }
   }
 
-  let activityUpdateResult;
-  if (activityUpdates.length > 0 || promises.length > 0) {
-    [activityUpdateResult] = await Promise.all([
-      activityUpdates.length > 0
-        ? activityUpdater(viewer, { updates: activityUpdates })
-        : undefined,
-      promises.length > 0 ? Promise.all(promises) : undefined,
-    ]);
-  }
+  const activityUpdatePromise = (async () => {
+    if (activityUpdates.length === 0) {
+      return;
+    }
+    return await activityUpdater(viewer, { updates: activityUpdates });
+  })();
+
+  const serverRequests = [];
+
+  const checkOneTimeKeysPromise = (async () => {
+    if (!viewer.loggedIn) {
+      return;
+    }
+    const enoughOneTimeKeys = await checkIfUserHasEnoughOneTimeKeys(
+      viewer.userID,
+    );
+    if (!enoughOneTimeKeys) {
+      serverRequests.push({ type: serverRequestTypes.MORE_ONE_TIME_KEYS });
+    }
+  })();
+
+  const { activityUpdateResult } = await promiseAll({
+    all: Promise.all(promises),
+    activityUpdateResult: activityUpdatePromise,
+    checkOneTimeKeysPromise,
+  });
 
   if (
     !stateCheckStatus &&
@@ -196,7 +226,6 @@ async function processClientResponses(
     stateCheckStatus = { status: 'state_check' };
   }
 
-  const serverRequests = [];
   if (viewerMissingPlatform) {
     serverRequests.push({ type: serverRequestTypes.PLATFORM });
   }
