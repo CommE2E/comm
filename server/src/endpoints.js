@@ -17,6 +17,7 @@ import {
   calendarQueryUpdateResponder,
 } from './responders/entry-responders';
 import type { JSONResponder } from './responders/handlers';
+import { getUserPublicKeysResponder } from './responders/keys-responders';
 import {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -92,6 +93,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   delete_upload: uploadDeletionResponder,
   create_multimedia_message: multimediaMessageCreationResponder,
   update_relationships: updateRelationshipsResponder,
+  get_user_public_keys: getUserPublicKeysResponder,
 };
 
 export { jsonEndpoints };
