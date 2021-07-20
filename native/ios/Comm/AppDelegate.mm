@@ -16,6 +16,7 @@
 #import <React/RCTJSIExecutorRuntimeInstaller.h>
 #import <React/RCTBridge+Private.h>
 #import <cxxreact/JSExecutor.h>
+#import <jsireact/JSIExecutor.h>
 
 #import <string>
 
@@ -184,8 +185,33 @@ using Runtime = facebook::jsi::Runtime;
   };
 
   return std::make_unique<ExecutorFactory>(
-    facebook::react::RCTJSIExecutorRuntimeInstaller(executor)
+    facebook::react::RCTJSIExecutorRuntimeInstaller(executor),
+    JSIExecutor::defaultTimeoutInvoker,
+    makeRuntimeConfig(1024)
   );
+}
+
+// Copied from ReactAndroid/src/main/java/com/facebook/hermes/reactexecutor/OnLoad.cpp
+static ::hermes::vm::RuntimeConfig makeRuntimeConfig(
+  ::hermes::vm::gcheapsize_t heapSizeMB
+) {
+  namespace vm = ::hermes::vm;
+  auto gcConfigBuilder =
+      vm::GCConfig::Builder()
+          .withName("RN")
+          // For the next two arguments: avoid GC before TTI by initializing the
+          // runtime to allocate directly in the old generation, but revert to
+          // normal operation when we reach the (first) TTI point.
+          .withAllocInYoung(false)
+          .withRevertToYGAtTTI(true);
+
+  if (heapSizeMB > 0) {
+    gcConfigBuilder.withMaxHeapSize(heapSizeMB << 20);
+  }
+
+  return vm::RuntimeConfig::Builder()
+      .withGCConfig(gcConfigBuilder.build())
+      .build();
 }
 
 @end
