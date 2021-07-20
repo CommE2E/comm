@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
+import type { SetState } from 'lib/types/hook-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
@@ -21,6 +22,8 @@ export type RegisteredMeasurer = {
 
 export type ChatContextType = {
   +registerMeasurer: () => RegisteredMeasurer,
+  +currentTransitionSidebarSourceID: ?string,
+  +setCurrentTransitionSidebarSourceID: SetState<?string>,
 };
 const ChatContext: React.Context<?ChatContextType> = React.createContext(null);
 

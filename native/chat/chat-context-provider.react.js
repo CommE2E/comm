@@ -98,11 +98,18 @@ function ChatContextProvider(props: Props): React.Node {
     };
   }, [measureMessages]);
 
+  const [
+    currentTransitionSidebarSourceID,
+    setCurrentTransitionSidebarSourceID,
+  ] = React.useState<?string>(null);
+
   const contextValue = React.useMemo(
     () => ({
       registerMeasurer,
+      currentTransitionSidebarSourceID,
+      setCurrentTransitionSidebarSourceID,
     }),
-    [registerMeasurer],
+    [currentTransitionSidebarSourceID, registerMeasurer],
   );
 
   const heightMeasurers = React.useMemo(
