@@ -5,7 +5,7 @@ import * as React from 'react';
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import { ChatContext, type RegisteredMeasurer } from './chat-context';
+import { ChatContext } from './chat-context';
 import ChatItemHeightMeasurer from './chat-item-height-measurer.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 
@@ -23,21 +23,61 @@ export type MeasurementTask = {
   +measurerID: number,
   +initialMeasuredHeights: ?$ReadOnlyMap<string, number>,
 };
-type State = {
-  +measurements: $ReadOnlyArray<MeasurementTask>,
-};
-class ChatContextProvider extends React.PureComponent<Props, State> {
-  state: State = {
-    measurements: [],
-  };
-  nextMeasurerID: number = 0;
-  measuredHeights: Map<number, $ReadOnlyMap<string, number>> = new Map<
-    number,
-    $ReadOnlyMap<string, number>,
-  >();
 
-  registerMeasurer: () => RegisteredMeasurer = () => {
-    const measurerID = this.nextMeasurerID++;
+function ChatContextProvider(props: Props): React.Node {
+  const [measurements, setMeasurements] = React.useState<
+    $ReadOnlyArray<MeasurementTask>,
+  >([]);
+  const nextMeasurerID = React.useRef(0);
+  const measuredHeights = React.useRef<
+    Map<number, $ReadOnlyMap<string, number>>,
+  >(new Map());
+
+  const measureMessages = React.useCallback(
+    (
+      messages: $ReadOnlyArray<ChatMessageItem>,
+      threadInfo: ThreadInfo,
+      onMessagesMeasured: ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
+      measurerID: number,
+    ) => {
+      const measureCallback = (
+        messagesWithHeight: $ReadOnlyArray<ChatMessageItemWithHeight>,
+        newMeasuredHeights: $ReadOnlyMap<string, number>,
+      ) => {
+        measuredHeights.current.set(measurerID, newMeasuredHeights);
+        onMessagesMeasured(messagesWithHeight);
+      };
+
+      let initialMeasuredHeights = null;
+      const isMeasurementPresent = measuredHeights.current.has(measurerID);
+      if (!isMeasurementPresent) {
+        const sourceMeasurerID = measurements.find(
+          measurement => measurement.threadInfo.id === threadInfo.id,
+        )?.measurerID;
+        initialMeasuredHeights = sourceMeasurerID
+          ? measuredHeights.current.get(sourceMeasurerID)
+          : null;
+      }
+
+      const newMeasurement = {
+        messages,
+        threadInfo,
+        onMessagesMeasured: measureCallback,
+        measurerID,
+        initialMeasuredHeights,
+      };
+      setMeasurements(prevMeasurements => {
+        const withoutCurrentMeasurement = prevMeasurements.filter(
+          measurement => measurement.measurerID !== measurerID,
+        );
+        return [...withoutCurrentMeasurement, newMeasurement];
+      });
+    },
+    [measurements],
+  );
+
+  const registerMeasurer = React.useCallback(() => {
+    const measurerID = nextMeasurerID.current++;
     return {
       measure: (
         messages: $ReadOnlyArray<ChatMessageItem>,
@@ -46,83 +86,41 @@ class ChatContextProvider extends React.PureComponent<Props, State> {
           $ReadOnlyArray<ChatMessageItemWithHeight>,
         ) => mixed,
       ) =>
-        this.measureMessages(
-          messages,
-          threadInfo,
-          onMessagesMeasured,
-          measurerID,
-        ),
+        measureMessages(messages, threadInfo, onMessagesMeasured, measurerID),
       unregister: () => {
-        this.setState(state => ({
-          measurements: state.measurements.filter(
+        setMeasurements(prevMeasurements =>
+          prevMeasurements.filter(
             measurement => measurement.measurerID !== measurerID,
           ),
-        }));
-        this.measuredHeights.delete(measurerID);
+        );
+        measuredHeights.current.delete(measurerID);
       },
     };
-  };
+  }, [measureMessages]);
 
-  measureMessages: (
-    messages: $ReadOnlyArray<ChatMessageItem>,
-    threadInfo: ThreadInfo,
-    onMessagesMeasured: ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
-    measurerID: number,
-  ) => void = (messages, threadInfo, onMessagesMeasured, measurerID) => {
-    const measureCallback = (
-      messagesWithHeight: $ReadOnlyArray<ChatMessageItemWithHeight>,
-      measuredHeights: $ReadOnlyMap<string, number>,
-    ) => {
-      this.measuredHeights.set(measurerID, measuredHeights);
-      onMessagesMeasured(messagesWithHeight);
-    };
+  const contextValue = React.useMemo(
+    () => ({
+      registerMeasurer,
+    }),
+    [registerMeasurer],
+  );
 
-    let initialMeasuredHeights = null;
-    const isMeasurementPresent = this.measuredHeights.has(measurerID);
-    if (!isMeasurementPresent) {
-      const sourceMeasurerID = this.state.measurements.find(
-        measurement => measurement.threadInfo.id === threadInfo.id,
-      )?.measurerID;
-      initialMeasuredHeights = sourceMeasurerID
-        ? this.measuredHeights.get(sourceMeasurerID)
-        : null;
-    }
-
-    const newMeasurement = {
-      messages,
-      threadInfo,
-      onMessagesMeasured: measureCallback,
-      measurerID,
-      initialMeasuredHeights,
-    };
-    this.setState(state => {
-      const withoutCurrentMeasurement = state.measurements.filter(
-        measurement => measurement.measurerID !== measurerID,
-      );
-      return {
-        measurements: [...withoutCurrentMeasurement, newMeasurement],
-      };
-    });
-  };
-
-  contextValue: { +registerMeasurer: () => RegisteredMeasurer } = {
-    registerMeasurer: this.registerMeasurer,
-  };
-
-  render(): React.Node {
-    const heightMeasurers = this.state.measurements.map(measurement => (
-      <ChatItemHeightMeasurer
-        key={measurement.measurerID}
-        measurement={measurement}
-      />
-    ));
-    return (
-      <ChatContext.Provider value={this.contextValue}>
-        {heightMeasurers}
-        {this.props.children}
-      </ChatContext.Provider>
-    );
-  }
+  const heightMeasurers = React.useMemo(
+    () =>
+      measurements.map(measurement => (
+        <ChatItemHeightMeasurer
+          key={measurement.measurerID}
+          measurement={measurement}
+        />
+      )),
+    [measurements],
+  );
+  return (
+    <ChatContext.Provider value={contextValue}>
+      {heightMeasurers}
+      {props.children}
+    </ChatContext.Provider>
+  );
 }
 
 export default ChatContextProvider;
