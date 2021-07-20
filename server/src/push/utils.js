@@ -51,6 +51,7 @@ async function apnPush({
   const invalidTokens = [];
   for (const error of result.failed) {
     errors.push(error);
+    /* eslint-disable eqeqeq */
     if (
       error.status == apnTokenInvalidationErrorCode ||
       (error.status == apnBadRequestErrorCode &&
@@ -58,6 +59,7 @@ async function apnPush({
     ) {
       invalidTokens.push(error.device);
     }
+    /* eslint-enable eqeqeq */
   }
   if (invalidTokens.length > 0) {
     return { errors, invalidTokens };

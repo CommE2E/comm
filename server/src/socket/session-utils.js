@@ -185,7 +185,7 @@ async function processClientResponses(
         invalidKeys.length > 0
           ? { status: 'state_invalid', invalidKeys }
           : { status: 'state_validated' };
-    } else if (clientResponse.type == serverRequestTypes.MORE_ONE_TIME_KEYS) {
+    } else if (clientResponse.type === serverRequestTypes.MORE_ONE_TIME_KEYS) {
       invariant(clientResponse.keys, 'keys expected in client response');
       handleAsyncPromise(saveOneTimeKeys(viewer, clientResponse.keys));
     }

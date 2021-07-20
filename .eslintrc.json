@@ -43,7 +43,8 @@
     "react/jsx-curly-brace-presence": [
       "error",
       { "props": "never", "children": "ignore" }
-    ]
+    ],
+    "eqeqeq": ["error", "always"]
   },
   "settings": {
     "react": {
