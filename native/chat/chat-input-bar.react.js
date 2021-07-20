@@ -14,7 +14,7 @@ import {
   NativeAppEventEmitter,
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated, { EasingNode } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
@@ -87,18 +87,18 @@ const {
   cond,
   neq,
   sub,
-  interpolate,
+  interpolateNode,
   stopClock,
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 const expandoButtonsAnimationConfig = {
   duration: 150,
-  easing: Easing.inOut(Easing.ease),
+  easing: EasingNode.inOut(EasingNode.ease),
 };
 const sendButtonAnimationConfig = {
   duration: 150,
-  easing: Easing.inOut(Easing.ease),
+  easing: EasingNode.inOut(EasingNode.ease),
 };
 
 type BaseProps = {
@@ -199,7 +199,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       opacity: expandoButtonsOpen,
     };
 
-    const expandoButtonsWidth = interpolate(expandoButtonsOpen, {
+    const expandoButtonsWidth = interpolateNode(expandoButtonsOpen, {
       inputRange: [0, 1],
       outputRange: [26, 66],
     });
@@ -257,7 +257,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.sendButtonContainerOpen,
     ]);
 
-    const sendButtonContainerWidth = interpolate(sendButtonContainerOpen, {
+    const sendButtonContainerWidth = interpolateNode(sendButtonContainerOpen, {
       inputRange: [0, 1],
       outputRange: [4, 38],
     });

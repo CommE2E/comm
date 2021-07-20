@@ -78,7 +78,7 @@ const {
   min,
   round,
   abs,
-  interpolate,
+  interpolateNode,
   startClock,
   stopClock,
   clockRunning,
@@ -445,12 +445,12 @@ class ImageModal extends React.PureComponent<Props, State> {
       multiply(navigationProgress, updatedCurY),
     );
     this.backdropOpacity = multiply(navigationProgress, updatedBackdropOpacity);
-    this.imageContainerOpacity = interpolate(navigationProgress, {
+    this.imageContainerOpacity = interpolateNode(navigationProgress, {
       inputRange: [0, 0.1],
       outputRange: [0, 1],
       extrapolate: Extrapolate.CLAMP,
     });
-    const buttonOpacity = interpolate(updatedBackdropOpacity, {
+    const buttonOpacity = interpolateNode(updatedBackdropOpacity, {
       inputRange: [0.95, 1],
       outputRange: [0, 1],
       extrapolate: Extrapolate.CLAMP,

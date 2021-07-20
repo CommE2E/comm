@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { State as GestureState } from 'react-native-gesture-handler';
 import Animated, {
-  Easing,
+  EasingNode,
   type NodeParam,
   type SpringConfig,
   type TimingConfig,
@@ -96,7 +96,7 @@ function gestureJustEnded(state: Node): Node {
 
 const defaultTimingConfig = {
   duration: 250,
-  easing: Easing.out(Easing.ease),
+  easing: EasingNode.out(EasingNode.ease),
 };
 
 function runTiming(

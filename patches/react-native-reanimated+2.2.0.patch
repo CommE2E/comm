@@ -1,0 +1,40 @@
+diff --git a/node_modules/react-native-reanimated/RNReanimated.podspec b/node_modules/react-native-reanimated/RNReanimated.podspec
+index 6cdf6ac..1998143 100644
+--- a/node_modules/react-native-reanimated/RNReanimated.podspec
++++ b/node_modules/react-native-reanimated/RNReanimated.podspec
+@@ -54,7 +54,7 @@ Pod::Spec.new do |s|
+   s.compiler_flags = folly_compiler_flags + ' ' + boost_compiler_flags
+   s.xcconfig               = {
+     "CLANG_CXX_LANGUAGE_STANDARD" => "c++14",
+-    "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/#{folly_prefix}Folly\"",
++    "HEADER_SEARCH_PATHS" => "\"$(PODS_ROOT)/boost-for-react-native\" \"$(PODS_ROOT)/glog\" \"$(PODS_ROOT)/#{folly_prefix}Folly\" \"${PODS_ROOT}/Headers/Public/React-hermes\" \"${PODS_ROOT}/Headers/Public/hermes-engine\"",
+                                "OTHER_CFLAGS" => "$(inherited)" + " " + folly_flags  }
+ 
+   s.requires_arc = true
+diff --git a/node_modules/react-native-reanimated/ios/native/NativeProxy.mm b/node_modules/react-native-reanimated/ios/native/NativeProxy.mm
+index 3aab3f6..666ae66 100644
+--- a/node_modules/react-native-reanimated/ios/native/NativeProxy.mm
++++ b/node_modules/react-native-reanimated/ios/native/NativeProxy.mm
+@@ -8,7 +8,9 @@
+ #import <React/RCTFollyConvert.h>
+ #import <React/RCTUIManager.h>
+ 
+-#if __has_include(<hermes/hermes.h>)
++#if __has_include(<reacthermes/HermesExecutorFactory.h>)
++#import <hermes/hermes.h>
++#elif __has_include(<hermes/hermes.h>)
+ #import <hermes/hermes.h>
+ #else
+ #import <jsi/JSCRuntime.h>
+@@ -110,8 +112,9 @@ static id convertJSIValueToObjCObject(jsi::Runtime &runtime, const jsi::Value &v
+       return val;
+   };
+ 
+-
+-#if __has_include(<hermes/hermes.h>)
++#if __has_include(<reacthermes/HermesExecutorFactory.h>)
++  std::unique_ptr<jsi::Runtime> animatedRuntime = facebook::hermes::makeHermesRuntime();
++#elif __has_include(<hermes/hermes.h>)
+   std::unique_ptr<jsi::Runtime> animatedRuntime = facebook::hermes::makeHermesRuntime();
+ #else
+   std::unique_ptr<jsi::Runtime> animatedRuntime = facebook::jsc::makeJSCRuntime();

@@ -33,7 +33,7 @@ import {
 } from './multimedia-message-utils';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Node, sub, interpolate, Extrapolate } = Animated;
+const { Node, sub, interpolateNode, Extrapolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type BaseProps = {
@@ -106,7 +106,7 @@ class MultimediaMessageMultimedia extends React.PureComponent<Props, State> {
     }
     return sub(
       1,
-      interpolate(overlayPosition, {
+      interpolateNode(overlayPosition, {
         inputRange: [0.1, 0.11],
         outputRange: [0, 1],
         extrapolate: Extrapolate.CLAMP,

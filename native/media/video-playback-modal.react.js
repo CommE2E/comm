@@ -52,7 +52,7 @@ const {
   lessThan,
   greaterThan,
   abs,
-  interpolate,
+  interpolateNode,
   useValue,
   event,
 } = Animated;
@@ -406,7 +406,7 @@ function VideoPlaybackModal(props: Props): React.Node {
     [navigationProgress],
   );
 
-  const dismissalButtonOpacity = interpolate(updatedBackdropOpacity, {
+  const dismissalButtonOpacity = interpolateNode(updatedBackdropOpacity, {
     inputRange: [0.95, 1],
     outputRange: [0, 1],
     extrapolate: Extrapolate.CLAMP,
@@ -461,7 +461,7 @@ function VideoPlaybackModal(props: Props): React.Node {
 
   const imageContainerOpacity = React.useMemo(
     () =>
-      interpolate(navigationProgress, {
+      interpolateNode(navigationProgress, {
         inputRange: [0, 0.1],
         outputRange: [0, 1],
         extrapolate: Extrapolate.CLAMP,

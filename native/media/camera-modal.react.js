@@ -22,7 +22,7 @@ import {
 import Orientation from 'react-native-orientation-locker';
 import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
-  Easing as ReanimatedEasing,
+  EasingNode as ReanimatedEasing,
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
@@ -78,7 +78,7 @@ const {
   multiply,
   divide,
   abs,
-  interpolate,
+  interpolateNode,
   startClock,
   stopClock,
   clockRunning,
@@ -330,7 +330,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       transform: [{ scale: sendButtonScale }],
     };
 
-    const overlayOpacity = interpolate(this.stagingModeProgress, {
+    const overlayOpacity = interpolateNode(this.stagingModeProgress, {
       inputRange: [0, 0.01, 1],
       outputRange: [0, 0.5, 0],
       extrapolate: Extrapolate.CLAMP,
@@ -376,12 +376,12 @@ class CameraModal extends React.PureComponent<Props, State> {
     const zoomBase = new Value(1);
     const zoomReported = new Value(1);
 
-    const currentZoom = interpolate(multiply(zoomBase, pinchScale), {
+    const currentZoom = interpolateNode(multiply(zoomBase, pinchScale), {
       inputRange: [1, 8],
       outputRange: [1, 8],
       extrapolate: Extrapolate.CLAMP,
     });
-    const cameraZoomFactor = interpolate(zoomReported, {
+    const cameraZoomFactor = interpolateNode(zoomReported, {
       inputRange: [1, 8],
       outputRange: [0, 1],
       extrapolate: Extrapolate.CLAMP,

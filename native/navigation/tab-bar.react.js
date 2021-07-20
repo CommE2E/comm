@@ -3,7 +3,7 @@
 import { BottomTabBar } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 import { Platform, View, StyleSheet } from 'react-native';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated, { EasingNode } from 'react-native-reanimated';
 import { useSafeArea } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
@@ -13,7 +13,7 @@ import { useSelector } from '../redux/redux-utils';
 import type { LayoutEvent } from '../types/react-native';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, timing, interpolate } = Animated;
+const { Value, timing, interpolateNode } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 const tabBarAnimationDuration = 200;
@@ -47,7 +47,7 @@ function TabBar(props: Props) {
       timing(tabBarVisible, {
         toValue,
         duration: tabBarAnimationDuration,
-        easing: Easing.inOut(Easing.ease),
+        easing: EasingNode.inOut(EasingNode.ease),
       }).start();
     },
     [keyboardState, prevKeyboardState, tabBarVisible],
@@ -100,7 +100,7 @@ function TabBar(props: Props) {
 
   const containerHeight = React.useMemo(
     () =>
-      interpolate(tabBarVisible, {
+      interpolateNode(tabBarVisible, {
         inputRange: [0, 1],
         outputRange: [0, tabBarHeight],
       }),

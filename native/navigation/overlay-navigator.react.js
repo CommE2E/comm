@@ -14,7 +14,7 @@ import {
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated, { EasingNode } from 'react-native-reanimated';
 
 import { values } from 'lib/utils/objects';
 
@@ -330,7 +330,7 @@ const OverlayNavigator = React.memo<Props>(
         invariant(position, `should have position for animating key ${key}`);
         timing(position, {
           duration: 150,
-          easing: Easing.inOut(Easing.ease),
+          easing: EasingNode.inOut(EasingNode.ease),
           toValue,
         }).start();
       }

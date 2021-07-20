@@ -31,7 +31,7 @@ target 'Comm' do
     # Excluding 32-bit x86 because nobody uses it and it causes compilation issues
     installer.pods_project.build_configurations.each do |config|
       config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64 i386"
+      config.build_settings['OTHER_CPLUSPLUSFLAGS'] = '-DDONT_AUTOINSTALL_REANIMATED'
     end
-
   end
 end

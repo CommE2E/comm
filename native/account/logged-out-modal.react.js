@@ -13,7 +13,7 @@ import {
   BackHandler,
   ActivityIndicator,
 } from 'react-native';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated, { EasingNode } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
@@ -239,7 +239,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     if (this.state.mode === 'prompt' && prevState.mode !== 'prompt') {
       this.buttonOpacity.setValue(0);
       Animated.timing(this.buttonOpacity, {
-        easing: Easing.out(Easing.ease),
+        easing: EasingNode.out(EasingNode.ease),
         duration: 250,
         toValue: 1.0,
       }).start();

@@ -34,7 +34,7 @@ const {
   max,
   min,
   stopClock,
-  interpolate,
+  interpolateNode,
   SpringUtils,
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
@@ -131,12 +131,12 @@ function SwipeableMessage(props: Props): React.Node {
       transform: [{ translateX }],
     };
 
-    const translateReplyIcon = interpolate(translateX, {
+    const translateReplyIcon = interpolateNode(translateX, {
       inputRange: isViewer ? [-1 * threshold, 0] : [0, threshold],
       outputRange: isViewer ? [-23, -23 + threshold] : [0 - threshold, 0],
       extrapolate: Extrapolate.CLAMP,
     });
-    const replyIconOpacity = interpolate(translateX, {
+    const replyIconOpacity = interpolateNode(translateX, {
       inputRange: isViewer ? [-1 * threshold, -25] : [25, threshold],
       outputRange: isViewer ? [1, 0] : [0, 1],
       extrapolate: Extrapolate.CLAMP,

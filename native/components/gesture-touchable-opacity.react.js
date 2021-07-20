@@ -7,7 +7,7 @@ import {
   TapGestureHandler,
   State as GestureState,
 } from 'react-native-gesture-handler';
-import Animated, { Easing } from 'react-native-reanimated';
+import Animated, { EasingNode } from 'react-native-reanimated';
 
 import type { ViewStyle } from '../types/styles';
 import {
@@ -35,11 +35,11 @@ const {
 
 const pressAnimationSpec = {
   duration: 150,
-  easing: Easing.inOut(Easing.quad),
+  easing: EasingNode.inOut(EasingNode.quad),
 };
 const resetAnimationSpec = {
   duration: 250,
-  easing: Easing.inOut(Easing.quad),
+  easing: EasingNode.inOut(EasingNode.quad),
 };
 
 type Props = {

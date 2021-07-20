@@ -42,7 +42,7 @@ import { OverlayContext, type OverlayContextType } from './overlay-context';
 import type { TooltipModalParamList } from './route-names';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, Node, Extrapolate, add, multiply, interpolate } = Animated;
+const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {
@@ -146,24 +146,24 @@ function createTooltip<
       invariant(overlayContext, 'Tooltip should have OverlayContext');
       const { position } = overlayContext;
 
-      this.backdropOpacity = interpolate(position, {
+      this.backdropOpacity = interpolateNode(position, {
         inputRange: [0, 1],
         outputRange: [0, 0.7],
         extrapolate: Extrapolate.CLAMP,
       });
-      this.tooltipContainerOpacity = interpolate(position, {
+      this.tooltipContainerOpacity = interpolateNode(position, {
         inputRange: [0, 0.1],
         outputRange: [0, 1],
         extrapolate: Extrapolate.CLAMP,
       });
 
       const { margin } = this;
-      this.tooltipVerticalAbove = interpolate(position, {
+      this.tooltipVerticalAbove = interpolateNode(position, {
         inputRange: [0, 1],
         outputRange: [margin + this.tooltipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,
       });
-      this.tooltipVerticalBelow = interpolate(position, {
+      this.tooltipVerticalBelow = interpolateNode(position, {
         inputRange: [0, 1],
         outputRange: [-margin - this.tooltipHeight / 2, 0],
         extrapolate: Extrapolate.CLAMP,

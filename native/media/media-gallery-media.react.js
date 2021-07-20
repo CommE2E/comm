@@ -12,7 +12,7 @@ import {
   Easing,
 } from 'react-native';
 import Reanimated, {
-  Easing as ReanimatedEasing,
+  EasingNode as ReanimatedEasing,
 } from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
@@ -62,7 +62,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     super(props);
 
     // eslint-disable-next-line import/no-named-as-default-member
-    const buttonsScale = Reanimated.interpolate(this.focusProgress, {
+    const buttonsScale = Reanimated.interpolateNode(this.focusProgress, {
       inputRange: [0, 1],
       outputRange: [1.3, 1],
     });
@@ -74,7 +74,7 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     };
 
     // eslint-disable-next-line import/no-named-as-default-member
-    const mediaScale = Reanimated.interpolate(this.focusProgress, {
+    const mediaScale = Reanimated.interpolateNode(this.focusProgress, {
       inputRange: [0, 1],
       outputRange: [1, 1.3],
     });

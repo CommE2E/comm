@@ -14,6 +14,7 @@
 #import <reacthermes/HermesExecutorFactory.h>
 #import <React/RCTCxxBridgeDelegate.h>
 #import <React/RCTJSIExecutorRuntimeInstaller.h>
+#import <React/RCTBridge+Private.h>
 #import <cxxreact/JSExecutor.h>
 
 #import <string>
@@ -42,8 +43,20 @@ static void InitializeFlipper(UIApplication *application) {
 
 #import <ReactCommon/RCTTurboModuleManager.h>
 
+#import <RNReanimated/NativeProxy.h>
+#import <RNReanimated/REAModule.h>
+#import <RNReanimated/REAEventDispatcher.h>
+
 @interface AppDelegate()
   <RCTCxxBridgeDelegate, RCTTurboModuleManagerDelegate> {}
+@end
+
+extern RCTBridge *_bridge_reanimated;
+
+@interface RCTEventDispatcher (Reanimated)
+
+- (void)setBridge:(RCTBridge*)bridge;
+
 @end
 
 @implementation AppDelegate
@@ -135,6 +148,13 @@ using Runtime = facebook::jsi::Runtime;
     :(RCTBridge *)bridge {
   __weak __typeof(self) weakSelf = self;
 
+  // The following code to setup Reanimated is copied from UIResponder+Reanimated.mm
+  [bridge moduleForClass:[RCTEventDispatcher class]];
+  RCTEventDispatcher *eventDispatcher = [REAEventDispatcher new];
+  [eventDispatcher setBridge:bridge];
+  [bridge updateModuleWithInstance:eventDispatcher];
+  _bridge_reanimated = bridge;
+
   const auto executor = [weakSelf, bridge](facebook::jsi::Runtime &rt) {
     if (!bridge) {
       return;
@@ -153,6 +173,13 @@ using Runtime = facebook::jsi::Runtime;
       // set sqlite file path
       comm::SQLiteQueryExecutor::sqliteFilePath = 
         std::string([[Tools getSQLiteFilePath] UTF8String]);
+
+      auto reanimatedModule = reanimated::createReanimatedModule(bridge.jsCallInvoker);
+      rt.global().setProperty(
+        rt,
+        facebook::jsi::PropNameID::forAscii(rt, "__reanimatedModuleProxy"),
+        facebook::jsi::Object::createFromHostObject(rt, reanimatedModule)
+      );
     }
   };
 

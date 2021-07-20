@@ -77,7 +77,7 @@ const floatingActions = [
 ];
 
 /* eslint-disable import/no-named-as-default-member */
-const { Value, Node, interpolate } = Animated;
+const { Value, Node, interpolateNode } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type Item =
@@ -141,7 +141,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       this.searchCancelButtonOpen,
       100,
     );
-    this.searchCancelButtonOffset = interpolate(
+    this.searchCancelButtonOffset = interpolateNode(
       this.searchCancelButtonProgress,
       { inputRange: [0, 1], outputRange: [0, 56] },
     );
