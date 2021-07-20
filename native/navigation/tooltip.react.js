@@ -27,6 +27,7 @@ import {
   type DispatchFunctions,
 } from 'lib/utils/action-utils';
 
+import { ChatContext, type ChatContextType } from '../chat/chat-context';
 import { SingleLine } from '../components/single-line.react';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react';
@@ -55,6 +56,7 @@ export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {
     inputState: ?InputState,
     navigation: AppNavigationProp<RouteName>,
     viewerID: ?string,
+    chatContext: ?ChatContextType,
   ) => mixed,
 };
 type TooltipItemProps<RouteName> = {
@@ -103,6 +105,7 @@ type TooltipProps<Base> = {
   +overlayContext: ?OverlayContextType,
   // withInputState
   +inputState: ?InputState,
+  +chatContext: ?ChatContextType,
 };
 function createTooltip<
   RouteName: $Keys<TooltipModalParamList>,
@@ -311,6 +314,7 @@ function createTooltip<
         dispatchActionPromise,
         overlayContext,
         inputState,
+        chatContext,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -402,6 +406,7 @@ function createTooltip<
         this.props.inputState,
         this.props.navigation,
         this.props.viewerID,
+        this.props.chatContext,
       );
     };
 
@@ -452,6 +457,7 @@ function createTooltip<
     const dispatchActionPromise = useDispatchActionPromise();
     const overlayContext = React.useContext(OverlayContext);
     const inputState = React.useContext(InputStateContext);
+    const chatContext = React.useContext(ChatContext);
     return (
       <Tooltip
         {...props}
@@ -462,6 +468,7 @@ function createTooltip<
         dispatchActionPromise={dispatchActionPromise}
         overlayContext={overlayContext}
         inputState={inputState}
+        chatContext={chatContext}
       />
     );
   });

@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import _find from 'lodash/fp/find';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback } from 'react-native';
-import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import {
@@ -43,8 +42,8 @@ import {
   useIndicatorStyle,
 } from '../themes/colors';
 import type { VerticalBounds } from '../types/layout-types';
-import { setCurrentTransitionSidebarSourceIDType } from '../types/nav-types';
 import type { ViewableItemsChange } from '../types/react-native';
+import { ChatContext } from './chat-context';
 import { ChatList } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
@@ -370,20 +369,21 @@ const ConnectedMessageList: React.ComponentType<BaseProps> = React.memo<BaseProp
 
     useWatchThread(props.threadInfo);
 
-    const currentTransitionSidebarSourceID = useSelector(
-      state => state.navInfo.currentTransitionSidebarSourceID,
-    );
-
-    const dispatch = useDispatch();
+    const chatContext = React.useContext(ChatContext);
+    invariant(chatContext, 'chatContext should be set');
+    const {
+      currentTransitionSidebarSourceID,
+      setCurrentTransitionSidebarSourceID,
+    } = chatContext;
     useFocusEffect(
       React.useCallback(() => {
         if (currentTransitionSidebarSourceID) {
-          dispatch({
-            type: setCurrentTransitionSidebarSourceIDType,
-            payload: null,
-          });
+          setCurrentTransitionSidebarSourceID(null);
         }
-      }, [currentTransitionSidebarSourceID, dispatch]),
+      }, [
+        currentTransitionSidebarSourceID,
+        setCurrentTransitionSidebarSourceID,
+      ]),
     );
 
     return (

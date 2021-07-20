@@ -11,7 +11,7 @@ import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { MessageTooltipRouteNames } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
-import { setCurrentTransitionSidebarSourceIDType } from '../types/nav-types';
+import type { ChatContextType } from './chat-context';
 import { createNavigateToThreadAction } from './message-list-types';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 
@@ -42,13 +42,13 @@ function navigateToSidebar<RouteName: MessageTooltipRouteNames>(
   inputState: ?InputState,
   navigation: AppNavigationProp<RouteName>,
   viewerID: ?string,
+  chatContext: ?ChatContextType,
 ) {
   const threadInfo = getSidebarThreadInfo(route.params.item, viewerID);
 
-  dispatchFunctions.dispatch({
-    type: setCurrentTransitionSidebarSourceIDType,
-    payload: route.params.item.messageInfo.id,
-  });
+  chatContext?.setCurrentTransitionSidebarSourceID(
+    route.params.item.messageInfo.id,
+  );
   navigation.navigate(createNavigateToThreadAction({ threadInfo }));
 }
 
