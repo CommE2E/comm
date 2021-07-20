@@ -45,7 +45,6 @@ auto SQLiteQueryExecutor::getStorage() {
 
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
   this->migrate();
-  SQLiteQueryExecutor::getStorage().sync_schema(true);
 }
 
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
