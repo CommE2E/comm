@@ -3,51 +3,38 @@
 import { GestureHandlerRefContext } from '@react-navigation/stack';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
-import {
-  PanGestureHandler,
-  State as GestureState,
-} from 'react-native-gesture-handler';
+import { PanGestureHandler } from 'react-native-gesture-handler';
 import { TapticFeedback } from 'react-native-in-app-message';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  useAnimatedGestureHandler,
+  useSharedValue,
+  useAnimatedStyle,
+  runOnJS,
+  withSpring,
+  interpolate,
+  cancelAnimation,
+  Extrapolate,
+} from 'react-native-reanimated';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import { useColors, useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
-import { dividePastDistance, runSpring } from '../utils/animation-utils';
-
-/* eslint-disable import/no-named-as-default-member */
-const {
-  Value,
-  Clock,
-  block,
-  event,
-  Extrapolate,
-  set,
-  call,
-  cond,
-  not,
-  and,
-  greaterOrEq,
-  eq,
-  add,
-  abs,
-  max,
-  min,
-  stopClock,
-  interpolateNode,
-  SpringUtils,
-} = Animated;
-/* eslint-enable import/no-named-as-default-member */
+import { dividePastDistance } from '../utils/animation-utils';
 
 const threshold = 40;
-const springConfig = {
-  ...SpringUtils.makeConfigFromBouncinessAndSpeed({
-    ...SpringUtils.makeDefaultConfig(),
-    bounciness: 10,
-    speed: 8,
-  }),
-  overshootClamping: true,
-};
+
+function makeSpringConfig(velocity: number) {
+  'worklet';
+  return {
+    stiffness: 257.1370588235294,
+    damping: 19.003038357561845,
+    mass: 1,
+    overshootClamping: true,
+    restDisplacementThreshold: 0.001,
+    restSpeedThreshold: 0.001,
+    velocity,
+  };
+}
 
 type Props = {
   +onSwipeableWillOpen: () => void,
@@ -63,85 +50,56 @@ function SwipeableMessage(props: Props): React.Node {
     }
   }, []);
 
-  const {
-    swipeEvent,
-    transformMessageBoxStyle,
-    transformReplyStyle,
-  } = React.useMemo(() => {
-    const swipeX = new Value(0);
-    const swipeState = new Value(-1);
-    const swipeVelocityX = new Value(0);
-    const innerSwipeEvent = event([
-      {
-        nativeEvent: {
-          translationX: swipeX,
-          state: swipeState,
-          velocityX: swipeVelocityX,
-        },
-      },
-    ]);
+  const translateX = useSharedValue(0);
+  const swipeEvent = useAnimatedGestureHandler({
+    onStart: (event, ctx) => {
+      ctx.translationAtStart = translateX.value;
+      cancelAnimation(translateX.value);
+    },
+    onActive: (event, ctx) => {
+      const translationX = ctx.translationAtStart + event.translationX;
+      const baseActiveTranslation = isViewer
+        ? Math.min(translationX, 0)
+        : Math.max(translationX, 0);
+      translateX.value = dividePastDistance(
+        baseActiveTranslation,
+        threshold,
+        2,
+      );
 
-    const curX = new Value(0);
-    const prevSwipeState = new Value(-1);
-    const resetClock = new Clock();
+      const pastThreshold = Math.abs(translateX.value) >= threshold;
+      if (pastThreshold && !ctx.prevPastThreshold) {
+        runOnJS(onPassThreshold)();
+      }
+      ctx.prevPastThreshold = pastThreshold;
+    },
+    onEnd: event => {
+      if (Math.abs(translateX.value) >= threshold) {
+        runOnJS(onSwipeableWillOpen)();
+      }
 
-    const isActive = eq(swipeState, GestureState.ACTIVE);
-    const baseActiveTranslation = isViewer
-      ? min(add(curX, swipeX), 0)
-      : max(add(curX, swipeX), 0);
-    const activeTranslation = dividePastDistance(
-      baseActiveTranslation,
-      threshold,
-      2,
+      translateX.value = withSpring(0, makeSpringConfig(event.velocityX));
+    },
+  });
+
+  const transformMessageBoxStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  const transformReplyStyle = useAnimatedStyle(() => {
+    const translateReplyIcon = interpolate(
+      translateX.value,
+      isViewer ? [-1 * threshold, 0] : [0, threshold],
+      isViewer ? [-23, -23 + threshold] : [0 - threshold, 0],
+      Extrapolate.CLAMP,
     );
-
-    const pastThreshold = greaterOrEq(abs(activeTranslation), threshold);
-    const prevPastThreshold = new Value(0);
-
-    const translateX = block([
-      cond(and(eq(prevSwipeState, GestureState.ACTIVE), not(isActive)), [
-        set(curX, activeTranslation),
-        cond(pastThreshold, call([], onSwipeableWillOpen)),
-      ]),
-      set(prevSwipeState, swipeState),
-      cond(
-        and(isActive, pastThreshold, not(prevPastThreshold)),
-        call([], onPassThreshold),
-      ),
-      set(prevPastThreshold, pastThreshold),
-      cond(
-        isActive,
-        [stopClock(resetClock), activeTranslation],
-        [
-          cond(
-            eq(curX, 0),
-            stopClock(resetClock),
-            set(
-              curX,
-              runSpring(resetClock, curX, 0, true, springConfig, {
-                velocity: swipeVelocityX,
-              }),
-            ),
-          ),
-          curX,
-        ],
-      ),
-    ]);
-    const innerTransformMessageBoxStyle = {
-      transform: [{ translateX }],
-    };
-
-    const translateReplyIcon = interpolateNode(translateX, {
-      inputRange: isViewer ? [-1 * threshold, 0] : [0, threshold],
-      outputRange: isViewer ? [-23, -23 + threshold] : [0 - threshold, 0],
-      extrapolate: Extrapolate.CLAMP,
-    });
-    const replyIconOpacity = interpolateNode(translateX, {
-      inputRange: isViewer ? [-1 * threshold, -25] : [25, threshold],
-      outputRange: isViewer ? [1, 0] : [0, 1],
-      extrapolate: Extrapolate.CLAMP,
-    });
-    const innerTransformReplyStyle = {
+    const replyIconOpacity = interpolate(
+      translateX.value,
+      isViewer ? [-1 * threshold, -25] : [25, threshold],
+      isViewer ? [1, 0] : [0, 1],
+      Extrapolate.CLAMP,
+    );
+    return {
       transform: [
         {
           translateX: translateReplyIcon,
@@ -149,12 +107,7 @@ function SwipeableMessage(props: Props): React.Node {
       ],
       opacity: replyIconOpacity,
     };
-    return {
-      swipeEvent: innerSwipeEvent,
-      transformMessageBoxStyle: innerTransformMessageBoxStyle,
-      transformReplyStyle: innerTransformReplyStyle,
-    };
-  }, [isViewer, onSwipeableWillOpen, onPassThreshold]);
+  });
 
   const iconPosition = isViewer ? { right: 0 } : { left: 0 };
   const { messageBoxStyle, children } = props;
@@ -163,7 +116,7 @@ function SwipeableMessage(props: Props): React.Node {
   const reactNavGestureHandlerRef = React.useContext(GestureHandlerRefContext);
   const waitFor = reactNavGestureHandlerRef ?? undefined;
   return (
-    <React.Fragment>
+    <>
       <View style={[styles.icon, iconPosition]}>
         <Animated.View style={transformReplyStyle}>
           <View style={styles.iconBackground}>
@@ -179,7 +132,6 @@ function SwipeableMessage(props: Props): React.Node {
         maxPointers={1}
         minDist={4}
         onGestureEvent={swipeEvent}
-        onHandlerStateChange={swipeEvent}
         failOffsetX={isViewer ? 5 : -5}
         failOffsetY={[-5, 5]}
         waitFor={waitFor}
@@ -188,7 +140,7 @@ function SwipeableMessage(props: Props): React.Node {
           {children}
         </Animated.View>
       </PanGestureHandler>
-    </React.Fragment>
+    </>
   );
 }
 

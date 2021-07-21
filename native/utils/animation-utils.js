@@ -28,9 +28,7 @@ const {
   neq,
   add,
   sub,
-  multiply,
   divide,
-  abs,
   set,
   max,
   startClock,
@@ -55,17 +53,17 @@ function clamp(
 }
 
 function dividePastDistance(
-  value: Node,
+  value: number,
   distance: number,
   factor: number,
-): Node {
-  const absValue = abs(value);
-  const absFactor = cond(eq(absValue, 0), 1, divide(value, absValue));
-  return cond(
-    lessThan(absValue, distance),
-    value,
-    multiply(add(distance, divide(sub(absValue, distance), factor)), absFactor),
-  );
+): number {
+  'worklet';
+  const absValue = Math.abs(value);
+  if (absValue < distance) {
+    return value;
+  }
+  const absFactor = value >= 0 ? 1 : -1;
+  return absFactor * (distance + (absValue - distance) / factor);
 }
 
 function delta(value: Node): Node {

@@ -97,6 +97,13 @@ declare module 'react-native-reanimated' {
     interpolationConfig: InterpolationConfig,
   ) => Node;
 
+  declare export type Interpolate = (
+    input: number,
+    inputRange: $ReadOnlyArray<number>,
+    outputRange: $ReadOnlyArray<number>,
+    extrapolate?: ?ExtrapolateType,
+  ) => number;
+
   declare type EasingType = { ... };
   declare type EasingModule = {
     +ease: EasingType,
@@ -233,6 +240,61 @@ declare module 'react-native-reanimated' {
 
   declare type UseValue = (initialVal: number) => Value;
 
+  declare type AnimatedGestureHandlerEventCallback<T, E: $Event<T>> = (
+    event: $Shape<E>,
+    context: {| [name: string]: mixed |},
+  ) => mixed;
+
+  declare type UseAnimatedGestureHandler = <T, E: $Event<T>>(
+    callbacks: $Shape<{|
+      +onStart: AnimatedGestureHandlerEventCallback<T, E>,
+      +onActive: AnimatedGestureHandlerEventCallback<T, E>,
+      +onEnd: AnimatedGestureHandlerEventCallback<T, E>,
+      +onFail: AnimatedGestureHandlerEventCallback<T, E>,
+      +onCancel: AnimatedGestureHandlerEventCallback<T, E>,
+      +onFinish: AnimatedGestureHandlerEventCallback<T, E>,
+    |}>,
+    dependencies?: $ReadOnlyArray<mixed>,
+  ) => E;
+
+  declare export type SharedValue<T> = {
+    value: T,
+    ...
+  };
+
+  declare type UseSharedValue = <T>(val: T) => SharedValue<T>;
+
+  declare type UseDerivedValue = <T>(
+    updater: () => T,
+    dependencies?: $ReadOnlyArray<mixed>,
+  ) => SharedValue<T>;
+
+  declare type UseAnimatedStyle = <T>(
+    styleSelector: () => T,
+    dependencies?: $ReadOnlyArray<mixed>,
+  ) => T;
+
+  declare type WithSpringConfig = $Shape<{|
+    +stiffness: number,
+    +damping: number,
+    +mass: number,
+    +overshootClamping: boolean,
+    +restDisplacementThreshold: number,
+    +restSpeedThreshold: number,
+    +velocity: number,
+  |}>;
+
+  // Doesn't actually return a number, but sharedValue.value has a differently
+  // typed getter vs. setter, and Flow doesn't support that
+  declare type WithSpring = (
+    toValue: number | string,
+    springConfig?: WithSpringConfig,
+  ) => number;
+
+  declare type RunOnJS = <F>(func: F) => F;
+
+  declare type CancelAnimation = (animation: number) => void;
+
   declare export var Node: typeof Node;
   declare export var Value: typeof Value;
   declare export var Clock: typeof Clock;
@@ -269,6 +331,7 @@ declare module 'react-native-reanimated' {
   declare export var clockRunning: ClockRunning;
   declare export var debug: Debug;
   declare export var interpolateNode: InterpolateNode;
+  declare export var interpolate: Interpolate;
   declare export var Extrapolate: ExtrapolateModule;
   declare export var timing: Timing;
   declare export var SpringUtils: SpringUtilsModule;
@@ -276,6 +339,13 @@ declare module 'react-native-reanimated' {
   declare export var decay: Decay;
   declare export var event: Event;
   declare export var useValue: UseValue;
+  declare export var useAnimatedGestureHandler: UseAnimatedGestureHandler;
+  declare export var useSharedValue: UseSharedValue;
+  declare export var useDerivedValue: UseDerivedValue;
+  declare export var useAnimatedStyle: UseAnimatedStyle;
+  declare export var withSpring: WithSpring;
+  declare export var runOnJS: RunOnJS;
+  declare export var cancelAnimation: CancelAnimation;
 
   declare export default {
     +Node: typeof Node,
@@ -314,6 +384,7 @@ declare module 'react-native-reanimated' {
     +clockRunning: ClockRunning,
     +debug: Debug,
     +interpolateNode: InterpolateNode,
+    +interpolate: Interpolate,
     +Extrapolate: ExtrapolateModule,
     +timing: Timing,
     +spring: Spring,
@@ -321,6 +392,13 @@ declare module 'react-native-reanimated' {
     +SpringUtils: SpringUtilsModule,
     +event: Event,
     +useValue: UseValue,
+    +useAnimatedGestureHandler: UseAnimatedGestureHandler,
+    +useSharedValue: UseSharedValue,
+    +useDerivedValue: UseDerivedValue,
+    +useAnimatedStyle: UseAnimatedStyle,
+    +withSpring: WithSpring,
+    +runOnJS: RunOnJS,
+    +cancelAnimation: CancelAnimation,
     ...
   };
 
