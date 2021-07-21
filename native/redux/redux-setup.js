@@ -37,7 +37,6 @@ import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import reactotron from '../reactotron';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultConnectivityInfo } from '../types/connectivity';
-import { setCurrentTransitionSidebarSourceIDType } from '../types/nav-types';
 import { defaultGlobalThemeInfo } from '../types/themes';
 import {
   defaultURLPrefix,
@@ -243,14 +242,6 @@ function reducer(state: AppState = defaultState, action: Action) {
     return {
       ...state,
       deviceToken: action.payload,
-    };
-  } else if (action.type === setCurrentTransitionSidebarSourceIDType) {
-    return {
-      ...state,
-      navInfo: {
-        ...state.navInfo,
-        currentTransitionSidebarSourceID: action.payload,
-      },
     };
   } else if (action.type === updateThreadLastNavigatedActionType) {
     const { threadID, time } = action.payload;
