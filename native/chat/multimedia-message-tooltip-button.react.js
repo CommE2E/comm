@@ -8,6 +8,7 @@ import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react';
 import { MessageHeader } from './message-header.react';
+import { useAnimatedMessageTooltipButton } from './utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
@@ -36,20 +37,29 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
   const { item, verticalBounds } = props.route.params;
+  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton(
+    item,
+    initialCoordinates,
+    verticalBounds,
+    progress,
+  );
+
   const { navigation } = props;
   return (
     <React.Fragment>
       <Animated.View style={headerStyle}>
         <MessageHeader item={item} focused={true} display="modal" />
       </Animated.View>
-      <InnerMultimediaMessage
-        item={item}
-        verticalBounds={verticalBounds}
-        clickable={false}
-        setClickable={noop}
-        onPress={navigation.goBackOnce}
-        onLongPress={navigation.goBackOnce}
-      />
+      <Animated.View style={messageContainerStyle}>
+        <InnerMultimediaMessage
+          item={item}
+          verticalBounds={verticalBounds}
+          clickable={false}
+          setClickable={noop}
+          onPress={navigation.goBackOnce}
+          onLongPress={navigation.goBackOnce}
+        />
+      </Animated.View>
     </React.Fragment>
   );
 }

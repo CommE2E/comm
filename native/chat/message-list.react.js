@@ -1,6 +1,5 @@
 // @flow
 
-import { useFocusEffect } from '@react-navigation/native';
 import invariant from 'invariant';
 import _find from 'lodash/fp/find';
 import * as React from 'react';
@@ -371,20 +370,7 @@ const ConnectedMessageList: React.ComponentType<BaseProps> = React.memo<BaseProp
 
     const chatContext = React.useContext(ChatContext);
     invariant(chatContext, 'chatContext should be set');
-    const {
-      currentTransitionSidebarSourceID,
-      setCurrentTransitionSidebarSourceID,
-    } = chatContext;
-    useFocusEffect(
-      React.useCallback(() => {
-        if (currentTransitionSidebarSourceID) {
-          setCurrentTransitionSidebarSourceID(null);
-        }
-      }, [
-        currentTransitionSidebarSourceID,
-        setCurrentTransitionSidebarSourceID,
-      ]),
-    );
+    const { currentTransitionSidebarSourceID } = chatContext;
 
     return (
       <MessageList

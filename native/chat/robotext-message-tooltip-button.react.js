@@ -8,6 +8,7 @@ import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { Timestamp } from './timestamp.react';
+import { useAnimatedMessageTooltipButton } from './utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
@@ -33,15 +34,23 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     };
   }, [progress, windowWidth, initialCoordinates]);
 
-  const { item } = props.route.params;
-  const { navigation } = props;
+  const { item, verticalBounds } = props.route.params;
+  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton(
+    item,
+    initialCoordinates,
+    verticalBounds,
+    progress,
+  );
 
+  const { navigation } = props;
   return (
     <React.Fragment>
       <Animated.View style={headerStyle}>
         <Timestamp time={item.messageInfo.time} display="modal" />
       </Animated.View>
-      <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
+      <Animated.View style={messageContainerStyle}>
+        <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
+      </Animated.View>
     </React.Fragment>
   );
 }
