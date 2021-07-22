@@ -97,6 +97,15 @@ declare module 'react-native-reanimated' {
     interpolationConfig: InterpolationConfig,
   ) => Node;
 
+  declare export type InterpolateColorsConfig = {
+    +inputRange: $ReadOnlyArray<number>,
+    +outputColorRange: $ReadOnlyArray<number | string>,
+  };
+  declare export type InterpolateColors = (
+    animationValue: NodeParam,
+    interpolationConfig: InterpolateColorsConfig
+  ) => Node;
+
   declare export type Interpolate = (
     input: number,
     inputRange: $ReadOnlyArray<number>,
@@ -331,6 +340,7 @@ declare module 'react-native-reanimated' {
   declare export var clockRunning: ClockRunning;
   declare export var debug: Debug;
   declare export var interpolateNode: InterpolateNode;
+  declare export var interpolateColors: InterpolateColors;
   declare export var interpolate: Interpolate;
   declare export var Extrapolate: ExtrapolateModule;
   declare export var timing: Timing;
@@ -384,6 +394,7 @@ declare module 'react-native-reanimated' {
     +clockRunning: ClockRunning,
     +debug: Debug,
     +interpolateNode: InterpolateNode,
+    +interpolateColors: InterpolateColors,
     +interpolate: Interpolate,
     +Extrapolate: ExtrapolateModule,
     +timing: Timing,
