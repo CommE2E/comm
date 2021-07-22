@@ -85,6 +85,7 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // MarkdownLinkContext
+  +linkModalActive: boolean,
   +linkIsBlockingPresses: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
@@ -99,14 +100,16 @@ class TextMessage extends React.PureComponent<Props> {
       toggleFocus,
       verticalBounds,
       overlayContext,
+      linkModalActive,
       linkIsBlockingPresses,
       canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
-    const canSwipe = threadHasPermission(
+    const isVoiced = threadHasPermission(
       item.threadInfo,
       threadPermissions.VOICED,
     );
+    const canSwipe = isVoiced && !linkModalActive;
     return (
       <ComposedMessage
         item={item}
@@ -237,6 +240,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
           {...props}
           canCreateSidebarFromMessage={canCreateSidebarFromMessage}
           overlayContext={overlayContext}
+          linkModalActive={linkModalActive}
           linkIsBlockingPresses={linkIsBlockingPresses}
         />
       </MarkdownLinkContext.Provider>
