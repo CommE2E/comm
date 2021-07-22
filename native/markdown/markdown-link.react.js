@@ -61,8 +61,16 @@ function MarkdownLink(props: Props): React.Node {
     return true;
   }, [setLinkPressActive]);
 
+  const activePressHasMoved = React.useRef(false);
+  const androidOnResponderMove = React.useCallback(() => {
+    activePressHasMoved.current = true;
+  }, []);
+
   const androidOnResponderTerminate = React.useCallback(() => {
-    onPressLink();
+    if (!activePressHasMoved.current) {
+      onPressLink();
+    }
+    activePressHasMoved.current = false;
     setLinkPressActive?.(false);
   }, [onPressLink, setLinkPressActive]);
 
@@ -73,6 +81,7 @@ function MarkdownLink(props: Props): React.Node {
   // The Flow type for Text's props is missing onStartShouldSetResponderCapture
   const gestureProps: any = {
     onStartShouldSetResponderCapture: androidOnStartShouldSetResponderCapture,
+    onResponderMove: androidOnResponderMove,
     onResponderTerminate: androidOnResponderTerminate,
   };
 
