@@ -88,8 +88,4 @@ function useMessageTargetPosition(
   return targetDistanceFromBottom - currentDistanceFromBottom;
 }
 
-export {
-  getSidebarThreadInfo,
-  chatMessageItemHeight,
-  useMessageTargetPosition,
-};
+export { chatMessageItemHeight, useMessageTargetPosition };
