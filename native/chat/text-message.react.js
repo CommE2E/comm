@@ -85,7 +85,7 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // MarkdownLinkContext
-  +linkPressActive: boolean,
+  +linkIsBlockingPresses: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -99,7 +99,7 @@ class TextMessage extends React.PureComponent<Props> {
       toggleFocus,
       verticalBounds,
       overlayContext,
-      linkPressActive,
+      linkIsBlockingPresses,
       canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
@@ -157,9 +157,9 @@ class TextMessage extends React.PureComponent<Props> {
 
     const {
       message,
-      props: { verticalBounds, linkPressActive },
+      props: { verticalBounds, linkIsBlockingPresses },
     } = this;
-    if (!message || !verticalBounds || linkPressActive) {
+    if (!message || !verticalBounds || linkIsBlockingPresses) {
       return;
     }
 
@@ -216,25 +216,26 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
   function ConnectedTextMessage(props: BaseProps) {
     const overlayContext = React.useContext(OverlayContext);
 
-    const [linkPressActive, setLinkPressActive] = React.useState(false);
+    const [linkModalActive, setLinkModalActive] = React.useState(false);
     const markdownLinkContext = React.useMemo(
       () => ({
-        setLinkPressActive,
+        setLinkModalActive,
       }),
-      [setLinkPressActive],
+      [setLinkModalActive],
     );
     const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
       props.item.threadInfo,
       props.item.messageInfo,
     );
 
+    const linkIsBlockingPresses = linkModalActive;
     return (
       <MarkdownLinkContext.Provider value={markdownLinkContext}>
         <TextMessage
           {...props}
           canCreateSidebarFromMessage={canCreateSidebarFromMessage}
           overlayContext={overlayContext}
-          linkPressActive={linkPressActive}
+          linkIsBlockingPresses={linkIsBlockingPresses}
         />
       </MarkdownLinkContext.Provider>
     );

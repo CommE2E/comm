@@ -9,10 +9,10 @@ import { MarkdownLinkContext } from './markdown-link-context';
 
 function useDisplayLinkPrompt(inputURL: string) {
   const markdownLinkContext = React.useContext(MarkdownLinkContext);
-  const setLinkPressActive = markdownLinkContext?.setLinkPressActive;
+  const setLinkModalActive = markdownLinkContext?.setLinkModalActive;
   const onDismiss = React.useCallback(() => {
-    setLinkPressActive?.(false);
-  }, [setLinkPressActive]);
+    setLinkModalActive?.(false);
+  }, [setLinkModalActive]);
 
   const url = normalizeURL(inputURL);
   const onConfirm = React.useCallback(() => {
@@ -25,7 +25,7 @@ function useDisplayLinkPrompt(inputURL: string) {
     displayURL += '…';
   }
   return React.useCallback(() => {
-    setLinkPressActive && setLinkPressActive(true);
+    setLinkModalActive && setLinkModalActive(true);
     Alert.alert(
       'External link',
       `You sure you want to open this link?\n\n${displayURL}`,
@@ -35,7 +35,7 @@ function useDisplayLinkPrompt(inputURL: string) {
       ],
       { cancelable: true, onDismiss },
     );
-  }, [setLinkPressActive, displayURL, onConfirm, onDismiss]);
+  }, [setLinkModalActive, displayURL, onConfirm, onDismiss]);
 }
 
 type TextProps = React.ElementConfig<typeof Text>;
