@@ -16,7 +16,6 @@ import {
   threadInfoSelector,
   childThreadInfos,
 } from 'lib/selectors/thread-selectors';
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils';
 import {
   threadHasPermission,
@@ -211,7 +210,6 @@ type Props = {
   +viewerID: ?string,
   +threadInfo: ?ThreadInfo,
   +parentThreadInfo: ?ThreadInfo,
-  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +childThreadInfos: ?$ReadOnlyArray<ThreadInfo>,
   +somethingIsSaving: boolean,
   +styles: typeof unboundStyles,
@@ -589,7 +587,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => !propsAndState.somethingIsSaving,
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.route.key,
-    (propsAndState: PropsAndState) => propsAndState.threadMembers,
     (propsAndState: PropsAndState) => propsAndState.numMembersShowing,
     (propsAndState: PropsAndState) => propsAndState.verticalBounds,
     (
@@ -597,7 +594,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       canStartEditing: boolean,
       navigate: ThreadSettingsNavigate,
       routeKey: string,
-      threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
       numMembersShowing: number,
       verticalBounds: ?VerticalBounds,
     ) => {
@@ -607,7 +603,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         threadInfo,
         threadPermissions.ADD_MEMBERS,
       );
-      if (threadMembers.length === 0 && !canAddMembers) {
+      if (threadInfo.members.length === 0 && !canAddMembers) {
         return listData;
       }
 
@@ -625,9 +621,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         });
       }
 
-      const numItems = Math.min(numMembersShowing, threadMembers.length);
+      const numItems = Math.min(numMembersShowing, threadInfo.members.length);
       for (let i = 0; i < numItems; i++) {
-        const memberInfo = threadMembers[i];
+        const memberInfo = threadInfo.members[i];
         listData.push({
           itemType: 'member',
           key: `member${memberInfo.id}`,
@@ -636,13 +632,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           canEdit: canStartEditing,
           navigate,
           firstListItem: i === 0 && !canAddMembers,
-          lastListItem: i === numItems - 1 && numItems === threadMembers.length,
+          lastListItem:
+            i === numItems - 1 && numItems === threadInfo.members.length,
           verticalBounds,
           threadSettingsRouteKey: routeKey,
         });
       }
 
-      if (numItems < threadMembers.length) {
+      if (numItems < threadInfo.members.length) {
         listData.push({
           itemType: 'seeMore',
           key: 'seeMoreMembers',
@@ -1117,9 +1114,12 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
     const parentThreadInfo: ?ThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
-    const threadMembers = useSelector(
-      relativeMemberInfoSelectorForMembersOfThread(threadID),
-    );
+    const threadMembers = React.useMemo(() => {
+      if (!threadInfo) {
+        return [];
+      }
+      return threadInfo.members;
+    }, [threadInfo]);
     const boundChildThreadInfos = useSelector(
       state => childThreadInfos(state)[threadID],
     );
@@ -1137,7 +1137,6 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
         viewerID={viewerID}
         threadInfo={threadInfo}
         parentThreadInfo={parentThreadInfo}
-        threadMembers={threadMembers}
         childThreadInfos={boundChildThreadInfos}
         somethingIsSaving={boundSomethingIsSaving}
         styles={styles}

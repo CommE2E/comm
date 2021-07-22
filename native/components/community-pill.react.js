@@ -5,7 +5,7 @@ import { View, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import { memberHasAdminPowers } from 'lib/shared/thread-utils';
-import type { ThreadInfo, MemberInfo } from 'lib/types/thread-types';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 import { useColors } from '../themes/colors';
@@ -20,7 +20,7 @@ function CommunityPill(props: Props): React.Node {
 
   const userInfos = useSelector(state => state.userStore.userInfos);
   const keyserverOperatorUsername: ?string = React.useMemo(() => {
-    for (const member: MemberInfo of community.members) {
+    for (const member: RelativeMemberInfo of community.members) {
       if (memberHasAdminPowers(member)) {
         return userInfos[member.id].username;
       }
