@@ -34,6 +34,11 @@ import java.lang.reflect.Field;
 import java.security.Security;
 
 public class MainApplication extends MultiDexApplication implements ReactApplication {
+
+  static {
+    System.loadLibrary("comm_jni_module");
+  }
+
   private final ReactModuleRegistryProvider mModuleRegistryProvider = new ReactModuleRegistryProvider(new BasePackageList().getPackageList(), null);
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
