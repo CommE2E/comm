@@ -13,13 +13,48 @@ using namespace sqlite_orm;
 
 std::string SQLiteQueryExecutor::sqliteFilePath;
 
-void SQLiteQueryExecutor::migrate() {
-  sqlite3 *conn;
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &conn);
+bool create_drafts_table(sqlite3 *db) {
   char *error;
   sqlite3_exec(
-      conn,
-      "ALTER TABLE drafts RENAME COLUMN `threadID` TO `key`",
+      db,
+      "CREATE TABLE IF NOT EXISTS drafts (threadID TEXT UNIQUE PRIMARY KEY, "
+      "text TEXT)",
+      nullptr,
+      nullptr,
+      &error);
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error creating 'drafts' table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
+bool rename_threadID_to_key(sqlite3 *db) {
+  sqlite3_stmt *key_column_stmt;
+  sqlite3_prepare_v2(
+      db,
+      "SELECT name AS col_name FROM pragma_table_xinfo ('drafts') WHERE "
+      "col_name='key';",
+      -1,
+      &key_column_stmt,
+      nullptr);
+  sqlite3_step(key_column_stmt);
+
+  auto num_bytes = sqlite3_column_bytes(key_column_stmt, 0);
+  sqlite3_finalize(key_column_stmt);
+  if (num_bytes) {
+    return true;
+  }
+
+  char *error;
+  sqlite3_exec(
+      db,
+      "ALTER TABLE drafts RENAME COLUMN `threadID` TO `key`;",
       nullptr,
       nullptr,
       &error);
@@ -29,8 +64,56 @@ void SQLiteQueryExecutor::migrate() {
                  << "to key: " << error;
     Logger::log(stringStream.str());
     sqlite3_free(error);
+    return false;
   }
-  sqlite3_close(conn);
+  return true;
+}
+
+typedef bool (*MigrationFunction)(sqlite3 *db);
+std::vector<std::pair<uint, MigrationFunction>> migrations{
+    {{1, create_drafts_table}, {2, rename_threadID_to_key}}};
+
+void SQLiteQueryExecutor::migrate() {
+  sqlite3 *db;
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+
+  sqlite3_stmt *user_version_stmt;
+  sqlite3_prepare_v2(
+      db, "PRAGMA user_version;", -1, &user_version_stmt, nullptr);
+  sqlite3_step(user_version_stmt);
+
+  int current_user_version = sqlite3_column_int(user_version_stmt, 0);
+  sqlite3_finalize(user_version_stmt);
+
+  std::stringstream version_msg;
+  version_msg << "db version: " << current_user_version << std::endl;
+  Logger::log(version_msg.str());
+
+  for (const auto &[idx, migration] : migrations) {
+    if (idx <= current_user_version) {
+      continue;
+    }
+
+    std::stringstream migration_msg;
+    sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+    if (!migration(db)) {
+      migration_msg << "migration " << idx << " failed." << std::endl;
+      Logger::log(migration_msg.str());
+      break;
+    };
+
+    std::stringstream update_version;
+    update_version << "PRAGMA user_version=" << idx << ";";
+    auto update_version_str = update_version.str();
+
+    sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, nullptr);
+    sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
+
+    migration_msg << "migration " << idx << " succeeded." << std::endl;
+    Logger::log(migration_msg.str());
+  }
+
+  sqlite3_close(db);
 }
 
 auto SQLiteQueryExecutor::getStorage() {
