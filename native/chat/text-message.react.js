@@ -217,18 +217,20 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
     const overlayContext = React.useContext(OverlayContext);
 
     const [linkModalActive, setLinkModalActive] = React.useState(false);
+    const [linkPressActive, setLinkPressActive] = React.useState(false);
     const markdownLinkContext = React.useMemo(
       () => ({
         setLinkModalActive,
+        setLinkPressActive,
       }),
-      [setLinkModalActive],
+      [setLinkModalActive, setLinkPressActive],
     );
     const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
       props.item.threadInfo,
       props.item.messageInfo,
     );
 
-    const linkIsBlockingPresses = linkModalActive;
+    const linkIsBlockingPresses = linkModalActive || linkPressActive;
     return (
       <MarkdownLinkContext.Provider value={markdownLinkContext}>
         <TextMessage
