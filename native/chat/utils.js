@@ -19,7 +19,7 @@ import { getSidebarThreadInfo } from './sidebar-navigation';
 import { timestampHeight } from './timestamp.react';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Node, Extrapolate, interpolateNode } = Animated;
+const { Node, Extrapolate, interpolateNode, interpolateColors } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 function chatMessageItemHeight(item: ChatMessageItemWithHeight): number {
@@ -29,11 +29,14 @@ function chatMessageItemHeight(item: ChatMessageItemWithHeight): number {
   return messageItemHeight(item);
 }
 
-function useMessageTargetPosition(
+function useMessageTargetParameters(
   sourceMessage: ChatMessageInfoItemWithHeight,
   initialCoordinates: LayoutCoordinates,
   messageListVerticalBounds: VerticalBounds,
-): number {
+): {
+  +position: number,
+  +color: string,
+} {
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
@@ -92,7 +95,10 @@ function useMessageTargetPosition(
     messageListVerticalBounds.y -
     initialCoordinates.y +
     timestampHeight;
-  return targetDistanceFromBottom - currentDistanceFromBottom;
+  return {
+    position: targetDistanceFromBottom - currentDistanceFromBottom,
+    color: sidebarThreadInfo.color,
+  };
 }
 
 function useAnimatedMessageTooltipButton(
@@ -100,8 +106,11 @@ function useAnimatedMessageTooltipButton(
   initialCoordinates: LayoutCoordinates,
   messageListVerticalBounds: VerticalBounds,
   progress: Node,
-): { +style: AnimatedViewStyle } {
-  const targetPosition = useMessageTargetPosition(
+): { +style: AnimatedViewStyle, +threadColorOverride: ?Node } {
+  const {
+    position: targetPosition,
+    color: targetColor,
+  } = useMessageTargetParameters(
     sourceMessage,
     initialCoordinates,
     messageListVerticalBounds,
@@ -128,6 +137,28 @@ function useAnimatedMessageTooltipButton(
     [progress, targetPosition],
   );
 
+  const threadColorOverride = React.useMemo(() => {
+    if (
+      sourceMessage.messageShapeType !== 'text' ||
+      !currentTransitionSidebarSourceID
+    ) {
+      return null;
+    }
+    return interpolateColors(progress, {
+      inputRange: [0, 1],
+      outputColorRange: [
+        `#${targetColor}`,
+        `#${sourceMessage.threadInfo.color}`,
+      ],
+    });
+  }, [
+    currentTransitionSidebarSourceID,
+    progress,
+    sourceMessage.messageShapeType,
+    sourceMessage.threadInfo.color,
+    targetColor,
+  ]);
+
   const messageContainerStyle = React.useMemo(() => {
     return {
       bottom: currentTransitionSidebarSourceID ? bottom : 0,
@@ -136,6 +167,7 @@ function useAnimatedMessageTooltipButton(
 
   return {
     style: messageContainerStyle,
+    threadColorOverride,
   };
 }
 

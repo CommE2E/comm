@@ -36,7 +36,10 @@ function TextMessageTooltipButton(props: Props): React.Node {
   }, [progress, windowWidth, initialCoordinates]);
 
   const { item, verticalBounds } = props.route.params;
-  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton(
+  const {
+    style: messageContainerStyle,
+    threadColorOverride,
+  } = useAnimatedMessageTooltipButton(
     item,
     initialCoordinates,
     verticalBounds,
@@ -51,7 +54,11 @@ function TextMessageTooltipButton(props: Props): React.Node {
         <MessageHeader item={item} focused={true} display="modal" />
       </Animated.View>
       <Animated.View style={messageContainerStyle}>
-        <InnerTextMessage item={item} onPress={navigation.goBackOnce} />
+        <InnerTextMessage
+          item={item}
+          onPress={navigation.goBackOnce}
+          threadColorOverride={threadColorOverride}
+        />
       </Animated.View>
     </MessageListContextProvider>
   );
