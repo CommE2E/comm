@@ -9,7 +9,7 @@ import {
 } from 'react-native-gesture-handler';
 import Animated, { EasingNode } from 'react-native-reanimated';
 
-import type { ViewStyle } from '../types/styles';
+import type { AnimatedViewStyle, ViewStyle } from '../types/styles';
 import {
   runTiming,
   useReanimatedValueForBoolean,
@@ -48,6 +48,7 @@ type Props = {
   +onLongPress?: () => mixed,
   +children?: React.Node,
   +style?: ViewStyle,
+  +animatedStyle?: AnimatedViewStyle,
   // If stickyActive is a boolean, we assume that we should stay active after a
   // successful onPress or onLongPress. We will wait for stickyActive to flip
   // from true to false before animating back to our deactivated mode.
@@ -214,7 +215,9 @@ function ForwardedGestureTouchableOpacity(
       ref={ref}
     >
       <Animated.View style={fillStyle}>
-        <Animated.View style={[transformStyle, props.style]}>
+        <Animated.View
+          style={[transformStyle, props.style, props.animatedStyle]}
+        >
           {props.children}
         </Animated.View>
         {props.overlay}

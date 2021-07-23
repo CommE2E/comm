@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import Animated from 'react-native-reanimated';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
 
@@ -18,6 +19,10 @@ import {
   getRoundedContainerStyle,
 } from './rounded-corners';
 import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
+
+/* eslint-disable import/no-named-as-default-member */
+const { Node } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 function useTextMessageMarkdownRules(useDarkStyle: boolean) {
   const messageListContext = React.useContext(MessageListContext);
@@ -53,6 +58,7 @@ type Props = {
   +item: ChatTextMessageInfoItemWithHeight,
   +onPress: () => void,
   +messageRef?: (message: ?React.ElementRef<typeof View>) => void,
+  +threadColorOverride?: ?Node,
 };
 function InnerTextMessage(props: Props): React.Node {
   const { item } = props;
@@ -67,7 +73,8 @@ function InnerTextMessage(props: Props): React.Node {
   let darkColor;
   if (isViewer) {
     const threadColor = item.threadInfo.color;
-    messageStyle.backgroundColor = `#${threadColor}`;
+    messageStyle.backgroundColor =
+      props.threadColorOverride ?? `#${threadColor}`;
     darkColor = colorIsDark(threadColor);
   } else {
     messageStyle.backgroundColor = boundColors.listChatBubble;
@@ -94,7 +101,8 @@ function InnerTextMessage(props: Props): React.Node {
           onPress={props.onPress}
           onLongPress={props.onPress}
           activeOpacity={0.6}
-          style={[styles.message, messageStyle, cornerStyle]}
+          style={[styles.message, cornerStyle]}
+          animatedStyle={messageStyle}
         >
           <Markdown style={[styles.text, textStyle]} rules={rules}>
             {text}
