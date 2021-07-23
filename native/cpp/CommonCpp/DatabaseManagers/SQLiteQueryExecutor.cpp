@@ -18,7 +18,7 @@ bool create_drafts_table(sqlite3 *db) {
   sqlite3_exec(
       db,
       "CREATE TABLE IF NOT EXISTS drafts (threadID TEXT UNIQUE PRIMARY KEY, "
-      "text TEXT)",
+      "text TEXT);",
       nullptr,
       nullptr,
       &error);
@@ -69,9 +69,39 @@ bool rename_threadID_to_key(sqlite3 *db) {
   return true;
 }
 
+bool create_messages_table(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "CREATE TABLE IF NOT EXISTS messages ( "
+      "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
+      "thread INTEGER NOT NULL, "
+      "user INTEGER NOT NULL, "
+      "type INTEGER NOT NULL, "
+      "future_type INTEGER, "
+      "content TEXT, "
+      "time INTEGER NOT NULL, "
+      "creation TEXT);",
+      nullptr,
+      nullptr,
+      &error);
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error creating 'messages' table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 typedef bool (*MigrationFunction)(sqlite3 *db);
 std::vector<std::pair<uint, MigrationFunction>> migrations{
-    {{1, create_drafts_table}, {2, rename_threadID_to_key}}};
+    {{1, create_drafts_table},
+     {2, rename_threadID_to_key},
+     {3, create_messages_table}}};
 
 void SQLiteQueryExecutor::migrate() {
   sqlite3 *db;
