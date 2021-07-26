@@ -231,18 +231,22 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     }
   };
 
+  clearSearch() {
+    const { flatList } = this;
+    flatList && flatList.scrollToOffset({ offset: 0, animated: false });
+    this.setState({ searchStatus: 'inactive' });
+  }
+
   onSearchBlur = () => {
     if (this.state.searchStatus !== 'active') {
       return;
     }
-    const { flatList } = this;
-    flatList && flatList.scrollToOffset({ offset: 0, animated: false });
-    this.setState({ searchStatus: 'inactive' });
+    this.clearSearch();
   };
 
   onSearchCancel = () => {
     this.onChangeSearchText('');
-    this.onSearchBlur();
+    this.clearSearch();
   };
 
   renderSearch(additionalProps?: $Shape<React.ElementConfig<typeof Search>>) {
