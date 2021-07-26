@@ -9,6 +9,7 @@ import {
   Platform,
   TextInput,
   TouchableWithoutFeedback,
+  BackHandler,
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
 import Animated from 'react-native-reanimated';
@@ -164,6 +165,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     > = chatNavigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
+
+    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
   }
 
   componentWillUnmount() {
@@ -178,7 +181,25 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     > = chatNavigation.dangerouslyGetParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
+
+    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   }
+
+  hardwareBack = () => {
+    if (!this.props.navigation.isFocused()) {
+      return false;
+    }
+
+    const { searchStatus } = this.state;
+    const isActiveOrActivating =
+      searchStatus === 'active' || searchStatus === 'activating';
+    if (!isActiveOrActivating) {
+      return false;
+    }
+
+    this.onSearchCancel();
+    return true;
+  };
 
   componentDidUpdate(prevProps: Props, prevState: State) {
     const { searchStatus } = this.state;
