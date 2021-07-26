@@ -39,6 +39,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
   const {
     style: messageContainerStyle,
     threadColorOverride,
+    isThreadColorDarkOverride,
   } = useAnimatedMessageTooltipButton(
     item,
     initialCoordinates,
@@ -58,6 +59,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
           item={item}
           onPress={navigation.goBackOnce}
           threadColorOverride={threadColorOverride}
+          isThreadColorDarkOverride={isThreadColorDarkOverride}
         />
       </Animated.View>
     </MessageListContextProvider>

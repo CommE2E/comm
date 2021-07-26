@@ -59,6 +59,7 @@ type Props = {
   +onPress: () => void,
   +messageRef?: (message: ?React.ElementRef<typeof View>) => void,
   +threadColorOverride?: ?Node,
+  +isThreadColorDarkOverride?: ?boolean,
 };
 function InnerTextMessage(props: Props): React.Node {
   const { item } = props;
@@ -75,7 +76,7 @@ function InnerTextMessage(props: Props): React.Node {
     const threadColor = item.threadInfo.color;
     messageStyle.backgroundColor =
       props.threadColorOverride ?? `#${threadColor}`;
-    darkColor = colorIsDark(threadColor);
+    darkColor = props.isThreadColorDarkOverride ?? colorIsDark(threadColor);
   } else {
     messageStyle.backgroundColor = boundColors.listChatBubble;
     darkColor = activeTheme === 'dark';

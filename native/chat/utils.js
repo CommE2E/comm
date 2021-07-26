@@ -5,6 +5,7 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
 import { useMessageListData } from 'lib/selectors/chat-selectors';
+import { colorIsDark } from 'lib/shared/thread-utils';
 
 import { useSelector } from '../redux/redux-utils';
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
@@ -19,7 +20,16 @@ import { getSidebarThreadInfo } from './sidebar-navigation';
 import { timestampHeight } from './timestamp.react';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Node, Extrapolate, interpolateNode, interpolateColors } = Animated;
+const {
+  Node,
+  Extrapolate,
+  interpolateNode,
+  interpolateColors,
+  block,
+  call,
+  eq,
+  cond,
+} = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 function chatMessageItemHeight(item: ChatMessageItemWithHeight): number {
@@ -106,7 +116,11 @@ function useAnimatedMessageTooltipButton(
   initialCoordinates: LayoutCoordinates,
   messageListVerticalBounds: VerticalBounds,
   progress: Node,
-): { +style: AnimatedViewStyle, +threadColorOverride: ?Node } {
+): {
+  +style: AnimatedViewStyle,
+  +threadColorOverride: ?Node,
+  +isThreadColorDarkOverride: ?boolean,
+} {
   const {
     position: targetPosition,
     color: targetColor,
@@ -137,6 +151,18 @@ function useAnimatedMessageTooltipButton(
     [progress, targetPosition],
   );
 
+  const [
+    isThreadColorDarkOverride,
+    setThreadColorDarkOverride,
+  ] = React.useState<?boolean>(null);
+  const setThreadColorBrightness = React.useCallback(() => {
+    const isSourceThreadDark = colorIsDark(sourceMessage.threadInfo.color);
+    const isTargetThreadDark = colorIsDark(targetColor);
+    if (isSourceThreadDark !== isTargetThreadDark) {
+      setThreadColorDarkOverride(isTargetThreadDark);
+    }
+  }, [sourceMessage.threadInfo.color, targetColor]);
+
   const threadColorOverride = React.useMemo(() => {
     if (
       sourceMessage.messageShapeType !== 'text' ||
@@ -144,16 +170,20 @@ function useAnimatedMessageTooltipButton(
     ) {
       return null;
     }
-    return interpolateColors(progress, {
-      inputRange: [0, 1],
-      outputColorRange: [
-        `#${targetColor}`,
-        `#${sourceMessage.threadInfo.color}`,
-      ],
-    });
+    return block([
+      cond(eq(progress, 1), call([], setThreadColorBrightness)),
+      interpolateColors(progress, {
+        inputRange: [0, 1],
+        outputColorRange: [
+          `#${targetColor}`,
+          `#${sourceMessage.threadInfo.color}`,
+        ],
+      }),
+    ]);
   }, [
     currentTransitionSidebarSourceID,
     progress,
+    setThreadColorBrightness,
     sourceMessage.messageShapeType,
     sourceMessage.threadInfo.color,
     targetColor,
@@ -168,6 +198,7 @@ function useAnimatedMessageTooltipButton(
   return {
     style: messageContainerStyle,
     threadColorOverride,
+    isThreadColorDarkOverride,
   };
 }
 
