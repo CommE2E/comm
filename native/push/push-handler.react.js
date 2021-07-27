@@ -1,12 +1,10 @@
 // @flow
 
+import * as Haptics from 'expo-haptics';
 import * as React from 'react';
-import { AppRegistry, Platform, Alert, Vibration, LogBox } from 'react-native';
+import { AppRegistry, Platform, Alert, LogBox } from 'react-native';
 import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
-import {
-  Notification as InAppNotification,
-  TapticFeedback,
-} from 'react-native-in-app-message';
+import { Notification as InAppNotification } from 'react-native-in-app-message';
 import NotificationsIOS from 'react-native-notifications';
 import { useDispatch } from 'react-redux';
 
@@ -71,8 +69,6 @@ LogBox.ignoreLogs([
 ]);
 
 const msInDay = 24 * 60 * 60 * 1000;
-const supportsTapticFeedback =
-  Platform.OS === 'ios' && parseInt(Platform.Version, 10) >= 10;
 
 type BaseProps = {
   +navigation: RootNavigationProp<'App'>,
@@ -258,11 +254,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.state.inAppNotifProps &&
       this.state.inAppNotifProps !== prevState.inAppNotifProps
     ) {
-      if (supportsTapticFeedback) {
-        TapticFeedback.impact();
-      } else {
-        Vibration.vibrate(400);
-      }
+      Haptics.notificationAsync();
       InAppNotification.show();
     }
   }

@@ -1,6 +1,7 @@
 // @flow
 
 import type { LeafRoute } from '@react-navigation/native';
+import * as Haptics from 'expo-haptics';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
@@ -10,7 +11,6 @@ import {
   Platform,
   TouchableOpacity,
 } from 'react-native';
-import { TapticFeedback } from 'react-native-in-app-message';
 import Animated from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
 
@@ -179,9 +179,7 @@ function createTooltip<
     }
 
     componentDidMount() {
-      if (Platform.OS === 'ios') {
-        TapticFeedback.impact();
-      }
+      Haptics.impactAsync();
     }
 
     get entries(): $ReadOnlyArray<TooltipEntry<RouteName>> {

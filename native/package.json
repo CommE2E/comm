@@ -53,6 +53,7 @@
     "@react-navigation/native": "^5.8.9",
     "@react-navigation/stack": "^5.12.8",
     "base-64": "^0.1.0",
+    "expo-haptics": "^10.1.0",
     "expo-image-manipulator": "^8.4.0",
     "expo-media-library": "^10.0.0",
     "expo-splash-screen": "^0.3.1",

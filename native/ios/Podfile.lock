@@ -9,6 +9,8 @@ PODS:
   - EXFileSystem (8.1.0):
     - UMCore
     - UMFileSystemInterface
+  - EXHaptics (10.1.0):
+    - UMCore
   - EXImageLoader (1.0.1):
     - React-Core
     - UMCore
@@ -523,6 +525,7 @@ DEPENDENCIES:
   - DoubleConversion (from `../../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
   - EXConstants (from `../../node_modules/expo-constants/ios`)
   - EXFileSystem (from `../../node_modules/expo-file-system/ios`)
+  - EXHaptics (from `../../node_modules/expo-haptics/ios`)
   - EXImageLoader (from `../../node_modules/expo-image-loader/ios`)
   - EXImageManipulator (from `../../node_modules/expo-image-manipulator/ios`)
   - EXMediaLibrary (from `../../node_modules/expo-media-library/ios`)
@@ -655,6 +658,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/expo-constants/ios"
   EXFileSystem:
     :path: "../../node_modules/expo-file-system/ios"
+  EXHaptics:
+    :path: "../../node_modules/expo-haptics/ios"
   EXImageLoader:
     :path: "../../node_modules/expo-image-loader/ios"
   EXImageManipulator:
@@ -815,6 +820,7 @@ SPEC CHECKSUMS:
   DVAssetLoaderDelegate: 0caec20e4e08b8560b691131539e9180024d4bce
   EXConstants: 5304709b1bea70a4828f48ba4c7fc3ec3b2d9b17
   EXFileSystem: cf4232ba7c62dc49b78c2d36005f97b6fddf0b01
+  EXHaptics: 6dc4307ab0794fe7a87ec8d7d1c299cf103d6cb3
   EXImageLoader: 5ad6896fa1ef2ee814b551873cbf7a7baccc694a
   EXImageManipulator: 77756def08b3f2bc2a0470c657fbd0d94f381fa4
   EXMediaLibrary: 580c097a85f9253deaaf7aaa75a8a2e692e9d8b9
@@ -911,6 +917,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: fcfd29ca85ecb44c7df5bc5cb2f7d9209881a4b1
+PODFILE CHECKSUM: 6327527eaf49ffb862be360fca63968fec75d436
 
 COCOAPODS: 1.10.1

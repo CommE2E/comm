@@ -1,10 +1,10 @@
 // @flow
 
 import { GestureHandlerRefContext } from '@react-navigation/stack';
+import * as Haptics from 'expo-haptics';
 import * as React from 'react';
-import { View, Platform } from 'react-native';
+import { View } from 'react-native';
 import { PanGestureHandler } from 'react-native-gesture-handler';
-import { TapticFeedback } from 'react-native-in-app-message';
 import Animated, {
   useAnimatedGestureHandler,
   useSharedValue,
@@ -148,10 +148,11 @@ type Props = {
 };
 function SwipeableMessage(props: Props): React.Node {
   const { isViewer, triggerReply, triggerSidebar } = props;
-  const onPassThreshold = React.useCallback(() => {
-    if (Platform.OS === 'ios') {
-      TapticFeedback.impact();
-    }
+  const onPassReplyThreshold = React.useCallback(() => {
+    Haptics.impactAsync();
+  }, []);
+  const onPassSidebarThreshold = React.useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
   }, []);
 
   const translateX = useSharedValue(0);
@@ -175,13 +176,13 @@ function SwipeableMessage(props: Props): React.Node {
         const absValue = Math.abs(translateX.value);
         const pastReplyThreshold = absValue >= replyThreshold;
         if (pastReplyThreshold && !ctx.prevPastReplyThreshold) {
-          runOnJS(onPassThreshold)();
+          runOnJS(onPassReplyThreshold)();
         }
         ctx.prevPastReplyThreshold = pastReplyThreshold;
 
         const pastSidebarThreshold = absValue >= sidebarThreshold;
         if (pastSidebarThreshold && !ctx.prevPastSidebarThreshold) {
-          runOnJS(onPassThreshold)();
+          runOnJS(onPassSidebarThreshold)();
         }
         ctx.prevPastSidebarThreshold = pastSidebarThreshold;
       },
