@@ -256,6 +256,20 @@ const indicatorStyleSelector: (
   },
 );
 
+export type KeyboardAppearance = 'default' | 'light' | 'dark';
+const keyboardAppearanceSelector: (
+  state: AppState,
+) => KeyboardAppearance = createSelector(
+  (state: AppState) => state.globalThemeInfo.activeTheme,
+  (theme: ?GlobalTheme) => {
+    return theme && theme === 'dark' ? 'dark' : 'light';
+  },
+);
+
+function useKeyboardAppearance(): KeyboardAppearance {
+  return useSelector(keyboardAppearanceSelector);
+}
+
 export {
   colors,
   colorsSelector,
@@ -266,4 +280,5 @@ export {
   getStylesForTheme,
   useIndicatorStyle,
   indicatorStyleSelector,
+  useKeyboardAppearance,
 };

@@ -3,12 +3,21 @@
 import * as React from 'react';
 import { TextInput as BaseTextInput } from 'react-native';
 
+import { useKeyboardAppearance } from '../themes/colors';
+
 type Props = React.ElementConfig<typeof BaseTextInput>;
 function ForwardedTextInput(
   props: Props,
   ref: React.Ref<typeof TextInput>,
 ): React.Node {
-  return <BaseTextInput {...props} ref={ref} />;
+  const keyboardAppearance = useKeyboardAppearance();
+  return (
+    <BaseTextInput
+      keyboardAppearance={keyboardAppearance}
+      {...props}
+      ref={ref}
+    />
+  );
 }
 
 const TextInput: React.AbstractComponent<
