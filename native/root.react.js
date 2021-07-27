@@ -43,7 +43,6 @@ import Socket from './socket.react';
 import { DarkTheme, LightTheme } from './themes/navigation';
 import ThemeHandler from './themes/theme-handler.react';
 import './themes/fonts';
-import './data/core-module-shim';
 
 LogBox.ignoreLogs([
   // react-native-reanimated

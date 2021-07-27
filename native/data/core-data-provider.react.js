@@ -1,6 +1,5 @@
 // @flow
 
-import './core-module-shim';
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
