@@ -20,6 +20,7 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import { useColors, useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import { dividePastDistance } from '../utils/animation-utils';
+import { useMessageListScreenWidth } from './composed-message-width';
 
 const threshold = 40;
 
@@ -122,9 +123,10 @@ function SwipeableMessage(props: Props): React.Node {
   );
 
   const iconAlign = isViewer ? styles.alignStart : styles.alignEnd;
+  const screenWidth = useMessageListScreenWidth();
   const swipeSnakeStyle = React.useMemo(() => {
-    return [styles.swipeSnake, iconAlign];
-  }, [styles.swipeSnake, iconAlign]);
+    return [styles.swipeSnake, iconAlign, { width: screenWidth }];
+  }, [styles.swipeSnake, iconAlign, screenWidth]);
 
   const { messageBoxStyle, children } = props;
   const colors = useColors();
@@ -179,7 +181,6 @@ const unboundStyles = {
     borderRadius: 25,
     height: 30,
     justifyContent: 'center',
-    width: 500,
     maxHeight: 50,
   },
   left0: {
