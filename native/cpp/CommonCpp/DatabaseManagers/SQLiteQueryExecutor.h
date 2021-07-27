@@ -22,6 +22,7 @@ public:
   void removeAllDrafts() const override;
   void removeAllMessages() const override;
   std::vector<Message> getAllMessages() const override;
+  void removeMessages(std::vector<int> ids) const override;
 };
 
 } // namespace comm

@@ -29,6 +29,9 @@ public:
   virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
   virtual jsi::Value removeAllMessages(jsi::Runtime &rt) = 0;
   virtual jsi::Value getAllMessages(jsi::Runtime &rt) = 0;
+  virtual jsi::Value processMessageStoreOperations(
+      jsi::Runtime &rt,
+      const jsi::Array &operations) = 0;
 };
 
 } // namespace react

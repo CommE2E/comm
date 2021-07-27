@@ -24,6 +24,7 @@ public:
   virtual void removeAllDrafts() const = 0;
   virtual void removeAllMessages() const = 0;
   virtual std::vector<Message> getAllMessages() const = 0;
+  virtual void removeMessages(std::vector<int> ids) const = 0;
 };
 
 } // namespace comm

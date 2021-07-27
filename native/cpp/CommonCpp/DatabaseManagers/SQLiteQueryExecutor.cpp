@@ -210,4 +210,8 @@ std::vector<Message> SQLiteQueryExecutor::getAllMessages() const {
   return SQLiteQueryExecutor::getStorage().get_all<Message>();
 }
 
+void SQLiteQueryExecutor::removeMessages(std::vector<int> ids) const {
+  SQLiteQueryExecutor::getStorage().remove<Message>(ids);
+}
+
 } // namespace comm

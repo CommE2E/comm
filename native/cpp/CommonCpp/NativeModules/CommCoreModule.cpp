@@ -217,6 +217,45 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
       });
 }
 
+#define REMOVE_OPERATION "remove"
+
+jsi::Value CommCoreModule::processMessageStoreOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) {
+  std::vector<int> removed_msg_ids;
+  for (auto idx = 0; idx < operations.size(rt); idx++) {
+    auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
+    auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
+
+    if (op_type == REMOVE_OPERATION) {
+      auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
+      auto msg_idx =
+          std::stoi(payload_obj.getProperty(rt, "id").asString(rt).utf8(rt));
+      removed_msg_ids.push_back(msg_idx);
+    }
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().removeMessages(removed_msg_ids);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        this->databaseThread.scheduleTask(job);
+      });
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
