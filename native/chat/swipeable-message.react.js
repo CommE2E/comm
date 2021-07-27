@@ -51,75 +51,90 @@ function SwipeableMessage(props: Props): React.Node {
   }, []);
 
   const translateX = useSharedValue(0);
-  const swipeEvent = useAnimatedGestureHandler({
-    onStart: (event, ctx) => {
-      ctx.translationAtStart = translateX.value;
-      cancelAnimation(translateX.value);
+  const swipeEvent = useAnimatedGestureHandler(
+    {
+      onStart: (event, ctx) => {
+        ctx.translationAtStart = translateX.value;
+        cancelAnimation(translateX.value);
+      },
+      onActive: (event, ctx) => {
+        const translationX = ctx.translationAtStart + event.translationX;
+        const baseActiveTranslation = isViewer
+          ? Math.min(translationX, 0)
+          : Math.max(translationX, 0);
+        translateX.value = dividePastDistance(
+          baseActiveTranslation,
+          threshold,
+          2,
+        );
+
+        const pastThreshold = Math.abs(translateX.value) >= threshold;
+        if (pastThreshold && !ctx.prevPastThreshold) {
+          runOnJS(onPassThreshold)();
+        }
+        ctx.prevPastThreshold = pastThreshold;
+      },
+      onEnd: event => {
+        if (Math.abs(translateX.value) >= threshold) {
+          runOnJS(onSwipeableWillOpen)();
+        }
+
+        translateX.value = withSpring(0, makeSpringConfig(event.velocityX));
+      },
     },
-    onActive: (event, ctx) => {
-      const translationX = ctx.translationAtStart + event.translationX;
-      const baseActiveTranslation = isViewer
-        ? Math.min(translationX, 0)
-        : Math.max(translationX, 0);
-      translateX.value = dividePastDistance(
-        baseActiveTranslation,
-        threshold,
-        2,
-      );
+    [isViewer, onSwipeableWillOpen],
+  );
 
-      const pastThreshold = Math.abs(translateX.value) >= threshold;
-      if (pastThreshold && !ctx.prevPastThreshold) {
-        runOnJS(onPassThreshold)();
-      }
-      ctx.prevPastThreshold = pastThreshold;
-    },
-    onEnd: event => {
-      if (Math.abs(translateX.value) >= threshold) {
-        runOnJS(onSwipeableWillOpen)();
-      }
+  const styles = useStyles(unboundStyles);
 
-      translateX.value = withSpring(0, makeSpringConfig(event.velocityX));
-    },
-  });
+  const animationPosition = isViewer ? styles.right0 : styles.left0;
+  const animationContainerStyle = React.useMemo(() => {
+    return [styles.animationContainer, animationPosition];
+  }, [styles.animationContainer, animationPosition]);
 
-  const transformMessageBoxStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
-  }));
-
-  const transformReplyStyle = useAnimatedStyle(() => {
-    const translateReplyIcon = interpolate(
+  const transformSwipeSnakeStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
       translateX.value,
-      isViewer ? [-1 * threshold, 0] : [0, threshold],
-      isViewer ? [0, threshold] : [0 - threshold, 0],
-      Extrapolate.CLAMP,
-    );
-    const replyIconOpacity = interpolate(
-      translateX.value,
-      isViewer ? [-1 * threshold, -25] : [25, threshold],
+      isViewer ? [-20, -5] : [5, 20],
       isViewer ? [1, 0] : [0, 1],
       Extrapolate.CLAMP,
     );
     return {
       transform: [
         {
-          translateX: translateReplyIcon,
+          translateX: translateX.value,
         },
       ],
-      opacity: replyIconOpacity,
+      opacity,
     };
-  });
+  }, [isViewer]);
 
-  const iconPosition = isViewer ? { right: 0 } : { left: 0 };
+  const iconPosition = isViewer ? styles.left0 : styles.right0;
+  const swipeSnakeContainerStyle = React.useMemo(() => {
+    return [styles.swipeSnakeContainer, transformSwipeSnakeStyle, iconPosition];
+  }, [styles.swipeSnakeContainer, transformSwipeSnakeStyle, iconPosition]);
+
+  const transformMessageBoxStyle = useAnimatedStyle(
+    () => ({
+      transform: [{ translateX: translateX.value }],
+    }),
+    [],
+  );
+
+  const iconAlign = isViewer ? styles.alignStart : styles.alignEnd;
+  const swipeSnakeStyle = React.useMemo(() => {
+    return [styles.swipeSnake, iconAlign];
+  }, [styles.swipeSnake, iconAlign]);
+
   const { messageBoxStyle, children } = props;
   const colors = useColors();
-  const styles = useStyles(unboundStyles);
   const reactNavGestureHandlerRef = React.useContext(GestureHandlerRefContext);
   const waitFor = reactNavGestureHandlerRef ?? undefined;
   return (
     <>
-      <View style={[styles.icon, iconPosition]}>
-        <Animated.View style={transformReplyStyle}>
-          <View style={styles.iconBackground}>
+      <View style={animationContainerStyle}>
+        <Animated.View style={swipeSnakeContainerStyle}>
+          <View style={swipeSnakeStyle}>
             <FontAwesomeIcon
               name="reply"
               color={colors.blockQuoteBorder}
@@ -145,19 +160,39 @@ function SwipeableMessage(props: Props): React.Node {
 }
 
 const unboundStyles = {
-  icon: {
+  swipeSnakeContainer: {
+    marginHorizontal: 20,
     justifyContent: 'center',
     position: 'absolute',
     top: 0,
     bottom: 0,
   },
-  iconBackground: {
-    alignItems: 'center',
+  animationContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+  },
+  swipeSnake: {
+    paddingHorizontal: 15,
+    flex: 1,
     backgroundColor: 'listChatBubble',
-    borderRadius: 30,
+    borderRadius: 25,
     height: 30,
     justifyContent: 'center',
-    width: 30,
+    width: 500,
+    maxHeight: 50,
+  },
+  left0: {
+    left: 0,
+  },
+  right0: {
+    right: 0,
+  },
+  alignStart: {
+    alignItems: 'flex-start',
+  },
+  alignEnd: {
+    alignItems: 'flex-end',
   },
 };
 
