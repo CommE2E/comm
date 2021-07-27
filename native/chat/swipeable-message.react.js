@@ -14,7 +14,9 @@ import Animated, {
   interpolate,
   cancelAnimation,
   Extrapolate,
+  type SharedValue,
 } from 'react-native-reanimated';
+import type { IconProps } from 'react-native-vector-icons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -37,6 +39,78 @@ function makeSpringConfig(velocity: number) {
     restSpeedThreshold: 0.001,
     velocity,
   };
+}
+
+type SwipeSnakeProps<IconGlyphs: string> = {
+  +isViewer: boolean,
+  +translateX: SharedValue<number>,
+  +color: string,
+  +children: React.Element<React.ComponentType<IconProps<IconGlyphs>>>,
+};
+function SwipeSnake<IconGlyphs: string>(
+  props: SwipeSnakeProps<IconGlyphs>,
+): React.Node {
+  const { translateX, isViewer } = props;
+  const transformStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      translateX.value,
+      isViewer ? [-20, -5] : [5, 20],
+      isViewer ? [1, 0] : [0, 1],
+      Extrapolate.CLAMP,
+    );
+    return {
+      transform: [
+        {
+          translateX: translateX.value,
+        },
+      ],
+      opacity,
+    };
+  }, [isViewer]);
+
+  const animationPosition = isViewer ? styles.right0 : styles.left0;
+  const animationContainerStyle = React.useMemo(() => {
+    return [styles.animationContainer, animationPosition];
+  }, [animationPosition]);
+
+  const iconPosition = isViewer ? styles.left0 : styles.right0;
+  const swipeSnakeContainerStyle = React.useMemo(() => {
+    return [styles.swipeSnakeContainer, transformStyle, iconPosition];
+  }, [transformStyle, iconPosition]);
+
+  const iconAlign = isViewer ? styles.alignStart : styles.alignEnd;
+  const screenWidth = useMessageListScreenWidth();
+  const { color } = props;
+  const swipeSnakeStyle = React.useMemo(() => {
+    return [
+      styles.swipeSnake,
+      iconAlign,
+      {
+        width: screenWidth,
+        backgroundColor: `#${color}`,
+      },
+    ];
+  }, [iconAlign, screenWidth, color]);
+
+  const { children } = props;
+  const iconColor = colorIsDark(color)
+    ? colors.dark.listForegroundLabel
+    : colors.light.listForegroundLabel;
+  const coloredIcon = React.useMemo(
+    () =>
+      React.cloneElement(children, {
+        color: iconColor,
+      }),
+    [children, iconColor],
+  );
+
+  return (
+    <View style={animationContainerStyle}>
+      <Animated.View style={swipeSnakeContainerStyle}>
+        <View style={swipeSnakeStyle}>{coloredIcon}</View>
+      </Animated.View>
+    </View>
+  );
 }
 
 type Props = {
@@ -89,33 +163,6 @@ function SwipeableMessage(props: Props): React.Node {
     [isViewer, onSwipeableWillOpen],
   );
 
-  const animationPosition = isViewer ? styles.right0 : styles.left0;
-  const animationContainerStyle = React.useMemo(() => {
-    return [styles.animationContainer, animationPosition];
-  }, [animationPosition]);
-
-  const transformSwipeSnakeStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      translateX.value,
-      isViewer ? [-20, -5] : [5, 20],
-      isViewer ? [1, 0] : [0, 1],
-      Extrapolate.CLAMP,
-    );
-    return {
-      transform: [
-        {
-          translateX: translateX.value,
-        },
-      ],
-      opacity,
-    };
-  }, [isViewer]);
-
-  const iconPosition = isViewer ? styles.left0 : styles.right0;
-  const swipeSnakeContainerStyle = React.useMemo(() => {
-    return [styles.swipeSnakeContainer, transformSwipeSnakeStyle, iconPosition];
-  }, [transformSwipeSnakeStyle, iconPosition]);
-
   const transformMessageBoxStyle = useAnimatedStyle(
     () => ({
       transform: [{ translateX: translateX.value }],
@@ -123,36 +170,18 @@ function SwipeableMessage(props: Props): React.Node {
     [],
   );
 
-  const iconAlign = isViewer ? styles.alignStart : styles.alignEnd;
-  const screenWidth = useMessageListScreenWidth();
-  const { threadColor } = props;
-  const swipeSnakeStyle = React.useMemo(() => {
-    return [
-      styles.swipeSnake,
-      iconAlign,
-      {
-        width: screenWidth,
-        backgroundColor: `#${threadColor}`,
-      },
-    ];
-  }, [iconAlign, screenWidth, threadColor]);
-
-  const iconColor = colorIsDark(threadColor)
-    ? colors.dark.listForegroundLabel
-    : colors.light.listForegroundLabel;
-
-  const { messageBoxStyle, children } = props;
+  const { messageBoxStyle, threadColor, children } = props;
   const reactNavGestureHandlerRef = React.useContext(GestureHandlerRefContext);
   const waitFor = reactNavGestureHandlerRef ?? undefined;
   return (
     <>
-      <View style={animationContainerStyle}>
-        <Animated.View style={swipeSnakeContainerStyle}>
-          <View style={swipeSnakeStyle}>
-            <FontAwesomeIcon name="reply" color={iconColor} size={16} />
-          </View>
-        </Animated.View>
-      </View>
+      <SwipeSnake
+        isViewer={isViewer}
+        translateX={translateX}
+        color={threadColor}
+      >
+        <FontAwesomeIcon name="reply" size={16} />
+      </SwipeSnake>
       <PanGestureHandler
         maxPointers={1}
         minDist={4}
