@@ -1,6 +1,7 @@
 #pragma once
 
 #include "entities/Draft.h"
+#include "entities/Message.h"
 
 #include <jsi/jsi.h>
 #include <string>

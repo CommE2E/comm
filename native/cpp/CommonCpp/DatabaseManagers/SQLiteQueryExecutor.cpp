@@ -152,7 +152,17 @@ auto SQLiteQueryExecutor::getStorage() {
       make_table(
           "drafts",
           make_column("key", &Draft::key, unique(), primary_key()),
-          make_column("text", &Draft::text)));
+          make_column("text", &Draft::text)),
+      make_table(
+          "messages",
+          make_column("id", &Message::id, unique(), primary_key()),
+          make_column("thread", &Message::thread),
+          make_column("user", &Message::user),
+          make_column("type", &Message::type),
+          make_column("future_type", &Message::future_type),
+          make_column("content", &Message::content),
+          make_column("time", &Message::time),
+          make_column("creation", &Message::creation)));
   return storage;
 }
 
