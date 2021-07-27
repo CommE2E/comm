@@ -21,6 +21,7 @@ public:
   std::vector<Draft> getAllDrafts() const override;
   void removeAllDrafts() const override;
   void removeAllMessages() const override;
+  std::vector<Message> getAllMessages() const override;
 };
 
 } // namespace comm

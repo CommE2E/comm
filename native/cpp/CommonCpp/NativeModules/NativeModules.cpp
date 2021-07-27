@@ -61,6 +61,14 @@ __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeAllMessages(
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
       ->removeAllMessages(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllMessages(
+    jsi::Runtime &rt,
+    TurboModule &turboModule,
+    const jsi::Value *args,
+    size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
+      ->getAllMessages(rt);
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(
     std::shared_ptr<CallInvoker> jsInvoker)
@@ -77,6 +85,8 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(
       0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeAllDrafts};
   methodMap_["removeAllMessages"] = MethodMetadata{
       0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeAllMessages};
+  methodMap_["getAllMessages"] = MethodMetadata{
+      0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllMessages};
 }
 
 } // namespace react

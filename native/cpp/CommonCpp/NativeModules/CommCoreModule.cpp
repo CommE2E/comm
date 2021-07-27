@@ -171,6 +171,52 @@ jsi::Value CommCoreModule::removeAllMessages(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::vector<Message> messagesVector;
+          size_t numMessages;
+          try {
+            messagesVector =
+                DatabaseManager::getQueryExecutor().getAllMessages();
+            numMessages = messagesVector.size();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            jsi::Array jsiMessages = jsi::Array(innerRt, numMessages);
+            size_t writeIndex = 0;
+            for (Message message : messagesVector) {
+              auto jsiMessage = jsi::Object(innerRt);
+              jsiMessage.setProperty(innerRt, "id", std::to_string(message.id));
+              jsiMessage.setProperty(
+                  innerRt, "thread", std::to_string(message.thread));
+              jsiMessage.setProperty(
+                  innerRt, "user", std::to_string(message.user));
+              jsiMessage.setProperty(
+                  innerRt, "type", std::to_string(message.type));
+              jsiMessage.setProperty(
+                  innerRt, "future_type", std::to_string(message.future_type));
+              jsiMessage.setProperty(innerRt, "content", message.content);
+              jsiMessage.setProperty(
+                  innerRt, "time", std::to_string(message.time));
+              jsiMessage.setProperty(innerRt, "creation", message.creation);
+
+              jsiMessages.setValueAtIndex(innerRt, writeIndex++, jsiMessage);
+            }
+            promise->resolve(std::move(jsiMessages));
+          });
+        };
+        this->databaseThread.scheduleTask(job);
+      });
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
