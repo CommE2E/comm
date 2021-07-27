@@ -126,8 +126,8 @@ class ComposedMessage extends React.PureComponent<Props> {
         <MessageHeader item={item} focused={focused} display="lowContrast" />
         <View style={containerStyle}>
           <View style={[styles.content, alignStyle]}>
-            {messageBox}
             {deliveryIcon}
+            {messageBox}
           </View>
           {failedSendInfo}
           {inlineSidebar}
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    flexDirection: 'row',
+    flexDirection: 'row-reverse',
   },
   icon: {
     fontSize: 16,
@@ -166,13 +166,13 @@ const styles = StyleSheet.create({
     marginTop: inlineSidebarMarginTop,
   },
   leftChatBubble: {
-    justifyContent: 'flex-start',
+    justifyContent: 'flex-end',
   },
   messageBox: {
     marginRight: 5,
   },
   rightChatBubble: {
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
   },
 });
 
