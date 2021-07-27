@@ -11,7 +11,7 @@ import GestureTouchableOpacity from '../components/gesture-touchable-opacity.rea
 import Markdown from '../markdown/markdown.react';
 import { useSelector } from '../redux/redux-utils';
 import { useColors, colors } from '../themes/colors';
-import { composedMessageMaxWidthSelector } from './composed-message-width';
+import { useComposedMessageMaxWidth } from './composed-message-width';
 import { MessageListContext } from './message-list-types';
 import {
   allCorners,
@@ -42,7 +42,7 @@ type DummyTextNodeProps = {
 };
 function DummyTextNode(props: DummyTextNodeProps): React.Node {
   const { children, style, ...rest } = props;
-  const maxWidth = useSelector(state => composedMessageMaxWidthSelector(state));
+  const maxWidth = useComposedMessageMaxWidth();
   const viewStyle = [props.style, styles.dummyMessage, { maxWidth }];
   const rules = useTextMessageMarkdownRules(false);
   return (

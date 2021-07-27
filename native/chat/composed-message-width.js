@@ -1,21 +1,18 @@
 // @flow
 
-import { createSelector } from 'reselect';
+import { useSelector } from '../redux/redux-utils';
 
-import type { DimensionsInfo } from '../redux/dimensions-updater.react';
-import type { AppState } from '../redux/state-types';
+function useMessageListScreenWidth(): number {
+  return useSelector(state => {
+    const { dimensions } = state;
+    return dimensions.rotated ? dimensions.height : dimensions.width;
+  });
+}
 
 // Keep sorta synced with styles.alignment/styles.messageBox in ComposedMessage
-const composedMessageMaxWidthSelector: (
-  state: AppState,
-) => number = createSelector(
-  (state: AppState) => state.dimensions,
-  (dimensionsInfo: DimensionsInfo): number => {
-    const windowWidth = dimensionsInfo.rotated
-      ? dimensionsInfo.height
-      : dimensionsInfo.width;
-    return (windowWidth - 24) * 0.8;
-  },
-);
+function useComposedMessageMaxWidth(): number {
+  const messageListScreenWidth = useMessageListScreenWidth();
+  return (messageListScreenWidth - 24) * 0.8;
+}
 
-export { composedMessageMaxWidthSelector };
+export { useMessageListScreenWidth, useComposedMessageMaxWidth };

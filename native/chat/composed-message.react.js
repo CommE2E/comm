@@ -9,9 +9,8 @@ import { createMessageReply } from 'lib/shared/message-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
 
 import { type InputState, InputStateContext } from '../input/input-state';
-import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors } from '../themes/colors';
-import { composedMessageMaxWidthSelector } from './composed-message-width';
+import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
 import {
   InlineSidebar,
@@ -178,9 +177,7 @@ const styles = StyleSheet.create({
 
 const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedComposedMessage(props: BaseProps) {
-    const composedMessageMaxWidth = useSelector(
-      composedMessageMaxWidthSelector,
-    );
+    const composedMessageMaxWidth = useComposedMessageMaxWidth();
     const colors = useColors();
     const inputState = React.useContext(InputStateContext);
     return (
