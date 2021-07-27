@@ -90,7 +90,7 @@ function SwipeableMessage(props: Props): React.Node {
     const translateReplyIcon = interpolate(
       translateX.value,
       isViewer ? [-1 * threshold, 0] : [0, threshold],
-      isViewer ? [-23, -23 + threshold] : [0 - threshold, 0],
+      isViewer ? [0, threshold] : [0 - threshold, 0],
       Extrapolate.CLAMP,
     );
     const replyIconOpacity = interpolate(
@@ -148,6 +148,8 @@ const unboundStyles = {
   icon: {
     justifyContent: 'center',
     position: 'absolute',
+    top: 0,
+    bottom: 0,
   },
   iconBackground: {
     alignItems: 'center',

@@ -90,20 +90,23 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    const fullMessageBoxStyle = [styles.messageBox, messageBoxStyle];
     let messageBox;
     if (canSwipe) {
       messageBox = (
-        <SwipeableMessage
-          onSwipeableWillOpen={this.reply}
-          isViewer={isViewer}
-          messageBoxStyle={fullMessageBoxStyle}
-        >
-          {children}
-        </SwipeableMessage>
+        <View style={styles.messageBox}>
+          <SwipeableMessage
+            onSwipeableWillOpen={this.reply}
+            isViewer={isViewer}
+            messageBoxStyle={messageBoxStyle}
+          >
+            {children}
+          </SwipeableMessage>
+        </View>
       );
     } else {
-      messageBox = <View style={fullMessageBoxStyle}>{children}</View>;
+      messageBox = (
+        <View style={[styles.messageBox, messageBoxStyle]}>{children}</View>
+      );
     }
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
