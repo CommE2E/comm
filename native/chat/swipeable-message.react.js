@@ -18,15 +18,16 @@ import Animated, {
 } from 'react-native-reanimated';
 import type { IconProps } from 'react-native-vector-icons';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-
-import { colorIsDark } from 'lib/shared/thread-utils';
+import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import tinycolor from 'tinycolor2';
 
 import { colors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import { dividePastDistance } from '../utils/animation-utils';
 import { useMessageListScreenWidth } from './composed-message-width';
 
-const threshold = 40;
+const replyThreshold = 40;
+const sidebarThreshold = 120;
 
 function makeSpringConfig(velocity: number) {
   'worklet';
@@ -41,32 +42,56 @@ function makeSpringConfig(velocity: number) {
   };
 }
 
+function interpolateOpacityForViewerReplySnake(translateX: number) {
+  'worklet';
+  return interpolate(translateX, [-20, -5], [1, 0], Extrapolate.CLAMP);
+}
+function interpolateOpacityForNonViewerReplySnake(translateX: number) {
+  'worklet';
+  return interpolate(translateX, [5, 20], [0, 1], Extrapolate.CLAMP);
+}
+function interpolateTranslateXForViewerSidebarSnake(translateX: number) {
+  'worklet';
+  return interpolate(translateX, [-130, -120, -60, 0], [-130, -120, -5, 20]);
+}
+function interpolateTranslateXForNonViewerSidebarSnake(translateX: number) {
+  'worklet';
+  return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
+}
+
 type SwipeSnakeProps<IconGlyphs: string> = {
   +isViewer: boolean,
   +translateX: SharedValue<number>,
   +color: string,
   +children: React.Element<React.ComponentType<IconProps<IconGlyphs>>>,
+  +opacityInterpolator?: number => number, // must be worklet
+  +translateXInterpolator?: number => number, // must be worklet
 };
 function SwipeSnake<IconGlyphs: string>(
   props: SwipeSnakeProps<IconGlyphs>,
 ): React.Node {
-  const { translateX, isViewer } = props;
+  const {
+    translateX,
+    isViewer,
+    opacityInterpolator,
+    translateXInterpolator,
+  } = props;
   const transformStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      translateX.value,
-      isViewer ? [-20, -5] : [5, 20],
-      isViewer ? [1, 0] : [0, 1],
-      Extrapolate.CLAMP,
-    );
+    const opacity = opacityInterpolator
+      ? opacityInterpolator(translateX.value)
+      : undefined;
+    const translate = translateXInterpolator
+      ? translateXInterpolator(translateX.value)
+      : translateX.value;
     return {
       transform: [
         {
-          translateX: translateX.value,
+          translateX: translate,
         },
       ],
       opacity,
     };
-  }, [isViewer]);
+  }, [isViewer, translateXInterpolator, opacityInterpolator]);
 
   const animationPosition = isViewer ? styles.right0 : styles.left0;
   const animationContainerStyle = React.useMemo(() => {
@@ -87,13 +112,13 @@ function SwipeSnake<IconGlyphs: string>(
       iconAlign,
       {
         width: screenWidth,
-        backgroundColor: `#${color}`,
+        backgroundColor: color,
       },
     ];
   }, [iconAlign, screenWidth, color]);
 
   const { children } = props;
-  const iconColor = colorIsDark(color)
+  const iconColor = tinycolor(color).isDark()
     ? colors.dark.listForegroundLabel
     : colors.light.listForegroundLabel;
   const coloredIcon = React.useMemo(
@@ -142,18 +167,26 @@ function SwipeableMessage(props: Props): React.Node {
           : Math.max(translationX, 0);
         translateX.value = dividePastDistance(
           baseActiveTranslation,
-          threshold,
+          replyThreshold,
           2,
         );
 
-        const pastThreshold = Math.abs(translateX.value) >= threshold;
-        if (pastThreshold && !ctx.prevPastThreshold) {
+        const absValue = Math.abs(translateX.value);
+        const pastReplyThreshold = absValue >= replyThreshold;
+        if (pastReplyThreshold && !ctx.prevPastReplyThreshold) {
           runOnJS(onPassThreshold)();
         }
-        ctx.prevPastThreshold = pastThreshold;
+        ctx.prevPastReplyThreshold = pastReplyThreshold;
+
+        const pastSidebarThreshold = absValue >= sidebarThreshold;
+        if (pastSidebarThreshold && !ctx.prevPastSidebarThreshold) {
+          runOnJS(onPassThreshold)();
+        }
+        ctx.prevPastSidebarThreshold = pastSidebarThreshold;
       },
       onEnd: event => {
-        if (Math.abs(translateX.value) >= threshold) {
+        const absValue = Math.abs(translateX.value);
+        if (absValue >= replyThreshold) {
           runOnJS(onSwipeableWillOpen)();
         }
 
@@ -170,17 +203,40 @@ function SwipeableMessage(props: Props): React.Node {
     [],
   );
 
-  const { messageBoxStyle, threadColor, children } = props;
+  const { messageBoxStyle, children } = props;
   const reactNavGestureHandlerRef = React.useContext(GestureHandlerRefContext);
   const waitFor = reactNavGestureHandlerRef ?? undefined;
+
+  const threadColor = `#${props.threadColor}`;
+  const tinyThreadColor = tinycolor(threadColor);
+  const darkerThreadColor = tinyThreadColor
+    .darken(tinyThreadColor.isDark() ? 10 : 20)
+    .toString();
+
+  const replySnakeOpacityInterpolator = isViewer
+    ? interpolateOpacityForViewerReplySnake
+    : interpolateOpacityForNonViewerReplySnake;
+  const sidebarSnakeTranslateXInterpolator = isViewer
+    ? interpolateTranslateXForViewerSidebarSnake
+    : interpolateTranslateXForNonViewerSidebarSnake;
+
   return (
     <>
       <SwipeSnake
         isViewer={isViewer}
         translateX={translateX}
         color={threadColor}
+        opacityInterpolator={replySnakeOpacityInterpolator}
       >
         <FontAwesomeIcon name="reply" size={16} />
+      </SwipeSnake>
+      <SwipeSnake
+        isViewer={isViewer}
+        translateX={translateX}
+        color={darkerThreadColor}
+        translateXInterpolator={sidebarSnakeTranslateXInterpolator}
+      >
+        <MaterialCommunityIcon name="comment-text" size={16} />
       </SwipeSnake>
       <PanGestureHandler
         maxPointers={1}
