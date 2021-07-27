@@ -97,6 +97,7 @@ class ComposedMessage extends React.PureComponent<Props> {
             onSwipeableWillOpen={this.reply}
             isViewer={isViewer}
             messageBoxStyle={messageBoxStyle}
+            threadColor={item.threadInfo.color}
           >
             {children}
           </SwipeableMessage>
