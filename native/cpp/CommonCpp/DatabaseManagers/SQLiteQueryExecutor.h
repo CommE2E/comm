@@ -20,6 +20,7 @@ public:
   bool moveDraft(std::string oldKey, std::string newKey) const override;
   std::vector<Draft> getAllDrafts() const override;
   void removeAllDrafts() const override;
+  void removeAllMessages() const override;
 };
 
 } // namespace comm

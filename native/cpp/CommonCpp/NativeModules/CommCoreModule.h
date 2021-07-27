@@ -19,6 +19,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       const jsi::String &newKey) override;
   jsi::Value getAllDrafts(jsi::Runtime &rt) override;
   jsi::Value removeAllDrafts(jsi::Runtime &rt) override;
+  jsi::Value removeAllMessages(jsi::Runtime &rt) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

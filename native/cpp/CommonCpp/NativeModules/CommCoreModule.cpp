@@ -149,6 +149,28 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::removeAllMessages(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().removeAllMessages();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::Value::undefined());
+          });
+        };
+        this->databaseThread.scheduleTask(job);
+      });
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),

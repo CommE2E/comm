@@ -202,4 +202,8 @@ void SQLiteQueryExecutor::removeAllDrafts() const {
   SQLiteQueryExecutor::getStorage().remove_all<Draft>();
 }
 
+void SQLiteQueryExecutor::removeAllMessages() const {
+  SQLiteQueryExecutor::getStorage().remove_all<Message>();
+}
+
 } // namespace comm
