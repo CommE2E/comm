@@ -218,11 +218,15 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
 }
 
 #define REMOVE_OPERATION "remove"
+#define REPLACE_OPERATION "replace"
 
 jsi::Value CommCoreModule::processMessageStoreOperations(
     jsi::Runtime &rt,
     const jsi::Array &operations) {
+
   std::vector<int> removed_msg_ids;
+  std::vector<Message> replaced_msgs;
+
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
     auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
@@ -232,6 +236,27 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       auto msg_idx =
           std::stoi(payload_obj.getProperty(rt, "id").asString(rt).utf8(rt));
       removed_msg_ids.push_back(msg_idx);
+
+    } else if (op_type == REPLACE_OPERATION) {
+      auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
+
+      auto id = std::stoi(msg_obj.getProperty(rt, "id").asString(rt).utf8(rt));
+      auto thread =
+          std::stoi(msg_obj.getProperty(rt, "thread").asString(rt).utf8(rt));
+      auto user =
+          std::stoi(msg_obj.getProperty(rt, "user").asString(rt).utf8(rt));
+      auto type =
+          std::stoi(msg_obj.getProperty(rt, "type").asString(rt).utf8(rt));
+      auto future_type = std::stoi(
+          msg_obj.getProperty(rt, "future_type").asString(rt).utf8(rt));
+      auto content = msg_obj.getProperty(rt, "content").asString(rt).utf8(rt);
+      auto time =
+          std::stoi(msg_obj.getProperty(rt, "time").asString(rt).utf8(rt));
+      auto creation = msg_obj.getProperty(rt, "creation").asString(rt).utf8(rt);
+
+      Message message = {
+          id, thread, user, type, future_type, content, time, creation};
+      replaced_msgs.push_back(message);
     }
   }
 
@@ -241,6 +266,9 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().removeMessages(removed_msg_ids);
+            for (const auto &msg : replaced_msgs) {
+              DatabaseManager::getQueryExecutor().replaceMessage(msg);
+            }
           } catch (std::system_error &e) {
             error = e.what();
           }

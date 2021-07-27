@@ -214,4 +214,8 @@ void SQLiteQueryExecutor::removeMessages(std::vector<int> ids) const {
   SQLiteQueryExecutor::getStorage().remove<Message>(ids);
 }
 
+void SQLiteQueryExecutor::replaceMessage(Message message) const {
+  SQLiteQueryExecutor::getStorage().replace(message);
+}
+
 } // namespace comm
