@@ -5,7 +5,7 @@ import * as React from 'react';
 import {
   Text,
   View,
-  TextInput,
+  TextInput as BaseTextInput,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -28,6 +28,7 @@ import {
 
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
 import Button from '../components/button.react';
+import TextInput from '../components/text-input.react';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { GlobalTheme } from '../types/themes';
@@ -55,7 +56,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     password: '',
   };
   mounted = false;
-  passwordInput: ?React.ElementRef<typeof TextInput>;
+  passwordInput: ?React.ElementRef<typeof BaseTextInput>;
 
   componentDidMount() {
     this.mounted = true;
@@ -123,7 +124,9 @@ class DeleteAccount extends React.PureComponent<Props, State> {
     this.setState({ password: newPassword });
   };
 
-  passwordInputRef = (passwordInput: ?React.ElementRef<typeof TextInput>) => {
+  passwordInputRef = (
+    passwordInput: ?React.ElementRef<typeof BaseTextInput>,
+  ) => {
     this.passwordInput = passwordInput;
   };
 

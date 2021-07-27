@@ -5,7 +5,7 @@ import * as React from 'react';
 import {
   View,
   Text,
-  TextInput,
+  TextInput as BaseTextInput,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
@@ -23,6 +23,7 @@ import type {
   BlurEvent,
 } from '../types/react-native';
 import type { ViewStyle, TextStyle } from '../types/styles';
+import TextInput from './text-input.react';
 
 type DefaultProps = {
   /**
@@ -92,7 +93,7 @@ type TagInputProps<T> = {
   /**
    * Any misc. TextInput props (autoFocus, placeholder, returnKeyType, etc.)
    */
-  +inputProps?: React.ElementConfig<typeof TextInput>,
+  +inputProps?: React.ElementConfig<typeof BaseTextInput>,
   /**
    * Callback that gets passed the new component height when it changes
    */
@@ -114,7 +115,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
   scrollViewHeight: number = 0;
   scrollToBottomAfterNextScrollViewLayout: boolean = false;
   // refs
-  tagInput: ?React.ElementRef<typeof TextInput> = null;
+  tagInput: ?React.ElementRef<typeof BaseTextInput> = null;
   scrollView: ?React.ElementRef<typeof ScrollView> = null;
   lastChange: ?{ time: number, prevText: string };
 
@@ -249,7 +250,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
       inputWidth = this.state.wrapperWidth;
     }
 
-    const defaultTextInputProps: React.ElementConfig<typeof TextInput> = {
+    const defaultTextInputProps: React.ElementConfig<typeof BaseTextInput> = {
       blurOnSubmit: false,
       style: [
         styles.textInput,
@@ -266,7 +267,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
       keyboardType: 'default',
     };
 
-    const textInputProps: React.ElementConfig<typeof TextInput> = {
+    const textInputProps: React.ElementConfig<typeof BaseTextInput> = {
       ...defaultTextInputProps,
       ...this.props.inputProps,
       // should not be overridden
@@ -303,7 +304,7 @@ class BaseTagInput<T> extends React.PureComponent<BaseTagInputProps<T>, State> {
   }
 
   tagInputRef: (
-    tagInput: ?React.ElementRef<typeof TextInput>,
+    tagInput: ?React.ElementRef<typeof BaseTextInput>,
   ) => void = tagInput => {
     this.tagInput = tagInput;
   };

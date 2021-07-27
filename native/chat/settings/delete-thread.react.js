@@ -5,7 +5,7 @@ import * as React from 'react';
 import {
   Text,
   View,
-  TextInput,
+  TextInput as BaseTextInput,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -27,6 +27,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react';
+import TextInput from '../../components/text-input.react';
 import { clearThreadsActionType } from '../../navigation/action-types';
 import {
   NavContext,
@@ -72,7 +73,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
     password: '',
   };
   mounted = false;
-  passwordInput: ?React.ElementRef<typeof TextInput>;
+  passwordInput: ?React.ElementRef<typeof BaseTextInput>;
 
   static getThreadInfo(props: Props): ThreadInfo {
     const { threadInfo } = props;
@@ -154,7 +155,9 @@ class DeleteThread extends React.PureComponent<Props, State> {
     this.guardedSetState({ password: newPassword });
   };
 
-  passwordInputRef = (passwordInput: ?React.ElementRef<typeof TextInput>) => {
+  passwordInputRef = (
+    passwordInput: ?React.ElementRef<typeof BaseTextInput>,
+  ) => {
     this.passwordInput = passwordInput;
   };
 

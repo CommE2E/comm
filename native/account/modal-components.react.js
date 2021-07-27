@@ -4,6 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
 
+import CoreTextInput from '../components/text-input.react';
+
 type Props = React.ElementConfig<typeof BaseTextInput>;
 class TextInput extends React.PureComponent<Props> {
   innerTextInput: ?React.ElementRef<typeof BaseTextInput>;
@@ -12,7 +14,7 @@ class TextInput extends React.PureComponent<Props> {
     const style = [styles.textInput, this.props.style];
     return (
       <View style={styles.textInputWrapperView}>
-        <BaseTextInput
+        <CoreTextInput
           placeholderTextColor="#888888"
           {...this.props}
           style={style}

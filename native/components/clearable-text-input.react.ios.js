@@ -2,10 +2,11 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { TextInput, View, StyleSheet } from 'react-native';
+import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
 
 import type { KeyPressEvent } from '../types/react-native';
 import type { ClearableTextInputProps } from './clearable-text-input';
+import TextInput from './text-input.react';
 
 type State = {
   textInputKey: number,
@@ -20,7 +21,7 @@ class ClearableTextInput extends React.PureComponent<
   pendingMessage: ?{ value: string, resolve: (value: string) => void };
   lastKeyPressed: ?string;
   lastTextInputSent: number = -1;
-  currentTextInput: ?React.ElementRef<typeof TextInput>;
+  currentTextInput: ?React.ElementRef<typeof BaseTextInput>;
   focused: boolean = false;
 
   sendMessage() {
@@ -104,7 +105,7 @@ class ClearableTextInput extends React.PureComponent<
   };
 
   textInputRef: (
-    textInput: ?React.ElementRef<typeof TextInput>,
+    textInput: ?React.ElementRef<typeof BaseTextInput>,
   ) => void = textInput => {
     if (this.focused && textInput) {
       textInput.focus();

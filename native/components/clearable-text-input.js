@@ -1,12 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { TextInput } from 'react-native';
+import { TextInput as BaseTextInput } from 'react-native';
 
-type TextInputProps = React.ElementConfig<typeof TextInput>;
+type TextInputProps = React.ElementConfig<typeof BaseTextInput>;
 export type ClearableTextInputProps = {
   ...TextInputProps,
-  textInputRef: (textInput: ?React.ElementRef<typeof TextInput>) => mixed,
+  textInputRef: (textInput: ?React.ElementRef<typeof BaseTextInput>) => mixed,
   onChangeText: $NonMaybeType<$PropertyType<TextInputProps, 'onChangeText'>>,
   value: $NonMaybeType<$PropertyType<TextInputProps, 'value'>>,
 };

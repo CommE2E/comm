@@ -6,7 +6,7 @@ import * as React from 'react';
 import {
   Text,
   View,
-  TextInput,
+  TextInput as BaseTextInput,
   ScrollView,
   Alert,
   ActivityIndicator,
@@ -27,6 +27,7 @@ import {
 
 import { setNativeCredentials } from '../account/native-credentials';
 import Button from '../components/button.react';
+import TextInput from '../components/text-input.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
@@ -62,9 +63,9 @@ class EditPassword extends React.PureComponent<Props, State> {
     confirmPassword: '',
   };
   mounted = false;
-  currentPasswordInput: ?React.ElementRef<typeof TextInput>;
-  newPasswordInput: ?React.ElementRef<typeof TextInput>;
-  confirmPasswordInput: ?React.ElementRef<typeof TextInput>;
+  currentPasswordInput: ?React.ElementRef<typeof BaseTextInput>;
+  newPasswordInput: ?React.ElementRef<typeof BaseTextInput>;
+  confirmPasswordInput: ?React.ElementRef<typeof BaseTextInput>;
 
   componentDidMount() {
     this.mounted = true;
@@ -153,7 +154,7 @@ class EditPassword extends React.PureComponent<Props, State> {
   };
 
   currentPasswordRef = (
-    currentPasswordInput: ?React.ElementRef<typeof TextInput>,
+    currentPasswordInput: ?React.ElementRef<typeof BaseTextInput>,
   ) => {
     this.currentPasswordInput = currentPasswordInput;
   };
@@ -167,7 +168,9 @@ class EditPassword extends React.PureComponent<Props, State> {
     this.setState({ newPassword });
   };
 
-  newPasswordRef = (newPasswordInput: ?React.ElementRef<typeof TextInput>) => {
+  newPasswordRef = (
+    newPasswordInput: ?React.ElementRef<typeof BaseTextInput>,
+  ) => {
     this.newPasswordInput = newPasswordInput;
   };
 
@@ -181,7 +184,7 @@ class EditPassword extends React.PureComponent<Props, State> {
   };
 
   confirmPasswordRef = (
-    confirmPasswordInput: ?React.ElementRef<typeof TextInput>,
+    confirmPasswordInput: ?React.ElementRef<typeof BaseTextInput>,
   ) => {
     this.confirmPasswordInput = confirmPasswordInput;
   };

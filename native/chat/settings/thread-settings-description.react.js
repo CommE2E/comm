@@ -2,7 +2,13 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { Text, Alert, ActivityIndicator, TextInput, View } from 'react-native';
+import {
+  Text,
+  Alert,
+  ActivityIndicator,
+  TextInput as BaseTextInput,
+  View,
+} from 'react-native';
 
 import {
   changeThreadSettingsActionTypes,
@@ -26,6 +32,7 @@ import {
 import Button from '../../components/button.react';
 import EditSettingButton from '../../components/edit-setting-button.react';
 import SWMansionIcon from '../../components/swmansion-icon.react';
+import TextInput from '../../components/text-input.react';
 import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 import type {
@@ -60,7 +67,7 @@ type Props = {
   ) => Promise<ChangeThreadSettingsPayload>,
 };
 class ThreadSettingsDescription extends React.PureComponent<Props> {
-  textInput: ?React.ElementRef<typeof TextInput>;
+  textInput: ?React.ElementRef<typeof BaseTextInput>;
 
   render() {
     if (
@@ -163,7 +170,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
     return null;
   }
 
-  textInputRef = (textInput: ?React.ElementRef<typeof TextInput>) => {
+  textInputRef = (textInput: ?React.ElementRef<typeof BaseTextInput>) => {
     this.textInput = textInput;
   };
 

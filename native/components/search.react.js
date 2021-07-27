@@ -4,7 +4,7 @@ import * as React from 'react';
 import {
   View,
   TouchableOpacity,
-  TextInput,
+  TextInput as BaseTextInput,
   Text,
   Platform,
 } from 'react-native';
@@ -15,16 +15,17 @@ import { useSelector } from '../redux/redux-utils';
 import { useStyles, useColors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import SWMansionIcon from './swmansion-icon.react';
+import TextInput from './text-input.react';
 
 type Props = {
-  ...React.ElementConfig<typeof TextInput>,
+  ...React.ElementConfig<typeof BaseTextInput>,
   +searchText: string,
   +onChangeText: (searchText: string) => mixed,
   +containerStyle?: ViewStyle,
   +active?: boolean,
 };
 
-function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
+function ForwardedSearch(props: Props, ref: React.Ref<typeof BaseTextInput>) {
   const { onChangeText, searchText, containerStyle, active, ...rest } = props;
 
   const clearSearch = React.useCallback(() => {
@@ -76,7 +77,7 @@ function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
 
   let textNode;
   if (!inactive) {
-    const textInputProps: React.ElementProps<typeof TextInput> = {
+    const textInputProps: React.ElementProps<typeof BaseTextInput> = {
       style: styles.searchText,
       value: searchText,
       onChangeText: onChangeText,
@@ -98,7 +99,7 @@ function ForwardedSearch(props: Props, ref: React.Ref<typeof TextInput>) {
   );
 }
 
-const Search = React.forwardRef<Props, typeof TextInput>(ForwardedSearch);
+const Search = React.forwardRef<Props, typeof BaseTextInput>(ForwardedSearch);
 Search.displayName = 'Search';
 
 const unboundStyles = {

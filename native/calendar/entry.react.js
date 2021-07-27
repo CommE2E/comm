@@ -7,7 +7,7 @@ import * as React from 'react';
 import {
   View,
   Text,
-  TextInput,
+  TextInput as BaseTextInput,
   Platform,
   TouchableWithoutFeedback,
   Alert,
@@ -60,6 +60,7 @@ import {
 } from '../chat/message-list-types';
 import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
+import TextInput from '../components/text-input.react';
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
@@ -131,7 +132,7 @@ type State = {
   +height: number,
 };
 class InternalEntry extends React.Component<Props, State> {
-  textInput: ?React.ElementRef<typeof TextInput>;
+  textInput: ?React.ElementRef<typeof BaseTextInput>;
   creating: boolean = false;
   needsUpdateAfterCreation: boolean = false;
   needsDeleteAfterCreation: boolean = false;
@@ -429,7 +430,7 @@ class InternalEntry extends React.Component<Props, State> {
   }
 
   textInputRef: (
-    textInput: ?React.ElementRef<typeof TextInput>,
+    textInput: ?React.ElementRef<typeof BaseTextInput>,
   ) => void = textInput => {
     this.textInput = textInput;
     if (textInput && this.state.editing) {

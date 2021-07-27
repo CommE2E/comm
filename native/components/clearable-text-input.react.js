@@ -1,15 +1,16 @@
 // @flow
 
 import * as React from 'react';
-import { TextInput, View, StyleSheet } from 'react-native';
+import { TextInput as BaseTextInput, View, StyleSheet } from 'react-native';
 
 import sleep from 'lib/utils/sleep';
 
 import { waitForInteractions } from '../utils/timers';
 import type { ClearableTextInputProps } from './clearable-text-input';
+import TextInput from './text-input.react';
 
 class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
-  textInput: ?React.ElementRef<typeof TextInput>;
+  textInput: ?React.ElementRef<typeof BaseTextInput>;
   lastMessageSent: ?string;
   queuedResolve: ?() => mixed;
 
@@ -62,7 +63,7 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
   }
 
   textInputRef: (
-    textInput: ?React.ElementRef<typeof TextInput>,
+    textInput: ?React.ElementRef<typeof BaseTextInput>,
   ) => void = textInput => {
     this.textInput = textInput;
     this.props.textInputRef(textInput);

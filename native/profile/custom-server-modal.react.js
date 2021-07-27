@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, TextInput } from 'react-native';
+import { Text } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import type { Dispatch } from 'lib/types/redux-types';
@@ -9,6 +9,7 @@ import { setURLPrefix } from 'lib/utils/url-utils';
 
 import Button from '../components/button.react';
 import Modal from '../components/modal.react';
+import TextInput from '../components/text-input.react';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
