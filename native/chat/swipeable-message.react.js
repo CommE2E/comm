@@ -17,7 +17,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 
-import { useColors, useStyles } from '../themes/colors';
+import { colorIsDark } from 'lib/shared/thread-utils';
+
+import { colors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import { dividePastDistance } from '../utils/animation-utils';
 import { useMessageListScreenWidth } from './composed-message-width';
@@ -41,6 +43,7 @@ type Props = {
   +onSwipeableWillOpen: () => void,
   +isViewer: boolean,
   +messageBoxStyle: ViewStyle,
+  +threadColor: string,
   +children: React.Node,
 };
 function SwipeableMessage(props: Props): React.Node {
@@ -86,12 +89,10 @@ function SwipeableMessage(props: Props): React.Node {
     [isViewer, onSwipeableWillOpen],
   );
 
-  const styles = useStyles(unboundStyles);
-
   const animationPosition = isViewer ? styles.right0 : styles.left0;
   const animationContainerStyle = React.useMemo(() => {
     return [styles.animationContainer, animationPosition];
-  }, [styles.animationContainer, animationPosition]);
+  }, [animationPosition]);
 
   const transformSwipeSnakeStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
@@ -113,7 +114,7 @@ function SwipeableMessage(props: Props): React.Node {
   const iconPosition = isViewer ? styles.left0 : styles.right0;
   const swipeSnakeContainerStyle = React.useMemo(() => {
     return [styles.swipeSnakeContainer, transformSwipeSnakeStyle, iconPosition];
-  }, [styles.swipeSnakeContainer, transformSwipeSnakeStyle, iconPosition]);
+  }, [transformSwipeSnakeStyle, iconPosition]);
 
   const transformMessageBoxStyle = useAnimatedStyle(
     () => ({
@@ -124,12 +125,23 @@ function SwipeableMessage(props: Props): React.Node {
 
   const iconAlign = isViewer ? styles.alignStart : styles.alignEnd;
   const screenWidth = useMessageListScreenWidth();
+  const { threadColor } = props;
   const swipeSnakeStyle = React.useMemo(() => {
-    return [styles.swipeSnake, iconAlign, { width: screenWidth }];
-  }, [styles.swipeSnake, iconAlign, screenWidth]);
+    return [
+      styles.swipeSnake,
+      iconAlign,
+      {
+        width: screenWidth,
+        backgroundColor: `#${threadColor}`,
+      },
+    ];
+  }, [iconAlign, screenWidth, threadColor]);
+
+  const iconColor = colorIsDark(threadColor)
+    ? colors.dark.listForegroundLabel
+    : colors.light.listForegroundLabel;
 
   const { messageBoxStyle, children } = props;
-  const colors = useColors();
   const reactNavGestureHandlerRef = React.useContext(GestureHandlerRefContext);
   const waitFor = reactNavGestureHandlerRef ?? undefined;
   return (
@@ -137,11 +149,7 @@ function SwipeableMessage(props: Props): React.Node {
       <View style={animationContainerStyle}>
         <Animated.View style={swipeSnakeContainerStyle}>
           <View style={swipeSnakeStyle}>
-            <FontAwesomeIcon
-              name="reply"
-              color={colors.blockQuoteBorder}
-              size={16}
-            />
+            <FontAwesomeIcon name="reply" color={iconColor} size={16} />
           </View>
         </Animated.View>
       </View>
@@ -161,7 +169,7 @@ function SwipeableMessage(props: Props): React.Node {
   );
 }
 
-const unboundStyles = {
+const styles = {
   swipeSnakeContainer: {
     marginHorizontal: 20,
     justifyContent: 'center',
@@ -177,7 +185,6 @@ const unboundStyles = {
   swipeSnake: {
     paddingHorizontal: 15,
     flex: 1,
-    backgroundColor: 'listChatBubble',
     borderRadius: 25,
     height: 30,
     justifyContent: 'center',
