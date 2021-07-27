@@ -139,14 +139,15 @@ function SwipeSnake<IconGlyphs: string>(
 }
 
 type Props = {
-  +onSwipeableWillOpen: () => void,
+  +triggerReply: () => void,
+  +triggerSidebar: () => void,
   +isViewer: boolean,
   +messageBoxStyle: ViewStyle,
   +threadColor: string,
   +children: React.Node,
 };
 function SwipeableMessage(props: Props): React.Node {
-  const { isViewer, onSwipeableWillOpen } = props;
+  const { isViewer, triggerReply, triggerSidebar } = props;
   const onPassThreshold = React.useCallback(() => {
     if (Platform.OS === 'ios') {
       TapticFeedback.impact();
@@ -186,14 +187,16 @@ function SwipeableMessage(props: Props): React.Node {
       },
       onEnd: event => {
         const absValue = Math.abs(translateX.value);
-        if (absValue >= replyThreshold) {
-          runOnJS(onSwipeableWillOpen)();
+        if (absValue >= sidebarThreshold) {
+          runOnJS(triggerSidebar)();
+        } else if (absValue >= replyThreshold) {
+          runOnJS(triggerReply)();
         }
 
         translateX.value = withSpring(0, makeSpringConfig(event.velocityX));
       },
     },
-    [isViewer, onSwipeableWillOpen],
+    [isViewer, triggerReply, triggerSidebar],
   );
 
   const transformMessageBoxStyle = useAnimatedStyle(
