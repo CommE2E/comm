@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
 
 import { createPendingSidebar } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -11,8 +12,12 @@ import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { MessageTooltipRouteNames } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
+import { useSelector } from '../redux/redux-utils';
 import type { ChatContextType } from './chat-context';
-import { createNavigateToThreadAction } from './message-list-types';
+import {
+  createNavigateToThreadAction,
+  useNavigateToThread,
+} from './message-list-types';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
 
 function getSidebarThreadInfo(
@@ -52,4 +57,18 @@ function navigateToSidebar<RouteName: MessageTooltipRouteNames>(
   navigation.navigate(createNavigateToThreadAction({ threadInfo }));
 }
 
-export { navigateToSidebar, getSidebarThreadInfo };
+function useNavigateToSidebar(item: ChatMessageInfoItemWithHeight): () => void {
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const threadInfo = React.useMemo(() => getSidebarThreadInfo(item, viewerID), [
+    item,
+    viewerID,
+  ]);
+  const navigateToThread = useNavigateToThread();
+  return React.useCallback(() => {
+    navigateToThread({ threadInfo });
+  }, [navigateToThread, threadInfo]);
+}
+
+export { navigateToSidebar, getSidebarThreadInfo, useNavigateToSidebar };

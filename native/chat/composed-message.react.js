@@ -19,6 +19,7 @@ import {
 } from './inline-sidebar.react';
 import { MessageHeader } from './message-header.react';
 import type { ChatMessageInfoItemWithHeight } from './message.react';
+import { useNavigateToSidebar } from './sidebar-navigation';
 import SwipeableMessage from './swipeable-message.react';
 
 const clusterEndHeight = 7;
@@ -38,6 +39,7 @@ type Props = {
   +colors: Colors,
   // withInputState
   +inputState: ?InputState,
+  +navigateToSidebar: () => void,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   render() {
@@ -51,6 +53,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       composedMessageMaxWidth,
       colors,
       inputState,
+      navigateToSidebar,
       ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
@@ -94,7 +97,8 @@ class ComposedMessage extends React.PureComponent<Props> {
       messageBox = (
         <View style={styles.messageBox}>
           <SwipeableMessage
-            onSwipeableWillOpen={this.reply}
+            triggerReply={this.reply}
+            triggerSidebar={navigateToSidebar}
             isViewer={isViewer}
             messageBoxStyle={messageBoxStyle}
             threadColor={item.threadInfo.color}
@@ -181,12 +185,14 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<Base
     const composedMessageMaxWidth = useComposedMessageMaxWidth();
     const colors = useColors();
     const inputState = React.useContext(InputStateContext);
+    const navigateToSidebar = useNavigateToSidebar(props.item);
     return (
       <ComposedMessage
         {...props}
         composedMessageMaxWidth={composedMessageMaxWidth}
         colors={colors}
         inputState={inputState}
+        navigateToSidebar={navigateToSidebar}
       />
     );
   },
