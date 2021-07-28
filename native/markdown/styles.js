@@ -8,7 +8,7 @@ import type { GlobalTheme } from '../types/themes';
 
 const unboundStyles = {
   link: {
-    color: 'link',
+    color: 'markdownLink',
     textDecorationLine: 'underline',
   },
   italics: {
