@@ -97,7 +97,7 @@ bool create_messages_table(sqlite3 *db) {
   return false;
 }
 
-typedef bool (*MigrationFunction)(sqlite3 *db);
+typedef std::function<bool(sqlite3 *)> MigrationFunction;
 std::vector<std::pair<uint, MigrationFunction>> migrations{
     {{1, create_drafts_table},
      {2, rename_threadID_to_key},
