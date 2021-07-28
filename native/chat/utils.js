@@ -11,6 +11,7 @@ import { useSelector } from '../redux/redux-utils';
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
 import type { AnimatedViewStyle } from '../types/styles';
 import { ChatContext, useHeightMeasurer } from './chat-context';
+import { authorNameHeight } from './message-header.react';
 import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import {
   type ChatMessageInfoItemWithHeight,
@@ -100,11 +101,15 @@ function useMessageTargetParameters(
     sourceMessageID,
   ]);
 
+  const authorNameComponentHeight = sourceMessage.messageInfo.creator.isViewer
+    ? 0
+    : authorNameHeight;
   const currentDistanceFromBottom =
     messageListVerticalBounds.height +
     messageListVerticalBounds.y -
     initialCoordinates.y +
-    timestampHeight;
+    timestampHeight +
+    authorNameComponentHeight;
   return {
     position: targetDistanceFromBottom - currentDistanceFromBottom,
     color: sidebarThreadInfo.color,
