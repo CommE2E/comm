@@ -106,7 +106,7 @@ class TextMessage extends React.PureComponent<Props> {
       ...viewProps
     } = this.props;
 
-    let swipeOptions;
+    let swipeOptions = 'none';
     const canReply = this.canReply();
     const canNavigateToSidebar = this.canNavigateToSidebar();
     if (linkModalActive) {

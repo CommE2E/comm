@@ -162,6 +162,13 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     });
   };
 
+  canNavigateToSidebar() {
+    return (
+      this.props.item.threadCreatedFromMessage ||
+      this.props.canCreateSidebarFromMessage
+    );
+  }
+
   render() {
     const {
       item,
@@ -179,6 +186,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         item={item}
         sendFailed={multimediaMessageSendFailed(item)}
         focused={focused}
+        swipeOptions={this.canNavigateToSidebar() ? 'sidebar' : 'none'}
         {...viewProps}
       >
         <View style={styles.expand} onLayout={this.onLayout} ref={this.viewRef}>

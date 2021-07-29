@@ -30,7 +30,7 @@ type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,
   +sendFailed: boolean,
   +focused: boolean,
-  +swipeOptions?: SwipeOptions,
+  +swipeOptions: SwipeOptions,
   +children: React.Node,
 };
 type Props = {
@@ -94,7 +94,7 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     let messageBox;
-    if (swipeOptions && swipeOptions !== 'none') {
+    if (swipeOptions !== 'none') {
       const triggerReply =
         swipeOptions === 'reply' || swipeOptions === 'both'
           ? this.reply
