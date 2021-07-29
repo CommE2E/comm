@@ -105,17 +105,26 @@ class TextMessage extends React.PureComponent<Props> {
       canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
-    const isVoiced = threadHasPermission(
-      item.threadInfo,
-      threadPermissions.VOICED,
-    );
-    const canSwipe = isVoiced && !linkModalActive;
+
+    let swipeOptions;
+    const canReply = this.canReply();
+    const canNavigateToSidebar = this.canNavigateToSidebar();
+    if (linkModalActive) {
+      swipeOptions = 'none';
+    } else if (canReply && canNavigateToSidebar) {
+      swipeOptions = 'both';
+    } else if (canReply) {
+      swipeOptions = 'reply';
+    } else if (canNavigateToSidebar) {
+      swipeOptions = 'sidebar';
+    }
+
     return (
       <ComposedMessage
         item={item}
         sendFailed={textMessageSendFailed(item)}
         focused={focused}
-        canSwipe={canSwipe}
+        swipeOptions={swipeOptions}
         {...viewProps}
       >
         <InnerTextMessage
@@ -131,15 +140,24 @@ class TextMessage extends React.PureComponent<Props> {
     this.message = message;
   };
 
-  visibleEntryIDs() {
-    const result = ['copy'];
-
-    const canReply = threadHasPermission(
+  canReply() {
+    return threadHasPermission(
       this.props.item.threadInfo,
       threadPermissions.VOICED,
     );
+  }
 
-    if (canReply) {
+  canNavigateToSidebar() {
+    return (
+      this.props.item.threadCreatedFromMessage ||
+      this.props.canCreateSidebarFromMessage
+    );
+  }
+
+  visibleEntryIDs() {
+    const result = ['copy'];
+
+    if (this.canReply()) {
       result.push('reply');
     }
 

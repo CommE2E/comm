@@ -24,12 +24,13 @@ import SwipeableMessage from './swipeable-message.react';
 
 const clusterEndHeight = 7;
 
+type SwipeOptions = 'reply' | 'sidebar' | 'both' | 'none';
 type BaseProps = {
   ...React.ElementConfig<typeof View>,
   +item: ChatMessageInfoItemWithHeight,
   +sendFailed: boolean,
   +focused: boolean,
-  +canSwipe?: boolean,
+  +swipeOptions?: SwipeOptions,
   +children: React.Node,
 };
 type Props = {
@@ -48,7 +49,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       item,
       sendFailed,
       focused,
-      canSwipe,
+      swipeOptions,
       children,
       composedMessageMaxWidth,
       colors,
@@ -93,12 +94,20 @@ class ComposedMessage extends React.PureComponent<Props> {
     }
 
     let messageBox;
-    if (canSwipe) {
+    if (swipeOptions && swipeOptions !== 'none') {
+      const triggerReply =
+        swipeOptions === 'reply' || swipeOptions === 'both'
+          ? this.reply
+          : undefined;
+      const triggerSidebar =
+        swipeOptions === 'sidebar' || swipeOptions === 'both'
+          ? navigateToSidebar
+          : undefined;
       messageBox = (
         <View style={styles.messageBox}>
           <SwipeableMessage
-            triggerReply={this.reply}
-            triggerSidebar={navigateToSidebar}
+            triggerReply={triggerReply}
+            triggerSidebar={triggerSidebar}
             isViewer={isViewer}
             messageBoxStyle={messageBoxStyle}
             threadColor={item.threadInfo.color}
