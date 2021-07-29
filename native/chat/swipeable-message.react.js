@@ -26,8 +26,8 @@ import type { ViewStyle } from '../types/styles';
 import { dividePastDistance } from '../utils/animation-utils';
 import { useMessageListScreenWidth } from './composed-message-width';
 
-const replyThreshold = 40;
-const sidebarThreshold = 120;
+const primaryThreshold = 40;
+const secondaryThreshold = 120;
 
 function makeSpringConfig(velocity: number) {
   'worklet';
@@ -42,19 +42,19 @@ function makeSpringConfig(velocity: number) {
   };
 }
 
-function interpolateOpacityForViewerReplySnake(translateX: number) {
+function interpolateOpacityForViewerPrimarySnake(translateX: number) {
   'worklet';
   return interpolate(translateX, [-20, -5], [1, 0], Extrapolate.CLAMP);
 }
-function interpolateOpacityForNonViewerReplySnake(translateX: number) {
+function interpolateOpacityForNonViewerPrimarySnake(translateX: number) {
   'worklet';
   return interpolate(translateX, [5, 20], [0, 1], Extrapolate.CLAMP);
 }
-function interpolateTranslateXForViewerSidebarSnake(translateX: number) {
+function interpolateTranslateXForViewerSecondarySnake(translateX: number) {
   'worklet';
   return interpolate(translateX, [-130, -120, -60, 0], [-130, -120, -5, 20]);
 }
-function interpolateTranslateXForNonViewerSidebarSnake(translateX: number) {
+function interpolateTranslateXForNonViewerSecondarySnake(translateX: number) {
   'worklet';
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
 }
@@ -139,8 +139,8 @@ function SwipeSnake<IconGlyphs: string>(
 }
 
 type Props = {
-  +triggerReply: () => void,
-  +triggerSidebar: () => void,
+  +triggerReply?: () => void,
+  +triggerSidebar?: () => void,
   +isViewer: boolean,
   +messageBoxStyle: ViewStyle,
   +threadColor: string,
@@ -148,12 +148,32 @@ type Props = {
 };
 function SwipeableMessage(props: Props): React.Node {
   const { isViewer, triggerReply, triggerSidebar } = props;
-  const onPassReplyThreshold = React.useCallback(() => {
-    Haptics.impactAsync();
-  }, []);
-  const onPassSidebarThreshold = React.useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-  }, []);
+  const secondaryActionExists = triggerReply && triggerSidebar;
+
+  const onPassPrimaryThreshold = React.useCallback(() => {
+    const impactStrength = secondaryActionExists
+      ? Haptics.ImpactFeedbackStyle.Medium
+      : Haptics.ImpactFeedbackStyle.Heavy;
+    Haptics.impactAsync(impactStrength);
+  }, [secondaryActionExists]);
+  const onPassSecondaryThreshold = React.useCallback(() => {
+    if (secondaryActionExists) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    }
+  }, [secondaryActionExists]);
+
+  const primaryAction = React.useCallback(() => {
+    if (triggerReply) {
+      triggerReply();
+    } else if (triggerSidebar) {
+      triggerSidebar();
+    }
+  }, [triggerReply, triggerSidebar]);
+  const secondaryAction = React.useCallback(() => {
+    if (triggerReply && triggerSidebar) {
+      triggerSidebar();
+    }
+  }, [triggerReply, triggerSidebar]);
 
   const translateX = useSharedValue(0);
   const swipeEvent = useAnimatedGestureHandler(
@@ -169,35 +189,42 @@ function SwipeableMessage(props: Props): React.Node {
           : Math.max(translationX, 0);
         translateX.value = dividePastDistance(
           baseActiveTranslation,
-          replyThreshold,
+          primaryThreshold,
           2,
         );
 
         const absValue = Math.abs(translateX.value);
-        const pastReplyThreshold = absValue >= replyThreshold;
-        if (pastReplyThreshold && !ctx.prevPastReplyThreshold) {
-          runOnJS(onPassReplyThreshold)();
+        const pastPrimaryThreshold = absValue >= primaryThreshold;
+        if (pastPrimaryThreshold && !ctx.prevPastPrimaryThreshold) {
+          runOnJS(onPassPrimaryThreshold)();
         }
-        ctx.prevPastReplyThreshold = pastReplyThreshold;
+        ctx.prevPastPrimaryThreshold = pastPrimaryThreshold;
 
-        const pastSidebarThreshold = absValue >= sidebarThreshold;
-        if (pastSidebarThreshold && !ctx.prevPastSidebarThreshold) {
-          runOnJS(onPassSidebarThreshold)();
+        const pastSecondaryThreshold = absValue >= secondaryThreshold;
+        if (pastSecondaryThreshold && !ctx.prevPastSecondaryThreshold) {
+          runOnJS(onPassSecondaryThreshold)();
         }
-        ctx.prevPastSidebarThreshold = pastSidebarThreshold;
+        ctx.prevPastSecondaryThreshold = pastSecondaryThreshold;
       },
       onEnd: event => {
         const absValue = Math.abs(translateX.value);
-        if (absValue >= sidebarThreshold) {
-          runOnJS(triggerSidebar)();
-        } else if (absValue >= replyThreshold) {
-          runOnJS(triggerReply)();
+        if (absValue >= secondaryThreshold && secondaryActionExists) {
+          runOnJS(secondaryAction)();
+        } else if (absValue >= primaryThreshold) {
+          runOnJS(primaryAction)();
         }
 
         translateX.value = withSpring(0, makeSpringConfig(event.velocityX));
       },
     },
-    [isViewer, triggerReply, triggerSidebar],
+    [
+      isViewer,
+      onPassPrimaryThreshold,
+      onPassSecondaryThreshold,
+      primaryAction,
+      secondaryAction,
+      secondaryActionExists,
+    ],
   );
 
   const transformMessageBoxStyle = useAnimatedStyle(
@@ -213,49 +240,76 @@ function SwipeableMessage(props: Props): React.Node {
 
   const threadColor = `#${props.threadColor}`;
   const tinyThreadColor = tinycolor(threadColor);
-  const darkerThreadColor = tinyThreadColor
-    .darken(tinyThreadColor.isDark() ? 10 : 20)
-    .toString();
 
-  const replySnakeOpacityInterpolator = isViewer
-    ? interpolateOpacityForViewerReplySnake
-    : interpolateOpacityForNonViewerReplySnake;
-  const sidebarSnakeTranslateXInterpolator = isViewer
-    ? interpolateTranslateXForViewerSidebarSnake
-    : interpolateTranslateXForNonViewerSidebarSnake;
-
-  return (
-    <>
+  const snakes = [];
+  if (triggerReply) {
+    const replySnakeOpacityInterpolator = isViewer
+      ? interpolateOpacityForViewerPrimarySnake
+      : interpolateOpacityForNonViewerPrimarySnake;
+    snakes.push(
       <SwipeSnake
         isViewer={isViewer}
         translateX={translateX}
         color={threadColor}
         opacityInterpolator={replySnakeOpacityInterpolator}
+        key="reply"
       >
         <FontAwesomeIcon name="reply" size={16} />
-      </SwipeSnake>
+      </SwipeSnake>,
+    );
+  }
+  if (triggerReply && triggerSidebar) {
+    const sidebarSnakeTranslateXInterpolator = isViewer
+      ? interpolateTranslateXForViewerSecondarySnake
+      : interpolateTranslateXForNonViewerSecondarySnake;
+    const darkerThreadColor = tinyThreadColor
+      .darken(tinyThreadColor.isDark() ? 10 : 20)
+      .toString();
+    snakes.push(
       <SwipeSnake
         isViewer={isViewer}
         translateX={translateX}
         color={darkerThreadColor}
         translateXInterpolator={sidebarSnakeTranslateXInterpolator}
+        key="sidebar"
       >
         <MaterialCommunityIcon name="comment-text" size={16} />
-      </SwipeSnake>
-      <PanGestureHandler
-        maxPointers={1}
-        minDist={4}
-        onGestureEvent={swipeEvent}
-        failOffsetX={isViewer ? 5 : -5}
-        failOffsetY={[-5, 5]}
-        waitFor={waitFor}
+      </SwipeSnake>,
+    );
+  } else if (triggerSidebar) {
+    const sidebarSnakeOpacityInterpolator = isViewer
+      ? interpolateOpacityForViewerPrimarySnake
+      : interpolateOpacityForNonViewerPrimarySnake;
+    snakes.push(
+      <SwipeSnake
+        isViewer={isViewer}
+        translateX={translateX}
+        color={threadColor}
+        opacityInterpolator={sidebarSnakeOpacityInterpolator}
+        key="sidebar"
       >
-        <Animated.View style={[messageBoxStyle, transformMessageBoxStyle]}>
-          {children}
-        </Animated.View>
-      </PanGestureHandler>
-    </>
+        <MaterialCommunityIcon name="comment-text" size={16} />
+      </SwipeSnake>,
+    );
+  }
+
+  snakes.push(
+    <PanGestureHandler
+      maxPointers={1}
+      minDist={4}
+      onGestureEvent={swipeEvent}
+      failOffsetX={isViewer ? 5 : -5}
+      failOffsetY={[-5, 5]}
+      waitFor={waitFor}
+      key="gesture"
+    >
+      <Animated.View style={[messageBoxStyle, transformMessageBoxStyle]}>
+        {children}
+      </Animated.View>
+    </PanGestureHandler>,
   );
+
+  return snakes;
 }
 
 const styles = {
