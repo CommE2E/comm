@@ -238,6 +238,10 @@ function SwipeableMessage(props: Props): React.Node {
   const reactNavGestureHandlerRef = React.useContext(GestureHandlerRefContext);
   const waitFor = reactNavGestureHandlerRef ?? undefined;
 
+  if (!triggerReply && !triggerSidebar) {
+    return <View style={messageBoxStyle}>{children}</View>;
+  }
+
   const threadColor = `#${props.threadColor}`;
   const tinyThreadColor = tinycolor(threadColor);
 

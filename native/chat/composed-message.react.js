@@ -93,34 +93,28 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let messageBox;
-    if (swipeOptions !== 'none') {
-      const triggerReply =
-        swipeOptions === 'reply' || swipeOptions === 'both'
-          ? this.reply
-          : undefined;
-      const triggerSidebar =
-        swipeOptions === 'sidebar' || swipeOptions === 'both'
-          ? navigateToSidebar
-          : undefined;
-      messageBox = (
-        <View style={styles.messageBox}>
-          <SwipeableMessage
-            triggerReply={triggerReply}
-            triggerSidebar={triggerSidebar}
-            isViewer={isViewer}
-            messageBoxStyle={messageBoxStyle}
-            threadColor={item.threadInfo.color}
-          >
-            {children}
-          </SwipeableMessage>
-        </View>
-      );
-    } else {
-      messageBox = (
-        <View style={[styles.messageBox, messageBoxStyle]}>{children}</View>
-      );
-    }
+    const triggerReply =
+      swipeOptions === 'reply' || swipeOptions === 'both'
+        ? this.reply
+        : undefined;
+    const triggerSidebar =
+      swipeOptions === 'sidebar' || swipeOptions === 'both'
+        ? navigateToSidebar
+        : undefined;
+    const messageBox = (
+      <View style={styles.messageBox}>
+        <SwipeableMessage
+          triggerReply={triggerReply}
+          triggerSidebar={triggerSidebar}
+          isViewer={isViewer}
+          messageBoxStyle={messageBoxStyle}
+          threadColor={item.threadInfo.color}
+        >
+          {children}
+        </SwipeableMessage>
+      </View>
+    );
+
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
       const positioning = isViewer ? 'right' : 'left';
