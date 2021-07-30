@@ -2,6 +2,8 @@
 
 #include "entities/Draft.h"
 #include "entities/Message.h"
+#include "entities/OlmPersistAccount.h"
+#include "entities/OlmPersistSession.h"
 
 #include <jsi/jsi.h>
 #include <string>

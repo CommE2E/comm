@@ -97,11 +97,58 @@ bool create_messages_table(sqlite3 *db) {
   return false;
 }
 
+bool create_persist_account_table(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "CREATE TABLE olm_persist_account("
+      "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
+      "account_data TEXT NOT NULL);",
+      nullptr,
+      nullptr,
+      &error);
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error creating 'olm_persist_account' table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
+bool create_persist_sessions_table(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "CREATE TABLE olm_persist_sessions("
+      "target_user_id TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "session_data TEXT NOT NULL);",
+      nullptr,
+      nullptr,
+      &error);
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error creating 'olm_persist_sessions' table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
-std::vector<std::pair<uint, MigrationFunction>> migrations{
-    {{1, create_drafts_table},
-     {2, rename_threadID_to_key},
-     {3, create_messages_table}}};
+std::vector<std::pair<uint, MigrationFunction>> migrations{{
+    {1, create_drafts_table},
+    {2, rename_threadID_to_key},
+    {3, create_messages_table},
+    {4, create_persist_account_table},
+    {5, create_persist_sessions_table},
+}};
 
 void SQLiteQueryExecutor::migrate() {
   sqlite3 *db;
@@ -162,7 +209,15 @@ auto SQLiteQueryExecutor::getStorage() {
           make_column("future_type", &Message::future_type),
           make_column("content", &Message::content),
           make_column("time", &Message::time),
-          make_column("creation", &Message::creation)));
+          make_column("creation", &Message::creation)),
+      make_table(
+          "olm_persist_account",
+          make_column("id", &OlmPersistAccount::id),
+          make_column("account_data", &OlmPersistAccount::account_data)),
+      make_table(
+          "olm_persist_sessions",
+          make_column("target_user_id", &OlmPersistSession::target_user_id),
+          make_column("session_data", &OlmPersistSession::session_data)));
   return storage;
 }
 
