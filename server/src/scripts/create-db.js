@@ -218,6 +218,14 @@ async function createTables() {
       one_time_key CHAR(43) NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+    CREATE TABLE user_messages (
+      recipient bigint(20) NOT NULL,
+      thread bigint(20) NOT NULL,
+      message bigint(20) NOT NULL,
+      time bigint(20) NOT NULL,
+      data mediumtext COLLATE utf8mb4_bin DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
     ALTER TABLE cookies
       ADD PRIMARY KEY (id),
       ADD UNIQUE KEY device_token (device_token),
@@ -311,6 +319,12 @@ async function createTables() {
 
     ALTER TABLE one_time_keys
       ADD PRIMARY KEY (user, one_time_key);
+
+    ALTER TABLE user_messages
+      ADD INDEX recipient_time (recipient, time),
+      ADD INDEX recipient_thread_time (recipient, thread, time),
+      ADD INDEX thread (thread),
+      ADD PRIMARY KEY (recipient, message);
 
     ALTER TABLE ids
       MODIFY id bigint(20) NOT NULL AUTO_INCREMENT;
