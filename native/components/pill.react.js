@@ -70,7 +70,7 @@ const unboundStyles = {
     fontWeight: 'bold',
   },
   icon: {
-    paddingRight: 8,
+    paddingRight: 6,
   },
 };
 

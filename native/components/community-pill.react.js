@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5';
 
 import { memberHasAdminPowers } from 'lib/shared/thread-utils';
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
@@ -10,6 +9,7 @@ import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 import { useSelector } from '../redux/redux-utils';
 import { useColors } from '../themes/colors';
 import Pill from './pill.react';
+import SWMansionIcon from './swmansion-icon.react';
 import ThreadPill from './thread-pill.react';
 
 type Props = {
@@ -33,7 +33,11 @@ function CommunityPill(props: Props): React.Node {
       return undefined;
     }
     const icon = (
-      <Icon name="cloud" size={12} color={colors.panelForegroundLabel} />
+      <SWMansionIcon
+        name="cloud-filled"
+        size={20}
+        color={colors.panelForegroundLabel}
+      />
     );
     return (
       <Pill
