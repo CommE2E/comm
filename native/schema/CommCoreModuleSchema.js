@@ -5,7 +5,7 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 
-export type SQLiteMessageInfo = {
+type SQLiteMessageInfo = {
   +id: string,
   +thread: string,
   +user: string,
@@ -16,24 +16,22 @@ export type SQLiteMessageInfo = {
   +creation: string,
 };
 
-export type SQLiteDraftInfo = {
+type SQLiteDraftInfo = {
   +key: string,
   +text: string,
 };
 
-export type RemoveMessageOperation = {
+type RemoveMessageOperation = {
   +type: 'remove',
   +payload: { +id: string },
 };
 
-export type ReplaceMessageOperation = {
+type ReplaceMessageOperation = {
   +type: 'replace',
   +payload: SQLiteMessageInfo,
 };
 
-export type MessageStoreOperation =
-  | RemoveMessageOperation
-  | ReplaceMessageOperation;
+type MessageStoreOperation = RemoveMessageOperation | ReplaceMessageOperation;
 
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
