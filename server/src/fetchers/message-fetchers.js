@@ -38,6 +38,8 @@ export type FetchCollapsableNotifsResult = {
   [userID: string]: CollapsableNotifInfo[],
 };
 
+const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
+
 // This function doesn't filter RawMessageInfos based on what messageTypes the
 // client supports, since each user can have multiple clients. The caller must
 // handle this filtering.
@@ -88,7 +90,6 @@ async function fetchCollapsableNotifs(
     return usersToCollapsableNotifInfo;
   }
 
-  const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const collapseQuery = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
       m.user AS creatorID, stm.permissions AS subthread_permissions, n.user,
@@ -104,7 +105,7 @@ async function fetchCollapsableNotifs(
       ON m.type = ${messageTypes.CREATE_SUB_THREAD}
         AND stm.thread = m.content AND stm.user = n.user
     WHERE n.rescinded = 0 AND
-      JSON_EXTRACT(mm.permissions, ${visPermissionExtractString}) IS TRUE AND
+      JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
   collapseQuery.append(mergeOrConditions(sqlTuples));
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
@@ -238,8 +239,6 @@ function rawMessageInfoFromRows(
   );
   return messageSpec.rawMessageInfoFromRow(row, { derivedMessages, localID });
 }
-
-const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
 
 async function fetchMessageInfos(
   viewer: Viewer,
