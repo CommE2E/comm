@@ -17,10 +17,9 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 import type { IconProps } from 'react-native-vector-icons';
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import tinycolor from 'tinycolor2';
 
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { colors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 import { dividePastDistance } from '../utils/animation-utils';
@@ -258,7 +257,7 @@ function SwipeableMessage(props: Props): React.Node {
         opacityInterpolator={replySnakeOpacityInterpolator}
         key="reply"
       >
-        <FontAwesomeIcon name="reply" size={16} />
+        <SWMansionIcon name="reply-filled" size={20} />
       </SwipeSnake>,
     );
   }
@@ -277,7 +276,7 @@ function SwipeableMessage(props: Props): React.Node {
         translateXInterpolator={sidebarSnakeTranslateXInterpolator}
         key="sidebar"
       >
-        <MaterialCommunityIcon name="comment-text" size={16} />
+        <SWMansionIcon name="sidebar-filled" size={20} />
       </SwipeSnake>,
     );
   } else if (triggerSidebar) {
@@ -292,7 +291,7 @@ function SwipeableMessage(props: Props): React.Node {
         opacityInterpolator={sidebarSnakeOpacityInterpolator}
         key="sidebar"
       >
-        <MaterialCommunityIcon name="comment-text" size={16} />
+        <SWMansionIcon name="sidebar-filled" size={20} />
       </SwipeSnake>,
     );
   }
