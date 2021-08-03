@@ -1,5 +1,6 @@
 package app.comm.android;
 
+import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.generated.BasePackageList;
 
 import androidx.multidex.MultiDexApplication;
@@ -9,19 +10,16 @@ import android.database.CursorWindow;
 
 import org.unimodules.adapters.react.ModuleRegistryAdapter;
 import org.unimodules.adapters.react.ReactModuleRegistryProvider;
-import org.unimodules.core.interfaces.SingletonModule;
 
 import com.facebook.react.PackageList;
-import com.facebook.hermes.reactexecutor.HermesExecutorFactory;
-import com.facebook.react.bridge.JavaScriptExecutorFactory;
 import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 
+import expo.modules.securestore.SecureStoreModule;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
 
@@ -70,6 +68,10 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
 
     @Override
     protected JSIModulePackage getJSIModulePackage() {
+      SecureStoreModule secureStoreModule = (SecureStoreModule) 
+        mModuleRegistryProvider.get(getApplicationContext())
+        .getExportedModuleOfClass(SecureStoreModule.class);
+      CommSecureStore.getInstance().initialize(secureStoreModule);
       return new CommCoreJSIModulePackage();
     }
   };
