@@ -17,7 +17,7 @@ function BuildInfo(props: { ... }): React.Node {
       <View style={styles.section}>
         <View style={styles.row}>
           <Text style={styles.label}>Release</Text>
-          <Text style={styles.releaseText}>ALPHA</Text>
+          <Text style={styles.releaseText}>BETA</Text>
         </View>
         <View style={styles.row}>
           <Text style={styles.label}>Code version</Text>
@@ -46,7 +46,7 @@ const unboundStyles = {
     paddingRight: 12,
   },
   releaseText: {
-    color: 'redText',
+    color: 'orange',
     fontSize: 16,
   },
   row: {
