@@ -1,9 +1,12 @@
 #pragma once
 
+#include "../CryptoTools/Persist.h"
 #include "entities/Draft.h"
 #include "entities/Message.h"
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
+
+#include <folly/Optional.h>
 
 #include <jsi/jsi.h>
 #include <string>
@@ -28,6 +31,9 @@ public:
   virtual std::vector<Message> getAllMessages() const = 0;
   virtual void removeMessages(std::vector<int> ids) const = 0;
   virtual void replaceMessage(Message message) const = 0;
+  virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;
+  virtual folly::Optional<std::string> getOlmPersistAccountData() const = 0;
+  virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
 };
 
 } // namespace comm

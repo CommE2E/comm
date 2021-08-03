@@ -6,6 +6,9 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <system_error>
+
+#define ACCOUNT_ID 1
 
 namespace comm {
 
@@ -245,6 +248,37 @@ void SQLiteQueryExecutor::removeMessages(std::vector<int> ids) const {
 
 void SQLiteQueryExecutor::replaceMessage(Message message) const {
   SQLiteQueryExecutor::getStorage().replace(message);
+}
+
+std::vector<OlmPersistSession>
+SQLiteQueryExecutor::getOlmPersistSessionsData() const {
+  return SQLiteQueryExecutor::getStorage().get_all<OlmPersistSession>();
+}
+
+folly::Optional<std::string>
+SQLiteQueryExecutor::getOlmPersistAccountData() const {
+  std::vector<OlmPersistAccount> result =
+      SQLiteQueryExecutor::getStorage().get_all<OlmPersistAccount>();
+  if (result.size() > 1) {
+    throw std::system_error(
+        ECANCELED,
+        std::generic_category(),
+        "Multiple records found for the olm_persist_account table");
+  }
+  return (result.size() == 0)
+             ? folly::none
+             : folly::Optional<std::string>(result[0].account_data);
+}
+
+void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
+  OlmPersistAccount persistAccount = {
+      ACCOUNT_ID, std::string(persist.account.begin(), persist.account.end())};
+  SQLiteQueryExecutor::getStorage().replace(persistAccount);
+  for (auto it = persist.sessions.begin(); it != persist.sessions.end(); it++) {
+    OlmPersistSession persistSession = {
+        it->first, std::string(it->second.begin(), it->second.end())};
+    SQLiteQueryExecutor::getStorage().replace(persistSession);
+  }
 }
 
 } // namespace comm

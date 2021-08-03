@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
 #include "entities/Draft.h"
 
@@ -24,6 +25,9 @@ public:
   std::vector<Message> getAllMessages() const override;
   void removeMessages(std::vector<int> ids) const override;
   void replaceMessage(Message message) const override;
+  std::vector<OlmPersistSession> getOlmPersistSessionsData() const override;
+  folly::Optional<std::string> getOlmPersistAccountData() const override;
+  void storeOlmPersistData(crypto::Persist persist) const override;
 };
 
 } // namespace comm
