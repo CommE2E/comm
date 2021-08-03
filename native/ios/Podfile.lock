@@ -27,6 +27,8 @@ PODS:
   - EXPermissions (8.1.0):
     - UMCore
     - UMPermissionsInterface
+  - EXSecureStore (10.2.0):
+    - UMCore
   - EXSplashScreen (0.3.1):
     - UMCore
   - FBLazyVector (0.64.2)
@@ -530,6 +532,7 @@ DEPENDENCIES:
   - EXImageManipulator (from `../../node_modules/expo-image-manipulator/ios`)
   - EXMediaLibrary (from `../../node_modules/expo-media-library/ios`)
   - EXPermissions (from `../../node_modules/expo-permissions/ios`)
+  - EXSecureStore (from `../../node_modules/expo-secure-store/ios`)
   - EXSplashScreen (from `../../node_modules/expo-splash-screen/ios`)
   - FBLazyVector (from `../../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../../node_modules/react-native/React/FBReactNativeSpec`)
@@ -668,6 +671,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/expo-media-library/ios"
   EXPermissions:
     :path: "../../node_modules/expo-permissions/ios"
+  EXSecureStore:
+    :path: "../../node_modules/expo-secure-store/ios"
   EXSplashScreen:
     :path: "../../node_modules/expo-splash-screen/ios"
   FBLazyVector:
@@ -825,6 +830,7 @@ SPEC CHECKSUMS:
   EXImageManipulator: 77756def08b3f2bc2a0470c657fbd0d94f381fa4
   EXMediaLibrary: 580c097a85f9253deaaf7aaa75a8a2e692e9d8b9
   EXPermissions: 24b97f734ce9172d245a5be38ad9ccfcb6135964
+  EXSecureStore: 1aa80d49a3a101418bbd2675e2a0d32dceea10c2
   EXSplashScreen: c4ed5d39cd5dbc1329f8dec720e280276bafa28b
   FBLazyVector: e686045572151edef46010a6f819ade377dfeb4b
   FBReactNativeSpec: 00d3c44d268b294f240a43ff003e918ff9f510e2
