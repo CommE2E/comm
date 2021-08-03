@@ -1,8 +1,11 @@
 #pragma once
 
+#include "../CryptoTools/CryptoModule.h"
+#include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
 #include "NativeModules.h"
 #include <jsi/jsi.h>
+#include <memory>
 
 namespace comm {
 
@@ -10,6 +13,11 @@ namespace jsi = facebook::jsi;
 
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   WorkerThread databaseThread;
+  WorkerThread cryptoThread;
+
+  CommSecureStore secureStore;
+  const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
+  std::unique_ptr<crypto::CryptoModule> cryptoModule;
 
   jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) override;
   jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
@@ -24,6 +32,13 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   jsi::Value processMessageStoreOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) override;
+
+  jsi::Value
+  initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) override;
+  jsi::Value
+  getUserPublicKey(jsi::Runtime &rt, const jsi::String &userId) override;
+  jsi::Value
+  getUserOneTimeKeys(jsi::Runtime &rt, const jsi::String &userId) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

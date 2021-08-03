@@ -1,6 +1,8 @@
 #include "CommCoreModule.h"
 #include "DatabaseManager.h"
 
+#include <folly/Optional.h>
+
 #include <ReactCommon/TurboModuleUtils.h>
 
 namespace comm {
@@ -279,9 +281,140 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       });
 }
 
+jsi::Value CommCoreModule::initializeCryptoAccount(
+    jsi::Runtime &rt,
+    const jsi::String &userId) {
+  std::string userIdStr = userId.utf8(rt);
+  folly::Optional<std::string> storedSecretKey =
+      this->secureStore.get(this->secureStoreAccountDataKey);
+  if (!storedSecretKey.hasValue()) {
+    storedSecretKey = crypto::Tools::getInstance().generateRandomString(64);
+    this->secureStore.set(
+        this->secureStoreAccountDataKey, storedSecretKey.value());
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        this->databaseThread.scheduleTask([=, &innerRt]() {
+          crypto::Persist persist;
+          std::string error;
+          try {
+            folly::Optional<std::string> accountData =
+                DatabaseManager::getQueryExecutor().getOlmPersistAccountData();
+            if (accountData.hasValue()) {
+              persist.account =
+                  crypto::OlmBuffer(accountData->begin(), accountData->end());
+              // handle sessions data
+              std::vector<OlmPersistSession> sessionsData =
+                  DatabaseManager::getQueryExecutor()
+                      .getOlmPersistSessionsData();
+              for (OlmPersistSession &sessionsDataItem : sessionsData) {
+                crypto::OlmBuffer sessionDataBuffer(
+                    sessionsDataItem.session_data.begin(),
+                    sessionsDataItem.session_data.end());
+                persist.sessions.insert(std::make_pair(
+                    sessionsDataItem.target_user_id, sessionDataBuffer));
+              }
+            }
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+
+          this->cryptoThread.scheduleTask([=, &innerRt]() {
+            std::string error;
+            this->cryptoModule.reset(new crypto::CryptoModule(
+                userIdStr, storedSecretKey.value(), persist));
+            if (persist.isEmpty()) {
+              crypto::Persist newPersist =
+                  this->cryptoModule->storeAsB64(storedSecretKey.value());
+              this->databaseThread.scheduleTask([=, &innerRt]() {
+                std::string error;
+                try {
+                  DatabaseManager::getQueryExecutor().storeOlmPersistData(
+                      newPersist);
+                } catch (std::system_error &e) {
+                  error = e.what();
+                }
+                this->jsInvoker_->invokeAsync([=, &innerRt]() {
+                  if (error.size()) {
+                    promise->reject(error);
+                    return;
+                  }
+                  promise->resolve(jsi::Value::undefined());
+                });
+              });
+
+            } else {
+              this->cryptoModule->restoreFromB64(
+                  storedSecretKey.value(), persist);
+              this->jsInvoker_->invokeAsync([=, &innerRt]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+                promise->resolve(jsi::Value::undefined());
+              });
+            }
+          });
+        });
+      });
+}
+
+jsi::Value
+CommCoreModule::getUserPublicKey(jsi::Runtime &rt, const jsi::String &userId) {
+  std::string userIdStr = userId.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::string result;
+          if (this->cryptoModule == nullptr) {
+            error = "user has not been initialized";
+          } else {
+            result = this->cryptoModule->getIdentityKeys();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::String::createFromUtf8(innerRt, result));
+          });
+        };
+        this->cryptoThread.scheduleTask(job);
+      });
+}
+
+jsi::Value CommCoreModule::getUserOneTimeKeys(
+    jsi::Runtime &rt,
+    const jsi::String &userId) {
+  std::string userIdStr = userId.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::string result;
+          if (this->cryptoModule == nullptr) {
+            error = "user has not been initialized";
+          } else {
+            result = this->cryptoModule->getOneTimeKeys();
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            promise->resolve(jsi::String::createFromUtf8(innerRt, result));
+          });
+        };
+        this->cryptoThread.scheduleTask(job);
+      });
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
-      databaseThread("database"){};
+      databaseThread("database"),
+      cryptoThread("crypto"){};
 
 } // namespace comm

@@ -44,6 +44,9 @@ export interface Spec extends TurboModule {
   +processMessageStoreOperations: (
     operations: $ReadOnlyArray<MessageStoreOperation>,
   ) => Promise<void>;
+  +initializeCryptoAccount: (userId: string) => Promise<string>;
+  +getUserPublicKey: (userId: string) => Promise<string>;
+  +getUserOneTimeKeys: (userId: string) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

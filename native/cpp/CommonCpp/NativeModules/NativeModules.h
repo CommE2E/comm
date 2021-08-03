@@ -32,6 +32,12 @@ public:
   virtual jsi::Value processMessageStoreOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) = 0;
+  virtual jsi::Value
+  initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) = 0;
+  virtual jsi::Value
+  getUserPublicKey(jsi::Runtime &rt, const jsi::String &userId) = 0;
+  virtual jsi::Value
+  getUserOneTimeKeys(jsi::Runtime &rt, const jsi::String &userId) = 0;
 };
 
 } // namespace react

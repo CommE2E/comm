@@ -78,6 +78,33 @@ __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processMessageStoreOperations(
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
       ->processMessageStoreOperations(rt, args[0].getObject(rt).getArray(rt));
 }
+static jsi::Value
+__hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount(
+    jsi::Runtime &rt,
+    TurboModule &turboModule,
+    const jsi::Value *args,
+    size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
+      ->initializeCryptoAccount(rt, args[0].getString(rt));
+}
+static jsi::Value
+__hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey(
+    jsi::Runtime &rt,
+    TurboModule &turboModule,
+    const jsi::Value *args,
+    size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
+      ->getUserPublicKey(rt, args[0].getString(rt));
+}
+static jsi::Value
+__hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys(
+    jsi::Runtime &rt,
+    TurboModule &turboModule,
+    const jsi::Value *args,
+    size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
+      ->getUserOneTimeKeys(rt, args[0].getString(rt));
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(
     std::shared_ptr<CallInvoker> jsInvoker)
@@ -99,6 +126,12 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(
   methodMap_["processMessageStoreOperations"] = MethodMetadata{
       1,
       __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processMessageStoreOperations};
+  methodMap_["initializeCryptoAccount"] = MethodMetadata{
+      1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
+  methodMap_["getUserPublicKey"] = MethodMetadata{
+      1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
+  methodMap_["getUserOneTimeKeys"] = MethodMetadata{
+      1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys};
 }
 
 } // namespace react
