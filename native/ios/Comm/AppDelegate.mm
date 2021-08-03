@@ -18,11 +18,15 @@
 #import <cxxreact/JSExecutor.h>
 #import <jsireact/JSIExecutor.h>
 
+#import <EXSecureStore/EXSecureStore.h>
+#import <UMReactNativeAdapter/UMNativeModulesProxy.h>
+
 #import <string>
 
 #import "Tools.h"
 #import "CommCoreModule.h"
 #import "SQLiteQueryExecutor.h"
+#import "CommSecureStoreIOSWrapper.h"
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -60,6 +64,14 @@ extern RCTBridge *_bridge_reanimated;
 
 @end
 
+@interface UMNativeModulesProxy ()
+@property (nonatomic, strong) UMModuleRegistry *moduleRegistry;
+@end
+
+@interface CommSecureStoreIOSWrapper()
+- (void)init:(EXSecureStore *)secureStore;
+@end
+
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -95,6 +107,11 @@ extern RCTBridge *_bridge_reanimated;
   // This sets up the splash screen to display until the JS side is ready for it to clear
   EXSplashScreenService *splashScreenService = (EXSplashScreenService *)[UMModuleRegistryProvider getSingletonModuleForClass:[EXSplashScreenService class]];
   [splashScreenService showSplashScreenFor:rootViewController];
+  
+  UMNativeModulesProxy *proxy = [bridge moduleForClass:[UMNativeModulesProxy class]];
+  UMModuleRegistry *moduleRegistry = [proxy moduleRegistry];
+  EXSecureStore *secureStore = [moduleRegistry getExportedModuleOfClass:[EXSecureStore class]];
+  [[CommSecureStoreIOSWrapper sharedInstance] init:secureStore];
 
   return YES;
 }

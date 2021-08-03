@@ -10,11 +10,13 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; };
 		71BE84492636A944002849D2 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843B2636A944002849D2 /* NativeModules.cpp */; };
 		71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843C2636A944002849D2 /* CommCoreModule.cpp */; };
 		71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
+		71BF5B6426AEC56500EDE27D /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6326AEC56500EDE27D /* CommSecureStore.mm */; };
 		71CA4A64262DA8E500835C89 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
 		71CA4AEC262F236100835C89 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
@@ -30,16 +32,18 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		008F07F21AC5B25A0029DE68 /* main.jsbundle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = main.jsbundle; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Comm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Comm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Comm/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = Comm/AppDelegate.mm; sourceTree = "<group>"; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Comm/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = Comm/Info.release.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Comm/main.m; sourceTree = "<group>"; };
+		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
+		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		718DE99C2653D41C00365824 /* WorkerThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerThread.cpp; sourceTree = "<group>"; };
 		718DE99D2653D41C00365824 /* WorkerThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkerThread.h; sourceTree = "<group>"; };
+		71B8CCBD26BD4DEB0040C0A2 /* CommSecureStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommSecureStore.h; sourceTree = "<group>"; };
 		71BE84392636A944002849D2 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
 		71BE843B2636A944002849D2 /* NativeModules.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeModules.cpp; sourceTree = "<group>"; };
 		71BE843C2636A944002849D2 /* CommCoreModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommCoreModule.cpp; sourceTree = "<group>"; };
@@ -51,6 +55,7 @@
 		71BE84432636A944002849D2 /* DatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseManager.h; sourceTree = "<group>"; };
 		71BE84452636A944002849D2 /* Draft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Draft.h; sourceTree = "<group>"; };
 		71BE84482636A944002849D2 /* sqlite_orm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlite_orm.h; sourceTree = "<group>"; };
+		71BF5B6326AEC56500EDE27D /* CommSecureStore.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStore.mm; path = Comm/CommSecureStore.mm; sourceTree = "<group>"; };
 		71CA4A63262DA8E500835C89 /* Logger.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Logger.mm; path = Comm/Logger.mm; sourceTree = "<group>"; };
 		71CA4AEA262F230A00835C89 /* Tools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tools.h; path = Comm/Tools.h; sourceTree = "<group>"; };
 		71CA4AEB262F236100835C89 /* Tools.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = Tools.mm; path = Comm/Tools.mm; sourceTree = "<group>"; };
@@ -89,10 +94,9 @@
 		13B07FAE1A68108700A75B9A /* Comm */ = {
 			isa = PBXGroup;
 			children = (
-				71CA4A63262DA8E500835C89 /* Logger.mm */,
+				71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */,
 				7F788C2B248AA2130098F071 /* SplashScreen.storyboard */,
 				7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */,
-				008F07F21AC5B25A0029DE68 /* main.jsbundle */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -101,8 +105,6 @@
 				13B07FB71A68108700A75B9A /* main.m */,
 				7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */,
 				7F26E81B24440D87004049C6 /* dummy.swift */,
-				71CA4AEA262F230A00835C89 /* Tools.h */,
-				71CA4AEB262F236100835C89 /* Tools.mm */,
 			);
 			name = Comm;
 			sourceTree = "<group>";
@@ -119,6 +121,19 @@
 				7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
+			isa = PBXGroup;
+			children = (
+				71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */,
+				71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */,
+				71CA4AEA262F230A00835C89 /* Tools.h */,
+				71CA4AEB262F236100835C89 /* Tools.mm */,
+				71BF5B6326AEC56500EDE27D /* CommSecureStore.mm */,
+				71CA4A63262DA8E500835C89 /* Logger.mm */,
+			);
+			name = CommCoreImplementations;
 			sourceTree = "<group>";
 		};
 		71BE84362636A944002849D2 /* cpp */ = {
@@ -144,6 +159,7 @@
 		71BE84382636A944002849D2 /* Tools */ = {
 			isa = PBXGroup;
 			children = (
+				71B8CCBD26BD4DEB0040C0A2 /* CommSecureStore.h */,
 				718DE99C2653D41C00365824 /* WorkerThread.cpp */,
 				718DE99D2653D41C00365824 /* WorkerThread.h */,
 				71BE84392636A944002849D2 /* Logger.h */,
@@ -455,9 +471,11 @@
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
 				71BE84492636A944002849D2 /* NativeModules.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
 				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
+				71BF5B6426AEC56500EDE27D /* CommSecureStore.mm in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
