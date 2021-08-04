@@ -162,12 +162,13 @@ async function websiteResponder(
       { threadInfos },
       { rawMessageInfos, truncationStatuses },
     ] = await Promise.all([threadInfoPromise, messageInfoPromise]);
-    return freshMessageStore(
+    const { messageStore: freshStore } = freshMessageStore(
       rawMessageInfos,
       truncationStatuses,
       mostRecentMessageTimestamp(rawMessageInfos, initialTime),
       threadInfos,
     );
+    return freshStore;
   })();
   const entryStorePromise = (async () => {
     const { rawEntryInfos } = await entryInfoPromise;
