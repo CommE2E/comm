@@ -125,6 +125,7 @@ function useAnimatedMessageTooltipButton(
   +style: AnimatedViewStyle,
   +threadColorOverride: ?Node,
   +isThreadColorDarkOverride: ?boolean,
+  +isAnimatingToSidebar: boolean,
 } {
   const {
     position: targetPosition,
@@ -204,6 +205,7 @@ function useAnimatedMessageTooltipButton(
     style: messageContainerStyle,
     threadColorOverride,
     isThreadColorDarkOverride,
+    isAnimatingToSidebar: !!currentTransitionSidebarSourceID,
   };
 }
 
