@@ -12,7 +12,6 @@ struct Message {
   int future_type;
   std::string content;
   int time;
-  std::string creation;
 };
 
 } // namespace comm

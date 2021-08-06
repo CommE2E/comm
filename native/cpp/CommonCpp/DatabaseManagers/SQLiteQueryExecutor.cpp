@@ -70,20 +70,6 @@ bool rename_threadID_to_key(sqlite3 *db) {
   return true;
 }
 
-bool create_messages_table(sqlite3 *db) {
-  std::string query =
-      "CREATE TABLE IF NOT EXISTS messages ( "
-      "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
-      "thread INTEGER NOT NULL, "
-      "user INTEGER NOT NULL, "
-      "type INTEGER NOT NULL, "
-      "future_type INTEGER, "
-      "content TEXT, "
-      "time INTEGER NOT NULL, "
-      "creation TEXT);";
-  return create_table(db, query, "messages");
-}
-
 bool create_persist_account_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE olm_persist_account("
@@ -100,13 +86,43 @@ bool create_persist_sessions_table(sqlite3 *db) {
   return create_table(db, query, "olm_persist_sessions");
 }
 
+bool drop_messages_table(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(db, "DROP TABLE IF EXISTS messages;", nullptr, nullptr, &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error dropping 'messages' table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
+bool recreate_messages_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS messages ( "
+      "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
+      "thread INTEGER NOT NULL, "
+      "user INTEGER NOT NULL, "
+      "type INTEGER NOT NULL, "
+      "future_type INTEGER, "
+      "content TEXT, "
+      "time INTEGER NOT NULL);";
+  return create_table(db, query, "messages");
+}
+
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
 std::vector<std::pair<uint, MigrationFunction>> migrations{{
     {1, create_drafts_table},
     {2, rename_threadID_to_key},
-    {3, create_messages_table},
     {4, create_persist_account_table},
     {5, create_persist_sessions_table},
+    {6, drop_messages_table},
+    {7, recreate_messages_table},
 }};
 
 void SQLiteQueryExecutor::migrate() {
@@ -167,8 +183,7 @@ auto SQLiteQueryExecutor::getStorage() {
           make_column("type", &Message::type),
           make_column("future_type", &Message::future_type),
           make_column("content", &Message::content),
-          make_column("time", &Message::time),
-          make_column("creation", &Message::creation)),
+          make_column("time", &Message::time)),
       make_table(
           "olm_persist_account",
           make_column("id", &OlmPersistAccount::id),

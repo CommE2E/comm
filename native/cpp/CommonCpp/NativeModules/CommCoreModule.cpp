@@ -206,8 +206,6 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
               jsiMessage.setProperty(innerRt, "content", message.content);
               jsiMessage.setProperty(
                   innerRt, "time", std::to_string(message.time));
-              jsiMessage.setProperty(innerRt, "creation", message.creation);
-
               jsiMessages.setValueAtIndex(innerRt, writeIndex++, jsiMessage);
             }
             promise->resolve(std::move(jsiMessages));
@@ -252,10 +250,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       auto content = msg_obj.getProperty(rt, "content").asString(rt).utf8(rt);
       auto time =
           std::stoi(msg_obj.getProperty(rt, "time").asString(rt).utf8(rt));
-      auto creation = msg_obj.getProperty(rt, "creation").asString(rt).utf8(rt);
-
-      Message message = {
-          id, thread, user, type, future_type, content, time, creation};
+      Message message = {id, thread, user, type, future_type, content, time};
       replaced_msgs.push_back(message);
     }
   }
