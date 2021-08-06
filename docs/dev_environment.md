@@ -177,7 +177,13 @@ The Redux Dev Tools Chrome extension lets you watch for Redux actions and inspec
 We’ll need the Java Development Kit for Android development.
 
 ```
-brew install adoptopenjdk/openjdk/adoptopenjdk8; brew upgrade adoptopenjdk/openjdk/adoptopenjdk8
+brew install adoptopenjdk/openjdk/adoptopenjdk11; brew upgrade adoptopenjdk/openjdk/adoptopenjdk11
+```
+
+We should also make sure to set up the `$JAVA_HOME` environment variable to point to our new JDK. Append the following line to your `~/.bash_profile` (or desired shell configuration file):
+
+```
+export JAVA_HOME=$(/usr/libexec/java_home)
 ```
 
 ## Android Studio
@@ -212,7 +218,6 @@ export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
-export JAVA_HOME="/Applications/Android Studio.app/Contents/jre/jdk/Contents/Home"
 ```
 
 Now either close and reopen your terminal window or re-source your shell configuration file in order to run the new commands:
