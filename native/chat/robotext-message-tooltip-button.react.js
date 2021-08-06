@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import Animated from 'react-native-reanimated';
+import Animated, { interpolateNode } from 'react-native-reanimated';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
@@ -22,36 +22,47 @@ type Props = {
 function RobotextMessageTooltipButton(props: Props): React.Node {
   const { progress } = props;
   const windowWidth = useSelector(state => state.dimensions.width);
-  const { initialCoordinates } = props.route.params;
-  const headerStyle = React.useMemo(() => {
-    const bottom = initialCoordinates.height;
-    return {
-      opacity: progress,
-      position: 'absolute',
-      left: -initialCoordinates.x,
-      width: windowWidth,
-      bottom,
-    };
-  }, [progress, windowWidth, initialCoordinates]);
 
-  const { item, verticalBounds } = props.route.params;
-  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton(
+  const { item, verticalBounds, initialCoordinates } = props.route.params;
+  const {
+    style: messageContainerStyle,
+    isAnimatingToSidebar,
+  } = useAnimatedMessageTooltipButton(
     item,
     initialCoordinates,
     verticalBounds,
     progress,
   );
 
+  const headerStyle = React.useMemo(() => {
+    const bottom = initialCoordinates.height;
+    const opacity = interpolateNode(progress, {
+      inputRange: [0, 1],
+      outputRange: [isAnimatingToSidebar ? 0.5 : 0, 1],
+    });
+    return {
+      opacity,
+      position: 'absolute',
+      left: -initialCoordinates.x,
+      width: windowWidth,
+      bottom,
+    };
+  }, [
+    initialCoordinates.height,
+    initialCoordinates.x,
+    progress,
+    isAnimatingToSidebar,
+    windowWidth,
+  ]);
+
   const { navigation } = props;
   return (
-    <React.Fragment>
+    <Animated.View style={messageContainerStyle}>
       <Animated.View style={headerStyle}>
         <Timestamp time={item.messageInfo.time} display="modal" />
       </Animated.View>
-      <Animated.View style={messageContainerStyle}>
-        <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
-      </Animated.View>
-    </React.Fragment>
+      <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
+    </Animated.View>
   );
 }
 

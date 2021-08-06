@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import Animated from 'react-native-reanimated';
+import Animated, { interpolateNode } from 'react-native-reanimated';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
@@ -23,23 +23,13 @@ type Props = {
 function TextMessageTooltipButton(props: Props): React.Node {
   const { progress } = props;
   const windowWidth = useSelector(state => state.dimensions.width);
-  const { initialCoordinates } = props.route.params;
-  const headerStyle = React.useMemo(() => {
-    const bottom = initialCoordinates.height;
-    return {
-      opacity: progress,
-      position: 'absolute',
-      left: -initialCoordinates.x,
-      width: windowWidth,
-      bottom,
-    };
-  }, [progress, windowWidth, initialCoordinates]);
 
-  const { item, verticalBounds } = props.route.params;
+  const { item, verticalBounds, initialCoordinates } = props.route.params;
   const {
     style: messageContainerStyle,
     threadColorOverride,
     isThreadColorDarkOverride,
+    isAnimatingToSidebar,
   } = useAnimatedMessageTooltipButton(
     item,
     initialCoordinates,
@@ -47,14 +37,35 @@ function TextMessageTooltipButton(props: Props): React.Node {
     progress,
   );
 
+  const headerStyle = React.useMemo(() => {
+    const bottom = initialCoordinates.height;
+    const opacity = interpolateNode(progress, {
+      inputRange: [0, 1],
+      outputRange: [isAnimatingToSidebar ? 0.5 : 0, 1],
+    });
+    return {
+      opacity,
+      position: 'absolute',
+      left: -initialCoordinates.x,
+      width: windowWidth,
+      bottom,
+    };
+  }, [
+    initialCoordinates.height,
+    initialCoordinates.x,
+    isAnimatingToSidebar,
+    progress,
+    windowWidth,
+  ]);
+
   const threadID = item.threadInfo.id;
   const { navigation } = props;
   return (
     <MessageListContextProvider threadID={threadID}>
-      <Animated.View style={headerStyle}>
-        <MessageHeader item={item} focused={true} display="modal" />
-      </Animated.View>
       <Animated.View style={messageContainerStyle}>
+        <Animated.View style={headerStyle}>
+          <MessageHeader item={item} focused={true} display="modal" />
+        </Animated.View>
         <InnerTextMessage
           item={item}
           onPress={navigation.goBackOnce}
