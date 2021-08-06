@@ -13,25 +13,26 @@ using namespace sqlite_orm;
 
 std::string SQLiteQueryExecutor::sqliteFilePath;
 
-bool create_drafts_table(sqlite3 *db) {
+bool create_table(sqlite3 *db, std::string query, std::string tableName) {
   char *error;
-  sqlite3_exec(
-      db,
-      "CREATE TABLE IF NOT EXISTS drafts (threadID TEXT UNIQUE PRIMARY KEY, "
-      "text TEXT);",
-      nullptr,
-      nullptr,
-      &error);
+  sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
   if (!error) {
     return true;
   }
 
   std::ostringstream stringStream;
-  stringStream << "Error creating 'drafts' table: " << error;
+  stringStream << "Error creating '" << tableName << "' table: " << error;
   Logger::log(stringStream.str());
 
   sqlite3_free(error);
   return false;
+}
+
+bool create_drafts_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS drafts (threadID TEXT UNIQUE PRIMARY KEY, "
+      "text TEXT);";
+  return create_table(db, query, "drafts");
 }
 
 bool rename_threadID_to_key(sqlite3 *db) {
@@ -70,9 +71,7 @@ bool rename_threadID_to_key(sqlite3 *db) {
 }
 
 bool create_messages_table(sqlite3 *db) {
-  char *error;
-  sqlite3_exec(
-      db,
+  std::string query =
       "CREATE TABLE IF NOT EXISTS messages ( "
       "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
       "thread INTEGER NOT NULL, "
@@ -81,64 +80,24 @@ bool create_messages_table(sqlite3 *db) {
       "future_type INTEGER, "
       "content TEXT, "
       "time INTEGER NOT NULL, "
-      "creation TEXT);",
-      nullptr,
-      nullptr,
-      &error);
-  if (!error) {
-    return true;
-  }
-
-  std::ostringstream stringStream;
-  stringStream << "Error creating 'messages' table: " << error;
-  Logger::log(stringStream.str());
-
-  sqlite3_free(error);
-  return false;
+      "creation TEXT);";
+  return create_table(db, query, "messages");
 }
 
 bool create_persist_account_table(sqlite3 *db) {
-  char *error;
-  sqlite3_exec(
-      db,
+  std::string query =
       "CREATE TABLE olm_persist_account("
       "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
-      "account_data TEXT NOT NULL);",
-      nullptr,
-      nullptr,
-      &error);
-  if (!error) {
-    return true;
-  }
-
-  std::ostringstream stringStream;
-  stringStream << "Error creating 'olm_persist_account' table: " << error;
-  Logger::log(stringStream.str());
-
-  sqlite3_free(error);
-  return false;
+      "account_data TEXT NOT NULL);";
+  return create_table(db, query, "olm_persist_account");
 }
 
 bool create_persist_sessions_table(sqlite3 *db) {
-  char *error;
-  sqlite3_exec(
-      db,
+  std::string query =
       "CREATE TABLE olm_persist_sessions("
       "target_user_id TEXT UNIQUE PRIMARY KEY NOT NULL, "
-      "session_data TEXT NOT NULL);",
-      nullptr,
-      nullptr,
-      &error);
-  if (!error) {
-    return true;
-  }
-
-  std::ostringstream stringStream;
-  stringStream << "Error creating 'olm_persist_sessions' table: " << error;
-  Logger::log(stringStream.str());
-
-  sqlite3_free(error);
-  return false;
+      "session_data TEXT NOT NULL);";
+  return create_table(db, query, "olm_persist_sessions");
 }
 
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
