@@ -11,6 +11,7 @@ import {
   createNavigatorFactory,
   NavigationHelpersContext,
 } from '@react-navigation/native';
+import { TransitionPresets } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
@@ -327,9 +328,17 @@ const OverlayNavigator = React.memo<Props>(
       for (const key in pendingAnimations) {
         const toValue = pendingAnimations[key];
         const position = positions[key];
+        const navigationTransitionSpec =
+          toValue === 0
+            ? TransitionPresets.DefaultTransition.transitionSpec.close
+            : TransitionPresets.DefaultTransition.transitionSpec.open;
+        const duration =
+          (navigationTransitionSpec.animation === 'timing' &&
+            navigationTransitionSpec.config.duration) ||
+          250;
         invariant(position, `should have position for animating key ${key}`);
         timing(position, {
-          duration: 150,
+          duration,
           easing: EasingNode.inOut(EasingNode.ease),
           toValue,
         }).start();
