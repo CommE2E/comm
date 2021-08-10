@@ -13,7 +13,6 @@ import Video from 'react-native-video';
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils';
 import type { MediaInfo } from 'lib/types/media-types';
 
-import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message-utils';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import { OverlayContext } from '../navigation/overlay-context';
@@ -21,6 +20,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { derivedDimensionsInfoSelector } from '../selectors/dimensions-selectors';
 import { useStyles } from '../themes/colors';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import type { VerticalBounds, LayoutCoordinates } from '../types/layout-types';
 import type { NativeMethods } from '../types/react-native';
 import { gestureJustEnded, animateTowards } from '../utils/animation-utils';

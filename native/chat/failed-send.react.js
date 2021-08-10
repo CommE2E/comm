@@ -15,7 +15,7 @@ import Button from '../components/button.react';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
-import type { ChatMessageInfoItemWithHeight } from './message.react';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { multimediaMessageSendFailed } from './multimedia-message-utils';
 import textMessageSendFailed from './text-message-send-failed';
 

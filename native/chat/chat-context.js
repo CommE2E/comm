@@ -7,7 +7,7 @@ import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import type { SetState } from 'lib/types/hook-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import type { ChatMessageItemWithHeight } from './message-list-container.react';
+import type { ChatMessageItemWithHeight } from '../types/chat-types';
 
 export type MessagesMeasurer = (
   $ReadOnlyArray<ChatMessageItem>,

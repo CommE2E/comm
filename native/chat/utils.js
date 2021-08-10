@@ -8,15 +8,15 @@ import { useMessageListData } from 'lib/selectors/chat-selectors';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
 import { useSelector } from '../redux/redux-utils';
+import type {
+  ChatMessageInfoItemWithHeight,
+  ChatMessageItemWithHeight,
+} from '../types/chat-types';
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
 import type { AnimatedViewStyle } from '../types/styles';
 import { ChatContext, useHeightMeasurer } from './chat-context';
 import { authorNameHeight } from './message-header.react';
-import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import {
-  type ChatMessageInfoItemWithHeight,
-  messageItemHeight,
-} from './message.react';
+import { messageItemHeight } from './message.react';
 import { getSidebarThreadInfo } from './sidebar-navigation';
 import { timestampHeight } from './timestamp.react';
 

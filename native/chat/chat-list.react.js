@@ -25,10 +25,10 @@ import {
 } from '../keyboard/keyboard-state';
 import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import { useSelector } from '../redux/redux-utils';
+import type { ChatMessageItemWithHeight } from '../types/chat-types';
 import type { ScrollEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
-import type { ChatMessageItemWithHeight } from './message-list-container.react';
 import NewMessagesPill from './new-messages-pill.react';
 import { chatMessageItemHeight } from './utils';
 

@@ -5,9 +5,9 @@ import * as React from 'react';
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import type { ChatMessageItemWithHeight } from '../types/chat-types';
 import { ChatContext } from './chat-context';
 import ChatItemHeightMeasurer from './chat-item-height-measurer.react';
-import type { ChatMessageItemWithHeight } from './message-list-container.react';
 
 type Props = {
   +children: React.Node,

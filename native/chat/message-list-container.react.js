@@ -31,18 +31,14 @@ import {
 import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
+import type { ChatMessageItemWithHeight } from '../types/chat-types';
 import { type MessagesMeasurer, useHeightMeasurer } from './chat-context';
 import ChatInputBar from './chat-input-bar.react';
 import type { ChatNavigationProp } from './chat.react';
 import MessageListThreadSearch from './message-list-thread-search.react';
 import { MessageListContextProvider } from './message-list-types';
 import MessageList from './message-list.react';
-import type { ChatMessageInfoItemWithHeight } from './message.react';
 import ParentThreadHeader from './parent-thread-header.react';
-
-export type ChatMessageItemWithHeight =
-  | { itemType: 'loader' }
-  | ChatMessageInfoItemWithHeight;
 
 type BaseProps = {
   +navigation: ChatNavigationProp<'MessageList'>,

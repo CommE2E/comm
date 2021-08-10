@@ -9,9 +9,9 @@ import {
   type TooltipParams,
   type BaseTooltipProps,
 } from '../navigation/tooltip.react';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react';
-import type { ChatMultimediaMessageInfoItem } from './multimedia-message-utils';
 import { navigateToSidebar } from './sidebar-navigation';
 
 export type MultimediaMessageTooltipModalParams = TooltipParams<{

@@ -2,7 +2,7 @@
 
 import type { Corners } from 'lib/types/media-types';
 
-import type { ChatMessageInfoItemWithHeight } from './message.react';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 
 type FilteredCorners = {
   +bottomLeft: void | boolean,

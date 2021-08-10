@@ -15,8 +15,8 @@ import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
 import { useOverlayStyles } from '../themes/colors';
+import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
 import { useNavigateToThread } from './message-list-types';
-import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
 
 function dummyNodeForRobotextMessageHeightMeasurement(
   robotext: string,

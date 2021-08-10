@@ -40,13 +40,16 @@ import {
   type IndicatorStyle,
   useIndicatorStyle,
 } from '../themes/colors';
+import type {
+  ChatMessageInfoItemWithHeight,
+  ChatMessageItemWithHeight,
+} from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ViewableItemsChange } from '../types/react-native';
 import { ChatContext } from './chat-context';
 import { ChatList } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';
-import type { ChatMessageItemWithHeight } from './message-list-container.react';
-import { Message, type ChatMessageInfoItemWithHeight } from './message.react';
+import { Message } from './message.react';
 import RelationshipPrompt from './relationship-prompt.react';
 
 type BaseProps = {

@@ -11,6 +11,7 @@ import GestureTouchableOpacity from '../components/gesture-touchable-opacity.rea
 import Markdown from '../markdown/markdown.react';
 import { useSelector } from '../redux/redux-utils';
 import { useColors, colors } from '../themes/colors';
+import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { MessageListContext } from './message-list-types';
 import {
@@ -18,7 +19,6 @@ import {
   filterCorners,
   getRoundedContainerStyle,
 } from './rounded-corners';
-import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;

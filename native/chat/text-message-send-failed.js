@@ -1,6 +1,6 @@
 // @flow
 
-import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
+import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 
 export default function textMessageSendFailed(
   item: ChatTextMessageInfoItemWithHeight,

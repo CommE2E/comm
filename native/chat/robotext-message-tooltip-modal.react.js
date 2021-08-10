@@ -8,8 +8,8 @@ import {
   type TooltipParams,
   type BaseTooltipProps,
 } from '../navigation/tooltip.react';
+import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
 import RobotextMessageTooltipButton from './robotext-message-tooltip-button.react';
-import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
 import { navigateToSidebar } from './sidebar-navigation';
 
 export type RobotextMessageTooltipModalParams = TooltipParams<{

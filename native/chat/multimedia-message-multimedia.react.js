@@ -19,6 +19,7 @@ import {
 } from '../navigation/overlay-context';
 import { ImageModalRouteName } from '../navigation/route-names';
 import { type Colors, useColors } from '../themes/colors';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutCoordinates } from '../types/layout-types';
 import {
@@ -27,10 +28,7 @@ import {
   AnimatedView,
 } from '../types/styles';
 import InlineMultimedia from './inline-multimedia.react';
-import {
-  type ChatMultimediaMessageInfoItem,
-  getMediaKey,
-} from './multimedia-message-utils';
+import { getMediaKey } from './multimedia-message-utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node, sub, interpolateNode, Extrapolate } = Animated;

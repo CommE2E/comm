@@ -13,12 +13,12 @@ import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { MessageTooltipRouteNames } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import type { ChatContextType } from './chat-context';
 import {
   createNavigateToThreadAction,
   useNavigateToThread,
 } from './message-list-types';
-import type { ChatMessageInfoItemWithHeight } from './message.react';
 
 function getSidebarThreadInfo(
   sourceMessage: ChatMessageInfoItemWithHeight,

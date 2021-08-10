@@ -5,14 +5,11 @@ import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 
 import type { Corners, Media, MediaInfo } from 'lib/types/media-types';
 
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
 import type { ViewStyle } from '../types/styles';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react';
-import {
-  getMediaPerRow,
-  spaceBetweenImages,
-  type ChatMultimediaMessageInfoItem,
-} from './multimedia-message-utils';
+import { getMediaPerRow, spaceBetweenImages } from './multimedia-message-utils';
 import {
   allCorners,
   filterCorners,

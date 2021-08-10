@@ -6,33 +6,19 @@ import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
-import type { RobotextMessageInfo } from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import { OverlayContext } from '../navigation/overlay-context';
 import { RobotextMessageTooltipModalRouteName } from '../navigation/route-names';
 import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
+import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import { InlineSidebar, inlineSidebarHeight } from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { robotextMessageTooltipHeight } from './robotext-message-tooltip-modal.react';
 import { Timestamp } from './timestamp.react';
-
-export type ChatRobotextMessageInfoItemWithHeight = {
-  +itemType: 'message',
-  +messageShapeType: 'robotext',
-  +messageInfo: RobotextMessageInfo,
-  +threadInfo: ThreadInfo,
-  +startsConversation: boolean,
-  +startsCluster: boolean,
-  +endsCluster: boolean,
-  +robotext: string,
-  +threadCreatedFromMessage: ?ThreadInfo,
-  +contentHeight: number,
-};
 
 function robotextMessageItemHeight(
   item: ChatRobotextMessageInfoItemWithHeight,

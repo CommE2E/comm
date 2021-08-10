@@ -16,27 +16,18 @@ import {
   KeyboardContext,
 } from '../keyboard/keyboard-state';
 import type { NavigationRoute } from '../navigation/route-names';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { ChatNavigationProp } from './chat.react';
-import {
-  multimediaMessageItemHeight,
-  type ChatMultimediaMessageInfoItem,
-} from './multimedia-message-utils';
+import { multimediaMessageItemHeight } from './multimedia-message-utils';
 import MultimediaMessage from './multimedia-message.react';
-import type { ChatRobotextMessageInfoItemWithHeight } from './robotext-message.react';
 import {
   RobotextMessage,
   robotextMessageItemHeight,
 } from './robotext-message.react';
-import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 import { TextMessage, textMessageItemHeight } from './text-message.react';
 import { timestampHeight } from './timestamp.react';
-
-export type ChatMessageInfoItemWithHeight =
-  | ChatRobotextMessageInfoItemWithHeight
-  | ChatTextMessageInfoItemWithHeight
-  | ChatMultimediaMessageInfoItem;
 
 function messageItemHeight(item: ChatMessageInfoItemWithHeight): number {
   let height = 0;

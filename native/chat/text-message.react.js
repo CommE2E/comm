@@ -9,9 +9,7 @@ import {
   threadHasPermission,
   useCanCreateSidebarFromMessage,
 } from 'lib/shared/thread-utils';
-import type { LocalMessageInfo } from 'lib/types/message-types';
-import type { TextMessageInfo } from 'lib/types/messages/text';
-import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
+import { threadPermissions } from 'lib/types/thread-types';
 
 import { MarkdownLinkContext } from '../markdown/markdown-link-context';
 import {
@@ -20,6 +18,7 @@ import {
 } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
+import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import { ComposedMessage, clusterEndHeight } from './composed-message.react';
@@ -33,19 +32,6 @@ import { InnerTextMessage } from './inner-text-message.react';
 import { authorNameHeight } from './message-header.react';
 import textMessageSendFailed from './text-message-send-failed';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
-
-export type ChatTextMessageInfoItemWithHeight = {
-  +itemType: 'message',
-  +messageShapeType: 'text',
-  +messageInfo: TextMessageInfo,
-  +localMessageInfo: ?LocalMessageInfo,
-  +threadInfo: ThreadInfo,
-  +startsConversation: boolean,
-  +startsCluster: boolean,
-  +endsCluster: boolean,
-  +contentHeight: number,
-  +threadCreatedFromMessage: ?ThreadInfo,
-};
 
 function textMessageItemHeight(
   item: ChatTextMessageInfoItemWithHeight,

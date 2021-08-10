@@ -22,7 +22,6 @@ import Animated from 'react-native-reanimated';
 import { type MediaInfo, type Dimensions } from 'lib/types/media-types';
 import { useIsReportEnabled } from 'lib/utils/report-utils';
 
-import type { ChatMultimediaMessageInfoItem } from '../chat/multimedia-message-utils';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import { displayActionResultModal } from '../navigation/action-result-modal';
@@ -37,6 +36,7 @@ import {
   type DerivedDimensionsInfo,
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import {
   type VerticalBounds,
   type LayoutCoordinates,

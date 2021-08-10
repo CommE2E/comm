@@ -4,13 +4,12 @@ import invariant from 'invariant';
 
 import { messageKey } from 'lib/shared/message-utils';
 import type { MediaInfo } from 'lib/types/media-types';
-import type {
-  LocalMessageInfo,
-  MultimediaMessageInfo,
-} from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { MultimediaMessageInfo } from 'lib/types/message-types';
 
-import type { MessagePendingUploads } from '../input/input-state';
+import type {
+  ChatMultimediaMessageInfoItem,
+  MultimediaContentSizes,
+} from '../types/chat-types';
 import { clusterEndHeight } from './composed-message.react';
 import { failedSendHeight } from './failed-send.react';
 import {
@@ -19,25 +18,6 @@ import {
   inlineSidebarMarginTop,
 } from './inline-sidebar.react';
 import { authorNameHeight } from './message-header.react';
-
-type ContentSizes = {
-  +imageHeight: number,
-  +contentHeight: number,
-  +contentWidth: number,
-};
-export type ChatMultimediaMessageInfoItem = {
-  ...ContentSizes,
-  +itemType: 'message',
-  +messageShapeType: 'multimedia',
-  +messageInfo: MultimediaMessageInfo,
-  +localMessageInfo: ?LocalMessageInfo,
-  +threadInfo: ThreadInfo,
-  +startsConversation: boolean,
-  +startsCluster: boolean,
-  +endsCluster: boolean,
-  +threadCreatedFromMessage: ?ThreadInfo,
-  +pendingUploads: ?MessagePendingUploads,
-};
 
 const spaceBetweenImages = 4;
 
@@ -89,7 +69,7 @@ function multimediaMessageSendFailed(
 function multimediaMessageContentSizes(
   messageInfo: MultimediaMessageInfo,
   composedMessageMaxWidth: number,
-): ContentSizes {
+): MultimediaContentSizes {
   invariant(messageInfo.media.length > 0, 'should have media');
 
   if (messageInfo.media.length === 1) {

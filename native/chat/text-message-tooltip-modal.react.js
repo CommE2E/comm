@@ -16,9 +16,9 @@ import {
   type TooltipRoute,
   type BaseTooltipProps,
 } from '../navigation/tooltip.react';
+import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import { navigateToSidebar } from './sidebar-navigation';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
-import type { ChatTextMessageInfoItemWithHeight } from './text-message.react';
 
 export type TextMessageTooltipModalParams = TooltipParams<{
   +item: ChatTextMessageInfoItemWithHeight,

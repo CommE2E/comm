@@ -10,6 +10,7 @@ import { assertComposableMessageType } from 'lib/types/message-types';
 
 import { type InputState, InputStateContext } from '../input/input-state';
 import { type Colors, useColors } from '../themes/colors';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
 import {
@@ -18,7 +19,6 @@ import {
   inlineSidebarMarginTop,
 } from './inline-sidebar.react';
 import { MessageHeader } from './message-header.react';
-import type { ChatMessageInfoItemWithHeight } from './message.react';
 import { useNavigateToSidebar } from './sidebar-navigation';
 import SwipeableMessage from './swipeable-message.react';
 
