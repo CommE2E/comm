@@ -5,6 +5,7 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
 import { useMessageListData } from 'lib/selectors/chat-selectors';
+import { messageKey } from 'lib/shared/message-utils';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
 import { useSelector } from '../redux/redux-utils';
@@ -265,9 +266,14 @@ function useAnimatedMessageTooltipButton(
   };
 }
 
+function getMessageTooltipKey(item: ChatMessageInfoItemWithHeight): string {
+  return `tooltip|${messageKey(item.messageInfo)}`;
+}
+
 export {
   getSidebarThreadInfo,
   chatMessageItemHeight,
   useAnimatedMessageTooltipButton,
   messageItemHeight,
+  getMessageTooltipKey,
 };

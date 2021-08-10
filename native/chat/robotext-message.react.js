@@ -19,6 +19,7 @@ import { InlineSidebar } from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { robotextMessageTooltipHeight } from './robotext-message-tooltip-modal.react';
 import { Timestamp } from './timestamp.react';
+import { getMessageTooltipKey } from './utils';
 
 type Props = {
   ...React.ElementConfig<typeof View>,
@@ -126,6 +127,7 @@ function RobotextMessage(props: Props): React.Node {
           margin,
           item,
         },
+        key: getMessageTooltipKey(item),
       });
     },
     [item, props.navigation, props.route.key, verticalBounds, visibleEntryIDs],

@@ -30,6 +30,7 @@ import {
   getMediaKey,
   multimediaMessageSendFailed,
 } from './multimedia-message-utils';
+import { getMessageTooltipKey } from './utils';
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,
@@ -158,6 +159,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
           margin,
           visibleEntryIDs,
         },
+        key: getMessageTooltipKey(item),
       });
     });
   };

@@ -25,6 +25,7 @@ import { ComposedMessage } from './composed-message.react';
 import { InnerTextMessage } from './inner-text-message.react';
 import textMessageSendFailed from './text-message-send-failed';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
+import { getMessageTooltipKey } from './utils';
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,
@@ -185,6 +186,7 @@ class TextMessage extends React.PureComponent<Props> {
           margin,
           item,
         },
+        key: getMessageTooltipKey(item),
       });
     });
   };
