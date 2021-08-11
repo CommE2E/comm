@@ -17,27 +17,6 @@ const APP_DIRECTORY_DATA = [
     appIcon: 'calendar',
     appCopy: 'Shared calendar for your community',
   },
-  {
-    id: 'wiki',
-    available: false,
-    appName: 'Wiki',
-    appIcon: 'document-filled',
-    appCopy: 'Shared wiki for your community',
-  },
-  {
-    id: 'tasks',
-    available: false,
-    appName: 'Tasks',
-    appIcon: 'check-round',
-    appCopy: 'Shared tasks for your community',
-  },
-  {
-    id: 'files',
-    available: false,
-    appName: 'Files',
-    appIcon: 'package',
-    appCopy: 'Shared files for your community',
-  },
 ];
 
 // eslint-disable-next-line no-unused-vars
