@@ -355,7 +355,7 @@ async function updateThread(
 
   const newMemberIDs =
     request.changes.newMemberIDs && request.changes.newMemberIDs.length > 0
-      ? [...request.changes.newMemberIDs]
+      ? [...new Set(request.changes.newMemberIDs)]
       : null;
 
   if (

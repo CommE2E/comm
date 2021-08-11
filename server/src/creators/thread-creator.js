@@ -87,11 +87,11 @@ async function createThread(
   let parentThreadID = request.parentThreadID ? request.parentThreadID : null;
   const initialMemberIDsFromRequest =
     request.initialMemberIDs && request.initialMemberIDs.length > 0
-      ? request.initialMemberIDs
+      ? [...new Set(request.initialMemberIDs)]
       : null;
   const ghostMemberIDsFromRequest =
     request.ghostMemberIDs && request.ghostMemberIDs.length > 0
-      ? request.ghostMemberIDs
+      ? [...new Set(request.ghostMemberIDs)]
       : null;
 
   const sourceMessageID = request.sourceMessageID
