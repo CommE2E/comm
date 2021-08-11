@@ -21,39 +21,10 @@ import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
-import { ComposedMessage, clusterEndHeight } from './composed-message.react';
-import { failedSendHeight } from './failed-send.react';
-import {
-  inlineSidebarHeight,
-  inlineSidebarMarginBottom,
-  inlineSidebarMarginTop,
-} from './inline-sidebar.react';
+import { ComposedMessage } from './composed-message.react';
 import { InnerTextMessage } from './inner-text-message.react';
-import { authorNameHeight } from './message-header.react';
 import textMessageSendFailed from './text-message-send-failed';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
-
-function textMessageItemHeight(
-  item: ChatTextMessageInfoItemWithHeight,
-): number {
-  const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
-  const { isViewer } = messageInfo.creator;
-  let height = 5 + contentHeight; // 5 from marginBottom in ComposedMessage
-  if (!isViewer && startsCluster) {
-    height += authorNameHeight;
-  }
-  if (endsCluster) {
-    height += clusterEndHeight;
-  }
-  if (textMessageSendFailed(item)) {
-    height += failedSendHeight;
-  }
-  if (item.threadCreatedFromMessage) {
-    height +=
-      inlineSidebarHeight + inlineSidebarMarginTop + inlineSidebarMarginBottom;
-  }
-  return height;
-}
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,
@@ -252,4 +223,4 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
   },
 );
 
-export { ConnectedTextMessage as TextMessage, textMessageItemHeight };
+export { ConnectedTextMessage as TextMessage };

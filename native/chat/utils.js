@@ -11,13 +11,23 @@ import { useSelector } from '../redux/redux-utils';
 import type {
   ChatMessageInfoItemWithHeight,
   ChatMessageItemWithHeight,
+  ChatRobotextMessageInfoItemWithHeight,
+  ChatTextMessageInfoItemWithHeight,
 } from '../types/chat-types';
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
 import type { AnimatedViewStyle } from '../types/styles';
 import { ChatContext, useHeightMeasurer } from './chat-context';
+import { clusterEndHeight } from './composed-message.react';
+import { failedSendHeight } from './failed-send.react';
+import {
+  inlineSidebarHeight,
+  inlineSidebarMarginBottom,
+  inlineSidebarMarginTop,
+} from './inline-sidebar.react';
 import { authorNameHeight } from './message-header.react';
-import { messageItemHeight } from './message.react';
+import { multimediaMessageItemHeight } from './multimedia-message-utils';
 import { getSidebarThreadInfo } from './sidebar-navigation';
+import textMessageSendFailed from './text-message-send-failed';
 import { timestampHeight } from './timestamp.react';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -32,6 +42,52 @@ const {
   cond,
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
+
+function textMessageItemHeight(
+  item: ChatTextMessageInfoItemWithHeight,
+): number {
+  const { messageInfo, contentHeight, startsCluster, endsCluster } = item;
+  const { isViewer } = messageInfo.creator;
+  let height = 5 + contentHeight; // 5 from marginBottom in ComposedMessage
+  if (!isViewer && startsCluster) {
+    height += authorNameHeight;
+  }
+  if (endsCluster) {
+    height += clusterEndHeight;
+  }
+  if (textMessageSendFailed(item)) {
+    height += failedSendHeight;
+  }
+  if (item.threadCreatedFromMessage) {
+    height +=
+      inlineSidebarHeight + inlineSidebarMarginTop + inlineSidebarMarginBottom;
+  }
+  return height;
+}
+
+function robotextMessageItemHeight(
+  item: ChatRobotextMessageInfoItemWithHeight,
+): number {
+  if (item.threadCreatedFromMessage) {
+    return item.contentHeight + inlineSidebarHeight;
+  }
+  return item.contentHeight;
+}
+
+function messageItemHeight(item: ChatMessageInfoItemWithHeight): number {
+  let height = 0;
+  if (item.messageShapeType === 'text') {
+    height += textMessageItemHeight(item);
+  } else if (item.messageShapeType === 'multimedia') {
+    height += multimediaMessageItemHeight(item);
+  } else {
+    height += robotextMessageItemHeight(item);
+  }
+  if (item.startsConversation) {
+    height += timestampHeight;
+  }
+  return height;
+}
 
 function chatMessageItemHeight(item: ChatMessageItemWithHeight): number {
   if (item.itemType === 'loader') {
@@ -213,4 +269,5 @@ export {
   getSidebarThreadInfo,
   chatMessageItemHeight,
   useAnimatedMessageTooltipButton,
+  messageItemHeight,
 };

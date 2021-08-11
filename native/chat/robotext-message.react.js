@@ -15,19 +15,10 @@ import { useStyles } from '../themes/colors';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
-import { InlineSidebar, inlineSidebarHeight } from './inline-sidebar.react';
+import { InlineSidebar } from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { robotextMessageTooltipHeight } from './robotext-message-tooltip-modal.react';
 import { Timestamp } from './timestamp.react';
-
-function robotextMessageItemHeight(
-  item: ChatRobotextMessageInfoItemWithHeight,
-): number {
-  if (item.threadCreatedFromMessage) {
-    return item.contentHeight + inlineSidebarHeight;
-  }
-  return item.contentHeight;
-}
 
 type Props = {
   ...React.ElementConfig<typeof View>,
@@ -196,4 +187,4 @@ const unboundStyles = {
   },
 };
 
-export { robotextMessageItemHeight, RobotextMessage };
+export { RobotextMessage };

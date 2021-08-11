@@ -20,29 +20,10 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutEvent } from '../types/react-native';
 import type { ChatNavigationProp } from './chat.react';
-import { multimediaMessageItemHeight } from './multimedia-message-utils';
 import MultimediaMessage from './multimedia-message.react';
-import {
-  RobotextMessage,
-  robotextMessageItemHeight,
-} from './robotext-message.react';
-import { TextMessage, textMessageItemHeight } from './text-message.react';
-import { timestampHeight } from './timestamp.react';
-
-function messageItemHeight(item: ChatMessageInfoItemWithHeight): number {
-  let height = 0;
-  if (item.messageShapeType === 'text') {
-    height += textMessageItemHeight(item);
-  } else if (item.messageShapeType === 'multimedia') {
-    height += multimediaMessageItemHeight(item);
-  } else {
-    height += robotextMessageItemHeight(item);
-  }
-  if (item.startsConversation) {
-    height += timestampHeight;
-  }
-  return height;
-}
+import { RobotextMessage } from './robotext-message.react';
+import { TextMessage } from './text-message.react';
+import { messageItemHeight } from './utils';
 
 type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,
@@ -160,4 +141,4 @@ const ConnectedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   },
 );
 
-export { ConnectedMessage as Message, messageItemHeight };
+export { ConnectedMessage as Message };
