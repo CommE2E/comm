@@ -46,7 +46,6 @@ import type {
 } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ViewableItemsChange } from '../types/react-native';
-import { ChatContext } from './chat-context';
 import { ChatList } from './chat-list.react';
 import type { ChatNavigationProp } from './chat.react';
 import { Message } from './message.react';
@@ -64,7 +63,6 @@ type Props = {
   +startReached: boolean,
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
-  +currentTransitionSidebarSourceID: ?string,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -94,7 +92,6 @@ type FlatListExtraData = {
   focusedMessageKey: ?string,
   navigation: ChatNavigationProp<'MessageList'>,
   route: NavigationRoute<'MessageList'>,
-  currentTransitionSidebarSourceID: ?string,
 };
 class MessageList extends React.PureComponent<Props, State> {
   state: State = {
@@ -109,20 +106,16 @@ class MessageList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.focusedMessageKey,
     (propsAndState: PropsAndState) => propsAndState.navigation,
     (propsAndState: PropsAndState) => propsAndState.route,
-    (propsAndState: PropsAndState) =>
-      propsAndState.currentTransitionSidebarSourceID,
     (
       messageListVerticalBounds: ?VerticalBounds,
       focusedMessageKey: ?string,
       navigation: ChatNavigationProp<'MessageList'>,
       route: NavigationRoute<'MessageList'>,
-      currentTransitionSidebarSourceID: ?string,
     ) => ({
       messageListVerticalBounds,
       focusedMessageKey,
       navigation,
       route,
-      currentTransitionSidebarSourceID,
     }),
   );
 
@@ -194,12 +187,9 @@ class MessageList extends React.PureComponent<Props, State> {
       focusedMessageKey,
       navigation,
       route,
-      currentTransitionSidebarSourceID,
     } = this.flatListExtraData;
     const focused =
       messageKey(messageInfoItem.messageInfo) === focusedMessageKey;
-    const isVisible =
-      messageInfoItem.messageInfo.id !== currentTransitionSidebarSourceID;
     return (
       <Message
         item={messageInfoItem}
@@ -208,7 +198,6 @@ class MessageList extends React.PureComponent<Props, State> {
         route={route}
         toggleFocus={this.toggleMessageFocus}
         verticalBounds={messageListVerticalBounds}
-        visible={isVisible}
       />
     );
   };
@@ -371,17 +360,12 @@ const ConnectedMessageList: React.ComponentType<BaseProps> = React.memo<BaseProp
 
     useWatchThread(props.threadInfo);
 
-    const chatContext = React.useContext(ChatContext);
-    invariant(chatContext, 'chatContext should be set');
-    const { currentTransitionSidebarSourceID } = chatContext;
-
     return (
       <MessageList
         {...props}
         startReached={startReached}
         styles={styles}
         indicatorStyle={indicatorStyle}
-        currentTransitionSidebarSourceID={currentTransitionSidebarSourceID}
         dispatchActionPromise={dispatchActionPromise}
         fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
         fetchMostRecentMessages={callFetchMostRecentMessages}

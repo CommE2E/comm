@@ -5,8 +5,6 @@ import {
   LayoutAnimation,
   TouchableWithoutFeedback,
   PixelRatio,
-  StyleSheet,
-  View,
 } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
@@ -32,7 +30,6 @@ type BaseProps = {
   +route: NavigationRoute<'MessageList'>,
   +toggleFocus: (messageKey: string) => void,
   +verticalBounds: ?VerticalBounds,
-  +visible?: boolean,
 };
 type Props = {
   ...BaseProps,
@@ -85,13 +82,12 @@ class Message extends React.PureComponent<Props> {
     }
 
     const onLayout = __DEV__ ? this.onLayout : undefined;
-    const messageStyle = this.props.visible === false ? styles.hidden : null;
     return (
       <TouchableWithoutFeedback
         onPress={this.dismissKeyboard}
         onLayout={onLayout}
       >
-        <View style={messageStyle}>{message}</View>
+        {message}
       </TouchableWithoutFeedback>
     );
   }
@@ -127,12 +123,6 @@ class Message extends React.PureComponent<Props> {
     keyboardState && keyboardState.dismissKeyboard();
   };
 }
-
-const styles = StyleSheet.create({
-  hidden: {
-    opacity: 0,
-  },
-});
 
 const ConnectedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedMessage(props: BaseProps) {
