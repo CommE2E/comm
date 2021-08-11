@@ -11,8 +11,17 @@ import AppListing from './app-listing.react';
 const safeAreaEdges = ['top', 'bottom'];
 const APP_DIRECTORY_DATA = [
   {
+    id: 'chat',
+    available: true,
+    alwaysEnabled: true,
+    appName: 'Chat',
+    appIcon: 'message-square',
+    appCopy: 'Keep in touch with your community',
+  },
+  {
     id: 'calendar',
     available: true,
+    alwaysEnabled: false,
     appName: 'Calendar',
     appIcon: 'calendar',
     appCopy: 'Shared calendar for your community',
@@ -30,6 +39,7 @@ function AppsDirectory(props: { ... }): React.Node {
         id={item.id}
         available={item.available}
         enabled={enabledApps[item.id]}
+        alwaysEnabled={item.alwaysEnabled}
         appName={item.appName}
         appIcon={item.appIcon}
         appCopy={item.appCopy}

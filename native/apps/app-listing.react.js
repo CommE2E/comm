@@ -11,19 +11,29 @@ import {
 import type { SupportedApps } from 'lib/types/enabled-apps';
 
 import SWMansionIcon from '../components/swmansion-icon.react';
-import { useStyles } from '../themes/colors';
+import { useColors, useStyles } from '../themes/colors';
 
 type Props = {
-  +id: SupportedApps,
+  +id: SupportedApps | 'chat',
   +available: boolean,
+  +alwaysEnabled: boolean,
   +enabled: boolean,
   +appName: string,
-  +appIcon: 'calendar' | 'document-filled' | 'check-round' | 'package',
+  +appIcon: 'message-square' | 'calendar',
   +appCopy: string,
 };
 function AppListing(props: Props): React.Node {
-  const { id, available, enabled, appName, appIcon, appCopy } = props;
+  const {
+    id,
+    available,
+    enabled,
+    alwaysEnabled,
+    appName,
+    appIcon,
+    appCopy,
+  } = props;
   const styles = useStyles(unboundStyles);
+  const colors = useColors();
   const dispatch = useDispatch();
 
   const textColor = available ? 'white' : 'gray';
@@ -38,19 +48,37 @@ function AppListing(props: Props): React.Node {
     [dispatch, id],
   );
 
-  let callToAction;
-  if (available) {
-    callToAction = (
+  const callToAction = React.useMemo(() => {
+    if (alwaysEnabled) {
+      return (
+        <SWMansionIcon
+          color={colors.modalForegroundTertiaryLabel}
+          name="check-circle"
+          style={styles.plusIcon}
+        />
+      );
+    }
+    return (
       <TouchableOpacity onPress={enabled ? disableApp : enableApp}>
         <SWMansionIcon
           name={enabled ? 'check-circle' : 'plus-circle'}
+          color={
+            enabled ? colors.vibrantGreenButton : colors.listForegroundLabel
+          }
           style={styles.plusIcon}
         />
       </TouchableOpacity>
     );
-  } else {
-    callToAction = <Text style={styles.comingSoon}>{`coming\nsoon!`}</Text>;
-  }
+  }, [
+    alwaysEnabled,
+    colors.listForegroundLabel,
+    colors.modalForegroundTertiaryLabel,
+    colors.vibrantGreenButton,
+    disableApp,
+    enableApp,
+    enabled,
+    styles.plusIcon,
+  ]);
 
   return (
     <View style={styles.cell}>
@@ -86,7 +114,6 @@ const unboundStyles = {
   },
   plusIcon: {
     fontSize: 24,
-    color: 'white',
   },
   appName: {
     fontSize: 20,
