@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import Animated, { interpolateNode } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
@@ -12,7 +12,7 @@ import { MessageListContextProvider } from './message-list-types';
 import { useAnimatedMessageTooltipButton } from './utils';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Node } = Animated;
+const { Node, interpolateNode, Extrapolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type Props = {
@@ -29,7 +29,6 @@ function TextMessageTooltipButton(props: Props): React.Node {
     style: messageContainerStyle,
     threadColorOverride,
     isThreadColorDarkOverride,
-    isAnimatingToSidebar,
   } = useAnimatedMessageTooltipButton(
     item,
     initialCoordinates,
@@ -40,8 +39,9 @@ function TextMessageTooltipButton(props: Props): React.Node {
   const headerStyle = React.useMemo(() => {
     const bottom = initialCoordinates.height;
     const opacity = interpolateNode(progress, {
-      inputRange: [0, 1],
-      outputRange: [isAnimatingToSidebar ? 0.5 : 0, 1],
+      inputRange: [0, 0.1],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
     });
     return {
       opacity,
@@ -50,13 +50,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
       width: windowWidth,
       bottom,
     };
-  }, [
-    initialCoordinates.height,
-    initialCoordinates.x,
-    isAnimatingToSidebar,
-    progress,
-    windowWidth,
-  ]);
+  }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
   const threadID = item.threadInfo.id;
   const { navigation } = props;

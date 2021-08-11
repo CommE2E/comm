@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import Animated, { interpolateNode } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
@@ -11,7 +11,7 @@ import { Timestamp } from './timestamp.react';
 import { useAnimatedMessageTooltipButton } from './utils';
 
 /* eslint-disable import/no-named-as-default-member */
-const { Node } = Animated;
+const { Node, interpolateNode, Extrapolate } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
 type Props = {
@@ -24,10 +24,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
   const windowWidth = useSelector(state => state.dimensions.width);
 
   const { item, verticalBounds, initialCoordinates } = props.route.params;
-  const {
-    style: messageContainerStyle,
-    isAnimatingToSidebar,
-  } = useAnimatedMessageTooltipButton(
+  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton(
     item,
     initialCoordinates,
     verticalBounds,
@@ -37,8 +34,9 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
   const headerStyle = React.useMemo(() => {
     const bottom = initialCoordinates.height;
     const opacity = interpolateNode(progress, {
-      inputRange: [0, 1],
-      outputRange: [isAnimatingToSidebar ? 0.5 : 0, 1],
+      inputRange: [0, 0.1],
+      outputRange: [0, 1],
+      extrapolate: Extrapolate.CLAMP,
     });
     return {
       opacity,
@@ -47,13 +45,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
       width: windowWidth,
       bottom,
     };
-  }, [
-    initialCoordinates.height,
-    initialCoordinates.x,
-    progress,
-    isAnimatingToSidebar,
-    windowWidth,
-  ]);
+  }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
   const { navigation } = props;
   return (
