@@ -15,7 +15,6 @@ import { useColors, useStyles } from '../themes/colors';
 
 type Props = {
   +id: SupportedApps | 'chat',
-  +available: boolean,
   +alwaysEnabled: boolean,
   +enabled: boolean,
   +appName: string,
@@ -23,20 +22,10 @@ type Props = {
   +appCopy: string,
 };
 function AppListing(props: Props): React.Node {
-  const {
-    id,
-    available,
-    enabled,
-    alwaysEnabled,
-    appName,
-    appIcon,
-    appCopy,
-  } = props;
+  const { id, enabled, alwaysEnabled, appName, appIcon, appCopy } = props;
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   const dispatch = useDispatch();
-
-  const textColor = available ? 'white' : 'gray';
 
   const enableApp = React.useCallback(
     () => dispatch({ type: enableAppActionType, payload: id }),
@@ -63,7 +52,9 @@ function AppListing(props: Props): React.Node {
         <SWMansionIcon
           name={enabled ? 'check-circle' : 'plus-circle'}
           color={
-            enabled ? colors.vibrantGreenButton : colors.listForegroundLabel
+            enabled
+              ? colors.vibrantGreenButton
+              : colors.modalForegroundSecondaryLabel
           }
           style={styles.plusIcon}
         />
@@ -71,7 +62,7 @@ function AppListing(props: Props): React.Node {
     );
   }, [
     alwaysEnabled,
-    colors.listForegroundLabel,
+    colors.modalForegroundSecondaryLabel,
     colors.modalForegroundTertiaryLabel,
     colors.vibrantGreenButton,
     disableApp,
@@ -83,13 +74,10 @@ function AppListing(props: Props): React.Node {
   return (
     <View style={styles.cell}>
       <View style={styles.appContent}>
-        <SWMansionIcon
-          name={appIcon}
-          style={[styles.appIcon, { color: textColor }]}
-        />
+        <SWMansionIcon name={appIcon} style={styles.appIcon} />
         <View>
-          <Text style={[styles.appName, { color: textColor }]}>{appName}</Text>
-          <Text style={[styles.appCopy, { color: textColor }]}>{appCopy}</Text>
+          <Text style={styles.appName}>{appName}</Text>
+          <Text style={styles.appCopy}>{appCopy}</Text>
         </View>
       </View>
       {callToAction}
@@ -109,6 +97,7 @@ const unboundStyles = {
     alignItems: 'center',
   },
   appIcon: {
+    color: 'modalForegroundLabel',
     fontSize: 36,
     paddingRight: 18,
   },
@@ -116,9 +105,11 @@ const unboundStyles = {
     fontSize: 24,
   },
   appName: {
+    color: 'modalForegroundLabel',
     fontSize: 20,
   },
   appCopy: {
+    color: 'modalForegroundLabel',
     fontSize: 12,
   },
   comingSoon: {

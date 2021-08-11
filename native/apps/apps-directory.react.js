@@ -12,7 +12,6 @@ const safeAreaEdges = ['top', 'bottom'];
 const APP_DIRECTORY_DATA = [
   {
     id: 'chat',
-    available: true,
     alwaysEnabled: true,
     appName: 'Chat',
     appIcon: 'message-square',
@@ -20,7 +19,6 @@ const APP_DIRECTORY_DATA = [
   },
   {
     id: 'calendar',
-    available: true,
     alwaysEnabled: false,
     appName: 'Calendar',
     appIcon: 'calendar',
@@ -37,7 +35,6 @@ function AppsDirectory(props: { ... }): React.Node {
     ({ item }) => (
       <AppListing
         id={item.id}
-        available={item.available}
         enabled={enabledApps[item.id]}
         alwaysEnabled={item.alwaysEnabled}
         appName={item.appName}
