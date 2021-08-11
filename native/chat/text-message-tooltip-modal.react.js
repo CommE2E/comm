@@ -25,6 +25,7 @@ export type TextMessageTooltipModalParams = TooltipParams<{
 }>;
 
 const confirmCopy = () => displayActionResultModal('copied!');
+const confirmReport = () => displayActionResultModal('reported to admin');
 
 function onPressCopy(route: TooltipRoute<'TextMessageTooltipModal'>) {
   Clipboard.setString(route.params.item.messageInfo.text);
@@ -48,6 +49,11 @@ const spec = {
   entries: [
     { id: 'copy', text: 'Copy', onPress: onPressCopy },
     { id: 'reply', text: 'Reply', onPress: onPressReply },
+    {
+      id: 'report',
+      text: 'Report',
+      onPress: confirmReport,
+    },
     {
       id: 'create_sidebar',
       text: 'Create sidebar',
