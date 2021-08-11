@@ -89,7 +89,7 @@ class Message extends React.PureComponent<Props, State> {
     return sub(
       1,
       interpolateNode(overlayPosition, {
-        inputRange: [0.1, 0.11],
+        inputRange: [0.05, 0.06],
         outputRange: [0, 1],
         extrapolate: Extrapolate.CLAMP,
       }),

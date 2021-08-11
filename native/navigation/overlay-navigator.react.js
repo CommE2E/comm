@@ -335,7 +335,7 @@ const OverlayNavigator = React.memo<Props>(
         const duration =
           (navigationTransitionSpec.animation === 'timing' &&
             navigationTransitionSpec.config.duration) ||
-          250;
+          400;
         invariant(position, `should have position for animating key ${key}`);
         timing(position, {
           duration,

@@ -207,7 +207,7 @@ function useAnimatedMessageTooltipButton(
   const bottom = React.useMemo(
     () =>
       interpolateNode(progress, {
-        inputRange: [0, 1],
+        inputRange: [0.3, 1],
         outputRange: [targetPosition, 0],
         extrapolate: Extrapolate.CLAMP,
       }),

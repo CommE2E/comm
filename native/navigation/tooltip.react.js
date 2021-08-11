@@ -141,6 +141,7 @@ function createTooltip<
     tooltipVerticalBelow: Node;
     tooltipHorizontalOffset: Value = new Value(0);
     tooltipHorizontal: Node;
+    tooltipScale: Node;
 
     constructor(props: TooltipProps<BaseTooltipPropsType>) {
       super(props);
@@ -176,6 +177,12 @@ function createTooltip<
         add(1, multiply(-1, position)),
         this.tooltipHorizontalOffset,
       );
+
+      this.tooltipScale = interpolateNode(position, {
+        inputRange: [0, 0.2, 0.8, 1],
+        outputRange: [0, 0, 1, 1],
+        extrapolate: Extrapolate.CLAMP,
+      });
     }
 
     componentDidMount() {
@@ -295,10 +302,7 @@ function createTooltip<
         style.transform.push({ translateY: this.tooltipVerticalBelow });
       }
 
-      const { overlayContext } = this.props;
-      invariant(overlayContext, 'Tooltip should have OverlayContext');
-      const { position } = overlayContext;
-      style.transform.push({ scale: position });
+      style.transform.push({ scale: this.tooltipScale });
 
       return style;
     }

@@ -36,7 +36,7 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
   const headerStyle = React.useMemo(() => {
     const bottom = initialCoordinates.height;
     const opacity = interpolateNode(progress, {
-      inputRange: [0, 0.1],
+      inputRange: [0, 0.05],
       outputRange: [0, 1],
       extrapolate: Extrapolate.CLAMP,
     });
