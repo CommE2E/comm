@@ -80,7 +80,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
   };
 
   visibleEntryIDs() {
-    const result = [];
+    const result = ['report'];
 
     if (this.props.item.threadCreatedFromMessage) {
       result.push('open_sidebar');

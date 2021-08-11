@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { displayActionResultModal } from '../navigation/action-result-modal';
 import {
   createTooltip,
   tooltipHeight,
@@ -18,6 +19,7 @@ export type MultimediaMessageTooltipModalParams = TooltipParams<{
   +verticalBounds: VerticalBounds,
 }>;
 
+const confirmReport = () => displayActionResultModal('reported to admin');
 const spec = {
   entries: [
     {
@@ -29,6 +31,11 @@ const spec = {
       id: 'open_sidebar',
       text: 'Go to sidebar',
       onPress: navigateToSidebar,
+    },
+    {
+      id: 'report',
+      text: 'Report',
+      onPress: confirmReport,
     },
   ],
 };
