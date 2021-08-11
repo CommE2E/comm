@@ -16,10 +16,6 @@ function BuildInfo(props: { ... }): React.Node {
     >
       <View style={styles.section}>
         <View style={styles.row}>
-          <Text style={styles.label}>Release</Text>
-          <Text style={styles.releaseText}>BETA</Text>
-        </View>
-        <View style={styles.row}>
           <Text style={styles.label}>Code version</Text>
           <Text style={styles.text}>{codeVersion}</Text>
         </View>
@@ -30,9 +26,7 @@ function BuildInfo(props: { ... }): React.Node {
       </View>
       <View style={styles.section}>
         <View style={styles.row}>
-          <Text style={styles.thanksText}>
-            Thank you for helping to test the alpha!
-          </Text>
+          <Text style={styles.thanksText}>Thank you for using Comm!</Text>
         </View>
       </View>
     </ScrollView>
