@@ -26,5 +26,4 @@ public class SplashActivity extends AppCompatActivity {
     finish();
     overridePendingTransition(0, 0);
   }
-
 }

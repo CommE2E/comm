@@ -24,8 +24,8 @@ folly::Optional<std::string> CommSecureStore::get(const std::string key) const {
                          encoding:[NSString defaultCStringEncoding]];
   NSString *result = [[CommSecureStoreIOSWrapper sharedInstance] get:nsKey];
   return (result != nil)
-             ? folly::Optional<std::string>(std::string([result UTF8String]))
-             : folly::none;
+      ? folly::Optional<std::string>(std::string([result UTF8String]))
+      : folly::none;
 }
 
 };

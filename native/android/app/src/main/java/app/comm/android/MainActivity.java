@@ -1,14 +1,12 @@
 package app.comm.android;
 
-import com.facebook.react.ReactFragmentActivity;
-import android.os.Bundle;
 import android.content.Intent;
 import android.content.res.Configuration;
-
+import android.os.Bundle;
 import com.facebook.react.ReactActivityDelegate;
+import com.facebook.react.ReactFragmentActivity;
 import com.facebook.react.ReactRootView;
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
-
 import expo.modules.splashscreen.SplashScreen;
 import expo.modules.splashscreen.SplashScreenImageResizeMode;
 
@@ -26,7 +24,8 @@ public class MainActivity extends ReactFragmentActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(null);
-    SplashScreen.show(this, SplashScreenImageResizeMode.NATIVE, ReactRootView.class);
+    SplashScreen.show(
+        this, SplashScreenImageResizeMode.NATIVE, ReactRootView.class);
   }
 
   @Override
@@ -48,7 +47,7 @@ public class MainActivity extends ReactFragmentActivity {
     return new ReactActivityDelegate(this, getMainComponentName()) {
       @Override
       protected ReactRootView createRootView() {
-       return new RNGestureHandlerEnabledRootView(MainActivity.this);
+        return new RNGestureHandlerEnabledRootView(MainActivity.this);
       }
     };
   }

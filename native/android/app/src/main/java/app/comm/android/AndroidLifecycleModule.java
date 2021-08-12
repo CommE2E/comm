@@ -1,19 +1,17 @@
 package app.comm.android;
 
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.module.annotations.ReactModule;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.UiThreadUtil;
-
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.ProcessLifecycleOwner;
-
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Callback;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.UiThreadUtil;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.module.annotations.ReactModule;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,27 +35,24 @@ public class AndroidLifecycleModule extends ReactContextBaseJavaModule {
 
     final Lifecycle lifecycle = ProcessLifecycleOwner.get().getLifecycle();
     this.currentState = lifecycle.getCurrentState() == Lifecycle.State.RESUMED
-      ? ANDROID_LIFECYCLE_ACTIVE
-      : ANDROID_LIFECYCLE_BACKGROUND;
+        ? ANDROID_LIFECYCLE_ACTIVE
+        : ANDROID_LIFECYCLE_BACKGROUND;
 
     UiThreadUtil.runOnUiThread(() -> {
-      lifecycle.addObserver(
-        (LifecycleEventObserver) (source, event) -> {
-          final String name = event.toString();
-          if (name != "ON_START" && name != "ON_STOP") {
-            return;
-          }
-          if (!this.isInitialized) {
-            return;
-          }
-          this.currentState = name == "ON_START"
-            ? ANDROID_LIFECYCLE_ACTIVE
-            : ANDROID_LIFECYCLE_BACKGROUND;
-          reactContext
+      lifecycle.addObserver((LifecycleEventObserver)(source, event) -> {
+        final String name = event.toString();
+        if (name != "ON_START" && name != "ON_STOP") {
+          return;
+        }
+        if (!this.isInitialized) {
+          return;
+        }
+        this.currentState = name == "ON_START" ? ANDROID_LIFECYCLE_ACTIVE
+                                               : ANDROID_LIFECYCLE_BACKGROUND;
+        reactContext
             .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
             .emit("LIFECYCLE_CHANGE", this.createEventMap());
-        }
-      );
+      });
     });
   }
 
@@ -89,5 +84,4 @@ public class AndroidLifecycleModule extends ReactContextBaseJavaModule {
   public void getCurrentLifecycleStatus(Callback success, Callback error) {
     success.invoke(createEventMap());
   }
-
 }

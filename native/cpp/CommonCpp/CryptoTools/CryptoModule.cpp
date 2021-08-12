@@ -41,10 +41,11 @@ void CryptoModule::exposePublicIdentityKeys() {
   }
   this->keys.identityKeys.resize(
       ::olm_account_identity_keys_length(this->account));
-  if (-1 == ::olm_account_identity_keys(
-                this->account,
-                this->keys.identityKeys.data(),
-                this->keys.identityKeys.size())) {
+  if (-1 ==
+      ::olm_account_identity_keys(
+          this->account,
+          this->keys.identityKeys.data(),
+          this->keys.identityKeys.size())) {
     throw std::runtime_error(
         "error generateIdentityKeys => ::olm_account_identity_keys");
   }
@@ -71,10 +72,11 @@ void CryptoModule::generateOneTimeKeys(size_t oneTimeKeysAmount) {
 size_t CryptoModule::publishOneTimeKeys() {
   this->keys.oneTimeKeys.resize(
       ::olm_account_one_time_keys_length(this->account));
-  if (-1 == ::olm_account_one_time_keys(
-                this->account,
-                this->keys.oneTimeKeys.data(),
-                this->keys.oneTimeKeys.size())) {
+  if (-1 ==
+      ::olm_account_one_time_keys(
+          this->account,
+          this->keys.oneTimeKeys.data(),
+          this->keys.oneTimeKeys.size())) {
     throw std::runtime_error(
         "error publishOneTimeKeys => ::olm_account_one_time_keys");
   }
@@ -165,12 +167,13 @@ bool CryptoModule::matchesInboundSession(
   // Check that the inbound session matches the key this message is supposed
   // to be from.
   tmpEncryptedMessage = OlmBuffer(encryptedData.message);
-  if (1 != ::olm_matches_inbound_session_from(
-               session,
-               theirIdentityKey.data() + ID_KEYS_PREFIX_OFFSET,
-               KEYSIZE,
-               tmpEncryptedMessage.data(),
-               tmpEncryptedMessage.size())) {
+  if (1 !=
+      ::olm_matches_inbound_session_from(
+          session,
+          theirIdentityKey.data() + ID_KEYS_PREFIX_OFFSET,
+          KEYSIZE,
+          tmpEncryptedMessage.data(),
+          tmpEncryptedMessage.size())) {
     return false;
   }
   return true;
@@ -180,12 +183,13 @@ Persist CryptoModule::storeAsB64(const std::string &secretKey) {
   Persist persist;
   size_t accountPickleLength = ::olm_pickle_account_length(this->account);
   OlmBuffer accountPickleBuffer(accountPickleLength);
-  if (accountPickleLength != ::olm_pickle_account(
-                                 this->account,
-                                 secretKey.data(),
-                                 secretKey.size(),
-                                 accountPickleBuffer.data(),
-                                 accountPickleLength)) {
+  if (accountPickleLength !=
+      ::olm_pickle_account(
+          this->account,
+          secretKey.data(),
+          secretKey.size(),
+          accountPickleBuffer.data(),
+          accountPickleLength)) {
     throw std::runtime_error("error storeAsB64 => ::olm_pickle_account");
   }
   persist.account = accountPickleBuffer;
@@ -204,12 +208,13 @@ void CryptoModule::restoreFromB64(
     Persist persist) {
   this->accountBuffer.resize(::olm_account_size());
   this->account = ::olm_account(this->accountBuffer.data());
-  if (-1 == ::olm_unpickle_account(
-                this->account,
-                secretKey.data(),
-                secretKey.size(),
-                persist.account.data(),
-                persist.account.size())) {
+  if (-1 ==
+      ::olm_unpickle_account(
+          this->account,
+          secretKey.data(),
+          secretKey.size(),
+          persist.account.data(),
+          persist.account.size())) {
     throw std::runtime_error("error restoreFromB64 => ::olm_unpickle_account");
   }
   if (persist.account.size() != ::olm_pickle_account_length(this->account)) {
@@ -238,14 +243,15 @@ EncryptedData CryptoModule::encrypt(
   Tools::getInstance().generateRandomBytes(
       messageRandom, ::olm_encrypt_random_length(session));
   size_t messageType = ::olm_encrypt_message_type(session);
-  if (-1 == ::olm_encrypt(
-                session,
-                (uint8_t *)content.data(),
-                content.size(),
-                messageRandom.data(),
-                messageRandom.size(),
-                encryptedMessage.data(),
-                encryptedMessage.size())) {
+  if (-1 ==
+      ::olm_encrypt(
+          session,
+          (uint8_t *)content.data(),
+          content.size(),
+          messageRandom.data(),
+          messageRandom.size(),
+          encryptedMessage.data(),
+          encryptedMessage.size())) {
     throw std::runtime_error("error encrypt => ::olm_encrypt");
   }
   return {encryptedMessage, messageType};

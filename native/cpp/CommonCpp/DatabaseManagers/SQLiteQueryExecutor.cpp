@@ -266,8 +266,8 @@ SQLiteQueryExecutor::getOlmPersistAccountData() const {
         "Multiple records found for the olm_persist_account table");
   }
   return (result.size() == 0)
-             ? folly::none
-             : folly::Optional<std::string>(result[0].account_data);
+      ? folly::none
+      : folly::Optional<std::string>(result[0].account_data);
 }
 
 void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {

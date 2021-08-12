@@ -1,43 +1,40 @@
 package app.comm.android;
 
+import android.content.Context;
+import android.database.CursorWindow;
+import androidx.multidex.MultiDexApplication;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.generated.BasePackageList;
-
-import androidx.multidex.MultiDexApplication;
-import android.content.Context;
-
-import android.database.CursorWindow;
-
-import org.unimodules.adapters.react.ModuleRegistryAdapter;
-import org.unimodules.adapters.react.ReactModuleRegistryProvider;
-
 import com.facebook.react.PackageList;
-import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
+import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
-
+import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
 import expo.modules.securestore.SecureStoreModule;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
-
-import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
-
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Field;
-import java.security.Security;
+import org.unimodules.adapters.react.ModuleRegistryAdapter;
+import org.unimodules.adapters.react.ReactModuleRegistryProvider;
 
-public class MainApplication extends MultiDexApplication implements ReactApplication {
+public class MainApplication
+    extends MultiDexApplication implements ReactApplication {
 
   static {
     System.loadLibrary("comm_jni_module");
   }
 
-  private final ReactModuleRegistryProvider mModuleRegistryProvider = new ReactModuleRegistryProvider(new BasePackageList().getPackageList(), null);
+  private final ReactModuleRegistryProvider mModuleRegistryProvider =
+      new ReactModuleRegistryProvider(
+          new BasePackageList().getPackageList(),
+          null);
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -55,8 +52,7 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
 
       // Add unimodules
       List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
-        new ModuleRegistryAdapter(mModuleRegistryProvider)
-      );
+          new ModuleRegistryAdapter(mModuleRegistryProvider));
       packages.addAll(unimodules);
       return packages;
     }
@@ -68,9 +64,10 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
 
     @Override
     protected JSIModulePackage getJSIModulePackage() {
-      SecureStoreModule secureStoreModule = (SecureStoreModule) 
-        mModuleRegistryProvider.get(getApplicationContext())
-        .getExportedModuleOfClass(SecureStoreModule.class);
+      SecureStoreModule secureStoreModule =
+          (SecureStoreModule)mModuleRegistryProvider
+              .get(getApplicationContext())
+              .getExportedModuleOfClass(SecureStoreModule.class);
       CommSecureStore.getInstance().initialize(secureStoreModule);
       return new CommCoreJSIModulePackage();
     }
@@ -107,21 +104,17 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
    * @param reactInstanceManager
    */
   private static void initializeFlipper(
-    Context context,
-    ReactInstanceManager reactInstanceManager
-  ) {
+      Context context,
+      ReactInstanceManager reactInstanceManager) {
     if (BuildConfig.DEBUG) {
       try {
         // We use reflection here to pick up the class that initializes Flipper,
         // since Flipper library is not available in release mode
         Class<?> aClass = Class.forName("app.comm.android.ReactNativeFlipper");
         aClass
-          .getMethod(
-            "initializeFlipper",
-            Context.class,
-            ReactInstanceManager.class
-          )
-          .invoke(null, context, reactInstanceManager);
+            .getMethod(
+                "initializeFlipper", Context.class, ReactInstanceManager.class)
+            .invoke(null, context, reactInstanceManager);
       } catch (ClassNotFoundException e) {
         e.printStackTrace();
       } catch (NoSuchMethodException e) {

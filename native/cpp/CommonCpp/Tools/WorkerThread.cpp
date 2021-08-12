@@ -33,7 +33,7 @@ WorkerThread::~WorkerThread() {
   } catch (const std::system_error &error) {
     std::ostringstream stringStream;
     stringStream << "Error occurred joining the " + this->name +
-                        " worker thread: "
+            " worker thread: "
                  << error.what();
     Logger::log(stringStream.str());
   }

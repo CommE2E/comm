@@ -21,16 +21,17 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
       randomBuffer,
       ::olm_create_outbound_session_random_length(session->olmSession));
 
-  if (-1 == ::olm_create_outbound_session(
-                session->olmSession,
-                session->ownerUserAccount,
-                idKeys.data() + ID_KEYS_PREFIX_OFFSET,
-                KEYSIZE,
-                oneTimeKeys.data() + ONE_TIME_KEYS_PREFIX_OFFSET +
-                    (KEYSIZE + ONE_TIME_KEYS_MIDDLE_OFFSET) * keyIndex,
-                KEYSIZE,
-                randomBuffer.data(),
-                randomBuffer.size())) {
+  if (-1 ==
+      ::olm_create_outbound_session(
+          session->olmSession,
+          session->ownerUserAccount,
+          idKeys.data() + ID_KEYS_PREFIX_OFFSET,
+          KEYSIZE,
+          oneTimeKeys.data() + ONE_TIME_KEYS_PREFIX_OFFSET +
+              (KEYSIZE + ONE_TIME_KEYS_MIDDLE_OFFSET) * keyIndex,
+          KEYSIZE,
+          randomBuffer.data(),
+          randomBuffer.size())) {
     throw std::runtime_error(
         "error createOutbound => ::olm_create_outbound_session");
   }
@@ -47,11 +48,12 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
   OlmBuffer tmpEncryptedMessage(encryptedMessage);
   session->olmSessionBuffer.resize(::olm_session_size());
   session->olmSession = ::olm_session(session->olmSessionBuffer.data());
-  if (-1 == ::olm_create_inbound_session(
-                session->olmSession,
-                session->ownerUserAccount,
-                tmpEncryptedMessage.data(),
-                encryptedMessage.size())) {
+  if (-1 ==
+      ::olm_create_inbound_session(
+          session->olmSession,
+          session->ownerUserAccount,
+          tmpEncryptedMessage.data(),
+          encryptedMessage.size())) {
     throw std::runtime_error(
         "error createInbound => ::olm_create_inbound_session");
   }
@@ -82,12 +84,13 @@ std::unique_ptr<Session> Session::restoreFromB64(
 
   session->olmSessionBuffer.resize(::olm_session_size());
   session->olmSession = ::olm_session(session->olmSessionBuffer.data());
-  if (-1 == ::olm_unpickle_session(
-                session->olmSession,
-                secretKey.data(),
-                secretKey.size(),
-                b64.data(),
-                b64.size())) {
+  if (-1 ==
+      ::olm_unpickle_session(
+          session->olmSession,
+          secretKey.data(),
+          secretKey.size(),
+          b64.data(),
+          b64.size())) {
     throw std::runtime_error("error pickleSession => ::olm_unpickle_session");
   }
   if (b64.size() != ::olm_pickle_session_length(session->olmSession)) {

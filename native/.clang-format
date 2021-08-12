@@ -1,7 +1,7 @@
 ---
 AlignAfterOpenBracket: AlwaysBreak
 AlignEscapedNewlines: Left
-AlignOperands: true
+AlignOperands: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortFunctionsOnASingleLine: None
 AlwaysBreakBeforeMultilineStrings: true
