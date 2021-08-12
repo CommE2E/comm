@@ -47,4 +47,31 @@ async function createNewVersionResponder(
   }
 }
 
-export { createNewVersionResponder };
+async function markVersionDeployedResponder(
+  viewer: Viewer,
+  req: $Request,
+  res: $Response,
+): Promise<void> {
+  if (!viewer.loggedIn || !isStaff(viewer.userID)) {
+    throw new ServerError('invalid_credentials');
+  }
+
+  const request: CreateNewVersionsRequest = ({
+    codeVersion: parseInt(req.params.codeVersion),
+    deviceType: req.params.deviceType,
+  }: any);
+  await validateInput(viewer, createNewVersionInputValidator, request);
+
+  const updateQuery = SQL`
+    UPDATE versions
+    SET deploy_time = ${Date.now()}
+    WHERE code_version = ${request.codeVersion}
+      AND platform = ${request.deviceType}
+  `;
+  const [results] = await dbQuery(updateQuery);
+
+  const success = !!(results.affectedRows && results.affectedRows > 0);
+  res.json({ success });
+}
+
+export { createNewVersionResponder, markVersionDeployedResponder };
