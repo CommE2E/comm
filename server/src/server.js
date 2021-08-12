@@ -11,12 +11,14 @@ import { jsonEndpoints } from './endpoints';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders';
 import {
   jsonHandler,
+  httpGetHandler,
   downloadHandler,
   htmlHandler,
   uploadHandler,
 } from './responders/handlers';
 import landingHandler from './responders/landing-handler';
 import { errorReportDownloadResponder } from './responders/report-responders';
+import { createNewVersionResponder } from './responders/version-responders';
 import { websiteResponder } from './responders/website-responders';
 import { onConnection } from './socket/socket';
 import {
@@ -85,6 +87,11 @@ if (cluster.isMaster) {
   }
 
   router.post('/commlanding/subscribe_email', emailSubscriptionResponder);
+
+  router.get(
+    '/create_version/:deviceType/:codeVersion',
+    httpGetHandler(createNewVersionResponder),
+  );
 
   router.get(
     '/download_error_report/:reportID',
