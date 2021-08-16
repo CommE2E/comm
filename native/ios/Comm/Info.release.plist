@@ -35,11 +35,11 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access your location</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Give $(PRODUCT_NAME) permission to access your photos</string>
+	<string>Allow $(PRODUCT_NAME) to access your photo library so you can send images.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Give $(PRODUCT_NAME) permission to save photos to your camera roll</string>
+	<string>Allow $(PRODUCT_NAME) to save images to your photo library.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Give $(PRODUCT_NAME) permission to access the camera</string>
+	<string>Allow $(PRODUCT_NAME) to access the camera so you can capture and send photos.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>OpenSans-Semibold.ttf</string>
