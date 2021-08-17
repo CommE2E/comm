@@ -176,12 +176,19 @@ function useMessageTargetParameters(
   };
 }
 
-function useAnimatedMessageTooltipButton(
-  sourceMessage: ChatMessageInfoItemWithHeight,
-  initialCoordinates: LayoutCoordinates,
-  messageListVerticalBounds: VerticalBounds,
-  progress: Node,
-): {
+type AnimatedMessageArgs = {
+  +sourceMessage: ChatMessageInfoItemWithHeight,
+  +initialCoordinates: LayoutCoordinates,
+  +messageListVerticalBounds: VerticalBounds,
+  +progress: Node,
+};
+
+function useAnimatedMessageTooltipButton({
+  sourceMessage,
+  initialCoordinates,
+  messageListVerticalBounds,
+  progress,
+}: AnimatedMessageArgs): {
   +style: AnimatedViewStyle,
   +threadColorOverride: ?Node,
   +isThreadColorDarkOverride: ?boolean,

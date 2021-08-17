@@ -29,12 +29,12 @@ function TextMessageTooltipButton(props: Props): React.Node {
     style: messageContainerStyle,
     threadColorOverride,
     isThreadColorDarkOverride,
-  } = useAnimatedMessageTooltipButton(
-    item,
+  } = useAnimatedMessageTooltipButton({
+    sourceMessage: item,
     initialCoordinates,
-    verticalBounds,
+    messageListVerticalBounds: verticalBounds,
     progress,
-  );
+  });
 
   const headerStyle = React.useMemo(() => {
     const bottom = initialCoordinates.height;

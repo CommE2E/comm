@@ -24,12 +24,12 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
   const windowWidth = useSelector(state => state.dimensions.width);
 
   const { item, verticalBounds, initialCoordinates } = props.route.params;
-  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton(
-    item,
+  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton({
+    sourceMessage: item,
     initialCoordinates,
-    verticalBounds,
+    messageListVerticalBounds: verticalBounds,
     progress,
-  );
+  });
 
   const headerStyle = React.useMemo(() => {
     const bottom = initialCoordinates.height;

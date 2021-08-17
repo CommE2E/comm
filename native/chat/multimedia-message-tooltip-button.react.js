@@ -26,12 +26,12 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
   const { progress } = props;
 
   const { item, verticalBounds, initialCoordinates } = props.route.params;
-  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton(
-    item,
+  const { style: messageContainerStyle } = useAnimatedMessageTooltipButton({
+    sourceMessage: item,
     initialCoordinates,
-    verticalBounds,
+    messageListVerticalBounds: verticalBounds,
     progress,
-  );
+  });
 
   const headerStyle = React.useMemo(() => {
     const bottom = initialCoordinates.height;
