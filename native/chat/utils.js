@@ -109,7 +109,10 @@ function useMessageTargetParameters(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const sidebarThreadInfo = React.useMemo(() => {
-    return getSidebarThreadInfo(sourceMessage, viewerID);
+    invariant(viewerID, 'viewerID should be set');
+    const threadInfo = getSidebarThreadInfo(sourceMessage, viewerID);
+    invariant(threadInfo, 'threadInfo should be set');
+    return threadInfo;
   }, [sourceMessage, viewerID]);
 
   const messageListData = useMessageListData({
@@ -271,7 +274,6 @@ function getMessageTooltipKey(item: ChatMessageInfoItemWithHeight): string {
 }
 
 export {
-  getSidebarThreadInfo,
   chatMessageItemHeight,
   useAnimatedMessageTooltipButton,
   messageItemHeight,

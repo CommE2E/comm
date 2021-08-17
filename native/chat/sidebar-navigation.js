@@ -23,13 +23,15 @@ import {
 function getSidebarThreadInfo(
   sourceMessage: ChatMessageInfoItemWithHeight,
   viewerID?: ?string,
-): ThreadInfo {
+): ?ThreadInfo {
   const threadCreatedFromMessage = sourceMessage.threadCreatedFromMessage;
   if (threadCreatedFromMessage) {
     return threadCreatedFromMessage;
   }
 
-  invariant(viewerID, 'viewerID should be set');
+  if (!viewerID) {
+    return null;
+  }
 
   const { messageInfo, threadInfo } = sourceMessage;
   return createPendingSidebar(
@@ -49,7 +51,9 @@ function navigateToSidebar<RouteName: MessageTooltipRouteNames>(
   viewerID: ?string,
   chatContext: ?ChatContextType,
 ) {
+  invariant(viewerID, 'viewerID should be set');
   const threadInfo = getSidebarThreadInfo(route.params.item, viewerID);
+  invariant(threadInfo, 'threadInfo should be set');
 
   chatContext?.setCurrentTransitionSidebarSourceID(
     route.params.item.messageInfo.id,
@@ -67,6 +71,7 @@ function useNavigateToSidebar(item: ChatMessageInfoItemWithHeight): () => void {
   ]);
   const navigateToThread = useNavigateToThread();
   return React.useCallback(() => {
+    invariant(threadInfo, 'threadInfo should be set');
     navigateToThread({ threadInfo });
   }, [navigateToThread, threadInfo]);
 }
