@@ -8,6 +8,7 @@ import { useMessageListData } from 'lib/selectors/chat-selectors';
 import { messageKey } from 'lib/shared/message-utils';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
+import { useDrafts } from '../data/core-data';
 import { useSelector } from '../redux/redux-utils';
 import type {
   ChatMessageInfoItemWithHeight,
@@ -290,9 +291,32 @@ function getMessageTooltipKey(item: ChatMessageInfoItemWithHeight): string {
   return `tooltip|${messageKey(item.messageInfo)}`;
 }
 
+function useSidebarDrafts(
+  sourceMessage: ChatMessageInfoItemWithHeight,
+): { parentDraft: string, sidebarDraft: string } {
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const sidebarThreadInfo = React.useMemo(() => {
+    return getSidebarThreadInfo(sourceMessage, viewerID);
+  }, [sourceMessage, viewerID]);
+
+  const { draft: parentDraft } = useDrafts(sourceMessage.threadInfo.id);
+  const { draft: sidebarDraft } = useDrafts(sidebarThreadInfo?.id);
+
+  return React.useMemo(
+    () => ({
+      parentDraft,
+      sidebarDraft,
+    }),
+    [parentDraft, sidebarDraft],
+  );
+}
+
 export {
   chatMessageItemHeight,
   useAnimatedMessageTooltipButton,
   messageItemHeight,
   getMessageTooltipKey,
+  useSidebarDrafts,
 };
