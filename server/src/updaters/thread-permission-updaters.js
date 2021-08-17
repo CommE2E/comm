@@ -393,7 +393,10 @@ async function updateDescendantPermissions(
     for (const descendant of descendants) {
       const { threadID, threadType, depth, users } = descendant;
 
-      const existingMemberIDs = [...users.keys()];
+      const existingMembers = [...users.entries()];
+      const existingMemberIDs = existingMembers
+        .filter(([, { curRole }]) => curRole)
+        .map(([userID]) => userID);
       if (threadID !== genesis.id) {
         relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
       }
