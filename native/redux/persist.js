@@ -280,7 +280,7 @@ const persistConfig = {
   timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
 
-const codeVersion = 96;
+const codeVersion = 97;
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to
