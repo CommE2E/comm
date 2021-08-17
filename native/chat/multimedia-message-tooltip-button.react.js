@@ -31,6 +31,8 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     initialCoordinates,
     messageListVerticalBounds: verticalBounds,
     progress,
+    currentDraftHeight: 0,
+    targetDraftHeight: 0,
   });
 
   const headerStyle = React.useMemo(() => {
