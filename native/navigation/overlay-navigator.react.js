@@ -19,6 +19,7 @@ import Animated, { EasingNode } from 'react-native-reanimated';
 
 import { values } from 'lib/utils/objects';
 
+import { isMessageTooltipKey } from '../chat/utils';
 import { OverlayContext } from './overlay-context';
 import OverlayRouter from './overlay-router';
 import type { OverlayRouterNavigationProp } from './overlay-router';
@@ -328,14 +329,17 @@ const OverlayNavigator = React.memo<Props>(
       for (const key in pendingAnimations) {
         const toValue = pendingAnimations[key];
         const position = positions[key];
-        const navigationTransitionSpec =
-          toValue === 0
-            ? TransitionPresets.DefaultTransition.transitionSpec.close
-            : TransitionPresets.DefaultTransition.transitionSpec.open;
-        const duration =
-          (navigationTransitionSpec.animation === 'timing' &&
-            navigationTransitionSpec.config.duration) ||
-          400;
+        let duration = 150;
+        if (isMessageTooltipKey(key)) {
+          const navigationTransitionSpec =
+            toValue === 0
+              ? TransitionPresets.DefaultTransition.transitionSpec.close
+              : TransitionPresets.DefaultTransition.transitionSpec.open;
+          duration =
+            (navigationTransitionSpec.animation === 'timing' &&
+              navigationTransitionSpec.config.duration) ||
+            400;
+        }
         invariant(position, `should have position for animating key ${key}`);
         timing(position, {
           duration,

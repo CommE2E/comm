@@ -295,6 +295,10 @@ function getMessageTooltipKey(item: ChatMessageInfoItemWithHeight): string {
   return `tooltip|${messageKey(item.messageInfo)}`;
 }
 
+function isMessageTooltipKey(key: string): boolean {
+  return key.startsWith('tooltip|');
+}
+
 function useSidebarDrafts(
   sourceMessage: ChatMessageInfoItemWithHeight,
 ): { parentDraft: string, sidebarDraft: string } {
@@ -322,5 +326,6 @@ export {
   useAnimatedMessageTooltipButton,
   messageItemHeight,
   getMessageTooltipKey,
+  isMessageTooltipKey,
   useSidebarDrafts,
 };
