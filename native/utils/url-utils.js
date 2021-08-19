@@ -45,6 +45,12 @@ async function fetchDevServerHostname(): Promise<string> {
   return getDevServerHostname(isEmulator);
 }
 
+function fetchDevServerHostnameSync(): string {
+  invariant(__DEV__, 'fetchDevServerHostnameSync called from production');
+  const isEmulator = DeviceInfo.isEmulatorSync();
+  return getDevServerHostname(isEmulator);
+}
+
 const nodeServerOptions = [productionNodeServerURL];
 if (Platform.OS === 'android') {
   nodeServerOptions.push(
@@ -86,6 +92,7 @@ const setCustomServer = 'SET_CUSTOM_SERVER';
 export {
   defaultURLPrefix,
   fetchDevServerHostname,
+  fetchDevServerHostnameSync,
   nodeServerOptions,
   natNodeServer,
   setCustomServer,
