@@ -11,7 +11,7 @@ import type { ChatMessageItemWithHeight } from '../types/chat-types';
 
 export type MessagesMeasurer = (
   $ReadOnlyArray<ChatMessageItem>,
-  ThreadInfo,
+  ?ThreadInfo,
   ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
 ) => void;
 

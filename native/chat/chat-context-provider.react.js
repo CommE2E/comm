@@ -36,10 +36,17 @@ function ChatContextProvider(props: Props): React.Node {
   const measureMessages = React.useCallback(
     (
       messages: $ReadOnlyArray<ChatMessageItem>,
-      threadInfo: ThreadInfo,
+      threadInfo: ?ThreadInfo,
       onMessagesMeasured: ($ReadOnlyArray<ChatMessageItemWithHeight>) => mixed,
       measurerID: number,
     ) => {
+      if (!threadInfo) {
+        // When threadInfo is not present, we can't measure the messages: we can
+        // determine the height, but we can't merge the result as it requires
+        // threadInfo to be present.
+        return;
+      }
+
       const measureCallback = (
         messagesWithHeight: $ReadOnlyArray<ChatMessageItemWithHeight>,
         newMeasuredHeights: $ReadOnlyMap<string, number>,
@@ -81,7 +88,7 @@ function ChatContextProvider(props: Props): React.Node {
     return {
       measure: (
         messages: $ReadOnlyArray<ChatMessageItem>,
-        threadInfo: ThreadInfo,
+        threadInfo: ?ThreadInfo,
         onMessagesMeasured: (
           $ReadOnlyArray<ChatMessageItemWithHeight>,
         ) => mixed,

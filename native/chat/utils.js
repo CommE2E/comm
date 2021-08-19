@@ -112,10 +112,7 @@ function useMessageTargetParameters(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const sidebarThreadInfo = React.useMemo(() => {
-    invariant(viewerID, 'viewerID should be set');
-    const threadInfo = getSidebarThreadInfo(sourceMessage, viewerID);
-    invariant(threadInfo, 'threadInfo should be set');
-    return threadInfo;
+    return getSidebarThreadInfo(sourceMessage, viewerID);
   }, [sourceMessage, viewerID]);
 
   const messageListData = useMessageListData({
@@ -163,6 +160,13 @@ function useMessageTargetParameters(
     sourceMessage,
     sourceMessageID,
   ]);
+
+  if (!sidebarThreadInfo) {
+    return {
+      position: 0,
+      color: sourceMessage.threadInfo.color,
+    };
+  }
 
   const authorNameComponentHeight = sourceMessage.messageInfo.creator.isViewer
     ? 0
