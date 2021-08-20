@@ -1,13 +1,11 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import {
   LayoutAnimation,
   TouchableWithoutFeedback,
   PixelRatio,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
 
 import { messageKey } from 'lib/shared/message-utils';
 
@@ -15,29 +13,15 @@ import {
   type KeyboardState,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
-import {
-  OverlayContext,
-  type OverlayContextType,
-} from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
-import {
-  MultimediaMessageTooltipModalRouteName,
-  RobotextMessageTooltipModalRouteName,
-  TextMessageTooltipModalRouteName,
-} from '../navigation/route-names';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutEvent } from '../types/react-native';
-import { AnimatedView } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
 import MultimediaMessage from './multimedia-message.react';
 import { RobotextMessage } from './robotext-message.react';
 import { TextMessage } from './text-message.react';
-import { getMessageTooltipKey, messageItemHeight } from './utils';
-
-/* eslint-disable import/no-named-as-default-member */
-const { Node, sub, interpolateNode, Extrapolate } = Animated;
-/* eslint-enable import/no-named-as-default-member */
+import { messageItemHeight } from './utils';
 
 type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,
@@ -50,64 +34,14 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +keyboardState: ?KeyboardState,
-  +overlayContext: OverlayContextType,
 };
-type State = {
-  +opacity: number | Node,
-};
-class Message extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      opacity: this.getOpacity(),
-    };
-  }
-
-  static getModalOverlayPosition(props: Props) {
-    const {
-      overlayContext: { visibleOverlays },
-      item,
-    } = props;
-    for (const overlay of visibleOverlays) {
-      if (
-        (overlay.routeName === MultimediaMessageTooltipModalRouteName ||
-          overlay.routeName === TextMessageTooltipModalRouteName ||
-          overlay.routeName === RobotextMessageTooltipModalRouteName) &&
-        overlay.routeKey === getMessageTooltipKey(item)
-      ) {
-        return overlay.position;
-      }
-    }
-    return undefined;
-  }
-
-  getOpacity() {
-    const overlayPosition = Message.getModalOverlayPosition(this.props);
-    if (!overlayPosition) {
-      return 1;
-    }
-    return sub(
-      1,
-      interpolateNode(overlayPosition, {
-        inputRange: [0.05, 0.06],
-        outputRange: [0, 1],
-        extrapolate: Extrapolate.CLAMP,
-      }),
-    );
-  }
-
+class Message extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
     if (
       (prevProps.focused || prevProps.item.startsConversation) !==
       (this.props.focused || this.props.item.startsConversation)
     ) {
       LayoutAnimation.easeInEaseOut();
-    }
-
-    const overlayPosition = Message.getModalOverlayPosition(this.props);
-    const prevOverlayPosition = Message.getModalOverlayPosition(prevProps);
-    if (overlayPosition !== prevOverlayPosition) {
-      this.setState({ opacity: this.getOpacity() });
     }
   }
 
@@ -147,15 +81,12 @@ class Message extends React.PureComponent<Props, State> {
     }
 
     const onLayout = __DEV__ ? this.onLayout : undefined;
-    const messageStyle = {
-      opacity: this.state.opacity,
-    };
     return (
       <TouchableWithoutFeedback
         onPress={this.dismissKeyboard}
         onLayout={onLayout}
       >
-        <AnimatedView style={messageStyle}>{message}</AnimatedView>
+        {message}
       </TouchableWithoutFeedback>
     );
   }
@@ -195,15 +126,7 @@ class Message extends React.PureComponent<Props, State> {
 const ConnectedMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedMessage(props: BaseProps) {
     const keyboardState = React.useContext(KeyboardContext);
-    const overlayContext = React.useContext(OverlayContext);
-    invariant(overlayContext, 'should be set');
-    return (
-      <Message
-        {...props}
-        keyboardState={keyboardState}
-        overlayContext={overlayContext}
-      />
-    );
+    return <Message {...props} keyboardState={keyboardState} />;
   },
 );
 

@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated from 'react-native-reanimated';
 import Icon from 'react-native-vector-icons/Feather';
 
 import { createMessageReply } from 'lib/shared/message-utils';
@@ -11,6 +12,7 @@ import { assertComposableMessageType } from 'lib/types/message-types';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { type Colors, useColors } from '../themes/colors';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
+import { AnimatedView } from '../types/styles';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
 import {
@@ -21,6 +23,11 @@ import {
 import { MessageHeader } from './message-header.react';
 import { useNavigateToSidebar } from './sidebar-navigation';
 import SwipeableMessage from './swipeable-message.react';
+import { useContentAndHeaderOpacity } from './utils';
+
+/* eslint-disable import/no-named-as-default-member */
+const { Node } = Animated;
+/* eslint-enable import/no-named-as-default-member */
 
 const clusterEndHeight = 7;
 
@@ -38,6 +45,7 @@ type Props = {
   // Redux state
   +composedMessageMaxWidth: number,
   +colors: Colors,
+  +contentAndHeaderOpacity: number | Node,
   // withInputState
   +inputState: ?InputState,
   +navigateToSidebar: () => void,
@@ -55,6 +63,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       colors,
       inputState,
       navigateToSidebar,
+      contentAndHeaderOpacity,
       ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
@@ -110,7 +119,9 @@ class ComposedMessage extends React.PureComponent<Props> {
           messageBoxStyle={messageBoxStyle}
           threadColor={item.threadInfo.color}
         >
-          {children}
+          <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
+            {children}
+          </AnimatedView>
         </SwipeableMessage>
       </View>
     );
@@ -130,7 +141,9 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     return (
       <View {...viewProps}>
-        <MessageHeader item={item} focused={focused} display="lowContrast" />
+        <AnimatedView style={{ opacity: contentAndHeaderOpacity }}>
+          <MessageHeader item={item} focused={focused} display="lowContrast" />
+        </AnimatedView>
         <View style={containerStyle}>
           <View style={[styles.content, alignStyle]}>
             {deliveryIcon}
@@ -189,6 +202,7 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<Base
     const colors = useColors();
     const inputState = React.useContext(InputStateContext);
     const navigateToSidebar = useNavigateToSidebar(props.item);
+    const contentAndHeaderOpacity = useContentAndHeaderOpacity(props.item);
     return (
       <ComposedMessage
         {...props}
@@ -196,6 +210,7 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<Base
         colors={colors}
         inputState={inputState}
         navigateToSidebar={navigateToSidebar}
+        contentAndHeaderOpacity={contentAndHeaderOpacity}
       />
     );
   },

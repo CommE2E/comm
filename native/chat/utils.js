@@ -9,6 +9,12 @@ import { messageKey } from 'lib/shared/message-utils';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
 import { useDrafts } from '../data/core-data';
+import { OverlayContext } from '../navigation/overlay-context';
+import {
+  MultimediaMessageTooltipModalRouteName,
+  RobotextMessageTooltipModalRouteName,
+  TextMessageTooltipModalRouteName,
+} from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import type {
   ChatMessageInfoItemWithHeight,
@@ -42,6 +48,7 @@ const {
   call,
   eq,
   cond,
+  sub,
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
@@ -321,6 +328,41 @@ function useSidebarDrafts(
   );
 }
 
+function useContentAndHeaderOpacity(
+  item: ChatMessageInfoItemWithHeight,
+): number | Node {
+  const overlayContext = React.useContext(OverlayContext);
+  invariant(overlayContext, 'should be set');
+
+  let overlayPosition = undefined;
+  for (const overlay of overlayContext.visibleOverlays) {
+    if (
+      (overlay.routeName === MultimediaMessageTooltipModalRouteName ||
+        overlay.routeName === TextMessageTooltipModalRouteName ||
+        overlay.routeName === RobotextMessageTooltipModalRouteName) &&
+      overlay.routeKey === getMessageTooltipKey(item)
+    ) {
+      overlayPosition = overlay.position;
+      break;
+    }
+  }
+
+  return React.useMemo(
+    () =>
+      overlayPosition
+        ? sub(
+            1,
+            interpolateNode(overlayPosition, {
+              inputRange: [0.05, 0.06],
+              outputRange: [0, 1],
+              extrapolate: Extrapolate.CLAMP,
+            }),
+          )
+        : 1,
+    [overlayPosition],
+  );
+}
+
 export {
   chatMessageItemHeight,
   useAnimatedMessageTooltipButton,
@@ -328,4 +370,5 @@ export {
   getMessageTooltipKey,
   isMessageTooltipKey,
   useSidebarDrafts,
+  useContentAndHeaderOpacity,
 };
