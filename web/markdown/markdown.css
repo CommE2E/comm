@@ -68,3 +68,13 @@ div.markdown ul {
   padding-left: 1em;
   margin-left: 0.5em;
 }
+
+div.markdown a {
+  text-decoration: underline;
+}
+div.lightBackground a {
+  color: #2a5db0;
+}
+div.darkBackground a {
+  color: white;
+}

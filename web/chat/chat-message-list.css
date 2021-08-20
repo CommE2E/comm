@@ -255,14 +255,6 @@ div.darkTextMessage {
 div.lightTextMessage {
   color: black;
 }
-div.darkTextMessage a {
-  color: white;
-  text-decoration: underline;
-}
-div.lightTextMessage a {
-  color: #2a5db0;
-  text-decoration: underline;
-}
 
 div.content {
   display: flex;
