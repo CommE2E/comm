@@ -12,6 +12,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
+		713EE41126C66B80003D7C48 /* CryptoTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 713EE41026C66B80003D7C48 /* CryptoTest.mm */; };
 		718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; };
 		71BE84492636A944002849D2 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843B2636A944002849D2 /* NativeModules.cpp */; };
 		71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843C2636A944002849D2 /* CommCoreModule.cpp */; };
@@ -34,6 +35,16 @@
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		713EE40B26C6676B003D7C48 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
+			remoteInfo = Comm;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* Comm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Comm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Comm/AppDelegate.h; sourceTree = "<group>"; };
@@ -44,6 +55,10 @@
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		713EE40626C6676B003D7C48 /* CommTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CommTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		713EE40A26C6676B003D7C48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		713EE41026C66B80003D7C48 /* CryptoTest.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CryptoTest.mm; sourceTree = "<group>"; };
+		713EE41826C66CAC003D7C48 /* TestCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCrypto.h; sourceTree = "<group>"; };
 		718DE99C2653D41C00365824 /* WorkerThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerThread.cpp; sourceTree = "<group>"; };
 		718DE99D2653D41C00365824 /* WorkerThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkerThread.h; sourceTree = "<group>"; };
 		71B8CCBD26BD4DEB0040C0A2 /* CommSecureStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommSecureStore.h; sourceTree = "<group>"; };
@@ -98,6 +113,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		713EE40326C6676B003D7C48 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -133,6 +155,23 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		713EE40726C6676B003D7C48 /* CommTests */ = {
+			isa = PBXGroup;
+			children = (
+				713EE41026C66B80003D7C48 /* CryptoTest.mm */,
+				713EE40A26C6676B003D7C48 /* Info.plist */,
+			);
+			path = CommTests;
+			sourceTree = "<group>";
+		};
+		713EE41726C66C96003D7C48 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				713EE41826C66CAC003D7C48 /* TestCrypto.h */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
 			isa = PBXGroup;
 			children = (
@@ -159,6 +198,7 @@
 		71BE84372636A944002849D2 /* CommonCpp */ = {
 			isa = PBXGroup;
 			children = (
+				713EE41726C66C96003D7C48 /* Tests */,
 				71BF5B6A26B3FCFF00EDE27D /* CryptoTools */,
 				71BE84382636A944002849D2 /* Tools */,
 				71BE843A2636A944002849D2 /* NativeModules */,
@@ -255,6 +295,7 @@
 			children = (
 				71BE84362636A944002849D2 /* cpp */,
 				13B07FAE1A68108700A75B9A /* Comm */,
+				713EE40726C6676B003D7C48 /* CommTests */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				6534411766BE4CA4B0AB0A78 /* Resources */,
 				7FF0870B1E833C3F000A1ACF /* Frameworks */,
@@ -268,6 +309,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* Comm.app */,
+				713EE40626C6676B003D7C48 /* CommTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -305,6 +347,24 @@
 			productReference = 13B07F961A680F5B00A75B9A /* Comm.app */;
 			productType = "com.apple.product-type.application";
 		};
+		713EE40526C6676B003D7C48 /* CommTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 713EE40F26C6676B003D7C48 /* Build configuration list for PBXNativeTarget "CommTests" */;
+			buildPhases = (
+				713EE40226C6676B003D7C48 /* Sources */,
+				713EE40326C6676B003D7C48 /* Frameworks */,
+				713EE40426C6676B003D7C48 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				713EE40C26C6676B003D7C48 /* PBXTargetDependency */,
+			);
+			name = CommTests;
+			productName = CommTests;
+			productReference = 713EE40626C6676B003D7C48 /* CommTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -339,6 +399,11 @@
 							};
 						};
 					};
+					713EE40526C6676B003D7C48 = {
+						CreatedOnToolsVersion = 12.5.1;
+						ProvisioningStyle = Automatic;
+						TestTargetID = 13B07F861A680F5B00A75B9A;
+					};
 				};
 			};
 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "Comm" */;
@@ -356,6 +421,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* Comm */,
+				713EE40526C6676B003D7C48 /* CommTests */,
 			);
 		};
 /* End PBXProject section */
@@ -374,6 +440,13 @@
 				7F8D602226535E060053CB29 /* Anaheim-Regular.ttf in Resources */,
 				B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */,
 				7F8D602326535E060053CB29 /* OpenSans-Regular.ttf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		713EE40426C6676B003D7C48 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,7 +583,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		713EE40226C6676B003D7C48 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				713EE41126C66B80003D7C48 /* CryptoTest.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		713EE40C26C6676B003D7C48 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 13B07F861A680F5B00A75B9A /* Comm */;
+			targetProxy = 713EE40B26C6676B003D7C48 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
@@ -564,6 +653,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				USE_HEADERMAP = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -612,7 +702,68 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Comm-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				USE_HEADERMAP = YES;
 				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		713EE40D26C6676B003D7C48 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = CommTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = swm.CommTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Comm.app/Comm";
+				USER_HEADER_SEARCH_PATHS = "../../node_modules/olm/include ../../node_modules/olm/lib ${PODS_ROOT}/OLMKit/include ${PODS_ROOT}/OLMKit/lib";
+			};
+			name = Debug;
+		};
+		713EE40E26C6676B003D7C48 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				INFOPLIST_FILE = CommTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.5;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = swm.CommTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Comm.app/Comm";
+				USER_HEADER_SEARCH_PATHS = "../../node_modules/olm/include ../../node_modules/olm/lib ${PODS_ROOT}/OLMKit/include ${PODS_ROOT}/OLMKit/lib";
 			};
 			name = Release;
 		};
@@ -729,6 +880,15 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		713EE40F26C6676B003D7C48 /* Build configuration list for PBXNativeTarget "CommTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				713EE40D26C6676B003D7C48 /* Debug */,
+				713EE40E26C6676B003D7C48 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -20,7 +20,6 @@ class CryptoModule {
 
   std::unordered_map<std::string, std::shared_ptr<Session>> sessions = {};
 
-  const std::string id;
   Keys keys;
 
   void createAccount();
@@ -30,8 +29,13 @@ class CryptoModule {
   size_t publishOneTimeKeys();
 
 public:
+  const std::string id;
   CryptoModule(std::string id);
   CryptoModule(std::string id, std::string secretKey, Persist persist);
+
+  static Keys keysFromStrings(
+      const std::string &identityKeys,
+      const std::string &oneTimeKeys);
 
   std::string getIdentityKeys();
   std::string getOneTimeKeys(size_t oneTimeKeysAmount = 50);

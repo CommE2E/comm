@@ -83,6 +83,14 @@ size_t CryptoModule::publishOneTimeKeys() {
   return ::olm_account_mark_keys_as_published(this->account);
 }
 
+Keys CryptoModule::keysFromStrings(
+    const std::string &identityKeys,
+    const std::string &oneTimeKeys) {
+  return {
+      OlmBuffer(identityKeys.begin(), identityKeys.end()),
+      OlmBuffer(oneTimeKeys.begin(), oneTimeKeys.end())};
+}
+
 std::string CryptoModule::getIdentityKeys() {
   this->exposePublicIdentityKeys();
   return std::string(

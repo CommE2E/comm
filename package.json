@@ -13,7 +13,7 @@
     "cleaninstall": "yarn clean && yarn",
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",
-    "clang-format-all": "clang-format -i native/cpp/CommonCpp/**/*.cpp native/cpp/CommonCpp/**/*.h native/android/app/src/cpp/* native/ios/Comm/*.mm native/ios/Comm/*.m native/ios/Comm/*.h native/android/app/src/main/java/app/comm/**/*.java",
+    "clang-format-all": "clang-format -i native/cpp/CommonCpp/**/*.cpp native/cpp/CommonCpp/**/*.h native/android/app/src/cpp/* native/ios/Comm/*.mm native/ios/CommTests/*.mm native/ios/Comm/*.m native/ios/Comm/*.h native/android/app/src/main/java/app/comm/**/*.java",
     "prepare": "husky install"
   },
   "devDependencies": {

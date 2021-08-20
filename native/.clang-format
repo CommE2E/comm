@@ -1,4 +1,5 @@
 ---
+IndentCaseLabels: true
 AlignAfterOpenBracket: AlwaysBreak
 AlignEscapedNewlines: Left
 AlignOperands: false
