@@ -12,7 +12,7 @@ import { assertComposableMessageType } from 'lib/types/message-types';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { type Colors, useColors } from '../themes/colors';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
-import { AnimatedView } from '../types/styles';
+import { type AnimatedStyleObj, AnimatedView } from '../types/styles';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
 import {
@@ -23,7 +23,7 @@ import {
 import { MessageHeader } from './message-header.react';
 import { useNavigateToSidebar } from './sidebar-navigation';
 import SwipeableMessage from './swipeable-message.react';
-import { useContentAndHeaderOpacity } from './utils';
+import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
@@ -46,6 +46,7 @@ type Props = {
   +composedMessageMaxWidth: number,
   +colors: Colors,
   +contentAndHeaderOpacity: number | Node,
+  +deliveryIconOpacity: number | Node,
   // withInputState
   +inputState: ?InputState,
   +navigateToSidebar: () => void,
@@ -64,6 +65,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       inputState,
       navigateToSidebar,
       contentAndHeaderOpacity,
+      deliveryIconOpacity,
       ...viewProps
     } = this.props;
     const { id, creator } = item.messageInfo;
@@ -92,13 +94,15 @@ class ComposedMessage extends React.PureComponent<Props> {
       } else {
         deliveryIconName = 'circle';
       }
+
+      const animatedStyle: AnimatedStyleObj = { opacity: deliveryIconOpacity };
       deliveryIcon = (
-        <View style={styles.iconContainer}>
+        <AnimatedView style={[styles.iconContainer, animatedStyle]}>
           <Icon
             name={deliveryIconName}
             style={[styles.icon, { color: deliveryIconColor }]}
           />
-        </View>
+        </AnimatedView>
       );
     }
 
@@ -203,6 +207,7 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<Base
     const inputState = React.useContext(InputStateContext);
     const navigateToSidebar = useNavigateToSidebar(props.item);
     const contentAndHeaderOpacity = useContentAndHeaderOpacity(props.item);
+    const deliveryIconOpacity = useDeliveryIconOpacity(props.item);
     return (
       <ComposedMessage
         {...props}
@@ -211,6 +216,7 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<Base
         inputState={inputState}
         navigateToSidebar={navigateToSidebar}
         contentAndHeaderOpacity={contentAndHeaderOpacity}
+        deliveryIconOpacity={deliveryIconOpacity}
       />
     );
   },

@@ -328,13 +328,10 @@ function useSidebarDrafts(
   );
 }
 
-function useContentAndHeaderOpacity(
-  item: ChatMessageInfoItemWithHeight,
-): number | Node {
+function useOverlayPosition(item: ChatMessageInfoItemWithHeight) {
   const overlayContext = React.useContext(OverlayContext);
   invariant(overlayContext, 'should be set');
 
-  let overlayPosition = undefined;
   for (const overlay of overlayContext.visibleOverlays) {
     if (
       (overlay.routeName === MultimediaMessageTooltipModalRouteName ||
@@ -342,11 +339,16 @@ function useContentAndHeaderOpacity(
         overlay.routeName === RobotextMessageTooltipModalRouteName) &&
       overlay.routeKey === getMessageTooltipKey(item)
     ) {
-      overlayPosition = overlay.position;
-      break;
+      return overlay.position;
     }
   }
+  return undefined;
+}
 
+function useContentAndHeaderOpacity(
+  item: ChatMessageInfoItemWithHeight,
+): number | Node {
+  const overlayPosition = useOverlayPosition(item);
   return React.useMemo(
     () =>
       overlayPosition
@@ -363,6 +365,23 @@ function useContentAndHeaderOpacity(
   );
 }
 
+function useDeliveryIconOpacity(
+  item: ChatMessageInfoItemWithHeight,
+): number | Node {
+  const overlayPosition = useOverlayPosition(item);
+  const chatContext = React.useContext(ChatContext);
+  return React.useMemo(() => {
+    if (!overlayPosition || !chatContext?.currentTransitionSidebarSourceID) {
+      return 1;
+    }
+    return interpolateNode(overlayPosition, {
+      inputRange: [0.05, 0.06, 1],
+      outputRange: [1, 0, 0],
+      extrapolate: Extrapolate.CLAMP,
+    });
+  }, [chatContext?.currentTransitionSidebarSourceID, overlayPosition]);
+}
+
 export {
   chatMessageItemHeight,
   useAnimatedMessageTooltipButton,
@@ -371,4 +390,5 @@ export {
   isMessageTooltipKey,
   useSidebarDrafts,
   useContentAndHeaderOpacity,
+  useDeliveryIconOpacity,
 };
