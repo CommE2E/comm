@@ -233,9 +233,12 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
 
     if (op_type == REMOVE_OPERATION) {
       auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
-      auto msg_idx =
-          std::stoi(payload_obj.getProperty(rt, "id").asString(rt).utf8(rt));
-      removed_msg_ids.push_back(msg_idx);
+      auto msg_ids =
+          payload_obj.getProperty(rt, "ids").asObject(rt).asArray(rt);
+      for (auto msg_idx = 0; msg_idx < msg_ids.size(rt); msg_idx++) {
+        removed_msg_ids.push_back(std::stoi(
+            msg_ids.getValueAtIndex(rt, msg_idx).asString(rt).utf8(rt)));
+      }
 
     } else if (op_type == REPLACE_OPERATION) {
       auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
