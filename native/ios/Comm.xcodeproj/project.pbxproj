@@ -58,7 +58,6 @@
 		713EE40626C6676B003D7C48 /* CommTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CommTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		713EE40A26C6676B003D7C48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		713EE41026C66B80003D7C48 /* CryptoTest.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CryptoTest.mm; sourceTree = "<group>"; };
-		713EE41826C66CAC003D7C48 /* TestCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCrypto.h; sourceTree = "<group>"; };
 		718DE99C2653D41C00365824 /* WorkerThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerThread.cpp; sourceTree = "<group>"; };
 		718DE99D2653D41C00365824 /* WorkerThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkerThread.h; sourceTree = "<group>"; };
 		71B8CCBD26BD4DEB0040C0A2 /* CommSecureStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommSecureStore.h; sourceTree = "<group>"; };
@@ -164,14 +163,6 @@
 			path = CommTests;
 			sourceTree = "<group>";
 		};
-		713EE41726C66C96003D7C48 /* Tests */ = {
-			isa = PBXGroup;
-			children = (
-				713EE41826C66CAC003D7C48 /* TestCrypto.h */,
-			);
-			path = Tests;
-			sourceTree = "<group>";
-		};
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
 			isa = PBXGroup;
 			children = (
@@ -198,7 +189,6 @@
 		71BE84372636A944002849D2 /* CommonCpp */ = {
 			isa = PBXGroup;
 			children = (
-				713EE41726C66C96003D7C48 /* Tests */,
 				71BF5B6A26B3FCFF00EDE27D /* CryptoTools */,
 				71BE84382636A944002849D2 /* Tools */,
 				71BE843A2636A944002849D2 /* NativeModules */,
