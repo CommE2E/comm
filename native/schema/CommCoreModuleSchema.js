@@ -10,10 +10,9 @@ type SQLiteMessageInfo = {
   +thread: string,
   +user: string,
   +type: string,
-  +futureType: string,
+  +future_type: string,
   +content: string,
   +time: string,
-  +creation: string,
 };
 
 type SQLiteDraftInfo = {
