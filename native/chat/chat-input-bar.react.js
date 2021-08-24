@@ -74,8 +74,10 @@ import {
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../themes/colors';
+import type { LayoutEvent } from '../types/react-native';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
+import { ChatContext } from './chat-context';
 import type { ChatNavigationProp } from './chat.react';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -120,6 +122,7 @@ type Props = {
   +userInfos: UserInfos,
   +colors: Colors,
   +styles: typeof unboundStyles,
+  +onInputBarLayout?: (event: LayoutEvent) => mixed,
   // connectNav
   +isActive: boolean,
   // withKeyboardState
@@ -480,7 +483,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
 
     return (
-      <View style={this.props.styles.container}>
+      <View
+        style={this.props.styles.container}
+        onLayout={this.props.onInputBarLayout}
+      >
         {joinButton}
         {content}
         {keyboardInputHost}
@@ -880,6 +886,23 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       return () => imagePasteListener.remove();
     }, [imagePastedCallback]);
 
+    const chatContext = React.useContext(ChatContext);
+    invariant(chatContext, 'should be set');
+    const { setChatInputBarHeight, deleteChatInputBarHeight } = chatContext;
+    const onInputBarLayout = React.useCallback(
+      (event: LayoutEvent) => {
+        const { height } = event.nativeEvent.layout;
+        setChatInputBarHeight(props.threadInfo.id, height);
+      },
+      [props.threadInfo.id, setChatInputBarHeight],
+    );
+
+    React.useEffect(() => {
+      return () => {
+        deleteChatInputBarHeight(props.threadInfo.id);
+      };
+    }, [deleteChatInputBarHeight, props.threadInfo.id]);
+
     return (
       <ChatInputBar
         {...props}
@@ -900,6 +923,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
         dispatchActionPromise={dispatchActionPromise}
         joinThread={callJoinThread}
         inputState={inputState}
+        onInputBarLayout={onInputBarLayout}
       />
     );
   },
