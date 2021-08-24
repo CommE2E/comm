@@ -34,7 +34,6 @@ function TextMessageTooltipButton(props: Props): React.Node {
     initialCoordinates,
     messageListVerticalBounds: verticalBounds,
     progress,
-    currentInputBarHeight: 0,
     targetInputBarHeight: 0,
   });
 

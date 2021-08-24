@@ -199,7 +199,6 @@ type AnimatedMessageArgs = {
   +initialCoordinates: LayoutCoordinates,
   +messageListVerticalBounds: VerticalBounds,
   +progress: Node,
-  +currentInputBarHeight: number,
   +targetInputBarHeight: number,
 };
 
