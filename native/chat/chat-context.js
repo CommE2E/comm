@@ -24,6 +24,9 @@ export type ChatContextType = {
   +registerMeasurer: () => RegisteredMeasurer,
   +currentTransitionSidebarSourceID: ?string,
   +setCurrentTransitionSidebarSourceID: SetState<?string>,
+  +setChatInputBarHeight: (threadID: string, height: number) => mixed,
+  +deleteChatInputBarHeight: (threadID: string) => mixed,
+  +chatInputBarHeights: $ReadOnlyMap<string, number>,
 };
 const ChatContext: React.Context<?ChatContextType> = React.createContext(null);
 
