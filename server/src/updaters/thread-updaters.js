@@ -191,14 +191,19 @@ async function removeMembers(
     changeset,
   );
 
-  const messageData = {
-    type: messageTypes.REMOVE_MEMBERS,
-    threadID: request.threadID,
-    creatorID: viewerID,
-    time: Date.now(),
-    removedUserIDs: actualMemberIDs,
-  };
-  const newMessageInfos = await createMessages(viewer, [messageData]);
+  const newMessageInfos = await (async () => {
+    if (actualMemberIDs.length === 0) {
+      return [];
+    }
+    const messageData = {
+      type: messageTypes.REMOVE_MEMBERS,
+      threadID: request.threadID,
+      creatorID: viewerID,
+      time: Date.now(),
+      removedUserIDs: actualMemberIDs,
+    };
+    return await createMessages(viewer, [messageData]);
+  })();
 
   if (hasMinCodeVersion(viewer.platformDetails, 62)) {
     return { updatesResult: { newUpdates: viewerUpdates }, newMessageInfos };
@@ -232,7 +237,23 @@ async function leaveThread(
   ]);
 
   const threadInfo = fetchThreadResult.threadInfos[request.threadID];
-  if (!viewerIsMember(threadInfo) || !hasPermission) {
+
+  if (!viewerIsMember(threadInfo)) {
+    if (hasMinCodeVersion(viewer.platformDetails, 62)) {
+      return {
+        updatesResult: { newUpdates: [] },
+      };
+    }
+    const threadInfos = await fetchThreadInfos(viewer);
+    return {
+      threadInfos,
+      updatesResult: {
+        newUpdates: [],
+      },
+    };
+  }
+
+  if (!hasPermission) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -608,11 +629,15 @@ async function updateThread(
     membershipRows.push(...recalculateMembershipRows);
     relationshipChangeset.addAll(recalculateRelationshipChangeset);
   }
+  let membersGotAdded = false;
   if (addMembersChangeset) {
     const {
       membershipRows: addMembersMembershipRows,
       relationshipChangeset: addMembersRelationshipChangeset,
     } = addMembersChangeset;
+    membersGotAdded = addMembersMembershipRows.some(
+      row => row.operation === 'save' && Number(row.role) > 0,
+    );
     membershipRows.push(...addMembersMembershipRows);
     relationshipChangeset.addAll(addMembersRelationshipChangeset);
   }
@@ -646,7 +671,7 @@ async function updateThread(
         value: newValue,
       });
     }
-    if (newMemberIDs) {
+    if (newMemberIDs && membersGotAdded) {
       messageDatas.push({
         type: messageTypes.ADD_MEMBERS,
         threadID: request.threadID,
