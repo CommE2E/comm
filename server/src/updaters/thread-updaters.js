@@ -101,9 +101,6 @@ async function updateRole(
   }
 
   const changeset = await changeRole(request.threadID, memberIDs, request.role);
-  if (!changeset) {
-    throw new ServerError('unknown_error');
-  }
   const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
     viewer,
     changeset,
@@ -189,9 +186,6 @@ async function removeMembers(
   }
 
   const changeset = await changeRole(request.threadID, actualMemberIDs, 0);
-  if (!changeset) {
-    throw new ServerError('unknown_error');
-  }
   const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
     viewer,
     changeset,
@@ -263,9 +257,6 @@ async function leaveThread(
   }
 
   const changeset = await changeRole(request.threadID, [viewerID], 0);
-  if (!changeset) {
-    throw new ServerError('unknown_error');
-  }
   const { threadInfos, viewerUpdates } = await commitMembershipChangeset(
     viewer,
     changeset,
@@ -736,9 +727,6 @@ async function joinThread(
   }
 
   const changeset = await changeRole(request.threadID, [viewer.userID], null);
-  if (!changeset) {
-    throw new ServerError('unknown_error');
-  }
 
   const membershipResult = await commitMembershipChangeset(viewer, changeset, {
     calendarQuery,

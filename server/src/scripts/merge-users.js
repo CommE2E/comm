@@ -124,9 +124,6 @@ async function mergeUsers(
   const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
   for (const currentChangeset of changesets) {
-    if (!currentChangeset) {
-      throw new Error('changeRole returned null');
-    }
     const {
       membershipRows: currentMembershipRows,
       relationshipChangeset: currentRelationshipChangeset,

@@ -84,7 +84,7 @@ async function changeRole(
   userIDs: $ReadOnlyArray<string>,
   role: string | -1 | 0 | null,
   options?: ChangeRoleOptions,
-): Promise<?Changeset> {
+): Promise<Changeset> {
   const intent = role === -1 || role === 0 ? 'leave' : 'join';
   const setNewMembersToUnread =
     options?.setNewMembersToUnread && intent === 'join';

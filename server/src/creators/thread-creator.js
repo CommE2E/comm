@@ -357,9 +357,6 @@ async function createThread(
     recalculateThreadPermissions(id),
   ]);
 
-  if (!creatorChangeset) {
-    throw new ServerError('unknown_error');
-  }
   const {
     membershipRows: creatorMembershipRows,
     relationshipChangeset: creatorRelationshipChangeset,
