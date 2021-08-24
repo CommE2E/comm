@@ -208,7 +208,6 @@ function useAnimatedMessageTooltipButton({
   initialCoordinates,
   messageListVerticalBounds,
   progress,
-  currentInputBarHeight,
   targetInputBarHeight,
 }: AnimatedMessageArgs): {
   +style: AnimatedViewStyle,
@@ -216,6 +215,16 @@ function useAnimatedMessageTooltipButton({
   +isThreadColorDarkOverride: ?boolean,
   +isAnimatingToSidebar: boolean,
 } {
+  const chatContext = React.useContext(ChatContext);
+  invariant(chatContext, 'chatContext should be set');
+  const {
+    currentTransitionSidebarSourceID,
+    setCurrentTransitionSidebarSourceID,
+    chatInputBarHeights,
+  } = chatContext;
+
+  const currentInputBarHeight =
+    chatInputBarHeights.get(sourceMessage.threadInfo.id) ?? 0;
   const {
     position: targetPosition,
     color: targetColor,
@@ -226,13 +235,6 @@ function useAnimatedMessageTooltipButton({
     currentInputBarHeight,
     targetInputBarHeight,
   );
-
-  const chatContext = React.useContext(ChatContext);
-  invariant(chatContext, 'chatContext should be set');
-  const {
-    currentTransitionSidebarSourceID,
-    setCurrentTransitionSidebarSourceID,
-  } = chatContext;
 
   React.useEffect(() => {
     return () => setCurrentTransitionSidebarSourceID(null);
