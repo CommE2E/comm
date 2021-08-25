@@ -219,6 +219,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
 
 #define REMOVE_OPERATION "remove"
 #define REPLACE_OPERATION "replace"
+#define REMOVE_MSGS_FOR_THREADS_OPERATION "remove_messages_for_threads"
 
 jsi::Value CommCoreModule::processMessageStoreOperations(
     jsi::Runtime &rt,
@@ -226,6 +227,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
 
   std::vector<int> removed_msg_ids;
   std::vector<Message> replaced_msgs;
+  std::vector<int> threads_to_remove_msgs_from;
 
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
@@ -240,6 +242,15 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
             msg_ids.getValueAtIndex(rt, msg_idx).asString(rt).utf8(rt)));
       }
 
+    } else if (op_type == REMOVE_MSGS_FOR_THREADS_OPERATION) {
+      auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
+      auto thread_ids =
+          payload_obj.getProperty(rt, "threadIDs").asObject(rt).asArray(rt);
+      for (auto thread_idx = 0; thread_idx < thread_ids.size(rt);
+           thread_idx++) {
+        threads_to_remove_msgs_from.push_back(std::stoi(
+            thread_ids.getValueAtIndex(rt, thread_idx).asString(rt).utf8(rt)));
+      }
     } else if (op_type == REPLACE_OPERATION) {
       auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
 
@@ -269,6 +280,8 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
             for (const auto &msg : replaced_msgs) {
               DatabaseManager::getQueryExecutor().replaceMessage(msg);
             }
+            DatabaseManager::getQueryExecutor().removeMessagesForThreads(
+                threads_to_remove_msgs_from);
           } catch (std::system_error &e) {
             error = e.what();
           }
