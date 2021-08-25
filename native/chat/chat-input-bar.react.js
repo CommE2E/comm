@@ -105,8 +105,6 @@ const sendButtonAnimationConfig = {
 
 type BaseProps = {
   +threadInfo: ThreadInfo,
-  +navigation: ChatNavigationProp<'MessageList'>,
-  +route: NavigationRoute<'MessageList'>,
 };
 type Props = {
   ...BaseProps,
@@ -123,6 +121,7 @@ type Props = {
   +colors: Colors,
   +styles: typeof unboundStyles,
   +onInputBarLayout?: (event: LayoutEvent) => mixed,
+  +openCamera: () => mixed,
   // connectNav
   +isActive: boolean,
   // withKeyboardState
@@ -530,7 +529,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 </AnimatedView>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={this.openCamera}
+                onPress={this.props.openCamera}
                 activeOpacity={0.4}
                 disabled={!this.state.buttonsExpanded}
               >
@@ -697,17 +696,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.setState({ buttonsExpanded: false });
   }
 
-  openCamera = async () => {
-    this.dismissKeyboard();
-    this.props.navigation.navigate({
-      name: CameraModalRouteName,
-      params: {
-        presentedFrom: this.props.route.key,
-        thread: this.props.threadInfo,
-      },
-    });
-  };
-
   showMediaGallery = () => {
     const { keyboardState } = this.props;
     invariant(keyboardState, 'keyboardState should be initialized');
@@ -811,8 +799,14 @@ const createThreadLoadingStatusSelector = createLoadingStatusSelector(
   newThreadActionTypes,
 );
 
-const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedChatInputBar(props: BaseProps) {
+type ChatInputBarProps = {
+  ...BaseProps,
+  +navigation: ChatNavigationProp<'MessageList'>,
+  +route: NavigationRoute<'MessageList'>,
+};
+const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo<ChatInputBarProps>(
+  function ConnectedChatInputBar(props: ChatInputBarProps) {
+    const { navigation, route, ...restProps } = props;
     const inputState = React.useContext(InputStateContext);
     const keyboardState = React.useContext(KeyboardContext);
     const navContext = React.useContext(NavContext);
@@ -903,9 +897,20 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       };
     }, [deleteChatInputBarHeight, props.threadInfo.id]);
 
+    const openCamera = React.useCallback(() => {
+      keyboardState?.dismissKeyboard();
+      this.props.navigation.navigate({
+        name: CameraModalRouteName,
+        params: {
+          presentedFrom: this.props.route.key,
+          thread: this.props.threadInfo,
+        },
+      });
+    }, [keyboardState]);
+
     return (
       <ChatInputBar
-        {...props}
+        {...restProps}
         viewerID={viewerID}
         draft={draft}
         updateDraft={updateDraft}
@@ -924,6 +929,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
         joinThread={callJoinThread}
         inputState={inputState}
         onInputBarLayout={onInputBarLayout}
+        openCamera={openCamera}
       />
     );
   },
