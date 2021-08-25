@@ -421,15 +421,24 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         );
       } else {
         buttonContent = (
-          <Text style={this.props.styles.joinButtonText}>Join Thread</Text>
+          <View style={this.props.styles.joinButtonContent}>
+            <SWMansionIcon
+              name="plus"
+              style={this.props.styles.joinButtonText}
+            />
+            <Text style={this.props.styles.joinButtonText}>Join Thread</Text>
+          </View>
         );
       }
       joinButton = (
         <View style={this.props.styles.joinButtonContainer}>
           <Button
             onPress={this.onPressJoin}
-            iosActiveOpacity={0.5}
-            style={this.props.styles.joinButton}
+            iosActiveOpacity={0.85}
+            style={[
+              this.props.styles.joinButton,
+              { backgroundColor: `#${this.props.threadInfo.color}` },
+            ]}
           >
             {buttonContent}
           </Button>
@@ -746,23 +755,25 @@ const unboundStyles = {
     flexDirection: 'row',
   },
   joinButton: {
-    backgroundColor: 'mintButton',
-    borderRadius: 5,
+    borderRadius: 8,
     flex: 1,
     justifyContent: 'center',
     marginHorizontal: 12,
     marginVertical: 3,
-    paddingBottom: 5,
-    paddingTop: 3,
   },
   joinButtonContainer: {
     flexDirection: 'row',
-    height: 36,
+    height: 48,
+  },
+  joinButtonContent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   joinButtonText: {
-    color: 'listBackground',
+    color: 'listForegroundLabel',
     fontSize: 20,
-    textAlign: 'center',
+    marginHorizontal: 4,
   },
   joinThreadLoadingIndicator: {
     paddingVertical: 2,
