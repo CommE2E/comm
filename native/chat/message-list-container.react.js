@@ -33,7 +33,7 @@ import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { ChatMessageItemWithHeight } from '../types/chat-types';
 import { type MessagesMeasurer, useHeightMeasurer } from './chat-context';
-import ChatInputBar from './chat-input-bar.react';
+import { ChatInputBar } from './chat-input-bar.react';
 import type { ChatNavigationProp } from './chat.react';
 import MessageListThreadSearch from './message-list-thread-search.react';
 import { MessageListContextProvider } from './message-list-types';

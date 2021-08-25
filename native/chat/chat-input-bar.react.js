@@ -799,6 +799,93 @@ const createThreadLoadingStatusSelector = createLoadingStatusSelector(
   newThreadActionTypes,
 );
 
+type ConnectedChatInputBarBaseProps = {
+  ...BaseProps,
+  +onInputBarLayout?: (event: LayoutEvent) => mixed,
+  +openCamera: () => mixed,
+};
+function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
+  const navContext = React.useContext(NavContext);
+  const keyboardState = React.useContext(KeyboardContext);
+  const inputState = React.useContext(InputStateContext);
+
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const { draft, updateDraft, moveDraft } = useDrafts(props.threadInfo.id);
+  const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
+  const createThreadLoadingStatus = useSelector(
+    createThreadLoadingStatusSelector,
+  );
+  const threadCreationInProgress = createThreadLoadingStatus === 'loading';
+  const calendarQuery = useSelector(state =>
+    nonThreadCalendarQuery({
+      redux: state,
+      navContext,
+    }),
+  );
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const userInfos = useSelector(state => state.userStore.userInfos);
+
+  const styles = useStyles(unboundStyles);
+  const colors = useColors();
+
+  const isActive = React.useMemo(
+    () => props.threadInfo.id === activeThreadSelector(navContext),
+    [props.threadInfo.id, navContext],
+  );
+
+  const dispatch = useDispatch();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callJoinThread = useServerCall(joinThread);
+
+  return (
+    <ChatInputBar
+      {...props}
+      viewerID={viewerID}
+      draft={draft}
+      updateDraft={updateDraft}
+      moveDraft={moveDraft}
+      joinThreadLoadingStatus={joinThreadLoadingStatus}
+      threadCreationInProgress={threadCreationInProgress}
+      calendarQuery={calendarQuery}
+      nextLocalID={nextLocalID}
+      userInfos={userInfos}
+      colors={colors}
+      styles={styles}
+      isActive={isActive}
+      keyboardState={keyboardState}
+      dispatch={dispatch}
+      dispatchActionPromise={dispatchActionPromise}
+      joinThread={callJoinThread}
+      inputState={inputState}
+    />
+  );
+}
+
+type DummyChatInputBarProps = {
+  ...BaseProps,
+  +onHeightMeasured: (height: number) => mixed,
+};
+const noop = () => {};
+function DummyChatInputBar(props: DummyChatInputBarProps): React.Node {
+  const { onHeightMeasured, ...restProps } = props;
+  const onInputBarLayout = React.useCallback(
+    (event: LayoutEvent) => {
+      const { height } = event.nativeEvent.layout;
+      onHeightMeasured(height);
+    },
+    [onHeightMeasured],
+  );
+  return (
+    <ConnectedChatInputBarBase
+      {...restProps}
+      onInputBarLayout={onInputBarLayout}
+      openCamera={noop}
+    />
+  );
+}
+
 type ChatInputBarProps = {
   ...BaseProps,
   +navigation: ChatNavigationProp<'MessageList'>,
@@ -807,42 +894,7 @@ type ChatInputBarProps = {
 const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo<ChatInputBarProps>(
   function ConnectedChatInputBar(props: ChatInputBarProps) {
     const { navigation, route, ...restProps } = props;
-    const inputState = React.useContext(InputStateContext);
     const keyboardState = React.useContext(KeyboardContext);
-    const navContext = React.useContext(NavContext);
-
-    const styles = useStyles(unboundStyles);
-    const colors = useColors();
-
-    const isActive = React.useMemo(
-      () => props.threadInfo.id === activeThreadSelector(navContext),
-      [props.threadInfo.id, navContext],
-    );
-
-    const { draft, updateDraft, moveDraft } = useDrafts(props.threadInfo.id);
-
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    const joinThreadLoadingStatus = useSelector(
-      joinThreadLoadingStatusSelector,
-    );
-    const createThreadLoadingStatus = useSelector(
-      createThreadLoadingStatusSelector,
-    );
-    const threadCreationInProgress = createThreadLoadingStatus === 'loading';
-    const calendarQuery = useSelector(state =>
-      nonThreadCalendarQuery({
-        redux: state,
-        navContext,
-      }),
-    );
-    const nextLocalID = useSelector(state => state.nextLocalID);
-    const userInfos = useSelector(state => state.userStore.userInfos);
-
-    const dispatch = useDispatch();
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callJoinThread = useServerCall(joinThread);
 
     const imagePastedCallback = React.useCallback(
       imagePastedEvent => {
@@ -909,25 +961,8 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo
     }, [keyboardState]);
 
     return (
-      <ChatInputBar
+      <ConnectedChatInputBarBase
         {...restProps}
-        viewerID={viewerID}
-        draft={draft}
-        updateDraft={updateDraft}
-        moveDraft={moveDraft}
-        joinThreadLoadingStatus={joinThreadLoadingStatus}
-        threadCreationInProgress={threadCreationInProgress}
-        calendarQuery={calendarQuery}
-        nextLocalID={nextLocalID}
-        userInfos={userInfos}
-        colors={colors}
-        styles={styles}
-        isActive={isActive}
-        keyboardState={keyboardState}
-        dispatch={dispatch}
-        dispatchActionPromise={dispatchActionPromise}
-        joinThread={callJoinThread}
-        inputState={inputState}
         onInputBarLayout={onInputBarLayout}
         openCamera={openCamera}
       />
@@ -935,4 +970,4 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo
   },
 );
 
-export default ConnectedChatInputBar;
+export { ConnectedChatInputBar as ChatInputBar, DummyChatInputBar };
