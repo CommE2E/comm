@@ -472,11 +472,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         </Text>
       );
     } else if (defaultMembersAreVoiced && canJoin) {
-      content = (
-        <Text style={this.props.styles.explanation}>
-          Join this thread to send messages.
-        </Text>
-      );
+      content = null;
     } else {
       content = (
         <Text style={this.props.styles.explanation}>
@@ -764,6 +760,7 @@ const unboundStyles = {
   joinButtonContainer: {
     flexDirection: 'row',
     height: 48,
+    marginBottom: 8,
   },
   joinButtonContent: {
     flexDirection: 'row',
