@@ -271,6 +271,12 @@ void SQLiteQueryExecutor::removeMessages(std::vector<int> ids) const {
       where(in(&Message::id, ids)));
 }
 
+void SQLiteQueryExecutor::removeMessagesForThreads(
+    std::vector<int> threadIDs) const {
+  SQLiteQueryExecutor::getStorage().remove_all<Message>(
+      where(in(&Message::thread, threadIDs)));
+}
+
 void SQLiteQueryExecutor::replaceMessage(Message message) const {
   SQLiteQueryExecutor::getStorage().replace(message);
 }

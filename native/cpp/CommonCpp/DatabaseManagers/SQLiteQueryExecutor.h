@@ -24,6 +24,7 @@ public:
   void removeAllMessages() const override;
   std::vector<Message> getAllMessages() const override;
   void removeMessages(std::vector<int> ids) const override;
+  void removeMessagesForThreads(std::vector<int> threadIDs) const override;
   void replaceMessage(Message message) const override;
   std::vector<OlmPersistSession> getOlmPersistSessionsData() const override;
   folly::Optional<std::string> getOlmPersistAccountData() const override;
