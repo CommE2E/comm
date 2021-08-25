@@ -118,6 +118,29 @@ bool recreate_messages_table(sqlite3 *db) {
   return create_table(db, query, "messages");
 }
 
+bool create_messages_idx_thread_time(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "CREATE INDEX messages_idx_thread_time "
+      "ON messages (thread, time);",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error creating (thread, time) index on messages table: "
+               << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
 std::vector<std::pair<uint, MigrationFunction>> migrations{{
     {1, create_drafts_table},
@@ -126,6 +149,7 @@ std::vector<std::pair<uint, MigrationFunction>> migrations{{
     {5, create_persist_sessions_table},
     {6, drop_messages_table},
     {7, recreate_messages_table},
+    {8, create_messages_idx_thread_time},
 }};
 
 void SQLiteQueryExecutor::migrate() {
