@@ -8,6 +8,7 @@ import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react';
 import { MessageHeader } from './message-header.react';
+import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react';
 import { useAnimatedMessageTooltipButton } from './utils';
 
 /* eslint-disable import/no-named-as-default-member */
@@ -25,13 +26,21 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
   const windowWidth = useSelector(state => state.dimensions.width);
   const { progress } = props;
 
+  const [
+    sidebarInputBarHeight,
+    setSidebarInputBarHeight,
+  ] = React.useState<?number>(null);
+  const onInputBarMeasured = React.useCallback((height: number) => {
+    setSidebarInputBarHeight(height);
+  }, []);
+
   const { item, verticalBounds, initialCoordinates } = props.route.params;
   const { style: messageContainerStyle } = useAnimatedMessageTooltipButton({
     sourceMessage: item,
     initialCoordinates,
     messageListVerticalBounds: verticalBounds,
     progress,
-    targetInputBarHeight: 0,
+    targetInputBarHeight: sidebarInputBarHeight,
   });
 
   const headerStyle = React.useMemo(() => {
@@ -53,6 +62,10 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
   const { navigation } = props;
   return (
     <Animated.View style={messageContainerStyle}>
+      <SidebarInputBarHeightMeasurer
+        sourceMessage={item}
+        onInputBarMeasured={onInputBarMeasured}
+      />
       <Animated.View style={headerStyle}>
         <MessageHeader item={item} focused={true} display="modal" />
       </Animated.View>
