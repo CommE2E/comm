@@ -8,7 +8,6 @@ import { useMessageListData } from 'lib/selectors/chat-selectors';
 import { messageKey } from 'lib/shared/message-utils';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
-import { useDrafts } from '../data/core-data';
 import { OverlayContext } from '../navigation/overlay-context';
 import {
   MultimediaMessageTooltipModalRouteName,
@@ -212,7 +211,6 @@ function useAnimatedMessageTooltipButton({
   +style: AnimatedViewStyle,
   +threadColorOverride: ?Node,
   +isThreadColorDarkOverride: ?boolean,
-  +isAnimatingToSidebar: boolean,
 } {
   const chatContext = React.useContext(ChatContext);
   invariant(chatContext, 'chatContext should be set');
@@ -297,7 +295,6 @@ function useAnimatedMessageTooltipButton({
     style: messageContainerStyle,
     threadColorOverride,
     isThreadColorDarkOverride,
-    isAnimatingToSidebar: !!currentTransitionSidebarSourceID,
   };
 }
 
@@ -307,28 +304,6 @@ function getMessageTooltipKey(item: ChatMessageInfoItemWithHeight): string {
 
 function isMessageTooltipKey(key: string): boolean {
   return key.startsWith('tooltip|');
-}
-
-function useSidebarDrafts(
-  sourceMessage: ChatMessageInfoItemWithHeight,
-): { parentDraft: string, sidebarDraft: string } {
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const sidebarThreadInfo = React.useMemo(() => {
-    return getSidebarThreadInfo(sourceMessage, viewerID);
-  }, [sourceMessage, viewerID]);
-
-  const { draft: parentDraft } = useDrafts(sourceMessage.threadInfo.id);
-  const { draft: sidebarDraft } = useDrafts(sidebarThreadInfo?.id);
-
-  return React.useMemo(
-    () => ({
-      parentDraft,
-      sidebarDraft,
-    }),
-    [parentDraft, sidebarDraft],
-  );
 }
 
 function useOverlayPosition(item: ChatMessageInfoItemWithHeight) {
@@ -391,7 +366,6 @@ export {
   messageItemHeight,
   getMessageTooltipKey,
   isMessageTooltipKey,
-  useSidebarDrafts,
   useContentAndHeaderOpacity,
   useDeliveryIconOpacity,
 };
