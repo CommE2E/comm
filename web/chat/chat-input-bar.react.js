@@ -182,7 +182,12 @@ class ChatInputBar extends React.PureComponent<Props> {
       }
       joinButton = (
         <div className={css.joinButtonContainer}>
-          <a onClick={this.onClickJoin}>{buttonContent}</a>
+          <a
+            style={{ backgroundColor: `#${this.props.threadInfo.color}` }}
+            onClick={this.onClickJoin}
+          >
+            {buttonContent}
+          </a>
         </div>
       );
     }

@@ -76,8 +76,7 @@ div.joinButtonContainer > a {
   margin: 3px 12px;
   padding: 3px 0 5px 0;
   display: flex;
-  background-color: #44cc99;
-  border-radius: 5px;
+  border-radius: 8px;
   justify-content: center;
   cursor: pointer;
 }
