@@ -84,6 +84,7 @@ span.joinButtonText {
   font-size: 18px;
   color: white;
   text-align: center;
+  margin-inline: 6px;
 }
 span.explanation {
   color: #777777;

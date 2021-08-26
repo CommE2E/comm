@@ -1,7 +1,7 @@
 // @flow
 
 import { faFileImage } from '@fortawesome/free-regular-svg-icons';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
@@ -178,7 +178,12 @@ class ChatInputBar extends React.PureComponent<Props> {
           />
         );
       } else {
-        buttonContent = <span className={css.joinButtonText}>Join Thread</span>;
+        buttonContent = (
+          <div>
+            <FontAwesomeIcon color="white" icon={faPlus} />
+            <span className={css.joinButtonText}>Join Thread</span>
+          </div>
+        );
       }
       joinButton = (
         <div className={css.joinButtonContainer}>
