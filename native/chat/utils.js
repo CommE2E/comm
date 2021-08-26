@@ -109,8 +109,8 @@ function useMessageTargetParameters(
   sourceMessage: ChatMessageInfoItemWithHeight,
   initialCoordinates: LayoutCoordinates,
   messageListVerticalBounds: VerticalBounds,
-  currentDraftHeight: number,
-  targetDraftHeight: number,
+  currentInputBarHeight: number,
+  targetInputBarHeight: number,
 ): {
   +position: number,
   +color: string,
@@ -184,10 +184,12 @@ function useMessageTargetParameters(
     initialCoordinates.y +
     timestampHeight +
     authorNameComponentHeight +
-    currentDraftHeight;
+    currentInputBarHeight;
   return {
     position:
-      targetDistanceFromBottom + targetDraftHeight - currentDistanceFromBottom,
+      targetDistanceFromBottom +
+      targetInputBarHeight -
+      currentDistanceFromBottom,
     color: sidebarThreadInfo.color,
   };
 }
@@ -197,8 +199,8 @@ type AnimatedMessageArgs = {
   +initialCoordinates: LayoutCoordinates,
   +messageListVerticalBounds: VerticalBounds,
   +progress: Node,
-  +currentDraftHeight: number,
-  +targetDraftHeight: number,
+  +currentInputBarHeight: number,
+  +targetInputBarHeight: number,
 };
 
 function useAnimatedMessageTooltipButton({
@@ -206,8 +208,8 @@ function useAnimatedMessageTooltipButton({
   initialCoordinates,
   messageListVerticalBounds,
   progress,
-  currentDraftHeight,
-  targetDraftHeight,
+  currentInputBarHeight,
+  targetInputBarHeight,
 }: AnimatedMessageArgs): {
   +style: AnimatedViewStyle,
   +threadColorOverride: ?Node,
@@ -221,8 +223,8 @@ function useAnimatedMessageTooltipButton({
     sourceMessage,
     initialCoordinates,
     messageListVerticalBounds,
-    currentDraftHeight,
-    targetDraftHeight,
+    currentInputBarHeight,
+    targetInputBarHeight,
   );
 
   const chatContext = React.useContext(ChatContext);
