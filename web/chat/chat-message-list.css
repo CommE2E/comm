@@ -73,7 +73,7 @@ svg.sendButton {
   color: #88bb88;
 }
 div.joinButtonContainer > a {
-  margin: 3px 12px;
+  margin: 8px;
   padding: 3px 0 5px 0;
   display: flex;
   border-radius: 8px;

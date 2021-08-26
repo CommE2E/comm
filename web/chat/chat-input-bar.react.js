@@ -278,11 +278,7 @@ class ChatInputBar extends React.PureComponent<Props> {
         </span>
       );
     } else if (defaultMembersAreVoiced && canJoin) {
-      content = (
-        <span className={css.explanation}>
-          Join this thread to send messages.
-        </span>
-      );
+      content = null;
     } else {
       content = (
         <span className={css.explanation}>
