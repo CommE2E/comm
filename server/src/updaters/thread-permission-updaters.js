@@ -89,6 +89,13 @@ async function changeRole(
   const setNewMembersToUnread =
     options?.setNewMembersToUnread && intent === 'join';
 
+  if (userIDs.length === 0) {
+    return {
+      membershipRows: [],
+      relationshipChangeset: new RelationshipChangeset(),
+    };
+  }
+
   const membershipQuery = SQL`
     SELECT user, role, permissions, permissions_for_children
     FROM memberships
