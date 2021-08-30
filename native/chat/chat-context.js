@@ -20,6 +20,9 @@ export type RegisteredMeasurer = {
   +unregister: () => void,
 };
 
+export type SidebarAnimationType =
+  | 'fade_source_message'
+  | 'move_source_message';
 export type ChatContextType = {
   +registerMeasurer: () => RegisteredMeasurer,
   +currentTransitionSidebarSourceID: ?string,
@@ -27,6 +30,8 @@ export type ChatContextType = {
   +setChatInputBarHeight: (threadID: string, height: number) => mixed,
   +deleteChatInputBarHeight: (threadID: string) => mixed,
   +chatInputBarHeights: $ReadOnlyMap<string, number>,
+  +sidebarAnimationType: SidebarAnimationType,
+  +setSidebarAnimationType: (animationType: SidebarAnimationType) => mixed,
 };
 const ChatContext: React.Context<?ChatContextType> = React.createContext(null);
 

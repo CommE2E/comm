@@ -7,6 +7,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import type { ChatMessageItemWithHeight } from '../types/chat-types';
 import { ChatContext } from './chat-context';
+import type { SidebarAnimationType } from './chat-context';
 import ChatItemHeightMeasurer from './chat-item-height-measurer.react';
 
 type Props = {
@@ -121,6 +122,16 @@ function ChatContextProvider(props: Props): React.Node {
     [],
   );
 
+  const [
+    sidebarAnimationType,
+    setSidebarAnimationType,
+  ] = React.useState<SidebarAnimationType>('move_source_message');
+  const setSidebarAnimationTypeCallback = React.useCallback(
+    (animationType: SidebarAnimationType) =>
+      setSidebarAnimationType(animationType),
+    [],
+  );
+
   const contextValue = React.useMemo(
     () => ({
       registerMeasurer,
@@ -129,12 +140,16 @@ function ChatContextProvider(props: Props): React.Node {
       setChatInputBarHeight,
       deleteChatInputBarHeight,
       chatInputBarHeights: chatInputBarHeights.current,
+      sidebarAnimationType,
+      setSidebarAnimationType: setSidebarAnimationTypeCallback,
     }),
     [
       currentTransitionSidebarSourceID,
       deleteChatInputBarHeight,
       registerMeasurer,
       setChatInputBarHeight,
+      setSidebarAnimationTypeCallback,
+      sidebarAnimationType,
     ],
   );
 
