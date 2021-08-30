@@ -6,8 +6,10 @@ import Animated from 'react-native-reanimated';
 
 import { useMessageListData } from 'lib/selectors/chat-selectors';
 import { messageKey } from 'lib/shared/message-utils';
-import { colorIsDark } from 'lib/shared/thread-utils';
+import { colorIsDark, viewerIsMember } from 'lib/shared/thread-utils';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
+import { KeyboardContext } from '../keyboard/keyboard-state';
 import { OverlayContext } from '../navigation/overlay-context';
 import {
   MultimediaMessageTooltipModalRouteName,
@@ -110,17 +112,11 @@ function useMessageTargetParameters(
   messageListVerticalBounds: VerticalBounds,
   currentInputBarHeight: number,
   targetInputBarHeight: number,
+  sidebarThreadInfo: ?ThreadInfo,
 ): {
   +position: number,
   +color: string,
 } {
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const sidebarThreadInfo = React.useMemo(() => {
-    return getSidebarThreadInfo(sourceMessage, viewerID);
-  }, [sourceMessage, viewerID]);
-
   const messageListData = useMessageListData({
     searching: false,
     userInfoInputArray: [],
@@ -218,10 +214,38 @@ function useAnimatedMessageTooltipButton({
     currentTransitionSidebarSourceID,
     setCurrentTransitionSidebarSourceID,
     chatInputBarHeights,
+    setSidebarAnimationType,
   } = chatContext;
+
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+  const sidebarThreadInfo = React.useMemo(() => {
+    return getSidebarThreadInfo(sourceMessage, viewerID);
+  }, [sourceMessage, viewerID]);
 
   const currentInputBarHeight =
     chatInputBarHeights.get(sourceMessage.threadInfo.id) ?? 0;
+  const keyboardState = React.useContext(KeyboardContext);
+  const viewerIsSidebarMember = viewerIsMember(sidebarThreadInfo);
+  React.useEffect(() => {
+    const newSidebarAnimationType =
+      !currentInputBarHeight ||
+      !targetInputBarHeight ||
+      keyboardState?.keyboardShowing ||
+      !viewerIsSidebarMember
+        ? 'fade_source_message'
+        : 'move_source_message';
+    setSidebarAnimationType(newSidebarAnimationType);
+  }, [
+    currentInputBarHeight,
+    keyboardState?.keyboardShowing,
+    setSidebarAnimationType,
+    sidebarThreadInfo,
+    targetInputBarHeight,
+    viewerIsSidebarMember,
+  ]);
+
   const {
     position: targetPosition,
     color: targetColor,
@@ -231,6 +255,7 @@ function useAnimatedMessageTooltipButton({
     messageListVerticalBounds,
     currentInputBarHeight,
     targetInputBarHeight ?? currentInputBarHeight,
+    sidebarThreadInfo,
   );
 
   React.useEffect(() => {
