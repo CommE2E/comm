@@ -214,6 +214,7 @@ function useAnimatedMessageTooltipButton({
     currentTransitionSidebarSourceID,
     setCurrentTransitionSidebarSourceID,
     chatInputBarHeights,
+    sidebarAnimationType,
     setSidebarAnimationType,
   } = chatContext;
 
@@ -313,8 +314,13 @@ function useAnimatedMessageTooltipButton({
   const messageContainerStyle = React.useMemo(() => {
     return {
       bottom: currentTransitionSidebarSourceID ? bottom : 0,
+      opacity:
+        currentTransitionSidebarSourceID &&
+        sidebarAnimationType === 'fade_source_message'
+          ? 0
+          : 1,
     };
-  }, [bottom, currentTransitionSidebarSourceID]);
+  }, [bottom, currentTransitionSidebarSourceID, sidebarAnimationType]);
 
   return {
     style: messageContainerStyle,
@@ -352,9 +358,11 @@ function useContentAndHeaderOpacity(
   item: ChatMessageInfoItemWithHeight,
 ): number | Node {
   const overlayPosition = useOverlayPosition(item);
+  const chatContext = React.useContext(ChatContext);
   return React.useMemo(
     () =>
-      overlayPosition
+      overlayPosition &&
+      chatContext?.sidebarAnimationType === 'move_source_message'
         ? sub(
             1,
             interpolateNode(overlayPosition, {
@@ -364,7 +372,7 @@ function useContentAndHeaderOpacity(
             }),
           )
         : 1,
-    [overlayPosition],
+    [chatContext?.sidebarAnimationType, overlayPosition],
   );
 }
 
@@ -374,7 +382,11 @@ function useDeliveryIconOpacity(
   const overlayPosition = useOverlayPosition(item);
   const chatContext = React.useContext(ChatContext);
   return React.useMemo(() => {
-    if (!overlayPosition || !chatContext?.currentTransitionSidebarSourceID) {
+    if (
+      !overlayPosition ||
+      !chatContext?.currentTransitionSidebarSourceID ||
+      chatContext?.sidebarAnimationType === 'fade_source_message'
+    ) {
       return 1;
     }
     return interpolateNode(overlayPosition, {
@@ -382,7 +394,11 @@ function useDeliveryIconOpacity(
       outputRange: [1, 0, 0],
       extrapolate: Extrapolate.CLAMP,
     });
-  }, [chatContext?.currentTransitionSidebarSourceID, overlayPosition]);
+  }, [
+    chatContext?.currentTransitionSidebarSourceID,
+    chatContext?.sidebarAnimationType,
+    overlayPosition,
+  ]);
 }
 
 export {
