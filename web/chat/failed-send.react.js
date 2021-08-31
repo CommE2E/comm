@@ -79,10 +79,19 @@ class FailedSend extends React.PureComponent<Props> {
   }
 
   render() {
+    const threadColor = {
+      color: `#${this.props.threadInfo.color}`,
+    };
     return (
       <div className={css.failedSend}>
         <span>Delivery failed.</span>
-        <a onClick={this.retrySend} className={css.retrySend}>
+        <a
+          onClick={this.retrySend}
+          className={{
+            ...css.retrySend,
+            ...threadColor,
+          }}
+        >
           {'Retry?'}
         </a>
       </div>

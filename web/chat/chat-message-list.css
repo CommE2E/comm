@@ -324,7 +324,6 @@ span.deliveryFailed {
 }
 a.retrySend {
   padding: 0 3px;
-  color: #036aff;
   cursor: pointer;
 }
 a.multimediaUpload {

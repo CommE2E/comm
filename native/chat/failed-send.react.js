@@ -74,13 +74,23 @@ class FailedSend extends React.PureComponent<Props> {
     if (!this.props.rawMessageInfo) {
       return null;
     }
+    const threadColor = {
+      color: `#${this.props.item.threadInfo.color}`,
+    };
+
     return (
       <View style={this.props.styles.failedSendInfo}>
         <Text style={this.props.styles.deliveryFailed} numberOfLines={1}>
           DELIVERY FAILED.
         </Text>
         <Button onPress={this.retrySend}>
-          <Text style={this.props.styles.retrySend} numberOfLines={1}>
+          <Text
+            style={{
+              ...this.props.styles.retrySend,
+              ...threadColor,
+            }}
+            numberOfLines={1}
+          >
             {'RETRY?'}
           </Text>
         </Button>
@@ -133,7 +143,6 @@ const unboundStyles = {
     paddingTop: 5,
   },
   retrySend: {
-    color: 'link',
     paddingHorizontal: 3,
   },
 };
