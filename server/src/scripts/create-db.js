@@ -40,7 +40,8 @@ async function createTables() {
       creation_time bigint(20) NOT NULL,
       last_used bigint(20) NOT NULL,
       device_token varchar(255) DEFAULT NULL,
-      versions json DEFAULT NULL
+      versions json DEFAULT NULL,
+      \`primary\` TINYINT(1) DEFAULT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
     CREATE TABLE days (
