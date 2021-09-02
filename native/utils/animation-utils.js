@@ -181,13 +181,7 @@ function ratchetAlongWithKeyboardHeight(
     // succession with increasing height values. Only the final value has any
     // semblance of reality. I've encountered this when using the native
     // password management integration
-    ios: greaterThan(keyboardHeight, max(prevKeyboardHeightValue, 0)),
-    // Android's keyboard can resize due to user interaction sometimes. In these
-    // cases it can get quite big, in which case we don't want to update
-    default: and(
-      eq(prevKeyboardHeightValue, 0),
-      greaterThan(keyboardHeight, 0),
-    ),
+    default: greaterThan(keyboardHeight, max(prevKeyboardHeightValue, 0)),
   });
   const whenToReset = and(
     eq(keyboardHeight, 0),

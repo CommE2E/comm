@@ -87,17 +87,6 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
     }
 
     const { duration, easing, endCoordinates } = event;
-    if (
-      Platform.OS === 'android' &&
-      this.keyboardFrame?.height &&
-      endCoordinates.height
-    ) {
-      // On Android, we don't update the keyboard height when it changes. This
-      // is because the Android keyboard has pop-up menus and the such, and we
-      // want those pop-up menus to simply overlay over our screen instead of
-      // moving it up.
-      return;
-    }
     this.keyboardFrame = endCoordinates;
 
     const { keyboardState } = this.props;

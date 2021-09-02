@@ -244,10 +244,6 @@ const Chat = createChatNavigator<
 export default function ChatComponent(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const behavior = Platform.select({
-    android: 'height',
-    default: 'padding',
-  });
   const loggedIn = useSelector(isLoggedIn);
   let draftUpdater = null;
   if (loggedIn) {
@@ -270,7 +266,7 @@ export default function ChatComponent(props: { ... }): React.Node {
   return (
     <View style={styles.view}>
       <KeyboardAvoidingView
-        behavior={behavior}
+        behavior="padding"
         style={styles.keyboardAvoidingView}
       >
         <Chat.Navigator screenOptions={screenOptions}>
