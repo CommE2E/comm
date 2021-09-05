@@ -1,5 +1,6 @@
 #include "CommCoreModule.h"
 #include "DatabaseManager.h"
+#include "MessageStoreOperations.h"
 
 #include <folly/Optional.h>
 
@@ -225,15 +226,14 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
     jsi::Runtime &rt,
     const jsi::Array &operations) {
 
-  std::vector<int> removed_msg_ids;
-  std::vector<Message> replaced_msgs;
-  std::vector<int> threads_to_remove_msgs_from;
+  std::vector<std::shared_ptr<MessageStoreOperationBase>> messageStoreOps;
 
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
     auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
 
     if (op_type == REMOVE_OPERATION) {
+      std::vector<int> removed_msg_ids;
       auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
       auto msg_ids =
           payload_obj.getProperty(rt, "ids").asObject(rt).asArray(rt);
@@ -241,8 +241,11 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
         removed_msg_ids.push_back(std::stoi(
             msg_ids.getValueAtIndex(rt, msg_idx).asString(rt).utf8(rt)));
       }
+      messageStoreOps.push_back(std::make_shared<RemoveMessagesOperation>(
+          std::move(removed_msg_ids)));
 
     } else if (op_type == REMOVE_MSGS_FOR_THREADS_OPERATION) {
+      std::vector<int> threads_to_remove_msgs_from;
       auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
       auto thread_ids =
           payload_obj.getProperty(rt, "threadIDs").asObject(rt).asArray(rt);
@@ -251,9 +254,11 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
         threads_to_remove_msgs_from.push_back(std::stoi(
             thread_ids.getValueAtIndex(rt, thread_idx).asString(rt).utf8(rt)));
       }
+      messageStoreOps.push_back(
+          std::make_shared<RemoveMessagesForThreadsOperation>(
+              std::move(threads_to_remove_msgs_from)));
     } else if (op_type == REPLACE_OPERATION) {
       auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
-
       auto id = std::stoi(msg_obj.getProperty(rt, "id").asString(rt).utf8(rt));
       auto thread =
           std::stoi(msg_obj.getProperty(rt, "thread").asString(rt).utf8(rt));
@@ -267,21 +272,19 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       auto time =
           std::stoi(msg_obj.getProperty(rt, "time").asString(rt).utf8(rt));
       Message message = {id, thread, user, type, future_type, content, time};
-      replaced_msgs.push_back(message);
+      messageStoreOps.push_back(
+          std::make_shared<ReplaceMessageOperation>(std::move(message)));
     }
   }
 
   return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) mutable {
         taskType job = [=, &innerRt]() {
           std::string error;
           try {
-            DatabaseManager::getQueryExecutor().removeMessages(removed_msg_ids);
-            for (const auto &msg : replaced_msgs) {
-              DatabaseManager::getQueryExecutor().replaceMessage(msg);
+            for (const auto &operation : messageStoreOps) {
+              operation->execute();
             }
-            DatabaseManager::getQueryExecutor().removeMessagesForThreads(
-                threads_to_remove_msgs_from);
           } catch (std::system_error &e) {
             error = e.what();
           }
