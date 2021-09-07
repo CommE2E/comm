@@ -266,7 +266,7 @@ std::vector<Message> SQLiteQueryExecutor::getAllMessages() const {
   return SQLiteQueryExecutor::getStorage().get_all<Message>();
 }
 
-void SQLiteQueryExecutor::removeMessages(std::vector<int> ids) const {
+void SQLiteQueryExecutor::removeMessages(std::vector<std::string> ids) const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>(
       where(in(&Message::id, ids)));
 }
