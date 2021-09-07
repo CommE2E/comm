@@ -281,6 +281,16 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       auto to = rekey_payload.getProperty(rt, "to").asString(rt).utf8(rt);
       messageStoreOps.push_back(std::make_shared<RekeyMessageOperation>(
           std::move(from), std::move(to)));
+    } else {
+      return createPromiseAsJSIValue(
+          rt,
+          [this,
+           op_type](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+            this->jsInvoker_->invokeAsync([promise, &innerRt, op_type]() {
+              promise->reject(
+                  std::string{"unsupported operation: "}.append(op_type));
+            });
+          });
     }
   }
 
