@@ -5,32 +5,15 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 
-type SQLiteMessageInfo = {
-  +id: string,
-  +thread: string,
-  +user: string,
-  +type: string,
-  +future_type: string,
-  +content: string,
-  +time: string,
-};
+import type {
+  SQLiteMessageInfo,
+  SQLiteMessageStoreOperation,
+} from 'lib/types/message-types';
 
 type SQLiteDraftInfo = {
   +key: string,
   +text: string,
 };
-
-type RemoveMessageOperation = {
-  +type: 'remove',
-  +payload: { +id: string },
-};
-
-type ReplaceMessageOperation = {
-  +type: 'replace',
-  +payload: SQLiteMessageInfo,
-};
-
-type MessageStoreOperation = RemoveMessageOperation | ReplaceMessageOperation;
 
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
@@ -41,7 +24,7 @@ export interface Spec extends TurboModule {
   +removeAllMessages: () => Promise<void>;
   +getAllMessages: () => Promise<$ReadOnlyArray<SQLiteMessageInfo>>;
   +processMessageStoreOperations: (
-    operations: $ReadOnlyArray<MessageStoreOperation>,
+    operations: $ReadOnlyArray<SQLiteMessageStoreOperation>,
   ) => Promise<void>;
   +initializeCryptoAccount: (userId: string) => Promise<string>;
   +getUserPublicKey: (userId: string) => Promise<string>;
