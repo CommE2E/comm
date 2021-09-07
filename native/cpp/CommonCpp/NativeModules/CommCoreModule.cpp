@@ -218,6 +218,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
       });
 }
 
+#define REKEY_OPERATION "rekey"
 #define REMOVE_OPERATION "remove"
 #define REPLACE_OPERATION "replace"
 #define REMOVE_MSGS_FOR_THREADS_OPERATION "remove_messages_for_threads"
@@ -274,6 +275,12 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       Message message = {id, thread, user, type, future_type, content, time};
       messageStoreOps.push_back(
           std::make_shared<ReplaceMessageOperation>(std::move(message)));
+    } else if (op_type == REKEY_OPERATION) {
+      auto rekey_payload = op.getProperty(rt, "payload").asObject(rt);
+      auto from = rekey_payload.getProperty(rt, "from").asString(rt).utf8(rt);
+      auto to = rekey_payload.getProperty(rt, "to").asString(rt).utf8(rt);
+      messageStoreOps.push_back(std::make_shared<RekeyMessageOperation>(
+          std::move(from), std::move(to)));
     }
   }
 

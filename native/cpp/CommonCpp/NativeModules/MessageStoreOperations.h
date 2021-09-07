@@ -53,4 +53,20 @@ private:
   Message msg_;
 };
 
+class RekeyMessageOperation : public MessageStoreOperationBase {
+public:
+  RekeyMessageOperation(std::string from, std::string to)
+      : from_{from}, to_{to} {
+  }
+  virtual ~RekeyMessageOperation() = default;
+
+  void virtual execute() override {
+    DatabaseManager::getQueryExecutor().rekeyMessage(from_, to_);
+  }
+
+private:
+  std::string from_;
+  std::string to_;
+};
+
 } // namespace comm
