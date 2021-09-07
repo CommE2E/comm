@@ -108,7 +108,7 @@ bool drop_messages_table(sqlite3 *db) {
 bool recreate_messages_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS messages ( "
-      "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
+      "id TEXT UNIQUE PRIMARY KEY NOT NULL, "
       "thread INTEGER NOT NULL, "
       "user INTEGER NOT NULL, "
       "type INTEGER NOT NULL, "
@@ -147,9 +147,9 @@ std::vector<std::pair<uint, MigrationFunction>> migrations{{
     {2, rename_threadID_to_key},
     {4, create_persist_account_table},
     {5, create_persist_sessions_table},
-    {6, drop_messages_table},
-    {7, recreate_messages_table},
-    {8, create_messages_idx_thread_time},
+    {9, drop_messages_table},
+    {10, recreate_messages_table},
+    {11, create_messages_idx_thread_time},
 }};
 
 void SQLiteQueryExecutor::migrate() {

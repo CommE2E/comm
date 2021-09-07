@@ -5,7 +5,7 @@
 namespace comm {
 
 struct Message {
-  int id;
+  std::string id;
   int thread;
   int user;
   int type;

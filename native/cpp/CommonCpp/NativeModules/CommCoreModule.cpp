@@ -197,7 +197,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
             size_t writeIndex = 0;
             for (Message message : messagesVector) {
               auto jsiMessage = jsi::Object(innerRt);
-              jsiMessage.setProperty(innerRt, "id", std::to_string(message.id));
+              jsiMessage.setProperty(innerRt, "id", message.id);
               jsiMessage.setProperty(
                   innerRt, "thread", std::to_string(message.thread));
               jsiMessage.setProperty(
@@ -259,7 +259,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
               std::move(threads_to_remove_msgs_from)));
     } else if (op_type == REPLACE_OPERATION) {
       auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
-      auto id = std::stoi(msg_obj.getProperty(rt, "id").asString(rt).utf8(rt));
+      auto id = msg_obj.getProperty(rt, "id").asString(rt).utf8(rt);
       auto thread =
           std::stoi(msg_obj.getProperty(rt, "thread").asString(rt).utf8(rt));
       auto user =
