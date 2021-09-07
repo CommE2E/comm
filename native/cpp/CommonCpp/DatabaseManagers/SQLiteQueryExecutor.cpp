@@ -281,6 +281,13 @@ void SQLiteQueryExecutor::replaceMessage(Message message) const {
   SQLiteQueryExecutor::getStorage().replace(message);
 }
 
+void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
+  auto msg = SQLiteQueryExecutor::getStorage().get<Message>(from);
+  msg.id = to;
+  SQLiteQueryExecutor::getStorage().replace(msg);
+  SQLiteQueryExecutor::getStorage().remove<Message>(from);
+}
+
 std::vector<OlmPersistSession>
 SQLiteQueryExecutor::getOlmPersistSessionsData() const {
   return SQLiteQueryExecutor::getStorage().get_all<OlmPersistSession>();

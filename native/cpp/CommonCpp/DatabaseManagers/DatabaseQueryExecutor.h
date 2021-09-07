@@ -32,6 +32,7 @@ public:
   virtual void removeMessages(std::vector<int> ids) const = 0;
   virtual void removeMessagesForThreads(std::vector<int> threadIDs) const = 0;
   virtual void replaceMessage(Message message) const = 0;
+  virtual void rekeyMessage(std::string from, std::string to) const = 0;
   virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;
   virtual folly::Optional<std::string> getOlmPersistAccountData() const = 0;
   virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
