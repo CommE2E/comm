@@ -351,7 +351,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         );
       } else if (e.message === 'client_version_unsupported') {
         const app = Platform.select({
-          ios: 'Testflight',
+          ios: 'App Store',
           android: 'Play Store',
         });
         Alert.alert(

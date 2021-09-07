@@ -304,7 +304,7 @@ function sessionInvalidationAlert(payload: SetSessionPayload) {
   }
   if (payload.error === 'client_version_unsupported') {
     const app = Platform.select({
-      ios: 'Testflight',
+      ios: 'App Store',
       android: 'Play Store',
     });
     Alert.alert(

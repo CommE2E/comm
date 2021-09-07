@@ -276,7 +276,7 @@ class LogInPanel extends React.PureComponent<Props> {
         );
       } else if (e.message === 'client_version_unsupported') {
         const app = Platform.select({
-          ios: 'Testflight',
+          ios: 'App Store',
           android: 'Play Store',
         });
         Alert.alert(
