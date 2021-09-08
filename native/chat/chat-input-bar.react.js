@@ -904,9 +904,10 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo
     const { navigation, route, ...restProps } = props;
     const keyboardState = React.useContext(KeyboardContext);
 
+    const { threadInfo } = props;
     const imagePastedCallback = React.useCallback(
       imagePastedEvent => {
-        if (props.threadInfo.id !== imagePastedEvent['threadID']) {
+        if (threadInfo.id !== imagePastedEvent.threadID) {
           return;
         }
         const pastedImage: PhotoPaste = {
@@ -921,15 +922,15 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo
           sendTime: 0,
           retries: 0,
         };
-        props.navigation.navigate({
+        navigation.navigate({
           name: ImagePasteModalRouteName,
           params: {
             imagePasteStagingInfo: pastedImage,
-            thread: props.threadInfo,
+            thread: threadInfo,
           },
         });
       },
-      [props.navigation, props.threadInfo],
+      [navigation, threadInfo],
     );
 
     React.useEffect(() => {
@@ -946,27 +947,27 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo
     const onInputBarLayout = React.useCallback(
       (event: LayoutEvent) => {
         const { height } = event.nativeEvent.layout;
-        setChatInputBarHeight(props.threadInfo.id, height);
+        setChatInputBarHeight(threadInfo.id, height);
       },
-      [props.threadInfo.id, setChatInputBarHeight],
+      [threadInfo.id, setChatInputBarHeight],
     );
 
     React.useEffect(() => {
       return () => {
-        deleteChatInputBarHeight(props.threadInfo.id);
+        deleteChatInputBarHeight(threadInfo.id);
       };
-    }, [deleteChatInputBarHeight, props.threadInfo.id]);
+    }, [deleteChatInputBarHeight, threadInfo.id]);
 
     const openCamera = React.useCallback(() => {
       keyboardState?.dismissKeyboard();
-      this.props.navigation.navigate({
+      navigation.navigate({
         name: CameraModalRouteName,
         params: {
-          presentedFrom: this.props.route.key,
-          thread: this.props.threadInfo,
+          presentedFrom: route.key,
+          thread: threadInfo,
         },
       });
-    }, [keyboardState]);
+    }, [keyboardState, navigation, route.key, threadInfo]);
 
     return (
       <ConnectedChatInputBarBase
