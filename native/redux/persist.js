@@ -8,6 +8,7 @@ import { createMigrate } from 'redux-persist';
 
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
+import { getContainingThreadID, getCommunity } from 'lib/shared/thread-utils';
 import { unshimMessageStore } from 'lib/shared/unshim-utils';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
@@ -261,6 +262,50 @@ const migrations = {
       ],
     },
   }),
+  [28]: state => {
+    const threadParentToChildren = {};
+    for (const threadID in state.threadStore.threadInfos) {
+      const threadInfo = state.threadStore.threadInfos[threadID];
+      const parentThreadInfo = threadInfo.parentThreadID
+        ? state.threadStore.threadInfos[threadInfo.parentThreadID]
+        : null;
+      const parentIndex = parentThreadInfo ? parentThreadInfo.id : '-1';
+      if (!threadParentToChildren[parentIndex]) {
+        threadParentToChildren[parentIndex] = [];
+      }
+      threadParentToChildren[parentIndex].push(threadID);
+    }
+
+    const rootIDs = threadParentToChildren['-1'];
+    if (!rootIDs) {
+      // This should never happen, but if it somehow does we'll let the state
+      // check mechanism resolve it...
+      return state;
+    }
+
+    const threadInfos = {};
+    const stack = [...rootIDs];
+    while (stack.length > 0) {
+      const threadID = stack.shift();
+      const threadInfo = state.threadStore.threadInfos[threadID];
+      const parentThreadInfo = threadInfo.parentThreadID
+        ? threadInfos[threadInfo.parentThreadID]
+        : null;
+      threadInfos[threadID] = {
+        ...threadInfo,
+        containingThreadID: getContainingThreadID(
+          parentThreadInfo,
+          threadInfo.type,
+        ),
+        community: getCommunity(parentThreadInfo),
+      };
+      const children = threadParentToChildren[threadID];
+      if (children) {
+        stack.push(...children);
+      }
+    }
+    return { ...state, threadStore: { ...state.threadStore, threadInfos } };
+  },
 };
 
 const persistConfig = {
