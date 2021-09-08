@@ -629,15 +629,15 @@ async function updateThread(
     membershipRows.push(...recalculateMembershipRows);
     relationshipChangeset.addAll(recalculateRelationshipChangeset);
   }
-  let membersGotAdded = false;
+  let addedMemberIDs;
   if (addMembersChangeset) {
     const {
       membershipRows: addMembersMembershipRows,
       relationshipChangeset: addMembersRelationshipChangeset,
     } = addMembersChangeset;
-    membersGotAdded = addMembersMembershipRows.some(
-      row => row.operation === 'save' && Number(row.role) > 0,
-    );
+    addedMemberIDs = addMembersMembershipRows
+      .filter(row => row.operation === 'save' && Number(row.role) > 0)
+      .map(row => row.userID);
     membershipRows.push(...addMembersMembershipRows);
     relationshipChangeset.addAll(addMembersRelationshipChangeset);
   }
@@ -671,13 +671,13 @@ async function updateThread(
         value: newValue,
       });
     }
-    if (newMemberIDs && membersGotAdded) {
+    if (addedMemberIDs && addedMemberIDs.length > 0) {
       messageDatas.push({
         type: messageTypes.ADD_MEMBERS,
         threadID: request.threadID,
         creatorID: viewer.userID,
         time,
-        addedUserIDs: newMemberIDs,
+        addedUserIDs: addedMemberIDs,
       });
     }
     newMessageInfos = await createMessages(viewer, messageDatas);
