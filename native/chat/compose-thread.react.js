@@ -70,6 +70,7 @@ type Props = {
   ...BaseProps,
   // Redux state
   +parentThreadInfo: ?ThreadInfo,
+  +communityThreadInfo: ?ThreadInfo,
   +loadingStatus: LoadingStatus,
   +otherUserInfos: { +[id: string]: AccountUserInfo },
   +userSearchIndex: SearchIndex,
@@ -148,6 +149,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (propsAndState: PropsAndState) =>
       ComposeThread.getParentThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.communityThreadInfo,
     (propsAndState: PropsAndState) => propsAndState.route.params.threadType,
     (
       text: string,
@@ -155,6 +157,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
       searchIndex: SearchIndex,
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
       parentThreadInfo: ?ThreadInfo,
+      communityThreadInfo: ?ThreadInfo,
       threadType: ?ThreadType,
     ) =>
       getPotentialMemberItems(
@@ -163,6 +166,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
         searchIndex,
         userInfoInputArray.map(userInfo => userInfo.id),
         parentThreadInfo,
+        communityThreadInfo,
         threadType,
       ),
   );
@@ -449,6 +453,10 @@ const ConnectedComposeThread: React.ComponentType<BaseProps> = React.memo<BasePr
     const reduxParentThreadInfo = useSelector(state =>
       parentThreadInfoID ? threadInfoSelector(state)[parentThreadInfoID] : null,
     );
+    const community = props.route.params.parentThreadInfo?.community;
+    const communityThreadInfo = useSelector(state =>
+      community ? threadInfoSelector(state)[community] : null,
+    );
     const loadingStatus = useSelector(
       createLoadingStatusSelector(newThreadActionTypes),
     );
@@ -466,6 +474,7 @@ const ConnectedComposeThread: React.ComponentType<BaseProps> = React.memo<BasePr
       <ComposeThread
         {...props}
         parentThreadInfo={reduxParentThreadInfo}
+        communityThreadInfo={communityThreadInfo}
         loadingStatus={loadingStatus}
         otherUserInfos={otherUserInfos}
         userSearchIndex={userSearchIndex}

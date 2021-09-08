@@ -61,6 +61,7 @@ type Props = {
   ...BaseProps,
   // Redux state
   +parentThreadInfo: ?ThreadInfo,
+  +communityThreadInfo: ?ThreadInfo,
   +otherUserInfos: { [id: string]: AccountUserInfo },
   +userSearchIndex: SearchIndex,
   +changeThreadSettingsLoadingStatus: LoadingStatus,
@@ -91,6 +92,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (propsAndState: PropsAndState) => propsAndState.route.params.threadInfo,
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
+    (propsAndState: PropsAndState) => propsAndState.communityThreadInfo,
     (
       text: string,
       userInfos: { [id: string]: AccountUserInfo },
@@ -98,6 +100,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
       threadInfo: ThreadInfo,
       parentThreadInfo: ?ThreadInfo,
+      communityThreadInfo: ?ThreadInfo,
     ) => {
       const excludeUserIDs = userInfoInputArray
         .map(userInfo => userInfo.id)
@@ -109,6 +112,7 @@ class AddUsersModal extends React.PureComponent<Props, State> {
         searchIndex,
         excludeUserIDs,
         parentThreadInfo,
+        communityThreadInfo,
         threadInfo.type,
       );
     },
@@ -308,10 +312,13 @@ const unboundStyles = {
 
 const ConnectedAddUsersModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedAddUsersModal(props: BaseProps) {
-    const { parentThreadID } = props.route.params.threadInfo;
+    const { parentThreadID, community } = props.route.params.threadInfo;
 
     const parentThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+    );
+    const communityThreadInfo = useSelector(state =>
+      community ? threadInfoSelector(state)[community] : null,
     );
     const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
     const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
@@ -325,6 +332,7 @@ const ConnectedAddUsersModal: React.ComponentType<BaseProps> = React.memo<BasePr
       <AddUsersModal
         {...props}
         parentThreadInfo={parentThreadInfo}
+        communityThreadInfo={communityThreadInfo}
         otherUserInfos={otherUserInfos}
         userSearchIndex={userSearchIndex}
         changeThreadSettingsLoadingStatus={changeThreadSettingsLoadingStatus}
