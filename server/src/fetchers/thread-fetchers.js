@@ -1,14 +1,17 @@
 // @flow
 
 import { getAllThreadPermissions } from 'lib/permissions/thread-permissions';
-import { rawThreadInfoFromServerThreadInfo } from 'lib/shared/thread-utils';
+import {
+  rawThreadInfoFromServerThreadInfo,
+  getContainingThreadID,
+  getCommunity,
+} from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import {
   threadTypes,
   type ThreadType,
   type RawThreadInfo,
   type ServerThreadInfo,
-  threadTypeIsCommunityRoot,
 } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 
@@ -198,36 +201,6 @@ async function determineThreadAncestry(
   return { containingThreadID, community, depth };
 }
 
-function getContainingThreadID(
-  parentThreadInfo: ?ServerThreadInfo,
-  threadType: ThreadType,
-): ?string {
-  if (!parentThreadInfo) {
-    return null;
-  }
-  if (threadType === threadTypes.SIDEBAR) {
-    return parentThreadInfo.id;
-  }
-  if (!parentThreadInfo.containingThreadID) {
-    return parentThreadInfo.id;
-  }
-  return parentThreadInfo.containingThreadID;
-}
-
-function getCommunity(parentThreadInfo: ?ServerThreadInfo): ?string {
-  if (!parentThreadInfo) {
-    return null;
-  }
-  const { id, community, type } = parentThreadInfo;
-  if (community !== null && community !== undefined) {
-    return community;
-  }
-  if (threadTypeIsCommunityRoot(type)) {
-    return id;
-  }
-  return null;
-}
-
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
@@ -235,6 +208,4 @@ export {
   verifyThreadIDs,
   verifyThreadID,
   determineThreadAncestry,
-  getCommunity,
-  getContainingThreadID,
 };
