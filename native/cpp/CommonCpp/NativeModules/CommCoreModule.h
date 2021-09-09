@@ -39,6 +39,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   getUserPublicKey(jsi::Runtime &rt, const jsi::String &userId) override;
   jsi::Value
   getUserOneTimeKeys(jsi::Runtime &rt, const jsi::String &userId) override;
+  void scheduleOrRun(
+      const std::unique_ptr<WorkerThread> &thread,
+      const taskType &task);
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
