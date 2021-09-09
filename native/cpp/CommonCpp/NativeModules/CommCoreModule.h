@@ -12,8 +12,8 @@ namespace comm {
 namespace jsi = facebook::jsi;
 
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
-  WorkerThread databaseThread;
-  WorkerThread cryptoThread;
+  std::unique_ptr<WorkerThread> databaseThread;
+  std::unique_ptr<WorkerThread> cryptoThread;
 
   CommSecureStore secureStore;
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";

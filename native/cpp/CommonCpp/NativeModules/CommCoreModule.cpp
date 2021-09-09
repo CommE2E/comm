@@ -31,7 +31,7 @@ jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
             promise->resolve(std::move(draft));
           });
         };
-        this->databaseThread.scheduleTask(job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -56,7 +56,7 @@ CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
             }
           });
         };
-        this->databaseThread.scheduleTask(job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -86,7 +86,7 @@ jsi::Value CommCoreModule::moveDraft(
             }
           });
         };
-        this->databaseThread.scheduleTask(job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -126,7 +126,7 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
             promise->resolve(std::move(jsiDrafts));
           });
         };
-        this->databaseThread.scheduleTask(job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -148,7 +148,7 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
             promise->resolve(jsi::Value::undefined());
           });
         };
-        this->databaseThread.scheduleTask(job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -170,7 +170,7 @@ jsi::Value CommCoreModule::removeAllMessages(jsi::Runtime &rt) {
             promise->resolve(jsi::Value::undefined());
           });
         };
-        this->databaseThread.scheduleTask(job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -214,7 +214,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
             promise->resolve(std::move(jsiMessages));
           });
         };
-        this->databaseThread.scheduleTask(job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -313,7 +313,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
             }
           });
         };
-        this->databaseThread.scheduleTask(job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -331,7 +331,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread.scheduleTask([=, &innerRt]() {
+        this->databaseThread->scheduleTask([=, &innerRt]() {
           crypto::Persist persist;
           std::string error;
           try {
@@ -356,14 +356,14 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
             error = e.what();
           }
 
-          this->cryptoThread.scheduleTask([=, &innerRt]() {
+          this->cryptoThread->scheduleTask([=, &innerRt]() {
             std::string error;
             this->cryptoModule.reset(new crypto::CryptoModule(
                 userIdStr, storedSecretKey.value(), persist));
             if (persist.isEmpty()) {
               crypto::Persist newPersist =
                   this->cryptoModule->storeAsB64(storedSecretKey.value());
-              this->databaseThread.scheduleTask([=, &innerRt]() {
+              this->databaseThread->scheduleTask([=, &innerRt]() {
                 std::string error;
                 try {
                   DatabaseManager::getQueryExecutor().storeOlmPersistData(
@@ -417,7 +417,7 @@ CommCoreModule::getUserPublicKey(jsi::Runtime &rt, const jsi::String &userId) {
             promise->resolve(jsi::String::createFromUtf8(innerRt, result));
           });
         };
-        this->cryptoThread.scheduleTask(job);
+        this->cryptoThread->scheduleTask(job);
       });
 }
 
@@ -443,14 +443,14 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(
             promise->resolve(jsi::String::createFromUtf8(innerRt, result));
           });
         };
-        this->cryptoThread.scheduleTask(job);
+        this->cryptoThread->scheduleTask(job);
       });
 }
 
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
-      databaseThread("database"),
-      cryptoThread("crypto"){};
+      databaseThread(std::make_unique<WorkerThread>("database")),
+      cryptoThread(std::make_unique<WorkerThread>("crypto")){};
 
 } // namespace comm
