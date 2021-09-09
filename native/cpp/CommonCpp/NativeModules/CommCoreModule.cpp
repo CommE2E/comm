@@ -447,10 +447,21 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(
       });
 }
 
+void CommCoreModule::initializeThreads() {
+  if (this->databaseThread == nullptr) {
+    this->databaseThread = std::make_unique<WorkerThread>("database");
+  }
+  if (this->cryptoThread == nullptr) {
+    this->cryptoThread = std::make_unique<WorkerThread>("crypto");
+  }
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
-      databaseThread(std::make_unique<WorkerThread>("database")),
-      cryptoThread(std::make_unique<WorkerThread>("crypto")){};
+      databaseThread(nullptr),
+      cryptoThread(nullptr) {
+  this->initializeThreads();
+};
 
 } // namespace comm
