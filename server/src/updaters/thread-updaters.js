@@ -394,7 +394,7 @@ async function updateThread(
     ) {
       checks.push({
         check: 'permission',
-        permission: threadPermissions.EDIT_THREAD,
+        permission: threadPermissions.EDIT_THREAD_NAME,
       });
     }
     if (parentThreadID !== undefined || sqlUpdate.type !== undefined) {

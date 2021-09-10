@@ -356,7 +356,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     ) => {
       const canEditThread = threadHasPermission(
         threadInfo,
-        threadPermissions.EDIT_THREAD,
+        threadPermissions.EDIT_THREAD_NAME,
       );
       const canChangeSettings = canEditThread && canStartEditing;
 

@@ -135,7 +135,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   hasPermissionForTab(threadInfo: ThreadInfo, tab: TabType) {
     if (tab === 'general') {
-      return threadHasPermission(threadInfo, threadPermissions.EDIT_THREAD);
+      return threadHasPermission(
+        threadInfo,
+        threadPermissions.EDIT_THREAD_NAME,
+      );
     } else if (tab === 'privacy') {
       return threadHasPermission(
         threadInfo,

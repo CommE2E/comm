@@ -80,7 +80,7 @@ const OPEN_TOP_LEVEL_DESCENDANT = DESCENDANT + OPEN_TOP_LEVEL;
 const voicedPermissions = {
   [threadPermissions.VOICED]: true,
   [threadPermissions.EDIT_ENTRIES]: true,
-  [threadPermissions.EDIT_THREAD]: true,
+  [threadPermissions.EDIT_THREAD_NAME]: true,
   [threadPermissions.CREATE_SUBTHREADS]: true,
   [threadPermissions.ADD_MEMBERS]: true,
 };
@@ -127,7 +127,7 @@ function getRolePermissionBlobsForCommunity(
   const childJoinThread = CHILD + threadPermissions.JOIN_THREAD;
   const descendantVoiced = DESCENDANT + threadPermissions.VOICED;
   const descendantEditEntries = DESCENDANT + threadPermissions.EDIT_ENTRIES;
-  const descendantEditThread = DESCENDANT + threadPermissions.EDIT_THREAD;
+  const descendantEditThread = DESCENDANT + threadPermissions.EDIT_THREAD_NAME;
   const topLevelDescendantCreateSubthreads =
     TOP_LEVEL_DESCENDANT + threadPermissions.CREATE_SUBTHREADS;
   const topLevelDescendantCreateSidebars =
@@ -144,7 +144,7 @@ function getRolePermissionBlobsForCommunity(
     [threadPermissions.VISIBLE]: true,
     [threadPermissions.VOICED]: true,
     [threadPermissions.EDIT_ENTRIES]: true,
-    [threadPermissions.EDIT_THREAD]: true,
+    [threadPermissions.EDIT_THREAD_NAME]: true,
     [threadPermissions.CREATE_SUBTHREADS]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
@@ -187,7 +187,7 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
   if (threadType === threadTypes.SIDEBAR) {
     const memberPermissions = {
       [threadPermissions.VOICED]: true,
-      [threadPermissions.EDIT_THREAD]: true,
+      [threadPermissions.EDIT_THREAD_NAME]: true,
       [threadPermissions.ADD_MEMBERS]: true,
       [threadPermissions.EDIT_PERMISSIONS]: true,
       [threadPermissions.REMOVE_MEMBERS]: true,
@@ -225,7 +225,7 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
         [threadPermissions.VISIBLE]: true,
         [threadPermissions.VOICED]: true,
         [threadPermissions.EDIT_ENTRIES]: true,
-        [threadPermissions.EDIT_THREAD]: true,
+        [threadPermissions.EDIT_THREAD_NAME]: true,
         [threadPermissions.CREATE_SIDEBARS]: true,
         [openDescendantKnowOf]: true,
         [openDescendantVisible]: true,

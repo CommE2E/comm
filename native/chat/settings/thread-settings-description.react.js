@@ -137,7 +137,7 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
 
     const canEditThread = threadHasPermission(
       this.props.threadInfo,
-      threadPermissions.EDIT_THREAD,
+      threadPermissions.EDIT_THREAD_NAME,
     );
     const { panelIosHighlightUnderlay } = this.props.colors;
     if (canEditThread) {
