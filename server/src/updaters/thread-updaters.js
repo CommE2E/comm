@@ -387,14 +387,22 @@ async function updateThread(
       return;
     }
     const checks = [];
-    if (
-      sqlUpdate.name !== undefined ||
-      sqlUpdate.description !== undefined ||
-      sqlUpdate.color !== undefined
-    ) {
+    if (sqlUpdate.name !== undefined) {
       checks.push({
         check: 'permission',
         permission: threadPermissions.EDIT_THREAD_NAME,
+      });
+    }
+    if (sqlUpdate.description !== undefined) {
+      checks.push({
+        check: 'permission',
+        permission: threadPermissions.EDIT_THREAD_DESCRIPTION,
+      });
+    }
+    if (sqlUpdate.color !== undefined) {
+      checks.push({
+        check: 'permission',
+        permission: threadPermissions.EDIT_THREAD_COLOR,
       });
     }
     if (parentThreadID !== undefined || sqlUpdate.type !== undefined) {
