@@ -135,12 +135,12 @@ class ThreadSettingsDescription extends React.PureComponent<Props> {
       );
     }
 
-    const canEditThread = threadHasPermission(
+    const canEditThreadDescription = threadHasPermission(
       this.props.threadInfo,
-      threadPermissions.EDIT_THREAD_NAME,
+      threadPermissions.EDIT_THREAD_DESCRIPTION,
     );
     const { panelIosHighlightUnderlay } = this.props.colors;
-    if (canEditThread) {
+    if (canEditThreadDescription) {
       return (
         <View>
           <ThreadSettingsCategoryHeader type="outline" title="Description" />

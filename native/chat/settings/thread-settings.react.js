@@ -354,11 +354,21 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       navigate: ThreadSettingsNavigate,
       routeKey: string,
     ) => {
-      const canEditThread = threadHasPermission(
+      const canEditThreadName = threadHasPermission(
         threadInfo,
         threadPermissions.EDIT_THREAD_NAME,
       );
-      const canChangeSettings = canEditThread && canStartEditing;
+      const canEditThreadDescription = threadHasPermission(
+        threadInfo,
+        threadPermissions.EDIT_THREAD_DESCRIPTION,
+      );
+      const canEditThreadColor = threadHasPermission(
+        threadInfo,
+        threadPermissions.EDIT_THREAD_COLOR,
+      );
+      const canChangeName = canEditThreadName && canStartEditing;
+      const canChangeDescription = canEditThreadDescription && canStartEditing;
+      const canChangeColor = canEditThreadColor && canStartEditing;
 
       const listData: ChatSettingsItem[] = [];
       listData.push({
@@ -372,14 +382,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         key: 'name',
         threadInfo,
         nameEditValue,
-        canChangeSettings,
+        canChangeSettings: canChangeName,
       });
       listData.push({
         itemType: 'color',
         key: 'color',
         threadInfo,
         colorEditValue,
-        canChangeSettings,
+        canChangeSettings: canChangeColor,
         navigate,
         threadSettingsRouteKey: routeKey,
       });
@@ -392,7 +402,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       if (
         (descriptionEditValue !== null && descriptionEditValue !== undefined) ||
         threadInfo.description ||
-        canEditThread
+        canEditThreadDescription
       ) {
         listData.push({
           itemType: 'description',
@@ -400,7 +410,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           threadInfo,
           descriptionEditValue,
           descriptionTextHeight,
-          canChangeSettings,
+          canChangeSettings: canChangeDescription,
         });
       }
 
