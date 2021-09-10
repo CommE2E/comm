@@ -18,6 +18,7 @@ import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultGlobalThemeInfo } from '../types/themes';
+import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration';
 import type { AppState } from './state-types';
 
 const migrations = {
@@ -305,6 +306,19 @@ const migrations = {
       }
     }
     return { ...state, threadStore: { ...state.threadStore, threadInfos } };
+  },
+  [29]: (state: AppState) => {
+    const updatedThreadInfos = migrateThreadStoreForEditThreadPermissions(
+      state.threadStore.threadInfos,
+    );
+
+    return {
+      ...state,
+      threadStore: {
+        ...state.threadStore,
+        threadInfos: updatedThreadInfos,
+      },
+    };
   },
 };
 
