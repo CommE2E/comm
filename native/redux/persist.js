@@ -320,12 +320,12 @@ const persistConfig = {
     'frozen',
   ],
   debug: __DEV__,
-  version: 27,
+  version: 28,
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
 
-const codeVersion = 101;
+const codeVersion = 102;
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to
