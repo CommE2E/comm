@@ -1,5 +1,5 @@
+#include "../DatabaseManagers/entities/Message.h"
 #include "DatabaseManager.h"
-#include "Message.h"
 #include <vector>
 
 namespace comm {
