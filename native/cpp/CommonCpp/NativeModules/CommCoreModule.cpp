@@ -271,7 +271,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
           msg_obj.getProperty(rt, "future_type").asString(rt).utf8(rt));
       auto content = msg_obj.getProperty(rt, "content").asString(rt).utf8(rt);
       auto time =
-          std::stoi(msg_obj.getProperty(rt, "time").asString(rt).utf8(rt));
+          std::stoll(msg_obj.getProperty(rt, "time").asString(rt).utf8(rt));
       Message message = {id, thread, user, type, future_type, content, time};
       messageStoreOps.push_back(
           std::make_shared<ReplaceMessageOperation>(std::move(message)));
