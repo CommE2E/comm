@@ -221,10 +221,10 @@ function rawMessageInfoFromRows(
     const [row] = rows;
     const localID = localIDFromCreationString(viewer, row.creation);
     invariant(
-      messageSpec.rawMessageInfoFromRow,
-      `multimedia message spec should have rawMessageInfoFromRow`,
+      messageSpec.rawMessageInfoFromServerDBRow,
+      `multimedia message spec should have rawMessageInfoFromServerDBRow`,
     );
-    return messageSpec.rawMessageInfoFromRow(row, {
+    return messageSpec.rawMessageInfoFromServerDBRow(row, {
       media,
       derivedMessages,
       localID,
@@ -234,10 +234,13 @@ function rawMessageInfoFromRows(
   const row = assertSingleRow(rows);
   const localID = localIDFromCreationString(viewer, row.creation);
   invariant(
-    messageSpec.rawMessageInfoFromRow,
-    `message spec ${type} should have rawMessageInfoFromRow`,
+    messageSpec.rawMessageInfoFromServerDBRow,
+    `message spec ${type} should have rawMessageInfoFromServerDBRow`,
   );
-  return messageSpec.rawMessageInfoFromRow(row, { derivedMessages, localID });
+  return messageSpec.rawMessageInfoFromServerDBRow(row, {
+    derivedMessages,
+    localID,
+  });
 }
 
 async function fetchMessageInfos(
