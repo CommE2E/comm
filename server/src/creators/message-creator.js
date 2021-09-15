@@ -122,7 +122,7 @@ async function createMessages(
     }
     messageIndices.push(i);
 
-    const content = messageSpecs[messageData.type].messageContent?.(
+    const content = messageSpecs[messageData.type].messageContentForServerDB?.(
       messageData,
     );
 
