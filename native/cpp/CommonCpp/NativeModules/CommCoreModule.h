@@ -35,10 +35,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   jsi::Value
   initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) override;
-  jsi::Value
-  getUserPublicKey(jsi::Runtime &rt, const jsi::String &userId) override;
-  jsi::Value
-  getUserOneTimeKeys(jsi::Runtime &rt, const jsi::String &userId) override;
+  jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
+  jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
   void scheduleOrRun(
       const std::unique_ptr<WorkerThread> &thread,
       const taskType &task);

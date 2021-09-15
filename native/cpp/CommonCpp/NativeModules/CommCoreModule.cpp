@@ -396,9 +396,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
       });
 }
 
-jsi::Value
-CommCoreModule::getUserPublicKey(jsi::Runtime &rt, const jsi::String &userId) {
-  std::string userIdStr = userId.utf8(rt);
+jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -421,10 +419,7 @@ CommCoreModule::getUserPublicKey(jsi::Runtime &rt, const jsi::String &userId) {
       });
 }
 
-jsi::Value CommCoreModule::getUserOneTimeKeys(
-    jsi::Runtime &rt,
-    const jsi::String &userId) {
-  std::string userIdStr = userId.utf8(rt);
+jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {

@@ -94,7 +94,7 @@ __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey(
     const jsi::Value *args,
     size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
-      ->getUserPublicKey(rt, args[0].getString(rt));
+      ->getUserPublicKey(rt);
 }
 static jsi::Value
 __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys(
@@ -103,7 +103,7 @@ __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys(
     const jsi::Value *args,
     size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)
-      ->getUserOneTimeKeys(rt, args[0].getString(rt));
+      ->getUserOneTimeKeys(rt);
 }
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(
@@ -129,9 +129,9 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(
   methodMap_["initializeCryptoAccount"] = MethodMetadata{
       1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata{
-      1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
+      0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
   methodMap_["getUserOneTimeKeys"] = MethodMetadata{
-      1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys};
+      0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys};
 }
 
 } // namespace react
