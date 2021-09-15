@@ -5,7 +5,7 @@
 namespace comm {
 
 WorkerThread::WorkerThread(const std::string name)
-    : tasks(folly::MPMCQueue<std::unique_ptr<taskType>>(20)), name(name) {
+    : tasks(folly::MPMCQueue<std::unique_ptr<taskType>>(100)), name(name) {
   auto job = [this]() {
     while (true) {
       std::unique_ptr<taskType> lastTask;
