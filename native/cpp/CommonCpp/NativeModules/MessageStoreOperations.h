@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../DatabaseManagers/entities/Message.h"
 #include "DatabaseManager.h"
 #include <vector>
