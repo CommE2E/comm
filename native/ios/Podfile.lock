@@ -502,6 +502,14 @@ PODS:
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.7)
   - SPTPersistentCache (1.1.0)
+  - SQLCipher-Amalgamation (4.4.3):
+    - OpenSSL-Universal
+    - SQLCipher-Amalgamation/standard (= 4.4.3)
+  - SQLCipher-Amalgamation/common (4.4.3):
+    - OpenSSL-Universal
+  - SQLCipher-Amalgamation/standard (4.4.3):
+    - OpenSSL-Universal
+    - SQLCipher-Amalgamation/common
   - UMAppLoader (1.0.1)
   - UMBarCodeScannerInterface (5.1.0)
   - UMCameraInterface (5.1.0)
@@ -614,6 +622,7 @@ DEPENDENCIES:
   - RNScreens (from `../../node_modules/react-native-screens`)
   - RNSVG (from `../../node_modules/react-native-svg`)
   - RNVectorIcons (from `../../node_modules/react-native-vector-icons`)
+  - "SQLCipher-Amalgamation (from `../../node_modules/@commapp/sqlcipher-amalgamation`)"
   - UMAppLoader (from `../../node_modules/unimodules-app-loader/ios`)
   - UMBarCodeScannerInterface (from `../../node_modules/unimodules-barcode-scanner-interface/ios`)
   - UMCameraInterface (from `../../node_modules/unimodules-camera-interface/ios`)
@@ -789,6 +798,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-svg"
   RNVectorIcons:
     :path: "../../node_modules/react-native-vector-icons"
+  SQLCipher-Amalgamation:
+    :path: "../../node_modules/@commapp/sqlcipher-amalgamation"
   UMAppLoader:
     :path: "../../node_modules/unimodules-app-loader/ios"
   UMBarCodeScannerInterface:
@@ -907,6 +918,7 @@ SPEC CHECKSUMS:
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: d0dac55073088d24b2ac1b191a71a8f8d0adac21
   SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
+  SQLCipher-Amalgamation: cbd36045fe7b458b8a442958a01aefdbc44c20f8
   UMAppLoader: 90273a65f9b1d789214e0c913dfcabc7a1b1590e
   UMBarCodeScannerInterface: 9dc692b87e5f20fe277fa57aa47f45d418c3cc6c
   UMCameraInterface: 625878bbf2ba188a8548675e1d1d2e438a653e6d
@@ -923,6 +935,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 6327527eaf49ffb862be360fca63968fec75d436
+PODFILE CHECKSUM: 97747617264b5c745e90e6a5640dd556d583d2b6
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.10.2

@@ -52,6 +52,7 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Comm/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = Comm/Info.release.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Comm/main.m; sourceTree = "<group>"; };
+		50D9946F26F3711400F963D6 /* OpenSSL.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = OpenSSL.xcframework; path = "Pods/OpenSSL-Universal/Frameworks/OpenSSL.xcframework"; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -275,6 +276,7 @@
 		7FF0870B1E833C3F000A1ACF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				50D9946F26F3711400F963D6 /* OpenSSL.xcframework */,
 				711CF80E25DC096000A00FBD /* libFolly.a */,
 				7F761E292201141E001B6FB7 /* JavaScriptCore.framework */,
 				994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */,
