@@ -109,6 +109,7 @@ bool recreate_messages_table(sqlite3 *db) {
   std::string query =
       "CREATE TABLE IF NOT EXISTS messages ( "
       "id TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "local_id TEXT, "
       "thread INTEGER NOT NULL, "
       "user INTEGER NOT NULL, "
       "type INTEGER NOT NULL, "
@@ -147,9 +148,9 @@ std::vector<std::pair<uint, MigrationFunction>> migrations{{
     {2, rename_threadID_to_key},
     {4, create_persist_account_table},
     {5, create_persist_sessions_table},
-    {9, drop_messages_table},
-    {10, recreate_messages_table},
-    {11, create_messages_idx_thread_time},
+    {12, drop_messages_table},
+    {13, recreate_messages_table},
+    {14, create_messages_idx_thread_time},
 }};
 
 void SQLiteQueryExecutor::migrate() {
@@ -210,6 +211,7 @@ auto SQLiteQueryExecutor::getStorage() {
       make_table(
           "messages",
           make_column("id", &Message::id, unique(), primary_key()),
+          make_column("local_id", &Message::local_id),
           make_column("thread", &Message::thread),
           make_column("user", &Message::user),
           make_column("type", &Message::type),
@@ -282,7 +284,7 @@ void SQLiteQueryExecutor::removeMessagesForThreads(
       where(in(&Message::thread, threadIDs)));
 }
 
-void SQLiteQueryExecutor::replaceMessage(Message message) const {
+void SQLiteQueryExecutor::replaceMessage(Message &message) const {
   SQLiteQueryExecutor::getStorage().replace(message);
 }
 

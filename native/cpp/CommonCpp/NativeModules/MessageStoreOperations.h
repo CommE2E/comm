@@ -43,7 +43,7 @@ private:
 
 class ReplaceMessageOperation : public MessageStoreOperationBase {
 public:
-  ReplaceMessageOperation(Message msg) : msg_{msg} {
+  ReplaceMessageOperation(Message msg) : msg_{std::move(msg)} {
   }
   virtual ~ReplaceMessageOperation() = default;
 

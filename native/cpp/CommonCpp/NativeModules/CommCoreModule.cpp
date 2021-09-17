@@ -188,31 +188,48 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
           } catch (std::system_error &e) {
             error = e.what();
           }
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            jsi::Array jsiMessages = jsi::Array(innerRt, numMessages);
-            size_t writeIndex = 0;
-            for (Message message : messagesVector) {
-              auto jsiMessage = jsi::Object(innerRt);
-              jsiMessage.setProperty(innerRt, "id", message.id);
-              jsiMessage.setProperty(
-                  innerRt, "thread", std::to_string(message.thread));
-              jsiMessage.setProperty(
-                  innerRt, "user", std::to_string(message.user));
-              jsiMessage.setProperty(
-                  innerRt, "type", std::to_string(message.type));
-              jsiMessage.setProperty(
-                  innerRt, "future_type", std::to_string(message.future_type));
-              jsiMessage.setProperty(innerRt, "content", message.content);
-              jsiMessage.setProperty(
-                  innerRt, "time", std::to_string(message.time));
-              jsiMessages.setValueAtIndex(innerRt, writeIndex++, jsiMessage);
-            }
-            promise->resolve(std::move(jsiMessages));
-          });
+          this->jsInvoker_->invokeAsync(
+              [&messagesVector, &innerRt, promise, error, numMessages]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+                jsi::Array jsiMessages = jsi::Array(innerRt, numMessages);
+                size_t writeIndex = 0;
+                for (const Message &message : messagesVector) {
+                  auto jsiMessage = jsi::Object(innerRt);
+                  jsiMessage.setProperty(innerRt, "id", message.id);
+
+                  if (message.local_id) {
+                    auto local_id = message.local_id.get();
+                    jsiMessage.setProperty(innerRt, "local_id", *local_id);
+                  }
+
+                  jsiMessage.setProperty(
+                      innerRt, "thread", std::to_string(message.thread));
+                  jsiMessage.setProperty(
+                      innerRt, "user", std::to_string(message.user));
+                  jsiMessage.setProperty(
+                      innerRt, "type", std::to_string(message.type));
+
+                  if (message.future_type) {
+                    auto future_type = message.future_type.get();
+                    jsiMessage.setProperty(
+                        innerRt, "future_type", std::to_string(*future_type));
+                  }
+
+                  if (message.content) {
+                    auto content = message.content.get();
+                    jsiMessage.setProperty(innerRt, "content", *content);
+                  }
+
+                  jsiMessage.setProperty(
+                      innerRt, "time", std::to_string(message.time));
+                  jsiMessages.setValueAtIndex(
+                      innerRt, writeIndex++, jsiMessage);
+                }
+                promise->resolve(std::move(jsiMessages));
+              });
         };
         this->scheduleOrRun(this->databaseThread, job);
       });
@@ -261,18 +278,41 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
     } else if (op_type == REPLACE_OPERATION) {
       auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
       auto id = msg_obj.getProperty(rt, "id").asString(rt).utf8(rt);
+
+      auto maybe_local_id = msg_obj.getProperty(rt, "local_id");
+      auto local_id = maybe_local_id.isString()
+          ? std::make_unique<std::string>(maybe_local_id.asString(rt).utf8(rt))
+          : nullptr;
+
       auto thread =
           std::stoi(msg_obj.getProperty(rt, "thread").asString(rt).utf8(rt));
       auto user =
           std::stoi(msg_obj.getProperty(rt, "user").asString(rt).utf8(rt));
       auto type =
           std::stoi(msg_obj.getProperty(rt, "type").asString(rt).utf8(rt));
-      auto future_type = std::stoi(
-          msg_obj.getProperty(rt, "future_type").asString(rt).utf8(rt));
-      auto content = msg_obj.getProperty(rt, "content").asString(rt).utf8(rt);
+
+      auto maybe_future_type = msg_obj.getProperty(rt, "future_type");
+      auto future_type = maybe_future_type.isString()
+          ? std::make_unique<int>(
+                std::stoi(maybe_future_type.asString(rt).utf8(rt)))
+          : nullptr;
+
+      auto maybe_content = msg_obj.getProperty(rt, "content");
+      auto content = maybe_content.isString()
+          ? std::make_unique<std::string>(maybe_content.asString(rt).utf8(rt))
+          : nullptr;
+
       auto time =
           std::stoll(msg_obj.getProperty(rt, "time").asString(rt).utf8(rt));
-      Message message = {id, thread, user, type, future_type, content, time};
+      Message message{
+          id,
+          std::move(local_id),
+          thread,
+          user,
+          type,
+          std::move(future_type),
+          std::move(content),
+          time};
       messageStoreOps.push_back(
           std::make_shared<ReplaceMessageOperation>(std::move(message)));
     } else if (op_type == REKEY_OPERATION) {
