@@ -99,6 +99,7 @@
 		B70FBC1226B047050040F480 /* Message.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Medium.ttf"; path = "Resources/IBMPlexSans-Medium.ttf"; sourceTree = "<group>"; };
 		B723460626979250009A0709 /* swmansion.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = swmansion.ttf; path = Resources/swmansion.ttf; sourceTree = "<group>"; };
+		B7E937CA26F448E700022A7C /* Media.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Media.h; sourceTree = "<group>"; };
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
 		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -238,6 +239,7 @@
 			children = (
 				71BE84452636A944002849D2 /* Draft.h */,
 				B70FBC1226B047050040F480 /* Message.h */,
+				B7E937CA26F448E700022A7C /* Media.h */,
 			);
 			path = entities;
 			sourceTree = "<group>";
