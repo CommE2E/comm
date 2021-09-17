@@ -156,6 +156,11 @@ void SQLiteQueryExecutor::migrate() {
   sqlite3 *db;
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
 
+  std::stringstream db_path;
+  db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
+          << std::endl;
+  Logger::log(db_path.str());
+
   sqlite3_stmt *user_version_stmt;
   sqlite3_prepare_v2(
       db, "PRAGMA user_version;", -1, &user_version_stmt, nullptr);
