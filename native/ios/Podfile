@@ -9,7 +9,6 @@ target 'Comm' do
   pod 'ReactNativeKeyboardInput', :path => '../../node_modules/react-native-keyboard-input'
   pod 'react-native-ffmpeg/min-lts', :podspec => '../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec'
   pod 'react-native-video/VideoCaching', :podspec => '../../node_modules/react-native-video/react-native-video.podspec'
-  pod 'SQLCipher-Amalgamation', :path => '../../node_modules/@commapp/sqlcipher-amalgamation'
 
   config = use_native_modules!
   use_react_native!(
