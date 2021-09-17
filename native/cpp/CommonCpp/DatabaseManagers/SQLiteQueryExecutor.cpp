@@ -2,6 +2,7 @@
 #include "Logger.h"
 #include "sqlite_orm.h"
 
+#include "entities/Media.h"
 #include <sqlite3.h>
 #include <memory>
 #include <sstream>
@@ -142,6 +143,18 @@ bool create_messages_idx_thread_time(sqlite3 *db) {
   return false;
 }
 
+bool create_media_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS media ( "
+      "id TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "container TEXT NOT NULL, "
+      "thread TEXT NOT NULL, "
+      "uri TEXT NOT NULL, "
+      "type TEXT NOT NULL, "
+      "extras TEXT NOT NULL);";
+  return create_table(db, query, "media");
+}
+
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
 std::vector<std::pair<uint, MigrationFunction>> migrations{{
     {1, create_drafts_table},
@@ -151,6 +164,7 @@ std::vector<std::pair<uint, MigrationFunction>> migrations{{
     {12, drop_messages_table},
     {13, recreate_messages_table},
     {14, create_messages_idx_thread_time},
+    {15, create_media_table},
 }};
 
 void SQLiteQueryExecutor::migrate() {
@@ -225,7 +239,15 @@ auto SQLiteQueryExecutor::getStorage() {
       make_table(
           "olm_persist_sessions",
           make_column("target_user_id", &OlmPersistSession::target_user_id),
-          make_column("session_data", &OlmPersistSession::session_data)));
+          make_column("session_data", &OlmPersistSession::session_data)),
+      make_table(
+          "media",
+          make_column("id", &Media::id, unique(), primary_key()),
+          make_column("container", &Media::container),
+          make_column("thread", &Media::thread),
+          make_column("uri", &Media::uri),
+          make_column("type", &Media::type),
+          make_column("extras", &Media::extras)));
   return storage;
 }
 
