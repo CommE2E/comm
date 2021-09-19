@@ -423,37 +423,6 @@ cd comm
 yarn cleaninstall
 ```
 
-## MySQL
-
-The server side needs to see some config files before things can work. The first is a config file with MySQL details.
-
-```
-cd server
-mkdir secrets
-vim secrets/db_config.json
-```
-
-The DB config file should look like this:
-
-```json
-{
-  "host": "localhost",
-  "user": "comm",
-  "password": "password",
-  "database": "comm"
-}
-```
-
-Make sure to replace the password with the one you set up for your `comm` MySQL user earlier.
-
-New let’s run a script to setup the database. Before we can run the script, we’ll have to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in `src` into a new directory called `dist`. We also use `rsync` to copy over files that don’t need transpilation.
-
-```
-yarn babel-build
-yarn rsync
-yarn script dist/scripts/create-db.js
-```
-
 ## URLs
 
 The server needs to know some info about paths in order to properly construct URLs.
@@ -502,6 +471,37 @@ Your `landing_url.json` file should look like this:
   "baseRoutePath": "/commlanding/",
   "https": false
 }
+```
+
+## MySQL
+
+The server side needs to see some config files before things can work. The first is a config file with MySQL details.
+
+```
+cd server
+mkdir secrets
+vim secrets/db_config.json
+```
+
+The DB config file should look like this:
+
+```json
+{
+  "host": "localhost",
+  "user": "comm",
+  "password": "password",
+  "database": "comm"
+}
+```
+
+Make sure to replace the password with the one you set up for your `comm` MySQL user earlier.
+
+New let’s run a script to setup the database. Before we can run the script, we’ll have to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in `src` into a new directory called `dist`. We also use `rsync` to copy over files that don’t need transpilation.
+
+```
+yarn babel-build
+yarn rsync
+yarn script dist/scripts/create-db.js
 ```
 
 ## Phabricator
