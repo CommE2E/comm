@@ -6,25 +6,25 @@ import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 
 import type {
-  SQLiteMessageInfo,
-  SQLiteMessageStoreOperation,
+  ClientDBMessageInfo,
+  ClientDBMessageStoreOperation,
 } from 'lib/types/message-types';
 
-type SQLiteDraftInfo = {
+type ClientDBDraftInfo = {
   +key: string,
   +text: string,
 };
 
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
-  +updateDraft: (draft: SQLiteDraftInfo) => Promise<boolean>;
+  +updateDraft: (draft: ClientDBDraftInfo) => Promise<boolean>;
   +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
-  +getAllDrafts: () => Promise<$ReadOnlyArray<SQLiteDraftInfo>>;
+  +getAllDrafts: () => Promise<$ReadOnlyArray<ClientDBDraftInfo>>;
   +removeAllDrafts: () => Promise<void>;
   +removeAllMessages: () => Promise<void>;
-  +getAllMessages: () => Promise<$ReadOnlyArray<SQLiteMessageInfo>>;
+  +getAllMessages: () => Promise<$ReadOnlyArray<ClientDBMessageInfo>>;
   +processMessageStoreOperations: (
-    operations: $ReadOnlyArray<SQLiteMessageStoreOperation>,
+    operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
   ) => Promise<void>;
   +initializeCryptoAccount: (userId: string) => Promise<string>;
   +getUserPublicKey: () => Promise<string>;
