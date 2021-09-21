@@ -289,6 +289,7 @@ void SQLiteQueryExecutor::removeAllDrafts() const {
 
 void SQLiteQueryExecutor::removeAllMessages() const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>();
+  SQLiteQueryExecutor::getStorage().remove_all<Media>();
 }
 
 std::vector<Message> SQLiteQueryExecutor::getAllMessages() const {
