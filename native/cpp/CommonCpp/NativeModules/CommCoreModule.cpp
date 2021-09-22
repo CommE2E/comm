@@ -4,6 +4,8 @@
 
 #include <folly/Optional.h>
 
+#include "../DatabaseManagers/entities/Media.h"
+
 #include <ReactCommon/TurboModuleUtils.h>
 
 namespace comm {
@@ -275,7 +277,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
               std::move(threads_to_remove_msgs_from)));
     } else if (op_type == REPLACE_OPERATION) {
       auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
-      auto id = msg_obj.getProperty(rt, "id").asString(rt).utf8(rt);
+      auto msg_id = msg_obj.getProperty(rt, "id").asString(rt).utf8(rt);
 
       auto maybe_local_id = msg_obj.getProperty(rt, "local_id");
       auto local_id = maybe_local_id.isString()
@@ -301,7 +303,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       auto time =
           std::stoll(msg_obj.getProperty(rt, "time").asString(rt).utf8(rt));
       Message message{
-          id,
+          msg_id,
           std::move(local_id),
           thread,
           user,
@@ -309,6 +311,30 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
           std::move(future_type),
           std::move(content),
           time};
+
+      std::vector<Media> media_vector;
+      if (msg_obj.getProperty(rt, "media_infos").isObject()) {
+        auto media_infos =
+            msg_obj.getProperty(rt, "media_infos").asObject(rt).asArray(rt);
+        for (auto media_info_idx = 0; media_info_idx < media_infos.size(rt);
+             media_info_idx++) {
+          auto media_info =
+              media_infos.getValueAtIndex(rt, media_info_idx).asObject(rt);
+          auto media_id =
+              media_info.getProperty(rt, "id").asString(rt).utf8(rt);
+          auto media_uri =
+              media_info.getProperty(rt, "uri").asString(rt).utf8(rt);
+          auto media_type =
+              media_info.getProperty(rt, "type").asString(rt).utf8(rt);
+          auto media_extras =
+              media_info.getProperty(rt, "extras").asString(rt).utf8(rt);
+
+          Media media{
+              media_id, msg_id, thread, media_uri, media_type, media_extras};
+          media_vector.push_back(media);
+        }
+      }
+
       messageStoreOps.push_back(
           std::make_shared<ReplaceMessageOperation>(std::move(message)));
     } else if (op_type == REKEY_OPERATION) {
