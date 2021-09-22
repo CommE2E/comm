@@ -508,7 +508,6 @@ class ChatThreadList extends React.PureComponent<Props, State> {
           style={this.props.styles.flatList}
           indicatorStyle={this.props.indicatorStyle}
           scrollEnabled={scrollEnabled}
-          removeClippedSubviews={true}
           onEndReached={this.onEndReached}
           onEndReachedThreshold={1}
           ref={this.flatListRef}
