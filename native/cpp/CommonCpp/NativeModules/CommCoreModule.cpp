@@ -335,8 +335,8 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
         }
       }
 
-      messageStoreOps.push_back(
-          std::make_shared<ReplaceMessageOperation>(std::move(message)));
+      messageStoreOps.push_back(std::make_shared<ReplaceMessageOperation>(
+          std::move(message), std::move(media_vector)));
     } else if (op_type == REKEY_OPERATION) {
       auto rekey_payload = op.getProperty(rt, "payload").asObject(rt);
       auto from = rekey_payload.getProperty(rt, "from").asString(rt).utf8(rt);
