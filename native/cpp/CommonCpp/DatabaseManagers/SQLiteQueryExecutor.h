@@ -28,6 +28,7 @@ public:
   removeMessagesForThreads(std::vector<std::string> threadIDs) const override;
   void replaceMessage(Message &message) const override;
   void rekeyMessage(std::string from, std::string to) const override;
+  void replaceMedia(Media &media) const override;
   std::vector<OlmPersistSession> getOlmPersistSessionsData() const override;
   folly::Optional<std::string> getOlmPersistAccountData() const override;
   void storeOlmPersistData(crypto::Persist persist) const override;

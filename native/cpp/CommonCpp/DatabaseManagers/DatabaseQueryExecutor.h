@@ -2,6 +2,7 @@
 
 #include "../CryptoTools/Persist.h"
 #include "entities/Draft.h"
+#include "entities/Media.h"
 #include "entities/Message.h"
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
@@ -34,6 +35,7 @@ public:
   removeMessagesForThreads(std::vector<std::string> threadIDs) const = 0;
   virtual void replaceMessage(Message &message) const = 0;
   virtual void rekeyMessage(std::string from, std::string to) const = 0;
+  virtual void replaceMedia(Media &media) const = 0;
   virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;
   virtual folly::Optional<std::string> getOlmPersistAccountData() const = 0;
   virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
