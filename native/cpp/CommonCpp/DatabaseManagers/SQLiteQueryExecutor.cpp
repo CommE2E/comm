@@ -111,8 +111,8 @@ bool recreate_messages_table(sqlite3 *db) {
       "CREATE TABLE IF NOT EXISTS messages ( "
       "id TEXT UNIQUE PRIMARY KEY NOT NULL, "
       "local_id TEXT, "
-      "thread INTEGER NOT NULL, "
-      "user INTEGER NOT NULL, "
+      "thread TEXT NOT NULL, "
+      "user TEXT NOT NULL, "
       "type INTEGER NOT NULL, "
       "future_type INTEGER, "
       "content TEXT, "
@@ -156,16 +156,15 @@ bool create_media_table(sqlite3 *db) {
 }
 
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
-std::vector<std::pair<uint, MigrationFunction>> migrations{{
-    {1, create_drafts_table},
-    {2, rename_threadID_to_key},
-    {4, create_persist_account_table},
-    {5, create_persist_sessions_table},
-    {12, drop_messages_table},
-    {13, recreate_messages_table},
-    {14, create_messages_idx_thread_time},
-    {15, create_media_table},
-}};
+std::vector<std::pair<uint, MigrationFunction>> migrations{
+    {{1, create_drafts_table},
+     {2, rename_threadID_to_key},
+     {4, create_persist_account_table},
+     {5, create_persist_sessions_table},
+     {15, create_media_table},
+     {16, drop_messages_table},
+     {17, recreate_messages_table},
+     {18, create_messages_idx_thread_time}}};
 
 void SQLiteQueryExecutor::migrate() {
   sqlite3 *db;
@@ -302,7 +301,7 @@ void SQLiteQueryExecutor::removeMessages(std::vector<std::string> ids) const {
 }
 
 void SQLiteQueryExecutor::removeMessagesForThreads(
-    std::vector<int> threadIDs) const {
+    std::vector<std::string> threadIDs) const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>(
       where(in(&Message::thread, threadIDs)));
 }

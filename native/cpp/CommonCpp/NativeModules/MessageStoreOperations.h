@@ -29,7 +29,7 @@ private:
 
 class RemoveMessagesForThreadsOperation : public MessageStoreOperationBase {
 public:
-  RemoveMessagesForThreadsOperation(std::vector<int> ids) : ids_{ids} {
+  RemoveMessagesForThreadsOperation(std::vector<std::string> ids) : ids_{ids} {
   }
   virtual ~RemoveMessagesForThreadsOperation() = default;
 
@@ -38,7 +38,7 @@ public:
   }
 
 private:
-  std::vector<int> ids_;
+  std::vector<std::string> ids_;
 };
 
 class ReplaceMessageOperation : public MessageStoreOperationBase {

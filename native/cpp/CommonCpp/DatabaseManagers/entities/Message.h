@@ -8,8 +8,8 @@ namespace comm {
 struct Message {
   std::string id;
   std::unique_ptr<std::string> local_id;
-  int thread;
-  int user;
+  std::string thread;
+  std::string user;
   int type;
   std::unique_ptr<int> future_type;
   std::unique_ptr<std::string> content;

@@ -30,7 +30,8 @@ public:
   virtual void removeAllMessages() const = 0;
   virtual std::vector<Message> getAllMessages() const = 0;
   virtual void removeMessages(std::vector<std::string> ids) const = 0;
-  virtual void removeMessagesForThreads(std::vector<int> threadIDs) const = 0;
+  virtual void
+  removeMessagesForThreads(std::vector<std::string> threadIDs) const = 0;
   virtual void replaceMessage(Message &message) const = 0;
   virtual void rekeyMessage(std::string from, std::string to) const = 0;
   virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;

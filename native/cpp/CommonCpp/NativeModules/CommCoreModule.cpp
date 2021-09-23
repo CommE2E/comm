@@ -205,10 +205,8 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
                     jsiMessage.setProperty(innerRt, "local_id", *local_id);
                   }
 
-                  jsiMessage.setProperty(
-                      innerRt, "thread", std::to_string(message.thread));
-                  jsiMessage.setProperty(
-                      innerRt, "user", std::to_string(message.user));
+                  jsiMessage.setProperty(innerRt, "thread", message.thread);
+                  jsiMessage.setProperty(innerRt, "user", message.user);
                   jsiMessage.setProperty(
                       innerRt, "type", std::to_string(message.type));
 
@@ -263,14 +261,14 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
           std::move(removed_msg_ids)));
 
     } else if (op_type == REMOVE_MSGS_FOR_THREADS_OPERATION) {
-      std::vector<int> threads_to_remove_msgs_from;
+      std::vector<std::string> threads_to_remove_msgs_from;
       auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
       auto thread_ids =
           payload_obj.getProperty(rt, "threadIDs").asObject(rt).asArray(rt);
       for (auto thread_idx = 0; thread_idx < thread_ids.size(rt);
            thread_idx++) {
-        threads_to_remove_msgs_from.push_back(std::stoi(
-            thread_ids.getValueAtIndex(rt, thread_idx).asString(rt).utf8(rt)));
+        threads_to_remove_msgs_from.push_back(
+            thread_ids.getValueAtIndex(rt, thread_idx).asString(rt).utf8(rt));
       }
       messageStoreOps.push_back(
           std::make_shared<RemoveMessagesForThreadsOperation>(
@@ -284,10 +282,8 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
           ? std::make_unique<std::string>(maybe_local_id.asString(rt).utf8(rt))
           : nullptr;
 
-      auto thread =
-          std::stoi(msg_obj.getProperty(rt, "thread").asString(rt).utf8(rt));
-      auto user =
-          std::stoi(msg_obj.getProperty(rt, "user").asString(rt).utf8(rt));
+      auto thread = msg_obj.getProperty(rt, "thread").asString(rt).utf8(rt);
+      auto user = msg_obj.getProperty(rt, "user").asString(rt).utf8(rt);
       auto type =
           std::stoi(msg_obj.getProperty(rt, "type").asString(rt).utf8(rt));
 
