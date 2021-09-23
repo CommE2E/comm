@@ -155,6 +155,28 @@ bool create_media_table(sqlite3 *db) {
   return create_table(db, query, "media");
 }
 
+bool create_media_idx_container(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "CREATE INDEX media_idx_container "
+      "ON media (container);",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error creating (container) index on media table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
 std::vector<std::pair<uint, MigrationFunction>> migrations{
     {{1, create_drafts_table},
@@ -164,7 +186,8 @@ std::vector<std::pair<uint, MigrationFunction>> migrations{
      {15, create_media_table},
      {16, drop_messages_table},
      {17, recreate_messages_table},
-     {18, create_messages_idx_thread_time}}};
+     {18, create_messages_idx_thread_time},
+     {19, create_media_idx_container}}};
 
 void SQLiteQueryExecutor::migrate() {
   sqlite3 *db;
