@@ -3,6 +3,7 @@ apply plugin: "com.android.application"
 import com.android.build.OutputFile
 import de.undercouch.gradle.tasks.download.Download
 import org.apache.tools.ant.filters.ReplaceTokens
+import org.ajoberstar.grgit.*
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -123,9 +124,6 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  */
 def enableHermes = project.ext.react.get("enableHermes", false);
 
-/**
- * Folly
- */
 def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
 def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
 def downloadsDir = customDownloadsDir ? new File(customDownloadsDir) : new File("$buildDir/downloads")
@@ -139,6 +137,46 @@ def boostPath = dependenciesPath ?: System.getenv("REACT_NATIVE_BOOST_PATH")
 task createNativeDepsDirectories {
     downloadsDir.mkdirs()
     thirdPartyNdkDir.mkdirs()
+}
+
+// GRPC
+def grpcPath = "$thirdPartyNdkDir/grpc"
+
+task checkGrpcVersion {
+    def file = new File("$thirdPartyNdkDir/grpc_version")
+    def savedVersion = null
+    if (file.exists()) {
+        savedVersion = file.getText('UTF-8')
+    }
+    if (GRPC_VERSION != savedVersion) {
+        doLast {
+            println("new version of grpc detected: ${GRPC_VERSION}, previous version: ${savedVersion}")
+            file.write("${GRPC_VERSION}")
+            delete grpcPath
+        }
+    }
+}
+
+task prepareGrpc(dependsOn: checkGrpcVersion) {
+    doLast {
+        if (!(new File(grpcPath)).exists()) {
+            println('cloning grpc...')
+            org.ajoberstar.grgit.Grgit.clone(dir: grpcPath, uri: "https://github.com/grpc/grpc.git")
+            println('grpc cloned!')
+            def commands = [
+              ["git", "checkout", "v${GRPC_VERSION}"],
+              ["git", "submodule", "update", "--init", "--recursive"],
+              ["rm", "-rf", ".git"],
+              ["rm", "examples/node/package.json"],
+            ]
+            for (command in commands) {
+              exec {
+                workingDir grpcPath
+                commandLine(*command)
+              }
+            }
+        }
+    }
 }
 
 // FOLLY
@@ -236,6 +274,7 @@ task prepareDoubleConversion(dependsOn: dependenciesPath ? [] : [downloadDoubleC
 
 // EXTERNAL LIBS
 task prepareExternalLibs {
+    dependsOn prepareGrpc
     dependsOn prepareFolly
     dependsOn prepareGlog
     dependsOn prepareBoost
@@ -323,9 +362,23 @@ android {
             }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            ndk {
+                //"x86"         for emulator 32bit
+                //"x86_64"      for emulator 64bit
+                //"arm64-v8a"   for physical device 64bit
+                //"armeabi-v7a" for physical device 32bit
+                abiFilters "x86", "x86_64", "arm64-v8a", "armeabi-v7a"
+            }
         }
         debug {
             signingConfig signingConfigs.debug
+            ndk {
+                //"x86"         for emulator 32bit
+                //"x86_64"      for emulator 64bit
+                //"arm64-v8a"   for physical device 64bit
+                //"armeabi-v7a" for physical device 32bit
+                abiFilters "x86"
+            }
         }
     }
 

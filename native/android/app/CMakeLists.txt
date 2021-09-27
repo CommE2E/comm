@@ -1,5 +1,8 @@
 # For more information about using CMake with Android Studio, read the
 # documentation: https://d.android.com/studio/projects/add-native-code.html
+project(comm)
+
+set (CMAKE_CXX_STANDARD 14)
 
 # Sets the minimum version of CMake required to build the native library.
 
@@ -18,6 +21,7 @@ set(BUILD_TESTING OFF)
 set(HAVE_SYMBOLIZE OFF)
 set(WITH_GTEST OFF CACHE BOOL "Use googletest" FORCE)
 set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
+add_subdirectory(./build/third-party-ndk/grpc/ ${CMAKE_CURRENT_BINARY_DIR}/grpc EXCLUDE_FROM_ALL)
 add_subdirectory(./build/third-party-ndk/glog/glog-0.4.0/)
 add_subdirectory(../../node_modules/olm ./build)
 
@@ -43,6 +47,8 @@ include_directories(
   ../../cpp/CommonCpp/NativeModules
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
+  ../../cpp/CommonCpp/grpc/_generated
+  ../../cpp/CommonCpp/grpc
 )
 
 # search for all cpp files in this directory
@@ -50,6 +56,7 @@ file(GLOB SQLITE "../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/*
 file(GLOB COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
 file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES "./build/third-party-ndk/double-conversion/double-conversion/*.cc")
+file(GLOB GRPC_CODE "../../cpp/CommonCpp/grpc/_generated/*.cc")
 
 add_library(
   # Sets the name of the library.
@@ -86,6 +93,8 @@ add_library(
   # double-conversion
   ${DOUBLE_CONVERSION_SOURCES}
 
+  ${GRPC_CODE}
+
   # comm code
   ${ANDROID_NATIVE_CODE}
   ${COMMON_NATIVE_CODE}
@@ -109,6 +118,8 @@ target_link_libraries(
   ${log-lib}
   glog::glog
   olm
+  grpc++
+  libprotobuf
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java
