@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Link, useLocation, useRouteMatch } from 'react-router-dom';
 
-import Home from './home.react';
+import Keyservers from './keyservers.react';
 import css from './landing.css';
 import Privacy from './privacy.react';
 import SubscriptionForm from './subscription-form.react';
@@ -35,7 +35,7 @@ function Landing(): React.Node {
     } else if (onSupport) {
       return <Support />;
     }
-    return <Home />;
+    return <Keyservers />;
   }, [onPrivacy, onSupport, onTerms]);
 
   return (

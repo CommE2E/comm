@@ -10,7 +10,7 @@ import StarBackground from './star-background.react';
 const useIsomorphicLayoutEffect =
   typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
 
-function Home(): React.Node {
+function Keyservers(): React.Node {
   React.useEffect(() => {
     import('@lottiefiles/lottie-player');
   }, []);
@@ -144,4 +144,4 @@ function Home(): React.Node {
   );
 }
 
-export default Home;
+export default Keyservers;
