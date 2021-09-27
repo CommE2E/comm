@@ -361,9 +361,11 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
         taskType job = [=, &innerRt]() {
           std::string error;
           try {
+            DatabaseManager::getQueryExecutor().beginTransaction();
             for (const auto &operation : messageStoreOps) {
               operation->execute();
             }
+            DatabaseManager::getQueryExecutor().commitTransaction();
           } catch (std::system_error &e) {
             error = e.what();
           }

@@ -348,6 +348,18 @@ void SQLiteQueryExecutor::replaceMedia(Media &media) const {
   SQLiteQueryExecutor::getStorage().replace(media);
 }
 
+void SQLiteQueryExecutor::beginTransaction() const {
+  SQLiteQueryExecutor::getStorage().begin_transaction();
+}
+
+void SQLiteQueryExecutor::commitTransaction() const {
+  SQLiteQueryExecutor::getStorage().commit();
+}
+
+void SQLiteQueryExecutor::rollbackTransaction() const {
+  SQLiteQueryExecutor::getStorage().rollback();
+}
+
 std::vector<OlmPersistSession>
 SQLiteQueryExecutor::getOlmPersistSessionsData() const {
   return SQLiteQueryExecutor::getStorage().get_all<OlmPersistSession>();

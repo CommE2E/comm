@@ -36,6 +36,9 @@ public:
   virtual void replaceMessage(Message &message) const = 0;
   virtual void rekeyMessage(std::string from, std::string to) const = 0;
   virtual void replaceMedia(Media &media) const = 0;
+  virtual void beginTransaction() const = 0;
+  virtual void commitTransaction() const = 0;
+  virtual void rollbackTransaction() const = 0;
   virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;
   virtual folly::Optional<std::string> getOlmPersistAccountData() const = 0;
   virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
