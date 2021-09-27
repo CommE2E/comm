@@ -14,6 +14,7 @@ function Footer(): React.Node {
           <div className={css.footer_logo}>
             <Link to="/">Comm</Link>
           </div>
+          <Link to="/keyservers">Keyservers</Link>
           <Link to="/support">Support</Link>
           <Link to="/terms">Terms of Use</Link>
           <Link to="/privacy">Privacy Policy</Link>

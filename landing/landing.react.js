@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Link, useLocation, useRouteMatch } from 'react-router-dom';
 
+import AppLanding from './app-landing.react';
 import Footer from './footer.react';
 import Keyservers from './keyservers.react';
 import css from './landing.css';
@@ -19,6 +20,7 @@ function Landing(): React.Node {
   const onPrivacy = useRouteMatch({ path: '/privacy' });
   const onTerms = useRouteMatch({ path: '/terms' });
   const onSupport = useRouteMatch({ path: '/support' });
+  const onKeyservers = useRouteMatch({ path: '/keyservers' });
   const headerStyle = React.useMemo(
     () =>
       onPrivacy || onTerms || onSupport
@@ -34,9 +36,11 @@ function Landing(): React.Node {
       return <Terms />;
     } else if (onSupport) {
       return <Support />;
+    } else if (onKeyservers) {
+      return <Keyservers />;
     }
-    return <Keyservers />;
-  }, [onPrivacy, onSupport, onTerms]);
+    return <AppLanding />;
+  }, [onKeyservers, onPrivacy, onSupport, onTerms]);
 
   return (
     <>
