@@ -354,6 +354,19 @@ android {
         }
     }
     buildTypes {
+        def isBundleRelease = gradle.startParameter.taskRequests.any {
+          !it.args.isEmpty() && it.args.first().contains("bundleRelease")
+        }
+        def commandOutput = new ByteArrayOutputStream()
+        exec {
+            commandLine "./bash/detect_abis.sh"
+            standardOutput = commandOutput
+        }
+        //"x86"         for emulator 32bit
+        //"x86_64"      for emulator 64bit
+        //"arm64-v8a"   for physical device 64bit
+        //"armeabi-v7a" for physical device 32bit
+        def activeAbis = commandOutput.toString("UTF-8").trim().split(" ")
         release {
             if (project.hasProperty('COMM_UPLOAD_STORE_FILE')) {
                 signingConfig signingConfigs.release
@@ -362,22 +375,18 @@ android {
             }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            ndk {
-                //"x86"         for emulator 32bit
-                //"x86_64"      for emulator 64bit
-                //"arm64-v8a"   for physical device 64bit
-                //"armeabi-v7a" for physical device 32bit
-                abiFilters "x86", "x86_64", "arm64-v8a", "armeabi-v7a"
+            if (!isBundleRelease) {
+              println("building for architectures: ${activeAbis}")
+              ndk {
+                abiFilters activeAbis
+              }
             }
         }
         debug {
             signingConfig signingConfigs.debug
+            println("building for architectures: ${activeAbis}")
             ndk {
-                //"x86"         for emulator 32bit
-                //"x86_64"      for emulator 64bit
-                //"arm64-v8a"   for physical device 64bit
-                //"armeabi-v7a" for physical device 32bit
-                abiFilters "x86"
+                abiFilters activeAbis
             }
         }
     }
