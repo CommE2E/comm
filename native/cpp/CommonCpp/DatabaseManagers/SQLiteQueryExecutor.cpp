@@ -237,7 +237,7 @@ void SQLiteQueryExecutor::migrate() {
   sqlite3_close(db);
 }
 
-auto SQLiteQueryExecutor::getStorage() {
+auto &SQLiteQueryExecutor::getStorage() {
   static auto storage = make_storage(
       SQLiteQueryExecutor::sqliteFilePath,
       make_table(

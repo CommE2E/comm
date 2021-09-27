@@ -10,7 +10,7 @@ namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   void migrate();
-  static auto getStorage();
+  static auto &getStorage();
 
 public:
   static std::string sqliteFilePath;
