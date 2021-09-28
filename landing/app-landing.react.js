@@ -18,23 +18,25 @@ function AppLanding(): React.Node {
         <img height={600} src="images/comm-screenshot.png" />
       </div>
       <div className={css.app_copy}>
-        <h1>Comm Messenger</h1>
-        <p className={css.mono}>Web3 Messenger. E2E encrypted. Blah..</p>
+        <h1 className={css.no_bottom_margin}>Comm Messenger</h1>
+        <p className={css.app_landing_subheading}>
+          Web3 Messenger. E2E encrypted. Blah..
+        </p>
         <div className={css.tile_grid}>
           <div className={css.tile_tl}>
-            <FontAwesomeIcon color="#7e57c2" icon={faLock} />
+            <FontAwesomeIcon size="2x" color="#7e57c2" icon={faLock} />
             <p>E2E Encryption</p>
           </div>
           <div className={css.tile_tr}>
-            <FontAwesomeIcon color="#7e57c2" icon={faServer} />
+            <FontAwesomeIcon size="2x" color="#7e57c2" icon={faServer} />
             <p>Self-hosted</p>
           </div>
           <div className={css.tile_bl}>
-            <FontAwesomeIcon color="#7e57c2" icon={faUsers} />
+            <FontAwesomeIcon size="2x" color="#7e57c2" icon={faUsers} />
             <p>Federated</p>
           </div>
           <div className={css.tile_br}>
-            <FontAwesomeIcon color="#7e57c2" icon={faUserShield} />
+            <FontAwesomeIcon size="2x" color="#7e57c2" icon={faUserShield} />
             <p>Sovereign Identity</p>
           </div>
         </div>
