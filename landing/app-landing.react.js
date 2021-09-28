@@ -10,6 +10,7 @@ function AppLanding(): React.Node {
       <StarBackground />
       <center>
         <h1>App Landing Page</h1>
+        <img height={300} src="images/comm-screenshot.png" />
       </center>
     </div>
   );
