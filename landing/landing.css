@@ -52,7 +52,8 @@ span.purple_accent {
 /* ===== COMMON CSS GRID LAYOUT ===== */
 div.header_grid,
 div.body_grid,
-div.footer_grid {
+div.footer_grid,
+div.app_landing_grid {
   max-width: 1920px;
   margin-left: auto;
   margin-right: auto;
@@ -155,6 +156,25 @@ div.footer_logo a:hover {
 div.subscribe_updates {
   grid-area: subscribe_updates;
   align-self: center;
+}
+
+/* ===== APP LANDING GRID ===== */
+div.app_landing_grid {
+  grid-template-areas: 'app_preview app_copy';
+  padding-top: 200px;
+  padding-bottom: 260px;
+}
+
+div.app_preview {
+  grid-area: app_preview;
+  align-self: center;
+  justify-self: right;
+}
+
+div.app_copy {
+  grid-area: app_copy;
+  align-self: center;
+  justify-self: left;
 }
 
 /* ===== LEGAL PAGE STYLING ===== */
