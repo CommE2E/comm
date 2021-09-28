@@ -54,6 +54,7 @@ p.app_landing_subheading {
   margin-top: 0;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 500;
+  padding-inline: 4px;
 }
 
 span.purple_accent {
