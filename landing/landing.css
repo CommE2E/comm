@@ -315,7 +315,8 @@ div.body_grid > div + .starting_section {
   /* ===== COMMON CSS GRID LAYOUT ===== */
   div.body_grid,
   div.footer_grid,
-  div.header_grid {
+  div.header_grid,
+  div.app_landing_grid {
     padding-left: 3%;
     padding-right: 3%;
     grid-template-columns: minmax(auto, 540px);
@@ -366,6 +367,30 @@ div.body_grid > div + .starting_section {
   div.sitemap {
     padding-top: 60px;
     grid-area: sitemap;
+  }
+
+  /* ===== APP LANDING GRID LAYOUT ===== */
+  div.app_landing_grid {
+    grid-template-areas:
+      'app_preview'
+      'app_copy';
+  }
+
+  div.app_preview {
+    grid-area: app_preview;
+    align-self: center;
+    justify-self: center;
+  }
+
+  div.app_copy {
+    grid-area: app_copy;
+    align-self: center;
+    justify-self: center;
+  }
+
+  div.app_copy h1,
+  div.app_copy p {
+    text-align: center;
   }
 
   /* ===== LAYOUT HACKS ===== */
