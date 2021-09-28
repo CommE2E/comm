@@ -40,6 +40,10 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/free-regular-svg-icons": "^5.11.2",
+    "@fortawesome/free-solid-svg-icons": "^5.11.2",
+    "@fortawesome/react-fontawesome": "^0.1.5",
     "@lottiefiles/lottie-interactivity": "^0.1.4",
     "@lottiefiles/lottie-player": "^1.0.3",
     "core-js": "^3.6.5",
