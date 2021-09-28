@@ -177,6 +177,54 @@ div.app_copy {
   justify-self: left;
 }
 
+/* ===== TILE GRID STYLING ===== */
+div.tile_grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  max-width: 17vw;
+  row-gap: 1vw;
+  column-gap: 1vw;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  grid-template-areas:
+    'tile_tl tile_tr'
+    'tile_bl tile_br';
+}
+
+div.tile_tl,
+div.tile_tr,
+div.tile_bl,
+div.tile_br {
+  width: 8vw;
+  height: 8vw;
+  border-radius: 36px;
+  background-image: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+}
+
+div.tile_tl p,
+div.tile_tr p,
+div.tile_bl p,
+div.tile_br p {
+  font-weight: bold;
+  font-size: 14px;
+  color: #485563;
+  text-align: center;
+}
+
+div.tile_tl {
+  grid-area: tile_tl;
+}
+div.tile_tr {
+  grid-area: tile_tr;
+}
+div.tile_bl {
+  grid-area: tile_bl;
+}
+div.tile_br {
+  grid-area: tile_br;
+}
+
 /* ===== LEGAL PAGE STYLING ===== */
 div.legal_container {
   max-width: 1080px;
