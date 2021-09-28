@@ -1,5 +1,6 @@
 // @flow
 
+import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
 import {
   faLock,
   faUserShield,
@@ -39,6 +40,16 @@ function AppLanding(): React.Node {
             <FontAwesomeIcon size="2x" color="#7e57c2" icon={faUserShield} />
             <p>Sovereign Identity</p>
           </div>
+          <a href="https://twitter.com/commdotapp">
+            <div className={css.tile_twtr}>
+              <FontAwesomeIcon size="2x" color="#1d9bf0" icon={faTwitter} />
+            </div>
+          </a>
+          <a href="https://github.com/CommE2E/comm">
+            <div className={css.tile_gh}>
+              <FontAwesomeIcon size="2x" color="#151013" icon={faGithub} />
+            </div>
+          </a>
         </div>
       </div>
     </div>
