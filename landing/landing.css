@@ -236,8 +236,8 @@ div.subscribe_updates {
 div.app_landing_grid {
   grid-template-columns: 1fr 1fr;
   grid-template-areas: 'app_preview app_copy';
-  padding-top: 80px;
-  padding-bottom: 240px;
+  padding-top: 6vh;
+  padding-bottom: 8vh;
 }
 
 div.app_preview {
