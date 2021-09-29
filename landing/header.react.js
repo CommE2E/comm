@@ -1,5 +1,7 @@
 // @flow
 
+import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -31,7 +33,9 @@ function Header(props: HeaderProps): React.Node {
           </Link>
         </div>
         <div className={css.placeholder}>
-          <Link to="/"></Link>
+          <Link to="/">
+            <FontAwesomeIcon size="lg" color="#7e57c2" icon={faEnvelope} />
+          </Link>
         </div>
       </div>
     </>

@@ -123,8 +123,27 @@ div.top_nav a:hover {
 
 div.placeholder {
   grid-area: placeholder;
-  justify-self: center;
+  align-self: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-self: flex-end;
+
+  padding: 16px;
+  border-radius: 36px;
+  background-color: #ebedee;
+  transition: 300ms;
 }
+
+div.placeholder:hover {
+  background-color: #7e57c2;
+  transition: 300ms;
+}
+
+div.placeholder:hover svg {
+  color: #ebedee;
+}
+
 div.placeholder h1 {
   font-size: 32px;
 }
