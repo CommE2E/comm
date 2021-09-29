@@ -25,19 +25,19 @@ function AppLanding(): React.Node {
         </p>
         <div className={css.tile_grid}>
           <div className={css.tile_tl}>
-            <FontAwesomeIcon size="2x" color="#7e57c2" icon={faLock} />
+            <FontAwesomeIcon size="2x" color="#485563" icon={faLock} />
             <p>E2E Encryption</p>
           </div>
           <div className={css.tile_tr}>
-            <FontAwesomeIcon size="2x" color="#7e57c2" icon={faServer} />
+            <FontAwesomeIcon size="2x" color="#485563" icon={faServer} />
             <p>Self-hosted</p>
           </div>
           <div className={css.tile_bl}>
-            <FontAwesomeIcon size="2x" color="#7e57c2" icon={faUsers} />
+            <FontAwesomeIcon size="2x" color="#485563" icon={faUsers} />
             <p>Federated</p>
           </div>
           <div className={css.tile_br}>
-            <FontAwesomeIcon size="2x" color="#7e57c2" icon={faUserShield} />
+            <FontAwesomeIcon size="2x" color="#485563" icon={faUserShield} />
             <p>Sovereign Identity</p>
           </div>
           <a href="https://twitter.com/commdotapp">
