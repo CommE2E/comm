@@ -33,11 +33,6 @@ h1 {
   font-family: 'IBM Plex Sans', sans-serif;
 }
 
-h1.logo {
-  font-size: 32px;
-  grid-area: logo;
-}
-
 h2 {
   font-size: 50px;
   font-family: 'IBM Plex Sans', sans-serif;
@@ -62,15 +57,14 @@ span.purple_accent {
 }
 
 /* ===== COMMON CSS GRID LAYOUT ===== */
-div.header_grid,
 div.body_grid,
 div.footer_grid,
-div.app_landing_grid {
+div.app_landing_grid,
+div.header_grid {
   max-width: 1920px;
   margin-left: auto;
   margin-right: auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
   column-gap: 6em;
   padding-left: 60px;
   padding-right: 60px;
@@ -82,8 +76,8 @@ div.app_landing_grid {
 
 /* ===== CSS HEADER GRID LAYOUT ===== */
 div.header_grid {
-  padding-bottom: 0px;
-  grid-template-areas: 'logo logo';
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas: 'logo top_nav placeholder';
 }
 
 div.header_legal {
@@ -92,15 +86,52 @@ div.header_legal {
   transition: 300ms;
 }
 
-div.header_grid a {
+div.logo {
+  grid-area: logo;
+}
+
+div.logo h1 {
+  font-size: 32px;
+}
+
+div.logo a {
   color: white;
 }
-div.header_grid a:hover {
+
+div.logo a:hover {
   color: #7e57c2;
+}
+
+div.top_nav {
+  grid-area: top_nav;
+  align-self: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
+div.top_nav h1 {
+  font-size: 16px;
+}
+div.top_nav a {
+  color: white;
+}
+
+div.top_nav a:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+
+div.placeholder {
+  grid-area: placeholder;
+  justify-self: center;
+}
+div.placeholder h1 {
+  font-size: 32px;
 }
 
 /* ===== CSS BODY GRID LAYOUT ===== */
 div.body_grid {
+  grid-template-columns: 1fr 1fr;
   grid-template-areas:
     'hero_copy hero_image'
     'server_image server_copy'
@@ -139,6 +170,7 @@ div.read_the_docs {
 
 /* ===== CSS FOOTER GRID LAYOUT ===== */
 div.footer_grid {
+  grid-template-columns: 1fr 1fr;
   grid-template-areas: 'sitemap subscribe_updates';
 }
 
@@ -172,6 +204,7 @@ div.subscribe_updates {
 
 /* ===== APP LANDING GRID ===== */
 div.app_landing_grid {
+  grid-template-columns: 1fr 1fr;
   grid-template-areas: 'app_preview app_copy';
   padding-top: 80px;
   padding-bottom: 240px;

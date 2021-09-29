@@ -15,11 +15,26 @@ function Header(props: HeaderProps): React.Node {
     ? `${css.header_grid} ${css.header_legal}`
     : css.header_grid;
   return (
-    <div className={headerStyle}>
-      <Link to="/">
-        <h1 className={css.logo}>Comm</h1>
-      </Link>
-    </div>
+    <>
+      <div className={headerStyle}>
+        <div className={css.logo}>
+          <Link to="/">
+            <h1>Comm</h1>
+          </Link>
+        </div>
+        <div className={css.top_nav}>
+          <Link to="/">
+            <h1>Comm Messenger</h1>
+          </Link>
+          <Link to="/keyservers">
+            <h1>Keyservers</h1>
+          </Link>
+        </div>
+        <div className={css.placeholder}>
+          <Link to="/"></Link>
+        </div>
+      </div>
+    </>
   );
 }
 
