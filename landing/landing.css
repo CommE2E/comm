@@ -183,6 +183,12 @@ div.app_preview {
   justify-self: right;
 }
 
+div.app_preview img {
+  width: 480px;
+  max-width: 100%;
+  object-fit: scale-down;
+}
+
 div.app_copy {
   grid-area: app_copy;
   align-self: center;

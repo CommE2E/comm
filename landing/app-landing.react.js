@@ -16,7 +16,7 @@ function AppLanding(): React.Node {
   return (
     <div className={css.app_landing_grid}>
       <div className={css.app_preview}>
-        <img height={600} src="images/comm-screenshot.png" />
+        <img src="images/comm-screenshot.png" />
       </div>
       <div className={css.app_copy}>
         <h1 className={css.no_bottom_margin}>Comm Messenger</h1>
