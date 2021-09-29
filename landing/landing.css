@@ -109,9 +109,11 @@ div.top_nav {
   flex-direction: row;
   justify-content: space-evenly;
 }
+
 div.top_nav h1 {
   font-size: 16px;
 }
+
 div.top_nav a {
   color: #8a8f98;
 }
@@ -460,7 +462,30 @@ div.body_grid > div + .starting_section {
 
   /* ===== CSS HEADER GRID LAYOUT ===== */
   div.header_grid {
-    grid-template-areas: 'logo';
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'logo social_icons'
+      'top_nav top_nav';
+  }
+
+  div.top_nav {
+    grid-area: top_nav;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-self: flex-start;
+  }
+  div.top_nav h1 {
+    margin-right: 16px;
+  }
+
+  div.twitter_icon,
+  div.github_icon {
+    margin-inline: 4px;
+    padding: 10px;
+    border-radius: 36px;
+    background-color: #ebedee;
+    transition: 300ms;
   }
 
   /* ===== CSS BODY GRID LAYOUT ===== */
