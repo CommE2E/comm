@@ -173,8 +173,8 @@ div.subscribe_updates {
 /* ===== APP LANDING GRID ===== */
 div.app_landing_grid {
   grid-template-areas: 'app_preview app_copy';
-  padding-top: 200px;
-  padding-bottom: 260px;
+  padding-top: 80px;
+  padding-bottom: 240px;
 }
 
 div.app_preview {
@@ -184,8 +184,9 @@ div.app_preview {
 }
 
 div.app_preview img {
-  width: 480px;
-  max-width: 100%;
+  min-height: 560px;
+  max-height: 70vh;
+  max-width: 30vw;
   object-fit: scale-down;
 }
 
@@ -349,7 +350,7 @@ div.body_grid > div + .starting_section {
   }
   p,
   li {
-    font-size: 20px;
+    font-size: 18px;
   }
   /* ===== LEGAL PAGE STYLING ===== */
   div.legal_container h1 {
@@ -360,6 +361,13 @@ div.body_grid > div + .starting_section {
   }
   div.legal_container p,
   li {
+    font-size: 16px;
+  }
+  /* ===== APP LANDING GRID STYLING ===== */
+  div.tile_tl p,
+  div.tile_tr p,
+  div.tile_bl p,
+  div.tile_br p {
     font-size: 16px;
   }
 }
@@ -446,6 +454,10 @@ div.body_grid > div + .starting_section {
     grid-area: app_preview;
     align-self: center;
     justify-self: center;
+  }
+  div.app_preview img {
+    max-height: 92vh;
+    max-width: 96vw;
   }
 
   div.app_copy {
