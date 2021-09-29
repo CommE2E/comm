@@ -270,16 +270,13 @@ div.tile_grid {
   padding-bottom: 40px;
   grid-template-areas:
     'tile_tl tile_tr'
-    'tile_bl tile_br'
-    'tile_twtr tile_gh';
+    'tile_bl tile_br';
 }
 
 div.tile_tl,
 div.tile_tr,
 div.tile_bl,
-div.tile_br,
-div.tile_twtr,
-div.tile_gh {
+div.tile_br {
   display: flex;
   padding: 24px;
   border-radius: 36px;
@@ -287,21 +284,6 @@ div.tile_gh {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  transition: 300ms;
-}
-
-div.tile_twtr,
-div.tile_gh {
-  padding: 16px;
-}
-
-div.tile_twtr:hover {
-  background-color: #1d9bf0;
-  transition: 300ms;
-}
-
-div.tile_gh:hover {
-  background-color: #151013;
   transition: 300ms;
 }
 
@@ -333,9 +315,7 @@ div.tile_br:hover p,
 div.tile_tl:hover svg,
 div.tile_tr:hover svg,
 div.tile_bl:hover svg,
-div.tile_br:hover svg,
-div.tile_twtr:hover svg,
-div.tile_gh:hover svg {
+div.tile_br:hover svg {
   color: #ebedee;
   transition: 300ms;
 }
@@ -351,12 +331,6 @@ div.tile_bl {
 }
 div.tile_br {
   grid-area: tile_br;
-}
-div.tile_twtr {
-  grid-area: tile_twtr;
-}
-div.tile_gh {
-  grid-area: tile_gh;
 }
 
 /* ===== LEGAL PAGE STYLING ===== */
