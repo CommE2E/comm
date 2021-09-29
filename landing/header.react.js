@@ -1,6 +1,6 @@
 // @flow
 
-import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
@@ -32,10 +32,17 @@ function Header(props: HeaderProps): React.Node {
             <h1>Keyservers</h1>
           </Link>
         </div>
-        <div className={css.placeholder}>
-          <Link to="/">
-            <FontAwesomeIcon size="lg" color="#7e57c2" icon={faEnvelope} />
-          </Link>
+        <div className={css.social_icons}>
+          <a href="https://twitter.com/commdotapp">
+            <div className={css.twitter_icon}>
+              <FontAwesomeIcon size="lg" color="#1d9bf0" icon={faTwitter} />
+            </div>
+          </a>
+          <a href="https://github.com/CommE2E/comm">
+            <div className={css.github_icon}>
+              <FontAwesomeIcon size="lg" color="#151013" icon={faGithub} />
+            </div>
+          </a>
         </div>
       </div>
     </>

@@ -77,7 +77,7 @@ div.header_grid {
 /* ===== CSS HEADER GRID LAYOUT ===== */
 div.header_grid {
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-areas: 'logo top_nav placeholder';
+  grid-template-areas: 'logo top_nav social_icons';
 }
 
 div.header_legal {
@@ -121,31 +121,41 @@ div.top_nav a:hover {
   text-decoration-thickness: 2px;
 }
 
-div.placeholder {
-  grid-area: placeholder;
+div.social_icons {
+  grid-area: social_icons;
   align-self: center;
-
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-self: flex-end;
+}
 
+div.twitter_icon:hover svg,
+div.github_icon:hover svg {
+  color: #ebedee;
+}
+
+div.twitter_icon h1,
+div.github_icon h1 {
+  font-size: 32px;
+}
+
+div.twitter_icon,
+div.github_icon {
+  margin-inline: 8px;
   padding: 16px;
   border-radius: 36px;
   background-color: #ebedee;
   transition: 300ms;
 }
 
-div.placeholder:hover {
-  background-color: #7e57c2;
+div.twitter_icon:hover {
+  background-color: #1d9bf0;
   transition: 300ms;
 }
 
-div.placeholder:hover svg {
-  color: #ebedee;
-}
-
-div.placeholder h1 {
-  font-size: 32px;
+div.github_icon:hover {
+  background-color: #151013;
+  transition: 300ms;
 }
 
 /* ===== CSS BODY GRID LAYOUT ===== */
