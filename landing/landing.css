@@ -46,7 +46,7 @@ li {
 
 p.app_landing_subheading {
   background-color: #7e57c2;
-  margin-top: 0;
+  margin-top: 6px;
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 500;
   padding-inline: 4px;
