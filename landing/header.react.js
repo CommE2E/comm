@@ -6,12 +6,14 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import css from './landing.css';
+import type { LandingPageName } from './landing.react';
 
-export type HeaderProps = {
+type HeaderProps = {
   +isLegalPage: boolean,
+  +activePageName: LandingPageName,
 };
 function Header(props: HeaderProps): React.Node {
-  const { isLegalPage } = props;
+  const { isLegalPage, activePageName } = props;
 
   const headerStyle = isLegalPage
     ? `${css.header_grid} ${css.header_legal}`
@@ -25,12 +27,26 @@ function Header(props: HeaderProps): React.Node {
           </Link>
         </div>
         <div className={css.top_nav}>
-          <Link to="/">
-            <h1>App</h1>
-          </Link>
-          <Link to="/keyservers">
-            <h1>Keyservers</h1>
-          </Link>
+          <div
+            className={
+              activePageName === 'app' ? css.active_tab : css.inactive_tab
+            }
+          >
+            <Link to="/">
+              <h1>App</h1>
+            </Link>
+          </div>
+          <div
+            className={
+              activePageName === 'keyservers'
+                ? css.active_tab
+                : css.inactive_tab
+            }
+          >
+            <Link to="/keyservers">
+              <h1>Keyservers</h1>
+            </Link>
+          </div>
         </div>
         <div className={css.social_icons}>
           <a href="https://twitter.com/commdotapp">

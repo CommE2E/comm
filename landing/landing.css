@@ -114,8 +114,14 @@ div.top_nav h1 {
   font-size: 16px;
 }
 
-div.top_nav a {
+div.active_tab a {
+  color: white;
+  transition: 300ms;
+}
+
+div.inactive_tab a {
   color: #8a8f98;
+  transition: 300ms;
 }
 
 div.top_nav a:hover {

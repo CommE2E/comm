@@ -11,6 +11,15 @@ import Privacy from './privacy.react';
 import Support from './support.react';
 import Terms from './terms.react';
 
+export type LandingPageName =
+  | 'app'
+  | 'keyservers'
+  | 'privacy'
+  | 'terms'
+  | 'support';
+
+type ActivePage = { name: LandingPageName, node: React.Node };
+
 function Landing(): React.Node {
   const { pathname } = useLocation();
   React.useEffect(() => {
@@ -26,24 +35,25 @@ function Landing(): React.Node {
     [onPrivacy, onSupport, onTerms],
   );
 
-  const activeNode = React.useMemo(() => {
+  const activePage: ActivePage = React.useMemo(() => {
     if (onPrivacy) {
-      return <Privacy />;
+      return { name: 'privacy', node: <Privacy /> };
     } else if (onTerms) {
-      return <Terms />;
+      return { name: 'terms', node: <Terms /> };
     } else if (onSupport) {
-      return <Support />;
+      return { name: 'support', node: <Support /> };
     } else if (onKeyservers) {
-      return <Keyservers />;
+      return { name: 'keyservers', node: <Keyservers /> };
+    } else {
+      return { name: 'app', node: <AppLanding /> };
     }
-    return <AppLanding />;
   }, [onKeyservers, onPrivacy, onSupport, onTerms]);
 
   return (
     <>
-      <Header isLegalPage={isLegalPage} />
+      <Header isLegalPage={isLegalPage} activePageName={activePage.name} />
 
-      {activeNode}
+      {activePage.node}
 
       <Footer />
     </>
