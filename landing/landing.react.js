@@ -55,7 +55,7 @@ function Landing(): React.Node {
 
       {activePage.node}
 
-      <Footer />
+      <Footer activePageName={activePage.name} />
     </>
   );
 }
