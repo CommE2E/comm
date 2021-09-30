@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package tunnelbroker;
+
+service TunnelBrokerService {
+  rpc CheckIfPrimaryDeviceOnline(CheckRequest) returns (CheckResponse) {}
+  rpc BecomeNewPrimaryDevice(NewPrimaryRequest) returns (NewPrimaryResponse) {}
+  rpc SendPong (PongRequest) returns (PongResponse) {}
+}
+
+// for CheckIfPrimaryDeviceOnline
+
+enum CheckResponseType {
+  PRIMARY_DOESNT_EXIST = 0;
+  PRIMARY_ONLINE = 1;
+  PRIMARY_OFFLINE = 2;
+  CURRENT_IS_PRIMARY = 3;
+}
+
+// TODO: all the requests are the same, maybe there can be a mutual type for all of them
+// leaving this as is for now as there may be some differences
+message CheckRequest {
+  string id = 1;
+  string deviceToken = 2;
+}
+
+message CheckResponse {
+  CheckResponseType checkResponseType = 1;
+}
+
+// BecomeNewPrimaryDevice
+
+message NewPrimaryRequest {
+  string id = 1;
+  string deviceToken = 2;
+}
+
+message NewPrimaryResponse {
+  bool success = 1;
+}
+
+// for SendPong
+
+message PongRequest {
+  string id = 1;
+  string deviceToken = 2;
+}
+
+message PongResponse {}

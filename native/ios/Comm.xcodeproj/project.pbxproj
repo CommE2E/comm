@@ -10,6 +10,8 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */; };
+		71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		713EE41126C66B80003D7C48 /* CryptoTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 713EE41026C66B80003D7C48 /* CryptoTest.mm */; };
@@ -52,6 +54,10 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Comm/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = Comm/Info.release.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Comm/main.m; sourceTree = "<group>"; };
+		71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.pb.cc; sourceTree = "<group>"; };
+		71009A7426FDCA67002C8453 /* tunnelbroker.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.pb.h; sourceTree = "<group>"; };
+		71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.grpc.pb.cc; sourceTree = "<group>"; };
+		71009A7626FDCA67002C8453 /* tunnelbroker.grpc.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.grpc.pb.h; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -165,11 +171,23 @@
 			path = CommTests;
 			sourceTree = "<group>";
 		};
-		7187921F26E23F410014B32C /* grpc */ = {
+		718A3C0426F22BD100F04A8D /* grpc */ = {
 			isa = PBXGroup;
 			children = (
+				718A3C0626F22D0A00F04A8D /* _generated */,
 			);
 			path = grpc;
+			sourceTree = "<group>";
+		};
+		718A3C0626F22D0A00F04A8D /* _generated */ = {
+			isa = PBXGroup;
+			children = (
+				71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */,
+				71009A7626FDCA67002C8453 /* tunnelbroker.grpc.pb.h */,
+				71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */,
+				71009A7426FDCA67002C8453 /* tunnelbroker.pb.h */,
+			);
+			path = _generated;
 			sourceTree = "<group>";
 		};
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
@@ -198,7 +216,7 @@
 		71BE84372636A944002849D2 /* CommonCpp */ = {
 			isa = PBXGroup;
 			children = (
-				7187921F26E23F410014B32C /* grpc */,
+				718A3C0426F22BD100F04A8D /* grpc */,
 				71BF5B6A26B3FCFF00EDE27D /* CryptoTools */,
 				71BE84382636A944002849D2 /* Tools */,
 				71BE843A2636A944002849D2 /* NativeModules */,
@@ -570,9 +588,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
+				71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
