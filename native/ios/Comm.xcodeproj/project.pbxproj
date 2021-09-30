@@ -12,6 +12,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */; };
 		71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */; };
+		71009A7B26FDCD72002C8453 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7926FDCD71002C8453 /* Client.cpp */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		713EE41126C66B80003D7C48 /* CryptoTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 713EE41026C66B80003D7C48 /* CryptoTest.mm */; };
@@ -58,6 +59,8 @@
 		71009A7426FDCA67002C8453 /* tunnelbroker.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.pb.h; sourceTree = "<group>"; };
 		71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.grpc.pb.cc; sourceTree = "<group>"; };
 		71009A7626FDCA67002C8453 /* tunnelbroker.grpc.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.grpc.pb.h; sourceTree = "<group>"; };
+		71009A7926FDCD71002C8453 /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
+		71009A7A26FDCD71002C8453 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -174,6 +177,8 @@
 		718A3C0426F22BD100F04A8D /* grpc */ = {
 			isa = PBXGroup;
 			children = (
+				71009A7926FDCD71002C8453 /* Client.cpp */,
+				71009A7A26FDCD71002C8453 /* Client.h */,
 				718A3C0626F22D0A00F04A8D /* _generated */,
 			);
 			path = grpc;
@@ -591,6 +596,7 @@
 				71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
+				71009A7B26FDCD72002C8453 /* Client.cpp in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
 				71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,

@@ -3,6 +3,7 @@
 #include "../CryptoTools/CryptoModule.h"
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
+#include "../grpc/Client.h"
 #include "NativeModules.h"
 #include <jsi/jsi.h>
 #include <memory>
@@ -14,10 +15,13 @@ namespace jsi = facebook::jsi;
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   std::unique_ptr<WorkerThread> databaseThread;
   std::unique_ptr<WorkerThread> cryptoThread;
+  std::unique_ptr<WorkerThread> networkThread;
 
   CommSecureStore secureStore;
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
+
+  std::unique_ptr<network::Client> networkClient;
 
   jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) override;
   jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
@@ -37,6 +41,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) override;
   jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
+
   void scheduleOrRun(
       const std::unique_ptr<WorkerThread> &thread,
       const taskType &task);
@@ -44,6 +49,11 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
   void initializeThreads();
+
+  void initializeNetworkModule(
+      const std::string &userId,
+      const std::string &deviceToken,
+      const std::string &hostname = "");
 };
 
 } // namespace comm

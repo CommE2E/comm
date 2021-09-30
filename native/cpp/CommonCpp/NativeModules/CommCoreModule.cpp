@@ -1,5 +1,6 @@
 #include "CommCoreModule.h"
 #include "DatabaseManager.h"
+#include "Logger.h"
 #include "MessageStoreOperations.h"
 
 #include <folly/Optional.h>
@@ -460,6 +461,23 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
       });
 }
 
+void CommCoreModule::initializeNetworkModule(
+    const std::string &userId,
+    const std::string &deviceToken,
+    const std::string &hostname) {
+  std::string host = (hostname.size() == 0) ? "localhost" : hostname;
+  // initialize network module
+  // this is going to differ depending on a device
+  // 10.0.2.2 for android emulator
+  // 192.168.x.x for a physical device etc
+  const std::shared_ptr<grpc::ChannelCredentials> credentials =
+      (host.substr(0, 5) == "https")
+      ? grpc::SslCredentials(grpc::SslCredentialsOptions())
+      : grpc::InsecureChannelCredentials();
+  this->networkClient.reset(
+      new network::Client(host, "50051", credentials, userId, deviceToken));
+}
+
 jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -523,13 +541,17 @@ void CommCoreModule::initializeThreads() {
   if (this->cryptoThread == nullptr) {
     this->cryptoThread = std::make_unique<WorkerThread>("crypto");
   }
+  if (this->networkThread == nullptr) {
+    this->networkThread = std::make_unique<WorkerThread>("network");
+  }
 }
 
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
       databaseThread(nullptr),
-      cryptoThread(nullptr) {
+      cryptoThread(nullptr),
+      networkThread(nullptr) {
   this->initializeThreads();
 };
 
