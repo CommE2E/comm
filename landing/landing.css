@@ -463,8 +463,10 @@ div.body_grid > div + .starting_section {
     justify-content: flex-start;
     align-self: flex-start;
   }
-  div.top_nav h1 {
-    margin-right: 16px;
+
+  div.active_tab,
+  div.inactive_tab {
+    margin-right: 10px;
   }
 
   div.twitter_icon,
