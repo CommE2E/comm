@@ -26,7 +26,7 @@ function Header(props: HeaderProps): React.Node {
         </div>
         <div className={css.top_nav}>
           <Link to="/">
-            <h1>Comm Messenger</h1>
+            <h1>App</h1>
           </Link>
           <Link to="/keyservers">
             <h1>Keyservers</h1>
