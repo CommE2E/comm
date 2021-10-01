@@ -8,6 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
+import TextLoop from 'react-text-loop';
 
 import css from './landing.css';
 
@@ -18,7 +19,16 @@ function AppLanding(): React.Node {
         <img src="images/comm-screenshot.png" />
       </div>
       <div className={css.app_copy}>
-        <h1 className={css.no_bottom_margin}>Comm Messenger</h1>
+        <h1 className={css.no_bottom_margin}>
+          Comm{' '}
+          <TextLoop interval={750}>
+            <span>Messenger</span>
+            <span>Calendar</span>
+            <span>Wiki</span>
+            <span>Wallet</span>
+            <span>Placeholder</span>
+          </TextLoop>
+        </h1>
         <p className={css.app_landing_subheading}>
           Web3 Messenger. E2E encrypted. Blah..
         </p>
