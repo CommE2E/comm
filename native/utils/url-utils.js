@@ -3,12 +3,7 @@
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
-import type { Store } from 'redux';
 
-import { setURLPrefix } from 'lib/utils/url-utils';
-
-import type { Action } from '../redux/action-types';
-import type { AppState } from '../redux/state-types';
 import { natDevHostname, checkForMissingNatDevHostname } from './dev-hostname';
 
 const localhostHostname = 'localhost';
@@ -61,29 +56,8 @@ if (Platform.OS === 'android') {
 }
 
 const defaultURLPrefix: string = __DEV__
-  ? getDevNodeServerURL(true)
+  ? getDevNodeServerURL(DeviceInfo.isEmulatorSync())
   : productionNodeServerURL;
-
-async function updateURLPrefixAfterCheckingIfEmulator(
-  store: Store<AppState, Action>,
-) {
-  if (!__DEV__) {
-    return;
-  }
-  const isEmulator = await DeviceInfo.isEmulator();
-  const urlPrefix = getDevNodeServerURL(isEmulator);
-  if (
-    urlPrefix === defaultURLPrefix ||
-    urlPrefix === store.getState().urlPrefix ||
-    store.getState()._persist?.rehydrated
-  ) {
-    return;
-  }
-  store.dispatch({
-    type: (setURLPrefix: typeof setURLPrefix),
-    payload: urlPrefix,
-  });
-}
 
 const natNodeServer: string = getDevNodeServerURLFromHostname(natDevHostname);
 
@@ -96,5 +70,4 @@ export {
   nodeServerOptions,
   natNodeServer,
   setCustomServer,
-  updateURLPrefixAfterCheckingIfEmulator,
 };
