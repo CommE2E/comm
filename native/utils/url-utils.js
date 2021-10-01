@@ -10,10 +10,11 @@ const localhostHostname = 'localhost';
 const localhostHostnameFromAndroidEmulator = '10.0.2.2';
 
 const productionNodeServerURL = 'https://squadcal.org';
+const devIsEmulator: boolean = __DEV__ && DeviceInfo.isEmulatorSync();
 
-function getDevServerHostname(isEmulator: boolean): string {
+function getDevServerHostname(): string {
   invariant(__DEV__, 'getDevServerHostname called from production');
-  if (!isEmulator) {
+  if (!devIsEmulator) {
     checkForMissingNatDevHostname();
     return natDevHostname;
   } else if (Platform.OS === 'android') {
@@ -28,22 +29,20 @@ function getDevNodeServerURLFromHostname(hostname: string): string {
   return `http://${hostname}/comm`;
 }
 
-function getDevNodeServerURL(isEmulator: boolean): string {
+function getDevNodeServerURL(): string {
   invariant(__DEV__, 'getDevNodeServerURL called from production');
-  const hostname = getDevServerHostname(isEmulator);
+  const hostname = getDevServerHostname();
   return getDevNodeServerURLFromHostname(hostname);
 }
 
-async function fetchDevServerHostname(): Promise<string> {
+function fetchDevServerHostname(): string {
   invariant(__DEV__, 'fetchDevServerHostname called from production');
-  const isEmulator = await DeviceInfo.isEmulator();
-  return getDevServerHostname(isEmulator);
+  return getDevServerHostname();
 }
 
 function fetchDevServerHostnameSync(): string {
   invariant(__DEV__, 'fetchDevServerHostnameSync called from production');
-  const isEmulator = DeviceInfo.isEmulatorSync();
-  return getDevServerHostname(isEmulator);
+  return getDevServerHostname();
 }
 
 const nodeServerOptions = [productionNodeServerURL];
@@ -56,7 +55,7 @@ if (Platform.OS === 'android') {
 }
 
 const defaultURLPrefix: string = __DEV__
-  ? getDevNodeServerURL(DeviceInfo.isEmulatorSync())
+  ? getDevNodeServerURL()
   : productionNodeServerURL;
 
 const natNodeServer: string = getDevNodeServerURLFromHostname(natDevHostname);

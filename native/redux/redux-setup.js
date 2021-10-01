@@ -378,8 +378,9 @@ const middleware = applyMiddleware(...middlewares);
 let composeFunc = compose;
 if (__DEV__ && global.HermesInternal) {
   const { composeWithDevTools } = require('remote-redux-devtools/src');
-  composeFunc = composeWithDevTools(fetchDevServerHostname(), {
+  composeFunc = composeWithDevTools({
     name: 'Redux',
+    hostname: fetchDevServerHostname(),
     ...remoteReduxDevServerConfig,
   });
 } else if (global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {

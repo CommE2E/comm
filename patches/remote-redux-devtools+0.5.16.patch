@@ -1,5 +1,5 @@
 diff --git a/node_modules/remote-redux-devtools/src/devTools.js b/node_modules/remote-redux-devtools/src/devTools.js
-index 09001b2..1c8e5cc 100644
+index 09001b2..3494dcb 100644
 --- a/node_modules/remote-redux-devtools/src/devTools.js
 +++ b/node_modules/remote-redux-devtools/src/devTools.js
 @@ -1,8 +1,7 @@
@@ -20,27 +20,18 @@ index 09001b2..1c8e5cc 100644
  
  function async(fn) {
    setTimeout(fn, 0);
-@@ -25,12 +25,18 @@ function getRandomId() {
+@@ -25,6 +25,10 @@ function getRandomId() {
  }
  
  class DevToolsEnhancer {
--  constructor() {
 +  errorCounts = {};
 +
-+  // an async function that returns a proper remote server hostname and uses
++  // a function that returns a proper remote server hostname and uses
 +  // `isEmulator` from 'react-native-device-info' is expected
-+  constructor(hostnamePromise) {
+   constructor() {
      this.enhance.updateStore = newStore => {
        console.warn('devTools.updateStore is deprecated use composeWithDevTools instead: ' +
-         'https://github.com/zalmoxisus/remote-redux-devtools#use-devtools-compose-helper');
-       this.store = newStore;
-     };
-+
-+    this.hostnamePromise = hostnamePromise;
-   }
- 
-   getLiftedStateRaw() {
-@@ -95,13 +101,33 @@ class DevToolsEnhancer {
+@@ -95,13 +99,33 @@ class DevToolsEnhancer {
      }
    }
  
@@ -77,40 +68,15 @@ index 09001b2..1c8e5cc 100644
      } else if (message.type === 'UPDATE') {
        this.relay('STATE', this.getLiftedState());
      } else if (message.type === 'START') {
-@@ -140,7 +166,7 @@ class DevToolsEnhancer {
-     if (options.port) {
-       this.socketOptions = {
-         port: options.port,
--        hostname: options.hostname || 'localhost',
-+        hostname: options.hostname,
-         secure: options.secure
-       };
-     } else this.socketOptions = defaultSocketOptions;
-@@ -187,12 +213,35 @@ class DevToolsEnhancer {
+@@ -187,12 +211,19 @@ class DevToolsEnhancer {
      }
    };
  
-+  startWrapper = async () => {
++  startWrapper = () => {
 +    if (this.started || (this.socket && this.socket.getState() === this.socket.CONNECTING)) {
 +      return;
 +    }
-+
-+    if (!this.socketOptions.port) {
-+      // no port provided - we should throw!
-+      throw new Error('no port provided');
-+    }
-+    if (this.socketOptions.hostname) {
-+      // hostname provided - don't look for it
-+      this.start();
-+      return;
-+    }
-+    // obtain the hostname
-+    try {
-+      this.socketOptions.hostname = await this.hostnamePromise;
-+      this.start();
-+    } catch (err) {
-+      throw new Error('Error obtaining socket hostname: ' + err.toString());
-+    }
++    this.start();
 +  };
 +
    start = () => {
@@ -123,7 +89,7 @@ index 09001b2..1c8e5cc 100644
        // if we've already had this error before, increment it's counter, otherwise assign it '1' since we've had the error once.
        this.errorCounts[err.name] = this.errorCounts.hasOwnProperty(err.name) ? this.errorCounts[err.name] + 1 : 1;
  
-@@ -229,7 +278,7 @@ class DevToolsEnhancer {
+@@ -229,7 +260,7 @@ class DevToolsEnhancer {
      this.lastAction = action.type;
      if (!this.started && this.sendOnError === 2 && this.store.liftedStore) async(this.checkForReducerErrors);
      else if (action.action) {
@@ -132,7 +98,7 @@ index 09001b2..1c8e5cc 100644
        else if (this.stopOn && this.started && this.stopOn.indexOf(action.action.type) !== -1) async(this.stop);
        else if (this.sendOn && !this.started && this.sendOn.indexOf(action.action.type) !== -1) async(this.send);
      }
-@@ -261,10 +310,7 @@ class DevToolsEnhancer {
+@@ -261,10 +292,7 @@ class DevToolsEnhancer {
    }
  
    enhance = (options = {}) => {
@@ -144,7 +110,7 @@ index 09001b2..1c8e5cc 100644
      const realtime = typeof options.realtime === 'undefined'
        ? process.env.NODE_ENV === 'development' : options.realtime;
      if (!realtime && !(this.startOn || this.sendOn || this.sendOnError)) return f => f;
-@@ -285,7 +331,8 @@ class DevToolsEnhancer {
+@@ -285,7 +313,8 @@ class DevToolsEnhancer {
            }
          )(reducer, initialState);
  
@@ -154,34 +120,3 @@ index 09001b2..1c8e5cc 100644
          this.store.subscribe(() => {
            if (this.isMonitored) this.handleChange(this.store.getState(), this.getLiftedStateRaw(), maxAge);
          });
-@@ -295,10 +342,10 @@ class DevToolsEnhancer {
-   }
- }
- 
--export default (...args) => new DevToolsEnhancer().enhance(...args);
-+export default (hostnamePromise, ...args) => new DevToolsEnhancer(hostnamePromise).enhance(...args);
- 
--const compose = (options) => (...funcs) => (...args) => {
--  const devToolsEnhancer = new DevToolsEnhancer();
-+const compose = (hostnamePromise, options) => (...funcs) => (...args) => {
-+  const devToolsEnhancer = new DevToolsEnhancer(hostnamePromise);
- 
-   function preEnhancer(createStore) {
-     return (reducer, preloadedState, enhancer) => {
-@@ -317,12 +364,12 @@ const compose = (options) => (...funcs) => (...args) => {
-   );
- };
- 
--export function composeWithDevTools(...funcs) {
-+export function composeWithDevTools(hostnamePromise, ...funcs) {
-   if (funcs.length === 0) {
--    return new DevToolsEnhancer().enhance();
-+    return new DevToolsEnhancer(hostnamePromise).enhance();
-   }
-   if (funcs.length === 1 && typeof funcs[0] === 'object') {
--    return compose(funcs[0]);
-+    return compose(hostnamePromise, funcs[0]);
-   }
--  return compose({})(...funcs);
-+  return compose(hostnamePromise, {})(...funcs);
- }

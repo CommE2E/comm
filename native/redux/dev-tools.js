@@ -14,13 +14,11 @@ if (__DEV__ && global.HermesInternal && !global.__REDUX_DEVTOOLS_EXTENSION__) {
   const { connect } = require('remotedev/src');
   global.__REDUX_DEVTOOLS_EXTENSION__ = {
     connect: ({ name }) =>
-      connect(
-        {
-          name,
-          ...remoteReduxDevServerConfig,
-        },
-        fetchDevServerHostname(),
-      ),
+      connect({
+        name,
+        hostname: fetchDevServerHostname(),
+        ...remoteReduxDevServerConfig,
+      }),
   };
 }
 
