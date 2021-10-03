@@ -25,7 +25,7 @@ public:
   }
 
 private:
-  std::vector<std::string> ids_;
+  const std::vector<std::string> ids_;
 };
 
 class RemoveMessagesForThreadsOperation : public MessageStoreOperationBase {
@@ -39,7 +39,7 @@ public:
   }
 
 private:
-  std::vector<std::string> ids_;
+  const std::vector<std::string> ids_;
 };
 
 class ReplaceMessageOperation : public MessageStoreOperationBase {
@@ -50,15 +50,15 @@ public:
   virtual ~ReplaceMessageOperation() = default;
 
   virtual void execute() override {
-    for (Media &media : media_vector_) {
+    for (const Media &media : media_vector_) {
       DatabaseManager::getQueryExecutor().replaceMedia(media);
     }
     DatabaseManager::getQueryExecutor().replaceMessage(msg_);
   }
 
 private:
-  Message msg_;
-  std::vector<Media> media_vector_;
+  const Message msg_;
+  const std::vector<Media> media_vector_;
 };
 
 class RekeyMessageOperation : public MessageStoreOperationBase {
@@ -73,8 +73,8 @@ public:
   }
 
 private:
-  std::string from_;
-  std::string to_;
+  const std::string from_;
+  const std::string to_;
 };
 
 } // namespace comm

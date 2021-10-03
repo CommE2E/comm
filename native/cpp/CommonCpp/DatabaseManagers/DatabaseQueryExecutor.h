@@ -33,9 +33,9 @@ public:
   virtual void removeMessages(std::vector<std::string> ids) const = 0;
   virtual void
   removeMessagesForThreads(std::vector<std::string> threadIDs) const = 0;
-  virtual void replaceMessage(Message &message) const = 0;
+  virtual void replaceMessage(const Message &message) const = 0;
   virtual void rekeyMessage(std::string from, std::string to) const = 0;
-  virtual void replaceMedia(Media &media) const = 0;
+  virtual void replaceMedia(const Media &media) const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;

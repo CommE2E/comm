@@ -26,9 +26,9 @@ public:
   void removeMessages(std::vector<std::string> ids) const override;
   void
   removeMessagesForThreads(std::vector<std::string> threadIDs) const override;
-  void replaceMessage(Message &message) const override;
+  void replaceMessage(const Message &message) const override;
   void rekeyMessage(std::string from, std::string to) const override;
-  void replaceMedia(Media &media) const override;
+  void replaceMedia(const Media &media) const override;
   void beginTransaction() const override;
   void commitTransaction() const override;
   void rollbackTransaction() const override;

@@ -333,7 +333,7 @@ void SQLiteQueryExecutor::removeMessagesForThreads(
       where(in(&Media::thread, threadIDs)));
 }
 
-void SQLiteQueryExecutor::replaceMessage(Message &message) const {
+void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
   SQLiteQueryExecutor::getStorage().replace(message);
 }
 
@@ -344,7 +344,7 @@ void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
   SQLiteQueryExecutor::getStorage().remove<Message>(from);
 }
 
-void SQLiteQueryExecutor::replaceMedia(Media &media) const {
+void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
   SQLiteQueryExecutor::getStorage().replace(media);
 }
 
