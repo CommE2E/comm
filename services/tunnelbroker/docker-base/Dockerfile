@@ -3,7 +3,7 @@ FROM ubuntu:20.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SHELL=/bin/bash
 
-COPY services/tunnelbroker/grpc-server/transferred /transferred
+COPY services/tunnelbroker/contents /transferred
 
 RUN apt update -y &&\
     apt install -y cmake git build-essential autoconf libtool pkg-config libboost-all-dev libfmt-dev &&\

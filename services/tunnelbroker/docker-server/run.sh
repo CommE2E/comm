@@ -24,7 +24,7 @@ then
     docker stop $(echo $CONTAINERS_IDS) && docker rm $(echo $CONTAINERS_IDS)
     docker rmi $IMAGE_NAME:$VERSION
 
-    docker build -t $IMAGE_NAME:$VERSION -f services/tunnelbroker/grpc-server/Dockerfile .
+    docker build -t $IMAGE_NAME:$VERSION -f services/tunnelbroker/docker-server/Dockerfile .
     docker run -it -p 50051:50051 $IMAGE_NAME:$VERSION
   else
     echo "A new one will not be created, the current one will be used."
@@ -36,6 +36,6 @@ then
   fi
 else
   echo "Creating a new container for image $IMAGE_NAME"
-  docker build -t $IMAGE_NAME:$VERSION -f services/tunnelbroker/grpc-server/Dockerfile .
+  docker build -t $IMAGE_NAME:$VERSION -f services/tunnelbroker/docker-server/Dockerfile .
   docker run -it -p 50051:50051 $IMAGE_NAME:$VERSION
 fi

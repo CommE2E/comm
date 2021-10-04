@@ -4,6 +4,6 @@
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
-    "run-grpc-server": "cd .. && ./services/tunnelbroker/run.sh && ./services/tunnelbroker/grpc-server/run.sh --overwrite"
+    "run-grpc-server": "cd .. && ./services/tunnelbroker/docker-base/run.sh && ./services/tunnelbroker/docker-server/run.sh --overwrite"
   }
 }

@@ -23,5 +23,5 @@ then
   echo "docker rmi $(echo $IMAGES_IDS)"
 else
   echo "Creating a new image $IMAGE_NAME"
-  docker build -t $IMAGE_NAME:$VERSION -f services/tunnelbroker/Dockerfile .
+  docker build -t $IMAGE_NAME:$VERSION -f services/tunnelbroker/docker-base/Dockerfile .
 fi
