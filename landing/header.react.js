@@ -49,6 +49,11 @@ function Header(props: HeaderProps): React.Node {
           </div>
         </div>
         <div className={css.social_icons}>
+          <a href="">
+            <div className={css.request_access}>
+              <p>Request Access</p>
+            </div>
+          </a>
           <a href="https://twitter.com/commdotapp">
             <div className={css.twitter_icon}>
               <FontAwesomeIcon size="lg" color="#ebedee" icon={faTwitter} />

@@ -130,7 +130,7 @@ div.top_nav a:hover {
 
 div.social_icons {
   grid-area: social_icons;
-  align-self: center;
+  align-items: center;
   display: flex;
   flex-direction: row;
   justify-self: flex-end;
@@ -165,6 +165,26 @@ div.twitter_icon:hover svg {
 div.github_icon:hover svg {
   color: #151013;
   transition: 300ms;
+}
+
+div.request_access {
+  border-radius: 4px;
+  padding-inline: 12px;
+  margin-right: 12px;
+  background-color: #7e57c2;
+  color: #ebedee;
+  transition: 300ms;
+}
+div.request_access:hover {
+  color: #7e57c2;
+  background-color: #ebedee;
+  transition: 300ms;
+}
+
+div.request_access p {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 2.5;
 }
 
 /* ===== CSS BODY GRID LAYOUT ===== */
