@@ -51,12 +51,12 @@ function Header(props: HeaderProps): React.Node {
         <div className={css.social_icons}>
           <a href="https://twitter.com/commdotapp">
             <div className={css.twitter_icon}>
-              <FontAwesomeIcon size="lg" color="#1d9bf0" icon={faTwitter} />
+              <FontAwesomeIcon size="lg" color="#ebedee" icon={faTwitter} />
             </div>
           </a>
           <a href="https://github.com/CommE2E/comm">
             <div className={css.github_icon}>
-              <FontAwesomeIcon size="lg" color="#151013" icon={faGithub} />
+              <FontAwesomeIcon size="lg" color="#ebedee" icon={faGithub} />
             </div>
           </a>
         </div>

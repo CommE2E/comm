@@ -136,11 +136,6 @@ div.social_icons {
   justify-self: flex-end;
 }
 
-div.twitter_icon:hover svg,
-div.github_icon:hover svg {
-  color: #ebedee;
-}
-
 div.twitter_icon h1,
 div.github_icon h1 {
   font-size: 32px;
@@ -151,17 +146,24 @@ div.github_icon {
   margin-inline: 8px;
   padding: 16px;
   border-radius: 36px;
+  transition: 300ms;
+}
+div.twitter_icon:hover,
+div.github_icon:hover {
   background-color: #ebedee;
   transition: 300ms;
 }
 
-div.twitter_icon:hover {
-  background-color: #1d9bf0;
+div.twitter_icon svg,
+div.github_icon svg {
   transition: 300ms;
 }
-
-div.github_icon:hover {
-  background-color: #151013;
+div.twitter_icon:hover svg {
+  color: #1d9bf0;
+  transition: 300ms;
+}
+div.github_icon:hover svg {
+  color: #151013;
   transition: 300ms;
 }
 
@@ -474,7 +476,6 @@ div.body_grid > div + .starting_section {
     margin-inline: 4px;
     padding: 10px;
     border-radius: 36px;
-    background-color: #ebedee;
     transition: 300ms;
   }
 
