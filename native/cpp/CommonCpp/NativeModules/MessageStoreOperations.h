@@ -11,7 +11,7 @@ public:
   MessageStoreOperationBase() = default;
   virtual ~MessageStoreOperationBase() = default;
 
-  void virtual execute() = 0;
+  virtual void execute() = 0;
 };
 
 class RemoveMessagesOperation : public MessageStoreOperationBase {
@@ -20,7 +20,7 @@ public:
   }
   virtual ~RemoveMessagesOperation() = default;
 
-  void virtual execute() override {
+  virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeMessages(ids_);
   }
 
@@ -34,7 +34,7 @@ public:
   }
   virtual ~RemoveMessagesForThreadsOperation() = default;
 
-  void virtual execute() override {
+  virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeMessagesForThreads(ids_);
   }
 
@@ -49,7 +49,7 @@ public:
   }
   virtual ~ReplaceMessageOperation() = default;
 
-  void virtual execute() override {
+  virtual void execute() override {
     for (Media &media : media_vector_) {
       DatabaseManager::getQueryExecutor().replaceMedia(media);
     }
@@ -68,7 +68,7 @@ public:
   }
   virtual ~RekeyMessageOperation() = default;
 
-  void virtual execute() override {
+  virtual void execute() override {
     DatabaseManager::getQueryExecutor().rekeyMessage(from_, to_);
   }
 
