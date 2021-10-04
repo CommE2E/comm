@@ -221,6 +221,7 @@
 		71BE84372636A944002849D2 /* CommonCpp */ = {
 			isa = PBXGroup;
 			children = (
+				71F971B4270726C000DDC5BF /* _generated */,
 				718A3C0426F22BD100F04A8D /* grpc */,
 				71BF5B6A26B3FCFF00EDE27D /* CryptoTools */,
 				71BE84382636A944002849D2 /* Tools */,
@@ -244,9 +245,7 @@
 		71BE843A2636A944002849D2 /* NativeModules */ = {
 			isa = PBXGroup;
 			children = (
-				71BE843B2636A944002849D2 /* NativeModules.cpp */,
 				71BE843C2636A944002849D2 /* CommCoreModule.cpp */,
-				71BE843D2636A944002849D2 /* NativeModules.h */,
 				71BE843E2636A944002849D2 /* CommCoreModule.h */,
 				B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */,
 			);
@@ -303,6 +302,15 @@
 				71BF5B7426B401D300EDE27D /* Tools.h */,
 			);
 			path = CryptoTools;
+			sourceTree = "<group>";
+		};
+		71F971B4270726C000DDC5BF /* _generated */ = {
+			isa = PBXGroup;
+			children = (
+				71BE843D2636A944002849D2 /* NativeModules.h */,
+				71BE843B2636A944002849D2 /* NativeModules.cpp */,
+			);
+			path = _generated;
 			sourceTree = "<group>";
 		};
 		7FF0870B1E833C3F000A1ACF /* Frameworks */ = {

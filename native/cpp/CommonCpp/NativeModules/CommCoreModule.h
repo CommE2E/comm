@@ -3,8 +3,8 @@
 #include "../CryptoTools/CryptoModule.h"
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
+#include "../_generated/NativeModules.h"
 #include "../grpc/Client.h"
-#include "NativeModules.h"
 #include <jsi/jsi.h>
 #include <memory>
 
