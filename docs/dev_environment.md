@@ -611,6 +611,43 @@ cd native
 yarn react-native run-android
 ```
 
+## Codegen
+
+We use a couple of tools that automatically generate code. There is always a source of truth – usually some file(s) with schemas.
+
+### Codegen for JSI
+
+JSI is a framework in React Native that allows C++ and JS to communicate synchronously and directly. The codegen for JSI takes a Flow schema and generates C++ files that enable communication between JS and C++ in `react-native` apps.
+
+The script to generate this code is written in JavaScript and is included as a npm package so no additional software is needed to use it. The schema has to be defined in Flow as an interface, and that interface must inherit from react-native's `TurboModule` interface.
+
+To run the JSI codegen, just run `cd native && yarn codegen-jsi`. The input Flow schemas are located in `native/schema`.
+
+### Codegen for gRPC
+
+gRPC is a framework from Google for writing services. As a developer, you define your service's API using Protobufs, and gRPC handles the networking and basic infrastructure for you.
+
+The codegen for gRPC takes files written in the [proto language](https://developers.google.com/protocol-buffers/docs/proto3) as input and outputs C++ code that enables a developer to create a client and a server that use gRPC for communication.
+
+Because of C++ build dependencies, this could not be bundled as an npm package. `brew` also fails to install the required version so if you want to generate files in your local environment, you have to manually install protobuf.
+
+If you find yourself needing to modify the Protobuf schema files, you'll need to set up the tools to run the codegen. Follow the steps below:
+
+- `brew install autoconf automake libtool curl make g++ unzip`
+- `wget https://github.com/protocolbuffers/protobuf/releases/download/v3.15.8/protobuf-cpp-3.15.8.tar.gz`
+- `tar xfzv protobuf-cpp-3.15.8.tar.gz`
+- `cd protobuf-3.15.8`
+- `./configure`
+- `make`
+- `make check`
+- `make install`
+
+After installing, you should be able to check the version of Protobuf like this: `protoc --version`
+
+After installing Protobuf, you will also need to install gRPC using `brew install grpc`. This will install the `grpc_cpp_plugin` for `protoc` (the Protobuf compiler), which is necessary for compiling gRPC schemas.
+
+Please note that the order is crucial here - you have to first install Protobuf and only then gRPC. This is because otherwise gRPC will install Protobuf automatically from its dependency list, but the version of Protobuf will be incorrect.
+
 # Debugging
 
 ## React Developer Tools
