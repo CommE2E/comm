@@ -1,4 +1,4 @@
-FROM tunnelbroker-base:1.0
+FROM commapp/tunnelbroker-base:1.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SHELL=/bin/bash

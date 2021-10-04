@@ -4,7 +4,7 @@ set -e
 
 # this script should be run from the comm's root directory
 
-IMAGE_NAME="tunnelbroker-server"
+IMAGE_NAME="commapp/tunnelbroker-server"
 VERSION="1.0"
 CONTAINERS_IDS=$(docker ps -aq -f ancestor=$IMAGE_NAME:$VERSION)
 NCONTAINERS=$(docker ps -aq -f ancestor=$IMAGE_NAME:$VERSION | wc -l | sed 's/ //g')
