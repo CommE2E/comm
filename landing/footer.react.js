@@ -1,5 +1,7 @@
 // @flow
 
+import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -56,7 +58,12 @@ function Footer(props: FooterProps): React.Node {
 
           <div className={css.inactive_tab}>
             <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
-              How Comm works
+              How Comm works{' '}
+              <FontAwesomeIcon
+                size="sm"
+                color="#ffffff"
+                icon={faExternalLinkSquareAlt}
+              />
             </a>
           </div>
         </div>

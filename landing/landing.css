@@ -223,12 +223,14 @@ div.sitemap a {
 }
 
 div.sitemap a.active_tab,
-div.sitemap a:hover {
+div.sitemap a:hover,
+div.sitemap a:hover svg {
   color: white;
   transition: 300ms;
 }
 
-div.sitemap a.inactive_tab {
+div.sitemap .inactive_tab,
+div.sitemap .inactive_tab svg {
   color: #8a8f98;
   transition: 300ms;
 }
