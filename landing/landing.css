@@ -107,11 +107,16 @@ div.top_nav {
   align-self: center;
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: center;
 }
 
 div.top_nav h1 {
   font-size: 16px;
+}
+
+div.top_nav div.active_tab,
+div.top_nav div.inactive_tab {
+  margin-right: 16px;
 }
 
 div.active_tab a {
