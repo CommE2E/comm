@@ -755,25 +755,11 @@ void CommCoreModule::scheduleOrRun(
   }
 }
 
-void CommCoreModule::initializeThreads() {
-  if (this->databaseThread == nullptr) {
-    this->databaseThread = std::make_unique<WorkerThread>("database");
-  }
-  if (this->cryptoThread == nullptr) {
-    this->cryptoThread = std::make_unique<WorkerThread>("crypto");
-  }
-  if (this->networkThread == nullptr) {
-    this->networkThread = std::make_unique<WorkerThread>("network");
-  }
-}
-
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
-      databaseThread(nullptr),
-      cryptoThread(nullptr),
-      networkThread(nullptr) {
-  this->initializeThreads();
-};
+      databaseThread(std::make_unique<WorkerThread>("database")),
+      cryptoThread(std::make_unique<WorkerThread>("crypto")),
+      networkThread(std::make_unique<WorkerThread>("network")){};
 
 } // namespace comm

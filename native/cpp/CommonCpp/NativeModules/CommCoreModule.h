@@ -51,7 +51,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
-  void initializeThreads();
 
   void initializeNetworkModule(
       const std::string &userId,
