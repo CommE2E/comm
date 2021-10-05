@@ -35,7 +35,7 @@ jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
             promise->resolve(std::move(draft));
           });
         };
-        this->scheduleOrRun(this->databaseThread, job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -60,7 +60,7 @@ CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
             }
           });
         };
-        this->scheduleOrRun(this->databaseThread, job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -90,7 +90,7 @@ jsi::Value CommCoreModule::moveDraft(
             }
           });
         };
-        this->scheduleOrRun(this->databaseThread, job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -130,7 +130,7 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
             promise->resolve(std::move(jsiDrafts));
           });
         };
-        this->scheduleOrRun(this->databaseThread, job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -152,7 +152,7 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
             promise->resolve(jsi::Value::undefined());
           });
         };
-        this->scheduleOrRun(this->databaseThread, job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -174,7 +174,7 @@ jsi::Value CommCoreModule::removeAllMessages(jsi::Runtime &rt) {
             promise->resolve(jsi::Value::undefined());
           });
         };
-        this->scheduleOrRun(this->databaseThread, job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -233,7 +233,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
                 promise->resolve(std::move(jsiMessages));
               });
         };
-        this->scheduleOrRun(this->databaseThread, job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
@@ -380,14 +380,14 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
             }
           });
         };
-        this->scheduleOrRun(this->databaseThread, job);
+        this->databaseThread->scheduleTask(job);
       });
 }
 
 jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->scheduleOrRun(this->databaseThread, [=, &innerRt]() {
+        this->databaseThread->scheduleTask([=, &innerRt]() {
           std::string error;
           std::vector<Thread> threadsVector;
           size_t numThreads;
@@ -579,7 +579,7 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
           std::move(threadStoreOps));
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) mutable {
-        this->scheduleOrRun(this->databaseThread, [=, &innerRt]() {
+        this->databaseThread->scheduleTask([=, &innerRt]() {
           std::string error = operationsError;
           if (!error.size()) {
             try {
@@ -617,7 +617,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->scheduleOrRun(this->databaseThread, [=, &innerRt]() {
+        this->databaseThread->scheduleTask([=, &innerRt]() {
           crypto::Persist persist;
           std::string error;
           try {
@@ -642,14 +642,14 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
             error = e.what();
           }
 
-          this->scheduleOrRun(this->cryptoThread, [=, &innerRt]() {
+          this->cryptoThread->scheduleTask([=, &innerRt]() {
             std::string error;
             this->cryptoModule.reset(new crypto::CryptoModule(
                 userIdStr, storedSecretKey.value(), persist));
             if (persist.isEmpty()) {
               crypto::Persist newPersist =
                   this->cryptoModule->storeAsB64(storedSecretKey.value());
-              this->scheduleOrRun(this->databaseThread, [=, &innerRt]() {
+              this->databaseThread->scheduleTask([=, &innerRt]() {
                 std::string error;
                 try {
                   DatabaseManager::getQueryExecutor().storeOlmPersistData(
@@ -718,7 +718,7 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
             promise->resolve(jsi::String::createFromUtf8(innerRt, result));
           });
         };
-        this->scheduleOrRun(this->cryptoThread, job);
+        this->cryptoThread->scheduleTask(job);
       });
 }
 
@@ -741,18 +741,8 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
             promise->resolve(jsi::String::createFromUtf8(innerRt, result));
           });
         };
-        this->scheduleOrRun(this->cryptoThread, job);
+        this->cryptoThread->scheduleTask(job);
       });
-}
-
-void CommCoreModule::scheduleOrRun(
-    const std::unique_ptr<WorkerThread> &thread,
-    const taskType &task) {
-  if (thread != nullptr) {
-    thread->scheduleTask(task);
-  } else {
-    task();
-  }
 }
 
 CommCoreModule::CommCoreModule(
