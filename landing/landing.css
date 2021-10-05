@@ -290,7 +290,6 @@ div.app_landing_grid {
 
 div.app_preview {
   grid-area: app_preview;
-  align-self: center;
   justify-self: right;
 }
 
@@ -310,15 +309,17 @@ div.app_copy {
 /* ===== TILE GRID STYLING ===== */
 div.tile_grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  row-gap: 1em;
-  column-gap: 1em;
+  margin-right: 16%;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr;
+  row-gap: 4em;
   padding-top: 40px;
   padding-bottom: 40px;
   grid-template-areas:
-    'tile_tl tile_tr'
-    'tile_bl tile_br';
+    'tile_tl'
+    'tile_tr'
+    'tile_bl'
+    'tile_br';
 }
 
 div.tile_tl,
@@ -327,7 +328,7 @@ div.tile_bl,
 div.tile_br {
   display: flex;
   padding: 24px;
-  border-radius: 36px;
+  border-radius: 8px;
   background-color: #ebedee;
   justify-content: center;
   align-items: center;
@@ -343,14 +344,26 @@ div.tile_br:hover {
   transition: 300ms;
 }
 
+div.tile_tl p.tile_title,
+div.tile_tr p.tile_title,
+div.tile_bl p.tile_title,
+div.tile_br p.tile_title {
+  font-weight: bold;
+  font-size: 28px;
+  color: #485563;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 0;
+  transition: 300ms;
+}
+
 div.tile_tl p,
 div.tile_tr p,
 div.tile_bl p,
 div.tile_br p {
-  font-weight: bold;
-  font-size: 20px;
+  font-size: 16px;
   color: #485563;
-  text-align: center;
+  text-align: left;
   margin-top: 10px;
   margin-bottom: 0;
   transition: 300ms;
@@ -575,21 +588,8 @@ div.body_grid > div + .starting_section {
     justify-self: center;
   }
 
-  div.app_copy h1,
-  div.app_copy p {
-    text-align: center;
-  }
-
-  div.tile_tl p,
-  div.tile_tr p,
-  div.tile_bl p,
-  div.tile_br p {
-    font-weight: bold;
-    font-size: 16px;
-    color: #485563;
-    text-align: center;
-    margin-top: 8px;
-    margin-bottom: 0;
+  div.app_copy div.tile_grid {
+    margin: 0;
   }
 
   /* ===== LAYOUT HACKS ===== */

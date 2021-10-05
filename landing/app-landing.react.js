@@ -37,19 +37,47 @@ function AppLanding(): React.Node {
         <div className={css.tile_grid}>
           <div className={css.tile_tl}>
             <FontAwesomeIcon size="2x" color="#485563" icon={faLock} />
-            <p>E2E Encryption</p>
+            <p className={css.tile_title}>E2E Encryption</p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+              porta, nisl eu pharetra malesuada, libero purus placerat mauris,
+              sed ultricies neque enim sit amet metus. Morbi ac augue eget nunc
+              vehicula interdum auctor ut ligula. Nulla sed risus in lorem
+              posuere euismod. Ut et luctus leo.
+            </p>
           </div>
           <div className={css.tile_tr}>
             <FontAwesomeIcon size="2x" color="#485563" icon={faServer} />
-            <p>Self-hosted</p>
+            <p className={css.tile_title}>Self-hosted</p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+              porta, nisl eu pharetra malesuada, libero purus placerat mauris,
+              sed ultricies neque enim sit amet metus. Morbi ac augue eget nunc
+              vehicula interdum auctor ut ligula. Nulla sed risus in lorem
+              posuere euismod. Ut et luctus leo.
+            </p>
           </div>
           <div className={css.tile_bl}>
             <FontAwesomeIcon size="2x" color="#485563" icon={faUsers} />
-            <p>Federated</p>
+            <p className={css.tile_title}>Federated</p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+              porta, nisl eu pharetra malesuada, libero purus placerat mauris,
+              sed ultricies neque enim sit amet metus. Morbi ac augue eget nunc
+              vehicula interdum auctor ut ligula. Nulla sed risus in lorem
+              posuere euismod. Ut et luctus leo.
+            </p>
           </div>
           <div className={css.tile_br}>
             <FontAwesomeIcon size="2x" color="#485563" icon={faUserShield} />
-            <p>Sovereign Identity</p>
+            <p className={css.tile_title}>Sovereign Identity</p>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam
+              porta, nisl eu pharetra malesuada, libero purus placerat mauris,
+              sed ultricies neque enim sit amet metus. Morbi ac augue eget nunc
+              vehicula interdum auctor ut ligula. Nulla sed risus in lorem
+              posuere euismod. Ut et luctus leo.
+            </p>
           </div>
         </div>
       </div>
