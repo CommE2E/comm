@@ -21,8 +21,56 @@ div.header_legal {
   transition: 300ms;
 }
 
-/* ===== REQUEST ACCESS BUTTON ===== */
+/* ===== LOGO ===== */
+div.logo {
+  grid-area: logo;
+}
 
+div.logo h1 {
+  font-size: 32px;
+}
+
+div.logo a {
+  color: white;
+}
+
+div.logo a:hover {
+  color: #7e57c2;
+}
+
+/* ===== NAVIGATION ===== */
+div.top_nav {
+  grid-area: top_nav;
+  align-self: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+div.top_nav h1 {
+  font-size: 16px;
+}
+
+div.top_nav div.active_tab,
+div.top_nav div.inactive_tab {
+  margin-inline: 16px;
+}
+
+div.active_tab a {
+  color: white;
+  transition: 300ms;
+}
+
+div.inactive_tab a {
+  color: #8a8f98;
+  transition: 300ms;
+}
+
+div.top_nav a:hover {
+  color: white;
+}
+
+/* ===== REQUEST ACCESS BUTTON ===== */
 div.request_access {
   border-radius: 4px;
   padding-inline: 12px;
@@ -45,6 +93,13 @@ div.request_access p {
 }
 
 /* ===== TWITTER/GITHUB BUTTONS ===== */
+div.social_icons {
+  grid-area: social_icons;
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  justify-self: flex-end;
+}
 
 div.twitter_icon,
 div.github_icon {
@@ -99,5 +154,18 @@ div.github_icon h1 {
     grid-template-areas:
       'logo social_icons'
       'top_nav top_nav';
+  }
+
+  div.top_nav {
+    grid-area: top_nav;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-self: flex-start;
+  }
+
+  div.active_tab,
+  div.inactive_tab {
+    margin-right: 10px;
   }
 }

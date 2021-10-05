@@ -78,62 +78,6 @@ div.app_landing_grid {
   transition: 300ms;
 }
 
-/* ===== CSS HEADER GRID LAYOUT ===== */
-div.logo {
-  grid-area: logo;
-}
-
-div.logo h1 {
-  font-size: 32px;
-}
-
-div.logo a {
-  color: white;
-}
-
-div.logo a:hover {
-  color: #7e57c2;
-}
-
-div.top_nav {
-  grid-area: top_nav;
-  align-self: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-div.top_nav h1 {
-  font-size: 16px;
-}
-
-div.top_nav div.active_tab,
-div.top_nav div.inactive_tab {
-  margin-right: 16px;
-}
-
-div.active_tab a {
-  color: white;
-  transition: 300ms;
-}
-
-div.inactive_tab a {
-  color: #8a8f98;
-  transition: 300ms;
-}
-
-div.top_nav a:hover {
-  color: white;
-}
-
-div.social_icons {
-  grid-area: social_icons;
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-self: flex-end;
-}
-
 /* ===== CSS BODY GRID LAYOUT ===== */
 div.body_grid {
   grid-template-columns: 1fr 1fr;
@@ -429,21 +373,6 @@ div.body_grid > div + .starting_section {
     padding-right: 3%;
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
-  }
-
-  /* ===== CSS HEADER GRID LAYOUT ===== */
-
-  div.top_nav {
-    grid-area: top_nav;
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-self: flex-start;
-  }
-
-  div.active_tab,
-  div.inactive_tab {
-    margin-right: 10px;
   }
 
   /* ===== CSS BODY GRID LAYOUT ===== */

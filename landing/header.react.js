@@ -6,7 +6,6 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import headerStyles from './header.css';
-import commonStyles from './landing.css';
 import type { LandingPageName } from './landing.react';
 
 type HeaderProps = {
@@ -22,17 +21,17 @@ function Header(props: HeaderProps): React.Node {
   return (
     <>
       <div className={headerStyle}>
-        <div className={commonStyles.logo}>
+        <div className={headerStyles.logo}>
           <Link to="/">
             <h1>Comm</h1>
           </Link>
         </div>
-        <div className={commonStyles.top_nav}>
+        <div className={headerStyles.top_nav}>
           <div
             className={
               activePageName === 'app'
-                ? commonStyles.active_tab
-                : commonStyles.inactive_tab
+                ? headerStyles.active_tab
+                : headerStyles.inactive_tab
             }
           >
             <Link to="/">
@@ -42,8 +41,8 @@ function Header(props: HeaderProps): React.Node {
           <div
             className={
               activePageName === 'keyservers'
-                ? commonStyles.active_tab
-                : commonStyles.inactive_tab
+                ? headerStyles.active_tab
+                : headerStyles.inactive_tab
             }
           >
             <Link to="/keyservers">
@@ -51,7 +50,7 @@ function Header(props: HeaderProps): React.Node {
             </Link>
           </div>
         </div>
-        <div className={commonStyles.social_icons}>
+        <div className={headerStyles.social_icons}>
           <a href="">
             <div className={headerStyles.request_access}>
               <p>Request Access</p>
