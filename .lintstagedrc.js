@@ -27,7 +27,7 @@ module.exports = {
   '{landing,lib}/**/*.js': function landingFlow(files) {
     return 'yarn workspace landing flow --quiet';
   },
-  'native/**/*.{h,cpp}': function clangFormat(files) {
+  '{native,services}/**/*.{h,cpp,java}': function clangFormat(files) {
     return 'clang-format -i ' + files.join(' ');
   },
 };
