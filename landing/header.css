@@ -1,3 +1,26 @@
+/* ===== CSS HEADER GRID LAYOUT ===== */
+div.header_grid {
+  max-width: 1920px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  column-gap: 6em;
+  padding-left: 60px;
+  padding-right: 60px;
+  padding-top: 20px;
+  padding-bottom: 40px;
+  transition-property: max-width;
+  transition: 300ms;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-areas: 'logo top_nav social_icons';
+}
+
+div.header_legal {
+  max-width: 1080px;
+  transition-property: max-width;
+  transition: 300ms;
+}
+
 /* ===== REQUEST ACCESS BUTTON ===== */
 
 div.request_access {
@@ -65,5 +88,16 @@ div.github_icon h1 {
     padding: 10px;
     border-radius: 36px;
     transition: 300ms;
+  }
+
+  div.header_grid {
+    padding-left: 3%;
+    padding-right: 3%;
+    grid-template-columns: minmax(auto, 540px);
+    justify-content: center;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'logo social_icons'
+      'top_nav top_nav';
   }
 }

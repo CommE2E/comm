@@ -17,8 +17,8 @@ function Header(props: HeaderProps): React.Node {
   const { isLegalPage, activePageName } = props;
 
   const headerStyle = isLegalPage
-    ? `${commonStyles.header_grid} ${commonStyles.header_legal}`
-    : commonStyles.header_grid;
+    ? `${headerStyles.header_grid} ${headerStyles.header_legal}`
+    : headerStyles.header_grid;
   return (
     <>
       <div className={headerStyle}>
