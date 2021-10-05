@@ -1,0 +1,69 @@
+/* ===== REQUEST ACCESS BUTTON ===== */
+
+div.request_access {
+  border-radius: 4px;
+  padding-inline: 12px;
+  margin-right: 12px;
+  background-color: #7e57c2;
+  color: #ebedee;
+  transition: 300ms;
+}
+
+div.request_access:hover {
+  color: #7e57c2;
+  background-color: #ebedee;
+  transition: 300ms;
+}
+
+div.request_access p {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 2.5;
+}
+
+/* ===== TWITTER/GITHUB BUTTONS ===== */
+
+div.twitter_icon,
+div.github_icon {
+  margin-inline: 8px;
+  padding: 16px;
+  border-radius: 36px;
+  transition: 300ms;
+}
+
+div.twitter_icon:hover,
+div.github_icon:hover {
+  background-color: #ebedee;
+  transition: 300ms;
+}
+
+div.twitter_icon svg,
+div.github_icon svg {
+  transition: 300ms;
+}
+
+div.twitter_icon:hover svg {
+  color: #1d9bf0;
+  transition: 300ms;
+}
+
+div.github_icon:hover svg {
+  color: #151013;
+  transition: 300ms;
+}
+
+div.twitter_icon h1,
+div.github_icon h1 {
+  font-size: 32px;
+}
+
+/* ===== SMALLEST BREAKPOINT ===== */
+@media (max-width: 1099px) {
+  div.twitter_icon,
+  div.github_icon {
+    margin-inline: 4px;
+    padding: 10px;
+    border-radius: 36px;
+    transition: 300ms;
+  }
+}
