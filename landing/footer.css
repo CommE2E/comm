@@ -15,6 +15,50 @@ div.footer_grid {
   grid-template-areas: 'sitemap subscribe_updates';
 }
 
+div.sitemap {
+  grid-area: sitemap;
+}
+
+div.sitemap a {
+  display: block;
+  padding-bottom: 4px;
+  width: max-content;
+}
+
+div.sitemap a.active_tab,
+div.sitemap a:hover,
+div.sitemap a:hover svg {
+  color: white;
+  transition: 300ms;
+}
+
+div.sitemap .inactive_tab,
+div.sitemap .inactive_tab svg {
+  color: #8a8f98;
+  transition: 300ms;
+}
+
+div.footer_logo a {
+  font-size: 24px;
+  font-weight: 500;
+  color: white;
+  padding-bottom: 8px;
+}
+div.footer_logo a:hover {
+  color: #7e57c2;
+}
+
+div.subscribe_updates {
+  grid-area: subscribe_updates;
+  align-self: center;
+}
+
+/* ===== VISUAL EFFECTS ===== */
+div.footer_blur {
+  background-color: rgba(255, 255, 255, 0.125);
+  backdrop-filter: blur(3px);
+}
+
 /* ===== SMALLEST BREAKPOINT ===== */
 @media (max-width: 1099px) {
   div.footer_grid {
@@ -25,5 +69,13 @@ div.footer_grid {
     grid-template-areas:
       'subscribe_updates'
       'sitemap';
+  }
+
+  div.footer_container {
+    padding-top: 5%;
+  }
+  div.sitemap {
+    padding-top: 60px;
+    grid-area: sitemap;
   }
 }

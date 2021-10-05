@@ -116,46 +116,6 @@ div.read_the_docs {
   padding-bottom: 40px;
 }
 
-/* ===== CSS FOOTER GRID LAYOUT ===== */
-
-div.sitemap {
-  grid-area: sitemap;
-}
-
-div.sitemap a {
-  display: block;
-  padding-bottom: 4px;
-  width: max-content;
-}
-
-div.sitemap a.active_tab,
-div.sitemap a:hover,
-div.sitemap a:hover svg {
-  color: white;
-  transition: 300ms;
-}
-
-div.sitemap .inactive_tab,
-div.sitemap .inactive_tab svg {
-  color: #8a8f98;
-  transition: 300ms;
-}
-
-div.footer_logo a {
-  font-size: 24px;
-  font-weight: 500;
-  color: white;
-  padding-bottom: 8px;
-}
-div.footer_logo a:hover {
-  color: #7e57c2;
-}
-
-div.subscribe_updates {
-  grid-area: subscribe_updates;
-  align-self: center;
-}
-
 /* ===== APP LANDING GRID ===== */
 div.app_landing_grid {
   grid-template-columns: 1fr 1fr;
@@ -295,12 +255,6 @@ div.legal_container a:hover {
   color: #8c69c9;
 }
 
-/* ===== VISUAL EFFECTS ===== */
-div.footer_blur {
-  background-color: rgba(255, 255, 255, 0.125);
-  backdrop-filter: blur(3px);
-}
-
 /* ===== LAYOUT HACKS ===== */
 div.body_grid > div + .starting_section {
   padding-top: 80px;
@@ -394,15 +348,6 @@ div.body_grid > div + .starting_section {
   div.read_the_docs {
     padding-top: 20px;
     padding-bottom: 0;
-  }
-
-  /* ===== CSS FOOTER GRID LAYOUT ===== */
-  div.footer_container {
-    padding-top: 5%;
-  }
-  div.sitemap {
-    padding-top: 60px;
-    grid-area: sitemap;
   }
 
   /* ===== APP LANDING GRID LAYOUT ===== */
