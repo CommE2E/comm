@@ -5,7 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
-import css from './landing.css';
+import footerStyles from './footer.css';
+import commonStyles from './landing.css';
 import type { LandingPageName } from './landing.react';
 import SubscriptionForm from './subscription-form.react';
 
@@ -15,18 +16,18 @@ type FooterProps = {
 function Footer(props: FooterProps): React.Node {
   const { activePageName } = props;
   return (
-    <div className={css.footer_blur}>
-      <div className={css.footer_grid}>
-        <div className={css.sitemap}>
-          <div className={css.footer_logo}>
+    <div className={commonStyles.footer_blur}>
+      <div className={footerStyles.footer_grid}>
+        <div className={commonStyles.sitemap}>
+          <div className={commonStyles.footer_logo}>
             <Link to="/">Comm</Link>
           </div>
 
           <div
             className={
               activePageName === 'keyservers'
-                ? css.active_tab
-                : css.inactive_tab
+                ? commonStyles.active_tab
+                : commonStyles.inactive_tab
             }
           >
             <Link to="/keyservers">Keyservers</Link>
@@ -34,7 +35,9 @@ function Footer(props: FooterProps): React.Node {
 
           <div
             className={
-              activePageName === 'support' ? css.active_tab : css.inactive_tab
+              activePageName === 'support'
+                ? commonStyles.active_tab
+                : commonStyles.inactive_tab
             }
           >
             <Link to="/support">Support</Link>
@@ -42,7 +45,9 @@ function Footer(props: FooterProps): React.Node {
 
           <div
             className={
-              activePageName === 'terms' ? css.active_tab : css.inactive_tab
+              activePageName === 'terms'
+                ? commonStyles.active_tab
+                : commonStyles.inactive_tab
             }
           >
             <Link to="/terms">Terms of Use</Link>
@@ -50,13 +55,15 @@ function Footer(props: FooterProps): React.Node {
 
           <div
             className={
-              activePageName === 'privacy' ? css.active_tab : css.inactive_tab
+              activePageName === 'privacy'
+                ? commonStyles.active_tab
+                : commonStyles.inactive_tab
             }
           >
             <Link to="/privacy">Privacy Policy</Link>
           </div>
 
-          <div className={css.inactive_tab}>
+          <div className={commonStyles.inactive_tab}>
             <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
               How Comm works{' '}
               <FontAwesomeIcon
@@ -67,7 +74,7 @@ function Footer(props: FooterProps): React.Node {
             </a>
           </div>
         </div>
-        <div className={css.subscribe_updates}>
+        <div className={commonStyles.subscribe_updates}>
           <SubscriptionForm />
         </div>
       </div>

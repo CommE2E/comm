@@ -63,7 +63,6 @@ span.purple_accent {
 
 /* ===== COMMON CSS GRID LAYOUT ===== */
 div.body_grid,
-div.footer_grid,
 div.app_landing_grid {
   max-width: 1920px;
   margin-left: auto;
@@ -118,10 +117,6 @@ div.read_the_docs {
 }
 
 /* ===== CSS FOOTER GRID LAYOUT ===== */
-div.footer_grid {
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas: 'sitemap subscribe_updates';
-}
 
 div.sitemap {
   grid-area: sitemap;
@@ -367,7 +362,6 @@ div.body_grid > div + .starting_section {
 
   /* ===== COMMON CSS GRID LAYOUT ===== */
   div.body_grid,
-  div.footer_grid,
   div.app_landing_grid {
     padding-left: 3%;
     padding-right: 3%;
@@ -403,11 +397,6 @@ div.body_grid > div + .starting_section {
   }
 
   /* ===== CSS FOOTER GRID LAYOUT ===== */
-  div.footer_grid {
-    grid-template-areas:
-      'subscribe_updates'
-      'sitemap';
-  }
   div.footer_container {
     padding-top: 5%;
   }
