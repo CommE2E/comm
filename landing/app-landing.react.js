@@ -19,18 +19,20 @@ function AppLanding(): React.Node {
         <img src="images/comm-screenshot.png" />
       </div>
       <div className={css.app_copy}>
-        <h1 className={css.no_bottom_margin}>
-          Comm{' '}
-          <TextLoop interval={750}>
-            <span>Messenger</span>
-            <span>Calendar</span>
-            <span>Wiki</span>
-            <span>Wallet</span>
-            <span>Placeholder</span>
+        <h1>
+          Comm is crypto-native chat for{' '}
+          <TextLoop
+            interval={1000}
+            springConfig={{ stiffness: 180, damping: 16 }}
+          >
+            <span className={css.app_landing_subheading}>DAOs</span>
+            <span className={css.app_landing_subheading}>open source</span>
+            <span className={css.app_landing_subheading}>gaming guilds</span>
+            <span className={css.app_landing_subheading}>social clubs</span>
           </TextLoop>
         </h1>
         <p className={css.app_landing_subheading}>
-          Web3 Messenger. E2E encrypted. Blah..
+          (think &quot;Web3 Discord&quot;)
         </p>
         <div className={css.tile_grid}>
           <div className={css.tile_tl}>

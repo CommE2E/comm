@@ -44,12 +44,17 @@ li {
   line-height: 1.6em;
 }
 
-p.app_landing_subheading {
-  background-color: #7e57c2;
-  margin-top: 6px;
-  font-family: 'IBM Plex Mono', monospace;
+.app_landing_subheading {
   font-weight: 500;
   padding-inline: 4px;
+}
+
+span.app_landing_subheading {
+  background-color: #7e57c2;
+}
+
+p.app_landing_subheading {
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 span.purple_accent {
