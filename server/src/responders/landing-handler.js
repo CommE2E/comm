@@ -26,13 +26,14 @@ async function landingHandler(req: $Request, res: $Response) {
 const access = promisify(fs.access);
 const googleFontsURL =
   'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&display=swap';
+const iaDuoFontsURL = 'fonts/duo.css';
 const localFontsURL = 'fonts/local-fonts.css';
-async function getFontURLs(): Promise<$ReadOnlyArray<string>> {
+async function getDevFontURLs(): Promise<$ReadOnlyArray<string>> {
   try {
     await access(localFontsURL);
-    return [localFontsURL];
+    return [localFontsURL, iaDuoFontsURL];
   } catch {
-    return [googleFontsURL];
+    return [googleFontsURL, iaDuoFontsURL];
   }
 }
 
@@ -47,7 +48,7 @@ async function getAssetInfo() {
     return assetInfo;
   }
   if (process.env.NODE_ENV === 'development') {
-    const fontURLs = await getFontURLs();
+    const fontURLs = await getDevFontURLs();
     assetInfo = {
       jsURL: 'http://localhost:8082/dev.build.js',
       fontURLs,
@@ -59,7 +60,7 @@ async function getAssetInfo() {
   const { default: assets } = await import('landing/dist/assets');
   assetInfo = {
     jsURL: `compiled/${assets.browser.js}`,
-    fontURLs: [googleFontsURL],
+    fontURLs: [googleFontsURL, iaDuoFontsURL],
     cssInclude: html`
       <link
         rel="stylesheet"

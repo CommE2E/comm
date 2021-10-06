@@ -49,10 +49,8 @@ if (cluster.isMaster) {
   const router = express.Router();
   router.use('/images', express.static('images'));
   router.use('/commlanding/images', express.static('images'));
-  if (process.env.NODE_ENV === 'development') {
-    router.use('/fonts', express.static('fonts'));
-    router.use('/commlanding/fonts', express.static('fonts'));
-  }
+  router.use('/fonts', express.static('fonts'));
+  router.use('/commlanding/fonts', express.static('fonts'));
   router.use('/misc', express.static('misc'));
   router.use(
     '/.well-known',

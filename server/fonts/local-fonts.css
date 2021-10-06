@@ -147,27 +147,3 @@
   font-weight: 500;
   src: local('IBM Plex Sans Medium'), local('IBMPlexSans-Medium'), url(IBMPlexSans-Medium.woff2) format('woff2'); 
 }
-@font-face {
-  font-family: 'iA Writer Duo S';
-  font-style: normal;
-  font-weight: normal;
-  src: local('iA Writer Duo S Regular'), local('iAWriterDuoS-Regular'), url(iAWriterDuoS-Regular.woff2) format('woff2'); 
-}
-@font-face {
-  font-family: 'iA Writer Duo S';
-  font-style: italic;
-  font-weight: normal;
-  src: local('iA Writer Duo S Italic'), local('iAWriterDuoS-Italic'), url(iAWriterDuoS-Italic.woff2) format('woff2'); 
-}
-@font-face {
-  font-family: 'iA Writer Duo S';
-  font-style: normal;
-  font-weight: bold;
-  src: local('iA Writer Duo S Bold'), local('iAWriterDuoS-Bold'), url(iAWriterDuoS-Bold.woff2) format('woff2'); 
-}
-@font-face {
-  font-family: 'iA Writer Duo S';
-  font-style: italic;
-  font-weight: bold;
-  src: local('iA Writer Duo S Bold Italic'), local('iAWriterDuoS-BoldItalic'), url(iAWriterDuoS-BoldItalic.woff2) format('woff2'); 
-}
