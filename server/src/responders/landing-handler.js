@@ -27,26 +27,30 @@ const access = promisify(fs.access);
 const googleFontsURL =
   'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&display=swap';
 const localFontsURL = 'fonts/local-fonts.css';
-async function getFontsURL() {
+async function getFontURLs(): Promise<$ReadOnlyArray<string>> {
   try {
     await access(localFontsURL);
-    return localFontsURL;
+    return [localFontsURL];
   } catch {
-    return googleFontsURL;
+    return [googleFontsURL];
   }
 }
 
-type AssetInfo = { +jsURL: string, +fontsURL: string, +cssInclude: string };
+type AssetInfo = {
+  +jsURL: string,
+  +fontURLs: $ReadOnlyArray<string>,
+  +cssInclude: string,
+};
 let assetInfo: ?AssetInfo = null;
 async function getAssetInfo() {
   if (assetInfo) {
     return assetInfo;
   }
   if (process.env.NODE_ENV === 'development') {
-    const fontsURL = await getFontsURL();
+    const fontURLs = await getFontURLs();
     assetInfo = {
       jsURL: 'http://localhost:8082/dev.build.js',
-      fontsURL,
+      fontURLs,
       cssInclude: '',
     };
     return assetInfo;
@@ -55,7 +59,7 @@ async function getAssetInfo() {
   const { default: assets } = await import('landing/dist/assets');
   assetInfo = {
     jsURL: `compiled/${assets.browser.js}`,
-    fontsURL: googleFontsURL,
+    fontURLs: [googleFontsURL],
     cssInclude: html`
       <link
         rel="stylesheet"
@@ -96,10 +100,14 @@ function clientURLFromLocalURL(url: string): string {
 }
 
 async function landingResponder(req: $Request, res: $Response) {
-  const [{ jsURL, fontsURL, cssInclude }, LandingSSR] = await Promise.all([
+  const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
     getWebpackCompiledRootComponentForSSR(),
   ]);
+
+  const fontsInclude = fontURLs
+    .map(url => `<link rel="stylesheet" type="text/css" href="${url}" />`)
+    .join('');
 
   // prettier-ignore
   res.write(html`
@@ -110,7 +118,7 @@ async function landingResponder(req: $Request, res: $Response) {
         <meta name="viewport" content="width=device-width" />
         <title>Comm</title>
         <base href="${basePath}" />
-        <link rel="stylesheet" type="text/css" href="${fontsURL}" />
+        ${fontsInclude}
         ${cssInclude}
         <link
           rel="apple-touch-icon"
