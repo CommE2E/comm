@@ -19,8 +19,7 @@ a {
 }
 
 .mono {
-  font-family: 'IBM Plex Mono', monospace;
-  font-weight: 500;
+  font-family: 'iA Writer Duo S', monospace;
 }
 
 .no_bottom_margin {
@@ -45,7 +44,7 @@ li {
 }
 
 .app_landing_subheading {
-  font-weight: 500;
+  font-weight: bold;
   padding-inline: 4px;
 }
 
@@ -54,7 +53,7 @@ span.app_landing_subheading {
 }
 
 p.app_landing_subheading {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'iA Writer Duo S', monospace;
 }
 
 span.purple_accent {
