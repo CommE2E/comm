@@ -31,16 +31,20 @@ div.sitemap a {
   width: max-content;
 }
 
-div.sitemap a.active_tab,
-div.sitemap a:hover,
-div.sitemap a:hover svg {
+div.inactive_tab a,
+div.inactive_tab svg {
+  color: #8a8f98;
+  transition: 300ms;
+}
+
+div.inactive_tab:hover a,
+div.inactive_tab:hover svg {
   color: white;
   transition: 300ms;
 }
 
-div.sitemap .inactive_tab,
-div.sitemap .inactive_tab svg {
-  color: #8a8f98;
+.active_tab a {
+  color: white;
   transition: 300ms;
 }
 
