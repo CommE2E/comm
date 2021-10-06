@@ -8,9 +8,6 @@
 namespace comm {
 class MessageStoreOperationBase {
 public:
-  MessageStoreOperationBase() = default;
-  virtual ~MessageStoreOperationBase() = default;
-
   virtual void execute() = 0;
 };
 
@@ -18,7 +15,6 @@ class RemoveMessagesOperation : public MessageStoreOperationBase {
 public:
   RemoveMessagesOperation(std::vector<std::string> ids) : ids_{ids} {
   }
-  virtual ~RemoveMessagesOperation() = default;
 
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeMessages(ids_);
@@ -32,7 +28,6 @@ class RemoveMessagesForThreadsOperation : public MessageStoreOperationBase {
 public:
   RemoveMessagesForThreadsOperation(std::vector<std::string> ids) : ids_{ids} {
   }
-  virtual ~RemoveMessagesForThreadsOperation() = default;
 
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeMessagesForThreads(ids_);
@@ -47,7 +42,6 @@ public:
   ReplaceMessageOperation(Message msg, std::vector<Media> media_vector)
       : msg_{std::move(msg)}, media_vector_{std::move(media_vector)} {
   }
-  virtual ~ReplaceMessageOperation() = default;
 
   virtual void execute() override {
     for (const Media &media : media_vector_) {
@@ -66,7 +60,6 @@ public:
   RekeyMessageOperation(std::string from, std::string to)
       : from_{from}, to_{to} {
   }
-  virtual ~RekeyMessageOperation() = default;
 
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().rekeyMessage(from_, to_);
