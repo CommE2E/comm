@@ -15,6 +15,12 @@ div.footer_grid {
   grid-template-areas: 'sitemap subscribe_updates';
 }
 
+div.footer_legal {
+  max-width: 1080px;
+  transition-property: max-width;
+  transition: 300ms;
+}
+
 div.sitemap {
   grid-area: sitemap;
 }
