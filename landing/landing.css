@@ -178,16 +178,6 @@ div.tile_six {
   transition: 300ms;
 }
 
-div.tile_one:hover,
-div.tile_two:hover,
-div.tile_three:hover,
-div.tile_four:hover,
-div.tile_five:hover,
-div.tile_six:hover {
-  background-color: #7e57c2;
-  transition: 300ms;
-}
-
 div.tile_one p.tile_title,
 div.tile_two p.tile_title,
 div.tile_three p.tile_title,
@@ -216,22 +206,6 @@ div.tile_six p {
   margin-bottom: 0;
   margin-left: 20px;
   margin-right: 20px;
-  transition: 300ms;
-}
-
-div.tile_one:hover p,
-div.tile_two:hover p,
-div.tile_three:hover p,
-div.tile_four:hover p,
-div.tile_five:hover p,
-div.tile_six:hover p,
-div.tile_one:hover svg,
-div.tile_two:hover svg,
-div.tile_three:hover svg,
-div.tile_four:hover svg,
-div.tile_five:hover svg,
-div.tile_six:hover svg {
-  color: #ebedee;
   transition: 300ms;
 }
 
