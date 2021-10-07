@@ -149,21 +149,25 @@ div.tile_grid {
   display: grid;
   margin-right: 16%;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
   row-gap: 4em;
   padding-top: 40px;
   padding-bottom: 40px;
   grid-template-areas:
-    'tile_tl'
-    'tile_tr'
-    'tile_bl'
-    'tile_br';
+    'tile_one'
+    'tile_two'
+    'tile_three'
+    'tile_four'
+    'tile_five'
+    'tile_six';
 }
 
-div.tile_tl,
-div.tile_tr,
-div.tile_bl,
-div.tile_br {
+div.tile_one,
+div.tile_two,
+div.tile_three,
+div.tile_four,
+div.tile_five,
+div.tile_six {
   display: flex;
   padding: 24px;
   border-radius: 8px;
@@ -174,18 +178,22 @@ div.tile_br {
   transition: 300ms;
 }
 
-div.tile_tl:hover,
-div.tile_tr:hover,
-div.tile_bl:hover,
-div.tile_br:hover {
+div.tile_one:hover,
+div.tile_two:hover,
+div.tile_three:hover,
+div.tile_four:hover,
+div.tile_five:hover,
+div.tile_six:hover {
   background-color: #7e57c2;
   transition: 300ms;
 }
 
-div.tile_tl p.tile_title,
-div.tile_tr p.tile_title,
-div.tile_bl p.tile_title,
-div.tile_br p.tile_title {
+div.tile_one p.tile_title,
+div.tile_two p.tile_title,
+div.tile_three p.tile_title,
+div.tile_four p.tile_title,
+div.tile_five p.tile_title,
+div.tile_six p.tile_title {
   font-weight: bold;
   font-size: 28px;
   color: #485563;
@@ -195,41 +203,55 @@ div.tile_br p.tile_title {
   transition: 300ms;
 }
 
-div.tile_tl p,
-div.tile_tr p,
-div.tile_bl p,
-div.tile_br p {
-  font-size: 16px;
+div.tile_one p,
+div.tile_two p,
+div.tile_three p,
+div.tile_four p,
+div.tile_five p,
+div.tile_six p {
+  font-size: 24px;
   color: #485563;
   text-align: left;
   margin-top: 10px;
   margin-bottom: 0;
+  margin-left: 20px;
+  margin-right: 20px;
   transition: 300ms;
 }
 
-div.tile_tl:hover p,
-div.tile_tr:hover p,
-div.tile_bl:hover p,
-div.tile_br:hover p,
-div.tile_tl:hover svg,
-div.tile_tr:hover svg,
-div.tile_bl:hover svg,
-div.tile_br:hover svg {
+div.tile_one:hover p,
+div.tile_two:hover p,
+div.tile_three:hover p,
+div.tile_four:hover p,
+div.tile_five:hover p,
+div.tile_six:hover p,
+div.tile_one:hover svg,
+div.tile_two:hover svg,
+div.tile_three:hover svg,
+div.tile_four:hover svg,
+div.tile_five:hover svg,
+div.tile_six:hover svg {
   color: #ebedee;
   transition: 300ms;
 }
 
-div.tile_tl {
-  grid-area: tile_tl;
+div.tile_one {
+  grid-area: tile_one;
 }
-div.tile_tr {
-  grid-area: tile_tr;
+div.tile_two {
+  grid-area: tile_two;
 }
-div.tile_bl {
-  grid-area: tile_bl;
+div.tile_three {
+  grid-area: tile_three;
 }
-div.tile_br {
-  grid-area: tile_br;
+div.tile_four {
+  grid-area: tile_four;
+}
+div.tile_five {
+  grid-area: tile_five;
+}
+div.tile_six {
+  grid-area: tile_six;
 }
 
 /* ===== LEGAL PAGE STYLING ===== */
@@ -294,10 +316,12 @@ div.body_grid > div + .starting_section {
     font-size: 16px;
   }
   /* ===== APP LANDING GRID STYLING ===== */
-  div.tile_tl p,
-  div.tile_tr p,
-  div.tile_bl p,
-  div.tile_br p {
+  div.tile_one p,
+  div.tile_two p,
+  div.tile_three p,
+  div.tile_four p,
+  div.tile_five p,
+  div.tile_six p {
     font-size: 16px;
   }
 }
