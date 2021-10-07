@@ -88,6 +88,7 @@ function SubscriptionForm(): React.Node {
     <form>
       <input
         type="text"
+        id="subscription-form"
         value={email}
         onChange={onEmailChange}
         className={inputStyle}

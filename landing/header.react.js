@@ -18,6 +18,13 @@ function Header(props: HeaderProps): React.Node {
   const headerStyle = isLegalPage
     ? `${headerStyles.header_grid} ${headerStyles.header_legal}`
     : headerStyles.header_grid;
+
+  const onRequestAccess = React.useCallback(async (e: Event) => {
+    e.preventDefault();
+    window?.scrollTo(0, document.body?.scrollHeight);
+    document.getElementById('subscription-form')?.focus();
+  }, []);
+
   return (
     <>
       <div className={headerStyle}>
@@ -51,7 +58,7 @@ function Header(props: HeaderProps): React.Node {
           </div>
         </div>
         <div className={headerStyles.social_icons}>
-          <a href="">
+          <a href="#" onClick={onRequestAccess}>
             <div className={headerStyles.request_access}>
               <p>Request Access</p>
             </div>
