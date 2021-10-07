@@ -134,7 +134,7 @@ div.app_preview img {
   max-width: 30vw;
   object-fit: scale-down;
   position: sticky;
-  top: 20vh;
+  top: 18vh;
   left: 0;
 }
 
@@ -144,15 +144,20 @@ div.app_copy {
   justify-self: left;
 }
 
+h1.cycling_header {
+  font-family: 'iA Writer Duo S', monospace;
+  padding-top: 26vh;
+}
+
 /* ===== TILE GRID STYLING ===== */
 div.tile_grid {
   display: grid;
   margin-right: 16%;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
-  row-gap: 4em;
-  padding-top: 40px;
-  padding-bottom: 40px;
+  row-gap: 20vh;
+  margin-top: 32vh;
+  margin-bottom: 32vh;
   grid-template-areas:
     'tile_one'
     'tile_two'
@@ -185,7 +190,7 @@ div.tile_four p.tile_title,
 div.tile_five p.tile_title,
 div.tile_six p.tile_title {
   font-weight: bold;
-  font-size: 28px;
+  font-size: 36px;
   color: #485563;
   text-align: center;
   margin-top: 10px;

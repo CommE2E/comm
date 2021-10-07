@@ -19,7 +19,7 @@ function AppLanding(): React.Node {
         <img src="images/comm-screenshot.png" />
       </div>
       <div className={css.app_copy}>
-        <h1 className={css.mono}>
+        <h1 className={css.cycling_header}>
           Comm is crypto-native chat for{' '}
           <TextLoop
             interval={1750}
