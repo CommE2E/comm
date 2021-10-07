@@ -22,10 +22,12 @@ function AppLanding(): React.Node {
         <h1 className={css.mono}>
           Comm is crypto-native chat for{' '}
           <TextLoop
-            interval={1000}
+            interval={1750}
             springConfig={{ stiffness: 180, damping: 16 }}
           >
             <span className={css.app_landing_subheading}>DAOs</span>
+            <span className={css.app_landing_subheading}>art collectives</span>
+            <span className={css.app_landing_subheading}>venture funds</span>
             <span className={css.app_landing_subheading}>open source</span>
             <span className={css.app_landing_subheading}>gaming guilds</span>
             <span className={css.app_landing_subheading}>social clubs</span>

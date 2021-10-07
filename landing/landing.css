@@ -117,7 +117,7 @@ div.read_the_docs {
 
 /* ===== APP LANDING GRID ===== */
 div.app_landing_grid {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 2fr 3fr;
   grid-template-areas: 'app_preview app_copy';
   padding-top: 6vh;
   padding-bottom: 8vh;
