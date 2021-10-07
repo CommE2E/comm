@@ -13,6 +13,7 @@ div.header_grid {
   transition: 300ms;
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-areas: 'logo top_nav social_icons';
+  scroll-snap-align: center;
 }
 
 div.header_legal {
