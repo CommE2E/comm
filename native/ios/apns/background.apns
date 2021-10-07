@@ -1,0 +1,6 @@
+{
+    "Simulator Target Bundle": "app.comm",
+    "aps": {
+        "content-available" : 1,
+    }
+}
