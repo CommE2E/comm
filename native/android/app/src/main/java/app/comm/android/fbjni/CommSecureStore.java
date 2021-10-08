@@ -1,10 +1,9 @@
 package app.comm.android.fbjni;
 
+import expo.modules.securestore.SecureStoreModule;
 import org.unimodules.core.Promise;
 import org.unimodules.core.arguments.MapArguments;
 import org.unimodules.core.arguments.ReadableArguments;
-
-import expo.modules.securestore.SecureStoreModule;
 
 public class CommSecureStore {
 
@@ -27,8 +26,7 @@ public class CommSecureStore {
   private void checkModule() {
     if (this.secureStoreModule == null) {
       throw new RuntimeException(
-        "secure store module has not been initialized"
-      );
+          "secure store module has not been initialized");
     }
   }
 
@@ -36,7 +34,8 @@ public class CommSecureStore {
     this.checkModule();
     Promise promise = new Promise() {
       @Override
-      public void resolve(Object value) {}
+      public void resolve(Object value) {
+      }
 
       @Override
       public void reject(String code, String message, Throwable e) {
@@ -44,11 +43,7 @@ public class CommSecureStore {
       }
     };
     this.secureStoreModule.setValueWithKeyAsync(
-      value,
-      key,
-      this.readableArguments,
-      promise
-    );
+        value, key, this.readableArguments, promise);
   }
 
   private String internalGet(String key) {
@@ -68,10 +63,7 @@ public class CommSecureStore {
     };
     // The following call will resolve the promise before it returns
     this.secureStoreModule.getValueWithKeyAsync(
-      key,
-      this.readableArguments,
-      promise
-    );
+        key, this.readableArguments, promise);
 
     return result[0];
   }

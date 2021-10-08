@@ -27,7 +27,26 @@ module.exports = {
   '{landing,lib}/**/*.js': function landingFlow(files) {
     return 'yarn workspace landing flow --quiet';
   },
-  '{native,services}/**/*.{h,cpp,java}': function clangFormat(files) {
+  '{native,services}/**/*.{h,cpp,java,mm}': function clangFormat(files) {
+    const allowedPaths = [
+      'native/cpp/CommonCpp',
+      'services/tunnelbroker/contents/server/src',
+      'native/android/app/src/cpp',
+      'native/ios/Comm',
+      'native/ios/CommTests',
+      'native/android/app/src/main/java/app/comm',
+    ];
+    files = files.filter((path) => {
+      if (path.indexOf('generated') !== -1) {
+        return false;
+      }
+      for (const allowedPath of allowedPaths) {
+        if (path.indexOf(allowedPath) !== -1) {
+          return true;
+        }
+      }
+      return false;
+    });
     return 'clang-format -i ' + files.join(' ');
   },
 };
