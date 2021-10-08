@@ -149,6 +149,8 @@ div.github_icon h1 {
   div.header_grid {
     padding-left: 3%;
     padding-right: 3%;
+    padding-top: 0px;
+    padding-bottom: 20px;
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
     grid-template-columns: 1fr 1fr;
@@ -157,16 +159,25 @@ div.github_icon h1 {
       'top_nav top_nav';
   }
 
+  div.social_icons {
+    justify-self: flex-end;
+    margin-left: 8px;
+  }
+
   div.top_nav {
     grid-area: top_nav;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
-    align-self: flex-start;
+    justify-content: center;
+    align-self: center;
   }
 
   div.active_tab,
   div.inactive_tab {
     margin-right: 10px;
+  }
+
+  div.request_access {
+    display: none;
   }
 }

@@ -158,7 +158,7 @@ div.app_copy {
 
 h1.cycling_header {
   font-family: 'iA Writer Duo S', monospace;
-  padding-top: 26vh;
+  margin-top: 26vh;
 }
 
 /* ===== TILE GRID STYLING ===== */
@@ -339,6 +339,8 @@ div.body_grid > div + .starting_section {
     padding-right: 3%;
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
+    padding-top: 0vh;
+    padding-bottom: 2vh;
   }
 
   /* ===== CSS BODY GRID LAYOUT ===== */
@@ -391,8 +393,41 @@ div.body_grid > div + .starting_section {
     justify-self: center;
   }
 
+  h1.cycling_header {
+    font-family: 'iA Writer Duo S', monospace;
+    margin-top: 4vh;
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .app_landing_subheading {
+    margin-bottom: 6vh;
+    text-align: center;
+  }
+
+  div.tile_grid {
+    row-gap: 4vh;
+    padding-left: 3%;
+    padding-right: 3%;
+    grid-template-columns: minmax(auto, 540px);
+    justify-content: center;
+  }
+
   div.app_copy div.tile_grid {
     margin: 0;
+  }
+
+  div.tile_grid {
+    padding-bottom: 4vh;
+  }
+
+  div.tile_one p.tile_title,
+  div.tile_two p.tile_title,
+  div.tile_three p.tile_title,
+  div.tile_four p.tile_title,
+  div.tile_five p.tile_title,
+  div.tile_six p.tile_title {
+    font-size: 24px;
   }
 
   /* ===== LAYOUT HACKS ===== */
@@ -405,5 +440,9 @@ div.body_grid > div + .starting_section {
     max-width: 540px;
     padding-left: 3%;
     padding-right: 3%;
+  }
+
+  .scroll_snap_container {
+    scroll-snap-type: none;
   }
 }
