@@ -1,4 +1,5 @@
 #include "CryptoModule.h"
+#include "PlatformSpecificTools.h"
 #include "olm/session.hh"
 
 namespace comm {
@@ -26,7 +27,7 @@ void CryptoModule::createAccount() {
 
   size_t randomSize = ::olm_create_account_random_length(this->account);
   OlmBuffer randomBuffer;
-  Tools::getInstance().generateRandomBytes(randomBuffer, randomSize);
+  PlatformSpecificTools::generateSecureRandomBytes(randomBuffer, randomSize);
 
   if (-1 ==
       ::olm_create_account(this->account, randomBuffer.data(), randomSize)) {
@@ -58,7 +59,7 @@ void CryptoModule::generateOneTimeKeys(size_t oneTimeKeysAmount) {
     return;
   }
   OlmBuffer random;
-  Tools::getInstance().generateRandomBytes(random, oneTimeKeysSize);
+  PlatformSpecificTools::generateSecureRandomBytes(random, oneTimeKeysSize);
 
   if (-1 ==
       ::olm_account_generate_one_time_keys(
@@ -248,7 +249,7 @@ EncryptedData CryptoModule::encrypt(
   OlmBuffer encryptedMessage(
       ::olm_encrypt_message_length(session, content.size()));
   OlmBuffer messageRandom;
-  Tools::getInstance().generateRandomBytes(
+  PlatformSpecificTools::generateSecureRandomBytes(
       messageRandom, ::olm_encrypt_random_length(session));
   size_t messageType = ::olm_encrypt_message_type(session);
   if (-1 ==

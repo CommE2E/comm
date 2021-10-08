@@ -389,7 +389,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
   folly::Optional<std::string> storedSecretKey =
       this->secureStore.get(this->secureStoreAccountDataKey);
   if (!storedSecretKey.hasValue()) {
-    storedSecretKey = crypto::Tools::getInstance().generateRandomString(64);
+    storedSecretKey = crypto::Tools::generateRandomString(64);
     this->secureStore.set(
         this->secureStoreAccountDataKey, storedSecretKey.value());
   }

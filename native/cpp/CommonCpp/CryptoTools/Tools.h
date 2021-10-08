@@ -1,6 +1,5 @@
 #pragma once
 
-#include <random>
 #include <vector>
 
 #include "olm/olm.h"
@@ -26,22 +25,8 @@ struct EncryptedData {
 };
 
 class Tools {
-  std::mt19937 mt;
-
-  Tools();
-
 public:
-  static Tools &getInstance() {
-    static Tools instance;
-    return instance;
-  }
-  Tools(Tools const &) = delete;
-  void operator=(Tools const &) = delete;
-
-  std::string generateRandomString(size_t size);
-
-  unsigned char generateRandomByte();
-  void generateRandomBytes(OlmBuffer &buffer, size_t size);
+  static std::string generateRandomString(size_t size);
 };
 
 } // namespace crypto

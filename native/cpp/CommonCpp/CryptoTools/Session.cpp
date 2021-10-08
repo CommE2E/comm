@@ -1,6 +1,5 @@
 #include "Session.h"
-
-#include "Tools.h"
+#include "PlatformSpecificTools.h"
 
 namespace comm {
 namespace crypto {
@@ -17,7 +16,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
   session->olmSession = ::olm_session(session->olmSessionBuffer.data());
 
   OlmBuffer randomBuffer;
-  Tools::getInstance().generateRandomBytes(
+  PlatformSpecificTools::generateSecureRandomBytes(
       randomBuffer,
       ::olm_create_outbound_session_random_length(session->olmSession));
 
