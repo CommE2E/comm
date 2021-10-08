@@ -84,7 +84,7 @@
     "react-native-gesture-handler": "^1.10.3",
     "react-native-in-app-message": "^1.0.2",
     "react-native-keyboard-input": "6.0.1",
-    "react-native-keychain": "^7.0.0",
+    "react-native-keychain": "^8.0.0",
     "react-native-notifications": "git+https://git@github.com/ashoat/react-native-notifications.git",
     "react-native-orientation-locker": "^1.1.6",
     "react-native-progress": "^4.1.2",
