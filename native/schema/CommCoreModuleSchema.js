@@ -9,6 +9,10 @@ import type {
   ClientDBMessageInfo,
   ClientDBMessageStoreOperation,
 } from 'lib/types/message-types';
+import type {
+  ClientDBThreadInfo,
+  ClientDBThreadStoreOperation,
+} from 'lib/types/thread-types';
 
 type ClientDBDraftInfo = {
   +key: string,
@@ -25,6 +29,10 @@ export interface Spec extends TurboModule {
   +getAllMessages: () => Promise<$ReadOnlyArray<ClientDBMessageInfo>>;
   +processMessageStoreOperations: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
+  ) => Promise<void>;
+  +getAllThreads: () => Promise<$ReadOnlyArray<ClientDBThreadInfo>>;
+  +processThreadStoreOperations: (
+    operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => Promise<void>;
   +initializeCryptoAccount: (userId: string) => Promise<string>;
   +getUserPublicKey: () => Promise<string>;

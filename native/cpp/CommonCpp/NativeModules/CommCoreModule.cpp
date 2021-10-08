@@ -2,6 +2,7 @@
 #include "DatabaseManager.h"
 #include "Logger.h"
 #include "MessageStoreOperations.h"
+#include "ThreadStoreOperations.h"
 
 #include <folly/Optional.h>
 
@@ -240,6 +241,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
 #define REMOVE_OPERATION "remove"
 #define REPLACE_OPERATION "replace"
 #define REMOVE_MSGS_FOR_THREADS_OPERATION "remove_messages_for_threads"
+#define REMOVE_ALL_OPERATION "remove_all"
 
 jsi::Value CommCoreModule::processMessageStoreOperations(
     jsi::Runtime &rt,
@@ -379,6 +381,225 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
           });
         };
         this->scheduleOrRun(this->databaseThread, job);
+      });
+}
+
+jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        this->scheduleOrRun(this->databaseThread, [=, &innerRt]() {
+          std::string error;
+          std::vector<Thread> threadsVector;
+          size_t numThreads;
+          try {
+            threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
+            numThreads = threadsVector.size();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          auto threadsVectorPtr =
+              std::make_shared<std::vector<Thread>>(std::move(threadsVector));
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+
+            jsi::Array jsiThreads = jsi::Array(innerRt, numThreads);
+            size_t writeIdx = 0;
+            for (const Thread &thread : *threadsVectorPtr) {
+              jsi::Object jsiThread = jsi::Object(innerRt);
+              jsiThread.setProperty(innerRt, "id", thread.id);
+              jsiThread.setProperty(innerRt, "type", thread.type);
+              jsiThread.setProperty(
+                  innerRt,
+                  "name",
+                  thread.name
+                      ? jsi::String::createFromUtf8(innerRt, *thread.name)
+                      : jsi::Value::null());
+              jsiThread.setProperty(
+                  innerRt,
+                  "description",
+                  thread.description ? jsi::String::createFromUtf8(
+                                           innerRt, *thread.description)
+                                     : jsi::Value::null());
+              jsiThread.setProperty(innerRt, "color", thread.color);
+              jsiThread.setProperty(
+                  innerRt,
+                  "creationTime",
+                  std::to_string(thread.creation_time));
+              jsiThread.setProperty(
+                  innerRt,
+                  "parentThreadID",
+                  thread.parent_thread_id
+                      ? jsi::String::createFromUtf8(
+                            innerRt, *thread.parent_thread_id)
+                      : jsi::Value::null());
+              jsiThread.setProperty(
+                  innerRt,
+                  "containingThreadID",
+                  thread.containing_thread_id
+                      ? jsi::String::createFromUtf8(
+                            innerRt, *thread.containing_thread_id)
+                      : jsi::Value::null());
+              jsiThread.setProperty(
+                  innerRt,
+                  "community",
+                  thread.community
+                      ? jsi::String::createFromUtf8(innerRt, *thread.community)
+                      : jsi::Value::null());
+              jsiThread.setProperty(innerRt, "members", thread.members);
+              jsiThread.setProperty(innerRt, "roles", thread.roles);
+              jsiThread.setProperty(
+                  innerRt, "currentUser", thread.current_user);
+              jsiThread.setProperty(
+                  innerRt,
+                  "sourceMessageID",
+                  thread.source_message_id
+                      ? jsi::String::createFromUtf8(
+                            innerRt, *thread.source_message_id)
+                      : jsi::Value::null());
+              jsiThread.setProperty(
+                  innerRt, "repliesCount", thread.replies_count);
+
+              jsiThreads.setValueAtIndex(innerRt, writeIdx++, jsiThread);
+            }
+            promise->resolve(std::move(jsiThreads));
+          });
+        });
+      });
+};
+
+jsi::Value CommCoreModule::processThreadStoreOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) {
+  std::vector<std::unique_ptr<ThreadStoreOperationBase>> threadStoreOps;
+
+  std::string operationsError;
+  for (size_t idx = 0; idx < operations.size(rt); idx++) {
+    jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);
+    std::string opType = op.getProperty(rt, "type").asString(rt).utf8(rt);
+
+    if (opType == REMOVE_OPERATION) {
+      std::vector<std::string> threadIDsToRemove;
+      jsi::Object payloadObj = op.getProperty(rt, "payload").asObject(rt);
+      jsi::Array threadIDs =
+          payloadObj.getProperty(rt, "ids").asObject(rt).asArray(rt);
+      for (int threadIdx = 0; threadIdx < threadIDs.size(rt); threadIdx++) {
+        threadIDsToRemove.push_back(
+            threadIDs.getValueAtIndex(rt, threadIdx).asString(rt).utf8(rt));
+      }
+      threadStoreOps.push_back(std::make_unique<RemoveThreadsOperation>(
+          std::move(threadIDsToRemove)));
+    } else if (opType == REMOVE_ALL_OPERATION) {
+      threadStoreOps.push_back(std::make_unique<RemoveAllThreadsOperation>());
+    } else if (opType == REPLACE_OPERATION) {
+      jsi::Object threadObj = op.getProperty(rt, "payload").asObject(rt);
+      std::string threadID =
+          threadObj.getProperty(rt, "id").asString(rt).utf8(rt);
+      int type = std::lround(threadObj.getProperty(rt, "type").asNumber());
+      jsi::Value maybeName = threadObj.getProperty(rt, "name");
+      std::unique_ptr<std::string> name = maybeName.isString()
+          ? std::make_unique<std::string>(maybeName.asString(rt).utf8(rt))
+          : nullptr;
+
+      jsi::Value maybeDescription = threadObj.getProperty(rt, "description");
+      std::unique_ptr<std::string> description = maybeDescription.isString()
+          ? std::make_unique<std::string>(
+                maybeDescription.asString(rt).utf8(rt))
+          : nullptr;
+
+      std::string color =
+          threadObj.getProperty(rt, "color").asString(rt).utf8(rt);
+      int64_t creationTime = std::stoll(
+          threadObj.getProperty(rt, "creationTime").asString(rt).utf8(rt));
+
+      jsi::Value maybeParentThreadID =
+          threadObj.getProperty(rt, "parentThreadID");
+      std::unique_ptr<std::string> parentThreadID =
+          maybeParentThreadID.isString()
+          ? std::make_unique<std::string>(
+                maybeParentThreadID.asString(rt).utf8(rt))
+          : nullptr;
+
+      jsi::Value maybeContainingThreadID =
+          threadObj.getProperty(rt, "containingThreadID");
+      std::unique_ptr<std::string> containingThreadID =
+          maybeContainingThreadID.isString()
+          ? std::make_unique<std::string>(
+                maybeContainingThreadID.asString(rt).utf8(rt))
+          : nullptr;
+
+      jsi::Value maybeCommunity = threadObj.getProperty(rt, "community");
+      std::unique_ptr<std::string> community = maybeCommunity.isString()
+          ? std::make_unique<std::string>(maybeCommunity.asString(rt).utf8(rt))
+          : nullptr;
+
+      std::string members =
+          threadObj.getProperty(rt, "members").asString(rt).utf8(rt);
+      std::string roles =
+          threadObj.getProperty(rt, "roles").asString(rt).utf8(rt);
+      std::string currentUser =
+          threadObj.getProperty(rt, "currentUser").asString(rt).utf8(rt);
+
+      jsi::Value maybeSourceMessageID =
+          threadObj.getProperty(rt, "sourceMessageID");
+      std::unique_ptr<std::string> sourceMessageID =
+          maybeSourceMessageID.isString()
+          ? std::make_unique<std::string>(
+                maybeSourceMessageID.asString(rt).utf8(rt))
+          : nullptr;
+
+      int repliesCount =
+          std::lround(threadObj.getProperty(rt, "repliesCount").asNumber());
+      Thread thread{
+          threadID,
+          type,
+          std::move(name),
+          std::move(description),
+          color,
+          creationTime,
+          std::move(parentThreadID),
+          std::move(containingThreadID),
+          std::move(community),
+          members,
+          roles,
+          currentUser,
+          std::move(sourceMessageID),
+          repliesCount};
+
+      threadStoreOps.push_back(
+          std::make_unique<ReplaceThreadOperation>(std::move(thread)));
+    } else {
+      operationsError = "unsupported operation:" + opType;
+    }
+  };
+  auto threadStoreOpsPtr =
+      std::make_shared<std::vector<std::unique_ptr<ThreadStoreOperationBase>>>(
+          std::move(threadStoreOps));
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) mutable {
+        this->scheduleOrRun(this->databaseThread, [=, &innerRt]() {
+          std::string error = operationsError;
+          if (!error.size()) {
+            try {
+              DatabaseManager::getQueryExecutor().beginTransaction();
+              for (const auto &operation : *threadStoreOpsPtr) {
+                operation->execute();
+              }
+              DatabaseManager::getQueryExecutor().commitTransaction();
+            } catch (std::system_error &e) {
+              error = e.what();
+            }
+          }
+          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        });
       });
 }
 
