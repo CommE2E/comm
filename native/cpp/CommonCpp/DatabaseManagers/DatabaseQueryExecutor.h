@@ -6,6 +6,7 @@
 #include "entities/Message.h"
 #include "entities/OlmPersistAccount.h"
 #include "entities/OlmPersistSession.h"
+#include "entities/Thread.h"
 
 #include <folly/Optional.h>
 
@@ -36,6 +37,10 @@ public:
   virtual void replaceMessage(const Message &message) const = 0;
   virtual void rekeyMessage(std::string from, std::string to) const = 0;
   virtual void replaceMedia(const Media &media) const = 0;
+  virtual std::vector<Thread> getAllThreads() const = 0;
+  virtual void removeThreads(std::vector<std::string> ids) const = 0;
+  virtual void replaceThread(const Thread &thread) const = 0;
+  virtual void removeAllThreads() const = 0;
   virtual void beginTransaction() const = 0;
   virtual void commitTransaction() const = 0;
   virtual void rollbackTransaction() const = 0;

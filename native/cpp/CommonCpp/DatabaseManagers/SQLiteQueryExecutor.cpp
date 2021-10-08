@@ -177,6 +177,26 @@ bool create_media_idx_container(sqlite3 *db) {
   return false;
 }
 
+bool create_threads_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS threads ( "
+      "id TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "type INTEGER NOT NULL, "
+      "name TEXT, "
+      "description TEXT, "
+      "color TEXT NOT NULL, "
+      "creation_time BIGINT NOT NULL, "
+      "parent_thread_id TEXT, "
+      "containing_thread_id TEXT, "
+      "community TEXT, "
+      "members TEXT NOT NULL, "
+      "roles TEXT NOT NULL, "
+      "current_user TEXT NOT NULL, "
+      "source_message_id TEXT, "
+      "replies_count INTEGER NOT NULL);";
+  return create_table(db, query, "threads");
+}
+
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
 std::vector<std::pair<uint, MigrationFunction>> migrations{
     {{1, create_drafts_table},
@@ -187,7 +207,8 @@ std::vector<std::pair<uint, MigrationFunction>> migrations{
      {16, drop_messages_table},
      {17, recreate_messages_table},
      {18, create_messages_idx_thread_time},
-     {19, create_media_idx_container}}};
+     {19, create_media_idx_container},
+     {20, create_threads_table}}};
 
 void SQLiteQueryExecutor::migrate() {
   sqlite3 *db;
@@ -269,7 +290,23 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("thread", &Media::thread),
           make_column("uri", &Media::uri),
           make_column("type", &Media::type),
-          make_column("extras", &Media::extras)));
+          make_column("extras", &Media::extras)),
+      make_table(
+          "threads",
+          make_column("id", &Thread::id, unique(), primary_key()),
+          make_column("type", &Thread::type),
+          make_column("name", &Thread::name),
+          make_column("description", &Thread::description),
+          make_column("color", &Thread::color),
+          make_column("creation_time", &Thread::creation_time),
+          make_column("parent_thread_id", &Thread::parent_thread_id),
+          make_column("containing_thread_id", &Thread::containing_thread_id),
+          make_column("community", &Thread::community),
+          make_column("members", &Thread::members),
+          make_column("roles", &Thread::roles),
+          make_column("current_user", &Thread::current_user),
+          make_column("source_message_id", &Thread::source_message_id),
+          make_column("replies_count", &Thread::replies_count)));
   return storage;
 }
 
@@ -347,6 +384,23 @@ void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
 void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
   SQLiteQueryExecutor::getStorage().replace(media);
 }
+
+std::vector<Thread> SQLiteQueryExecutor::getAllThreads() const {
+  return SQLiteQueryExecutor::getStorage().get_all<Thread>();
+};
+
+void SQLiteQueryExecutor::removeThreads(std::vector<std::string> ids) const {
+  SQLiteQueryExecutor::getStorage().remove_all<Thread>(
+      where(in(&Thread::id, ids)));
+};
+
+void SQLiteQueryExecutor::replaceThread(const Thread &thread) const {
+  SQLiteQueryExecutor::getStorage().replace(thread);
+};
+
+void SQLiteQueryExecutor::removeAllThreads() const {
+  SQLiteQueryExecutor::getStorage().remove_all<Thread>();
+};
 
 void SQLiteQueryExecutor::beginTransaction() const {
   SQLiteQueryExecutor::getStorage().begin_transaction();
