@@ -16,6 +16,7 @@
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		713EE41126C66B80003D7C48 /* CryptoTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 713EE41026C66B80003D7C48 /* CryptoTest.mm */; };
+		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
 		718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; };
 		71BE84492636A944002849D2 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843B2636A944002849D2 /* NativeModules.cpp */; };
 		71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843C2636A944002849D2 /* CommCoreModule.cpp */; };
@@ -67,6 +68,7 @@
 		713EE40626C6676B003D7C48 /* CommTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CommTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		713EE40A26C6676B003D7C48 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		713EE41026C66B80003D7C48 /* CryptoTest.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = CryptoTest.mm; sourceTree = "<group>"; };
+		71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PlatformSpecificTools.mm; path = Comm/PlatformSpecificTools.mm; sourceTree = "<group>"; };
 		718DE99C2653D41C00365824 /* WorkerThread.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WorkerThread.cpp; sourceTree = "<group>"; };
 		718DE99D2653D41C00365824 /* WorkerThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkerThread.h; sourceTree = "<group>"; };
 		71B8CCBD26BD4DEB0040C0A2 /* CommSecureStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommSecureStore.h; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 		71CA4AEA262F230A00835C89 /* Tools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Tools.h; path = Comm/Tools.h; sourceTree = "<group>"; };
 		71CA4AEB262F236100835C89 /* Tools.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = Tools.mm; path = Comm/Tools.mm; sourceTree = "<group>"; };
 		71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStore.mm; path = Comm/CommSecureStore.mm; sourceTree = "<group>"; };
+		71DC160C270C43D300822863 /* PlatformSpecificTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlatformSpecificTools.h; sourceTree = "<group>"; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
 		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = Comm/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -198,6 +201,7 @@
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
 			isa = PBXGroup;
 			children = (
+				71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */,
 				71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */,
 				71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */,
 				71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */,
@@ -238,6 +242,7 @@
 				718DE99C2653D41C00365824 /* WorkerThread.cpp */,
 				718DE99D2653D41C00365824 /* WorkerThread.h */,
 				71BE84392636A944002849D2 /* Logger.h */,
+				71DC160C270C43D300822863 /* PlatformSpecificTools.h */,
 			);
 			path = Tools;
 			sourceTree = "<group>";
@@ -605,6 +610,7 @@
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				71009A7B26FDCD72002C8453 /* Client.cpp in Sources */,
+				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
 				71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
