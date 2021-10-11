@@ -167,7 +167,7 @@ div.tile_grid {
   margin-right: 16%;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
-  row-gap: 20vh;
+  row-gap: 26vh;
   margin-top: 32vh;
   margin-bottom: 32vh;
   grid-template-areas:
