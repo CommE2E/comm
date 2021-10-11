@@ -150,6 +150,12 @@ brew install reactotron; brew upgrade reactotron
 
 Flipper is a debugging tool for mobile applications from Facebook. We use it for JavaScript debugging using the Hermes runtime, and also use several plugins such as the React Dev Tools. You can download the latest version of Flipper for MacOS [here](https://www.facebook.com/fbflipper/public/mac).
 
+### Flipper plugins
+
+Flipper has a plugin system that allows teams to integrate additional debugging tools into Flipper. We currently only use one plugin, which is for monitoring Redux state.
+
+To install it, open Flipper and go to View → Manage Plugins. Type in "redux-debugger" and install the Flipper plugin with that name.
+
 ## idb
 
 Flipper relies on Facebook’s idb tool to debug iOS apps running on your device. We’ll need to install it:
