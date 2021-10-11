@@ -201,6 +201,7 @@ div.tile_three p.tile_title,
 div.tile_four p.tile_title,
 div.tile_five p.tile_title,
 div.tile_six p.tile_title {
+  font-family: 'iA Writer Duo S', monospace;
   font-weight: bold;
   font-size: 36px;
   color: #485563;
