@@ -67,7 +67,8 @@ div.subscribe_updates {
 /* ===== VISUAL EFFECTS ===== */
 div.footer_blur {
   background-color: rgba(255, 255, 255, 0.125);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 /* ===== SMALLEST BREAKPOINT ===== */

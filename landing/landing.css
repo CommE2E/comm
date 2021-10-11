@@ -193,6 +193,10 @@ div.tile_six {
   flex-direction: column;
   transition: 300ms;
   scroll-snap-align: center;
+  background-color: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  transition: 300ms;
 }
 
 div.tile_one p.tile_title,
@@ -204,7 +208,7 @@ div.tile_six p.tile_title {
   font-family: 'iA Writer Duo S', monospace;
   font-weight: bold;
   font-size: 36px;
-  color: #485563;
+  color: white;
   transition: 300ms;
 }
 
@@ -225,7 +229,7 @@ div.tile_four p,
 div.tile_five p,
 div.tile_six p {
   font-size: 24px;
-  color: #485563;
+  color: white;
   text-align: left;
   margin-top: 0px;
   margin-bottom: 0px;
