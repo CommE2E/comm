@@ -61,6 +61,8 @@ span.app_landing_subheading {
 
 p.app_landing_subheading {
   font-family: 'iA Writer Duo S', monospace;
+  color: #7e57c2;
+  font-size: 32px;
 }
 
 span.purple_accent {
@@ -414,13 +416,17 @@ div.body_grid > div + .starting_section {
   h1.cycling_header {
     font-family: 'iA Writer Duo S', monospace;
     margin-top: 4vh;
-    font-size: 24px;
+    font-size: 22px;
     text-align: center;
   }
 
   .app_landing_subheading {
     margin-bottom: 6vh;
     text-align: center;
+  }
+
+  p.app_landing_subheading {
+    font-size: 18px;
   }
 
   div.tile_grid {
