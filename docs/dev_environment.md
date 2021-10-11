@@ -123,19 +123,7 @@ brew services start redis
 CocoaPods is a dependency management system for iOS development. React Native uses it to manage native modules.
 
 ```
-sudo gem install cocoapods
-```
-
-In order for `pod` to be accessible from the command-line, we’ll need to update your `$PATH` environmental variable. Open your `~/.bash_profile` (or desired shell configuration file) and add the following line:
-
-```
-export PATH=$PATH:/usr/local/lib/ruby/gems/2.7.0/bin
-```
-
-Make sure you reload the `~/.bash_profile` after editing it:
-
-```
-source ~/.bash_profile
+brew install cocoapods; brew upgrade cocoapods
 ```
 
 ## Reactotron
