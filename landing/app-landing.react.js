@@ -25,7 +25,7 @@ function AppLanding(): React.Node {
         </div>
         <div className={css.app_copy}>
           <h1 className={css.cycling_header}>
-            Comm is crypto-native chat for{' '}
+            {'Comm is crypto-native\nchat for '}
             <TextLoop
               interval={1750}
               springConfig={{ stiffness: 180, damping: 16 }}

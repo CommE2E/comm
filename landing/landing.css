@@ -158,7 +158,9 @@ div.app_copy {
 
 h1.cycling_header {
   font-family: 'iA Writer Duo S', monospace;
+  font-size: 52px;
   margin-top: 26vh;
+  white-space: pre-wrap;
 }
 
 /* ===== TILE GRID STYLING ===== */
@@ -326,6 +328,11 @@ div.body_grid > div + .starting_section {
   div.tile_five p,
   div.tile_six p {
     font-size: 16px;
+  }
+
+  h1.cycling_header {
+    font-size: 36px;
+    margin-top: 20vh;
   }
 }
 
