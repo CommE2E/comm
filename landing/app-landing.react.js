@@ -4,7 +4,9 @@ import {
   faLock,
   faUserShield,
   faUsers,
-  faServer,
+  faCodeBranch,
+  faTools,
+  faBellSlash,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
@@ -44,7 +46,7 @@ function AppLanding(): React.Node {
           <div className={css.tile_grid}>
             <div className={css.tile_one}>
               <div className={css.tile_title_row}>
-                <FontAwesomeIcon size="2x" color="#485563" icon={faLock} />
+                <FontAwesomeIcon size="2x" color="#485563" icon={faUsers} />
                 <p className={css.tile_title}>Federated</p>
               </div>
               <p>
@@ -55,7 +57,7 @@ function AppLanding(): React.Node {
             </div>
             <div className={css.tile_two}>
               <div className={css.tile_title_row}>
-                <FontAwesomeIcon size="2x" color="#485563" icon={faServer} />
+                <FontAwesomeIcon size="2x" color="#485563" icon={faTools} />
                 <p className={css.tile_title}>Customizable</p>
               </div>
               <p>
@@ -65,7 +67,7 @@ function AppLanding(): React.Node {
             </div>
             <div className={css.tile_three}>
               <div className={css.tile_title_row}>
-                <FontAwesomeIcon size="2x" color="#485563" icon={faUsers} />
+                <FontAwesomeIcon size="2x" color="#485563" icon={faLock} />
                 <p className={css.tile_title}>E2E-encrypted</p>
               </div>
               <p>
@@ -92,7 +94,7 @@ function AppLanding(): React.Node {
                 <FontAwesomeIcon
                   size="2x"
                   color="#485563"
-                  icon={faUserShield}
+                  icon={faCodeBranch}
                 />
                 <p className={css.tile_title}>Open Source</p>
               </div>
@@ -103,11 +105,7 @@ function AppLanding(): React.Node {
             </div>
             <div className={css.tile_six}>
               <div className={css.tile_title_row}>
-                <FontAwesomeIcon
-                  size="2x"
-                  color="#485563"
-                  icon={faUserShield}
-                />
+                <FontAwesomeIcon size="2x" color="#485563" icon={faBellSlash} />
                 <p className={css.tile_title}>Less Noisy</p>
               </div>
               <p>
