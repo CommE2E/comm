@@ -2,8 +2,7 @@ apply plugin: "com.android.application"
 
 import com.android.build.OutputFile
 import de.undercouch.gradle.tasks.download.Download
-import org.apache.tools.ant.filters.ReplaceTokens
-import org.ajoberstar.grgit.*
+import app.comm.gradle.tasks.GitModules
 
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
@@ -140,40 +139,31 @@ task createNativeDepsDirectories {
 }
 
 // GRPC
-def grpcPath = "${thirdPartyNdkDir}/grpc/grpc-${GRPC_VERSION}/"
+task downloadGrpc(dependsOn: createNativeDepsDirectories, type: Download) {
+    src("https://github.com/grpc/grpc/archive/refs/tags/v${GRPC_VERSION}.tar.gz")
+    onlyIfNewer(true)
+    overwrite(false)
+    dest(new File(downloadsDir, "grpc-${GRPC_VERSION}.tar.gz"))
+}
 
-task prepareGrpc(dependsOn: createNativeDepsDirectories) {
-    inputs.properties([
-        'grpc.version': GRPC_VERSION
+task copyGrpc(dependsOn: dependenciesPath ? [] : [downloadGrpc], type: Copy) {
+    from(tarTree(downloadGrpc.dest))
+    includeEmptyDirs = true
+    into("$thirdPartyNdkDir/grpc")
+}
+
+task prepareGrpc(dependsOn: copyGrpc, type: GitModules) {
+    gitmodulesFile(new File("${thirdPartyNdkDir}/grpc/grpc-${GRPC_VERSION}/.gitmodules"))
+    outputDir(new File("${thirdPartyNdkDir}/grpc/grpc-${GRPC_VERSION}"))
+    // Skip the boringSSL module as we use OpenSSL
+    skipModules(["third_party/boringssl-with-bazel"])
+    // Needs to override/provide some module branches
+    // for the gRPC version compatibility
+    moduleBranch([
+        "third_party/cares/cares": "cares-1_13_0",
+        "third_party/abseil-cpp": "lts_2021_03_24",
+        "third_party/protobuf": "v3.15.8"
     ])
-    outputs.dir(grpcPath)
-        .withPropertyName('grpc.output')
-    doFirst {
-        println('cloning grpc...')
-        // We need to remove the already cloned directory
-        // otherwise git clone will fall
-        final clonedDir = new File(grpcPath)
-        clonedDir.deleteDir()
-        clonedDir.mkdirs()
-        def commands = [
-            ["git", "clone",
-                "-b", "v${GRPC_VERSION}",
-                "--depth", "1",
-                "https://github.com/grpc/grpc.git",
-                "${grpcPath}"],
-            ["git", "checkout", "v${GRPC_VERSION}"],
-            ["git", "submodule", "update", "--init", "--recursive"],
-            ["rm", "-rf", ".git"],
-            ["rm", "examples/node/package.json"],
-        ]
-        for (command in commands) {
-            exec {
-                workingDir grpcPath
-                commandLine(*command)
-            }
-        }
-        println('grpc cloned')
-    }
 }
 
 // FOLLY
