@@ -21,6 +21,17 @@ set(BUILD_TESTING OFF)
 set(HAVE_SYMBOLIZE OFF)
 set(WITH_GTEST OFF CACHE BOOL "Use googletest" FORCE)
 set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
+
+# Protobuf
+set(protobuf_BUILD_TESTS OFF)
+
+# gRPC building parameters
+set(gRPC_BUILD_CSHARP_EXT OFF)
+set(gRPC_SSL_PROVIDER "package")
+# We're updating parameters below for Cmake's find_OpenSSL() function
+set(OPENSSL_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build/third-party-ndk/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}")
+list(APPEND CMAKE_FIND_ROOT_PATH "${OPENSSL_ROOT_DIR}")
+
 add_subdirectory(./build/third-party-ndk/grpc/grpc-${GRPC_VERSION}/ ${CMAKE_CURRENT_BINARY_DIR}/grpc/ EXCLUDE_FROM_ALL)
 add_subdirectory(./build/third-party-ndk/glog/glog-${GLOG_VERSION}/)
 add_subdirectory(../../node_modules/olm ./build)
@@ -142,6 +153,17 @@ set_target_properties(
     openssl-crypto
     PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/build/third-party-ndk/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}/lib/libcrypto.a"
 )
+add_library(
+    # OpenSSL SSL lib
+    openssl-ssl
+    STATIC
+    IMPORTED
+)
+set_target_properties(
+    # OpenSSL SSL lib
+    openssl-ssl
+    PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/build/third-party-ndk/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}/lib/libssl.a"
+)
 
 target_link_libraries(
   ${PACKAGE_NAME}
@@ -153,6 +175,9 @@ target_link_libraries(
   grpc++
   libprotobuf
   openssl-crypto
+  openssl-ssl
+  grpc++
+  libprotobuf
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java

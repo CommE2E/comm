@@ -353,12 +353,6 @@ PODS:
     - abseil/base/config
     - abseil/meta/type_traits
   - boost-for-react-native (1.63.0)
-  - BoringSSL-GRPC (0.0.19):
-    - BoringSSL-GRPC/Implementation (= 0.0.19)
-    - BoringSSL-GRPC/Interface (= 0.0.19)
-  - BoringSSL-GRPC/Implementation (0.0.19):
-    - BoringSSL-GRPC/Interface (= 0.0.19)
-  - BoringSSL-GRPC/Interface (0.0.19)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
   - DVAssetLoaderDelegate (0.3.3)
@@ -460,46 +454,50 @@ PODS:
     - FlipperKit/FlipperKitNetworkPlugin
   - fmt (6.2.1)
   - glog (0.3.5)
-  - "gRPC-C++ (1.39.0)":
-    - "gRPC-C++/Implementation (= 1.39.0)"
-    - "gRPC-C++/Interface (= 1.39.0)"
-  - "gRPC-C++/Implementation (1.39.0)":
+  - "gRPC-C++ (1.40.0)":
+    - "gRPC-C++/Implementation (= 1.40.0)"
+    - "gRPC-C++/Interface (= 1.40.0)"
+  - "gRPC-C++/Implementation (1.40.0)":
     - abseil/base/base (= 1.20210324.0)
+    - abseil/base/core_headers (= 1.20210324.0)
     - abseil/container/flat_hash_map (= 1.20210324.0)
     - abseil/container/inlined_vector (= 1.20210324.0)
     - abseil/functional/bind_front (= 1.20210324.0)
     - abseil/memory/memory (= 1.20210324.0)
     - abseil/status/status (= 1.20210324.0)
     - abseil/status/statusor (= 1.20210324.0)
+    - abseil/strings/cord (= 1.20210324.0)
     - abseil/strings/str_format (= 1.20210324.0)
     - abseil/strings/strings (= 1.20210324.0)
     - abseil/synchronization/synchronization (= 1.20210324.0)
     - abseil/time/time (= 1.20210324.0)
     - abseil/types/optional (= 1.20210324.0)
-    - "gRPC-C++/Interface (= 1.39.0)"
-    - gRPC-Core (= 1.39.0)
-  - "gRPC-C++/Interface (1.39.0)"
-  - "gRPC-C++/Protobuf (1.39.0)":
-    - "gRPC-C++/Interface (= 1.39.0)"
-  - gRPC-Core (1.39.0):
-    - gRPC-Core/Implementation (= 1.39.0)
-    - gRPC-Core/Interface (= 1.39.0)
-  - gRPC-Core/Implementation (1.39.0):
+    - "gRPC-C++/Interface (= 1.40.0)"
+    - gRPC-Core (= 1.40.0)
+  - "gRPC-C++/Interface (1.40.0)"
+  - "gRPC-C++/Protobuf (1.40.0)":
+    - "gRPC-C++/Interface (= 1.40.0)"
+  - gRPC-Core (1.40.0):
+    - gRPC-Core/Implementation (= 1.40.0)
+    - gRPC-Core/Interface (= 1.40.0)
+  - gRPC-Core/Implementation (1.40.0):
     - abseil/base/base (= 1.20210324.0)
+    - abseil/base/core_headers (= 1.20210324.0)
     - abseil/container/flat_hash_map (= 1.20210324.0)
     - abseil/container/inlined_vector (= 1.20210324.0)
     - abseil/functional/bind_front (= 1.20210324.0)
     - abseil/memory/memory (= 1.20210324.0)
     - abseil/status/status (= 1.20210324.0)
     - abseil/status/statusor (= 1.20210324.0)
+    - abseil/strings/cord (= 1.20210324.0)
     - abseil/strings/str_format (= 1.20210324.0)
     - abseil/strings/strings (= 1.20210324.0)
     - abseil/synchronization/synchronization (= 1.20210324.0)
     - abseil/time/time (= 1.20210324.0)
     - abseil/types/optional (= 1.20210324.0)
-    - BoringSSL-GRPC (= 0.0.19)
-    - gRPC-Core/Interface (= 1.39.0)
-  - gRPC-Core/Interface (1.39.0)
+    - gRPC-Core/Interface (= 1.40.0)
+    - OpenSSL-Universal
+  - gRPC-Core/Interface (1.40.0)
   - hermes-engine (0.7.2)
   - libevent (2.1.12)
   - libwebp (1.2.0):
@@ -964,8 +962,9 @@ DEPENDENCIES:
   - FlipperKit/FlipperKitUserDefaultsPlugin (= 0.98.0)
   - FlipperKit/SKIOSNetworkPlugin (= 0.98.0)
   - glog (from `../../node_modules/react-native/third-party-podspecs/glog.podspec`)
-  - "gRPC-C++"
-  - "gRPC-C++/Protobuf"
+  - "gRPC-C++ (from `./pod-patch/.patched/gRPC-C++/1.40.0/gRPC-C++.podspec.json`)"
+  - "gRPC-C++/Protobuf (from `./pod-patch/.patched/gRPC-C++/1.40.0/gRPC-C++.podspec.json`)"
+  - gRPC-Core (from `./pod-patch/.patched/gRPC-Core/1.40.0/gRPC-Core.podspec.json`)
   - hermes-engine (~> 0.7.2)
   - libevent (~> 2.1.12)
   - lottie-ios (from `../../node_modules/lottie-ios`)
@@ -1045,7 +1044,6 @@ SPEC REPOS:
   trunk:
     - abseil
     - boost-for-react-native
-    - BoringSSL-GRPC
     - CocoaAsyncSocket
     - DVAssetLoaderDelegate
     - Flipper
@@ -1058,8 +1056,6 @@ SPEC REPOS:
     - Flipper-RSocket
     - FlipperKit
     - fmt
-    - "gRPC-C++"
-    - gRPC-Core
     - hermes-engine
     - libevent
     - libwebp
@@ -1098,6 +1094,10 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/React/FBReactNativeSpec"
   glog:
     :podspec: "../../node_modules/react-native/third-party-podspecs/glog.podspec"
+  "gRPC-C++":
+    :podspec: "./pod-patch/.patched/gRPC-C++/1.40.0/gRPC-C++.podspec.json"
+  gRPC-Core:
+    :podspec: "./pod-patch/.patched/gRPC-Core/1.40.0/gRPC-Core.podspec.json"
   lottie-ios:
     :path: "../../node_modules/lottie-ios"
   lottie-react-native:
@@ -1240,7 +1240,6 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   abseil: c12cac4b0b499c3335ac47ac46adf303f0618d13
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  BoringSSL-GRPC: a1ddc6446c98c7a0766cd2bab41a0713e80fa7d0
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
   DVAssetLoaderDelegate: 0caec20e4e08b8560b691131539e9180024d4bce
@@ -1266,8 +1265,8 @@ SPEC CHECKSUMS:
   FlipperKit: 2c7cd44efce216d1aeb165a0dca5e29877a92cc5
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
-  "gRPC-C++": eefb08df432d7dd44caba1d2bc9fdf7686e1a3ad
-  gRPC-Core: 36cd647e4e4f0dd3071bf3379cf159d32e1bd690
+  "gRPC-C++": 3a30fb847ea1af71bea38b5c85f8fddc0ea370ba
+  gRPC-Core: cabfc7d9b2c6ef98b9dca7ff882ddfe762750225
   hermes-engine: 7d97ba46a1e29bacf3e3c61ecb2804a5ddd02d4f
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   libwebp: e90b9c01d99205d03b6bb8f2c8c415e5a4ef66f0
@@ -1348,6 +1347,6 @@ SPEC CHECKSUMS:
   Yoga: 575c581c63e0d35c9a83f4b46d01d63abc1100ac
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: d589907c246b254439effa0aa4a8343f50af6f82
+PODFILE CHECKSUM: a807ce531e47154b92784c30028b2745f6a6ecc4
 
 COCOAPODS: 1.11.2
