@@ -21,8 +21,8 @@ set(BUILD_TESTING OFF)
 set(HAVE_SYMBOLIZE OFF)
 set(WITH_GTEST OFF CACHE BOOL "Use googletest" FORCE)
 set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
-add_subdirectory(./build/third-party-ndk/grpc/ ${CMAKE_CURRENT_BINARY_DIR}/grpc EXCLUDE_FROM_ALL)
-add_subdirectory(./build/third-party-ndk/glog/glog-0.4.0/)
+add_subdirectory(./build/third-party-ndk/grpc/grpc-${GRPC_VERSION}/ ${CMAKE_CURRENT_BINARY_DIR}/grpc/ EXCLUDE_FROM_ALL)
+add_subdirectory(./build/third-party-ndk/glog/glog-${GLOG_VERSION}/)
 add_subdirectory(../../node_modules/olm ./build)
 
 include_directories(
@@ -32,17 +32,27 @@ include_directories(
   ../../node_modules/react-native/ReactCommon/jsi
   ../../node_modules/react-native/ReactCommon/callinvoker
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon
-  # sqlite code
-  ../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100
+
+  # OpenSSL
+  ./build/third-party-ndk/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}/include
+
+  # SQLCipher amalgamation
+  ../../node_modules/@commapp/sqlcipher-amalgamation/src
+
+  # SQLite ORM
   ../../cpp/lib/sqlite_orm
+
   # symlinked React Native headers
   ../headers
+
   # external libs
   ./build/third-party-ndk/folly
   ./build/third-party-ndk/boost/boost
   ./build/third-party-ndk/double-conversion
+
   # comm android specific code
   ./src/cpp
+
   # comm native mutual code
   ../../cpp/CommonCpp/NativeModules
   ../../cpp/CommonCpp/DatabaseManagers
@@ -52,7 +62,7 @@ include_directories(
 )
 
 # search for all cpp files in this directory
-file(GLOB SQLITE "../../node_modules/@nozbe/sqlite/sqlite-amalgamation-3310100/*.c")
+file(GLOB SQLCIPHER "../../node_modules/@commapp/sqlcipher-amalgamation/src/*.c")
 file(GLOB COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
 file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES "./build/third-party-ndk/double-conversion/double-conversion/*.cc")
@@ -61,15 +71,19 @@ file(GLOB GRPC_CODE "../../cpp/CommonCpp/grpc/_generated/*.cc")
 add_library(
   # Sets the name of the library.
   ${PACKAGE_NAME}
+
   # Sets the library as a shared library.
   SHARED
+
   # Provides a relative path to your source file(s).
   ../../node_modules/react-native/ReactCommon/jsi/jsi/jsi.cpp
   ../../node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
   ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/LongLivedObject.cpp
   ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleUtils.cpp
-  ${SQLITE}
+  
+  # SQLCipher
+  ${SQLCIPHER}
 
   # folly
   ./build/third-party-ndk/folly/folly/detail/Futex.cpp
@@ -101,15 +115,33 @@ add_library(
 )
 
 add_definitions(
+  ## Folly
   -DFOLLY_NO_CONFIG=1
   -DFOLLY_HAVE_CLOCK_GETTIME=1
   -DFOLLY_HAVE_MEMRCHR=1
   -DFOLLY_USE_LIBCPP=1
   -DFOLLY_MOBILE=1
+
+  ## SQLCipher
   -DSQLITE_THREADSAFE=0
+  -DSQLITE_HAS_CODEC
+  -DSQLITE_TEMP_STORE=2
+  -DSQLCIPHER_CRYPTO_OPENSSL
 )
 
 find_library(log-lib log)
+
+add_library(
+    # OpenSSL Crypto lib
+    openssl-crypto
+    STATIC
+    IMPORTED
+)
+set_target_properties(
+    # OpenSSL Crypto lib
+    openssl-crypto
+    PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/build/third-party-ndk/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}/lib/libcrypto.a"
+)
 
 target_link_libraries(
   ${PACKAGE_NAME}
@@ -120,6 +152,7 @@ target_link_libraries(
   olm
   grpc++
   libprotobuf
+  openssl-crypto
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java

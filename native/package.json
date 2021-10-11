@@ -42,7 +42,7 @@
     "remotedev-server": "^0.3.1"
   },
   "dependencies": {
-    "@nozbe/sqlite": "^3.31.1",
+    "@commapp/sqlcipher-amalgamation": "^4.4.3-a",
     "@react-native-community/art": "^1.2.0",
     "@react-native-community/async-storage": "^1.6.1",
     "@react-native-community/clipboard": "^1.5.1",

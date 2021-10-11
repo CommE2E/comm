@@ -122,7 +122,7 @@ def jscFlavor = 'org.webkit:android-jsc:+'
  * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
-def enableHermes = project.ext.react.get("enableHermes", false);
+def enableHermes = project.ext.react.get("enableHermes", false)
 
 def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
 def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
@@ -140,42 +140,39 @@ task createNativeDepsDirectories {
 }
 
 // GRPC
-def grpcPath = "$thirdPartyNdkDir/grpc"
+def grpcPath = "${thirdPartyNdkDir}/grpc/grpc-${GRPC_VERSION}/"
 
-task checkGrpcVersion {
-    def file = new File("$thirdPartyNdkDir/grpc_version")
-    def savedVersion = null
-    if (file.exists()) {
-        savedVersion = file.getText('UTF-8')
-    }
-    if (GRPC_VERSION != savedVersion) {
-        doLast {
-            println("new version of grpc detected: ${GRPC_VERSION}, previous version: ${savedVersion}")
-            file.write("${GRPC_VERSION}")
-            delete grpcPath
-        }
-    }
-}
-
-task prepareGrpc(dependsOn: checkGrpcVersion) {
-    doLast {
-        if (!(new File(grpcPath)).exists()) {
-            println('cloning grpc...')
-            org.ajoberstar.grgit.Grgit.clone(dir: grpcPath, uri: "https://github.com/grpc/grpc.git")
-            println('grpc cloned!')
-            def commands = [
-              ["git", "checkout", "v${GRPC_VERSION}"],
-              ["git", "submodule", "update", "--init", "--recursive"],
-              ["rm", "-rf", ".git"],
-              ["rm", "examples/node/package.json"],
-            ]
-            for (command in commands) {
-              exec {
+task prepareGrpc(dependsOn: createNativeDepsDirectories) {
+    inputs.properties([
+        'grpc.version': GRPC_VERSION
+    ])
+    outputs.dir(grpcPath)
+        .withPropertyName('grpc.output')
+    doFirst {
+        println('cloning grpc...')
+        // We need to remove the already cloned directory
+        // otherwise git clone will fall
+        final clonedDir = new File(grpcPath)
+        clonedDir.deleteDir()
+        clonedDir.mkdirs()
+        def commands = [
+            ["git", "clone",
+                "-b", "v${GRPC_VERSION}",
+                "--depth", "1",
+                "https://github.com/grpc/grpc.git",
+                "${grpcPath}"],
+            ["git", "checkout", "v${GRPC_VERSION}"],
+            ["git", "submodule", "update", "--init", "--recursive"],
+            ["rm", "-rf", ".git"],
+            ["rm", "examples/node/package.json"],
+        ]
+        for (command in commands) {
+            exec {
                 workingDir grpcPath
                 commandLine(*command)
-              }
             }
         }
+        println('grpc cloned')
     }
 }
 
@@ -189,11 +186,11 @@ task downloadFolly(dependsOn: createNativeDepsDirectories, type: Download) {
 
 def follyFindWrapNoInt = 'return int\\(wrapNoInt\\(open, name, flags, mode\\)\\);'
 def follyReplaceWrapNoInt = '''
-  ssize_t r;
-  do {
-    r = open(name, flags, mode);
-  } while (r == -1 && errno == EINTR);
-  return r;
+    ssize_t r;
+    do {
+        r = open(name, flags, mode);
+    } while (r == -1 && errno == EINTR);
+    return r;
 '''
 def follyFindTableSize = 'for \\(int fd = getdtablesize\\(\\) - 1'
 def follyReplaceTableSize = 'for (int fd = sysconf(_SC_OPEN_MAX) - 1'
@@ -243,13 +240,22 @@ task downloadBoost(dependsOn: createNativeDepsDirectories, type: Download) {
     dest(new File(downloadsDir, "boost_${BOOST_VERSION}.tar.gz"))
 }
 
-task prepareBoost(dependsOn: boostPath ? [] : [downloadBoost], type: Copy) {
-    from(boostPath ?: tarTree(resources.gzip(downloadBoost.dest)))
-    include("boost_${BOOST_VERSION}/boost/**/*.hpp", "boost/boost/**/*.hpp")
-    include("boost_${BOOST_VERSION}/boost/**/*.ipp", "boost/boost/**/*.ipp")
-    include("boost_${BOOST_VERSION}/boost/**/*.h", "boost/boost/**/*.h")
-    includeEmptyDirs = false
-    into("$thirdPartyNdkDir/boost")
+task prepareBoost(dependsOn: boostPath ? [] : [downloadBoost]) {
+    inputs.properties([
+        'boost.version': BOOST_VERSION
+    ])
+    outputs.dir("$thirdPartyNdkDir/boost/boost/")
+        .withPropertyName('boost.output')
+    doFirst {
+        copy {
+            from(boostPath ?: tarTree(resources.gzip(downloadBoost.dest)))
+            include("boost_${BOOST_VERSION}/boost/**/*.hpp", "boost/boost/**/*.hpp")
+            include("boost_${BOOST_VERSION}/boost/**/*.ipp", "boost/boost/**/*.ipp")
+            include("boost_${BOOST_VERSION}/boost/**/*.h", "boost/boost/**/*.h")
+            includeEmptyDirs = false
+            into("$thirdPartyNdkDir/boost")
+        }
+    }
     doLast {
         file("$thirdPartyNdkDir/boost/boost_${BOOST_VERSION}").renameTo("$thirdPartyNdkDir/boost/boost")
     }
@@ -272,6 +278,56 @@ task prepareDoubleConversion(dependsOn: dependenciesPath ? [] : [downloadDoubleC
     into("$thirdPartyNdkDir/double-conversion")
 }
 
+// OPENSSL
+def hostSystem = System.getProperty('os.name').toLowerCase(Locale.ROOT)
+def hostTag = hostSystem.contains('mac') ? 'darwin-x86_64' : 'linux-x86_64'
+
+task downloadOpenSSL(dependsOn: createNativeDepsDirectories, type: Download) {
+    src("https://www.openssl.org/source/openssl-${OPENSSL_VERSION}.tar.gz")
+    onlyIfNewer(true)
+    overwrite(false)
+    dest(new File(downloadsDir, "openssl-${OPENSSL_VERSION}.tar.gz"))
+}
+
+task prepareOpenSSL(
+    dependsOn: dependenciesPath ? [] : [downloadOpenSSL],
+    type: Copy
+) {
+    from(dependenciesPath ?: tarTree(downloadOpenSSL.dest))
+    include("openssl-${OPENSSL_VERSION}/**/*")
+    includeEmptyDirs = false
+    into("${thirdPartyNdkDir}/openssl")
+}
+
+task prebuildOpenSSL(dependsOn: dependenciesPath ? [] : [prepareOpenSSL]) {
+    inputs.properties([
+        'openssl.version': OPENSSL_VERSION,
+        'openssl.abis': getBuildTypeABIs()
+    ])
+    outputs.dir("${thirdPartyNdkDir}/openssl/openssl-${OPENSSL_VERSION}/build/")
+        .withPropertyName('openssl.output')
+    doFirst {
+        getBuildTypeABIs().each { buildABI ->
+            logger.info("Building OpenSSL library for the ${buildABI}")
+            exec {
+                commandLine './bash/build_openssl.sh',
+                // OPENSSL_SUBMODULE_PATH
+                "${thirdPartyNdkDir}/openssl/openssl-${OPENSSL_VERSION}/",
+                // HOST_TAG
+                hostTag,
+                // ANDROID_ARCH_ABI
+                "${buildABI}",
+                // MIN_SDK_VERSION
+                rootProject.ext.minSdkVersion,
+                // ANDROID_NDK_HOME
+                android.ndkDirectory.absolutePath,
+                // PARALLEL_THREADS
+                Runtime.getRuntime().availableProcessors()
+            }
+        }
+    }
+}
+
 // EXTERNAL LIBS
 task prepareExternalLibs {
     dependsOn prepareGrpc
@@ -279,6 +335,7 @@ task prepareExternalLibs {
     dependsOn prepareGlog
     dependsOn prepareBoost
     dependsOn prepareDoubleConversion
+    dependsOn prebuildOpenSSL
 }
 
 afterEvaluate {
@@ -290,13 +347,37 @@ def getPassword(String keyLabel) {
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'security',
-          'find-generic-password',
-          '-wl', keyLabel,
-          '-a', 'ashoat'
+            'find-generic-password',
+            '-wl', keyLabel,
+            '-a', 'ashoat'
         standardOutput = stdout
         ignoreExitValue true
     }
     return stdout.toString().strip()
+}
+
+// Returns all ABIs architectures for the 'bundleRelease'
+// or only from 'adb devices' if running debug release.
+def getBuildTypeABIs() {
+    def isBundleRelease = gradle.startParameter.taskRequests.any {
+        !it.args.isEmpty() && it.args.first().contains("bundleRelease")
+    }
+    if (isBundleRelease) {
+        // All of the supported ABIs
+        // https://developer.android.com/ndk/guides/abis.html#sa
+        final allAbis = ["armeabi-v7a", "x86", "arm64-v8a", "x86_64"]
+        logger.info("Using all architectures to build: ${allAbis}")
+        return allAbis
+    }
+    // Get current 'adb devices' architectures
+    def commandOutput = new ByteArrayOutputStream()
+    exec {
+        commandLine "./bash/detect_abis.sh"
+        standardOutput = commandOutput
+    }
+    final detectedAbis = commandOutput.toString("UTF-8").trim().tokenize()
+    logger.info("Detected architectures to build: ${detectedAbis}")
+    return detectedAbis
 }
 
 android {
@@ -354,19 +435,7 @@ android {
         }
     }
     buildTypes {
-        def isBundleRelease = gradle.startParameter.taskRequests.any {
-          !it.args.isEmpty() && it.args.first().contains("bundleRelease")
-        }
-        def commandOutput = new ByteArrayOutputStream()
-        exec {
-            commandLine "./bash/detect_abis.sh"
-            standardOutput = commandOutput
-        }
-        //"x86"         for emulator 32bit
-        //"x86_64"      for emulator 64bit
-        //"arm64-v8a"   for physical device 64bit
-        //"armeabi-v7a" for physical device 32bit
-        def activeAbis = commandOutput.toString("UTF-8").trim().split(" ")
+        final buildABIs = getBuildTypeABIs()
         release {
             if (project.hasProperty('COMM_UPLOAD_STORE_FILE')) {
                 signingConfig signingConfigs.release
@@ -375,18 +444,16 @@ android {
             }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            if (!isBundleRelease) {
-              println("building for architectures: ${activeAbis}")
-              ndk {
-                abiFilters activeAbis
-              }
+            ndk {
+                abiFilters = []
+                abiFilters.addAll(buildABIs)
             }
         }
         debug {
             signingConfig signingConfigs.debug
-            println("building for architectures: ${activeAbis}")
             ndk {
-                abiFilters activeAbis
+                abiFilters = []
+                abiFilters.addAll(buildABIs)
             }
         }
     }
@@ -399,7 +466,10 @@ android {
     defaultConfig {
         externalNativeBuild {
             cmake {
-                arguments "-DANDROID_STL=c++_shared"
+                arguments "-DANDROID_STL=c++_shared",
+                    "-DGLOG_VERSION=" + GLOG_VERSION,
+                    "-DOPENSSL_VERSION=" + OPENSSL_VERSION,
+                    "-DGRPC_VERSION=" + GRPC_VERSION
                 targets "comm_jni_module", "turbomodulejsijni"
             }
         }
@@ -423,7 +493,6 @@ android {
                 output.versionCodeOverride =
                         defaultConfig.versionCode * 1000 + versionCodes.get(abi)
             }
-
         }
     }
 }
@@ -465,7 +534,7 @@ dependencies {
     implementation 'org.conscrypt:conscrypt-android:2.0.0'
 
     if (enableHermes) {
-        def hermesPath = "../../../node_modules/hermes-engine/android/";
+        def hermesPath = "../../../node_modules/hermes-engine/android/"
         debugImplementation files(hermesPath + "hermes-debug.aar")
         releaseImplementation files(hermesPath + "hermes-release.aar")
     } else {
@@ -482,6 +551,6 @@ task copyDownloadableDepsToLibs(type: Copy) {
     into 'libs'
 }
 
-apply from: file("../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle");
+apply from: file("../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
 applyNativeModulesAppBuildGradle(project)
 apply plugin: 'com.google.gms.google-services'

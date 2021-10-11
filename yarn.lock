@@ -2349,6 +2349,11 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@commapp/sqlcipher-amalgamation@^4.4.3-a":
+  version "4.4.3-a"
+  resolved "https://registry.yarnpkg.com/@commapp/sqlcipher-amalgamation/-/sqlcipher-amalgamation-4.4.3-a.tgz#39c297132b9ad02358bf022a164bfc03292ecce1"
+  integrity sha512-nPu0ZpvfqzxudOMi2bE3g9LdR80RLovcwrYhhFVfWCQQZqkVgUpOOqG1U647d06kz/P9hZRdFktnEqRua+RqBQ==
+
 "@egjs/hammerjs@^2.0.17":
   version "2.0.17"
   resolved "https://registry.yarnpkg.com/@egjs/hammerjs/-/hammerjs-2.0.17.tgz#5dc02af75a6a06e4c2db0202cae38c9263895124"
@@ -2870,11 +2875,6 @@
   dependencies:
     "@nodelib/fs.scandir" "2.1.5"
     fastq "^1.6.0"
-
-"@nozbe/sqlite@^3.31.1":
-  version "3.31.1"
-  resolved "https://registry.yarnpkg.com/@nozbe/sqlite/-/sqlite-3.31.1.tgz#ffd394ad7c188c6b73f89fd6e1ccb849a1b96dba"
-  integrity sha512-z5+GdcHZl9OQ1g0pnygORAnwCYUlYw/gQxdW/8rS0HxD2Gnn/k3DBQOvqQIH4Z3Z3KWVMbGUYhcH1v4SqTAdwg==
 
 "@octokit/auth-token@^2.4.0":
   version "2.4.2"
