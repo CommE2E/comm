@@ -190,7 +190,6 @@ div.tile_six {
   border-radius: 8px;
   background-color: #ebedee;
   justify-content: center;
-  align-items: center;
   flex-direction: column;
   transition: 300ms;
   scroll-snap-align: center;
@@ -205,10 +204,17 @@ div.tile_six p.tile_title {
   font-weight: bold;
   font-size: 36px;
   color: #485563;
-  text-align: center;
-  margin-top: 10px;
-  margin-bottom: 0;
   transition: 300ms;
+}
+
+div.tile_title_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 div.tile_one p,
@@ -220,8 +226,8 @@ div.tile_six p {
   font-size: 24px;
   color: #485563;
   text-align: left;
-  margin-top: 10px;
-  margin-bottom: 0;
+  margin-top: 0px;
+  margin-bottom: 0px;
   margin-left: 20px;
   margin-right: 20px;
   transition: 300ms;
