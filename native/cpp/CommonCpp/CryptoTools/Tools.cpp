@@ -8,7 +8,7 @@ namespace crypto {
 
 std::string Tools::generateRandomString(size_t size) {
   static std::string availableSigns =
-      " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      " 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_";
   std::string result;
   OlmBuffer buff;
   PlatformSpecificTools::generateSecureRandomBytes(buff, size);
