@@ -203,6 +203,10 @@ div.tile_six {
   transition: 300ms;
 }
 
+.active_card {
+  box-shadow: 0px 20px 50px rgba(126, 87, 194, 0.5);
+}
+
 div.tile_one p.tile_title,
 div.tile_two p.tile_title,
 div.tile_three p.tile_title,

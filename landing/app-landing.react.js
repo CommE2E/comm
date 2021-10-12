@@ -44,7 +44,7 @@ function AppLanding(): React.Node {
             (think &quot;Web3 Discord&quot;)
           </p>
           <div className={css.tile_grid}>
-            <div className={css.tile_one}>
+            <div className={`${css.tile_one} ${css.active_card}`}>
               <div className={css.tile_title_row}>
                 <FontAwesomeIcon size="2x" color="#ffffff" icon={faUsers} />
                 <p className={css.tile_title}>Federated</p>
