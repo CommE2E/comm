@@ -1,11 +1,13 @@
 // @flow
 
+import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import {
   LayoutAnimation,
   TouchableWithoutFeedback,
   PixelRatio,
 } from 'react-native';
+import shallowequal from 'shallowequal';
 
 import { messageKey } from 'lib/shared/message-utils';
 
@@ -35,7 +37,13 @@ type Props = {
   ...BaseProps,
   +keyboardState: ?KeyboardState,
 };
-class Message extends React.PureComponent<Props> {
+class Message extends React.Component<Props> {
+  shouldComponentUpdate(nextProps: Props): boolean {
+    const { item, ...props } = this.props;
+    const { item: nextItem, ...newProps } = nextProps;
+    return !_isEqual(item, nextItem) || !shallowequal(props, newProps);
+  }
+
   componentDidUpdate(prevProps: Props) {
     if (
       (prevProps.focused || prevProps.item.startsConversation) !==
