@@ -16,6 +16,15 @@ import InfoCard from './info-card.react';
 import css from './landing.css';
 import StarBackground from './star-background.react';
 
+const screenshots = [
+  'comm-screenshot.png',
+  'customizable-placeholder.png',
+  'e2e-encrypted-placeholder.png',
+  'sovereign-placeholder.png',
+  'opensource-placeholder.png',
+  'less-noisy-placeholder.png',
+];
+
 function AppLanding(): React.Node {
   const [activeCardIdx, setActiveCardIdx] = React.useState(-1);
 
@@ -24,7 +33,7 @@ function AppLanding(): React.Node {
       <StarBackground />
       <div className={css.app_landing_grid}>
         <div className={css.app_preview}>
-          <img src="images/comm-screenshot.png" />
+          <img src={`images/${screenshots[Math.max(0, activeCardIdx)]}`} />
         </div>
         <div className={css.app_copy}>
           <CyclingHeader />
