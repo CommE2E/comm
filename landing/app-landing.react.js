@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import TextLoop from 'react-text-loop';
 
+import InfoCard from './info-card.react';
 import css from './landing.css';
 import StarBackground from './star-background.react';
 
@@ -44,75 +45,78 @@ function AppLanding(): React.Node {
             (think &quot;Web3 Discord&quot;)
           </p>
           <div className={css.tile_grid}>
-            <div className={`${css.tile_one} ${css.active_card}`}>
-              <div className={css.tile_title_row}>
+            <InfoCard
+              label="Federated"
+              active={true}
+              icon={
                 <FontAwesomeIcon size="2x" color="#ffffff" icon={faUsers} />
-                <p className={css.tile_title}>Federated</p>
-              </div>
-              <p>
-                Comm is a protocol paired with an app. Each community hosts its
+              }
+              description="Comm is a protocol paired with an app. Each community hosts its
                 own backend, which we call a keyserver. Our keyserver software
-                is built to be forked.
-              </p>
-            </div>
-            <div className={css.tile_two}>
-              <div className={css.tile_title_row}>
+                is built to be forked."
+              baseStyle={css.tile_one}
+            />
+
+            <InfoCard
+              label="Customizable"
+              active={false}
+              icon={
                 <FontAwesomeIcon size="2x" color="#ffffff" icon={faTools} />
-                <p className={css.tile_title}>Customizable</p>
-              </div>
-              <p>
-                Write mini-apps and custom modules in React. Skin your
-                community. Customize your tabs and your home page.
-              </p>
-            </div>
-            <div className={css.tile_three}>
-              <div className={css.tile_title_row}>
-                <FontAwesomeIcon size="2x" color="#ffffff" icon={faLock} />
-                <p className={css.tile_title}>E2E-encrypted</p>
-              </div>
-              <p>
-                Comm started as a project to build a private, decentralized
-                alternative to Discord. Privacy is in our DNA.
-              </p>
-            </div>
-            <div className={css.tile_four}>
-              <div className={css.tile_title_row}>
+              }
+              description="Write mini-apps and custom modules in React. Skin your
+                community. Customize your tabs and your home page."
+              baseStyle={css.tile_two}
+            />
+
+            <InfoCard
+              label="E2E-encrypted"
+              active={true}
+              icon={<FontAwesomeIcon size="2x" color="#ffffff" icon={faLock} />}
+              description="Comm started as a project to build a private, decentralized
+                alternative to Discord. Privacy is in our DNA."
+              baseStyle={css.tile_three}
+            />
+
+            <InfoCard
+              label="Sovereign"
+              active={false}
+              icon={
                 <FontAwesomeIcon
                   size="2x"
                   color="#ffffff"
                   icon={faUserShield}
                 />
-                <p className={css.tile_title}>Sovereign</p>
-              </div>
-              <p>
-                Log in with your ETH wallet. Use ENS as your username. On Comm,
-                your identity and data are yours to control.
-              </p>
-            </div>
-            <div className={css.tile_five}>
-              <div className={css.tile_title_row}>
+              }
+              description="Log in with your ETH wallet. Use ENS as your username. On Comm,
+                your identity and data are yours to control."
+              baseStyle={css.tile_four}
+            />
+
+            <InfoCard
+              label="Open Source"
+              active={true}
+              icon={
                 <FontAwesomeIcon
                   size="2x"
                   color="#ffffff"
                   icon={faCodeBranch}
                 />
-                <p className={css.tile_title}>Open Source</p>
-              </div>
-              <p>
-                All of our code is open source. Keyservers, iOS/Android app, our
-                cloud services… all of it. We believe in open platforms.
-              </p>
-            </div>
-            <div className={css.tile_six}>
-              <div className={css.tile_title_row}>
+              }
+              description="All of our code is open source. Keyservers, iOS/Android app, our
+                cloud services… all of it. We believe in open platforms."
+              baseStyle={css.tile_five}
+            />
+
+            <InfoCard
+              label="Less Noisy"
+              active={false}
+              icon={
                 <FontAwesomeIcon size="2x" color="#ffffff" icon={faBellSlash} />
-                <p className={css.tile_title}>Less Noisy</p>
-              </div>
-              <p>
-                We let each user decide what they want to follow with detailed
-                notif controls and a powerful unified inbox.
-              </p>
-            </div>
+              }
+              description="We let each user decide what they want to follow with detailed
+                notif controls and a powerful unified inbox."
+              baseStyle={css.tile_six}
+            />
           </div>
         </div>
       </div>
