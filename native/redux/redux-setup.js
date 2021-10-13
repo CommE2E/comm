@@ -42,7 +42,7 @@ import {
   defaultURLPrefix,
   natNodeServer,
   setCustomServer,
-  fetchDevServerHostname,
+  getDevServerHostname,
 } from '../utils/url-utils';
 import {
   resetUserStateActionType,
@@ -380,7 +380,7 @@ if (__DEV__ && global.HermesInternal) {
   const { composeWithDevTools } = require('remote-redux-devtools/src');
   composeFunc = composeWithDevTools({
     name: 'Redux',
-    hostname: fetchDevServerHostname(),
+    hostname: getDevServerHostname(),
     ...remoteReduxDevServerConfig,
   });
 } else if (global.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {

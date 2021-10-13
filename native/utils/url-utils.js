@@ -35,16 +35,6 @@ function getDevNodeServerURL(): string {
   return getDevNodeServerURLFromHostname(hostname);
 }
 
-function fetchDevServerHostname(): string {
-  invariant(__DEV__, 'fetchDevServerHostname called from production');
-  return getDevServerHostname();
-}
-
-function fetchDevServerHostnameSync(): string {
-  invariant(__DEV__, 'fetchDevServerHostnameSync called from production');
-  return getDevServerHostname();
-}
-
 const nodeServerOptions = [productionNodeServerURL];
 if (Platform.OS === 'android') {
   nodeServerOptions.push(
@@ -64,8 +54,7 @@ const setCustomServer = 'SET_CUSTOM_SERVER';
 
 export {
   defaultURLPrefix,
-  fetchDevServerHostname,
-  fetchDevServerHostnameSync,
+  getDevServerHostname,
   nodeServerOptions,
   natNodeServer,
   setCustomServer,

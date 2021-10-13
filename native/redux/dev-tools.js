@@ -1,6 +1,6 @@
 // @flow
 
-import { fetchDevServerHostname } from '../utils/url-utils';
+import { getDevServerHostname } from '../utils/url-utils';
 
 const remoteReduxDevServerConfig = {
   port: 8043,
@@ -16,7 +16,7 @@ if (__DEV__ && global.HermesInternal && !global.__REDUX_DEVTOOLS_EXTENSION__) {
     connect: ({ name }) =>
       connect({
         name,
-        hostname: fetchDevServerHostname(),
+        hostname: getDevServerHostname(),
         ...remoteReduxDevServerConfig,
       }),
   };
