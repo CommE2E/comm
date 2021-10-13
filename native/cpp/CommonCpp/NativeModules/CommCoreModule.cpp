@@ -371,6 +371,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
             DatabaseManager::getQueryExecutor().commitTransaction();
           } catch (std::system_error &e) {
             error = e.what();
+            DatabaseManager::getQueryExecutor().rollbackTransaction();
           }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
@@ -590,6 +591,7 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
               DatabaseManager::getQueryExecutor().commitTransaction();
             } catch (std::system_error &e) {
               error = e.what();
+              DatabaseManager::getQueryExecutor().rollbackTransaction();
             }
           }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
