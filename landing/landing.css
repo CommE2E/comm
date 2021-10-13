@@ -63,6 +63,7 @@ p.app_landing_subheading {
   font-family: 'iA Writer Duo S', monospace;
   color: #7e57c2;
   font-size: 32px;
+  padding-inline: 0px;
 }
 
 span.purple_accent {
@@ -171,9 +172,9 @@ div.tile_grid {
   margin-right: 16%;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
-  row-gap: 26vh;
-  margin-top: 32vh;
-  margin-bottom: 32vh;
+  row-gap: 40vh;
+  margin-top: 36vh;
+  margin-bottom: 36vh;
   grid-template-areas:
     'tile_one'
     'tile_two'
@@ -190,7 +191,7 @@ div.tile_four,
 div.tile_five,
 div.tile_six {
   display: flex;
-  padding: 24px;
+  padding: 36px;
   border-radius: 8px;
   background-color: #ebedee;
   justify-content: center;
@@ -228,6 +229,7 @@ div.tile_title_row {
   justify-content: flex-start;
   margin-left: 20px;
   margin-right: 20px;
+  padding-bottom: 20px;
 }
 
 div.tile_one p,
