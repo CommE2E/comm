@@ -1,3 +1,7 @@
+div.star_container {
+  position: absolute;
+}
+
 @keyframes parallax {
   from {
     transform: translateY(0px);
@@ -11,7 +15,7 @@ div.stars_small {
   width: 1px;
   height: 1px;
   border-radius: 1px;
-  animation: parallax 120s linear infinite;
+  animation: parallax 240s linear infinite;
   box-shadow: 469px 4282px #fff, 217px 1548px #fff, 3669px 4093px #fff,
     2939px 2328px #fff, 5674px 888px #fff, 595px 3862px #fff, 5444px 2204px #fff,
     2349px 1286px #fff, 4863px 4319px #fff, 1095px 5033px #fff,
@@ -433,7 +437,7 @@ div.stars_medium {
   width: 2px;
   height: 2px;
   border-radius: 2px;
-  animation: parallax 90s linear infinite;
+  animation: parallax 180s linear infinite;
   box-shadow: 317px 5695px #fff, 1413px 5752px #fff, 858px 2611px #fff,
     3927px 1754px #fff, 3024px 4972px #fff, 3816px 1466px #fff,
     5168px 4275px #fff, 1536px 2975px #fff, 5132px 2366px #fff,
@@ -620,7 +624,7 @@ div.stars_large {
   width: 3px;
   height: 3px;
   border-radius: 3px;
-  animation: parallax 60s linear infinite;
+  animation: parallax 120s linear infinite;
   box-shadow: 173px 936px #fff, 3525px 2100px #fff, 4399px 5277px #fff,
     2194px 3207px #fff, 4079px 440px #fff, 2478px 1461px #fff,
     3704px 1493px #fff, 2854px 4604px #fff, 5213px 2574px #fff,
