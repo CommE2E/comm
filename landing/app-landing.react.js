@@ -17,6 +17,8 @@ import css from './landing.css';
 import StarBackground from './star-background.react';
 
 function AppLanding(): React.Node {
+  const [activeCardIdx, setActiveCardIdx] = React.useState(-1);
+
   return (
     <>
       <StarBackground />
@@ -31,8 +33,8 @@ function AppLanding(): React.Node {
           </p>
           <div className={css.tile_grid}>
             <InfoCard
+              idx={0}
               label="Federated"
-              active={true}
               icon={
                 <FontAwesomeIcon size="2x" color="#ffffff" icon={faUsers} />
               }
@@ -40,31 +42,37 @@ function AppLanding(): React.Node {
                 own backend, which we call a keyserver. Our keyserver software
                 is built to be forked."
               baseStyle={css.tile_one}
+              activeCardIdx={activeCardIdx}
+              setActiveCardIdx={setActiveCardIdx}
             />
 
             <InfoCard
+              idx={1}
               label="Customizable"
-              active={false}
               icon={
                 <FontAwesomeIcon size="2x" color="#ffffff" icon={faTools} />
               }
               description="Write mini-apps and custom modules in React. Skin your
                 community. Customize your tabs and your home page."
               baseStyle={css.tile_two}
+              activeCardIdx={activeCardIdx}
+              setActiveCardIdx={setActiveCardIdx}
             />
 
             <InfoCard
+              idx={2}
               label="E2E-encrypted"
-              active={true}
               icon={<FontAwesomeIcon size="2x" color="#ffffff" icon={faLock} />}
               description="Comm started as a project to build a private, decentralized
                 alternative to Discord. Privacy is in our DNA."
               baseStyle={css.tile_three}
+              activeCardIdx={activeCardIdx}
+              setActiveCardIdx={setActiveCardIdx}
             />
 
             <InfoCard
+              idx={3}
               label="Sovereign"
-              active={false}
               icon={
                 <FontAwesomeIcon
                   size="2x"
@@ -75,11 +83,13 @@ function AppLanding(): React.Node {
               description="Log in with your ETH wallet. Use ENS as your username. On Comm,
                 your identity and data are yours to control."
               baseStyle={css.tile_four}
+              activeCardIdx={activeCardIdx}
+              setActiveCardIdx={setActiveCardIdx}
             />
 
             <InfoCard
+              idx={4}
               label="Open Source"
-              active={true}
               icon={
                 <FontAwesomeIcon
                   size="2x"
@@ -90,17 +100,21 @@ function AppLanding(): React.Node {
               description="All of our code is open source. Keyservers, iOS/Android app, our
                 cloud services… all of it. We believe in open platforms."
               baseStyle={css.tile_five}
+              activeCardIdx={activeCardIdx}
+              setActiveCardIdx={setActiveCardIdx}
             />
 
             <InfoCard
+              idx={5}
               label="Less Noisy"
-              active={false}
               icon={
                 <FontAwesomeIcon size="2x" color="#ffffff" icon={faBellSlash} />
               }
               description="We let each user decide what they want to follow with detailed
                 notif controls and a powerful unified inbox."
               baseStyle={css.tile_six}
+              activeCardIdx={activeCardIdx}
+              setActiveCardIdx={setActiveCardIdx}
             />
           </div>
         </div>

@@ -1,25 +1,77 @@
 // @flow
 
 import * as React from 'react';
+import { Waypoint } from 'react-waypoint';
 
 import css from './landing.css';
 
 type InfoCardProps = {
+  +idx: number,
   +label: string,
-  +active: boolean,
   +icon: React.Node,
   +description: string,
   +baseStyle: string,
+  +activeCardIdx: number,
+  +setActiveCardIdx: number => void,
 };
 function InfoCard(props: InfoCardProps): React.Node {
-  const { label, active, icon, description, baseStyle } = props;
+  const {
+    idx,
+    label,
+    icon,
+    description,
+    baseStyle,
+    activeCardIdx,
+    setActiveCardIdx,
+  } = props;
+
+  const onTopPositionChange = React.useCallback(
+    obj => {
+      if (
+        obj.previousPosition === 'above' &&
+        obj.currentPosition === 'inside'
+      ) {
+        setActiveCardIdx(idx);
+      } else if (
+        obj.previousPosition === 'inside' &&
+        obj.currentPosition === 'above'
+      ) {
+        setActiveCardIdx(idx + 1);
+      }
+    },
+    [idx, setActiveCardIdx],
+  );
+
+  const onBottomPositionChange = React.useCallback(
+    obj => {
+      if (
+        obj.previousPosition === 'below' &&
+        obj.currentPosition === 'inside'
+      ) {
+        setActiveCardIdx(idx);
+      } else if (
+        obj.previousPosition === 'inside' &&
+        obj.currentPosition === 'below'
+      ) {
+        setActiveCardIdx(idx - 1);
+      }
+    },
+    [idx, setActiveCardIdx],
+  );
+
   return (
-    <div className={active ? `${baseStyle} ${css.active_card}` : baseStyle}>
+    <div
+      className={
+        activeCardIdx === idx ? `${baseStyle} ${css.active_card}` : baseStyle
+      }
+    >
+      <Waypoint onPositionChange={onTopPositionChange} />
       <div className={css.tile_title_row}>
         {icon}
         <p className={css.tile_title}>{label}</p>
       </div>
       <p>{description}</p>
+      <Waypoint onPositionChange={onBottomPositionChange} />
     </div>
   );
 }
