@@ -15,7 +15,7 @@ type Props = {
   +setModal: (modal: ?React.Node) => void,
 };
 function ChatTabs(props: Props): React.Node {
-  let backgroundTitle = 'BACKGROUND';
+  let backgroundTitle = 'Background';
   const unreadBackgroundCountVal = useSelector(unreadBackgroundCount);
   if (unreadBackgroundCountVal) {
     backgroundTitle += ` (${unreadBackgroundCountVal})`;
@@ -27,11 +27,11 @@ function ChatTabs(props: Props): React.Node {
   );
   const { activeTab, setActiveTab } = threadListContext;
 
-  const onClickHome = React.useCallback(() => setActiveTab('HOME'), [
+  const onClickHome = React.useCallback(() => setActiveTab('Focused'), [
     setActiveTab,
   ]);
   const onClickBackground = React.useCallback(
-    () => setActiveTab('BACKGROUND'),
+    () => setActiveTab('Background'),
     [setActiveTab],
   );
 
@@ -39,13 +39,13 @@ function ChatTabs(props: Props): React.Node {
     <div className={css.container}>
       <div className={css.tabs}>
         <ChatThreadTab
-          title="HOME"
-          tabIsActive={activeTab === 'HOME'}
+          title="Focused"
+          tabIsActive={activeTab === 'Focused'}
           onClick={onClickHome}
         />
         <ChatThreadTab
           title={backgroundTitle}
-          tabIsActive={activeTab === 'BACKGROUND'}
+          tabIsActive={activeTab === 'Background'}
           onClick={onClickBackground}
         />
       </div>
