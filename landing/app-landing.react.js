@@ -16,12 +16,12 @@ import css from './landing.css';
 import StarBackground from './star-background.react';
 
 const screenshots = [
-  'comm-screenshot.png',
-  'customizable-placeholder.png',
-  'e2e-encrypted-placeholder.png',
-  'sovereign-placeholder.png',
-  'opensource-placeholder.png',
-  'less-noisy-placeholder.png',
+  'federated-prototype.png',
+  'customizable-prototype.png',
+  'e2e-encrypted-prototype.png',
+  'sovereign-prototype.png',
+  'open-source-prototype.png',
+  'less-noisy-prototype.png',
 ];
 
 function AppLanding(): React.Node {
