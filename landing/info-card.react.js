@@ -7,21 +7,21 @@ import css from './landing.css';
 
 type InfoCardProps = {
   +idx: number,
+  +active: boolean,
   +label: string,
   +icon: React.Node,
   +description: string,
   +baseStyle: string,
-  +activeCardIdx: number,
   +setActiveCardIdx: number => void,
 };
 function InfoCard(props: InfoCardProps): React.Node {
   const {
     idx,
+    active,
     label,
     icon,
     description,
     baseStyle,
-    activeCardIdx,
     setActiveCardIdx,
   } = props;
 
@@ -60,11 +60,7 @@ function InfoCard(props: InfoCardProps): React.Node {
   );
 
   return (
-    <div
-      className={
-        activeCardIdx === idx ? `${baseStyle} ${css.active_card}` : baseStyle
-      }
-    >
+    <div className={active ? `${baseStyle} ${css.active_card}` : baseStyle}>
       <Waypoint onPositionChange={onTopPositionChange} />
       <div className={css.tile_title_row}>
         {icon}
