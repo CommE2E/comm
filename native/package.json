@@ -5,8 +5,9 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "clean": "yarn clean-android && yarn clean-ios && rm -rf node_modules/",
-    "clean-android": "cd android && ./gradlew clean && rm -rf build app/build app/.cxx",
-    "clean-ios": "rm -rf ios/Pods/ ~/Library/Developer/Xcode/DerivedData/Comm-*",
+    "clean-android": "cd android && rm -rf build app/build app/.cxx",
+    "clean-ios": "rm -rf ios/Pods/",
+    "clean-all": "yarn clean && rm -rf ~/Library/Developer/Xcode/DerivedData/Comm-*; (./gradlew clean || true)",
     "postinstall": "cd ../ && echo '{\"name\": \"olm\", \"version\": \"3.2.4\"}' > ./node_modules/olm/package.json && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && npx pod-patch && cd ios && (pod install || true)",
     "start": "yarn react-native start",
     "dev": "yarn concurrently --names=\"REDUX,METRO\" -c \"bgGreen.bold,bgBlue.bold\" \"yarn remotedev\" \"yarn start\"",
