@@ -1,5 +1,6 @@
 // @flow
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { Waypoint } from 'react-waypoint';
 
@@ -9,7 +10,7 @@ type InfoCardProps = {
   +idx: number,
   +active: boolean,
   +label: string,
-  +icon: React.Node,
+  +icon: mixed,
   +description: string,
   +baseStyle: string,
   +setActiveCardIdx: number => void,
@@ -63,7 +64,7 @@ function InfoCard(props: InfoCardProps): React.Node {
     <div className={active ? `${baseStyle} ${css.active_card}` : baseStyle}>
       <Waypoint onPositionChange={onTopPositionChange} />
       <div className={css.tile_title_row}>
-        {icon}
+        <FontAwesomeIcon size="2x" color="#ffffff" icon={icon} />
         <p className={css.tile_title}>{label}</p>
       </div>
       <p>{description}</p>

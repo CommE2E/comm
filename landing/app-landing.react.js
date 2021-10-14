@@ -8,7 +8,6 @@ import {
   faTools,
   faBellSlash,
 } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
 import CyclingHeader from './cycling-header.react';
@@ -45,9 +44,7 @@ function AppLanding(): React.Node {
               idx={0}
               active={activeCardIdx === 0}
               label="Federated"
-              icon={
-                <FontAwesomeIcon size="2x" color="#ffffff" icon={faUsers} />
-              }
+              icon={faUsers}
               description="Comm is a protocol paired with an app. Each community hosts its
                 own backend, which we call a keyserver. Our keyserver software
                 is built to be forked."
@@ -59,9 +56,7 @@ function AppLanding(): React.Node {
               idx={1}
               active={activeCardIdx === 1}
               label="Customizable"
-              icon={
-                <FontAwesomeIcon size="2x" color="#ffffff" icon={faTools} />
-              }
+              icon={faTools}
               description="Write mini-apps and custom modules in React. Skin your
                 community. Customize your tabs and your home page."
               baseStyle={css.tile_two}
@@ -72,7 +67,7 @@ function AppLanding(): React.Node {
               idx={2}
               active={activeCardIdx === 2}
               label="E2E-encrypted"
-              icon={<FontAwesomeIcon size="2x" color="#ffffff" icon={faLock} />}
+              icon={faLock}
               description="Comm started as a project to build a private, decentralized
                 alternative to Discord. Privacy is in our DNA."
               baseStyle={css.tile_three}
@@ -83,13 +78,7 @@ function AppLanding(): React.Node {
               idx={3}
               active={activeCardIdx === 3}
               label="Sovereign"
-              icon={
-                <FontAwesomeIcon
-                  size="2x"
-                  color="#ffffff"
-                  icon={faUserShield}
-                />
-              }
+              icon={faUserShield}
               description="Log in with your ETH wallet. Use ENS as your username. On Comm,
                 your identity and data are yours to control."
               baseStyle={css.tile_four}
@@ -100,13 +89,7 @@ function AppLanding(): React.Node {
               idx={4}
               active={activeCardIdx === 4}
               label="Open Source"
-              icon={
-                <FontAwesomeIcon
-                  size="2x"
-                  color="#ffffff"
-                  icon={faCodeBranch}
-                />
-              }
+              icon={faCodeBranch}
               description="All of our code is open source. Keyservers, iOS/Android app, our
                 cloud services… all of it. We believe in open platforms."
               baseStyle={css.tile_five}
@@ -117,9 +100,7 @@ function AppLanding(): React.Node {
               idx={5}
               active={activeCardIdx === 5}
               label="Less Noisy"
-              icon={
-                <FontAwesomeIcon size="2x" color="#ffffff" icon={faBellSlash} />
-              }
+              icon={faBellSlash}
               description="We let each user decide what they want to follow with detailed
                 notif controls and a powerful unified inbox."
               baseStyle={css.tile_six}
