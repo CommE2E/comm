@@ -19,7 +19,6 @@
 #import <reacthermes/HermesExecutorFactory.h>
 
 #import <EXSecureStore/EXSecureStore.h>
-#import <UMReactNativeAdapter/UMNativeModulesProxy.h>
 
 #import <string>
 
@@ -71,7 +70,11 @@ extern RCTBridge *_bridge_reanimated;
 @end
 
 @interface UMNativeModulesProxy ()
-@property(nonatomic, strong) UMModuleRegistry *moduleRegistry;
+@property(nonatomic, strong) UMModuleRegistry *umModuleRegistry;
+@end
+
+@interface AppDelegate () <RCTBridgeDelegate>
+@property(nonatomic, strong) UMModuleRegistryAdapter *moduleRegistryAdapter;
 @end
 
 @interface CommSecureStoreIOSWrapper ()
@@ -104,6 +107,7 @@ extern RCTBridge *_bridge_reanimated;
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  [super application:application didFinishLaunchingWithOptions:launchOptions];
 
   // This prevents a very small flicker from occurring before expo-splash-screen
   // is able to display
@@ -125,7 +129,7 @@ extern RCTBridge *_bridge_reanimated;
 
   UMNativeModulesProxy *proxy =
       [bridge moduleForClass:[UMNativeModulesProxy class]];
-  UMModuleRegistry *moduleRegistry = [proxy moduleRegistry];
+  UMModuleRegistry *moduleRegistry = [proxy umModuleRegistry];
   EXSecureStore *secureStore =
       [moduleRegistry getExportedModuleOfClass:[EXSecureStore class]];
   [[CommSecureStoreIOSWrapper sharedInstance] init:secureStore];
@@ -136,9 +140,8 @@ extern RCTBridge *_bridge_reanimated;
 - (NSArray<id<RCTBridgeModule>> *)extraModulesForBridge:(RCTBridge *)bridge {
   NSArray<id<RCTBridgeModule>> *extraModules =
       [_moduleRegistryAdapter extraModulesForBridge:bridge];
-  // You can inject any extra modules that you would like here, more information
-  // at:
-  // https://facebook.github.io/react-native/docs/native-modules-ios.html#dependency-injection
+  // If you'd like to export some custom RCTBridgeModules that are not Expo
+  // modules, add them here!
   return extraModules;
 }
 
