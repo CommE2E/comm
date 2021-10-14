@@ -172,8 +172,6 @@ target_link_libraries(
   ${log-lib}
   glog::glog
   olm
-  grpc++
-  libprotobuf
   openssl-crypto
   openssl-ssl
   grpc++
