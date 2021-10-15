@@ -15,7 +15,16 @@ import InfoCard from './info-card.react';
 import css from './landing.css';
 import StarBackground from './star-background.react';
 
-const screenshots = [
+const screenshotsWEBP = [
+  'federated-prototype.webp',
+  'customizable-prototype.webp',
+  'e2e-encrypted-prototype.webp',
+  'sovereign-prototype.webp',
+  'open-source-prototype.webp',
+  'less-noisy-prototype.webp',
+];
+
+const screenshotsPNG = [
   'federated-prototype.png',
   'customizable-prototype.png',
   'e2e-encrypted-prototype.png',
@@ -28,7 +37,7 @@ function AppLanding(): React.Node {
   const [activeCardIdx, setActiveCardIdx] = React.useState(-1);
 
   React.useEffect(() => {
-    for (const imagePath of screenshots) {
+    for (const imagePath of screenshotsWEBP) {
       const image = new Image();
       image.src = `images/${imagePath}`;
     }
@@ -39,7 +48,40 @@ function AppLanding(): React.Node {
       <StarBackground />
       <div className={css.app_landing_grid}>
         <div className={css.app_preview}>
-          <img src={`images/${screenshots[Math.max(0, activeCardIdx)]}`} />
+          <picture>
+            <source
+              srcSet={`images/${
+                screenshotsWEBP[
+                  Math.min(
+                    Math.max(0, activeCardIdx),
+                    screenshotsWEBP.length - 1,
+                  )
+                ]
+              }`}
+              type="image/webp"
+            />
+            <source
+              srcSet={`images/${
+                screenshotsPNG[
+                  Math.min(
+                    Math.max(0, activeCardIdx),
+                    screenshotsPNG.length - 1,
+                  )
+                ]
+              }`}
+              type="image/png"
+            />
+            <img
+              src={`images/${
+                screenshotsPNG[
+                  Math.min(
+                    Math.max(0, activeCardIdx),
+                    screenshotsPNG.length - 1,
+                  )
+                ]
+              }`}
+            />
+          </picture>
         </div>
         <div className={css.app_copy}>
           <CyclingHeader />
