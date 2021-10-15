@@ -37,10 +37,22 @@ function AppLanding(): React.Node {
   const [activeCardIdx, setActiveCardIdx] = React.useState(-1);
 
   React.useEffect(() => {
-    for (const imagePath of screenshotsWEBP) {
-      const image = new Image();
-      image.src = `images/${imagePath}`;
-    }
+    // Depending on WEBP browser support, preload either PNG or WEBP images.
+    const testWEBP = 'UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
+    const testImg = new Image();
+    testImg.onload = () => {
+      for (const imagePath of screenshotsWEBP) {
+        const image = new Image();
+        image.src = `images/${imagePath}`;
+      }
+    };
+    testImg.onerror = () => {
+      for (const imagePath of screenshotsPNG) {
+        const image = new Image();
+        image.src = `images/${imagePath}`;
+      }
+    };
+    testImg.src = `data:image/webp;base64,${testWEBP}`;
   }, []);
 
   return (
