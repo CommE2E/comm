@@ -27,6 +27,13 @@ const screenshots = [
 function AppLanding(): React.Node {
   const [activeCardIdx, setActiveCardIdx] = React.useState(-1);
 
+  React.useEffect(() => {
+    for (const imagePath of screenshots) {
+      const image = new Image();
+      image.src = `images/${imagePath}`;
+    }
+  }, []);
+
   return (
     <>
       <StarBackground />
