@@ -55,6 +55,14 @@ function AppLanding(): React.Node {
     testImg.src = `data:image/webp;base64,${testWEBP}`;
   }, []);
 
+  const imageIdx =
+    activeCardIdx === -1
+      ? 1
+      : Math.min(
+          Math.max(0, activeCardIdx),
+          Math.min(screenshotsWEBP.length, screenshotsPNG.length) - 1,
+        );
+
   return (
     <>
       <StarBackground />
@@ -62,37 +70,14 @@ function AppLanding(): React.Node {
         <div className={css.app_preview}>
           <picture>
             <source
-              srcSet={`images/${
-                screenshotsWEBP[
-                  Math.min(
-                    Math.max(0, activeCardIdx),
-                    screenshotsWEBP.length - 1,
-                  )
-                ]
-              }`}
+              srcSet={`images/${screenshotsWEBP[imageIdx]}`}
               type="image/webp"
             />
             <source
-              srcSet={`images/${
-                screenshotsPNG[
-                  Math.min(
-                    Math.max(0, activeCardIdx),
-                    screenshotsPNG.length - 1,
-                  )
-                ]
-              }`}
+              srcSet={`images/${screenshotsPNG[imageIdx]}`}
               type="image/png"
             />
-            <img
-              src={`images/${
-                screenshotsPNG[
-                  Math.min(
-                    Math.max(0, activeCardIdx),
-                    screenshotsPNG.length - 1,
-                  )
-                ]
-              }`}
-            />
+            <img src={`images/${screenshotsPNG[imageIdx]}`} />
           </picture>
         </div>
         <div className={css.app_copy}>
