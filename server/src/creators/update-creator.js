@@ -52,7 +52,7 @@ import {
 } from '../fetchers/thread-fetchers';
 import {
   fetchKnownUserInfos,
-  fetchLoggedInUserInfos,
+  fetchCurrentUserInfo,
 } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
 import { channelNameForUpdateTarget, publisher } from '../socket/redis';
@@ -380,7 +380,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
 
   const threadIDsNeedingFetch = new Set();
   const entryIDsNeedingFetch = new Set();
-  const currentUserIDsNeedingFetch = new Set();
+  let currentUserNeedsFetch = false;
   const threadIDsNeedingDetailedFetch = new Set(); // entries and messages
   for (const rawUpdateInfo of rawUpdateInfos) {
     if (
@@ -395,7 +395,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_ENTRY) {
       entryIDsNeedingFetch.add(rawUpdateInfo.entryID);
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
-      currentUserIDsNeedingFetch.add(viewer.userID);
+      currentUserNeedsFetch = true;
     }
   }
 
@@ -445,10 +445,12 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     ]);
   }
 
-  if (currentUserIDsNeedingFetch.size > 0) {
-    promises.currentUserInfosResult = fetchLoggedInUserInfos([
-      ...currentUserIDsNeedingFetch,
-    ]);
+  if (currentUserNeedsFetch) {
+    promises.currentUserInfoResult = (async () => {
+      const currentUserInfo = await fetchCurrentUserInfo(viewer);
+      invariant(currentUserInfo.anonymous === undefined, 'should be logged in');
+      return currentUserInfo;
+    })();
   }
 
   const {
@@ -456,7 +458,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     messageInfosResult,
     calendarResult,
     entryInfosResult,
-    currentUserInfosResult,
+    currentUserInfoResult,
   } = await promiseAll(promises);
 
   let threadInfosResult;
@@ -474,7 +476,7 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     messageInfosResult,
     calendarResult,
     entryInfosResult,
-    currentUserInfosResult,
+    currentUserInfoResult,
   });
 }
 
@@ -483,9 +485,7 @@ export type UpdateInfosRawData = {
   messageInfosResult: ?FetchMessageInfosResult,
   calendarResult: ?FetchEntryInfosBase,
   entryInfosResult: ?$ReadOnlyArray<RawEntryInfo>,
-  currentUserInfosResult: ?$ReadOnlyArray<
-    OldLoggedInUserInfo | LoggedInUserInfo,
-  >,
+  currentUserInfoResult: ?OldLoggedInUserInfo | LoggedInUserInfo,
 };
 async function updateInfosFromRawUpdateInfos(
   viewer: Viewer,
@@ -497,7 +497,7 @@ async function updateInfosFromRawUpdateInfos(
     messageInfosResult,
     calendarResult,
     entryInfosResult,
-    currentUserInfosResult,
+    currentUserInfoResult,
   } = rawData;
   const updateInfos = [];
   const userIDsToFetch = new Set();
@@ -598,22 +598,12 @@ async function updateInfosFromRawUpdateInfos(
         entryInfo,
       });
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_CURRENT_USER) {
-      invariant(currentUserInfosResult, 'should be set');
-      const currentUserInfo = currentUserInfosResult.find(
-        candidate => candidate.id === viewer.userID,
-      );
-      if (!currentUserInfo) {
-        console.warn(
-          'failed to hydrate updateTypes.UPDATE_CURRENT_USER because we ' +
-            `couldn't fetch CurrentUserInfo for ${viewer.userID}`,
-        );
-        continue;
-      }
+      invariant(currentUserInfoResult, 'should be set');
       updateInfos.push({
         type: updateTypes.UPDATE_CURRENT_USER,
         id: rawUpdateInfo.id,
         time: rawUpdateInfo.time,
-        currentUserInfo,
+        currentUserInfo: currentUserInfoResult,
       });
     } else if (rawUpdateInfo.type === updateTypes.UPDATE_USER) {
       updateInfos.push({

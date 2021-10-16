@@ -242,7 +242,6 @@ export {
   verifyUserIDs,
   verifyUserOrCookieIDs,
   fetchCurrentUserInfo,
-  fetchLoggedInUserInfos,
   fetchAllUserIDs,
   fetchUsername,
   fetchKnownUserInfos,
