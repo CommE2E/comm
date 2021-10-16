@@ -62,7 +62,7 @@
     "expo-image-manipulator": "^9.2.2",
     "expo-media-library": "^12.1.2",
     "expo-secure-store": "^10.2.0",
-    "expo-splash-screen": "^0.3.1",
+    "expo-splash-screen": "^0.11.4",
     "find-root": "^1.1.0",
     "invariant": "^2.2.4",
     "lib": "0.0.1",

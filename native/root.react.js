@@ -57,18 +57,12 @@ if (Platform.OS === 'android') {
 const navInitAction = Object.freeze({ type: 'NAV/@@INIT' });
 const navUnknownAction = Object.freeze({ type: 'NAV/@@UNKNOWN' });
 
+SplashScreen.preventAutoHideAsync().catch(console.log);
+
 function Root() {
   const navStateRef = React.useRef();
   const navDispatchRef = React.useRef();
   const navStateInitializedRef = React.useRef(false);
-
-  React.useEffect(() => {
-    (async () => {
-      try {
-        await SplashScreen.preventAutoHideAsync();
-      } catch {}
-    })();
-  }, []);
 
   const [navContext, setNavContext] = React.useState(null);
   const updateNavContext = React.useCallback(() => {

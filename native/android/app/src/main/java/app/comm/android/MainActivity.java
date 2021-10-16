@@ -7,8 +7,8 @@ import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactFragmentActivity;
 import com.facebook.react.ReactRootView;
 import com.swmansion.gesturehandler.react.RNGestureHandlerEnabledRootView;
-import expo.modules.splashscreen.SplashScreen;
 import expo.modules.splashscreen.SplashScreenImageResizeMode;
+import expo.modules.splashscreen.singletons.SplashScreen;
 
 public class MainActivity extends ReactFragmentActivity {
 
@@ -25,7 +25,7 @@ public class MainActivity extends ReactFragmentActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(null);
     SplashScreen.show(
-        this, SplashScreenImageResizeMode.NATIVE, ReactRootView.class);
+        this, SplashScreenImageResizeMode.NATIVE, ReactRootView.class, true);
   }
 
   @Override

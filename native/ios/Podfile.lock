@@ -386,7 +386,8 @@ PODS:
     - UMCore
   - EXSecureStore (10.2.0):
     - UMCore
-  - EXSplashScreen (0.3.1):
+  - EXSplashScreen (0.11.4):
+    - React-Core
     - UMCore
   - FBLazyVector (0.64.2)
   - FBReactNativeSpec (0.64.2):
@@ -1219,7 +1220,7 @@ SPEC CHECKSUMS:
   EXMediaLibrary: c87254f83db976563e4ee54ee67eeb065570e92b
   ExpoModulesCore: 2734852616127a6c1fc23012197890a6f3763dc7
   EXSecureStore: 1aa80d49a3a101418bbd2675e2a0d32dceea10c2
-  EXSplashScreen: c4ed5d39cd5dbc1329f8dec720e280276bafa28b
+  EXSplashScreen: 847e0d8026731c1090bf269ede3e15ac87d88958
   FBLazyVector: e686045572151edef46010a6f819ade377dfeb4b
   FBReactNativeSpec: 00d3c44d268b294f240a43ff003e918ff9f510e2
   Flipper: 41c3f849a45fd5f57a30195d15becb8af7ed78ce
