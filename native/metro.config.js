@@ -8,6 +8,10 @@ module.exports = {
     path.resolve(__dirname, '../lib'),
   ],
 
+  resolver: {
+    blockList: [/android[/\\].*/, /ios[/\\].*/],
+  },
+
   server: {
     enhanceMiddleware: middleware => (req, res, next) => {
       // Fix Android dev mode asset resolution for yarn workspaces
