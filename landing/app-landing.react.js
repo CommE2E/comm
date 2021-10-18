@@ -15,53 +15,45 @@ import InfoCard from './info-card.react';
 import css from './landing.css';
 import StarBackground from './star-background.react';
 
-const screenshotsWEBP = [
-  'federated-prototype.webp',
-  'customizable-prototype.webp',
-  'e2e-encrypted-prototype.webp',
-  'sovereign-prototype.webp',
-  'open-source-prototype.webp',
-  'less-noisy-prototype.webp',
-];
-
-const screenshotsPNG = [
-  'federated-prototype.png',
-  'customizable-prototype.png',
-  'e2e-encrypted-prototype.png',
-  'sovereign-prototype.png',
-  'open-source-prototype.png',
-  'less-noisy-prototype.png',
+const screenshots = [
+  'federated-prototype',
+  'customizable-prototype',
+  'e2e-encrypted-prototype',
+  'sovereign-prototype',
+  'open-source-prototype',
+  'less-noisy-prototype',
 ];
 
 function AppLanding(): React.Node {
   const [activeCardIdx, setActiveCardIdx] = React.useState(-1);
 
   React.useEffect(() => {
-    // Depending on WEBP browser support, preload either PNG or WEBP images.
     const testWEBP = 'UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
     const testImg = new Image();
+
+    // preload webp if supported
     testImg.onload = () => {
-      for (const imagePath of screenshotsWEBP) {
+      for (const imageFileName of screenshots) {
         const image = new Image();
-        image.src = `images/${imagePath}`;
+        image.src = `images/${imageFileName}.webp`;
       }
     };
+
+    // preload png if webp not supported
     testImg.onerror = () => {
-      for (const imagePath of screenshotsPNG) {
+      for (const imageFileName of screenshots) {
         const image = new Image();
-        image.src = `images/${imagePath}`;
+        image.src = `images/${imageFileName}.png`;
       }
     };
+
     testImg.src = `data:image/webp;base64,${testWEBP}`;
   }, []);
 
   const imageIdx =
     activeCardIdx === -1
       ? 1
-      : Math.min(
-          Math.max(0, activeCardIdx),
-          Math.min(screenshotsWEBP.length, screenshotsPNG.length) - 1,
-        );
+      : Math.min(Math.max(0, activeCardIdx), screenshots.length - 1);
 
   return (
     <>
@@ -70,14 +62,14 @@ function AppLanding(): React.Node {
         <div className={css.app_preview}>
           <picture>
             <source
-              srcSet={`images/${screenshotsWEBP[imageIdx]}`}
+              srcSet={`images/${screenshots[imageIdx]}.webp`}
               type="image/webp"
             />
             <source
-              srcSet={`images/${screenshotsPNG[imageIdx]}`}
+              srcSet={`images/${screenshots[imageIdx]}.png`}
               type="image/png"
             />
-            <img src={`images/${screenshotsPNG[imageIdx]}`} />
+            <img src={`images/${screenshots[imageIdx]}.png`} />
           </picture>
         </div>
         <div className={css.app_copy}>
