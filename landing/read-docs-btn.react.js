@@ -12,7 +12,10 @@ function ReadDocsButton(): React.Node {
     >
       <button className={css.button}>
         <span className={css.buttonText}>Read the documentation</span>
-        <img src="images/corner_arrow.svg" className={css.cornerIcon} />
+        <img
+          src="https://comm-landing-assets.s3.us-east-2.amazonaws.com/corner_arrow.svg"
+          className={css.cornerIcon}
+        />
       </button>
     </a>
   );

@@ -24,6 +24,9 @@ const screenshots = [
   'less-noisy-prototype',
 ];
 
+const LandingAssetsS3URL =
+  'https://comm-landing-assets.s3.us-east-2.amazonaws.com';
+
 function AppLanding(): React.Node {
   const [activeCardIdx, setActiveCardIdx] = React.useState(-1);
 
@@ -35,7 +38,7 @@ function AppLanding(): React.Node {
     testImg.onload = () => {
       for (const imageFileName of screenshots) {
         const image = new Image();
-        image.src = `images/${imageFileName}.webp`;
+        image.src = `${LandingAssetsS3URL}/${imageFileName}.webp`;
       }
     };
 
@@ -43,7 +46,7 @@ function AppLanding(): React.Node {
     testImg.onerror = () => {
       for (const imageFileName of screenshots) {
         const image = new Image();
-        image.src = `images/${imageFileName}.png`;
+        image.src = `${LandingAssetsS3URL}/${imageFileName}.png`;
       }
     };
 
@@ -62,14 +65,14 @@ function AppLanding(): React.Node {
         <div className={css.app_preview}>
           <picture>
             <source
-              srcSet={`images/${screenshots[imageIdx]}.webp`}
+              srcSet={`${LandingAssetsS3URL}/${screenshots[imageIdx]}.webp`}
               type="image/webp"
             />
             <source
-              srcSet={`images/${screenshots[imageIdx]}.png`}
+              srcSet={`${LandingAssetsS3URL}/${screenshots[imageIdx]}.png`}
               type="image/png"
             />
-            <img src={`images/${screenshots[imageIdx]}.png`} />
+            <img src={`${LandingAssetsS3URL}/${screenshots[imageIdx]}.png`} />
           </picture>
         </div>
         <div className={css.app_copy}>

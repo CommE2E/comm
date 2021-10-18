@@ -66,6 +66,9 @@ function Keyservers(): React.Node {
     return () => cloudNode.removeEventListener('load', onCloudIllustrationLoad);
   }, [cloudNode, onCloudIllustrationLoad]);
 
+  const LandingAssetsS3URL =
+    'https://comm-landing-assets.s3.us-east-2.amazonaws.com';
+
   return (
     <div>
       <StarBackground />
@@ -75,7 +78,7 @@ function Keyservers(): React.Node {
             id="eye-illustration"
             ref={setEyeNode}
             mode="normal"
-            src="images/animated_eye.json"
+            src={`${LandingAssetsS3URL}/animated_eye.json`}
             speed={1}
           />
         </div>
@@ -99,7 +102,7 @@ function Keyservers(): React.Node {
             id="cloud-illustration"
             ref={setCloudNode}
             mode="normal"
-            src="images/animated_cloud.json"
+            src={`${LandingAssetsS3URL}/animated_cloud.json`}
             speed={1}
           />
         </div>
