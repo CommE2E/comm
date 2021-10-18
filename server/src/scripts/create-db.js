@@ -227,6 +227,12 @@ async function createTables() {
       data mediumtext COLLATE utf8mb4_bin DEFAULT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
+    CREATE TABLE settings (
+      user bigint(20) NOT NULL,
+      name varchar(255) NOT NULL,
+      data mediumtext COLLATE utf8mb4_bin DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
     ALTER TABLE cookies
       ADD PRIMARY KEY (id),
       ADD UNIQUE KEY device_token (device_token),
@@ -329,6 +335,9 @@ async function createTables() {
 
     ALTER TABLE ids
       MODIFY id bigint(20) NOT NULL AUTO_INCREMENT;
+
+    ALTER TABLE settings
+      ADD PRIMARY KEY (user, name);
   `);
 }
 
