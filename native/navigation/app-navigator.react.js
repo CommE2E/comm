@@ -2,7 +2,7 @@
 
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// import * as SplashScreen from 'expo-splash-screen';
+import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { PersistGate } from 'redux-persist/integration/react';
 
@@ -180,7 +180,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
     (async () => {
       await waitForInteractions();
       try {
-        // await SplashScreen.hideAsync();
+        await SplashScreen.hideAsync();
         setLocalSplashScreenHasHidden(true);
       } catch {}
     })();
