@@ -13,7 +13,6 @@ div.footer_grid {
   transition: 300ms;
   grid-template-columns: 1fr 1fr;
   grid-template-areas: 'sitemap subscribe_updates';
-  scroll-snap-align: center;
 }
 
 div.footer_legal {

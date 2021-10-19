@@ -23,13 +23,6 @@ a {
   text-decoration: none;
 }
 
-.scroll_snap_container {
-  scroll-snap-type: y mandatory;
-  overflow-y: scroll;
-  margin: 0;
-  height: 100vh;
-}
-
 .mono {
   font-family: 'iA Writer Duo S', monospace;
 }
@@ -123,30 +116,25 @@ div.hero_image {
   grid-area: hero_image;
   object-fit: scale-down;
   align-self: center;
-  scroll-snap-align: center;
 }
 div.server_image {
   grid-area: server_image;
   object-fit: scale-down;
   align-self: center;
-  scroll-snap-align: center;
 }
 div.server_copy {
   grid-area: server_copy;
   align-self: center;
-  scroll-snap-align: center;
 }
 div.keyserver_company {
   grid-area: keyserver_company;
   text-align: center;
   padding-top: 80px;
-  scroll-snap-align: center;
 }
 div.read_the_docs {
   grid-area: read_the_docs;
   align-self: center;
   padding-bottom: 40px;
-  scroll-snap-align: center;
 }
 
 /* ===== APP LANDING GRID ===== */
@@ -211,7 +199,6 @@ div.tile_grid > div {
   justify-content: center;
   flex-direction: column;
   transition: 300ms;
-  scroll-snap-align: center;
   background-color: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
@@ -471,9 +458,5 @@ div.body_grid > div + .starting_section {
     max-width: 540px;
     padding-left: 3%;
     padding-right: 3%;
-  }
-
-  .scroll_snap_container {
-    scroll-snap-type: none;
   }
 }

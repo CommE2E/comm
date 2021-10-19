@@ -7,7 +7,6 @@ import AppLanding from './app-landing.react';
 import Footer from './footer.react';
 import Header from './header.react';
 import Keyservers from './keyservers.react';
-import css from './landing.css';
 import Privacy from './privacy.react';
 import Support from './support.react';
 import Terms from './terms.react';
@@ -51,9 +50,7 @@ function Landing(): React.Node {
   }, [onKeyservers, onPrivacy, onSupport, onTerms]);
 
   return (
-    <div
-      className={activePage.name === 'app' ? css.scroll_snap_container : null}
-    >
+    <div>
       <Header isLegalPage={isLegalPage} activePageName={activePage.name} />
       {activePage.node}
       <Footer isLegalPage={isLegalPage} activePageName={activePage.name} />
