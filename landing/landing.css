@@ -200,7 +200,7 @@ div.tile_grid > div {
   flex-direction: column;
   transition: 300ms;
   background-color: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(2px);
+  backdrop-filter: none;
   -webkit-backdrop-filter: blur(2px);
   transition: 300ms;
 }
