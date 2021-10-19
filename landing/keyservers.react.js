@@ -66,8 +66,7 @@ function Keyservers(): React.Node {
     return () => cloudNode.removeEventListener('load', onCloudIllustrationLoad);
   }, [cloudNode, onCloudIllustrationLoad]);
 
-  const LandingAssetsS3URL =
-    'https://comm-landing-assets.s3.us-east-2.amazonaws.com';
+  const LandingAssetsS3URL = 'https://dh9fld3hutpxf.cloudfront.net';
 
   return (
     <div>
