@@ -886,11 +886,13 @@ function DummyChatInputBar(props: DummyChatInputBarProps): React.Node {
     [onHeightMeasured],
   );
   return (
-    <ConnectedChatInputBarBase
-      {...restProps}
-      onInputBarLayout={onInputBarLayout}
-      openCamera={noop}
-    />
+    <View pointerEvents="none">
+      <ConnectedChatInputBarBase
+        {...restProps}
+        onInputBarLayout={onInputBarLayout}
+        openCamera={noop}
+      />
+    </View>
   );
 }
 
