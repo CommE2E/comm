@@ -291,6 +291,17 @@ div.body_grid > div + .starting_section {
   padding-top: 80px;
 }
 
+/* ===== MEDIUM-LARGE BREAKPOINT ===== */
+@media (max-width: 1699px) {
+  div.tile_title_row > p.tile_title {
+    font-size: 30px;
+  }
+
+  h1.cycling_header {
+    font-size: 44px;
+  }
+}
+
 /* ===== MEDIUM BREAKPOINT ===== */
 @media (max-width: 1499px) {
   div.body_grid {
@@ -330,6 +341,17 @@ div.body_grid > div + .starting_section {
   h1.cycling_header {
     font-size: 38px;
     margin-top: 20vh;
+  }
+}
+
+/* ===== MEDIUM-SMALL BREAKPOINT ===== */
+@media (max-width: 1299px) {
+  div.tile_title_row > p.tile_title {
+    font-size: 22px;
+  }
+
+  h1.cycling_header {
+    font-size: 30px;
   }
 }
 
