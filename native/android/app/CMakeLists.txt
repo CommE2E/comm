@@ -27,7 +27,7 @@ set(protobuf_BUILD_TESTS OFF)
 
 # gRPC building parameters
 set(gRPC_BUILD_CSHARP_EXT OFF)
-set(gRPC_SSL_PROVIDER "package")
+set(gRPC_SSL_PROVIDER "package" CACHE STRING "SSL library provider")
 # We're updating parameters below for Cmake's find_OpenSSL() function
 set(OPENSSL_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/build/third-party-ndk/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}")
 list(APPEND CMAKE_FIND_ROOT_PATH "${OPENSSL_ROOT_DIR}")
