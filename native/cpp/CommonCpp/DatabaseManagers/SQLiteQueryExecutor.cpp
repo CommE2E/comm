@@ -348,7 +348,6 @@ void SQLiteQueryExecutor::removeAllDrafts() const {
 
 void SQLiteQueryExecutor::removeAllMessages() const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>();
-  SQLiteQueryExecutor::getStorage().remove_all<Media>();
 }
 
 std::vector<Message> SQLiteQueryExecutor::getAllMessages() const {
@@ -358,16 +357,12 @@ std::vector<Message> SQLiteQueryExecutor::getAllMessages() const {
 void SQLiteQueryExecutor::removeMessages(std::vector<std::string> ids) const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>(
       where(in(&Message::id, ids)));
-  SQLiteQueryExecutor::getStorage().remove_all<Media>(
-      where(in(&Media::container, ids)));
 }
 
 void SQLiteQueryExecutor::removeMessagesForThreads(
     std::vector<std::string> threadIDs) const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>(
       where(in(&Message::thread, threadIDs)));
-  SQLiteQueryExecutor::getStorage().remove_all<Media>(
-      where(in(&Media::thread, threadIDs)));
 }
 
 void SQLiteQueryExecutor::replaceMessage(const Message &message) const {
@@ -379,6 +374,22 @@ void SQLiteQueryExecutor::rekeyMessage(std::string from, std::string to) const {
   msg.id = to;
   SQLiteQueryExecutor::getStorage().replace(msg);
   SQLiteQueryExecutor::getStorage().remove<Message>(from);
+}
+
+void SQLiteQueryExecutor::removeAllMedia() const {
+  SQLiteQueryExecutor::getStorage().remove_all<Media>();
+}
+
+void SQLiteQueryExecutor::removeMediaForMessages(
+    std::vector<std::string> msg_ids) const {
+  SQLiteQueryExecutor::getStorage().remove_all<Media>(
+      where(in(&Media::container, msg_ids)));
+}
+
+void SQLiteQueryExecutor::removeMediaForThreads(
+    std::vector<std::string> thread_ids) const {
+  SQLiteQueryExecutor::getStorage().remove_all<Media>(
+      where(in(&Media::thread, thread_ids)));
 }
 
 void SQLiteQueryExecutor::replaceMedia(const Media &media) const {

@@ -18,6 +18,7 @@ public:
 
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeMessages(this->ids);
+    DatabaseManager::getQueryExecutor().removeMediaForMessages(this->ids);
   }
 
 private:
@@ -31,6 +32,7 @@ public:
 
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeMessagesForThreads(this->ids);
+    DatabaseManager::getQueryExecutor().removeMediaForThreads(this->ids);
   }
 
 private:
@@ -73,6 +75,7 @@ class RemoveAllMessagesOperation : public MessageStoreOperationBase {
 public:
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().removeAllMessages();
+    DatabaseManager::getQueryExecutor().removeAllMedia();
   }
 };
 
