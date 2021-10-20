@@ -354,7 +354,8 @@ std::vector<Message> SQLiteQueryExecutor::getAllMessages() const {
   return SQLiteQueryExecutor::getStorage().get_all<Message>();
 }
 
-void SQLiteQueryExecutor::removeMessages(std::vector<std::string> ids) const {
+void SQLiteQueryExecutor::removeMessages(
+    const std::vector<std::string> &ids) const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>(
       where(in(&Message::id, ids)));
 }
@@ -381,7 +382,7 @@ void SQLiteQueryExecutor::removeAllMedia() const {
 }
 
 void SQLiteQueryExecutor::removeMediaForMessages(
-    std::vector<std::string> msg_ids) const {
+    const std::vector<std::string> &msg_ids) const {
   SQLiteQueryExecutor::getStorage().remove_all<Media>(
       where(in(&Media::container, msg_ids)));
 }

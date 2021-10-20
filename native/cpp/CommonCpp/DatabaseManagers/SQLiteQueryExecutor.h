@@ -23,13 +23,14 @@ public:
   void removeAllDrafts() const override;
   void removeAllMessages() const override;
   std::vector<Message> getAllMessages() const override;
-  void removeMessages(std::vector<std::string> ids) const override;
+  void removeMessages(const std::vector<std::string> &ids) const override;
   void
   removeMessagesForThreads(std::vector<std::string> threadIDs) const override;
   void replaceMessage(const Message &message) const override;
   void rekeyMessage(std::string from, std::string to) const override;
   void removeAllMedia() const override;
-  void removeMediaForMessages(std::vector<std::string> msg_ids) const override;
+  void removeMediaForMessages(
+      const std::vector<std::string> &msg_ids) const override;
   void
   removeMediaForThreads(std::vector<std::string> thread_ids) const override;
   void replaceMedia(const Media &media) const override;

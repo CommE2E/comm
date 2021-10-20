@@ -31,14 +31,14 @@ public:
   virtual void removeAllDrafts() const = 0;
   virtual void removeAllMessages() const = 0;
   virtual std::vector<Message> getAllMessages() const = 0;
-  virtual void removeMessages(std::vector<std::string> ids) const = 0;
+  virtual void removeMessages(const std::vector<std::string> &ids) const = 0;
   virtual void
   removeMessagesForThreads(std::vector<std::string> threadIDs) const = 0;
   virtual void replaceMessage(const Message &message) const = 0;
   virtual void rekeyMessage(std::string from, std::string to) const = 0;
   virtual void removeAllMedia() const = 0;
   virtual void
-  removeMediaForMessages(std::vector<std::string> msg_ids) const = 0;
+  removeMediaForMessages(const std::vector<std::string> &msg_ids) const = 0;
   virtual void
   removeMediaForThreads(std::vector<std::string> thread_ids) const = 0;
   virtual void replaceMedia(const Media &media) const = 0;

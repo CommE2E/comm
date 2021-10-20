@@ -14,16 +14,23 @@ public:
 
 class RemoveMessagesOperation : public MessageStoreOperationBase {
 public:
-  RemoveMessagesOperation(std::vector<std::string> ids) : ids{ids} {
+  RemoveMessagesOperation(jsi::Runtime &rt, const jsi::Object &payload)
+      : msg_ids_to_remove{} {
+    auto payload_ids = payload.getProperty(rt, "ids").asObject(rt).asArray(rt);
+    for (size_t idx = 0; idx < payload_ids.size(rt); idx++) {
+      this->msg_ids_to_remove.push_back(
+          payload_ids.getValueAtIndex(rt, idx).asString(rt).utf8(rt));
+    }
   }
 
   virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessages(this->ids);
-    DatabaseManager::getQueryExecutor().removeMediaForMessages(this->ids);
+    DatabaseManager::getQueryExecutor().removeMessages(this->msg_ids_to_remove);
+    DatabaseManager::getQueryExecutor().removeMediaForMessages(
+        this->msg_ids_to_remove);
   }
 
 private:
-  const std::vector<std::string> ids;
+  std::vector<std::string> msg_ids_to_remove;
 };
 
 class RemoveMessagesForThreadsOperation : public MessageStoreOperationBase {
