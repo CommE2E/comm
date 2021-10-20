@@ -23,7 +23,10 @@ import { values } from 'lib/utils/objects';
 import { dbQuery, SQL } from '../database/database';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import {
+  fetchLoggedInUserInfo,
+  fetchKnownUserInfos,
+} from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
 import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { createScriptViewer } from '../session/scripts';
@@ -147,10 +150,16 @@ async function createAccount(
     text: message,
   }));
   const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
-  const [messageInfos, threadsResult, userInfos] = await Promise.all([
+  const [
+    messageInfos,
+    threadsResult,
+    userInfos,
+    currentUserInfo,
+  ] = await Promise.all([
     createMessages(viewer, messageDatas),
     fetchThreadInfos(viewer),
     fetchKnownUserInfos(viewer),
+    fetchLoggedInUserInfo(viewer),
   ]);
   const rawMessageInfos = [
     ...ashoatThreadResult.newMessageInfos,
@@ -161,6 +170,7 @@ async function createAccount(
   return {
     id,
     rawMessageInfos,
+    currentUserInfo,
     cookieChange: {
       threadInfos: threadsResult.threadInfos,
       userInfos: values(userInfos),
