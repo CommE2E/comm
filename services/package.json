@@ -4,7 +4,9 @@
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
-    "run-grpc-server-rebuild-base": "cd .. && ./services/tunnelbroker/docker-base/run.sh && ./services/tunnelbroker/docker-server/run.sh --overwrite && cd -",
-    "run-grpc-server": "cd .. && ./services/tunnelbroker/docker-server/run.sh --overwrite && cd -"
+    "build-tunnelbroker-base": "cd .. && ./services/tunnelbroker/docker-base/run.sh && cd -",
+    "run-tunnelbroker-server": "cd .. && ./services/tunnelbroker/docker-server/run.sh --overwrite && cd -",
+    "build-backup-base": "cd .. && ./services/backup/docker-base/run.sh && cd -",
+    "run-backup-server": "cd .. && ./services/backup/docker-server/run.sh --overwrite && cd -"
   }
 }
