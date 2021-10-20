@@ -9,7 +9,7 @@ The whole project is written in Flow-typed Javascript. The code is organized in 
 - `native` contains the code for the React Native app, which supports both iOS and Android.
 - `server` contains the code for the Node/Express server.
 - `web` contains the code for the React desktop website.
-- `landing` contains the code for the Comm landing page.
+- `landing` contains the code for the [Comm landing page](https://comm.app).
 - `lib` contains code that is shared across multiple other workspaces, including most of the Redux stack that is shared across native/web.
 
 ## Dev environment
