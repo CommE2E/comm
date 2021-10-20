@@ -346,6 +346,8 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       auto to = rekey_payload.getProperty(rt, "to").asString(rt).utf8(rt);
       messageStoreOps.push_back(std::make_shared<RekeyMessageOperation>(
           std::move(from), std::move(to)));
+    } else if (op_type == REMOVE_ALL_OPERATION) {
+      messageStoreOps.push_back(std::make_shared<RemoveAllMessagesOperation>());
     } else {
       return createPromiseAsJSIValue(
           rt,

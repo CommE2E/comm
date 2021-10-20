@@ -70,4 +70,11 @@ private:
   const std::string to_;
 };
 
+class RemoveAllMessagesOperation : public MessageStoreOperationBase {
+public:
+  virtual void execute() override {
+    DatabaseManager::getQueryExecutor().removeAllMessages();
+  }
+};
+
 } // namespace comm
