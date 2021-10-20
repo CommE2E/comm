@@ -4,7 +4,6 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
   LogOutResponse,
@@ -34,7 +33,10 @@ import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
+import {
+  fetchKnownUserInfos,
+  fetchLoggedInUserInfo,
+} from '../fetchers/user-fetchers';
 import {
   createNewAnonymousCookie,
   createNewUserCookie,
@@ -251,23 +253,14 @@ async function logInResponder(
     messagesResult,
     entriesResult,
     userInfos,
+    currentUserInfo,
   ] = await Promise.all([
     fetchThreadInfos(viewer),
     fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
     calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
     fetchKnownUserInfos(viewer),
+    fetchLoggedInUserInfo(viewer),
   ]);
-
-  const oldCurrentUserInfo = {
-    id,
-    username: userRow.username,
-    email: 'removed from DB',
-    emailVerified: true,
-  };
-  const hasCodeVersionBelow87 = !hasMinCodeVersion(viewer.platformDetails, 87);
-  const currentUserInfo = hasCodeVersionBelow87
-    ? oldCurrentUserInfo
-    : { id, username: userRow.username };
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
   const response: LogInResponse = {

@@ -188,37 +188,39 @@ async function fetchCurrentUserInfo(
   if (!viewer.loggedIn) {
     return ({ id: viewer.cookieID, anonymous: true }: CurrentUserInfo);
   }
-  const currentUserInfos = await fetchLoggedInUserInfos([viewer.userID]);
-  if (currentUserInfos.length === 0) {
-    throw new ServerError('unknown_error');
-  }
-  const currentUserInfo = currentUserInfos[0];
+  const currentUserInfo = await fetchLoggedInUserInfo(viewer);
+  return currentUserInfo;
+}
+
+async function fetchLoggedInUserInfo(
+  viewer: Viewer,
+): Promise<OldLoggedInUserInfo | LoggedInUserInfo> {
+  const query = SQL`
+    SELECT id, username
+    FROM users
+    WHERE id IN (${viewer.userID})
+  `;
+  const [response] = await dbQuery(query);
+  const [row] = response;
   const stillExpectsEmailFields = !hasMinCodeVersion(
     viewer.platformDetails,
     87,
   );
-  if (stillExpectsEmailFields) {
-    return currentUserInfo;
+  if (!row) {
+    throw new ServerError('unknown_error');
   }
-  const { id, username } = currentUserInfo;
-  return { id, username };
-}
+  const id = row.id.toString();
+  const { username } = row;
 
-async function fetchLoggedInUserInfos(
-  userIDs: $ReadOnlyArray<string>,
-): Promise<Array<OldLoggedInUserInfo | LoggedInUserInfo>> {
-  const query = SQL`
-    SELECT id, username
-    FROM users
-    WHERE id IN (${userIDs})
-  `;
-  const [result] = await dbQuery(query);
-  return result.map(row => ({
-    id: row.id.toString(),
-    username: row.username,
-    email: 'removed from DB',
-    emailVerified: true,
-  }));
+  if (stillExpectsEmailFields) {
+    return {
+      id,
+      username,
+      email: 'removed from DB',
+      emailVerified: true,
+    };
+  }
+  return { id, username };
 }
 
 async function fetchAllUserIDs(): Promise<string[]> {
@@ -239,6 +241,7 @@ async function fetchUsername(id: string): Promise<?string> {
 
 export {
   fetchUserInfos,
+  fetchLoggedInUserInfo,
   verifyUserIDs,
   verifyUserOrCookieIDs,
   fetchCurrentUserInfo,
