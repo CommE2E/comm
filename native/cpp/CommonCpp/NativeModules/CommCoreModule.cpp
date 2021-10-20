@@ -340,7 +340,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
   }
 
   return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) mutable {
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
           try {
@@ -559,7 +559,7 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
       std::make_shared<std::vector<std::unique_ptr<ThreadStoreOperationBase>>>(
           std::move(threadStoreOps));
   return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) mutable {
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         this->databaseThread->scheduleTask([=, &innerRt]() {
           std::string error = operationsError;
           if (!error.size()) {
