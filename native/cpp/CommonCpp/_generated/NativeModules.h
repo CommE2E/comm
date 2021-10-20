@@ -23,7 +23,6 @@ virtual jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
 virtual jsi::Value moveDraft(jsi::Runtime &rt, const jsi::String &oldKey, const jsi::String &newKey) = 0;
 virtual jsi::Value getAllDrafts(jsi::Runtime &rt) = 0;
 virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
-virtual jsi::Value removeAllMessages(jsi::Runtime &rt) = 0;
 virtual jsi::Value getAllMessages(jsi::Runtime &rt) = 0;
 virtual jsi::Value processMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) = 0;
 virtual jsi::Value getAllThreads(jsi::Runtime &rt) = 0;

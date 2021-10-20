@@ -25,7 +25,6 @@ export interface Spec extends TurboModule {
   +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
   +getAllDrafts: () => Promise<$ReadOnlyArray<ClientDBDraftInfo>>;
   +removeAllDrafts: () => Promise<void>;
-  +removeAllMessages: () => Promise<void>;
   +getAllMessages: () => Promise<$ReadOnlyArray<ClientDBMessageInfo>>;
   +processMessageStoreOperations: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
