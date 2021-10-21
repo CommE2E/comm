@@ -16,6 +16,7 @@ import { RobotextMessageTooltipModal } from '../chat/robotext-message-tooltip-mo
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
+import { type SQLiteContextType, SQLiteContext } from '../data/sqlite-context';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import CameraModal from '../media/camera-modal.react';
 import ImageModal from '../media/image-modal.react';
@@ -161,6 +162,10 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
   const { navigation } = props;
 
   const rootContext = React.useContext(RootContext);
+  const localDatabaseContext: ?SQLiteContextType = React.useContext(
+    SQLiteContext,
+  );
+  const storeLoadedFromLocalDatabase = localDatabaseContext?.threadStoreLoaded;
   const setNavStateInitialized =
     rootContext && rootContext.setNavStateInitialized;
   React.useEffect(() => {
@@ -194,7 +199,9 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
       </PersistGate>
     );
   }
-
+  if (!storeLoadedFromLocalDatabase) {
+    return null;
+  }
   return (
     <KeyboardStateContainer>
       <App.Navigator>

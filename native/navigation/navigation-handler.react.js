@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
+import { SQLiteContext } from '../data/sqlite-context';
 import DevTools from '../redux/dev-tools.react';
 import { useSelector } from '../redux/redux-utils';
 import type { AppState } from '../redux/state-types';
@@ -61,26 +62,24 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
   const hasUserCookie = useSelector(
     (state: AppState) => !!(state.cookie && state.cookie.startsWith('user=')),
   );
+  const localDatabaseContext = React.useContext(SQLiteContext);
+  const storeLoadedFromLocalDatabase = !!localDatabaseContext?.threadStoreLoaded;
+
   const loggedIn = hasCurrentUserInfo && hasUserCookie;
-
   const navLoggedIn = useIsAppLoggedIn();
-
   const prevLoggedInRef = React.useRef();
-  React.useEffect(() => {
-    prevLoggedInRef.current = loggedIn;
-  });
-  const prevLoggedIn = prevLoggedInRef.current;
 
   React.useEffect(() => {
-    if (loggedIn === prevLoggedIn) {
+    if (!storeLoadedFromLocalDatabase || loggedIn === prevLoggedInRef.current) {
       return;
     }
+    prevLoggedInRef.current = loggedIn;
     if (loggedIn && !navLoggedIn) {
       dispatch({ type: (logInActionType: 'LOG_IN') });
     } else if (!loggedIn && navLoggedIn) {
       dispatch({ type: (logOutActionType: 'LOG_OUT') });
     }
-  }, [navLoggedIn, prevLoggedIn, loggedIn, dispatch]);
+  }, [navLoggedIn, loggedIn, dispatch, storeLoadedFromLocalDatabase]);
 
   return null;
 });
