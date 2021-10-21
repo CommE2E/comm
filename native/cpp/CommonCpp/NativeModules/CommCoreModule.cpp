@@ -9,6 +9,7 @@
 #include "../DatabaseManagers/entities/Media.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
+#include <future>
 
 namespace comm {
 
@@ -378,12 +379,10 @@ jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
       });
 };
 
-jsi::Value CommCoreModule::processThreadStoreOperations(
-    jsi::Runtime &rt,
-    const jsi::Array &operations) {
+std::vector<std::unique_ptr<ThreadStoreOperationBase>>
+createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
   std::vector<std::unique_ptr<ThreadStoreOperationBase>> threadStoreOps;
 
-  std::string operationsError;
   for (size_t idx = 0; idx < operations.size(rt); idx++) {
     jsi::Object op = operations.getValueAtIndex(rt, idx).asObject(rt);
     std::string opType = op.getProperty(rt, "type").asString(rt).utf8(rt);
@@ -479,12 +478,26 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
       threadStoreOps.push_back(
           std::make_unique<ReplaceThreadOperation>(std::move(thread)));
     } else {
-      operationsError = "unsupported operation:" + opType;
+      throw std::runtime_error("unsupported operation: " + opType);
     }
   };
-  auto threadStoreOpsPtr =
-      std::make_shared<std::vector<std::unique_ptr<ThreadStoreOperationBase>>>(
-          std::move(threadStoreOps));
+  return threadStoreOps;
+}
+
+jsi::Value CommCoreModule::processThreadStoreOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) {
+  std::string operationsError;
+  std::shared_ptr<std::vector<std::unique_ptr<ThreadStoreOperationBase>>>
+      threadStoreOpsPtr;
+  try {
+    auto threadStoreOps = createThreadStoreOperations(rt, operations);
+    threadStoreOpsPtr = std::make_shared<
+        std::vector<std::unique_ptr<ThreadStoreOperationBase>>>(
+        std::move(threadStoreOps));
+  } catch (std::runtime_error &e) {
+    operationsError = e.what();
+  }
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         this->databaseThread->scheduleTask([=, &innerRt]() {
@@ -510,6 +523,39 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
           });
         });
       });
+}
+
+bool CommCoreModule::processThreadStoreOperationsSync(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) {
+
+  std::promise<bool> operationsResult;
+  std::future<bool> operationsResultFuture = operationsResult.get_future();
+  std::vector<std::unique_ptr<ThreadStoreOperationBase>> threadStoreOps;
+  std::string operationsError;
+  try {
+    threadStoreOps = createThreadStoreOperations(rt, operations);
+  } catch (std::runtime_error &e) {
+    return false;
+  }
+  this->databaseThread->scheduleTask(
+      [=, &threadStoreOps, &operationsResult, &rt]() {
+        std::string error = operationsError;
+        if (!error.size()) {
+          try {
+            DatabaseManager::getQueryExecutor().beginTransaction();
+            for (const auto &operation : threadStoreOps) {
+              operation->execute();
+            }
+            DatabaseManager::getQueryExecutor().commitTransaction();
+          } catch (std::system_error &e) {
+            error = e.what();
+            DatabaseManager::getQueryExecutor().rollbackTransaction();
+          }
+        }
+        operationsResult.set_value(error.size() == 0);
+      });
+  return operationsResultFuture.get();
 }
 
 jsi::Value CommCoreModule::initializeCryptoAccount(
