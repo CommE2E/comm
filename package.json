@@ -13,7 +13,7 @@
     "cleaninstall": "yarn clean && yarn",
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",
-    "clang-format-all": "(find native/cpp/CommonCpp -name '*.h' -o -name '*.cpp' | grep -v _generated; find services/tunnelbroker/contents/server/src -name '*.cpp' -o -name '*.h'; find native/android/app/src/cpp -name '*.h' -o -name '*.cpp'; find native/ios/Comm -name '*.h' -o -name '*.m' -o -name '*.mm';  find native/ios/CommTests -name '*.mm'; find native/android/app/src/main/java/app/comm -name '*.java' | grep -v generated) | xargs clang-format -i",
+    "clang-format-all": "(find native/cpp/CommonCpp -name '*.h' -o -name '*.cpp' | grep -v _generated; find services/**/contents/server/src -name '*.cpp' -o -name '*.h'; find native/android/app/src/cpp -name '*.h' -o -name '*.cpp'; find native/ios/Comm -name '*.h' -o -name '*.m' -o -name '*.mm';  find native/ios/CommTests -name '*.mm'; find native/android/app/src/main/java/app/comm -name '*.java' | grep -v generated) | xargs clang-format -i",
     "prepare": "husky install"
   },
   "devDependencies": {

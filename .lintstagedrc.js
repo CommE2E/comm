@@ -31,6 +31,7 @@ module.exports = {
     const allowedPaths = [
       'native/cpp/CommonCpp',
       'services/tunnelbroker/contents/server/src',
+      'services/backup/contents/server/src',
       'native/android/app/src/cpp',
       'native/ios/Comm',
       'native/ios/CommTests',
