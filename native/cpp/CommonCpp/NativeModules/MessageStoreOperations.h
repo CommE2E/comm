@@ -77,7 +77,9 @@ private:
 
 class RekeyMessageOperation : public MessageStoreOperationBase {
 public:
-  RekeyMessageOperation(std::string from, std::string to) : from{from}, to{to} {
+  RekeyMessageOperation(jsi::Runtime &rt, const jsi::Object &payload) {
+    this->from = payload.getProperty(rt, "from").asString(rt).utf8(rt);
+    this->to = payload.getProperty(rt, "to").asString(rt).utf8(rt);
   }
 
   virtual void execute() override {
@@ -85,8 +87,8 @@ public:
   }
 
 private:
-  const std::string from;
-  const std::string to;
+  std::string from;
+  std::string to;
 };
 
 class RemoveAllMessagesOperation : public MessageStoreOperationBase {
