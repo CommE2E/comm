@@ -213,24 +213,24 @@ class ResetKeyRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIdFieldNumber = 1,
+    kUserIdFieldNumber = 1,
     kNewKeyFieldNumber = 2,
     kCompactionChunkFieldNumber = 3,
   };
-  // string id = 1;
-  void clear_id();
-  const std::string& id() const;
-  void set_id(const std::string& value);
-  void set_id(std::string&& value);
-  void set_id(const char* value);
-  void set_id(const char* value, size_t size);
-  std::string* mutable_id();
-  std::string* release_id();
-  void set_allocated_id(std::string* id);
+  // string userId = 1;
+  void clear_userid();
+  const std::string& userid() const;
+  void set_userid(const std::string& value);
+  void set_userid(std::string&& value);
+  void set_userid(const char* value);
+  void set_userid(const char* value, size_t size);
+  std::string* mutable_userid();
+  std::string* release_userid();
+  void set_allocated_userid(std::string* userid);
   private:
-  const std::string& _internal_id() const;
-  void _internal_set_id(const std::string& value);
-  std::string* _internal_mutable_id();
+  const std::string& _internal_userid() const;
+  void _internal_set_userid(const std::string& value);
+  std::string* _internal_mutable_userid();
   public:
 
   // bytes newKey = 2;
@@ -287,7 +287,7 @@ class ResetKeyRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
   union DataUnion {
     constexpr DataUnion() : _constinit_{} {}
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
@@ -551,23 +551,23 @@ class SendLogRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIdFieldNumber = 1,
+    kUserIdFieldNumber = 1,
     kDataFieldNumber = 2,
   };
-  // string id = 1;
-  void clear_id();
-  const std::string& id() const;
-  void set_id(const std::string& value);
-  void set_id(std::string&& value);
-  void set_id(const char* value);
-  void set_id(const char* value, size_t size);
-  std::string* mutable_id();
-  std::string* release_id();
-  void set_allocated_id(std::string* id);
+  // string userId = 1;
+  void clear_userid();
+  const std::string& userid() const;
+  void set_userid(const std::string& value);
+  void set_userid(std::string&& value);
+  void set_userid(const char* value);
+  void set_userid(const char* value, size_t size);
+  std::string* mutable_userid();
+  std::string* release_userid();
+  void set_allocated_userid(std::string* userid);
   private:
-  const std::string& _internal_id() const;
-  void _internal_set_id(const std::string& value);
-  std::string* _internal_mutable_id();
+  const std::string& _internal_userid() const;
+  void _internal_set_userid(const std::string& value);
+  std::string* _internal_mutable_userid();
   public:
 
   // bytes data = 2;
@@ -593,7 +593,7 @@ class SendLogRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_backup_2eproto;
@@ -850,23 +850,23 @@ class PullBackupKeyRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIdFieldNumber = 1,
+    kUserIdFieldNumber = 1,
     kPakeKeyFieldNumber = 2,
   };
-  // string id = 1;
-  void clear_id();
-  const std::string& id() const;
-  void set_id(const std::string& value);
-  void set_id(std::string&& value);
-  void set_id(const char* value);
-  void set_id(const char* value, size_t size);
-  std::string* mutable_id();
-  std::string* release_id();
-  void set_allocated_id(std::string* id);
+  // string userId = 1;
+  void clear_userid();
+  const std::string& userid() const;
+  void set_userid(const std::string& value);
+  void set_userid(std::string&& value);
+  void set_userid(const char* value);
+  void set_userid(const char* value, size_t size);
+  std::string* mutable_userid();
+  std::string* release_userid();
+  void set_allocated_userid(std::string* userid);
   private:
-  const std::string& _internal_id() const;
-  void _internal_set_id(const std::string& value);
-  std::string* _internal_mutable_id();
+  const std::string& _internal_userid() const;
+  void _internal_set_userid(const std::string& value);
+  std::string* _internal_mutable_userid();
   public:
 
   // bytes pakeKey = 2;
@@ -892,7 +892,7 @@ class PullBackupKeyRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr pakekey_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_backup_2eproto;
@@ -1167,23 +1167,23 @@ class PullCompactionRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIdFieldNumber = 1,
+    kUserIdFieldNumber = 1,
     kMessageFieldNumber = 2,
   };
-  // string id = 1;
-  void clear_id();
-  const std::string& id() const;
-  void set_id(const std::string& value);
-  void set_id(std::string&& value);
-  void set_id(const char* value);
-  void set_id(const char* value, size_t size);
-  std::string* mutable_id();
-  std::string* release_id();
-  void set_allocated_id(std::string* id);
+  // string userId = 1;
+  void clear_userid();
+  const std::string& userid() const;
+  void set_userid(const std::string& value);
+  void set_userid(std::string&& value);
+  void set_userid(const char* value);
+  void set_userid(const char* value, size_t size);
+  std::string* mutable_userid();
+  std::string* release_userid();
+  void set_allocated_userid(std::string* userid);
   private:
-  const std::string& _internal_id() const;
-  void _internal_set_id(const std::string& value);
-  std::string* _internal_mutable_id();
+  const std::string& _internal_userid() const;
+  void _internal_set_userid(const std::string& value);
+  std::string* _internal_mutable_userid();
   public:
 
   // bytes message = 2;
@@ -1209,7 +1209,7 @@ class PullCompactionRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr message_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_backup_2eproto;
@@ -1387,65 +1387,65 @@ class PullCompactionResponse PROTOBUF_FINAL :
 #endif  // __GNUC__
 // ResetKeyRequest
 
-// string id = 1;
-inline void ResetKeyRequest::clear_id() {
-  id_.ClearToEmpty();
+// string userId = 1;
+inline void ResetKeyRequest::clear_userid() {
+  userid_.ClearToEmpty();
 }
-inline const std::string& ResetKeyRequest::id() const {
-  // @@protoc_insertion_point(field_get:backup.ResetKeyRequest.id)
-  return _internal_id();
+inline const std::string& ResetKeyRequest::userid() const {
+  // @@protoc_insertion_point(field_get:backup.ResetKeyRequest.userId)
+  return _internal_userid();
 }
-inline void ResetKeyRequest::set_id(const std::string& value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:backup.ResetKeyRequest.id)
+inline void ResetKeyRequest::set_userid(const std::string& value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:backup.ResetKeyRequest.userId)
 }
-inline std::string* ResetKeyRequest::mutable_id() {
-  // @@protoc_insertion_point(field_mutable:backup.ResetKeyRequest.id)
-  return _internal_mutable_id();
+inline std::string* ResetKeyRequest::mutable_userid() {
+  // @@protoc_insertion_point(field_mutable:backup.ResetKeyRequest.userId)
+  return _internal_mutable_userid();
 }
-inline const std::string& ResetKeyRequest::_internal_id() const {
-  return id_.Get();
+inline const std::string& ResetKeyRequest::_internal_userid() const {
+  return userid_.Get();
 }
-inline void ResetKeyRequest::_internal_set_id(const std::string& value) {
+inline void ResetKeyRequest::_internal_set_userid(const std::string& value) {
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void ResetKeyRequest::set_id(std::string&& value) {
+inline void ResetKeyRequest::set_userid(std::string&& value) {
   
-  id_.Set(
+  userid_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.ResetKeyRequest.id)
+  // @@protoc_insertion_point(field_set_rvalue:backup.ResetKeyRequest.userId)
 }
-inline void ResetKeyRequest::set_id(const char* value) {
+inline void ResetKeyRequest::set_userid(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.ResetKeyRequest.id)
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.ResetKeyRequest.userId)
 }
-inline void ResetKeyRequest::set_id(const char* value,
+inline void ResetKeyRequest::set_userid(const char* value,
     size_t size) {
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.ResetKeyRequest.id)
+  // @@protoc_insertion_point(field_set_pointer:backup.ResetKeyRequest.userId)
 }
-inline std::string* ResetKeyRequest::_internal_mutable_id() {
+inline std::string* ResetKeyRequest::_internal_mutable_userid() {
   
-  return id_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* ResetKeyRequest::release_id() {
-  // @@protoc_insertion_point(field_release:backup.ResetKeyRequest.id)
-  return id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* ResetKeyRequest::release_userid() {
+  // @@protoc_insertion_point(field_release:backup.ResetKeyRequest.userId)
+  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void ResetKeyRequest::set_allocated_id(std::string* id) {
-  if (id != nullptr) {
+inline void ResetKeyRequest::set_allocated_userid(std::string* userid) {
+  if (userid != nullptr) {
     
   } else {
     
   }
-  id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), id,
+  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.ResetKeyRequest.id)
+  // @@protoc_insertion_point(field_set_allocated:backup.ResetKeyRequest.userId)
 }
 
 // bytes newKey = 2;
@@ -1705,65 +1705,65 @@ inline void ResetKeyResponse::set_success(bool value) {
 
 // SendLogRequest
 
-// string id = 1;
-inline void SendLogRequest::clear_id() {
-  id_.ClearToEmpty();
+// string userId = 1;
+inline void SendLogRequest::clear_userid() {
+  userid_.ClearToEmpty();
 }
-inline const std::string& SendLogRequest::id() const {
-  // @@protoc_insertion_point(field_get:backup.SendLogRequest.id)
-  return _internal_id();
+inline const std::string& SendLogRequest::userid() const {
+  // @@protoc_insertion_point(field_get:backup.SendLogRequest.userId)
+  return _internal_userid();
 }
-inline void SendLogRequest::set_id(const std::string& value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:backup.SendLogRequest.id)
+inline void SendLogRequest::set_userid(const std::string& value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:backup.SendLogRequest.userId)
 }
-inline std::string* SendLogRequest::mutable_id() {
-  // @@protoc_insertion_point(field_mutable:backup.SendLogRequest.id)
-  return _internal_mutable_id();
+inline std::string* SendLogRequest::mutable_userid() {
+  // @@protoc_insertion_point(field_mutable:backup.SendLogRequest.userId)
+  return _internal_mutable_userid();
 }
-inline const std::string& SendLogRequest::_internal_id() const {
-  return id_.Get();
+inline const std::string& SendLogRequest::_internal_userid() const {
+  return userid_.Get();
 }
-inline void SendLogRequest::_internal_set_id(const std::string& value) {
+inline void SendLogRequest::_internal_set_userid(const std::string& value) {
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void SendLogRequest::set_id(std::string&& value) {
+inline void SendLogRequest::set_userid(std::string&& value) {
   
-  id_.Set(
+  userid_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.SendLogRequest.id)
+  // @@protoc_insertion_point(field_set_rvalue:backup.SendLogRequest.userId)
 }
-inline void SendLogRequest::set_id(const char* value) {
+inline void SendLogRequest::set_userid(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.SendLogRequest.id)
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.SendLogRequest.userId)
 }
-inline void SendLogRequest::set_id(const char* value,
+inline void SendLogRequest::set_userid(const char* value,
     size_t size) {
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.SendLogRequest.id)
+  // @@protoc_insertion_point(field_set_pointer:backup.SendLogRequest.userId)
 }
-inline std::string* SendLogRequest::_internal_mutable_id() {
+inline std::string* SendLogRequest::_internal_mutable_userid() {
   
-  return id_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* SendLogRequest::release_id() {
-  // @@protoc_insertion_point(field_release:backup.SendLogRequest.id)
-  return id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* SendLogRequest::release_userid() {
+  // @@protoc_insertion_point(field_release:backup.SendLogRequest.userId)
+  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void SendLogRequest::set_allocated_id(std::string* id) {
-  if (id != nullptr) {
+inline void SendLogRequest::set_allocated_userid(std::string* userid) {
+  if (userid != nullptr) {
     
   } else {
     
   }
-  id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), id,
+  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.id)
+  // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.userId)
 }
 
 // bytes data = 2;
@@ -1855,65 +1855,65 @@ inline void SendLogResponse::set_success(bool value) {
 
 // PullBackupKeyRequest
 
-// string id = 1;
-inline void PullBackupKeyRequest::clear_id() {
-  id_.ClearToEmpty();
+// string userId = 1;
+inline void PullBackupKeyRequest::clear_userid() {
+  userid_.ClearToEmpty();
 }
-inline const std::string& PullBackupKeyRequest::id() const {
-  // @@protoc_insertion_point(field_get:backup.PullBackupKeyRequest.id)
-  return _internal_id();
+inline const std::string& PullBackupKeyRequest::userid() const {
+  // @@protoc_insertion_point(field_get:backup.PullBackupKeyRequest.userId)
+  return _internal_userid();
 }
-inline void PullBackupKeyRequest::set_id(const std::string& value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:backup.PullBackupKeyRequest.id)
+inline void PullBackupKeyRequest::set_userid(const std::string& value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:backup.PullBackupKeyRequest.userId)
 }
-inline std::string* PullBackupKeyRequest::mutable_id() {
-  // @@protoc_insertion_point(field_mutable:backup.PullBackupKeyRequest.id)
-  return _internal_mutable_id();
+inline std::string* PullBackupKeyRequest::mutable_userid() {
+  // @@protoc_insertion_point(field_mutable:backup.PullBackupKeyRequest.userId)
+  return _internal_mutable_userid();
 }
-inline const std::string& PullBackupKeyRequest::_internal_id() const {
-  return id_.Get();
+inline const std::string& PullBackupKeyRequest::_internal_userid() const {
+  return userid_.Get();
 }
-inline void PullBackupKeyRequest::_internal_set_id(const std::string& value) {
+inline void PullBackupKeyRequest::_internal_set_userid(const std::string& value) {
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void PullBackupKeyRequest::set_id(std::string&& value) {
+inline void PullBackupKeyRequest::set_userid(std::string&& value) {
   
-  id_.Set(
+  userid_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupKeyRequest.id)
+  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupKeyRequest.userId)
 }
-inline void PullBackupKeyRequest::set_id(const char* value) {
+inline void PullBackupKeyRequest::set_userid(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullBackupKeyRequest.id)
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.PullBackupKeyRequest.userId)
 }
-inline void PullBackupKeyRequest::set_id(const char* value,
+inline void PullBackupKeyRequest::set_userid(const char* value,
     size_t size) {
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupKeyRequest.id)
+  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupKeyRequest.userId)
 }
-inline std::string* PullBackupKeyRequest::_internal_mutable_id() {
+inline std::string* PullBackupKeyRequest::_internal_mutable_userid() {
   
-  return id_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* PullBackupKeyRequest::release_id() {
-  // @@protoc_insertion_point(field_release:backup.PullBackupKeyRequest.id)
-  return id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* PullBackupKeyRequest::release_userid() {
+  // @@protoc_insertion_point(field_release:backup.PullBackupKeyRequest.userId)
+  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void PullBackupKeyRequest::set_allocated_id(std::string* id) {
-  if (id != nullptr) {
+inline void PullBackupKeyRequest::set_allocated_userid(std::string* userid) {
+  if (userid != nullptr) {
     
   } else {
     
   }
-  id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), id,
+  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupKeyRequest.id)
+  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupKeyRequest.userId)
 }
 
 // bytes pakeKey = 2;
@@ -2066,65 +2066,65 @@ inline void PullBackupKeyResponse::set_allocated_encryptedbackupkey(std::string*
 
 // PullCompactionRequest
 
-// string id = 1;
-inline void PullCompactionRequest::clear_id() {
-  id_.ClearToEmpty();
+// string userId = 1;
+inline void PullCompactionRequest::clear_userid() {
+  userid_.ClearToEmpty();
 }
-inline const std::string& PullCompactionRequest::id() const {
-  // @@protoc_insertion_point(field_get:backup.PullCompactionRequest.id)
-  return _internal_id();
+inline const std::string& PullCompactionRequest::userid() const {
+  // @@protoc_insertion_point(field_get:backup.PullCompactionRequest.userId)
+  return _internal_userid();
 }
-inline void PullCompactionRequest::set_id(const std::string& value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:backup.PullCompactionRequest.id)
+inline void PullCompactionRequest::set_userid(const std::string& value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:backup.PullCompactionRequest.userId)
 }
-inline std::string* PullCompactionRequest::mutable_id() {
-  // @@protoc_insertion_point(field_mutable:backup.PullCompactionRequest.id)
-  return _internal_mutable_id();
+inline std::string* PullCompactionRequest::mutable_userid() {
+  // @@protoc_insertion_point(field_mutable:backup.PullCompactionRequest.userId)
+  return _internal_mutable_userid();
 }
-inline const std::string& PullCompactionRequest::_internal_id() const {
-  return id_.Get();
+inline const std::string& PullCompactionRequest::_internal_userid() const {
+  return userid_.Get();
 }
-inline void PullCompactionRequest::_internal_set_id(const std::string& value) {
+inline void PullCompactionRequest::_internal_set_userid(const std::string& value) {
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void PullCompactionRequest::set_id(std::string&& value) {
+inline void PullCompactionRequest::set_userid(std::string&& value) {
   
-  id_.Set(
+  userid_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullCompactionRequest.id)
+  // @@protoc_insertion_point(field_set_rvalue:backup.PullCompactionRequest.userId)
 }
-inline void PullCompactionRequest::set_id(const char* value) {
+inline void PullCompactionRequest::set_userid(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullCompactionRequest.id)
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.PullCompactionRequest.userId)
 }
-inline void PullCompactionRequest::set_id(const char* value,
+inline void PullCompactionRequest::set_userid(const char* value,
     size_t size) {
   
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullCompactionRequest.id)
+  // @@protoc_insertion_point(field_set_pointer:backup.PullCompactionRequest.userId)
 }
-inline std::string* PullCompactionRequest::_internal_mutable_id() {
+inline std::string* PullCompactionRequest::_internal_mutable_userid() {
   
-  return id_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* PullCompactionRequest::release_id() {
-  // @@protoc_insertion_point(field_release:backup.PullCompactionRequest.id)
-  return id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* PullCompactionRequest::release_userid() {
+  // @@protoc_insertion_point(field_release:backup.PullCompactionRequest.userId)
+  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void PullCompactionRequest::set_allocated_id(std::string* id) {
-  if (id != nullptr) {
+inline void PullCompactionRequest::set_allocated_userid(std::string* userid) {
+  if (userid != nullptr) {
     
   } else {
     
   }
-  id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), id,
+  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.PullCompactionRequest.id)
+  // @@protoc_insertion_point(field_set_allocated:backup.PullCompactionRequest.userId)
 }
 
 // bytes message = 2;

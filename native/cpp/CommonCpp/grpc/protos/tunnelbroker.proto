@@ -20,7 +20,7 @@ enum CheckResponseType {
 // TODO: all the requests are the same, maybe there can be a mutual type for all of them
 // leaving this as is for now as there may be some differences
 message CheckRequest {
-  string id = 1;
+  string userId = 1;
   string deviceToken = 2;
 }
 
@@ -31,7 +31,7 @@ message CheckResponse {
 // BecomeNewPrimaryDevice
 
 message NewPrimaryRequest {
-  string id = 1;
+  string userId = 1;
   string deviceToken = 2;
 }
 
@@ -42,7 +42,7 @@ message NewPrimaryResponse {
 // for SendPong
 
 message PongRequest {
-  string id = 1;
+  string userId = 1;
   string deviceToken = 2;
 }
 

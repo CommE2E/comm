@@ -12,7 +12,7 @@ service BackupService {
 // ResetKey
 
 message ResetKeyRequest {
-  string id = 1;
+  string userId = 1;
   oneof data {
     bytes newKey = 2;
     bytes compactionChunk = 3;
@@ -26,7 +26,7 @@ message ResetKeyResponse {
 // SendLog
 
 message SendLogRequest {
-  string id = 1;
+  string userId = 1;
   bytes data = 2;
 }
 
@@ -37,7 +37,7 @@ message SendLogResponse {
 // PullBackupKey
 
 message PullBackupKeyRequest {
-  string id = 1;
+  string userId = 1;
   bytes pakeKey = 2;
 }
 
@@ -49,7 +49,7 @@ message PullBackupKeyResponse {
 // PullCompaction
 
 message PullCompactionRequest {
-  string id = 1;
+  string userId = 1;
   bytes message = 2;
 }
 

@@ -11,7 +11,7 @@ using namespace std::chrono_literals;
 grpc::Status TunnelBrokerServiceImpl::CheckIfPrimaryDeviceOnline(
     grpc::ServerContext *context, const tunnelbroker::CheckRequest *request,
     tunnelbroker::CheckResponse *response) {
-  const std::string id = request->id();
+  const std::string id = request->userid();
   const std::string deviceToken = request->devicetoken();
 
   auto iterator = primaries.find(id);
@@ -50,7 +50,7 @@ grpc::Status TunnelBrokerServiceImpl::BecomeNewPrimaryDevice(
     grpc::ServerContext *context,
     const tunnelbroker::NewPrimaryRequest *request,
     tunnelbroker::NewPrimaryResponse *response) {
-  const std::string id = request->id();
+  const std::string id = request->userid();
   const std::string deviceToken = request->devicetoken();
 
   std::shared_ptr<ping::ClientData> clientData =
@@ -80,7 +80,7 @@ grpc::Status
 TunnelBrokerServiceImpl::SendPong(grpc::ServerContext *context,
                                   const tunnelbroker::PongRequest *request,
                                   tunnelbroker::PongResponse *response) {
-  const std::string id = request->id();
+  const std::string id = request->userid();
   const std::string deviceToken = request->devicetoken();
 
   auto iterator = primaries.find(id);

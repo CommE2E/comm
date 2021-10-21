@@ -19,7 +19,7 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace tunnelbroker {
 constexpr CheckRequest::CheckRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  : userid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , devicetoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct CheckRequestDefaultTypeInternal {
   constexpr CheckRequestDefaultTypeInternal()
@@ -45,7 +45,7 @@ struct CheckResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT CheckResponseDefaultTypeInternal _CheckResponse_default_instance_;
 constexpr NewPrimaryRequest::NewPrimaryRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  : userid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , devicetoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct NewPrimaryRequestDefaultTypeInternal {
   constexpr NewPrimaryRequestDefaultTypeInternal()
@@ -70,7 +70,7 @@ struct NewPrimaryResponseDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NewPrimaryResponseDefaultTypeInternal _NewPrimaryResponse_default_instance_;
 constexpr PongRequest::PongRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  : userid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , devicetoken_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct PongRequestDefaultTypeInternal {
   constexpr PongRequestDefaultTypeInternal()
@@ -103,7 +103,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::tunnelbroker::CheckRequest, id_),
+  PROTOBUF_FIELD_OFFSET(::tunnelbroker::CheckRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::CheckRequest, devicetoken_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::CheckResponse, _internal_metadata_),
@@ -116,7 +116,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewPrimaryRequest, id_),
+  PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewPrimaryRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewPrimaryRequest, devicetoken_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewPrimaryResponse, _internal_metadata_),
@@ -129,7 +129,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::tunnelbroker::PongRequest, id_),
+  PROTOBUF_FIELD_OFFSET(::tunnelbroker::PongRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::PongRequest, devicetoken_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::PongResponse, _internal_metadata_),
@@ -156,28 +156,29 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_tunnelbroker_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\022tunnelbroker.proto\022\014tunnelbroker\"/\n\014Ch"
-  "eckRequest\022\n\n\002id\030\001 \001(\t\022\023\n\013deviceToken\030\002 "
-  "\001(\t\"K\n\rCheckResponse\022:\n\021checkResponseTyp"
-  "e\030\001 \001(\0162\037.tunnelbroker.CheckResponseType"
-  "\"4\n\021NewPrimaryRequest\022\n\n\002id\030\001 \001(\t\022\023\n\013dev"
-  "iceToken\030\002 \001(\t\"%\n\022NewPrimaryResponse\022\017\n\007"
-  "success\030\001 \001(\010\".\n\013PongRequest\022\n\n\002id\030\001 \001(\t"
-  "\022\023\n\013deviceToken\030\002 \001(\t\"\016\n\014PongResponse*n\n"
-  "\021CheckResponseType\022\030\n\024PRIMARY_DOESNT_EXI"
-  "ST\020\000\022\022\n\016PRIMARY_ONLINE\020\001\022\023\n\017PRIMARY_OFFL"
-  "INE\020\002\022\026\n\022CURRENT_IS_PRIMARY\020\0032\222\002\n\023Tunnel"
-  "BrokerService\022W\n\032CheckIfPrimaryDeviceOnl"
-  "ine\022\032.tunnelbroker.CheckRequest\032\033.tunnel"
-  "broker.CheckResponse\"\000\022]\n\026BecomeNewPrima"
-  "ryDevice\022\037.tunnelbroker.NewPrimaryReques"
-  "t\032 .tunnelbroker.NewPrimaryResponse\"\000\022C\n"
-  "\010SendPong\022\031.tunnelbroker.PongRequest\032\032.t"
-  "unnelbroker.PongResponse\"\000b\006proto3"
+  "\n\022tunnelbroker.proto\022\014tunnelbroker\"3\n\014Ch"
+  "eckRequest\022\016\n\006userId\030\001 \001(\t\022\023\n\013deviceToke"
+  "n\030\002 \001(\t\"K\n\rCheckResponse\022:\n\021checkRespons"
+  "eType\030\001 \001(\0162\037.tunnelbroker.CheckResponse"
+  "Type\"8\n\021NewPrimaryRequest\022\016\n\006userId\030\001 \001("
+  "\t\022\023\n\013deviceToken\030\002 \001(\t\"%\n\022NewPrimaryResp"
+  "onse\022\017\n\007success\030\001 \001(\010\"2\n\013PongRequest\022\016\n\006"
+  "userId\030\001 \001(\t\022\023\n\013deviceToken\030\002 \001(\t\"\016\n\014Pon"
+  "gResponse*n\n\021CheckResponseType\022\030\n\024PRIMAR"
+  "Y_DOESNT_EXIST\020\000\022\022\n\016PRIMARY_ONLINE\020\001\022\023\n\017"
+  "PRIMARY_OFFLINE\020\002\022\026\n\022CURRENT_IS_PRIMARY\020"
+  "\0032\222\002\n\023TunnelBrokerService\022W\n\032CheckIfPrim"
+  "aryDeviceOnline\022\032.tunnelbroker.CheckRequ"
+  "est\032\033.tunnelbroker.CheckResponse\"\000\022]\n\026Be"
+  "comeNewPrimaryDevice\022\037.tunnelbroker.NewP"
+  "rimaryRequest\032 .tunnelbroker.NewPrimaryR"
+  "esponse\"\000\022C\n\010SendPong\022\031.tunnelbroker.Pon"
+  "gRequest\032\032.tunnelbroker.PongResponse\"\000b\006"
+  "proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_tunnelbroker_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_tunnelbroker_2eproto = {
-  false, false, 714, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
+  false, false, 726, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
   &descriptor_table_tunnelbroker_2eproto_once, nullptr, 0, 6,
   schemas, file_default_instances, TableStruct_tunnelbroker_2eproto::offsets,
   file_level_metadata_tunnelbroker_2eproto, file_level_enum_descriptors_tunnelbroker_2eproto, file_level_service_descriptors_tunnelbroker_2eproto,
@@ -223,9 +224,9 @@ CheckRequest::CheckRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
 CheckRequest::CheckRequest(const CheckRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_id().empty()) {
-    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
+  userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_userid().empty()) {
+    userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_userid(), 
       GetArena());
   }
   devicetoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -237,7 +238,7 @@ CheckRequest::CheckRequest(const CheckRequest& from)
 }
 
 void CheckRequest::SharedCtor() {
-id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 devicetoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
@@ -249,7 +250,7 @@ CheckRequest::~CheckRequest() {
 
 void CheckRequest::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
-  id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  userid_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   devicetoken_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
@@ -269,7 +270,7 @@ void CheckRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  id_.ClearToEmpty();
+  userid_.ClearToEmpty();
   devicetoken_.ClearToEmpty();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -281,12 +282,12 @@ const char* CheckRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string id = 1;
+      // string userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_id();
+          auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "tunnelbroker.CheckRequest.id"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "tunnelbroker.CheckRequest.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -327,14 +328,14 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string id = 1;
-  if (this->id().size() > 0) {
+  // string userId = 1;
+  if (this->userid().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_id().data(), static_cast<int>(this->_internal_id().length()),
+      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "tunnelbroker.CheckRequest.id");
+      "tunnelbroker.CheckRequest.userId");
     target = stream->WriteStringMaybeAliased(
-        1, this->_internal_id(), target);
+        1, this->_internal_userid(), target);
   }
 
   // string deviceToken = 2;
@@ -363,11 +364,11 @@ size_t CheckRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string id = 1;
-  if (this->id().size() > 0) {
+  // string userId = 1;
+  if (this->userid().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_id());
+        this->_internal_userid());
   }
 
   // string deviceToken = 2;
@@ -408,8 +409,8 @@ void CheckRequest::MergeFrom(const CheckRequest& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.id().size() > 0) {
-    _internal_set_id(from._internal_id());
+  if (from.userid().size() > 0) {
+    _internal_set_userid(from._internal_userid());
   }
   if (from.devicetoken().size() > 0) {
     _internal_set_devicetoken(from._internal_devicetoken());
@@ -437,7 +438,7 @@ bool CheckRequest::IsInitialized() const {
 void CheckRequest::InternalSwap(CheckRequest* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  id_.Swap(&other->id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  userid_.Swap(&other->userid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   devicetoken_.Swap(&other->devicetoken_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 
@@ -651,9 +652,9 @@ NewPrimaryRequest::NewPrimaryRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
 NewPrimaryRequest::NewPrimaryRequest(const NewPrimaryRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_id().empty()) {
-    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
+  userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_userid().empty()) {
+    userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_userid(), 
       GetArena());
   }
   devicetoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -665,7 +666,7 @@ NewPrimaryRequest::NewPrimaryRequest(const NewPrimaryRequest& from)
 }
 
 void NewPrimaryRequest::SharedCtor() {
-id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 devicetoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
@@ -677,7 +678,7 @@ NewPrimaryRequest::~NewPrimaryRequest() {
 
 void NewPrimaryRequest::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
-  id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  userid_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   devicetoken_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
@@ -697,7 +698,7 @@ void NewPrimaryRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  id_.ClearToEmpty();
+  userid_.ClearToEmpty();
   devicetoken_.ClearToEmpty();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -709,12 +710,12 @@ const char* NewPrimaryRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string id = 1;
+      // string userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_id();
+          auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "tunnelbroker.NewPrimaryRequest.id"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "tunnelbroker.NewPrimaryRequest.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -755,14 +756,14 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string id = 1;
-  if (this->id().size() > 0) {
+  // string userId = 1;
+  if (this->userid().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_id().data(), static_cast<int>(this->_internal_id().length()),
+      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "tunnelbroker.NewPrimaryRequest.id");
+      "tunnelbroker.NewPrimaryRequest.userId");
     target = stream->WriteStringMaybeAliased(
-        1, this->_internal_id(), target);
+        1, this->_internal_userid(), target);
   }
 
   // string deviceToken = 2;
@@ -791,11 +792,11 @@ size_t NewPrimaryRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string id = 1;
-  if (this->id().size() > 0) {
+  // string userId = 1;
+  if (this->userid().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_id());
+        this->_internal_userid());
   }
 
   // string deviceToken = 2;
@@ -836,8 +837,8 @@ void NewPrimaryRequest::MergeFrom(const NewPrimaryRequest& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.id().size() > 0) {
-    _internal_set_id(from._internal_id());
+  if (from.userid().size() > 0) {
+    _internal_set_userid(from._internal_userid());
   }
   if (from.devicetoken().size() > 0) {
     _internal_set_devicetoken(from._internal_devicetoken());
@@ -865,7 +866,7 @@ bool NewPrimaryRequest::IsInitialized() const {
 void NewPrimaryRequest::InternalSwap(NewPrimaryRequest* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  id_.Swap(&other->id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  userid_.Swap(&other->userid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   devicetoken_.Swap(&other->devicetoken_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 
@@ -1076,9 +1077,9 @@ PongRequest::PongRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
 PongRequest::PongRequest(const PongRequest& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_id().empty()) {
-    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
+  userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_userid().empty()) {
+    userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_userid(), 
       GetArena());
   }
   devicetoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
@@ -1090,7 +1091,7 @@ PongRequest::PongRequest(const PongRequest& from)
 }
 
 void PongRequest::SharedCtor() {
-id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 devicetoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
@@ -1102,7 +1103,7 @@ PongRequest::~PongRequest() {
 
 void PongRequest::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
-  id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  userid_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   devicetoken_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
@@ -1122,7 +1123,7 @@ void PongRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  id_.ClearToEmpty();
+  userid_.ClearToEmpty();
   devicetoken_.ClearToEmpty();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1134,12 +1135,12 @@ const char* PongRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // string id = 1;
+      // string userId = 1;
       case 1:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
-          auto str = _internal_mutable_id();
+          auto str = _internal_mutable_userid();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "tunnelbroker.PongRequest.id"));
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "tunnelbroker.PongRequest.userId"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -1180,14 +1181,14 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // string id = 1;
-  if (this->id().size() > 0) {
+  // string userId = 1;
+  if (this->userid().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-      this->_internal_id().data(), static_cast<int>(this->_internal_id().length()),
+      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-      "tunnelbroker.PongRequest.id");
+      "tunnelbroker.PongRequest.userId");
     target = stream->WriteStringMaybeAliased(
-        1, this->_internal_id(), target);
+        1, this->_internal_userid(), target);
   }
 
   // string deviceToken = 2;
@@ -1216,11 +1217,11 @@ size_t PongRequest::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // string id = 1;
-  if (this->id().size() > 0) {
+  // string userId = 1;
+  if (this->userid().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
-        this->_internal_id());
+        this->_internal_userid());
   }
 
   // string deviceToken = 2;
@@ -1261,8 +1262,8 @@ void PongRequest::MergeFrom(const PongRequest& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.id().size() > 0) {
-    _internal_set_id(from._internal_id());
+  if (from.userid().size() > 0) {
+    _internal_set_userid(from._internal_userid());
   }
   if (from.devicetoken().size() > 0) {
     _internal_set_devicetoken(from._internal_devicetoken());
@@ -1290,7 +1291,7 @@ bool PongRequest::IsInitialized() const {
 void PongRequest::InternalSwap(PongRequest* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  id_.Swap(&other->id_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  userid_.Swap(&other->userid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   devicetoken_.Swap(&other->devicetoken_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 
