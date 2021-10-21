@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package backup;
+
+service BackupService {
+  rpc ResetKey(stream ResetKeyRequest) returns (ResetKeyResponse) {}
+  rpc SendLog(SendLogRequest) returns (SendLogResponse) {}
+  rpc PullBackupKey(PullBackupKeyRequest) returns (PullBackupKeyResponse) {}
+  rpc PullCompaction(PullCompactionRequest) returns (stream PullCompactionResponse) {}
+}
+
+// ResetKey
+
+message ResetKeyRequest {
+  string id = 1;
+  oneof data {
+    bytes newKey = 2;
+    bytes compactionChunk = 3;
+  }
+}
+
+message ResetKeyResponse {
+  bool success = 1;
+}
+
+// SendLog
+
+message SendLogRequest {
+  string id = 1;
+  bytes data = 2;
+}
+
+message SendLogResponse {
+  bool success = 1;
+}
+
+// PullBackupKey
+
+message PullBackupKeyRequest {
+  string id = 1;
+  bytes pakeKey = 2;
+}
+
+message PullBackupKeyResponse {
+  bool success = 1;
+  bytes encryptedBackupKey = 2;
+}
+
+// PullCompaction
+
+message PullCompactionRequest {
+  string id = 1;
+  bytes message = 2;
+}
+
+message PullCompactionResponse {
+  bytes compactionChunk = 1;
+  bytes logChunk = 2;
+}
