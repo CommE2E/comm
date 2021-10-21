@@ -232,87 +232,27 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
     auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
+    auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
 
     if (op_type == REMOVE_OPERATION) {
-      auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
       messageStoreOps.push_back(
           std::make_unique<RemoveMessagesOperation>(rt, payload_obj));
 
     } else if (op_type == REMOVE_MSGS_FOR_THREADS_OPERATION) {
-      auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
       messageStoreOps.push_back(
           std::make_unique<RemoveMessagesForThreadsOperation>(rt, payload_obj));
 
     } else if (op_type == REPLACE_OPERATION) {
-      auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
-      auto msg_id = msg_obj.getProperty(rt, "id").asString(rt).utf8(rt);
+      messageStoreOps.push_back(
+          std::make_unique<ReplaceMessageOperation>(rt, payload_obj));
 
-      auto maybe_local_id = msg_obj.getProperty(rt, "local_id");
-      auto local_id = maybe_local_id.isString()
-          ? std::make_unique<std::string>(maybe_local_id.asString(rt).utf8(rt))
-          : nullptr;
-
-      auto thread = msg_obj.getProperty(rt, "thread").asString(rt).utf8(rt);
-      auto user = msg_obj.getProperty(rt, "user").asString(rt).utf8(rt);
-      auto type =
-          std::stoi(msg_obj.getProperty(rt, "type").asString(rt).utf8(rt));
-
-      auto maybe_future_type = msg_obj.getProperty(rt, "future_type");
-      auto future_type = maybe_future_type.isString()
-          ? std::make_unique<int>(
-                std::stoi(maybe_future_type.asString(rt).utf8(rt)))
-          : nullptr;
-
-      auto maybe_content = msg_obj.getProperty(rt, "content");
-      auto content = maybe_content.isString()
-          ? std::make_unique<std::string>(maybe_content.asString(rt).utf8(rt))
-          : nullptr;
-
-      auto time =
-          std::stoll(msg_obj.getProperty(rt, "time").asString(rt).utf8(rt));
-      Message message{
-          msg_id,
-          std::move(local_id),
-          thread,
-          user,
-          type,
-          std::move(future_type),
-          std::move(content),
-          time};
-
-      std::vector<Media> media_vector;
-      if (msg_obj.getProperty(rt, "media_infos").isObject()) {
-        auto media_infos =
-            msg_obj.getProperty(rt, "media_infos").asObject(rt).asArray(rt);
-        for (auto media_info_idx = 0; media_info_idx < media_infos.size(rt);
-             media_info_idx++) {
-          auto media_info =
-              media_infos.getValueAtIndex(rt, media_info_idx).asObject(rt);
-          auto media_id =
-              media_info.getProperty(rt, "id").asString(rt).utf8(rt);
-          auto media_uri =
-              media_info.getProperty(rt, "uri").asString(rt).utf8(rt);
-          auto media_type =
-              media_info.getProperty(rt, "type").asString(rt).utf8(rt);
-          auto media_extras =
-              media_info.getProperty(rt, "extras").asString(rt).utf8(rt);
-
-          Media media{
-              media_id, msg_id, thread, media_uri, media_type, media_extras};
-          media_vector.push_back(media);
-        }
-      }
-
-      messageStoreOps.push_back(std::make_shared<ReplaceMessageOperation>(
-          std::move(message), std::move(media_vector)));
     } else if (op_type == REKEY_OPERATION) {
-
-      auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
       messageStoreOps.push_back(
           std::make_unique<RekeyMessageOperation>(rt, payload_obj));
 
     } else if (op_type == REMOVE_ALL_OPERATION) {
       messageStoreOps.push_back(std::make_unique<RemoveAllMessagesOperation>());
+
     } else {
       return createPromiseAsJSIValue(
           rt,
