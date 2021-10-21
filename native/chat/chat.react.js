@@ -47,7 +47,6 @@ import ChatHeader from './chat-header.react';
 import ChatRouter, { type ChatRouterNavigationProp } from './chat-router';
 import ComposeThreadButton from './compose-thread-button.react';
 import ComposeThread from './compose-thread.react';
-import { useMessageListScreenWidth } from './composed-message-width';
 import HomeChatThreadList from './home-chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
@@ -245,7 +244,6 @@ const Chat = createChatNavigator<
 export default function ChatComponent(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const width = useMessageListScreenWidth();
   const loggedIn = useSelector(isLoggedIn);
   let draftUpdater = null;
   if (loggedIn) {
@@ -257,15 +255,12 @@ export default function ChatComponent(props: { ... }): React.Node {
       ...defaultStackScreenOptions,
       header,
       headerLeft: headerBackButton,
-      gestureResponseDistance: {
-        horizontal: width,
-      },
       headerStyle: {
         backgroundColor: colors.tabBarBackground,
         borderBottomWidth: 1,
       },
     }),
-    [colors.tabBarBackground, width],
+    [colors.tabBarBackground],
   );
 
   return (
