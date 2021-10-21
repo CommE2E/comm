@@ -1,4 +1,4 @@
-FROM commapp/tunnelbroker-base:1.0
+FROM commapp/services-base:1.0
 
 ENV SHELL=/bin/bash
 

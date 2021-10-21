@@ -4,6 +4,7 @@
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
+    "build-base-image": "cd .. && ./services/base-image/run.sh && cd -",
     "build-tunnelbroker-base": "cd .. && ./services/tunnelbroker/docker-base/run.sh && cd -",
     "run-tunnelbroker-server": "cd .. && ./services/tunnelbroker/docker-server/run.sh --overwrite && cd -",
     "build-backup-base": "cd .. && ./services/backup/docker-base/run.sh && cd -",
