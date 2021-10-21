@@ -166,10 +166,17 @@ div.app_copy {
   justify-self: left;
 }
 
+.app_copy_wrapper {
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 h1.cycling_header {
   font-family: 'iA Writer Duo S', monospace;
   font-size: 50px;
-  margin-top: 26vh;
+  margin: 0;
   white-space: pre-wrap;
 }
 
@@ -340,7 +347,6 @@ div.body_grid > div + .starting_section {
 
   h1.cycling_header {
     font-size: 38px;
-    margin-top: 20vh;
   }
 }
 
@@ -422,6 +428,10 @@ div.body_grid > div + .starting_section {
   div.app_preview img {
     max-height: 92vh;
     max-width: 96vw;
+  }
+
+  .app_copy_wrapper {
+    height: 30vh;
   }
 
   div.app_copy {

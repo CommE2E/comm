@@ -96,10 +96,13 @@ function AppLanding(): React.Node {
           </picture>
         </div>
         <div className={css.app_copy}>
-          <CyclingHeader />
-          <p className={css.app_landing_subheading}>
-            (think &quot;Web3 Discord&quot;)
-          </p>
+          <div className={css.app_copy_wrapper}>
+            <CyclingHeader />
+            <p className={css.app_landing_subheading}>
+              (think &quot;Web3 Discord&quot;)
+            </p>
+          </div>
+
           <div className={css.tile_grid}>
             <InfoCard
               idx={0}
