@@ -287,7 +287,8 @@ function reducer(state: AppState = defaultState, action: Action) {
     }
   }
 
-  state = baseReducer(state, (action: BaseAction));
+  const baseReducerResult = baseReducer(state, (action: BaseAction));
+  state = baseReducerResult.state;
 
   return fixUnreadActiveThread(state, action);
 }

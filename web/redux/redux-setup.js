@@ -118,7 +118,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
   }
 
   if (action.type !== updateNavInfoActionType) {
-    state = baseReducer(state, action);
+    state = baseReducer(state, action).state;
   }
 
   state = {
