@@ -120,13 +120,6 @@ extern RCTBridge *_bridge_reanimated;
   rootView.loadingViewFadeDelay = 0;
   rootView.loadingViewFadeDuration = 0.001;
 
-  // This sets up the splash screen to display until the JS side is ready for it
-  // to clear
-  EXSplashScreenService *splashScreenService =
-      (EXSplashScreenService *)[UMModuleRegistryProvider
-          getSingletonModuleForClass:[EXSplashScreenService class]];
-  [splashScreenService showSplashScreenFor:rootViewController];
-
   UMNativeModulesProxy *proxy =
       [bridge moduleForClass:[UMNativeModulesProxy class]];
   UMModuleRegistry *moduleRegistry = [proxy umModuleRegistry];
