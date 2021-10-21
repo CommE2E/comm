@@ -16,12 +16,30 @@ import css from './landing.css';
 import StarBackground from './star-background.react';
 
 const screenshots = [
-  'federated-prototype',
-  'customizable-prototype',
-  'e2e-encrypted-prototype',
-  'sovereign-prototype',
-  'open-source-prototype',
-  'less-noisy-prototype',
+  {
+    alt: 'a mobile phone conversation list screen',
+    file: 'federated-prototype',
+  },
+  {
+    alt: 'a mobile phone with customized dashboard screen',
+    file: 'customizable-prototype',
+  },
+  {
+    alt: 'a mobile phone chat conversation screen',
+    file: 'e2e-encrypted-prototype',
+  },
+  {
+    alt: 'a mobile phone user information screen',
+    file: 'sovereign-prototype',
+  },
+  {
+    alt: 'a mobile phone addon app selection screen',
+    file: 'open-source-prototype',
+  },
+  {
+    alt: 'a mobile phone notification options screen',
+    file: 'less-noisy-prototype',
+  },
 ];
 
 const LandingAssetsS3URL = 'https://dh9fld3hutpxf.cloudfront.net';
@@ -37,7 +55,7 @@ function AppLanding(): React.Node {
     testImg.onload = () => {
       for (const imageFileName of screenshots) {
         const image = new Image();
-        image.src = `${LandingAssetsS3URL}/${imageFileName}.webp`;
+        image.src = `${LandingAssetsS3URL}/${imageFileName.file}.webp`;
       }
     };
 
@@ -45,7 +63,7 @@ function AppLanding(): React.Node {
     testImg.onerror = () => {
       for (const imageFileName of screenshots) {
         const image = new Image();
-        image.src = `${LandingAssetsS3URL}/${imageFileName}.png`;
+        image.src = `${LandingAssetsS3URL}/${imageFileName.file}.png`;
       }
     };
 
@@ -64,14 +82,17 @@ function AppLanding(): React.Node {
         <div className={css.app_preview}>
           <picture>
             <source
-              srcSet={`${LandingAssetsS3URL}/${screenshots[imageIdx]}.webp`}
+              srcSet={`${LandingAssetsS3URL}/${screenshots[imageIdx].file}.webp`}
               type="image/webp"
             />
             <source
-              srcSet={`${LandingAssetsS3URL}/${screenshots[imageIdx]}.png`}
+              srcSet={`${LandingAssetsS3URL}/${screenshots[imageIdx].file}.png`}
               type="image/png"
             />
-            <img src={`${LandingAssetsS3URL}/${screenshots[imageIdx]}.png`} />
+            <img
+              src={`${LandingAssetsS3URL}/${screenshots[imageIdx].file}.png`}
+              alt={screenshots[imageIdx].alt}
+            />
           </picture>
         </div>
         <div className={css.app_copy}>
