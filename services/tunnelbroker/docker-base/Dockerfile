@@ -1,12 +1,14 @@
-FROM ubuntu:20.04
+FROM alpine:3.14
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SHELL=/bin/bash
 
+WORKDIR /
+
 COPY services/tunnelbroker/contents /transferred
 
-RUN apt update -y &&\
-    apt install -y cmake git build-essential autoconf libtool pkg-config libboost-all-dev libfmt-dev &&\
+RUN apk update &&\
+    apk add bash cmake git build-base autoconf libtool pkgconfig boost-dev fmt &&\
     cd /usr/lib &&\
     git clone https://github.com/facebook/folly.git --branch v2020.01.13.00 --single-branch &&\
     git clone https://github.com/google/glog.git --branch v0.4.0 --single-branch &&\
