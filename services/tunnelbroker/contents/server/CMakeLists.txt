@@ -31,6 +31,7 @@ set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
 
 add_subdirectory(./lib/glog)
 
+file(GLOB SOURCE_CODE "./src/*.cpp")
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 
@@ -43,6 +44,7 @@ add_definitions(
 )
 
 include_directories(
+  ./src
   ./_generated
   ./lib/folly
   ./lib/double-conversion
@@ -94,7 +96,7 @@ add_executable(
   
   ${GENERATED_CODE}
   
-  src/server.cpp
+  ${SOURCE_CODE}
 )
 
 target_link_libraries(
