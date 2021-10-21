@@ -340,7 +340,7 @@ def getPassword(String keyLabel) {
         commandLine 'security',
             'find-generic-password',
             '-wl', keyLabel,
-            '-a', 'ashoat'
+            '-a', System.properties['user.name']
         standardOutput = stdout
         ignoreExitValue true
     }
