@@ -35,16 +35,26 @@ private:
 
 class RemoveMessagesForThreadsOperation : public MessageStoreOperationBase {
 public:
-  RemoveMessagesForThreadsOperation(std::vector<std::string> ids) : ids{ids} {
+  RemoveMessagesForThreadsOperation(
+      jsi::Runtime &rt,
+      const jsi::Object &payload)
+      : thread_ids{} {
+    auto payload_ids =
+        payload.getProperty(rt, "threadIDs").asObject(rt).asArray(rt);
+    for (size_t idx = 0; idx < payload_ids.size(rt); idx++) {
+      this->thread_ids.push_back(
+          payload_ids.getValueAtIndex(rt, idx).asString(rt).utf8(rt));
+    }
   }
 
   virtual void execute() override {
-    DatabaseManager::getQueryExecutor().removeMessagesForThreads(this->ids);
-    DatabaseManager::getQueryExecutor().removeMediaForThreads(this->ids);
+    DatabaseManager::getQueryExecutor().removeMessagesForThreads(
+        this->thread_ids);
+    DatabaseManager::getQueryExecutor().removeMediaForThreads(this->thread_ids);
   }
 
 private:
-  const std::vector<std::string> ids;
+  std::vector<std::string> thread_ids;
 };
 
 class ReplaceMessageOperation : public MessageStoreOperationBase {

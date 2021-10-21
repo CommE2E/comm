@@ -239,18 +239,10 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
           std::make_unique<RemoveMessagesOperation>(rt, payload_obj));
 
     } else if (op_type == REMOVE_MSGS_FOR_THREADS_OPERATION) {
-      std::vector<std::string> threads_to_remove_msgs_from;
       auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
-      auto thread_ids =
-          payload_obj.getProperty(rt, "threadIDs").asObject(rt).asArray(rt);
-      for (auto thread_idx = 0; thread_idx < thread_ids.size(rt);
-           thread_idx++) {
-        threads_to_remove_msgs_from.push_back(
-            thread_ids.getValueAtIndex(rt, thread_idx).asString(rt).utf8(rt));
-      }
       messageStoreOps.push_back(
-          std::make_shared<RemoveMessagesForThreadsOperation>(
-              std::move(threads_to_remove_msgs_from)));
+          std::make_unique<RemoveMessagesForThreadsOperation>(rt, payload_obj));
+
     } else if (op_type == REPLACE_OPERATION) {
       auto msg_obj = op.getProperty(rt, "payload").asObject(rt);
       auto msg_id = msg_obj.getProperty(rt, "id").asString(rt).utf8(rt);

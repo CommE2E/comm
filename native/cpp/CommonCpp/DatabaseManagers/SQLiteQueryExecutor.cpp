@@ -361,7 +361,7 @@ void SQLiteQueryExecutor::removeMessages(
 }
 
 void SQLiteQueryExecutor::removeMessagesForThreads(
-    std::vector<std::string> threadIDs) const {
+    const std::vector<std::string> &threadIDs) const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>(
       where(in(&Message::thread, threadIDs)));
 }
@@ -388,7 +388,7 @@ void SQLiteQueryExecutor::removeMediaForMessages(
 }
 
 void SQLiteQueryExecutor::removeMediaForThreads(
-    std::vector<std::string> thread_ids) const {
+    const std::vector<std::string> &thread_ids) const {
   SQLiteQueryExecutor::getStorage().remove_all<Media>(
       where(in(&Media::thread, thread_ids)));
 }
