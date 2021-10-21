@@ -1,6 +1,7 @@
 // @flow
 
 import { AppState as NativeAppState, Platform, Alert } from 'react-native';
+import ExitApp from 'react-native-exit-app';
 import Orientation from 'react-native-orientation-locker';
 import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
@@ -11,6 +12,7 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
   logInActionTypes,
+  sqliteOpFailure,
 } from 'lib/actions/user-actions';
 import baseReducer from 'lib/reducers/master-reducer';
 import {
@@ -28,6 +30,7 @@ import {
 import { updateTypes } from 'lib/types/update-types';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
+import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
 
 import { defaultNavInfo } from '../navigation/default-state';
 import { getGlobalNavContext } from '../navigation/icky-global';
@@ -289,6 +292,39 @@ function reducer(state: AppState = defaultState, action: Action) {
 
   const baseReducerResult = baseReducer(state, (action: BaseAction));
   state = baseReducerResult.state;
+  const {
+    storeOperations: { threadStoreOperations },
+  } = baseReducerResult;
+  if (threadStoreOperations.length > 0) {
+    const operations = convertThreadStoreOperationsToClientDBOperations(
+      threadStoreOperations,
+    );
+    (async () => {
+      try {
+        await global.CommCoreModule.processThreadStoreOperations(operations);
+      } catch {
+        dispatch({
+          type: setNewSessionActionType,
+          payload: {
+            sessionChange: {
+              cookie: null,
+              cookieInvalidated: false,
+              currentUserInfo: state.currentUserInfo,
+            },
+            preRequestUserState: {
+              currentUserInfo: state.currentUserInfo,
+              sessionID: undefined,
+              cookie: state.cookie,
+            },
+            error: null,
+            source: sqliteOpFailure,
+          },
+        });
+        await persistor.flush();
+        ExitApp.exitApp();
+      }
+    })();
+  }
 
   return fixUnreadActiveThread(state, action);
 }
