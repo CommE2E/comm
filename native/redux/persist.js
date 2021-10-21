@@ -14,6 +14,7 @@ import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { messageTypes } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
+import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
 
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { defaultDeviceCameraInfo } from '../types/camera';
@@ -319,6 +320,25 @@ const migrations = {
         threadInfos: updatedThreadInfos,
       },
     };
+  },
+  [30]: (state: AppState) => {
+    const threadInfos = state.threadStore.threadInfos;
+    const operations = [
+      {
+        type: 'remove_all',
+      },
+      ...Object.keys(threadInfos).map((id: string) => ({
+        type: 'replace',
+        payload: { id, threadInfo: threadInfos[id] },
+      })),
+    ];
+    const processingResult: boolean = global.CommCoreModule.processThreadStoreOperationsSync(
+      convertThreadStoreOperationsToClientDBOperations(operations),
+    );
+    if (!processingResult) {
+      return { ...state, cookie: null };
+    }
+    return state;
   },
 };
 
