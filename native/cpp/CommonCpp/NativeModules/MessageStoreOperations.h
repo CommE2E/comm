@@ -9,6 +9,7 @@ namespace comm {
 class MessageStoreOperationBase {
 public:
   virtual void execute() = 0;
+  virtual ~MessageStoreOperationBase(){};
 };
 
 class RemoveMessagesOperation : public MessageStoreOperationBase {

@@ -9,6 +9,7 @@ namespace comm {
 class ThreadStoreOperationBase {
 public:
   virtual void execute() = 0;
+  virtual ~ThreadStoreOperationBase(){};
 };
 
 class RemoveThreadsOperation : public ThreadStoreOperationBase {
