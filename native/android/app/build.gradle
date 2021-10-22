@@ -153,17 +153,25 @@ task copyGrpc(dependsOn: dependenciesPath ? [] : [downloadGrpc], type: Copy) {
     into("$thirdPartyNdkDir/grpc")
 }
 
+def grpcDir = "${thirdPartyNdkDir}/grpc/grpc-${GRPC_VERSION}"
 task prepareGrpc(dependsOn: copyGrpc, type: GitModules) {
-    gitmodulesFile(new File("${thirdPartyNdkDir}/grpc/grpc-${GRPC_VERSION}/.gitmodules"))
-    outputDir(new File("${thirdPartyNdkDir}/grpc/grpc-${GRPC_VERSION}"))
+    gitmodulesFile(new File("${grpcDir}/.gitmodules"))
+    outputDir(new File("${grpcDir}"))
     // Skip the boringSSL module as we use OpenSSL
-    skipModules(["third_party/boringssl-with-bazel"])
+    skipModules([
+        "third_party/boringssl-with-bazel"
+    ])
     // Needs to override/provide some module branches
     // for the gRPC version compatibility
     moduleBranch([
         "third_party/cares/cares": "cares-1_13_0",
         "third_party/abseil-cpp": "lts_2021_03_24",
         "third_party/protobuf": "v3.15.8"
+    ])
+    // We need to move 'zconf.h' because it modifies on the compilation stage
+    // and makes the 'outputDir' not as UP-TO-DATE
+    runAfter([
+        "mv ${grpcDir}/third_party/zlib/zconf.h ${grpcDir}/third_party/zlib/zconf.h.included"
     ])
 }
 

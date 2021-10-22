@@ -17,6 +17,7 @@ import org.gradle.api.tasks.TaskAction
  * @param outputDir - Directory where to clone modules
  * @param [skipModules=[]] - Submodules paths to skip while cloning
  * @param [moduleBranch=[:]] - Overwrite module branch
+ * @param [runAfter=[]] - Run shell commands after cloning
  */
 class GitModules extends DefaultTask {
 
@@ -31,6 +32,9 @@ class GitModules extends DefaultTask {
 
     @Input
     def Map moduleBranch = [:]
+
+    @Input
+    def runAfter = []
 
     // Parsing .gitmodules file to the
     // submodules map object
@@ -110,10 +114,25 @@ class GitModules extends DefaultTask {
         }
     }
 
+    // Run commands after the cloning process if needed
+    def runCommandsAfter() {
+        runAfter.each { command ->
+            def proc = command.execute()
+            proc.waitFor()
+            // Throw an error if the command run was unsuccessfull
+            if (proc.exitValue() != 0) {
+                throw new GradleException(
+                    "Error while run command: ${command}"
+                )
+            }
+        }
+    }
+
     @TaskAction
     def updateSubmodules() {
         final Map modulesMap = loadFromGitModules()
         cloneSubmodules(modulesMap)
+        runCommandsAfter()
     }
 
 }
