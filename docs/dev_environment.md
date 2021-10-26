@@ -39,6 +39,14 @@ brew install node; brew upgrade node
 
 The reason we use both `install` and `upgrade` is that there’s no single Homebrew command equivalent to “install if not installed, and upgrade if already installed”.
 
+## PHP
+
+[PHP](https://www.php.net) is needed for both Arcanist and PHPMyAdmin. As of macOS 12 (Monterrey), PHP is no longer bundled with the OS and needs to be installed via Homebrew.
+
+```
+brew install php; brew upgrade php
+```
+
 ## Yarn
 
 We use the [Yarn](https://yarnpkg.com/) package manager for JavaScript in our repo.
