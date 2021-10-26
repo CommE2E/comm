@@ -42,6 +42,7 @@ public:
   virtual void
   removeMediaForThreads(const std::vector<std::string> &thread_ids) const = 0;
   virtual void replaceMedia(const Media &media) const = 0;
+  virtual void rekeyMediaContainers(std::string from, std::string to) const = 0;
   virtual std::vector<Thread> getAllThreads() const = 0;
   virtual void removeThreads(std::vector<std::string> ids) const = 0;
   virtual void replaceThread(const Thread &thread) const = 0;

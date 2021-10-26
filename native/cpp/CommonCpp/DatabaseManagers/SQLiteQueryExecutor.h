@@ -34,6 +34,7 @@ public:
   void removeMediaForThreads(
       const std::vector<std::string> &thread_ids) const override;
   void replaceMedia(const Media &media) const override;
+  void rekeyMediaContainers(std::string from, std::string to) const override;
   std::vector<Thread> getAllThreads() const override;
   void removeThreads(std::vector<std::string> ids) const override;
   void replaceThread(const Thread &thread) const override;

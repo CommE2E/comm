@@ -397,6 +397,12 @@ void SQLiteQueryExecutor::replaceMedia(const Media &media) const {
   SQLiteQueryExecutor::getStorage().replace(media);
 }
 
+void SQLiteQueryExecutor::rekeyMediaContainers(std::string from, std::string to)
+    const {
+  SQLiteQueryExecutor::getStorage().update_all(
+      set(c(&Media::container) = to), where(c(&Media::container) == from));
+}
+
 std::vector<Thread> SQLiteQueryExecutor::getAllThreads() const {
   return SQLiteQueryExecutor::getStorage().get_all<Thread>();
 };

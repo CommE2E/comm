@@ -141,6 +141,8 @@ public:
 
   virtual void execute() override {
     DatabaseManager::getQueryExecutor().rekeyMessage(this->from, this->to);
+    DatabaseManager::getQueryExecutor().rekeyMediaContainers(
+        this->from, this->to);
   }
 
 private:
