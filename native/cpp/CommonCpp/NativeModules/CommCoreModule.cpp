@@ -170,15 +170,17 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
           } catch (std::system_error &e) {
             error = e.what();
           }
+          auto messagesVectorPtr =
+              std::make_shared<std::vector<Message>>(std::move(messagesVector));
           this->jsInvoker_->invokeAsync(
-              [&messagesVector, &innerRt, promise, error, numMessages]() {
+              [messagesVectorPtr, &innerRt, promise, error, numMessages]() {
                 if (error.size()) {
                   promise->reject(error);
                   return;
                 }
                 jsi::Array jsiMessages = jsi::Array(innerRt, numMessages);
                 size_t writeIndex = 0;
-                for (const Message &message : messagesVector) {
+                for (const Message &message : *messagesVectorPtr) {
                   auto jsiMessage = jsi::Object(innerRt);
                   jsiMessage.setProperty(innerRt, "id", message.id);
 
