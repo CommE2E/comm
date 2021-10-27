@@ -23,49 +23,49 @@ import type { CustomServerModalParams } from '../profile/custom-server-modal.rea
 import type { RelationshipListItemTooltipModalParams } from '../profile/relationship-list-item-tooltip-modal.react';
 import type { ActionResultModalParams } from './action-result-modal.react';
 
+export const ActionResultModalRouteName = 'ActionResultModal';
+export const AddUsersModalRouteName = 'AddUsersModal';
+export const AppearancePreferencesRouteName = 'AppearancePreferences';
 export const AppRouteName = 'App';
-export const TabNavigatorRouteName = 'TabNavigator';
-export const ComposeThreadRouteName = 'ComposeThread';
-export const DeleteThreadRouteName = 'DeleteThread';
-export const ThreadSettingsRouteName = 'ThreadSettings';
-export const MessageListRouteName = 'MessageList';
-export const LoggedOutModalRouteName = 'LoggedOutModal';
-export const ProfileRouteName = 'Profile';
 export const AppsRouteName = 'Apps';
+export const BackgroundChatThreadListRouteName = 'BackgroundChatThreadList';
+export const BlockListRouteName = 'BlockList';
+export const BuildInfoRouteName = 'BuildInfo';
+export const CalendarRouteName = 'Calendar';
+export const CameraModalRouteName = 'CameraModal';
+export const ChatRouteName = 'Chat';
+export const ChatThreadListRouteName = 'ChatThreadList';
+export const ColorPickerModalRouteName = 'ColorPickerModal';
+export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
+export const ComposeThreadRouteName = 'ComposeThread';
+export const CustomServerModalRouteName = 'CustomServerModal';
+export const DeleteAccountRouteName = 'DeleteAccount';
+export const DeleteThreadRouteName = 'DeleteThread';
+export const DevToolsRouteName = 'DevTools';
+export const EditPasswordRouteName = 'EditPassword';
+export const FriendListRouteName = 'FriendList';
+export const HomeChatThreadListRouteName = 'HomeChatThreadList';
+export const ImageModalRouteName = 'ImageModal';
+export const ImagePasteModalRouteName = 'ImagePasteModal';
+export const LoggedOutModalRouteName = 'LoggedOutModal';
+export const MessageListRouteName = 'MessageList';
+export const MultimediaMessageTooltipModalRouteName =
+  'MultimediaMessageTooltipModal';
+export const PrivacyPreferencesRouteName = 'PrivacyPreferences';
+export const ProfileRouteName = 'Profile';
 export const ProfileScreenRouteName = 'ProfileScreen';
 export const RelationshipListItemTooltipModalRouteName =
   'RelationshipListItemTooltipModal';
-export const ChatRouteName = 'Chat';
-export const ChatThreadListRouteName = 'ChatThreadList';
-export const HomeChatThreadListRouteName = 'HomeChatThreadList';
-export const BackgroundChatThreadListRouteName = 'BackgroundChatThreadList';
-export const CalendarRouteName = 'Calendar';
-export const BuildInfoRouteName = 'BuildInfo';
-export const DeleteAccountRouteName = 'DeleteAccount';
-export const DevToolsRouteName = 'DevTools';
-export const EditPasswordRouteName = 'EditPassword';
-export const AppearancePreferencesRouteName = 'AppearancePreferences';
-export const PrivacyPreferencesRouteName = 'PrivacyPreferences';
-export const ThreadPickerModalRouteName = 'ThreadPickerModal';
-export const AddUsersModalRouteName = 'AddUsersModal';
-export const CustomServerModalRouteName = 'CustomServerModal';
-export const ColorPickerModalRouteName = 'ColorPickerModal';
-export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
-export const ImageModalRouteName = 'ImageModal';
-export const MultimediaMessageTooltipModalRouteName =
-  'MultimediaMessageTooltipModal';
-export const ActionResultModalRouteName = 'ActionResultModal';
-export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
-export const ThreadSettingsMemberTooltipModalRouteName =
-  'ThreadSettingsMemberTooltipModal';
-export const CameraModalRouteName = 'CameraModal';
-export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
-export const FriendListRouteName = 'FriendList';
-export const BlockListRouteName = 'BlockList';
-export const SidebarListModalRouteName = 'SidebarListModal';
-export const ImagePasteModalRouteName = 'ImagePasteModal';
 export const RobotextMessageTooltipModalRouteName =
   'RobotextMessageTooltipModal';
+export const SidebarListModalRouteName = 'SidebarListModal';
+export const TabNavigatorRouteName = 'TabNavigator';
+export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
+export const ThreadPickerModalRouteName = 'ThreadPickerModal';
+export const ThreadSettingsMemberTooltipModalRouteName =
+  'ThreadSettingsMemberTooltipModal';
+export const ThreadSettingsRouteName = 'ThreadSettings';
+export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
 
 export type RootParamList = {
   +LoggedOutModal: void,
