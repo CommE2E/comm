@@ -337,8 +337,29 @@ task prepareExternalLibs {
     dependsOn prebuildOpenSSL
 }
 
-afterEvaluate {
-    preBuild.dependsOn(prepareExternalLibs)
+// Removes the '.cxx' directory to prevent running
+// ninja clean when the 'clean' command is executed
+task removeCXX(type: Exec) {
+    commandLine 'rm', '-rf', '.cxx'
+}
+
+// Bind preBuild dependencies only if not 'clean' running
+if (!isCleanRunning()) {
+    afterEvaluate {
+        preBuild.dependsOn(prepareExternalLibs)
+    }
+}
+
+// Run removing CXX task before the clean execution
+beforeEvaluate {
+    clean.dependsOn(removeCXX)
+}
+
+// Detects are we running the 'clean' commands
+def isCleanRunning() {
+    gradle.startParameter.taskRequests.any {
+        !it.args.isEmpty() && it.args.first().startsWith('clean')
+    }
 }
 
 // Release keystore via macOS Keychain Access
