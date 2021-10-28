@@ -350,8 +350,72 @@ void SQLiteQueryExecutor::removeAllMessages() const {
   SQLiteQueryExecutor::getStorage().remove_all<Message>();
 }
 
-std::vector<Message> SQLiteQueryExecutor::getAllMessages() const {
-  return SQLiteQueryExecutor::getStorage().get_all<Message>();
+std::vector<std::pair<Message, std::vector<Media>>>
+SQLiteQueryExecutor::getAllMessages() const {
+
+  auto rows = SQLiteQueryExecutor::getStorage().select(
+      columns(
+          &Message::id,
+          &Message::local_id,
+          &Message::thread,
+          &Message::user,
+          &Message::type,
+          &Message::future_type,
+          &Message::content,
+          &Message::time,
+          &Media::id,
+          &Media::container,
+          &Media::thread,
+          &Media::uri,
+          &Media::type,
+          &Media::extras),
+      left_join<Media>(on(c(&Message::id) == &Media::container)),
+      order_by(&Message::id));
+
+  std::vector<std::pair<Message, std::vector<Media>>> allMessages;
+  allMessages.reserve(rows.size());
+
+  std::string prev_msg_idx{};
+  for (auto &row : rows) {
+    auto msg_id = std::get<0>(row);
+    if (msg_id == prev_msg_idx) {
+      allMessages.back().second.push_back(Media{
+          std::get<8>(row),
+          std::move(std::get<9>(row)),
+          std::move(std::get<10>(row)),
+          std::move(std::get<11>(row)),
+          std::move(std::get<12>(row)),
+          std::move(std::get<13>(row)),
+      });
+    } else {
+      std::vector<Media> mediaForMsg;
+      if (!std::get<8>(row).empty()) {
+        mediaForMsg.push_back(Media{
+            std::get<8>(row),
+            std::move(std::get<9>(row)),
+            std::move(std::get<10>(row)),
+            std::move(std::get<11>(row)),
+            std::move(std::get<12>(row)),
+            std::move(std::get<13>(row)),
+        });
+      }
+      allMessages.push_back(std::make_pair(
+          Message{
+              msg_id,
+              std::move(std::get<1>(row)),
+              std::move(std::get<2>(row)),
+              std::move(std::get<3>(row)),
+              std::get<4>(row),
+              std::move(std::get<5>(row)),
+              std::move(std::get<6>(row)),
+              std::get<7>(row)},
+          mediaForMsg));
+
+      prev_msg_idx = msg_id;
+    }
+  }
+
+  return allMessages;
 }
 
 void SQLiteQueryExecutor::removeMessages(

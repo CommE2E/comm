@@ -162,7 +162,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
-          std::vector<Message> messagesVector;
+          std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
           size_t numMessages;
           try {
             messagesVector =
@@ -171,8 +171,9 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
           } catch (std::system_error &e) {
             error = e.what();
           }
-          auto messagesVectorPtr =
-              std::make_shared<std::vector<Message>>(std::move(messagesVector));
+          auto messagesVectorPtr = std::make_shared<
+              std::vector<std::pair<Message, std::vector<Media>>>>(
+              std::move(messagesVector));
           this->jsInvoker_->invokeAsync(
               [messagesVectorPtr, &innerRt, promise, error, numMessages]() {
                 if (error.size()) {
@@ -181,7 +182,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
                 }
                 jsi::Array jsiMessages = jsi::Array(innerRt, numMessages);
                 size_t writeIndex = 0;
-                for (const Message &message : *messagesVectorPtr) {
+                for (const auto &[message, media] : *messagesVectorPtr) {
                   auto jsiMessage = jsi::Object(innerRt);
                   jsiMessage.setProperty(innerRt, "id", message.id);
 

@@ -30,7 +30,8 @@ public:
   virtual std::vector<Draft> getAllDrafts() const = 0;
   virtual void removeAllDrafts() const = 0;
   virtual void removeAllMessages() const = 0;
-  virtual std::vector<Message> getAllMessages() const = 0;
+  virtual std::vector<std::pair<Message, std::vector<Media>>>
+  getAllMessages() const = 0;
   virtual void removeMessages(const std::vector<std::string> &ids) const = 0;
   virtual void
   removeMessagesForThreads(const std::vector<std::string> &threadIDs) const = 0;

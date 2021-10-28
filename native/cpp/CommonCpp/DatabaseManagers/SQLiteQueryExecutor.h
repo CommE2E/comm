@@ -22,7 +22,8 @@ public:
   std::vector<Draft> getAllDrafts() const override;
   void removeAllDrafts() const override;
   void removeAllMessages() const override;
-  std::vector<Message> getAllMessages() const override;
+  std::vector<std::pair<Message, std::vector<Media>>>
+  getAllMessages() const override;
   void removeMessages(const std::vector<std::string> &ids) const override;
   void removeMessagesForThreads(
       const std::vector<std::string> &threadIDs) const override;
