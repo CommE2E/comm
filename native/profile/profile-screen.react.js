@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { View, Text, Alert, Platform, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
@@ -18,6 +17,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
+import ActionRow from '../components/action-row.react';
 import Button from '../components/button.react';
 import EditSettingButton from '../components/edit-setting-button.react';
 import { SingleLine } from '../components/single-line.react';
@@ -50,6 +50,7 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
 };
+
 class ProfileScreen extends React.PureComponent<Props> {
   get username() {
     return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
@@ -66,10 +67,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    const {
-      panelIosHighlightUnderlay: underlay,
-      navigationChevron,
-    } = this.props.colors;
+    const { panelIosHighlightUnderlay: underlay } = this.props.colors;
 
     let appearancePreferences, developerTools;
     if (
@@ -77,28 +75,10 @@ class ProfileScreen extends React.PureComponent<Props> {
       __DEV__
     ) {
       appearancePreferences = (
-        <Button
-          onPress={this.onPressAppearance}
-          style={this.props.styles.submenuButton}
-          iosFormat="highlight"
-          iosHighlightUnderlayColor={underlay}
-          iosActiveOpacity={0.85}
-        >
-          <Text style={this.props.styles.submenuText}>Appearance</Text>
-          <Icon name="ios-arrow-forward" size={20} color={navigationChevron} />
-        </Button>
+        <ActionRow content="Appearance" onPress={this.onPressAppearance} />
       );
       developerTools = (
-        <Button
-          onPress={this.onPressDevTools}
-          style={this.props.styles.submenuButton}
-          iosFormat="highlight"
-          iosHighlightUnderlayColor={underlay}
-          iosActiveOpacity={0.85}
-        >
-          <Text style={this.props.styles.submenuText}>Developer tools</Text>
-          <Icon name="ios-arrow-forward" size={20} color={navigationChevron} />
-        </Button>
+        <ActionRow content="Developer tools" onPress={this.onPressDevTools} />
       );
     }
 
@@ -142,70 +122,18 @@ class ProfileScreen extends React.PureComponent<Props> {
             </View>
           </View>
           <View style={this.props.styles.section}>
-            <Button
-              onPress={this.onPressFriendList}
-              style={this.props.styles.submenuButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlay}
-              iosActiveOpacity={0.85}
-            >
-              <Text style={this.props.styles.submenuText}>Friend list</Text>
-              <Icon
-                name="ios-arrow-forward"
-                size={20}
-                color={navigationChevron}
-              />
-            </Button>
-            <Button
-              onPress={this.onPressBlockList}
-              style={this.props.styles.submenuButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlay}
-              iosActiveOpacity={0.85}
-            >
-              <Text style={this.props.styles.submenuText}>Block list</Text>
-              <Icon
-                name="ios-arrow-forward"
-                size={20}
-                color={navigationChevron}
-              />
-            </Button>
+            <ActionRow content="Friend list" onPress={this.onPressFriendList} />
+            <ActionRow content="Block list" onPress={this.onPressBlockList} />
           </View>
 
           <Text style={this.props.styles.header}>PREFERENCES</Text>
           <View style={this.props.styles.section}>
             {appearancePreferences}
-            <Button
-              onPress={this.onPressPrivacy}
-              style={this.props.styles.submenuButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlay}
-              iosActiveOpacity={0.85}
-            >
-              <Text style={this.props.styles.submenuText}>Privacy</Text>
-              <Icon
-                name="ios-arrow-forward"
-                size={20}
-                color={navigationChevron}
-              />
-            </Button>
+            <ActionRow content="Privacy" onPress={this.onPressPrivacy} />
           </View>
 
           <View style={this.props.styles.section}>
-            <Button
-              onPress={this.onPressBuildInfo}
-              style={this.props.styles.submenuButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlay}
-              iosActiveOpacity={0.85}
-            >
-              <Text style={this.props.styles.submenuText}>Build info</Text>
-              <Icon
-                name="ios-arrow-forward"
-                size={20}
-                color={navigationChevron}
-              />
-            </Button>
+            <ActionRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
           </View>
           <View style={this.props.styles.unpaddedSection}>
