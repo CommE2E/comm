@@ -1,6 +1,6 @@
 // @flow
 
-import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
+import { locallyUniqueToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 
 import type { Action } from '../redux/redux-setup';
@@ -21,10 +21,12 @@ export default function reduceNavInfo(
 
   const { activeChatThreadID } = state;
   if (activeChatThreadID) {
-    const pendingToRealizedThreadIDs = pendingToRealizedThreadIDsSelector(
+    const locallyUniqueToRealizedThreadIDs = locallyUniqueToRealizedThreadIDsSelector(
       newThreadInfos,
     );
-    const realizedThreadID = pendingToRealizedThreadIDs.get(activeChatThreadID);
+    const realizedThreadID = locallyUniqueToRealizedThreadIDs.get(
+      activeChatThreadID,
+    );
     if (realizedThreadID) {
       state = {
         ...state,

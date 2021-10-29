@@ -29,7 +29,7 @@ import {
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
 import { getNextLocalUploadID } from 'lib/media/media-utils';
-import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
+import { locallyUniqueToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
 import {
   createMediaMessageInfo,
   localIDPrefix,
@@ -87,7 +87,7 @@ type Props = {
   +viewerID: ?string,
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
   +exifRotate: boolean,
-  +pendingToRealizedThreadIDs: $ReadOnlyMap<string, string>,
+  +locallyUniqueRealizedThreadIDs: $ReadOnlyMap<string, string>,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
   +calendarQuery: () => CalendarQuery,
@@ -131,7 +131,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let updated = false;
     for (const threadID in state) {
       const newThreadID =
-        props.pendingToRealizedThreadIDs.get(threadID) ?? threadID;
+        props.locallyUniqueRealizedThreadIDs.get(threadID) ?? threadID;
       if (newThreadID !== threadID) {
         updated = true;
       }
@@ -503,7 +503,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   );
 
   getRealizedOrPendingThreadID(threadID: string): string {
-    return this.props.pendingToRealizedThreadIDs.get(threadID) ?? threadID;
+    return this.props.locallyUniqueRealizedThreadIDs.get(threadID) ?? threadID;
   }
 
   async appendFiles(
@@ -1234,8 +1234,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
     const messageStoreMessages = useSelector(
       state => state.messageStore.messages,
     );
-    const pendingToRealizedThreadIDs = useSelector(state =>
-      pendingToRealizedThreadIDsSelector(state.threadStore.threadInfos),
+    const locallyUniqueToRealizedThreadIDs = useSelector(state =>
+      locallyUniqueToRealizedThreadIDsSelector(state.threadStore.threadInfos),
     );
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const callUploadMultimedia = useServerCall(uploadMultimedia);
@@ -1253,7 +1253,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
         viewerID={viewerID}
         messageStoreMessages={messageStoreMessages}
         exifRotate={exifRotate}
-        pendingToRealizedThreadIDs={pendingToRealizedThreadIDs}
+        locallyUniqueRealizedThreadIDs={locallyUniqueToRealizedThreadIDs}
         calendarQuery={calendarQuery}
         uploadMultimedia={callUploadMultimedia}
         deleteUpload={callDeleteUpload}
