@@ -209,6 +209,22 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
 
                   jsiMessage.setProperty(
                       innerRt, "time", std::to_string(message.time));
+
+                  size_t media_idx = 0;
+                  jsi::Array jsiMediaArray = jsi::Array(innerRt, media.size());
+                  for (const auto &media_info : media) {
+                    auto jsiMedia = jsi::Object(innerRt);
+                    jsiMedia.setProperty(innerRt, "id", media_info.id);
+                    jsiMedia.setProperty(innerRt, "uri", media_info.uri);
+                    jsiMedia.setProperty(innerRt, "type", media_info.type);
+                    jsiMedia.setProperty(innerRt, "extras", media_info.extras);
+
+                    jsiMediaArray.setValueAtIndex(
+                        innerRt, media_idx++, jsiMedia);
+                  }
+
+                  jsiMessage.setProperty(innerRt, "media_infos", jsiMediaArray);
+
                   jsiMessages.setValueAtIndex(
                       innerRt, writeIndex++, jsiMessage);
                 }
