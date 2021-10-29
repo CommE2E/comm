@@ -228,7 +228,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
     jsi::Runtime &rt,
     const jsi::Array &operations) {
 
-  std::vector<std::shared_ptr<MessageStoreOperationBase>> messageStoreOps;
+  std::vector<std::unique_ptr<MessageStoreOperationBase>> messageStoreOps;
 
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
@@ -267,13 +267,17 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
     }
   }
 
+  auto messageStoreOpsPtr =
+      std::make_shared<std::vector<std::unique_ptr<MessageStoreOperationBase>>>(
+          std::move(messageStoreOps));
+
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().beginTransaction();
-            for (const auto &operation : messageStoreOps) {
+            for (const auto &operation : *messageStoreOpsPtr) {
               operation->execute();
             }
             DatabaseManager::getQueryExecutor().commitTransaction();
