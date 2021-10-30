@@ -1,56 +1,88 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import { View, Text as RawText } from 'react-native';
+import RawIcon, {
+  type IoniconsGlyphs,
+} from 'react-native-vector-icons/Ionicons';
 
 import Button from '../components/button.react';
 import { useColors, useStyles } from '../themes/colors';
 
-type Props = {
+type TextProps = {
   +content: string,
-  +onPress: () => void,
+  +danger?: boolean,
 };
 
-function ActionRow(props: Props): React.Node {
-  const { content, onPress } = props;
+function Text(props: TextProps): React.Node {
+  const { content, danger } = props;
+  const styles = useStyles(actionRowStyles);
+  return (
+    <RawText style={danger ? styles.dangerText : styles.text}>
+      {content}
+    </RawText>
+  );
+}
+
+type IconProps = {
+  +name: IoniconsGlyphs,
+};
+
+function Icon(props: IconProps): React.Node {
+  const { name } = props;
+  const colors = useColors();
+  return <RawIcon name={name} size={20} color={colors.navigationChevron} />;
+}
+
+type RowProps = {
+  +onPress?: () => void,
+  +children: React.Node,
+};
+
+function Row(props: RowProps): React.Node {
+  const { onPress, children } = props;
   const styles = useStyles(actionRowStyles);
   const colors = useColors();
+
+  if (!onPress) {
+    return <View style={styles.wrapper}>{children}</View>;
+  }
+
   return (
-    <View style={styles.section}>
-      <Button
-        onPress={onPress}
-        style={styles.submenuButton}
-        iosFormat="highlight"
-        iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
-        iosActiveOpacity={0.85}
-      >
-        <Text style={styles.submenuText}>{content}</Text>
-        <Icon
-          name="ios-arrow-forward"
-          size={20}
-          color={colors.navigationChevron}
-        />
-      </Button>
-    </View>
+    <Button
+      onPress={onPress}
+      style={styles.button}
+      iosFormat="highlight"
+      iosHighlightUnderlayColor={colors.panelIosHighlightUnderlay}
+      iosActiveOpacity={0.85}
+    >
+      {children}
+    </Button>
   );
 }
 
 const actionRowStyles = {
-  section: {
+  wrapper: {
     backgroundColor: 'panelForeground',
-  },
-  submenuButton: {
     flexDirection: 'row',
     paddingHorizontal: 24,
     paddingVertical: 10,
-    alignItems: 'center',
   },
-  submenuText: {
+  button: {
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    flexDirection: 'row',
+  },
+  text: {
     color: 'panelForegroundLabel',
+    flex: 1,
+    fontSize: 16,
+  },
+  dangerText: {
+    color: 'redText',
     flex: 1,
     fontSize: 16,
   },
 };
 
-export default ActionRow;
+export default { Row, Icon, Text };

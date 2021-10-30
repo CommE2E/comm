@@ -17,7 +17,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import { deleteNativeCredentialsFor } from '../account/native-credentials';
-import ActionRow from '../components/action-row.react';
+import Action from '../components/action-row.react';
 import Button from '../components/button.react';
 import EditSettingButton from '../components/edit-setting-button.react';
 import { SingleLine } from '../components/single-line.react';
@@ -51,6 +51,22 @@ type Props = {
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
 };
 
+type ProfileRowProps = {
+  +content: string,
+  +onPress: () => void,
+  +danger?: boolean,
+};
+
+function ProfileRow(props: ProfileRowProps): React.Node {
+  const { content, onPress, danger } = props;
+  return (
+    <Action.Row onPress={onPress}>
+      <Action.Text {...{ danger, content }} />
+      <Action.Icon name="ios-arrow-forward" />
+    </Action.Row>
+  );
+}
+
 class ProfileScreen extends React.PureComponent<Props> {
   get username() {
     return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
@@ -67,18 +83,16 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    const { panelIosHighlightUnderlay: underlay } = this.props.colors;
-
     let appearancePreferences, developerTools;
     if (
       (this.props.currentUserInfo && isStaff(this.props.currentUserInfo.id)) ||
       __DEV__
     ) {
       appearancePreferences = (
-        <ActionRow content="Appearance" onPress={this.onPressAppearance} />
+        <ProfileRow content="Appearance" onPress={this.onPressAppearance} />
       );
       developerTools = (
-        <ActionRow content="Developer tools" onPress={this.onPressDevTools} />
+        <ProfileRow content="Developer tools" onPress={this.onPressDevTools} />
       );
     }
 
@@ -90,10 +104,8 @@ class ProfileScreen extends React.PureComponent<Props> {
         >
           <Text style={this.props.styles.header}>ACCOUNT</Text>
           <View style={this.props.styles.section}>
-            <View style={this.props.styles.paddedRow}>
-              <Text style={this.props.styles.loggedInLabel}>
-                {'Logged in as '}
-              </Text>
+            <Action.Row>
+              <Text style={this.props.styles.loggedInLabel}>Logged in as </Text>
               <SingleLine
                 style={[this.props.styles.label, this.props.styles.username]}
               >
@@ -105,8 +117,8 @@ class ProfileScreen extends React.PureComponent<Props> {
               >
                 <Text style={this.props.styles.logOutText}>Log out</Text>
               </Button>
-            </View>
-            <View style={this.props.styles.paddedRow}>
+            </Action.Row>
+            <Action.Row>
               <Text style={this.props.styles.label}>Password</Text>
               <Text
                 style={[this.props.styles.content, this.props.styles.value]}
@@ -119,35 +131,30 @@ class ProfileScreen extends React.PureComponent<Props> {
                 canChangeSettings={true}
                 style={this.props.styles.editPasswordButton}
               />
-            </View>
+            </Action.Row>
           </View>
           <View style={this.props.styles.section}>
-            <ActionRow content="Friend list" onPress={this.onPressFriendList} />
-            <ActionRow content="Block list" onPress={this.onPressBlockList} />
+            <ProfileRow
+              content="Friend list"
+              onPress={this.onPressFriendList}
+            />
+            <ProfileRow content="Block list" onPress={this.onPressBlockList} />
           </View>
-
           <Text style={this.props.styles.header}>PREFERENCES</Text>
           <View style={this.props.styles.section}>
             {appearancePreferences}
-            <ActionRow content="Privacy" onPress={this.onPressPrivacy} />
+            <ProfileRow content="Privacy" onPress={this.onPressPrivacy} />
           </View>
-
           <View style={this.props.styles.section}>
-            <ActionRow content="Build info" onPress={this.onPressBuildInfo} />
+            <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
             {developerTools}
           </View>
           <View style={this.props.styles.unpaddedSection}>
-            <Button
+            <ProfileRow
+              content="Delete account..."
+              danger
               onPress={this.onPressDeleteAccount}
-              style={this.props.styles.deleteAccountButton}
-              iosFormat="highlight"
-              iosHighlightUnderlayColor={underlay}
-              iosActiveOpacity={0.85}
-            >
-              <Text style={this.props.styles.deleteAccountText}>
-                Delete account...
-              </Text>
-            </Button>
+            />
           </View>
         </ScrollView>
       </View>
@@ -253,11 +260,6 @@ const unboundStyles = {
     paddingHorizontal: 24,
     paddingVertical: 12,
   },
-  deleteAccountText: {
-    color: 'redText',
-    flex: 1,
-    fontSize: 16,
-  },
   editPasswordButton: {
     paddingTop: Platform.OS === 'android' ? 3 : 2,
   },
@@ -307,17 +309,6 @@ const unboundStyles = {
     borderTopWidth: 1,
     marginBottom: 24,
     paddingVertical: 1,
-  },
-  submenuButton: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  submenuText: {
-    color: 'panelForegroundLabel',
-    flex: 1,
-    fontSize: 16,
   },
   unpaddedSection: {
     backgroundColor: 'panelForeground',
