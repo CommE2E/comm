@@ -195,22 +195,36 @@ async function fetchCurrentUserInfo(
 async function fetchLoggedInUserInfo(
   viewer: Viewer,
 ): Promise<OldLoggedInUserInfo | LoggedInUserInfo> {
-  const query = SQL`
+  const userQuery = SQL`
     SELECT id, username
     FROM users
-    WHERE id IN (${viewer.userID})
+    WHERE id = ${viewer.userID}
   `;
-  const [response] = await dbQuery(query);
-  const [row] = response;
+
+  const settingsQuery = SQL`
+    SELECT name, data
+    FROM settings
+    WHERE user = ${viewer.userID}
+  `;
+
+  const [[userResult], [settingsResult]] = await Promise.all([
+    dbQuery(userQuery),
+    dbQuery(settingsQuery),
+  ]);
+
+  const [userRow] = userResult;
+
   const stillExpectsEmailFields = !hasMinCodeVersion(
     viewer.platformDetails,
     87,
   );
-  if (!row) {
+
+  if (!userRow) {
     throw new ServerError('unknown_error');
   }
-  const id = row.id.toString();
-  const { username } = row;
+
+  const id = userRow.id.toString();
+  const { username } = userRow;
 
   if (stillExpectsEmailFields) {
     return {
@@ -220,7 +234,19 @@ async function fetchLoggedInUserInfo(
       emailVerified: true,
     };
   }
-  return { id, username };
+
+  const featureGateSettings = !hasMinCodeVersion(viewer.platformDetails, 1000);
+
+  if (featureGateSettings) {
+    return { id, username };
+  }
+
+  const settings = settingsResult.reduce((prev, curr) => {
+    prev[curr.name] = curr.data;
+    return prev;
+  }, {});
+
+  return { id, username, settings };
 }
 
 async function fetchAllUserIDs(): Promise<string[]> {
