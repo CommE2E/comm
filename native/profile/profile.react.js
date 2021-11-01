@@ -19,6 +19,7 @@ import {
   AppearancePreferencesRouteName,
   PrivacyPreferencesRouteName,
   FriendListRouteName,
+  DefaultNotificationsPreferencesRouteName,
   BlockListRouteName,
   type ScreenParamList,
   type ProfileParamList,
@@ -26,6 +27,7 @@ import {
 import { useStyles, useColors } from '../themes/colors';
 import AppearancePreferences from './appearance-preferences.react';
 import BuildInfo from './build-info.react';
+import DefaultNotificationsPreferences from './default-notifications-preferences.react';
 import DeleteAccount from './delete-account.react';
 import DevTools from './dev-tools.react';
 import EditPassword from './edit-password.react';
@@ -45,6 +47,7 @@ const appearanceOptions = { headerTitle: 'Appearance' };
 const privacyOptions = { headerTitle: 'Privacy' };
 const friendListOptions = { headerTitle: 'Friend list' };
 const blockListOptions = { headerTitle: 'Block list' };
+const defaultNotificationsOptions = { headerTitle: 'Default Notifications' };
 
 export type ProfileNavigationProp<
   RouteName: $Keys<ProfileParamList> = $Keys<ProfileParamList>,
@@ -116,6 +119,11 @@ function ProfileComponent(props: { ... }): React.Node {
             name={PrivacyPreferencesRouteName}
             component={PrivacyPreferences}
             options={privacyOptions}
+          />
+          <Profile.Screen
+            name={DefaultNotificationsPreferencesRouteName}
+            component={DefaultNotificationsPreferences}
+            options={defaultNotificationsOptions}
           />
           <Profile.Screen
             name={FriendListRouteName}

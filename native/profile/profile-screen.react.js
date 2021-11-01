@@ -31,6 +31,7 @@ import {
   FriendListRouteName,
   BlockListRouteName,
   PrivacyPreferencesRouteName,
+  DefaultNotificationsPreferencesRouteName,
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
@@ -83,7 +84,7 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    let appearancePreferences, developerTools;
+    let appearancePreferences, developerTools, defaultNotifications;
     if (
       (this.props.currentUserInfo && isStaff(this.props.currentUserInfo.id)) ||
       __DEV__
@@ -93,6 +94,13 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
       developerTools = (
         <ProfileRow content="Developer tools" onPress={this.onPressDevTools} />
+      );
+
+      defaultNotifications = (
+        <ProfileRow
+          content="Default Notifications"
+          onPress={this.onPressDefaultNotifications}
+        />
       );
     }
 
@@ -144,6 +152,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           <View style={this.props.styles.section}>
             {appearancePreferences}
             <ProfileRow content="Privacy" onPress={this.onPressPrivacy} />
+            {defaultNotifications}
           </View>
           <View style={this.props.styles.section}>
             <ProfileRow content="Build info" onPress={this.onPressBuildInfo} />
@@ -238,6 +247,10 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   onPressPrivacy = () => {
     this.navigateIfActive(PrivacyPreferencesRouteName);
+  };
+
+  onPressDefaultNotifications = () => {
+    this.navigateIfActive(DefaultNotificationsPreferencesRouteName);
   };
 
   onPressFriendList = () => {

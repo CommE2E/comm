@@ -39,6 +39,7 @@ export const ColorPickerModalRouteName = 'ColorPickerModal';
 export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
 export const ComposeThreadRouteName = 'ComposeThread';
 export const CustomServerModalRouteName = 'CustomServerModal';
+export const DefaultNotificationsPreferencesRouteName = 'DefaultNotifications';
 export const DeleteAccountRouteName = 'DeleteAccount';
 export const DeleteThreadRouteName = 'DeleteThread';
 export const DevToolsRouteName = 'DevTools';
@@ -129,6 +130,7 @@ export type ProfileParamList = {
   +DevTools: void,
   +AppearancePreferences: void,
   +PrivacyPreferences: void,
+  +DefaultNotifications: void,
   +FriendList: void,
   +BlockList: void,
 };
