@@ -28,6 +28,7 @@
 		71CA4AEC262F236100835C89 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
 		71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
 		726E5D752731A4790032361D /* NetworkModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D732731A4790032361D /* NetworkModule.cpp */; };
+		726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
 		7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F788C2B248AA2130098F071 /* SplashScreen.storyboard */; };
 		7F8D602126535E060053CB29 /* OpenSans-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D601E26535E060053CB29 /* OpenSans-Semibold.ttf */; };
@@ -98,6 +99,8 @@
 		71DC160C270C43D300822863 /* PlatformSpecificTools.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlatformSpecificTools.h; sourceTree = "<group>"; };
 		726E5D732731A4790032361D /* NetworkModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkModule.cpp; sourceTree = "<group>"; };
 		726E5D742731A4790032361D /* NetworkModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkModule.h; sourceTree = "<group>"; };
+		726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalNetworkSingleton.cpp; sourceTree = "<group>"; };
+		726E5D772731A5E10032361D /* GlobalNetworkSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalNetworkSingleton.h; sourceTree = "<group>"; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
 		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = Comm/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -335,6 +338,8 @@
 			children = (
 				726E5D732731A4790032361D /* NetworkModule.cpp */,
 				726E5D742731A4790032361D /* NetworkModule.h */,
+				726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */,
+				726E5D772731A5E10032361D /* GlobalNetworkSingleton.h */,
 			);
 			path = InternalModules;
 			sourceTree = "<group>";
@@ -644,6 +649,7 @@
 				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
 				71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
+				726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
 			);
