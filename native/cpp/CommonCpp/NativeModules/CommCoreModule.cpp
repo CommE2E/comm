@@ -1,5 +1,7 @@
 #include "CommCoreModule.h"
 #include "DatabaseManager.h"
+#include "InternalModules/GlobalNetworkSingleton.h"
+#include "InternalModules/NetworkModule.h"
 #include "Logger.h"
 #include "MessageStoreOperations.h"
 #include "ThreadStoreOperations.h"
@@ -662,17 +664,10 @@ void CommCoreModule::initializeNetworkModule(
     const std::string &userId,
     const std::string &deviceToken,
     const std::string &hostname) {
-  std::string host = (hostname.size() == 0) ? "localhost" : hostname;
-  // initialize network module
-  // this is going to differ depending on a device
-  // 10.0.2.2 for android emulator
-  // 192.168.x.x for a physical device etc
-  const std::shared_ptr<grpc::ChannelCredentials> credentials =
-      (host.substr(0, 5) == "https")
-      ? grpc::SslCredentials(grpc::SslCredentialsOptions())
-      : grpc::InsecureChannelCredentials();
-  this->networkClient.reset(
-      new network::Client(host, "50051", credentials, userId, deviceToken));
+  GlobalNetworkSingleton::instance.scheduleOrRun(
+      [=](NetworkModule &networkModule) {
+        networkModule.initializeNetworkModule(userId, deviceToken, hostname);
+      });
 }
 
 jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
@@ -725,7 +720,8 @@ CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
       databaseThread(std::make_unique<WorkerThread>("database")),
-      cryptoThread(std::make_unique<WorkerThread>("crypto")),
-      networkThread(std::make_unique<WorkerThread>("network")){};
+      cryptoThread(std::make_unique<WorkerThread>("crypto")) {
+  GlobalNetworkSingleton::instance.enableMultithreading();
+};
 
 } // namespace comm
