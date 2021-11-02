@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { View, Text, ScrollView, Platform } from 'react-native';
 
+import Action from '../components/action-row.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { useStyles } from '../themes/colors';
 
@@ -15,6 +16,22 @@ const CheckIcon = () => (
   />
 );
 
+type ProfileRowProps = {
+  +content: string,
+  +onPress: () => void,
+  +danger?: boolean,
+};
+
+function NotificationRow(props: ProfileRowProps): React.Node {
+  const { content, onPress, danger } = props;
+  return (
+    <Action.Row onPress={onPress}>
+      <Action.Text {...{ danger, content }} />
+      <CheckIcon />
+    </Action.Row>
+  );
+}
+
 // eslint-disable-next-line no-unused-vars
 function DefaultNotificationsPreferences(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
@@ -26,18 +43,9 @@ function DefaultNotificationsPreferences(props: { ... }): React.Node {
     >
       <Text style={styles.header}>NOTIFICATIONS</Text>
       <View style={styles.section}>
-        <View style={styles.submenuButton}>
-          <Text style={styles.submenuText}>All</Text>
-          <CheckIcon />
-        </View>
-
-        <View style={styles.submenuButton}>
-          <Text style={styles.submenuText}>Background</Text>
-        </View>
-
-        <View style={styles.submenuButton}>
-          <Text style={styles.submenuText}>None</Text>
-        </View>
+        <NotificationRow content="All" onPress={() => {}} />
+        <NotificationRow content="Background" onPress={() => {}} />
+        <NotificationRow content="None" onPress={() => {}} />
       </View>
     </ScrollView>
   );
@@ -67,17 +75,6 @@ const unboundStyles = {
     fontWeight: '400',
     paddingBottom: 3,
     paddingHorizontal: 24,
-  },
-  submenuButton: {
-    flexDirection: 'row',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  submenuText: {
-    color: 'panelForegroundLabel',
-    flex: 1,
-    fontSize: 16,
   },
 };
 
