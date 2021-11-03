@@ -24,6 +24,8 @@
 
 #import "CommCoreModule.h"
 #import "CommSecureStoreIOSWrapper.h"
+#import "GlobalNetworkSingleton.h"
+#import "NetworkModule.h"
 #import "SQLiteQueryExecutor.h"
 #import "Tools.h"
 
@@ -155,8 +157,20 @@ extern RCTBridge *_bridge_reanimated;
     didReceiveRemoteNotification:(NSDictionary *)notification
           fetchCompletionHandler:
               (void (^)(UIBackgroundFetchResult))completionHandler {
-  [RNNotifications didReceiveRemoteNotification:notification
-                         fetchCompletionHandler:completionHandler];
+  if (notification[@"aps"][@"content-available"] &&
+      notification[@"backgroundNotifType"] &&
+      [notification[@"backgroundNotifType"] isEqualToString:@"PING"]) {
+    comm::GlobalNetworkSingleton::instance.scheduleOrRun(
+        [=](comm::NetworkModule &networkModule) {
+          networkModule.sendPong();
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completionHandler(UIBackgroundFetchResultNewData);
+          });
+        });
+  } else {
+    [RNNotifications didReceiveRemoteNotification:notification
+                           fetchCompletionHandler:completionHandler];
+  }
 }
 
 // Required for the localNotification event.
