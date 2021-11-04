@@ -1,0 +1,64 @@
+name: Android Build CI
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: macos-11
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: gradle
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: yarn cleaninstall
+        run: yarn cleaninstall
+
+      - name: Save ANDROID_KEY_STORE_B64 to file
+        env:
+          ANDROID_KEY_STORE_B64: ${{secrets.ANDROID_KEY_STORE_B64}}
+        run: echo "$ANDROID_KEY_STORE_B64" > ANDROID_KEY_STORE_B64.b64
+
+      - name: Save ANDROID_KEY_STORE to file
+        run: base64 -d --input ANDROID_KEY_STORE_B64.b64 --output android_key_store.keystore
+
+      - name: Add ANDROID_KEY_PASSWORD to keychain
+        env:
+          ANDROID_KEY_PASSWORD: ${{secrets.ANDROID_KEY_PASSWORD}}
+        run: security add-generic-password -a runner -s comm -l CommAndroidKeyPassword -w "$ANDROID_KEY_PASSWORD"
+
+      - name: Configure gradle.properties
+        run: |
+          echo "COMM_UPLOAD_STORE_FILE=$(pwd)/android_key_store.keystore" >> ~/.gradle/gradle.properties
+          echo "COMM_UPLOAD_KEY_ALIAS=AndroidSigningKey" >> ~/.gradle/gradle.properties
+
+      - name: Grant execute permission for gradlew
+        working-directory: ./native/android
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        working-directory: ./native/android
+        run: ./gradlew bundleRelease
+
+      - name: Save PLAY_STORE_PUBLISHING_KEY to file
+        working-directory: ./native/android
+        env:
+          PLAY_STORE_PUBLISHING_KEY: ${{secrets.PLAY_STORE_PUBLISHING_KEY}}
+        run: echo "$PLAY_STORE_PUBLISHING_KEY" > PLAY_STORE_PUBLISHING_KEY.json
+
+      - name: Upload to Google Play
+        working-directory: ./native/android
+        run: node upload-aab.js
