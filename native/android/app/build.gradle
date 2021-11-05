@@ -364,6 +364,9 @@ def isCleanRunning() {
 
 // Release keystore via macOS Keychain Access
 def getPassword(String keyLabel) {
+    if (System.getenv('ANDROID_SIGNING_PASSWORD')) {
+        return System.getenv('ANDROID_SIGNING_PASSWORD') 
+    }
     def stdout = new ByteArrayOutputStream()
     exec {
         commandLine 'security',
