@@ -35,11 +35,6 @@ jobs:
       - name: Save ANDROID_KEY_STORE to file
         run: base64 -d --input ANDROID_KEY_STORE_B64.b64 --output android_key_store.keystore
 
-      - name: Add ANDROID_KEY_PASSWORD to keychain
-        env:
-          ANDROID_KEY_PASSWORD: ${{secrets.ANDROID_KEY_PASSWORD}}
-        run: security add-generic-password -a runner -s comm -l CommAndroidKeyPassword -w "$ANDROID_KEY_PASSWORD"
-
       - name: Configure gradle.properties
         run: |
           echo "COMM_UPLOAD_STORE_FILE=$(pwd)/android_key_store.keystore" >> ~/.gradle/gradle.properties
@@ -51,6 +46,8 @@ jobs:
 
       - name: Build with Gradle
         working-directory: ./native/android
+        env:
+          ANDROID_SIGNING_PASSWORD: ${{secrets.ANDROID_SIGNING_PASSWORD}}
         run: ./gradlew bundleRelease
 
       - name: Save PLAY_STORE_PUBLISHING_KEY to file
