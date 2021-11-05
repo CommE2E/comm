@@ -58,10 +58,6 @@ jobs:
           AUTH_KEY: ${{secrets.AUTH_KEY}}
         run: echo "$AUTH_KEY" > AUTH_KEY.p8
 
-      - name: Pod install
-        working-directory: ./native/ios
-        run: pod install
-
       - name: Archive
         working-directory: ./native/ios
         env:
