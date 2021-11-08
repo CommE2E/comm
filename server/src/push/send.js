@@ -78,9 +78,11 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
   const deliveryPromises = [];
   const notifications: Map<string, NotificationRow> = new Map();
+  type fetchThreadInfos = { +[threadID: string]: ServerThreadInfo };
+
   for (const userID in usersToCollapsableNotifInfo) {
     const threadInfos = _flow(
-      _mapValues((serverThreadInfo: ServerThreadInfo) => {
+      _mapValues(async (serverThreadInfo: ServerThreadInfo) => {
         const rawThreadInfo = rawThreadInfoFromServerThreadInfo(
           serverThreadInfo,
           userID,
@@ -88,7 +90,19 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         if (!rawThreadInfo) {
           return null;
         }
-        return threadInfoFromRawThreadInfo(rawThreadInfo, userID, userInfos);
+        const parentThreadID: ?string = rawThreadInfo?.parentThreadID;
+        const fetchedThreadInfos: fetchThreadInfos = await fetchServerThreadInfos(
+          SQL`t.id = ${parentThreadID}`,
+        );
+        const parentThreadInfo = parentThreadID
+          ? fetchedThreadInfos.threadInfos[parentThreadID]
+          : undefined;
+        return threadInfoFromRawThreadInfo(
+          rawThreadInfo,
+          parentThreadInfo,
+          userID,
+          userInfos,
+        );
       }),
       _pickBy(threadInfo => threadInfo),
     )(serverThreadInfos);

@@ -147,14 +147,16 @@ async function checkThreadsFrozen(
     return threadIDsWithDisabledPermissions;
   }
 
-  const [{ threadInfos }, userInfos] = await Promise.all([
+  const [threadInfos, userInfos] = await Promise.all([
     fetchThreadInfos(viewer, SQL`t.id IN (${[...threadIDs]})`),
     fetchKnownUserInfos(viewer),
   ]);
 
   for (const threadID in threadInfos) {
+    const parentThreadID = threadInfos[threadID].parentThreadID;
     const blockedThread = threadFrozenDueToBlock(
       threadInfos[threadID],
+      threadInfos[parentThreadID],
       viewer.id,
       userInfos,
     );

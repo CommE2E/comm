@@ -12,6 +12,7 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
 import {
   threadHasPermission,
@@ -62,11 +63,13 @@ type Props = {
   +nextLocalID: number,
   +isThreadActive: boolean,
   +userInfos: UserInfos,
+  +parentThreadInfo: ?ThreadInfo,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 };
+
 class ChatInputBar extends React.PureComponent<Props> {
   textarea: ?HTMLTextAreaElement;
   multimediaInput: ?HTMLInputElement;
@@ -268,6 +271,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     } else if (
       threadFrozenDueToViewerBlock(
         this.props.threadInfo,
+        this.props.parentThreadInfo,
         this.props.viewerID,
         this.props.userInfos,
       ) &&
@@ -457,6 +461,11 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
     const dispatchActionPromise = useDispatchActionPromise();
     const callJoinThread = useServerCall(joinThread);
 
+    const threadInfos = useSelector(state => threadInfoSelector(state));
+    const parentThreadInfo = props.threadInfo.parentThreadID
+      ? threadInfos[props.threadInfo.parentThreadID]
+      : undefined;
+
     return (
       <ChatInputBar
         {...props}
@@ -467,6 +476,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
         nextLocalID={nextLocalID}
         isThreadActive={isThreadActive}
         userInfos={userInfos}
+        parentThreadInfo={parentThreadInfo}
         dispatchActionPromise={dispatchActionPromise}
         joinThread={callJoinThread}
       />

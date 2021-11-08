@@ -24,6 +24,7 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
 import {
   threadHasPermission,
@@ -118,6 +119,7 @@ type Props = {
   +calendarQuery: () => CalendarQuery,
   +nextLocalID: number,
   +userInfos: UserInfos,
+  +parentThreadInfo: ?ThreadInfo,
   +colors: Colors,
   +styles: typeof unboundStyles,
   +onInputBarLayout?: (event: LayoutEvent) => mixed,
@@ -455,6 +457,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     } else if (
       threadFrozenDueToViewerBlock(
         this.props.threadInfo,
+        this.props.parentThreadInfo,
         this.props.viewerID,
         this.props.userInfos,
       ) &&
@@ -847,6 +850,11 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const dispatchActionPromise = useDispatchActionPromise();
   const callJoinThread = useServerCall(joinThread);
 
+  const threadInfos = useSelector(state => threadInfoSelector(state));
+  const parentThreadInfo = props.threadInfo.parentThreadID
+    ? threadInfos[props.threadInfo.parentThreadID]
+    : undefined;
+
   return (
     <ChatInputBar
       {...props}
@@ -867,6 +875,7 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       dispatchActionPromise={dispatchActionPromise}
       joinThread={callJoinThread}
       inputState={inputState}
+      parentThreadInfo={parentThreadInfo}
     />
   );
 }
