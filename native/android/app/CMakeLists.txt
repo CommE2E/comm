@@ -80,6 +80,7 @@ include_directories(
 # search for all cpp files in this directory
 file(GLOB SQLCIPHER "../../node_modules/@commapp/sqlcipher-amalgamation/src/*.c")
 file(GLOB COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
+file(GLOB COMMON_NATIVE_INTERNAL "../../cpp/CommonCpp/**/**/*.cpp")
 file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES "./build/third-party-ndk/double-conversion/double-conversion/*.cc")
 file(GLOB GRPC_CODE "../../cpp/CommonCpp/grpc/_generated/*.cc")
@@ -128,6 +129,7 @@ add_library(
   # comm code
   ${ANDROID_NATIVE_CODE}
   ${COMMON_NATIVE_CODE}
+  ${COMMON_NATIVE_INTERNAL}
 )
 
 add_definitions(
