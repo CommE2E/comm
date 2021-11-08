@@ -1,7 +1,22 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, ScrollView, Platform } from 'react-native';
+import { View, Text, ScrollView, Platform, Alert } from 'react-native';
+
+import {
+  setUserSettings,
+  setUserSettingsActionTypes,
+} from 'lib/actions/user-actions';
+import { registerFetchKey } from 'lib/reducers/loading-reducer';
+import {
+  type UpdateUserSettingsRequest,
+  type NotificationTypes,
+} from 'lib/types/account-types';
+import {
+  type DispatchActionPromise,
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import Action from '../components/action-row.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
@@ -41,10 +56,53 @@ type BaseProps = {
 
 type Props = {
   ...BaseProps,
-  styles: typeof unboundStyles,
+  +styles: typeof unboundStyles,
+  +dispatchActionPromise: DispatchActionPromise,
+  +changeNotificationSettings: (
+    notificationSettingsRequest: UpdateUserSettingsRequest,
+  ) => Promise<void>,
 };
 
 class DefaultNotificationsPreferences extends React.PureComponent<Props> {
+  async updatedDefaultNotifications(data: NotificationTypes) {
+    const { changeNotificationSettings } = this.props;
+
+    try {
+      await changeNotificationSettings({
+        name: 'default_user_notifications',
+        data,
+      });
+    } catch (e) {
+      Alert.alert(
+        'Something went wrong',
+        'please try again',
+        [{ text: 'OK', onPress: () => {} }],
+        { cancelable: false },
+      );
+    }
+  }
+
+  selectNotificationSetting = (data: NotificationTypes) => {
+    const { dispatchActionPromise } = this.props;
+
+    dispatchActionPromise(
+      setUserSettingsActionTypes,
+      this.updatedDefaultNotifications(data),
+    );
+  };
+
+  selectAllNotifications = () => {
+    this.selectNotificationSetting('all');
+  };
+
+  selectBackgroundNotifications = () => {
+    this.selectNotificationSetting('background');
+  };
+
+  selectNoneNotifications = () => {
+    this.selectNotificationSetting('none');
+  };
+
   render() {
     const { styles } = this.props;
     return (
@@ -54,9 +112,18 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
       >
         <Text style={styles.header}>NOTIFICATIONS</Text>
         <View style={styles.section}>
-          <NotificationRow content="All" onPress={() => {}} />
-          <NotificationRow content="Background" onPress={() => {}} />
-          <NotificationRow content="None" onPress={() => {}} />
+          <NotificationRow
+            content="All"
+            onPress={this.selectAllNotifications}
+          />
+          <NotificationRow
+            content="Background"
+            onPress={this.selectBackgroundNotifications}
+          />
+          <NotificationRow
+            content="None"
+            onPress={this.selectNoneNotifications}
+          />
         </View>
       </ScrollView>
     );
@@ -90,10 +157,23 @@ const unboundStyles = {
   },
 };
 
+registerFetchKey(setUserSettingsActionTypes);
 const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedDefaultNotificationPreferences(props: BaseProps) {
     const styles = useStyles(unboundStyles);
-    return <DefaultNotificationsPreferences {...props} {...{ styles }} />;
+    const dispatchActionPromise = useDispatchActionPromise();
+    const changeNotificationSettings = useServerCall(setUserSettings);
+
+    return (
+      <DefaultNotificationsPreferences
+        {...props}
+        {...{
+          styles,
+          dispatchActionPromise,
+          changeNotificationSettings,
+        }}
+      />
+    );
   },
 );
 
