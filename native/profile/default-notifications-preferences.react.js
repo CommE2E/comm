@@ -5,7 +5,9 @@ import { View, Text, ScrollView, Platform } from 'react-native';
 
 import Action from '../components/action-row.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
+import type { NavigationRoute } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
+import type { ProfileNavigationProp } from './profile.react';
 
 const CheckIcon = () => (
   <SWMansionIcon
@@ -32,23 +34,33 @@ function NotificationRow(props: ProfileRowProps): React.Node {
   );
 }
 
-// eslint-disable-next-line no-unused-vars
-function DefaultNotificationsPreferences(props: { ... }): React.Node {
-  const styles = useStyles(unboundStyles);
+type BaseProps = {
+  +navigation: ProfileNavigationProp<>,
+  +route: NavigationRoute<'DefaultNotifications'>,
+};
 
-  return (
-    <ScrollView
-      contentContainerStyle={styles.scrollViewContentContainer}
-      style={styles.scrollView}
-    >
-      <Text style={styles.header}>NOTIFICATIONS</Text>
-      <View style={styles.section}>
-        <NotificationRow content="All" onPress={() => {}} />
-        <NotificationRow content="Background" onPress={() => {}} />
-        <NotificationRow content="None" onPress={() => {}} />
-      </View>
-    </ScrollView>
-  );
+type Props = {
+  ...BaseProps,
+  styles: typeof unboundStyles,
+};
+
+class DefaultNotificationsPreferences extends React.PureComponent<Props> {
+  render() {
+    const { styles } = this.props;
+    return (
+      <ScrollView
+        contentContainerStyle={styles.scrollViewContentContainer}
+        style={styles.scrollView}
+      >
+        <Text style={styles.header}>NOTIFICATIONS</Text>
+        <View style={styles.section}>
+          <NotificationRow content="All" onPress={() => {}} />
+          <NotificationRow content="Background" onPress={() => {}} />
+          <NotificationRow content="None" onPress={() => {}} />
+        </View>
+      </ScrollView>
+    );
+  }
 }
 
 const unboundStyles = {
@@ -78,4 +90,11 @@ const unboundStyles = {
   },
 };
 
-export default DefaultNotificationsPreferences;
+const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedDefaultNotificationPreferences(props: BaseProps) {
+    const styles = useStyles(unboundStyles);
+    return <DefaultNotificationsPreferences {...props} {...{ styles }} />;
+  },
+);
+
+export default ConnectedDefaultNotificationPreferences;
