@@ -4,8 +4,28 @@ set -e
 
 # this script should be run from the comm's root directory
 
-IMAGE_NAME="commapp/backup-base"
-VERSION="1.0"
+if [ "$#" -ne 1 ]; then
+  echo "Illegal number of parameters, expected one argument with a path to a directory containing Dockerfile and a config file"
+  exit 1;
+fi
+
+GIVEN_PATH=$1
+CONFIG_PATH=$GIVEN_PATH/config.sh
+DOCKERFILE_PATH=$GIVEN_PATH/Dockerfile
+
+if [ ! -f $CONFIG_PATH ]; then
+  echo "Config file not found in $GIVEN_PATH, it has to be named \`config.sh\`"
+  exit 1;
+fi
+
+if [ ! -f $DOCKERFILE_PATH ]; then
+  echo "Dockerfile not found in $GIVEN_PATH"
+  exit 1;
+fi
+
+echo "reading configuration from $GIVEN_PATH"
+source $CONFIG_PATH
+
 IMAGES_IDS=$(docker images -f "reference=$IMAGE_NAME" -q)
 NIMAGES=$(docker images -f "reference=$IMAGE_NAME" -q | wc -l | sed 's/ //g')
 
@@ -23,5 +43,5 @@ then
   echo "docker rmi $(echo $IMAGES_IDS)"
 else
   echo "Creating a new image $IMAGE_NAME"
-  docker build -t $IMAGE_NAME:$VERSION -f services/backup/docker-base/Dockerfile .
+  docker build -t $IMAGE_NAME:$VERSION -f $DOCKERFILE_PATH .
 fi
