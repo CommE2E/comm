@@ -1,4 +1,5 @@
 const { CLIEngine } = require('eslint');
+const { getClangPaths } = require('./scripts/get_clang_paths');
 
 const cli = new CLIEngine({});
 
@@ -28,20 +29,11 @@ module.exports = {
     return 'yarn workspace landing flow --quiet';
   },
   '{native,services}/**/*.{h,cpp,java,mm}': function clangFormat(files) {
-    const allowedPaths = [
-      'native/cpp/CommonCpp',
-      'services/tunnelbroker/contents/server/src',
-      'services/backup/contents/server/src',
-      'native/android/app/src/cpp',
-      'native/ios/Comm',
-      'native/ios/CommTests',
-      'native/android/app/src/main/java/app/comm',
-    ];
     files = files.filter((path) => {
       if (path.indexOf('generated') !== -1) {
         return false;
       }
-      for (const allowedPath of allowedPaths) {
+      for (const allowedPath of getClangPaths()) {
         if (path.indexOf(allowedPath) !== -1) {
           return true;
         }
