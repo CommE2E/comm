@@ -14,7 +14,9 @@ import type {
   LogInRequest,
   UpdatePasswordRequest,
   AccessRequest,
+  UpdateUserSettingsRequest,
 } from 'lib/types/account-types';
+import { userSettingsTypes } from 'lib/types/account-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type {
   SubscriptionUpdateRequest,
@@ -48,6 +50,7 @@ import {
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
   updatePassword,
+  updateUserSettings,
 } from '../updaters/account-updaters';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import {
@@ -316,6 +319,23 @@ async function requestAccessResponder(
   await sendAccessRequestEmailToAshoat(request);
 }
 
+const updateUserSettingsInputValidator = tShape({
+  name: t.irreducible(
+    userSettingsTypes.DEFAULT_NOTIFICATIONS,
+    x => x === userSettingsTypes.DEFAULT_NOTIFICATIONS,
+  ),
+  data: t.enums.of(Object.freeze(['all', 'background', 'none'])),
+});
+
+async function updateUserSettingsResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<void> {
+  const request: UpdateUserSettingsRequest = input;
+  await validateInput(viewer, updateUserSettingsInputValidator, request);
+  return await updateUserSettings(viewer, request);
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
@@ -327,4 +347,5 @@ export {
   logInResponder,
   passwordUpdateResponder,
   requestAccessResponder,
+  updateUserSettingsResponder,
 };
