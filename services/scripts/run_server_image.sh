@@ -7,7 +7,19 @@ set -e
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
   echo "Illegal number of parameters, expected:"
   echo "- one argument with a path to a directory containing Dockerfile and a config file"
-  echo "- one optional argument --overwrite"
+  echo "- one optional argument `port`"
+  echo "- example: `./services/scripts/run_server_image.sh ./services/tunnelbroker/docker-server 12345`"
+  exit 1;
+fi
+
+PORT="50051"
+if [ ! -z "$2" ]; then
+  PORT=$2
+fi
+
+re='^[0-9]+$'
+if [[ ! "$PORT" =~ $re ]]; then
+  echo "given port value [$PORT] is not a number, aborting"
   exit 1;
 fi
 
@@ -40,24 +52,14 @@ then
 elif [[ $NCONTAINERS -eq 1 ]]
 then
   echo "A container of image $IMAGE_NAME already exists(container id: $CONTAINERS_IDS)."
-  if [[ $2 == "--overwrite" ]]
-  then
-    echo "Overwriting an existing image"
-    docker stop $(echo $CONTAINERS_IDS) && docker rm $(echo $CONTAINERS_IDS)
-    docker rmi $IMAGE_NAME:$VERSION
+  echo "Overwriting an existing image"
+  docker stop $(echo $CONTAINERS_IDS) && docker rm $(echo $CONTAINERS_IDS)
+  docker rmi $IMAGE_NAME:$VERSION
 
-    docker build -t $IMAGE_NAME:$VERSION -f $DOCKERFILE_PATH .
-    docker run -it -p 50051:50051 $EXTRA_ARGS $IMAGE_NAME:$VERSION
-  else
-    echo "A new one will not be created, the current one will be used."
-    echo "If you encounter errors, please remove this container manually and re-run this script."
-    echo "To remove this container, you can run:"
-    echo "docker stop $(echo $CONTAINERS_IDS) && docker rm $(echo $CONTAINERS_IDS)"
-    docker start $CONTAINERS_IDS
-    docker attach $CONTAINERS_IDS
-  fi
+  docker build -t $IMAGE_NAME:$VERSION -f $DOCKERFILE_PATH .
+  docker run -it -p $PORT:50051 $EXTRA_ARGS $IMAGE_NAME:$VERSION
 else
   echo "Creating a new container for image $IMAGE_NAME"
   docker build -t $IMAGE_NAME:$VERSION -f $DOCKERFILE_PATH .
-  docker run -it -p 50051:50051 $EXTRA_ARGS $IMAGE_NAME:$VERSION
+  docker run -it -p $PORT:50051 $EXTRA_ARGS $IMAGE_NAME:$VERSION
 fi
