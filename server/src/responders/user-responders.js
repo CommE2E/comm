@@ -14,6 +14,7 @@ import type {
   LogInRequest,
   UpdatePasswordRequest,
   AccessRequest,
+  UpdateUserSettingsRequest,
 } from 'lib/types/account-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type {
@@ -48,6 +49,7 @@ import {
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
   updatePassword,
+  updateUserSettings,
 } from '../updaters/account-updaters';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import {
@@ -65,6 +67,7 @@ import {
   normalizeCalendarQuery,
   verifyCalendarQueryThreadIDs,
 } from './entry-responders';
+import { userSettingsTypes } from './utils';
 
 const subscriptionUpdateRequestInputValidator = tShape({
   threadID: t.String,
@@ -316,6 +319,23 @@ async function requestAccessResponder(
   await sendAccessRequestEmailToAshoat(request);
 }
 
+const updateUserSettingsInputValidator = tShape({
+  name: t.irreducible(
+    'default_user_notifications',
+    x => x === userSettingsTypes.default_notifications,
+  ),
+  data: t.enums.of(['all', 'background', 'none']),
+});
+
+async function updateUserSettingsResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<void> {
+  const request: UpdateUserSettingsRequest = input;
+  await validateInput(viewer, updateUserSettingsInputValidator, request);
+  return await updateUserSettings(viewer, request);
+}
+
 export {
   userSubscriptionUpdateResponder,
   accountUpdateResponder,
@@ -327,4 +347,5 @@ export {
   logInResponder,
   passwordUpdateResponder,
   requestAccessResponder,
+  updateUserSettingsResponder,
 };

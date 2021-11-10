@@ -5,6 +5,7 @@ import bcrypt from 'twin-bcrypt';
 import type {
   ResetPasswordRequest,
   UpdatePasswordRequest,
+  UpdateUserSettingsRequest,
 } from 'lib/types/account-types';
 import { updateTypes } from 'lib/types/update-types';
 import type { AccountUpdate } from 'lib/types/user-types';
@@ -84,9 +85,27 @@ async function updatePassword(
   throw new ServerError('deprecated');
 }
 
+async function updateUserSettings(
+  viewer: Viewer,
+  request: UpdateUserSettingsRequest,
+) {
+  if (!viewer.loggedIn) {
+    throw new ServerError('not_logged_in');
+  }
+
+  const createOrUpdateSettingsQuery = SQL`
+    INSERT INTO settings (user, name, data)
+    VALUES ${[[viewer.id, request.name, request.data]]}
+    ON DUPLICATE KEY UPDATE data = VALUES(data);
+  `;
+
+  await dbQuery(createOrUpdateSettingsQuery);
+}
+
 export {
   accountUpdater,
   checkAndSendVerificationEmail,
   checkAndSendPasswordResetEmail,
+  updateUserSettings,
   updatePassword,
 };

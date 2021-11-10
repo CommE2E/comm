@@ -50,6 +50,7 @@ import {
   logInResponder,
   passwordUpdateResponder,
   requestAccessResponder,
+  updateUserSettingsResponder,
 } from './responders/user-responders';
 import { codeVerificationResponder } from './responders/verification-responders';
 import { uploadDeletionResponder } from './uploads/uploads';
@@ -86,6 +87,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   update_account: accountUpdateResponder,
   update_activity: updateActivityResponder,
   update_calendar_query: calendarQueryUpdateResponder,
+  update_user_settings: updateUserSettingsResponder,
   update_device_token: deviceTokenUpdateResponder,
   update_entry: entryUpdateResponder,
   update_password: passwordUpdateResponder,

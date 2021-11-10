@@ -8,4 +8,8 @@ function getMessageForException(
     : error.message;
 }
 
-export { getMessageForException };
+const userSettingsTypes = Object.freeze({
+  default_notifications: 'default_user_notifications',
+});
+
+export { getMessageForException, userSettingsTypes };
