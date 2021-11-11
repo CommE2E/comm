@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-11
+    runs-on: ubuntu-18.04
 
     steps:
       - uses: actions/checkout@v2
@@ -15,7 +15,6 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-          cache: gradle
 
       - uses: actions/setup-node@v2
         with:
@@ -24,8 +23,8 @@ jobs:
       - name: Install Yarn
         run: npm install -g yarn
 
-      - name: yarn cleaninstall
-        run: yarn cleaninstall
+      - name: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile
 
       - name: Save ANDROID_KEY_STORE_B64 to file
         env:
@@ -33,10 +32,12 @@ jobs:
         run: echo "$ANDROID_KEY_STORE_B64" > ANDROID_KEY_STORE_B64.b64
 
       - name: Save ANDROID_KEY_STORE to file
-        run: base64 -d --input ANDROID_KEY_STORE_B64.b64 --output android_key_store.keystore
+        run: base64 -d ANDROID_KEY_STORE_B64.b64 > android_key_store.keystore
 
       - name: Configure gradle.properties
         run: |
+          mkdir ~/.gradle
+          touch ~/.gradle/gradle.properties
           echo "COMM_UPLOAD_STORE_FILE=$(pwd)/android_key_store.keystore" >> ~/.gradle/gradle.properties
           echo "COMM_UPLOAD_KEY_ALIAS=AndroidSigningKey" >> ~/.gradle/gradle.properties
 
