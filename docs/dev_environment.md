@@ -35,10 +35,10 @@ Install [Homebrew](https://brew.sh/), a package manager for macOS.
 
 ## Node
 
-Next, install [Node](https://nodejs.org/) using Homebrew.
+Next, install [Node](https://nodejs.org/) using Homebrew. We're going to use version 16 to avoid some possible issues that come up on Apple silicon when we install project dependencies.
 
 ```
-brew install node; brew upgrade node
+brew install node@16; brew upgrade node@16
 ```
 
 The reason we use both `install` and `upgrade` is that there’s no single Homebrew command equivalent to “install if not installed, and upgrade if already installed”.
@@ -67,9 +67,9 @@ Watchman is a tool from Facebook used in the React Native dev environment to wat
 brew install watchman; brew upgrade watchman
 ```
 
-## nvm
+## Node Version Manager
 
-Node Version Manager is a tool that helps us make sure we use the same version of Node on our server between prod and dev environments.
+Node Version Manager (nvm) is a tool that ensures we use the same version of Node on our server between prod and dev environments.
 
 ```
 brew install nvm; brew upgrade nvm
