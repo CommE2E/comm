@@ -41,7 +41,7 @@ The reason we use both `install` and `upgrade` is that there’s no single Homeb
 
 ## PHP
 
-[PHP](https://www.php.net) is needed for both Arcanist and PHPMyAdmin. As of macOS 12 (Monterrey), PHP is no longer bundled with the OS and needs to be installed via Homebrew.
+[PHP](https://www.php.net) is needed for Arcanist. As of macOS 12 (Monterey), PHP is no longer bundled with the OS and needs to be installed via Homebrew.
 
 ```
 brew install php; brew upgrade php
@@ -250,7 +250,7 @@ Make sure to replace the `~/src` portion of the above with the location of the d
 
 ## Apache
 
-In both dev and prod environments we have Node configured to run on port 3000, with Apache proxying it across to port 80. The reason for Apache is so that we can use other tech stacks alongside Node. In particular, we’ve been using a MySQL administration web frontend called PHPMyAdmin.
+In both dev and prod environments we have Node configured to run on port 3000, with Apache proxying it across to port 80. The reason for Apache is so that we can use other tech stacks alongside Node.
 
 macOS comes with an Apache installation built in. We just need to configure it a little bit.
 
@@ -349,54 +349,21 @@ GRANT ALL ON comm.* TO comm@localhost;
 
 You can now exit the MySQL console using Ctrl+D.
 
-## PHPMyAdmin
+## TablePlus
 
-Next we’ll set up PHPMyAdmin. If you’re familiar with an alternative MySQL administration frontend you can feel free to use it instead.
+Feel free to use a MySQL administration platform that you're comfortable with. PHP was deprecated in macOS 12 (Monterey), leading many of us to switch to [TablePlus](https://tableplus.com/).
 
-Start by downloading the latest PHPMyAdmin release from their [website](https://www.phpmyadmin.net/). In the following steps, make sure to replace the version number with the one you downloaded. We’ll begin by unzipping the download.
+After installing TablePlus, you need to open a new connection. After opening TablePlus, click the "Create a new connection" text at the bottom of the window that appears.
 
-```
-unzip phpMyAdmin-5.0.1-all-languages.zip
-```
+- Alternatively, you can navigate through Connection → New... in the menu at the top of the display.
 
-In our Apache configuration above, we set Apache to handle everything in `~/Sites`, so we’ll go ahead and move PHPMyAdmin over there.
+Choose MySQL from the database options that appear. You'll be prompted for:
 
-```
-mkdir -p ~/Sites
-cd ~/Downloads
-mv phpMyAdmin-5.0.1-all-languages ~/Sites/phpmyadmin
-```
-
-We also need to create a “TempDir” for PHPMyAdmin.
-
-```
-pushd ~/Sites/phpmyadmin
-mkdir tmp
-chmod 777 tmp
-popd
-```
-
-Next we’ll go through the PHPMyAdmin setup UI. Navigate to http://localhost/~youruser/phpmyadmin/setup/, making sure to replace “youruser” with your macOS username.
-
-If there are any servers listed, go ahead and delete them. Next, select the option to add a new server. Fill out the “verbose name” under “Basic Settings”, and then make sure to set “127.0.0.1” as the hostname. For some reason, “localhost” will not work.
-
-Then tab over to “Authentication”. Select the “config” option under “Authentication type”, and then enter in the MySQL user and password that you created in the previous step. Now hit “Apply”.
-
-You should now be back on the Overview page. Hit “Download” to download the new `config.inc.php` file, and then move it into the `~/Sites/phpmyadmin` folder.
-
-```
-mv config.inc.php ~/Sites/phpmyadmin/
-```
-
-You should now be able to access PHPMyAdmin without needing to log in. Try navigating to http://localhost/~youruser/phpmyadmin/, making sure to replace “youruser” with your macOS username.
-
-Our final step will be to configure PHP to be able to handle large files, in case you find yourself needing to deal with a database backup. PHP is configured by a `php.ini` file. First, check if you have one in `/private/etc/php.ini`. If you don’t, copy over the default:
-
-```
-cp /private/etc/php.ini.default /private/etc/php.ini
-```
-
-We just need to update three settings: `memory_limit`, `post_max_size`, and `upload_max_filesize`. All should be set to `256M`.
+- Name (Comm)
+- Host (localhost)
+- Port (3306 by default)
+- User (comm)
+- Password (the one you made when initializing the MySQL server in the previous step)
 
 ## Android emulator
 
