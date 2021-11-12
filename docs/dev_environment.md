@@ -321,6 +321,8 @@ Finally, let’s restart Apache so it picks up the changes.
 sudo apachectl restart
 ```
 
+If you end up installing a macOS update you should go through the Apache configuration section again, as your Apache config in `httpd.conf` may have been restored to the default.
+
 ## MySQL
 
 Next we’ll set up a MySQL user and a fresh database. We’ll start by opening up a MySQL console.
