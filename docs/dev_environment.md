@@ -23,7 +23,11 @@ Go to the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835) to in
 
 Once Xcode is installed, open it up. If you are prompted, follow the instructions to install any “Additional Required Components”.
 
-Finally, you need to make sure that the “Command Line Tools” are installed. Go to Xcode → Preferences → Locations, and then install the tools by selecting the most recent version from the Command Line Tools dropdown.
+Finally, you need to make sure that the Xcode “Command Line Tools” are installed. You can do this by running:
+
+```
+xcode-select --install
+```
 
 ## Homebrew
 
