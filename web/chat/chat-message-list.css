@@ -58,20 +58,7 @@ div.inputBarTextInput > textarea {
 div.inputBarTextInput > textarea:focus {
   outline: none;
 }
-a.send {
-  display: flex;
-  align-items: center;
-  text-transform: uppercase;
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 600;
-  color: #555555;
-  cursor: pointer;
-}
-svg.sendButton {
-  padding: 0 4px;
-  font-size: 24px;
-  color: #88bb88;
-}
+
 div.joinButtonContainer > a {
   margin: 8px;
   padding: 3px 0 5px 0;
