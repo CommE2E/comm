@@ -7,8 +7,8 @@ import * as React from 'react';
 import {
   deleteAccountActionTypes,
   deleteAccount,
-  changeUserSettingsActionTypes,
-  changeUserSettings,
+  changeUserPasswordActionTypes,
+  changeUserPassword,
 } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -280,7 +280,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     }
 
     this.props.dispatchActionPromise(
-      changeUserSettingsActionTypes,
+      changeUserPasswordActionTypes,
       this.changeUserSettingsAction(),
     );
   };
@@ -375,7 +375,7 @@ const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
   deleteAccountActionTypes,
 );
 const changeUserPasswordLoadingStatusSelector = createLoadingStatusSelector(
-  changeUserSettingsActionTypes,
+  changeUserPasswordActionTypes,
 );
 
 const ConnectedUserSettingsModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
@@ -388,7 +388,7 @@ const ConnectedUserSettingsModal: React.ComponentType<BaseProps> = React.memo<Ba
         changeUserPasswordLoadingStatusSelector(state) === 'loading',
     );
     const callDeleteAccount = useServerCall(deleteAccount);
-    const callChangeUserPassword = useServerCall(changeUserSettings);
+    const callChangeUserPassword = useServerCall(changeUserPassword);
     const dispatchActionPromise = useDispatchActionPromise();
 
     return (

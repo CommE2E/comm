@@ -13,8 +13,8 @@ import {
 } from 'react-native';
 
 import {
-  changeUserSettingsActionTypes,
-  changeUserSettings,
+  changeUserPasswordActionTypes,
+  changeUserPassword,
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -220,7 +220,7 @@ class EditPassword extends React.PureComponent<Props, State> {
       this.goBackOnce();
     } else {
       this.props.dispatchActionPromise(
-        changeUserSettingsActionTypes,
+        changeUserPasswordActionTypes,
         this.savePassword(),
       );
     }
@@ -338,7 +338,7 @@ const unboundStyles = {
 };
 
 const loadingStatusSelector = createLoadingStatusSelector(
-  changeUserSettingsActionTypes,
+  changeUserPasswordActionTypes,
 );
 
 const ConnectedEditPassword: React.ComponentType<BaseProps> = React.memo<BaseProps>(
@@ -355,7 +355,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> = React.memo<BasePro
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeUserPassword = useServerCall(changeUserSettings);
+    const callChangeUserPassword = useServerCall(changeUserPassword);
 
     return (
       <EditPassword
