@@ -8,7 +8,7 @@ import type {
   UpdateUserSettingsRequest,
 } from 'lib/types/account-types';
 import { updateTypes } from 'lib/types/update-types';
-import type { AccountUpdate } from 'lib/types/user-types';
+import type { PasswordUpdate } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
 
 import { createUpdates } from '../creators/update-creator';
@@ -17,7 +17,7 @@ import type { Viewer } from '../session/viewer';
 
 async function accountUpdater(
   viewer: Viewer,
-  update: AccountUpdate,
+  update: PasswordUpdate,
 ): Promise<void> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');

@@ -14,7 +14,10 @@ import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogOutResult } from 'lib/types/account-types';
 import { type PreRequestUserState } from 'lib/types/session-types';
-import { type AccountUpdate, type CurrentUserInfo } from 'lib/types/user-types';
+import {
+  type PasswordUpdate,
+  type CurrentUserInfo,
+} from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -64,7 +67,7 @@ type Props = {
     password: string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
-  +changeUserSettings: (accountUpdate: AccountUpdate) => Promise<void>,
+  +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
 };
 type State = {
   +newPassword: string,
@@ -284,7 +287,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   async changeUserSettingsAction() {
     try {
-      await this.props.changeUserSettings({
+      await this.props.changeUserPassword({
         updatedFields: {
           password: this.state.newPassword,
         },
@@ -371,7 +374,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
   deleteAccountActionTypes,
 );
-const changeUserSettingsLoadingStatusSelector = createLoadingStatusSelector(
+const changeUserPasswordLoadingStatusSelector = createLoadingStatusSelector(
   changeUserSettingsActionTypes,
 );
 
@@ -382,10 +385,10 @@ const ConnectedUserSettingsModal: React.ComponentType<BaseProps> = React.memo<Ba
     const inputDisabled = useSelector(
       state =>
         deleteAccountLoadingStatusSelector(state) === 'loading' ||
-        changeUserSettingsLoadingStatusSelector(state) === 'loading',
+        changeUserPasswordLoadingStatusSelector(state) === 'loading',
     );
     const callDeleteAccount = useServerCall(deleteAccount);
-    const callChangeUserSettings = useServerCall(changeUserSettings);
+    const callChangeUserPassword = useServerCall(changeUserSettings);
     const dispatchActionPromise = useDispatchActionPromise();
 
     return (
@@ -395,7 +398,7 @@ const ConnectedUserSettingsModal: React.ComponentType<BaseProps> = React.memo<Ba
         preRequestUserState={preRequestUserState}
         inputDisabled={inputDisabled}
         deleteAccount={callDeleteAccount}
-        changeUserSettings={callChangeUserSettings}
+        changeUserPassword={callChangeUserPassword}
         dispatchActionPromise={dispatchActionPromise}
       />
     );

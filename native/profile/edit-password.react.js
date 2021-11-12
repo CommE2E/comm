@@ -18,7 +18,7 @@ import {
 } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { AccountUpdate } from 'lib/types/user-types';
+import type { PasswordUpdate } from 'lib/types/user-types';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -49,7 +49,7 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +changeUserSettings: (accountUpdate: AccountUpdate) => Promise<void>,
+  +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
 };
 type State = {
   +currentPassword: string,
@@ -232,7 +232,7 @@ class EditPassword extends React.PureComponent<Props, State> {
       return;
     }
     try {
-      await this.props.changeUserSettings({
+      await this.props.changeUserPassword({
         updatedFields: {
           password: this.state.newPassword,
         },
@@ -355,7 +355,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> = React.memo<BasePro
     const styles = useStyles(unboundStyles);
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeUserSettings = useServerCall(changeUserSettings);
+    const callChangeUserPassword = useServerCall(changeUserSettings);
 
     return (
       <EditPassword
@@ -366,7 +366,7 @@ const ConnectedEditPassword: React.ComponentType<BaseProps> = React.memo<BasePro
         colors={colors}
         styles={styles}
         dispatchActionPromise={dispatchActionPromise}
-        changeUserSettings={callChangeUserSettings}
+        changeUserPassword={callChangeUserPassword}
       />
     );
   },

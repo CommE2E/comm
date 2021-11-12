@@ -25,7 +25,7 @@ import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
 } from 'lib/types/subscription-types';
-import type { AccountUpdate } from 'lib/types/user-types';
+import type { PasswordUpdate } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
@@ -102,7 +102,7 @@ async function accountUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<void> {
-  const request: AccountUpdate = input;
+  const request: PasswordUpdate = input;
   await validateInput(viewer, accountUpdateInputValidator, request);
   await accountUpdater(viewer, request);
 }
