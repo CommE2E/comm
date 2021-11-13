@@ -2,7 +2,7 @@
 
 import { createIconSetFromIcoMoon, type Icon } from 'react-native-vector-icons';
 
-import icoMoonConfig from './swmansion-icon-config.json';
+import icoMoonConfig from 'lib/shared/swmansion-icon-config.json';
 
 const SWMansionIcon: Class<Icon<string>> = createIconSetFromIcoMoon(
   icoMoonConfig,

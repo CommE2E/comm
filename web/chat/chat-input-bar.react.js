@@ -1,6 +1,5 @@
 // @flow
 
-import { faFileImage } from '@fortawesome/free-regular-svg-icons';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import invariant from 'invariant';
@@ -46,6 +45,7 @@ import { allowedMimeTypeString } from '../media/file-utils';
 import Multimedia from '../media/multimedia.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
+import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-message-list.css';
 
 type BaseProps = {
@@ -236,7 +236,12 @@ class ChatInputBar extends React.PureComponent<Props> {
               accept={allowedMimeTypeString}
               multiple
             />
-            <FontAwesomeIcon icon={faFileImage} />
+            <SWMansionIcon
+              icon="image-1"
+              size={26}
+              color="#8a8a8a"
+              disableFill
+            />
           </a>
           <textarea
             rows="1"
