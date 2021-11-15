@@ -717,7 +717,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             uri,
             dimensions,
             localMediaSelection: undefined,
-            loop,
+            loop: uploadResult.mediaType === 'video' ? loop : undefined,
           },
         },
       });
