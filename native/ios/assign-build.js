@@ -1,7 +1,10 @@
 // @flow
 
 const fs = require('fs');
+const { request } = require('gaxios');
 const jwt = require('jsonwebtoken');
+
+const IOS_APP_ID = process.env.IOS_APP_ID;
 
 const getAuthToken = () => {
   const p8 = fs.readFileSync('./AUTH_KEY.p8');
@@ -31,8 +34,32 @@ const getAuthToken = () => {
   return jwt.sign(jwtPayload, p8, jwtSigningConfig);
 };
 
+const getPreReleaseVersions = async (authToken) => {
+  if (!IOS_APP_ID) {
+    console.log('ERROR: No IOS_APP_ID found in env.');
+    process.exit(1);
+    return;
+  }
+
+  const res = await request({
+    url: `https://api.appstoreconnect.apple.com/v1/apps/${IOS_APP_ID}/preReleaseVersions`,
+    headers: {
+      Authorization: authToken,
+    },
+  });
+  
+  if (res.status !== 200 ) {
+    console.log(
+      "ERROR: GET preReleaseVersions from AppStoreConnect API failed."
+    );
+    process.exit(1);
+  }
+  return res.data.data;
+};
+
 async function main() {
-  getAuthToken();
+  const authToken = getAuthToken();
+  await getPreReleaseVersions(authToken);
 }
 
 main();
