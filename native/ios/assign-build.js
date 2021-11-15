@@ -71,11 +71,21 @@ const getCurrentVersionInfo = (preReleaseVersions, currentVersion) => {
   )[0];
 };
 
+const getCurrentVersionID = (currentVersionInfo) => {
+  if (!currentVersionInfo || !currentVersionInfo.id) {
+    console.log('ERROR: currentVersionID could not be determined.');
+    process.exit(1);
+    return;
+  }
+  return currentVersionInfo.id;
+};
+
 
 async function main() {
   const authToken = getAuthToken();
   const preReleaseVersions = await getPreReleaseVersions(authToken);
-  getCurrentVersionInfo(preReleaseVersions, GIT_TAG);
+  const currentVersionInfo = getCurrentVersionInfo(preReleaseVersions, GIT_TAG);
+  getCurrentVersionID(currentVersionInfo);
 }
 
 main();
