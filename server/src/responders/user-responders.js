@@ -16,7 +16,10 @@ import type {
   AccessRequest,
   UpdateUserSettingsRequest,
 } from 'lib/types/account-types';
-import { userSettingsTypes } from 'lib/types/account-types';
+import {
+  userSettingsTypes,
+  notificationTypeValues,
+} from 'lib/types/account-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type {
   SubscriptionUpdateRequest,
@@ -324,7 +327,7 @@ const updateUserSettingsInputValidator = tShape({
     userSettingsTypes.DEFAULT_NOTIFICATIONS,
     x => x === userSettingsTypes.DEFAULT_NOTIFICATIONS,
   ),
-  data: t.enums.of(Object.freeze(['all', 'background', 'none'])),
+  data: t.enums.of(notificationTypeValues),
 });
 
 async function updateUserSettingsResponder(
