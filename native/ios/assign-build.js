@@ -80,12 +80,35 @@ const getCurrentVersionID = (currentVersionInfo) => {
   return currentVersionInfo.id;
 };
 
+const getBuildInfoForVersionID = async (authToken, versionID) => {
+  if (!versionID) {
+    console.log('ERROR: versionID is undefined.');
+    process.exit(1);
+    return; 
+  }
+
+  const res = await request({
+    url: `https://api.appstoreconnect.apple.com/v1/preReleaseVersions/${versionID}/relationships/builds`,
+    headers: {
+      Authorization: authToken,
+    },
+  });
+
+  if (res.status !== 200) {
+    console.log('ERROR: GET currentVersion/builds from AppStoreConnect API failed.');
+    process.exit(1);
+  }
+
+  return res.data.data[0];
+};
+
 
 async function main() {
   const authToken = getAuthToken();
   const preReleaseVersions = await getPreReleaseVersions(authToken);
   const currentVersionInfo = getCurrentVersionInfo(preReleaseVersions, GIT_TAG);
-  getCurrentVersionID(currentVersionInfo);
+  const currentVersionID = getCurrentVersionID(currentVersionInfo);
+  await getBuildInfoForVersionID(authToken, currentVersionID);
 }
 
 main();
