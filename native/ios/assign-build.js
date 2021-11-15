@@ -102,13 +102,22 @@ const getBuildInfoForVersionID = async (authToken, versionID) => {
   return res.data.data[0];
 };
 
+const getBuildID = (buildInfo) => {
+  if (!buildInfo || !buildInfo.id) {
+    console.log('ERROR: buildID could not be determined.');
+    process.exit(1);
+    return;
+  }
+  return buildInfo.id;
+};
 
 async function main() {
   const authToken = getAuthToken();
   const preReleaseVersions = await getPreReleaseVersions(authToken);
   const currentVersionInfo = getCurrentVersionInfo(preReleaseVersions, GIT_TAG);
   const currentVersionID = getCurrentVersionID(currentVersionInfo);
-  await getBuildInfoForVersionID(authToken, currentVersionID);
+  const buildInfo = await getBuildInfoForVersionID(authToken, currentVersionID);
+  getBuildID(buildInfo);
 }
 
 main();
