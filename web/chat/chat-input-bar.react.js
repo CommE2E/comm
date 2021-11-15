@@ -222,6 +222,16 @@ class ChatInputBar extends React.PureComponent<Props> {
     const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
       this.props.threadInfo,
     );
+
+    let sendButton;
+    if (this.props.inputState.draft.length) {
+      sendButton = (
+        <a onClick={this.onSend}>
+          <SWMansionIcon icon="send-2" size={22} color="#8a8a8a" disableFill />
+        </a>
+      );
+    }
+
     if (
       threadHasPermission(this.props.threadInfo, threadPermissions.VOICED) ||
       (this.props.threadCreationInProgress && defaultMembersAreVoiced)
@@ -252,6 +262,7 @@ class ChatInputBar extends React.PureComponent<Props> {
             ref={this.textareaRef}
             autoFocus
           />
+          {sendButton}
         </div>
       );
     } else if (
