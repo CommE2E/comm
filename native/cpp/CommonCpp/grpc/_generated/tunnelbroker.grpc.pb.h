@@ -69,7 +69,7 @@ class TunnelBrokerService final {
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
     class async_interface* experimental_async() { return async(); }
-  private:
+   private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::tunnelbroker::CheckResponse>* AsyncCheckIfPrimaryDeviceOnlineRaw(::grpc::ClientContext* context, const ::tunnelbroker::CheckRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::tunnelbroker::CheckResponse>* PrepareAsyncCheckIfPrimaryDeviceOnlineRaw(::grpc::ClientContext* context, const ::tunnelbroker::CheckRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::tunnelbroker::NewPrimaryResponse>* AsyncBecomeNewPrimaryDeviceRaw(::grpc::ClientContext* context, const ::tunnelbroker::NewPrimaryRequest& request, ::grpc::CompletionQueue* cq) = 0;

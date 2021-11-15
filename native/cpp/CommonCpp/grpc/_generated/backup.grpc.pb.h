@@ -80,7 +80,7 @@ class BackupService final {
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
     class async_interface* experimental_async() { return async(); }
-  private:
+   private:
     virtual ::grpc::ClientWriterInterface< ::backup::ResetKeyRequest>* ResetKeyRaw(::grpc::ClientContext* context, ::backup::ResetKeyResponse* response) = 0;
     virtual ::grpc::ClientAsyncWriterInterface< ::backup::ResetKeyRequest>* AsyncResetKeyRaw(::grpc::ClientContext* context, ::backup::ResetKeyResponse* response, ::grpc::CompletionQueue* cq, void* tag) = 0;
     virtual ::grpc::ClientAsyncWriterInterface< ::backup::ResetKeyRequest>* PrepareAsyncResetKeyRaw(::grpc::ClientContext* context, ::backup::ResetKeyResponse* response, ::grpc::CompletionQueue* cq) = 0;

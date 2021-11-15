@@ -108,8 +108,7 @@ struct PullCompactionRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PullCompactionRequestDefaultTypeInternal _PullCompactionRequest_default_instance_;
 constexpr PullCompactionResponse::PullCompactionResponse(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : compactionchunk_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , logchunk_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+  : _oneof_case_{}{}
 struct PullCompactionResponseDefaultTypeInternal {
   constexpr PullCompactionResponseDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -177,10 +176,11 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_backup_2eproto::offsets[] PROT
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::backup::PullCompactionResponse, _internal_metadata_),
   ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
+  PROTOBUF_FIELD_OFFSET(::backup::PullCompactionResponse, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::backup::PullCompactionResponse, compactionchunk_),
-  PROTOBUF_FIELD_OFFSET(::backup::PullCompactionResponse, logchunk_),
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  PROTOBUF_FIELD_OFFSET(::backup::PullCompactionResponse, data_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::backup::ResetKeyRequest)},
@@ -215,21 +215,21 @@ const char descriptor_table_protodef_backup_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "ey\030\002 \001(\014\"D\n\025PullBackupKeyResponse\022\017\n\007suc"
   "cess\030\001 \001(\010\022\032\n\022encryptedBackupKey\030\002 \001(\014\"8"
   "\n\025PullCompactionRequest\022\016\n\006userId\030\001 \001(\t\022"
-  "\017\n\007message\030\002 \001(\014\"C\n\026PullCompactionRespon"
-  "se\022\027\n\017compactionChunk\030\001 \001(\014\022\020\n\010logChunk\030"
-  "\002 \001(\0142\265\002\n\rBackupService\022A\n\010ResetKey\022\027.ba"
-  "ckup.ResetKeyRequest\032\030.backup.ResetKeyRe"
-  "sponse\"\000(\001\022<\n\007SendLog\022\026.backup.SendLogRe"
-  "quest\032\027.backup.SendLogResponse\"\000\022N\n\rPull"
-  "BackupKey\022\034.backup.PullBackupKeyRequest\032"
-  "\035.backup.PullBackupKeyResponse\"\000\022S\n\016Pull"
-  "Compaction\022\035.backup.PullCompactionReques"
-  "t\032\036.backup.PullCompactionResponse\"\0000\001b\006p"
-  "roto3"
+  "\017\n\007message\030\002 \001(\014\"O\n\026PullCompactionRespon"
+  "se\022\031\n\017compactionChunk\030\001 \001(\014H\000\022\022\n\010logChun"
+  "k\030\002 \001(\014H\000B\006\n\004data2\265\002\n\rBackupService\022A\n\010R"
+  "esetKey\022\027.backup.ResetKeyRequest\032\030.backu"
+  "p.ResetKeyResponse\"\000(\001\022<\n\007SendLog\022\026.back"
+  "up.SendLogRequest\032\027.backup.SendLogRespon"
+  "se\"\000\022N\n\rPullBackupKey\022\034.backup.PullBacku"
+  "pKeyRequest\032\035.backup.PullBackupKeyRespon"
+  "se\"\000\022S\n\016PullCompaction\022\035.backup.PullComp"
+  "actionRequest\032\036.backup.PullCompactionRes"
+  "ponse\"\0000\001b\006proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_backup_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_backup_2eproto = {
-  false, false, 805, descriptor_table_protodef_backup_2eproto, "backup.proto", 
+  false, false, 817, descriptor_table_protodef_backup_2eproto, "backup.proto", 
   &descriptor_table_backup_2eproto_once, nullptr, 0, 8,
   schemas, file_default_instances, TableStruct_backup_2eproto::offsets,
   file_level_metadata_backup_2eproto, file_level_enum_descriptors_backup_2eproto, file_level_service_descriptors_backup_2eproto,
@@ -1852,22 +1852,25 @@ PullCompactionResponse::PullCompactionResponse(::PROTOBUF_NAMESPACE_ID::Arena* a
 PullCompactionResponse::PullCompactionResponse(const PullCompactionResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_compactionchunk().empty()) {
-    compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_compactionchunk(), 
-      GetArena());
-  }
-  logchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (!from._internal_logchunk().empty()) {
-    logchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_logchunk(), 
-      GetArena());
+  clear_has_data();
+  switch (from.data_case()) {
+    case kCompactionChunk: {
+      _internal_set_compactionchunk(from._internal_compactionchunk());
+      break;
+    }
+    case kLogChunk: {
+      _internal_set_logchunk(from._internal_logchunk());
+      break;
+    }
+    case DATA_NOT_SET: {
+      break;
+    }
   }
   // @@protoc_insertion_point(copy_constructor:backup.PullCompactionResponse)
 }
 
 void PullCompactionResponse::SharedCtor() {
-compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-logchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+clear_has_data();
 }
 
 PullCompactionResponse::~PullCompactionResponse() {
@@ -1878,8 +1881,9 @@ PullCompactionResponse::~PullCompactionResponse() {
 
 void PullCompactionResponse::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
-  compactionchunk_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  logchunk_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (has_data()) {
+    clear_data();
+  }
 }
 
 void PullCompactionResponse::ArenaDtor(void* object) {
@@ -1892,14 +1896,32 @@ void PullCompactionResponse::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
 
+void PullCompactionResponse::clear_data() {
+// @@protoc_insertion_point(one_of_clear_start:backup.PullCompactionResponse)
+  switch (data_case()) {
+    case kCompactionChunk: {
+      data_.compactionchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+      break;
+    }
+    case kLogChunk: {
+      data_.logchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+      break;
+    }
+    case DATA_NOT_SET: {
+      break;
+    }
+  }
+  _oneof_case_[0] = DATA_NOT_SET;
+}
+
+
 void PullCompactionResponse::Clear() {
 // @@protoc_insertion_point(message_clear_start:backup.PullCompactionResponse)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  compactionchunk_.ClearToEmpty();
-  logchunk_.ClearToEmpty();
+  clear_data();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1955,13 +1977,13 @@ failure:
   (void) cached_has_bits;
 
   // bytes compactionChunk = 1;
-  if (this->compactionchunk().size() > 0) {
+  if (_internal_has_compactionchunk()) {
     target = stream->WriteBytesMaybeAliased(
         1, this->_internal_compactionchunk(), target);
   }
 
   // bytes logChunk = 2;
-  if (this->logchunk().size() > 0) {
+  if (_internal_has_logchunk()) {
     target = stream->WriteBytesMaybeAliased(
         2, this->_internal_logchunk(), target);
   }
@@ -1982,20 +2004,25 @@ size_t PullCompactionResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // bytes compactionChunk = 1;
-  if (this->compactionchunk().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_compactionchunk());
+  switch (data_case()) {
+    // bytes compactionChunk = 1;
+    case kCompactionChunk: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_compactionchunk());
+      break;
+    }
+    // bytes logChunk = 2;
+    case kLogChunk: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_logchunk());
+      break;
+    }
+    case DATA_NOT_SET: {
+      break;
+    }
   }
-
-  // bytes logChunk = 2;
-  if (this->logchunk().size() > 0) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-        this->_internal_logchunk());
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -2027,11 +2054,18 @@ void PullCompactionResponse::MergeFrom(const PullCompactionResponse& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.compactionchunk().size() > 0) {
-    _internal_set_compactionchunk(from._internal_compactionchunk());
-  }
-  if (from.logchunk().size() > 0) {
-    _internal_set_logchunk(from._internal_logchunk());
+  switch (from.data_case()) {
+    case kCompactionChunk: {
+      _internal_set_compactionchunk(from._internal_compactionchunk());
+      break;
+    }
+    case kLogChunk: {
+      _internal_set_logchunk(from._internal_logchunk());
+      break;
+    }
+    case DATA_NOT_SET: {
+      break;
+    }
   }
 }
 
@@ -2056,8 +2090,8 @@ bool PullCompactionResponse::IsInitialized() const {
 void PullCompactionResponse::InternalSwap(PullCompactionResponse* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  compactionchunk_.Swap(&other->compactionchunk_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-  logchunk_.Swap(&other->logchunk_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  swap(data_, other->data_);
+  swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata PullCompactionResponse::GetMetadata() const {

@@ -1254,6 +1254,12 @@ class PullCompactionResponse PROTOBUF_FINAL :
   static const PullCompactionResponse& default_instance() {
     return *internal_default_instance();
   }
+  enum DataCase {
+    kCompactionChunk = 1,
+    kLogChunk = 2,
+    DATA_NOT_SET = 0,
+  };
+
   static inline const PullCompactionResponse* internal_default_instance() {
     return reinterpret_cast<const PullCompactionResponse*>(
                &_PullCompactionResponse_default_instance_);
@@ -1333,6 +1339,10 @@ class PullCompactionResponse PROTOBUF_FINAL :
     kLogChunkFieldNumber = 2,
   };
   // bytes compactionChunk = 1;
+  bool has_compactionchunk() const;
+  private:
+  bool _internal_has_compactionchunk() const;
+  public:
   void clear_compactionchunk();
   const std::string& compactionchunk() const;
   void set_compactionchunk(const std::string& value);
@@ -1349,6 +1359,10 @@ class PullCompactionResponse PROTOBUF_FINAL :
   public:
 
   // bytes logChunk = 2;
+  bool has_logchunk() const;
+  private:
+  bool _internal_has_logchunk() const;
+  public:
   void clear_logchunk();
   const std::string& logchunk() const;
   void set_logchunk(const std::string& value);
@@ -1364,16 +1378,29 @@ class PullCompactionResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_logchunk();
   public:
 
+  void clear_data();
+  DataCase data_case() const;
   // @@protoc_insertion_point(class_scope:backup.PullCompactionResponse)
  private:
   class _Internal;
+  void set_has_compactionchunk();
+  void set_has_logchunk();
+
+  inline bool has_data() const;
+  inline void clear_has_data();
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr compactionchunk_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr logchunk_;
+  union DataUnion {
+    constexpr DataUnion() : _constinit_{} {}
+      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr compactionchunk_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr logchunk_;
+  } data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
   friend struct ::TableStruct_backup_2eproto;
 };
 // ===================================================================
@@ -2193,8 +2220,20 @@ inline void PullCompactionRequest::set_allocated_message(std::string* message) {
 // PullCompactionResponse
 
 // bytes compactionChunk = 1;
+inline bool PullCompactionResponse::_internal_has_compactionchunk() const {
+  return data_case() == kCompactionChunk;
+}
+inline bool PullCompactionResponse::has_compactionchunk() const {
+  return _internal_has_compactionchunk();
+}
+inline void PullCompactionResponse::set_has_compactionchunk() {
+  _oneof_case_[0] = kCompactionChunk;
+}
 inline void PullCompactionResponse::clear_compactionchunk() {
-  compactionchunk_.ClearToEmpty();
+  if (_internal_has_compactionchunk()) {
+    data_.compactionchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
 }
 inline const std::string& PullCompactionResponse::compactionchunk() const {
   // @@protoc_insertion_point(field_get:backup.PullCompactionResponse.compactionChunk)
@@ -2209,53 +2248,102 @@ inline std::string* PullCompactionResponse::mutable_compactionchunk() {
   return _internal_mutable_compactionchunk();
 }
 inline const std::string& PullCompactionResponse::_internal_compactionchunk() const {
-  return compactionchunk_.Get();
+  if (_internal_has_compactionchunk()) {
+    return data_.compactionchunk_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
 inline void PullCompactionResponse::_internal_set_compactionchunk(const std::string& value) {
-  
-  compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  if (!_internal_has_compactionchunk()) {
+    clear_data();
+    set_has_compactionchunk();
+    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
 inline void PullCompactionResponse::set_compactionchunk(std::string&& value) {
-  
-  compactionchunk_.Set(
+  // @@protoc_insertion_point(field_set:backup.PullCompactionResponse.compactionChunk)
+  if (!_internal_has_compactionchunk()) {
+    clear_data();
+    set_has_compactionchunk();
+    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.compactionchunk_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
   // @@protoc_insertion_point(field_set_rvalue:backup.PullCompactionResponse.compactionChunk)
 }
 inline void PullCompactionResponse::set_compactionchunk(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  
-  compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  if (!_internal_has_compactionchunk()) {
+    clear_data();
+    set_has_compactionchunk();
+    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:backup.PullCompactionResponse.compactionChunk)
 }
 inline void PullCompactionResponse::set_compactionchunk(const void* value,
-    size_t size) {
-  
-  compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
+                             size_t size) {
+  if (!_internal_has_compactionchunk()) {
+    clear_data();
+    set_has_compactionchunk();
+    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.compactionchunk_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
   // @@protoc_insertion_point(field_set_pointer:backup.PullCompactionResponse.compactionChunk)
 }
 inline std::string* PullCompactionResponse::_internal_mutable_compactionchunk() {
-  
-  return compactionchunk_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+  if (!_internal_has_compactionchunk()) {
+    clear_data();
+    set_has_compactionchunk();
+    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.compactionchunk_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
 inline std::string* PullCompactionResponse::release_compactionchunk() {
   // @@protoc_insertion_point(field_release:backup.PullCompactionResponse.compactionChunk)
-  return compactionchunk_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  if (_internal_has_compactionchunk()) {
+    clear_has_data();
+    return data_.compactionchunk_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
 }
 inline void PullCompactionResponse::set_allocated_compactionchunk(std::string* compactionchunk) {
-  if (compactionchunk != nullptr) {
-    
-  } else {
-    
+  if (has_data()) {
+    clear_data();
   }
-  compactionchunk_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), compactionchunk,
-      GetArena());
+  if (compactionchunk != nullptr) {
+    set_has_compactionchunk();
+    data_.compactionchunk_.UnsafeSetDefault(compactionchunk);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(compactionchunk);
+    }
+  }
   // @@protoc_insertion_point(field_set_allocated:backup.PullCompactionResponse.compactionChunk)
 }
 
 // bytes logChunk = 2;
+inline bool PullCompactionResponse::_internal_has_logchunk() const {
+  return data_case() == kLogChunk;
+}
+inline bool PullCompactionResponse::has_logchunk() const {
+  return _internal_has_logchunk();
+}
+inline void PullCompactionResponse::set_has_logchunk() {
+  _oneof_case_[0] = kLogChunk;
+}
 inline void PullCompactionResponse::clear_logchunk() {
-  logchunk_.ClearToEmpty();
+  if (_internal_has_logchunk()) {
+    data_.logchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
 }
 inline const std::string& PullCompactionResponse::logchunk() const {
   // @@protoc_insertion_point(field_get:backup.PullCompactionResponse.logChunk)
@@ -2270,50 +2358,96 @@ inline std::string* PullCompactionResponse::mutable_logchunk() {
   return _internal_mutable_logchunk();
 }
 inline const std::string& PullCompactionResponse::_internal_logchunk() const {
-  return logchunk_.Get();
+  if (_internal_has_logchunk()) {
+    return data_.logchunk_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
 inline void PullCompactionResponse::_internal_set_logchunk(const std::string& value) {
-  
-  logchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  if (!_internal_has_logchunk()) {
+    clear_data();
+    set_has_logchunk();
+    data_.logchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.logchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
 inline void PullCompactionResponse::set_logchunk(std::string&& value) {
-  
-  logchunk_.Set(
+  // @@protoc_insertion_point(field_set:backup.PullCompactionResponse.logChunk)
+  if (!_internal_has_logchunk()) {
+    clear_data();
+    set_has_logchunk();
+    data_.logchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.logchunk_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
   // @@protoc_insertion_point(field_set_rvalue:backup.PullCompactionResponse.logChunk)
 }
 inline void PullCompactionResponse::set_logchunk(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  
-  logchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  if (!_internal_has_logchunk()) {
+    clear_data();
+    set_has_logchunk();
+    data_.logchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.logchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:backup.PullCompactionResponse.logChunk)
 }
 inline void PullCompactionResponse::set_logchunk(const void* value,
-    size_t size) {
-  
-  logchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
+                             size_t size) {
+  if (!_internal_has_logchunk()) {
+    clear_data();
+    set_has_logchunk();
+    data_.logchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.logchunk_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
   // @@protoc_insertion_point(field_set_pointer:backup.PullCompactionResponse.logChunk)
 }
 inline std::string* PullCompactionResponse::_internal_mutable_logchunk() {
-  
-  return logchunk_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+  if (!_internal_has_logchunk()) {
+    clear_data();
+    set_has_logchunk();
+    data_.logchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.logchunk_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
 inline std::string* PullCompactionResponse::release_logchunk() {
   // @@protoc_insertion_point(field_release:backup.PullCompactionResponse.logChunk)
-  return logchunk_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  if (_internal_has_logchunk()) {
+    clear_has_data();
+    return data_.logchunk_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
 }
 inline void PullCompactionResponse::set_allocated_logchunk(std::string* logchunk) {
-  if (logchunk != nullptr) {
-    
-  } else {
-    
+  if (has_data()) {
+    clear_data();
   }
-  logchunk_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), logchunk,
-      GetArena());
+  if (logchunk != nullptr) {
+    set_has_logchunk();
+    data_.logchunk_.UnsafeSetDefault(logchunk);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(logchunk);
+    }
+  }
   // @@protoc_insertion_point(field_set_allocated:backup.PullCompactionResponse.logChunk)
 }
 
+inline bool PullCompactionResponse::has_data() const {
+  return data_case() != DATA_NOT_SET;
+}
+inline void PullCompactionResponse::clear_has_data() {
+  _oneof_case_[0] = DATA_NOT_SET;
+}
+inline PullCompactionResponse::DataCase PullCompactionResponse::data_case() const {
+  return PullCompactionResponse::DataCase(_oneof_case_[0]);
+}
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__

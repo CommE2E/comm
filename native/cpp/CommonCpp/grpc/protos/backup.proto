@@ -54,6 +54,8 @@ message PullCompactionRequest {
 }
 
 message PullCompactionResponse {
-  bytes compactionChunk = 1;
-  bytes logChunk = 2;
+  oneof data {
+    bytes compactionChunk = 1;
+    bytes logChunk = 2;
+  }
 }
