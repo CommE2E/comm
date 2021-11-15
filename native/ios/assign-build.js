@@ -5,6 +5,7 @@ const { request } = require('gaxios');
 const jwt = require('jsonwebtoken');
 
 const IOS_APP_ID = process.env.IOS_APP_ID;
+const IOS_STAFF_GROUP_ID = process.env.IOS_STAFF_GROUP_ID;
 const GIT_REF = process.env.GITHUB_REF ?? "";
 const GIT_TAG = GIT_REF.replace(/^refs\/tags\/v/, "");
 
@@ -111,13 +112,49 @@ const getBuildID = (buildInfo) => {
   return buildInfo.id;
 };
 
+const assignBuildToStaffGroup = async (authToken, buildID) => {
+  if (!IOS_STAFF_GROUP_ID) {
+    console.log('ERROR: No IOS_STAFF_GROUP_ID found in env.');
+    process.exit(1);
+    return;
+  }
+  if (!buildID) {
+    console.log('ERROR: buildID is undefined.');
+    process.exit(1);
+    return;
+  }
+
+  const res = await request({
+    method: 'POST',
+    url: `https://api.appstoreconnect.apple.com/v1/builds/${buildID}/relationships/betaGroups`,
+    headers: {
+      Authorization: authToken,
+      'Content-Type': 'application/json'
+    },
+    data: {
+      data: [
+        {
+          id: IOS_STAFF_GROUP_ID,
+          type: 'betaGroups'
+        }
+      ]
+    }
+  });
+
+  if (res.status !== 204) {
+    console.log('ERROR: Unable to assign build to staff group.');
+    process.exit(1); 
+  }
+};
+
 async function main() {
   const authToken = getAuthToken();
   const preReleaseVersions = await getPreReleaseVersions(authToken);
   const currentVersionInfo = getCurrentVersionInfo(preReleaseVersions, GIT_TAG);
   const currentVersionID = getCurrentVersionID(currentVersionInfo);
   const buildInfo = await getBuildInfoForVersionID(authToken, currentVersionID);
-  getBuildID(buildInfo);
+  const buildID = getBuildID(buildInfo);
+  await assignBuildToStaffGroup(authToken, buildID);
 }
 
 main();
