@@ -5,6 +5,8 @@ const { request } = require('gaxios');
 const jwt = require('jsonwebtoken');
 
 const IOS_APP_ID = process.env.IOS_APP_ID;
+const GIT_REF = process.env.GITHUB_REF ?? "";
+const GIT_TAG = GIT_REF.replace(/^refs\/tags\/v/, "");
 
 const getAuthToken = () => {
   const p8 = fs.readFileSync('./AUTH_KEY.p8');
@@ -47,8 +49,8 @@ const getPreReleaseVersions = async (authToken) => {
       Authorization: authToken,
     },
   });
-  
-  if (res.status !== 200 ) {
+
+  if (res.status !== 200) {
     console.log(
       "ERROR: GET preReleaseVersions from AppStoreConnect API failed."
     );
@@ -57,9 +59,23 @@ const getPreReleaseVersions = async (authToken) => {
   return res.data.data;
 };
 
+const getCurrentVersionInfo = (preReleaseVersions, currentVersion) => {
+  if (!preReleaseVersions) {
+    console.log('ERROR: No preReleaseVersions found.');
+    process.exit(1);
+    return;
+  }
+
+  return preReleaseVersions.filter(
+    (each) => each.attributes.version === currentVersion
+  )[0];
+};
+
+
 async function main() {
   const authToken = getAuthToken();
-  await getPreReleaseVersions(authToken);
+  const preReleaseVersions = await getPreReleaseVersions(authToken);
+  getCurrentVersionInfo(preReleaseVersions, GIT_TAG);
 }
 
 main();
