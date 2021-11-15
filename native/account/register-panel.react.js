@@ -342,7 +342,15 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       });
       return result;
     } catch (e) {
-      if (e.message === 'username_taken') {
+      if (e.message === 'username_reserved') {
+        Alert.alert(
+          'Username reserved',
+          'This username is currently reserved. Please contact support@' +
+            'comm.app if you would like to claim this account.',
+          [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
+          { cancelable: false },
+        );
+      } else if (e.message === 'username_taken') {
         Alert.alert(
           'Username taken',
           'An account with that username already exists',
