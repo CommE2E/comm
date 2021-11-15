@@ -2,7 +2,7 @@
 
 set -e
 
-cd transferred/server
+pushd transferred/server
 
 rm -rf _generated
 mkdir _generated
@@ -12,4 +12,5 @@ mkdir -p cmake/build
 
 ./generate.sh
 ./build.sh
-./cmake/build/bin/backup
+
+popd # transferred/server
