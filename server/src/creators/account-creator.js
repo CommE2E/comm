@@ -19,7 +19,6 @@ import { messageTypes } from 'lib/types/message-types';
 import { threadTypes } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
-import { reservedUsernamesSet } from 'lib/utils/reserved-users';
 
 import { dbQuery, SQL } from '../database/database';
 import { deleteCookie } from '../deleters/cookie-deleters';
@@ -76,10 +75,6 @@ async function createAccount(
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
   const [[usernameResult]] = await Promise.all(promises);
-  if (reservedUsernamesSet.has(request.username.toLowerCase())) {
-    throw new ServerError('username_reserved');
-  }
-
   if (usernameResult[0].count !== 0) {
     throw new ServerError('username_taken');
   }
