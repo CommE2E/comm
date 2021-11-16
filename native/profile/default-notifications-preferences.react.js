@@ -38,14 +38,15 @@ type ProfileRowProps = {
   +content: string,
   +onPress: () => void,
   +danger?: boolean,
+  +selected?: boolean,
 };
 
 function NotificationRow(props: ProfileRowProps): React.Node {
-  const { content, onPress, danger } = props;
+  const { content, onPress, danger, selected } = props;
   return (
     <Action.Row onPress={onPress}>
       <Action.Text {...{ danger, content }} />
-      <CheckIcon />
+      {selected ? <CheckIcon /> : null}
     </Action.Row>
   );
 }
