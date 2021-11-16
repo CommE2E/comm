@@ -98,7 +98,7 @@ const accountUpdateInputValidator = tShape({
   currentPassword: tPassword,
 });
 
-async function accountUpdateResponder(
+async function passwordUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<void> {
@@ -295,7 +295,7 @@ const updatePasswordRequestInputValidator = tShape({
   platformDetails: tPlatformDetails,
 });
 
-async function passwordUpdateResponder(
+async function oldPasswordUpdateResponder(
   viewer: Viewer,
   input: any,
 ): Promise<LogInResponse> {
@@ -341,14 +341,14 @@ async function updateUserSettingsResponder(
 
 export {
   userSubscriptionUpdateResponder,
-  accountUpdateResponder,
+  passwordUpdateResponder,
   sendVerificationEmailResponder,
   sendPasswordResetEmailResponder,
   logOutResponder,
   accountDeletionResponder,
   accountCreationResponder,
   logInResponder,
-  passwordUpdateResponder,
+  oldPasswordUpdateResponder,
   requestAccessResponder,
   updateUserSettingsResponder,
 };
