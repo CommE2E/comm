@@ -16,10 +16,6 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '16'
-
       - name: Install Yarn
         run: npm install -g yarn
 
@@ -40,10 +36,6 @@ jobs:
           touch ~/.gradle/gradle.properties
           echo "COMM_UPLOAD_STORE_FILE=$(pwd)/android_key_store.keystore" >> ~/.gradle/gradle.properties
           echo "COMM_UPLOAD_KEY_ALIAS=AndroidSigningKey" >> ~/.gradle/gradle.properties
-
-      - name: Grant execute permission for gradlew
-        working-directory: ./native/android
-        run: chmod +x gradlew
 
       - name: Build with Gradle
         working-directory: ./native/android
