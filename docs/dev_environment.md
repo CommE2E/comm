@@ -607,6 +607,17 @@ cd native
 yarn react-native run-android
 ```
 
+## Running Node scripts
+
+To run one of the scripts in `server/src/scripts`, you should start by making sure that the Node server is running. If you haven’t already, open a new terminal and run:
+
+```
+cd native
+yarn dev
+```
+
+Then, from the `server` directory, run `yarn script dist/scripts/name.js`, where `name.js` is the file containing the script.
+
 ## Codegen
 
 We use a couple of tools that automatically generate code. There is always a source of truth – usually some file(s) with schemas.
