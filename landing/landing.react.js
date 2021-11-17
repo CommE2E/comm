@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { useLocation, useRouteMatch } from 'react-router-dom';
 
 import AppLanding from './app-landing.react';
 import Footer from './footer.react';
@@ -10,7 +10,6 @@ import Keyservers from './keyservers.react';
 import Privacy from './privacy.react';
 import Support from './support.react';
 import Terms from './terms.react';
-import useScrollToTop from './useScrollToTop.react';
 
 export type LandingPageName =
   | 'app'
@@ -22,7 +21,11 @@ export type LandingPageName =
 type ActivePage = { name: LandingPageName, node: React.Node };
 
 function Landing(): React.Node {
-  useScrollToTop();
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window?.scrollTo(0, 0);
+  }, [pathname]);
+
   const onPrivacy = useRouteMatch({ path: '/privacy' });
   const onTerms = useRouteMatch({ path: '/terms' });
   const onSupport = useRouteMatch({ path: '/support' });
