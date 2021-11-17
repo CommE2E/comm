@@ -67,7 +67,7 @@
     "redux": "^4.0.4",
     "replacestream": "^4.0.3",
     "rereadable-stream": "^1.4.5",
-    "sharp": "^0.25.2",
+    "sharp": "^0.29.3",
     "sql-template-strings": "^2.2.2",
     "stream-combiner": "^0.2.2",
     "tcomb": "^3.2.24",
