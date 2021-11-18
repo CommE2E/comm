@@ -78,7 +78,7 @@ export type ChatTopTabsNavigationProp<
 > = MaterialTopTabNavigationProp<ScreenParamList, RouteName>;
 
 const homeChatThreadListOptions = {
-  title: 'Home',
+  title: 'Focused',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
     <SWMansionIcon name="home-1" size={22} style={{ color }} />
