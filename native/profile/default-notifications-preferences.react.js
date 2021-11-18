@@ -11,6 +11,7 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
   type UpdateUserSettingsRequest,
   type NotificationTypes,
+  notificationTypes,
   userSettingsTypes,
 } from 'lib/types/account-types';
 import {
@@ -22,6 +23,7 @@ import {
 import Action from '../components/action-row.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import type { NavigationRoute } from '../navigation/route-names';
+import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 import type { ProfileNavigationProp } from './profile.react';
 
@@ -63,6 +65,7 @@ type Props = {
   +changeNotificationSettings: (
     notificationSettingsRequest: UpdateUserSettingsRequest,
   ) => Promise<void>,
+  +selectedDefaultNotification: NotificationTypes,
 };
 
 class DefaultNotificationsPreferences extends React.PureComponent<Props> {
@@ -94,19 +97,19 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
   };
 
   selectAllNotifications = () => {
-    this.selectNotificationSetting('all');
+    this.selectNotificationSetting(notificationTypes.ALL);
   };
 
   selectBackgroundNotifications = () => {
-    this.selectNotificationSetting('background');
+    this.selectNotificationSetting(notificationTypes.BACKGROUND);
   };
 
   selectNoneNotifications = () => {
-    this.selectNotificationSetting('none');
+    this.selectNotificationSetting(notificationTypes.NONE);
   };
 
   render() {
-    const { styles } = this.props;
+    const { styles, selectedDefaultNotification } = this.props;
     return (
       <ScrollView
         contentContainerStyle={styles.scrollViewContentContainer}
@@ -117,14 +120,19 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
           <NotificationRow
             content="All"
             onPress={this.selectAllNotifications}
+            selected={notificationTypes.ALL === selectedDefaultNotification}
           />
           <NotificationRow
             content="Background"
             onPress={this.selectBackgroundNotifications}
+            selected={
+              notificationTypes.BACKGROUND === selectedDefaultNotification
+            }
           />
           <NotificationRow
             content="None"
             onPress={this.selectNoneNotifications}
+            selected={notificationTypes.NONE === selectedDefaultNotification}
           />
         </View>
       </ScrollView>
@@ -165,6 +173,19 @@ const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> = 
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
     const changeNotificationSettings = useServerCall(setUserSettings);
+    const defaultNotification = userSettingsTypes.DEFAULT_NOTIFICATIONS;
+
+    const selectedDefaultNotification = useSelector<NotificationTypes>(
+      ({ currentUserInfo }) => {
+        if (
+          currentUserInfo?.settings &&
+          currentUserInfo?.settings[defaultNotification]
+        ) {
+          return currentUserInfo?.settings[defaultNotification];
+        }
+        return notificationTypes.ALL;
+      },
+    );
 
     return (
       <DefaultNotificationsPreferences
@@ -173,6 +194,7 @@ const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> = 
           styles,
           dispatchActionPromise,
           changeNotificationSettings,
+          selectedDefaultNotification,
         }}
       />
     );
