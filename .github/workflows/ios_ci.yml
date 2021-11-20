@@ -1,12 +1,12 @@
-name: iOS Build/Archive/Upload to AppStore Connect
+name: iOS Build CI
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [master]
 
 jobs:
   build:
-    name: Build, archive, and upload iOS app
+    name: Build and archive iOS app
     runs-on: macos-11
 
     steps:
@@ -60,20 +60,6 @@ jobs:
           AUTH_KEY_ID: ${{secrets.AUTH_KEY_ID}}
           AUTH_KEY_ISSUER_ID: ${{secrets.AUTH_KEY_ISSUER_ID}}
         run: xcodebuild archive -workspace Comm.xcworkspace -scheme Comm -configuration Release -archivePath archives/Comm.xcarchive -destination generic/platform=iOS -allowProvisioningUpdates -authenticationKeyIssuerID "$AUTH_KEY_ISSUER_ID" -authenticationKeyID "$AUTH_KEY_ID" -authenticationKeyPath $PWD/AUTH_KEY.p8
-
-      - name: Export IPA
-        working-directory: ./native/ios
-        env:
-          AUTH_KEY_ID: ${{secrets.AUTH_KEY_ID}}
-          AUTH_KEY_ISSUER_ID: ${{secrets.AUTH_KEY_ISSUER_ID}}
-        run: xcodebuild -exportArchive -archivePath archives/Comm.xcarchive -exportOptionsPlist exportOptions.plist -exportPath output -allowProvisioningUpdates -authenticationKeyIssuerID "$AUTH_KEY_ISSUER_ID" -authenticationKeyID "$AUTH_KEY_ID" -authenticationKeyPath $PWD/AUTH_KEY.p8
-
-      - name: Upload IPA to TestFlight
-        working-directory: ./native/ios
-        env:
-          APPLE_USER_NAME: ${{secrets.APPLE_USER_NAME}}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
-        run: xcrun altool --upload-app --type ios --file output/Comm.ipa --username "$APPLE_USER_NAME" --password "$APPLE_APP_SPECIFIC_PASSWORD"
 
       - name: Clean up keychain and provisioning profile
         if: ${{ always() }}
