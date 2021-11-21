@@ -4,9 +4,12 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
+import { Alert } from 'react-native';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import { unreadCount } from 'lib/selectors/thread-selectors';
+import { getMessageForException } from 'lib/utils/errors';
+import sleep from 'lib/utils/sleep';
 
 import AppsDirectory from '../apps/apps-directory.react';
 import Calendar from '../calendar/calendar.react';
@@ -185,9 +188,23 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
     (async () => {
       await waitForInteractions();
       try {
-        await SplashScreen.hideAsync();
+        await Promise.race([
+          SplashScreen.hideAsync(),
+          (async () => {
+            await sleep(5000);
+            throw new Error(
+              'SplashScreen.hideAsync did not resolve/reject within 5 seconds',
+            );
+          })(),
+        ]);
+      } catch (e) {
+        Alert.alert(
+          'SplashScreen.hideAsync() failed :(',
+          getMessageForException(e),
+        );
+      } finally {
         setLocalSplashScreenHasHidden(true);
-      } catch {}
+      }
     })();
   }, [localSplashScreenHasHidden]);
 
