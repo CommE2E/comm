@@ -1,0 +1,47 @@
+name: ESLint & Flow
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: npm install -g yarn
+        run: npm install -g yarn
+
+      - name: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile
+
+      - name: yarn eslint --max-warnings=0
+        run: yarn eslint --max-warnings=0
+
+      - name: '[lib] flow'
+        working-directory: ./lib
+        run: ./node_modules/.bin/flow
+
+      - name: '[server] flow'
+        working-directory: ./server
+        run: |
+          mkdir secrets
+          touch secrets/db_config.json
+          mkdir facts
+          touch facts/app_url.json
+          touch facts/landing_url.json
+          touch facts/url.json
+          ./node_modules/.bin/flow
+
+      - name: '[web] flow'
+        working-directory: ./web
+        run: ./node_modules/.bin/flow
+
+      - name: '[landing] flow'
+        working-directory: ./landing
+        run: ./node_modules/.bin/flow
+
+      - name: '[native] flow'
+        working-directory: ./native
+        run: ./node_modules/.bin/flow
