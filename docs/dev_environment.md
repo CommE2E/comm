@@ -150,7 +150,7 @@ Flipper is a debugging tool for mobile applications from Facebook. We use it for
 
 Flipper has a plugin system that allows teams to integrate additional debugging tools into Flipper. We currently only use one plugin, which is for monitoring Redux state.
 
-To install it, open Flipper and go to View → Manage Plugins. Type in "redux-debugger" and install the Flipper plugin with that name.
+To install it, open Flipper and go to View → Manage Plugins. Type in “redux-debugger” and install the Flipper plugin with that name.
 
 ## idb
 
@@ -380,7 +380,7 @@ You can now exit the MySQL console using Ctrl+D.
 
 Feel free to use a MySQL administration platform that you're comfortable with. PHP was deprecated in macOS 12 (Monterey), leading many of us to switch to [TablePlus](https://tableplus.com/).
 
-After installing TablePlus, you need to open a new connection. After opening TablePlus, click the "Create a new connection" text at the bottom of the window that appears.
+After installing TablePlus, you need to open a new connection. After opening TablePlus, click the “Create a new connection” text at the bottom of the window that appears.
 
 - Alternatively, you can navigate through Connection → New... in the menu at the top of the display.
 
