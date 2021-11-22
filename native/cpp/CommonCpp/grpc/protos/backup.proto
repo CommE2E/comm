@@ -2,9 +2,11 @@ syntax = "proto3";
 
 package backup;
 
+import "google/protobuf/empty.proto";
+
 service BackupService {
-  rpc ResetKey(stream ResetKeyRequest) returns (ResetKeyResponse) {}
-  rpc SendLog(SendLogRequest) returns (SendLogResponse) {}
+  rpc ResetKey(stream ResetKeyRequest) returns (google.protobuf.Empty) {}
+  rpc SendLog(SendLogRequest) returns (google.protobuf.Empty) {}
   rpc PullBackupKey(PullBackupKeyRequest) returns (PullBackupKeyResponse) {}
   rpc PullCompaction(PullCompactionRequest) returns (stream PullCompactionResponse) {}
 }
@@ -19,19 +21,11 @@ message ResetKeyRequest {
   }
 }
 
-message ResetKeyResponse {
-  bool success = 1;
-}
-
 // SendLog
 
 message SendLogRequest {
   string userId = 1;
   bytes data = 2;
-}
-
-message SendLogResponse {
-  bool success = 1;
 }
 
 // PullBackupKey
@@ -42,8 +36,7 @@ message PullBackupKeyRequest {
 }
 
 message PullBackupKeyResponse {
-  bool success = 1;
-  bytes encryptedBackupKey = 2;
+  bytes encryptedBackupKey = 1;
 }
 
 // PullCompaction

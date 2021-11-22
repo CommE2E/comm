@@ -32,10 +32,10 @@ public:
 
   grpc::Status ResetKey(grpc::ServerContext *context,
                         grpc::ServerReader<backup::ResetKeyRequest> *reader,
-                        backup::ResetKeyResponse *response) override;
+                        google::protobuf::Empty *response) override;
   grpc::Status SendLog(grpc::ServerContext *context,
                        const backup::SendLogRequest *request,
-                       backup::SendLogResponse *response) override;
+                       google::protobuf::Empty *response) override;
   grpc::Status PullBackupKey(grpc::ServerContext *context,
                              const backup::PullBackupKeyRequest *request,
                              backup::PullBackupKeyResponse *response) override;

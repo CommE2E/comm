@@ -33,7 +33,7 @@ BackupServiceImpl::~BackupServiceImpl() { Aws::ShutdownAPI({}); }
 grpc::Status
 BackupServiceImpl::ResetKey(grpc::ServerContext *context,
                             grpc::ServerReader<backup::ResetKeyRequest> *reader,
-                            backup::ResetKeyResponse *response) {
+                            google::protobuf::Empty *response) {
   backup::ResetKeyRequest request;
   std::string id;
   AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
@@ -70,14 +70,12 @@ BackupServiceImpl::ResetKey(grpc::ServerContext *context,
   bucket.clearObject(
       this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS));
 
-  response->set_success(true);
-
   return grpc::Status::OK;
 }
 
 grpc::Status BackupServiceImpl::SendLog(grpc::ServerContext *context,
                                         const backup::SendLogRequest *request,
-                                        backup::SendLogResponse *response) {
+                                        google::protobuf::Empty *response) {
   const std::string id = request->userid();
   const std::string data = request->data();
 
@@ -104,7 +102,6 @@ BackupServiceImpl::PullBackupKey(grpc::ServerContext *context,
   std::string key = this->storageManager->getBucket(this->bucketName)
                         .getObjectData(this->generateObjectName(
                             id, OBJECT_TYPE::ENCRYPTED_BACKUP_KEY));
-  response->set_success(true);
   response->set_encryptedbackupkey(key);
 
   return grpc::Status::OK;

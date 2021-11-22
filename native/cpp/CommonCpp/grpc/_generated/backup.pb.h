@@ -31,6 +31,7 @@
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/unknown_field_set.h>
+#include <google/protobuf/empty.pb.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_backup_2eproto
@@ -46,7 +47,7 @@ struct TableStruct_backup_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[8]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[6]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -70,15 +71,9 @@ extern PullCompactionResponseDefaultTypeInternal _PullCompactionResponse_default
 class ResetKeyRequest;
 struct ResetKeyRequestDefaultTypeInternal;
 extern ResetKeyRequestDefaultTypeInternal _ResetKeyRequest_default_instance_;
-class ResetKeyResponse;
-struct ResetKeyResponseDefaultTypeInternal;
-extern ResetKeyResponseDefaultTypeInternal _ResetKeyResponse_default_instance_;
 class SendLogRequest;
 struct SendLogRequestDefaultTypeInternal;
 extern SendLogRequestDefaultTypeInternal _SendLogRequest_default_instance_;
-class SendLogResponse;
-struct SendLogResponseDefaultTypeInternal;
-extern SendLogResponseDefaultTypeInternal _SendLogResponse_default_instance_;
 }  // namespace backup
 PROTOBUF_NAMESPACE_OPEN
 template<> ::backup::PullBackupKeyRequest* Arena::CreateMaybeMessage<::backup::PullBackupKeyRequest>(Arena*);
@@ -86,9 +81,7 @@ template<> ::backup::PullBackupKeyResponse* Arena::CreateMaybeMessage<::backup::
 template<> ::backup::PullCompactionRequest* Arena::CreateMaybeMessage<::backup::PullCompactionRequest>(Arena*);
 template<> ::backup::PullCompactionResponse* Arena::CreateMaybeMessage<::backup::PullCompactionResponse>(Arena*);
 template<> ::backup::ResetKeyRequest* Arena::CreateMaybeMessage<::backup::ResetKeyRequest>(Arena*);
-template<> ::backup::ResetKeyResponse* Arena::CreateMaybeMessage<::backup::ResetKeyResponse>(Arena*);
 template<> ::backup::SendLogRequest* Arena::CreateMaybeMessage<::backup::SendLogRequest>(Arena*);
-template<> ::backup::SendLogResponse* Arena::CreateMaybeMessage<::backup::SendLogResponse>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace backup {
 
@@ -301,143 +294,6 @@ class ResetKeyRequest PROTOBUF_FINAL :
 };
 // -------------------------------------------------------------------
 
-class ResetKeyResponse PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.ResetKeyResponse) */ {
- public:
-  inline ResetKeyResponse() : ResetKeyResponse(nullptr) {}
-  virtual ~ResetKeyResponse();
-  explicit constexpr ResetKeyResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  ResetKeyResponse(const ResetKeyResponse& from);
-  ResetKeyResponse(ResetKeyResponse&& from) noexcept
-    : ResetKeyResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline ResetKeyResponse& operator=(const ResetKeyResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline ResetKeyResponse& operator=(ResetKeyResponse&& from) noexcept {
-    if (GetArena() == from.GetArena()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return GetMetadataStatic().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return GetMetadataStatic().reflection;
-  }
-  static const ResetKeyResponse& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const ResetKeyResponse* internal_default_instance() {
-    return reinterpret_cast<const ResetKeyResponse*>(
-               &_ResetKeyResponse_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    1;
-
-  friend void swap(ResetKeyResponse& a, ResetKeyResponse& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(ResetKeyResponse* other) {
-    if (other == this) return;
-    if (GetArena() == other->GetArena()) {
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(ResetKeyResponse* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline ResetKeyResponse* New() const final {
-    return CreateMaybeMessage<ResetKeyResponse>(nullptr);
-  }
-
-  ResetKeyResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<ResetKeyResponse>(arena);
-  }
-  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const ResetKeyResponse& from);
-  void MergeFrom(const ResetKeyResponse& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(ResetKeyResponse* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "backup.ResetKeyResponse";
-  }
-  protected:
-  explicit ResetKeyResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
-  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
-    return ::descriptor_table_backup_2eproto_metadata_getter(kIndexInFileMessages);
-  }
-
-  public:
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kSuccessFieldNumber = 1,
-  };
-  // bool success = 1;
-  void clear_success();
-  bool success() const;
-  void set_success(bool value);
-  private:
-  bool _internal_success() const;
-  void _internal_set_success(bool value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:backup.ResetKeyResponse)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  bool success_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_backup_2eproto;
-};
-// -------------------------------------------------------------------
-
 class SendLogRequest PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.SendLogRequest) */ {
  public:
@@ -481,7 +337,7 @@ class SendLogRequest PROTOBUF_FINAL :
                &_SendLogRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    1;
 
   friend void swap(SendLogRequest& a, SendLogRequest& b) {
     a.Swap(&b);
@@ -600,143 +456,6 @@ class SendLogRequest PROTOBUF_FINAL :
 };
 // -------------------------------------------------------------------
 
-class SendLogResponse PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.SendLogResponse) */ {
- public:
-  inline SendLogResponse() : SendLogResponse(nullptr) {}
-  virtual ~SendLogResponse();
-  explicit constexpr SendLogResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  SendLogResponse(const SendLogResponse& from);
-  SendLogResponse(SendLogResponse&& from) noexcept
-    : SendLogResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline SendLogResponse& operator=(const SendLogResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline SendLogResponse& operator=(SendLogResponse&& from) noexcept {
-    if (GetArena() == from.GetArena()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return GetMetadataStatic().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return GetMetadataStatic().reflection;
-  }
-  static const SendLogResponse& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const SendLogResponse* internal_default_instance() {
-    return reinterpret_cast<const SendLogResponse*>(
-               &_SendLogResponse_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    3;
-
-  friend void swap(SendLogResponse& a, SendLogResponse& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(SendLogResponse* other) {
-    if (other == this) return;
-    if (GetArena() == other->GetArena()) {
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(SendLogResponse* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline SendLogResponse* New() const final {
-    return CreateMaybeMessage<SendLogResponse>(nullptr);
-  }
-
-  SendLogResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<SendLogResponse>(arena);
-  }
-  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const SendLogResponse& from);
-  void MergeFrom(const SendLogResponse& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(SendLogResponse* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "backup.SendLogResponse";
-  }
-  protected:
-  explicit SendLogResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
-  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
-    return ::descriptor_table_backup_2eproto_metadata_getter(kIndexInFileMessages);
-  }
-
-  public:
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  enum : int {
-    kSuccessFieldNumber = 1,
-  };
-  // bool success = 1;
-  void clear_success();
-  bool success() const;
-  void set_success(bool value);
-  private:
-  bool _internal_success() const;
-  void _internal_set_success(bool value);
-  public:
-
-  // @@protoc_insertion_point(class_scope:backup.SendLogResponse)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  bool success_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_backup_2eproto;
-};
-// -------------------------------------------------------------------
-
 class PullBackupKeyRequest PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.PullBackupKeyRequest) */ {
  public:
@@ -780,7 +499,7 @@ class PullBackupKeyRequest PROTOBUF_FINAL :
                &_PullBackupKeyRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    2;
 
   friend void swap(PullBackupKeyRequest& a, PullBackupKeyRequest& b) {
     a.Swap(&b);
@@ -942,7 +661,7 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
                &_PullBackupKeyResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    3;
 
   friend void swap(PullBackupKeyResponse& a, PullBackupKeyResponse& b) {
     a.Swap(&b);
@@ -1012,10 +731,9 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEncryptedBackupKeyFieldNumber = 2,
-    kSuccessFieldNumber = 1,
+    kEncryptedBackupKeyFieldNumber = 1,
   };
-  // bytes encryptedBackupKey = 2;
+  // bytes encryptedBackupKey = 1;
   void clear_encryptedbackupkey();
   const std::string& encryptedbackupkey() const;
   void set_encryptedbackupkey(const std::string& value);
@@ -1031,15 +749,6 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_encryptedbackupkey();
   public:
 
-  // bool success = 1;
-  void clear_success();
-  bool success() const;
-  void set_success(bool value);
-  private:
-  bool _internal_success() const;
-  void _internal_set_success(bool value);
-  public:
-
   // @@protoc_insertion_point(class_scope:backup.PullBackupKeyResponse)
  private:
   class _Internal;
@@ -1048,7 +757,6 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr encryptedbackupkey_;
-  bool success_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_backup_2eproto;
 };
@@ -1097,7 +805,7 @@ class PullCompactionRequest PROTOBUF_FINAL :
                &_PullCompactionRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    6;
+    4;
 
   friend void swap(PullCompactionRequest& a, PullCompactionRequest& b) {
     a.Swap(&b);
@@ -1265,7 +973,7 @@ class PullCompactionResponse PROTOBUF_FINAL :
                &_PullCompactionResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    5;
 
   friend void swap(PullCompactionResponse& a, PullCompactionResponse& b) {
     a.Swap(&b);
@@ -1706,30 +1414,6 @@ inline ResetKeyRequest::DataCase ResetKeyRequest::data_case() const {
 }
 // -------------------------------------------------------------------
 
-// ResetKeyResponse
-
-// bool success = 1;
-inline void ResetKeyResponse::clear_success() {
-  success_ = false;
-}
-inline bool ResetKeyResponse::_internal_success() const {
-  return success_;
-}
-inline bool ResetKeyResponse::success() const {
-  // @@protoc_insertion_point(field_get:backup.ResetKeyResponse.success)
-  return _internal_success();
-}
-inline void ResetKeyResponse::_internal_set_success(bool value) {
-  
-  success_ = value;
-}
-inline void ResetKeyResponse::set_success(bool value) {
-  _internal_set_success(value);
-  // @@protoc_insertion_point(field_set:backup.ResetKeyResponse.success)
-}
-
-// -------------------------------------------------------------------
-
 // SendLogRequest
 
 // string userId = 1;
@@ -1852,30 +1536,6 @@ inline void SendLogRequest::set_allocated_data(std::string* data) {
   data_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), data,
       GetArena());
   // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.data)
-}
-
-// -------------------------------------------------------------------
-
-// SendLogResponse
-
-// bool success = 1;
-inline void SendLogResponse::clear_success() {
-  success_ = false;
-}
-inline bool SendLogResponse::_internal_success() const {
-  return success_;
-}
-inline bool SendLogResponse::success() const {
-  // @@protoc_insertion_point(field_get:backup.SendLogResponse.success)
-  return _internal_success();
-}
-inline void SendLogResponse::_internal_set_success(bool value) {
-  
-  success_ = value;
-}
-inline void SendLogResponse::set_success(bool value) {
-  _internal_set_success(value);
-  // @@protoc_insertion_point(field_set:backup.SendLogResponse.success)
 }
 
 // -------------------------------------------------------------------
@@ -2008,27 +1668,7 @@ inline void PullBackupKeyRequest::set_allocated_pakekey(std::string* pakekey) {
 
 // PullBackupKeyResponse
 
-// bool success = 1;
-inline void PullBackupKeyResponse::clear_success() {
-  success_ = false;
-}
-inline bool PullBackupKeyResponse::_internal_success() const {
-  return success_;
-}
-inline bool PullBackupKeyResponse::success() const {
-  // @@protoc_insertion_point(field_get:backup.PullBackupKeyResponse.success)
-  return _internal_success();
-}
-inline void PullBackupKeyResponse::_internal_set_success(bool value) {
-  
-  success_ = value;
-}
-inline void PullBackupKeyResponse::set_success(bool value) {
-  _internal_set_success(value);
-  // @@protoc_insertion_point(field_set:backup.PullBackupKeyResponse.success)
-}
-
-// bytes encryptedBackupKey = 2;
+// bytes encryptedBackupKey = 1;
 inline void PullBackupKeyResponse::clear_encryptedbackupkey() {
   encryptedbackupkey_.ClearToEmpty();
 }
@@ -2451,10 +2091,6 @@ inline PullCompactionResponse::DataCase PullCompactionResponse::data_case() cons
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

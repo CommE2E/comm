@@ -41,39 +41,39 @@ BackupService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& chan
   , rpcmethod_PullCompaction_(BackupService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
   {}
 
-::grpc::ClientWriter< ::backup::ResetKeyRequest>* BackupService::Stub::ResetKeyRaw(::grpc::ClientContext* context, ::backup::ResetKeyResponse* response) {
+::grpc::ClientWriter< ::backup::ResetKeyRequest>* BackupService::Stub::ResetKeyRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response) {
   return ::grpc::internal::ClientWriterFactory< ::backup::ResetKeyRequest>::Create(channel_.get(), rpcmethod_ResetKey_, context, response);
 }
 
-void BackupService::Stub::async::ResetKey(::grpc::ClientContext* context, ::backup::ResetKeyResponse* response, ::grpc::ClientWriteReactor< ::backup::ResetKeyRequest>* reactor) {
+void BackupService::Stub::async::ResetKey(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::ClientWriteReactor< ::backup::ResetKeyRequest>* reactor) {
   ::grpc::internal::ClientCallbackWriterFactory< ::backup::ResetKeyRequest>::Create(stub_->channel_.get(), stub_->rpcmethod_ResetKey_, context, response, reactor);
 }
 
-::grpc::ClientAsyncWriter< ::backup::ResetKeyRequest>* BackupService::Stub::AsyncResetKeyRaw(::grpc::ClientContext* context, ::backup::ResetKeyResponse* response, ::grpc::CompletionQueue* cq, void* tag) {
+::grpc::ClientAsyncWriter< ::backup::ResetKeyRequest>* BackupService::Stub::AsyncResetKeyRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq, void* tag) {
   return ::grpc::internal::ClientAsyncWriterFactory< ::backup::ResetKeyRequest>::Create(channel_.get(), cq, rpcmethod_ResetKey_, context, response, true, tag);
 }
 
-::grpc::ClientAsyncWriter< ::backup::ResetKeyRequest>* BackupService::Stub::PrepareAsyncResetKeyRaw(::grpc::ClientContext* context, ::backup::ResetKeyResponse* response, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncWriter< ::backup::ResetKeyRequest>* BackupService::Stub::PrepareAsyncResetKeyRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq) {
   return ::grpc::internal::ClientAsyncWriterFactory< ::backup::ResetKeyRequest>::Create(channel_.get(), cq, rpcmethod_ResetKey_, context, response, false, nullptr);
 }
 
-::grpc::Status BackupService::Stub::SendLog(::grpc::ClientContext* context, const ::backup::SendLogRequest& request, ::backup::SendLogResponse* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::backup::SendLogRequest, ::backup::SendLogResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_SendLog_, context, request, response);
+::grpc::Status BackupService::Stub::SendLog(::grpc::ClientContext* context, const ::backup::SendLogRequest& request, ::google::protobuf::Empty* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::backup::SendLogRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_SendLog_, context, request, response);
 }
 
-void BackupService::Stub::async::SendLog(::grpc::ClientContext* context, const ::backup::SendLogRequest* request, ::backup::SendLogResponse* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::backup::SendLogRequest, ::backup::SendLogResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SendLog_, context, request, response, std::move(f));
+void BackupService::Stub::async::SendLog(::grpc::ClientContext* context, const ::backup::SendLogRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::backup::SendLogRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SendLog_, context, request, response, std::move(f));
 }
 
-void BackupService::Stub::async::SendLog(::grpc::ClientContext* context, const ::backup::SendLogRequest* request, ::backup::SendLogResponse* response, ::grpc::ClientUnaryReactor* reactor) {
+void BackupService::Stub::async::SendLog(::grpc::ClientContext* context, const ::backup::SendLogRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SendLog_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::backup::SendLogResponse>* BackupService::Stub::PrepareAsyncSendLogRaw(::grpc::ClientContext* context, const ::backup::SendLogRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::backup::SendLogResponse, ::backup::SendLogRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_SendLog_, context, request);
+::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* BackupService::Stub::PrepareAsyncSendLogRaw(::grpc::ClientContext* context, const ::backup::SendLogRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::google::protobuf::Empty, ::backup::SendLogRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_SendLog_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::backup::SendLogResponse>* BackupService::Stub::AsyncSendLogRaw(::grpc::ClientContext* context, const ::backup::SendLogRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* BackupService::Stub::AsyncSendLogRaw(::grpc::ClientContext* context, const ::backup::SendLogRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncSendLogRaw(context, request, cq);
   result->StartCall();
@@ -123,21 +123,21 @@ BackupService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       BackupService_method_names[0],
       ::grpc::internal::RpcMethod::CLIENT_STREAMING,
-      new ::grpc::internal::ClientStreamingHandler< BackupService::Service, ::backup::ResetKeyRequest, ::backup::ResetKeyResponse>(
+      new ::grpc::internal::ClientStreamingHandler< BackupService::Service, ::backup::ResetKeyRequest, ::google::protobuf::Empty>(
           [](BackupService::Service* service,
              ::grpc::ServerContext* ctx,
              ::grpc::ServerReader<::backup::ResetKeyRequest>* reader,
-             ::backup::ResetKeyResponse* resp) {
+             ::google::protobuf::Empty* resp) {
                return service->ResetKey(ctx, reader, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       BackupService_method_names[1],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< BackupService::Service, ::backup::SendLogRequest, ::backup::SendLogResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< BackupService::Service, ::backup::SendLogRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](BackupService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::backup::SendLogRequest* req,
-             ::backup::SendLogResponse* resp) {
+             ::google::protobuf::Empty* resp) {
                return service->SendLog(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
@@ -165,14 +165,14 @@ BackupService::Service::Service() {
 BackupService::Service::~Service() {
 }
 
-::grpc::Status BackupService::Service::ResetKey(::grpc::ServerContext* context, ::grpc::ServerReader< ::backup::ResetKeyRequest>* reader, ::backup::ResetKeyResponse* response) {
+::grpc::Status BackupService::Service::ResetKey(::grpc::ServerContext* context, ::grpc::ServerReader< ::backup::ResetKeyRequest>* reader, ::google::protobuf::Empty* response) {
   (void) context;
   (void) reader;
   (void) response;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status BackupService::Service::SendLog(::grpc::ServerContext* context, const ::backup::SendLogRequest* request, ::backup::SendLogResponse* response) {
+::grpc::Status BackupService::Service::SendLog(::grpc::ServerContext* context, const ::backup::SendLogRequest* request, ::google::protobuf::Empty* response) {
   (void) context;
   (void) request;
   (void) response;

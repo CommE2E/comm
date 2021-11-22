@@ -30,18 +30,6 @@ struct ResetKeyRequestDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ResetKeyRequestDefaultTypeInternal _ResetKeyRequest_default_instance_;
-constexpr ResetKeyResponse::ResetKeyResponse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : success_(false){}
-struct ResetKeyResponseDefaultTypeInternal {
-  constexpr ResetKeyResponseDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~ResetKeyResponseDefaultTypeInternal() {}
-  union {
-    ResetKeyResponse _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT ResetKeyResponseDefaultTypeInternal _ResetKeyResponse_default_instance_;
 constexpr SendLogRequest::SendLogRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : userid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -55,18 +43,6 @@ struct SendLogRequestDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT SendLogRequestDefaultTypeInternal _SendLogRequest_default_instance_;
-constexpr SendLogResponse::SendLogResponse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : success_(false){}
-struct SendLogResponseDefaultTypeInternal {
-  constexpr SendLogResponseDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~SendLogResponseDefaultTypeInternal() {}
-  union {
-    SendLogResponse _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT SendLogResponseDefaultTypeInternal _SendLogResponse_default_instance_;
 constexpr PullBackupKeyRequest::PullBackupKeyRequest(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : userid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -82,8 +58,7 @@ struct PullBackupKeyRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PullBackupKeyRequestDefaultTypeInternal _PullBackupKeyRequest_default_instance_;
 constexpr PullBackupKeyResponse::PullBackupKeyResponse(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : encryptedbackupkey_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , success_(false){}
+  : encryptedbackupkey_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct PullBackupKeyResponseDefaultTypeInternal {
   constexpr PullBackupKeyResponseDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -119,7 +94,7 @@ struct PullCompactionResponseDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PullCompactionResponseDefaultTypeInternal _PullCompactionResponse_default_instance_;
 }  // namespace backup
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_backup_2eproto[8];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_backup_2eproto[6];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_backup_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_backup_2eproto = nullptr;
 
@@ -134,24 +109,12 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_backup_2eproto::offsets[] PROT
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::backup::ResetKeyRequest, data_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::backup::ResetKeyResponse, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::backup::ResetKeyResponse, success_),
-  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::backup::SendLogRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::backup::SendLogRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::backup::SendLogRequest, data_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::backup::SendLogResponse, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::backup::SendLogResponse, success_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::backup::PullBackupKeyRequest, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -164,7 +127,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_backup_2eproto::offsets[] PROT
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  PROTOBUF_FIELD_OFFSET(::backup::PullBackupKeyResponse, success_),
   PROTOBUF_FIELD_OFFSET(::backup::PullBackupKeyResponse, encryptedbackupkey_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::backup::PullCompactionRequest, _internal_metadata_),
@@ -184,20 +146,16 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_backup_2eproto::offsets[] PROT
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::backup::ResetKeyRequest)},
-  { 9, -1, sizeof(::backup::ResetKeyResponse)},
-  { 15, -1, sizeof(::backup::SendLogRequest)},
-  { 22, -1, sizeof(::backup::SendLogResponse)},
-  { 28, -1, sizeof(::backup::PullBackupKeyRequest)},
-  { 35, -1, sizeof(::backup::PullBackupKeyResponse)},
-  { 42, -1, sizeof(::backup::PullCompactionRequest)},
-  { 49, -1, sizeof(::backup::PullCompactionResponse)},
+  { 9, -1, sizeof(::backup::SendLogRequest)},
+  { 16, -1, sizeof(::backup::PullBackupKeyRequest)},
+  { 23, -1, sizeof(::backup::PullBackupKeyResponse)},
+  { 29, -1, sizeof(::backup::PullCompactionRequest)},
+  { 36, -1, sizeof(::backup::PullCompactionResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_ResetKeyRequest_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_ResetKeyResponse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_SendLogRequest_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_SendLogResponse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_PullBackupKeyRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_PullBackupKeyResponse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_PullCompactionRequest_default_instance_),
@@ -205,32 +163,33 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 };
 
 const char descriptor_table_protodef_backup_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\014backup.proto\022\006backup\"V\n\017ResetKeyReques"
-  "t\022\016\n\006userId\030\001 \001(\t\022\020\n\006newKey\030\002 \001(\014H\000\022\031\n\017c"
-  "ompactionChunk\030\003 \001(\014H\000B\006\n\004data\"#\n\020ResetK"
-  "eyResponse\022\017\n\007success\030\001 \001(\010\".\n\016SendLogRe"
-  "quest\022\016\n\006userId\030\001 \001(\t\022\014\n\004data\030\002 \001(\014\"\"\n\017S"
-  "endLogResponse\022\017\n\007success\030\001 \001(\010\"7\n\024PullB"
-  "ackupKeyRequest\022\016\n\006userId\030\001 \001(\t\022\017\n\007pakeK"
-  "ey\030\002 \001(\014\"D\n\025PullBackupKeyResponse\022\017\n\007suc"
-  "cess\030\001 \001(\010\022\032\n\022encryptedBackupKey\030\002 \001(\014\"8"
-  "\n\025PullCompactionRequest\022\016\n\006userId\030\001 \001(\t\022"
-  "\017\n\007message\030\002 \001(\014\"O\n\026PullCompactionRespon"
-  "se\022\031\n\017compactionChunk\030\001 \001(\014H\000\022\022\n\010logChun"
-  "k\030\002 \001(\014H\000B\006\n\004data2\265\002\n\rBackupService\022A\n\010R"
-  "esetKey\022\027.backup.ResetKeyRequest\032\030.backu"
-  "p.ResetKeyResponse\"\000(\001\022<\n\007SendLog\022\026.back"
-  "up.SendLogRequest\032\027.backup.SendLogRespon"
-  "se\"\000\022N\n\rPullBackupKey\022\034.backup.PullBacku"
-  "pKeyRequest\032\035.backup.PullBackupKeyRespon"
-  "se\"\000\022S\n\016PullCompaction\022\035.backup.PullComp"
-  "actionRequest\032\036.backup.PullCompactionRes"
-  "ponse\"\0000\001b\006proto3"
+  "\n\014backup.proto\022\006backup\032\033google/protobuf/"
+  "empty.proto\"V\n\017ResetKeyRequest\022\016\n\006userId"
+  "\030\001 \001(\t\022\020\n\006newKey\030\002 \001(\014H\000\022\031\n\017compactionCh"
+  "unk\030\003 \001(\014H\000B\006\n\004data\".\n\016SendLogRequest\022\016\n"
+  "\006userId\030\001 \001(\t\022\014\n\004data\030\002 \001(\014\"7\n\024PullBacku"
+  "pKeyRequest\022\016\n\006userId\030\001 \001(\t\022\017\n\007pakeKey\030\002"
+  " \001(\014\"3\n\025PullBackupKeyResponse\022\032\n\022encrypt"
+  "edBackupKey\030\001 \001(\014\"8\n\025PullCompactionReque"
+  "st\022\016\n\006userId\030\001 \001(\t\022\017\n\007message\030\002 \001(\014\"O\n\026P"
+  "ullCompactionResponse\022\031\n\017compactionChunk"
+  "\030\001 \001(\014H\000\022\022\n\010logChunk\030\002 \001(\014H\000B\006\n\004data2\262\002\n"
+  "\rBackupService\022\?\n\010ResetKey\022\027.backup.Rese"
+  "tKeyRequest\032\026.google.protobuf.Empty\"\000(\001\022"
+  ";\n\007SendLog\022\026.backup.SendLogRequest\032\026.goo"
+  "gle.protobuf.Empty\"\000\022N\n\rPullBackupKey\022\034."
+  "backup.PullBackupKeyRequest\032\035.backup.Pul"
+  "lBackupKeyResponse\"\000\022S\n\016PullCompaction\022\035"
+  ".backup.PullCompactionRequest\032\036.backup.P"
+  "ullCompactionResponse\"\0000\001b\006proto3"
   ;
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_backup_2eproto_deps[1] = {
+  &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
+};
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_backup_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_backup_2eproto = {
-  false, false, 817, descriptor_table_protodef_backup_2eproto, "backup.proto", 
-  &descriptor_table_backup_2eproto_once, nullptr, 0, 8,
+  false, false, 753, descriptor_table_protodef_backup_2eproto, "backup.proto", 
+  &descriptor_table_backup_2eproto_once, descriptor_table_backup_2eproto_deps, 1, 6,
   schemas, file_default_instances, TableStruct_backup_2eproto::offsets,
   file_level_metadata_backup_2eproto, file_level_enum_descriptors_backup_2eproto, file_level_service_descriptors_backup_2eproto,
 };
@@ -546,193 +505,6 @@ void ResetKeyRequest::InternalSwap(ResetKeyRequest* other) {
 
 // ===================================================================
 
-class ResetKeyResponse::_Internal {
- public:
-};
-
-ResetKeyResponse::ResetKeyResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
-  SharedCtor();
-  RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:backup.ResetKeyResponse)
-}
-ResetKeyResponse::ResetKeyResponse(const ResetKeyResponse& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  success_ = from.success_;
-  // @@protoc_insertion_point(copy_constructor:backup.ResetKeyResponse)
-}
-
-void ResetKeyResponse::SharedCtor() {
-success_ = false;
-}
-
-ResetKeyResponse::~ResetKeyResponse() {
-  // @@protoc_insertion_point(destructor:backup.ResetKeyResponse)
-  SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-void ResetKeyResponse::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
-}
-
-void ResetKeyResponse::ArenaDtor(void* object) {
-  ResetKeyResponse* _this = reinterpret_cast< ResetKeyResponse* >(object);
-  (void)_this;
-}
-void ResetKeyResponse::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
-void ResetKeyResponse::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-
-void ResetKeyResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:backup.ResetKeyResponse)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  success_ = false;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* ResetKeyResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // bool success = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          success_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* ResetKeyResponse::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:backup.ResetKeyResponse)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // bool success = 1;
-  if (this->success() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(1, this->_internal_success(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:backup.ResetKeyResponse)
-  return target;
-}
-
-size_t ResetKeyResponse::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:backup.ResetKeyResponse)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // bool success = 1;
-  if (this->success() != 0) {
-    total_size += 1 + 1;
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void ResetKeyResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:backup.ResetKeyResponse)
-  GOOGLE_DCHECK_NE(&from, this);
-  const ResetKeyResponse* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<ResetKeyResponse>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:backup.ResetKeyResponse)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:backup.ResetKeyResponse)
-    MergeFrom(*source);
-  }
-}
-
-void ResetKeyResponse::MergeFrom(const ResetKeyResponse& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:backup.ResetKeyResponse)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from.success() != 0) {
-    _internal_set_success(from._internal_success());
-  }
-}
-
-void ResetKeyResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:backup.ResetKeyResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void ResetKeyResponse::CopyFrom(const ResetKeyResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:backup.ResetKeyResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool ResetKeyResponse::IsInitialized() const {
-  return true;
-}
-
-void ResetKeyResponse::InternalSwap(ResetKeyResponse* other) {
-  using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  swap(success_, other->success_);
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata ResetKeyResponse::GetMetadata() const {
-  return GetMetadataStatic();
-}
-
-
-// ===================================================================
-
 class SendLogRequest::_Internal {
  public:
 };
@@ -960,193 +732,6 @@ void SendLogRequest::InternalSwap(SendLogRequest* other) {
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata SendLogRequest::GetMetadata() const {
-  return GetMetadataStatic();
-}
-
-
-// ===================================================================
-
-class SendLogResponse::_Internal {
- public:
-};
-
-SendLogResponse::SendLogResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
-  SharedCtor();
-  RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:backup.SendLogResponse)
-}
-SendLogResponse::SendLogResponse(const SendLogResponse& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  success_ = from.success_;
-  // @@protoc_insertion_point(copy_constructor:backup.SendLogResponse)
-}
-
-void SendLogResponse::SharedCtor() {
-success_ = false;
-}
-
-SendLogResponse::~SendLogResponse() {
-  // @@protoc_insertion_point(destructor:backup.SendLogResponse)
-  SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-void SendLogResponse::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
-}
-
-void SendLogResponse::ArenaDtor(void* object) {
-  SendLogResponse* _this = reinterpret_cast< SendLogResponse* >(object);
-  (void)_this;
-}
-void SendLogResponse::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
-void SendLogResponse::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-
-void SendLogResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:backup.SendLogResponse)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  success_ = false;
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* SendLogResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-    switch (tag >> 3) {
-      // bool success = 1;
-      case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          success_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      default: {
-      handle_unusual:
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-      }
-    }  // switch
-  }  // while
-success:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* SendLogResponse::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:backup.SendLogResponse)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  // bool success = 1;
-  if (this->success() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(1, this->_internal_success(), target);
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:backup.SendLogResponse)
-  return target;
-}
-
-size_t SendLogResponse::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:backup.SendLogResponse)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  // bool success = 1;
-  if (this->success() != 0) {
-    total_size += 1 + 1;
-  }
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void SendLogResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:backup.SendLogResponse)
-  GOOGLE_DCHECK_NE(&from, this);
-  const SendLogResponse* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<SendLogResponse>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:backup.SendLogResponse)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:backup.SendLogResponse)
-    MergeFrom(*source);
-  }
-}
-
-void SendLogResponse::MergeFrom(const SendLogResponse& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:backup.SendLogResponse)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (from.success() != 0) {
-    _internal_set_success(from._internal_success());
-  }
-}
-
-void SendLogResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:backup.SendLogResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void SendLogResponse::CopyFrom(const SendLogResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:backup.SendLogResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool SendLogResponse::IsInitialized() const {
-  return true;
-}
-
-void SendLogResponse::InternalSwap(SendLogResponse* other) {
-  using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  swap(success_, other->success_);
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata SendLogResponse::GetMetadata() const {
   return GetMetadataStatic();
 }
 
@@ -1404,13 +989,11 @@ PullBackupKeyResponse::PullBackupKeyResponse(const PullBackupKeyResponse& from)
     encryptedbackupkey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_encryptedbackupkey(), 
       GetArena());
   }
-  success_ = from.success_;
   // @@protoc_insertion_point(copy_constructor:backup.PullBackupKeyResponse)
 }
 
 void PullBackupKeyResponse::SharedCtor() {
 encryptedbackupkey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-success_ = false;
 }
 
 PullBackupKeyResponse::~PullBackupKeyResponse() {
@@ -1441,7 +1024,6 @@ void PullBackupKeyResponse::Clear() {
   (void) cached_has_bits;
 
   encryptedbackupkey_.ClearToEmpty();
-  success_ = false;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -1452,16 +1034,9 @@ const char* PullBackupKeyResponse::_InternalParse(const char* ptr, ::PROTOBUF_NA
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     CHK_(ptr);
     switch (tag >> 3) {
-      // bool success = 1;
+      // bytes encryptedBackupKey = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          success_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // bytes encryptedBackupKey = 2;
-      case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
           auto str = _internal_mutable_encryptedbackupkey();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -1495,16 +1070,10 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // bool success = 1;
-  if (this->success() != 0) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteBoolToArray(1, this->_internal_success(), target);
-  }
-
-  // bytes encryptedBackupKey = 2;
+  // bytes encryptedBackupKey = 1;
   if (this->encryptedbackupkey().size() > 0) {
     target = stream->WriteBytesMaybeAliased(
-        2, this->_internal_encryptedbackupkey(), target);
+        1, this->_internal_encryptedbackupkey(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1523,16 +1092,11 @@ size_t PullBackupKeyResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  // bytes encryptedBackupKey = 2;
+  // bytes encryptedBackupKey = 1;
   if (this->encryptedbackupkey().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_encryptedbackupkey());
-  }
-
-  // bool success = 1;
-  if (this->success() != 0) {
-    total_size += 1 + 1;
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1569,9 +1133,6 @@ void PullBackupKeyResponse::MergeFrom(const PullBackupKeyResponse& from) {
   if (from.encryptedbackupkey().size() > 0) {
     _internal_set_encryptedbackupkey(from._internal_encryptedbackupkey());
   }
-  if (from.success() != 0) {
-    _internal_set_success(from._internal_success());
-  }
 }
 
 void PullBackupKeyResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1596,7 +1157,6 @@ void PullBackupKeyResponse::InternalSwap(PullBackupKeyResponse* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
   encryptedbackupkey_.Swap(&other->encryptedbackupkey_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-  swap(success_, other->success_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata PullBackupKeyResponse::GetMetadata() const {
@@ -2105,14 +1665,8 @@ PROTOBUF_NAMESPACE_OPEN
 template<> PROTOBUF_NOINLINE ::backup::ResetKeyRequest* Arena::CreateMaybeMessage< ::backup::ResetKeyRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::backup::ResetKeyRequest >(arena);
 }
-template<> PROTOBUF_NOINLINE ::backup::ResetKeyResponse* Arena::CreateMaybeMessage< ::backup::ResetKeyResponse >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::backup::ResetKeyResponse >(arena);
-}
 template<> PROTOBUF_NOINLINE ::backup::SendLogRequest* Arena::CreateMaybeMessage< ::backup::SendLogRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::backup::SendLogRequest >(arena);
-}
-template<> PROTOBUF_NOINLINE ::backup::SendLogResponse* Arena::CreateMaybeMessage< ::backup::SendLogResponse >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::backup::SendLogResponse >(arena);
 }
 template<> PROTOBUF_NOINLINE ::backup::PullBackupKeyRequest* Arena::CreateMaybeMessage< ::backup::PullBackupKeyRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::backup::PullBackupKeyRequest >(arena);
