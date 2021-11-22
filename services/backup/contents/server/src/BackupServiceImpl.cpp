@@ -37,39 +37,44 @@ BackupServiceImpl::ResetKey(grpc::ServerContext *context,
   backup::ResetKeyRequest request;
   std::string id;
   AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
-  while (reader->Read(&request)) {
-    if (!id.size()) {
-      id = request.userid();
-    } else if (id != request.userid()) {
-      throw std::runtime_error("id mismatch: " + id + "/" + request.userid());
+  try {
+    while (reader->Read(&request)) {
+      if (!id.size()) {
+        id = request.userid();
+      } else if (id != request.userid()) {
+        throw std::runtime_error("id mismatch: " + id + "/" + request.userid());
+      }
+      const std::string newKey = request.newkey();
+      const std::string compactionChunk = request.compactionchunk();
+      // the following behavior assumes that the client sends:
+      // 1. key + empty chunk
+      // 2. empty key + chunk
+      // ...
+      // N. empty key + chunk
+      if (newKey.size()) {
+        std::cout << "Backup Service => ResetKey(this log will be removed) "
+                     "reading key ["
+                  << newKey << "]" << std::endl;
+        bucket.writeObject(
+            this->generateObjectName(id, OBJECT_TYPE::ENCRYPTED_BACKUP_KEY),
+            newKey);
+        bucket.clearObject(
+            this->generateObjectName(id, OBJECT_TYPE::COMPACTION));
+      } else if (compactionChunk.size()) {
+        std::cout << "Backup Service => ResetKey(this log will be removed) "
+                     "reading chunk ["
+                  << compactionChunk << "]" << std::endl;
+        bucket.appendToObject(
+            this->generateObjectName(id, OBJECT_TYPE::COMPACTION),
+            compactionChunk);
+      }
     }
-    const std::string newKey = request.newkey();
-    const std::string compactionChunk = request.compactionchunk();
-    // the following behavior assumes that the client sends:
-    // 1. key + empty chunk
-    // 2. empty key + chunk
-    // ...
-    // N. empty key + chunk
-    if (newKey.size()) {
-      std::cout << "Backup Service => ResetKey(this log will be removed) "
-                   "reading key ["
-                << newKey << "]" << std::endl;
-      bucket.writeObject(
-          this->generateObjectName(id, OBJECT_TYPE::ENCRYPTED_BACKUP_KEY),
-          newKey);
-      bucket.clearObject(this->generateObjectName(id, OBJECT_TYPE::COMPACTION));
-    } else if (compactionChunk.size()) {
-      std::cout << "Backup Service => ResetKey(this log will be removed) "
-                   "reading chunk ["
-                << compactionChunk << "]" << std::endl;
-      bucket.appendToObject(
-          this->generateObjectName(id, OBJECT_TYPE::COMPACTION),
-          compactionChunk);
-    }
+    bucket.clearObject(
+        this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS));
+  } catch (std::runtime_error &e) {
+    std::cout << "error: " << e.what() << std::endl;
+    return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
-  bucket.clearObject(
-      this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS));
-
   return grpc::Status::OK;
 }
 
@@ -81,9 +86,14 @@ grpc::Status BackupServiceImpl::SendLog(grpc::ServerContext *context,
 
   std::cout << "Backup Service => SendLog, id:[" << id << "] data: [" << data
             << "](this log will be removed)" << std::endl;
-  this->storageManager->getBucket(this->bucketName)
-      .appendToObject(
-          this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS), data);
+  try {
+    this->storageManager->getBucket(this->bucketName)
+        .appendToObject(
+            this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS), data);
+  } catch (std::runtime_error &e) {
+    std::cout << "error: " << e.what() << std::endl;
+    return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
 
   return grpc::Status::OK;
 }
@@ -99,10 +109,15 @@ BackupServiceImpl::PullBackupKey(grpc::ServerContext *context,
             << pakeKey << "](this log will be removed)" << std::endl;
 
   // TODO pake operations - verify user's password with pake's keys
-  std::string key = this->storageManager->getBucket(this->bucketName)
-                        .getObjectData(this->generateObjectName(
-                            id, OBJECT_TYPE::ENCRYPTED_BACKUP_KEY));
-  response->set_encryptedbackupkey(key);
+  try {
+    std::string key = this->storageManager->getBucket(this->bucketName)
+                          .getObjectData(this->generateObjectName(
+                              id, OBJECT_TYPE::ENCRYPTED_BACKUP_KEY));
+    response->set_encryptedbackupkey(key);
+  } catch (std::runtime_error &e) {
+    std::cout << "error: " << e.what() << std::endl;
+    return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
 
   return grpc::Status::OK;
 }
@@ -114,9 +129,8 @@ grpc::Status BackupServiceImpl::PullCompaction(
 
   std::cout << "Backup Service => PullCompaction, id:[" << id
             << "](this log will be removed)" << std::endl;
-
   AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
-  {
+  try {
     backup::PullCompactionResponse response;
     std::function<void(const std::string &)> callback =
         [&response, &writer](std::string chunk) {
@@ -129,8 +143,11 @@ grpc::Status BackupServiceImpl::PullCompaction(
     bucket.getObjectDataChunks(
         this->generateObjectName(id, OBJECT_TYPE::COMPACTION), callback,
         GRPC_CHUNK_SIZE_LIMIT);
+  } catch (std::runtime_error &e) {
+    std::cout << "error: " << e.what() << std::endl;
+    return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
-  {
+  try {
     backup::PullCompactionResponse response;
     std::function<void(const std::string &)> callback =
         [&response, &writer](std::string chunk) {
@@ -143,6 +160,9 @@ grpc::Status BackupServiceImpl::PullCompaction(
     bucket.getObjectDataChunks(
         this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS), callback,
         GRPC_CHUNK_SIZE_LIMIT);
+  } catch (std::runtime_error &e) {
+    std::cout << "error: " << e.what() << std::endl;
+    return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
   return grpc::Status::OK;
 }
