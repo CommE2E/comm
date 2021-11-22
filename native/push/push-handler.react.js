@@ -156,6 +156,10 @@ class PushHandler extends React.PureComponent<Props, State> {
         .notifications()
         .onNotificationOpened(this.androidNotificationOpened);
     }
+
+    if (this.props.connection.status === 'connected') {
+      this.updateBadgeCount();
+    }
   }
 
   componentWillUnmount() {
