@@ -2,10 +2,12 @@ syntax = "proto3";
 
 package tunnelbroker;
 
+import "google/protobuf/empty.proto";
+
 service TunnelBrokerService {
   rpc CheckIfPrimaryDeviceOnline(CheckRequest) returns (CheckResponse) {}
   rpc BecomeNewPrimaryDevice(NewPrimaryRequest) returns (NewPrimaryResponse) {}
-  rpc SendPong (PongRequest) returns (PongResponse) {}
+  rpc SendPong (PongRequest) returns (google.protobuf.Empty) {}
 }
 
 // for CheckIfPrimaryDeviceOnline
@@ -45,5 +47,3 @@ message PongRequest {
   string userId = 1;
   string deviceToken = 2;
 }
-
-message PongResponse {}

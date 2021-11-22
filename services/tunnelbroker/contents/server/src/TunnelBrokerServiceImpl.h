@@ -31,7 +31,7 @@ public:
                          tunnelbroker::NewPrimaryResponse *response) override;
   grpc::Status SendPong(grpc::ServerContext *context,
                         const tunnelbroker::PongRequest *request,
-                        tunnelbroker::PongResponse *response) override;
+                        google::protobuf::Empty *response) override;
 };
 
 } // namespace network

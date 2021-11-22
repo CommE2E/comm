@@ -79,7 +79,7 @@ grpc::Status TunnelBrokerServiceImpl::BecomeNewPrimaryDevice(
 grpc::Status
 TunnelBrokerServiceImpl::SendPong(grpc::ServerContext *context,
                                   const tunnelbroker::PongRequest *request,
-                                  tunnelbroker::PongResponse *response) {
+                                  google::protobuf::Empty *response) {
   const std::string id = request->userid();
   const std::string deviceToken = request->devicetoken();
 

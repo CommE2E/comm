@@ -85,23 +85,23 @@ void TunnelBrokerService::Stub::async::BecomeNewPrimaryDevice(::grpc::ClientCont
   return result;
 }
 
-::grpc::Status TunnelBrokerService::Stub::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::tunnelbroker::PongResponse* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::tunnelbroker::PongRequest, ::tunnelbroker::PongResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_SendPong_, context, request, response);
+::grpc::Status TunnelBrokerService::Stub::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::google::protobuf::Empty* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::tunnelbroker::PongRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_SendPong_, context, request, response);
 }
 
-void TunnelBrokerService::Stub::async::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest* request, ::tunnelbroker::PongResponse* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::tunnelbroker::PongRequest, ::tunnelbroker::PongResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SendPong_, context, request, response, std::move(f));
+void TunnelBrokerService::Stub::async::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::tunnelbroker::PongRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SendPong_, context, request, response, std::move(f));
 }
 
-void TunnelBrokerService::Stub::async::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest* request, ::tunnelbroker::PongResponse* response, ::grpc::ClientUnaryReactor* reactor) {
+void TunnelBrokerService::Stub::async::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) {
   ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SendPong_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::tunnelbroker::PongResponse>* TunnelBrokerService::Stub::PrepareAsyncSendPongRaw(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::tunnelbroker::PongResponse, ::tunnelbroker::PongRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_SendPong_, context, request);
+::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* TunnelBrokerService::Stub::PrepareAsyncSendPongRaw(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::google::protobuf::Empty, ::tunnelbroker::PongRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_SendPong_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::tunnelbroker::PongResponse>* TunnelBrokerService::Stub::AsyncSendPongRaw(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* TunnelBrokerService::Stub::AsyncSendPongRaw(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::grpc::CompletionQueue* cq) {
   auto* result =
     this->PrepareAsyncSendPongRaw(context, request, cq);
   result->StartCall();
@@ -132,11 +132,11 @@ TunnelBrokerService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       TunnelBrokerService_method_names[2],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< TunnelBrokerService::Service, ::tunnelbroker::PongRequest, ::tunnelbroker::PongResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< TunnelBrokerService::Service, ::tunnelbroker::PongRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](TunnelBrokerService::Service* service,
              ::grpc::ServerContext* ctx,
              const ::tunnelbroker::PongRequest* req,
-             ::tunnelbroker::PongResponse* resp) {
+             ::google::protobuf::Empty* resp) {
                return service->SendPong(ctx, req, resp);
              }, this)));
 }
@@ -158,7 +158,7 @@ TunnelBrokerService::Service::~Service() {
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
-::grpc::Status TunnelBrokerService::Service::SendPong(::grpc::ServerContext* context, const ::tunnelbroker::PongRequest* request, ::tunnelbroker::PongResponse* response) {
+::grpc::Status TunnelBrokerService::Service::SendPong(::grpc::ServerContext* context, const ::tunnelbroker::PongRequest* request, ::google::protobuf::Empty* response) {
   (void) context;
   (void) request;
   (void) response;

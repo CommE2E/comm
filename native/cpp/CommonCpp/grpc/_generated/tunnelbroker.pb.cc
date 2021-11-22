@@ -81,19 +81,8 @@ struct PongRequestDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PongRequestDefaultTypeInternal _PongRequest_default_instance_;
-constexpr PongResponse::PongResponse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
-struct PongResponseDefaultTypeInternal {
-  constexpr PongResponseDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
-  ~PongResponseDefaultTypeInternal() {}
-  union {
-    PongResponse _instance;
-  };
-};
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PongResponseDefaultTypeInternal _PongResponse_default_instance_;
 }  // namespace tunnelbroker
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_tunnelbroker_2eproto[6];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_tunnelbroker_2eproto[5];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_tunnelbroker_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_tunnelbroker_2eproto = nullptr;
 
@@ -131,11 +120,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::PongRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::PongRequest, devicetoken_),
-  ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::tunnelbroker::PongResponse, _internal_metadata_),
-  ~0u,  // no _extensions_
-  ~0u,  // no _oneof_case_
-  ~0u,  // no _weak_field_map_
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::tunnelbroker::CheckRequest)},
@@ -143,7 +127,6 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 13, -1, sizeof(::tunnelbroker::NewPrimaryRequest)},
   { 20, -1, sizeof(::tunnelbroker::NewPrimaryResponse)},
   { 26, -1, sizeof(::tunnelbroker::PongRequest)},
-  { 33, -1, sizeof(::tunnelbroker::PongResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -152,34 +135,36 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::tunnelbroker::_NewPrimaryRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::tunnelbroker::_NewPrimaryResponse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::tunnelbroker::_PongRequest_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::tunnelbroker::_PongResponse_default_instance_),
 };
 
 const char descriptor_table_protodef_tunnelbroker_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
-  "\n\022tunnelbroker.proto\022\014tunnelbroker\"3\n\014Ch"
-  "eckRequest\022\016\n\006userId\030\001 \001(\t\022\023\n\013deviceToke"
-  "n\030\002 \001(\t\"K\n\rCheckResponse\022:\n\021checkRespons"
-  "eType\030\001 \001(\0162\037.tunnelbroker.CheckResponse"
-  "Type\"8\n\021NewPrimaryRequest\022\016\n\006userId\030\001 \001("
-  "\t\022\023\n\013deviceToken\030\002 \001(\t\"%\n\022NewPrimaryResp"
-  "onse\022\017\n\007success\030\001 \001(\010\"2\n\013PongRequest\022\016\n\006"
-  "userId\030\001 \001(\t\022\023\n\013deviceToken\030\002 \001(\t\"\016\n\014Pon"
-  "gResponse*n\n\021CheckResponseType\022\030\n\024PRIMAR"
-  "Y_DOESNT_EXIST\020\000\022\022\n\016PRIMARY_ONLINE\020\001\022\023\n\017"
-  "PRIMARY_OFFLINE\020\002\022\026\n\022CURRENT_IS_PRIMARY\020"
-  "\0032\222\002\n\023TunnelBrokerService\022W\n\032CheckIfPrim"
-  "aryDeviceOnline\022\032.tunnelbroker.CheckRequ"
-  "est\032\033.tunnelbroker.CheckResponse\"\000\022]\n\026Be"
-  "comeNewPrimaryDevice\022\037.tunnelbroker.NewP"
-  "rimaryRequest\032 .tunnelbroker.NewPrimaryR"
-  "esponse\"\000\022C\n\010SendPong\022\031.tunnelbroker.Pon"
-  "gRequest\032\032.tunnelbroker.PongResponse\"\000b\006"
-  "proto3"
+  "\n\022tunnelbroker.proto\022\014tunnelbroker\032\033goog"
+  "le/protobuf/empty.proto\"3\n\014CheckRequest\022"
+  "\016\n\006userId\030\001 \001(\t\022\023\n\013deviceToken\030\002 \001(\t\"K\n\r"
+  "CheckResponse\022:\n\021checkResponseType\030\001 \001(\016"
+  "2\037.tunnelbroker.CheckResponseType\"8\n\021New"
+  "PrimaryRequest\022\016\n\006userId\030\001 \001(\t\022\023\n\013device"
+  "Token\030\002 \001(\t\"%\n\022NewPrimaryResponse\022\017\n\007suc"
+  "cess\030\001 \001(\010\"2\n\013PongRequest\022\016\n\006userId\030\001 \001("
+  "\t\022\023\n\013deviceToken\030\002 \001(\t*n\n\021CheckResponseT"
+  "ype\022\030\n\024PRIMARY_DOESNT_EXIST\020\000\022\022\n\016PRIMARY"
+  "_ONLINE\020\001\022\023\n\017PRIMARY_OFFLINE\020\002\022\026\n\022CURREN"
+  "T_IS_PRIMARY\020\0032\216\002\n\023TunnelBrokerService\022W"
+  "\n\032CheckIfPrimaryDeviceOnline\022\032.tunnelbro"
+  "ker.CheckRequest\032\033.tunnelbroker.CheckRes"
+  "ponse\"\000\022]\n\026BecomeNewPrimaryDevice\022\037.tunn"
+  "elbroker.NewPrimaryRequest\032 .tunnelbroke"
+  "r.NewPrimaryResponse\"\000\022\?\n\010SendPong\022\031.tun"
+  "nelbroker.PongRequest\032\026.google.protobuf."
+  "Empty\"\000b\006proto3"
   ;
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_tunnelbroker_2eproto_deps[1] = {
+  &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
+};
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_tunnelbroker_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_tunnelbroker_2eproto = {
-  false, false, 726, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
-  &descriptor_table_tunnelbroker_2eproto_once, nullptr, 0, 6,
+  false, false, 735, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
+  &descriptor_table_tunnelbroker_2eproto_once, descriptor_table_tunnelbroker_2eproto_deps, 1, 5,
   schemas, file_default_instances, TableStruct_tunnelbroker_2eproto::offsets,
   file_level_metadata_tunnelbroker_2eproto, file_level_enum_descriptors_tunnelbroker_2eproto, file_level_service_descriptors_tunnelbroker_2eproto,
 };
@@ -1300,163 +1285,6 @@ void PongRequest::InternalSwap(PongRequest* other) {
 }
 
 
-// ===================================================================
-
-class PongResponse::_Internal {
- public:
-};
-
-PongResponse::PongResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
-  SharedCtor();
-  RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:tunnelbroker.PongResponse)
-}
-PongResponse::PongResponse(const PongResponse& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message() {
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  // @@protoc_insertion_point(copy_constructor:tunnelbroker.PongResponse)
-}
-
-void PongResponse::SharedCtor() {
-}
-
-PongResponse::~PongResponse() {
-  // @@protoc_insertion_point(destructor:tunnelbroker.PongResponse)
-  SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-void PongResponse::SharedDtor() {
-  GOOGLE_DCHECK(GetArena() == nullptr);
-}
-
-void PongResponse::ArenaDtor(void* object) {
-  PongResponse* _this = reinterpret_cast< PongResponse* >(object);
-  (void)_this;
-}
-void PongResponse::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
-void PongResponse::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
-}
-
-void PongResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:tunnelbroker.PongResponse)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
-}
-
-const char* PongResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
-    CHK_(ptr);
-        if ((tag & 7) == 4 || tag == 0) {
-          ctx->SetLastTag(tag);
-          goto success;
-        }
-        ptr = UnknownFieldParse(tag,
-            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
-            ptr, ctx);
-        CHK_(ptr != nullptr);
-        continue;
-  }  // while
-success:
-  return ptr;
-failure:
-  ptr = nullptr;
-  goto success;
-#undef CHK_
-}
-
-::PROTOBUF_NAMESPACE_ID::uint8* PongResponse::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
-  // @@protoc_insertion_point(serialize_to_array_start:tunnelbroker.PongResponse)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
-        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:tunnelbroker.PongResponse)
-  return target;
-}
-
-size_t PongResponse::ByteSizeLong() const {
-// @@protoc_insertion_point(message_byte_size_start:tunnelbroker.PongResponse)
-  size_t total_size = 0;
-
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  // Prevent compiler warnings about cached_has_bits being unused
-  (void) cached_has_bits;
-
-  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
-        _internal_metadata_, total_size, &_cached_size_);
-  }
-  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
-  SetCachedSize(cached_size);
-  return total_size;
-}
-
-void PongResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_merge_from_start:tunnelbroker.PongResponse)
-  GOOGLE_DCHECK_NE(&from, this);
-  const PongResponse* source =
-      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<PongResponse>(
-          &from);
-  if (source == nullptr) {
-  // @@protoc_insertion_point(generalized_merge_from_cast_fail:tunnelbroker.PongResponse)
-    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
-  } else {
-  // @@protoc_insertion_point(generalized_merge_from_cast_success:tunnelbroker.PongResponse)
-    MergeFrom(*source);
-  }
-}
-
-void PongResponse::MergeFrom(const PongResponse& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:tunnelbroker.PongResponse)
-  GOOGLE_DCHECK_NE(&from, this);
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
-  (void) cached_has_bits;
-
-}
-
-void PongResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-// @@protoc_insertion_point(generalized_copy_from_start:tunnelbroker.PongResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void PongResponse::CopyFrom(const PongResponse& from) {
-// @@protoc_insertion_point(class_specific_copy_from_start:tunnelbroker.PongResponse)
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool PongResponse::IsInitialized() const {
-  return true;
-}
-
-void PongResponse::InternalSwap(PongResponse* other) {
-  using std::swap;
-  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-}
-
-::PROTOBUF_NAMESPACE_ID::Metadata PongResponse::GetMetadata() const {
-  return GetMetadataStatic();
-}
-
-
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace tunnelbroker
 PROTOBUF_NAMESPACE_OPEN
@@ -1474,9 +1302,6 @@ template<> PROTOBUF_NOINLINE ::tunnelbroker::NewPrimaryResponse* Arena::CreateMa
 }
 template<> PROTOBUF_NOINLINE ::tunnelbroker::PongRequest* Arena::CreateMaybeMessage< ::tunnelbroker::PongRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::tunnelbroker::PongRequest >(arena);
-}
-template<> PROTOBUF_NOINLINE ::tunnelbroker::PongResponse* Arena::CreateMaybeMessage< ::tunnelbroker::PongResponse >(Arena* arena) {
-  return Arena::CreateMessageInternal< ::tunnelbroker::PongResponse >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

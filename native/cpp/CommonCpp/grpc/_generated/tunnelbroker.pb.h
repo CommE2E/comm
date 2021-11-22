@@ -32,6 +32,7 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
+#include <google/protobuf/empty.pb.h>
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_tunnelbroker_2eproto
@@ -47,7 +48,7 @@ struct TableStruct_tunnelbroker_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[6]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -71,9 +72,6 @@ extern NewPrimaryResponseDefaultTypeInternal _NewPrimaryResponse_default_instanc
 class PongRequest;
 struct PongRequestDefaultTypeInternal;
 extern PongRequestDefaultTypeInternal _PongRequest_default_instance_;
-class PongResponse;
-struct PongResponseDefaultTypeInternal;
-extern PongResponseDefaultTypeInternal _PongResponse_default_instance_;
 }  // namespace tunnelbroker
 PROTOBUF_NAMESPACE_OPEN
 template<> ::tunnelbroker::CheckRequest* Arena::CreateMaybeMessage<::tunnelbroker::CheckRequest>(Arena*);
@@ -81,7 +79,6 @@ template<> ::tunnelbroker::CheckResponse* Arena::CreateMaybeMessage<::tunnelbrok
 template<> ::tunnelbroker::NewPrimaryRequest* Arena::CreateMaybeMessage<::tunnelbroker::NewPrimaryRequest>(Arena*);
 template<> ::tunnelbroker::NewPrimaryResponse* Arena::CreateMaybeMessage<::tunnelbroker::NewPrimaryResponse>(Arena*);
 template<> ::tunnelbroker::PongRequest* Arena::CreateMaybeMessage<::tunnelbroker::PongRequest>(Arena*);
-template<> ::tunnelbroker::PongResponse* Arena::CreateMaybeMessage<::tunnelbroker::PongResponse>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace tunnelbroker {
 
@@ -872,130 +869,6 @@ class PongRequest PROTOBUF_FINAL :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_tunnelbroker_2eproto;
 };
-// -------------------------------------------------------------------
-
-class PongResponse PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tunnelbroker.PongResponse) */ {
- public:
-  inline PongResponse() : PongResponse(nullptr) {}
-  virtual ~PongResponse();
-  explicit constexpr PongResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
-
-  PongResponse(const PongResponse& from);
-  PongResponse(PongResponse&& from) noexcept
-    : PongResponse() {
-    *this = ::std::move(from);
-  }
-
-  inline PongResponse& operator=(const PongResponse& from) {
-    CopyFrom(from);
-    return *this;
-  }
-  inline PongResponse& operator=(PongResponse&& from) noexcept {
-    if (GetArena() == from.GetArena()) {
-      if (this != &from) InternalSwap(&from);
-    } else {
-      CopyFrom(from);
-    }
-    return *this;
-  }
-
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
-    return GetDescriptor();
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
-    return GetMetadataStatic().descriptor;
-  }
-  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
-    return GetMetadataStatic().reflection;
-  }
-  static const PongResponse& default_instance() {
-    return *internal_default_instance();
-  }
-  static inline const PongResponse* internal_default_instance() {
-    return reinterpret_cast<const PongResponse*>(
-               &_PongResponse_default_instance_);
-  }
-  static constexpr int kIndexInFileMessages =
-    5;
-
-  friend void swap(PongResponse& a, PongResponse& b) {
-    a.Swap(&b);
-  }
-  inline void Swap(PongResponse* other) {
-    if (other == this) return;
-    if (GetArena() == other->GetArena()) {
-      InternalSwap(other);
-    } else {
-      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
-    }
-  }
-  void UnsafeArenaSwap(PongResponse* other) {
-    if (other == this) return;
-    GOOGLE_DCHECK(GetArena() == other->GetArena());
-    InternalSwap(other);
-  }
-
-  // implements Message ----------------------------------------------
-
-  inline PongResponse* New() const final {
-    return CreateMaybeMessage<PongResponse>(nullptr);
-  }
-
-  PongResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<PongResponse>(arena);
-  }
-  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const PongResponse& from);
-  void MergeFrom(const PongResponse& from);
-  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
-  bool IsInitialized() const final;
-
-  size_t ByteSizeLong() const final;
-  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
-  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
-      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
-  int GetCachedSize() const final { return _cached_size_.Get(); }
-
-  private:
-  inline void SharedCtor();
-  inline void SharedDtor();
-  void SetCachedSize(int size) const final;
-  void InternalSwap(PongResponse* other);
-  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
-  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tunnelbroker.PongResponse";
-  }
-  protected:
-  explicit PongResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  private:
-  static void ArenaDtor(void* object);
-  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
-  public:
-
-  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
-  private:
-  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
-    return ::descriptor_table_tunnelbroker_2eproto_metadata_getter(kIndexInFileMessages);
-  }
-
-  public:
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // @@protoc_insertion_point(class_scope:tunnelbroker.PongResponse)
- private:
-  class _Internal;
-
-  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
-  typedef void InternalArenaConstructable_;
-  typedef void DestructorSkippable_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  friend struct ::TableStruct_tunnelbroker_2eproto;
-};
 // ===================================================================
 
 
@@ -1429,15 +1302,9 @@ inline void PongRequest::set_allocated_devicetoken(std::string* devicetoken) {
   // @@protoc_insertion_point(field_set_allocated:tunnelbroker.PongRequest.deviceToken)
 }
 
-// -------------------------------------------------------------------
-
-// PongResponse
-
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
-// -------------------------------------------------------------------
-
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
