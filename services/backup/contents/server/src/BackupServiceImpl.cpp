@@ -1,25 +1,50 @@
 #include "BackupServiceImpl.h"
 
-#include <algorithm>
+#include <iostream>
 
 namespace comm {
 namespace network {
+
+std::string
+BackupServiceImpl::generateObjectName(const std::string &userId,
+                                      const OBJECT_TYPE objectType) const {
+  if (objectType == OBJECT_TYPE::ENCRYPTED_BACKUP_KEY) {
+    return userId + "-backup-key";
+  }
+  if (objectType == OBJECT_TYPE::TRANSACTION_LOGS) {
+    return userId + "-logs";
+  }
+  if (objectType == OBJECT_TYPE::COMPACTION) {
+    return userId + "-compaction";
+  }
+  throw std::runtime_error("unhandled operation");
+}
+
+BackupServiceImpl::BackupServiceImpl() {
+  Aws::InitAPI({});
+  this->storageManager = std::make_unique<AwsStorageManager>();
+  if (!this->storageManager->getBucket(this->bucketName).isAvailable()) {
+    throw std::runtime_error("bucket " + this->bucketName + " not available");
+  }
+}
+
+BackupServiceImpl::~BackupServiceImpl() { Aws::ShutdownAPI({}); }
 
 grpc::Status
 BackupServiceImpl::ResetKey(grpc::ServerContext *context,
                             grpc::ServerReader<backup::ResetKeyRequest> *reader,
                             backup::ResetKeyResponse *response) {
-  // TODO implement this functionality properly
   backup::ResetKeyRequest request;
+  std::string id;
+  AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
   while (reader->Read(&request)) {
-    const std::string id = request.userid();
+    if (!id.size()) {
+      id = request.userid();
+    } else if (id != request.userid()) {
+      throw std::runtime_error("id mismatch: " + id + "/" + request.userid());
+    }
     const std::string newKey = request.newkey();
     const std::string compactionChunk = request.compactionchunk();
-
-    // this will insert a new element only if it does not exist
-    this->backupKeys.emplace(std::make_pair(id, ""));
-    this->compacts.emplace(std::make_pair(id, ""));
-
     // the following behavior assumes that the client sends:
     // 1. key + empty chunk
     // 2. empty key + chunk
@@ -29,16 +54,21 @@ BackupServiceImpl::ResetKey(grpc::ServerContext *context,
       std::cout << "Backup Service => ResetKey(this log will be removed) "
                    "reading key ["
                 << newKey << "]" << std::endl;
-      this->backupKeys[id] = newKey;
-      this->compacts[id] = "";
+      bucket.writeObject(
+          this->generateObjectName(id, OBJECT_TYPE::ENCRYPTED_BACKUP_KEY),
+          newKey);
+      bucket.clearObject(this->generateObjectName(id, OBJECT_TYPE::COMPACTION));
     } else if (compactionChunk.size()) {
       std::cout << "Backup Service => ResetKey(this log will be removed) "
                    "reading chunk ["
                 << compactionChunk << "]" << std::endl;
-      this->compacts[id] += compactionChunk;
+      bucket.appendToObject(
+          this->generateObjectName(id, OBJECT_TYPE::COMPACTION),
+          compactionChunk);
     }
   }
-  this->logs.clear();
+  bucket.clearObject(
+      this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS));
 
   response->set_success(true);
 
@@ -48,15 +78,14 @@ BackupServiceImpl::ResetKey(grpc::ServerContext *context,
 grpc::Status BackupServiceImpl::SendLog(grpc::ServerContext *context,
                                         const backup::SendLogRequest *request,
                                         backup::SendLogResponse *response) {
-  // TODO implement this functionality properly
   const std::string id = request->userid();
   const std::string data = request->data();
 
   std::cout << "Backup Service => SendLog, id:[" << id << "] data: [" << data
             << "](this log will be removed)" << std::endl;
-  // this will insert a new element only if it does not exist
-  this->logs.emplace(std::make_pair(id, ""));
-  this->logs[id] += data;
+  this->storageManager->getBucket(this->bucketName)
+      .appendToObject(
+          this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS), data);
 
   return grpc::Status::OK;
 }
@@ -65,7 +94,6 @@ grpc::Status
 BackupServiceImpl::PullBackupKey(grpc::ServerContext *context,
                                  const backup::PullBackupKeyRequest *request,
                                  backup::PullBackupKeyResponse *response) {
-  // TODO implement this functionality properly
   const std::string id = request->userid();
   const std::string pakeKey = request->pakekey();
 
@@ -73,14 +101,11 @@ BackupServiceImpl::PullBackupKey(grpc::ServerContext *context,
             << pakeKey << "](this log will be removed)" << std::endl;
 
   // TODO pake operations - verify user's password with pake's keys
-
-  auto it = this->backupKeys.find(id);
-  if (it == this->backupKeys.end()) {
-    response->set_success(false);
-    return grpc::Status::OK;
-  }
+  std::string key = this->storageManager->getBucket(this->bucketName)
+                        .getObjectData(this->generateObjectName(
+                            id, OBJECT_TYPE::ENCRYPTED_BACKUP_KEY));
   response->set_success(true);
-  response->set_encryptedbackupkey(it->second);
+  response->set_encryptedbackupkey(key);
 
   return grpc::Status::OK;
 }
@@ -88,36 +113,40 @@ BackupServiceImpl::PullBackupKey(grpc::ServerContext *context,
 grpc::Status BackupServiceImpl::PullCompaction(
     grpc::ServerContext *context, const backup::PullCompactionRequest *request,
     grpc::ServerWriter<backup::PullCompactionResponse> *writer) {
-  // TODO implement this functionality properly
   const std::string id = request->userid();
 
   std::cout << "Backup Service => PullCompaction, id:[" << id
             << "](this log will be removed)" << std::endl;
 
-  size_t pos = 0;
-  const size_t chunkSize = 10;
-  // send compact
-  while (pos < this->compacts[id].size()) {
+  AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
+  {
     backup::PullCompactionResponse response;
-    std::string chunk = this->compacts[id].substr(pos, chunkSize);
-    response.set_compactionchunk(chunk);
-    pos += chunkSize;
-    if (!writer->Write(response)) {
-      return grpc::Status::CANCELLED;
-    }
-  }
-  // send logs
-  pos = 0;
-  while (pos < this->logs[id].size()) {
-    backup::PullCompactionResponse response;
-    std::string chunk = this->logs[id].substr(pos, chunkSize);
-    response.set_logchunk(chunk);
-    pos += chunkSize;
-    if (!writer->Write(response)) {
-      return grpc::Status::CANCELLED;
-    }
-  }
+    std::function<void(const std::string &)> callback =
+        [&response, &writer](std::string chunk) {
+          response.set_compactionchunk(chunk);
+          if (!writer->Write(response)) {
+            throw std::runtime_error("writer interrupted sending compaction");
+          }
+        };
 
+    bucket.getObjectDataChunks(
+        this->generateObjectName(id, OBJECT_TYPE::COMPACTION), callback,
+        GRPC_CHUNK_SIZE_LIMIT);
+  }
+  {
+    backup::PullCompactionResponse response;
+    std::function<void(const std::string &)> callback =
+        [&response, &writer](std::string chunk) {
+          response.set_logchunk(chunk);
+          if (!writer->Write(response)) {
+            throw std::runtime_error("writer interrupted sending logs");
+          }
+        };
+
+    bucket.getObjectDataChunks(
+        this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS), callback,
+        GRPC_CHUNK_SIZE_LIMIT);
+  }
   return grpc::Status::OK;
 }
 

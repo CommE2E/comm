@@ -1,13 +1,16 @@
 #pragma once
 
-#include <memory>
-#include <string>
-
-#include <grpcpp/grpcpp.h>
+#include "AwsStorageManager.h"
+#include "Tools.h"
 
 #include "../_generated/backup.grpc.pb.h"
 #include "../_generated/backup.pb.h"
 
+#include <aws/core/Aws.h>
+
+#include <grpcpp/grpcpp.h>
+
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -16,15 +19,17 @@ namespace comm {
 namespace network {
 
 class BackupServiceImpl final : public backup::BackupService::Service {
-  // TODO: replace this with the database
-  // this isn't even thread-safe, but I just wanted to simulate some data
-  // storage so I can write up and test a draft for basic functionalities
-  // BEGIN
-  std::unordered_map<std::string, std::string> backupKeys;
-  std::unordered_map<std::string, std::string> logs;
-  std::unordered_map<std::string, std::string> compacts;
-  // END
+  const std::string bucketName = "commapp-backup";
+
+  std::unique_ptr<AwsStorageManager> storageManager;
+
+  std::string generateObjectName(const std::string &userId,
+                                 const OBJECT_TYPE objectType) const;
+
 public:
+  BackupServiceImpl();
+  virtual ~BackupServiceImpl();
+
   grpc::Status ResetKey(grpc::ServerContext *context,
                         grpc::ServerReader<backup::ResetKeyRequest> *reader,
                         backup::ResetKeyResponse *response) override;
