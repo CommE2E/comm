@@ -39,12 +39,15 @@ set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
 
 find_package(AWSSDK REQUIRED COMPONENTS s3 core)
 
+find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
+
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 file(GLOB SOURCE_CODE "./src/*.cpp")
 
 include_directories(
   ./src
   ./_generated
+  ${Boost_INCLUDE_DIR}
 )
 
 #SERVER
@@ -63,6 +66,7 @@ target_link_libraries(
   ${_PROTOBUF_LIBPROTOBUF}
   gRPC::grpc++_reflection
   ${AWSSDK_LINK_LIBRARIES}
+  ${Boost_LIBRARIES}
 )
 
 install(
