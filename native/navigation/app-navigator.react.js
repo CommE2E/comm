@@ -186,8 +186,9 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
       await waitForInteractions();
       try {
         await SplashScreen.hideAsync();
+      } finally {
         setLocalSplashScreenHasHidden(true);
-      } catch {}
+      }
     })();
   }, [localSplashScreenHasHidden]);
 
