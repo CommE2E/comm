@@ -67,6 +67,8 @@ div.subscribe_updates {
 div.footer_blur {
   background-color: rgba(255, 255, 255, 0.125);
   backdrop-filter: none;
+  position: sticky;
+  top: 100vh;
   -webkit-backdrop-filter: blur(2px);
 }
 

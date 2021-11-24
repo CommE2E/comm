@@ -18,6 +18,12 @@ body {
   padding: 0;
 }
 
+html,
+body,
+:global(div#react-root) {
+  height: 100%;
+}
+
 a {
   transition: 0.2s;
   text-decoration: none;

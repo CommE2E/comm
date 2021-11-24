@@ -47,11 +47,11 @@ function Landing(): React.Node {
   }, [onKeyservers, onPrivacy, onSupport, onTerms]);
 
   return (
-    <div>
+    <>
       <Header isLegalPage={isLegalPage} activePageName={activePage.name} />
       {activePage.node}
       <Footer isLegalPage={isLegalPage} activePageName={activePage.name} />
-    </div>
+    </>
   );
 }
 

@@ -26,7 +26,7 @@ function Header(props: HeaderProps): React.Node {
   }, []);
 
   return (
-    <>
+    <div>
       <div className={headerStyle}>
         <div className={headerStyles.logo}>
           <Link to="/">
@@ -75,7 +75,7 @@ function Header(props: HeaderProps): React.Node {
           </a>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
