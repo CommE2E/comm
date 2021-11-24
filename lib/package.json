@@ -14,8 +14,10 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",
     "@babel/plugin-transform-runtime": "^7.13.10",
+    "@babel/preset-env": "^7.13.12",
     "@babel/preset-flow": "^7.13.13",
     "@babel/preset-react": "^7.13.13",
+    "babel-jest": "^26.6.3",
     "flow-bin": "^0.137.0",
     "flow-typed": "^3.2.1"
   },
@@ -38,5 +40,10 @@
     "url-parse-lax": "^3.0.0",
     "util-inspect": "^0.1.8",
     "utils-copy-error": "^1.0.1"
+  },
+  "jest": {
+    "transform": {
+      "\\.js$": "babel-jest"
+    }
   }
 }
