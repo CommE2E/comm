@@ -156,17 +156,29 @@ The Redux Dev Tools Chrome extension lets you watch for Redux actions and inspec
 
 ## JDK
 
-We’ll need the Java Development Kit for Android development.
+We’ll need the Java Development Kit (JDK) for Android development. We’re using [SDKMAN!](https://sdkman.io/) to manage our JDK installation.
+
+Run the following to install SDKMAN!:
 
 ```
-brew install adoptopenjdk/openjdk/adoptopenjdk11; brew upgrade adoptopenjdk/openjdk/adoptopenjdk11
+curl -s "https://get.sdkman.io" | bash
 ```
 
-We should also make sure to set up the `$JAVA_HOME` environment variable to point to our new JDK. Append the following line to your `~/.bash_profile` (or desired shell configuration file):
+Now either close and reopen your terminal window or re-source your `~/.bash_profile` (or desired shell configuration file) in order to load SDKMAN!:
 
 ```
-export JAVA_HOME=$(/usr/libexec/java_home)
+source ~/.bash_profile
 ```
+
+You can run `sdk version` to see if SDKMAN! was installed properly.
+
+Run the following to install Azul Zulu 11 with SDKMAN!:
+
+```
+sdk install java 11.0.13-zulu
+```
+
+SDKMAN! takes care of setting up the `$JAVA_HOME` environment variable to point to the newly installed JDK. You can verify this by running `echo $JAVA_HOME`.
 
 ## Android Studio
 
