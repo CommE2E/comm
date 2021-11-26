@@ -96,7 +96,7 @@ const sortFunction = (
   a: UpdateData | ServerUpdateInfo,
   b: UpdateData | ServerUpdateInfo,
 ) => a.time - b.time;
-const deleteUpdatesBatchSize = 10000;
+const deleteUpdatesBatchSize = 500;
 
 // Creates rows in the updates table based on the inputed updateDatas. Returns
 // UpdateInfos pertaining to the provided viewerInfo, as well as related
