@@ -11,6 +11,7 @@ import Privacy from './privacy.react';
 import Support from './support.react';
 import Terms from './terms.react';
 import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react';
+import './shared.css';
 
 export type LandingPageName =
   | 'app'

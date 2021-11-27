@@ -1,76 +1,3 @@
-/* ===== GENERAL PAGE STYLES ===== */
-html {
-  background: radial-gradient(ellipse at bottom, #1f252e, #111827);
-  background-attachment: fixed;
-  font-family: 'IBM Plex Sans', sans-serif;
-  color: white;
-  word-break: break-word;
-}
-
-/* Override browser default to achieve edge-to-edge footer translucency effect */
-body {
-  background-image: radial-gradient(
-    circle at top left,
-    #2d008888 0%,
-    #ffffff00 50%
-  );
-  margin: 0;
-  padding: 0;
-}
-
-a {
-  transition: 0.2s;
-  text-decoration: none;
-}
-
-.mono {
-  font-family: 'iA Writer Duo S', monospace;
-}
-
-.no_bottom_margin {
-  margin-bottom: 0;
-}
-
-@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
-  img {
-    image-rendering: -webkit-optimize-contrast !important;
-  }
-}
-
-@media not all and (min-resolution: 0.001dpcm) {
-  @supports (-webkit-appearance: none) and (stroke-color: transparent) {
-    img {
-      image-rendering: unset !important;
-    }
-  }
-}
-
-/* ===== TEXT STYLES ===== */
-h1 {
-  font-size: 58px;
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-
-h2 {
-  font-size: 50px;
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-
-p,
-li {
-  font-size: 24px;
-  line-height: 1.6em;
-}
-
-.app_landing_subheading {
-  font-weight: bold;
-  padding-inline: 4px;
-}
-
-span.app_landing_subheading {
-  background-color: #7e57c2;
-}
-
 p.app_landing_subheading {
   font-family: 'iA Writer Duo S', monospace;
   color: #7e57c2;
@@ -83,7 +10,6 @@ span.purple_accent {
 }
 
 /* ===== COMMON CSS GRID LAYOUT ===== */
-div.body_grid,
 div.app_landing_grid {
   max-width: 1920px;
   margin-left: auto;
@@ -96,45 +22,6 @@ div.app_landing_grid {
   padding-bottom: 40px;
   transition-property: max-width;
   transition: 300ms;
-}
-
-/* ===== CSS BODY GRID LAYOUT ===== */
-div.body_grid {
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    'hero_copy hero_image'
-    'server_image server_copy'
-    'keyserver_company keyserver_company'
-    'keyserver_copy read_the_docs';
-}
-
-div.hero_copy {
-  grid-area: hero_copy;
-  align-self: center;
-}
-div.hero_image {
-  grid-area: hero_image;
-  object-fit: scale-down;
-  align-self: center;
-}
-div.server_image {
-  grid-area: server_image;
-  object-fit: scale-down;
-  align-self: center;
-}
-div.server_copy {
-  grid-area: server_copy;
-  align-self: center;
-}
-div.keyserver_company {
-  grid-area: keyserver_company;
-  text-align: center;
-  padding-top: 80px;
-}
-div.read_the_docs {
-  grid-area: read_the_docs;
-  align-self: center;
-  padding-bottom: 40px;
 }
 
 /* ===== APP LANDING GRID ===== */
@@ -285,15 +172,6 @@ div.legal_container a:hover {
   color: #8c69c9;
 }
 
-/* ===== LAYOUT HACKS ===== */
-div.body_grid > div + .starting_section {
-  padding-top: 80px;
-}
-
-.section {
-  padding-top: 80px;
-}
-
 /* ===== MEDIUM-LARGE BREAKPOINT ===== */
 @media (max-width: 1699px) {
   div.tile_title_row > p.tile_title {
@@ -307,20 +185,6 @@ div.body_grid > div + .starting_section {
 
 /* ===== MEDIUM BREAKPOINT ===== */
 @media (max-width: 1499px) {
-  div.body_grid {
-    padding-left: 60px;
-    padding-right: 60px;
-  }
-  h1 {
-    font-size: 42px;
-  }
-  h2 {
-    font-size: 38px;
-  }
-  p,
-  li {
-    font-size: 18px;
-  }
   /* ===== LEGAL PAGE STYLING ===== */
   div.legal_container h1 {
     font-size: 28px;
@@ -359,20 +223,7 @@ div.body_grid > div + .starting_section {
 
 /* ===== SMALLEST BREAKPOINT ===== */
 @media (max-width: 1099px) {
-  /* ===== TEXT STYLES ===== */
-  h1 {
-    font-size: 28px;
-  }
-  h2 {
-    font-size: 24px;
-  }
-  p,
-  li {
-    font-size: 16px;
-  }
-
   /* ===== COMMON CSS GRID LAYOUT ===== */
-  div.body_grid,
   div.app_landing_grid {
     padding-left: 3%;
     padding-right: 3%;
@@ -380,33 +231,6 @@ div.body_grid > div + .starting_section {
     justify-content: center;
     padding-top: 0vh;
     padding-bottom: 2vh;
-  }
-
-  /* ===== CSS BODY GRID LAYOUT ===== */
-  div.body_grid {
-    grid-template-areas:
-      'hero_image'
-      'hero_copy'
-      'server_image'
-      'server_copy'
-      'keyserver_company'
-      'keyserver_copy'
-      'read_the_docs';
-  }
-
-  div.keyserver_company {
-    text-align: left;
-    padding-top: 60px;
-  }
-  .keyserver_company > h1 {
-    font-size: 24px;
-  }
-  div.keyserver_copy {
-    padding-bottom: 0;
-  }
-  div.read_the_docs {
-    padding-top: 20px;
-    padding-bottom: 0;
   }
 
   /* ===== APP LANDING GRID LAYOUT ===== */
@@ -470,11 +294,6 @@ div.body_grid > div + .starting_section {
 
   div.tile_title_row > p.tile_title {
     font-size: 20px;
-  }
-
-  /* ===== LAYOUT HACKS ===== */
-  .section {
-    padding-top: 20px;
   }
 
   /* ===== LEGAL PAGE STYLING ===== */

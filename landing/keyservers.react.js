@@ -3,7 +3,7 @@
 import { create } from '@lottiefiles/lottie-interactivity';
 import * as React from 'react';
 
-import css from './landing.css';
+import css from './keyservers.css';
 import ReadDocsButton from './read-docs-btn.react';
 import StarBackground from './star-background.react';
 

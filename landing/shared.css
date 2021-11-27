@@ -1,0 +1,103 @@
+html {
+  background: radial-gradient(ellipse at bottom, #1f252e, #111827);
+  background-attachment: fixed;
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: white;
+  word-break: break-word;
+}
+
+/* Override browser default to achieve edge-to-edge footer translucency effect */
+body {
+  background-image: radial-gradient(
+    circle at top left,
+    #2d008888 0%,
+    #ffffff00 50%
+  );
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  transition: 0.2s;
+  text-decoration: none;
+}
+
+.mono {
+  font-family: 'iA Writer Duo S', monospace;
+}
+
+.no_bottom_margin {
+  margin-bottom: 0;
+}
+
+/* div.body_grid,
+div.app_landing_grid {
+  max-width: 1920px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  column-gap: 6em;
+  padding-left: 60px;
+  padding-right: 60px;
+  padding-top: 20px;
+  padding-bottom: 40px;
+  transition-property: max-width;
+  transition: 300ms;
+} */
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
+  img {
+    image-rendering: -webkit-optimize-contrast !important;
+  }
+}
+
+@media not all and (min-resolution: 0.001dpcm) {
+  @supports (-webkit-appearance: none) and (stroke-color: transparent) {
+    img {
+      image-rendering: unset !important;
+    }
+  }
+}
+
+/* ===== TEXT STYLES ===== */
+h1 {
+  font-size: 58px;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+h2 {
+  font-size: 50px;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+p,
+li {
+  font-size: 24px;
+  line-height: 1.6em;
+}
+@media (max-width: 1499px) {
+  h1 {
+    font-size: 42px;
+  }
+  h2 {
+    font-size: 38px;
+  }
+  p,
+  li {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 1099px) {
+  /* ===== TEXT STYLES ===== */
+  h1 {
+    font-size: 28px;
+  }
+  h2 {
+    font-size: 24px;
+  }
+  p,
+  li {
+    font-size: 16px;
+  }
+}
