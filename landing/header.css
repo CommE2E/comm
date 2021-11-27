@@ -17,8 +17,6 @@ div.header_grid {
 
 div.header_legal {
   max-width: 1080px;
-  transition-property: max-width;
-  transition: 300ms;
 }
 
 /* ===== LOGO ===== */

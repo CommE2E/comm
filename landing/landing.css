@@ -147,31 +147,6 @@ div.tile_six {
   grid-area: tile_six;
 }
 
-/* ===== LEGAL PAGE STYLING ===== */
-div.legal_container {
-  max-width: 1080px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 60px;
-  padding-right: 60px;
-}
-div.legal_container h1 {
-  font-size: 42px;
-}
-div.legal_container h2 {
-  font-size: 38px;
-}
-div.legal_container p,
-li {
-  font-size: 20px;
-}
-div.legal_container a {
-  color: #7e57c2;
-}
-div.legal_container a:hover {
-  color: #8c69c9;
-}
-
 /* ===== MEDIUM-LARGE BREAKPOINT ===== */
 @media (max-width: 1699px) {
   div.tile_title_row > p.tile_title {
@@ -185,17 +160,6 @@ div.legal_container a:hover {
 
 /* ===== MEDIUM BREAKPOINT ===== */
 @media (max-width: 1499px) {
-  /* ===== LEGAL PAGE STYLING ===== */
-  div.legal_container h1 {
-    font-size: 28px;
-  }
-  div.legal_container h2 {
-    font-size: 24px;
-  }
-  div.legal_container p,
-  li {
-    font-size: 16px;
-  }
   /* ===== APP LANDING GRID STYLING ===== */
   div.tile_grid > div p {
     font-size: 16px;
@@ -294,12 +258,5 @@ div.legal_container a:hover {
 
   div.tile_title_row > p.tile_title {
     font-size: 20px;
-  }
-
-  /* ===== LEGAL PAGE STYLING ===== */
-  div.legal_container {
-    max-width: 540px;
-    padding-left: 3%;
-    padding-right: 3%;
   }
 }

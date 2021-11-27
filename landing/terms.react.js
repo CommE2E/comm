@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import css from './landing.css';
+import css from './legal.css';
 
 function Terms(): React.Node {
   return (
