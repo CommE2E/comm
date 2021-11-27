@@ -14,6 +14,9 @@ import CyclingHeader from './cycling-header.react';
 import InfoCard from './info-card.react';
 import css from './landing.css';
 import StarBackground from './star-background.react';
+import usePreLoadAssets, {
+  LandingAssetsS3URL,
+} from './use-pre-load-assets.react';
 
 const screenshots = [
   {
@@ -42,33 +45,9 @@ const screenshots = [
   },
 ];
 
-const LandingAssetsS3URL = 'https://dh9fld3hutpxf.cloudfront.net';
-
 function AppLanding(): React.Node {
+  usePreLoadAssets(screenshots);
   const [activeCardIdx, setActiveCardIdx] = React.useState(-1);
-
-  React.useEffect(() => {
-    const testWEBP = 'UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
-    const testImg = new Image();
-
-    // preload webp if supported
-    testImg.onload = () => {
-      for (const imageFileName of screenshots) {
-        const image = new Image();
-        image.src = `${LandingAssetsS3URL}/${imageFileName.file}.webp`;
-      }
-    };
-
-    // preload png if webp not supported
-    testImg.onerror = () => {
-      for (const imageFileName of screenshots) {
-        const image = new Image();
-        image.src = `${LandingAssetsS3URL}/${imageFileName.file}.png`;
-      }
-    };
-
-    testImg.src = `data:image/webp;base64,${testWEBP}`;
-  }, []);
 
   const imageIdx =
     activeCardIdx === -1
