@@ -105,7 +105,8 @@ async function changeRole(
     SELECT pm.user, pm.permissions_for_children AS permissions_from_parent
     FROM threads t
     INNER JOIN memberships pm ON pm.thread = t.parent_thread_id
-    WHERE t.id = ${threadID} AND pm.user IN (${userIDs})
+    WHERE t.id = ${threadID} AND
+      (pm.user IN (${userIDs}) OR t.parent_thread_id != ${genesis.id})
   `;
   const containingMembershipQuery = SQL`
     SELECT cm.user, cm.role AS containing_role
@@ -135,6 +136,7 @@ async function changeRole(
   const {
     roleColumnValue: intendedRole,
     threadType,
+    parentThreadID,
     hasContainingThreadID,
     rolePermissions: intendedRolePermissions,
     depth,
@@ -153,6 +155,9 @@ async function changeRole(
   const ancestorMembershipInfo: Map<string, ChangeRoleMemberInfo> = new Map();
   for (const row of parentMembershipResults) {
     const userID = row.user.toString();
+    if (!userIDs.includes(userID)) {
+      continue;
+    }
     ancestorMembershipInfo.set(userID, {
       permissionsFromParent: row.permissions_from_parent,
     });
@@ -170,13 +175,20 @@ async function changeRole(
     }
   }
 
-  const membershipRows = [];
   const relationshipChangeset = new RelationshipChangeset();
-  const toUpdateDescendants = new Map();
   const existingMemberIDs = [...existingMembershipInfo.keys()];
   if (threadID !== genesis.id) {
     relationshipChangeset.setAllRelationshipsExist(existingMemberIDs);
   }
+  const parentMemberIDs = parentMembershipResults.map(row =>
+    row.user.toString(),
+  );
+  if (parentThreadID && parentThreadID !== genesis.id) {
+    relationshipChangeset.setAllRelationshipsExist(parentMemberIDs);
+  }
+
+  const membershipRows = [];
+  const toUpdateDescendants = new Map();
   for (const userID of userIDs) {
     const existingMembership = existingMembershipInfo.get(userID);
     const oldRole = existingMembership?.oldRole ?? '-1';
