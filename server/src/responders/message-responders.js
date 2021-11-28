@@ -18,7 +18,10 @@ import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 
 import createMessages from '../creators/message-creator';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import {
+  fetchMessageInfos,
+  fetchMessageInfoForLocalID,
+} from '../fetchers/message-fetchers';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { fetchMedia } from '../fetchers/upload-fetchers';
 import type { Viewer } from '../session/viewer';
@@ -115,8 +118,11 @@ async function multimediaMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const media = await fetchMedia(viewer, mediaIDs);
-  if (media.length !== mediaIDs.length) {
+  const [media, existingMessageInfo] = await Promise.all([
+    fetchMedia(viewer, mediaIDs),
+    fetchMessageInfoForLocalID(viewer, localID),
+  ]);
+  if (media.length !== mediaIDs.length && !existingMessageInfo) {
     throw new ServerError('invalid_parameters');
   }
 
