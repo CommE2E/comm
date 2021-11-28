@@ -15,11 +15,6 @@ div.app_landing_grid {
   margin-left: auto;
   margin-right: auto;
   display: grid;
-  column-gap: 6em;
-  padding-left: 60px;
-  padding-right: 60px;
-  padding-top: 20px;
-  padding-bottom: 40px;
   transition-property: max-width;
   transition: 300ms;
 }
@@ -28,8 +23,6 @@ div.app_landing_grid {
 div.app_landing_grid {
   grid-template-columns: 2fr 3fr;
   grid-template-areas: 'app_preview app_copy';
-  padding-top: 6vh;
-  padding-bottom: 8vh;
 }
 
 div.app_preview {
@@ -67,12 +60,8 @@ h1.cycling_header {
 /* ===== TILE GRID STYLING ===== */
 div.tile_grid {
   display: grid;
-  margin-right: 16%;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
-  row-gap: 36vh;
-  margin-top: 32vh;
-  margin-bottom: 36vh;
   grid-template-areas:
     'tile_one'
     'tile_two'
@@ -84,7 +73,6 @@ div.tile_grid {
 
 div.tile_grid > div {
   display: flex;
-  padding: 36px;
   border-radius: 8px;
   background-color: #ebedee;
   justify-content: center;
@@ -102,9 +90,6 @@ div.tile_title_row {
   align-items: center;
   align-content: center;
   justify-content: flex-start;
-  margin-left: 20px;
-  margin-right: 20px;
-  padding-bottom: 20px;
 }
 
 div.tile_title_row > p.tile_title {
@@ -118,10 +103,6 @@ div.tile_grid > div p {
   font-size: 22px;
   color: white;
   text-align: left;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-left: 20px;
-  margin-right: 20px;
   transition: 300ms;
 }
 
@@ -186,8 +167,6 @@ div.tile_six {
 @media (max-width: 1099px) {
   /* ===== COMMON CSS GRID LAYOUT ===== */
   div.app_landing_grid {
-    padding-left: 3%;
-    padding-right: 3%;
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
     padding-top: 0vh;
@@ -238,19 +217,12 @@ div.tile_six {
   }
 
   div.tile_grid {
-    row-gap: 4vh;
-    padding-left: 3%;
-    padding-right: 3%;
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
   }
 
   div.app_copy div.tile_grid {
     margin: 0;
-  }
-
-  div.tile_grid {
-    padding-bottom: 4vh;
   }
 
   div.tile_title_row > p.tile_title {
