@@ -300,10 +300,11 @@ async function changeRole(
 
 type RoleThreadResult = {
   +roleColumnValue: string,
+  +depth: number,
   +threadType: ThreadType,
+  +parentThreadID: ?string,
   +hasContainingThreadID: boolean,
   +rolePermissions: ?ThreadRolePermissionsBlob,
-  +depth: number,
 };
 async function changeRoleThreadQuery(
   threadID: string,
@@ -311,7 +312,7 @@ async function changeRoleThreadQuery(
 ): Promise<RoleThreadResult> {
   if (role === 0 || role === -1) {
     const query = SQL`
-      SELECT type, depth, containing_thread_id
+      SELECT type, depth, parent_thread_id, containing_thread_id
       FROM threads
       WHERE id = ${threadID}
     `;
@@ -324,12 +325,16 @@ async function changeRoleThreadQuery(
       roleColumnValue: role.toString(),
       depth: row.depth,
       threadType: assertThreadType(row.type),
+      parentThreadID: row.parent_thread_id
+        ? row.parent_thread_id.toString()
+        : null,
       hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: null,
     };
   } else if (role !== null) {
     const query = SQL`
-      SELECT t.type, t.depth, t.containing_thread_id, r.permissions
+      SELECT t.type, t.depth, t.parent_thread_id, t.containing_thread_id,
+        r.permissions
       FROM threads t
       INNER JOIN roles r ON r.thread = t.id AND r.id = ${role}
       WHERE t.id = ${threadID}
@@ -343,13 +348,16 @@ async function changeRoleThreadQuery(
       roleColumnValue: role,
       depth: row.depth,
       threadType: assertThreadType(row.type),
+      parentThreadID: row.parent_thread_id
+        ? row.parent_thread_id.toString()
+        : null,
       hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: row.permissions,
     };
   } else {
     const query = SQL`
-      SELECT t.type, t.depth, t.containing_thread_id, t.default_role,
-        r.permissions
+      SELECT t.type, t.depth, t.parent_thread_id, t.containing_thread_id,
+        t.default_role, r.permissions
       FROM threads t
       INNER JOIN roles r ON r.thread = t.id AND r.id = t.default_role
       WHERE t.id = ${threadID}
@@ -363,6 +371,9 @@ async function changeRoleThreadQuery(
       roleColumnValue: row.default_role.toString(),
       depth: row.depth,
       threadType: assertThreadType(row.type),
+      parentThreadID: row.parent_thread_id
+        ? row.parent_thread_id.toString()
+        : null,
       hasContainingThreadID: row.containing_thread_id !== null,
       rolePermissions: row.permissions,
     };
