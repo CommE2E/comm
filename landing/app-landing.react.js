@@ -3,19 +3,19 @@
 import * as React from 'react';
 
 // import CyclingHeader from './cycling-header.react';
-import { screenshots } from './image-assets';
+// import { screenshots } from './image-assets';
 import InfoCard from './info-card.react';
 import './reset.css';
 import css from './landing.css';
 import StarBackground from './star-background.react';
-import usePreLoadAssets, {
-  LandingAssetsS3URL,
-} from './use-pre-load-assets.react';
+// import usePreLoadAssets, {
+//   LandingAssetsS3URL,
+// } from './use-pre-load-assets.react';
 
 function AppLanding(): React.Node {
-  usePreLoadAssets(screenshots);
-  const [firstScreenShot] = screenshots;
-  const path = `${LandingAssetsS3URL}/${firstScreenShot.file}`;
+  // usePreLoadAssets(screenshots);
+  // const [firstScreenShot] = screenshots;
+  // const path = `${LandingAssetsS3URL}/${firstScreenShot.file}`;
 
   return (
     <>
@@ -47,23 +47,7 @@ function AppLanding(): React.Node {
           />
         </div>
         <div className={`${css.imageTwo} ${css.twoThirdInverted}`}>
-          <picture>
-            <source
-              className={css.landingImg}
-              srcSet={`${path}.webp`}
-              type="image/webp"
-            />
-            <source
-              className={css.landingImg}
-              srcSet={`${path}.png`}
-              type="image/png"
-            />
-            <img
-              className={css.landingImg}
-              src={`${path}.png`}
-              alt={firstScreenShot.alt}
-            />
-          </picture>
+          <img src="https://placekitten.com/710/850" />
         </div>
         <div className={`${css.infoTwo} ${css.oneThirdInverted}`}>
           <InfoCard

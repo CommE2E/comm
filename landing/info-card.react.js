@@ -14,7 +14,7 @@ function InfoCard(props: InfoCardProps): React.Node {
   return (
     <div>
       <div className={css.tile_title_row}>
-        <p className={css.tile_title}>{label}</p>
+        <h2 className={css.tile_title}>{label}</h2>
       </div>
       <p>{description}</p>
     </div>

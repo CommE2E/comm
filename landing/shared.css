@@ -7,7 +7,6 @@
 html {
   background: radial-gradient(ellipse at bottom, #1f252e, #111827);
   background-attachment: fixed;
-  font-family: 'IBM Plex Sans', sans-serif;
   color: white;
   word-break: break-word;
 }
@@ -21,6 +20,10 @@ body {
   );
   margin: 0;
   padding: 0;
+  font-size: calc(1rem * 1.75);
+  line-height: 1.5;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: normal;
 }
 
 a {
@@ -73,13 +76,13 @@ h1 {
 
 h2 {
   font-size: 50px;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: normal;
+  font-family: 'iA Writer Duo S', sans-serif;
 }
 
 p,
 li {
-  font-size: 24px;
-  line-height: 1.6em;
+  line-height: 1.35;
 }
 @media (max-width: 1499px) {
   h1 {
