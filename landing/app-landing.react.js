@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import CyclingHeader from './cycling-header.react';
+// import CyclingHeader from './cycling-header.react';
 import { screenshots } from './image-assets';
 import InfoCard from './info-card.react';
 import './reset.css';
@@ -20,55 +20,98 @@ function AppLanding(): React.Node {
   return (
     <>
       <StarBackground />
-      <div className={css.app_landing_grid}>
-        <div className={css.app_preview}>
-          <picture>
+      <div className={css.wrapper}>
+        {/* <div className={css.app_preview}> */}
+        {/* <picture>
             <source srcSet={`${path}.webp`} type="image/webp" />
             <source srcSet={`${path}.png`} type="image/png" />
             <img src={`${path}.png`} alt={firstScreenShot.alt} />
-          </picture>
-        </div>
-        <div className={css.app_copy}>
-          <div className={css.app_copy_wrapper}>
+          </picture> */}
+        {/* </div> */}
+        {/* <div className={css.app_copy}> */}
+        {/* <div className={css.app_copy_wrapper}>
             <CyclingHeader />
             <p className={css.app_landing_subheading}>
               (think &quot;Web3 Discord&quot;)
             </p>
-          </div>
-
-          <div className={css.tile_grid}>
-            <InfoCard
-              label="Federated"
-              description="Comm is a protocol paired with an app. Each community hosts its
+          </div> */}
+        <div className={`${css.imageOne} ${css.oneThird}`}>
+          <img src="https://placekitten.com/710/850" />
+        </div>
+        <div className={`${css.infoOne} ${css.twoThird}`}>
+          <InfoCard
+            label="Federated"
+            description="Comm is a protocol paired with an app. Each community hosts its
                 own backend, which we call a keyserver. Our keyserver software
                 is built to be forked."
+          />
+        </div>
+        <div className={`${css.imageTwo} ${css.twoThirdInverted}`}>
+          <picture>
+            <source
+              className={css.landingImg}
+              srcSet={`${path}.webp`}
+              type="image/webp"
             />
-            <InfoCard
-              label="Customizable"
-              description="Write mini-apps and custom modules in React. Skin your
+            <source
+              className={css.landingImg}
+              srcSet={`${path}.png`}
+              type="image/png"
+            />
+            <img
+              className={css.landingImg}
+              src={`${path}.png`}
+              alt={firstScreenShot.alt}
+            />
+          </picture>
+        </div>
+        <div className={`${css.infoTwo} ${css.oneThirdInverted}`}>
+          <InfoCard
+            label="Customizable"
+            description="Write mini-apps and custom modules in React. Skin your
                 community. Customize your tabs and your home page."
-            />
-            <InfoCard
-              label="E2E-encrypted"
-              description="Comm started as a project to build a private, decentralized
+          />
+        </div>
+        <div className={`${css.imageThree} ${css.oneThird}`}>
+          <img src="https://placekitten.com/710/850" />
+        </div>
+        <div className={`${css.infoThree} ${css.twoThird}`}>
+          <InfoCard
+            label="E2E-encrypted"
+            description="Comm started as a project to build a private, decentralized
                 alternative to Discord. Privacy is in our DNA."
-            />
-            <InfoCard
-              label="Sovereign"
-              description="Log in with your ETH wallet. Use ENS as your username. On Comm,
+          />
+        </div>
+        <div className={`${css.imageFour} ${css.twoThirdInverted}`}>
+          <img src="https://placekitten.com/710/850" />
+        </div>
+        <div className={`${css.imageFour} ${css.oneThirdInverted}`}>
+          <InfoCard
+            label="Sovereign"
+            description="Log in with your ETH wallet. Use ENS as your username. On Comm,
                 your identity and data are yours to control."
-            />
-            <InfoCard
-              label="Open Source"
-              description="All of our code is open source. Keyservers, iOS/Android app, our
+          />
+        </div>
+        <div className={`${css.imageFive} ${css.oneThird}`}>
+          <img src="https://placekitten.com/710/850" />
+        </div>
+        <div className={`${css.infoFive} ${css.twoThird}`}>
+          <InfoCard
+            label="Open Source"
+            description="All of our code is open source. Keyservers, iOS/Android app, our
                 cloud services… all of it. We believe in open platforms."
-            />
-            <InfoCard
-              label="Less Noisy"
-              description="We let each user decide what they want to follow with detailed
+          />
+        </div>
+
+        <div className={`${css.imageSix} ${css.twoThirdInverted}`}>
+          <img src="https://placekitten.com/710/850" />
+        </div>
+        <div className={`${css.imageSix} ${css.oneThirdInverted}`}>
+          <InfoCard
+            label="Less Noisy"
+            description="We let each user decide what they want to follow with detailed
                 notif controls and a powerful unified inbox."
-            />
-          </div>
+          />
         </div>
       </div>
     </>
