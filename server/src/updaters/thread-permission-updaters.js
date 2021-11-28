@@ -160,11 +160,12 @@ async function changeRole(
   for (const row of containingMembershipResults) {
     const userID = row.user.toString();
     const ancestorMembership = ancestorMembershipInfo.get(userID);
+    const memberOfContainingThread = row.containing_role > 0;
     if (ancestorMembership) {
-      ancestorMembership.memberOfContainingThread = row.containing_role > 0;
+      ancestorMembership.memberOfContainingThread = memberOfContainingThread;
     } else {
       ancestorMembershipInfo.set(userID, {
-        memberOfContainingThread: row.containing_role > 0,
+        memberOfContainingThread,
       });
     }
   }
