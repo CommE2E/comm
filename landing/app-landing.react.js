@@ -11,39 +11,13 @@ import {
 import * as React from 'react';
 
 import CyclingHeader from './cycling-header.react';
+import { screenshots } from './image-assets';
 import InfoCard from './info-card.react';
 import css from './landing.css';
 import StarBackground from './star-background.react';
 import usePreLoadAssets, {
   LandingAssetsS3URL,
 } from './use-pre-load-assets.react';
-
-const screenshots = [
-  {
-    alt: 'a mobile phone conversation list screen',
-    file: 'federated-prototype',
-  },
-  {
-    alt: 'a mobile phone with customized dashboard screen',
-    file: 'customizable-prototype',
-  },
-  {
-    alt: 'a mobile phone chat conversation screen',
-    file: 'e2e-encrypted-prototype',
-  },
-  {
-    alt: 'a mobile phone user information screen',
-    file: 'sovereign-prototype',
-  },
-  {
-    alt: 'a mobile phone addon app selection screen',
-    file: 'open-source-prototype',
-  },
-  {
-    alt: 'a mobile phone notification options screen',
-    file: 'less-noisy-prototype',
-  },
-];
 
 function AppLanding(): React.Node {
   usePreLoadAssets(screenshots);
