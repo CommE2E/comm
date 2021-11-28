@@ -13,6 +13,7 @@ import * as React from 'react';
 import CyclingHeader from './cycling-header.react';
 import { screenshots } from './image-assets';
 import InfoCard from './info-card.react';
+import './reset.css';
 import css from './landing.css';
 import StarBackground from './star-background.react';
 import usePreLoadAssets, {
