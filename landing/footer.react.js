@@ -6,19 +6,27 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import footerStyles from './footer.css';
-import type { LandingPageName } from './landing.react';
 import SubscriptionForm from './subscription-form.react';
 
 type FooterProps = {
   +isLegalPage: boolean,
-  +activePageName: LandingPageName,
+  +pathname: string,
 };
-function Footer(props: FooterProps): React.Node {
-  const { isLegalPage, activePageName } = props;
 
+function Footer(props: FooterProps): React.Node {
+  const { isLegalPage, pathname } = props;
   const footerGridStyle = isLegalPage
     ? `${footerStyles.footer_grid} ${footerStyles.footer_legal}`
     : footerStyles.footer_grid;
+
+  const isActive = React.useCallback(
+    pageName => {
+      return `/${pageName}` === pathname
+        ? footerStyles.active_tab
+        : footerStyles.inactive_tab;
+    },
+    [pathname],
+  );
 
   return (
     <div className={footerStyles.footer_blur}>
@@ -28,43 +36,19 @@ function Footer(props: FooterProps): React.Node {
             <Link to="/">Comm</Link>
           </div>
 
-          <div
-            className={
-              activePageName === 'keyservers'
-                ? footerStyles.active_tab
-                : footerStyles.inactive_tab
-            }
-          >
+          <div className={isActive('keyservers')}>
             <Link to="/keyservers">Keyservers</Link>
           </div>
 
-          <div
-            className={
-              activePageName === 'support'
-                ? footerStyles.active_tab
-                : footerStyles.inactive_tab
-            }
-          >
+          <div className={isActive('support')}>
             <Link to="/support">Support</Link>
           </div>
 
-          <div
-            className={
-              activePageName === 'terms'
-                ? footerStyles.active_tab
-                : footerStyles.inactive_tab
-            }
-          >
+          <div className={isActive('terms')}>
             <Link to="/terms">Terms of Use</Link>
           </div>
 
-          <div
-            className={
-              activePageName === 'privacy'
-                ? footerStyles.active_tab
-                : footerStyles.inactive_tab
-            }
-          >
+          <div className={isActive('privacy')}>
             <Link to="/privacy">Privacy Policy</Link>
           </div>
 

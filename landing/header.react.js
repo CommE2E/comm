@@ -6,14 +6,23 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import headerStyles from './header.css';
-import type { LandingPageName } from './landing.react';
 
 type HeaderProps = {
   +isLegalPage: boolean,
-  +activePageName: LandingPageName,
+  +pathname: string,
 };
+
 function Header(props: HeaderProps): React.Node {
-  const { isLegalPage, activePageName } = props;
+  const { isLegalPage, pathname } = props;
+
+  const isActive = React.useCallback(
+    pageName => {
+      return `/${pageName}` === pathname
+        ? headerStyles.active_tab
+        : headerStyles.inactive_tab;
+    },
+    [pathname],
+  );
 
   const headerStyle = isLegalPage
     ? `${headerStyles.header_grid} ${headerStyles.header_legal}`
@@ -34,24 +43,12 @@ function Header(props: HeaderProps): React.Node {
           </Link>
         </div>
         <div className={headerStyles.top_nav}>
-          <div
-            className={
-              activePageName === 'app'
-                ? headerStyles.active_tab
-                : headerStyles.inactive_tab
-            }
-          >
+          <div className={isActive('')}>
             <Link to="/">
               <h1>App</h1>
             </Link>
           </div>
-          <div
-            className={
-              activePageName === 'keyservers'
-                ? headerStyles.active_tab
-                : headerStyles.inactive_tab
-            }
-          >
+          <div className={isActive('keyservers')}>
             <Link to="/keyservers">
               <h1>Keyservers</h1>
             </Link>

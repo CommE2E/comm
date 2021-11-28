@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { useRouteMatch } from 'react-router-dom';
+import { useRouteMatch, useLocation } from 'react-router-dom';
 
 import AppLanding from './app-landing.react';
 import Footer from './footer.react';
@@ -13,17 +13,9 @@ import Terms from './terms.react';
 import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react';
 import './shared.css';
 
-export type LandingPageName =
-  | 'app'
-  | 'keyservers'
-  | 'privacy'
-  | 'terms'
-  | 'support';
-
-type ActivePage = { name: LandingPageName, node: React.Node };
-
 function Landing(): React.Node {
   useScrollToTopOnNavigate();
+  const { pathname } = useLocation();
   const onPrivacy = useRouteMatch({ path: '/privacy' });
   const onTerms = useRouteMatch({ path: '/terms' });
   const onSupport = useRouteMatch({ path: '/support' });
@@ -33,25 +25,25 @@ function Landing(): React.Node {
     [onPrivacy, onSupport, onTerms],
   );
 
-  const activePage: ActivePage = React.useMemo(() => {
+  const activePage = React.useMemo(() => {
     if (onPrivacy) {
-      return { name: 'privacy', node: <Privacy /> };
+      return <Privacy />;
     } else if (onTerms) {
-      return { name: 'terms', node: <Terms /> };
+      return <Terms />;
     } else if (onSupport) {
-      return { name: 'support', node: <Support /> };
+      return <Support />;
     } else if (onKeyservers) {
-      return { name: 'keyservers', node: <Keyservers /> };
+      return <Keyservers />;
     } else {
-      return { name: 'app', node: <AppLanding /> };
+      return <AppLanding />;
     }
   }, [onKeyservers, onPrivacy, onSupport, onTerms]);
 
   return (
     <div>
-      <Header isLegalPage={isLegalPage} activePageName={activePage.name} />
-      {activePage.node}
-      <Footer isLegalPage={isLegalPage} activePageName={activePage.name} />
+      <Header {...{ pathname, isLegalPage }} />
+      {activePage}
+      <Footer {...{ pathname, isLegalPage }} />
     </div>
   );
 }
