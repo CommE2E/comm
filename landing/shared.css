@@ -1,3 +1,9 @@
+:global {
+  --break-point-sm: 320px;
+  --break-point-md: 1099px;
+  --break-point-lg: 1699px;
+}
+
 html {
   background: radial-gradient(ellipse at bottom, #1f252e, #111827);
   background-attachment: fixed;

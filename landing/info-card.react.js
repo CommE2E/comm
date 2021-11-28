@@ -7,13 +7,12 @@ import css from './landing.css';
 type InfoCardProps = {
   +label: string,
   +description: string,
-  +baseStyle: string,
 };
 function InfoCard(props: InfoCardProps): React.Node {
-  const { label, description, baseStyle } = props;
+  const { label, description } = props;
 
   return (
-    <div className={baseStyle}>
+    <div>
       <div className={css.tile_title_row}>
         <p className={css.tile_title}>{label}</p>
       </div>

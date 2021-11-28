@@ -1,4 +1,35 @@
-p.app_landing_subheading {
+.wrapper {
+  display: grid;
+  grid-template-columns: repeat(12, [col-start] 1fr);
+  gap: 20px;
+}
+
+/* @media (min-width: var(--break-point-sm)) { */
+/* Smallest breakpoint */
+.wrapper > * {
+  grid-column: col-start / span 12;
+}
+/* } */
+
+@media screen and (min-width: var(--break-point-md)) {
+  /* .side {
+    grid-column: col-start / span 3;
+    grid-row: 3;
+  }
+  .ad {
+    grid-column: col-start / span 3;
+    grid-row: 4;
+  }
+  .content,
+  .main-footer {
+    grid-column: col-start 4 / span 9;
+  } */
+}
+
+@media screen and (min-width: var(--break-point-lg)) {
+}
+
+/* p.app_landing_subheading {
   font-family: 'iA Writer Duo S', monospace;
   color: #7e57c2;
   font-size: 32px;
@@ -7,20 +38,20 @@ p.app_landing_subheading {
 
 span.purple_accent {
   color: #7e57c2;
-}
+} */
 
 /* ===== COMMON CSS GRID LAYOUT ===== */
-div.app_landing_grid {
+/* div.app_landing_grid {
   max-width: 1920px;
   margin-left: auto;
   margin-right: auto;
   display: grid;
   transition-property: max-width;
   transition: 300ms;
-}
+} */
 
 /* ===== APP LANDING GRID ===== */
-div.app_landing_grid {
+/* div.app_landing_grid {
   grid-template-columns: 2fr 3fr;
   grid-template-areas: 'app_preview app_copy';
 }
@@ -55,10 +86,10 @@ h1.cycling_header {
   font-size: 50px;
   margin: 0;
   white-space: pre-wrap;
-}
+} */
 
 /* ===== TILE GRID STYLING ===== */
-div.tile_grid {
+/* div.tile_grid {
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr;
@@ -69,9 +100,9 @@ div.tile_grid {
     'tile_four'
     'tile_five'
     'tile_six';
-}
+} */
 
-div.tile_grid > div {
+/* div.tile_grid > div {
   display: flex;
   border-radius: 8px;
   background-color: #ebedee;
@@ -82,9 +113,9 @@ div.tile_grid > div {
   backdrop-filter: none;
   -webkit-backdrop-filter: blur(2px);
   transition: 300ms;
-}
+} */
 
-div.tile_title_row {
+/* div.tile_title_row {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -97,9 +128,9 @@ div.tile_title_row > p.tile_title {
   font-weight: bold;
   font-size: 36px;
   transition: 300ms;
-}
+} */
 
-div.tile_grid > div p {
+/* div.tile_grid > div p {
   font-size: 22px;
   color: white;
   text-align: left;
@@ -123,10 +154,10 @@ div.tile_five {
 }
 div.tile_six {
   grid-area: tile_six;
-}
+} */
 
 /* ===== MEDIUM-LARGE BREAKPOINT ===== */
-@media (max-width: 1699px) {
+/* @media (max-width: 1699px) {
   div.tile_title_row > p.tile_title {
     font-size: 30px;
   }
@@ -134,12 +165,12 @@ div.tile_six {
   h1.cycling_header {
     font-size: 44px;
   }
-}
+} */
 
 /* ===== MEDIUM BREAKPOINT ===== */
-@media (max-width: 1499px) {
-  /* ===== APP LANDING GRID STYLING ===== */
-  div.tile_grid > div p {
+/* @media (max-width: 1499px) { */
+/* ===== APP LANDING GRID STYLING ===== */
+/* div.tile_grid > div p {
     font-size: 16px;
   }
 
@@ -150,10 +181,10 @@ div.tile_six {
   h1.cycling_header {
     font-size: 38px;
   }
-}
+} */
 
 /* ===== MEDIUM-SMALL BREAKPOINT ===== */
-@media (max-width: 1299px) {
+/* @media (max-width: 1299px) {
   div.tile_title_row > p.tile_title {
     font-size: 22px;
   }
@@ -161,20 +192,20 @@ div.tile_six {
   h1.cycling_header {
     font-size: 30px;
   }
-}
+} */
 
 /* ===== SMALLEST BREAKPOINT ===== */
-@media (max-width: 1099px) {
-  /* ===== COMMON CSS GRID LAYOUT ===== */
-  div.app_landing_grid {
+/* @media (max-width: 1099px) { */
+/* ===== COMMON CSS GRID LAYOUT ===== */
+/* div.app_landing_grid {
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
     padding-top: 0vh;
     padding-bottom: 2vh;
-  }
+  } */
 
-  /* ===== APP LANDING GRID LAYOUT ===== */
-  div.app_landing_grid {
+/* ===== APP LANDING GRID LAYOUT ===== */
+/* div.app_landing_grid {
     grid-template-areas:
       'app_preview'
       'app_copy';
@@ -228,4 +259,4 @@ div.tile_six {
   div.tile_title_row > p.tile_title {
     font-size: 20px;
   }
-}
+} */
