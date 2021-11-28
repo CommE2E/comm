@@ -42,9 +42,6 @@ div.app_preview img {
   max-height: 70vh;
   max-width: 30vw;
   object-fit: scale-down;
-  position: sticky;
-  top: 18vh;
-  left: 0;
 }
 
 div.app_copy {
