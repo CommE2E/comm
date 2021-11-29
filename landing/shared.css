@@ -32,10 +32,6 @@ a {
   font-size: 1rem;
 }
 
-.mono {
-  font-family: 'iA Writer Duo S', monospace;
-}
-
 .no_bottom_margin {
   margin-bottom: 0;
 }

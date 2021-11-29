@@ -19,6 +19,23 @@ div.body_grid {
     'keyserver_copy read_the_docs';
 }
 
+span.purple_accent {
+  color: #7e57c2;
+}
+
+.mono {
+  font-family: 'iA Writer Duo S', monospace;
+  margin-bottom: 36px;
+}
+
+.mono + p {
+  padding-bottom: 24px;
+}
+
+.keyserver_heading {
+  margin-bottom: 36px;
+}
+
 div.hero_copy {
   grid-area: hero_copy;
   align-self: center;

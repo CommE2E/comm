@@ -119,7 +119,7 @@ function Keyservers(): React.Node {
         </div>
 
         <div className={css.keyserver_company}>
-          <h1>
+          <h1 className={css.keyserver_heading}>
             Comm
             <span className={css.mono}>
               {' '}
