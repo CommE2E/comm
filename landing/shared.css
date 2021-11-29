@@ -9,6 +9,9 @@ html {
   background-attachment: fixed;
   color: white;
   word-break: break-word;
+  /* https://css-tricks.com/snippets/css/fluid-typography/ */
+  /* This content will continue growing out of its bounds */
+  font-size: calc(18px + (24 - 18) * ((100vw - 320px) / (1600 - 320)));
 }
 
 /* Override browser default to achieve edge-to-edge footer translucency effect */
@@ -20,8 +23,6 @@ body {
   );
   margin: 0;
   padding: 0;
-  /* https://css-tricks.com/snippets/css/fluid-typography/ */
-  font-size: calc(18px + (24 - 18) * ((100vw - 300px) / (1600 - 300)));
   line-height: 1.5;
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: normal;

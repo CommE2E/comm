@@ -32,7 +32,7 @@
 }
 
 .heroInfo {
-  grid-column: 7 / span 8;
+  grid-column: 6 / span 8;
   align-self: center;
   grid-row: 1 / span 1;
 }
@@ -40,6 +40,8 @@
 .federatedImage {
   grid-column: col-start / span 4;
   grid-row: 2 / span 1;
+  align-self: center;
+  min-width: 400px;
 }
 
 .federatedInfo {
@@ -51,6 +53,8 @@
 .customizableImage {
   grid-row: 3 / span 1;
   grid-column: 9 / span 6;
+  align-self: center;
+  min-width: 500px;
 }
 
 .customizableInfo {
@@ -63,6 +67,7 @@
 .encryptedImage {
   grid-column: col-start / span 5;
   grid-row: 4 / span 1;
+  align-self: center;
 }
 
 .encryptedInfo {
@@ -75,6 +80,7 @@
   grid-column: 9 / span 4;
   justify-self: end;
   grid-row: 5 / span 1;
+  align-self: center;
 }
 
 .sovereignInfo {
@@ -85,6 +91,7 @@
 
 .openSourceImage {
   grid-row: 6 / span 1;
+  align-self: center;
 }
 
 .openSourceInfo {
@@ -96,6 +103,7 @@
 .lessNoisyImage {
   grid-column: 9 / span 5;
   grid-row: 7 / span 1;
+  align-self: center;
 }
 
 .lessNoisyInfo {
