@@ -5,6 +5,8 @@ import * as React from 'react';
 type Asset = {
   +file: string,
   +alt: string,
+  +label: string,
+  +description: string,
 };
 
 export const LandingAssetsS3URL = 'https://dh9fld3hutpxf.cloudfront.net';

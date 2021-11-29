@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 // import CyclingHeader from './cycling-header.react';
-import { screenshots } from './image-assets';
+import { assetMeta } from './asset-meta';
 import InfoCard from './info-card.react';
 import './reset.css';
 import css from './landing.css';
@@ -14,7 +14,7 @@ import usePreLoadAssets, {
 } from './use-pre-load-assets.react';
 
 function AppLanding(): React.Node {
-  usePreLoadAssets(screenshots);
+  usePreLoadAssets(assetMeta);
   const [
     federated,
     customizable,
@@ -22,9 +22,11 @@ function AppLanding(): React.Node {
     sovereign,
     openSource,
     lessNoisy,
-  ] = screenshots.map(asset => ({
+  ] = assetMeta.map(asset => ({
     path: `${LandingAssetsS3URL}/${asset.file}`,
     alt: asset.alt,
+    label: asset.label,
+    description: asset.description,
   }));
 
   return (
@@ -50,10 +52,8 @@ function AppLanding(): React.Node {
         </div>
         <div className={`${css.infoOne} ${css.twoThird}`}>
           <InfoCard
-            label="Federated"
-            description="Comm is a protocol paired with an app. Each community hosts its
-                own backend, which we call a keyserver. Our keyserver software
-                is built to be forked."
+            label={federated.label}
+            description={federated.description}
           />
         </div>
         <div className={`${css.imageTwo} ${css.twoThirdInverted}`}>
@@ -61,9 +61,8 @@ function AppLanding(): React.Node {
         </div>
         <div className={`${css.infoTwo} ${css.oneThirdInverted}`}>
           <InfoCard
-            label="Customizable"
-            description="Write mini-apps and custom modules in React. Skin your
-                community. Customize your tabs and your home page."
+            label={customizable.label}
+            description={customizable.description}
           />
         </div>
         <div className={`${css.oneThird} ${css.imageThree}`}>
@@ -71,9 +70,8 @@ function AppLanding(): React.Node {
         </div>
         <div className={`${css.twoThird} ${css.infoThree}`}>
           <InfoCard
-            label="E2E-encrypted"
-            description="Comm started as a project to build a private, decentralized
-                alternative to Discord. Privacy is in our DNA."
+            label={encrypted.label}
+            description={encrypted.description}
           />
         </div>
         <div className={`${css.twoThirdInverted} ${css.imageFour}`}>
@@ -81,9 +79,8 @@ function AppLanding(): React.Node {
         </div>
         <div className={`${css.oneThirdInverted} ${css.infoFour}`}>
           <InfoCard
-            label="Sovereign"
-            description="Log in with your ETH wallet. Use ENS as your username. On Comm,
-                your identity and data are yours to control."
+            label={sovereign.label}
+            description={sovereign.description}
           />
         </div>
         <div className={`${css.imageFive} ${css.oneThird}`}>
@@ -91,20 +88,17 @@ function AppLanding(): React.Node {
         </div>
         <div className={`${css.infoFive} ${css.twoThird}`}>
           <InfoCard
-            label="Open Source"
-            description="All of our code is open source. Keyservers, iOS/Android app, our
-                cloud services… all of it. We believe in open platforms."
+            label={openSource.label}
+            description={openSource.description}
           />
         </div>
-
         <div className={`${css.imageSix} ${css.twoThirdInverted}`}>
           <Picture path={lessNoisy.path} alt={lessNoisy.alt} />
         </div>
         <div className={`${css.infoSix} ${css.oneThirdInverted}`}>
           <InfoCard
-            label="Less Noisy"
-            description="We let each user decide what they want to follow with detailed
-                notif controls and a powerful unified inbox."
+            label={lessNoisy.label}
+            description={lessNoisy.description}
           />
         </div>
       </div>
