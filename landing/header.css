@@ -25,7 +25,9 @@ div.logo {
 }
 
 div.logo h1 {
-  font-size: 32px;
+  font-size: 1.75rem;
+  font-family: IBM Plex Sans;
+  font-weight: 500;
 }
 
 div.logo a {
@@ -46,16 +48,20 @@ div.top_nav {
 }
 
 div.top_nav h1 {
-  font-size: 20px;
+  font-size: 1.5rem;
+  font-weight: 400;
+  font-family: 'Inter', sans-serif;
 }
 
 div.top_nav div.active_tab,
 div.top_nav div.inactive_tab {
+  font-family: 'Inter', sans-serif;
   margin-inline: 16px;
 }
 
 div.active_tab a {
   color: white;
+  font-weight: 500;
   transition: 300ms;
 }
 
@@ -71,10 +77,9 @@ div.top_nav a:hover {
 /* ===== REQUEST ACCESS BUTTON ===== */
 div.request_access {
   border-radius: 4px;
-  padding-inline: 12px;
-  margin-right: 12px;
+  padding: 12px 24px;
   background-color: #7e57c2;
-  color: #ebedee;
+  color: #fff;
   transition: 300ms;
 }
 
@@ -85,9 +90,7 @@ div.request_access:hover {
 }
 
 div.request_access p {
-  font-size: 14px;
-  font-weight: bold;
-  line-height: 2.5;
+  font-size: 1rem;
 }
 
 /* ===== TWITTER/GITHUB BUTTONS ===== */

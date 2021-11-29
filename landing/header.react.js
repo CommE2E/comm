@@ -50,7 +50,7 @@ function Header(props: HeaderProps): React.Node {
           </div>
           <div className={isActive('keyservers')}>
             <Link to="/keyservers">
-              <h1>Keyservers</h1>
+              <h1>Keyserver</h1>
             </Link>
           </div>
         </div>

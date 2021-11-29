@@ -25,7 +25,7 @@ async function landingHandler(req: $Request, res: $Response) {
 
 const access = promisify(fs.access);
 const googleFontsURL =
-  'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&display=swap';
+  'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&family=Inter:wght@400;500&display=swap';
 const iaDuoFontsURL = 'fonts/duo.css';
 const localFontsURL = 'fonts/local-fonts.css';
 async function getDevFontURLs(): Promise<$ReadOnlyArray<string>> {
