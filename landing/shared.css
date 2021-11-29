@@ -29,6 +29,7 @@ body {
 a {
   transition: 0.2s;
   text-decoration: none;
+  font-size: 1rem;
 }
 
 .mono {
