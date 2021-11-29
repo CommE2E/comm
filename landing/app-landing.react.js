@@ -66,20 +66,20 @@ function AppLanding(): React.Node {
                 community. Customize your tabs and your home page."
           />
         </div>
-        <div className={`${css.imageThree} ${css.oneThird}`}>
+        <div className={`${css.oneThird} ${css.imageThree}`}>
           <Picture path={encrypted.path} alt={encrypted.alt} />
         </div>
-        <div className={`${css.infoThree} ${css.twoThird}`}>
+        <div className={`${css.twoThird} ${css.infoThree}`}>
           <InfoCard
             label="E2E-encrypted"
             description="Comm started as a project to build a private, decentralized
                 alternative to Discord. Privacy is in our DNA."
           />
         </div>
-        <div className={`${css.imageFour} ${css.twoThirdInverted}`}>
+        <div className={`${css.twoThirdInverted} ${css.imageFour}`}>
           <Picture path={sovereign.path} alt={sovereign.alt} />
         </div>
-        <div className={`${css.imageFour} ${css.oneThirdInverted}`}>
+        <div className={`${css.oneThirdInverted} ${css.infoFour}`}>
           <InfoCard
             label="Sovereign"
             description="Log in with your ETH wallet. Use ENS as your username. On Comm,
@@ -100,7 +100,7 @@ function AppLanding(): React.Node {
         <div className={`${css.imageSix} ${css.twoThirdInverted}`}>
           <Picture path={lessNoisy.path} alt={lessNoisy.alt} />
         </div>
-        <div className={`${css.imageSix} ${css.oneThirdInverted}`}>
+        <div className={`${css.infoSix} ${css.oneThirdInverted}`}>
           <InfoCard
             label="Less Noisy"
             description="We let each user decide what they want to follow with detailed
