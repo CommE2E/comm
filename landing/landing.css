@@ -1,5 +1,6 @@
 .wrapper {
   display: grid;
+  padding-top: 144px;
   grid-template-columns: [gutter-left] 50px repeat(12, [col-start] 1fr) [gutter-right] 50px;
   grid-template-rows: repeat(7, [row-start] minmax(750px, 1fr));
   gap: 10px;
@@ -48,9 +49,8 @@
 }
 
 .customizableImage {
+  grid-row: 3 / span 1;
   grid-column: 9 / span 6;
-  grid-row: 3 / span 1;
-  grid-row: 3 / span 1;
 }
 
 .customizableInfo {

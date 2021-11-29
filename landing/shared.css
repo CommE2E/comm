@@ -20,16 +20,31 @@ body {
   );
   margin: 0;
   padding: 0;
-  font-size: calc(1rem * 1.75);
+  /* https://css-tricks.com/snippets/css/fluid-typography/ */
+  font-size: calc(18px + (24 - 18) * ((100vw - 300px) / (1600 - 300)));
   line-height: 1.5;
   font-family: 'IBM Plex Sans', sans-serif;
   font-weight: normal;
+}
+
+h1 {
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+h2 {
+  font-weight: normal;
+  font-family: 'iA Writer Duo S', sans-serif;
 }
 
 a {
   transition: 0.2s;
   text-decoration: none;
   font-size: 1rem;
+}
+
+p,
+li {
+  line-height: 1.35;
 }
 
 .no_bottom_margin {
@@ -62,48 +77,5 @@ div.app_landing_grid {
     img {
       image-rendering: unset !important;
     }
-  }
-}
-
-/* ===== TEXT STYLES ===== */
-h1 {
-  font-size: 58px;
-  font-family: 'IBM Plex Sans', sans-serif;
-}
-
-h2 {
-  font-size: 50px;
-  font-weight: normal;
-  font-family: 'iA Writer Duo S', sans-serif;
-}
-
-p,
-li {
-  line-height: 1.35;
-}
-@media (max-width: 1499px) {
-  h1 {
-    font-size: 42px;
-  }
-  h2 {
-    font-size: 38px;
-  }
-  p,
-  li {
-    font-size: 18px;
-  }
-}
-
-@media (max-width: 1099px) {
-  /* ===== TEXT STYLES ===== */
-  h1 {
-    font-size: 28px;
-  }
-  h2 {
-    font-size: 24px;
-  }
-  p,
-  li {
-    font-size: 16px;
   }
 }
