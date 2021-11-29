@@ -1,6 +1,12 @@
 // @flow
 export const assetMeta = [
   {
+    alt: 'a mobile phone screen highlighting chat and DAO voting',
+    file: 'Header',
+    label: 'Header',
+    description: ``,
+  },
+  {
     alt: 'a mobile phone screen highlighting chat organization',
     file: 'Federated',
     label: 'Federated',

@@ -1,7 +1,7 @@
 .wrapper {
   display: grid;
   grid-template-columns: [gutter-left] 50px repeat(12, [col-start] 1fr) [gutter-right] 50px;
-  grid-template-rows: repeat(6, [row-start] minmax(750px, 1fr));
+  grid-template-rows: repeat(7, [row-start] minmax(750px, 1fr));
   gap: 10px;
 }
 
@@ -25,78 +25,93 @@
   grid-column: 10 / span 5;
 }
 
-.federatedImage {
-  grid-row: 1 / span 1;
+.heroImage {
   grid-column: col-start / span 4;
+  grid-row: 1 / span 1;
+}
+
+.heroInfo {
+  grid-column: 7 / span 7;
+  align-self: center;
+  grid-row: 1 / span 1;
+}
+
+.federatedImage {
+  grid-column: col-start / span 4;
+  grid-row: 2 / span 1;
 }
 
 .federatedInfo {
-  grid-row: 1 / span 1;
   grid-column: 7 / span 7;
   align-self: center;
+  grid-row: 2 / span 1;
 }
 
 .customizableImage {
-  grid-row: 2 / span 1;
   grid-column: 9 / span 6;
+  grid-row: 3 / span 1;
+  grid-row: 3 / span 1;
 }
 
 .customizableInfo {
   grid-row: 2 / span 1;
   grid-column: col-start / span 6;
   align-self: center;
+  grid-row: 3 / span 1;
 }
 
 .encryptedImage {
-  grid-row: 3 / span 1;
   grid-column: col-start / span 5;
+  grid-row: 4 / span 1;
 }
 
 .encryptedInfo {
-  grid-row: 3 / span 1;
   grid-column: 7 / span 7;
   align-self: center;
+  grid-row: 4 / span 1;
 }
 
 .sovereignImage {
-  grid-row: 4 / span 1;
   grid-column: 9 / span 4;
   justify-self: end;
+  grid-row: 5 / span 1;
 }
 
 .sovereignInfo {
-  grid-row: 4 / span 1;
   grid-column: col-start / span 6;
   align-self: center;
+  grid-row: 5 / span 1;
 }
 
 .openSourceImage {
-  grid-row: 5 / span 1;
+  grid-row: 6 / span 1;
 }
 
 .openSourceInfo {
-  grid-row: 5 / span 1;
   align-self: center;
   grid-column: 7 / span 7;
+  grid-row: 6 / span 1;
 }
 
 .lessNoisyImage {
-  grid-row: 6 / span 1;
   grid-column: 9 / span 5;
+  grid-row: 7 / span 1;
 }
 
 .lessNoisyInfo {
-  grid-row: 6 / span 1;
   grid-column: col-start / span 6;
   align-self: center;
+  grid-row: 7 / span 1;
 }
 
-/* p.app_landing_subheading {
+p.app_landing_subheading {
   font-family: 'iA Writer Duo S', monospace;
   color: #7e57c2;
-  font-size: 32px;
-  padding-inline: 0px;
+  font-size: 50px;
+  letter-spacing: -0.01em;
 }
+
+/* 
 
 span.purple_accent {
   color: #7e57c2;
@@ -143,12 +158,7 @@ div.app_copy {
   justify-content: center;
 }
 
-h1.cycling_header {
-  font-family: 'iA Writer Duo S', monospace;
-  font-size: 50px;
-  margin: 0;
-  white-space: pre-wrap;
-} */
+
 
 /* ===== TILE GRID STYLING ===== */
 /* div.tile_grid {
