@@ -1,27 +1,27 @@
 // @flow
 export const screenshots = [
   {
-    alt: 'a mobile phone conversation list screen',
-    file: 'federated-prototype',
+    alt: 'a mobile phone screen highlighting chat organization',
+    file: 'Federated',
   },
   {
-    alt: 'a mobile phone with customized dashboard screen',
-    file: 'customizable-prototype',
+    alt: 'a web app screen highlighting web3 apps in Comm',
+    file: 'Customizable',
   },
   {
-    alt: 'a mobile phone chat conversation screen',
-    file: 'e2e-encrypted-prototype',
+    alt: 'a mobile phone screen highlighting a conversation',
+    file: 'E2E-encrypted',
   },
   {
     alt: 'a mobile phone user information screen',
-    file: 'sovereign-prototype',
+    file: 'Sovereign',
   },
   {
-    alt: 'a mobile phone addon app selection screen',
-    file: 'open-source-prototype',
+    alt: 'a web app screen highlighting web3 apps in Comm',
+    file: 'Open-Source',
   },
   {
     alt: 'a mobile phone notification options screen',
-    file: 'less-noisy-prototype',
+    file: 'Less-Noisy',
   },
 ];

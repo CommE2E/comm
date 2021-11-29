@@ -3,19 +3,29 @@
 import * as React from 'react';
 
 // import CyclingHeader from './cycling-header.react';
-// import { screenshots } from './image-assets';
+import { screenshots } from './image-assets';
 import InfoCard from './info-card.react';
 import './reset.css';
 import css from './landing.css';
+import Picture from './picture.react';
 import StarBackground from './star-background.react';
-// import usePreLoadAssets, {
-//   LandingAssetsS3URL,
-// } from './use-pre-load-assets.react';
+import usePreLoadAssets, {
+  LandingAssetsS3URL,
+} from './use-pre-load-assets.react';
 
 function AppLanding(): React.Node {
-  // usePreLoadAssets(screenshots);
-  // const [firstScreenShot] = screenshots;
-  // const path = `${LandingAssetsS3URL}/${firstScreenShot.file}`;
+  usePreLoadAssets(screenshots);
+  const [
+    federated,
+    customizable,
+    encrypted,
+    sovereign,
+    openSource,
+    lessNoisy,
+  ] = screenshots.map(asset => ({
+    path: `${LandingAssetsS3URL}/${asset.file}`,
+    alt: asset.alt,
+  }));
 
   return (
     <>
@@ -36,7 +46,7 @@ function AppLanding(): React.Node {
             </p>
           </div> */}
         <div className={`${css.imageOne} ${css.oneThird}`}>
-          <img src="https://placekitten.com/710/850" />
+          <Picture path={federated.path} alt={federated.alt} />
         </div>
         <div className={`${css.infoOne} ${css.twoThird}`}>
           <InfoCard
@@ -47,7 +57,7 @@ function AppLanding(): React.Node {
           />
         </div>
         <div className={`${css.imageTwo} ${css.twoThirdInverted}`}>
-          <img src="https://placekitten.com/710/850" />
+          <Picture path={customizable.path} alt={customizable.alt} />
         </div>
         <div className={`${css.infoTwo} ${css.oneThirdInverted}`}>
           <InfoCard
@@ -57,7 +67,7 @@ function AppLanding(): React.Node {
           />
         </div>
         <div className={`${css.imageThree} ${css.oneThird}`}>
-          <img src="https://placekitten.com/710/850" />
+          <Picture path={encrypted.path} alt={encrypted.alt} />
         </div>
         <div className={`${css.infoThree} ${css.twoThird}`}>
           <InfoCard
@@ -67,7 +77,7 @@ function AppLanding(): React.Node {
           />
         </div>
         <div className={`${css.imageFour} ${css.twoThirdInverted}`}>
-          <img src="https://placekitten.com/710/850" />
+          <Picture path={sovereign.path} alt={sovereign.alt} />
         </div>
         <div className={`${css.imageFour} ${css.oneThirdInverted}`}>
           <InfoCard
@@ -77,7 +87,7 @@ function AppLanding(): React.Node {
           />
         </div>
         <div className={`${css.imageFive} ${css.oneThird}`}>
-          <img src="https://placekitten.com/710/850" />
+          <Picture path={openSource.path} alt={openSource.alt} />
         </div>
         <div className={`${css.infoFive} ${css.twoThird}`}>
           <InfoCard
@@ -88,7 +98,7 @@ function AppLanding(): React.Node {
         </div>
 
         <div className={`${css.imageSix} ${css.twoThirdInverted}`}>
-          <img src="https://placekitten.com/710/850" />
+          <Picture path={lessNoisy.path} alt={lessNoisy.alt} />
         </div>
         <div className={`${css.imageSix} ${css.oneThirdInverted}`}>
           <InfoCard
