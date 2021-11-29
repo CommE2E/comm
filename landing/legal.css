@@ -5,6 +5,21 @@ div.legal_container {
   padding-left: 60px;
   padding-right: 60px;
 }
+
+.legal_header {
+  padding-bottom: 36px;
+}
+
+.legal_header + p,
+.legal_header + p + p {
+  padding-bottom: 24px;
+}
+
+.legal_subheader {
+  padding-bottom: 24px;
+  padding-top: 24px;
+}
+
 div.legal_container h1 {
   font-size: 42px;
 }

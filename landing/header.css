@@ -56,7 +56,10 @@ div.top_nav h1 {
 div.top_nav div.active_tab,
 div.top_nav div.inactive_tab {
   font-family: 'Inter', sans-serif;
-  margin-inline: 16px;
+}
+
+div.inactive_tab {
+  padding-left: 14px;
 }
 
 div.active_tab a {

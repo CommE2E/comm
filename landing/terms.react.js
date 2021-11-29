@@ -7,7 +7,7 @@ import css from './legal.css';
 function Terms(): React.Node {
   return (
     <div className={css.legal_container}>
-      <h1>Terms of Use</h1>
+      <h1 className={css.legal_header}> Terms of Use</h1>
       <p>
         Effective date: <strong>June 29, 2021</strong>
       </p>
@@ -23,7 +23,7 @@ function Terms(): React.Node {
         <a href="https://comm.app/privacy">Privacy Policy</a>.
       </p>
 
-      <h2>Will these Terms ever change?</h2>
+      <h2 className={css.legal_subheader}>Will these Terms ever change?</h2>
 
       <p>
         We may change the Terms at any time, but if we do, we will place a
@@ -35,14 +35,14 @@ function Terms(): React.Node {
         agree to all of the changes.
       </p>
 
-      <h2>What about my privacy?</h2>
+      <h2 className={css.legal_subheader}>What about my privacy?</h2>
 
       <p>
         For the current Comm Technologies Privacy Policy, please{' '}
         <a href="https://comm.app/privacy">click here</a>.
       </p>
 
-      <h2>Minimum Age</h2>
+      <h2 className={css.legal_subheader}>Minimum Age</h2>
 
       <p>
         You must be at least 13 years old to use our Services. The minimum age
@@ -50,7 +50,9 @@ function Terms(): React.Node {
         country.
       </p>
 
-      <h2>What are the basics of using Comm?</h2>
+      <h2 className={css.legal_subheader}>
+        What are the basics of using Comm?
+      </h2>
 
       <p>
         In order to access Comm, you are required to sign up for an account and
@@ -61,7 +63,9 @@ function Terms(): React.Node {
         user name and account.
       </p>
 
-      <h2>Who will have access to my Content?</h2>
+      <h2 className={css.legal_subheader}>
+        Who will have access to my Content?
+      </h2>
 
       <p>
         <strong>
@@ -77,7 +81,9 @@ function Terms(): React.Node {
         .
       </p>
 
-      <h2>Are there restrictions in how I can use the Services?</h2>
+      <h2 className={css.legal_subheader}>
+        Are there restrictions in how I can use the Services?
+      </h2>
 
       <p>
         You agree that you will not provide or contribute anything to the
@@ -89,7 +95,9 @@ function Terms(): React.Node {
         other purpose not reasonably intended by Comm Technologies.
       </p>
 
-      <h2>What are my rights in the Services?</h2>
+      <h2 className={css.legal_subheader}>
+        What are my rights in the Services?
+      </h2>
 
       <p>
         The Content displayed or performed or available on or through the
@@ -111,7 +119,9 @@ function Terms(): React.Node {
         Services.
       </p>
 
-      <h2>Who is responsible for what is contributed to the Services?</h2>
+      <h2 className={css.legal_subheader}>
+        Who is responsible for what is contributed to the Services?
+      </h2>
 
       <p>
         Any information or Content posted or transmitted through the Services is
@@ -121,7 +131,7 @@ function Terms(): React.Node {
         or for any damages or loss you might suffer in connection with it.
       </p>
 
-      <h2>
+      <h2 className={css.legal_subheader}>
         What if I see something on the Services that infringes my copyright?
       </h2>
 
@@ -132,7 +142,9 @@ function Terms(): React.Node {
         <a href="mailto:support@comm.app">support@comm.app</a>.
       </p>
 
-      <h2>Who is responsible for third-party services?</h2>
+      <h2 className={css.legal_subheader}>
+        Who is responsible for third-party services?
+      </h2>
 
       <p>
         The Services may contain links or connections to third-party websites or
@@ -144,7 +156,9 @@ function Terms(): React.Node {
         each third-party website or service that you visit or utilize.
       </p>
 
-      <h2>Will Comm Technologies ever change the Services?</h2>
+      <h2 className={css.legal_subheader}>
+        Will Comm Technologies ever change the Services?
+      </h2>
 
       <p>
         We’re always trying to improve our Services, so they may change over
@@ -153,7 +167,9 @@ function Terms(): React.Node {
         access to parts or all of the Services.
       </p>
 
-      <h2>What if I want to stop using the Services?</h2>
+      <h2 className={css.legal_subheader}>
+        What if I want to stop using the Services?
+      </h2>
 
       <p>
         You’re free to do that at any time, either by deleting your account
@@ -183,9 +199,9 @@ function Terms(): React.Node {
         disputes between us.
       </p>
 
-      <h2>What else do I need to know?</h2>
+      <h2 className={css.legal_subheader}>What else do I need to know?</h2>
 
-      <h2>Warranty Disclaimer.</h2>
+      <h2 className={css.legal_subheader}>Warranty Disclaimer.</h2>
 
       <p>
         Comm Technologies and its licensors, suppliers, partners, parent,
@@ -216,7 +232,7 @@ function Terms(): React.Node {
         (INCLUDING CONTENT) OF OUR USERS OR OTHER THIRD PARTIES.
       </p>
 
-      <h2>Limitation of Liability.</h2>
+      <h2 className={css.legal_subheader}>Limitation of Liability.</h2>
 
       <p>
         TO THE FULLEST EXTENT ALLOWED BY APPLICABLE LAW, UNDER NO CIRCUMSTANCES
@@ -236,7 +252,7 @@ function Terms(): React.Node {
         DAMAGES, SO ABOVE LIMITATION AND EXCLUSIONS MAY NOT APPLY TO YOU.
       </p>
 
-      <h2>Assignment.</h2>
+      <h2 className={css.legal_subheader}>Assignment.</h2>
 
       <p>
         You may not assign, delegate or transfer these Terms or your rights or
@@ -246,7 +262,7 @@ function Terms(): React.Node {
         our rights and obligations without consent.
       </p>
 
-      <h2>Dispute Resolution.</h2>
+      <h2 className={css.legal_subheader}>Dispute Resolution.</h2>
 
       <p>
         These Terms are governed by and will be construed under the laws of the
@@ -256,7 +272,7 @@ function Terms(): React.Node {
         County, New York, and each party consents to the jurisdiction thereof.
       </p>
 
-      <h2>Miscellaneous</h2>
+      <h2 className={css.legal_subheader}>Miscellaneous</h2>
 
       <p>
         The failure of either you or us to exercise, in any way, any right
