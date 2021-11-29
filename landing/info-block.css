@@ -1,0 +1,10 @@
+.infoBlock {
+  border-radius: 8px;
+  background: rgba(235, 235, 235, 0.05);
+  padding: 32px;
+}
+
+.contentSpacer {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}

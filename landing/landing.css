@@ -27,18 +27,24 @@
 
 .federatedImage {
   grid-row: 1 / span 1;
+  grid-column: col-start / span 4;
 }
 
 .federatedInfo {
   grid-row: 1 / span 1;
+  grid-column: 7 / span 7;
+  align-self: center;
 }
 
 .customizableImage {
   grid-row: 2 / span 1;
+  grid-column: 9 / span 6;
 }
 
 .customizableInfo {
   grid-row: 2 / span 1;
+  grid-column: col-start / span 6;
+  align-self: center;
 }
 
 .encryptedImage {
@@ -48,17 +54,20 @@
 
 .encryptedInfo {
   grid-row: 3 / span 1;
-  grid-column: 7 / span 6;
+  grid-column: 7 / span 7;
+  align-self: center;
 }
 
 .sovereignImage {
   grid-row: 4 / span 1;
   grid-column: 9 / span 4;
+  justify-self: end;
 }
 
 .sovereignInfo {
   grid-row: 4 / span 1;
-  grid-column: col-start / span 5;
+  grid-column: col-start / span 6;
+  align-self: center;
 }
 
 .openSourceImage {
@@ -67,6 +76,8 @@
 
 .openSourceInfo {
   grid-row: 5 / span 1;
+  align-self: center;
+  grid-column: 7 / span 7;
 }
 
 .lessNoisyImage {
@@ -76,7 +87,8 @@
 
 .lessNoisyInfo {
   grid-row: 6 / span 1;
-  grid-column: col-start / span 7;
+  grid-column: col-start / span 6;
+  align-self: center;
 }
 
 /* p.app_landing_subheading {
