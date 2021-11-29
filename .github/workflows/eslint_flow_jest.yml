@@ -1,4 +1,4 @@
-name: ESLint & Flow
+name: ESLint & Flow & Jest
 
 on:
   push:
@@ -45,3 +45,7 @@ jobs:
       - name: '[native] flow'
         working-directory: ./native
         run: ./node_modules/.bin/flow
+
+      - name: '[lib] test'
+        working-directory: ./lib
+        run: yarn test
