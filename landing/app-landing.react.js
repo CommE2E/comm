@@ -47,55 +47,55 @@ function AppLanding(): React.Node {
               (think &quot;Web3 Discord&quot;)
             </p>
           </div> */}
-        <div className={`${css.imageOne} ${css.oneThird}`}>
+        <div className={`${css.oneThird} ${css.federatedImage}`}>
           <Picture path={federated.path} alt={federated.alt} />
         </div>
-        <div className={`${css.infoOne} ${css.twoThird}`}>
+        <div className={`${css.twoThird} ${css.federatedInfo}`}>
           <InfoCard
             label={federated.label}
             description={federated.description}
           />
         </div>
-        <div className={`${css.imageTwo} ${css.twoThirdInverted}`}>
+        <div className={`${css.twoThirdInverted} ${css.customizableImage}`}>
           <Picture path={customizable.path} alt={customizable.alt} />
         </div>
-        <div className={`${css.infoTwo} ${css.oneThirdInverted}`}>
+        <div className={`${css.oneThirdInverted} ${css.customizableInfo}`}>
           <InfoCard
             label={customizable.label}
             description={customizable.description}
           />
         </div>
-        <div className={`${css.oneThird} ${css.imageThree}`}>
+        <div className={`${css.oneThird} ${css.encryptedImage}`}>
           <Picture path={encrypted.path} alt={encrypted.alt} />
         </div>
-        <div className={`${css.twoThird} ${css.infoThree}`}>
+        <div className={`${css.twoThird} ${css.encryptedInfo}`}>
           <InfoCard
             label={encrypted.label}
             description={encrypted.description}
           />
         </div>
-        <div className={`${css.twoThirdInverted} ${css.imageFour}`}>
+        <div className={`${css.twoThirdInverted} ${css.sovereignImage}`}>
           <Picture path={sovereign.path} alt={sovereign.alt} />
         </div>
-        <div className={`${css.oneThirdInverted} ${css.infoFour}`}>
+        <div className={`${css.oneThirdInverted} ${css.sovereignInfo}`}>
           <InfoCard
             label={sovereign.label}
             description={sovereign.description}
           />
         </div>
-        <div className={`${css.imageFive} ${css.oneThird}`}>
+        <div className={`${css.oneThird} ${css.openSourceImage}`}>
           <Picture path={openSource.path} alt={openSource.alt} />
         </div>
-        <div className={`${css.infoFive} ${css.twoThird}`}>
+        <div className={`${css.twoThird} ${css.openSourceInfo}`}>
           <InfoCard
             label={openSource.label}
             description={openSource.description}
           />
         </div>
-        <div className={`${css.imageSix} ${css.twoThirdInverted}`}>
+        <div className={`${css.twoThirdInverted} ${css.lessNoisyImage}`}>
           <Picture path={lessNoisy.path} alt={lessNoisy.alt} />
         </div>
-        <div className={`${css.infoSix} ${css.oneThirdInverted}`}>
+        <div className={`${css.oneThirdInverted} ${css.lessNoisyInfo}`}>
           <InfoCard
             label={lessNoisy.label}
             description={lessNoisy.description}

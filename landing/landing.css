@@ -25,56 +25,56 @@
   grid-column: 10 / span 5;
 }
 
-.imageOne {
+.federatedImage {
   grid-row: 1 / span 1;
 }
 
-.infoOne {
+.federatedInfo {
   grid-row: 1 / span 1;
 }
 
-.imageTwo {
+.customizableImage {
   grid-row: 2 / span 1;
 }
 
-.infoTwo {
+.customizableInfo {
   grid-row: 2 / span 1;
 }
 
-.imageThree {
+.encryptedImage {
   grid-row: 3 / span 1;
   grid-column: col-start / span 5;
 }
 
-.infoThree {
+.encryptedInfo {
   grid-row: 3 / span 1;
   grid-column: 7 / span 6;
 }
 
-.imageFour {
+.sovereignImage {
   grid-row: 4 / span 1;
   grid-column: 9 / span 4;
 }
 
-.infoFour {
+.sovereignInfo {
   grid-row: 4 / span 1;
   grid-column: col-start / span 5;
 }
 
-.imageFive {
+.openSourceImage {
   grid-row: 5 / span 1;
 }
 
-.infoFive {
+.openSourceInfo {
   grid-row: 5 / span 1;
 }
 
-.imageSix {
+.lessNoisyImage {
   grid-row: 6 / span 1;
   grid-column: 9 / span 5;
 }
 
-.infoSix {
+.lessNoisyInfo {
   grid-row: 6 / span 1;
   grid-column: col-start / span 7;
 }
