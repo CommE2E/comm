@@ -2,8 +2,7 @@ div.legal_container {
   max-width: 1080px;
   margin-left: auto;
   margin-right: auto;
-  padding-left: 60px;
-  padding-right: 60px;
+  padding: 0 60px 60px;
 }
 
 .legal_header {
