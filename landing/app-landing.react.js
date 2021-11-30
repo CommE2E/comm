@@ -49,48 +49,48 @@ function AppLanding(): React.Node {
           alt={federated.alt}
           label={federated.label}
           description={federated.description}
-          imageClassName={`${css.oneThird} ${css.federatedImage}`}
-          infoClassName={`${css.twoThird} ${css.federatedInfo}`}
+          imageClassName={`${css.sectionOne} ${css.federatedImage}`}
+          infoClassName={`${css.sectionTwo} ${css.federatedInfo}`}
         />
         <InfoBlock
           path={customizable.path}
           alt={customizable.alt}
           label={customizable.label}
           description={customizable.description}
-          imageClassName={`${css.twoThirdInverted} ${css.customizableImage}`}
-          infoClassName={`${css.oneThirdInverted} ${css.customizableInfo}`}
+          imageClassName={`${css.sectionTwoInverted} ${css.customizableImage}`}
+          infoClassName={`${css.sectionOneInverted} ${css.customizableInfo}`}
         />
         <InfoBlock
           path={encrypted.path}
           alt={encrypted.alt}
           label={encrypted.label}
           description={encrypted.description}
-          imageClassName={`${css.oneThird} ${css.encryptedImage}`}
-          infoClassName={`${css.twoThird} ${css.encryptedInfo}`}
+          imageClassName={`${css.sectionOne} ${css.encryptedImage}`}
+          infoClassName={`${css.sectionTwo} ${css.encryptedInfo}`}
         />
         <InfoBlock
           path={sovereign.path}
           alt={sovereign.alt}
           label={sovereign.label}
           description={sovereign.description}
-          imageClassName={`${css.oneThirdInverted} ${css.sovereignImage}`}
-          infoClassName={`${css.twoThirdInverted} ${css.sovereignInfo}`}
+          imageClassName={`${css.sectionOneInverted} ${css.sovereignImage}`}
+          infoClassName={`${css.sectionTwoInverted} ${css.sovereignInfo}`}
         />
         <InfoBlock
           path={openSource.path}
           alt={openSource.alt}
           label={openSource.label}
           description={openSource.description}
-          imageClassName={`${css.oneThird} ${css.openSourceImage}`}
-          infoClassName={`${css.twoThird} ${css.openSourceInfo}`}
+          imageClassName={`${css.sectionOne} ${css.openSourceImage}`}
+          infoClassName={`${css.sectionTwo} ${css.openSourceInfo}`}
         />
         <InfoBlock
           path={lessNoisy.path}
           alt={lessNoisy.alt}
           label={lessNoisy.label}
           description={lessNoisy.description}
-          imageClassName={`${css.oneThirdInverted} ${css.lessNoisyImage}`}
-          infoClassName={`${css.twoThirdInverted} ${css.lessNoisyInfo}`}
+          imageClassName={`${css.sectionOneInverted} ${css.lessNoisyImage}`}
+          infoClassName={`${css.sectionTwoInverted} ${css.lessNoisyInfo}`}
         />
       </div>
     </>
