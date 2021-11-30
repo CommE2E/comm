@@ -8,7 +8,7 @@ import css from './cycling-header.css';
 function CyclingHeader(): React.Node {
   return (
     <h1 className={css.cycling_header}>
-      {'Comm is crypto-native\nchat for '}
+      {'Comm is crypto-native chat for \n'}
       <TextLoop interval={1750} springConfig={{ stiffness: 180, damping: 16 }}>
         <span className={css.app_landing_subheading}>DAOs</span>
         <span className={css.app_landing_subheading}>art collectives</span>

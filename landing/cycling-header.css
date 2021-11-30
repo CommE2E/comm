@@ -1,8 +1,18 @@
 .cycling_header {
   font-family: 'iA Writer Duo S', monospace;
-  font-size: 3rem;
+  font-size: 75px;
   line-height: 1.35;
   white-space: pre-wrap;
+}
+
+@media screen and (max-width: 600px) {
+  .cycling_header {
+    font-size: 2rem;
+  }
+
+  span.app_landing_subheading {
+    font-size: 2rem;
+  }
 }
 
 .app_landing_subheading {

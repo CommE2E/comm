@@ -3,10 +3,10 @@
 import * as React from 'react';
 
 import { assetMeta } from './asset-meta';
-// import CyclingHeader from './cycling-header.react';
+import CyclingHeader from './cycling-header.react';
 import InfoBlock from './info-card.react';
 import css from './landing.css';
-// import Picture from './Picture.react';
+import Picture from './Picture.react';
 import './reset.css';
 import StarBackground from './star-background.react';
 import usePreLoadAssets, {
@@ -16,7 +16,7 @@ import usePreLoadAssets, {
 function AppLanding(): React.Node {
   usePreLoadAssets(assetMeta);
   const [
-    // hero,
+    hero,
     federated,
     customizable,
     encrypted,
@@ -34,7 +34,7 @@ function AppLanding(): React.Node {
     <>
       <StarBackground />
       <div className={css.wrapper}>
-        {/* <div className={css.heroImage}>
+        <div className={css.heroImage}>
           <Picture path={hero.path} alt={hero.alt} />
         </div>
         <div className={css.heroInfo}>
@@ -42,7 +42,8 @@ function AppLanding(): React.Node {
           <p className={css.app_landing_subheading}>
             (think &quot;Web3 Discord&quot;)
           </p>
-        </div> */}
+        </div>
+        <button className={css.requestAccessMobile}>Request Access</button>
         <InfoBlock
           path={federated.path}
           alt={federated.alt}
