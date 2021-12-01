@@ -319,12 +319,6 @@ sudo vim /private/etc/apache2/users/$USER.conf
 ```
 
 ```
-<Directory "/Users/ashoat/Sites/">
-  AllowOverride All
-  Options Indexes FollowSymLinks
-  Require all granted
-</Directory>
-
 <VirtualHost *:80>
   ProxyRequests on
   ProxyPass /comm/ws ws://localhost:3000/ws
@@ -336,9 +330,7 @@ sudo vim /private/etc/apache2/users/$USER.conf
 </VirtualHost>
 ```
 
-Make sure to replace “ashoat” on the first line above with your macOS user.
-
-You’ll also want to make sure that Apache can read your new file.
+You’ll want to make sure that Apache can read your new file.
 
 ```
 sudo chmod 644 /private/etc/apache2/users/$USER.conf
