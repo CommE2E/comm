@@ -5,7 +5,7 @@
   grid-template-rows: repeat(7, 1fr);
   gap: 10px;
   grid-template-areas:
-    '.    hImg  hImg  hImg  hImg  .  hInfo     hInfo hInfo hInfo hInfo hInfo hInfo .     .'
+    '.    hImg  hImg  hImg  hImg  .  hInfo     hInfo hInfo hInfo hInfo hInfo hInfo hInfo     .'
     '.    fImg  fImg  fImg  fImg  fImg  .     fInfo fInfo fInfo fInfo fInfo fInfo  .     .'
     '.    cInfo cInfo cInfo cInfo cInfo cInfo .     cImg  cImg  cImg  cImg  cImg   cImg  cImg'
     '.    eImg  eImg  eImg  eImg  eImg  .     eInfo eInfo eInfo eInfo eInfo eInfo  .     .'
@@ -181,6 +181,17 @@ p.app_landing_subheading {
 
   .lessNoisyInfo {
     padding-bottom: 80px;
+  }
+}
+
+@media screen and (max-width: 501px) {
+  .federatedImage,
+  .encryptedImage,
+  .customizableImage,
+  .sovereignImage,
+  .openSourceImage,
+  .lessNoisyImage {
+    min-width: 200px;
   }
 }
 
