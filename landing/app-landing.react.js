@@ -13,7 +13,12 @@ import usePreLoadAssets, {
   LandingAssetsS3URL,
 } from './use-pre-load-assets.react';
 
-function AppLanding(): React.Node {
+type AppLandingProps = {
+  +onRequestAccess: (e: Event) => Promise<void>,
+};
+
+function AppLanding(props: AppLandingProps): React.Node {
+  const { onRequestAccess } = props;
   usePreLoadAssets(assetMeta);
   const [
     hero,
@@ -43,7 +48,9 @@ function AppLanding(): React.Node {
             (think &quot;Web3 Discord&quot;)
           </p>
         </div>
-        <button className={css.requestAccessMobile}>Request Access</button>
+        <button onClick={onRequestAccess} className={css.requestAccessMobile}>
+          Request Access
+        </button>
         <InfoBlock
           path={federated.path}
           alt={federated.alt}

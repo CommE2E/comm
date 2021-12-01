@@ -25,6 +25,12 @@ function Landing(): React.Node {
     [onPrivacy, onSupport, onTerms],
   );
 
+  const onRequestAccess = React.useCallback(async (e: Event) => {
+    e.preventDefault();
+    window?.scrollTo(0, document.body?.scrollHeight);
+    document.getElementById('subscription-form')?.focus();
+  }, []);
+
   const activePage = React.useMemo(() => {
     if (onPrivacy) {
       return <Privacy />;
@@ -35,13 +41,13 @@ function Landing(): React.Node {
     } else if (onKeyservers) {
       return <Keyservers />;
     } else {
-      return <AppLanding />;
+      return <AppLanding {...{ onRequestAccess }} />;
     }
-  }, [onKeyservers, onPrivacy, onSupport, onTerms]);
+  }, [onKeyservers, onPrivacy, onSupport, onTerms, onRequestAccess]);
 
   return (
     <div>
-      <Header {...{ pathname, isLegalPage }} />
+      <Header {...{ pathname, isLegalPage, onRequestAccess }} />
       {activePage}
       <Footer {...{ pathname, isLegalPage }} />
     </div>

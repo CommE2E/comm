@@ -10,10 +10,11 @@ import headerStyles from './header.css';
 type HeaderProps = {
   +isLegalPage: boolean,
   +pathname: string,
+  +onRequestAccess: (e: Event) => Promise<void>,
 };
 
 function Header(props: HeaderProps): React.Node {
-  const { isLegalPage, pathname } = props;
+  const { isLegalPage, pathname, onRequestAccess } = props;
 
   const isActive = React.useCallback(
     pageName => {
@@ -27,12 +28,6 @@ function Header(props: HeaderProps): React.Node {
   const headerStyle = isLegalPage
     ? `${headerStyles.header_grid} ${headerStyles.header_legal}`
     : headerStyles.header_grid;
-
-  const onRequestAccess = React.useCallback(async (e: Event) => {
-    e.preventDefault();
-    window?.scrollTo(0, document.body?.scrollHeight);
-    document.getElementById('subscription-form')?.focus();
-  }, []);
 
   return (
     <>
