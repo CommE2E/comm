@@ -14,5 +14,6 @@ public:
       const std::string &deviceToken,
       const std::string &hostname = "");
   void sendPong();
+  void close();
 };
 } // namespace comm

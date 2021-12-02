@@ -22,4 +22,8 @@ void NetworkModule::initializeNetworkModule(
 void NetworkModule::sendPong() {
   Logger::log("Sending PONG");
 }
+
+void NetworkModule::close() {
+  networkClient.reset();
+}
 } // namespace comm
