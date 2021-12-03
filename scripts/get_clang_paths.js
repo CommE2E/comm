@@ -11,7 +11,7 @@ const clangPaths = [
     extensions: ['cpp', 'h'],
   },
   {
-    path: 'services/backup/contents/server/src',
+    path: 'services/backup/docker-server/contents/server/src',
     extensions: ['cpp', 'h'],
   },
   {

@@ -2,11 +2,11 @@ FROM commapp/services-base:1.0
 
 ENV SHELL=/bin/bash
 
-COPY services/backup/contents /transferred
+COPY services/backup/docker-base/contents /transferred
 
-RUN apk update &&\
-  apk add curl-dev openssl-dev libuuid zlib-dev &&\
-  cd / &&\
-  /transferred/install_aws_sdk.sh
+RUN apk update
+RUN apk add curl-dev openssl-dev libuuid zlib-dev
+RUN cd /
+RUN /transferred/install_aws_sdk.sh
 
 CMD /bin/bash
