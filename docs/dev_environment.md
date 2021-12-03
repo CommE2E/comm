@@ -182,23 +182,50 @@ SDKMAN! takes care of setting up the `$JAVA_HOME` environment variable to point 
 
 ## Android Studio
 
-Start by downloading and installing [Android Studio](https://developer.android.com/studio/index.html). When prompted to choose an installation type, select “Custom”. Make sure you check the boxes for the following:
+Start by downloading and installing [Android Studio](https://developer.android.com/studio/index.html) for your platform. When prompted to choose an installation type, select “Custom”.
+
+You'll be prompted to select a JDK installation. If your SDKMAN!-sourced JDK doesn't appear in the dropdown, you can find the absolute path to your installed JDK with the following command:
+
+```
+sdk home java 11.0.13-zulu
+```
+
+Make sure you check the boxes for the following:
+
+#### Intel x86-64:
 
 - `Android SDK`
 - `Android SDK Platform`
 - `Performance (Intel ® HAXM)`
 - `Android Virtual Device`
 
+#### Apple silicon:
+
+- `Android SDK`
+- `Android SDK Platform`
+- `Android Virtual Device`
+
 ### Android SDK
 
-Android Studio installs the latest Android SDK by default, but since React Native uses the Android 10 SDK specifically, we’ll need to install it using Android Studio’s SDK Manager. You can access the SDK Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → SDK Manager.
+Android Studio installs the latest Android SDK by default, but since React Native uses the Android 11 SDK specifically, we’ll need to install it using Android Studio’s SDK Manager. You can access the SDK Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → SDK Manager.
 
-Once you have the SDK Manager open, select the “SDK Platforms” tab, and then check the box for “Show Package Details”. Now expand the “Android 10 (Q)” section, and make sure the following subsections are checked:
+Once you have the SDK Manager open, select the “SDK Platforms” tab, and then check the box for “Show Package Details”. Now expand the “Android 11 (R)” section, and make sure the following subsections are checked:
 
-- `Android SDK Platform 29`
-- `Intel x86 Atom_64 System Image` or `Google APIs Intel x86 Atom System Image`
+- `Android SDK Platform 30`
 
-Next, select the “SDK Tools” tab, and check the box for “Show Package Details”. Expand the “Android SDK Build-Tools” section, and make sure that the “29.0.2” subsection is checked.
+#### Intel x86-64:
+
+- `Intel x86 Atom_64 System Image` or `Google APIs Intel x86 Atom System Image`
+
+#### Apple silicon:
+
+- `Google Play ARM 64 v8a System Image`
+
+Next, select the “SDK Tools” tab, and check the box for “Show Package Details”. Refer to `native/android/build.gradle` for specific tool versions and install the following:
+
+- Android SDK Build-Tools
+- NDK
+- CMake version 3.10.2
 
 To finish the SDK Manager step, click “Apply” to download and install everything you’ve selected.
 
