@@ -2,13 +2,15 @@
 
 import * as React from 'react';
 
-import { assetUrl, assetMetaData } from './asset-meta-data';
+import { assetMetaData } from './asset-meta-data';
 import CyclingHeader from './cycling-header.react';
 import InfoCard from './info-card.react';
 import css from './landing.css';
 import StarBackground from './star-background.react';
+import usePreloadAssets from './use-pre-load-assets.react';
 
 function AppLanding(): React.Node {
+  usePreloadAssets(assetMetaData);
   const [
     hero,
     federated,
@@ -18,29 +20,6 @@ function AppLanding(): React.Node {
     openSource,
     lessNoisy,
   ] = assetMetaData;
-
-  React.useEffect(() => {
-    const testWEBP = 'UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA';
-    const testImg = new Image();
-
-    // preload webp if supported
-    testImg.onload = () => {
-      for (const imageFileName of assetMetaData) {
-        const image = new Image();
-        image.src = `${assetUrl}/${imageFileName.url}.webp`;
-      }
-    };
-
-    // preload png if webp not supported
-    testImg.onerror = () => {
-      for (const imageFileName of assetMetaData) {
-        const image = new Image();
-        image.src = `${assetUrl}/${imageFileName.url}.png`;
-      }
-    };
-
-    testImg.src = `data:image/webp;base64,${testWEBP}`;
-  }, []);
 
   return (
     <>
