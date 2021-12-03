@@ -218,10 +218,6 @@ div.tile_grid > div {
   transition: 300ms;
 }
 
-.active_card {
-  box-shadow: 0px 20px 50px rgba(126, 87, 194, 0.5);
-}
-
 div.tile_title_row {
   display: flex;
   flex-direction: row;
@@ -480,10 +476,6 @@ div.body_grid > div + .starting_section {
 
   div.tile_title_row > p.tile_title {
     font-size: 20px;
-  }
-
-  .active_card {
-    box-shadow: none;
   }
 
   /* ===== LAYOUT HACKS ===== */
