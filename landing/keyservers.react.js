@@ -3,6 +3,7 @@
 import { create } from '@lottiefiles/lottie-interactivity';
 import * as React from 'react';
 
+import { assetUrl } from './asset-meta-data';
 import css from './landing.css';
 import ReadDocsButton from './read-docs-btn.react';
 import StarBackground from './star-background.react';
@@ -66,8 +67,6 @@ function Keyservers(): React.Node {
     return () => cloudNode.removeEventListener('load', onCloudIllustrationLoad);
   }, [cloudNode, onCloudIllustrationLoad]);
 
-  const LandingAssetsS3URL = 'https://dh9fld3hutpxf.cloudfront.net';
-
   return (
     <div>
       <StarBackground />
@@ -77,7 +76,7 @@ function Keyservers(): React.Node {
             id="eye-illustration"
             ref={setEyeNode}
             mode="normal"
-            src={`${LandingAssetsS3URL}/animated_eye.json`}
+            src={`${assetUrl}/animated_eye.json`}
             speed={1}
           />
         </div>
@@ -101,7 +100,7 @@ function Keyservers(): React.Node {
             id="cloud-illustration"
             ref={setCloudNode}
             mode="normal"
-            src={`${LandingAssetsS3URL}/animated_cloud.json`}
+            src={`${assetUrl}/animated_cloud.json`}
             speed={1}
           />
         </div>
