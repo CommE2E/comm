@@ -71,16 +71,7 @@ void AwsS3Bucket::renameObject(const std::string &currentName,
     throw std::runtime_error(copyOutcome.GetError().GetMessage());
   }
 
-  Aws::S3::Model::DeleteObjectRequest deleteRequest;
-
-  deleteRequest.SetKey(currentName);
-  deleteRequest.SetBucket(this->name);
-
-  Aws::S3::Model::DeleteObjectOutcome deleteOutcome =
-      this->client->DeleteObject(deleteRequest);
-  if (!deleteOutcome.IsSuccess()) {
-    throw std::runtime_error(deleteOutcome.GetError().GetMessage());
-  }
+  this->removeObject(currentName);
 }
 
 void AwsS3Bucket::writeObject(const std::string &objectName,
@@ -202,6 +193,19 @@ void AwsS3Bucket::appendToObject(const std::string &objectName,
 
 void AwsS3Bucket::clearObject(const std::string &objectName) {
   this->writeObject(objectName, "");
+}
+
+void AwsS3Bucket::removeObject(const std::string &objectName) {
+  Aws::S3::Model::DeleteObjectRequest deleteRequest;
+
+  deleteRequest.SetBucket(this->name);
+  deleteRequest.SetKey(objectName);
+
+  Aws::S3::Model::DeleteObjectOutcome deleteOutcome =
+      this->client->DeleteObject(deleteRequest);
+  if (!deleteOutcome.IsSuccess()) {
+    throw std::runtime_error(deleteOutcome.GetError().GetMessage());
+  }
 }
 
 } // namespace network

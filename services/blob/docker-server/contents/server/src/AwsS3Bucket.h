@@ -30,6 +30,7 @@ public:
                       const size_t chunkSize);
   void appendToObject(const std::string &objectName, const std::string data);
   void clearObject(const std::string &objectName);
+  void removeObject(const std::string &objectName);
 };
 
 } // namespace network

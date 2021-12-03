@@ -20,8 +20,7 @@ message PutRequest {
 }
 
 message PutResponse {
-  bytes key = 1;
-  string hash = 2;
+  string hash = 1;
 }
 
 // Get
@@ -31,10 +30,7 @@ message GetRequest {
 }
 
 message GetResponse {
-  oneof data {
-    bytes dataChunk = 1;
-    bool encrypted = 2;
-  }
+  bytes dataChunk = 1;
 }
 
 // Remove
