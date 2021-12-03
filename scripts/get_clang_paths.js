@@ -7,7 +7,7 @@ const clangPaths = [
     excludes: ['_generated'],
   },
   {
-    path: 'services/tunnelbroker/contents/server/src',
+    path: 'services/tunnelbroker/docker-server/contents/server/src',
     extensions: ['cpp', 'h'],
   },
   {
