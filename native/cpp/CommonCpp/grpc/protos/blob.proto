@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package blob;
+
+import "google/protobuf/empty.proto";
+
+service BlobService {
+  rpc Put(stream PutRequest) returns (PutResponse) {}
+  rpc Get(GetRequest) returns (stream GetResponse) {}
+  rpc Remove(RemoveRequest) returns (google.protobuf.Empty) {}
+}
+
+// Put
+
+message PutRequest {
+  oneof data {
+    string reverseIndex = 1;
+    bytes dataChunk = 2;
+  }
+}
+
+message PutResponse {
+  bytes key = 1;
+  string hash = 2;
+}
+
+// Get
+
+message GetRequest {
+  string hash = 1;
+}
+
+message GetResponse {
+  oneof data {
+    bytes dataChunk = 1;
+    bool encrypted = 2;
+  }
+}
+
+// Remove
+
+message RemoveRequest {
+  string hash = 1;
+}

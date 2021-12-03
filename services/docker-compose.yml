@@ -35,3 +35,13 @@ services:
       - "${COMM_SERVICES_PORT_BACKUP}:50051"
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
+  blob-server:
+    build: 
+      dockerfile: services/blob/docker-server/Dockerfile
+      context: ../
+    image: commapp/blob-server:1.0
+    container_name: blob-server
+    ports:
+      - "${COMM_SERVICES_PORT_BLOB}:50051"
+    volumes:
+      - $HOME/.aws/credentials:/root/.aws/credentials:ro
