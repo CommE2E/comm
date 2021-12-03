@@ -3,70 +3,60 @@
 import { faTwitter, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
-import headerStyles from './header.css';
-import type { LandingPageName } from './landing.react';
+import css from './header.css';
 
 type HeaderProps = {
-  +activePageName: LandingPageName,
   +onRequestAccess: (e: Event) => Promise<void>,
 };
+
+const iconProps = {
+  size: 'lg',
+  color: '#ebedee',
+};
+
+const navLinkProps = {
+  className: css.tab,
+  activeStyle: {
+    color: 'white',
+    fontWeight: '500',
+  },
+};
+
 function Header(props: HeaderProps): React.Node {
-  const { activePageName, onRequestAccess } = props;
-  const headerStyle = `${headerStyles.header_grid}`;
+  const { onRequestAccess } = props;
 
   return (
-    <div>
-      <div className={headerStyle}>
-        <div className={headerStyles.logo}>
-          <Link to="/">
-            <h1>Comm</h1>
-          </Link>
-        </div>
-        <div className={headerStyles.top_nav}>
-          <div
-            className={
-              activePageName === 'app'
-                ? headerStyles.active_tab
-                : headerStyles.inactive_tab
-            }
-          >
-            <Link to="/">
-              <h1>App</h1>
-            </Link>
-          </div>
-          <div
-            className={
-              activePageName === 'keyservers'
-                ? headerStyles.active_tab
-                : headerStyles.inactive_tab
-            }
-          >
-            <Link to="/keyservers">
-              <h1>Keyservers</h1>
-            </Link>
-          </div>
-        </div>
-        <div className={headerStyles.social_icons}>
-          <a href="#" onClick={onRequestAccess}>
-            <div className={headerStyles.request_access}>
-              <p>Request Access</p>
-            </div>
-          </a>
-          <a href="https://twitter.com/commdotapp">
-            <div className={headerStyles.twitter_icon}>
-              <FontAwesomeIcon size="lg" color="#ebedee" icon={faTwitter} />
-            </div>
-          </a>
-          <a href="https://github.com/CommE2E/comm">
-            <div className={headerStyles.github_icon}>
-              <FontAwesomeIcon size="lg" color="#ebedee" icon={faGithub} />
-            </div>
-          </a>
-        </div>
+    <nav className={css.wrapper}>
+      <NavLink to="/" className={css.logo}>
+        <h1>Comm</h1>
+      </NavLink>
+
+      <div className={css.page_nav}>
+        <NavLink to="/" exact {...navLinkProps}>
+          App
+        </NavLink>
+        <NavLink to="/keyservers" exact {...navLinkProps}>
+          Keyserver
+        </NavLink>
       </div>
-    </div>
+
+      <div className={css.button_container}>
+        <button className={css.request_access} onClick={onRequestAccess}>
+          Request Access
+        </button>
+      </div>
+
+      <div className={css.social_icons}>
+        <a className={css.twitter_icon} href="https://twitter.com/commdotapp">
+          <FontAwesomeIcon icon={faTwitter} {...iconProps} />
+        </a>
+        <a className={css.github_icon} href="https://github.com/CommE2E/comm">
+          <FontAwesomeIcon icon={faGithub} {...iconProps} />
+        </a>
+      </div>
+    </nav>
   );
 }
 

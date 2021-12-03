@@ -1,186 +1,104 @@
-/* ===== CSS HEADER GRID LAYOUT ===== */
-div.header_grid {
-  max-width: 1920px;
+:root {
+  --purple: #7e57c2;
+  --white: #fff;
+  --white1: #ebedee;
+  --grey: #808080;
+  --btn-bg: var(--purple);
+  --unselected: var(--grey);
+  --btn-color: var(--white1);
+  --logo-color: var(--white);
+}
+
+nav.wrapper {
+  transition-property: max-width;
+  transition: 300ms;
+  max-width: 1850px;
   margin-left: auto;
   margin-right: auto;
   display: grid;
-  column-gap: 6em;
-  padding-left: 60px;
-  padding-right: 60px;
-  padding-top: 20px;
-  padding-bottom: 40px;
-  transition-property: max-width;
-  transition: 300ms;
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-areas: 'logo top_nav social_icons';
+  align-items: center;
+  grid-template-columns: 40px repeat(12, 1fr) 40px;
+  column-gap: 1.5%;
+  grid-template-areas: '. logo logo . . . page_nav page_nav . cta_btn cta_btn sIcons sIcons .';
 }
 
-/* ===== LOGO ===== */
-div.logo {
+.logo {
   grid-area: logo;
 }
 
-div.logo h1 {
-  font-size: 32px;
+.logo h1 {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--logo-color);
 }
 
-div.logo a {
-  color: white;
+.tab {
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--unselected);
+  font-family: 'IBM Plex Sans', sans-serif;
+  transition: 300ms;
 }
 
-div.logo a:hover {
-  color: #7e57c2;
-}
-
-/* ===== NAVIGATION ===== */
-div.top_nav {
-  grid-area: top_nav;
-  align-self: center;
+div.page_nav {
+  grid-area: page_nav;
   display: flex;
-  flex-direction: row;
-  justify-content: center;
+  justify-content: space-evenly;
+  min-width: 225px;
 }
 
-div.top_nav h1 {
-  font-size: 20px;
+div.button_container {
+  grid-area: cta_btn;
+  justify-self: start;
 }
 
-div.top_nav div.active_tab,
-div.top_nav div.inactive_tab {
-  margin-inline: 16px;
-}
-
-div.active_tab a {
-  color: white;
-  transition: 300ms;
-}
-
-div.inactive_tab a {
-  color: #8a8f98;
-  transition: 300ms;
-}
-
-div.top_nav a:hover {
-  color: white;
-}
-
-/* ===== REQUEST ACCESS BUTTON ===== */
-div.request_access {
+button.request_access {
+  all: unset;
+  display: flex;
   border-radius: 4px;
-  padding-inline: 12px;
-  margin-right: 12px;
-  background-color: #7e57c2;
-  color: #ebedee;
+  font-size: 16px;
+  background-color: var(--btn-bg);
+  color: var(--btn-color);
+  justify-content: center;
+  width: 170px;
+  padding: 12px 24px;
   transition: 300ms;
 }
 
-div.request_access:hover {
-  color: #7e57c2;
-  background-color: #ebedee;
-  transition: 300ms;
-}
-
-div.request_access p {
-  font-size: 14px;
-  font-weight: bold;
-  line-height: 2.5;
-}
-
-/* ===== TWITTER/GITHUB BUTTONS ===== */
-div.social_icons {
-  grid-area: social_icons;
-  align-items: center;
+.social_icons {
+  grid-area: sIcons;
   display: flex;
-  flex-direction: row;
   justify-self: flex-end;
 }
 
-div.twitter_icon,
-div.github_icon {
-  margin-inline: 8px;
-  padding: 16px;
-  border-radius: 36px;
-  transition: 300ms;
+.github_icon {
+  padding-left: 14px;
+  font-size: 20px;
+  grid-area: gIcon;
 }
 
-div.twitter_icon:hover,
-div.github_icon:hover {
-  background-color: #ebedee;
-  transition: 300ms;
+.twitter_icon {
+  font-size: 20px;
+  grid-area: tIcon;
 }
 
-div.twitter_icon svg,
-div.github_icon svg {
-  transition: 300ms;
-}
-
-div.twitter_icon:hover svg {
-  color: #1d9bf0;
-  transition: 300ms;
-}
-
-div.github_icon:hover svg {
-  color: #151013;
-  transition: 300ms;
-}
-
-div.twitter_icon h1,
-div.github_icon h1 {
-  font-size: 32px;
-}
-
-@media (max-width: 1499px) {
-  div.request_access p {
-    font-size: 11px;
-  }
-  div.request_access {
-    padding-inline: 10px;
-    margin-right: 10px;
-  }
-}
-
-/* ===== SMALLEST BREAKPOINT ===== */
-@media (max-width: 1099px) {
-  div.twitter_icon,
-  div.github_icon {
-    margin-inline: 4px;
-    padding: 10px;
-    border-radius: 36px;
-    transition: 300ms;
-  }
-
-  div.header_grid {
-    padding-left: 3%;
-    padding-right: 3%;
-    padding-top: 0px;
-    padding-bottom: 20px;
-    grid-template-columns: minmax(auto, 540px);
-    justify-content: center;
-    grid-template-columns: 1fr 1fr;
+@media screen and (max-width: 1099px) {
+  nav.wrapper {
+    grid-template-columns: 16px repeat(6, 1fr) 16px;
+    grid-template-rows: 1fr 1fr;
+    column-gap: 1.5%;
     grid-template-areas:
-      'logo social_icons'
-      'top_nav top_nav';
+      '. logo logo . . sIcons sIcons .'
+      '. page_nav page_nav page_nav page_nav page_nav page_nav .';
   }
 
-  div.social_icons {
-    justify-self: flex-end;
-    margin-left: 8px;
-  }
-
-  div.top_nav {
-    grid-area: top_nav;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-self: center;
-  }
-
-  div.active_tab,
-  div.inactive_tab {
-    margin-right: 10px;
-  }
-
-  div.request_access {
+  .request_access,
+  .button_container {
     display: none;
+  }
+
+  .github_icon,
+  .twitter_icon {
+    display: block;
   }
 }

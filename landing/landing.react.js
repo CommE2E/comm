@@ -13,7 +13,7 @@ import Terms from './terms.react';
 import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react';
 
 export type LandingPageName =
-  | 'app'
+  | '/'
   | 'keyservers'
   | 'privacy'
   | 'terms'
@@ -27,6 +27,7 @@ function Landing(): React.Node {
   const onTerms = useRouteMatch({ path: '/terms' });
   const onSupport = useRouteMatch({ path: '/support' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
+
   const isLegalPage: boolean = React.useMemo(
     () => !!(onPrivacy || onTerms || onSupport),
     [onPrivacy, onSupport, onTerms],
@@ -48,16 +49,13 @@ function Landing(): React.Node {
     } else if (onKeyservers) {
       return { name: 'keyservers', node: <Keyservers /> };
     } else {
-      return { name: 'app', node: <AppLanding /> };
+      return { name: '/', node: <AppLanding /> };
     }
   }, [onKeyservers, onPrivacy, onSupport, onTerms]);
 
   return (
     <>
-      <Header
-        activePageName={activePage.name}
-        onRequestAccess={scrollToSubscriptionForm}
-      />
+      <Header onRequestAccess={scrollToSubscriptionForm} />
       {activePage.node}
       <Footer isLegalPage={isLegalPage} activePageName={activePage.name} />
     </>
