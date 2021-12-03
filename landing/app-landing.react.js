@@ -98,7 +98,7 @@ function AppLanding(): React.Node {
 
           <div className={css.tile_grid}>
             <InfoCard
-              label="Federated"
+              title="Federated"
               icon={faUsers}
               description="Comm is a protocol paired with an app. Each community hosts its
                 own backend, which we call a keyserver. Our keyserver software
@@ -107,7 +107,7 @@ function AppLanding(): React.Node {
             />
 
             <InfoCard
-              label="Customizable"
+              title="Customizable"
               icon={faTools}
               description="Write mini-apps and custom modules in React. Skin your
                 community. Customize your tabs and your home page."
@@ -115,7 +115,7 @@ function AppLanding(): React.Node {
             />
 
             <InfoCard
-              label="E2E-encrypted"
+              title="E2E-encrypted"
               icon={faLock}
               description="Comm started as a project to build a private, decentralized
                 alternative to Discord. Privacy is in our DNA."
@@ -123,7 +123,7 @@ function AppLanding(): React.Node {
             />
 
             <InfoCard
-              label="Sovereign"
+              title="Sovereign"
               icon={faUserShield}
               description="Log in with your ETH wallet. Use ENS as your username. On Comm,
                 your identity and data are yours to control."
@@ -131,7 +131,7 @@ function AppLanding(): React.Node {
             />
 
             <InfoCard
-              label="Open Source"
+              title="Open Source"
               icon={faCodeBranch}
               description="All of our code is open source. Keyservers, iOS/Android app, our
                 cloud services… all of it. We believe in open platforms."
@@ -139,7 +139,7 @@ function AppLanding(): React.Node {
             />
 
             <InfoCard
-              label="Less Noisy"
+              title="Less Noisy"
               icon={faBellSlash}
               description="We let each user decide what they want to follow with detailed
                 notif controls and a powerful unified inbox."
