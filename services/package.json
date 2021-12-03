@@ -4,10 +4,11 @@
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
-    "build-base-image": "cd .. && ./services/scripts/build_base_image.sh ./services/base-image",
-    "build-tunnelbroker-base": "cd .. && ./services/scripts/build_base_image.sh ./services/tunnelbroker/docker-base",
-    "run-tunnelbroker-server": "cd .. && ./services/scripts/run_server_image.sh ./services/tunnelbroker/docker-server",
-    "build-backup-base": "cd .. && ./services/scripts/build_base_image.sh ./services/backup/docker-base",
-    "run-backup-server": "cd .. &&  ./services/scripts/run_server_image.sh ./services/backup/docker-server"
+    "build-all": "docker-compose build",
+    "build-base-image": "docker-compose build base",
+    "build-tunnelbroker-base": "docker-compose build tunnelbroker-base",
+    "run-tunnelbroker-server": "./scripts/run_server_image.sh tunnelbroker",
+    "build-backup-base": "docker-compose build backup-base",
+    "run-backup-server": "./scripts/run_server_image.sh backup"
   }
 }
