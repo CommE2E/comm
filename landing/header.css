@@ -15,12 +15,6 @@ div.header_grid {
   grid-template-areas: 'logo top_nav social_icons';
 }
 
-div.header_legal {
-  max-width: 1080px;
-  transition-property: max-width;
-  transition: 300ms;
-}
-
 /* ===== LOGO ===== */
 div.logo {
   grid-area: logo;

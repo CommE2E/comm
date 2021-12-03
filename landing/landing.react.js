@@ -55,7 +55,6 @@ function Landing(): React.Node {
   return (
     <>
       <Header
-        isLegalPage={isLegalPage}
         activePageName={activePage.name}
         onRequestAccess={scrollToSubscriptionForm}
       />

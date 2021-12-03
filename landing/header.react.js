@@ -9,16 +9,12 @@ import headerStyles from './header.css';
 import type { LandingPageName } from './landing.react';
 
 type HeaderProps = {
-  +isLegalPage: boolean,
   +activePageName: LandingPageName,
   +onRequestAccess: (e: Event) => Promise<void>,
 };
 function Header(props: HeaderProps): React.Node {
-  const { isLegalPage, activePageName, onRequestAccess } = props;
-
-  const headerStyle = isLegalPage
-    ? `${headerStyles.header_grid} ${headerStyles.header_legal}`
-    : headerStyles.header_grid;
+  const { activePageName, onRequestAccess } = props;
+  const headerStyle = `${headerStyles.header_grid}`;
 
   return (
     <div>
