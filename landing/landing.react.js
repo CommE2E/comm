@@ -32,6 +32,12 @@ function Landing(): React.Node {
     [onPrivacy, onSupport, onTerms],
   );
 
+  const scrollToSubscriptionForm = React.useCallback(async (e: Event) => {
+    e.preventDefault();
+    window?.scrollTo(0, document.body?.scrollHeight);
+    document.getElementById('subscription-form')?.focus();
+  }, []);
+
   const activePage: ActivePage = React.useMemo(() => {
     if (onPrivacy) {
       return { name: 'privacy', node: <Privacy /> };
@@ -48,7 +54,11 @@ function Landing(): React.Node {
 
   return (
     <>
-      <Header isLegalPage={isLegalPage} activePageName={activePage.name} />
+      <Header
+        isLegalPage={isLegalPage}
+        activePageName={activePage.name}
+        onRequestAccess={scrollToSubscriptionForm}
+      />
       {activePage.node}
       <Footer isLegalPage={isLegalPage} activePageName={activePage.name} />
     </>

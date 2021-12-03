@@ -11,19 +11,14 @@ import type { LandingPageName } from './landing.react';
 type HeaderProps = {
   +isLegalPage: boolean,
   +activePageName: LandingPageName,
+  +onRequestAccess: (e: Event) => Promise<void>,
 };
 function Header(props: HeaderProps): React.Node {
-  const { isLegalPage, activePageName } = props;
+  const { isLegalPage, activePageName, onRequestAccess } = props;
 
   const headerStyle = isLegalPage
     ? `${headerStyles.header_grid} ${headerStyles.header_legal}`
     : headerStyles.header_grid;
-
-  const onRequestAccess = React.useCallback(async (e: Event) => {
-    e.preventDefault();
-    window?.scrollTo(0, document.body?.scrollHeight);
-    document.getElementById('subscription-form')?.focus();
-  }, []);
 
   return (
     <div>
