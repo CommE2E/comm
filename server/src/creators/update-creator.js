@@ -276,7 +276,19 @@ async function createUpdates(
     insertRows.push(insertRow);
   }
 
-  const deleteSQLConditions: SQLStatementType[] = [];
+  type DeleteUpdatesConditions = {
+    key: string,
+    target?: string,
+    types?: number[],
+    time?: number,
+  };
+  const usersByConditions: Map<
+    string,
+    {
+      conditions: DeleteUpdatesConditions,
+      users: Set<string>,
+    },
+  > = new Map();
   for (const [conditionKey, keyUpdateDatas] of keyedUpdateDatas) {
     const deleteConditionByTarget: Map<?string, DeleteCondition> = new Map();
     for (const updateData of keyUpdateDatas) {
@@ -312,20 +324,46 @@ async function createUpdates(
     for (const deleteCondition of deleteConditionByTarget.values()) {
       const { userID, target, types } = deleteCondition;
       const key = conditionKey.split('|')[1];
-      const conditions = [SQL`u.user = ${userID}`, SQL`u.key = ${key}`];
+      const conditions: DeleteUpdatesConditions = { key };
       if (target) {
-        conditions.push(SQL`u.target = ${target}`);
+        conditions.target = target;
       }
       if (types !== 'all_types') {
         invariant(types.size > 0, 'deleteCondition had empty types set');
-        conditions.push(SQL`u.type IN (${[...types]})`);
+        conditions.types = [...types];
       }
       const earliestTimeForCondition = earliestTime.get(conditionKey);
       if (earliestTimeForCondition) {
-        conditions.push(SQL`u.time < ${earliestTimeForCondition}`);
+        conditions.time = earliestTimeForCondition;
       }
-      deleteSQLConditions.push(mergeAndConditions(conditions));
+
+      const conditionsKey = JSON.stringify(conditions);
+      if (!usersByConditions.has(conditionsKey)) {
+        usersByConditions.set(conditionsKey, {
+          conditions,
+          users: new Set(),
+        });
+      }
+      usersByConditions.get(conditionsKey)?.users.add(userID);
     }
+  }
+
+  const deleteSQLConditions: SQLStatementType[] = [];
+  for (const { conditions, users } of usersByConditions.values()) {
+    const sqlConditions = [
+      SQL`u.user IN (${[...users]})`,
+      SQL`u.key = ${conditions.key}`,
+    ];
+    if (conditions.target) {
+      sqlConditions.push(SQL`u.target = ${conditions.target}`);
+    }
+    if (conditions.types) {
+      sqlConditions.push(SQL`u.type IN (${conditions.types})`);
+    }
+    if (conditions.time) {
+      sqlConditions.push(SQL`u.time < ${conditions.time}`);
+    }
+    deleteSQLConditions.push(mergeAndConditions(sqlConditions));
   }
 
   const promises = {};
