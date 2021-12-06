@@ -3,7 +3,7 @@
 import * as React from 'react';
 import TextLoop from 'react-text-loop';
 
-import css from './landing.css';
+import css from './cycling-header.css';
 
 function CyclingHeader(): React.Node {
   return (

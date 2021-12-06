@@ -69,13 +69,6 @@ div.app_copy {
   justify-content: center;
 }
 
-h1.cycling_header {
-  font-family: 'iA Writer Duo S', monospace;
-  font-size: 50px;
-  margin: 0;
-  white-space: pre-wrap;
-}
-
 /* ===== TILE GRID STYLING ===== */
 div.tile_grid {
   display: grid;
@@ -111,29 +104,6 @@ div.tile_five {
 }
 div.tile_six {
   grid-area: tile_six;
-}
-
-/* ===== MEDIUM-LARGE BREAKPOINT ===== */
-@media (max-width: 1699px) {
-  h1.cycling_header {
-    font-size: 44px;
-  }
-}
-
-/* ===== MEDIUM BREAKPOINT ===== */
-@media (max-width: 1499px) {
-  /* ===== APP LANDING GRID STYLING ===== */
-
-  h1.cycling_header {
-    font-size: 38px;
-  }
-}
-
-/* ===== MEDIUM-SMALL BREAKPOINT ===== */
-@media (max-width: 1299px) {
-  h1.cycling_header {
-    font-size: 30px;
-  }
 }
 
 /* ===== SMALLEST BREAKPOINT ===== */
@@ -173,13 +143,6 @@ div.tile_six {
     grid-area: app_copy;
     align-self: center;
     justify-self: center;
-  }
-
-  h1.cycling_header {
-    font-family: 'iA Writer Duo S', monospace;
-    margin-top: 4vh;
-    font-size: 22px;
-    text-align: center;
   }
 
   .app_landing_subheading {
