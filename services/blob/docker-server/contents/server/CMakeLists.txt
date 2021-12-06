@@ -37,7 +37,7 @@ set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
 
-find_package(AWSSDK REQUIRED COMPONENTS s3 core)
+find_package(AWSSDK REQUIRED COMPONENTS s3 core dynamodb)
 
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
