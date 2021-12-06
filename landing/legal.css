@@ -1,0 +1,48 @@
+/* ===== LEGAL PAGE STYLING ===== */
+div.legal_container {
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 60px;
+  padding-right: 60px;
+}
+div.legal_container h1 {
+  font-size: 42px;
+}
+div.legal_container h2 {
+  font-size: 38px;
+}
+div.legal_container p,
+li {
+  font-size: 20px;
+}
+div.legal_container a {
+  color: #7e57c2;
+}
+div.legal_container a:hover {
+  color: #8c69c9;
+}
+
+/* ===== MEDIUM BREAKPOINT ===== */
+@media (max-width: 1499px) {
+  /* ===== LEGAL PAGE STYLING ===== */
+  div.legal_container h1 {
+    font-size: 28px;
+  }
+  div.legal_container h2 {
+    font-size: 24px;
+  }
+  div.legal_container p {
+    font-size: 16px;
+  }
+}
+
+/* ===== SMALLEST BREAKPOINT ===== */
+@media (max-width: 1099px) {
+  /* ===== LEGAL PAGE STYLING ===== */
+  div.legal_container {
+    max-width: 540px;
+    padding-left: 3%;
+    padding-right: 3%;
+  }
+}
