@@ -392,9 +392,9 @@ Choose MySQL from the database options that appear. You'll be prompted for:
 
 In order to test the Android app on your computer you’ll need to set up an Android emulator. To do this we’ll need to open up the AVD Manager in Android Studio. AVD stands for “Android Virtual Device”. You can access the AVD Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → AVD Manager.
 
-With the the AVD Manager open, select “Create Virtual Device” on the bottom row. Feel free to select any “device definition” that includes Play Store support.
+With the AVD Manager open, select “Create Virtual Device” on the bottom row. Feel free to select any “device definition” that includes Play Store support.
 
-On the next screen you’ll be asked to select a system image. Go for the latest version of Android that has been released. That’s currently Android 10, also known as Android Q.
+On the next screen you’ll be asked to select a system image. Go for the latest version of Android that's been released.
 
 From there you can just hit Next and then Finish. You should then be able to start your new AVD from the AVD Manager.
 
