@@ -1,0 +1,72 @@
+div.tile_title_row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+  justify-content: flex-start;
+  margin-left: 20px;
+  margin-right: 20px;
+  padding-bottom: 20px;
+}
+
+.info_card {
+  display: flex;
+  padding: 36px;
+  border-radius: 8px;
+  background-color: #ebedee;
+  justify-content: center;
+  flex-direction: column;
+  transition: 300ms;
+  background-color: rgba(0, 0, 0, 0.35);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: blur(2px);
+  transition: 300ms;
+}
+
+.description {
+  font-size: 22px;
+  text-align: left;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+div.tile_title_row > p.tile_title {
+  font-family: 'iA Writer Duo S', monospace;
+  font-weight: bold;
+  font-size: 36px;
+  transition: 300ms;
+}
+
+/* ===== MEDIUM-LARGE BREAKPOINT ===== */
+@media (max-width: 1699px) {
+  div.tile_title_row > p.tile_title {
+    font-size: 30px;
+  }
+}
+
+/* ===== MEDIUM BREAKPOINT ===== */
+@media (max-width: 1499px) {
+  .description {
+    font-size: 16px;
+  }
+
+  div.tile_title_row > p.tile_title {
+    font-size: 24px;
+  }
+}
+
+/* ===== MEDIUM-SMALL BREAKPOINT ===== */
+@media (max-width: 1299px) {
+  div.tile_title_row > p.tile_title {
+    font-size: 22px;
+  }
+}
+
+/* ===== SMALLEST BREAKPOINT ===== */
+@media (max-width: 1099px) {
+  div.tile_title_row > p.tile_title {
+    font-size: 20px;
+  }
+}

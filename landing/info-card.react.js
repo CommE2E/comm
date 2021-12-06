@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import css from './landing.css';
+import css from './info-card.css';
 
 type InfoCardProps = {
   +title: string,
@@ -13,11 +13,11 @@ function InfoCard(props: InfoCardProps): React.Node {
   const { title, description, baseStyle } = props;
 
   return (
-    <div className={baseStyle}>
+    <div className={`${baseStyle} ${css.info_card}`}>
       <div className={css.tile_title_row}>
         <p className={css.tile_title}>{title}</p>
       </div>
-      <p>{description}</p>
+      <p className={css.description}>{description}</p>
     </div>
   );
 }
