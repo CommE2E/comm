@@ -29,10 +29,6 @@ a {
   text-decoration: none;
 }
 
-.mono {
-  font-family: 'iA Writer Duo S', monospace;
-}
-
 .no_bottom_margin {
   margin-bottom: 0;
 }
@@ -84,12 +80,7 @@ p.app_landing_subheading {
   padding-inline: 0px;
 }
 
-span.purple_accent {
-  color: #7e57c2;
-}
-
 /* ===== COMMON CSS GRID LAYOUT ===== */
-div.body_grid,
 div.app_landing_grid {
   max-width: 1920px;
   margin-left: auto;
@@ -102,45 +93,6 @@ div.app_landing_grid {
   padding-bottom: 40px;
   transition-property: max-width;
   transition: 300ms;
-}
-
-/* ===== CSS BODY GRID LAYOUT ===== */
-div.body_grid {
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    'hero_copy hero_image'
-    'server_image server_copy'
-    'keyserver_company keyserver_company'
-    'keyserver_copy read_the_docs';
-}
-
-div.hero_copy {
-  grid-area: hero_copy;
-  align-self: center;
-}
-div.hero_image {
-  grid-area: hero_image;
-  object-fit: scale-down;
-  align-self: center;
-}
-div.server_image {
-  grid-area: server_image;
-  object-fit: scale-down;
-  align-self: center;
-}
-div.server_copy {
-  grid-area: server_copy;
-  align-self: center;
-}
-div.keyserver_company {
-  grid-area: keyserver_company;
-  text-align: center;
-  padding-top: 80px;
-}
-div.read_the_docs {
-  grid-area: read_the_docs;
-  align-self: center;
-  padding-bottom: 40px;
 }
 
 /* ===== APP LANDING GRID ===== */
@@ -291,15 +243,6 @@ div.legal_container a:hover {
   color: #8c69c9;
 }
 
-/* ===== LAYOUT HACKS ===== */
-div.body_grid > div + .starting_section {
-  padding-top: 80px;
-}
-
-.section {
-  padding-top: 80px;
-}
-
 /* ===== MEDIUM-LARGE BREAKPOINT ===== */
 @media (max-width: 1699px) {
   div.tile_title_row > p.tile_title {
@@ -313,10 +256,6 @@ div.body_grid > div + .starting_section {
 
 /* ===== MEDIUM BREAKPOINT ===== */
 @media (max-width: 1499px) {
-  div.body_grid {
-    padding-left: 60px;
-    padding-right: 60px;
-  }
   h1 {
     font-size: 42px;
   }
@@ -378,7 +317,6 @@ div.body_grid > div + .starting_section {
   }
 
   /* ===== COMMON CSS GRID LAYOUT ===== */
-  div.body_grid,
   div.app_landing_grid {
     padding-left: 3%;
     padding-right: 3%;
@@ -386,33 +324,6 @@ div.body_grid > div + .starting_section {
     justify-content: center;
     padding-top: 0vh;
     padding-bottom: 2vh;
-  }
-
-  /* ===== CSS BODY GRID LAYOUT ===== */
-  div.body_grid {
-    grid-template-areas:
-      'hero_image'
-      'hero_copy'
-      'server_image'
-      'server_copy'
-      'keyserver_company'
-      'keyserver_copy'
-      'read_the_docs';
-  }
-
-  div.keyserver_company {
-    text-align: left;
-    padding-top: 60px;
-  }
-  .keyserver_company > h1 {
-    font-size: 24px;
-  }
-  div.keyserver_copy {
-    padding-bottom: 0;
-  }
-  div.read_the_docs {
-    padding-top: 20px;
-    padding-bottom: 0;
   }
 
   /* ===== APP LANDING GRID LAYOUT ===== */
