@@ -1,4 +1,4 @@
-div.tile_title_row {
+div.content {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -32,7 +32,7 @@ div.tile_title_row {
   margin-right: 20px;
 }
 
-div.tile_title_row > p.tile_title {
+div.content > p.title {
   font-family: 'iA Writer Duo S', monospace;
   font-weight: bold;
   font-size: 36px;
@@ -41,7 +41,7 @@ div.tile_title_row > p.tile_title {
 
 /* ===== MEDIUM-LARGE BREAKPOINT ===== */
 @media (max-width: 1699px) {
-  div.tile_title_row > p.tile_title {
+  div.content > p.title {
     font-size: 30px;
   }
 }
@@ -52,21 +52,21 @@ div.tile_title_row > p.tile_title {
     font-size: 16px;
   }
 
-  div.tile_title_row > p.tile_title {
+  div.content > p.title {
     font-size: 24px;
   }
 }
 
 /* ===== MEDIUM-SMALL BREAKPOINT ===== */
 @media (max-width: 1299px) {
-  div.tile_title_row > p.tile_title {
+  div.content > p.title {
     font-size: 22px;
   }
 }
 
 /* ===== SMALLEST BREAKPOINT ===== */
 @media (max-width: 1099px) {
-  div.tile_title_row > p.tile_title {
+  div.content > p.title {
     font-size: 20px;
   }
 }

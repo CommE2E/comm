@@ -17,10 +17,10 @@ function InfoBlock(props: InfoBlockProps): React.Node {
   return (
     <section className={css.info_block}>
       <Picture {...{ url, alt }} />
-      <div className={css.tile_title_row}>
-        <p className={css.tile_title}>{title}</p>
+      <div className={css.content}>
+        <p className={css.title}>{title}</p>
+        <p className={css.description}>{description}</p>
       </div>
-      <p className={css.description}>{description}</p>
     </section>
   );
 }
