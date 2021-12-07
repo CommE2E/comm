@@ -6,15 +6,74 @@
   margin-right: auto;
   display: grid;
   align-items: center;
-  grid-template-columns: 80px repeat(12, 1fr) 80px;
-  grid-template-rows: repeat(7, 1fr);
+  padding-top: 7vh;
+  padding-bottom: 235px;
+  grid-template-columns: 40px repeat(12, 1fr) 40px;
+  grid-template-rows: repeat(auto-fill, 1fr);
   column-gap: 1.5%;
+  row-gap: 75px;
   grid-template-areas:
-    '. . . . . . . . . . . . . .'
-    '. . . . . . . . . . . . . .'
-    '. . . . . . . . . . . . . .'
-    '. . . . . . . . . . . . . .'
-    '. . . . . . . . . . . . . .'
-    '. . . . . . . . . . . . . .'
-    '. . . . . . . . . . . . . .';
+    '.    hImg  hImg  hImg  hImg  .     hInfo hInfo hInfo hInfo hInfo hInfo hInfo .'
+    '.    fImg  fImg  fImg  fImg  fImg  .     fInfo fInfo fInfo fInfo fInfo fInfo .'
+    '.    cInfo cInfo cInfo cInfo cInfo cInfo .     cImg  cImg  cImg  cImg  cImg  cImg'
+    '.    eImg  eImg  eImg  eImg  eImg  .     eInfo eInfo eInfo eInfo eInfo eInfo .'
+    '.    sInfo sInfo sInfo sInfo sInfo sInfo .     sImg  sImg  sImg  sImg  sImg  .'
+    'oImg oImg  oImg  oImg  oImg  oImg  .     oInfo oInfo oInfo oInfo oInfo oInfo .'
+    '.    lInfo lInfo lInfo lInfo lInfo lInfo .     lImg  lImg  lImg  lImg  lImg  .';
+}
+
+.heroImage {
+  grid-area: hImg;
+}
+
+.heroInfo {
+  grid-area: hInfo;
+}
+
+.federatedImage {
+  grid-area: fImg;
+}
+
+.federatedInfo {
+  grid-area: fInfo;
+}
+
+.customizableImage {
+  grid-area: cImg;
+}
+
+.customizableInfo {
+  grid-area: cInfo;
+}
+
+.encryptedImage {
+  grid-area: eImg;
+}
+
+.encryptedInfo {
+  grid-area: eInfo;
+}
+
+.sovereignImage {
+  grid-area: sImg;
+}
+
+.sovereignInfo {
+  grid-area: sInfo;
+}
+
+.openSourceImage {
+  grid-area: oImg;
+}
+
+.openSourceInfo {
+  grid-area: oInfo;
+}
+
+.lessNoisyImage {
+  grid-area: lImg;
+}
+
+.lessNoisyInfo {
+  grid-area: lInfo;
 }

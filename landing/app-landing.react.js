@@ -25,7 +25,9 @@ function AppLanding(): React.Node {
   return (
     <main className={css.wrapper}>
       <StarBackground />
-      <Picture url={hero.url} alt={hero.alt} />
+      <div className={hero.imageStyle}>
+        <Picture url={hero.url} alt={hero.alt} />
+      </div>
       <HeroContent />
       <InfoBlock {...federated} />
       <InfoBlock {...customizable} />

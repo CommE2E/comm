@@ -3,11 +3,14 @@
 import * as React from 'react';
 import TextLoop from 'react-text-loop';
 
+import { assetMetaData } from './asset-meta-data';
 import css from './hero-content.css';
 
 function HeroContent(): React.Node {
+  const [hero] = assetMetaData;
+
   return (
-    <>
+    <section className={hero.infoStyle}>
       <h1 className={css.cycling_header}>
         {'Comm is crypto-native\nchat for '}
         <TextLoop
@@ -25,7 +28,7 @@ function HeroContent(): React.Node {
       <p className={css.app_landing_subheading}>
         (think &quot;Web3 Discord&quot;)
       </p>
-    </>
+    </section>
   );
 }
 
