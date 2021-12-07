@@ -1,0 +1,20 @@
+.wrapper {
+  transition-property: max-width;
+  transition: 300ms;
+  max-width: 1850px;
+  margin-left: auto;
+  margin-right: auto;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 80px repeat(12, 1fr) 80px;
+  grid-template-rows: repeat(7, 1fr);
+  column-gap: 1.5%;
+  grid-template-areas:
+    '. . . . . . . . . . . . . .'
+    '. . . . . . . . . . . . . .'
+    '. . . . . . . . . . . . . .'
+    '. . . . . . . . . . . . . .'
+    '. . . . . . . . . . . . . .'
+    '. . . . . . . . . . . . . .'
+    '. . . . . . . . . . . . . .';
+}

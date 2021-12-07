@@ -5,6 +5,7 @@ import * as React from 'react';
 import { assetMetaData } from './asset-meta-data';
 import HeroContent from './hero-content.react';
 import InfoBlock from './info-block.react';
+import css from './landing.css';
 import Picture from './Picture.react';
 import StarBackground from './star-background.react';
 import usePreloadAssets from './use-pre-load-assets.react';
@@ -22,7 +23,7 @@ function AppLanding(): React.Node {
   ] = assetMetaData;
 
   return (
-    <>
+    <main className={css.wrapper}>
       <StarBackground />
       <Picture url={hero.url} alt={hero.alt} />
       <HeroContent />
@@ -32,7 +33,7 @@ function AppLanding(): React.Node {
       <InfoBlock {...sovereign} />
       <InfoBlock {...openSource} />
       <InfoBlock {...lessNoisy} />
-    </>
+    </main>
   );
 }
 
