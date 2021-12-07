@@ -3,9 +3,8 @@
 import * as React from 'react';
 
 import { assetMetaData } from './asset-meta-data';
-import CyclingHeader from './cycling-header.react';
+import HeroContent from './hero-content.react';
 import InfoCard from './info-card.react';
-import css from './landing.css';
 import Picture from './Picture.react';
 import StarBackground from './star-background.react';
 import usePreloadAssets from './use-pre-load-assets.react';
@@ -25,47 +24,17 @@ function AppLanding(): React.Node {
   return (
     <>
       <StarBackground />
-      <div className={css.app_landing_grid}>
-        <div className={css.app_preview}>
-          <Picture url={hero.url} alt={hero.alt} />
-        </div>
-        <div className={css.app_copy}>
-          <div className={css.app_copy_wrapper}>
-            <CyclingHeader />
-          </div>
-          <div className={css.tile_grid}>
-            <InfoCard
-              title={federated.title}
-              description={federated.description}
-            />
-
-            <InfoCard
-              title={customizable.title}
-              description={customizable.description}
-            />
-
-            <InfoCard
-              title={encrypted.title}
-              description={encrypted.description}
-            />
-
-            <InfoCard
-              title={sovereign.title}
-              description={sovereign.description}
-            />
-
-            <InfoCard
-              title={openSource.title}
-              description={openSource.description}
-            />
-
-            <InfoCard
-              title={lessNoisy.title}
-              description={lessNoisy.description}
-            />
-          </div>
-        </div>
-      </div>
+      <Picture url={hero.url} alt={hero.alt} />
+      <HeroContent />
+      <InfoCard title={federated.title} description={federated.description} />
+      <InfoCard
+        title={customizable.title}
+        description={customizable.description}
+      />
+      <InfoCard title={encrypted.title} description={encrypted.description} />
+      <InfoCard title={sovereign.title} description={sovereign.description} />
+      <InfoCard title={openSource.title} description={openSource.description} />
+      <InfoCard title={lessNoisy.title} description={lessNoisy.description} />
     </>
   );
 }

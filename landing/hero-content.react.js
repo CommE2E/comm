@@ -3,9 +3,9 @@
 import * as React from 'react';
 import TextLoop from 'react-text-loop';
 
-import css from './cycling-header.css';
+import css from './hero-content.css';
 
-function CyclingHeader(): React.Node {
+function HeroContent(): React.Node {
   return (
     <>
       <h1 className={css.cycling_header}>
@@ -29,4 +29,4 @@ function CyclingHeader(): React.Node {
   );
 }
 
-export default CyclingHeader;
+export default HeroContent;
