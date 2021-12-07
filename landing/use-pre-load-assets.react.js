@@ -9,6 +9,7 @@ type Asset = {
   +url: string,
   +title: string,
   +description: string,
+  +css_class: string,
 };
 
 function usePreloadAssets(assets: Asset[]) {

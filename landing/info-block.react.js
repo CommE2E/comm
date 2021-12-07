@@ -10,6 +10,7 @@ type InfoBlockProps = {
   +description: string,
   +url: string,
   +alt: string,
+  +css_class: string,
 };
 function InfoBlock(props: InfoBlockProps): React.Node {
   const { title, description, url, alt } = props;
