@@ -26,15 +26,12 @@ function AppLanding(): React.Node {
       <StarBackground />
       <Picture url={hero.url} alt={hero.alt} />
       <HeroContent />
-      <InfoCard title={federated.title} description={federated.description} />
-      <InfoCard
-        title={customizable.title}
-        description={customizable.description}
-      />
-      <InfoCard title={encrypted.title} description={encrypted.description} />
-      <InfoCard title={sovereign.title} description={sovereign.description} />
-      <InfoCard title={openSource.title} description={openSource.description} />
-      <InfoCard title={lessNoisy.title} description={lessNoisy.description} />
+      <InfoCard {...federated} />
+      <InfoCard {...customizable} />
+      <InfoCard {...encrypted} />
+      <InfoCard {...sovereign} />
+      <InfoCard {...openSource} />
+      <InfoCard {...lessNoisy} />
     </>
   );
 }
