@@ -16,6 +16,7 @@ nav.wrapper {
   margin-left: auto;
   margin-right: auto;
   display: grid;
+  padding: 16px 0;
   align-items: center;
   grid-template-columns: 40px repeat(12, 1fr) 40px;
   column-gap: 1.5%;

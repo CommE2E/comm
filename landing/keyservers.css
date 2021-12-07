@@ -14,6 +14,11 @@ div.body_grid {
 
 .mono {
   font-family: 'iA Writer Duo S', monospace;
+  padding-bottom: 24px;
+}
+
+.mono + p {
+  padding-bottom: 24px;
 }
 
 span.purple_accent {
@@ -52,6 +57,10 @@ div.keyserver_company {
   grid-area: keyserver_company;
   text-align: center;
   padding-top: 80px;
+}
+
+.keyserver_company > h1 {
+  padding-bottom: 24px;
 }
 div.read_the_docs {
   grid-area: read_the_docs;

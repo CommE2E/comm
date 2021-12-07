@@ -8,13 +8,16 @@ div.legal_container {
 }
 div.legal_container h1 {
   font-size: 42px;
+  padding-bottom: 24px;
 }
 div.legal_container h2 {
   font-size: 38px;
+  padding-bottom: 24px;
 }
 div.legal_container p,
 li {
   font-size: 20px;
+  padding-bottom: 16px;
 }
 div.legal_container a {
   color: #7e57c2;
