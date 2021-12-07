@@ -7,13 +7,12 @@ import css from './info-card.css';
 type InfoCardProps = {
   +title: string,
   +description: string,
-  +baseStyle: string,
 };
 function InfoCard(props: InfoCardProps): React.Node {
-  const { title, description, baseStyle } = props;
+  const { title, description } = props;
 
   return (
-    <div className={`${baseStyle} ${css.info_card}`}>
+    <div className={css.info_card}>
       <div className={css.tile_title_row}>
         <p className={css.tile_title}>{title}</p>
       </div>

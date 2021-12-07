@@ -37,37 +37,31 @@ function AppLanding(): React.Node {
             <InfoCard
               title={federated.title}
               description={federated.description}
-              baseStyle={css.tile_one}
             />
 
             <InfoCard
               title={customizable.title}
               description={customizable.description}
-              baseStyle={css.tile_two}
             />
 
             <InfoCard
               title={encrypted.title}
               description={encrypted.description}
-              baseStyle={css.tile_three}
             />
 
             <InfoCard
               title={sovereign.title}
               description={sovereign.description}
-              baseStyle={css.tile_four}
             />
 
             <InfoCard
               title={openSource.title}
               description={openSource.description}
-              baseStyle={css.tile_five}
             />
 
             <InfoCard
               title={lessNoisy.title}
               description={lessNoisy.description}
-              baseStyle={css.tile_six}
             />
           </div>
         </div>
