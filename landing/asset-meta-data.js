@@ -18,7 +18,7 @@ export const assetMetaData = [
   },
   {
     alt: 'a web app screen highlighting web3 apps in Comm',
-    url: `${assetUrl}/'Customizable`,
+    url: `${assetUrl}/Customizable`,
     title: 'Customizable',
     description: `Write mini-apps and custom modules in React.
                    Skin your community. Customize your tabs and your home page.`,
