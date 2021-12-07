@@ -9,7 +9,7 @@ div.tile_title_row {
   padding-bottom: 20px;
 }
 
-.info_card {
+.info_block {
   display: flex;
   padding: 36px;
   border-radius: 8px;
