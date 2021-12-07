@@ -10,19 +10,22 @@ type InfoBlockProps = {
   +description: string,
   +url: string,
   +alt: string,
-  +css_class: string,
+  +imageStyle: string,
+  +infoStyle: string,
 };
 function InfoBlock(props: InfoBlockProps): React.Node {
-  const { title, description, url, alt } = props;
+  const { title, description, url, alt, imageStyle, infoStyle } = props;
 
   return (
-    <section className={css.info_block}>
-      <Picture {...{ url, alt }} />
-      <div className={css.content}>
+    <>
+      <div className={imageStyle}>
+        <Picture {...{ url, alt }} />
+      </div>
+      <div className={`${css.info_block} ${infoStyle}`}>
         <p className={css.title}>{title}</p>
         <p className={css.description}>{description}</p>
       </div>
-    </section>
+    </>
   );
 }
 
