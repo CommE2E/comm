@@ -15,6 +15,7 @@
     "test-all-services": "./scripts/test_all_services.sh",
     "build-blob-base": "yarn build-backup-base",
     "run-blob-server": "./scripts/run_server_image.sh blob",
+    "test-blob-service": "./scripts/test_service.sh blob",
     "run-all-services": "./scripts/run_all_services.sh"
   }
 }

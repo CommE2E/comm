@@ -73,3 +73,28 @@ install(
   TARGETS blob
   RUNTIME DESTINATION bin/
 )
+
+# TEST
+enable_testing()
+
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIR})
+
+add_executable(
+  runUnitTests
+
+  src/DatabaseManager.cpp
+  test/DynamoDBTest.cpp
+)
+target_link_libraries(
+  runUnitTests
+
+  ${AWSSDK_LINK_LIBRARIES}
+  gtest
+  gtest_main
+)
+
+add_test(
+  NAME runUnitTests
+  COMMAND runUnitTests
+)

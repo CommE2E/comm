@@ -35,7 +35,7 @@ class DatabaseManager {
   std::unique_ptr<Aws::DynamoDB::DynamoDBClient> client;
 
 public:
-  DatabaseManager();
+  DatabaseManager(const std::string tableName);
   void putItem(const Item &item);
   Item findItem(const std::string &hash);
   void removeItem(const std::string &hash);

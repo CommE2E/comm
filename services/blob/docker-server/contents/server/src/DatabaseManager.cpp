@@ -11,7 +11,8 @@
 namespace comm {
 namespace network {
 
-DatabaseManager::DatabaseManager() {
+DatabaseManager::DatabaseManager(const std::string tableName)
+    : tableName(tableName) {
   Aws::Client::ClientConfiguration config;
   config.region = this->region;
   this->client = std::make_unique<Aws::DynamoDB::DynamoDBClient>(config);
@@ -47,18 +48,28 @@ Item DatabaseManager::findItem(const std::string &hash) {
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
-  const Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue> &item =
-      outcome.GetResult().GetItem();
-  if (item.size() == 0) {
+  const Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
+      &outcomeItem = outcome.GetResult().GetItem();
+  Item result;
+  if (outcomeItem.size() == 0) {
     std::cout << "no item found for hash " << hash << std::endl;
+    return result;
   }
-  // Output each retrieved field and its value
-  for (const auto &i : item) {
-    std::cout << i.first << ": " << i.second.GetS() << std::endl;
+  // todo: some converter maybe?
+  for (const auto &field : outcomeItem) {
+    std::cout << field.first << ": " << field.second.GetS() << std::endl;
+    const std::string key = field.first;
+    const std::string value = field.second.GetS();
+    if (key == "hash") {
+      result.hash = value;
+    } else if (key == "reverseIndex") {
+      result.reverseIndex = value;
+    } else if (key == "s3Path") {
+      result.s3Path = value;
+    }
   }
 
-  Item result;
-  return result; // todo fix this
+  return result;
 }
 
 void DatabaseManager::removeItem(const std::string &hash) {
