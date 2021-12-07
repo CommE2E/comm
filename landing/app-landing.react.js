@@ -32,11 +32,7 @@ function AppLanding(): React.Node {
         <div className={css.app_copy}>
           <div className={css.app_copy_wrapper}>
             <CyclingHeader />
-            <p className={css.app_landing_subheading}>
-              (think &quot;Web3 Discord&quot;)
-            </p>
           </div>
-
           <div className={css.tile_grid}>
             <InfoCard
               title={federated.title}
