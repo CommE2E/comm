@@ -75,6 +75,9 @@ install(
 )
 
 # TEST
+file(GLOB TEST_CODE "./test/*.cpp")
+list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
+
 enable_testing()
 
 find_package(GTest REQUIRED)
@@ -83,13 +86,18 @@ include_directories(${GTEST_INCLUDE_DIR})
 add_executable(
   runUnitTests
 
-  src/DatabaseManager.cpp
-  test/DynamoDBTest.cpp
+  ${GENERATED_CODE}
+  ${SOURCE_CODE}
+  ${TEST_CODE}
 )
 target_link_libraries(
   runUnitTests
 
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF}
+  gRPC::grpc++_reflection
   ${AWSSDK_LINK_LIBRARIES}
+  ${Boost_LIBRARIES}
   gtest
   gtest_main
 )
