@@ -7,6 +7,7 @@
   --unselected: var(--grey);
   --btn-color: var(--white1);
   --logo-color: var(--white);
+  --sub-heading-color: var(--purple);
   --min-font-size: 12px;
   --max-font-size: 28px;
 }

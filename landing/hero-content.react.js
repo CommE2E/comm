@@ -17,17 +17,14 @@ function HeroContent(): React.Node {
           interval={1750}
           springConfig={{ stiffness: 180, damping: 16 }}
         >
-          <span className={css.app_landing_subheading}>DAOs</span>
-          <span className={css.app_landing_subheading}>art collectives</span>
-          <span className={css.app_landing_subheading}>venture funds</span>
-          <span className={css.app_landing_subheading}>open source</span>
-          <span className={css.app_landing_subheading}>gaming guilds</span>
-          <span className={css.app_landing_subheading}>social clubs</span>
+          <span className={css.cycling_content}>DAOs</span>
+          <span className={css.cycling_content}>venture funds</span>
+          <span className={css.cycling_content}>open source</span>
+          <span className={css.cycling_content}>gaming guilds</span>
+          <span className={css.cycling_content}>social clubs</span>
         </TextLoop>
       </h1>
-      <p className={css.app_landing_subheading}>
-        (think &quot;Web3 Discord&quot;)
-      </p>
+      <p className={css.sub_heading}>(think &quot;Web3 Discord&quot;)</p>
     </section>
   );
 }

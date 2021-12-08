@@ -1,62 +1,41 @@
-h1.cycling_header {
-  font-family: 'iA Writer Duo S', monospace;
-  font-size: 50px;
-  margin: 0;
-  white-space: pre-wrap;
-}
-
-.app_landing_subheading {
+.cycling_header {
+  --smallest-font-size: 30px;
+  --largest-font-size: 72px;
+  --font-scale: calc(1rem + 2vw);
   font-weight: bold;
-  padding-inline: 4px;
-}
-
-span.app_landing_subheading {
-  background-color: #7e57c2;
-}
-
-p.app_landing_subheading {
   font-family: 'iA Writer Duo S', monospace;
-  color: #7e57c2;
-  font-size: 32px;
-  padding-inline: 0px;
+  padding-bottom: 16px;
+  font-size: clamp(
+    var(--smallest-font-size),
+    var(--font-scale),
+    var(--largest-font-size)
+  );
 }
 
-/* ===== MEDIUM-LARGE BREAKPOINT ===== */
-@media (max-width: 1699px) {
-  h1.cycling_header {
-    font-size: 44px;
-  }
+.sub_heading {
+  --smallest-font-size: 16px;
+  --largest-font-size: 50px;
+  --font-scale: calc(0.75rem + 1.25vw);
+
+  font-size: clamp(
+    var(--smallest-font-size),
+    var(--font-scale),
+    var(--largest-font-size)
+  );
 }
 
-/* ===== MEDIUM BREAKPOINT ===== */
-@media (max-width: 1499px) {
-  h1.cycling_header {
-    font-size: 38px;
-  }
+.cycling_content,
+.sub_heading {
+  font-family: 'iA Writer Duo S', monospace;
+  text-align: left;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
-/* ===== MEDIUM-SMALL BREAKPOINT ===== */
-@media (max-width: 1299px) {
-  h1.cycling_header {
-    font-size: 30px;
-  }
+.cycling_content {
+  background: var(--sub-heading-color);
 }
 
-/* ===== SMALLEST BREAKPOINT ===== */
-@media (max-width: 1099px) {
-  h1.cycling_header {
-    font-family: 'iA Writer Duo S', monospace;
-    margin-top: 4vh;
-    font-size: 22px;
-    text-align: center;
-  }
-
-  .app_landing_subheading {
-    margin-bottom: 6vh;
-    text-align: center;
-  }
-
-  p.app_landing_subheading {
-    font-size: 18px;
-  }
+.sub_heading {
+  color: var(--sub-heading-color);
 }
