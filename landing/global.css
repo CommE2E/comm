@@ -1,3 +1,14 @@
+:root {
+  --purple: #7e57c2;
+  --white: #fff;
+  --white1: #ebedee;
+  --grey: #808080;
+  --btn-bg: var(--purple);
+  --unselected: var(--grey);
+  --btn-color: var(--white1);
+  --logo-color: var(--white);
+}
+
 /* ===== GENERAL PAGE STYLES ===== */
 html {
   background: radial-gradient(ellipse at bottom, #1f252e, #111827);

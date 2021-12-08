@@ -1,14 +1,3 @@
-:root {
-  --purple: #7e57c2;
-  --white: #fff;
-  --white1: #ebedee;
-  --grey: #808080;
-  --btn-bg: var(--purple);
-  --unselected: var(--grey);
-  --btn-color: var(--white1);
-  --logo-color: var(--white);
-}
-
 nav.wrapper {
   transition-property: max-width;
   transition: 300ms;
