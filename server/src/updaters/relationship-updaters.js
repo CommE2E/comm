@@ -259,14 +259,22 @@ async function updateChangedUndirectedRelationships(
     return [];
   }
 
+  const user2ByUser1: Map<string, Set<string>> = new Map();
+  for (const { user1, user2 } of changeset) {
+    if (!user2ByUser1.has(user1)) {
+      user2ByUser1.set(user1, new Set());
+    }
+    user2ByUser1.get(user1)?.add(user2);
+  }
+
   const selectQuery = SQL`
     SELECT user1, user2, status
     FROM relationships_undirected
     WHERE
   `;
   const conditions = [];
-  for (const row of changeset) {
-    conditions.push(SQL`(user1 = ${row.user1} AND user2 = ${row.user2})`);
+  for (const [user1, users] of user2ByUser1) {
+    conditions.push(SQL`(user1 = ${user1} AND user2 IN (${[...users]}))`);
   }
   selectQuery.append(mergeOrConditions(conditions));
 
