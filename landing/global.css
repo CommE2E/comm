@@ -7,6 +7,8 @@
   --unselected: var(--grey);
   --btn-color: var(--white1);
   --logo-color: var(--white);
+  --min-font-size: 12px;
+  --max-font-size: 28px;
 }
 
 /* ===== GENERAL PAGE STYLES ===== */
@@ -15,6 +17,14 @@ html {
   background-attachment: fixed;
   font-family: 'IBM Plex Sans', sans-serif;
   color: white;
+  /* Fallback styling if clamp isn't supported  */
+  font-size: 1rem;
+  /* https://css-tricks.com/simplified-fluid-typography/ */
+  font-size: clamp(
+    var(--min-font-size),
+    calc(0.75rem + 1vw),
+    var(--max-font-size)
+  );
   word-break: break-word;
 }
 
