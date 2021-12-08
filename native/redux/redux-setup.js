@@ -30,6 +30,7 @@ import {
 import { updateTypes } from 'lib/types/update-types';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
+import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
 
 import { defaultNavInfo } from '../navigation/default-state';
@@ -292,39 +293,57 @@ function reducer(state: AppState = defaultState, action: Action) {
 
   const baseReducerResult = baseReducer(state, (action: BaseAction));
   state = baseReducerResult.state;
-  const {
-    storeOperations: { threadStoreOperations },
-  } = baseReducerResult;
-  if (threadStoreOperations.length > 0) {
-    const operations = convertThreadStoreOperationsToClientDBOperations(
-      threadStoreOperations,
-    );
-    (async () => {
-      try {
-        await global.CommCoreModule.processThreadStoreOperations(operations);
-      } catch {
-        dispatch({
-          type: setNewSessionActionType,
-          payload: {
-            sessionChange: {
-              cookie: null,
-              cookieInvalidated: false,
-              currentUserInfo: state.currentUserInfo,
-            },
-            preRequestUserState: {
-              currentUserInfo: state.currentUserInfo,
-              sessionID: undefined,
-              cookie: state.cookie,
-            },
-            error: null,
-            source: sqliteOpFailure,
-          },
-        });
-        await persistor.flush();
-        ExitApp.exitApp();
+
+  const { storeOperations } = baseReducerResult;
+  const { threadStoreOperations, messageStoreOperations } = storeOperations;
+
+  const convertedThreadStoreOperations = convertThreadStoreOperationsToClientDBOperations(
+    threadStoreOperations,
+  );
+  const convertedMessageStoreOperations = convertMessageStoreOperationsToClientDBOperations(
+    messageStoreOperations,
+  );
+
+  (async () => {
+    try {
+      const promises = [];
+      if (convertedThreadStoreOperations.length > 0) {
+        promises.push(
+          global.CommCoreModule.processThreadStoreOperations(
+            convertedThreadStoreOperations,
+          ),
+        );
       }
-    })();
-  }
+      if (convertedMessageStoreOperations.length > 0) {
+        promises.push(
+          global.CommCoreModule.processMessageStoreOperations(
+            convertedMessageStoreOperations,
+          ),
+        );
+      }
+      await Promise.all(promises);
+    } catch {
+      dispatch({
+        type: setNewSessionActionType,
+        payload: {
+          sessionChange: {
+            cookie: null,
+            cookieInvalidated: false,
+            currentUserInfo: state.currentUserInfo,
+          },
+          preRequestUserState: {
+            currentUserInfo: state.currentUserInfo,
+            sessionID: undefined,
+            cookie: state.cookie,
+          },
+          error: null,
+          source: sqliteOpFailure,
+        },
+      });
+      await persistor.flush();
+      ExitApp.exitApp();
+    }
+  })();
 
   return fixUnreadActiveThread(state, action);
 }
