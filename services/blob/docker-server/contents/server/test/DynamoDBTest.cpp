@@ -6,74 +6,90 @@
 
 #include <string>
 #include <random>
+#include <memory>
+
+using namespace comm::network;
 
 class DatabaseManagerTest : public testing::Test
 {
 protected:
+  std::unique_ptr<DatabaseManager> dbm;
+
   virtual void SetUp()
   {
     Aws::InitAPI({});
+    if (dbm == nullptr) {
+      dbm = std::make_unique<DatabaseManager>("blob-service-blob", "blob-service-reverse-index");
+    }
   }
 
   virtual void TearDown()
   {
     Aws::ShutdownAPI({});
   }
-};
 
-int randomNumber(const int from, const int to)
-{
-  std::random_device rd;
-  std::mt19937 mt(rd());
-  std::uniform_int_distribution<int> dist(from, to);
-
-  return dist(mt);
-}
-
-std::string randomString(size_t size = 20)
-{
-  std::string str("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-
-  std::string result;
-
-  for (size_t i = 0; i < size; ++i)
+  int randomNumber(const int from, const int to)
   {
-    result += str[randomNumber(0, str.size() - 1)];
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> dist(from, to);
+
+    return dist(mt);
   }
 
-  return result;
-}
+  std::string randomString(size_t size = 20)
+  {
+    std::string str("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
 
-using comm::network::Item;
+    std::string result;
 
-Item generateItem()
+    for (size_t i = 0; i < size; ++i)
+    {
+      result += str[randomNumber(0, str.size() - 1)];
+    }
+
+    return result;
+  }
+
+  BlobItem generateBlobItem() {
+    return BlobItem(randomString(), randomString());
+  }
+
+  ReverseIndexItem generateReverseIndexItem() {
+    return ReverseIndexItem(randomString(), randomString());
+  }
+};
+
+TEST_F(DatabaseManagerTest, TestOperationsOnBlobItems)
 {
-  Item item;
-  item.hash = randomString();
-  item.reverseIndex = randomString();
-  item.s3Path = randomString();
-  return item;
-}
-
-TEST_F(DatabaseManagerTest, DatabaseManagerTest)
-{
-  Item item = generateItem();
-  std::cout << ">>> Test item: " << std::endl;
-  std::cout << item.hash << std::endl;
-  std::cout << item.reverseIndex << std::endl;
-  std::cout << item.s3Path << std::endl;
-  std::cout << "<<< Test item: " << std::endl;
+  BlobItem item = generateBlobItem();
 
   std::cout << "==> create db manager" << std::endl;
-  comm::network::DatabaseManager dbm("blob-service");
   std::cout << "==> put item" << std::endl;
-  dbm.putItem(item);
+  dbm->putBlobItem(item);
   std::cout << "==> find item" << std::endl;
-  Item foundItem = dbm.findItem(item.hash);
+  std::shared_ptr<BlobItem> foundItem = std::dynamic_pointer_cast<BlobItem>(dbm->findBlobItem(item.hash));
   std::cout << "==> checking hashes" << std::endl;
-  EXPECT_EQ(item.hash.size(), foundItem.hash.size());
-  EXPECT_EQ(memcmp(item.hash.data(), foundItem.hash.data(), item.hash.size()), 0);
+  EXPECT_EQ(item.hash.size(), foundItem->hash.size());
+  EXPECT_EQ(memcmp(item.hash.data(), foundItem->hash.data(), item.hash.size()), 0);
   std::cout << "==> remove item" << std::endl;
-  dbm.removeItem(foundItem.hash);
+  dbm->removeBlobItem(foundItem->hash);
+  std::cout << "==> done" << std::endl;
+}
+
+TEST_F(DatabaseManagerTest, TestOperationsOnReverseIndexItems)
+{
+  ReverseIndexItem item = generateReverseIndexItem();
+
+  std::cout << "==> create db manager" << std::endl;
+  std::cout << "==> put item" << std::endl;
+  dbm->putReverseIndexItem(item);
+  std::cout << "==> find item" << std::endl;
+  std::shared_ptr<ReverseIndexItem> foundItem = std::dynamic_pointer_cast<ReverseIndexItem>(dbm->findReverseIndexItem(item.hash));
+  std::cout << "==> checking hashes" << std::endl;
+  EXPECT_EQ(item.hash.size(), foundItem->hash.size());
+  EXPECT_EQ(memcmp(item.hash.data(), foundItem->hash.data(), item.hash.size()), 0);
+  std::cout << "==> remove item" << std::endl;
+  dbm->removeReverseIndexItem(foundItem->hash);
   std::cout << "==> done" << std::endl;
 }

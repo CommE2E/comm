@@ -1,7 +1,10 @@
 #pragma once
 
+#include "DatabaseEntities.h"
+
 #include <aws/core/Aws.h>
 #include <aws/dynamodb/DynamoDBClient.h>
+#include <aws/dynamodb/model/PutItemRequest.h>
 
 #include <memory>
 #include <stdexcept>
@@ -10,35 +13,29 @@
 namespace comm {
 namespace network {
 
-struct Item {
-  std::string hash;
-  std::string reverseIndex;
-  std::string s3Path;
-
-  void validate() const {
-    // todo consider more checks here for valid values
-    if (!hash.size()) {
-      throw std::runtime_error("hash empty");
-    }
-    if (!reverseIndex.size()) {
-      throw std::runtime_error("reverse index empty");
-    }
-    if (!s3Path.size()) {
-      throw std::runtime_error("S3 path empty");
-    }
-  }
-};
-
 class DatabaseManager {
-  const std::string tableName;
+  const std::string blobTableName;
+  const std::string reverseIndexTableName;
   const std::string region = "us-east-2";
   std::unique_ptr<Aws::DynamoDB::DynamoDBClient> client;
 
+  void innerPutItem(std::shared_ptr<Item> item,
+                    const Aws::DynamoDB::Model::PutItemRequest &request);
+  std::shared_ptr<Item> innerFindItem(const std::string &hash,
+                                      const ItemType &itemType);
+  void innerRemoveItem(const std::string &hash, const ItemType &itemType);
+
 public:
-  DatabaseManager(const std::string tableName);
-  void putItem(const Item &item);
-  Item findItem(const std::string &hash);
-  void removeItem(const std::string &hash);
+  DatabaseManager(const std::string blobTableName,
+                  const std::string reverseIndexTableName);
+
+  void putBlobItem(const BlobItem &item);
+  std::shared_ptr<Item> findBlobItem(const std::string &hash);
+  void removeBlobItem(const std::string &hash);
+
+  void putReverseIndexItem(const ReverseIndexItem &item);
+  std::shared_ptr<Item> findReverseIndexItem(const std::string &hash);
+  void removeReverseIndexItem(const std::string &hash);
 };
 
 } // namespace network
