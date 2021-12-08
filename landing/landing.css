@@ -22,6 +22,52 @@
     '.    lInfo lInfo lInfo lInfo lInfo lInfo .     lImg  lImg  lImg  lImg  lImg  .';
 }
 
+@media screen and (max-width: 1099px) {
+  .wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    align-items: center;
+    padding-top: 7vh;
+    padding-bottom: 235px;
+    grid-template-columns: 16px repeat(6, 1fr) 16px;
+    grid-template-rows: repeat(auto-fill, 1fr);
+    column-gap: 1.5%;
+    row-gap: 75px;
+    grid-template-areas:
+      '.    hInfo hInfo hInfo hInfo hInfo hInfo .'
+      '.    fInfo fInfo fInfo fInfo fInfo fInfo .'
+      '.    fImg  fImg  fImg  fImg  fImg  fImg  .'
+      '.    cInfo cInfo cInfo cInfo cInfo cInfo .'
+      '.    cImg  cImg  cImg  cImg  cImg  cImg  cImg'
+      '.    eInfo eInfo eInfo eInfo eInfo eInfo .'
+      '.    eImg  eImg  eImg  eImg  eImg  eImg  .'
+      '.    sInfo sInfo sInfo sInfo sInfo sInfo .'
+      '.    sImg  sImg  sImg  sImg  sImg  sImg  .'
+      '.    oInfo oInfo oInfo oInfo oInfo oInfo .'
+      'oImg oImg  oImg  oImg  oImg  oImg  oImg  .'
+      '.    lInfo lInfo lInfo lInfo lInfo lInfo .'
+      '.    lImg  lImg  lImg  lImg  lImg  lImg  .';
+  }
+
+  .heroImage {
+    display: none;
+  }
+
+  .federatedImage {
+    justify-self: center;
+  }
+
+  .encryptedImage {
+    justify-self: center;
+    max-width: 585px;
+  }
+
+  .sovereignImage {
+    justify-self: center;
+  }
+}
+
 .heroImage {
   grid-area: hImg;
 }
