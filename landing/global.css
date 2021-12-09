@@ -17,6 +17,8 @@ html {
   background: radial-gradient(ellipse at bottom, #1f252e, #111827);
   background-attachment: fixed;
   font-family: 'IBM Plex Sans', sans-serif;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   color: white;
   /* Fallback styling if clamp isn't supported  */
   font-size: 1rem;
