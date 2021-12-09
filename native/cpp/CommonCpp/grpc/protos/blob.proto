@@ -5,7 +5,7 @@ package blob;
 import "google/protobuf/empty.proto";
 
 service BlobService {
-  rpc Put(stream PutRequest) returns (PutResponse) {}
+  rpc Put(stream PutRequest) returns (google.protobuf.Empty) {}
   rpc Get(GetRequest) returns (stream GetResponse) {}
   rpc Remove(RemoveRequest) returns (google.protobuf.Empty) {}
 }
@@ -15,18 +15,15 @@ service BlobService {
 message PutRequest {
   oneof data {
     string reverseIndex = 1;
-    bytes dataChunk = 2;
+    string fileHash = 2;
+    bytes dataChunk = 3;
   }
-}
-
-message PutResponse {
-  string hash = 1;
 }
 
 // Get
 
 message GetRequest {
-  string hash = 1;
+  string reverseIndex = 1;
 }
 
 message GetResponse {
@@ -36,5 +33,5 @@ message GetResponse {
 // Remove
 
 message RemoveRequest {
-  string hash = 1;
+  string reverseIndex = 1;
 }
