@@ -326,6 +326,42 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       });
 }
 
+bool CommCoreModule::processMessageStoreOperationsSync(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) {
+
+  std::promise<bool> operationsResult;
+  std::future<bool> operationsResultFuture = operationsResult.get_future();
+
+  std::vector<std::unique_ptr<MessageStoreOperationBase>> messageStoreOps;
+  std::string operationsError;
+
+  try {
+    messageStoreOps = createMessageStoreOperations(rt, operations);
+  } catch (std::runtime_error &e) {
+    return false;
+  }
+
+  this->databaseThread->scheduleTask(
+      [=, &messageStoreOps, &operationsResult, &rt]() {
+        std::string error = operationsError;
+        if (!error.size()) {
+          try {
+            DatabaseManager::getQueryExecutor().beginTransaction();
+            for (const auto &operation : messageStoreOps) {
+              operation->execute();
+            }
+            DatabaseManager::getQueryExecutor().commitTransaction();
+          } catch (std::system_error &e) {
+            error = e.what();
+            DatabaseManager::getQueryExecutor().rollbackTransaction();
+          }
+        }
+        operationsResult.set_value(error.size() == 0);
+      });
+  return operationsResultFuture.get();
+}
+
 jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {

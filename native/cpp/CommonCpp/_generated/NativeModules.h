@@ -25,6 +25,7 @@ virtual jsi::Value getAllDrafts(jsi::Runtime &rt) = 0;
 virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
 virtual jsi::Value getAllMessages(jsi::Runtime &rt) = 0;
 virtual jsi::Value processMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) = 0;
+virtual bool processMessageStoreOperationsSync(jsi::Runtime &rt, const jsi::Array &operations) = 0;
 virtual jsi::Value getAllThreads(jsi::Runtime &rt) = 0;
 virtual jsi::Value processThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) = 0;
 virtual bool processThreadStoreOperationsSync(jsi::Runtime &rt, const jsi::Array &operations) = 0;

@@ -29,6 +29,9 @@ export interface Spec extends TurboModule {
   +processMessageStoreOperations: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
   ) => Promise<void>;
+  +processMessageStoreOperationsSync: (
+    operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
+  ) => boolean;
   +getAllThreads: () => Promise<$ReadOnlyArray<ClientDBThreadInfo>>;
   +processThreadStoreOperations: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
