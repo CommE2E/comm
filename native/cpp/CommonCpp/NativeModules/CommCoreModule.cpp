@@ -243,9 +243,8 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
 #define REMOVE_MSGS_FOR_THREADS_OPERATION "remove_messages_for_threads"
 #define REMOVE_ALL_OPERATION "remove_all"
 
-jsi::Value CommCoreModule::processMessageStoreOperations(
-    jsi::Runtime &rt,
-    const jsi::Array &operations) {
+std::vector<std::unique_ptr<MessageStoreOperationBase>>
+createMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
 
   std::vector<std::unique_ptr<MessageStoreOperationBase>> messageStoreOps;
 
@@ -274,36 +273,47 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       messageStoreOps.push_back(std::make_unique<RemoveAllMessagesOperation>());
 
     } else {
-      return createPromiseAsJSIValue(
-          rt,
-          [this,
-           op_type](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-            this->jsInvoker_->invokeAsync([promise, &innerRt, op_type]() {
-              promise->reject(
-                  std::string{"unsupported operation: "}.append(op_type));
-            });
-          });
+      throw std::runtime_error("unsupported operation: " + op_type);
     }
   }
 
-  auto messageStoreOpsPtr =
-      std::make_shared<std::vector<std::unique_ptr<MessageStoreOperationBase>>>(
-          std::move(messageStoreOps));
+  return messageStoreOps;
+}
+
+jsi::Value CommCoreModule::processMessageStoreOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) {
+
+  std::string createOperationsError;
+  std::shared_ptr<std::vector<std::unique_ptr<MessageStoreOperationBase>>>
+      messageStoreOpsPtr;
+  try {
+    auto messageStoreOps = createMessageStoreOperations(rt, operations);
+    messageStoreOpsPtr = std::make_shared<
+        std::vector<std::unique_ptr<MessageStoreOperationBase>>>(
+        std::move(messageStoreOps));
+  } catch (std::runtime_error &e) {
+    createOperationsError = e.what();
+  }
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
-          std::string error;
-          try {
-            DatabaseManager::getQueryExecutor().beginTransaction();
-            for (const auto &operation : *messageStoreOpsPtr) {
-              operation->execute();
+          std::string error = createOperationsError;
+
+          if (!error.size()) {
+            try {
+              DatabaseManager::getQueryExecutor().beginTransaction();
+              for (const auto &operation : *messageStoreOpsPtr) {
+                operation->execute();
+              }
+              DatabaseManager::getQueryExecutor().commitTransaction();
+            } catch (std::system_error &e) {
+              error = e.what();
+              DatabaseManager::getQueryExecutor().rollbackTransaction();
             }
-            DatabaseManager::getQueryExecutor().commitTransaction();
-          } catch (std::system_error &e) {
-            error = e.what();
-            DatabaseManager::getQueryExecutor().rollbackTransaction();
           }
+
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
               promise->reject(error);
