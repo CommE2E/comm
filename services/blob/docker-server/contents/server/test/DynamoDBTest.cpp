@@ -55,7 +55,7 @@ protected:
 };
 
 TEST_F(DatabaseManagerTest, TestOperationsOnBlobItems) {
-  BlobItem item = generateBlobItem();
+  const BlobItem item = generateBlobItem();
 
   std::cout << "==> create db manager" << std::endl;
   std::cout << "==> put item" << std::endl;
@@ -67,21 +67,36 @@ TEST_F(DatabaseManagerTest, TestOperationsOnBlobItems) {
   EXPECT_EQ(item.hash.size(), foundItem->hash.size());
   EXPECT_EQ(memcmp(item.hash.data(), foundItem->hash.data(), item.hash.size()),
             0);
+  std::cout << "==> update item" << std::endl;
+  const std::string newS3Path = randomString();
+  dbm->updateBlobItem(foundItem->hash, "removeCandidate",
+                      std::to_string(!foundItem->removeCandidate));
+  dbm->updateBlobItem(foundItem->hash, "s3Path", newS3Path);
+  foundItem = std::dynamic_pointer_cast<BlobItem>(dbm->findBlobItem(item.hash));
+  EXPECT_TRUE(foundItem->removeCandidate != item.removeCandidate);
+  EXPECT_TRUE(foundItem->s3Path == newS3Path);
   std::cout << "==> remove item" << std::endl;
   dbm->removeBlobItem(foundItem->hash);
   std::cout << "==> done" << std::endl;
 }
 
 TEST_F(DatabaseManagerTest, TestOperationsOnReverseIndexItems) {
-  ReverseIndexItem item = generateReverseIndexItem();
+  const ReverseIndexItem item = generateReverseIndexItem();
 
   std::cout << "==> create db manager" << std::endl;
   std::cout << "==> put item" << std::endl;
   dbm->putReverseIndexItem(item);
-  std::cout << "==> find item" << std::endl;
-  std::shared_ptr<ReverseIndexItem> foundItem =
-      std::dynamic_pointer_cast<ReverseIndexItem>(
-          dbm->findReverseIndexItem(item.hash));
+  std::cout << "==> find item by hash" << std::endl;
+  std::shared_ptr<ReverseIndexItem> foundItem;
+  foundItem = std::dynamic_pointer_cast<ReverseIndexItem>(
+      dbm->findReverseIndexItemByHash(item.hash));
+  std::cout << "==> checking hashes" << std::endl;
+  EXPECT_EQ(item.hash.size(), foundItem->hash.size());
+  EXPECT_EQ(memcmp(item.hash.data(), foundItem->hash.data(), item.hash.size()),
+            0);
+  std::cout << "==> find item by reverse index" << std::endl;
+  foundItem = std::dynamic_pointer_cast<ReverseIndexItem>(
+      dbm->findReverseIndexItemByReverseIndex(item.reverseIndex));
   std::cout << "==> checking hashes" << std::endl;
   EXPECT_EQ(item.hash.size(), foundItem->hash.size());
   EXPECT_EQ(memcmp(item.hash.data(), foundItem->hash.data(), item.hash.size()),

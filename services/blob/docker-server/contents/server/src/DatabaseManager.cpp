@@ -1,9 +1,11 @@
 #include "DatabaseManager.h"
 
 #include <aws/core/utils/Outcome.h>
-#include <aws/dynamodb/model/AttributeDefinition.h>
 #include <aws/dynamodb/model/DeleteItemRequest.h>
 #include <aws/dynamodb/model/GetItemRequest.h>
+#include <aws/dynamodb/model/QueryRequest.h>
+#include <aws/dynamodb/model/UpdateItemRequest.h>
+#include <aws/dynamodb/model/UpdateItemResult.h>
 
 #include <iostream>
 
@@ -31,11 +33,9 @@ void DatabaseManager::innerPutItem(
   }
 }
 
-std::shared_ptr<Item> DatabaseManager::innerFindItem(const std::string &hash,
-                                                     const ItemType &itemType) {
-  Aws::DynamoDB::Model::GetItemRequest request;
-  request.AddKey("hash", Aws::DynamoDB::Model::AttributeValue(hash));
-
+std::shared_ptr<Item>
+DatabaseManager::innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request,
+                               const ItemType &itemType) {
   // Set up the request
   switch (itemType) {
   case ItemType::BLOB: {
@@ -53,8 +53,7 @@ std::shared_ptr<Item> DatabaseManager::innerFindItem(const std::string &hash,
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
-  const Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
-      &outcomeItem = outcome.GetResult().GetItem();
+  const AttributeValues &outcomeItem = outcome.GetResult().GetItem();
   if (outcomeItem.size() == 0) {
     // todo print a hash here
     std::cout << "no item found for given hash" << std::endl;
@@ -109,14 +108,59 @@ void DatabaseManager::putBlobItem(const BlobItem &item) {
 }
 
 std::shared_ptr<Item> DatabaseManager::findBlobItem(const std::string &hash) {
-  return this->innerFindItem(hash, ItemType::BLOB);
+  Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey("hash", Aws::DynamoDB::Model::AttributeValue(hash));
+
+  return this->innerFindItem(request, ItemType::BLOB);
 }
 
 void DatabaseManager::removeBlobItem(const std::string &hash) {
   this->innerRemoveItem(hash, ItemType::BLOB);
 }
 
+void DatabaseManager::updateBlobItem(const std::string &hash,
+                                     const std::string &key,
+                                     const std::string &newValue) {
+  Aws::DynamoDB::Model::UpdateItemRequest request;
+  request.SetTableName(this->blobTableName);
+
+  request.AddKey("hash", Aws::DynamoDB::Model::AttributeValue(hash));
+
+  // Construct the SET update expression argument.
+  request.SetUpdateExpression(Aws::String("SET #key = :newValue"));
+
+  // Construct attribute name argument
+  // Note: Setting the ExpressionAttributeNames argument is required only
+  // when the name is a reserved word, such as "default". Otherwise, the
+  // name can be included in the update_expression, as in
+  // "SET MyAttributeName = :valueA"
+  Aws::Map<Aws::String, Aws::String> expressionAttributeNames;
+  expressionAttributeNames["#key"] = key;
+  request.SetExpressionAttributeNames(expressionAttributeNames);
+
+  // Construct attribute value argument.
+  Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
+      expressionAttributeValues;
+  expressionAttributeValues[":newValue"] =
+      Aws::DynamoDB::Model::AttributeValue(newValue);
+  request.SetExpressionAttributeValues(expressionAttributeValues);
+
+  // Update the item.
+  const Aws::DynamoDB::Model::UpdateItemOutcome &outcome =
+      this->client->UpdateItem(request);
+  if (!outcome.IsSuccess()) {
+    throw std::runtime_error(outcome.GetError().GetMessage());
+  }
+  std::cout << "Item was updated" << std::endl;
+}
+
 void DatabaseManager::putReverseIndexItem(const ReverseIndexItem &item) {
+  if (this->findReverseIndexItemByReverseIndex(item.reverseIndex) != nullptr) {
+    std::string errorMessage = "An item for the given reverse index [";
+    errorMessage += item.reverseIndex;
+    errorMessage += "] already exists";
+    throw std::runtime_error(errorMessage);
+  }
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(this->reverseIndexTableName);
   request.AddItem("hash", Aws::DynamoDB::Model::AttributeValue(item.hash));
@@ -127,8 +171,40 @@ void DatabaseManager::putReverseIndexItem(const ReverseIndexItem &item) {
 }
 
 std::shared_ptr<Item>
-DatabaseManager::findReverseIndexItem(const std::string &hash) {
-  return this->innerFindItem(hash, ItemType::REVERSE_INDEX);
+DatabaseManager::findReverseIndexItemByHash(const std::string &hash) {
+  Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey("hash", Aws::DynamoDB::Model::AttributeValue(hash));
+
+  return this->innerFindItem(request, ItemType::REVERSE_INDEX);
+}
+
+std::shared_ptr<Item> DatabaseManager::findReverseIndexItemByReverseIndex(
+    const std::string &reverseIndex) {
+  Aws::DynamoDB::Model::QueryRequest req;
+  req.SetTableName(this->reverseIndexTableName);
+  req.SetKeyConditionExpression("reverseIndex = :valueToMatch");
+
+  AttributeValues attributeValues;
+  attributeValues.emplace(":valueToMatch", reverseIndex);
+
+  req.SetExpressionAttributeValues(attributeValues);
+  req.SetIndexName("reverseIndex-index");
+
+  const Aws::DynamoDB::Model::QueryOutcome &outcome = this->client->Query(req);
+  if (!outcome.IsSuccess()) {
+    throw std::runtime_error(outcome.GetError().GetMessage());
+  }
+  const Aws::Vector<AttributeValues> &items = outcome.GetResult().GetItems();
+  if (items.size() == 0) {
+    return nullptr;
+  }
+  if (items.size() > 1) {
+    throw std::runtime_error("more than one item found for this reverse index, "
+                             "that should never happen");
+  }
+  AttributeValues outcomeItem = items.at(0);
+
+  return std::make_shared<ReverseIndexItem>(outcomeItem);
 }
 
 void DatabaseManager::removeReverseIndexItem(const std::string &hash) {
