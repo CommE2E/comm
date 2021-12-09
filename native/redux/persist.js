@@ -13,7 +13,9 @@ import { unshimMessageStore } from 'lib/shared/unshim-utils';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { messageTypes } from 'lib/types/message-types';
+import type { ClientDBMessageStoreOperation } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
+import { translateRawMessageInfoToClientDBMessageInfo } from 'lib/utils/message-ops-utils';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
 
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
@@ -334,6 +336,25 @@ const migrations = {
     ];
     const processingResult: boolean = global.CommCoreModule.processThreadStoreOperationsSync(
       convertThreadStoreOperationsToClientDBOperations(operations),
+    );
+    if (!processingResult) {
+      return { ...state, cookie: null };
+    }
+    return state;
+  },
+  [31]: (state: AppState) => {
+    const messages = state.messageStore.messages;
+    const operations: $ReadOnlyArray<ClientDBMessageStoreOperation> = [
+      {
+        type: 'remove_all',
+      },
+      ...Object.keys(messages).map((id: string) => ({
+        type: 'replace',
+        payload: translateRawMessageInfoToClientDBMessageInfo(messages[id]),
+      })),
+    ];
+    const processingResult: boolean = global.CommCoreModule.processMessageStoreOperationsSync(
+      operations,
     );
     if (!processingResult) {
       return { ...state, cookie: null };
