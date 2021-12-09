@@ -9,6 +9,7 @@
 
 namespace comm {
 namespace network {
+namespace database {
 
 /**
  * Database Structure:
@@ -96,5 +97,6 @@ struct ReverseIndexItem : Item {
   }
 };
 
+} // namespace database
 } // namespace network
 } // namespace comm

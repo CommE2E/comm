@@ -11,6 +11,7 @@
 
 namespace comm {
 namespace network {
+namespace database {
 
 DatabaseManager::DatabaseManager(const std::string blobTableName,
                                  const std::string reverseIndexTableName)
@@ -54,7 +55,7 @@ DatabaseManager::innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request,
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
   const AttributeValues &outcomeItem = outcome.GetResult().GetItem();
-  if (outcomeItem.size() == 0) {
+  if (!outcomeItem.size()) {
     // todo print a hash here
     std::cout << "no item found for given hash" << std::endl;
     return nullptr;
@@ -195,7 +196,7 @@ std::shared_ptr<Item> DatabaseManager::findReverseIndexItemByReverseIndex(
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
   const Aws::Vector<AttributeValues> &items = outcome.GetResult().GetItems();
-  if (items.size() == 0) {
+  if (!items.size()) {
     return nullptr;
   }
   if (items.size() > 1) {
@@ -211,5 +212,6 @@ void DatabaseManager::removeReverseIndexItem(const std::string &hash) {
   this->innerRemoveItem(hash, ItemType::REVERSE_INDEX);
 }
 
+} // namespace database
 } // namespace network
 } // namespace comm

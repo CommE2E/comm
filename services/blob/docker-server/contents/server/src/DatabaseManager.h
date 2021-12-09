@@ -13,6 +13,7 @@
 
 namespace comm {
 namespace network {
+namespace database {
 
 typedef Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
     AttributeValues;
@@ -47,5 +48,6 @@ public:
   void removeReverseIndexItem(const std::string &hash);
 };
 
+} // namespace database
 } // namespace network
 } // namespace comm

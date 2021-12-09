@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AwsStorageManager.h"
+#include "DatabaseManager.h"
 #include "Tools.h"
 
 #include "../_generated/blob.grpc.pb.h"
@@ -22,6 +23,10 @@ class BlobServiceImpl final : public blob::BlobService::Service {
   const std::string bucketName = "commapp-blob";
 
   std::unique_ptr<AwsStorageManager> storageManager;
+  std::unique_ptr<database::DatabaseManager> databaseManager;
+
+  std::string generateS3Path(const std::string &fileHash);
+  std::string computeHashForFile();
 
 public:
   BlobServiceImpl();

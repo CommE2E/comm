@@ -8,7 +8,7 @@
 #include <random>
 #include <string>
 
-using namespace comm::network;
+using namespace comm::network::database;
 
 class DatabaseManagerTest : public testing::Test {
 protected:
