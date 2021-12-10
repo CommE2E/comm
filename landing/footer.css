@@ -31,6 +31,7 @@ div.sitemap a {
   width: max-content;
 }
 
+.inactive_tab,
 div.inactive_tab a,
 div.inactive_tab svg {
   color: #8a8f98;

@@ -3,10 +3,18 @@
 import { faExternalLinkSquareAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 import footerStyles from './footer.css';
 import SubscriptionForm from './subscription-form.react';
+
+const navLinkProps = {
+  className: footerStyles.inactive_tab,
+  activeStyle: {
+    color: 'white',
+    fontWeight: '500',
+  },
+};
 
 function Footer(): React.Node {
   const footerGridStyle = `${footerStyles.footer_grid}`;
@@ -16,23 +24,31 @@ function Footer(): React.Node {
       <div className={footerGridStyle}>
         <div className={footerStyles.sitemap}>
           <div className={footerStyles.footer_logo}>
-            <Link to="/">Comm</Link>
+            <NavLink to="/">Comm</NavLink>
           </div>
 
           <div>
-            <Link to="/keyservers">Keyservers</Link>
+            <NavLink to="/keyservers" exact {...navLinkProps}>
+              Keyservers
+            </NavLink>
           </div>
 
           <div>
-            <Link to="/support">Support</Link>
+            <NavLink to="/support" exact {...navLinkProps}>
+              Support
+            </NavLink>
           </div>
 
           <div>
-            <Link to="/terms">Terms of Use</Link>
+            <NavLink to="/terms" exact {...navLinkProps}>
+              Terms of Use
+            </NavLink>
           </div>
 
           <div>
-            <Link to="/privacy">Privacy Policy</Link>
+            <NavLink to="/privacy" exact {...navLinkProps}>
+              Privacy Policy
+            </NavLink>
           </div>
 
           <div className={footerStyles.inactive_tab}>
