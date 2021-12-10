@@ -83,14 +83,31 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
                   << requestReverseIndex << "]" << std::endl;
         reverseIndex = requestReverseIndex;
       } else if (requestFileHash.size()) {
-        std::cout << "Backup Service => ResetKey(this log will be removed) "
+        std::cout << "Backup Service => Put(this log will be removed) "
                      "reading file hash ["
                   << requestFileHash << "]" << std::endl;
         fileHash = requestFileHash;
       } else if (dataChunk.size()) {
-        std::cout << "Backup Service => ResetKey(this log will be removed) "
+        std::cout << "Backup Service => Put(this log will be removed) "
                      "reading chunk ["
                   << dataChunk << "]" << std::endl;
+        // TODO HERE
+        // minimum chunk size is 5MB
+        // GRPC limit it 4MB
+        // we have to do something like this:
+        //    - store first chunk in the memory
+        //      - if it's less than 4MB, expect no more chunks, if they come -
+        //      throw, otherwise write the only chunk with a single
+        //      `writeObject`
+        //      - if it's 4MB
+        //        - await further chunks
+        //        - merge them into parts of 5MB, start the multipart uploader
+        //        and use it(also uploading chunks of size 8MB could be an
+        //        option - 5MB is just a minimum size for a chunk, merging the
+        //        chunks in pairs may avoid some complexity in this code)
+        //        - if there are 2 chunks, both less than 5MB(e.g. 4MB+0.5MB),
+        //        just upload them in a single `writeObject`(don't start the MPU
+        //        uploader)
         if (uploader == nullptr) {
           if (!reverseIndex.size() || !fileHash.size()) {
             throw std::runtime_error(
@@ -108,14 +125,19 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
         uploader->addPart(dataChunk);
       }
       if (reverseIndex.size() && fileHash.size() && s3Path == nullptr) {
+        std::cout << "create S3 Path" << std::endl;
         blobItem = std::dynamic_pointer_cast<database::BlobItem>(
             this->databaseManager->findBlobItem(fileHash));
         if (blobItem != nullptr) {
+          std::cout << "S3 Path exists: " << blobItem->s3Path.getFullPath()
+                    << std::endl;
           // todo terminate reader is necessary here?
           break;
         } else {
           s3Path = std::make_unique<database::S3Path>(
               this->generateS3Path(fileHash));
+          std::cout << "created new S3 Path: " << s3Path->getFullPath()
+                    << std::endl;
         }
       }
     }
