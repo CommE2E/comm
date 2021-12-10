@@ -14,15 +14,6 @@ import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react';
 import './reset.css';
 import './global.css';
 
-export type LandingPageName =
-  | '/'
-  | 'keyservers'
-  | 'privacy'
-  | 'terms'
-  | 'support';
-
-type ActivePage = { name: LandingPageName, node: React.Node };
-
 function Landing(): React.Node {
   useScrollToTopOnNavigate();
   const onPrivacy = useRouteMatch({ path: '/privacy' });
@@ -36,25 +27,25 @@ function Landing(): React.Node {
     document.getElementById('subscription-form')?.focus();
   }, []);
 
-  const activePage: ActivePage = React.useMemo(() => {
+  const activePage = React.useMemo(() => {
     if (onPrivacy) {
-      return { name: 'privacy', node: <Privacy /> };
+      return <Privacy />;
     } else if (onTerms) {
-      return { name: 'terms', node: <Terms /> };
+      return <Terms />;
     } else if (onSupport) {
-      return { name: 'support', node: <Support /> };
+      return <Support />;
     } else if (onKeyservers) {
-      return { name: 'keyservers', node: <Keyservers /> };
+      return <Keyservers />;
     } else {
-      return { name: '/', node: <AppLanding /> };
+      return <AppLanding />;
     }
   }, [onKeyservers, onPrivacy, onSupport, onTerms]);
 
   return (
     <>
       <Header onRequestAccess={scrollToSubscriptionForm} />
-      {activePage.node}
-      <Footer activePageName={activePage.name} />
+      {activePage}
+      <Footer />
     </>
   );
 }

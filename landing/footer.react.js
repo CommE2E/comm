@@ -6,15 +6,9 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import footerStyles from './footer.css';
-import type { LandingPageName } from './landing.react';
 import SubscriptionForm from './subscription-form.react';
 
-type FooterProps = {
-  +activePageName: LandingPageName,
-};
-function Footer(props: FooterProps): React.Node {
-  const { activePageName } = props;
-
+function Footer(): React.Node {
   const footerGridStyle = `${footerStyles.footer_grid}`;
 
   return (
@@ -25,43 +19,19 @@ function Footer(props: FooterProps): React.Node {
             <Link to="/">Comm</Link>
           </div>
 
-          <div
-            className={
-              activePageName === 'keyservers'
-                ? footerStyles.active_tab
-                : footerStyles.inactive_tab
-            }
-          >
+          <div>
             <Link to="/keyservers">Keyservers</Link>
           </div>
 
-          <div
-            className={
-              activePageName === 'support'
-                ? footerStyles.active_tab
-                : footerStyles.inactive_tab
-            }
-          >
+          <div>
             <Link to="/support">Support</Link>
           </div>
 
-          <div
-            className={
-              activePageName === 'terms'
-                ? footerStyles.active_tab
-                : footerStyles.inactive_tab
-            }
-          >
+          <div>
             <Link to="/terms">Terms of Use</Link>
           </div>
 
-          <div
-            className={
-              activePageName === 'privacy'
-                ? footerStyles.active_tab
-                : footerStyles.inactive_tab
-            }
-          >
+          <div>
             <Link to="/privacy">Privacy Policy</Link>
           </div>
 
