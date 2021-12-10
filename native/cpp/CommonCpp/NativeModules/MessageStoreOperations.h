@@ -121,6 +121,7 @@ public:
   }
 
   virtual void execute() override {
+    DatabaseManager::getQueryExecutor().removeMediaForMessage(msg->id);
     for (auto &&media : this->media_vector) {
       DatabaseManager::getQueryExecutor().replaceMedia(std::move(*media));
     }

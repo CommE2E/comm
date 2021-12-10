@@ -40,6 +40,7 @@ public:
   virtual void removeAllMedia() const = 0;
   virtual void
   removeMediaForMessages(const std::vector<std::string> &msg_ids) const = 0;
+  virtual void removeMediaForMessage(std::string msg_id) const = 0;
   virtual void
   removeMediaForThreads(const std::vector<std::string> &thread_ids) const = 0;
   virtual void replaceMedia(const Media &media) const = 0;

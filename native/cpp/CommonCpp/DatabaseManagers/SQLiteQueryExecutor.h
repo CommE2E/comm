@@ -32,6 +32,7 @@ public:
   void removeAllMedia() const override;
   void removeMediaForMessages(
       const std::vector<std::string> &msg_ids) const override;
+  void removeMediaForMessage(std::string msg_id) const override;
   void removeMediaForThreads(
       const std::vector<std::string> &thread_ids) const override;
   void replaceMedia(const Media &media) const override;

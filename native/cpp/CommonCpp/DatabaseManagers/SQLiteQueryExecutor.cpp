@@ -476,6 +476,11 @@ void SQLiteQueryExecutor::removeMediaForMessages(
       where(in(&Media::container, msg_ids)));
 }
 
+void SQLiteQueryExecutor::removeMediaForMessage(std::string msg_id) const {
+  SQLiteQueryExecutor::getStorage().remove_all<Media>(
+      where(c(&Media::container) == msg_id));
+}
+
 void SQLiteQueryExecutor::removeMediaForThreads(
     const std::vector<std::string> &thread_ids) const {
   SQLiteQueryExecutor::getStorage().remove_all<Media>(
