@@ -101,7 +101,8 @@ void DatabaseManager::putBlobItem(const BlobItem &item) {
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(this->blobTableName);
   request.AddItem("hash", Aws::DynamoDB::Model::AttributeValue(item.hash));
-  request.AddItem("s3Path", Aws::DynamoDB::Model::AttributeValue(item.s3Path));
+  request.AddItem("s3Path", Aws::DynamoDB::Model::AttributeValue(
+                                item.s3Path.getFullPath()));
   request.AddItem("removeCandidate", Aws::DynamoDB::Model::AttributeValue(
                                          std::to_string(item.removeCandidate)));
 

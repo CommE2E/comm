@@ -1,5 +1,7 @@
 #pragma once
 
+#include "S3Path.h"
+
 #include <aws/core/Aws.h>
 #include <aws/dynamodb/DynamoDBClient.h>
 #include <aws/dynamodb/model/AttributeDefinition.h>
@@ -34,17 +36,16 @@ struct Item {
 struct BlobItem : Item {
   const ItemType type = ItemType::BLOB;
   std::string hash;
-  std::string s3Path;
+  S3Path s3Path;
   bool removeCandidate = false;
 
-  BlobItem() {}
-  BlobItem(const std::string hash, const std::string s3Path)
+  BlobItem(const std::string hash, const S3Path s3Path)
       : hash(hash), s3Path(s3Path) {}
   BlobItem(const Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
                itemFromDB) {
     try {
       this->hash = itemFromDB.at("hash").GetS();
-      this->s3Path = itemFromDB.at("s3Path").GetS();
+      this->s3Path = S3Path(itemFromDB.at("s3Path").GetS());
       this->removeCandidate = std::stoi(
           std::string(itemFromDB.at("removeCandidate").GetS()).c_str());
     } catch (std::out_of_range &e) {
@@ -59,9 +60,7 @@ struct BlobItem : Item {
     if (!this->hash.size()) {
       throw std::runtime_error("hash empty");
     }
-    if (!this->s3Path.size()) {
-      throw std::runtime_error("S3 path empty");
-    }
+    this->s3Path.getFullPath();
   }
 };
 

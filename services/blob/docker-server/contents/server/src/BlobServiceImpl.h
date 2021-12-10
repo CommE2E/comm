@@ -2,6 +2,7 @@
 
 #include "AwsStorageManager.h"
 #include "DatabaseManager.h"
+#include "S3Path.h"
 #include "Tools.h"
 
 #include "../_generated/blob.grpc.pb.h"
@@ -25,8 +26,8 @@ class BlobServiceImpl final : public blob::BlobService::Service {
   std::unique_ptr<AwsStorageManager> storageManager;
   std::unique_ptr<database::DatabaseManager> databaseManager;
 
-  std::string generateS3Path(const std::string &fileHash);
-  std::string computeHashForFile(const std::string &s3Path);
+  database::S3Path generateS3Path(const std::string &fileHash);
+  std::string computeHashForFile(const database::S3Path &s3Path);
 
 public:
   BlobServiceImpl();

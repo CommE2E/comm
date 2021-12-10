@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "DatabaseManager.h"
+#include "S3Path.h"
 
 #include <iostream>
 
@@ -46,7 +47,7 @@ protected:
   }
 
   BlobItem generateBlobItem() {
-    return BlobItem(randomString(), randomString());
+    return BlobItem(randomString(), S3Path(randomString(), randomString()));
   }
 
   ReverseIndexItem generateReverseIndexItem() {
@@ -68,13 +69,13 @@ TEST_F(DatabaseManagerTest, TestOperationsOnBlobItems) {
   EXPECT_EQ(memcmp(item.hash.data(), foundItem->hash.data(), item.hash.size()),
             0);
   std::cout << "==> update item" << std::endl;
-  const std::string newS3Path = randomString();
+  const S3Path newS3Path = S3Path(randomString(), randomString());
   dbm->updateBlobItem(foundItem->hash, "removeCandidate",
                       std::to_string(!foundItem->removeCandidate));
-  dbm->updateBlobItem(foundItem->hash, "s3Path", newS3Path);
+  dbm->updateBlobItem(foundItem->hash, "s3Path", newS3Path.getFullPath());
   foundItem = std::dynamic_pointer_cast<BlobItem>(dbm->findBlobItem(item.hash));
   EXPECT_TRUE(foundItem->removeCandidate != item.removeCandidate);
-  EXPECT_TRUE(foundItem->s3Path == newS3Path);
+  EXPECT_TRUE(foundItem->s3Path.getFullPath() == newS3Path.getFullPath());
   std::cout << "==> remove item" << std::endl;
   dbm->removeBlobItem(foundItem->hash);
   std::cout << "==> done" << std::endl;
