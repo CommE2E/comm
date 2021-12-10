@@ -26,7 +26,7 @@ class BlobServiceImpl final : public blob::BlobService::Service {
   std::unique_ptr<database::DatabaseManager> databaseManager;
 
   std::string generateS3Path(const std::string &fileHash);
-  std::string computeHashForFile();
+  std::string computeHashForFile(const std::string &s3Path);
 
 public:
   BlobServiceImpl();

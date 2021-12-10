@@ -20,6 +20,7 @@ public:
   AwsStorageManager();
   AwsS3Bucket getBucket(const std::string &bucketName);
   std::vector<std::string> listBuckets();
+  std::shared_ptr<Aws::S3::S3Client> getClient() const;
 };
 
 } // namespace network

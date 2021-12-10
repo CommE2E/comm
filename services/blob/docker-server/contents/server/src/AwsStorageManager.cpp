@@ -31,5 +31,9 @@ std::vector<std::string> AwsStorageManager::listBuckets() {
   return result;
 }
 
+std::shared_ptr<Aws::S3::S3Client> AwsStorageManager::getClient() const {
+  return this->client;
+}
+
 } // namespace network
 } // namespace comm

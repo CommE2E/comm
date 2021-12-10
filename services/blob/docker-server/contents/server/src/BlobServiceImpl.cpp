@@ -1,4 +1,5 @@
 #include "BlobServiceImpl.h"
+#include "MultiPartUploader.h"
 
 #include <iostream>
 
@@ -24,6 +25,10 @@ std::string BlobServiceImpl::generateS3Path(const std::string &fileHash) {
   return this->bucketName + "/" + fileHash;
 }
 
+std::string BlobServiceImpl::computeHashForFile(const std::string &s3Path) {
+  return "hash"; // TODO
+}
+
 /*
 (findBlobItem)- Search for the hash in the database, if it doesn't exist:
   (-)- create a place for this file and upload it to the S3
@@ -43,6 +48,7 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
   std::string fileHash;
   std::string s3Path;
   std::shared_ptr<database::BlobItem> blobItem;
+  std::unique_ptr<MultiPartUploader> uploader;
   try {
     while (reader->Read(&request)) {
       const std::string requestReverseIndex = request.reverseindex();
@@ -62,32 +68,49 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
         std::cout << "Backup Service => ResetKey(this log will be removed) "
                      "reading chunk ["
                   << dataChunk << "]" << std::endl;
-        if (!reverseIndex.size() || !fileHash.size()) {
-          throw std::runtime_error(
-              "Invalid request: before starting pushing data chunks, please "
-              "provide file hash and reverse index");
+        if (uploader == nullptr) {
+          if (!reverseIndex.size() || !fileHash.size()) {
+            throw std::runtime_error(
+                "Invalid request: before starting pushing data chunks, please "
+                "provide file hash and reverse index");
+          }
+          if (!s3Path.size()) {
+            throw std::runtime_error("S3 path has not been created but data "
+                                     "chunks are being pushed");
+          }
+          uploader = std::make_unique<MultiPartUploader>(
+              this->storageManager->getClient(), this->bucketName, s3Path);
         }
-        if (!s3Path.size()) {
-          throw std::runtime_error(
-              "S3 path has not been created but data chunks are being pushed");
-        }
-        // todo bucket operations
-        // upload chunks to the S3 using s3Path
+        uploader->addPart(dataChunk);
       }
       if (reverseIndex.size() && fileHash.size() && !s3Path.size()) {
         blobItem = std::dynamic_pointer_cast<database::BlobItem>(
             this->databaseManager->findBlobItem(fileHash));
-        if (blobItem == nullptr) {
-          blobItem = std::make_shared<database::BlobItem>(
-              fileHash, this->generateS3Path(fileHash));
-        }
       }
     }
+    uploader->finishUpload();
     // compute a hash and verify with a provided hash
+    const std::string computedHash = this->computeHashForFile(s3Path);
+    const size_t hashSize = fileHash.size();
+    if (fileHash != computedHash) {
+      std::string errorMessage = "hash mismatch, provided: [";
+      errorMessage += fileHash + "], computed: [" + computedHash + "]";
+      throw std::runtime_error(errorMessage);
+    }
     // putBlobItem - store a hash and a path in the DB
+    if (blobItem == nullptr) {
+      blobItem = std::make_shared<database::BlobItem>(
+          fileHash, this->generateS3Path(fileHash));
+      this->databaseManager->putBlobItem(*blobItem);
+    } else if (blobItem->removeCandidate) {
+      this->databaseManager->updateBlobItem(blobItem->hash, "removeCandidate",
+                                            "0");
+    }
     // putReverseIndexItem - store a reverse index in the DB for a given hash
+    const database::ReverseIndexItem reverseIndexItem(fileHash, reverseIndex);
+    this->databaseManager->putReverseIndexItem(reverseIndexItem);
     // updateBlobItem - set remove candidate to false
-    //    (it can be true if the hash already existed)
+    //    (it can be true if the hash already existed) - already done
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
