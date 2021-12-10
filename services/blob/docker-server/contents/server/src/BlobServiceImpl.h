@@ -28,6 +28,7 @@ class BlobServiceImpl final : public blob::BlobService::Service {
 
   database::S3Path generateS3Path(const std::string &fileHash);
   std::string computeHashForFile(const database::S3Path &s3Path);
+  database::S3Path findS3Path(const std::string &reverseIndex);
 
 public:
   BlobServiceImpl();

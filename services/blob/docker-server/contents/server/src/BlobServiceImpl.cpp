@@ -30,6 +30,28 @@ BlobServiceImpl::computeHashForFile(const database::S3Path &s3Path) {
   return "hash"; // TODO
 }
 
+database::S3Path BlobServiceImpl::findS3Path(const std::string &reverseIndex) {
+  std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
+      std::dynamic_pointer_cast<database::ReverseIndexItem>(
+          this->databaseManager->findReverseIndexItemByReverseIndex(
+              reverseIndex));
+  if (reverseIndexItem == nullptr) {
+    std::string errorMessage = "provided reverse index: [";
+    errorMessage += reverseIndex + "] has not been found in the database";
+    throw std::runtime_error(errorMessage);
+  }
+  std::shared_ptr<database::BlobItem> blobItem =
+      std::dynamic_pointer_cast<database::BlobItem>(
+          this->databaseManager->findBlobItem(reverseIndexItem->hash));
+  if (blobItem == nullptr) {
+    std::string errorMessage = "no blob found for hash: [";
+    errorMessage += reverseIndexItem->hash + "]";
+    throw std::runtime_error(errorMessage);
+  }
+  database::S3Path result = blobItem->s3Path;
+  return result;
+}
+
 /*
 (findBlobItem)- Search for the hash in the database, if it doesn't exist:
   (-)- create a place for this file and upload it to the S3
@@ -135,26 +157,9 @@ BlobServiceImpl::Get(grpc::ServerContext *context,
                      const blob::GetRequest *request,
                      grpc::ServerWriter<blob::GetResponse> *writer) {
   const std::string reverseIndex = request->reverseindex();
-  std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
-      std::dynamic_pointer_cast<database::ReverseIndexItem>(
-          this->databaseManager->findReverseIndexItemByReverseIndex(
-              reverseIndex));
-  if (reverseIndexItem == nullptr) {
-    std::string errorMessage = "provided reverse index: [";
-    errorMessage += reverseIndex + "] has not been found in the database";
-    throw std::runtime_error(errorMessage);
-  }
-  std::shared_ptr<database::BlobItem> blobItem =
-      std::dynamic_pointer_cast<database::BlobItem>(
-          this->databaseManager->findBlobItem(reverseIndexItem->hash));
-  if (blobItem == nullptr) {
-    std::string errorMessage = "no blob found for hash: [";
-    errorMessage += reverseIndexItem->hash + "]";
-    throw std::runtime_error(errorMessage);
-  }
+  database::S3Path s3Path = this->findS3Path(reverseIndex);
 
-  AwsS3Bucket bucket =
-      this->storageManager->getBucket(blobItem->s3Path.getBucketName());
+  AwsS3Bucket bucket = this->storageManager->getBucket(s3Path.getBucketName());
   try {
     blob::GetResponse response;
     std::function<void(const std::string &)> callback =
@@ -165,7 +170,7 @@ BlobServiceImpl::Get(grpc::ServerContext *context,
           }
         };
 
-    bucket.getObjectDataChunks(blobItem->s3Path.getObjectName(), callback,
+    bucket.getObjectDataChunks(s3Path.getObjectName(), callback,
                                GRPC_CHUNK_SIZE_LIMIT);
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
@@ -176,25 +181,23 @@ BlobServiceImpl::Get(grpc::ServerContext *context,
 
 /*
 (findReverseIndexItemByReverseIndex)- search for the file hash by the reverse
-index (removeReverseIndexItem)- remove the current reverse index
+index
+(removeReverseIndexItem)- remove the current reverse index
 ()- run the cleanup process for this hash
 */
 grpc::Status BlobServiceImpl::Remove(grpc::ServerContext *context,
                                      const blob::RemoveRequest *request,
                                      google::protobuf::Empty *response) {
-  /*
-  // todo look up the file location on S3 in the database
-  std::string objectName;
+  const std::string reverseIndex = request->reverseindex();
+  database::S3Path s3Path = this->findS3Path(reverseIndex);
 
-  const std::string hash = request->hash();
-  AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
+  AwsS3Bucket bucket = this->storageManager->getBucket(s3Path.getBucketName());
   try {
-    bucket.removeObject(objectName);
+    bucket.removeObject(s3Path.getObjectName());
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
-  */
   return grpc::Status::OK;
 }
 
