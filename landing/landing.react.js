@@ -30,11 +30,6 @@ function Landing(): React.Node {
   const onSupport = useRouteMatch({ path: '/support' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
 
-  const isLegalPage: boolean = React.useMemo(
-    () => !!(onPrivacy || onTerms || onSupport),
-    [onPrivacy, onSupport, onTerms],
-  );
-
   const scrollToSubscriptionForm = React.useCallback(async (e: Event) => {
     e.preventDefault();
     window?.scrollTo(0, document.body?.scrollHeight);
@@ -59,7 +54,7 @@ function Landing(): React.Node {
     <>
       <Header onRequestAccess={scrollToSubscriptionForm} />
       {activePage.node}
-      <Footer isLegalPage={isLegalPage} activePageName={activePage.name} />
+      <Footer activePageName={activePage.name} />
     </>
   );
 }

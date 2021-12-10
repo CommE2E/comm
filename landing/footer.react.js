@@ -10,15 +10,12 @@ import type { LandingPageName } from './landing.react';
 import SubscriptionForm from './subscription-form.react';
 
 type FooterProps = {
-  +isLegalPage: boolean,
   +activePageName: LandingPageName,
 };
 function Footer(props: FooterProps): React.Node {
-  const { isLegalPage, activePageName } = props;
+  const { activePageName } = props;
 
-  const footerGridStyle = isLegalPage
-    ? `${footerStyles.footer_grid} ${footerStyles.footer_legal}`
-    : footerStyles.footer_grid;
+  const footerGridStyle = `${footerStyles.footer_grid}`;
 
   return (
     <div className={footerStyles.footer_blur}>
