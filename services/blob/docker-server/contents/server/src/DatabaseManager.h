@@ -3,7 +3,6 @@
 #include "DatabaseEntities.h"
 
 #include <aws/core/Aws.h>
-#include <aws/dynamodb/DynamoDBClient.h>
 #include <aws/dynamodb/model/AttributeDefinition.h>
 #include <aws/dynamodb/model/PutItemRequest.h>
 
@@ -21,8 +20,6 @@ typedef Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
 class DatabaseManager {
   const std::string blobTableName;
   const std::string reverseIndexTableName;
-  const std::string region = "us-east-2";
-  std::unique_ptr<Aws::DynamoDB::DynamoDBClient> client;
 
   void innerPutItem(std::shared_ptr<Item> item,
                     const Aws::DynamoDB::Model::PutItemRequest &request);

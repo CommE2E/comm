@@ -1,4 +1,5 @@
 #include "AwsS3Bucket.h"
+#include "AwsObjectsFactory.h"
 #include "MultiPartUploader.h"
 #include "Tools.h"
 
@@ -16,9 +17,7 @@
 namespace comm {
 namespace network {
 
-AwsS3Bucket::AwsS3Bucket(const std::string name,
-                         std::shared_ptr<Aws::S3::S3Client> client)
-    : name(name), client(client) {}
+AwsS3Bucket::AwsS3Bucket(const std::string name) : name(name) {}
 
 std::vector<std::string> AwsS3Bucket::listObjects() {
   Aws::S3::Model::ListObjectsRequest request;
@@ -26,7 +25,7 @@ std::vector<std::string> AwsS3Bucket::listObjects() {
   std::vector<std::string> result;
 
   Aws::S3::Model::ListObjectsOutcome outcome =
-      this->client->ListObjects(request);
+      AwsObjectsFactory::getS3Client()->ListObjects(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
@@ -42,7 +41,7 @@ bool AwsS3Bucket::isAvailable() const {
   Aws::S3::Model::HeadBucketRequest headRequest;
   headRequest.SetBucket(this->name);
   Aws::S3::Model::HeadBucketOutcome outcome =
-      this->client->HeadBucket(headRequest);
+      AwsObjectsFactory::getS3Client()->HeadBucket(headRequest);
   return outcome.IsSuccess();
 }
 
@@ -51,7 +50,7 @@ const size_t AwsS3Bucket::getObjectSize(const std::string &objectName) {
   headRequest.SetBucket(this->name);
   headRequest.SetKey(objectName);
   Aws::S3::Model::HeadObjectOutcome headOutcome =
-      this->client->HeadObject(headRequest);
+      AwsObjectsFactory::getS3Client()->HeadObject(headRequest);
   if (!headOutcome.IsSuccess()) {
     throw std::runtime_error(headOutcome.GetError().GetMessage());
   }
@@ -66,7 +65,7 @@ void AwsS3Bucket::renameObject(const std::string &currentName,
   copyRequest.SetBucket(this->name);
 
   Aws::S3::Model::CopyObjectOutcome copyOutcome =
-      this->client->CopyObject(copyRequest);
+      AwsObjectsFactory::getS3Client()->CopyObject(copyRequest);
   if (!copyOutcome.IsSuccess()) {
     throw std::runtime_error(copyOutcome.GetError().GetMessage());
   }
@@ -75,7 +74,7 @@ void AwsS3Bucket::renameObject(const std::string &currentName,
 }
 
 void AwsS3Bucket::writeObject(const std::string &objectName,
-                              const std::string data) {
+                              const std::string &data) {
   // we don't have to handle multiple write here because the GRPC limit is 4MB
   // and minimum size of data to perform multipart upload is 5MB
   Aws::S3::Model::PutObjectRequest request;
@@ -87,7 +86,8 @@ void AwsS3Bucket::writeObject(const std::string &objectName,
 
   request.SetBody(body);
 
-  Aws::S3::Model::PutObjectOutcome outcome = this->client->PutObject(request);
+  Aws::S3::Model::PutObjectOutcome outcome =
+      AwsObjectsFactory::getS3Client()->PutObject(request);
 
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
@@ -99,7 +99,8 @@ std::string AwsS3Bucket::getObjectData(const std::string &objectName) {
   request.SetBucket(this->name);
   request.SetKey(objectName);
 
-  Aws::S3::Model::GetObjectOutcome outcome = this->client->GetObject(request);
+  Aws::S3::Model::GetObjectOutcome outcome =
+      AwsObjectsFactory::getS3Client()->GetObject(request);
 
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
@@ -138,7 +139,7 @@ void AwsS3Bucket::getObjectDataChunks(
     request.SetRange(range);
 
     Aws::S3::Model::GetObjectOutcome getOutcome =
-        this->client->GetObject(request);
+        AwsObjectsFactory::getS3Client()->GetObject(request);
     if (!getOutcome.IsSuccess()) {
       throw std::runtime_error(getOutcome.GetError().GetMessage());
     }
@@ -153,7 +154,7 @@ void AwsS3Bucket::getObjectDataChunks(
 }
 
 void AwsS3Bucket::appendToObject(const std::string &objectName,
-                                 const std::string data) {
+                                 const std::string &data) {
   const size_t objectSize = this->getObjectSize(objectName);
   if (objectSize < AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {
     std::string currentData = this->getObjectData(objectName);
@@ -162,7 +163,7 @@ void AwsS3Bucket::appendToObject(const std::string &objectName,
     return;
   }
   size_t currentSize = 0;
-  MultiPartUploader uploader(this->client, this->name,
+  MultiPartUploader uploader(AwsObjectsFactory::getS3Client(), this->name,
                              objectName + "-multipart");
   std::function<void(const std::string &)> callback =
       [&uploader, &data, &currentSize, objectSize](const std::string &chunk) {
@@ -202,7 +203,7 @@ void AwsS3Bucket::removeObject(const std::string &objectName) {
   deleteRequest.SetKey(objectName);
 
   Aws::S3::Model::DeleteObjectOutcome deleteOutcome =
-      this->client->DeleteObject(deleteRequest);
+      AwsObjectsFactory::getS3Client()->DeleteObject(deleteRequest);
   if (!deleteOutcome.IsSuccess()) {
     throw std::runtime_error(deleteOutcome.GetError().GetMessage());
   }

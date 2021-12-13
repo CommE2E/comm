@@ -1,4 +1,5 @@
 #include "BlobServiceImpl.h"
+#include "AwsObjectsFactory.h"
 #include "MultiPartUploader.h"
 
 #include <iostream>
@@ -66,17 +67,18 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
                                   grpc::ServerReader<blob::PutRequest> *reader,
                                   google::protobuf::Empty *response) {
   blob::PutRequest request;
-  AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
   std::string reverseIndex;
-  std::string fileHash;
+  std::string receivedFileHash;
   std::unique_ptr<database::S3Path> s3Path;
   std::shared_ptr<database::BlobItem> blobItem;
   std::unique_ptr<MultiPartUploader> uploader;
+  std::string currentChunk;
   try {
+    AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
     while (reader->Read(&request)) {
       const std::string requestReverseIndex = request.reverseindex();
       const std::string requestFileHash = request.filehash();
-      const std::string dataChunk = request.datachunk();
+      const std::string receivedDataChunk = request.datachunk();
       if (requestReverseIndex.size()) {
         std::cout << "Blob Service => Put(this log will be removed) "
                      "reading reverse index ["
@@ -86,12 +88,11 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
         std::cout << "Backup Service => Put(this log will be removed) "
                      "reading file hash ["
                   << requestFileHash << "]" << std::endl;
-        fileHash = requestFileHash;
-      } else if (dataChunk.size()) {
+        receivedFileHash = requestFileHash;
+      } else if (receivedDataChunk.size()) {
         std::cout << "Backup Service => Put(this log will be removed) "
                      "reading chunk ["
-                  << dataChunk << "]" << std::endl;
-        // TODO HERE
+                  << receivedDataChunk << "]" << std::endl;
         // minimum chunk size is 5MB
         // GRPC limit it 4MB
         // we have to do something like this:
@@ -108,26 +109,30 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
         //        - if there are 2 chunks, both less than 5MB(e.g. 4MB+0.5MB),
         //        just upload them in a single `writeObject`(don't start the MPU
         //        uploader)
-        if (uploader == nullptr) {
-          if (!reverseIndex.size() || !fileHash.size()) {
-            throw std::runtime_error(
-                "Invalid request: before starting pushing data chunks, please "
-                "provide file hash and reverse index");
+        currentChunk += receivedDataChunk;
+        if (currentChunk.size() > AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {
+          if (uploader == nullptr) {
+            if (!reverseIndex.size() || !receivedFileHash.size()) {
+              throw std::runtime_error("Invalid request: before starting "
+                                       "pushing data chunks, please "
+                                       "provide file hash and reverse index");
+            }
+            if (s3Path == nullptr) {
+              throw std::runtime_error("S3 path has not been created but data "
+                                       "chunks are being pushed");
+            }
+            uploader = std::make_unique<MultiPartUploader>(
+                AwsObjectsFactory::getS3Client(), this->bucketName,
+                s3Path->getFullPath());
           }
-          if (s3Path == nullptr) {
-            throw std::runtime_error("S3 path has not been created but data "
-                                     "chunks are being pushed");
-          }
-          uploader = std::make_unique<MultiPartUploader>(
-              this->storageManager->getClient(), this->bucketName,
-              s3Path->getFullPath());
+          uploader->addPart(currentChunk);
+          currentChunk.clear();
         }
-        uploader->addPart(dataChunk);
       }
-      if (reverseIndex.size() && fileHash.size() && s3Path == nullptr) {
+      if (reverseIndex.size() && receivedFileHash.size() && s3Path == nullptr) {
         std::cout << "create S3 Path" << std::endl;
         blobItem = std::dynamic_pointer_cast<database::BlobItem>(
-            this->databaseManager->findBlobItem(fileHash));
+            this->databaseManager->findBlobItem(receivedFileHash));
         if (blobItem != nullptr) {
           std::cout << "S3 Path exists: " << blobItem->s3Path.getFullPath()
                     << std::endl;
@@ -135,31 +140,41 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
           break;
         } else {
           s3Path = std::make_unique<database::S3Path>(
-              this->generateS3Path(fileHash));
+              this->generateS3Path(receivedFileHash));
           std::cout << "created new S3 Path: " << s3Path->getFullPath()
                     << std::endl;
         }
       }
     }
-    uploader->finishUpload();
+    if (uploader != nullptr) {
+      if (!currentChunk.empty()) {
+        uploader->addPart(currentChunk);
+      }
+      uploader->finishUpload();
+    } else {
+      bucket.writeObject(s3Path->getObjectName(), currentChunk);
+    }
     // compute a hash and verify with a provided hash
-    const std::string computedHash = this->computeHashForFile(*s3Path);
-    const size_t hashSize = fileHash.size();
-    if (fileHash != computedHash) {
+    const std::string computedHash =
+        receivedFileHash; // this->computeHashForFile(*s3Path); // TODO FIX THIS
+    const size_t hashSize = receivedFileHash.size();
+    if (receivedFileHash != computedHash) {
       std::string errorMessage = "hash mismatch, provided: [";
-      errorMessage += fileHash + "], computed: [" + computedHash + "]";
+      errorMessage += receivedFileHash + "], computed: [" + computedHash + "]";
       throw std::runtime_error(errorMessage);
     }
     // putBlobItem - store a hash and a path in the DB
     if (blobItem == nullptr) {
-      blobItem = std::make_shared<database::BlobItem>(fileHash, *s3Path);
+      blobItem =
+          std::make_shared<database::BlobItem>(receivedFileHash, *s3Path);
       this->databaseManager->putBlobItem(*blobItem);
     } else if (blobItem->removeCandidate) {
       this->databaseManager->updateBlobItem(blobItem->hash, "removeCandidate",
                                             "0");
     }
     // putReverseIndexItem - store a reverse index in the DB for a given hash
-    const database::ReverseIndexItem reverseIndexItem(fileHash, reverseIndex);
+    const database::ReverseIndexItem reverseIndexItem(receivedFileHash,
+                                                      reverseIndex);
     this->databaseManager->putReverseIndexItem(reverseIndexItem);
     // updateBlobItem - set remove candidate to false
     //    (it can be true if the hash already existed) - already done
@@ -179,10 +194,11 @@ BlobServiceImpl::Get(grpc::ServerContext *context,
                      const blob::GetRequest *request,
                      grpc::ServerWriter<blob::GetResponse> *writer) {
   const std::string reverseIndex = request->reverseindex();
-  database::S3Path s3Path = this->findS3Path(reverseIndex);
-
-  AwsS3Bucket bucket = this->storageManager->getBucket(s3Path.getBucketName());
   try {
+    database::S3Path s3Path = this->findS3Path(reverseIndex);
+
+    AwsS3Bucket bucket =
+        this->storageManager->getBucket(s3Path.getBucketName());
     blob::GetResponse response;
     std::function<void(const std::string &)> callback =
         [&response, &writer](std::string chunk) {
@@ -197,6 +213,9 @@ BlobServiceImpl::Get(grpc::ServerContext *context,
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  } catch (...) {
+    std::cout << "unknown error" << std::endl;
+    return grpc::Status(grpc::StatusCode::INTERNAL, "unknown error");
   }
   return grpc::Status::OK;
 }
@@ -211,11 +230,22 @@ grpc::Status BlobServiceImpl::Remove(grpc::ServerContext *context,
                                      const blob::RemoveRequest *request,
                                      google::protobuf::Empty *response) {
   const std::string reverseIndex = request->reverseindex();
-  database::S3Path s3Path = this->findS3Path(reverseIndex);
-
-  AwsS3Bucket bucket = this->storageManager->getBucket(s3Path.getBucketName());
   try {
+    database::S3Path s3Path = this->findS3Path(reverseIndex);
+    AwsS3Bucket bucket =
+        this->storageManager->getBucket(s3Path.getBucketName());
     bucket.removeObject(s3Path.getObjectName());
+    std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
+        std::dynamic_pointer_cast<database::ReverseIndexItem>(
+            this->databaseManager->findReverseIndexItemByReverseIndex(
+                reverseIndex));
+    if (reverseIndexItem == nullptr) {
+      std::string errorMessage = "no item found for reverse index: ";
+      errorMessage += reverseIndex;
+      throw std::runtime_error(errorMessage);
+    }
+    this->databaseManager->removeBlobItem(reverseIndexItem->hash);
+    this->databaseManager->removeReverseIndexItem(reverseIndexItem->hash);
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());

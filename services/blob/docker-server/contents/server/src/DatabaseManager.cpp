@@ -1,4 +1,5 @@
 #include "DatabaseManager.h"
+#include "AwsObjectsFactory.h"
 
 #include <aws/core/utils/Outcome.h>
 #include <aws/dynamodb/model/DeleteItemRequest.h>
@@ -16,11 +17,7 @@ namespace database {
 DatabaseManager::DatabaseManager(const std::string blobTableName,
                                  const std::string reverseIndexTableName)
     : blobTableName(blobTableName),
-      reverseIndexTableName(reverseIndexTableName) {
-  Aws::Client::ClientConfiguration config;
-  config.region = this->region;
-  this->client = std::make_unique<Aws::DynamoDB::DynamoDBClient>(config);
-}
+      reverseIndexTableName(reverseIndexTableName) {}
 
 void DatabaseManager::innerPutItem(
     std::shared_ptr<Item> item,
@@ -28,7 +25,7 @@ void DatabaseManager::innerPutItem(
   item->validate();
 
   const Aws::DynamoDB::Model::PutItemOutcome outcome =
-      this->client->PutItem(request);
+      AwsObjectsFactory::getDynamoDBClient()->PutItem(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
@@ -50,7 +47,7 @@ DatabaseManager::innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request,
   }
   // Retrieve the item's fields and values
   const Aws::DynamoDB::Model::GetItemOutcome &outcome =
-      this->client->GetItem(request);
+      AwsObjectsFactory::getDynamoDBClient()->GetItem(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
@@ -91,7 +88,7 @@ void DatabaseManager::innerRemoveItem(const std::string &hash,
   request.AddKey("hash", Aws::DynamoDB::Model::AttributeValue(hash));
 
   const Aws::DynamoDB::Model::DeleteItemOutcome &outcome =
-      this->client->DeleteItem(request);
+      AwsObjectsFactory::getDynamoDBClient()->DeleteItem(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
@@ -149,7 +146,7 @@ void DatabaseManager::updateBlobItem(const std::string &hash,
 
   // Update the item.
   const Aws::DynamoDB::Model::UpdateItemOutcome &outcome =
-      this->client->UpdateItem(request);
+      AwsObjectsFactory::getDynamoDBClient()->UpdateItem(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
@@ -192,7 +189,8 @@ std::shared_ptr<Item> DatabaseManager::findReverseIndexItemByReverseIndex(
   req.SetExpressionAttributeValues(attributeValues);
   req.SetIndexName("reverseIndex-index");
 
-  const Aws::DynamoDB::Model::QueryOutcome &outcome = this->client->Query(req);
+  const Aws::DynamoDB::Model::QueryOutcome &outcome =
+      AwsObjectsFactory::getDynamoDBClient()->Query(req);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
