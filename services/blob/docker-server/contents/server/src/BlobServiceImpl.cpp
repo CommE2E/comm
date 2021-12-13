@@ -92,7 +92,7 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
       } else if (receivedDataChunk.size()) {
         std::cout << "Backup Service => Put(this log will be removed) "
                      "reading chunk ["
-                  << receivedDataChunk << "]" << std::endl;
+                  << receivedDataChunk.size() << "]" << std::endl;
         // minimum chunk size is 5MB
         // GRPC limit it 4MB
         // we have to do something like this:
@@ -110,6 +110,8 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
         //        just upload them in a single `writeObject`(don't start the MPU
         //        uploader)
         currentChunk += receivedDataChunk;
+        std::cout << "current data chunk: " << currentChunk.size() << " ?< "
+                  << AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE << std::endl;
         if (currentChunk.size() > AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {
           if (uploader == nullptr) {
             if (!reverseIndex.size() || !receivedFileHash.size()) {
@@ -121,10 +123,13 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
               throw std::runtime_error("S3 path has not been created but data "
                                        "chunks are being pushed");
             }
+            std::cout << "creating MPU uploader" << std::endl;
             uploader = std::make_unique<MultiPartUploader>(
                 AwsObjectsFactory::getS3Client(), this->bucketName,
                 s3Path->getFullPath());
           }
+          std::cout << "adding chunk to uploader " << currentChunk.size()
+                    << std::endl;
           uploader->addPart(currentChunk);
           currentChunk.clear();
         }
@@ -148,10 +153,14 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
     }
     if (uploader != nullptr) {
       if (!currentChunk.empty()) {
+        std::cout << "add last part to MPU " << currentChunk.size()
+                  << std::endl;
         uploader->addPart(currentChunk);
       }
+      std::cout << "finish uploader" << std::endl;
       uploader->finishUpload();
     } else {
+      std::cout << "write normally without MPU" << std::endl;
       bucket.writeObject(s3Path->getObjectName(), currentChunk);
     }
     // compute a hash and verify with a provided hash
