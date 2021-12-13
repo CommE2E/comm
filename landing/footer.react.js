@@ -16,7 +16,7 @@ const navLinkProps = {
 
 function Footer(): React.Node {
   return (
-    <div>
+    <footer>
       <NavLink to="/">Comm</NavLink>
       <NavLink to="/keyservers" exact {...navLinkProps}>
         Keyservers
@@ -39,7 +39,7 @@ function Footer(): React.Node {
         />
       </a>
       <SubscriptionForm />
-    </div>
+    </footer>
   );
 }
 
