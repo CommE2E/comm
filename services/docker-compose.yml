@@ -12,6 +12,8 @@ services:
     build:
       dockerfile: services/tunnelbroker/docker-server/Dockerfile
       context: ../
+      args:
+        - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
     image: commapp/tunnelbroker-server:1.0
     container_name: tunnelbroker-server
     ports:
@@ -25,6 +27,8 @@ services:
     build: 
       dockerfile: services/backup/docker-server/Dockerfile
       context: ../
+      args:
+        - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
     image: commapp/backup-server:1.0
     container_name: backup-server
     ports:

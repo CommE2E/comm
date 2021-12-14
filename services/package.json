@@ -8,8 +8,11 @@
     "build-base-image": "docker-compose build base",
     "build-tunnelbroker-base": "docker-compose build tunnelbroker-base",
     "run-tunnelbroker-server": "./scripts/run_server_image.sh tunnelbroker",
+    "test-tunnelbroker-server": "./scripts/test_service.sh tunnelbroker",
     "build-backup-base": "docker-compose build backup-base",
     "run-backup-server": "./scripts/run_server_image.sh backup",
+    "test-backup-server": "./scripts/test_service.sh backup",
+    "test-all-services": "./scripts/test_all_services.sh",
     "run-all-services": "./scripts/run_all_services.sh"
   }
 }

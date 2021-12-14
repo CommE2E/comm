@@ -5,22 +5,22 @@ set -e
 if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
   echo "Illegal number of parameters, expected:"
   echo "- one argument with a name of the service, currently available services:"
-  ls | grep -vE 'base-image|docker.compose.yml|package.json|scripts'
+  ./scripts/list_services.sh
   echo "- one optional argument with port"
   echo "- example: ./services/scripts/run_server_image.sh tunnelbroker 12345"
   exit 1;
 fi
 
-. ./scripts/port_config.sh
+. ./scripts/services_config.sh
 
 SERVICE=$1
 PORT=0
-if [ "$1" == "tunnelbroker" ]; then
+if [ "$SERVICE" == "tunnelbroker" ]; then
   if [ ! -z "$2" ]; then
     export COMM_SERVICES_PORT_TUNNELBROKER=$2
   fi
   PORT=$COMM_SERVICES_PORT_TUNNELBROKER
-elif [ "$1" == "backup" ]; then
+elif [ "$SERVICE" == "backup" ]; then
   if [ ! -z "$2" ]; then
     export COMM_SERVICES_PORT_BACKUP=$2
   fi
