@@ -4,6 +4,7 @@
 #include "DatabaseEntities.h"
 #include "Tools.h"
 
+#include <chrono>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,7 +12,22 @@
 namespace comm {
 namespace network {
 
-Cleanup::Cleanup(const std::string &bucketName) : bucketName(bucketName) {}
+Cleanup::Cleanup(const std::string &bucketName) : bucketName(bucketName) {
+  auto job = [this]() {
+    while (true) {
+      std::cout << "[cleanup thread] count: " << this->threadCounter
+                << std::endl;
+      if (++this->threadCounter > 10) {
+        // todo clear the queue?
+        // todo perform cleanup for all hashes
+        std::cout << "[cleanup thread] reset counter" << std::endl;
+        this->threadCounter = 0;
+      }
+      std::this_thread::sleep_for(std::chrono::seconds(cleanupSecondsInterval));
+    }
+  };
+  this->thread = std::make_unique<std::thread>(job);
+}
 
 void Cleanup::perform() {
   std::vector<std::string> fileHashes =
