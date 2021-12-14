@@ -17,7 +17,7 @@ Cleanup::Cleanup(const std::string &bucketName) : bucketName(bucketName) {
     while (true) {
       std::cout << "[cleanup thread] count: " << this->threadCounter
                 << std::endl;
-      if (++this->threadCounter > 10) {
+      if (++this->threadCounter >= 10) {
         // todo clear the queue?
         // todo perform cleanup for all hashes
         std::cout << "[cleanup thread] reset counter" << std::endl;
