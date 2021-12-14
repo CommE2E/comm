@@ -50,6 +50,16 @@ include_directories(
   ${Boost_INCLUDE_DIR}
 )
 
+set(
+  LIBS
+
+  ${_GRPC_GRPCPP}
+  ${_PROTOBUF_LIBPROTOBUF}
+  gRPC::grpc++_reflection
+  ${AWSSDK_LINK_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
+
 #SERVER
 add_executable(
   backup
@@ -61,15 +71,41 @@ add_executable(
 
 target_link_libraries(
   backup
-  
-  ${_GRPC_GRPCPP}
-  ${_PROTOBUF_LIBPROTOBUF}
-  gRPC::grpc++_reflection
-  ${AWSSDK_LINK_LIBRARIES}
-  ${Boost_LIBRARIES}
+
+  ${LIBS}
 )
 
 install(
   TARGETS backup
   RUNTIME DESTINATION bin/
 )
+
+# TEST
+if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
+  file(GLOB TEST_CODE "./test/*.cpp")
+  list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
+  enable_testing()
+
+  find_package(GTest REQUIRED)
+  include_directories(${GTEST_INCLUDE_DIR})
+
+  add_executable(
+    runTests
+
+    ${GENERATED_CODE}
+    ${SOURCE_CODE}
+    ${TEST_CODE}
+  )
+  target_link_libraries(
+    runTests
+
+    ${LIBS}
+    gtest
+    gtest_main
+  )
+
+  add_test(
+    NAME runTests
+    COMMAND runTests
+  )
+endif()
