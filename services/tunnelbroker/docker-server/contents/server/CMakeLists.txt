@@ -40,7 +40,7 @@ set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
 
 add_subdirectory(./lib/glog)
 
-file(GLOB SOURCE_CODE "./src/*.cpp")
+file(GLOB TUNNELBROKER_SOURCES "./src/*.cpp")
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 
@@ -59,10 +59,9 @@ include_directories(
   ./lib/double-conversion
 )
 
-#SERVER
-add_executable(
-  tunnelbroker
-
+set(
+  SOURCE_CODE
+  
   # folly
   ./lib/folly/folly/detail/Futex.cpp
   ./lib/folly/folly/synchronization/ParkingLot.cpp
@@ -102,22 +101,62 @@ add_executable(
   ./lib/folly/folly/memory/MallctlHelper.cpp
 
   ${DOUBLE_CONVERSION_SOURCES}
-  
   ${GENERATED_CODE}
-  
-  ${SOURCE_CODE}
+  ${TUNNELBROKER_SOURCES}
 )
 
-target_link_libraries(
-  tunnelbroker
-  
+set(
+  LIBS
+
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
   gRPC::grpc++_reflection
   glog::glog
 )
 
+#SERVER
+add_executable(
+  tunnelbroker
+  
+  ${SOURCE_CODE}
+)
+
+target_link_libraries(
+  tunnelbroker
+
+  ${LIBS}
+)
+
 install(
   TARGETS tunnelbroker
   RUNTIME DESTINATION bin/
 )
+
+# TEST
+if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
+  file(GLOB TEST_CODE "./test/*.cpp")
+  list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
+  enable_testing()
+
+  find_package(GTest REQUIRED)
+  include_directories(${GTEST_INCLUDE_DIR})
+
+  add_executable(
+    runTests
+
+    ${SOURCE_CODE}
+    ${TEST_CODE}
+  )
+  target_link_libraries(
+    runTests
+  
+    ${LIBS}
+    gtest
+    gtest_main
+  )
+
+  add_test(
+    NAME runTests
+    COMMAND runTests
+  )
+endif()
