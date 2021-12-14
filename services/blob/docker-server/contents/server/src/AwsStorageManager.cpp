@@ -7,11 +7,16 @@
 namespace comm {
 namespace network {
 
-AwsS3Bucket AwsStorageManager::getBucket(const std::string &bucketName) {
+AwsStorageManager &AwsStorageManager::getInstance() {
+  static AwsStorageManager instance;
+  return instance;
+}
+
+AwsS3Bucket AwsStorageManager::getBucket(const std::string &bucketName) const {
   return AwsS3Bucket(bucketName);
 }
 
-std::vector<std::string> AwsStorageManager::listBuckets() {
+std::vector<std::string> AwsStorageManager::listBuckets() const {
   Aws::S3::Model::ListBucketsOutcome outcome =
       AwsObjectsFactory::getS3Client()->ListBuckets();
   std::vector<std::string> result;

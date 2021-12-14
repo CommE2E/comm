@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AwsStorageManager.h"
-#include "DatabaseManager.h"
+#include "Cleanup.h"
 #include "S3Path.h"
 #include "Tools.h"
 
@@ -23,12 +23,7 @@ namespace network {
 class BlobServiceImpl final : public blob::BlobService::Service {
   const std::string bucketName = "commapp-blob";
 
-  std::unique_ptr<AwsStorageManager> storageManager;
-  std::unique_ptr<database::DatabaseManager> databaseManager;
-
-  database::S3Path generateS3Path(const std::string &fileHash);
-  std::string computeHashForFile(const database::S3Path &s3Path);
-  database::S3Path findS3Path(const std::string &reverseIndex);
+  std::unique_ptr<Cleanup> cleanup;
 
 public:
   BlobServiceImpl();

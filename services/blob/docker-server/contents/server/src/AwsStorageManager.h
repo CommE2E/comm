@@ -13,8 +13,9 @@ namespace network {
 
 class AwsStorageManager {
 public:
-  AwsS3Bucket getBucket(const std::string &bucketName);
-  std::vector<std::string> listBuckets();
+  static AwsStorageManager &getInstance();
+  AwsS3Bucket getBucket(const std::string &bucketName) const;
+  std::vector<std::string> listBuckets() const;
 };
 
 } // namespace network

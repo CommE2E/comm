@@ -1,6 +1,8 @@
 #include "BlobServiceImpl.h"
 #include "AwsObjectsFactory.h"
+#include "DatabaseManager.h"
 #include "MultiPartUploader.h"
+#include "Tools.h"
 
 #include <iostream>
 
@@ -10,58 +12,26 @@ namespace network {
 BlobServiceImpl::BlobServiceImpl() {
   Aws::InitAPI({});
 
-  this->storageManager = std::make_unique<AwsStorageManager>();
-  if (!this->storageManager->getBucket(this->bucketName).isAvailable()) {
+  if (!AwsStorageManager::getInstance()
+           .getBucket(this->bucketName)
+           .isAvailable()) {
     throw std::runtime_error("bucket " + this->bucketName + " not available");
   }
 
-  this->databaseManager = std::make_unique<database::DatabaseManager>(
-      "blob-service-blob", "blob-service-reverse-index");
+  this->cleanup = std::make_unique<Cleanup>(this->bucketName);
 }
 
 BlobServiceImpl::~BlobServiceImpl() { Aws::ShutdownAPI({}); }
 
-database::S3Path BlobServiceImpl::generateS3Path(const std::string &fileHash) {
-  // todo this may change
-  return database::S3Path(this->bucketName, fileHash);
-}
-
-std::string
-BlobServiceImpl::computeHashForFile(const database::S3Path &s3Path) {
-  return "hash"; // TODO
-}
-
-database::S3Path BlobServiceImpl::findS3Path(const std::string &reverseIndex) {
-  std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
-      std::dynamic_pointer_cast<database::ReverseIndexItem>(
-          this->databaseManager->findReverseIndexItemByReverseIndex(
-              reverseIndex));
-  if (reverseIndexItem == nullptr) {
-    std::string errorMessage = "provided reverse index: [";
-    errorMessage += reverseIndex + "] has not been found in the database";
-    throw std::runtime_error(errorMessage);
-  }
-  std::shared_ptr<database::BlobItem> blobItem =
-      std::dynamic_pointer_cast<database::BlobItem>(
-          this->databaseManager->findBlobItem(reverseIndexItem->hash));
-  if (blobItem == nullptr) {
-    std::string errorMessage = "no blob found for hash: [";
-    errorMessage += reverseIndexItem->hash + "]";
-    throw std::runtime_error(errorMessage);
-  }
-  database::S3Path result = blobItem->s3Path;
-  return result;
-}
-
 /*
-(findBlobItem)- Search for the hash in the database, if it doesn't exist:
+(findBlobItem)- Search for the fileHash in the database, if it doesn't exist:
   (-)- create a place for this file and upload it to the S3
-  (-)- compute a hash of the uploaded file and verify that it's the same as
+  (-)- compute a fileHash of the uploaded file and verify that it's the same as
     provided in the argument
-  (putBlobItem)- store a hash and a place where the file was saved in the DB
+  (putBlobItem)- store a fileHash and a place where the file was saved in the DB
 (putReverseIndexItem)- store a reverse index in the DB for a
-given hash
-(updateBlobItem)- set `remove_candidate` for this hash to `false`
+given fileHash
+(updateBlobItem)- set `remove_candidate` for this fileHash to `false`
 */
 grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
                                   grpc::ServerReader<blob::PutRequest> *reader,
@@ -74,7 +44,8 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
   std::unique_ptr<MultiPartUploader> uploader;
   std::string currentChunk;
   try {
-    AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
+    AwsS3Bucket bucket =
+        AwsStorageManager::getInstance().getBucket(this->bucketName);
     while (reader->Read(&request)) {
       const std::string requestReverseIndex = request.reverseindex();
       const std::string requestFileHash = request.filehash();
@@ -86,7 +57,7 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
         reverseIndex = requestReverseIndex;
       } else if (requestFileHash.size()) {
         std::cout << "Backup Service => Put(this log will be removed) "
-                     "reading file hash ["
+                     "reading file fileHash ["
                   << requestFileHash << "]" << std::endl;
         receivedFileHash = requestFileHash;
       } else if (receivedDataChunk.size()) {
@@ -115,9 +86,10 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
         if (currentChunk.size() > AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {
           if (uploader == nullptr) {
             if (!reverseIndex.size() || !receivedFileHash.size()) {
-              throw std::runtime_error("Invalid request: before starting "
-                                       "pushing data chunks, please "
-                                       "provide file hash and reverse index");
+              throw std::runtime_error(
+                  "Invalid request: before starting "
+                  "pushing data chunks, please "
+                  "provide file fileHash and reverse index");
             }
             if (s3Path == nullptr) {
               throw std::runtime_error("S3 path has not been created but data "
@@ -137,7 +109,8 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
       if (reverseIndex.size() && receivedFileHash.size() && s3Path == nullptr) {
         std::cout << "create S3 Path" << std::endl;
         blobItem = std::dynamic_pointer_cast<database::BlobItem>(
-            this->databaseManager->findBlobItem(receivedFileHash));
+            database::DatabaseManager::getInstance().findBlobItem(
+                receivedFileHash));
         if (blobItem != nullptr) {
           std::cout << "S3 Path exists: " << blobItem->s3Path.getFullPath()
                     << std::endl;
@@ -145,7 +118,8 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
           break;
         } else {
           s3Path = std::make_unique<database::S3Path>(
-              this->generateS3Path(receivedFileHash));
+              Tools::getInstance().generateS3Path(this->bucketName,
+                                                  receivedFileHash));
           std::cout << "created new S3 Path: " << s3Path->getFullPath()
                     << std::endl;
         }
@@ -163,30 +137,32 @@ grpc::Status BlobServiceImpl::Put(grpc::ServerContext *context,
       std::cout << "write normally without MPU" << std::endl;
       bucket.writeObject(s3Path->getObjectName(), currentChunk);
     }
-    // compute a hash and verify with a provided hash
-    const std::string computedHash =
+    // compute a fileHash and verify with a provided fileHash
+    const std::string computedFileHash =
         receivedFileHash; // this->computeHashForFile(*s3Path); // TODO FIX THIS
-    const size_t hashSize = receivedFileHash.size();
-    if (receivedFileHash != computedHash) {
-      std::string errorMessage = "hash mismatch, provided: [";
-      errorMessage += receivedFileHash + "], computed: [" + computedHash + "]";
+    if (receivedFileHash != computedFileHash) {
+      std::string errorMessage = "fileHash mismatch, provided: [";
+      errorMessage +=
+          receivedFileHash + "], computed: [" + computedFileHash + "]";
       throw std::runtime_error(errorMessage);
     }
-    // putBlobItem - store a hash and a path in the DB
+    // putBlobItem - store a fileHash and a path in the DB
     if (blobItem == nullptr) {
       blobItem =
           std::make_shared<database::BlobItem>(receivedFileHash, *s3Path);
-      this->databaseManager->putBlobItem(*blobItem);
+      database::DatabaseManager::getInstance().putBlobItem(*blobItem);
     } else if (blobItem->removeCandidate) {
-      this->databaseManager->updateBlobItem(blobItem->hash, "removeCandidate",
-                                            "0");
+      database::DatabaseManager::getInstance().updateBlobItem(
+          blobItem->fileHash, "removeCandidate", "0");
     }
-    // putReverseIndexItem - store a reverse index in the DB for a given hash
-    const database::ReverseIndexItem reverseIndexItem(receivedFileHash,
-                                                      reverseIndex);
-    this->databaseManager->putReverseIndexItem(reverseIndexItem);
+    // putReverseIndexItem - store a reverse index in the DB for a given
+    // fileHash
+    const database::ReverseIndexItem reverseIndexItem(reverseIndex,
+                                                      receivedFileHash);
+    database::DatabaseManager::getInstance().putReverseIndexItem(
+        reverseIndexItem);
     // updateBlobItem - set remove candidate to false
-    //    (it can be true if the hash already existed) - already done
+    //    (it can be true if the fileHash already existed) - already done
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
@@ -203,11 +179,12 @@ BlobServiceImpl::Get(grpc::ServerContext *context,
                      const blob::GetRequest *request,
                      grpc::ServerWriter<blob::GetResponse> *writer) {
   const std::string reverseIndex = request->reverseindex();
+  std::cout << "reading data for reverse index: " << reverseIndex << std::endl;
   try {
-    database::S3Path s3Path = this->findS3Path(reverseIndex);
+    database::S3Path s3Path = Tools::getInstance().findS3Path(reverseIndex);
 
     AwsS3Bucket bucket =
-        this->storageManager->getBucket(s3Path.getBucketName());
+        AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
     blob::GetResponse response;
     std::function<void(const std::string &)> callback =
         [&response, &writer](std::string chunk) {
@@ -230,39 +207,37 @@ BlobServiceImpl::Get(grpc::ServerContext *context,
 }
 
 /*
-(findReverseIndexItemByReverseIndex)- search for the file hash by the reverse
-index
-(removeReverseIndexItem)- remove the current reverse index
-()- run the cleanup process for this hash
+(findReverseIndexItemByReverseIndex)- search for the file fileHash by the
+reverse index (removeReverseIndexItem)- remove the current reverse index
+()- run the cleanup process for this fileHash
 */
 grpc::Status BlobServiceImpl::Remove(grpc::ServerContext *context,
                                      const blob::RemoveRequest *request,
                                      google::protobuf::Empty *response) {
   const std::string reverseIndex = request->reverseindex();
   try {
-    database::S3Path s3Path = this->findS3Path(reverseIndex);
-    AwsS3Bucket bucket =
-        this->storageManager->getBucket(s3Path.getBucketName());
-    bucket.removeObject(s3Path.getObjectName());
+    // database::S3Path s3Path = Tools::getInstance().findS3Path(reverseIndex);
+    // AwsS3Bucket bucket =
+    //     AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
+    // bucket.removeObject(s3Path.getObjectName());
     std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
         std::dynamic_pointer_cast<database::ReverseIndexItem>(
-            this->databaseManager->findReverseIndexItemByReverseIndex(
-                reverseIndex));
+            database::DatabaseManager::getInstance()
+                .findReverseIndexItemByReverseIndex(reverseIndex));
     if (reverseIndexItem == nullptr) {
       std::string errorMessage = "no item found for reverse index: ";
       errorMessage += reverseIndex;
       throw std::runtime_error(errorMessage);
     }
-    this->databaseManager->removeBlobItem(reverseIndexItem->hash);
-    this->databaseManager->removeReverseIndexItem(reverseIndexItem->hash);
+    database::DatabaseManager::getInstance().removeReverseIndexItem(
+        reverseIndexItem->reverseIndex);
+    this->cleanup->perform(reverseIndexItem->fileHash);
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
   return grpc::Status::OK;
 }
-
-// todo - cleanup
 
 } // namespace network
 } // namespace comm

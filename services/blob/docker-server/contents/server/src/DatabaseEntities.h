@@ -13,15 +13,18 @@ namespace comm {
 namespace network {
 namespace database {
 
+typedef Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
+    AttributeValues;
+
 /**
  * Database Structure:
  * blob
- *  hash                string
+ *  fileHash            string
  *  s3Path              string
- *  remove_candidate    bool
+ *  removeCandidate     bool
  * reverse_index
- *  hash                string
- *  reverse_index       string
+ *  reverseIndex        string
+ *  fileHash            string
  */
 
 enum class ItemType {
@@ -35,16 +38,15 @@ struct Item {
 
 struct BlobItem : Item {
   const ItemType type = ItemType::BLOB;
-  std::string hash;
+  std::string fileHash;
   S3Path s3Path;
   bool removeCandidate = false;
 
-  BlobItem(const std::string hash, const S3Path s3Path)
-      : hash(hash), s3Path(s3Path) {}
-  BlobItem(const Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
-               itemFromDB) {
+  BlobItem(const std::string fileHash, const S3Path s3Path)
+      : fileHash(fileHash), s3Path(s3Path) {}
+  BlobItem(const AttributeValues &itemFromDB) {
     try {
-      this->hash = itemFromDB.at("hash").GetS();
+      this->fileHash = itemFromDB.at("fileHash").GetS();
       this->s3Path = S3Path(itemFromDB.at("s3Path").GetS());
       this->removeCandidate = std::stoi(
           std::string(itemFromDB.at("removeCandidate").GetS()).c_str());
@@ -56,9 +58,9 @@ struct BlobItem : Item {
   }
 
   void validate() const override {
-    // todo consider more checks here for valid values
-    if (!this->hash.size()) {
-      throw std::runtime_error("hash empty");
+    // todo consider more checks here for valid values e.g. fileHash size
+    if (!this->fileHash.size()) {
+      throw std::runtime_error("fileHash empty");
     }
     this->s3Path.getFullPath();
   }
@@ -66,18 +68,16 @@ struct BlobItem : Item {
 
 struct ReverseIndexItem : Item {
   const ItemType type = ItemType::REVERSE_INDEX;
-  std::string hash;
   std::string reverseIndex;
+  std::string fileHash;
 
   ReverseIndexItem() {}
-  ReverseIndexItem(const std::string hash, const std::string reverseIndex)
-      : hash(hash), reverseIndex(reverseIndex) {}
-  ReverseIndexItem(
-      const Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
-          itemFromDB) {
+  ReverseIndexItem(const std::string reverseIndex, const std::string fileHash)
+      : reverseIndex(reverseIndex), fileHash(fileHash) {}
+  ReverseIndexItem(const AttributeValues &itemFromDB) {
     try {
-      this->hash = itemFromDB.at("hash").GetS();
       this->reverseIndex = itemFromDB.at("reverseIndex").GetS();
+      this->fileHash = itemFromDB.at("fileHash").GetS();
     } catch (std::out_of_range &e) {
       std::string errorMessage = "invalid reverse index item provided, ";
       errorMessage += e.what();
@@ -86,12 +86,12 @@ struct ReverseIndexItem : Item {
   }
 
   void validate() const override {
-    // todo consider more checks here for valid values
-    if (!this->hash.size()) {
-      throw std::runtime_error("hash empty");
-    }
+    // todo consider more checks here for valid values e.g. fileHash size
     if (!this->reverseIndex.size()) {
       throw std::runtime_error("reverse index empty");
+    }
+    if (!this->fileHash.size()) {
+      throw std::runtime_error("fileHash empty");
     }
   }
 };
