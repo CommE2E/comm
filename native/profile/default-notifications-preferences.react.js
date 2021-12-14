@@ -11,6 +11,7 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
   type UpdateUserSettingsRequest,
   type NotificationTypes,
+  type DefaultNotificationPayload,
   notificationTypes,
   userSettingsTypes,
 } from 'lib/types/account-types';
@@ -69,7 +70,9 @@ type Props = {
 };
 
 class DefaultNotificationsPreferences extends React.PureComponent<Props> {
-  async updatedDefaultNotifications(data: NotificationTypes) {
+  async updatedDefaultNotifications(
+    data: NotificationTypes,
+  ): Promise<DefaultNotificationPayload> {
     const { changeNotificationSettings } = this.props;
 
     try {
@@ -85,6 +88,10 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
         { cancelable: false },
       );
     }
+
+    return {
+      [userSettingsTypes.DEFAULT_NOTIFICATIONS]: data,
+    };
   }
 
   selectNotificationSetting = (data: NotificationTypes) => {
