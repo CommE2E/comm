@@ -104,7 +104,7 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
   };
 
   selectAllNotifications = () => {
-    this.selectNotificationSetting(notificationTypes.ALL);
+    this.selectNotificationSetting(notificationTypes.FOCUSED);
   };
 
   selectBackgroundNotifications = () => {
@@ -112,7 +112,7 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
   };
 
   selectNoneNotifications = () => {
-    this.selectNotificationSetting(notificationTypes.NONE);
+    this.selectNotificationSetting(notificationTypes.BADGE_ONLY);
   };
 
   render() {
@@ -125,21 +125,23 @@ class DefaultNotificationsPreferences extends React.PureComponent<Props> {
         <Text style={styles.header}>NOTIFICATIONS</Text>
         <View style={styles.section}>
           <NotificationRow
-            content="All"
+            content="Focused"
             onPress={this.selectAllNotifications}
-            selected={notificationTypes.ALL === selectedDefaultNotification}
+            selected={notificationTypes.FOCUSED === selectedDefaultNotification}
           />
           <NotificationRow
-            content="Background"
+            content="Focused (badge only)"
             onPress={this.selectBackgroundNotifications}
             selected={
-              notificationTypes.BACKGROUND === selectedDefaultNotification
+              notificationTypes.BADGE_ONLY === selectedDefaultNotification
             }
           />
           <NotificationRow
-            content="None"
+            content="Background"
             onPress={this.selectNoneNotifications}
-            selected={notificationTypes.NONE === selectedDefaultNotification}
+            selected={
+              notificationTypes.BACKGROUND === selectedDefaultNotification
+            }
           />
         </View>
       </ScrollView>
@@ -190,7 +192,7 @@ const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> = 
         ) {
           return currentUserInfo?.settings[defaultNotification];
         }
-        return notificationTypes.ALL;
+        return notificationTypes.FOCUSED;
       },
     );
 
