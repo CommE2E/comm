@@ -16,6 +16,10 @@ import {
 } from 'lib/actions/user-actions';
 import baseReducer from 'lib/reducers/master-reducer';
 import {
+  processThreadStoreOperations,
+  assertThreadStoreThreadsAreEqual,
+} from 'lib/reducers/thread-reducer';
+import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
@@ -27,6 +31,7 @@ import {
   defaultConnectionInfo,
   incrementalStateSyncActionType,
 } from 'lib/types/socket-types';
+import type { ThreadStoreOperation } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
@@ -297,13 +302,20 @@ function reducer(state: AppState = defaultState, action: Action) {
   const { storeOperations } = baseReducerResult;
   const { threadStoreOperations, messageStoreOperations } = storeOperations;
 
+  const fixUnreadActiveThreadResult = fixUnreadActiveThread(state, action);
+  state = fixUnreadActiveThreadResult.state;
+
+  const threadStoreOperationsWithUnreadFix = [
+    ...threadStoreOperations,
+    ...fixUnreadActiveThreadResult.threadStoreOperations,
+  ];
+
   const convertedThreadStoreOperations = convertThreadStoreOperationsToClientDBOperations(
-    threadStoreOperations,
+    threadStoreOperationsWithUnreadFix,
   );
   const convertedMessageStoreOperations = convertMessageStoreOperationsToClientDBOperations(
     messageStoreOperations,
   );
-
   (async () => {
     try {
       const promises = [];
@@ -345,7 +357,7 @@ function reducer(state: AppState = defaultState, action: Action) {
     }
   })();
 
-  return fixUnreadActiveThread(state, action);
+  return state;
 }
 
 function sessionInvalidationAlert(payload: SetSessionPayload) {
@@ -387,35 +399,66 @@ function sessionInvalidationAlert(payload: SetSessionPayload) {
 // processed more than 10 seconds after a backgrounding anyways. However we
 // don't consider this for action types that can be expected to happen while the
 // app is backgrounded.
-function fixUnreadActiveThread(state: AppState, action: *): AppState {
+type FixUnreadActiveThreadResult = {
+  +state: AppState,
+  +threadStoreOperations: $ReadOnlyArray<ThreadStoreOperation>,
+};
+function fixUnreadActiveThread(
+  state: AppState,
+  action: *,
+): FixUnreadActiveThreadResult {
   const navContext = getGlobalNavContext();
   const activeThread = activeMessageListSelector(navContext);
   if (
-    activeThread &&
-    (NativeAppState.currentState === 'active' ||
-      (appLastBecameInactive + 10000 < Date.now() &&
-        !backgroundActionTypes.has(action.type))) &&
-    state.threadStore.threadInfos[activeThread] &&
-    state.threadStore.threadInfos[activeThread].currentUser.unread
+    !activeThread ||
+    !state.threadStore.threadInfos[activeThread]?.currentUser.unread ||
+    (NativeAppState.currentState !== 'active' &&
+      (appLastBecameInactive + 10000 >= Date.now() ||
+        backgroundActionTypes.has(action.type)))
   ) {
-    state = {
-      ...state,
-      threadStore: {
-        ...state.threadStore,
-        threadInfos: {
-          ...state.threadStore.threadInfos,
-          [activeThread]: {
-            ...state.threadStore.threadInfos[activeThread],
-            currentUser: {
-              ...state.threadStore.threadInfos[activeThread].currentUser,
-              unread: false,
-            },
-          },
-        },
-      },
-    };
+    return { state, threadStoreOperations: [] };
   }
-  return state;
+
+  const updatedActiveThreadInfo = {
+    ...state.threadStore.threadInfos[activeThread],
+    currentUser: {
+      ...state.threadStore.threadInfos[activeThread].currentUser,
+      unread: false,
+    },
+  };
+
+  const updatedState = {
+    ...state,
+    threadStore: {
+      ...state.threadStore,
+      threadInfos: {
+        ...state.threadStore.threadInfos,
+        [activeThread]: updatedActiveThreadInfo,
+      },
+    },
+  };
+
+  const threadStoreOperations = [
+    {
+      type: 'replace',
+      payload: {
+        id: activeThread,
+        threadInfo: updatedActiveThreadInfo,
+      },
+    },
+  ];
+
+  const processedStore = processThreadStoreOperations(
+    state.threadStore,
+    threadStoreOperations,
+  );
+
+  assertThreadStoreThreadsAreEqual(
+    processedStore,
+    updatedState.threadStore,
+    action.type,
+  );
+  return { state: updatedState, threadStoreOperations };
 }
 
 let appLastBecameInactive = 0;
