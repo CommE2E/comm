@@ -159,6 +159,64 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
       });
 }
 
+jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
+  std::promise<std::vector<std::pair<Message, std::vector<Media>>>>
+      messagesResult;
+  auto messagesResultFuture = messagesResult.get_future();
+
+  this->databaseThread->scheduleTask([&messagesResult]() {
+    messagesResult.set_value(
+        DatabaseManager::getQueryExecutor().getAllMessages());
+  });
+
+  auto messagesVector = messagesResultFuture.get();
+  size_t numMessages{messagesVector.size()};
+  jsi::Array jsiMessages = jsi::Array(rt, numMessages);
+
+  size_t writeIndex = 0;
+  for (const auto &[message, media] : messagesVector) {
+    auto jsiMessage = jsi::Object(rt);
+    jsiMessage.setProperty(rt, "id", message.id);
+
+    if (message.local_id) {
+      auto local_id = message.local_id.get();
+      jsiMessage.setProperty(rt, "local_id", *local_id);
+    }
+
+    jsiMessage.setProperty(rt, "thread", message.thread);
+    jsiMessage.setProperty(rt, "user", message.user);
+    jsiMessage.setProperty(rt, "type", std::to_string(message.type));
+
+    if (message.future_type) {
+      auto future_type = message.future_type.get();
+      jsiMessage.setProperty(rt, "future_type", std::to_string(*future_type));
+    }
+
+    if (message.content) {
+      auto content = message.content.get();
+      jsiMessage.setProperty(rt, "content", *content);
+    }
+    jsiMessage.setProperty(rt, "time", std::to_string(message.time));
+
+    size_t media_idx = 0;
+    jsi::Array jsiMediaArray = jsi::Array(rt, media.size());
+    for (const auto &media_info : media) {
+      auto jsiMedia = jsi::Object(rt);
+      jsiMedia.setProperty(rt, "id", media_info.id);
+      jsiMedia.setProperty(rt, "uri", media_info.uri);
+      jsiMedia.setProperty(rt, "type", media_info.type);
+      jsiMedia.setProperty(rt, "extras", media_info.extras);
+
+      jsiMediaArray.setValueAtIndex(rt, media_idx++, jsiMedia);
+    }
+
+    jsiMessage.setProperty(rt, "media_infos", jsiMediaArray);
+    jsiMessages.setValueAtIndex(rt, writeIndex++, jsiMessage);
+  }
+
+  return jsiMessages;
+}
+
 jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
