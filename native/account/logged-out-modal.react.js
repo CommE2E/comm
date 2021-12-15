@@ -40,6 +40,7 @@ import { NavContext } from '../navigation/navigation-context';
 import { LoggedOutModalRouteName } from '../navigation/route-names';
 import { resetUserStateActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
+import { usePersistedStateLoaded } from '../selectors/app-state-selectors';
 import {
   type DerivedDimensionsInfo,
   derivedDimensionsInfoSelector,
@@ -107,6 +108,7 @@ type Props = {
   // Navigation state
   +isForeground: boolean,
   // Redux state
+  +persistedStateLoaded: boolean,
   +rehydrateConcluded: boolean,
   +cookie: ?string,
   +urlPrefix: string,
@@ -163,7 +165,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     );
 
     this.state = {
-      mode: props.rehydrateConcluded ? 'prompt' : 'loading',
+      mode: props.persistedStateLoaded ? 'prompt' : 'loading',
       logInState: {
         state: {
           usernameInputText: null,
@@ -180,7 +182,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         setState: setRegisterState,
       },
     };
-    if (props.rehydrateConcluded) {
+    if (props.persistedStateLoaded) {
       this.nextMode = 'prompt';
     }
 
@@ -226,8 +228,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
+    if (!prevProps.persistedStateLoaded && this.props.persistedStateLoaded) {
       this.setMode('prompt');
+    }
+    if (!prevProps.rehydrateConcluded && this.props.rehydrateConcluded) {
       this.onInitialAppLoad();
     }
     if (!prevProps.isForeground && this.props.isForeground) {
@@ -628,6 +632,7 @@ const ConnectedLoggedOutModal: React.ComponentType<{ ... }> = React.memo<{
   const rehydrateConcluded = useSelector(
     state => !!(state._persist && state._persist.rehydrated && navContext),
   );
+  const persistedStateLoaded = usePersistedStateLoaded();
   const cookie = useSelector(state => state.cookie);
   const urlPrefix = useSelector(state => state.urlPrefix);
   const loggedIn = useSelector(isLoggedIn);
@@ -639,6 +644,7 @@ const ConnectedLoggedOutModal: React.ComponentType<{ ... }> = React.memo<{
     <LoggedOutModal
       {...props}
       isForeground={isForeground}
+      persistedStateLoaded={persistedStateLoaded}
       rehydrateConcluded={rehydrateConcluded}
       cookie={cookie}
       urlPrefix={urlPrefix}
