@@ -4,10 +4,10 @@ import * as React from 'react';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
-import { SQLiteContext } from '../data/sqlite-context';
 import DevTools from '../redux/dev-tools.react';
 import { useSelector } from '../redux/redux-utils';
 import type { AppState } from '../redux/state-types';
+import { usePersistedStateLoaded } from '../selectors/app-state-selectors';
 import { logInActionType, logOutActionType } from './action-types';
 import ModalPruner from './modal-pruner.react';
 import NavFromReduxHandler from './nav-from-redux-handler.react';
@@ -18,13 +18,11 @@ import ThreadScreenTracker from './thread-screen-tracker.react';
 const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
   function NavigationHandler() {
     const navContext = React.useContext(NavContext);
-    const reduxRehydrated = useSelector(
-      (state: AppState) => !!(state._persist && state._persist.rehydrated),
-    );
+    const persistedStateLoaded = usePersistedStateLoaded();
 
     const devTools = __DEV__ ? <DevTools key="devTools" /> : null;
 
-    if (!navContext || !reduxRehydrated) {
+    if (!navContext || !persistedStateLoaded) {
       if (__DEV__) {
         return (
           <>
@@ -62,15 +60,13 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
   const hasUserCookie = useSelector(
     (state: AppState) => !!(state.cookie && state.cookie.startsWith('user=')),
   );
-  const localDatabaseContext = React.useContext(SQLiteContext);
-  const storeLoadedFromLocalDatabase = !!localDatabaseContext?.threadStoreLoaded;
 
   const loggedIn = hasCurrentUserInfo && hasUserCookie;
   const navLoggedIn = useIsAppLoggedIn();
   const prevLoggedInRef = React.useRef();
 
   React.useEffect(() => {
-    if (!storeLoadedFromLocalDatabase || loggedIn === prevLoggedInRef.current) {
+    if (loggedIn === prevLoggedInRef.current) {
       return;
     }
     prevLoggedInRef.current = loggedIn;
@@ -79,7 +75,7 @@ const LogInHandler = React.memo<LogInHandlerProps>(function LogInHandler(
     } else if (!loggedIn && navLoggedIn) {
       dispatch({ type: (logOutActionType: 'LOG_OUT') });
     }
-  }, [navLoggedIn, loggedIn, dispatch, storeLoadedFromLocalDatabase]);
+  }, [navLoggedIn, loggedIn, dispatch]);
 
   return null;
 });
