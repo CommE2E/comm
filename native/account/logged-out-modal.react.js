@@ -189,7 +189,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     this.contentHeight = new Value(props.dimensions.safeAreaHeight);
     this.modeValue = new Value(modeNumbers[this.nextMode]);
 
-    this.buttonOpacity = new Value(props.rehydrateConcluded ? 1 : 0);
+    this.buttonOpacity = new Value(props.persistedStateLoaded ? 1 : 0);
     this.panelPaddingTopValue = this.panelPaddingTop();
     this.panelOpacityValue = this.panelOpacity();
   }
