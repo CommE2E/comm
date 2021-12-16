@@ -592,7 +592,7 @@ This command runs three processes. The first two are to keep the `dist` folder u
 
 Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
 
-## Running iOS
+## Running mobile app on iOS simulator
 
 First, make sure that the React Native packager is open. If you haven’t already, open a new terminal and run:
 
@@ -605,7 +605,7 @@ This command runs two processes. The first is the Metro bundler, which handles b
 
 Next, open `native/ios/Comm.xcworkspace` in Xcode. Select a simulator and then hit the play button to build and run the project.
 
-## Running Android
+## Running mobile app on Android emulator
 
 First, make sure that the React Native packager is open. If you haven’t already, open a new terminal and run:
 
