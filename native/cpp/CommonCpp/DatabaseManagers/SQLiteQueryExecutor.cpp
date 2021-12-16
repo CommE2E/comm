@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <system_error>
+#include <unordered_set>
 
 #define ACCOUNT_ID 1
 
@@ -221,6 +222,22 @@ bool update_threadID_for_pending_threads_in_drafts(sqlite3 *db) {
   return false;
 }
 
+bool enable_write_ahead_logging_mode(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(db, "PRAGMA journal_mode=wal;", nullptr, nullptr, &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error enabling write-ahead logging mode: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 typedef std::function<bool(sqlite3 *)> MigrationFunction;
 std::vector<std::pair<uint, MigrationFunction>> migrations{
     {{1, create_drafts_table},
@@ -233,7 +250,10 @@ std::vector<std::pair<uint, MigrationFunction>> migrations{
      {18, create_messages_idx_thread_time},
      {19, create_media_idx_container},
      {20, create_threads_table},
-     {21, update_threadID_for_pending_threads_in_drafts}}};
+     {21, update_threadID_for_pending_threads_in_drafts},
+     {22, enable_write_ahead_logging_mode}}};
+
+std::unordered_set<uint> skip_transaction{22};
 
 void SQLiteQueryExecutor::migrate() {
   sqlite3 *db;
@@ -262,7 +282,11 @@ void SQLiteQueryExecutor::migrate() {
     }
 
     std::stringstream migration_msg;
-    sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+
+    if (!skip_transaction.count(idx)) {
+      sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+    }
+
     if (!migration(db)) {
       migration_msg << "migration " << idx << " failed." << std::endl;
       Logger::log(migration_msg.str());
@@ -274,8 +298,10 @@ void SQLiteQueryExecutor::migrate() {
     auto update_version_str = update_version.str();
 
     sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, nullptr);
-    sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
 
+    if (!skip_transaction.count(idx)) {
+      sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
+    }
     migration_msg << "migration " << idx << " succeeded." << std::endl;
     Logger::log(migration_msg.str());
   }
