@@ -240,7 +240,9 @@ class Socket {
         // invalidation.
         throw new ServerError('session_mutated_from_socket');
       }
-      handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
+      if (clientSocketMessage.type !== clientSocketMessageTypes.PING) {
+        handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
+      }
       for (const response of serverResponses) {
         this.sendMessage(response);
       }
