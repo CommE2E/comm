@@ -8,7 +8,6 @@
 #include <sstream>
 #include <string>
 #include <system_error>
-#include <unordered_set>
 
 #define ACCOUNT_ID 1
 
@@ -238,22 +237,22 @@ bool enable_write_ahead_logging_mode(sqlite3 *db) {
   return false;
 }
 
-typedef std::function<bool(sqlite3 *)> MigrationFunction;
-std::vector<std::pair<uint, MigrationFunction>> migrations{
-    {{1, create_drafts_table},
-     {2, rename_threadID_to_key},
-     {4, create_persist_account_table},
-     {5, create_persist_sessions_table},
-     {15, create_media_table},
-     {16, drop_messages_table},
-     {17, recreate_messages_table},
-     {18, create_messages_idx_thread_time},
-     {19, create_media_idx_container},
-     {20, create_threads_table},
-     {21, update_threadID_for_pending_threads_in_drafts},
-     {22, enable_write_ahead_logging_mode}}};
-
-std::unordered_set<uint> skip_transaction{22};
+typedef bool ShouldBeInTransaction;
+typedef std::pair<std::function<bool(sqlite3 *)>, ShouldBeInTransaction>
+    SQLiteMigration;
+std::vector<std::pair<uint, SQLiteMigration>> migrations{
+    {{1, {create_drafts_table, true}},
+     {2, {rename_threadID_to_key, true}},
+     {4, {create_persist_account_table, true}},
+     {5, {create_persist_sessions_table, true}},
+     {15, {create_media_table, true}},
+     {16, {drop_messages_table, true}},
+     {17, {recreate_messages_table, true}},
+     {18, {create_messages_idx_thread_time, true}},
+     {19, {create_media_idx_container, true}},
+     {20, {create_threads_table, true}},
+     {21, {update_threadID_for_pending_threads_in_drafts, true}},
+     {22, {enable_write_ahead_logging_mode, false}}}};
 
 void SQLiteQueryExecutor::migrate() {
   sqlite3 *db;
@@ -280,18 +279,20 @@ void SQLiteQueryExecutor::migrate() {
     if (idx <= current_user_version) {
       continue;
     }
+    const auto &[applyMigration, shouldBeInTransaction] = migration;
 
     std::stringstream migration_msg;
 
-    if (!skip_transaction.count(idx)) {
+    if (shouldBeInTransaction) {
       sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
     }
 
-    if (!migration(db)) {
+    auto rc = applyMigration(db);
+    if (!rc) {
       migration_msg << "migration " << idx << " failed." << std::endl;
       Logger::log(migration_msg.str());
       break;
-    };
+    }
 
     std::stringstream update_version;
     update_version << "PRAGMA user_version=" << idx << ";";
@@ -299,7 +300,7 @@ void SQLiteQueryExecutor::migrate() {
 
     sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, nullptr);
 
-    if (!skip_transaction.count(idx)) {
+    if (shouldBeInTransaction) {
       sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
     }
     migration_msg << "migration " << idx << " succeeded." << std::endl;
