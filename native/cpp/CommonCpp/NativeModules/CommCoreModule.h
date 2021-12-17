@@ -39,6 +39,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       const jsi::Array &operations) override;
   jsi::Value getAllThreads(jsi::Runtime &rt) override;
+  jsi::Array getAllThreadsSync(jsi::Runtime &rt) override;
   jsi::Value processThreadStoreOperations(
       jsi::Runtime &rt,
       const jsi::Array &operations) override;

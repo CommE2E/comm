@@ -506,6 +506,72 @@ jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
       });
 };
 
+jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
+  std::promise<std::vector<Thread>> threadsResult;
+  auto threadsResultFuture = threadsResult.get_future();
+
+  this->databaseThread->scheduleTask([&threadsResult]() {
+    threadsResult.set_value(
+        DatabaseManager::getQueryExecutor().getAllThreads());
+  });
+
+  auto threadsVector = threadsResultFuture.get();
+  size_t numThreads{threadsVector.size()};
+  jsi::Array jsiThreads = jsi::Array(rt, numThreads);
+
+  size_t writeIdx = 0;
+  for (const Thread &thread : threadsVector) {
+    jsi::Object jsiThread = jsi::Object(rt);
+    jsiThread.setProperty(rt, "id", thread.id);
+    jsiThread.setProperty(rt, "type", thread.type);
+    jsiThread.setProperty(
+        rt,
+        "name",
+        thread.name ? jsi::String::createFromUtf8(rt, *thread.name)
+                    : jsi::Value::null());
+    jsiThread.setProperty(
+        rt,
+        "description",
+        thread.description
+            ? jsi::String::createFromUtf8(rt, *thread.description)
+            : jsi::Value::null());
+    jsiThread.setProperty(rt, "color", thread.color);
+    jsiThread.setProperty(
+        rt, "creationTime", std::to_string(thread.creation_time));
+    jsiThread.setProperty(
+        rt,
+        "parentThreadID",
+        thread.parent_thread_id
+            ? jsi::String::createFromUtf8(rt, *thread.parent_thread_id)
+            : jsi::Value::null());
+    jsiThread.setProperty(
+        rt,
+        "containingThreadID",
+        thread.containing_thread_id
+            ? jsi::String::createFromUtf8(rt, *thread.containing_thread_id)
+            : jsi::Value::null());
+    jsiThread.setProperty(
+        rt,
+        "community",
+        thread.community ? jsi::String::createFromUtf8(rt, *thread.community)
+                         : jsi::Value::null());
+    jsiThread.setProperty(rt, "members", thread.members);
+    jsiThread.setProperty(rt, "roles", thread.roles);
+    jsiThread.setProperty(rt, "currentUser", thread.current_user);
+    jsiThread.setProperty(
+        rt,
+        "sourceMessageID",
+        thread.source_message_id
+            ? jsi::String::createFromUtf8(rt, *thread.source_message_id)
+            : jsi::Value::null());
+    jsiThread.setProperty(rt, "repliesCount", thread.replies_count);
+
+    jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
+  }
+
+  return jsiThreads;
+}
+
 std::vector<std::unique_ptr<ThreadStoreOperationBase>>
 createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
   std::vector<std::unique_ptr<ThreadStoreOperationBase>> threadStoreOps;
