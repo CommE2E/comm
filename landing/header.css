@@ -76,12 +76,16 @@ button.request_access {
 
 @media screen and (max-width: 1099px) {
   nav.wrapper {
-    grid-template-columns: 16px repeat(6, 1fr) 16px;
-    grid-template-rows: 1fr 1fr;
-    column-gap: 1.5%;
-    grid-template-areas:
-      '. logo logo . . sIcons sIcons .'
-      '. page_nav page_nav page_nav page_nav page_nav page_nav .';
+    grid-template-columns: 16px repeat(12, 1fr) 16px;
+    grid-template-areas: '. logo logo page_nav page_nav page_nav page_nav page_nav page_nav page_nav page_nav sIcons sIcons .';
+  }
+
+  .logo {
+    min-width: 85px;
+  }
+
+  .page_nav {
+    justify-content: center;
   }
 
   .request_access,
@@ -93,5 +97,24 @@ button.request_access {
   .github_icon,
   .twitter_icon {
     display: block;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  nav.wrapper {
+    grid-template-columns: 16px repeat(6, 1fr) 16px;
+    grid-template-rows: 1fr 1fr;
+    column-gap: 1.5%;
+    row-gap: 25px;
+    grid-template-areas:
+      '. logo logo . . sIcons sIcons .'
+      '. page_nav page_nav page_nav page_nav page_nav page_nav .';
+  }
+
+  .page_nav {
+    grid-area: page_nav;
+    display: flex;
+    justify-content: space-around;
+    min-width: 225px;
   }
 }
