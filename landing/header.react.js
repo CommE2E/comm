@@ -32,7 +32,6 @@ function Header(props: HeaderProps): React.Node {
       <NavLink to="/" className={css.logo}>
         <h1>Comm</h1>
       </NavLink>
-
       <div className={css.page_nav}>
         <NavLink to="/" exact {...navLinkProps}>
           App
@@ -41,13 +40,11 @@ function Header(props: HeaderProps): React.Node {
           Keyserver
         </NavLink>
       </div>
-
       <div className={css.button_container}>
         <button className={css.request_access} onClick={onRequestAccess}>
           Request Access
         </button>
       </div>
-
       <div className={css.social_icons}>
         <a className={css.twitter_icon} href="https://twitter.com/commdotapp">
           <FontAwesomeIcon icon={faTwitter} {...iconProps} />
