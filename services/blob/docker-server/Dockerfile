@@ -1,4 +1,4 @@
-FROM commapp/blob-base:1.0
+FROM commapp/backup-base:1.0
 
 ENV SHELL=/bin/bash
 

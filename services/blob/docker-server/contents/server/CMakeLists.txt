@@ -77,7 +77,6 @@ install(
 # TEST
 file(GLOB TEST_CODE "./test/*.cpp")
 list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
-list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/Cleanup.cpp")
 
 enable_testing()
 

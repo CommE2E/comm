@@ -17,8 +17,6 @@ BlobServiceImpl::BlobServiceImpl() {
            .isAvailable()) {
     throw std::runtime_error("bucket " + this->bucketName + " not available");
   }
-
-  this->cleanup = std::make_unique<Cleanup>(this->bucketName);
 }
 
 BlobServiceImpl::~BlobServiceImpl() { Aws::ShutdownAPI({}); }
@@ -216,10 +214,6 @@ grpc::Status BlobServiceImpl::Remove(grpc::ServerContext *context,
                                      google::protobuf::Empty *response) {
   const std::string reverseIndex = request->reverseindex();
   try {
-    // database::S3Path s3Path = Tools::getInstance().findS3Path(reverseIndex);
-    // AwsS3Bucket bucket =
-    //     AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
-    // bucket.removeObject(s3Path.getObjectName());
     std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
         std::dynamic_pointer_cast<database::ReverseIndexItem>(
             database::DatabaseManager::getInstance()
@@ -229,9 +223,17 @@ grpc::Status BlobServiceImpl::Remove(grpc::ServerContext *context,
       errorMessage += reverseIndex;
       throw std::runtime_error(errorMessage);
     }
+    // TODO handle cleanup here properly
     database::DatabaseManager::getInstance().removeReverseIndexItem(
-        reverseIndexItem->reverseIndex);
-    this->cleanup->perform(reverseIndexItem->fileHash);
+        reverseIndex);
+    if (database::DatabaseManager::getInstance()
+            .findReverseIndexItemsByHash(reverseIndexItem->fileHash)
+            .size() == 0) {
+      database::S3Path s3Path = Tools::getInstance().findS3Path(reverseIndex);
+      AwsS3Bucket bucket =
+          AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
+      bucket.removeObject(s3Path.getObjectName());
+    }
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
