@@ -54,6 +54,12 @@
     display: none;
   }
 
+  .heroInfo {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 1.5rem;
+  }
+
   .federatedImage {
     justify-self: center;
   }
