@@ -6,7 +6,12 @@ import TextLoop from 'react-text-loop';
 import { assetMetaData } from './asset-meta-data';
 import css from './hero-content.css';
 
-function HeroContent(): React.Node {
+type HeroContentProps = {
+  +onRequestAccess: (e: Event) => Promise<void>,
+};
+
+function HeroContent(props: HeroContentProps): React.Node {
+  const { onRequestAccess } = props;
   const [hero] = assetMetaData;
 
   return (
@@ -25,6 +30,9 @@ function HeroContent(): React.Node {
         </TextLoop>
       </h1>
       <p className={css.sub_heading}>(think &quot;Web3 Discord&quot;)</p>
+      <button className={css.request_access} onClick={onRequestAccess}>
+        Request Access
+      </button>
     </section>
   );
 }

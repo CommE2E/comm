@@ -39,3 +39,23 @@
 .sub_heading {
   color: var(--sub-heading-color);
 }
+
+button.request_access {
+  display: none;
+}
+
+@media screen and (max-width: 1099px) {
+  button.request_access {
+    display: none;
+    all: unset;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: var(--btn-bg);
+    color: var(--btn-color);
+    justify-content: center;
+    padding: 12px 18px;
+    transition: 300ms;
+    flex-basis: 130px;
+    text-align: center;
+  }
+}

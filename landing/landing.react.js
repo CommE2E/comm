@@ -37,9 +37,9 @@ function Landing(): React.Node {
     } else if (onKeyservers) {
       return <Keyservers />;
     } else {
-      return <AppLanding />;
+      return <AppLanding onRequestAccess={scrollToSubscriptionForm} />;
     }
-  }, [onKeyservers, onPrivacy, onSupport, onTerms]);
+  }, [onKeyservers, onPrivacy, onSupport, onTerms, scrollToSubscriptionForm]);
 
   return (
     <>

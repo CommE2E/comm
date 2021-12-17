@@ -10,7 +10,12 @@ import Picture from './Picture.react';
 import StarBackground from './star-background.react';
 import usePreloadAssets from './use-pre-load-assets.react';
 
-function AppLanding(): React.Node {
+type AppLandingProps = {
+  +onRequestAccess: (e: Event) => Promise<void>,
+};
+
+function AppLanding(props: AppLandingProps): React.Node {
+  const { onRequestAccess } = props;
   usePreloadAssets(assetMetaData);
   const [
     hero,
@@ -28,7 +33,7 @@ function AppLanding(): React.Node {
       <div className={hero.imageStyle}>
         <Picture url={hero.url} alt={hero.alt} />
       </div>
-      <HeroContent />
+      <HeroContent onRequestAccess={onRequestAccess} />
       <InfoBlock {...federated} />
       <InfoBlock {...customizable} />
       <InfoBlock {...encrypted} />
