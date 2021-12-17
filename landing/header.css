@@ -9,7 +9,7 @@ nav.wrapper {
   align-items: center;
   grid-template-columns: 40px repeat(12, 1fr) 40px;
   column-gap: 1.5%;
-  grid-template-areas: '. logo logo . . . page_nav page_nav . cta_btn cta_btn sIcons sIcons .';
+  grid-template-areas: '. logo logo . . . page_nav page_nav . cta_btn cta_btn cta_btn sIcons .';
 }
 
 .logo {
@@ -39,20 +39,22 @@ div.page_nav {
 
 div.button_container {
   grid-area: cta_btn;
-  justify-self: start;
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
 }
 
 button.request_access {
   all: unset;
-  display: flex;
   border-radius: 4px;
   font-size: 16px;
   background-color: var(--btn-bg);
   color: var(--btn-color);
   justify-content: center;
-  width: 170px;
   padding: 12px 24px;
   transition: 300ms;
+  flex-basis: 120px;
+  text-align: center;
 }
 
 .social_icons {
@@ -83,7 +85,8 @@ button.request_access {
   }
 
   .request_access,
-  .button_container {
+  .button_container,
+  button.request_access {
     display: none;
   }
 
