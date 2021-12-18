@@ -7,7 +7,7 @@ async function createTable() {
   await dbQuery(SQL`
     CREATE TABLE IF NOT EXISTS metadata (
       name varchar(255) NOT NULL,
-      data varchar(255),
+      data varchar(255)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
   `);
 }
