@@ -48,14 +48,14 @@ CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
   std::string textStr = draft.getProperty(rt, "text").asString(rt).utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
+        taskType job = [=]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().updateDraft(keyStr, textStr);
           } catch (std::system_error &e) {
             error = e.what();
           }
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          this->jsInvoker_->invokeAsync([=]() {
             if (error.size()) {
               promise->reject(error);
             } else {
@@ -76,7 +76,7 @@ jsi::Value CommCoreModule::moveDraft(
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
+        taskType job = [=]() {
           std::string error;
           bool result = false;
           try {
@@ -85,7 +85,7 @@ jsi::Value CommCoreModule::moveDraft(
           } catch (std::system_error &e) {
             error = e.what();
           }
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          this->jsInvoker_->invokeAsync([=]() {
             if (error.size()) {
               promise->reject(error);
             } else {
@@ -140,14 +140,14 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
 jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
+        taskType job = [=]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().removeAllDrafts();
           } catch (std::system_error &e) {
             error = e.what();
           }
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          this->jsInvoker_->invokeAsync([=]() {
             if (error.size()) {
               promise->reject(error);
               return;
@@ -356,7 +356,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
+        taskType job = [=]() {
           std::string error = createOperationsError;
 
           if (!error.size()) {
@@ -372,7 +372,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
             }
           }
 
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          this->jsInvoker_->invokeAsync([=]() {
             if (error.size()) {
               promise->reject(error);
             } else {
@@ -693,7 +693,7 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
   }
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([=, &innerRt]() {
+        this->databaseThread->scheduleTask([=]() {
           std::string error = operationsError;
           if (!error.size()) {
             try {
@@ -707,7 +707,7 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
               DatabaseManager::getQueryExecutor().rollbackTransaction();
             }
           }
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
+          this->jsInvoker_->invokeAsync([=]() {
             if (error.size()) {
               promise->reject(error);
             } else {
@@ -765,7 +765,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([=, &innerRt]() {
+        this->databaseThread->scheduleTask([=]() {
           crypto::Persist persist;
           std::string error;
           try {
@@ -790,14 +790,14 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
             error = e.what();
           }
 
-          this->cryptoThread->scheduleTask([=, &innerRt]() {
+          this->cryptoThread->scheduleTask([=]() {
             std::string error;
             this->cryptoModule.reset(new crypto::CryptoModule(
                 userIdStr, storedSecretKey.value(), persist));
             if (persist.isEmpty()) {
               crypto::Persist newPersist =
                   this->cryptoModule->storeAsB64(storedSecretKey.value());
-              this->databaseThread->scheduleTask([=, &innerRt]() {
+              this->databaseThread->scheduleTask([=]() {
                 std::string error;
                 try {
                   DatabaseManager::getQueryExecutor().storeOlmPersistData(
@@ -805,7 +805,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
                 } catch (std::system_error &e) {
                   error = e.what();
                 }
-                this->jsInvoker_->invokeAsync([=, &innerRt]() {
+                this->jsInvoker_->invokeAsync([=]() {
                   if (error.size()) {
                     promise->reject(error);
                     return;
@@ -817,7 +817,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
             } else {
               this->cryptoModule->restoreFromB64(
                   storedSecretKey.value(), persist);
-              this->jsInvoker_->invokeAsync([=, &innerRt]() {
+              this->jsInvoker_->invokeAsync([=]() {
                 if (error.size()) {
                   promise->reject(error);
                   return;
