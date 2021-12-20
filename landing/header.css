@@ -30,7 +30,7 @@ nav.wrapper {
   transition: 300ms;
 }
 
-div.page_nav {
+.page_nav {
   grid-area: page_nav;
   display: flex;
   justify-content: space-evenly;
@@ -86,6 +86,7 @@ button.request_access {
 
   .page_nav {
     justify-content: center;
+    gap: 12px;
   }
 
   .request_access,
