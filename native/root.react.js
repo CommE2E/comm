@@ -14,11 +14,12 @@ import {
   initialWindowMetrics,
 } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
+import { PersistGate as ReduxPersistGate } from 'redux-persist/integration/react';
 
 import { actionLogger } from 'lib/utils/action-logger';
 
 import ChatContextProvider from './chat/chat-context-provider.react';
+import PersistedStateGate from './components/persisted-state-gate';
 import ConnectedStatusBar from './connected-status-bar.react';
 import CoreDataProvider from './data/core-data-provider.react';
 import { SQLiteContextProvider } from './data/sqlite-context-provider';
@@ -216,9 +217,6 @@ function Root() {
   const gated: React.Node = (
     <>
       <LifecycleHandler />
-      <Socket
-        detectUnsupervisedBackgroundRef={detectUnsupervisedBackgroundRef}
-      />
       <DisconnectedBarVisibilityHandler />
       <DimensionsUpdater />
       <ConnectivityUpdater />
@@ -249,9 +247,16 @@ function Root() {
                 <ChatContextProvider>
                   <SQLiteContextProvider>
                     <ConnectedStatusBar />
-                    <PersistGate persistor={getPersistor()}>
+                    <ReduxPersistGate persistor={getPersistor()}>
                       {gated}
-                    </PersistGate>
+                    </ReduxPersistGate>
+                    <PersistedStateGate>
+                      <Socket
+                        detectUnsupervisedBackgroundRef={
+                          detectUnsupervisedBackgroundRef
+                        }
+                      />
+                    </PersistedStateGate>
                     {navigation}
                     <NavigationHandler />
                   </SQLiteContextProvider>
