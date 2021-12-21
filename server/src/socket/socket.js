@@ -70,7 +70,6 @@ import {
   createNewAnonymousCookie,
 } from '../session/cookies';
 import { Viewer } from '../session/viewer';
-import { updateActivityTime } from '../updaters/activity-updaters';
 import { commitSessionUpdate } from '../updaters/session-updaters';
 import { assertSecureRequest } from '../utils/security-utils';
 import {
@@ -721,12 +720,6 @@ class Socket {
       return;
     }
     this.handleStateCheckConditionsUpdate();
-  }
-
-  updateActivityTime() {
-    const { viewer } = this;
-    invariant(viewer, 'should be set');
-    handleAsyncPromise(updateActivityTime(viewer));
   }
 
   // The Socket will timeout by calling this.ws.terminate()

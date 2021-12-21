@@ -489,24 +489,6 @@ async function shouldResetThreadToUnread(
   return threadsWithNewerMessages.has(request.threadID);
 }
 
-// The `focused` table tracks which chat threads are currently in view for a
-// given cookie. We track this so that if a user is currently viewing a thread's
-// messages, then notifications on that thread are not sent. This function does
-// not add new rows to the `focused` table, but instead extends currently active
-// rows for the current cookie.
-async function updateActivityTime(viewer: Viewer): Promise<void> {
-  if (!viewer.loggedIn) {
-    return;
-  }
-  const time = Date.now();
-  const focusedQuery = SQL`
-    UPDATE focused
-    SET time = ${time}
-    WHERE user = ${viewer.userID} AND session = ${viewer.session}
-  `;
-  await dbQuery(focusedQuery);
-}
-
 type LastMessageInfo = {
   +lastMessage: number,
   +lastReadMessage: number,
@@ -532,4 +514,4 @@ async function fetchLastMessageInfo(
   return lastMessages;
 }
 
-export { activityUpdater, updateActivityTime, setThreadUnreadStatus };
+export { activityUpdater, setThreadUnreadStatus };
