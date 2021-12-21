@@ -71,16 +71,7 @@ void AwsS3Bucket::renameObject(const std::string &currentName,
     throw std::runtime_error(copyOutcome.GetError().GetMessage());
   }
 
-  Aws::S3::Model::DeleteObjectRequest deleteRequest;
-
-  deleteRequest.SetKey(currentName);
-  deleteRequest.SetBucket(this->name);
-
-  Aws::S3::Model::DeleteObjectOutcome deleteOutcome =
-      this->client->DeleteObject(deleteRequest);
-  if (!deleteOutcome.IsSuccess()) {
-    throw std::runtime_error(deleteOutcome.GetError().GetMessage());
-  }
+  this->deleteObject(currentName);
 }
 
 void AwsS3Bucket::writeObject(const std::string &objectName,
@@ -114,10 +105,14 @@ std::string AwsS3Bucket::getObjectData(const std::string &objectName) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
 
+  const size_t size = this->getObjectSize(objectName);
+  if (size > GRPC_CHUNK_SIZE_LIMIT) {
+    throw invalid_argument_error(
+        std::string("The file is too big(" + std::to_string(size) +
+                    " bytes, max is " + std::to_string(GRPC_CHUNK_SIZE_LIMIT) +
+                    "bytes), please, use getObjectDataChunks"));
+  }
   Aws::IOStream &retrievedFile = outcome.GetResultWithOwnership().GetBody();
-  retrievedFile.seekg(0, std::ios::end);
-  size_t size = retrievedFile.tellg();
-  retrievedFile.seekg(0);
 
   std::string result;
   result.resize(size);
@@ -202,6 +197,19 @@ void AwsS3Bucket::appendToObject(const std::string &objectName,
 
 void AwsS3Bucket::clearObject(const std::string &objectName) {
   this->writeObject(objectName, "");
+}
+
+void AwsS3Bucket::deleteObject(const std::string &objectName) {
+  Aws::S3::Model::DeleteObjectRequest deleteRequest;
+
+  deleteRequest.SetKey(objectName);
+  deleteRequest.SetBucket(this->name);
+
+  Aws::S3::Model::DeleteObjectOutcome deleteOutcome =
+      this->client->DeleteObject(deleteRequest);
+  if (!deleteOutcome.IsSuccess()) {
+    throw std::runtime_error(deleteOutcome.GetError().GetMessage());
+  }
 }
 
 } // namespace network

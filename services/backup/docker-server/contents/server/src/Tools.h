@@ -1,7 +1,5 @@
 #pragma once
 
-#include <exception>
-
 namespace comm {
 namespace network {
 
@@ -15,6 +13,12 @@ enum class OBJECT_TYPE {
   ENCRYPTED_BACKUP_KEY = 0,
   TRANSACTION_LOGS = 1,
   COMPACTION = 2,
+};
+
+class invalid_argument_error : public std::runtime_error {
+public:
+  invalid_argument_error(std::string errorMessage)
+      : std::runtime_error(errorMessage) {}
 };
 
 } // namespace network
