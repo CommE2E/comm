@@ -32,7 +32,7 @@ import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { sendPushNotifs } from '../push/send';
 import { handleAsyncPromise } from '../responders/handlers';
 import type { Viewer } from '../session/viewer';
-import { earliestFocusedTimeConsideredCurrent } from '../shared/focused-times';
+import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times';
 import { publisher } from '../socket/redis';
 import { creationString } from '../utils/idempotent';
 import createIDs from './id-creator';
@@ -279,7 +279,7 @@ async function postMessageSend(
     subthreadJoins.push(join);
   }
 
-  const time = earliestFocusedTimeConsideredCurrent();
+  const time = earliestFocusedTimeConsideredExpired();
   const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const query = SQL`
     SELECT m.user, m.thread, c.platform, c.device_token, c.versions,
