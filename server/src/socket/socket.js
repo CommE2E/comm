@@ -383,7 +383,7 @@ class Socket {
         this.markActivityOccurred();
         return await this.handleResponsesClientSocketMessage(message);
       } else if (message.type === clientSocketMessageTypes.PING) {
-        return await this.handlePingClientSocketMessage(message);
+        return this.handlePingClientSocketMessage(message);
       } else if (message.type === clientSocketMessageTypes.ACK_UPDATES) {
         this.markActivityOccurred();
         return await this.handleAckUpdatesClientSocketMessage(message);
@@ -592,10 +592,9 @@ class Socket {
     ];
   }
 
-  async handlePingClientSocketMessage(
+  handlePingClientSocketMessage(
     message: PingClientSocketMessage,
-  ): Promise<ServerServerSocketMessage[]> {
-    this.updateActivityTime();
+  ): ServerServerSocketMessage[] {
     return [
       {
         type: serverSocketMessageTypes.PONG,
