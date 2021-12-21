@@ -31,6 +31,7 @@ services:
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
+        - COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
     image: commapp/backup-server:1.0
     container_name: backup-server
     ports:

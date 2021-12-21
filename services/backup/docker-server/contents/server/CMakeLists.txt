@@ -8,7 +8,7 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # FIND LIBS
 set(protobuf_MODULE_COMPATIBLE TRUE)
@@ -42,12 +42,28 @@ find_package(AWSSDK REQUIRED COMPONENTS s3 core)
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
 file(GLOB GENERATED_CODE "./_generated/*.cc")
+set(DEV_SOURCE_CODE "")
+set(DEV_HEADERS_PATH "")
+if ($ENV{COMM_SERVICES_DEV_MODE} MATCHES 1)
+  file(GLOB DEV_SOURCE_CODE "./dev/*.cpp")
+  set(DEV_HEADERS_PATH "./dev")
+endif()
+
 file(GLOB SOURCE_CODE "./src/*.cpp")
+
+foreach (ITEM ${DEV_SOURCE_CODE})
+  string(REPLACE "/" ";" SPLIT_ITEM ${ITEM})
+  list(GET SPLIT_ITEM -1 FILE_FULL_NAME)
+  string(REPLACE ".dev.cpp" ".cpp" FILE_NAME ${FILE_FULL_NAME})
+  list(FILTER SOURCE_CODE EXCLUDE REGEX ".*${FILE_NAME}$")
+  list(APPEND SOURCE_CODE "${ITEM}")
+endforeach()
 
 include_directories(
   ./src
   ./_generated
   ${Boost_INCLUDE_DIR}
+  ${DEV_HEADERS_PATH}
 )
 
 set(
