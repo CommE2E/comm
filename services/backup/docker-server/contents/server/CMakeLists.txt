@@ -87,7 +87,10 @@ if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
   enable_testing()
 
   find_package(GTest REQUIRED)
-  include_directories(${GTEST_INCLUDE_DIR})
+  include_directories(
+    ${GTEST_INCLUDE_DIR}
+    ./test
+  )
 
   add_executable(
     runTests
