@@ -621,7 +621,7 @@ Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, bef
 
 ## Running mobile app on iOS simulator
 
-First, make sure that the React Native packager is open. If you haven’t already, open a new terminal and run:
+First, make sure that the Metro bundler is running. If you haven’t already, open a new terminal and run:
 
 ```
 cd native
@@ -634,7 +634,7 @@ Next, open `native/ios/Comm.xcworkspace` in Xcode. Select a simulator and then h
 
 ## Running mobile app on Android emulator
 
-First, make sure that the React Native packager is open. If you haven’t already, open a new terminal and run:
+First, make sure that the Metro bundler is running. If you haven’t already, open a new terminal and run:
 
 ```
 cd native
