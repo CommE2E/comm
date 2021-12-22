@@ -628,7 +628,7 @@ cd native
 yarn dev
 ```
 
-This command runs two processes. The first is the Metro bundler, which handles bundling our app’s JavaScript code and communicating with the debug build of the app running on either the simulator or a physical device. The second is the `remotedev-server` for Redux, which is a proxy of sorts through which the Redux monitor (running in the Chrome extension) can communicate with the debug build of the app.
+This command runs two processes. The first is the Metro bundler, which handles bundling our app’s JavaScript code and communicating with the debug build of the app running on either a physical or virtual device. The second is the `remotedev-server` for Redux, which is a proxy of sorts through which the Redux monitor (running in the Chrome extension) can communicate with the debug build of the app.
 
 Next, open `native/ios/Comm.xcworkspace` in Xcode. Select a simulator and then hit the play button to build and run the project.
 
