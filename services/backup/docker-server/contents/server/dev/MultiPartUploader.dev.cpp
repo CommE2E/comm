@@ -10,9 +10,10 @@ namespace network {
 
 std::unique_ptr<AwsS3Bucket> bucket;
 
-MultiPartUploader::MultiPartUploader(std::shared_ptr<Aws::S3::S3Client> client,
-                                     const std::string bucketName,
-                                     const std::string objectName)
+MultiPartUploader::MultiPartUploader(
+    std::shared_ptr<Aws::S3::S3Client> client,
+    const std::string bucketName,
+    const std::string objectName)
     : client(nullptr), bucketName(bucketName), objectName(objectName) {
   bucket->writeObject(createCommPath(this->objectName), "");
 }
@@ -32,8 +33,9 @@ void MultiPartUploader::finishUpload() {
       throw std::runtime_error("too small part detected");
     }
   }
-  bucket.renameObject(createCommPath(this->objectName + "mpu"),
-                      createCommPath(this->objectName));
+  bucket.renameObject(
+      createCommPath(this->objectName + "mpu"),
+      createCommPath(this->objectName));
 }
 
 } // namespace network

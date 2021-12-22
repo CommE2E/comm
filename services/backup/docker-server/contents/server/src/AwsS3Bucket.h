@@ -15,8 +15,9 @@ class AwsS3Bucket {
   std::shared_ptr<Aws::S3::S3Client> client;
 
 public:
-  AwsS3Bucket(const std::string name,
-              std::shared_ptr<Aws::S3::S3Client> client);
+  AwsS3Bucket(
+      const std::string name,
+      std::shared_ptr<Aws::S3::S3Client> client);
 
   std::vector<std::string> listObjects();
   bool isAvailable() const;
@@ -24,10 +25,10 @@ public:
   void renameObject(const std::string &currentName, const std::string &newName);
   void writeObject(const std::string &objectName, const std::string data);
   std::string getObjectData(const std::string &objectName);
-  void
-  getObjectDataChunks(const std::string &objectName,
-                      const std::function<void(const std::string &)> &callback,
-                      const size_t chunkSize);
+  void getObjectDataChunks(
+      const std::string &objectName,
+      const std::function<void(const std::string &)> &callback,
+      const size_t chunkSize);
   void appendToObject(const std::string &objectName, const std::string data);
   void clearObject(const std::string &objectName);
   void deleteObject(const std::string &objectName);

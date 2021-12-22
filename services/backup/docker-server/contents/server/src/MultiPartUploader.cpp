@@ -12,9 +12,10 @@
 namespace comm {
 namespace network {
 
-MultiPartUploader::MultiPartUploader(std::shared_ptr<Aws::S3::S3Client> client,
-                                     const std::string bucketName,
-                                     const std::string objectName)
+MultiPartUploader::MultiPartUploader(
+    std::shared_ptr<Aws::S3::S3Client> client,
+    const std::string bucketName,
+    const std::string objectName)
     : client(client), bucketName(bucketName), objectName(objectName) {
   this->completeMultipartUploadRequest.SetBucket(this->bucketName);
   this->completeMultipartUploadRequest.SetKey(this->objectName);

@@ -5,9 +5,9 @@
 namespace comm {
 namespace network {
 
-std::string
-BackupServiceImpl::generateObjectName(const std::string &userId,
-                                      const OBJECT_TYPE objectType) const {
+std::string BackupServiceImpl::generateObjectName(
+    const std::string &userId,
+    const OBJECT_TYPE objectType) const {
   if (objectType == OBJECT_TYPE::ENCRYPTED_BACKUP_KEY) {
     return userId + "-backup-key";
   }
@@ -28,12 +28,14 @@ BackupServiceImpl::BackupServiceImpl() {
   }
 }
 
-BackupServiceImpl::~BackupServiceImpl() { Aws::ShutdownAPI({}); }
+BackupServiceImpl::~BackupServiceImpl() {
+  Aws::ShutdownAPI({});
+}
 
-grpc::Status
-BackupServiceImpl::ResetKey(grpc::ServerContext *context,
-                            grpc::ServerReader<backup::ResetKeyRequest> *reader,
-                            google::protobuf::Empty *response) {
+grpc::Status BackupServiceImpl::ResetKey(
+    grpc::ServerContext *context,
+    grpc::ServerReader<backup::ResetKeyRequest> *reader,
+    google::protobuf::Empty *response) {
   backup::ResetKeyRequest request;
   std::string id;
   AwsS3Bucket bucket = this->storageManager->getBucket(this->bucketName);
@@ -78,9 +80,10 @@ BackupServiceImpl::ResetKey(grpc::ServerContext *context,
   return grpc::Status::OK;
 }
 
-grpc::Status BackupServiceImpl::SendLog(grpc::ServerContext *context,
-                                        const backup::SendLogRequest *request,
-                                        google::protobuf::Empty *response) {
+grpc::Status BackupServiceImpl::SendLog(
+    grpc::ServerContext *context,
+    const backup::SendLogRequest *request,
+    google::protobuf::Empty *response) {
   const std::string id = request->userid();
   const std::string data = request->data();
 
@@ -98,10 +101,10 @@ grpc::Status BackupServiceImpl::SendLog(grpc::ServerContext *context,
   return grpc::Status::OK;
 }
 
-grpc::Status
-BackupServiceImpl::PullBackupKey(grpc::ServerContext *context,
-                                 const backup::PullBackupKeyRequest *request,
-                                 backup::PullBackupKeyResponse *response) {
+grpc::Status BackupServiceImpl::PullBackupKey(
+    grpc::ServerContext *context,
+    const backup::PullBackupKeyRequest *request,
+    backup::PullBackupKeyResponse *response) {
   const std::string id = request->userid();
   const std::string pakeKey = request->pakekey();
 
@@ -123,7 +126,8 @@ BackupServiceImpl::PullBackupKey(grpc::ServerContext *context,
 }
 
 grpc::Status BackupServiceImpl::PullCompaction(
-    grpc::ServerContext *context, const backup::PullCompactionRequest *request,
+    grpc::ServerContext *context,
+    const backup::PullCompactionRequest *request,
     grpc::ServerWriter<backup::PullCompactionResponse> *writer) {
   const std::string id = request->userid();
 
@@ -141,7 +145,8 @@ grpc::Status BackupServiceImpl::PullCompaction(
         };
 
     bucket.getObjectDataChunks(
-        this->generateObjectName(id, OBJECT_TYPE::COMPACTION), callback,
+        this->generateObjectName(id, OBJECT_TYPE::COMPACTION),
+        callback,
         GRPC_CHUNK_SIZE_LIMIT);
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
@@ -158,7 +163,8 @@ grpc::Status BackupServiceImpl::PullCompaction(
         };
 
     bucket.getObjectDataChunks(
-        this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS), callback,
+        this->generateObjectName(id, OBJECT_TYPE::TRANSACTION_LOGS),
+        callback,
         GRPC_CHUNK_SIZE_LIMIT);
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;

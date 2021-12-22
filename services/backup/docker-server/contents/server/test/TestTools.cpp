@@ -17,8 +17,9 @@ std::string createObject(AwsS3Bucket bucket) {
   do {
     objectName = generateObjectName();
     presentObjects = bucket.listObjects();
-  } while (std::find(presentObjects.begin(), presentObjects.end(),
-                     objectName) != presentObjects.end());
+  } while (
+      std::find(presentObjects.begin(), presentObjects.end(), objectName) !=
+      presentObjects.end());
   return objectName;
 }
 

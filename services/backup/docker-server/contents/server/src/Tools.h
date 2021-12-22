@@ -18,7 +18,8 @@ enum class OBJECT_TYPE {
 class invalid_argument_error : public std::runtime_error {
 public:
   invalid_argument_error(std::string errorMessage)
-      : std::runtime_error(errorMessage) {}
+      : std::runtime_error(errorMessage) {
+  }
 };
 
 } // namespace network

@@ -16,9 +16,11 @@
 namespace comm {
 namespace network {
 
-AwsS3Bucket::AwsS3Bucket(const std::string name,
-                         std::shared_ptr<Aws::S3::S3Client> client)
-    : name(name), client(client) {}
+AwsS3Bucket::AwsS3Bucket(
+    const std::string name,
+    std::shared_ptr<Aws::S3::S3Client> client)
+    : name(name), client(client) {
+}
 
 std::vector<std::string> AwsS3Bucket::listObjects() {
   Aws::S3::Model::ListObjectsRequest request;
@@ -58,8 +60,9 @@ const size_t AwsS3Bucket::getObjectSize(const std::string &objectName) {
   return headOutcome.GetResultWithOwnership().GetContentLength();
 }
 
-void AwsS3Bucket::renameObject(const std::string &currentName,
-                               const std::string &newName) {
+void AwsS3Bucket::renameObject(
+    const std::string &currentName,
+    const std::string &newName) {
   Aws::S3::Model::CopyObjectRequest copyRequest;
   copyRequest.SetCopySource(this->name + "/" + currentName);
   copyRequest.SetKey(newName);
@@ -74,8 +77,9 @@ void AwsS3Bucket::renameObject(const std::string &currentName,
   this->deleteObject(currentName);
 }
 
-void AwsS3Bucket::writeObject(const std::string &objectName,
-                              const std::string data) {
+void AwsS3Bucket::writeObject(
+    const std::string &objectName,
+    const std::string data) {
   // we don't have to handle multiple write here because the GRPC limit is 4MB
   // and minimum size of data to perform multipart upload is 5MB
   Aws::S3::Model::PutObjectRequest request;
@@ -107,10 +111,10 @@ std::string AwsS3Bucket::getObjectData(const std::string &objectName) {
 
   const size_t size = this->getObjectSize(objectName);
   if (size > GRPC_CHUNK_SIZE_LIMIT) {
-    throw invalid_argument_error(
-        std::string("The file is too big(" + std::to_string(size) +
-                    " bytes, max is " + std::to_string(GRPC_CHUNK_SIZE_LIMIT) +
-                    "bytes), please, use getObjectDataChunks"));
+    throw invalid_argument_error(std::string(
+        "The file is too big(" + std::to_string(size) + " bytes, max is " +
+        std::to_string(GRPC_CHUNK_SIZE_LIMIT) +
+        "bytes), please, use getObjectDataChunks"));
   }
   Aws::IOStream &retrievedFile = outcome.GetResultWithOwnership().GetBody();
 
@@ -138,7 +142,7 @@ void AwsS3Bucket::getObjectDataChunks(
     const size_t nextSize = std::min(chunkSize, fileSize - offset);
 
     std::string range = "bytes=" + std::to_string(offset) + "-" +
-                        std::to_string(offset + nextSize);
+        std::to_string(offset + nextSize);
     request.SetRange(range);
 
     Aws::S3::Model::GetObjectOutcome getOutcome =
@@ -156,8 +160,9 @@ void AwsS3Bucket::getObjectDataChunks(
   }
 }
 
-void AwsS3Bucket::appendToObject(const std::string &objectName,
-                                 const std::string data) {
+void AwsS3Bucket::appendToObject(
+    const std::string &objectName,
+    const std::string data) {
   const size_t objectSize = this->getObjectSize(objectName);
   if (objectSize < AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {
     std::string currentData = this->getObjectData(objectName);
@@ -166,8 +171,8 @@ void AwsS3Bucket::appendToObject(const std::string &objectName,
     return;
   }
   size_t currentSize = 0;
-  MultiPartUploader uploader(this->client, this->name,
-                             objectName + "-multipart");
+  MultiPartUploader uploader(
+      this->client, this->name, objectName + "-multipart");
   std::function<void(const std::string &)> callback =
       [&uploader, &data, &currentSize, objectSize](const std::string &chunk) {
         currentSize += chunk.size();
@@ -180,18 +185,19 @@ void AwsS3Bucket::appendToObject(const std::string &objectName,
               "size of chunks exceeds the size of the object");
         }
       };
-  this->getObjectDataChunks(objectName, callback,
-                            AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE);
+  this->getObjectDataChunks(
+      objectName, callback, AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE);
   uploader.finishUpload();
   // this will overwrite the target file
   this->renameObject(objectName + "-multipart", objectName);
   const size_t newSize = this->getObjectSize(objectName);
   if (objectSize + data.size() != newSize) {
-    throw std::runtime_error("append to object " + objectName +
-                             " has been performed but the final sizes don't "
-                             "match, the size is now [" +
-                             std::to_string(newSize) + "] but should be [" +
-                             std::to_string(objectSize + data.size()) + "]");
+    throw std::runtime_error(
+        "append to object " + objectName +
+        " has been performed but the final sizes don't "
+        "match, the size is now [" +
+        std::to_string(newSize) + "] but should be [" +
+        std::to_string(objectSize + data.size()) + "]");
   }
 }
 

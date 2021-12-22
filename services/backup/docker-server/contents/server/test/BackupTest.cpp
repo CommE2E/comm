@@ -11,7 +11,9 @@ protected:
   }
 };
 
-TEST_F(BackupTest, passingTest) { EXPECT_TRUE(true); }
+TEST_F(BackupTest, passingTest) {
+  EXPECT_TRUE(true);
+}
 
 TEST_F(BackupTest, failingTest) {
   // EXPECT_TRUE(false);

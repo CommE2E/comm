@@ -22,7 +22,8 @@ struct ClientData {
   ClientState lastState = ClientState::ONLINE;
 
   ClientData(const std::string id, const std::string deviceToken)
-      : id(id), deviceToken(deviceToken) {}
+      : id(id), deviceToken(deviceToken) {
+  }
 };
 
 } // namespace ping

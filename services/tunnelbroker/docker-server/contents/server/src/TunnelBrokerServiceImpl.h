@@ -21,17 +21,18 @@ class TunnelBrokerServiceImpl final
       primaries;
 
 public:
-  grpc::Status
-  CheckIfPrimaryDeviceOnline(grpc::ServerContext *context,
-                             const tunnelbroker::CheckRequest *request,
-                             tunnelbroker::CheckResponse *response) override;
-  grpc::Status
-  BecomeNewPrimaryDevice(grpc::ServerContext *context,
-                         const tunnelbroker::NewPrimaryRequest *request,
-                         tunnelbroker::NewPrimaryResponse *response) override;
-  grpc::Status SendPong(grpc::ServerContext *context,
-                        const tunnelbroker::PongRequest *request,
-                        google::protobuf::Empty *response) override;
+  grpc::Status CheckIfPrimaryDeviceOnline(
+      grpc::ServerContext *context,
+      const tunnelbroker::CheckRequest *request,
+      tunnelbroker::CheckResponse *response) override;
+  grpc::Status BecomeNewPrimaryDevice(
+      grpc::ServerContext *context,
+      const tunnelbroker::NewPrimaryRequest *request,
+      tunnelbroker::NewPrimaryResponse *response) override;
+  grpc::Status SendPong(
+      grpc::ServerContext *context,
+      const tunnelbroker::PongRequest *request,
+      google::protobuf::Empty *response) override;
 };
 
 } // namespace network

@@ -24,8 +24,10 @@ class MultiPartUploader {
   size_t partNumber = 1;
 
 public:
-  MultiPartUploader(std::shared_ptr<Aws::S3::S3Client> client,
-                    const std::string bucketName, const std::string objectName);
+  MultiPartUploader(
+      std::shared_ptr<Aws::S3::S3Client> client,
+      const std::string bucketName,
+      const std::string objectName);
   void addPart(const std::string &part);
   void finishUpload();
 };

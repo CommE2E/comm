@@ -27,7 +27,9 @@ protected:
     bucket = std::make_unique<AwsS3Bucket>(bucketName, s3Client);
   }
 
-  virtual void TearDown() { Aws::ShutdownAPI({}); }
+  virtual void TearDown() {
+    Aws::ShutdownAPI({});
+  }
 };
 
 std::string generateNByes(const size_t n) {
@@ -60,8 +62,9 @@ TEST_F(MultiPartUploadTest, SuccessfulWriteMultipleChunks) {
   mpu.addPart("xxx");
   mpu.finishUpload();
   EXPECT_THROW(bucket->getObjectData(objectName), invalid_argument_error);
-  EXPECT_EQ(bucket->getObjectSize(objectName),
-            AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE + 3);
+  EXPECT_EQ(
+      bucket->getObjectSize(objectName),
+      AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE + 3);
   bucket->deleteObject(objectName);
 }
 

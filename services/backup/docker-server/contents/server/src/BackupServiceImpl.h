@@ -23,22 +23,26 @@ class BackupServiceImpl final : public backup::BackupService::Service {
 
   std::unique_ptr<AwsStorageManager> storageManager;
 
-  std::string generateObjectName(const std::string &userId,
-                                 const OBJECT_TYPE objectType) const;
+  std::string generateObjectName(
+      const std::string &userId,
+      const OBJECT_TYPE objectType) const;
 
 public:
   BackupServiceImpl();
   virtual ~BackupServiceImpl();
 
-  grpc::Status ResetKey(grpc::ServerContext *context,
-                        grpc::ServerReader<backup::ResetKeyRequest> *reader,
-                        google::protobuf::Empty *response) override;
-  grpc::Status SendLog(grpc::ServerContext *context,
-                       const backup::SendLogRequest *request,
-                       google::protobuf::Empty *response) override;
-  grpc::Status PullBackupKey(grpc::ServerContext *context,
-                             const backup::PullBackupKeyRequest *request,
-                             backup::PullBackupKeyResponse *response) override;
+  grpc::Status ResetKey(
+      grpc::ServerContext *context,
+      grpc::ServerReader<backup::ResetKeyRequest> *reader,
+      google::protobuf::Empty *response) override;
+  grpc::Status SendLog(
+      grpc::ServerContext *context,
+      const backup::SendLogRequest *request,
+      google::protobuf::Empty *response) override;
+  grpc::Status PullBackupKey(
+      grpc::ServerContext *context,
+      const backup::PullBackupKeyRequest *request,
+      backup::PullBackupKeyResponse *response) override;
   grpc::Status PullCompaction(
       grpc::ServerContext *context,
       const backup::PullCompactionRequest *request,

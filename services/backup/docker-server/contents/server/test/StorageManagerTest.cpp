@@ -17,8 +17,9 @@ public:
 protected:
   std::unique_ptr<AwsStorageManager> storageManager;
   const std::string bucketName = "commapp-test";
-  const std::string data = "yiU3VaZlKfTteO10yrWmK1Q5BOvBQrdmj2aBlnoLuhxLfRZK1n8"
-                           "26FRXJAGhPswR1r8yxtwxyLkv3I4J4tlH4brDP10mrB99XpM6";
+  const std::string data =
+      "yiU3VaZlKfTteO10yrWmK1Q5BOvBQrdmj2aBlnoLuhxLfRZK1n8"
+      "26FRXJAGhPswR1r8yxtwxyLkv3I4J4tlH4brDP10mrB99XpM6";
 
   virtual void SetUp() {
     Aws::InitAPI({});
@@ -27,7 +28,9 @@ protected:
     }
   }
 
-  virtual void TearDown() { Aws::ShutdownAPI({}); }
+  virtual void TearDown() {
+    Aws::ShutdownAPI({});
+  }
 };
 
 TEST_F(StorageManagerTest, ObjectOperationsTest) {
@@ -36,10 +39,11 @@ TEST_F(StorageManagerTest, ObjectOperationsTest) {
 
   storageManager->getBucket(bucketName).writeObject(objectName, data);
 
-  EXPECT_EQ(storageManager->getBucket(bucketName).getObjectSize(objectName),
-            data.size());
-  EXPECT_TRUE(storageManager->getBucket(bucketName).getObjectData(objectName) ==
-              data);
+  EXPECT_EQ(
+      storageManager->getBucket(bucketName).getObjectSize(objectName),
+      data.size());
+  EXPECT_TRUE(
+      storageManager->getBucket(bucketName).getObjectData(objectName) == data);
   std::string chunkedData;
   const size_t chunkSize = data.size() / 10;
   std::function<void(const std::string &)> callback =
@@ -50,8 +54,9 @@ TEST_F(StorageManagerTest, ObjectOperationsTest) {
 
   storageManager->getBucket(bucketName)
       .renameObject(objectName, objectName + "c");
-  EXPECT_THROW(storageManager->getBucket(bucketName).getObjectData(objectName),
-               std::runtime_error);
+  EXPECT_THROW(
+      storageManager->getBucket(bucketName).getObjectData(objectName),
+      std::runtime_error);
   EXPECT_TRUE(
       storageManager->getBucket(bucketName).getObjectData(objectName + "c") ==
       data);
@@ -62,6 +67,7 @@ TEST_F(StorageManagerTest, ObjectOperationsTest) {
   EXPECT_EQ(storageManager->getBucket(bucketName).getObjectSize(objectName), 0);
 
   storageManager->getBucket(bucketName).deleteObject(objectName);
-  EXPECT_THROW(storageManager->getBucket(bucketName).getObjectData(objectName),
-               std::runtime_error);
+  EXPECT_THROW(
+      storageManager->getBucket(bucketName).getObjectData(objectName),
+      std::runtime_error);
 }

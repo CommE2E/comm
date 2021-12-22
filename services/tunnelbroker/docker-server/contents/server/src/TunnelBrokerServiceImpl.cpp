@@ -1,7 +1,7 @@
 #include "TunnelBrokerServiceImpl.h"
 
-#include <chrono>
 #include <folly/stop_watch.h>
+#include <chrono>
 
 namespace comm {
 namespace network {
@@ -9,7 +9,8 @@ namespace network {
 using namespace std::chrono_literals;
 
 grpc::Status TunnelBrokerServiceImpl::CheckIfPrimaryDeviceOnline(
-    grpc::ServerContext *context, const tunnelbroker::CheckRequest *request,
+    grpc::ServerContext *context,
+    const tunnelbroker::CheckRequest *request,
     tunnelbroker::CheckResponse *response) {
   const std::string id = request->userid();
   const std::string deviceToken = request->devicetoken();
@@ -76,10 +77,10 @@ grpc::Status TunnelBrokerServiceImpl::BecomeNewPrimaryDevice(
   return grpc::Status::OK;
 }
 
-grpc::Status
-TunnelBrokerServiceImpl::SendPong(grpc::ServerContext *context,
-                                  const tunnelbroker::PongRequest *request,
-                                  google::protobuf::Empty *response) {
+grpc::Status TunnelBrokerServiceImpl::SendPong(
+    grpc::ServerContext *context,
+    const tunnelbroker::PongRequest *request,
+    google::protobuf::Empty *response) {
   const std::string id = request->userid();
   const std::string deviceToken = request->devicetoken();
 
