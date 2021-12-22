@@ -3,6 +3,11 @@ name: iOS Build CI
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - 'landing/**'
+      - 'web/**'
+      - 'docs/**'
+      - 'server/**'
 
 jobs:
   build:
