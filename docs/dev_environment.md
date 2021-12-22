@@ -35,7 +35,7 @@ Install [Homebrew](https://brew.sh/), a package manager for macOS.
 
 ## Node
 
-Next, install [Node](https://nodejs.org/) using Homebrew. We're going to use version 16 to avoid some possible issues that come up on Apple silicon when we install project dependencies.
+Next, install [Node](https://nodejs.org/) using Homebrew. We’re going to use version 16 to avoid some possible issues that come up on Apple silicon when we install project dependencies.
 
 ```
 brew install node@16; brew upgrade node@16
@@ -184,7 +184,7 @@ SDKMAN! takes care of setting up the `$JAVA_HOME` environment variable to point 
 
 Start by downloading and installing [Android Studio](https://developer.android.com/studio/index.html) for your platform. When prompted to choose an installation type, select “Custom”.
 
-You'll be prompted to select a JDK installation. If your SDKMAN!-sourced JDK doesn't appear in the dropdown, you can find the absolute path to your installed JDK with the following command:
+You’ll be prompted to select a JDK installation. If your SDKMAN!-sourced JDK doesn’t appear in the dropdown, you can find the absolute path to your installed JDK with the following command:
 
 ```
 sdk home java 11.0.13-zulu
@@ -253,17 +253,17 @@ Flipper is a debugging tool for mobile applications from Facebook. We use it for
 
 ### Flipper settings
 
-After opening Flipper, click the gear icon in the bottom left and navigate to "Settings".
+After opening Flipper, click the gear icon in the bottom left and navigate to “Settings”.
 
-Let's set the Android SDK path. To find the path, open Android Studio and navigate to Preferences → Appearance & Behavior → System Settings → Android SDK. The explicit path of your Android SDK is defined in "Android SDK Location". Use this path in Flipper Settings as the "Android SDK Location".
+Let’s set the Android SDK path. To find the path, open Android Studio and navigate to Preferences → Appearance & Behavior → System Settings → Android SDK. The explicit path of your Android SDK is defined in “Android SDK Location”. Use this path in Flipper Settings as the “Android SDK Location”.
 
-Also, enable the option for "React Native keyboard shortcuts" below.
+Also, enable the option for “React Native keyboard shortcuts” below.
 
 ### Flipper plugins
 
 Flipper has a plugin system that allows teams to integrate additional debugging tools into Flipper. We currently only use one plugin, which is for monitoring Redux state.
 
-To install it, open Flipper and go to View → Manage Plugins. Type in "redux-debugger" and install the Flipper plugin with that name.
+To install it, open Flipper and go to View → Manage Plugins. Type in “redux-debugger“ and install the Flipper plugin with that name.
 
 ## idb (Intel x86-64 only)
 
@@ -283,13 +283,13 @@ If you have trouble getting Flipper to work with a physical iOS device, it may b
 
 ### Codegen for gRPC
 
-gRPC is a framework from Google for writing services. As a developer, you define your service's API using Protobufs, and gRPC handles the networking and basic infrastructure for you.
+gRPC is a framework from Google for writing services. As a developer, you define your service’s API using Protobufs, and gRPC handles the networking and basic infrastructure for you.
 
 The codegen for gRPC takes files written in the [protocol buffers language](https://developers.google.com/protocol-buffers/docs/proto3) as input and outputs C++ code that enables a developer to create a client and a server that use gRPC for communication.
 
 Because of C++ build dependencies, this could not be bundled as an npm package. `brew` also fails to install the required version so if you want to generate files in your local environment, you have to manually install Protobuf.
 
-If you find yourself needing to modify the Protobuf schema files, you'll need to set up the tools to run the codegen. Follow the steps below:
+If you find yourself needing to modify the Protobuf schema files, you’ll need to set up the tools to run the codegen. Follow the steps below:
 
 - `brew install autoconf automake libtool curl make g++ unzip`
 - `wget https://github.com/protocolbuffers/protobuf/releases/download/v3.15.8/protobuf-cpp-3.15.8.tar.gz`
@@ -423,13 +423,13 @@ You can now exit the MySQL console using Ctrl+D.
 
 ## TablePlus
 
-Feel free to use a MySQL administration platform that you're comfortable with. PHP was deprecated in macOS 12 (Monterey), leading many of us to switch to [TablePlus](https://tableplus.com/).
+Feel free to use a MySQL administration platform that you’re comfortable with. PHP was deprecated in macOS 12 (Monterey), leading many of us to switch to [TablePlus](https://tableplus.com/).
 
 After installing TablePlus, you need to open a new connection. After opening TablePlus, click the “Create a new connection” text at the bottom of the window that appears.
 
 - Alternatively, you can navigate through Connection → New... in the menu at the top of the display.
 
-Choose MySQL from the database options that appear. You'll be prompted for:
+Choose MySQL from the database options that appear. You’ll be prompted for:
 
 - Name (Comm)
 - Host (localhost)
@@ -443,7 +443,7 @@ In order to test the Android app on your computer you’ll need to set up an And
 
 With the AVD Manager open, select “Create Virtual Device” on the bottom row. Feel free to select any “device definition” that includes Play Store support.
 
-On the next screen you’ll be asked to select a system image. Go for the latest version of Android that's been released.
+On the next screen you’ll be asked to select a system image. Go for the latest version of Android that’s been released.
 
 From there you can just hit Next and then Finish. You should then be able to start your new AVD from the AVD Manager.
 
@@ -671,7 +671,7 @@ We use a couple of tools that automatically generate code. There is always a sou
 
 JSI is a framework in React Native that allows C++ and JS to communicate synchronously and directly. The codegen for JSI takes a Flow schema and generates C++ files that enable communication between JS and C++ in `react-native` apps.
 
-The script to generate this code is written in JavaScript and is included as a npm package so no additional software is needed to use it. The schema has to be defined in Flow as an interface, and that interface must inherit from react-native's `TurboModule` interface.
+The script to generate this code is written in JavaScript and is included as a npm package so no additional software is needed to use it. The schema has to be defined in Flow as an interface, and that interface must inherit from react-native’s `TurboModule` interface.
 
 To run the JSI codegen, just run `cd native && yarn codegen-jsi`. The input Flow schemas are located in `native/schema`.
 
