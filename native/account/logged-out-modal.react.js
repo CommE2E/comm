@@ -19,7 +19,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 
 import {
-  appStartNativeCredentialsAutoLogIn,
+  appStartCookieLoggedInButInvalidRedux,
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
@@ -284,14 +284,13 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     const { loggedIn, cookie, urlPrefix, dispatch } = this.props;
     const hasUserCookie = cookie && cookie.startsWith('user=');
-    if (loggedIn && hasUserCookie) {
+    if (loggedIn === !!hasUserCookie) {
       return;
     }
-
     if (!__DEV__) {
       const actionSource = loggedIn
         ? appStartReduxLoggedInButInvalidCookie
-        : appStartNativeCredentialsAutoLogIn;
+        : appStartCookieLoggedInButInvalidRedux;
       const sessionChange = await fetchNewCookieFromNativeCredentials(
         dispatch,
         cookie,
@@ -307,10 +306,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         return;
       }
     }
-
-    if (loggedIn || hasUserCookie) {
-      this.props.dispatch({ type: resetUserStateActionType });
-    }
+    this.props.dispatch({ type: resetUserStateActionType });
   }
 
   hardwareBack = () => {
