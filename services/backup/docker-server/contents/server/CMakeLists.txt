@@ -45,11 +45,12 @@ file(GLOB GENERATED_CODE "./_generated/*.cc")
 set(DEV_SOURCE_CODE "")
 set(DEV_HEADERS_PATH "")
 if ($ENV{COMM_SERVICES_DEV_MODE} MATCHES 1)
-  file(GLOB DEV_SOURCE_CODE "./dev/*.cpp")
+  file(GLOB DEV_SOURCE_CODE "./dev/*.cpp" "./src/*.dev.cpp")
   set(DEV_HEADERS_PATH "./dev")
 endif()
 
 file(GLOB SOURCE_CODE "./src/*.cpp")
+list(FILTER SOURCE_CODE EXCLUDE REGEX ".*.dev.cpp$")
 
 foreach (ITEM ${DEV_SOURCE_CODE})
   string(REPLACE "/" ";" SPLIT_ITEM ${ITEM})
