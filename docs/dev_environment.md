@@ -619,7 +619,7 @@ This command runs three processes. The first two are to keep the `dist` folder u
 
 Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
 
-## Running mobile app on iOS simulator
+## Running mobile app on iOS Simulator
 
 First, make sure that the Metro bundler is running. If you haven’t already, open a new terminal and run:
 
@@ -630,9 +630,9 @@ yarn dev
 
 This command runs two processes. The first is the Metro bundler, which handles bundling our app’s JavaScript code and communicating with the debug build of the app running on either a physical or virtual device. The second is the `remotedev-server` for Redux, which is a proxy of sorts through which the Redux monitor (running in the Chrome extension) can communicate with the debug build of the app.
 
-Next, open `native/ios/Comm.xcworkspace` in Xcode. Select a simulator and then hit the play button to build and run the project.
+Next, open `native/ios/Comm.xcworkspace` in Xcode. Select a Simulator from the Scheme menu in the Workspace Toolbar. Then hit the Run button to build and run the project.
 
-## Running mobile app on Android emulator
+## Running mobile app on Android Emulator
 
 First, make sure that the Metro bundler is running. If you haven’t already, open a new terminal and run:
 
@@ -641,9 +641,9 @@ cd native
 yarn dev
 ```
 
-This commands runs two processes (see previous section for details).
+This command runs two processes (see previous section for details).
 
-Next, boot up an Android simulator using Android Studio’s AVD Manager. You should have a single Android simulator (or plugged-in device) running at one time.
+Next, boot up an Android Emulator using Android Studio’s AVD Manager. You should have a single Android Emulator (or plugged-in device) running at one time.
 
 Finally, use this command to build and run the Android app:
 
