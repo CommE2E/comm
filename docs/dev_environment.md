@@ -437,9 +437,9 @@ Choose MySQL from the database options that appear. You’ll be prompted for:
 - User (comm)
 - Password (the one you made when initializing the MySQL server in the previous step)
 
-## Android emulator
+## Android Emulator
 
-In order to test the Android app on your computer you’ll need to set up an Android emulator. To do this we’ll need to open up the AVD Manager in Android Studio. AVD stands for “Android Virtual Device”. You can access the AVD Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → AVD Manager.
+In order to test the Android app on your computer you’ll need to set up an Android Emulator. To do this we’ll need to open up the AVD Manager in Android Studio. AVD stands for “Android Virtual Device”. You can access the AVD Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → AVD Manager.
 
 With the AVD Manager open, select “Create Virtual Device” on the bottom row. Feel free to select any “device definition” that includes Play Store support.
 
