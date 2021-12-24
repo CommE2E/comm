@@ -48,7 +48,7 @@
     "dateformat": "^3.0.3",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
-    "firebase-admin": "^9.2.0",
+    "firebase-admin": "^10.0.1",
     "geoip-lite": "^1.4.0",
     "invariant": "^2.2.4",
     "landing": "0.0.1",
