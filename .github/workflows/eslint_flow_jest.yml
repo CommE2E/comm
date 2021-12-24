@@ -49,3 +49,7 @@ jobs:
       - name: '[lib] test'
         working-directory: ./lib
         run: yarn test
+
+      - name: '[server] test'
+        working-directory: ./server
+        run: yarn test
