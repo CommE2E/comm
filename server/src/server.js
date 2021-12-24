@@ -7,6 +7,7 @@ import expressWs from 'express-ws';
 import os from 'os';
 
 import './cron/cron';
+import { migrate } from './database/migrations';
 import { jsonEndpoints } from './endpoints';
 import { emailSubscriptionResponder } from './responders/comm-landing-responders';
 import {
@@ -35,10 +36,19 @@ const { baseRoutePath } = getGlobalURLFacts();
 const landingBaseRoutePath = getLandingURLFacts().baseRoutePath;
 
 if (cluster.isMaster) {
-  const cpuCount = os.cpus().length;
-  for (let i = 0; i < cpuCount; i++) {
-    cluster.fork();
-  }
+  (async () => {
+    const didMigrationsSucceed: boolean = await migrate();
+    if (!didMigrationsSucceed) {
+      // The following line uses exit code 2 to ensure nodemon exits
+      // in a dev environment, instead of restarting. Context provided
+      // in https://github.com/remy/nodemon/issues/751
+      process.exit(2);
+    }
+    const cpuCount = os.cpus().length;
+    for (let i = 0; i < cpuCount; i++) {
+      cluster.fork();
+    }
+  })();
   cluster.on('exit', () => cluster.fork());
 } else {
   const server = express();
