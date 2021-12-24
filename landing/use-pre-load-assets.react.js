@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { assetUrl, type Asset } from './asset-meta-data';
+import { type Asset } from './asset-meta-data';
 
 function usePreloadAssets(assets: Asset[]) {
   React.useEffect(() => {
@@ -13,7 +13,7 @@ function usePreloadAssets(assets: Asset[]) {
     testImg.onload = () => {
       for (const { url } of assets) {
         const image = new Image();
-        image.src = `${assetUrl}/${url}.webp`;
+        image.src = `${url}.webp`;
       }
     };
 
@@ -21,7 +21,7 @@ function usePreloadAssets(assets: Asset[]) {
     testImg.onerror = () => {
       for (const { url } of assets) {
         const image = new Image();
-        image.src = `${assetUrl}/${url}.png`;
+        image.src = `${url}.png`;
       }
     };
 
