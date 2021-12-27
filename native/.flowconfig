@@ -27,6 +27,7 @@
 [libs]
 ../node_modules/react-native/interface.js
 ../node_modules/react-native/flow/
+../lib/flow-typed/
 
 [options]
 emoji=true
