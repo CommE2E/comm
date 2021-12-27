@@ -48,7 +48,7 @@ function NotificationRow(props: ProfileRowProps): React.Node {
   const { content, onPress, danger, selected } = props;
   return (
     <Action.Row onPress={onPress}>
-      <Action.Text {...{ danger, content }} />
+      <Action.Text danger={danger} content={content} />
       {selected ? <CheckIcon /> : null}
     </Action.Row>
   );
@@ -199,12 +199,10 @@ const ConnectedDefaultNotificationPreferences: React.ComponentType<BaseProps> = 
     return (
       <DefaultNotificationsPreferences
         {...props}
-        {...{
-          styles,
-          dispatchActionPromise,
-          changeNotificationSettings,
-          selectedDefaultNotification,
-        }}
+        styles={styles}
+        dispatchActionPromise={dispatchActionPromise}
+        changeNotificationSettings={changeNotificationSettings}
+        selectedDefaultNotification={selectedDefaultNotification}
       />
     );
   },

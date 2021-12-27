@@ -19,7 +19,7 @@ function InfoBlock(props: InfoBlockProps): React.Node {
   return (
     <>
       <div className={imageStyle}>
-        <Picture {...{ url, alt }} />
+        <Picture alt={alt} url={url} />
       </div>
       <div className={`${css.info_block} ${infoStyle}`}>
         <p className={css.title}>{title}</p>

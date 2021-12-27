@@ -62,7 +62,7 @@ function ProfileRow(props: ProfileRowProps): React.Node {
   const { content, onPress, danger } = props;
   return (
     <Action.Row onPress={onPress}>
-      <Action.Text {...{ danger, content }} />
+      <Action.Text danger={danger} content={content} />
       <Action.Icon name="ios-arrow-forward" />
     </Action.Row>
   );
