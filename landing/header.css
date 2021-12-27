@@ -115,7 +115,8 @@ button.request_access {
   .page_nav {
     grid-area: page_nav;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 40px;
     min-width: 225px;
   }
 }
