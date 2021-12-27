@@ -16,6 +16,7 @@ import {
 import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
+import { tShape } from 'lib/utils/validation-utils';
 
 import createMessages from '../creators/message-creator';
 import {
@@ -26,7 +27,7 @@ import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { fetchMedia } from '../fetchers/upload-fetchers';
 import type { Viewer } from '../session/viewer';
 import { assignMedia } from '../updaters/upload-updaters';
-import { validateInput, tShape } from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,

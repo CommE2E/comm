@@ -33,6 +33,11 @@ import {
 import { sessionCheckFrequency } from 'lib/types/session-types';
 import { hash } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
+import {
+  tShape,
+  tPlatform,
+  tPlatformDetails,
+} from 'lib/utils/validation-utils';
 
 import { saveOneTimeKeys } from '../creators/one-time-keys-creator';
 import createReport from '../creators/report-creator';
@@ -64,7 +69,6 @@ import type { Viewer } from '../session/viewer';
 import { activityUpdater } from '../updaters/activity-updaters';
 import { compareNewCalendarQuery } from '../updaters/entry-updaters';
 import type { SessionUpdate } from '../updaters/session-updaters';
-import { tShape, tPlatform, tPlatformDetails } from '../utils/validation-utils';
 
 const clientResponseInputValidator: TUnion<TInterface> = t.union([
   tShape({
