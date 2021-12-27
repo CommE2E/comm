@@ -4,9 +4,10 @@ import type { $Response, $Request } from 'express';
 
 import { type EmailSubscriptionRequest } from 'lib/types/account-types';
 import { ServerError } from 'lib/utils/errors';
+import { tShape, tEmail } from 'lib/utils/validation-utils';
 
 import { sendEmailSubscriptionRequestToAshoat } from '../emails/subscribe-email-updates';
-import { checkInputValidator, tShape, tEmail } from '../utils/validation-utils';
+import { checkInputValidator } from '../utils/validation-utils';
 
 const emailSubscriptionInputValidator = tShape({
   email: tEmail,

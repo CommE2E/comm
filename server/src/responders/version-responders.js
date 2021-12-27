@@ -6,11 +6,12 @@ import t from 'tcomb';
 import { isStaff } from 'lib/shared/user-utils';
 import type { CreateNewVersionsRequest } from 'lib/types/version-types';
 import { ServerError } from 'lib/utils/errors';
+import { tShape, tDeviceType } from 'lib/utils/validation-utils';
 
 import createIDs from '../creators/id-creator';
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
-import { validateInput, tShape, tDeviceType } from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const createNewVersionInputValidator = tShape({
   codeVersion: t.Number,

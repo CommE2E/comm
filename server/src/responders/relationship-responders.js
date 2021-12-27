@@ -7,10 +7,11 @@ import {
   type RelationshipErrors,
   relationshipActionsList,
 } from 'lib/types/relationship-types';
+import { tShape } from 'lib/utils/validation-utils';
 
 import type { Viewer } from '../session/viewer';
 import { updateRelationships } from '../updaters/relationship-updaters';
-import { validateInput, tShape } from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const updateRelationshipInputValidator = tShape({
   action: t.enums.of(relationshipActionsList, 'relationship action'),

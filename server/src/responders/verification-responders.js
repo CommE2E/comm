@@ -4,9 +4,10 @@ import t from 'tcomb';
 
 import type { HandleVerificationCodeResult } from 'lib/types/verify-types';
 import { ServerError } from 'lib/utils/errors';
+import { tShape } from 'lib/utils/validation-utils';
 
 import type { Viewer } from '../session/viewer';
-import { validateInput, tShape } from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const codeVerificationRequestInputValidator = tShape({
   code: t.String,

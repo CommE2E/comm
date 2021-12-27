@@ -29,6 +29,14 @@ import type { PasswordUpdate } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
+import {
+  tShape,
+  tPlatformDetails,
+  tDeviceType,
+  tPassword,
+  tEmail,
+  tOldValidUsername,
+} from 'lib/utils/validation-utils';
 
 import createAccount from '../creators/account-creator';
 import { dbQuery, SQL } from '../database/database';
@@ -56,15 +64,7 @@ import {
   updateUserSettings,
 } from '../updaters/account-updaters';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
-import {
-  validateInput,
-  tShape,
-  tPlatformDetails,
-  tDeviceType,
-  tPassword,
-  tEmail,
-  tOldValidUsername,
-} from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
   newEntryQueryInputValidator,

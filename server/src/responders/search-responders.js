@@ -6,10 +6,11 @@ import type {
   UserSearchRequest,
   UserSearchResult,
 } from 'lib/types/search-types';
+import { tShape } from 'lib/utils/validation-utils';
 
 import { searchForUsers } from '../search/users';
 import type { Viewer } from '../session/viewer';
-import { validateInput, tShape } from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const userSearchRequestInputValidator = tShape({
   prefix: t.maybe(t.String),

@@ -41,6 +41,7 @@ import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
 import SequentialPromiseResolver from 'lib/utils/sequential-promise-resolver';
 import sleep from 'lib/utils/sleep';
+import { tShape, tCookie } from 'lib/utils/validation-utils';
 
 import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
@@ -75,8 +76,6 @@ import { assertSecureRequest } from '../utils/security-utils';
 import {
   checkInputValidator,
   checkClientSupported,
-  tShape,
-  tCookie,
 } from '../utils/validation-utils';
 import { RedisSubscriber } from './redis';
 import {

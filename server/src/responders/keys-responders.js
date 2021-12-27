@@ -4,10 +4,11 @@ import t from 'tcomb';
 
 import type { GetUserPublicKeysArgs } from 'lib/types/request-types';
 import type { UserPublicKeys } from 'lib/types/user-types';
+import { tShape } from 'lib/utils/validation-utils';
 
 import { fetchUserPublicKeys } from '../fetchers/key-fetchers';
 import type { Viewer } from '../session/viewer';
-import { validateInput, tShape } from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const getUserPublicKeysInputValidator = tShape({
   userID: t.String,
