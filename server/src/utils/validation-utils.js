@@ -27,6 +27,10 @@ function tString(value: string): TIrreducible<string> {
   return t.irreducible('literal string', x => x === value);
 }
 
+function tNumber(value: number): TIrreducible<number> {
+  return t.irreducible('literal number', x => x === value);
+}
+
 function tShape(spec: TStructProps): TInterface {
   return t.interface(spec, { strict: true });
 }
@@ -210,6 +214,7 @@ function findFirstInputMatchingValidator(
 export {
   tBool,
   tString,
+  tNumber,
   tShape,
   tRegex,
   tNumEnum,
