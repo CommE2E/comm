@@ -63,6 +63,7 @@ const tPassword: TRefinement<string> = t.refinement(
 const tCookie: TRegex = tRegex(/^(user|anonymous)=[0-9]+:[0-9a-f]+$/);
 const tEmail: TRegex = tRegex(validEmailRegex);
 const tOldValidUsername: TRegex = tRegex(oldValidUsernameRegex);
+const tID: TRefinement<string> = t.refinement(t.String, (id: string) => !!id);
 
 async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
   if (!viewer.isSocket) {
@@ -221,6 +222,7 @@ export {
   tCookie,
   tEmail,
   tOldValidUsername,
+  tID,
   validateInput,
   checkInputValidator,
   checkClientSupported,
