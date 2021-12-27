@@ -12,6 +12,11 @@ import {
   reportTypes,
 } from 'lib/types/report-types';
 import { ServerError } from 'lib/utils/errors';
+import {
+  tShape,
+  tPlatform,
+  tPlatformDetails,
+} from 'lib/utils/validation-utils';
 
 import createReport from '../creators/report-creator';
 import {
@@ -19,12 +24,7 @@ import {
   fetchReduxToolsImport,
 } from '../fetchers/report-fetchers';
 import type { Viewer } from '../session/viewer';
-import {
-  validateInput,
-  tShape,
-  tPlatform,
-  tPlatformDetails,
-} from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 import { newEntryQueryInputValidator } from './entry-responders';
 
 const tActionSummary = tShape({

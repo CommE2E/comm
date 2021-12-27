@@ -22,6 +22,7 @@ import type {
   FetchEntryRevisionInfosRequest,
 } from 'lib/types/history-types';
 import { ServerError } from 'lib/utils/errors';
+import { tString, tShape, tDate } from 'lib/utils/validation-utils';
 
 import createEntry from '../creators/entry-creator';
 import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
@@ -37,12 +38,7 @@ import {
   compareNewCalendarQuery,
 } from '../updaters/entry-updaters';
 import { commitSessionUpdate } from '../updaters/session-updaters';
-import {
-  validateInput,
-  tString,
-  tShape,
-  tDate,
-} from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const entryQueryInputValidator: TInterface = tShape({
   navID: t.maybe(t.String),

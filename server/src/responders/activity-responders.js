@@ -9,13 +9,14 @@ import type {
   SetThreadUnreadStatusRequest,
   SetThreadUnreadStatusResult,
 } from 'lib/types/activity-types';
+import { tShape } from 'lib/utils/validation-utils';
 
 import type { Viewer } from '../session/viewer';
 import {
   activityUpdater,
   setThreadUnreadStatus,
 } from '../updaters/activity-updaters';
-import { validateInput, tShape } from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const activityUpdatesInputValidator: TList<TInterface> = t.list(
   tShape({

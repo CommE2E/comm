@@ -18,6 +18,12 @@ import {
   threadTypes,
 } from 'lib/types/thread-types';
 import { values } from 'lib/utils/objects';
+import {
+  tShape,
+  tNumEnum,
+  tColor,
+  tPassword,
+} from 'lib/utils/validation-utils';
 
 import { createThread } from '../creators/thread-creator';
 import { deleteThread } from '../deleters/thread-deleters';
@@ -29,13 +35,7 @@ import {
   updateThread,
   joinThread,
 } from '../updaters/thread-updaters';
-import {
-  validateInput,
-  tShape,
-  tNumEnum,
-  tColor,
-  tPassword,
-} from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
   verifyCalendarQueryThreadIDs,

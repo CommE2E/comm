@@ -4,14 +4,11 @@ import t from 'tcomb';
 import type { TInterface } from 'tcomb';
 
 import type { DeviceTokenUpdateRequest } from 'lib/types/device-types';
+import { tShape, tPlatformDetails } from 'lib/utils/validation-utils';
 
 import type { Viewer } from '../session/viewer';
 import { deviceTokenUpdater } from '../updaters/device-token-updaters';
-import {
-  validateInput,
-  tShape,
-  tPlatformDetails,
-} from '../utils/validation-utils';
+import { validateInput } from '../utils/validation-utils';
 
 const deviceTokenUpdateRequestInputValidator: TInterface = tShape({
   deviceToken: t.String,
