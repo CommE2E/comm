@@ -6,6 +6,177 @@
   },
   "iconSets": [
     {
+      "height": 1024,
+      "icons": [
+        {
+          "id": 5,
+          "paths": [
+            "M291.091 263.479h441.811M291.091 484.385h276.131M70.186 42.575h883.626v662.72h-441.811l-276.131 276.131v-276.131h-165.68v-662.72z"
+          ],
+          "attrs": [
+            {
+              "fill": "none",
+              "stroke": "rgb(0, 26, 114)",
+              "strokeLinejoin": "round",
+              "strokeLinecap": "round",
+              "strokeMiterlimit": "4",
+              "strokeWidth": 64
+            }
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 24,
+          "tags": ["outline-message-square-lines"]
+        },
+        {
+          "id": 4,
+          "paths": [
+            "M325.342 104.401c52.109-38.794 116.707-61.749 186.66-61.749 172.809 0 312.9 140.091 312.9 312.9 0 116.375 32.46 232.745 61.159 312.9M196.224 417.445c-16.798 186.050-101.423 355.304-101.423 355.304h443.275M355.55 772.749v52.151c0 86.406 70.042 156.452 156.452 156.452 68.119 0 126.075-43.534 147.549-104.301M42.65 42.648l938.7 938.7"
+          ],
+          "attrs": [
+            {
+              "fill": "none",
+              "stroke": "rgb(0, 26, 114)",
+              "strokeLinejoin": "round",
+              "strokeLinecap": "round",
+              "strokeMiterlimit": "4",
+              "strokeWidth": 64
+            }
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 24,
+          "tags": ["outline-bell-disabled"]
+        },
+        {
+          "id": 3,
+          "paths": ["M324.23 981.424l469.424-469.424-469.424-469.424"],
+          "attrs": [
+            {
+              "fill": "none",
+              "stroke": "rgb(0, 26, 114)",
+              "strokeLinejoin": "round",
+              "strokeLinecap": "round",
+              "strokeMiterlimit": "4",
+              "strokeWidth": 64
+            }
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 24,
+          "tags": ["outline-chevron-right-small"]
+        },
+        {
+          "attrs": [
+            {
+              "fill": "none",
+              "strokeLinecap": "round",
+              "strokeLinejoin": "round",
+              "strokeMiterlimit": "4",
+              "strokeWidth": 64
+            }
+          ],
+          "grid": 24,
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "paths": [
+            "M981.354 42.646l-938.708 386.527 386.527 165.655M981.354 42.646l-386.527 938.708-165.655-386.527M981.354 42.646l-552.182 552.182"
+          ],
+          "tags": ["outline-send-2"],
+          "id": 1,
+          "colorPermutations": {}
+        },
+        {
+          "attrs": [
+            {
+              "fill": "rgb(0, 26, 114)"
+            }
+          ],
+          "grid": 24,
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "paths": [
+            "M253.706 653.265v0zM419.208 653.265v0zM429.25 663.305v0zM594.75 663.305v0zM721.82 536.237v0zM887.323 536.237v0zM102.4 87.773h819.198v-87.771h-819.198v87.771zM936.227 102.4v819.198h87.771v-819.198h-87.771zM921.6 936.227h-819.198v87.771h819.198v-87.771zM87.773 921.6v-819.198h-87.771v819.198h87.771zM102.4 936.227c-8.079 0-14.629-6.547-14.629-14.629h-87.771c0 56.553 45.845 102.399 102.399 102.399v-87.771zM936.227 921.6c0 8.080-6.547 14.629-14.629 14.629v87.771c56.553 0 102.399-45.845 102.399-102.399h-87.771zM921.6 87.773c8.080 0 14.629 6.55 14.629 14.629h87.771c0-56.553-45.845-102.399-102.399-102.399v87.771zM102.4-0.001c-56.553 0-102.399 45.845-102.399 102.399h87.771c0-8.079 6.55-14.629 14.629-14.629v-87.771zM74.918 894.115l209.82-209.82-62.063-62.060-209.82 209.82 62.063 62.060zM388.177 684.295l10.043 10.043 62.060-62.060-10.043-10.043-62.061 62.060zM625.78 694.337l127.069-127.069-62.060-62.060-127.069 127.069 62.060 62.060zM856.291 567.267l92.792 92.792 62.060-62.060-92.792-92.792-62.060 62.060zM752.85 567.267c28.567-28.561 74.874-28.561 103.441 0l62.060-62.060c-62.839-62.844-164.723-62.844-227.562 0l62.060 62.060zM398.22 694.337c62.839 62.844 164.723 62.844 227.562 0l-62.060-62.060c-28.567 28.561-74.874 28.561-103.441 0l-62.060 62.060zM284.738 684.295c28.564-28.561 74.876-28.561 103.438 0l62.061-62.060c-62.839-62.844-164.723-62.844-227.563 0l62.063 62.060zM391.519 327.446c0 35.388-28.742 64.132-64.132 64.132v87.771c83.863 0 151.903-68.041 151.903-151.903h-87.771zM327.388 391.578c-35.314 0-64.073-28.727-64.073-64.132h-87.771c0 83.845 68.024 151.903 151.844 151.903v-87.771zM263.315 327.446c0-35.403 28.759-64.132 64.073-64.132v-87.771c-83.82 0-151.844 68.054-151.844 151.903h87.771zM327.388 263.315c35.388 0 64.132 28.742 64.132 64.132h87.771c0-83.863-68.041-151.903-151.903-151.903v87.771z"
+          ],
+          "tags": ["outline-image-1"],
+          "id": 2
+        }
+      ],
+      "preferences": {
+        "fontPref": {
+          "metadata": {},
+          "metrics": {
+            "baseline": 6.25,
+            "emSize": 1024,
+            "whitespace": 50
+          },
+          "prefix": "icon-"
+        },
+        "gridSize": 16,
+        "historySize": 50,
+        "imagePref": {
+          "autoHost": true,
+          "bgColor": 16777215,
+          "classSelector": ".icon",
+          "color": 0,
+          "columns": 16,
+          "height": 32,
+          "margin": 16,
+          "name": "icomoon",
+          "png": true,
+          "prefix": "icon-",
+          "useClassSelector": true
+        },
+        "quickUsageToken": {
+          "UntitledProject": "NGNkZGNhNTZkODkzOTY0OWM1OTk5ZDczOTVlM2E3YTcjMSMxNjQwNzA4Mzc5IyMjMTRlYTJmOTZlODY5"
+        },
+        "showCodes": true,
+        "showGlyphs": true,
+        "showGrid": true,
+        "showQuickUse": true,
+        "showQuickUse2": true,
+        "showSVGs": true
+      },
+      "selection": [
+        {
+          "order": 24,
+          "id": 4,
+          "name": "message-square-lines",
+          "prevSize": 32
+        },
+        {
+          "order": 25,
+          "id": 3,
+          "name": "bell-disabled",
+          "prevSize": 32
+        },
+        {
+          "order": 26,
+          "id": 2,
+          "name": "outline-chevron-right-small",
+          "prevSize": 32
+        },
+        {
+          "id": 1,
+          "name": "send",
+          "order": 27,
+          "prevSize": 32
+        },
+        {
+          "id": 0,
+          "name": "image",
+          "order": 28,
+          "prevSize": 32
+        }
+      ],
+      "metadata": {
+        "name": "Comm Icons"
+      },
+      "prevSize": 32,
+      "id": 1,
+      "colorThemes": []
+    },
+    {
       "selection": [
         {
           "order": 0,
@@ -140,7 +311,8 @@
         {
           "order": 0,
           "id": 269,
-          "name": "outline-bell-disabled"
+          "name": "outline-bell-disabled",
+          "prevSize": 32
         },
         {
           "order": 0,
@@ -366,11 +538,6 @@
           "order": 0,
           "id": 224,
           "name": "outline-chevron-right-small-square"
-        },
-        {
-          "order": 0,
-          "id": 223,
-          "name": "outline-chevron-right-small"
         },
         {
           "order": 0,
@@ -820,7 +987,8 @@
         {
           "order": 0,
           "id": 133,
-          "name": "outline-message-square-lines"
+          "name": "outline-message-square-lines",
+          "prevSize": 32
         },
         {
           "order": 0,
@@ -1490,7 +1658,7 @@
       ],
       "id": 2,
       "metadata": {
-        "name": "Untitled Set 2",
+        "name": "Software Mansion Outline",
         "importSize": {
           "width": 24,
           "height": 24
@@ -1516,7 +1684,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-air"]
         },
         {
@@ -1536,7 +1704,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-alarm"]
         },
         {
@@ -1551,7 +1719,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-down-circle"]
         },
         {
@@ -1566,7 +1734,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-down-round"]
         },
         {
@@ -1586,7 +1754,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-down-small"]
         },
         {
@@ -1601,7 +1769,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-down-square"]
         },
         {
@@ -1621,7 +1789,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-down"]
         },
         {
@@ -1636,7 +1804,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-left-circle"]
         },
         {
@@ -1651,7 +1819,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-left-round"]
         },
         {
@@ -1671,7 +1839,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-left-small"]
         },
         {
@@ -1686,7 +1854,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-left-square"]
         },
         {
@@ -1706,7 +1874,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-left"]
         },
         {
@@ -1721,7 +1889,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-right-circle"]
         },
         {
@@ -1736,7 +1904,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-right-round"]
         },
         {
@@ -1756,7 +1924,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-right-small"]
         },
         {
@@ -1771,7 +1939,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-right-square"]
         },
         {
@@ -1791,7 +1959,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-right"]
         },
         {
@@ -1806,7 +1974,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-up-round"]
         },
         {
@@ -1826,7 +1994,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-up-small"]
         },
         {
@@ -1841,7 +2009,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-up-square"]
         },
         {
@@ -1861,7 +2029,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrow-up"]
         },
         {
@@ -1876,7 +2044,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-arrows-up-circle"]
         },
         {
@@ -1896,7 +2064,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-at-email"]
         },
         {
@@ -1916,7 +2084,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-attachment"]
         },
         {
@@ -1936,7 +2104,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-basket"]
         },
         {
@@ -1956,7 +2124,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-basketball"]
         },
         {
@@ -1976,7 +2144,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-bell-disabled"]
         },
         {
@@ -1991,7 +2159,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-bell"]
         },
         {
@@ -2011,7 +2179,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-block-1"]
         },
         {
@@ -2031,7 +2199,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-block-2"]
         },
         {
@@ -2051,7 +2219,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-bolt"]
         },
         {
@@ -2071,7 +2239,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-bookmark"]
         },
         {
@@ -2091,7 +2259,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-check"]
         },
         {
@@ -2111,7 +2279,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-clock"]
         },
         {
@@ -2131,7 +2299,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-cross"]
         },
         {
@@ -2146,7 +2314,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-edit"]
         },
         {
@@ -2166,7 +2334,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-link"]
         },
         {
@@ -2181,7 +2349,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-lock"]
         },
         {
@@ -2201,7 +2369,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-minus"]
         },
         {
@@ -2221,7 +2389,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-plus"]
         },
         {
@@ -2241,7 +2409,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-user"]
         },
         {
@@ -2261,7 +2429,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar-warning"]
         },
         {
@@ -2281,7 +2449,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-calendar"]
         },
         {
@@ -2301,7 +2469,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cam-disabled"]
         },
         {
@@ -2321,7 +2489,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cam"]
         },
         {
@@ -2341,7 +2509,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-camera-disabled"]
         },
         {
@@ -2356,7 +2524,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-camera"]
         },
         {
@@ -2376,7 +2544,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-capsule"]
         },
         {
@@ -2391,7 +2559,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cart-1"]
         },
         {
@@ -2406,7 +2574,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cart-2"]
         },
         {
@@ -2426,7 +2594,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cart-3"]
         },
         {
@@ -2446,7 +2614,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cart-4"]
         },
         {
@@ -2466,7 +2634,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cast"]
         },
         {
@@ -2486,7 +2654,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chart"]
         },
         {
@@ -2501,7 +2669,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-check-circle"]
         },
         {
@@ -2516,7 +2684,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-check-round"]
         },
         {
@@ -2534,7 +2702,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-check-small"]
         },
         {
@@ -2549,7 +2717,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-check-square"]
         },
         {
@@ -2567,7 +2735,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-check"]
         },
         {
@@ -2582,7 +2750,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-down-small-circle"]
         },
         {
@@ -2597,7 +2765,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-down-small-round"]
         },
         {
@@ -2612,7 +2780,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-down-small-square"]
         },
         {
@@ -2630,7 +2798,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-down-small"]
         },
         {
@@ -2648,7 +2816,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-down"]
         },
         {
@@ -2663,7 +2831,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-left-small-circle"]
         },
         {
@@ -2678,7 +2846,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-left-small-round"]
         },
         {
@@ -2693,7 +2861,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-left-small-square"]
         },
         {
@@ -2711,7 +2879,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-left-small"]
         },
         {
@@ -2729,7 +2897,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-left"]
         },
         {
@@ -2744,7 +2912,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-right-small-circle"]
         },
         {
@@ -2759,7 +2927,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-right-small-round"]
         },
         {
@@ -2774,26 +2942,8 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-right-small-square"]
-        },
-        {
-          "id": 223,
-          "paths": ["M426.667 725.333l213.333-213.333-213.333-213.333"],
-          "attrs": [
-            {
-              "fill": "none",
-              "stroke": "rgb(0, 26, 114)",
-              "strokeLinejoin": "round",
-              "strokeLinecap": "round",
-              "strokeMiterlimit": "4",
-              "strokeWidth": 64
-            }
-          ],
-          "isMulticolor": false,
-          "isMulticolor2": false,
-          "grid": 0,
-          "tags": ["outline-chevron-right-small"]
         },
         {
           "id": 222,
@@ -2810,7 +2960,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-right"]
         },
         {
@@ -2825,7 +2975,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-up-small-circle"]
         },
         {
@@ -2840,7 +2990,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-up-small-round"]
         },
         {
@@ -2855,7 +3005,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-up-small-square"]
         },
         {
@@ -2873,7 +3023,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-up-small"]
         },
         {
@@ -2891,7 +3041,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-chevron-up"]
         },
         {
@@ -2911,7 +3061,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-circle"]
         },
         {
@@ -2931,7 +3081,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-clock"]
         },
         {
@@ -2951,7 +3101,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cloud"]
         },
         {
@@ -2966,7 +3116,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-coin"]
         },
         {
@@ -2986,7 +3136,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-command"]
         },
         {
@@ -3006,7 +3156,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-copy"]
         },
         {
@@ -3021,7 +3171,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-creditcard"]
         },
         {
@@ -3036,7 +3186,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cross-circle"]
         },
         {
@@ -3051,7 +3201,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cross-round"]
         },
         {
@@ -3071,7 +3221,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cross-small"]
         },
         {
@@ -3086,7 +3236,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cross-square"]
         },
         {
@@ -3106,7 +3256,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cross"]
         },
         {
@@ -3126,7 +3276,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-crown-1"]
         },
         {
@@ -3141,7 +3291,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-crown-2"]
         },
         {
@@ -3161,7 +3311,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-cut"]
         },
         {
@@ -3181,7 +3331,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-delete"]
         },
         {
@@ -3201,7 +3351,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-dislike"]
         },
         {
@@ -3216,7 +3366,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-document-check"]
         },
         {
@@ -3231,7 +3381,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-document-clean"]
         },
         {
@@ -3246,7 +3396,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-document-cross"]
         },
         {
@@ -3261,7 +3411,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-document-filled"]
         },
         {
@@ -3276,7 +3426,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-document-minus"]
         },
         {
@@ -3291,7 +3441,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-document-plus"]
         },
         {
@@ -3311,7 +3461,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-download"]
         },
         {
@@ -3326,7 +3476,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-edit-1"]
         },
         {
@@ -3341,7 +3491,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-edit-2"]
         },
         {
@@ -3356,7 +3506,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-edit-3"]
         },
         {
@@ -3371,7 +3521,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-edit-4"]
         },
         {
@@ -3391,7 +3541,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-emotxd-normal"]
         },
         {
@@ -3411,7 +3561,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-emotxd-sad"]
         },
         {
@@ -3431,7 +3581,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-emotxd-smile"]
         },
         {
@@ -3460,7 +3610,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-explore"]
         },
         {
@@ -3480,7 +3630,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-eye-closed"]
         },
         {
@@ -3509,7 +3659,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-eye-open"]
         },
         {
@@ -3529,7 +3679,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-female"]
         },
         {
@@ -3549,7 +3699,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-filters-1"]
         },
         {
@@ -3569,7 +3719,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-filters-2"]
         },
         {
@@ -3589,7 +3739,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-filters-3"]
         },
         {
@@ -3604,7 +3754,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-flag-1"]
         },
         {
@@ -3619,7 +3769,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-flag-2"]
         },
         {
@@ -3634,7 +3784,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-flag-3"]
         },
         {
@@ -3654,7 +3804,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-forward"]
         },
         {
@@ -3674,7 +3824,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-fullscreen"]
         },
         {
@@ -3689,7 +3839,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-gift-1"]
         },
         {
@@ -3704,7 +3854,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-gift-2"]
         },
         {
@@ -3724,7 +3874,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-globe-1"]
         },
         {
@@ -3753,7 +3903,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-grid-2-horizontal"]
         },
         {
@@ -3782,7 +3932,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-grid-2-vertical"]
         },
         {
@@ -3829,7 +3979,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-grid-4"]
         },
         {
@@ -3849,7 +3999,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-headphones"]
         },
         {
@@ -3869,7 +4019,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-heart"]
         },
         {
@@ -3889,7 +4039,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-home-1"]
         },
         {
@@ -3909,7 +4059,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-home-2"]
         },
         {
@@ -3929,7 +4079,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-horizontal"]
         },
         {
@@ -3949,7 +4099,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-hourglass"]
         },
         {
@@ -3969,7 +4119,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-ice"]
         },
         {
@@ -3984,7 +4134,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-image-1"]
         },
         {
@@ -4004,7 +4154,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-inbox"]
         },
         {
@@ -4019,7 +4169,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-info-circle"]
         },
         {
@@ -4034,7 +4184,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-info-round"]
         },
         {
@@ -4052,7 +4202,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-info-small"]
         },
         {
@@ -4067,7 +4217,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-info-square"]
         },
         {
@@ -4085,7 +4235,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-info"]
         },
         {
@@ -4105,7 +4255,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-key"]
         },
         {
@@ -4125,7 +4275,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-like"]
         },
         {
@@ -4145,7 +4295,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-link"]
         },
         {
@@ -4174,7 +4324,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-location-1"]
         },
         {
@@ -4194,7 +4344,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-location-2"]
         },
         {
@@ -4209,7 +4359,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-lock-off"]
         },
         {
@@ -4224,7 +4374,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-lock-on"]
         },
         {
@@ -4244,7 +4394,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-login"]
         },
         {
@@ -4264,7 +4414,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-logout"]
         },
         {
@@ -4284,7 +4434,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-mail"]
         },
         {
@@ -4304,7 +4454,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-male"]
         },
         {
@@ -4324,7 +4474,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-map"]
         },
         {
@@ -4344,7 +4494,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-medkit"]
         },
         {
@@ -4364,7 +4514,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-menu-hamburger"]
         },
         {
@@ -4402,7 +4552,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-menu-horizontal"]
         },
         {
@@ -4440,7 +4590,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-menu-vertical"]
         },
         {
@@ -4460,7 +4610,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-message-circle-dots"]
         },
         {
@@ -4480,7 +4630,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-message-circle-lines"]
         },
         {
@@ -4500,7 +4650,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-message-circle"]
         },
         {
@@ -4520,7 +4670,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-message-square-dots"]
         },
         {
@@ -4540,7 +4690,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-message-square-lines"]
         },
         {
@@ -4560,7 +4710,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-message-square"]
         },
         {
@@ -4580,7 +4730,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-microphone-disabled"]
         },
         {
@@ -4600,7 +4750,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-microphone"]
         },
         {
@@ -4615,7 +4765,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-minus-circle"]
         },
         {
@@ -4630,7 +4780,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-minus-round"]
         },
         {
@@ -4648,7 +4798,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-minus-small"]
         },
         {
@@ -4663,7 +4813,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-minus-square"]
         },
         {
@@ -4681,7 +4831,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-minus"]
         },
         {
@@ -4701,7 +4851,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-money"]
         },
         {
@@ -4721,7 +4871,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-moon"]
         },
         {
@@ -4741,7 +4891,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-music"]
         },
         {
@@ -4761,7 +4911,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-navigation"]
         },
         {
@@ -4781,7 +4931,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-newscreen"]
         },
         {
@@ -4796,7 +4946,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-next"]
         },
         {
@@ -4816,7 +4966,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-offer"]
         },
         {
@@ -4836,7 +4986,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-package"]
         },
         {
@@ -4854,7 +5004,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-pause"]
         },
         {
@@ -4874,7 +5024,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-phone-call"]
         },
         {
@@ -4894,7 +5044,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-phone-cross"]
         },
         {
@@ -4914,7 +5064,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-phone-down"]
         },
         {
@@ -4934,7 +5084,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-phone"]
         },
         {
@@ -4954,7 +5104,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-pin-1"]
         },
         {
@@ -4974,7 +5124,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-pin-2"]
         },
         {
@@ -4992,7 +5142,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-play"]
         },
         {
@@ -5007,7 +5157,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-plus-circle"]
         },
         {
@@ -5022,7 +5172,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-plus-round"]
         },
         {
@@ -5040,7 +5190,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-plus-small"]
         },
         {
@@ -5055,7 +5205,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-plus-square"]
         },
         {
@@ -5073,7 +5223,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-plus"]
         },
         {
@@ -5093,7 +5243,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-power"]
         },
         {
@@ -5108,7 +5258,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-previous"]
         },
         {
@@ -5128,7 +5278,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-print"]
         },
         {
@@ -5143,7 +5293,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-question-circle"]
         },
         {
@@ -5158,7 +5308,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-question-round"]
         },
         {
@@ -5173,7 +5323,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-question-small"]
         },
         {
@@ -5188,7 +5338,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-question-square"]
         },
         {
@@ -5203,7 +5353,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-question"]
         },
         {
@@ -5232,7 +5382,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-quote"]
         },
         {
@@ -5247,7 +5397,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-redo-round"]
         },
         {
@@ -5262,7 +5412,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-redo-small-1"]
         },
         {
@@ -5282,7 +5432,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-redo-small"]
         },
         {
@@ -5297,7 +5447,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-redo-square"]
         },
         {
@@ -5317,7 +5467,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-redo"]
         },
         {
@@ -5332,7 +5482,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-refresh-round"]
         },
         {
@@ -5347,7 +5497,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-refresh-small-1"]
         },
         {
@@ -5367,7 +5517,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-refresh-small"]
         },
         {
@@ -5382,7 +5532,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-refresh-square"]
         },
         {
@@ -5402,7 +5552,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-refresh"]
         },
         {
@@ -5417,7 +5567,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-resize-horizontal-circle"]
         },
         {
@@ -5432,7 +5582,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-resize-horizontal-round"]
         },
         {
@@ -5452,7 +5602,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-resize-horizontal-small"]
         },
         {
@@ -5467,7 +5617,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-resize-horizontal-square"]
         },
         {
@@ -5482,7 +5632,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-resize-vertical-circle"]
         },
         {
@@ -5497,7 +5647,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-resize-vertical-round"]
         },
         {
@@ -5517,7 +5667,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-resize-vertical-small"]
         },
         {
@@ -5532,7 +5682,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-resize-vertical-square"]
         },
         {
@@ -5552,7 +5702,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rewind"]
         },
         {
@@ -5567,7 +5717,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-left-circle"]
         },
         {
@@ -5582,7 +5732,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-left-round"]
         },
         {
@@ -5602,7 +5752,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-left-small"]
         },
         {
@@ -5617,7 +5767,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-left-square"]
         },
         {
@@ -5637,7 +5787,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-left"]
         },
         {
@@ -5652,7 +5802,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-right-circle"]
         },
         {
@@ -5667,7 +5817,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-right-round"]
         },
         {
@@ -5687,7 +5837,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-right-small"]
         },
         {
@@ -5702,7 +5852,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-right-square"]
         },
         {
@@ -5722,7 +5872,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-rotate-right"]
         },
         {
@@ -5742,7 +5892,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-save"]
         },
         {
@@ -5762,7 +5912,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-screen-disabled"]
         },
         {
@@ -5782,7 +5932,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-screen-share"]
         },
         {
@@ -5802,7 +5952,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-screen"]
         },
         {
@@ -5817,7 +5967,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-search"]
         },
         {
@@ -5837,7 +5987,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-send-1"]
         },
         {
@@ -5857,7 +6007,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-send-2"]
         },
         {
@@ -5886,7 +6036,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-settings"]
         },
         {
@@ -5906,7 +6056,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-share-1"]
         },
         {
@@ -5926,7 +6076,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-share-2"]
         },
         {
@@ -5946,7 +6096,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-shield-check"]
         },
         {
@@ -5966,7 +6116,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-shield-cross"]
         },
         {
@@ -5986,7 +6136,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-shield-empty"]
         },
         {
@@ -6006,7 +6156,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-shirt"]
         },
         {
@@ -6021,7 +6171,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-smartphone"]
         },
         {
@@ -6041,7 +6191,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-sound-0"]
         },
         {
@@ -6061,7 +6211,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-sound-1"]
         },
         {
@@ -6081,7 +6231,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-sound-2"]
         },
         {
@@ -6101,7 +6251,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-speaker-0"]
         },
         {
@@ -6121,7 +6271,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-speaker-1"]
         },
         {
@@ -6141,7 +6291,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-speaker-2"]
         },
         {
@@ -6161,7 +6311,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-speaker-cross"]
         },
         {
@@ -6181,7 +6331,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-speaker-disabled"]
         },
         {
@@ -6201,7 +6351,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-star-1"]
         },
         {
@@ -6221,7 +6371,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-star-2"]
         },
         {
@@ -6239,7 +6389,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-stop"]
         },
         {
@@ -6259,7 +6409,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-stopwatch"]
         },
         {
@@ -6279,7 +6429,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-suitcase"]
         },
         {
@@ -6299,7 +6449,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-sun"]
         },
         {
@@ -6314,7 +6464,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-tag"]
         },
         {
@@ -6334,7 +6484,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-trash-1"]
         },
         {
@@ -6354,7 +6504,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-trash-2"]
         },
         {
@@ -6374,7 +6524,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-trending-down"]
         },
         {
@@ -6394,7 +6544,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-trending-up"]
         },
         {
@@ -6414,7 +6564,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-trophy"]
         },
         {
@@ -6434,7 +6584,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-umbrella-1"]
         },
         {
@@ -6454,7 +6604,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-umbrella-2"]
         },
         {
@@ -6469,7 +6619,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-undo-round"]
         },
         {
@@ -6484,7 +6634,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-undo-small-1"]
         },
         {
@@ -6504,7 +6654,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-undo-small"]
         },
         {
@@ -6519,7 +6669,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-undo-square"]
         },
         {
@@ -6539,7 +6689,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-undo"]
         },
         {
@@ -6559,7 +6709,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-upload"]
         },
         {
@@ -6579,7 +6729,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-1"]
         },
         {
@@ -6594,7 +6744,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-2"]
         },
         {
@@ -6614,7 +6764,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-check"]
         },
         {
@@ -6634,7 +6784,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-cross"]
         },
         {
@@ -6654,7 +6804,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-info"]
         },
         {
@@ -6674,7 +6824,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-minus"]
         },
         {
@@ -6694,7 +6844,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-plus"]
         },
         {
@@ -6709,7 +6859,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-question"]
         },
         {
@@ -6729,7 +6879,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-user-warning"]
         },
         {
@@ -6749,7 +6899,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-users-more"]
         },
         {
@@ -6769,7 +6919,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-users"]
         },
         {
@@ -6789,7 +6939,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-vertical"]
         },
         {
@@ -6809,7 +6959,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-wallet"]
         },
         {
@@ -6829,7 +6979,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-wand"]
         },
         {
@@ -6844,7 +6994,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-warning-circle"]
         },
         {
@@ -6859,7 +7009,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-warning-round"]
         },
         {
@@ -6877,7 +7027,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-warning-small"]
         },
         {
@@ -6892,7 +7042,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-warning-square"]
         },
         {
@@ -6910,7 +7060,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-warning"]
         },
         {
@@ -6930,7 +7080,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-waterdrop"]
         },
         {
@@ -6950,7 +7100,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-windows"]
         },
         {
@@ -6965,7 +7115,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-zoom-in"]
         },
         {
@@ -6980,106 +7130,12 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["outline-zoom-out"]
         }
       ],
       "colorThemes": [],
       "invisible": false
-    },
-    {
-      "height": 1024,
-      "icons": [
-        {
-          "attrs": [
-            {
-              "fill": "none",
-              "strokeLinecap": "round",
-              "strokeLinejoin": "round",
-              "strokeMiterlimit": "4",
-              "strokeWidth": 64
-            }
-          ],
-          "grid": 24,
-          "isMulticolor": false,
-          "isMulticolor2": false,
-          "paths": [
-            "M981.354 42.646l-938.708 386.527 386.527 165.655M981.354 42.646l-386.527 938.708-165.655-386.527M981.354 42.646l-552.182 552.182"
-          ],
-          "tags": ["outline-send-2"],
-          "id": 1,
-          "colorPermutations": {}
-        },
-        {
-          "attrs": [
-            {
-              "fill": "rgb(0, 26, 114)"
-            }
-          ],
-          "grid": 24,
-          "isMulticolor": false,
-          "isMulticolor2": false,
-          "paths": [
-            "M253.706 653.265v0zM419.208 653.265v0zM429.25 663.305v0zM594.75 663.305v0zM721.82 536.237v0zM887.323 536.237v0zM102.4 87.773h819.198v-87.771h-819.198v87.771zM936.227 102.4v819.198h87.771v-819.198h-87.771zM921.6 936.227h-819.198v87.771h819.198v-87.771zM87.773 921.6v-819.198h-87.771v819.198h87.771zM102.4 936.227c-8.079 0-14.629-6.547-14.629-14.629h-87.771c0 56.553 45.845 102.399 102.399 102.399v-87.771zM936.227 921.6c0 8.080-6.547 14.629-14.629 14.629v87.771c56.553 0 102.399-45.845 102.399-102.399h-87.771zM921.6 87.773c8.080 0 14.629 6.55 14.629 14.629h87.771c0-56.553-45.845-102.399-102.399-102.399v87.771zM102.4-0.001c-56.553 0-102.399 45.845-102.399 102.399h87.771c0-8.079 6.55-14.629 14.629-14.629v-87.771zM74.918 894.115l209.82-209.82-62.063-62.060-209.82 209.82 62.063 62.060zM388.177 684.295l10.043 10.043 62.060-62.060-10.043-10.043-62.061 62.060zM625.78 694.337l127.069-127.069-62.060-62.060-127.069 127.069 62.060 62.060zM856.291 567.267l92.792 92.792 62.060-62.060-92.792-92.792-62.060 62.060zM752.85 567.267c28.567-28.561 74.874-28.561 103.441 0l62.060-62.060c-62.839-62.844-164.723-62.844-227.562 0l62.060 62.060zM398.22 694.337c62.839 62.844 164.723 62.844 227.562 0l-62.060-62.060c-28.567 28.561-74.874 28.561-103.441 0l-62.060 62.060zM284.738 684.295c28.564-28.561 74.876-28.561 103.438 0l62.061-62.060c-62.839-62.844-164.723-62.844-227.563 0l62.063 62.060zM391.519 327.446c0 35.388-28.742 64.132-64.132 64.132v87.771c83.863 0 151.903-68.041 151.903-151.903h-87.771zM327.388 391.578c-35.314 0-64.073-28.727-64.073-64.132h-87.771c0 83.845 68.024 151.903 151.844 151.903v-87.771zM263.315 327.446c0-35.403 28.759-64.132 64.073-64.132v-87.771c-83.82 0-151.844 68.054-151.844 151.903h87.771zM327.388 263.315c35.388 0 64.132 28.742 64.132 64.132h87.771c0-83.863-68.041-151.903-151.903-151.903v87.771z"
-          ],
-          "tags": ["outline-image-1"],
-          "id": 2
-        }
-      ],
-      "preferences": {
-        "fontPref": {
-          "metadata": {},
-          "metrics": {
-            "baseline": 6.25,
-            "emSize": 1024,
-            "whitespace": 50
-          },
-          "prefix": "icon-"
-        },
-        "gridSize": 16,
-        "historySize": 50,
-        "imagePref": {
-          "autoHost": true,
-          "bgColor": 16777215,
-          "classSelector": ".icon",
-          "color": 0,
-          "columns": 16,
-          "height": 32,
-          "margin": 16,
-          "name": "icomoon",
-          "png": true,
-          "prefix": "icon-",
-          "useClassSelector": true
-        },
-        "quickUsageToken": {
-          "UntitledProject": "NGNkZGNhNTZkODkzOTY0OWM1OTk5ZDczOTVlM2E3YTcjMSMxNjQwNzA4Mzc5IyMjMTRlYTJmOTZlODY5"
-        },
-        "showCodes": true,
-        "showGlyphs": true,
-        "showGrid": true,
-        "showQuickUse": true,
-        "showQuickUse2": true,
-        "showSVGs": true
-      },
-      "selection": [
-        {
-          "id": 1,
-          "name": "send",
-          "order": 14,
-          "prevSize": 32
-        },
-        {
-          "id": 0,
-          "name": "image",
-          "order": 15,
-          "prevSize": 32
-        }
-      ],
-      "metadata": {
-        "name": "Untitled Set"
-      },
-      "prevSize": 32,
-      "id": 1
     }
   ],
   "preferences": {
@@ -7108,7 +7164,7 @@
       "useClassSelector": true
     },
     "quickUsageToken": {
-      "UntitledProject": "NGNkZGNhNTZkODkzOTY0OWM1OTk5ZDczOTVlM2E3YTcjMSMxNjQwNzA4Mzc5IyMjMTRlYTJmOTZlODY5"
+      "CommIcons": "ZDUwZTNmMjUxNWU5YjJmZDIyNTE1ZTE3NmZmOGJkN2IjMSMxNjQwNzA5Mzg3IyMjZWRlNjc0ZjA0MDdm"
     },
     "showCodes": true,
     "showGlyphs": true,
@@ -7117,6 +7173,5 @@
     "showQuickUse2": true,
     "showSVGs": true
   },
-  "uid": -1,
-  "time": 1640708593070
+  "uid": -1
 }

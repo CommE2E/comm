@@ -1,43 +1,17 @@
 {
+  "height": 1024,
   "IcoMoonType": "selection",
   "icons": [
     {
-      "icon": {
-        "paths": ["M324.23 981.424l469.424-469.424-469.424-469.424"],
-        "attrs": [
-          {
-            "fill": "none",
-            "strokeLinejoin": "round",
-            "strokeLinecap": "round",
-            "strokeMiterlimit": "4",
-            "strokeWidth": 64
-          }
-        ],
-        "isMulticolor": false,
-        "isMulticolor2": false,
-        "grid": 24,
-        "tags": ["outline-chevron-right-small"]
-      },
       "attrs": [
         {
           "fill": "none",
-          "strokeLinejoin": "round",
           "strokeLinecap": "round",
+          "strokeLinejoin": "round",
           "strokeMiterlimit": "4",
           "strokeWidth": 64
         }
       ],
-      "properties": {
-        "order": 18,
-        "id": 2,
-        "name": "outline-chevron-right-small",
-        "prevSize": 32
-      },
-      "setIdx": 0,
-      "setId": 1,
-      "iconIdx": 0
-    },
-    {
       "icon": {
         "attrs": [
           {
@@ -48,35 +22,67 @@
             "strokeWidth": 64
           }
         ],
+        "grid": 24,
+        "isMulticolor": false,
+        "isMulticolor2": false,
+        "paths": ["M324.23 981.424l469.424-469.424-469.424-469.424"],
+        "tags": ["outline-chevron-right-small"]
+      },
+      "iconIdx": 0,
+      "properties": {
+        "id": 2,
+        "name": "outline-chevron-right-small",
+        "order": 18,
+        "prevSize": 32
+      },
+      "setId": 1,
+      "setIdx": 0
+    },
+    {
+      "attrs": [
+        {
+          "fill": "none",
+          "strokeLinecap": "round",
+          "strokeLinejoin": "round",
+          "strokeMiterlimit": "4",
+          "strokeWidth": 64
+        }
+      ],
+      "icon": {
+        "attrs": [
+          {
+            "fill": "none",
+            "strokeLinecap": "round",
+            "strokeLinejoin": "round",
+            "strokeMiterlimit": "4",
+            "strokeWidth": 64
+          }
+        ],
+        "colorPermutations": {},
         "grid": 24,
         "isMulticolor": false,
         "isMulticolor2": false,
         "paths": [
           "M981.354 42.646l-938.708 386.527 386.527 165.655M981.354 42.646l-386.527 938.708-165.655-386.527M981.354 42.646l-552.182 552.182"
         ],
-        "tags": ["outline-send-2"],
-        "colorPermutations": {}
+        "tags": ["outline-send-2"]
       },
-      "attrs": [
-        {
-          "fill": "none",
-          "strokeLinecap": "round",
-          "strokeLinejoin": "round",
-          "strokeMiterlimit": "4",
-          "strokeWidth": 64
-        }
-      ],
+      "iconIdx": 1,
       "properties": {
         "id": 1,
         "name": "send",
         "order": 19,
         "prevSize": 32
       },
-      "setIdx": 0,
       "setId": 1,
-      "iconIdx": 1
+      "setIdx": 0
     },
     {
+      "attrs": [
+        {
+          "fill": "rgb(0, 26, 114)"
+        }
+      ],
       "icon": {
         "attrs": [
           {
@@ -91,23 +97,17 @@
         ],
         "tags": ["outline-image-1"]
       },
-      "attrs": [
-        {
-          "fill": "rgb(0, 26, 114)"
-        }
-      ],
+      "iconIdx": 2,
       "properties": {
         "id": 0,
         "name": "image",
         "order": 20,
         "prevSize": 32
       },
-      "setIdx": 0,
       "setId": 1,
-      "iconIdx": 2
+      "setIdx": 0
     }
   ],
-  "height": 1024,
   "preferences": {
     "fontPref": {
       "metadata": {},
