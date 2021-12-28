@@ -30,6 +30,13 @@ class DatabaseManager {
 
 public:
   static DatabaseManager &getInstance();
+
+  void putBlobItem(const BlobItem &item);
+  std::shared_ptr<BlobItem> findBlobItem(const std::string &blobHash);
+
+  void putReverseIndexItem(const ReverseIndexItem &item);
+  std::shared_ptr<ReverseIndexItem>
+  findReverseIndexItemByHolder(const std::string &holder);
 };
 
 template <typename T>
