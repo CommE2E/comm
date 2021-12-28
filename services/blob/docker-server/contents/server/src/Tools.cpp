@@ -4,7 +4,11 @@
 #include "DatabaseEntitiesTools.h"
 #include "DatabaseManager.h"
 
+#include <openssl/sha.h>
+
 #include <chrono>
+#include <iomanip>
+#include <string>
 
 namespace comm {
 namespace network {
@@ -16,7 +20,28 @@ database::S3Path Tools::generateS3Path(
 }
 
 std::string Tools::computeHashForFile(const database::S3Path &s3Path) {
-  return database::BlobItem::FIELD_FILE_HASH; // TODO
+  SHA512_CTX ctx;
+  SHA512_Init(&ctx);
+  const std::function<void(const std::string &)> callback =
+      [&ctx](const std::string &chunk) {
+        SHA512_Update(&ctx, chunk.data(), chunk.size());
+      };
+
+  AwsStorageManager::getInstance()
+      .getBucket(s3Path.getBucketName())
+      .getObjectDataChunks(
+          s3Path.getObjectName(), callback, GRPC_CHUNK_SIZE_LIMIT);
+
+  unsigned char hash[SHA512_DIGEST_LENGTH];
+  SHA512_Final(hash, &ctx);
+
+  std::ostringstream hashStream;
+  for (int i = 0; i < SHA512_DIGEST_LENGTH; i++) {
+    hashStream << std::hex << std::setfill('0') << std::setw(2)
+               << std::nouppercase << (int)hash[i];
+  }
+
+  return hashStream.str();
 }
 
 database::S3Path Tools::findS3Path(const std::string &holder) {
