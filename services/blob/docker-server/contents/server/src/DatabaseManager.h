@@ -5,6 +5,7 @@
 
 #include <aws/core/Aws.h>
 #include <aws/dynamodb/model/AttributeDefinition.h>
+#include <aws/dynamodb/model/DeleteItemRequest.h>
 #include <aws/dynamodb/model/GetItemRequest.h>
 #include <aws/dynamodb/model/PutItemRequest.h>
 
@@ -26,16 +27,21 @@ class DatabaseManager {
   template <typename T>
   std::shared_ptr<T>
   innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request);
+  void innerRemoveItem(const Item &item, const std::string &key);
 
 public:
   static DatabaseManager &getInstance();
 
   void putBlobItem(const BlobItem &item);
   std::shared_ptr<BlobItem> findBlobItem(const std::string &blobHash);
+  void removeBlobItem(const std::string &blobHash);
 
   void putReverseIndexItem(const ReverseIndexItem &item);
   std::shared_ptr<ReverseIndexItem>
   findReverseIndexItemByHolder(const std::string &holder);
+  std::vector<std::shared_ptr<database::ReverseIndexItem>>
+  findReverseIndexItemsByHash(const std::string &blobHash);
+  void removeReverseIndexItem(const std::string &holder);
 };
 
 template <typename T>

@@ -27,6 +27,21 @@ void DatabaseManager::innerPutItem(
   }
 }
 
+void DatabaseManager::innerRemoveItem(
+    const Item &item,
+    const std::string &key) {
+  Aws::DynamoDB::Model::DeleteItemRequest request;
+  request.SetTableName(item.getTableName());
+  request.AddKey(
+      item.getPrimaryKey(), Aws::DynamoDB::Model::AttributeValue(key));
+
+  const Aws::DynamoDB::Model::DeleteItemOutcome &outcome =
+      AwsObjectsFactory::getDynamoDBClient()->DeleteItem(request);
+  if (!outcome.IsSuccess()) {
+    throw std::runtime_error(outcome.GetError().GetMessage());
+  }
+}
+
 void DatabaseManager::putBlobItem(const BlobItem &item) {
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(BlobItem::tableName);
@@ -80,6 +95,43 @@ DatabaseManager::findReverseIndexItemByHolder(const std::string &holder) {
       Aws::DynamoDB::Model::AttributeValue(holder));
 
   return std::move(this->innerFindItem<ReverseIndexItem>(request));
+}
+
+std::vector<std::shared_ptr<database::ReverseIndexItem>>
+DatabaseManager::findReverseIndexItemsByHash(const std::string &blobHash) {
+  std::vector<std::shared_ptr<database::ReverseIndexItem>> result;
+
+  Aws::DynamoDB::Model::QueryRequest req;
+  req.SetTableName(ReverseIndexItem::tableName);
+  req.SetKeyConditionExpression("blobHash = :valueToMatch");
+
+  AttributeValues attributeValues;
+  attributeValues.emplace(":valueToMatch", blobHash);
+
+  req.SetExpressionAttributeValues(attributeValues);
+  req.SetIndexName("blobHash-index");
+
+  const Aws::DynamoDB::Model::QueryOutcome &outcome =
+      AwsObjectsFactory::getDynamoDBClient()->Query(req);
+  if (!outcome.IsSuccess()) {
+    throw std::runtime_error(outcome.GetError().GetMessage());
+  }
+  const Aws::Vector<AttributeValues> &items = outcome.GetResult().GetItems();
+  for (auto &item : items) {
+    result.push_back(std::make_shared<database::ReverseIndexItem>(item));
+  }
+
+  return result;
+}
+
+void DatabaseManager::removeReverseIndexItem(const std::string &holder) {
+  std::shared_ptr<database::ReverseIndexItem> item =
+      findReverseIndexItemByHolder(holder);
+  if (item == nullptr) {
+    throw std::runtime_error(
+        std::string("no reverse index item found for holder " + holder));
+  }
+  this->innerRemoveItem(*item, item->getHolder());
 }
 
 } // namespace database
