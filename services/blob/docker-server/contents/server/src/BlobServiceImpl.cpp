@@ -29,8 +29,8 @@ BlobServiceImpl::~BlobServiceImpl() {
 void BlobServiceImpl::verifyBlobHash(
     const std::string &expectedBlobHash,
     const database::S3Path &s3Path) {
-  const std::string computedFileHash =
-      expectedFileHash; // this->computeHashForFile(*s3Path); // TODO FIX THIS
+  const std::string computedBlobHash =
+      Tools::getInstance().computeHashForFile(s3Path);
   if (expectedBlobHash != computedBlobHash) {
     std::string errorMessage = "blob hash mismatch, expected: [";
     errorMessage +=
