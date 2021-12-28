@@ -31,6 +31,10 @@ public:
   Put(grpc::ServerContext *context,
       grpc::ServerReaderWriter<blob::PutResponse, blob::PutRequest> *stream)
       override;
+  grpc::Status
+  Get(grpc::ServerContext *context,
+      const blob::GetRequest *request,
+      grpc::ServerWriter<blob::GetResponse> *writer) override;
 };
 
 } // namespace network

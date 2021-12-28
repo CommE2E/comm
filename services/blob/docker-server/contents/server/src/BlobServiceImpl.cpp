@@ -127,5 +127,35 @@ grpc::Status BlobServiceImpl::Put(
   return grpc::Status::OK;
 }
 
+grpc::Status BlobServiceImpl::Get(
+    grpc::ServerContext *context,
+    const blob::GetRequest *request,
+    grpc::ServerWriter<blob::GetResponse> *writer) {
+  const std::string holder = request->holder();
+  try {
+    database::S3Path s3Path = Tools::getInstance().findS3Path(holder);
+
+    AwsS3Bucket bucket =
+        AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
+    blob::GetResponse response;
+    std::function<void(const std::string &)> callback =
+        [&response, &writer](const std::string &chunk) {
+          response.set_datachunk(chunk);
+          if (!writer->Write(response)) {
+            throw std::runtime_error("writer interrupted sending data");
+          }
+        };
+
+    bucket.getObjectDataChunks(
+        s3Path.getObjectName(),
+        callback,
+        GRPC_CHUNK_SIZE_LIMIT - GRPC_METADATA_SIZE_PER_MESSAGE);
+  } catch (std::runtime_error &e) {
+    std::cout << "error: " << e.what() << std::endl;
+    return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
+  return grpc::Status::OK;
+}
+
 } // namespace network
 } // namespace comm
