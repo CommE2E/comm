@@ -27,6 +27,10 @@ const clangPaths = [
     extensions: ['cpp', 'h'],
   },
   {
+    path: 'services/blob/docker-server/contents/server/test',
+    extensions: ['cpp', 'h'],
+  },
+  {
     path: 'native/android/app/src/cpp',
     extensions: ['cpp', 'h'],
   },
