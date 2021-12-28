@@ -25,6 +25,11 @@ elif [ "$SERVICE" == "backup" ]; then
     export COMM_SERVICES_PORT_BACKUP=$2
   fi
   PORT=$COMM_SERVICES_PORT_BACKUP
+elif [ "$SERVICE" == "blob" ]; then
+  if [ ! -z "$2" ]; then
+    export COMM_SERVICES_PORT_BLOB=$2
+  fi
+  PORT=$COMM_SERVICES_PORT_BLOB
 else
   echo "No such service ${SERVICE}, aborting"
   exit 1

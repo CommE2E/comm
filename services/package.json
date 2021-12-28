@@ -12,10 +12,13 @@
     "build-backup-base": "./scripts/build_base_image.sh backup-base",
     "run-backup-server": "./scripts/run_server_image.sh backup",
     "test-backup-server": "./scripts/test_service.sh backup",
-    "test-all-services": "./scripts/test_all_services.sh",
-    "run-all-services": "./scripts/run_all_services.sh",
     "run-backup-server-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/run_server_image.sh backup",
     "test-backup-server-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/test_service.sh backup",
+    "build-blob-base": "yarn build-backup-base",
+    "run-blob-server": "./scripts/run_server_image.sh blob",
+    "test-blob-service": "./scripts/test_service.sh blob",
+    "run-all-services": "./scripts/run_all_services.sh",
+    "test-all-services": "./scripts/test_all_services.sh",
     "test-all-services-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/test_all_services.sh",
     "run-all-services-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/run_all_services.sh"
   }
