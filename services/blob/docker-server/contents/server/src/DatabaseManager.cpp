@@ -68,6 +68,10 @@ DatabaseManager::findBlobItem(const std::string &blobHash) {
   return std::move(this->innerFindItem<BlobItem>(request));
 }
 
+void DatabaseManager::removeBlobItem(const std::string &blobHash) {
+  this->innerRemoveItem(*(createItemByType<BlobItem>()), blobHash);
+}
+
 void DatabaseManager::putReverseIndexItem(const ReverseIndexItem &item) {
   if (this->findReverseIndexItemByHolder(item.getHolder()) != nullptr) {
     std::string errorMessage = "An item for the given holder [";
