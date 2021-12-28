@@ -1,4 +1,11 @@
 footer.wrapper {
+  background: rgba(235, 235, 235, 0.05);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 100vh;
+}
+
+.contentWrapper {
   max-width: 1850px;
   margin-left: auto;
   margin-right: auto;
@@ -8,10 +15,6 @@ footer.wrapper {
   column-gap: 1.5%;
   align-items: center;
   grid-template-areas: '. nav nav nav . . . sub sub sub sub sub sub .';
-  background: rgba(235, 235, 235, 0.05);
-  backdrop-filter: blur(12px);
-  position: sticky;
-  top: 100vh;
 }
 
 @media screen and (max-width: 1099px) {
