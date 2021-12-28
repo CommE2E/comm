@@ -41,6 +41,8 @@ find_package(AWSSDK REQUIRED COMPONENTS s3 core dynamodb)
 
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
+find_package(OpenSSL REQUIRED)
+
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 file(GLOB SOURCE_CODE "./src/*.cpp" "./src/**/*.cpp")
 
@@ -59,6 +61,7 @@ set(
   gRPC::grpc++_reflection
   ${AWSSDK_LINK_LIBRARIES}
   ${Boost_LIBRARIES}
+  OpenSSL::SSL
 )
 
 # SERVER

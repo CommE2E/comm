@@ -14,7 +14,7 @@
     "test-backup-server": "./scripts/test_service.sh backup",
     "run-backup-server-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/run_server_image.sh backup",
     "test-backup-server-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/test_service.sh backup",
-    "build-blob-base": "yarn build-backup-base",
+    "build-blob-base": "./scripts/build_base_image.sh blob-base",
     "run-blob-server": "./scripts/run_server_image.sh blob",
     "test-blob-service": "./scripts/test_service.sh blob",
     "run-all-services": "./scripts/run_all_services.sh",

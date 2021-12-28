@@ -39,6 +39,11 @@ services:
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
   # blob
+  blob-base:
+    build: 
+      dockerfile: services/blob/docker-base/Dockerfile
+      context: ../
+    image: commapp/blob-base:1.0
   blob-server:
     build: 
       dockerfile: services/blob/docker-server/Dockerfile

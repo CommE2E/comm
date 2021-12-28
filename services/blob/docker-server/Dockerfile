@@ -1,8 +1,6 @@
-FROM commapp/backup-base:1.0
+FROM commapp/blob-base:1.0
 
 ENV SHELL=/bin/bash
-
-RUN apk add gtest-dev
 
 COPY services/blob/docker-server/contents /transferred
 COPY native/cpp/CommonCpp/grpc/protos/blob.proto /transferred/server/protos/blob.proto
