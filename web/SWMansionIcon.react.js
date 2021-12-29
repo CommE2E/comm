@@ -3,7 +3,7 @@
 import * as React from 'react';
 import IcomoonReact from 'react-icomoon';
 
-import iconSet from 'lib/shared/swmansion-icon-config.json';
+import iconSet from './icons/selection.json';
 
 type SWMansionIconProps = {
   +icon: string,

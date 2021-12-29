@@ -227,7 +227,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     if (this.props.inputState.draft.length) {
       sendButton = (
         <a onClick={this.onSend}>
-          <SWMansionIcon icon="send-2" size={22} color="#8a8a8a" disableFill />
+          <SWMansionIcon icon="send" size={16} color="#8a8a8a" />
         </a>
       );
     }
@@ -246,12 +246,7 @@ class ChatInputBar extends React.PureComponent<Props> {
               accept={allowedMimeTypeString}
               multiple
             />
-            <SWMansionIcon
-              icon="image-1"
-              size={26}
-              color="#8a8a8a"
-              disableFill
-            />
+            <SWMansionIcon icon="image" size={16} color="#8a8a8a" disableFill />
           </a>
           <textarea
             rows="1"
