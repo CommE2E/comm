@@ -10,10 +10,10 @@
     "clean-all": "yarn clean && rm -rf ~/Library/Developer/Xcode/DerivedData/Comm-*; cd android && (./gradlew clean || true)",
     "postinstall": "cd ../ && echo '{\"name\": \"olm\", \"version\": \"3.2.4\"}' > ./node_modules/olm/package.json && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && npx pod-patch && cd ios && (pod install || true)",
     "start": "yarn react-native start",
-    "dev": "yarn concurrently --names=\"REDUX,METRO\" -c \"bgGreen.bold,bgBlue.bold\" \"yarn remotedev\" \"yarn start\"",
+    "dev": "yarn concurrently --names=\"REDUX,METRO\" -c \"bgGreen.bold,bgBlue.bold\" \"yarn redux-devtools\" \"yarn start\"",
     "test": "yarn jest",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'",
-    "remotedev": "remotedev --port=8043",
+    "redux-devtools": "redux-devtools --port=8043",
     "codegen-jsi": "flow && babel codegen/src/ -d codegen/dist/ && node codegen/dist",
     "codegen-grpc": "protoc -I=cpp/CommonCpp/grpc/protos --cpp_out=cpp/CommonCpp/grpc/_generated --grpc_out=cpp/CommonCpp/grpc/_generated --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` cpp/CommonCpp/grpc/protos/*.proto && ./scripts/mark-generated.sh"
   },
@@ -46,7 +46,8 @@
     "redux-flipper": "^1.4.2",
     "remote-redux-devtools": "git+https://git@github.com/zalmoxisus/remote-redux-devtools.git",
     "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git",
-    "remotedev-server": "^0.3.1"
+    "@redux-devtools/cli": "1.0.0-10",
+    "sqlite3": "git+https://github.com/mapbox/node-sqlite3#918052b538b0effe6c4a44c74a16b2749c08a0d2"
   },
   "dependencies": {
     "@commapp/sqlcipher-amalgamation": "^4.4.3-a",
