@@ -29,6 +29,9 @@ function Footer(): React.Node {
           <NavLink to="/support" exact {...navLinkProps}>
             Support
           </NavLink>
+          <NavLink to="/team" exact {...navLinkProps}>
+            Team
+          </NavLink>
           <NavLink to="/terms" exact {...navLinkProps}>
             Terms of Use
           </NavLink>
