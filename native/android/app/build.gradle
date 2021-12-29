@@ -382,6 +382,9 @@ def getPassword(String keyLabel) {
 // Returns all ABIs architectures for the 'bundleRelease'
 // or only from 'adb devices' if running debug release.
 def getBuildTypeABIs() {
+    if (System.getenv("BUILDKITE") == "true") {
+        return ["arm64-v8a"] 
+    }
     def isBundleRelease = gradle.startParameter.taskRequests.any {
         !it.args.isEmpty() && it.args.first().contains("bundleRelease")
     }
