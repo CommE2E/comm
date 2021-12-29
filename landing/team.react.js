@@ -3,12 +3,13 @@
 import * as React from 'react';
 
 import TeamProfile from './team-profile.react.js';
+import css from './team.css';
 
 function Team(): React.Node {
   return (
-    <div>
-      <h2>Team</h2>
-      <section>
+    <div className={css.wrapper}>
+      <h2 className={css.teamHeader}>Team</h2>
+      <section className={css.teamWrapper}>
         <TeamProfile
           name="Ashoat Tevosyan"
           role="Founder"
