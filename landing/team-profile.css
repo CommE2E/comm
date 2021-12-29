@@ -1,0 +1,37 @@
+.profile {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile img {
+  border-radius: 8px;
+  max-width: 200px;
+  max-height: 200px;
+  flex-shrink: 1;
+  margin-bottom: 8px;
+}
+
+.profile p {
+  flex-grow: 1;
+  font-size: 18px;
+  text-align: center;
+}
+
+.profile small {
+  color: var(--grey);
+  font-size: 16px;
+  text-align: center;
+}
+
+.profile span {
+  text-align: center;
+}
+
+.profile span > a + a {
+  padding-left: 8px;
+}
+
+.profile span > a {
+  color: var(--white);
+  font-size: 20px;
+}
