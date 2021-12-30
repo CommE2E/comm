@@ -3,6 +3,7 @@
 #include "../CryptoTools/Persist.h"
 #include "DatabaseQueryExecutor.h"
 #include "entities/Draft.h"
+#include "sqlite3.h"
 
 #include <string>
 
@@ -10,6 +11,7 @@ namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
   void migrate();
+  int create_db(sqlite3 *db);
   static auto &getStorage();
 
 public:
