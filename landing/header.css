@@ -44,19 +44,6 @@ div.button_container {
   justify-content: flex-end;
 }
 
-button.request_access {
-  all: unset;
-  border-radius: 4px;
-  font-size: 16px;
-  background-color: var(--btn-bg);
-  color: var(--btn-color);
-  justify-content: center;
-  padding: 12px 24px;
-  transition: 300ms;
-  flex-basis: 120px;
-  text-align: center;
-}
-
 .social_icons {
   grid-area: sIcons;
   display: flex;

@@ -1,0 +1,13 @@
+button.btn {
+  all: unset;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: var(--btn-bg);
+  color: var(--btn-color);
+  justify-content: center;
+  padding: 12px 24px;
+  transition: 300ms;
+  flex-basis: 120px;
+  text-align: center;
+  cursor: pointer;
+}
