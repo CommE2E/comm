@@ -237,6 +237,89 @@ bool enable_write_ahead_logging_mode(sqlite3 *db) {
   return false;
 }
 
+int create_db(sqlite3 *db) {
+  char *error;
+  bool WALQuerySuccess;
+
+  WALQuerySuccess = enable_write_ahead_logging_mode(db);
+  sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+  sqlite3_exec(
+      db,
+      "CREATE TABLE IF NOT EXISTS drafts ("
+      "'key' TEXT UNIQUE PRIMARY KEY, "
+      "text TEXT);"
+
+      "CREATE TABLE olm_persist_account("
+      "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
+      "account_data TEXT NOT NULL);"
+
+      "CREATE TABLE olm_persist_sessions("
+      "target_user_id TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "session_data TEXT NOT NULL);"
+
+      "CREATE TABLE IF NOT EXISTS media ( "
+      "id TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "container TEXT NOT NULL, "
+      "thread TEXT NOT NULL, "
+      "uri TEXT NOT NULL, "
+      "type TEXT NOT NULL, "
+      "extras TEXT NOT NULL);"
+
+      "CREATE TABLE IF NOT EXISTS messages ( "
+      "id TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "local_id TEXT, "
+      "thread TEXT NOT NULL, "
+      "user TEXT NOT NULL, "
+      "type INTEGER NOT NULL, "
+      "future_type INTEGER, "
+      "content TEXT, "
+      "time INTEGER NOT NULL);"
+
+      "CREATE TABLE IF NOT EXISTS threads ( "
+      "id TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "type INTEGER NOT NULL, "
+      "name TEXT, "
+      "description TEXT, "
+      "color TEXT NOT NULL, "
+      "creation_time BIGINT NOT NULL, "
+      "parent_thread_id TEXT, "
+      "containing_thread_id TEXT, "
+      "community TEXT, "
+      "members TEXT NOT NULL, "
+      "roles TEXT NOT NULL, "
+      "current_user TEXT NOT NULL, "
+      "source_message_id TEXT, "
+      "replies_count INTEGER NOT NULL);"
+
+      "CREATE INDEX messages_idx_thread_time "
+      "ON messages (thread, time);"
+
+      "CREATE INDEX media_idx_container "
+      "ON media (container);"
+
+      "UPDATE drafts SET key = "
+      "REPLACE(REPLACE(REPLACE(REPLACE(key, 'type4/', ''),"
+      "'type5/', ''),'type6/', ''),'type7/', '')"
+      "WHERE key LIKE 'pending/%'",
+      nullptr,
+      nullptr,
+      &error);
+  if (!error && WALQuerySuccess) {
+    sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
+    std::stringstream version_msg;
+    version_msg << "create_db succeeded." << std::endl;
+    Logger::log(version_msg.str());
+    return 22;
+  }
+
+  sqlite3_exec(db, "ROLLBACK TRANSACTION;", nullptr, nullptr, nullptr);
+  std::ostringstream stringStream;
+  stringStream << "Error: create_db failed.\n Triggering app crash. " << error;
+  Logger::log(stringStream.str());
+  sqlite3_free(error);
+  return -1;
+}
+
 typedef bool ShouldBeInTransaction;
 typedef std::pair<std::function<bool(sqlite3 *)>, ShouldBeInTransaction>
     SQLiteMigration;
@@ -270,6 +353,15 @@ void SQLiteQueryExecutor::migrate() {
 
   int current_user_version = sqlite3_column_int(user_version_stmt, 0);
   sqlite3_finalize(user_version_stmt);
+
+  if (current_user_version == 0) {
+    current_user_version = comm::create_db(db);
+  }
+
+  if (current_user_version == -1) {
+    sqlite3_close(db);
+    exit(EXIT_FAILURE);
+  }
 
   std::stringstream version_msg;
   version_msg << "db version: " << current_user_version << std::endl;
