@@ -6,7 +6,7 @@ import ashoat from 'lib/facts/ashoat';
 import bots from 'lib/facts/bots';
 import genesis from 'lib/facts/genesis';
 import testers from 'lib/facts/testers';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 
 import createMessages from '../creators/message-creator';

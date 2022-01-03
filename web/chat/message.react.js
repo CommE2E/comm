@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 

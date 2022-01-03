@@ -9,11 +9,10 @@ import { threadIsGroupChat } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import {
   type MessageInfo,
-  messageTypes,
-  type MessageType,
   type ComposableMessageInfo,
   type RobotextMessageInfo,
 } from 'lib/types/message-types';
+import { messageTypes, type MessageType } from 'lib/types/message-types-enum';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { SingleLine } from '../components/single-line.react';

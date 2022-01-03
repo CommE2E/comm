@@ -1,7 +1,7 @@
 // @flow
 
 import { messageSpecs } from 'lib/shared/messages/message-specs';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { updateTypes } from 'lib/types/update-types';
 
 import { createUpdates } from '../creators/update-creator';

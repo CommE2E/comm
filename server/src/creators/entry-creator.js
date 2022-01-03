@@ -6,7 +6,7 @@ import type {
   CreateEntryRequest,
   SaveEntryResponse,
 } from 'lib/types/entry-types';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { threadPermissions } from 'lib/types/thread-types';
 import { dateFromString } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';

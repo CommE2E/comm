@@ -22,7 +22,7 @@ import {
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import {
   type ThreadInfo,
   threadPermissions,

@@ -15,7 +15,7 @@ import type {
   RegisterResponse,
   RegisterRequest,
 } from 'lib/types/account-types';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { threadTypes } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';

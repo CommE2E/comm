@@ -47,12 +47,12 @@ import type {
   MediaMission,
 } from 'lib/types/media-types';
 import {
-  messageTypes,
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
 } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';

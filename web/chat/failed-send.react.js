@@ -6,10 +6,10 @@ import * as React from 'react';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
 import {
-  messageTypes,
   type RawComposableMessageInfo,
   assertComposableMessageType,
 } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { type InputState, InputStateContext } from '../input/input-state';

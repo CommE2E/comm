@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import { messageID } from 'lib/shared/message-utils';
-import { messageTypes, type MessageType } from 'lib/types/message-types';
+import { messageTypes, type MessageType } from 'lib/types/message-types-enum';
 
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import { InputStateContext } from '../input/input-state';

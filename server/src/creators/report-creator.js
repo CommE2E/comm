@@ -7,7 +7,7 @@ import {
   filterRawEntryInfosByCalendarQuery,
   serverEntryInfosObject,
 } from 'lib/shared/entry-utils';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import {
   type ReportCreationRequest,
   type ReportCreationResponse,

@@ -9,7 +9,8 @@ import {
 } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { Shape } from 'lib/types/core';
-import { messageTypes, defaultNumberPerThread } from 'lib/types/message-types';
+import { defaultNumberPerThread } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import {
   type RoleChangeRequest,
   type ChangeThreadSettingsResult,

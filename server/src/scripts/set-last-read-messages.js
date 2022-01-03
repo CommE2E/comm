@@ -1,6 +1,6 @@
 // @flow
 
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { threadPermissions } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';

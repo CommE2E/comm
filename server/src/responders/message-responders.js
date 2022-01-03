@@ -5,7 +5,6 @@ import t from 'tcomb';
 
 import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
 import {
-  messageTypes,
   type SendTextMessageRequest,
   type SendMultimediaMessageRequest,
   type FetchMessageInfosResponse,
@@ -13,6 +12,7 @@ import {
   defaultNumberPerThread,
   type SendMessageResponse,
 } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';

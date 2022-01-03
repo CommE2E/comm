@@ -7,7 +7,7 @@ import * as React from 'react';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 
 import Markdown from '../markdown/markdown.react';
