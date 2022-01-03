@@ -19,14 +19,16 @@ services:
     container_name: tunnelbroker-server
     ports:
       - "${COMM_SERVICES_PORT_TUNNELBROKER}:50051"
+    volumes:
+      - $HOME/.aws/credentials:/root/.aws/credentials:ro
   # backup
   backup-base:
-    build: 
+    build:
       dockerfile: services/backup/docker-base/Dockerfile
       context: ../
     image: commapp/backup-base:1.0
   backup-server:
-    build: 
+    build:
       dockerfile: services/backup/docker-server/Dockerfile
       context: ../
       args:
