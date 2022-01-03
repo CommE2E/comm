@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 services:
   base:
     build: base-image
@@ -18,15 +18,17 @@ services:
     image: commapp/tunnelbroker-server:1.0
     container_name: tunnelbroker-server
     ports:
-      - "${COMM_SERVICES_PORT_TUNNELBROKER}:50051"
+      - '${COMM_SERVICES_PORT_TUNNELBROKER}:50051'
+    volumes:
+      - $HOME/.aws/credentials:/root/.aws/credentials:ro
   # backup
   backup-base:
-    build: 
+    build:
       dockerfile: services/backup/docker-base/Dockerfile
       context: ../
     image: commapp/backup-base:1.0
   backup-server:
-    build: 
+    build:
       dockerfile: services/backup/docker-server/Dockerfile
       context: ../
       args:
@@ -35,6 +37,6 @@ services:
     image: commapp/backup-server:1.0
     container_name: backup-server
     ports:
-      - "${COMM_SERVICES_PORT_BACKUP}:50051"
+      - '${COMM_SERVICES_PORT_BACKUP}:50051'
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
