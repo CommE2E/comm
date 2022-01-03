@@ -13,6 +13,8 @@
 .*/comm/web/.*
 .*/comm/server/.*
 
+.*/android/app/build/.*
+
 [untyped]
 .*/node_modules/@react-native-community/cli/.*/.*
 
