@@ -12,14 +12,16 @@ import {
   type RawMessageInfo,
   type RawComposableMessageInfo,
   type RawRobotextMessageInfo,
-  messageTypes,
-  type MessageType,
-  assertMessageType,
   type ThreadSelectionCriteria,
   type MessageTruncationStatus,
   messageTruncationStatus,
   type FetchMessageInfosResult,
 } from 'lib/types/message-types';
+import {
+  messageTypes,
+  type MessageType,
+  assertMessageType,
+} from 'lib/types/message-types-enum';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 

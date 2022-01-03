@@ -7,9 +7,9 @@ import { Text, View } from 'react-native';
 import { messageID } from 'lib/shared/message-utils';
 import {
   assertComposableRawMessage,
-  messageTypes,
+  type RawComposableMessageInfo,
 } from 'lib/types/message-types';
-import type { RawComposableMessageInfo } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 
 import Button from '../components/button.react';
 import { type InputState, InputStateContext } from '../input/input-state';

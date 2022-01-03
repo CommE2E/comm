@@ -21,11 +21,8 @@ import {
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils';
 import type { DeviceType } from 'lib/types/device-types';
-import {
-  type RawMessageInfo,
-  type MessageInfo,
-  messageTypes,
-} from 'lib/types/message-types';
+import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import type { ServerThreadInfo, ThreadInfo } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { promiseAll } from 'lib/utils/promises';

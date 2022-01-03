@@ -11,11 +11,11 @@ import {
 } from 'lib/shared/message-utils';
 import { messageSpecs } from 'lib/shared/messages/message-specs';
 import {
-  messageTypes,
   messageDataLocalID,
   type MessageData,
   type RawMessageInfo,
 } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { redisMessageTypes } from 'lib/types/redis-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';

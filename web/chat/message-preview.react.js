@@ -8,10 +8,10 @@ import { threadIsGroupChat } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import {
   type MessageInfo,
-  messageTypes,
   type ComposableMessageInfo,
   type RobotextMessageInfo,
 } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react';

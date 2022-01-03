@@ -11,7 +11,7 @@ import type {
   SetThreadUnreadStatusRequest,
   SetThreadUnreadStatusResult,
 } from 'lib/types/activity-types';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { ServerError } from 'lib/utils/errors';

@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 
 import { sortIDs } from 'lib/shared/relationship-utils';
-import { messageTypes } from 'lib/types/message-types';
+import { messageTypes } from 'lib/types/message-types-enum';
 import {
   type RelationshipRequest,
   type RelationshipErrors,
