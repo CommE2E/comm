@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, View, Switch } from 'react-native';
+import { View, Switch } from 'react-native';
 
 import {
   updateSubscriptionActionTypes,
@@ -18,6 +18,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
+import { SingleLine } from '../../components/single-line.react';
 import { useStyles } from '../../themes/colors';
 
 type BaseProps = {
@@ -46,9 +47,12 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const componentLabel = 'Push notifs';
     return (
       <View style={this.props.styles.row}>
-        <Text style={this.props.styles.label}>Push notifs</Text>
+        <SingleLine style={this.props.styles.label} adjustsFontSizeToFit={true}>
+          {componentLabel}
+        </SingleLine>
         <View style={this.props.styles.currentValue}>
           <Switch
             value={this.state.currentValue}
@@ -76,7 +80,6 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
 const unboundStyles = {
   currentValue: {
     alignItems: 'flex-end',
-    flex: 1,
     margin: 0,
     paddingLeft: 4,
     paddingRight: 0,
@@ -85,7 +88,7 @@ const unboundStyles = {
   label: {
     color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
-    width: 96,
+    flex: 1,
   },
   row: {
     alignItems: 'center',
