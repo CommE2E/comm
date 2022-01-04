@@ -76,7 +76,6 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
 const unboundStyles = {
   currentValue: {
     alignItems: 'flex-end',
-    flex: 1,
     margin: 0,
     paddingLeft: 4,
     paddingRight: 0,
@@ -85,7 +84,7 @@ const unboundStyles = {
   label: {
     color: 'panelForegroundTertiaryLabel',
     fontSize: 16,
-    width: 96,
+    flex: 1,
   },
   row: {
     alignItems: 'center',
