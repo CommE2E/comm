@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import _mapKeys from 'lodash/fp/mapKeys';
 import _mapValues from 'lodash/fp/mapValues';
 import type { TInterface, TUnion, TList, TDict } from 'tcomb';
@@ -16,6 +17,8 @@ import {
 import { verifyClientSupported } from '../session/version';
 import type { Viewer } from '../session/viewer';
 
+const USE_EXTENDED_CLIENT_ID_SCHEMA = false;
+
 async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
   if (!viewer.isSocket) {
     await checkClientSupported(viewer, inputValidator, input);
@@ -30,6 +33,27 @@ function checkInputValidator(inputValidator: *, input: *) {
   const error = new ServerError('invalid_parameters');
   error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
   throw error;
+}
+
+function validateAndConvertOutput(
+  viewer: Viewer,
+  outputValidator: *,
+  data: *,
+): any {
+  if (!outputValidator || outputValidator.is(data)) {
+    if (
+      viewer.platformDetails?.platform !== 'web' &&
+      viewer.platformDetails?.codeVersion &&
+      Number(viewer.platformDetails?.codeVersion) >= 128 &&
+      USE_EXTENDED_CLIENT_ID_SCHEMA
+    ) {
+      return convertIDSchema(outputValidator, data, true);
+    } else {
+      return data;
+    }
+  }
+
+  invariant(false, `Server output data validation failed`);
 }
 
 async function checkClientSupported(
@@ -236,6 +260,7 @@ function convertIDSchema<T>(
 
 export {
   validateInput,
+  validateAndConvertOutput,
   checkInputValidator,
   checkClientSupported,
   convertIDSchema,
