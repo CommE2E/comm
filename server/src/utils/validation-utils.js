@@ -6,6 +6,7 @@ import type { TInterface, TUnion, TList, TDict } from 'tcomb';
 
 import { ServerError } from 'lib/utils/errors';
 import {
+  tID,
   tCookie,
   tPassword,
   tPlatform,
@@ -14,6 +15,8 @@ import {
 
 import { verifyClientSupported } from '../session/version';
 import type { Viewer } from '../session/viewer';
+
+const USE_EXTENDED_CLIENT_ID_SCHEMA = false;
 
 async function validateInput(viewer: Viewer, inputValidator: *, input: *) {
   if (!viewer.isSocket) {
@@ -29,6 +32,32 @@ function checkInputValidator(inputValidator: *, input: *) {
   const error = new ServerError('invalid_parameters');
   error.sanitizedInput = input ? sanitizeInput(inputValidator, input) : null;
   throw error;
+}
+
+function validateAndConvertOutput<T>(
+  viewer: Viewer,
+  outputValidator: *,
+  data: T,
+): T {
+  if (!outputValidator?.is(data)) {
+    throw new ServerError('output_data_validation_failed');
+  }
+
+  if (
+    viewer.platformDetails?.platform !== 'web' &&
+    viewer.platformDetails?.codeVersion &&
+    Number(viewer.platformDetails?.codeVersion) >= 128 &&
+    USE_EXTENDED_CLIENT_ID_SCHEMA
+  ) {
+    return convertInput(
+      outputValidator,
+      data,
+      [tID],
+      convertIDSchema('server_to_client'),
+    );
+  } else {
+    return data;
+  }
 }
 
 async function checkClientSupported(
@@ -237,6 +266,7 @@ function convertInput<T>(
 
 export {
   validateInput,
+  validateAndConvertOutput,
   checkInputValidator,
   checkClientSupported,
   convertIDSchema,
