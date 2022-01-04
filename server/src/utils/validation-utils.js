@@ -1,11 +1,16 @@
 // @flow
 
+import _mapKeys from 'lodash/fp/mapKeys';
+import _mapValues from 'lodash/fp/mapValues';
+import type { TInterface, TUnion, TList, TDict } from 'tcomb';
+
 import { ServerError } from 'lib/utils/errors';
 import {
   tCookie,
   tPassword,
   tPlatform,
   tPlatformDetails,
+  tID,
 } from 'lib/utils/validation-utils';
 
 import { verifyClientSupported } from '../session/version';
@@ -153,4 +158,85 @@ function findFirstInputMatchingValidator(
   return null;
 }
 
-export { validateInput, checkInputValidator, checkClientSupported };
+function convertID<S: ?string>(ID: S, toExtended: boolean): S {
+  if (!ID) {
+    return ID;
+  }
+  if (toExtended) {
+    if (ID.indexOf('|') !== -1) {
+      console.log('Double conversion - threadID already has prefix');
+      return ID;
+    }
+    return '00001|' + ID;
+  } else {
+    if (ID.indexOf('|') === -1) {
+      return ID;
+    }
+    return ID.split('|')[1];
+  }
+}
+
+function convertIDSchema<T>(
+  inputValidator: *,
+  input: $ReadOnly<T>,
+  toExtended: boolean,
+): T {
+  if (!inputValidator) {
+    return input;
+  }
+  if (
+    inputValidator === tID ||
+    (inputValidator.meta.kind === 'maybe' && inputValidator.meta.type === tID)
+  ) {
+    if (typeof input === 'string') {
+      return convertID(input, toExtended);
+    } else {
+      return input;
+    }
+  }
+  if (typeof input !== 'object' || !input) {
+    return input;
+  }
+  if (inputValidator.meta.kind === 'list') {
+    const validator: TList<*> = inputValidator;
+    if (!Array.isArray(input)) {
+      return input;
+    }
+    return input.map(el =>
+      convertIDSchema(validator.meta.type, el, toExtended),
+    );
+  } else if (inputValidator.meta.kind === 'union') {
+    const validator: TUnion<*> = inputValidator;
+    for (const subvalidator: TInterface of validator.meta.types) {
+      if (subvalidator.is(input)) {
+        return convertIDSchema(subvalidator, input, toExtended);
+      }
+    }
+  } else if (inputValidator.meta.kind === 'dict') {
+    const validator: TDict<*> = inputValidator;
+    let inputObject = input;
+    if (validator.meta.domain.meta.kind === tID) {
+      inputObject = _mapKeys(id => convertID(id, toExtended))(input);
+    }
+    return _mapValues(v =>
+      convertIDSchema(validator.meta.codomain, v, toExtended),
+    )(inputObject);
+  } else if (inputValidator.meta.kind === 'interface') {
+    const validator: TInterface = inputValidator;
+    const result: any = {};
+    for (const key in input) {
+      const value = input[key];
+      const subvalidator = validator.meta.props[key];
+      result[key] = convertIDSchema(subvalidator, value, toExtended);
+    }
+    return result;
+  }
+  return input;
+}
+
+export {
+  validateInput,
+  checkInputValidator,
+  checkClientSupported,
+  convertIDSchema,
+};
