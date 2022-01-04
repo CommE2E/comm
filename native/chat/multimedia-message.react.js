@@ -25,7 +25,7 @@ import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutCoordinates } from '../types/layout-types';
 import { ComposedMessage } from './composed-message.react';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react';
-import { multimediaMessageTooltipHeight } from './multimedia-message-tooltip-modal.react';
+import { MultimediaMessageTooltipHeight } from './multimedia-message-tooltip-modal.react';
 import {
   getMediaKey,
   multimediaMessageSendFailed,
@@ -133,10 +133,10 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       const boundsBottom = verticalBounds.y + verticalBounds.height;
 
       const belowMargin = 20;
-      const belowSpace = multimediaMessageTooltipHeight + belowMargin;
+      const belowSpace = MultimediaMessageTooltipHeight + belowMargin;
       const { isViewer } = item.messageInfo.creator;
       const aboveMargin = isViewer ? 30 : 50;
-      const aboveSpace = multimediaMessageTooltipHeight + aboveMargin;
+      const aboveSpace = MultimediaMessageTooltipHeight + aboveMargin;
 
       let location = 'below',
         margin = belowMargin;
