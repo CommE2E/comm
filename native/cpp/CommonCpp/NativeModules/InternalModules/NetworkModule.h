@@ -7,6 +7,7 @@
 namespace comm {
 class NetworkModule {
   std::unique_ptr<network::Client> networkClient;
+  bool closed = false;
 
 public:
   void initializeNetworkModule(

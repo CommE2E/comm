@@ -6,6 +6,9 @@ void NetworkModule::initializeNetworkModule(
     const std::string &userId,
     const std::string &deviceToken,
     const std::string &hostname) {
+  if (closed) {
+    throw std::runtime_error("initializing closed network module");
+  }
   std::string host = (hostname.size() == 0) ? "localhost" : hostname;
   // initialize network module
   // this is going to differ depending on a device
@@ -25,5 +28,6 @@ void NetworkModule::sendPong() {
 
 void NetworkModule::close() {
   networkClient.reset();
+  this->closed = true;
 }
 } // namespace comm
