@@ -1,5 +1,9 @@
 // @flow
 
+import _mapKeys from 'lodash/fp/mapKeys';
+import _mapValues from 'lodash/fp/mapValues';
+import type { TInterface, TUnion, TList, TDict } from 'tcomb';
+
 import { ServerError } from 'lib/utils/errors';
 import {
   tCookie,
@@ -58,34 +62,13 @@ async function checkClientSupported(
 
 const redactedString = '********';
 const redactedTypes = [tPassword, tCookie];
-function sanitizeInput(inputValidator: *, input: *) {
-  if (!inputValidator) {
-    return input;
-  }
-  if (redactedTypes.includes(inputValidator) && typeof input === 'string') {
-    return redactedString;
-  }
-  if (
-    inputValidator.meta.kind === 'maybe' &&
-    redactedTypes.includes(inputValidator.meta.type) &&
-    typeof input === 'string'
-  ) {
-    return redactedString;
-  }
-  if (
-    inputValidator.meta.kind !== 'interface' ||
-    typeof input !== 'object' ||
-    !input
-  ) {
-    return input;
-  }
-  const result = {};
-  for (const key in input) {
-    const value = input[key];
-    const validator = inputValidator.meta.props[key];
-    result[key] = sanitizeInput(validator, value);
-  }
-  return result;
+function sanitizeInput(inputValidator: *, input: *): any {
+  return convertInput(
+    inputValidator,
+    input,
+    redactedTypes,
+    () => redactedString,
+  );
 }
 
 function findFirstInputMatchingValidator(
@@ -153,4 +136,109 @@ function findFirstInputMatchingValidator(
   return null;
 }
 
-export { validateInput, checkInputValidator, checkClientSupported };
+export type ConversionType = 'client_to_server' | 'server_to_client';
+
+function convertIDSchema<S>(conversionType: ConversionType): (ID: S) => S {
+  return (ID: *) => {
+    if (!ID || typeof ID !== 'string') {
+      return ID;
+    }
+    if (conversionType === 'server_to_client') {
+      if (ID.indexOf('|') !== -1) {
+        console.log('Double conversion - threadID already has prefix');
+        return ID;
+      }
+      return '00001|' + ID;
+    } else {
+      if (ID.indexOf('|') === -1) {
+        return ID;
+      }
+      return ID.split('|')[1];
+    }
+  };
+}
+
+function convertInput<T>(
+  inputValidator: *,
+  input: T,
+  typesToConvert: $ReadOnlyArray<*>,
+  conversionFunc: (input: T) => T,
+): T {
+  if (!inputValidator) {
+    return input;
+  }
+  if (typesToConvert.includes(inputValidator)) {
+    return conversionFunc(input);
+  }
+
+  if (inputValidator.meta.kind === 'maybe') {
+    if (input) {
+      return convertInput(
+        inputValidator.meta.type,
+        input,
+        typesToConvert,
+        conversionFunc,
+      );
+    } else {
+      return input;
+    }
+  }
+
+  if (inputValidator.meta.kind === 'union') {
+    const validator: TUnion<*> = inputValidator;
+    for (const subvalidator: TInterface of validator.meta.types) {
+      if (subvalidator.is(input)) {
+        return convertInput(
+          subvalidator,
+          input,
+          typesToConvert,
+          conversionFunc,
+        );
+      }
+    }
+  }
+  if (typeof input !== 'object' || !input) {
+    return input;
+  }
+  if (inputValidator.meta.kind === 'list') {
+    const validator: TList<*> = inputValidator;
+    if (!Array.isArray(input)) {
+      return input;
+    }
+    return input.map(el =>
+      convertInput(validator.meta.type, el, typesToConvert, conversionFunc),
+    );
+  } else if (inputValidator.meta.kind === 'dict') {
+    const validator: TDict<*> = inputValidator;
+    let inputObject = input;
+    if (typesToConvert.includes(validator.meta.domain.meta.kind)) {
+      inputObject = _mapKeys(id => conversionFunc(id))(input);
+    }
+    return _mapValues(v =>
+      convertInput(validator.meta.codomain, v, typesToConvert, conversionFunc),
+    )(inputObject);
+  } else if (inputValidator.meta.kind === 'interface') {
+    const validator: TInterface = inputValidator;
+    const result: any = {};
+    for (const key in input) {
+      const value = input[key];
+      const subvalidator = validator.meta.props[key];
+      result[key] = convertInput(
+        subvalidator,
+        value,
+        typesToConvert,
+        conversionFunc,
+      );
+    }
+    return result;
+  }
+  return input;
+}
+
+export {
+  validateInput,
+  checkInputValidator,
+  checkClientSupported,
+  convertIDSchema,
+  convertInput,
+};
