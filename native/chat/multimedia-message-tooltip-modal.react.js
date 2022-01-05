@@ -47,8 +47,8 @@ const MultimediaMessageTooltipModal: React.ComponentType<
   spec,
 );
 
-const MultimediaMessageTooltipHeight: number = tooltipHeight(
+const multimediaMessageTooltipHeight: number = tooltipHeight(
   spec.entries.length,
 );
 
-export { MultimediaMessageTooltipModal, MultimediaMessageTooltipHeight };
+export { MultimediaMessageTooltipModal, multimediaMessageTooltipHeight };
