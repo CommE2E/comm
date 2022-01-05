@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
+    "@fontsource/inter": "^4.5.1",
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
     "@fortawesome/free-regular-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
