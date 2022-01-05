@@ -8,7 +8,7 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
 endif(COMMAND cmake_policy)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # FIND LIBS
 set(protobuf_MODULE_COMPATIBLE TRUE)
@@ -35,12 +35,20 @@ message(STATUS "Using gRPC ${gRPC_VERSION}")
 set(_GRPC_GRPCPP gRPC::grpc++)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
+# Find AMQP-CPP installation
+set(AMQPCPP_ROOT "/usr/lib/AMQP-CPP")
+set(AMQPCPP_INCLUDE_DIR ${AMQPCPP_ROOT}/include)
+set(AMQPCPP_LIBRARIES ${AMQPCPP_ROOT}/bin/libamqpcpp.so)
+list(APPEND DEPENDENCIES libamqpcpp)
+
 set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
-set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
+
+find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
+find_package(Boost 1.40 COMPONENTS program_options thread system REQUIRED)
 
 add_subdirectory(./lib/glog)
 
-file(GLOB TUNNELBROKER_SOURCES "./src/*.cpp")
+file(GLOB SOURCE_CODE "./src/*.cpp" "./src/**/*.cpp")
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 
@@ -54,9 +62,13 @@ add_definitions(
 
 include_directories(
   ./src
+  ./src/Database
+  ./src/Amqp
   ./_generated
   ./lib/folly
   ./lib/double-conversion
+  ${Boost_INCLUDE_DIR}
+  ${AMQPCPP_INCLUDE_DIR}
 )
 
 set(
@@ -102,7 +114,7 @@ set(
 
   ${DOUBLE_CONVERSION_SOURCES}
   ${GENERATED_CODE}
-  ${TUNNELBROKER_SOURCES}
+  ${SOURCE_CODE}
 )
 
 set(
@@ -111,13 +123,16 @@ set(
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
   gRPC::grpc++_reflection
+  ${AWSSDK_LINK_LIBRARIES}
+  ${AMQPCPP_LIBRARIES}
+  ${Boost_LIBRARIES}
   glog::glog
 )
 
 #SERVER
 add_executable(
   tunnelbroker
-  
+  ${GENERATED_CODE}
   ${SOURCE_CODE}
 )
 
