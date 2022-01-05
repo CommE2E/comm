@@ -2,6 +2,8 @@
   padding: 0;
   margin: 0;
   -ms-overflow-style: -ms-autohiding-scrollbar;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 html {
   height: 100%;
