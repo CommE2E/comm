@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
+import Button from './button.react.js';
 import css from './header.css';
 
 type HeaderProps = {
@@ -41,9 +42,7 @@ function Header(props: HeaderProps): React.Node {
         </NavLink>
       </div>
       <div className={css.button_container}>
-        <button className={css.request_access} onClick={onRequestAccess}>
-          Request Access
-        </button>
+        <Button onClick={onRequestAccess}>Request Access</Button>
       </div>
       <div className={css.social_icons}>
         <a className={css.twitter_icon} href="https://twitter.com/commdotapp">
