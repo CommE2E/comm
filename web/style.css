@@ -10,6 +10,7 @@
 
 html {
   height: 100%;
+  font-size: 62.5%;
 }
 body {
   font-family: var(--font-stack-sans-serif);
@@ -18,6 +19,7 @@ body {
   background-attachment: fixed;
   height: 100%;
   overflow: hidden;
+  font-size: 1.6rem;
 }
 a {
   text-decoration: none;
