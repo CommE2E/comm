@@ -21,7 +21,7 @@ const tooltipInnerTopPadding = 5; // 5px bottom is included in last item
 const tooltipInnerPadding = 10;
 
 const font =
-  '14px -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
+  '14px -apple-system, "Inter", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
   '"Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", ui-sans-serif';
 
 type FindTooltipPositionArgs = {
