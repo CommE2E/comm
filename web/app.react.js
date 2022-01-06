@@ -1,5 +1,6 @@
 // @flow
 
+import '@fontsource/inter';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -38,6 +39,7 @@ import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
 import Splash from './splash/splash.react';
+import './typography.css';
 import css from './style.css';
 import getTitle from './title/getTitle';
 import { type NavInfo, updateNavInfoActionType } from './types/nav-types';

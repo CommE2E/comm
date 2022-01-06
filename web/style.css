@@ -13,7 +13,7 @@ html {
   font-size: 62.5%;
 }
 body {
-  font-family: var(--font-stack-sans-serif);
+  font-family: var(--font-stack);
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
   background-attachment: fixed;
@@ -37,7 +37,7 @@ textarea {
   -webkit-border-radius: 0;
   border: 1px solid #dddddd;
   border-radius: 1px;
-  font-family: var(--font-stack-sans-serif);
+  font-family: var(--font-stack);
 }
 input[type='submit'] {
   -webkit-appearance: none;
@@ -383,7 +383,7 @@ div.large-modal-container div.modal-body div.form-title {
 }
 div.modal-body div.form-content {
   display: inline-block;
-  font-family: var(--font-stack-sans-serif);
+  font-family: var(--font-stack);
   font-size: 15px;
 }
 div.modal-body div.form-subtitle {
@@ -412,7 +412,7 @@ div.form-enum-selector div.form-enum-option {
 }
 div.form-enum-selector span.form-enum-description {
   display: block;
-  font-family: var(--font-stack-sans-serif);
+  font-family: var(--font-stack);
   font-weight: normal;
   font-size: 13px;
   max-width: 260px;
@@ -596,7 +596,7 @@ div.intro-modal {
   background-color: #f8f8f8;
   width: 310px;
   position: fixed;
-  font-family: var(--font-stack-sans-serif);
+  font-family: var(--font-stack);
   margin-top: 100px;
   box-shadow: 2px 3px 6px 0px rgba(0, 0, 0, 0.1);
 }
