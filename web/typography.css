@@ -1,5 +1,4 @@
 :root {
-  --font-stack-sans-serif: -apple-system, 'Inter', 'Segoe UI', 'Roboto',
-    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    ui-sans-serif;
+  --font-stack-sans-serif: -apple-system, 'Inter', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', ui-sans-serif;
 }
