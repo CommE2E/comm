@@ -2,6 +2,19 @@
   --font-stack-sans-serif: -apple-system, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     ui-sans-serif;
+  --xxxl-font-32: 3.2rem;
+  --xxl-font-28: 2.8rem;
+  --xxl-font-24: 2.4rem;
+  --xl-font-20: 2rem;
+  --l-font-18: 1.8rem;
+  --m-font-16: 1.6rem;
+  --s-font-14: 1.4rem;
+  --xs-font-12: 1.2rem;
+  --normal: 400;
+  --semi-bold: 500;
+  --bold: 600;
+  --line-height-text: 1.5;
+  --line-height-display: 1.3;
 }
 
 .h1,
@@ -10,7 +23,6 @@ h1,
 h2,
 .h3,
 h3 {
-  letter-spacing: var(--letter-spacing-display);
   line-height: var(--line-height-display);
 }
 
@@ -37,7 +49,6 @@ h5,
 p,
 .small,
 small {
-  letter-spacing: var(--letter-spacing-text);
   line-height: var(--line-height-text);
 }
 
