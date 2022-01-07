@@ -4,11 +4,11 @@ import bcrypt from 'twin-bcrypt';
 
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { threadPermissions } from 'lib/types/thread-types';
 import {
   type ThreadDeletionRequest,
   type LeaveThreadResult,
-  threadPermissions,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import { updateTypes } from 'lib/types/update-types';
 import { ServerError } from 'lib/utils/errors';
 

@@ -17,12 +17,11 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 import {
-  type ThreadInfo,
-  threadPermissions,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import {
   type DispatchActionPromise,
   useServerCall,

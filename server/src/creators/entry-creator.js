@@ -5,7 +5,7 @@ import invariant from 'invariant';
 import type {
   CreateEntryRequest,
   SaveEntryResponse,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types-api';
 import { messageTypes } from 'lib/types/message-types-enum';
 import { threadPermissions } from 'lib/types/thread-types';
 import { dateFromString } from 'lib/utils/date-utils';

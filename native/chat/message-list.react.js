@@ -15,7 +15,7 @@ import {
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { messageKey } from 'lib/shared/message-utils';
 import { useWatchThread } from 'lib/shared/thread-utils';
-import type { FetchMessageInfosPayload } from 'lib/types/message-types';
+import type { FetchMessageInfosPayload } from 'lib/types/message-types-api';
 import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,

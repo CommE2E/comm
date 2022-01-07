@@ -49,20 +49,22 @@ import type {
 import type {
   RawMessageInfo,
   RawMultimediaMessageInfo,
+} from 'lib/types/message-types';
+import type {
   SendMessageResult,
   SendMessagePayload,
-} from 'lib/types/message-types';
+} from 'lib/types/message-types-api';
 import { messageTypes } from 'lib/types/message-types-enum';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
 import type { Dispatch } from 'lib/types/redux-types';
 import { reportTypes } from 'lib/types/report-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type {
   ClientNewThreadRequest,
   NewThreadResult,
-  ThreadInfo,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import {
   type DispatchActionPromise,
   useServerCall,

@@ -32,16 +32,15 @@ import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
 import type { Shape } from 'lib/types/core';
+import type { SaveEntryInfo, CalendarQuery } from 'lib/types/entry-types';
 import type {
   CreateEntryInfo,
-  SaveEntryInfo,
   SaveEntryResult,
   SaveEntryPayload,
   CreateEntryPayload,
   DeleteEntryInfo,
   DeleteEntryResult,
-  CalendarQuery,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types-api';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';

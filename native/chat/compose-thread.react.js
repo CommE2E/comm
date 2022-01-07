@@ -24,9 +24,11 @@ import {
   type ThreadInfo,
   type ThreadType,
   threadTypes,
+} from 'lib/types/thread-types';
+import {
   type ClientNewThreadRequest,
   type NewThreadResult,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import { type AccountUserInfo } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {

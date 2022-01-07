@@ -23,7 +23,7 @@ import {
   useWatchThread,
   useExistingThreadInfoFinder,
 } from 'lib/shared/thread-utils';
-import type { FetchMessageInfosPayload } from 'lib/types/message-types';
+import type { FetchMessageInfosPayload } from 'lib/types/message-types-api';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,

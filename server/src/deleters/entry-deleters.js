@@ -5,7 +5,7 @@ import type {
   DeleteEntryResponse,
   RestoreEntryRequest,
   RestoreEntryResponse,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types-api';
 import { messageTypes } from 'lib/types/message-types-enum';
 import { threadPermissions } from 'lib/types/thread-types';
 import { dateString } from 'lib/utils/date-utils';

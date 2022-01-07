@@ -3,6 +3,7 @@
 import t from 'tcomb';
 import type { TUnion, TInterface } from 'tcomb';
 
+import { threadTypes } from 'lib/types/thread-types';
 import {
   type ThreadDeletionRequest,
   type RoleChangeRequest,
@@ -15,8 +16,7 @@ import {
   type NewThreadResponse,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
-  threadTypes,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import { values } from 'lib/utils/objects';
 import {
   tShape,

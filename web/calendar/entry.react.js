@@ -20,15 +20,17 @@ import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
 import type { Shape } from 'lib/types/core';
 import {
   type EntryInfo,
-  type CreateEntryInfo,
   type SaveEntryInfo,
+  type CalendarQuery,
+} from 'lib/types/entry-types';
+import {
+  type CreateEntryInfo,
   type SaveEntryResult,
   type SaveEntryPayload,
   type CreateEntryPayload,
   type DeleteEntryInfo,
   type DeleteEntryResult,
-  type CalendarQuery,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types-api';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { threadPermissions } from 'lib/types/thread-types';

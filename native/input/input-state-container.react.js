@@ -49,9 +49,11 @@ import type {
 import {
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
+} from 'lib/types/message-types';
+import {
   type SendMessageResult,
   type SendMessagePayload,
-} from 'lib/types/message-types';
+} from 'lib/types/message-types-api';
 import { messageTypes } from 'lib/types/message-types-enum';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images';
 import type { RawMediaMessageInfo } from 'lib/types/messages/media';
@@ -61,11 +63,11 @@ import {
   type MediaMissionReportCreationRequest,
   reportTypes,
 } from 'lib/types/report-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import type {
   ClientNewThreadRequest,
   NewThreadResult,
-  ThreadInfo,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import {
   type DispatchActionPromise,
   useServerCall,

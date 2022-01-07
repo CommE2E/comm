@@ -16,11 +16,11 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import {
-  type ThreadInfo,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import {
   type DispatchActionPromise,
   useServerCall,

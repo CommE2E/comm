@@ -10,14 +10,12 @@ import {
 } from 'lib/shared/update-utils';
 import {
   type RawEntryInfo,
-  type FetchEntryInfosBase,
   type CalendarQuery,
   defaultCalendarQuery,
 } from 'lib/types/entry-types';
-import {
-  defaultNumberPerThread,
-  type FetchMessageInfosResult,
-} from 'lib/types/message-types';
+import { type FetchEntryInfosBase } from 'lib/types/entry-types-api';
+import { defaultNumberPerThread } from 'lib/types/message-types';
+import { type FetchMessageInfosResult } from 'lib/types/message-types-api';
 import {
   type UpdateTarget,
   redisMessageTypes,

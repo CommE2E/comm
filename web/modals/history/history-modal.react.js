@@ -17,11 +17,8 @@ import {
 } from 'lib/actions/entry-actions';
 import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type {
-  EntryInfo,
-  CalendarQuery,
-  FetchEntryInfosResult,
-} from 'lib/types/entry-types';
+import type { EntryInfo, CalendarQuery } from 'lib/types/entry-types';
+import type { FetchEntryInfosResult } from 'lib/types/entry-types-api';
 import { type CalendarFilter } from 'lib/types/filter-types';
 import type { HistoryMode, HistoryRevisionInfo } from 'lib/types/history-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
