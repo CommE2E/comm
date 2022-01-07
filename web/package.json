@@ -45,6 +45,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.11.2",
     "@fortawesome/free-solid-svg-icons": "^5.11.2",
     "@fortawesome/react-fontawesome": "^0.1.5",
+    "basscss": "8.0.2",
     "classnames": "^2.2.5",
     "core-js": "^3.6.5",
     "dateformat": "^3.0.3",
