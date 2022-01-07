@@ -1,0 +1,17 @@
+:root {
+  --bg: var(--shades-black-100);
+  --color: var(--shades-white-100);
+  --color-disabled: var(--shades-black-60);
+  --text-input-bg: var(--shades-black-80);
+  --text-input-color: var(--shades-black-60);
+  --border: var(--shades-black-80);
+  --error: var(--error-primary);
+  --success: var(--success-dark-50);
+
+  /* Color theme */
+  --btn-bg-primary: var(--violet-dark-100);
+  --chat-bg: var(--violet-dark-80);
+  --chat-confirmation-icon: var(--violet-dark-100);
+  --keyserver-selection: var(--violet-dark-60);
+  --thread-selection: var(--violet-light-80);
+}
