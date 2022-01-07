@@ -13,7 +13,7 @@ Client::Client(
     : id(id), deviceToken(deviceToken) {
   std::shared_ptr<Channel> channel =
       grpc::CreateChannel(hostname + ":" + port, credentials);
-  this->stub_ = TunnelBrokerService::NewStub(channel);
+  this->stub_ = TunnelbrokerService::NewStub(channel);
 }
 
 tunnelbroker::CheckResponseType Client::checkIfPrimaryDeviceOnline() {

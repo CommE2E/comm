@@ -13,10 +13,10 @@ namespace network {
 
 using grpc::Channel;
 using tunnelbroker::CheckResponseType;
-using tunnelbroker::TunnelBrokerService;
+using tunnelbroker::TunnelbrokerService;
 
 class Client {
-  std::unique_ptr<TunnelBrokerService::Stub> stub_;
+  std::unique_ptr<TunnelbrokerService::Stub> stub_;
   const std::string id;
   const std::string deviceToken;
 
