@@ -273,12 +273,6 @@ div.messageBoxContainer {
   max-width: calc(min(68%, 1000px));
   margin: 0 4px 0 12px;
 }
-div.nonViewerMessageBoxContainer {
-  justify-content: flex-start;
-}
-div.viewerMessageBoxContainer {
-  justify-content: flex-end;
-}
 div.fixedWidthMessageBoxContainer {
   width: 68%;
 }
@@ -386,31 +380,6 @@ div.imageGrid > span.multimedia:nth-last-child(n + 4):first-child ~ * {
 div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child,
 div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child ~ * {
   grid-column-end: span 2;
-}
-
-div.inlineSidebarContent {
-  flex-direction: row;
-  display: flex;
-  margin: 0 40px 0 20px;
-  cursor: pointer;
-}
-div.inlineSidebar {
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-}
-div.inlineSidebarName {
-  padding-top: 1px;
-  color: #666666;
-  font-size: 16px;
-  padding-left: 4px;
-  padding-right: 2px;
-}
-div.unread {
-  font-weight: bold;
-}
-div.centerContainer {
-  justify-content: center;
 }
 div.sidebarMarginBottom {
   margin-bottom: 8px;

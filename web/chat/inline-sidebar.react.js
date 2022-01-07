@@ -14,7 +14,7 @@ import { pluralizeAndTrim } from 'lib/utils/text-utils';
 
 import { useSelector } from '../redux/redux-utils';
 import { useOnClickThread } from '../selectors/nav-selectors';
-import css from './chat-message-list.css';
+import css from './inline-sidebar.css';
 
 type Props = {
   +threadInfo: ThreadInfo,
