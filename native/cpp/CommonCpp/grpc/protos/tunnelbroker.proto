@@ -8,6 +8,9 @@ service TunnelBrokerService {
   rpc CheckIfPrimaryDeviceOnline(CheckRequest) returns (CheckResponse) {}
   rpc BecomeNewPrimaryDevice(NewPrimaryRequest) returns (NewPrimaryResponse) {}
   rpc SendPong (PongRequest) returns (google.protobuf.Empty) {}
+  rpc NewSession (NewSessionRequest) returns (NewSessionResponse) {}
+  rpc Send (SendRequest) returns (SendResponse) {}
+  rpc Get (GetRequest) returns (stream GetResponse) {}
 }
 
 // for CheckIfPrimaryDeviceOnline
@@ -46,4 +49,47 @@ message NewPrimaryResponse {
 message PongRequest {
   string userId = 1;
   string deviceToken = 2;
+}
+
+// Session
+
+message NewSessionRequest {
+  string deviceId = 1;
+  string userId = 2;
+  string notifyToken = 3;
+  string typeOs = 4;
+}
+
+message NewSessionResponse {
+  string sessionId = 1;
+}
+
+// Send payload to device
+
+enum MainResponseType {
+  SUCCESS = 1;
+  ERROR = 2;
+}
+
+message SendResponse {
+  MainResponseType result = 1;
+}
+
+message SendRequest {
+  string sessionID = 1;
+  string toDeviceId = 2;
+  bytes payload = 2;
+  repeated string blobHash = 3;
+}
+
+// Get messages from devices
+
+message GetRequest {
+  string sessionId = 1;
+}
+
+message GetResponse {
+  string deviceId = 1;
+  bytes payload = 2;
+  repeated string blobHash = 3;
 }
