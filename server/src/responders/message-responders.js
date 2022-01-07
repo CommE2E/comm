@@ -11,6 +11,8 @@ import {
   type FetchMessageInfosResponse,
   type FetchMessageInfosRequest,
   type SendMessageResponse,
+  sendMessageResponseValidator,
+  fetchMessageInfosResponseValidator,
 } from 'lib/types/message-types-api';
 import { messageTypes } from 'lib/types/message-types-enum';
 import type { TextMessageData } from 'lib/types/messages/text';
@@ -27,7 +29,10 @@ import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import { fetchMedia } from '../fetchers/upload-fetchers';
 import type { Viewer } from '../session/viewer';
 import { assignMedia } from '../updaters/upload-updaters';
-import { validateInput } from '../utils/validation-utils';
+import {
+  validateInput,
+  validateAndConvertOutput,
+} from '../utils/validation-utils';
 
 const sendTextMessageRequestInputValidator = tShape({
   threadID: t.String,
@@ -67,8 +72,12 @@ async function textMessageCreationResponder(
     messageData.localID = localID;
   }
   const rawMessageInfos = await createMessages(viewer, [messageData]);
-
-  return { newMessageInfo: rawMessageInfos[0] };
+  const response = { newMessageInfo: rawMessageInfos[0] };
+  return validateAndConvertOutput(
+    viewer,
+    sendMessageResponseValidator,
+    response,
+  );
 }
 
 const fetchMessageInfosRequestInputValidator = tShape({
@@ -81,12 +90,17 @@ async function messageFetchResponder(
 ): Promise<FetchMessageInfosResponse> {
   const request: FetchMessageInfosRequest = input;
   await validateInput(viewer, fetchMessageInfosRequestInputValidator, request);
-  const response = await fetchMessageInfos(
+  const result = await fetchMessageInfos(
     viewer,
     { threadCursors: request.cursors },
     request.numberPerThread ? request.numberPerThread : defaultNumberPerThread,
   );
-  return { ...response, userInfos: {} };
+  const response = { ...result, userInfos: {} };
+  return validateAndConvertOutput(
+    viewer,
+    fetchMessageInfosResponseValidator,
+    response,
+  );
 }
 
 const sendMultimediaMessageRequestInputValidator = tShape({
@@ -141,8 +155,12 @@ async function multimediaMessageCreationResponder(
     'serverID should be set in createMessages result',
   );
   await assignMedia(viewer, mediaIDs, id);
-
-  return { newMessageInfo };
+  const response = { newMessageInfo };
+  return validateAndConvertOutput(
+    viewer,
+    sendMessageResponseValidator,
+    response,
+  );
 }
 
 export {

@@ -10,6 +10,8 @@ import {
   type FetchErrorReportInfosResponse,
   type FetchErrorReportInfosRequest,
   reportTypes,
+  reportCreationResponseValidator,
+  fetchErrorReportInfosResponseValidator,
 } from 'lib/types/report-types';
 import { ServerError } from 'lib/utils/errors';
 import {
@@ -24,7 +26,10 @@ import {
   fetchReduxToolsImport,
 } from '../fetchers/report-fetchers';
 import type { Viewer } from '../session/viewer';
-import { validateInput } from '../utils/validation-utils';
+import {
+  validateInput,
+  validateAndConvertOutput,
+} from '../utils/validation-utils';
 import { newEntryQueryInputValidator } from './entry-responders';
 
 const tActionSummary = tShape({
@@ -147,7 +152,11 @@ async function reportCreationResponder(
   if (!response) {
     throw new ServerError('ignored_report');
   }
-  return response;
+  return validateAndConvertOutput(
+    viewer,
+    reportCreationResponseValidator,
+    response,
+  );
 }
 
 const reportMultiCreationRequestInputValidator = tShape({
@@ -209,7 +218,12 @@ async function errorReportFetchInfosResponder(
     fetchErrorReportInfosRequestInputValidator,
     request,
   );
-  return await fetchErrorReportInfos(viewer, request);
+  const response = await fetchErrorReportInfos(viewer, request);
+  return validateAndConvertOutput(
+    viewer,
+    fetchErrorReportInfosResponseValidator,
+    response,
+  );
 }
 
 async function errorReportDownloadResponder(

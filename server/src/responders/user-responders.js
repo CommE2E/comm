@@ -4,26 +4,28 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
-import type {
-  ResetPasswordRequest,
-  LogOutResponse,
-  DeleteAccountRequest,
-  RegisterResponse,
-  RegisterRequest,
-  LogInResponse,
-  LogInRequest,
-  UpdatePasswordRequest,
-  AccessRequest,
-  UpdateUserSettingsRequest,
-} from 'lib/types/account-types';
 import {
+  type ResetPasswordRequest,
+  type LogOutResponse,
+  logOutResponseValidator,
+  type DeleteAccountRequest,
+  type RegisterResponse,
+  registerResponseValidator,
+  type RegisterRequest,
+  type LogInResponse,
+  logInResponseValidator,
+  type LogInRequest,
+  type UpdatePasswordRequest,
+  type AccessRequest,
+  type UpdateUserSettingsRequest,
   userSettingsTypes,
   notificationTypeValues,
 } from 'lib/types/account-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
-import type {
-  SubscriptionUpdateRequest,
-  SubscriptionUpdateResponse,
+import {
+  type SubscriptionUpdateRequest,
+  type SubscriptionUpdateResponse,
+  subscriptionUpdateResponseValidator,
 } from 'lib/types/subscription-types';
 import type { PasswordUpdate } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
@@ -64,7 +66,10 @@ import {
   updateUserSettings,
 } from '../updaters/account-updaters';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
-import { validateInput } from '../utils/validation-utils';
+import {
+  validateInput,
+  validateAndConvertOutput,
+} from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
   newEntryQueryInputValidator,
@@ -87,7 +92,12 @@ async function userSubscriptionUpdateResponder(
   const request: SubscriptionUpdateRequest = input;
   await validateInput(viewer, subscriptionUpdateRequestInputValidator, request);
   const threadSubscription = await userSubscriptionUpdater(viewer, request);
-  return { threadSubscription };
+  const response = { threadSubscription };
+  return validateAndConvertOutput(
+    viewer,
+    subscriptionUpdateResponseValidator,
+    response,
+  );
 }
 
 const accountUpdateInputValidator = tShape({
@@ -137,12 +147,13 @@ async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
     ]);
     viewer.setNewCookie(anonymousViewerData);
   }
-  return {
+  const response = {
     currentUserInfo: {
       id: viewer.id,
       anonymous: true,
     },
   };
+  return validateAndConvertOutput(viewer, logOutResponseValidator, response);
 }
 
 const deleteAccountRequestInputValidator = tShape({
@@ -155,9 +166,9 @@ async function accountDeletionResponder(
 ): Promise<LogOutResponse> {
   const request: DeleteAccountRequest = input;
   await validateInput(viewer, deleteAccountRequestInputValidator, request);
-  const result = await deleteAccount(viewer, request);
-  invariant(result, 'deleteAccount should return result if handed request');
-  return result;
+  const response = await deleteAccount(viewer, request);
+  invariant(response, 'deleteAccount should return result if handed request');
+  return validateAndConvertOutput(viewer, logOutResponseValidator, response);
 }
 
 const deviceTokenUpdateRequestInputValidator = tShape({
@@ -180,7 +191,8 @@ async function accountCreationResponder(
 ): Promise<RegisterResponse> {
   const request: RegisterRequest = input;
   await validateInput(viewer, registerRequestInputValidator, request);
-  return await createAccount(viewer, request);
+  const response = await createAccount(viewer, request);
+  return validateAndConvertOutput(viewer, registerResponseValidator, response);
 }
 
 const logInRequestInputValidator = tShape({
@@ -283,7 +295,7 @@ async function logInResponder(
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;
   }
-  return response;
+  return validateAndConvertOutput(viewer, logInResponseValidator, response);
 }
 
 const updatePasswordRequestInputValidator = tShape({

@@ -8,14 +8,18 @@ import {
   type ThreadDeletionRequest,
   type RoleChangeRequest,
   type ChangeThreadSettingsResult,
+  changeThreadSettingsResultValidator,
   type RemoveMembersRequest,
   type LeaveThreadRequest,
   type LeaveThreadResult,
+  leaveThreadResultValidator,
   type UpdateThreadRequest,
   type ServerNewThreadRequest,
   type NewThreadResponse,
+  newThreadResponseValidator,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
+  threadJoinResultValidator,
 } from 'lib/types/thread-types-api';
 import { values } from 'lib/utils/objects';
 import {
@@ -35,7 +39,10 @@ import {
   updateThread,
   joinThread,
 } from '../updaters/thread-updaters';
-import { validateInput } from '../utils/validation-utils';
+import {
+  validateInput,
+  validateAndConvertOutput,
+} from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
   verifyCalendarQueryThreadIDs,
@@ -52,7 +59,8 @@ async function threadDeletionResponder(
 ): Promise<LeaveThreadResult> {
   const request: ThreadDeletionRequest = input;
   await validateInput(viewer, threadDeletionRequestInputValidator, request);
-  return await deleteThread(viewer, request);
+  const response = await deleteThread(viewer, request);
+  return validateAndConvertOutput(viewer, leaveThreadResultValidator, response);
 }
 
 const roleChangeRequestInputValidator = tShape({
@@ -70,7 +78,12 @@ async function roleUpdateResponder(
 ): Promise<ChangeThreadSettingsResult> {
   const request: RoleChangeRequest = input;
   await validateInput(viewer, roleChangeRequestInputValidator, request);
-  return await updateRole(viewer, request);
+  const response = await updateRole(viewer, request);
+  return validateAndConvertOutput(
+    viewer,
+    changeThreadSettingsResultValidator,
+    response,
+  );
 }
 
 const removeMembersRequestInputValidator = tShape({
@@ -84,7 +97,12 @@ async function memberRemovalResponder(
 ): Promise<ChangeThreadSettingsResult> {
   const request: RemoveMembersRequest = input;
   await validateInput(viewer, removeMembersRequestInputValidator, request);
-  return await removeMembers(viewer, request);
+  const response = await removeMembers(viewer, request);
+  return validateAndConvertOutput(
+    viewer,
+    changeThreadSettingsResultValidator,
+    response,
+  );
 }
 
 const leaveThreadRequestInputValidator = tShape({
@@ -97,7 +115,8 @@ async function threadLeaveResponder(
 ): Promise<LeaveThreadResult> {
   const request: LeaveThreadRequest = input;
   await validateInput(viewer, leaveThreadRequestInputValidator, request);
-  return await leaveThread(viewer, request);
+  const response = await leaveThread(viewer, request);
+  return validateAndConvertOutput(viewer, leaveThreadResultValidator, response);
 }
 
 const updateThreadRequestInputValidator = tShape({
@@ -119,7 +138,12 @@ async function threadUpdateResponder(
 ): Promise<ChangeThreadSettingsResult> {
   const request: UpdateThreadRequest = input;
   await validateInput(viewer, updateThreadRequestInputValidator, request);
-  return await updateThread(viewer, request);
+  const response = await updateThread(viewer, request);
+  return validateAndConvertOutput(
+    viewer,
+    changeThreadSettingsResultValidator,
+    response,
+  );
 }
 
 const threadRequestValidationShape = {
@@ -153,9 +177,10 @@ async function threadCreationResponder(
   const request: ServerNewThreadRequest = input;
   await validateInput(viewer, newThreadRequestInputValidator, request);
 
-  return await createThread(viewer, request, {
+  const response = await createThread(viewer, request, {
     silentlyFailMembers: request.type === threadTypes.SIDEBAR,
   });
+  return validateAndConvertOutput(viewer, newThreadResponseValidator, response);
 }
 
 const joinThreadRequestInputValidator = tShape({
@@ -173,7 +198,8 @@ async function threadJoinResponder(
     await verifyCalendarQueryThreadIDs(request.calendarQuery);
   }
 
-  return await joinThread(viewer, request);
+  const response = await joinThread(viewer, request);
+  return validateAndConvertOutput(viewer, threadJoinResultValidator, response);
 }
 
 export {
