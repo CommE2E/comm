@@ -8,12 +8,14 @@ import {
   calendarQueryDifference,
 } from 'lib/shared/entry-utils';
 import {
-  type SaveEntryRequest,
-  type SaveEntryResponse,
   type RawEntryInfo,
   type CalendarQuery,
   defaultCalendarQuery,
 } from 'lib/types/entry-types';
+import {
+  type SaveEntryRequest,
+  type SaveEntryResponse,
+} from 'lib/types/entry-types-api';
 import { messageTypes } from 'lib/types/message-types-enum';
 import { threadPermissions } from 'lib/types/thread-types';
 import {

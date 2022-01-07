@@ -13,12 +13,14 @@ import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { Shape } from 'lib/types/core';
 import { messageTypes } from 'lib/types/message-types-enum';
 import {
-  type ServerNewThreadRequest,
-  type NewThreadResponse,
   threadTypes,
   threadPermissions,
   threadTypeIsCommunityRoot,
 } from 'lib/types/thread-types';
+import {
+  type ServerNewThreadRequest,
+  type NewThreadResponse,
+} from 'lib/types/thread-types-api';
 import type { AccountUserInfo } from 'lib/types/user-types';
 import { pushAll } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';

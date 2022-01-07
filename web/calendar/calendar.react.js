@@ -12,12 +12,11 @@ import {
 } from 'lib/actions/entry-actions';
 import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { type EntryInfo, type CalendarQuery } from 'lib/types/entry-types';
 import {
-  type EntryInfo,
-  type CalendarQuery,
   type CalendarQueryUpdateResult,
   type CalendarQueryUpdateStartingPayload,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types-api';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,

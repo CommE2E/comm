@@ -9,12 +9,11 @@ import {
   nonExcludeDeletedCalendarFilters,
 } from 'lib/selectors/calendar-filter-selectors';
 import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
+import type { CalendarQuery, RawEntryInfo } from 'lib/types/entry-types';
 import type {
-  CalendarQuery,
   FetchEntryInfosBase,
   DeltaEntryInfosResponse,
-  RawEntryInfo,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types-api';
 import { calendarThreadFilterTypes } from 'lib/types/filter-types';
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
 import {

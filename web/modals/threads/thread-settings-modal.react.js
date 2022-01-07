@@ -22,12 +22,14 @@ import {
   type ThreadInfo,
   threadTypes,
   assertThreadType,
+  threadPermissions,
+} from 'lib/types/thread-types';
+import {
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
   type LeaveThreadPayload,
-  threadPermissions,
   type ThreadChanges,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import type { UserInfos } from 'lib/types/user-types';
 import {
   useDispatchActionPromise,

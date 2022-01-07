@@ -8,11 +8,11 @@ import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import {
-  type ThreadInfo,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   useServerCall,

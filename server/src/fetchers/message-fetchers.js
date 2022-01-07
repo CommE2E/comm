@@ -15,8 +15,8 @@ import {
   type ThreadSelectionCriteria,
   type MessageTruncationStatus,
   messageTruncationStatus,
-  type FetchMessageInfosResult,
 } from 'lib/types/message-types';
+import { type FetchMessageInfosResult } from 'lib/types/message-types-api';
 import {
   messageTypes,
   type MessageType,

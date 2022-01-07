@@ -19,11 +19,11 @@ import SearchIndex from 'lib/shared/search-index';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadActualMembers } from 'lib/shared/thread-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import {
-  type ThreadInfo,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import { type AccountUserInfo } from 'lib/types/user-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {

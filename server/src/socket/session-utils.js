@@ -13,10 +13,8 @@ import { usersInThreadInfo } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { UpdateActivityResult } from 'lib/types/activity-types';
 import { isDeviceType } from 'lib/types/device-types';
-import type {
-  CalendarQuery,
-  DeltaEntryInfosResponse,
-} from 'lib/types/entry-types';
+import type { CalendarQuery } from 'lib/types/entry-types';
+import type { DeltaEntryInfosResponse } from 'lib/types/entry-types-api';
 import {
   reportTypes,
   type ThreadInconsistencyReportCreationRequest,

@@ -4,14 +4,14 @@ import invariant from 'invariant';
 import t from 'tcomb';
 
 import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
+import { defaultNumberPerThread } from 'lib/types/message-types';
 import {
   type SendTextMessageRequest,
   type SendMultimediaMessageRequest,
   type FetchMessageInfosResponse,
   type FetchMessageInfosRequest,
-  defaultNumberPerThread,
   type SendMessageResponse,
-} from 'lib/types/message-types';
+} from 'lib/types/message-types-api';
 import { messageTypes } from 'lib/types/message-types-enum';
 import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';

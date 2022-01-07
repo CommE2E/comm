@@ -16,9 +16,11 @@ import {
   threadTypes,
   assertThreadType,
   type ThreadType,
+} from 'lib/types/thread-types';
+import {
   type ClientNewThreadRequest,
   type NewThreadResult,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,

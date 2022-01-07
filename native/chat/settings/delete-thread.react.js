@@ -19,7 +19,8 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
+import type { LeaveThreadPayload } from 'lib/types/thread-types-api';
 import {
   useServerCall,
   useDispatchActionPromise,

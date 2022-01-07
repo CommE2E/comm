@@ -27,11 +27,8 @@ import {
 } from 'lib/actions/entry-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
-import type {
-  EntryInfo,
-  CalendarQuery,
-  CalendarQueryUpdateResult,
-} from 'lib/types/entry-types';
+import type { EntryInfo, CalendarQuery } from 'lib/types/entry-types';
+import type { CalendarQueryUpdateResult } from 'lib/types/entry-types-api';
 import type { CalendarFilter } from 'lib/types/filter-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { ConnectionStatus } from 'lib/types/socket-types';

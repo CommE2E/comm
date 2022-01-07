@@ -11,12 +11,11 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { colorIsDark } from 'lib/shared/thread-utils';
+import { type EntryInfo, type CalendarQuery } from 'lib/types/entry-types';
 import {
-  type EntryInfo,
   type RestoreEntryInfo,
   type RestoreEntryResult,
-  type CalendarQuery,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types-api';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import {

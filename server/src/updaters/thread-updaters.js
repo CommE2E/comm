@@ -11,6 +11,7 @@ import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type { Shape } from 'lib/types/core';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { messageTypes } from 'lib/types/message-types-enum';
+import { threadPermissions, threadTypes } from 'lib/types/thread-types';
 import {
   type RoleChangeRequest,
   type ChangeThreadSettingsResult,
@@ -20,9 +21,7 @@ import {
   type UpdateThreadRequest,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
-  threadPermissions,
-  threadTypes,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import { updateTypes } from 'lib/types/update-types';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';

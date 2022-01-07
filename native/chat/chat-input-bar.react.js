@@ -38,12 +38,11 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { PhotoPaste } from 'lib/types/media-types';
 import { messageTypes } from 'lib/types/message-types-enum';
 import type { Dispatch } from 'lib/types/redux-types';
+import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
 import {
-  type ThreadInfo,
-  threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types-api';
 import { type UserInfos } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,

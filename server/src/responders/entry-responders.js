@@ -4,8 +4,8 @@ import t from 'tcomb';
 import type { TInterface } from 'tcomb';
 
 import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
+import type { CalendarQuery } from 'lib/types/entry-types';
 import type {
-  CalendarQuery,
   SaveEntryRequest,
   CreateEntryRequest,
   DeleteEntryRequest,
@@ -15,7 +15,7 @@ import type {
   FetchEntryInfosResponse,
   DeltaEntryInfosResult,
   SaveEntryResponse,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types-api';
 import { calendarThreadFilterTypes } from 'lib/types/filter-types';
 import type {
   FetchEntryRevisionInfosResult,
