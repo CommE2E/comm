@@ -3,3 +3,68 @@
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     ui-sans-serif;
 }
+
+.h1,
+h1,
+.h2,
+h2,
+.h3,
+h3 {
+  letter-spacing: var(--letter-spacing-display);
+  line-height: var(--line-height-display);
+}
+
+.h1,
+h1 {
+  font-size: var(--xxxl-font-32);
+}
+
+.h2,
+h2 {
+  font-size: var(--xxl-font-28);
+}
+
+.h3,
+h3 {
+  font-size: var(--xxl-font-24);
+}
+
+.h4,
+h4,
+.h5,
+h5,
+.p,
+p,
+.small,
+small {
+  letter-spacing: var(--letter-spacing-text);
+  line-height: var(--line-height-text);
+}
+
+.h4,
+h4 {
+  font-size: var(--xl-font-20);
+}
+
+.h5,
+h5 {
+  font-size: var(--l-font-18);
+}
+
+.p,
+p {
+  font-size: var(--m-font-16);
+}
+
+.small,
+small {
+  font-size: var(--xs-font-12);
+}
+
+.bold {
+  font-weight: var(--bold);
+}
+
+.semi-bold {
+  font-weight: var(--semi-bold);
+}
