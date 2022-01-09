@@ -51,6 +51,14 @@ The reason we use both `install` and `upgrade` is that there’s no single Homeb
 brew install php; brew upgrade php
 ```
 
+## Rust
+
+We use a Rust [implementation](https://github.com/novifinancial/opaque-ke) of the OPAQUE password-authenticated key exchange protocol, so you will need to install Rust to compile the static library. The easiest way to do this is with `rustup`.
+
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
 ## Yarn
 
 We use the [Yarn](https://yarnpkg.com/) package manager for JavaScript in our repo.
