@@ -13,7 +13,7 @@ import {
   useOnClickThread,
   useOnClickPendingSidebar,
 } from '../selectors/nav-selectors';
-import css from './chat-message-list.css';
+import css from './message-action-button.css';
 import type {
   ItemAndContainerPositionInfo,
   PositionInfo,
