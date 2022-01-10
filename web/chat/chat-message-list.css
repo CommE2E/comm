@@ -94,20 +94,6 @@ div.conversationHeader {
 div.conversationHeader:last-child {
   padding-top: 6px;
 }
-
-div.robotextContainer {
-  text-align: center;
-  color: #333333;
-  padding: 6px 0;
-  margin: 0 40px 5px 40px;
-  font-size: 15px;
-}
-div.innerRobotextContainer {
-  display: inline-flex;
-  position: relative;
-  word-break: break-word;
-}
-
 div.messageLeftTooltip:after {
   top: 7px;
   right: -14px;
@@ -331,10 +317,6 @@ div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child ~ * {
 }
 div.sidebarMarginBottom {
   margin-bottom: 8px;
-}
-div.sidebarMarginTop {
-  margin-top: 4px;
-  margin-bottom: -8px;
 }
 svg.inlineSidebarIcon {
   color: #666666;

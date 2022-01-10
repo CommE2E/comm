@@ -15,13 +15,13 @@ import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
 import { updateNavInfoActionType } from '../types/nav-types';
-import css from './chat-message-list.css';
 import { InlineSidebar } from './inline-sidebar.react';
 import MessageActionTooltip from './message-action-button';
 import type {
   MessagePositionInfo,
   OnMessagePositionWithContainerInfo,
 } from './position-types';
+import css from './robotext-message.css';
 import { tooltipPositions } from './tooltip-utils';
 
 const availableTooltipPositionsForRobotext = [
