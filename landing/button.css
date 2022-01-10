@@ -9,4 +9,5 @@ button.btn {
   transition: 300ms;
   flex-basis: 120px;
   text-align: center;
+  cursor: pointer;
 }
