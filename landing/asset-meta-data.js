@@ -56,7 +56,7 @@ export const assetMetaData = [
     imageStyle: css.sovereignImage,
     infoStyle: css.sovereignInfo,
     title: 'Sovereign',
-    description: `Log in with your ETH wallet. Use ENS as your username. On Comm,
+    description: `Log in with your wallet. Use ENS as your username. On Comm,
                  your identity and data are yours to control.`,
   },
   {
