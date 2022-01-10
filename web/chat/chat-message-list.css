@@ -108,50 +108,6 @@ div.innerRobotextContainer {
   word-break: break-word;
 }
 
-div.messageTooltipMenu {
-  position: absolute;
-  background-color: black;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  font-size: 14px;
-  z-index: 1;
-  white-space: nowrap;
-}
-div.messageTooltipMenu ul {
-  list-style: none;
-}
-div.messageTooltipMenu li:not(:last-child) {
-  padding-bottom: 5px;
-}
-div.messageTooltipMenu:after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-width: 7px;
-  border-style: solid;
-}
-div.messageTooltipMenu button {
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  outline: none;
-  background-color: black;
-  color: white;
-  text-decoration: underline;
-}
-div.messageTooltipMenu button:hover {
-  background-color: black;
-  color: #129aff;
-}
-
-div.messageLeftTooltip {
-  transform: translate(0%, -50%);
-}
-div.messageRightTooltip {
-  transform: translate(0%, -50%);
-}
 div.messageLeftTooltip:after {
   top: 7px;
   right: -14px;

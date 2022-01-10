@@ -3,9 +3,9 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import css from './chat-message-list.css';
 import type { ItemAndContainerPositionInfo } from './position-types';
 import { findTooltipPosition, type TooltipPosition } from './tooltip-utils';
+import css from './tooltip.css';
 
 type Style = {
   +left?: number,
