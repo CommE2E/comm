@@ -1,38 +1,53 @@
 #pragma once
 
+#include "../_generated/tunnelbroker.grpc.pb.h"
+#include "../_generated/tunnelbroker.pb.h"
+#include <folly/concurrency/ConcurrentHashMap.h>
+#include <folly/stop_watch.h>
+#include <grpcpp/grpcpp.h>
+#include <chrono>
+#include <iostream>
 #include <memory>
 #include <string>
 
-#include <folly/concurrency/ConcurrentHashMap.h>
-
-#include <grpcpp/grpcpp.h>
-
-#include "../_generated/tunnelbroker.grpc.pb.h"
-#include "../_generated/tunnelbroker.pb.h"
-
+#include "AwsTools.h"
+#include "Constants.h"
+#include "DatabaseManager.h"
 #include "Tools.h"
 
 namespace comm {
 namespace network {
 
 class TunnelBrokerServiceImpl final
-    : public tunnelbroker::TunnelBrokerService::Service {
-  folly::ConcurrentHashMap<std::string, std::shared_ptr<ping::ClientData>>
-      primaries;
+    : public tunnelbroker::TunnelbrokerService::Service {
 
 public:
-  grpc::Status CheckIfPrimaryDeviceOnline(
+  TunnelBrokerServiceImpl();
+  virtual ~TunnelBrokerServiceImpl();
+
+  // Request new session signature
+  grpc::Status SessionSignature(
       grpc::ServerContext *context,
-      const tunnelbroker::CheckRequest *request,
-      tunnelbroker::CheckResponse *response) override;
-  grpc::Status BecomeNewPrimaryDevice(
+      const tunnelbroker::SessionSignatureRequest *request,
+      tunnelbroker::SessionSignatureResponse *reply) override;
+
+  // Create new session method
+  grpc::Status NewSession(
       grpc::ServerContext *context,
-      const tunnelbroker::NewPrimaryRequest *request,
-      tunnelbroker::NewPrimaryResponse *response) override;
-  grpc::Status SendPong(
+      const tunnelbroker::NewSessionRequest *request,
+      tunnelbroker::NewSessionResponse *reply) override;
+
+  // Send message to deviceID method
+  grpc::Status Send(
       grpc::ServerContext *context,
-      const tunnelbroker::PongRequest *request,
-      google::protobuf::Empty *response) override;
+      const tunnelbroker::SendRequest *request,
+      google::protobuf::Empty *reply) override;
+
+  // Get messages for the deviceID from the queue as stream
+  grpc::Status
+  Get(grpc::ServerContext *context,
+      const tunnelbroker::GetRequest *request,
+      grpc::ServerWriter<tunnelbroker::GetResponse> *stream) override;
 };
 
 } // namespace network
