@@ -430,8 +430,8 @@ android {
         applicationId 'app.comm.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 127
-        versionName '1.0.127'
+        versionCode 128
+        versionName '1.0.128'
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
