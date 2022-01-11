@@ -59,7 +59,6 @@ header.header {
   z-index: 1;
 }
 div.main-header {
-  font-family: 'Anaheim', sans-serif;
   height: 62px;
 }
 div.main-header > h1 {
