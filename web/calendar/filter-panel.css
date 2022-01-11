@@ -38,7 +38,6 @@ div.optionThread input {
   cursor: pointer;
 }
 div.optionThread label {
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600 !important;
   font-size: 15px;
   padding-left: 5px;
@@ -122,7 +121,6 @@ div.search > input {
   padding: 0;
   border: none;
   background-color: transparent;
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   font-size: 15px;
   flex-grow: 1;

@@ -76,7 +76,6 @@ ul.nav-bar {
 ul.nav-bar > li {
   display: inline-block;
   list-style-type: none;
-  font-family: 'Open Sans', sans-serif;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
@@ -205,7 +204,6 @@ div.account-bar {
   background-color: #f8f8f8;
   border: 1px solid #c8c8c8;
   border-radius: 5px;
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   padding: 0 6px;
   cursor: pointer;
@@ -303,7 +301,6 @@ span.modal-close:hover {
 }
 div.modal-header {
   padding: 8px 15px;
-  font-family: 'Open Sans', sans-serif;
 }
 div.modal-header > h2 {
   font-size: 22px;
@@ -356,7 +353,6 @@ div.modal-body input[type='submit'] {
   border-radius: 3px;
   border: 1px solid #c8c8c8;
   background-color: #f8f8f8;
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   color: #444444;
   margin-top: 1px;
@@ -377,7 +373,6 @@ div.modal-body div.form-title {
   padding-right: 5px;
   padding-top: 5px;
   font-size: 14px;
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   vertical-align: top;
   width: 110px;
@@ -411,7 +406,6 @@ div.form-enum-selector div.form-enum-option {
   font-weight: bold;
   display: inline-block;
   font-size: 15px;
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   padding-left: 3px;
 }
@@ -467,7 +461,6 @@ div.form-text > div.form-float-title {
   text-align: right;
   padding-right: 5px;
   font-size: 14px;
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   width: 110px;
 }
@@ -520,7 +513,6 @@ ul.tab-panel {
 ul.tab-panel > li {
   display: inline-block;
   list-style-type: none;
-  font-family: 'Open Sans', sans-serif;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;

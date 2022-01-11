@@ -1,5 +1,4 @@
 a.filtersButton {
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   float: left;
   color: white;
@@ -127,7 +126,6 @@ div.actionLinks a + a {
   margin-left: 6px;
 }
 span.actionLinksText {
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   font-size: 11px;
   position: relative;

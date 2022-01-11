@@ -4,7 +4,6 @@ div.container {
   bottom: 20px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.3);
   z-index: 1;
-  font-family: 'Open Sans', sans-serif;
   font-weight: 600;
   background-color: white;
   border-radius: 3px;
@@ -60,7 +59,6 @@ div.pager {
 span.pagerStatus {
   text-transform: uppercase;
   color: #777777;
-  font-family: 'Open Sans', sans-serif;
   font-size: 9px;
 }
 svg.pagerIcon {
