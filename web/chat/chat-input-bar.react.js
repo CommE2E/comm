@@ -46,7 +46,7 @@ import Multimedia from '../media/multimedia.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
-import css from './chat-message-list.css';
+import css from './chat-input-bar.css';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

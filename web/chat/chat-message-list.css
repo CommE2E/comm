@@ -35,50 +35,6 @@ div.message {
   flex-shrink: 0;
 }
 
-div.inputBar {
-  display: flex;
-  flex-direction: column;
-  border-top: 2px solid #e4e4e4;
-}
-div.inputBarTextInput {
-  display: flex;
-  padding: 16px;
-  align-items: center;
-  flex-shrink: 0;
-}
-div.inputBarTextInput > textarea {
-  flex: 1;
-  display: flex;
-  border: none;
-  font-size: 14px;
-  resize: none;
-  padding-left: 12px;
-}
-div.inputBarTextInput > textarea:focus {
-  outline: none;
-}
-
-div.joinButtonContainer > a {
-  margin: 8px;
-  padding: 3px 0 5px 0;
-  display: flex;
-  border-radius: 8px;
-  justify-content: center;
-  cursor: pointer;
-}
-span.joinButtonText {
-  font-size: 18px;
-  color: white;
-  text-align: center;
-  margin-inline: 6px;
-}
-span.explanation {
-  color: #777777;
-  text-align: center;
-  padding-top: 4px;
-  padding-bottom: 8px;
-}
-
 div.loading {
   text-align: center;
   padding: 12px;
@@ -239,33 +195,6 @@ span.deliveryFailed {
 a.retrySend {
   padding: 0 3px;
   cursor: pointer;
-}
-a.multimediaUpload {
-  cursor: pointer;
-  position: relative;
-}
-a.multimediaUpload > input[type='file'] {
-  visibility: hidden;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0;
-  padding: 0;
-}
-
-div.previews {
-  display: flex;
-  overflow-x: auto;
-  white-space: nowrap;
-}
-div.previews > span.multimedia {
-  margin: 10px;
-}
-div.previews > span.multimedia > span.multimediaImage > img {
-  max-height: 200px;
-  max-width: 200px;
 }
 
 div.messageBox > div.imageGrid {
