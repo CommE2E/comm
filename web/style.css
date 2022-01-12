@@ -62,6 +62,7 @@ header.header {
 }
 div.main-header {
   height: 62px;
+  background: var(--bg);
 }
 div.main-header > h1 {
   position: absolute;
@@ -92,7 +93,7 @@ ul.nav-bar > li > div {
   padding: 3px 20px 3px 20px;
 }
 ul.nav-bar > li > div > a {
-  color: #ffffff;
+  color: var(--fg);
 }
 ul.nav-bar > li.current-tab > div > a {
   color: #444444;

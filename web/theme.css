@@ -36,7 +36,7 @@
   --error-dark-90: #4f1203;
 
   --bg: var(--shades-black-100);
-  --color: var(--shades-white-100);
+  --fg: var(--shades-white-100);
   --color-disabled: var(--shades-black-60);
   --text-input-bg: var(--shades-black-80);
   --text-input-color: var(--shades-black-60);
