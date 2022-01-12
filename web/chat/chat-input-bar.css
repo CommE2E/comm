@@ -16,6 +16,8 @@ div.inputBarTextInput > textarea {
   font-size: 14px;
   resize: none;
   padding-left: 12px;
+  background: var(--bg);
+  color: var(--text-input-color);
 }
 div.inputBarTextInput > textarea:focus {
   outline: none;

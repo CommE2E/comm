@@ -51,4 +51,5 @@
   --keyserver-selection: var(--violet-dark-60);
   --thread-selection: var(--violet-light-80);
   --selected-thread-bg: var(--shades-black-90);
+  --chat-timestamp-color: var(--shades-black-60);
 }
