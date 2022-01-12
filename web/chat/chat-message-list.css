@@ -53,32 +53,32 @@ div.conversationHeader:last-child {
 div.messageLeftTooltip:after {
   top: 7px;
   right: -14px;
-  border-color: transparent transparent transparent black;
+  border-color: transparent transparent transparent var(--tool-tip-bg);
 }
 div.messageRightTooltip:after {
   top: 7px;
   left: -14px;
-  border-color: transparent black transparent transparent;
+  border-color: transparent var(--tool-tip-bg) transparent transparent;
 }
 div.messageTopLeftTooltip:after {
   bottom: -14px;
   left: 4px;
-  border-color: black transparent transparent transparent;
+  border-color: var(--tool-tip-bg) transparent transparent transparent;
 }
 div.messageTopRightTooltip:after {
   bottom: -14px;
   right: 4px;
-  border-color: black transparent transparent transparent;
+  border-color: var(--tool-tip-bg) transparent transparent transparent;
 }
 div.messageBottomLeftTooltip:after {
   top: -14px;
   left: 4px;
-  border-color: transparent transparent black transparent;
+  border-color: transparent transparent var(--tool-tip-bg) transparent;
 }
 div.messageBottomRightTooltip:after {
   top: -14px;
   right: 4px;
-  border-color: transparent transparent black transparent;
+  border-color: transparent transparent var(--tool-tip-bg) transparent;
 }
 
 div.messageActionLinks {

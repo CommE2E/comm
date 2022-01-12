@@ -1,7 +1,7 @@
 div.messageTooltipMenu {
   position: absolute;
-  background-color: black;
-  color: white;
+  background-color: var(--tool-tip-bg);
+  color: var(--tool-tip-color);
   padding: 5px;
   border-radius: 5px;
   font-size: 14px;
