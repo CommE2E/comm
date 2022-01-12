@@ -1,6 +1,8 @@
 :root {
   --font-stack: 'Inter', -apple-system, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', ui-sans-serif;
+  --font-logo: 'IBM Plex Sans', ui-sans-serif;
+  --logo-font-22: 2.2rem;
   --xxxl-font-32: 3.2rem;
   --xxl-font-28: 2.8rem;
   --xxl-font-24: 2.4rem;

@@ -63,13 +63,16 @@ header.header {
 div.main-header {
   height: 62px;
   background: var(--bg);
+  display: flex;
+  align-items: center;
 }
 div.main-header > h1 {
-  position: absolute;
-  padding-top: 5px;
-  padding-left: 16px;
-  color: white;
-  font-size: 38px;
+  color: var(--fg);
+  padding: 0 6px;
+  font-family: var(--font-logo);
+  line-height: var(--line-height-text);
+  font-weight: var(--semi-bold);
+  font-size: var(--logo-font);
 }
 ul.nav-bar {
   position: absolute;
