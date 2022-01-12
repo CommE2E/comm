@@ -12,6 +12,8 @@ div.container {
 div.tabs {
   display: flex;
   flex-direction: row;
+  color: var(--color);
+  background: var(--bg);
 }
 
 div.tabItem {
@@ -22,12 +24,12 @@ div.tabItem {
   cursor: pointer;
 }
 div.tabItemActive {
-  border: outset lightskyblue;
-  border-width: 0 0 2px 0;
+  border: outset var(--thread-selection);
+  border-width: 0 0 3px 0;
 }
 div.tabItemInactive {
-  background-color: lightgrey;
-  color: grey;
+  background-color: var(--bg);
+  color: var(--color-disabled);
   margin-bottom: -1px;
 }
 
