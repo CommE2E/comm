@@ -3,7 +3,7 @@ div.container {
   width: 400px;
   top: 0;
   bottom: 0;
-  background-color: white;
+  background-color: var(--bg);
   border-right: 2px solid #e4e4e4;
   display: flex;
   flex-direction: column;

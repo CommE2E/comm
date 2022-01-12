@@ -3,11 +3,9 @@ div.thread {
   flex-direction: row;
   padding: 5px 5px 5px 15px;
 }
+div.activeThread,
 div.thread:hover {
-  background-color: #eeeeee;
-}
-div.activeThread {
-  background-color: #eeeeee;
+  background: var(--selected-thread-bg);
 }
 div.thread div.title {
   flex: 1;
@@ -15,7 +13,7 @@ div.thread div.title {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: black;
+  color: var(--color);
 }
 a.threadButton {
   flex: 1;
@@ -44,17 +42,17 @@ div.lastMessage {
   flex: 1;
 }
 div.unread {
-  color: black;
+  color: var(--color);
   font-weight: 600;
 }
 .black {
-  color: black;
+  color: var(--color);
 }
 div.dark {
-  color: #666666;
+  color: var(--color);
 }
 .light {
-  color: #aaaaaa;
+  color: var(--color);
 }
 div.italic {
   font-style: italic;
@@ -66,7 +64,7 @@ div.thread div.sidebarTitle {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: black;
+  color: var(--color);
   align-self: flex-start;
 }
 div.sidebarLastActivity {
@@ -74,7 +72,7 @@ div.sidebarLastActivity {
   font-size: 14px;
 }
 svg.sidebarIcon {
-  color: black;
+  color: var(--color);
   padding: 0 6px;
   font-size: 20px;
 }
@@ -89,6 +87,7 @@ div.sidebar .menu > button svg {
 }
 .menu > button {
   background-color: transparent;
+  color: var(--color);
   border: none;
   border-radius: 5px;
   cursor: pointer;
