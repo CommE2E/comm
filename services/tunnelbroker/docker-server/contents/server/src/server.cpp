@@ -1,7 +1,7 @@
-#include "TunnelBrokerServiceImpl.h"
+#include "Constants.h"
+#include "TunnelbrokerServiceImpl.h"
 
 #include <grpcpp/grpcpp.h>
-
 #include <iostream>
 #include <memory>
 #include <string>
@@ -10,13 +10,12 @@ namespace comm {
 namespace network {
 
 void RunServer() {
-  std::string server_address = "0.0.0.0:50051";
   TunnelBrokerServiceImpl service;
-
   grpc::EnableDefaultHealthCheckService(true);
   grpc::ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.AddListeningPort(
+      SERVER_LISTEN_ADDRESS, grpc::InsecureServerCredentials());
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
@@ -34,6 +33,5 @@ void RunServer() {
 
 int main(int argc, char **argv) {
   comm::network::RunServer();
-
   return 0;
 }
