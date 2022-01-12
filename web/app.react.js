@@ -178,7 +178,7 @@ class App extends React.PureComponent<Props, State> {
       <React.Fragment>
         <header className={css['header']}>
           <div className={css['main-header']}>
-            <h1>SquadCal</h1>
+            <h1>Comm</h1>
             <ul className={css['nav-bar']}>
               <li className={calendarNavClasses}>
                 <div>
