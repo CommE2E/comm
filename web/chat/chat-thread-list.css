@@ -93,9 +93,7 @@ div.sidebar .menu > button svg {
   cursor: pointer;
   padding: 0 10px;
 }
-.menu > button:hover {
-  background-color: #dddddd;
-}
+
 .menu > button:focus {
   outline: none;
 }
