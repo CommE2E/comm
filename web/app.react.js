@@ -4,6 +4,7 @@ import '@fontsource/inter';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import 'basscss/css/basscss.min.css';
+import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
