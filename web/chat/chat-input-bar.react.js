@@ -237,7 +237,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       (this.props.threadCreationInProgress && defaultMembersAreVoiced)
     ) {
       content = (
-        <div className={css.inputBarTextInput}>
+        <div className={css.inputBarWrapper}>
           <a className={css.multimediaUpload} onClick={this.onMultimediaClick}>
             <input
               type="file"
@@ -248,16 +248,18 @@ class ChatInputBar extends React.PureComponent<Props> {
             />
             <SWMansionIcon icon="image" size={16} color="#8a8a8a" disableFill />
           </a>
-          <textarea
-            rows="1"
-            placeholder="Type your message"
-            value={this.props.inputState.draft}
-            onChange={this.onChangeMessageText}
-            onKeyDown={this.onKeyDown}
-            ref={this.textareaRef}
-            autoFocus
-          />
-          {sendButton}
+          <div className={css.inputBarTextInput}>
+            <textarea
+              rows="1"
+              placeholder="Type your message"
+              value={this.props.inputState.draft}
+              onChange={this.onChangeMessageText}
+              onKeyDown={this.onKeyDown}
+              ref={this.textareaRef}
+              autoFocus
+            />
+            {sendButton}
+          </div>
         </div>
       );
     } else if (

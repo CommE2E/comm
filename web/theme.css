@@ -39,7 +39,8 @@
   --fg: var(--shades-white-100);
   --color-disabled: var(--shades-black-60);
   --text-input-bg: var(--shades-black-80);
-  --text-input-color: var(--shades-black-60);
+  --text-input-color: var(--shades-white-60);
+  --text-input-placeholder: var(--shades-white-60);
   --border: var(--shades-black-80);
   --error: var(--error-primary);
   --success: var(--success-dark-50);
