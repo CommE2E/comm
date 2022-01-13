@@ -65,6 +65,7 @@ div.main-header {
   background: var(--bg);
   display: flex;
   align-items: center;
+  border-bottom: 1px solid var(--border-color);
 }
 div.main-header > h1 {
   color: var(--fg);
