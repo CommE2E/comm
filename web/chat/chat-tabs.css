@@ -30,7 +30,8 @@ div.tabItemActive {
 div.tabItemInactive {
   background-color: var(--bg);
   color: var(--color-disabled);
-  margin-bottom: -1px;
+  border: outset var(--border-color);
+  border-width: 0 0 3px 0;
 }
 
 div.threadList {
