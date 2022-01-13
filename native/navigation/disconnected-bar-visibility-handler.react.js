@@ -1,29 +1,17 @@
 // @flow
 
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
 
-import { updateDisconnectedBarActionType } from 'lib/types/socket-types';
+import { useDisconnectedBarVisibility } from 'lib/hooks/disconnected-bar';
 
 import { useSelector } from '../redux/redux-utils';
 
 function DisconnectedBarVisibilityHandler(): null {
-  const dispatch = useDispatch();
-  const disconnected = useSelector(
-    state => state.connection.showDisconnectedBar,
-  );
-  const setDisconnected = React.useCallback(
-    (newDisconnected: boolean) => {
-      if (newDisconnected === disconnected) {
-        return;
-      }
-      dispatch({
-        type: updateDisconnectedBarActionType,
-        payload: { visible: newDisconnected },
-      });
-    },
-    [disconnected, dispatch],
-  );
+  const {
+    setDisconnected,
+    connectionStatus,
+    someRequestIsLate,
+  } = useDisconnectedBarVisibility();
 
   const networkActiveRef = React.useRef(true);
   const networkConnected = useSelector(state => state.connectivity.connected);
@@ -35,10 +23,6 @@ function DisconnectedBarVisibilityHandler(): null {
   }, [setDisconnected, networkConnected]);
 
   const prevConnectionStatusRef = React.useRef();
-  const connectionStatus = useSelector(state => state.connection.status);
-  const someRequestIsLate = useSelector(
-    state => state.connection.lateResponses.length !== 0,
-  );
   React.useEffect(() => {
     const prevConnectionStatus = prevConnectionStatusRef.current;
     prevConnectionStatusRef.current = connectionStatus;

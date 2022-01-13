@@ -3,7 +3,11 @@
 import * as React from 'react';
 import { Text, Platform, Animated, Easing } from 'react-native';
 
-import { useSelector } from '../redux/redux-utils';
+import {
+  useDisconnectedBar,
+  useShouldShowDisconnectedBar,
+} from 'lib/hooks/disconnected-bar';
+
 import { useStyles } from '../themes/colors';
 
 const expandedHeight = Platform.select({
@@ -20,14 +24,7 @@ type Props = {
   +visible: boolean,
 };
 function DisconnectedBar(props: Props): React.Node {
-  const disconnected = useSelector(
-    state => state.connection.showDisconnectedBar,
-  );
-  const socketConnected = useSelector(
-    state => state.connection.status === 'connected',
-  );
-  const shouldShowDisconnectedBar = disconnected || !socketConnected;
-
+  const { shouldShowDisconnectedBar } = useShouldShowDisconnectedBar();
   const showingRef = new React.useRef();
   if (!showingRef.current) {
     showingRef.current = new Animated.Value(shouldShowDisconnectedBar ? 1 : 0);
@@ -49,16 +46,7 @@ function DisconnectedBar(props: Props): React.Node {
     [visible, showing],
   );
 
-  const prevShowDisconnectedBar = React.useRef();
-  React.useEffect(() => {
-    const wasShowing = prevShowDisconnectedBar.current;
-    if (shouldShowDisconnectedBar && wasShowing === false) {
-      changeShowing(1);
-    } else if (!shouldShowDisconnectedBar && wasShowing) {
-      changeShowing(0);
-    }
-    prevShowDisconnectedBar.current = shouldShowDisconnectedBar;
-  }, [shouldShowDisconnectedBar, changeShowing]);
+  const barCause = useDisconnectedBar(changeShowing);
 
   const heightStyle = React.useMemo(
     () => ({
@@ -69,15 +57,6 @@ function DisconnectedBar(props: Props): React.Node {
     }),
     [showing],
   );
-
-  const [barCause, setBarCause] = React.useState('connecting');
-  React.useEffect(() => {
-    if (shouldShowDisconnectedBar && disconnected) {
-      setBarCause('disconnected');
-    } else if (shouldShowDisconnectedBar) {
-      setBarCause('connecting');
-    }
-  }, [shouldShowDisconnectedBar, disconnected]);
 
   const styles = useStyles(unboundStyles);
   const text = barCause === 'disconnected' ? 'DISCONNECTED' : 'CONNECTING…';
