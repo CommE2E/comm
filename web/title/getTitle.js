@@ -1,7 +1,7 @@
 // @flow
 
 const getTitle = (count: number): string => {
-  const title = 'SquadCal';
+  const title = 'Comm';
   if (count > 0) {
     return `${title} (${count})`;
   }
