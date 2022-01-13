@@ -242,8 +242,8 @@ async function websiteResponder(
         />
         <link rel="manifest" href="site.webmanifest" />
         <link rel="mask-icon" href="safari-pinned-tab.svg" color="#b91d47" />
-        <meta name="apple-mobile-web-app-title" content="SquadCal" />
-        <meta name="application-name" content="SquadCal" />
+        <meta name="apple-mobile-web-app-title" content="Comm" />
+        <meta name="application-name" content="Comm" />
         <meta name="msapplication-TileColor" content="#b91d47" />
         <meta name="theme-color" content="#b91d47" />
       </head>
