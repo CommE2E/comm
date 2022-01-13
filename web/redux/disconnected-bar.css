@@ -1,0 +1,25 @@
+div.barContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  position: fixed;
+  text-align: center;
+  z-index: 10;
+}
+
+div.barText {
+  border-radius: 0 0 0.5rem 0.5rem;
+  padding: 3px 25px;
+}
+
+div.connecting {
+  background-color: #dadada;
+}
+div.hidden {
+  height: 0;
+}
+
+div.disconnected {
+  background-color: darkred;
+  color: white;
+}
