@@ -75,20 +75,20 @@ function ThreadSettingsAddMember(props: AddMemberProps): React.Node {
   );
 }
 
-type AddChildThreadProps = {
+type AddChildChannelProps = {
   +onPress: () => void,
 };
-function ThreadSettingsAddSubthread(props: AddChildThreadProps): React.Node {
+function ThreadSettingsAddSubchannel(props: AddChildChannelProps): React.Node {
   const styles = useStyles(unboundStyles);
   return (
     <View style={styles.addItemRow}>
       <ThreadSettingsListAction
         onPress={props.onPress}
-        text="Add subthread"
+        text="Add subchannel"
         iconName="md-add"
         iconStyle={styles.addIcon}
         iconSize={20}
-        buttonStyle={styles.addSubthreadButton}
+        buttonStyle={styles.addSubchannelButton}
         styles={styles}
       />
     </View>
@@ -96,7 +96,7 @@ function ThreadSettingsAddSubthread(props: AddChildThreadProps): React.Node {
 }
 
 const unboundStyles = {
-  addSubthreadButton: {
+  addSubchannelButton: {
     paddingTop: Platform.OS === 'ios' ? 4 : 1,
   },
   addIcon: {
@@ -148,5 +148,5 @@ const unboundStyles = {
 export {
   ThreadSettingsSeeMore,
   ThreadSettingsAddMember,
-  ThreadSettingsAddSubthread,
+  ThreadSettingsAddSubchannel,
 };

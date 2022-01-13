@@ -19,7 +19,7 @@ import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import ImagePasteModal from '../chat/image-paste-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import ColorPickerModal from '../chat/settings/color-picker-modal.react';
-import ComposeSubthreadModal from '../chat/settings/compose-subthread-modal.react';
+import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.react';
 import SidebarListModal from '../chat/sidebar-list-modal.react';
 import CustomServerModal from '../profile/custom-server-modal.react';
 import AppNavigator from './app-navigator.react';
@@ -34,7 +34,7 @@ import {
   AddUsersModalRouteName,
   CustomServerModalRouteName,
   ColorPickerModalRouteName,
-  ComposeSubthreadModalRouteName,
+  ComposeSubchannelModalRouteName,
   SidebarListModalRouteName,
   type ScreenParamList,
   type RootParamList,
@@ -169,8 +169,8 @@ function RootComponent(): React.Node {
         options={modalOverlayScreenOptions}
       />
       <Root.Screen
-        name={ComposeSubthreadModalRouteName}
-        component={ComposeSubthreadModal}
+        name={ComposeSubchannelModalRouteName}
+        component={ComposeSubchannelModal}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen

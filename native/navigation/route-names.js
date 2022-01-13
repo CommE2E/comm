@@ -10,7 +10,7 @@ import type { MultimediaMessageTooltipModalParams } from '../chat/multimedia-mes
 import type { RobotextMessageTooltipModalParams } from '../chat/robotext-message-tooltip-modal.react';
 import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react';
 import type { ColorPickerModalParams } from '../chat/settings/color-picker-modal.react';
-import type { ComposeSubthreadModalParams } from '../chat/settings/compose-subthread-modal.react';
+import type { ComposeSubchannelModalParams } from '../chat/settings/compose-subchannel-modal.react';
 import type { DeleteThreadParams } from '../chat/settings/delete-thread.react';
 import type { ThreadSettingsMemberTooltipModalParams } from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import type { ThreadSettingsParams } from '../chat/settings/thread-settings.react';
@@ -36,7 +36,7 @@ export const CameraModalRouteName = 'CameraModal';
 export const ChatRouteName = 'Chat';
 export const ChatThreadListRouteName = 'ChatThreadList';
 export const ColorPickerModalRouteName = 'ColorPickerModal';
-export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
+export const ComposeSubchannelModalRouteName = 'ComposeSubchannelModal';
 export const ComposeSubchannelRouteName = 'ComposeSubchannel';
 export const CustomServerModalRouteName = 'CustomServerModal';
 export const DefaultNotificationsPreferencesRouteName = 'DefaultNotifications';
@@ -75,7 +75,7 @@ export type RootParamList = {
   +AddUsersModal: AddUsersModalParams,
   +CustomServerModal: CustomServerModalParams,
   +ColorPickerModal: ColorPickerModalParams,
-  +ComposeSubthreadModal: ComposeSubthreadModalParams,
+  +ComposeSubchannelModal: ComposeSubchannelModalParams,
   +SidebarListModal: SidebarListModalParams,
   +ImagePasteModal: ImagePasteModalParams,
 };
@@ -164,7 +164,7 @@ export const scrollBlockingModals = [
 export const chatRootModals = [
   AddUsersModalRouteName,
   ColorPickerModalRouteName,
-  ComposeSubthreadModalRouteName,
+  ComposeSubchannelModalRouteName,
 ];
 
 export const threadRoutes = [

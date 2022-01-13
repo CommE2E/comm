@@ -15,21 +15,21 @@ import type { NavigationRoute } from '../../navigation/route-names';
 import { ComposeSubchannelRouteName } from '../../navigation/route-names';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 
-export type ComposeSubthreadModalParams = {
+export type ComposeSubchannelModalParams = {
   presentedFrom: string,
   threadInfo: ThreadInfo,
 };
 
 type BaseProps = {
-  +navigation: RootNavigationProp<'ComposeSubthreadModal'>,
-  +route: NavigationRoute<'ComposeSubthreadModal'>,
+  +navigation: RootNavigationProp<'ComposeSubchannelModal'>,
+  +route: NavigationRoute<'ComposeSubchannelModal'>,
 };
 type Props = {
   ...BaseProps,
   +colors: Colors,
   +styles: typeof unboundStyles,
 };
-class ComposeSubthreadModal extends React.PureComponent<Props> {
+class ComposeSubchannelModal extends React.PureComponent<Props> {
   render() {
     return (
       <Modal modalStyle={this.props.styles.modal}>
@@ -136,13 +136,15 @@ const unboundStyles = {
   },
 };
 
-const ConnectedComposeSubthreadModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedComposeSubthreadModal(props: BaseProps) {
+const ConnectedComposeSubchannelModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedComposeSubchannelModal(props: BaseProps) {
     const styles = useStyles(unboundStyles);
     const colors = useColors();
 
-    return <ComposeSubthreadModal {...props} styles={styles} colors={colors} />;
+    return (
+      <ComposeSubchannelModal {...props} styles={styles} colors={colors} />
+    );
   },
 );
 
-export default ConnectedComposeSubthreadModal;
+export default ConnectedComposeSubchannelModal;

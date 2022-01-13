@@ -47,7 +47,7 @@ import {
 import type { NavigationRoute } from '../../navigation/route-names';
 import {
   AddUsersModalRouteName,
-  ComposeSubthreadModalRouteName,
+  ComposeSubchannelModalRouteName,
 } from '../../navigation/route-names';
 import { useSelector } from '../../redux/redux-utils';
 import type { AppState } from '../../redux/state-types';
@@ -74,7 +74,7 @@ import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
 import {
   ThreadSettingsSeeMore,
   ThreadSettingsAddMember,
-  ThreadSettingsAddSubthread,
+  ThreadSettingsAddSubchannel,
 } from './thread-settings-list-action.react';
 import ThreadSettingsMember from './thread-settings-member.react';
 import ThreadSettingsName from './thread-settings-name.react';
@@ -164,7 +164,7 @@ type ChatSettingsItem =
       +lastListItem: boolean,
     }
   | {
-      +itemType: 'addSubthread',
+      +itemType: 'addSubchannel',
       +key: string,
     }
   | {
@@ -221,7 +221,7 @@ type Props = {
 };
 type State = {
   +numMembersShowing: number,
-  +numSubthreadsShowing: number,
+  +numSubchannelsShowing: number,
   +numSidebarsShowing: number,
   +nameEditValue: ?string,
   +descriptionEditValue: ?string,
@@ -239,7 +239,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     invariant(threadInfo, 'ThreadInfo should exist when ThreadSettings opened');
     this.state = {
       numMembersShowing: itemPageLength,
-      numSubthreadsShowing: itemPageLength,
+      numSubchannelsShowing: itemPageLength,
       numSidebarsShowing: itemPageLength,
       nameEditValue: null,
       descriptionEditValue: null,
@@ -465,69 +465,69 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     },
   );
 
-  subthreadsListDataSelector = createSelector(
+  subchannelsListDataSelector = createSelector(
     (propsAndState: PropsAndState) =>
       ThreadSettings.getThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
-    (propsAndState: PropsAndState) => propsAndState.numSubthreadsShowing,
+    (propsAndState: PropsAndState) => propsAndState.numSubchannelsShowing,
     (
       threadInfo: ThreadInfo,
       navigate: ThreadSettingsNavigate,
       childThreads: ?$ReadOnlyArray<ThreadInfo>,
-      numSubthreadsShowing: number,
+      numSubchannelsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
 
-      const subthreads =
+      const subchannels =
         childThreads?.filter(
           childThreadInfo => childThreadInfo.type !== threadTypes.SIDEBAR,
         ) ?? [];
-      const canCreateSubthreads = threadHasPermission(
+      const canCreateSubchannels = threadHasPermission(
         threadInfo,
         threadPermissions.CREATE_SUBTHREADS,
       );
-      if (subthreads.length === 0 && !canCreateSubthreads) {
+      if (subchannels.length === 0 && !canCreateSubchannels) {
         return listData;
       }
 
       listData.push({
         itemType: 'header',
-        key: 'subthreadHeader',
-        title: 'Subthreads',
+        key: 'subchannelHeader',
+        title: 'Subchannels',
         categoryType: 'unpadded',
       });
 
-      if (canCreateSubthreads) {
+      if (canCreateSubchannels) {
         listData.push({
-          itemType: 'addSubthread',
-          key: 'addSubthread',
+          itemType: 'addSubchannel',
+          key: 'addSubchannel',
         });
       }
 
-      const numItems = Math.min(numSubthreadsShowing, subthreads.length);
+      const numItems = Math.min(numSubchannelsShowing, subchannels.length);
       for (let i = 0; i < numItems; i++) {
-        const subthreadInfo = subthreads[i];
+        const subchannelInfo = subchannels[i];
         listData.push({
           itemType: 'childThread',
-          key: `childThread${subthreadInfo.id}`,
-          threadInfo: subthreadInfo,
-          firstListItem: i === 0 && !canCreateSubthreads,
-          lastListItem: i === numItems - 1 && numItems === subthreads.length,
+          key: `childThread${subchannelInfo.id}`,
+          threadInfo: subchannelInfo,
+          firstListItem: i === 0 && !canCreateSubchannels,
+          lastListItem: i === numItems - 1 && numItems === subchannels.length,
         });
       }
 
-      if (numItems < subthreads.length) {
+      if (numItems < subchannels.length) {
         listData.push({
           itemType: 'seeMore',
-          key: 'seeMoreSubthreads',
-          onPress: this.onPressSeeMoreSubthreads,
+          key: 'seeMoreSubchannels',
+          onPress: this.onPressSeeMoreSubchannels,
         });
       }
 
       listData.push({
         itemType: 'footer',
-        key: 'subthreadFooter',
+        key: 'subchannelFooter',
         categoryType: 'unpadded',
       });
 
@@ -689,14 +689,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         threadInfo,
         threadPermissions.EDIT_PERMISSIONS,
       );
-      const canCreateSubthreadsInParent = threadHasPermission(
+      const canCreateSubchannelsInParent = threadHasPermission(
         parentThreadInfo,
         threadPermissions.CREATE_SUBTHREADS,
       );
       const canPromoteSidebar =
         threadInfo.type === threadTypes.SIDEBAR &&
         canChangeThreadType &&
-        canCreateSubthreadsInParent;
+        canCreateSubchannelsInParent;
       if (canPromoteSidebar) {
         buttons.push({
           itemType: 'promoteSidebar',
@@ -797,19 +797,19 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   listDataSelector = createSelector(
     this.threadBasicsListDataSelector,
-    this.subthreadsListDataSelector,
+    this.subchannelsListDataSelector,
     this.sidebarsListDataSelector,
     this.threadMembersListDataSelector,
     this.actionsListDataSelector,
     (
       threadBasicsListData: ChatSettingsItem[],
-      subthreadsListData: ChatSettingsItem[],
+      subchannelsListData: ChatSettingsItem[],
       sidebarsListData: ChatSettingsItem[],
       threadMembersListData: ChatSettingsItem[],
       actionsListData: ChatSettingsItem[],
     ) => [
       ...threadBasicsListData,
-      ...subthreadsListData,
+      ...subchannelsListData,
       ...sidebarsListData,
       ...threadMembersListData,
       ...actionsListData,
@@ -939,9 +939,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           lastListItem={item.lastListItem}
         />
       );
-    } else if (item.itemType === 'addSubthread') {
+    } else if (item.itemType === 'addSubchannel') {
       return (
-        <ThreadSettingsAddSubthread onPress={this.onPressComposeSubthread} />
+        <ThreadSettingsAddSubchannel onPress={this.onPressComposeSubchannel} />
       );
     } else if (item.itemType === 'member') {
       return (
@@ -1009,9 +1009,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     this.setState({ descriptionTextHeight: height });
   };
 
-  onPressComposeSubthread = () => {
+  onPressComposeSubchannel = () => {
     const threadInfo = ThreadSettings.getThreadInfo(this.props);
-    this.props.navigation.navigate(ComposeSubthreadModalRouteName, {
+    this.props.navigation.navigate(ComposeSubchannelModalRouteName, {
       presentedFrom: this.props.route.key,
       threadInfo,
     });
@@ -1031,9 +1031,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     }));
   };
 
-  onPressSeeMoreSubthreads = () => {
+  onPressSeeMoreSubchannels = () => {
     this.setState(prevState => ({
-      numSubthreadsShowing: prevState.numSubthreadsShowing + itemPageLength,
+      numSubchannelsShowing: prevState.numSubchannelsShowing + itemPageLength,
     }));
   };
 
