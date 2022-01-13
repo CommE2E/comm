@@ -58,8 +58,8 @@ const tagInputProps = {
 };
 
 export type ComposeThreadParams = {
-  +threadType?: ThreadType,
-  +parentThreadInfo?: ThreadInfo,
+  +threadType: ThreadType,
+  +parentThreadInfo: ThreadInfo,
 };
 
 type BaseProps = {
@@ -138,7 +138,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   static getParentThreadInfo(props: {
     route: NavigationRoute<'ComposeThread'>,
     ...
-  }): ?ThreadInfo {
+  }): ThreadInfo {
     return props.route.params.parentThreadInfo;
   }
 
@@ -156,7 +156,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
       userInfos: { +[id: string]: AccountUserInfo },
       searchIndex: SearchIndex,
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-      parentThreadInfo: ?ThreadInfo,
+      parentThreadInfo: ThreadInfo,
       communityThreadInfo: ?ThreadInfo,
       threadType: ?ThreadType,
     ) =>
@@ -181,7 +181,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.threadInfos,
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (
-      parentThreadInfo: ?ThreadInfo,
+      parentThreadInfo: ThreadInfo,
       threadInfos: { +[id: string]: ThreadInfo },
       userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
     ) => {
@@ -193,8 +193,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
         _filter(
           (threadInfo: ThreadInfo) =>
             threadInFilterList(threadInfo) &&
-            (!parentThreadInfo ||
-              threadInfo.parentThreadID === parentThreadInfo.id) &&
+            threadInfo.parentThreadID === parentThreadInfo.id &&
             userIDs.every(userID => userIsMember(threadInfo, userID)),
         ),
         _sortBy(
@@ -232,28 +231,17 @@ class ComposeThread extends React.PureComponent<Props, State> {
         </View>
       );
     }
-    let parentThreadRow = null;
     const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
-    if (parentThreadInfo) {
-      const threadType = this.props.route.params.threadType;
-      invariant(
-        threadType !== undefined && threadType !== null,
-        `no threadType provided for ${parentThreadInfo.id}`,
-      );
-      parentThreadRow = (
-        <ParentThreadHeader
-          parentThreadInfo={parentThreadInfo}
-          childThreadType={threadType}
-        />
-      );
-    }
     const inputProps = {
       ...tagInputProps,
       onSubmitEditing: this.onPressCreateThread,
     };
     return (
       <View style={this.props.styles.container}>
-        {parentThreadRow}
+        <ParentThreadHeader
+          parentThreadInfo={parentThreadInfo}
+          childThreadType={this.props.route.params.threadType}
+        />
         <View style={this.props.styles.userSelectionRow}>
           <Text style={this.props.styles.tagInputLabel}>To: </Text>
           <View style={this.props.styles.tagInputContainer}>
@@ -357,9 +345,9 @@ class ComposeThread extends React.PureComponent<Props, State> {
       );
       const result = await this.props.newThread({
         type: threadType,
-        parentThreadID: parentThreadInfo ? parentThreadInfo.id : null,
+        parentThreadID: parentThreadInfo.id,
         initialMemberIDs,
-        color: parentThreadInfo ? parentThreadInfo.color : null,
+        color: parentThreadInfo.color,
         calendarQuery: query,
       });
       this.waitingOnThreadID = result.newThreadID;
@@ -448,12 +436,12 @@ const unboundStyles = {
 
 const ConnectedComposeThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedComposeThread(props: BaseProps) {
-    const parentThreadInfoID = props.route.params.parentThreadInfo?.id;
+    const parentThreadInfoID = props.route.params.parentThreadInfo.id;
 
-    const reduxParentThreadInfo = useSelector(state =>
-      parentThreadInfoID ? threadInfoSelector(state)[parentThreadInfoID] : null,
+    const reduxParentThreadInfo = useSelector(
+      state => threadInfoSelector(state)[parentThreadInfoID],
     );
-    const community = props.route.params.parentThreadInfo?.community;
+    const { community } = props.route.params.parentThreadInfo;
     const communityThreadInfo = useSelector(state =>
       community ? threadInfoSelector(state)[community] : null,
     );
