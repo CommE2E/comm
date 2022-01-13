@@ -4,7 +4,7 @@ div.container {
   top: 0;
   bottom: 0;
   background-color: var(--bg);
-  border-right: 2px solid #e4e4e4;
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
 }
