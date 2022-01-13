@@ -3,21 +3,27 @@ div.inputBar {
   flex-direction: column;
   border-top: 1px solid var(--border-color);
 }
+div.inputBarWrapper {
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
 div.inputBarTextInput {
   display: flex;
-  padding: 16px;
+  background: var(--text-input-bg);
+  border-radius: 4px;
+  padding: 8px;
   align-items: center;
-  flex-shrink: 0;
+  flex-grow: 1;
 }
 div.inputBarTextInput > textarea {
   flex: 1;
   display: flex;
   border: none;
-  font-size: 14px;
   resize: none;
-  padding-left: 12px;
-  background: var(--bg);
-  color: var(--text-input-color);
+  background: var(--text-input-bg);
+  color: var(--color);
 }
 div.inputBarTextInput > textarea:focus {
   outline: none;
@@ -45,6 +51,7 @@ span.explanation {
 a.multimediaUpload {
   cursor: pointer;
   position: relative;
+  padding-right: 12px;
 }
 a.multimediaUpload > input[type='file'] {
   visibility: hidden;

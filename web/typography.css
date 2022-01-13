@@ -49,7 +49,8 @@ h5,
 .p,
 p,
 .small,
-small {
+small,
+textarea {
   line-height: var(--line-height-text);
 }
 
@@ -71,6 +72,16 @@ p {
 .small,
 small {
   font-size: var(--xs-font-12);
+}
+
+textarea {
+  font-size: var(--s-font-14);
+  font-weight: var(--semi-bold);
+}
+
+textarea::placeholder {
+  color: var(--text-input-placeholder);
+  font-weight: var(--semi-bold);
 }
 
 .bold {
