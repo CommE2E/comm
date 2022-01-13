@@ -27,7 +27,7 @@ import {
 } from '../navigation/navigation-utils';
 import {
   ChatThreadListRouteName,
-  ComposeThreadRouteName,
+  ComposeSubchannelRouteName,
 } from '../navigation/route-names';
 import { createNavigateToThreadAction } from './message-list-types';
 
@@ -127,7 +127,7 @@ function ChatRouter(
         const clearedState = removeScreensFromStack(
           lastState,
           (route: Route<>) =>
-            route.name === ComposeThreadRouteName ? 'remove' : 'break',
+            route.name === ComposeSubchannelRouteName ? 'remove' : 'break',
         );
         const navigateAction = CommonActions.navigate(
           createNavigateToThreadAction({ threadInfo }),

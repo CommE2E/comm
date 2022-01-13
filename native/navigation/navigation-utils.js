@@ -9,7 +9,7 @@ import type {
 import invariant from 'invariant';
 
 import {
-  ComposeThreadRouteName,
+  ComposeSubchannelRouteName,
   AppRouteName,
   threadRoutes,
 } from './route-names';
@@ -58,7 +58,7 @@ function getThreadIDFromRoute(
   if (!routes.includes(route.name)) {
     return null;
   }
-  if (route.name === ComposeThreadRouteName) {
+  if (route.name === ComposeSubchannelRouteName) {
     return getParentThreadIDFromParams(route.params);
   }
   return getThreadIDFromParams(route.params);

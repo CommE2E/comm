@@ -57,14 +57,14 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
-export type ComposeThreadParams = {
+export type ComposeSubchannelParams = {
   +threadType: ThreadType,
   +parentThreadInfo: ThreadInfo,
 };
 
 type BaseProps = {
-  +navigation: ChatNavigationProp<'ComposeThread'>,
-  +route: NavigationRoute<'ComposeThread'>,
+  +navigation: ChatNavigationProp<'ComposeSubchannel'>,
+  +route: NavigationRoute<'ComposeSubchannel'>,
 };
 type Props = {
   ...BaseProps,
@@ -88,7 +88,7 @@ type State = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
 };
 type PropsAndState = { ...Props, ...State };
-class ComposeThread extends React.PureComponent<Props, State> {
+class ComposeSubchannel extends React.PureComponent<Props, State> {
   state: State = {
     usernameInputText: '',
     userInfoInputArray: [],
@@ -136,7 +136,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
   }
 
   static getParentThreadInfo(props: {
-    route: NavigationRoute<'ComposeThread'>,
+    route: NavigationRoute<'ComposeSubchannel'>,
     ...
   }): ThreadInfo {
     return props.route.params.parentThreadInfo;
@@ -148,7 +148,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (propsAndState: PropsAndState) =>
-      ComposeThread.getParentThreadInfo(propsAndState),
+      ComposeSubchannel.getParentThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.communityThreadInfo,
     (propsAndState: PropsAndState) => propsAndState.route.params.threadType,
     (
@@ -177,7 +177,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
 
   existingThreadsSelector = createSelector(
     (propsAndState: PropsAndState) =>
-      ComposeThread.getParentThreadInfo(propsAndState),
+      ComposeSubchannel.getParentThreadInfo(propsAndState),
     (propsAndState: PropsAndState) => propsAndState.threadInfos,
     (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
     (
@@ -231,7 +231,7 @@ class ComposeThread extends React.PureComponent<Props, State> {
         </View>
       );
     }
-    const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
+    const parentThreadInfo = ComposeSubchannel.getParentThreadInfo(this.props);
     const inputProps = {
       ...tagInputProps,
       onSubmitEditing: this.onPressCreateThread,
@@ -334,7 +334,9 @@ class ComposeThread extends React.PureComponent<Props, State> {
       const initialMemberIDs = this.state.userInfoInputArray.map(
         (userInfo: AccountUserInfo) => userInfo.id,
       );
-      const parentThreadInfo = ComposeThread.getParentThreadInfo(this.props);
+      const parentThreadInfo = ComposeSubchannel.getParentThreadInfo(
+        this.props,
+      );
       const query = this.props.calendarQuery();
       invariant(
         threadType === 3 ||
@@ -434,8 +436,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedComposeThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedComposeThread(props: BaseProps) {
+const ConnectedComposeSubchannel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedComposeSubchannel(props: BaseProps) {
     const parentThreadInfoID = props.route.params.parentThreadInfo.id;
 
     const reduxParentThreadInfo = useSelector(
@@ -459,7 +461,7 @@ const ConnectedComposeThread: React.ComponentType<BaseProps> = React.memo<BasePr
     const dispatchActionPromise = useDispatchActionPromise();
     const callNewThread = useServerCall(newThread);
     return (
-      <ComposeThread
+      <ComposeSubchannel
         {...props}
         parentThreadInfo={reduxParentThreadInfo}
         communityThreadInfo={communityThreadInfo}
@@ -477,4 +479,4 @@ const ConnectedComposeThread: React.ComponentType<BaseProps> = React.memo<BasePr
   },
 );
 
-export default ConnectedComposeThread;
+export default ConnectedComposeSubchannel;

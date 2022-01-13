@@ -12,7 +12,7 @@ import Modal from '../../components/modal.react';
 import SWMansionIcon from '../../components/swmansion-icon.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
-import { ComposeThreadRouteName } from '../../navigation/route-names';
+import { ComposeSubchannelRouteName } from '../../navigation/route-names';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 
 export type ComposeSubthreadModalParams = {
@@ -73,13 +73,13 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   onPressOpen = () => {
     const threadInfo = this.props.route.params.threadInfo;
     this.props.navigation.navigate({
-      name: ComposeThreadRouteName,
+      name: ComposeSubchannelRouteName,
       params: {
         threadType: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
         parentThreadInfo: threadInfo,
       },
       key:
-        `${ComposeThreadRouteName}|` +
+        `${ComposeSubchannelRouteName}|` +
         `${threadInfo.id}|${threadTypes.COMMUNITY_OPEN_SUBTHREAD}`,
     });
   };
@@ -87,13 +87,13 @@ class ComposeSubthreadModal extends React.PureComponent<Props> {
   onPressSecret = () => {
     const threadInfo = this.props.route.params.threadInfo;
     this.props.navigation.navigate({
-      name: ComposeThreadRouteName,
+      name: ComposeSubchannelRouteName,
       params: {
         threadType: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
         parentThreadInfo: threadInfo,
       },
       key:
-        `${ComposeThreadRouteName}|` +
+        `${ComposeSubchannelRouteName}|` +
         `${threadInfo.id}|${threadTypes.COMMUNITY_SECRET_SUBTHREAD}`,
     });
   };

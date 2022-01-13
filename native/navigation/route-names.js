@@ -3,7 +3,7 @@
 import type { LeafRoute } from '@react-navigation/native';
 
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react';
-import type { ComposeThreadParams } from '../chat/compose-thread.react';
+import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react';
 import type { ImagePasteModalParams } from '../chat/image-paste-modal.react';
 import type { MessageListParams } from '../chat/message-list-types';
 import type { MultimediaMessageTooltipModalParams } from '../chat/multimedia-message-tooltip-modal.react';
@@ -37,7 +37,7 @@ export const ChatRouteName = 'Chat';
 export const ChatThreadListRouteName = 'ChatThreadList';
 export const ColorPickerModalRouteName = 'ColorPickerModal';
 export const ComposeSubthreadModalRouteName = 'ComposeSubthreadModal';
-export const ComposeThreadRouteName = 'ComposeThread';
+export const ComposeSubchannelRouteName = 'ComposeSubchannel';
 export const CustomServerModalRouteName = 'CustomServerModal';
 export const DefaultNotificationsPreferencesRouteName = 'DefaultNotifications';
 export const DeleteAccountRouteName = 'DeleteAccount';
@@ -112,7 +112,7 @@ export type TabParamList = {
 export type ChatParamList = {
   +ChatThreadList: void,
   +MessageList: MessageListParams,
-  +ComposeThread: ComposeThreadParams,
+  +ComposeSubchannel: ComposeSubchannelParams,
   +ThreadSettings: ThreadSettingsParams,
   +DeleteThread: DeleteThreadParams,
 };
@@ -171,5 +171,5 @@ export const threadRoutes = [
   MessageListRouteName,
   ThreadSettingsRouteName,
   DeleteThreadRouteName,
-  ComposeThreadRouteName,
+  ComposeSubchannelRouteName,
 ];

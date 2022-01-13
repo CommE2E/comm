@@ -30,7 +30,7 @@ import { InputStateContext } from '../input/input-state';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import { defaultStackScreenOptions } from '../navigation/options';
 import {
-  ComposeThreadRouteName,
+  ComposeSubchannelRouteName,
   DeleteThreadRouteName,
   ThreadSettingsRouteName,
   MessageListRouteName,
@@ -45,8 +45,8 @@ import { useColors, useStyles } from '../themes/colors';
 import BackgroundChatThreadList from './background-chat-thread-list.react';
 import ChatHeader from './chat-header.react';
 import ChatRouter, { type ChatRouterNavigationProp } from './chat-router';
+import ComposeSubchannel from './compose-subchannel.react';
 import ComposeThreadButton from './compose-thread-button.react';
-import ComposeThread from './compose-thread.react';
 import HomeChatThreadList from './home-chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
@@ -141,13 +141,14 @@ function ChatNavigator({
     screenOptions,
   });
 
-  // Clear ComposeThread screens after each message is sent. If a user goes to
-  // ComposeThread to create a new thread, but finds an existing one and uses it
-  // instead, we can assume the intent behind opening ComposeThread is resolved
+  // Clear ComposeSubchannel screens after each message is sent. If a user goes
+  // to ComposeSubchannel to create a new thread, but finds an existing one and
+  // uses it instead, we can assume the intent behind opening ComposeSubchannel
+  // is resolved
   const inputState = React.useContext(InputStateContext);
   invariant(inputState, 'InputState should be set in ChatNavigator');
   const clearComposeScreensAfterMessageSend = React.useCallback(() => {
-    navigation.clearScreens([ComposeThreadRouteName]);
+    navigation.clearScreens([ComposeSubchannelRouteName]);
   }, [navigation]);
   React.useEffect(() => {
     inputState.registerSendCallback(clearComposeScreensAfterMessageSend);
@@ -281,8 +282,8 @@ export default function ChatComponent(props: { ... }): React.Node {
             options={messageListOptions}
           />
           <Chat.Screen
-            name={ComposeThreadRouteName}
-            component={ComposeThread}
+            name={ComposeSubchannelRouteName}
+            component={ComposeSubchannel}
             options={composeThreadOptions}
           />
           <Chat.Screen
