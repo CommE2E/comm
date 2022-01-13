@@ -485,7 +485,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
         ) ?? [];
       const canCreateSubchannels = threadHasPermission(
         threadInfo,
-        threadPermissions.CREATE_SUBTHREADS,
+        threadPermissions.CREATE_SUBCHANNELS,
       );
       if (subchannels.length === 0 && !canCreateSubchannels) {
         return listData;
@@ -691,7 +691,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       );
       const canCreateSubchannelsInParent = threadHasPermission(
         parentThreadInfo,
-        threadPermissions.CREATE_SUBTHREADS,
+        threadPermissions.CREATE_SUBCHANNELS,
       );
       const canPromoteSidebar =
         threadInfo.type === threadTypes.SIDEBAR &&

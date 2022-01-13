@@ -83,7 +83,7 @@ const voicedPermissions = {
   [threadPermissions.EDIT_THREAD_NAME]: true,
   [threadPermissions.EDIT_THREAD_COLOR]: true,
   [threadPermissions.EDIT_THREAD_DESCRIPTION]: true,
-  [threadPermissions.CREATE_SUBTHREADS]: true,
+  [threadPermissions.CREATE_SUBCHANNELS]: true,
   [threadPermissions.ADD_MEMBERS]: true,
 };
 
@@ -135,8 +135,8 @@ function getRolePermissionBlobsForCommunity(
     DESCENDANT + threadPermissions.EDIT_THREAD_COLOR;
   const descendantEditThreadDescription =
     DESCENDANT + threadPermissions.EDIT_THREAD_DESCRIPTION;
-  const topLevelDescendantCreateSubthreads =
-    TOP_LEVEL_DESCENDANT + threadPermissions.CREATE_SUBTHREADS;
+  const topLevelDescendantCreateSubchannels =
+    TOP_LEVEL_DESCENDANT + threadPermissions.CREATE_SUBCHANNELS;
   const topLevelDescendantCreateSidebars =
     TOP_LEVEL_DESCENDANT + threadPermissions.CREATE_SIDEBARS;
   const descendantAddMembers = DESCENDANT + threadPermissions.ADD_MEMBERS;
@@ -154,7 +154,7 @@ function getRolePermissionBlobsForCommunity(
     [threadPermissions.EDIT_THREAD_NAME]: true,
     [threadPermissions.EDIT_THREAD_COLOR]: true,
     [threadPermissions.EDIT_THREAD_DESCRIPTION]: true,
-    [threadPermissions.CREATE_SUBTHREADS]: true,
+    [threadPermissions.CREATE_SUBCHANNELS]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
     [threadPermissions.ADD_MEMBERS]: true,
     [threadPermissions.DELETE_THREAD]: true,
@@ -169,7 +169,7 @@ function getRolePermissionBlobsForCommunity(
     [descendantEditThreadName]: true,
     [descendantEditThreadColor]: true,
     [descendantEditThreadDescription]: true,
-    [topLevelDescendantCreateSubthreads]: true,
+    [topLevelDescendantCreateSubchannels]: true,
     [topLevelDescendantCreateSidebars]: true,
     [descendantAddMembers]: true,
     [descendantDeleteThread]: true,

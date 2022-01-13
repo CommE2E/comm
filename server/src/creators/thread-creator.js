@@ -127,7 +127,7 @@ async function createThread(
       requestParentThreadID,
       threadType === threadTypes.SIDEBAR
         ? threadPermissions.CREATE_SIDEBARS
-        : threadPermissions.CREATE_SUBTHREADS,
+        : threadPermissions.CREATE_SUBCHANNELS,
     );
     if (!hasParentPermission) {
       throw new ServerError('invalid_credentials');
