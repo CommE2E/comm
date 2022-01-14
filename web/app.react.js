@@ -181,7 +181,7 @@ class App extends React.PureComponent<Props, State> {
     }
 
     return (
-      <React.Fragment>
+      <div className={css.layout}>
         <header className={css['header']}>
           <div className={css['main-header']}>
             <h1>Comm</h1>
@@ -226,7 +226,7 @@ class App extends React.PureComponent<Props, State> {
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
-      </React.Fragment>
+      </div>
     );
   }
 

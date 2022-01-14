@@ -54,6 +54,16 @@ input[type='submit']::-moz-focus-inner {
   height: 100%;
 }
 
+div.layout {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 244px repeat(12, 1fr);
+  grid-template-rows: 65px 1fr;
+  grid-template-areas:
+    'nav nav nav nav nav nav nav nav nav nav nav nav nav'
+    'sBar app app app app app app app app app app app app';
+}
+
 header.header {
   background-image: url(../images/background.png);
   background-size: 3000px 2000px;
