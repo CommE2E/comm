@@ -1,0 +1,6 @@
+.container {
+  grid-area: sBar;
+  background: var(--bg);
+  color: var(--color);
+  border-right: 1px solid var(--border-color);
+}

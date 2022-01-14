@@ -42,6 +42,7 @@ import FocusHandler from './redux/focus-handler.react';
 import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
+import SideBar from './sidebar/sidebar.react';
 import Splash from './splash/splash.react';
 import './typography.css';
 import css from './style.css';
@@ -226,6 +227,7 @@ class App extends React.PureComponent<Props, State> {
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
+        <SideBar />
       </div>
     );
   }
