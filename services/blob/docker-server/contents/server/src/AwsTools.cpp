@@ -1,4 +1,3 @@
-#include "AwsStorageManager.h"
 #include "AwsTools.h"
 #include "Tools.h"
 
@@ -7,16 +6,11 @@
 namespace comm {
 namespace network {
 
-AwsStorageManager &AwsStorageManager::getInstance() {
-  static AwsStorageManager instance;
-  return instance;
-}
-
-AwsS3Bucket AwsStorageManager::getBucket(const std::string &bucketName) const {
+AwsS3Bucket getBucket(const std::string &bucketName) {
   return AwsS3Bucket(bucketName);
 }
 
-std::vector<std::string> AwsStorageManager::listBuckets() const {
+std::vector<std::string> listBuckets() {
   Aws::S3::Model::ListBucketsOutcome outcome =
       AwsObjectsFactory::getS3Client()->ListBuckets();
   std::vector<std::string> result;

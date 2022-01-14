@@ -1,6 +1,5 @@
 #include "BlobServiceImpl.h"
 
-#include "AwsStorageManager.h"
 #include "AwsTools.h"
 #include "DatabaseManager.h"
 #include "MultiPartUploader.h"
@@ -15,9 +14,7 @@ namespace network {
 BlobServiceImpl::BlobServiceImpl() {
   Aws::InitAPI({});
 
-  if (!AwsStorageManager::getInstance()
-           .getBucket(BLOB_BUCKET_NAME)
-           .isAvailable()) {
+  if (!getBucket(BLOB_BUCKET_NAME).isAvailable()) {
     throw std::runtime_error("bucket " + BLOB_BUCKET_NAME + " not available");
   }
 }
@@ -131,8 +128,7 @@ grpc::Status BlobServiceImpl::Get(
   try {
     database::S3Path s3Path = findS3Path(holder);
 
-    AwsS3Bucket bucket =
-        AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
+    AwsS3Bucket bucket = getBucket(s3Path.getBucketName());
     blob::GetResponse response;
     std::function<void(const std::string &)> callback =
         [&response, &writer](const std::string &chunk) {
@@ -178,8 +174,7 @@ grpc::Status BlobServiceImpl::Remove(
             .findReverseIndexItemsByHash(reverseIndexItem->getBlobHash())
             .size() == 0) {
       database::S3Path s3Path = findS3Path(*reverseIndexItem);
-      AwsS3Bucket bucket =
-          AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
+      AwsS3Bucket bucket = getBucket(s3Path.getBucketName());
       bucket.removeObject(s3Path.getObjectName());
 
       database::DatabaseManager::getInstance().removeBlobItem(blobHash);

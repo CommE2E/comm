@@ -1,6 +1,6 @@
 #include "Tools.h"
 
-#include "AwsStorageManager.h"
+#include "AwsTools.h"
 #include "DatabaseEntitiesTools.h"
 #include "DatabaseManager.h"
 
@@ -26,8 +26,7 @@ std::string computeHashForFile(const database::S3Path &s3Path) {
         SHA512_Update(&ctx, chunk.data(), chunk.size());
       };
 
-  AwsStorageManager::getInstance()
-      .getBucket(s3Path.getBucketName())
+  getBucket(s3Path.getBucketName())
       .getObjectDataChunks(
           s3Path.getObjectName(), callback, GRPC_CHUNK_SIZE_LIMIT);
 
