@@ -69,9 +69,10 @@ header.header {
   background-size: 3000px 2000px;
   background-attachment: fixed;
   z-index: 1;
+  grid-area: nav;
 }
 div.main-header {
-  height: 62px;
+  height: 64px;
   background: var(--bg);
   display: flex;
   align-items: center;
@@ -136,7 +137,7 @@ div.chatBadge {
 
 div.main-content-container {
   position: relative;
-  height: calc(100% - 62px);
+  grid-area: app;
 }
 div.main-content {
   background-color: rgba(255, 255, 255, 0.84);
