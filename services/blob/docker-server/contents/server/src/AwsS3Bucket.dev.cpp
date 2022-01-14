@@ -9,14 +9,11 @@
 namespace comm {
 namespace network {
 
-AwsS3Bucket::AwsS3Bucket(
-    const std::string name,
-    std::shared_ptr<Aws::S3::S3Client> client)
-    : name(name), client(nullptr) {
+AwsS3Bucket::AwsS3Bucket(const std::string name) : name(name) {
   std::filesystem::create_directories(commFilesystemPath);
 }
 
-std::vector<std::string> AwsS3Bucket::listObjects() {
+std::vector<std::string> AwsS3Bucket::listObjects() const {
   std::vector<std::string> result;
   for (const auto &entry :
        std::filesystem::directory_iterator(commFilesystemPath)) {
@@ -29,7 +26,7 @@ bool AwsS3Bucket::isAvailable() const {
   return std::filesystem::exists(commFilesystemPath);
 }
 
-const size_t AwsS3Bucket::getObjectSize(const std::string &objectName) {
+size_t AwsS3Bucket::getObjectSize(const std::string &objectName) const {
   return std::filesystem::file_size(createCommPath(objectName));
 }
 
@@ -41,7 +38,7 @@ void AwsS3Bucket::renameObject(
 
 void AwsS3Bucket::writeObject(
     const std::string &objectName,
-    const std::string data) {
+    const std::string &data) {
   if (std::filesystem::exists(createCommPath(objectName))) {
     this->clearObject(createCommPath(objectName));
   }
@@ -49,7 +46,7 @@ void AwsS3Bucket::writeObject(
   ofs << data;
 }
 
-std::string AwsS3Bucket::getObjectData(const std::string &objectName) {
+std::string AwsS3Bucket::getObjectData(const std::string &objectName) const {
   std::ifstream ifs(
       createCommPath(objectName),
       std::ios::in | std::ios::binary | std::ios::ate);
@@ -73,7 +70,7 @@ std::string AwsS3Bucket::getObjectData(const std::string &objectName) {
 void AwsS3Bucket::getObjectDataChunks(
     const std::string &objectName,
     const std::function<void(const std::string &)> &callback,
-    const size_t chunkSize) {
+    const size_t chunkSize) const {
   std::ifstream ifs(
       createCommPath(objectName),
       std::ios::in | std::ios::binary | std::ios::ate);
@@ -82,10 +79,11 @@ void AwsS3Bucket::getObjectDataChunks(
 
   size_t filePos = 0;
   while (filePos < fileSize) {
+    const size_t nextSize = std::min(chunkSize, (size_t)fileSize - filePos);
     ifs.seekg(filePos, std::ios::beg);
     std::string bytes;
-    bytes.resize(chunkSize);
-    ifs.read((char *)bytes.data(), chunkSize);
+    bytes.resize(nextSize);
+    ifs.read((char *)bytes.data(), nextSize);
     filePos += bytes.size();
     callback(bytes);
   }
@@ -93,7 +91,7 @@ void AwsS3Bucket::getObjectDataChunks(
 
 void AwsS3Bucket::appendToObject(
     const std::string &objectName,
-    const std::string data) {
+    const std::string &data) {
   std::ofstream ofs;
   ofs.open(createCommPath(objectName), std::ios_base::app);
   ofs << data;
@@ -103,7 +101,7 @@ void AwsS3Bucket::clearObject(const std::string &objectName) {
   std::filesystem::resize_file(createCommPath(objectName), 0);
 }
 
-void AwsS3Bucket::deleteObject(const std::string &objectName) {
+void AwsS3Bucket::removeObject(const std::string &objectName) {
   std::filesystem::remove(createCommPath(objectName));
 }
 
