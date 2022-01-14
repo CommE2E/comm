@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AwsS3Bucket.h"
+#include "Constants.h"
 
 #include <aws/core/Aws.h>
 #include <aws/dynamodb/DynamoDBClient.h>
@@ -11,11 +12,6 @@
 
 namespace comm {
 namespace network {
-
-const std::string AWS_REGION = "us-east-2";
-const std::string BLOB_TABLE_NAME = "blob-service-blob";
-const std::string REVERSE_INDEX_TABLE_NAME = "blob-service-reverse-index";
-const std::string BLOB_BUCKET_NAME = "commapp-blob";
 
 AwsS3Bucket getBucket(const std::string &bucketName);
 

@@ -1,6 +1,7 @@
 #include "ReverseIndexItem.h"
 
 #include "AwsTools.h"
+#include "Constants.h"
 
 namespace comm {
 namespace network {
