@@ -13,13 +13,12 @@
 namespace comm {
 namespace network {
 
-database::S3Path Tools::generateS3Path(
-    const std::string &bucketName,
-    const std::string &blobHash) {
+database::S3Path
+generateS3Path(const std::string &bucketName, const std::string &blobHash) {
   return database::S3Path(bucketName, blobHash);
 }
 
-std::string Tools::computeHashForFile(const database::S3Path &s3Path) {
+std::string computeHashForFile(const database::S3Path &s3Path) {
   SHA512_CTX ctx;
   SHA512_Init(&ctx);
   const std::function<void(const std::string &)> callback =
@@ -44,7 +43,7 @@ std::string Tools::computeHashForFile(const database::S3Path &s3Path) {
   return hashStream.str();
 }
 
-database::S3Path Tools::findS3Path(const std::string &holder) {
+database::S3Path findS3Path(const std::string &holder) {
   std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
       database::DatabaseManager::getInstance().findReverseIndexItemByHolder(
           holder);
@@ -52,11 +51,11 @@ database::S3Path Tools::findS3Path(const std::string &holder) {
     throw std::runtime_error(
         "provided holder: [" + holder + "] has not been found in the database");
   }
-  return Tools::getInstance().findS3Path(*reverseIndexItem);
+  return findS3Path(*reverseIndexItem);
 }
 
 database::S3Path
-Tools::findS3Path(const database::ReverseIndexItem &reverseIndexItem) {
+findS3Path(const database::ReverseIndexItem &reverseIndexItem) {
   std::shared_ptr<database::BlobItem> blobItem =
       database::DatabaseManager::getInstance().findBlobItem(
           reverseIndexItem.getBlobHash());
@@ -68,7 +67,7 @@ Tools::findS3Path(const database::ReverseIndexItem &reverseIndexItem) {
   return result;
 }
 
-long long Tools::getCurrentTimestamp() {
+long long getCurrentTimestamp() {
   using namespace std::chrono;
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
       .count();

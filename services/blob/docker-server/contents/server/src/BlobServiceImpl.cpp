@@ -29,8 +29,7 @@ BlobServiceImpl::~BlobServiceImpl() {
 void BlobServiceImpl::verifyBlobHash(
     const std::string &expectedBlobHash,
     const database::S3Path &s3Path) {
-  const std::string computedBlobHash =
-      Tools::getInstance().computeHashForFile(s3Path);
+  const std::string computedBlobHash = computeHashForFile(s3Path);
   if (expectedBlobHash != computedBlobHash) {
     throw std::runtime_error(
         "blob hash mismatch, expected: [" + expectedBlobHash +
@@ -97,8 +96,7 @@ grpc::Status BlobServiceImpl::Put(
           break;
         }
         s3Path = std::make_unique<database::S3Path>(
-            Tools::getInstance().generateS3Path(
-                BLOB_BUCKET_NAME, receivedBlobHash));
+            generateS3Path(BLOB_BUCKET_NAME, receivedBlobHash));
         response.set_dataexists(false);
         stream->Write(response);
       }
@@ -131,7 +129,7 @@ grpc::Status BlobServiceImpl::Get(
     grpc::ServerWriter<blob::GetResponse> *writer) {
   const std::string holder = request->holder();
   try {
-    database::S3Path s3Path = Tools::getInstance().findS3Path(holder);
+    database::S3Path s3Path = findS3Path(holder);
 
     AwsS3Bucket bucket =
         AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
@@ -179,8 +177,7 @@ grpc::Status BlobServiceImpl::Remove(
     if (database::DatabaseManager::getInstance()
             .findReverseIndexItemsByHash(reverseIndexItem->getBlobHash())
             .size() == 0) {
-      database::S3Path s3Path =
-          Tools::getInstance().findS3Path(*reverseIndexItem);
+      database::S3Path s3Path = findS3Path(*reverseIndexItem);
       AwsS3Bucket bucket =
           AwsStorageManager::getInstance().getBucket(s3Path.getBucketName());
       bucket.removeObject(s3Path.getObjectName());
