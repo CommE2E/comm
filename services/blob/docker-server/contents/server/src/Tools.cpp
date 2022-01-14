@@ -49,9 +49,8 @@ database::S3Path Tools::findS3Path(const std::string &holder) {
       database::DatabaseManager::getInstance().findReverseIndexItemByHolder(
           holder);
   if (reverseIndexItem == nullptr) {
-    std::string errorMessage = "provided holder: [";
-    errorMessage += holder + "] has not been found in the database";
-    throw std::runtime_error(errorMessage);
+    throw std::runtime_error(
+        "provided holder: [" + holder + "] has not been found in the database");
   }
   return Tools::getInstance().findS3Path(*reverseIndexItem);
 }
@@ -62,9 +61,8 @@ Tools::findS3Path(const database::ReverseIndexItem &reverseIndexItem) {
       database::DatabaseManager::getInstance().findBlobItem(
           reverseIndexItem.getBlobHash());
   if (blobItem == nullptr) {
-    std::string errorMessage = "no blob found for blobHash: [";
-    errorMessage += reverseIndexItem.getBlobHash() + "]";
-    throw std::runtime_error(errorMessage);
+    throw std::runtime_error(
+        "no blob found for blobHash: [" + reverseIndexItem.getBlobHash() + "]");
   }
   database::S3Path result = blobItem->getS3Path();
   return result;

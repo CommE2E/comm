@@ -32,10 +32,9 @@ void BlobServiceImpl::verifyBlobHash(
   const std::string computedBlobHash =
       Tools::getInstance().computeHashForFile(s3Path);
   if (expectedBlobHash != computedBlobHash) {
-    std::string errorMessage = "blob hash mismatch, expected: [";
-    errorMessage +=
-        expectedBlobHash + "], computed: [" + computedBlobHash + "]";
-    throw std::runtime_error(errorMessage);
+    throw std::runtime_error(
+        "blob hash mismatch, expected: [" + expectedBlobHash +
+        "], computed: [" + computedBlobHash + "]");
   }
 }
 
@@ -44,9 +43,8 @@ void BlobServiceImpl::assignVariableIfEmpty(
     std::string &lvalue,
     const std::string &rvalue) {
   if (!lvalue.empty()) {
-    std::string errorMessage = "multiple assignment for variable ";
-    errorMessage += label + " is not allowed";
-    throw std::runtime_error(errorMessage);
+    throw std::runtime_error(
+        "multiple assignment for variable " + label + " is not allowed");
   }
   lvalue = rvalue;
 }
@@ -167,9 +165,7 @@ grpc::Status BlobServiceImpl::Remove(
         database::DatabaseManager::getInstance().findReverseIndexItemByHolder(
             holder);
     if (reverseIndexItem == nullptr) {
-      std::string errorMessage = "no item found for holder: ";
-      errorMessage += holder;
-      throw std::runtime_error(errorMessage);
+      throw std::runtime_error("no item found for holder: " + holder);
     }
     // TODO handle cleanup here properly
     // for now the object's being removed right away

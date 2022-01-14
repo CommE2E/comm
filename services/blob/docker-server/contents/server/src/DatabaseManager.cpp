@@ -74,10 +74,9 @@ void DatabaseManager::removeBlobItem(const std::string &blobHash) {
 
 void DatabaseManager::putReverseIndexItem(const ReverseIndexItem &item) {
   if (this->findReverseIndexItemByHolder(item.getHolder()) != nullptr) {
-    std::string errorMessage = "An item for the given holder [";
-    errorMessage += item.getHolder();
-    errorMessage += "] already exists";
-    throw std::runtime_error(errorMessage);
+    throw std::runtime_error(
+        "An item for the given holder [" + item.getHolder() +
+        "] already exists");
   }
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(ReverseIndexItem::tableName);

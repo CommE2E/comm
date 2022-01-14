@@ -35,9 +35,8 @@ void BlobItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
     this->created = std::stoll(
         std::string(itemFromDB.at(BlobItem::FIELD_CREATED).GetS()).c_str());
   } catch (std::out_of_range &e) {
-    std::string errorMessage = "invalid blob item provided, ";
-    errorMessage += e.what();
-    throw std::runtime_error(errorMessage);
+    throw std::runtime_error(
+        "invalid blob item provided, " + std::string(e.what()));
   }
   this->validate();
 }

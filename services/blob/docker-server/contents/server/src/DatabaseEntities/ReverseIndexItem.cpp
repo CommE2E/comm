@@ -36,9 +36,8 @@ void ReverseIndexItem::assignItemFromDatabase(
     this->holder = itemFromDB.at(ReverseIndexItem::FIELD_HOLDER).GetS();
     this->blobHash = itemFromDB.at(ReverseIndexItem::FIELD_BLOB_HASH).GetS();
   } catch (std::out_of_range &e) {
-    std::string errorMessage = "invalid reverse index item provided, ";
-    errorMessage += e.what();
-    throw std::runtime_error(errorMessage);
+    throw std::runtime_error(
+        "invalid reverse index item provided, " + std::string(e.what()));
   }
   this->validate();
 }
