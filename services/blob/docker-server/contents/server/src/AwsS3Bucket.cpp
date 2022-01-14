@@ -26,7 +26,7 @@ std::vector<std::string> AwsS3Bucket::listObjects() const {
   std::vector<std::string> result;
 
   Aws::S3::Model::ListObjectsOutcome outcome =
-      AwsObjectsFactory::getS3Client()->ListObjects(request);
+      getS3Client()->ListObjects(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
@@ -42,7 +42,7 @@ bool AwsS3Bucket::isAvailable() const {
   Aws::S3::Model::HeadBucketRequest headRequest;
   headRequest.SetBucket(this->name);
   Aws::S3::Model::HeadBucketOutcome outcome =
-      AwsObjectsFactory::getS3Client()->HeadBucket(headRequest);
+      getS3Client()->HeadBucket(headRequest);
   return outcome.IsSuccess();
 }
 
@@ -51,7 +51,7 @@ size_t AwsS3Bucket::getObjectSize(const std::string &objectName) const {
   headRequest.SetBucket(this->name);
   headRequest.SetKey(objectName);
   Aws::S3::Model::HeadObjectOutcome headOutcome =
-      AwsObjectsFactory::getS3Client()->HeadObject(headRequest);
+      getS3Client()->HeadObject(headRequest);
   if (!headOutcome.IsSuccess()) {
     throw std::runtime_error(headOutcome.GetError().GetMessage());
   }
@@ -67,7 +67,7 @@ void AwsS3Bucket::renameObject(
   copyRequest.SetBucket(this->name);
 
   Aws::S3::Model::CopyObjectOutcome copyOutcome =
-      AwsObjectsFactory::getS3Client()->CopyObject(copyRequest);
+      getS3Client()->CopyObject(copyRequest);
   if (!copyOutcome.IsSuccess()) {
     throw std::runtime_error(copyOutcome.GetError().GetMessage());
   }
@@ -89,8 +89,7 @@ void AwsS3Bucket::writeObject(
 
   request.SetBody(body);
 
-  Aws::S3::Model::PutObjectOutcome outcome =
-      AwsObjectsFactory::getS3Client()->PutObject(request);
+  Aws::S3::Model::PutObjectOutcome outcome = getS3Client()->PutObject(request);
 
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
@@ -109,8 +108,7 @@ std::string AwsS3Bucket::getObjectData(const std::string &objectName) const {
         std::to_string(GRPC_CHUNK_SIZE_LIMIT) +
         "bytes), please, use getObjectDataChunks"));
   }
-  Aws::S3::Model::GetObjectOutcome outcome =
-      AwsObjectsFactory::getS3Client()->GetObject(request);
+  Aws::S3::Model::GetObjectOutcome outcome = getS3Client()->GetObject(request);
 
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
@@ -146,7 +144,7 @@ void AwsS3Bucket::getObjectDataChunks(
     request.SetRange(range);
 
     Aws::S3::Model::GetObjectOutcome getOutcome =
-        AwsObjectsFactory::getS3Client()->GetObject(request);
+        getS3Client()->GetObject(request);
     if (!getOutcome.IsSuccess()) {
       throw std::runtime_error(getOutcome.GetError().GetMessage());
     }
@@ -172,7 +170,7 @@ void AwsS3Bucket::appendToObject(
   }
   size_t currentSize = 0;
   MultiPartUploader uploader(
-      AwsObjectsFactory::getS3Client(), this->name, objectName + "-multipart");
+      getS3Client(), this->name, objectName + "-multipart");
   std::function<void(const std::string &)> callback =
       [&uploader, &data, &currentSize, objectSize](const std::string &chunk) {
         currentSize += chunk.size();
@@ -211,7 +209,7 @@ void AwsS3Bucket::removeObject(const std::string &objectName) {
   deleteRequest.SetKey(objectName);
 
   Aws::S3::Model::DeleteObjectOutcome deleteOutcome =
-      AwsObjectsFactory::getS3Client()->DeleteObject(deleteRequest);
+      getS3Client()->DeleteObject(deleteRequest);
   if (!deleteOutcome.IsSuccess()) {
     throw std::runtime_error(deleteOutcome.GetError().GetMessage());
   }

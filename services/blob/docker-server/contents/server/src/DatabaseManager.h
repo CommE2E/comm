@@ -51,7 +51,7 @@ DatabaseManager::innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request) {
   std::shared_ptr<T> item = createItemByType<T>();
   request.SetTableName(item->getTableName());
   const Aws::DynamoDB::Model::GetItemOutcome &outcome =
-      AwsObjectsFactory::getDynamoDBClient()->GetItem(request);
+      getDynamoDBClient()->GetItem(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }

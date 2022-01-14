@@ -73,9 +73,7 @@ grpc::Status BlobServiceImpl::Put(
         }
         if (uploader == nullptr) {
           uploader = std::make_unique<MultiPartUploader>(
-              AwsObjectsFactory::getS3Client(),
-              BLOB_BUCKET_NAME,
-              s3Path->getObjectName());
+              getS3Client(), BLOB_BUCKET_NAME, s3Path->getObjectName());
         }
         currentChunk += receivedDataChunk;
         if (currentChunk.size() > AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {

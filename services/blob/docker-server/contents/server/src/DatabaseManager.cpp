@@ -21,7 +21,7 @@ void DatabaseManager::innerPutItem(
     std::shared_ptr<Item> item,
     const Aws::DynamoDB::Model::PutItemRequest &request) {
   const Aws::DynamoDB::Model::PutItemOutcome outcome =
-      AwsObjectsFactory::getDynamoDBClient()->PutItem(request);
+      getDynamoDBClient()->PutItem(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
@@ -36,7 +36,7 @@ void DatabaseManager::innerRemoveItem(
       item.getPrimaryKey(), Aws::DynamoDB::Model::AttributeValue(key));
 
   const Aws::DynamoDB::Model::DeleteItemOutcome &outcome =
-      AwsObjectsFactory::getDynamoDBClient()->DeleteItem(request);
+      getDynamoDBClient()->DeleteItem(request);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
@@ -115,7 +115,7 @@ DatabaseManager::findReverseIndexItemsByHash(const std::string &blobHash) {
   req.SetIndexName("blobHash-index");
 
   const Aws::DynamoDB::Model::QueryOutcome &outcome =
-      AwsObjectsFactory::getDynamoDBClient()->Query(req);
+      getDynamoDBClient()->Query(req);
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }

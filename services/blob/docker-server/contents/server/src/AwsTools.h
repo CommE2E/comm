@@ -21,20 +21,9 @@ AwsS3Bucket getBucket(const std::string &bucketName);
 
 std::vector<std::string> listBuckets();
 
-class AwsObjectsFactory {
-public:
-  static std::unique_ptr<Aws::DynamoDB::DynamoDBClient> getDynamoDBClient() {
-    Aws::Client::ClientConfiguration config;
-    config.region = AWS_REGION;
-    return std::make_unique<Aws::DynamoDB::DynamoDBClient>(config);
-  }
+std::unique_ptr<Aws::DynamoDB::DynamoDBClient> getDynamoDBClient();
 
-  static std::unique_ptr<Aws::S3::S3Client> getS3Client() {
-    Aws::Client::ClientConfiguration config;
-    config.region = AWS_REGION;
-    return std::make_unique<Aws::S3::S3Client>(config);
-  }
-};
+std::unique_ptr<Aws::S3::S3Client> getS3Client();
 
 } // namespace network
 } // namespace comm

@@ -11,8 +11,7 @@ AwsS3Bucket getBucket(const std::string &bucketName) {
 }
 
 std::vector<std::string> listBuckets() {
-  Aws::S3::Model::ListBucketsOutcome outcome =
-      AwsObjectsFactory::getS3Client()->ListBuckets();
+  Aws::S3::Model::ListBucketsOutcome outcome = getS3Client()->ListBuckets();
   std::vector<std::string> result;
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
@@ -23,6 +22,18 @@ std::vector<std::string> listBuckets() {
     result.push_back(bucket.GetName());
   }
   return result;
+}
+
+std::unique_ptr<Aws::DynamoDB::DynamoDBClient> getDynamoDBClient() {
+  Aws::Client::ClientConfiguration config;
+  config.region = AWS_REGION;
+  return std::make_unique<Aws::DynamoDB::DynamoDBClient>(config);
+}
+
+std::unique_ptr<Aws::S3::S3Client> getS3Client() {
+  Aws::Client::ClientConfiguration config;
+  config.region = AWS_REGION;
+  return std::make_unique<Aws::S3::S3Client>(config);
 }
 
 } // namespace network
