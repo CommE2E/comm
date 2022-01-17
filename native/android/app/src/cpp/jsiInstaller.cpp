@@ -1,4 +1,5 @@
 #include "CommCoreModule.h"
+#include "CommSecureStore.h"
 #include "SQLiteQueryExecutor.h"
 #include "jniHelpers.h"
 #include <CallInvokerHolder.h>
@@ -33,6 +34,20 @@ public:
     jni::local_ref<jni::JObject> sqliteFilePathObj =
         additionalParameters.get("sqliteFilePath");
     comm::SQLiteQueryExecutor::sqliteFilePath = sqliteFilePathObj->toString();
+
+    comm::CommSecureStore commSecureStore;
+    folly::Optional<std::string> maybeEncryptionKey =
+        commSecureStore.get("comm.encryptionKey");
+
+    if (maybeEncryptionKey) {
+      comm::SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
+    } else {
+      int sqlcipherEncryptionKeySize = 64;
+      std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
+          sqlcipherEncryptionKeySize);
+      commSecureStore.set("comm.encryptionKey", encryptionKey);
+      comm::SQLiteQueryExecutor::encryptionKey = encryptionKey;
+    }
   }
 
   static void registerNatives() {

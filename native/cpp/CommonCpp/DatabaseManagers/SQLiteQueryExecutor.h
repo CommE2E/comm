@@ -14,6 +14,7 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 
 public:
   static std::string sqliteFilePath;
+  static std::string encryptionKey;
 
   SQLiteQueryExecutor();
   std::string getDraft(std::string key) const override;
