@@ -27,6 +27,7 @@ struct EncryptedData {
 class Tools {
 public:
   static std::string generateRandomString(size_t size);
+  static std::string generateRandomHexString(size_t size);
 };
 
 } // namespace crypto
