@@ -20,14 +20,14 @@
 
 #import <EXSecureStore/EXSecureStore.h>
 
-#import <string>
-
 #import "CommCoreModule.h"
+#import "CommSecureStore.h"
 #import "CommSecureStoreIOSWrapper.h"
 #import "GlobalNetworkSingleton.h"
 #import "NetworkModule.h"
 #import "SQLiteQueryExecutor.h"
 #import "Tools.h"
+#import <string>
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -129,6 +129,28 @@ extern RCTBridge *_bridge_reanimated;
       [moduleRegistry getExportedModuleOfClass:[EXSecureStore class]];
   [[CommSecureStoreIOSWrapper sharedInstance] init:secureStore];
 
+  // set sqlite file path
+  comm::SQLiteQueryExecutor::sqliteFilePath =
+      std::string([[Tools getSQLiteFilePath] UTF8String]);
+
+  // set sqlcipher encryption key
+  comm::CommSecureStore commSecureStore;
+  folly::Optional<std::string> maybeEncryptionKey;
+  @try {
+    maybeEncryptionKey = commSecureStore.get("comm.encryptionKey");
+  } @catch (NSException *exception) {
+    maybeEncryptionKey = folly::none;
+  }
+
+  if (maybeEncryptionKey) {
+    comm::SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
+  } else {
+    int sqlcipherEncryptionKeySize = 64;
+    std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
+        sqlcipherEncryptionKeySize);
+    commSecureStore.set("comm.encryptionKey", encryptionKey);
+    comm::SQLiteQueryExecutor::encryptionKey = encryptionKey;
+  }
   return YES;
 }
 
@@ -223,10 +245,6 @@ using Runtime = facebook::jsi::Runtime;
           rt,
           facebook::jsi::PropNameID::forAscii(rt, "CommCoreModule"),
           facebook::jsi::Object::createFromHostObject(rt, nativeModule));
-
-      // set sqlite file path
-      comm::SQLiteQueryExecutor::sqliteFilePath =
-          std::string([[Tools getSQLiteFilePath] UTF8String]);
 
       auto reanimatedModule =
           reanimated::createReanimatedModule(bridge.jsCallInvoker);

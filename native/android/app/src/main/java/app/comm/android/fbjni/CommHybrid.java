@@ -18,6 +18,7 @@ public class CommHybrid {
 
     // additional parameters
     String sqliteFilePath = context.getDatabasePath("comm.sqlite").toString();
+
     HashMap<String, Object> additionalParameters =
         new HashMap<String, Object>();
     additionalParameters.put("sqliteFilePath", sqliteFilePath);

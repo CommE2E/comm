@@ -16,6 +16,7 @@ namespace comm {
 using namespace sqlite_orm;
 
 std::string SQLiteQueryExecutor::sqliteFilePath;
+std::string SQLiteQueryExecutor::encryptionKey;
 
 bool create_table(sqlite3 *db, std::string query, std::string tableName) {
   char *error;
