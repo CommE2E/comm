@@ -4,6 +4,11 @@
 
 #include "entities/Media.h"
 #include <sqlite3.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
+#include <fstream>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -238,6 +243,131 @@ bool enable_write_ahead_logging_mode(sqlite3 *db) {
   return false;
 }
 
+void set_encryption_key(sqlite3 *db) {
+  std::string set_encryption_key_query =
+      "PRAGMA key = \"x'" + SQLiteQueryExecutor::encryptionKey + "'\";";
+
+  char *error_set_key;
+  sqlite3_exec(
+      db, set_encryption_key_query.c_str(), nullptr, nullptr, &error_set_key);
+
+  if (error_set_key) {
+    std::ostringstream error_message;
+    error_message << "Failed to set encryption key: " << error_set_key;
+    throw std::system_error(
+        ECANCELED, std::generic_category(), error_message.str());
+  }
+}
+
+bool file_exists(const std::string &file_path) {
+  std::ifstream file(file_path.c_str());
+  return file.good();
+}
+
+void attempt_delete_file(
+    const std::string &file_path,
+    const char *error_message) {
+  if (std::remove(file_path.c_str())) {
+    throw std::system_error(errno, std::generic_category(), error_message);
+  }
+}
+
+void attempt_rename_file(
+    const std::string &old_path,
+    const std::string &new_path,
+    const char *error_message) {
+  if (std::rename(old_path.c_str(), new_path.c_str())) {
+    throw std::system_error(errno, std::generic_category(), error_message);
+  }
+}
+
+void validate_encryption() {
+  std::string temp_encrypted_db_path =
+      SQLiteQueryExecutor::sqliteFilePath + "_temp_encrypted";
+
+  bool temp_encrypted_exists = file_exists(temp_encrypted_db_path);
+  bool default_location_exists =
+      file_exists(SQLiteQueryExecutor::sqliteFilePath);
+
+  if (temp_encrypted_exists && default_location_exists) {
+    Logger::log(
+        "Previous encryption attempt failed. Repeating encryption process from "
+        "the beginning.");
+    attempt_delete_file(
+        temp_encrypted_db_path,
+        "Failed to delete corrupted encrypted database.");
+  } else if (temp_encrypted_exists && !default_location_exists) {
+    Logger::log(
+        "Moving temporary encrypted database to default location failed in "
+        "previous encryption attempt. Repeating rename step.");
+    attempt_rename_file(
+        temp_encrypted_db_path,
+        SQLiteQueryExecutor::sqliteFilePath,
+        "Failed to move encrypted database to default location.");
+    return;
+  } else if (!default_location_exists) {
+    Logger::log(
+        "Database not present yet. It will be created encrypted under default "
+        "path.");
+    return;
+  }
+
+  sqlite3 *db;
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+
+  set_encryption_key(db);
+  char *key_validation_error;
+  // According to SQLCipher documentation running some SELECT is the only way to
+  // check for key validity
+  sqlite3_exec(
+      db,
+      "SELECT COUNT(*) FROM sqlite_master;",
+      nullptr,
+      nullptr,
+      &key_validation_error);
+  sqlite3_close(db);
+
+  if (!key_validation_error) {
+    Logger::log(
+        "Database exists under default path and it is correctly encrypted.");
+    return;
+  }
+
+  Logger::log(
+      "Validation of encryption key failed. Attempting encryption process.");
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+
+  std::string createEncryptedCopySQL = "ATTACH DATABASE '" +
+      temp_encrypted_db_path +
+      "' AS encrypted_comm "
+      "KEY \"x'" +
+      SQLiteQueryExecutor::encryptionKey +
+      "'\";"
+      "SELECT sqlcipher_export('encrypted_comm');"
+      "DETACH DATABASE encrypted_comm;";
+
+  char *encryption_error;
+  sqlite3_exec(
+      db, createEncryptedCopySQL.c_str(), nullptr, nullptr, &encryption_error);
+
+  if (encryption_error) {
+    throw std::system_error(
+        ECANCELED,
+        std::generic_category(),
+        "Failed to create encrypted copy of the original database.");
+  }
+  sqlite3_close(db);
+
+  attempt_delete_file(
+      SQLiteQueryExecutor::sqliteFilePath,
+      "Failed to delete unencrypted database.");
+  attempt_rename_file(
+      temp_encrypted_db_path,
+      SQLiteQueryExecutor::sqliteFilePath,
+      "Failed to move encrypted database to default location.");
+  Logger::log("Encryption completed successfully.");
+}
+
 typedef bool ShouldBeInTransaction;
 typedef std::pair<std::function<bool(sqlite3 *)>, ShouldBeInTransaction>
     SQLiteMigration;
@@ -256,8 +386,11 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {22, {enable_write_ahead_logging_mode, false}}}};
 
 void SQLiteQueryExecutor::migrate() {
+  validate_encryption();
+
   sqlite3 *db;
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+  set_encryption_key(db);
 
   std::stringstream db_path;
   db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
@@ -360,6 +493,7 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("current_user", &Thread::current_user),
           make_column("source_message_id", &Thread::source_message_id),
           make_column("replies_count", &Thread::replies_count)));
+  storage.on_open = set_encryption_key;
   return storage;
 }
 
