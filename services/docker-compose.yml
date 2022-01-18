@@ -8,25 +8,27 @@ services:
     build:
       dockerfile: services/tunnelbroker/docker-base/Dockerfile
       context: ../
-    image: commapp/tunnelbroker-base:1.0
+    image: commapp/tunnelbroker-base:2.0
   tunnelbroker-server:
     build:
       dockerfile: services/tunnelbroker/docker-server/Dockerfile
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
-    image: commapp/tunnelbroker-server:0.1
+    image: commapp/tunnelbroker-server:0.2
     container_name: tunnelbroker-server
     ports:
       - "${COMM_SERVICES_PORT_TUNNELBROKER}:50051"
+    volumes:
+      - $HOME/.aws/credentials:/root/.aws/credentials:ro
   # backup
   backup-base:
-    build: 
+    build:
       dockerfile: services/backup/docker-base/Dockerfile
       context: ../
     image: commapp/backup-base:1.0
   backup-server:
-    build: 
+    build:
       dockerfile: services/backup/docker-server/Dockerfile
       context: ../
       args:

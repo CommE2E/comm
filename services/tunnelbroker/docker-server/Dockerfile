@@ -1,4 +1,4 @@
-FROM commapp/tunnelbroker-base:1.0
+FROM commapp/tunnelbroker-base:2.0
 
 ARG COMM_TEST_SERVICES
 
