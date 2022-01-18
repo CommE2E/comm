@@ -226,7 +226,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     let sendButton;
     if (this.props.inputState.draft.length) {
       sendButton = (
-        <a onClick={this.onSend}>
+        <a onClick={this.onSend} className={css.sendButton}>
           <SWMansionIcon icon="send" size={16} color="#8a8a8a" />
         </a>
       );
@@ -258,8 +258,8 @@ class ChatInputBar extends React.PureComponent<Props> {
               ref={this.textareaRef}
               autoFocus
             />
-            {sendButton}
           </div>
+          {sendButton}
         </div>
       );
     } else if (

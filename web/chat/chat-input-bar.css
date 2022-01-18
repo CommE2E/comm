@@ -6,6 +6,7 @@ div.inputBar {
 div.inputBarWrapper {
   padding: 16px;
   display: flex;
+  align-items: center;
   flex-direction: row;
   align-items: center;
 }
@@ -74,4 +75,12 @@ div.previews > span.multimedia {
 div.previews > span.multimedia > span.multimediaImage > img {
   max-height: 200px;
   max-width: 200px;
+}
+
+a.sendButton {
+  padding: 8px 0 0 10px;
+}
+
+a.sendButton svg {
+  color: var(--fg);
 }
