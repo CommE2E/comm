@@ -246,7 +246,7 @@ class ChatInputBar extends React.PureComponent<Props> {
               accept={allowedMimeTypeString}
               multiple
             />
-            <SWMansionIcon icon="image" size={16} color="#8a8a8a" disableFill />
+            <SWMansionIcon icon="image" size={16} disableFill />
           </a>
           <div className={css.inputBarTextInput}>
             <textarea

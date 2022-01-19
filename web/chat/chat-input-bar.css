@@ -64,6 +64,11 @@ a.multimediaUpload > input[type='file'] {
   margin: 0;
   padding: 0;
 }
+
+a.multimediaUpload > svg {
+  color: var(--fg);
+}
+
 div.previews {
   display: flex;
   overflow-x: auto;
