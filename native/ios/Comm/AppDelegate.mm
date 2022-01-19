@@ -57,6 +57,8 @@ static void InitializeFlipper(UIApplication *application) {
 #import <RNReanimated/REAEventDispatcher.h>
 #import <RNReanimated/REAModule.h>
 
+NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
+
 @interface AppDelegate () <
     RCTCxxBridgeDelegate,
     RCTTurboModuleManagerDelegate> {
@@ -179,9 +181,25 @@ extern RCTBridge *_bridge_reanimated;
     didReceiveRemoteNotification:(NSDictionary *)notification
           fetchCompletionHandler:
               (void (^)(UIBackgroundFetchResult))completionHandler {
+  BOOL handled = NO;
   if (notification[@"aps"][@"content-available"] &&
-      notification[@"backgroundNotifType"] &&
-      [notification[@"backgroundNotifType"] isEqualToString:@"PING"]) {
+      notification[backgroundNotificationTypeKey]) {
+    handled = [self handleBackgroundNotification:notification
+                          fetchCompletionHandler:completionHandler];
+  }
+
+  if (handled) {
+    return;
+  }
+
+  [RNNotifications didReceiveRemoteNotification:notification
+                         fetchCompletionHandler:completionHandler];
+}
+
+- (BOOL)handleBackgroundNotification:(NSDictionary *)notification
+              fetchCompletionHandler:
+                  (void (^)(UIBackgroundFetchResult))completionHandler {
+  if ([notification[backgroundNotificationTypeKey] isEqualToString:@"PING"]) {
     comm::GlobalNetworkSingleton::instance.scheduleOrRun(
         [=](comm::NetworkModule &networkModule) {
           networkModule.sendPong();
@@ -189,10 +207,9 @@ extern RCTBridge *_bridge_reanimated;
             completionHandler(UIBackgroundFetchResultNewData);
           });
         });
-  } else {
-    [RNNotifications didReceiveRemoteNotification:notification
-                           fetchCompletionHandler:completionHandler];
+    return YES;
   }
+  return NO;
 }
 
 // Required for the localNotification event.
