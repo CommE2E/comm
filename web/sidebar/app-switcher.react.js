@@ -11,6 +11,7 @@ import {
 } from 'lib/selectors/thread-selectors';
 
 import { useSelector } from '../redux/redux-utils';
+import SWMansionIcon from '../SWMansionIcon.react';
 import getTitle from '../title/getTitle';
 import { updateNavInfoActionType } from '../types/nav-types';
 import css from './sidebar.css';
@@ -88,13 +89,15 @@ function AppSwitcher(): React.Node {
       <ul>
         <li>
           <p className={calendarNavClasses}>
+            <SWMansionIcon icon="calendar" color="#fff" size={24} />
             <a onClick={onClickCalendar}>Calendar</a>
           </p>
         </li>
         <li>
           <p className={chatNavClasses}>
-            <a onClick={onClickChat}>Chat</a>
+            <SWMansionIcon icon="message-square" color="#fff" size={24} />
             {chatBadge}
+            <a onClick={onClickChat}>Chat</a>
           </p>
         </li>
       </ul>
