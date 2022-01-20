@@ -19,6 +19,10 @@
   color: var(--color-disabled);
 }
 
+.container svg {
+  color: var(--color-disabled);
+}
+
 div.chatBadge {
   display: inline-block;
   box-sizing: border-box;
@@ -32,6 +36,12 @@ div.chatBadge {
   text-align: center;
 }
 
-p.current-tab a {
+p.current-tab svg {
+  color: var(--fg);
+}
+
+p.current-tab a,
+p.current-tab svg {
+  fill: var(--fg);
   color: var(--fg);
 }
