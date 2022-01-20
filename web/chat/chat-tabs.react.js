@@ -42,11 +42,13 @@ function ChatTabs(props: Props): React.Node {
           title="Focus"
           tabIsActive={activeTab === 'Focus'}
           onClick={onClickHome}
+          icon="message-square-lines"
         />
         <ChatThreadTab
           title={backgroundTitle}
           tabIsActive={activeTab === 'Background'}
           onClick={onClickBackground}
+          icon="bell-disabled"
         />
       </div>
       <div className={css.threadList}>
