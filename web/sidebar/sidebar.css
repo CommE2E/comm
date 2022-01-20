@@ -23,17 +23,25 @@
   color: var(--color-disabled);
 }
 
+.chatIconWrapper {
+  position: relative;
+}
+
 div.chatBadge {
-  display: inline-block;
+  position: absolute;
+  top: -4px;
+  left: 13px;
   box-sizing: border-box;
-  width: 25px;
-  height: 25px;
-  margin-left: 8px;
-  color: white;
-  background-color: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--fg);
+  background: var(--unread-bg);
   border-radius: 13px;
-  font-size: 18px;
-  text-align: center;
+  font-size: 8px;
+  line-height: 1.25;
 }
 
 p.current-tab svg {

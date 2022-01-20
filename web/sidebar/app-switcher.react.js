@@ -95,8 +95,10 @@ function AppSwitcher(): React.Node {
         </li>
         <li>
           <p className={chatNavClasses}>
-            <SWMansionIcon icon="message-square" size={24} />
-            {chatBadge}
+            <span className={css.chatIconWrapper}>
+              <SWMansionIcon icon="message-square" size={24} />
+              {chatBadge}
+            </span>
             <a onClick={onClickChat}>Chat</a>
           </p>
         </li>
