@@ -88,18 +88,18 @@ function AppSwitcher(): React.Node {
     <div className={css.container}>
       <ul>
         <li>
-          <p className={calendarNavClasses}>
-            <SWMansionIcon icon="calendar" size={24} />
-            <a onClick={onClickCalendar}>Calendar</a>
-          </p>
-        </li>
-        <li>
           <p className={chatNavClasses}>
             <span className={css.chatIconWrapper}>
               <SWMansionIcon icon="message-square" size={24} />
               {chatBadge}
             </span>
             <a onClick={onClickChat}>Chat</a>
+          </p>
+        </li>
+        <li>
+          <p className={calendarNavClasses}>
+            <SWMansionIcon icon="calendar" size={24} />
+            <a onClick={onClickCalendar}>Calendar</a>
           </p>
         </li>
       </ul>
