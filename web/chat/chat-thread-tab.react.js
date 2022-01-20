@@ -21,8 +21,10 @@ function ChatThreadTab(props: Props): React.Node {
   });
   return (
     <div className={className} onClick={onClick}>
-      <SWMansionIcon icon={icon} size={24} />
-      {title}
+      <span>
+        <SWMansionIcon icon={icon} size={24} />
+        {title}
+      </span>
     </div>
   );
 }
