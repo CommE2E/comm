@@ -25,7 +25,10 @@ public:
 
   BlobItem() {
   }
-  BlobItem(const std::string blobHash, const S3Path s3Path);
+  BlobItem(
+      const std::string blobHash,
+      const S3Path s3Path,
+      long long created = 0);
   BlobItem(const AttributeValues &itemFromDB);
 
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;

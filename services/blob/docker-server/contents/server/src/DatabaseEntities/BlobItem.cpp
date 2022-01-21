@@ -13,8 +13,11 @@ const std::string BlobItem::FIELD_CREATED = "created";
 
 std::string BlobItem::tableName = BLOB_TABLE_NAME;
 
-BlobItem::BlobItem(const std::string blobHash, const S3Path s3Path)
-    : blobHash(blobHash), s3Path(s3Path) {
+BlobItem::BlobItem(
+    const std::string blobHash,
+    const S3Path s3Path,
+    long long created)
+    : blobHash(blobHash), s3Path(s3Path), created(created) {
   this->validate();
 }
 
