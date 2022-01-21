@@ -1,0 +1,27 @@
+name: Services CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'landing/**'
+      - 'web/**'
+      - 'docs/**'
+      - 'server/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile
+
+      - name: Build Services
+        working-directory: ./services
+        run: yarn build-all
