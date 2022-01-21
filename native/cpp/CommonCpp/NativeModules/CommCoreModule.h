@@ -50,6 +50,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) override;
   jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
+  jsi::Value openSocket(jsi::Runtime &rt) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

@@ -886,6 +886,10 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
       });
 }
 
+jsi::Value CommCoreModule::openSocket(jsi::Runtime &rt) {
+  return jsi::String::createFromUtf8(rt, std::string{"unimplemented"});
+}
+
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
