@@ -38,6 +38,7 @@
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		B723460726979250009A0709 /* swmansion.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B723460626979250009A0709 /* swmansion.ttf */; };
+		B7BEE749279B3FB6009CCA35 /* GRPCStreamHostObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
 /* End PBXBuildFile section */
 
@@ -121,6 +122,8 @@
 		B7906F6A27209091009BBBF5 /* OlmPersistAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OlmPersistAccount.h; sourceTree = "<group>"; };
 		B7906F6B27209091009BBBF5 /* OlmPersistSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OlmPersistSession.h; sourceTree = "<group>"; };
 		B7906F6C27209091009BBBF5 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
+		B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GRPCStreamHostObject.cpp; sourceTree = "<group>"; };
+		B7BEE748279B3F2E009CCA35 /* GRPCStreamHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRPCStreamHostObject.h; sourceTree = "<group>"; };
 		B7E937CA26F448E700022A7C /* Media.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Media.h; sourceTree = "<group>"; };
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
 		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
@@ -192,6 +195,8 @@
 			children = (
 				71009A7926FDCD71002C8453 /* Client.cpp */,
 				71009A7A26FDCD71002C8453 /* Client.h */,
+				B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */,
+				B7BEE748279B3F2E009CCA35 /* GRPCStreamHostObject.h */,
 				718A3C0626F22D0A00F04A8D /* _generated */,
 			);
 			path = grpc;
@@ -633,6 +638,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */,
+				B7BEE749279B3FB6009CCA35 /* GRPCStreamHostObject.cpp in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				71009A7B26FDCD72002C8453 /* Client.cpp in Sources */,
