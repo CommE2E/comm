@@ -19,17 +19,17 @@ MultiPartUploader::MultiPartUploader(
 }
 
 void MultiPartUploader::addPart(const std::string &part) {
-  AwsS3Bucket(bucketName, nullptr)
+  AwsS3Bucket(bucketName)
       .appendToObject(createCommPath(this->objectName + "mpu"), part);
   this->partsSizes.push_back(part.size());
-  ++this->partCounter;
+  ++this->partNumber;
 }
 
 void MultiPartUploader::finishUpload() {
-  AwsS3Bucket bucket(bucketName, nullptr);
+  AwsS3Bucket bucket(bucketName);
   for (size_t i = 0; i < this->partsSizes.size() - 1; ++i) {
     if (this->partsSizes.at(i) < AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {
-      bucket.deleteObject(createCommPath(this->objectName + "mpu"));
+      bucket.removeObject(createCommPath(this->objectName + "mpu"));
       throw std::runtime_error("too small part detected");
     }
   }

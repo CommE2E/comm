@@ -14,7 +14,6 @@ class MultiPartUploader {
   std::shared_ptr<Aws::S3::S3Client> client;
   const std::string bucketName;
   const std::string objectName;
-  size_t partCounter = 0;
   std::vector<size_t> partsSizes;
 
   Aws::S3::Model::CompleteMultipartUploadRequest completeMultipartUploadRequest;
