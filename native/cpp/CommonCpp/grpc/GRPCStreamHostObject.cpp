@@ -29,3 +29,14 @@ GRPCStreamHostObject::get(jsi::Runtime &runtime, const jsi::PropNameID &name) {
 
   return jsi::String::createFromUtf8(runtime, std::string{"unimplemented"});
 }
+
+void GRPCStreamHostObject::set(
+    jsi::Runtime &runtime,
+    const jsi::PropNameID &name,
+    const jsi::Value &value) {
+  auto propName = name.utf8(runtime);
+
+  if (propName == "readyState" && value.isNumber()) {
+    this->readyState = static_cast<int>(value.asNumber());
+  }
+}
