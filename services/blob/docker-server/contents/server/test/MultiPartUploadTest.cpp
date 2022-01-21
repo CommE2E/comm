@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include "AwsS3Bucket.h"
-#include "AwsStorageManager.h"
 #include "MultiPartUploader.h"
 #include "TestTools.h"
 #include "Tools.h"
@@ -24,7 +23,7 @@ protected:
     Aws::Client::ClientConfiguration config;
     config.region = "us-east-2";
     s3Client = std::make_shared<Aws::S3::S3Client>(config);
-    bucket = std::make_unique<AwsS3Bucket>(bucketName, s3Client);
+    bucket = std::make_unique<AwsS3Bucket>(bucketName);
   }
 
   virtual void TearDown() {
@@ -65,7 +64,7 @@ TEST_F(MultiPartUploadTest, SuccessfulWriteMultipleChunks) {
   EXPECT_EQ(
       bucket->getObjectSize(objectName),
       AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE + 3);
-  bucket->deleteObject(objectName);
+  bucket->removeObject(objectName);
 }
 
 TEST_F(MultiPartUploadTest, SuccessfulWriteOneChunk) {
@@ -74,5 +73,5 @@ TEST_F(MultiPartUploadTest, SuccessfulWriteOneChunk) {
   mpu.addPart("xxx");
   mpu.finishUpload();
   EXPECT_EQ(bucket->getObjectSize(objectName), 3);
-  bucket->deleteObject(objectName);
+  bucket->removeObject(objectName);
 }
