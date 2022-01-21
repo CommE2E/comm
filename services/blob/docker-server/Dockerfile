@@ -1,6 +1,9 @@
 FROM commapp/blob-base:1.0
 
+ARG COMM_SERVICES_DEV_MODE
+
 ENV SHELL=/bin/bash
+ENV COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
 
 COPY services/blob/docker-server/contents /transferred
 COPY native/cpp/CommonCpp/grpc/protos/blob.proto /transferred/server/protos/blob.proto

@@ -50,6 +50,7 @@ services:
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
+        - COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
     image: commapp/blob-server:0.1
     container_name: blob-server
     ports:

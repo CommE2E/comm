@@ -17,6 +17,8 @@
     "build-blob-base": "./scripts/build_base_image.sh blob-base",
     "run-blob-service": "./scripts/run_server_image.sh blob",
     "test-blob-service": "./scripts/test_service.sh blob",
+    "run-blob-service-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/run_server_image.sh blob",
+    "test-blob-service-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/test_service.sh blob",
     "run-all-services": "./scripts/run_all_services.sh",
     "test-all-services": "./scripts/test_all_services.sh",
     "test-all-services-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/test_all_services.sh",
