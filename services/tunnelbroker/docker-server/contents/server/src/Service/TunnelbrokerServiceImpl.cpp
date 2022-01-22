@@ -79,6 +79,16 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
       return grpc::Status(
           grpc::StatusCode::NOT_FOUND, "Session sign request not found");
     }
+    const std::string verificationMessage = sessionSignItem->getSign();
+    if (!comm::network::crypto::rsaVerifyString(
+            publicKey, verificationMessage, signature)) {
+      std::cout << "gRPC: "
+                << "Signature for the verification message is not valid"
+                << std::endl;
+      return grpc::Status(
+          grpc::StatusCode::PERMISSION_DENIED,
+          "Signature for the verification message is not valid");
+    }
     database::DatabaseManager::getInstance().removeSessionSignItem(deviceId);
 
     deviceSessionItem = std::make_shared<database::DeviceSessionItem>(
