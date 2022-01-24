@@ -20,18 +20,18 @@ div.content {
   position: relative;
 }
 
-h2.nav {
+nav.nav {
   text-align: center;
   margin: 8px auto 12px auto;
   width: 250px;
   color: #333333;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
 }
-h2.nav > a.monthLink {
-  color: #036aff;
+nav.nav > a.monthLink {
+  color: var(--calendar-chevron);
 }
-h2.nav > div.monthName {
+nav.nav > .monthName {
   display: inline-block;
   width: 200px;
 }

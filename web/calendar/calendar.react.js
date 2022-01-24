@@ -36,6 +36,7 @@ import {
   monthAssertingSelector,
   webCalendarQuery,
 } from '../selectors/nav-selectors';
+import SWMansionIcon from '../SWMansionIcon.react';
 import type { NavInfo } from '../types/nav-types';
 import { canonicalURLFromReduxState } from '../url-utils';
 import css from './calendar.css';
@@ -183,13 +184,13 @@ class Calendar extends React.PureComponent<Props, State> {
               <FontAwesomeIcon icon={faFilter} />
               Filters
             </a>
-            <h2 className={css.nav}>
+            <nav className={css.nav}>
               <a
                 className={css.monthLink}
                 href={prevURL}
                 onClick={this.onClickPrevURL}
               >
-                &lt;
+                <SWMansionIcon icon="chevron-left" size={24} />
               </a>
               <div className={css.monthName}>
                 {' '}
@@ -200,9 +201,9 @@ class Calendar extends React.PureComponent<Props, State> {
                 href={nextURL}
                 onClick={this.onClickNextURL}
               >
-                &gt;
+                <SWMansionIcon icon="chevron-right" size={24} />
               </a>
-            </h2>
+            </nav>
           </div>
           <table className={css.calendar}>
             <thead>
