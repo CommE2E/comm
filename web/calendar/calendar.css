@@ -62,7 +62,7 @@ textarea.entryText {
 }
 table.calendar td.day {
   border: 1px solid transparent;
-  background-color: white;
+  background: var(--calendar-day-bg);
   position: relative;
   vertical-align: top;
   line-height: 0;
@@ -170,13 +170,13 @@ td.day > h2 {
   position: absolute;
   bottom: 2px;
   right: 3px;
-  color: #999999;
+  color: var(--fg);
   font-size: 32px;
   line-height: 32px;
   z-index: 1;
 }
 td.currentDay > h2 {
-  color: #ff944d;
+  color: var(--calendar-day-selected-color);
 }
 
 div.clear {
