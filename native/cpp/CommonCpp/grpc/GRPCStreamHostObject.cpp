@@ -56,6 +56,24 @@ GRPCStreamHostObject::get(jsi::Runtime &runtime, const jsi::PropNameID &name) {
         });
   }
 
+  if (propName == "onopen") {
+    return this->onopen.isNull()
+        ? jsi::Value::null()
+        : this->onopen.asObject(runtime).asFunction(runtime);
+  }
+
+  if (propName == "onmessage") {
+    return this->onmessage.isNull()
+        ? jsi::Value::null()
+        : this->onmessage.asObject(runtime).asFunction(runtime);
+  }
+
+  if (propName == "onclose") {
+    return this->onclose.isNull()
+        ? jsi::Value::null()
+        : this->onclose.asObject(runtime).asFunction(runtime);
+  }
+
   return jsi::String::createFromUtf8(runtime, std::string{"unimplemented"});
 }
 
