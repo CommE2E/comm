@@ -3,15 +3,12 @@ div.container {
   width: 300px;
   top: 62px;
   bottom: 0;
-  background-image: url(../images/background.png);
-  background-size: 3000px 2000px;
   background-attachment: fixed;
   display: flex;
   flex-direction: column;
 }
 div.filters {
   color: #dddddd;
-  background-color: rgba(0, 0, 0, 0.89);
   overflow-y: auto;
   height: 100%;
 }
