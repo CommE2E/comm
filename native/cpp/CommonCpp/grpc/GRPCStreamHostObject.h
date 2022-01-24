@@ -6,7 +6,7 @@ using namespace facebook;
 
 class JSI_EXPORT GRPCStreamHostObject : public jsi::HostObject {
 public:
-  GRPCStreamHostObject();
+  GRPCStreamHostObject(jsi::Runtime &rt);
   jsi::Value get(jsi::Runtime &, const jsi::PropNameID &name) override;
   void set(jsi::Runtime &, const jsi::PropNameID &name, const jsi::Value &value)
       override;
@@ -17,4 +17,6 @@ private:
   jsi::Value onopen;
   jsi::Value onmessage;
   jsi::Value onclose;
+  jsi::Value send;
+  jsi::Value close;
 };

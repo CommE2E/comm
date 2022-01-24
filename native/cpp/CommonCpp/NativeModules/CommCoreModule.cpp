@@ -888,7 +888,7 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
 }
 
 jsi::Value CommCoreModule::openSocket(jsi::Runtime &rt) {
-  auto hostObject = std::make_shared<GRPCStreamHostObject>();
+  auto hostObject = std::make_shared<GRPCStreamHostObject>(rt);
   return jsi::Object::createFromHostObject(rt, hostObject);
 }
 
