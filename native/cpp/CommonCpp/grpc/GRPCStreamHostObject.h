@@ -14,4 +14,7 @@ public:
 
 private:
   int readyState;
+  jsi::Value onopen;
+  jsi::Value onmessage;
+  jsi::Value onclose;
 };
