@@ -9,6 +9,24 @@
       "height": 1024,
       "icons": [
         {
+          "id": 15,
+          "paths": ["M688 42.669l-469.331 469.331 469.331 469.331"],
+          "attrs": [
+            {
+              "fill": "none",
+              "stroke": "rgb(0, 26, 114)",
+              "strokeLinejoin": "round",
+              "strokeLinecap": "round",
+              "strokeMiterlimit": "4",
+              "strokeWidth": 64
+            }
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 24,
+          "tags": ["outline-chevron-left"]
+        },
+        {
           "id": 8,
           "paths": [
             "M56.891 512h910.223M56.891 512l341.332-341.332M56.891 512l341.332 341.332"
@@ -350,87 +368,93 @@
       },
       "selection": [
         {
-          "order": 39,
+          "order": 86,
+          "id": 14,
+          "name": "chevron-left",
+          "prevSize": 32
+        },
+        {
+          "order": 87,
           "id": 7,
           "name": "arrow-left",
           "prevSize": 32
         },
         {
-          "order": 40,
+          "order": 88,
           "id": 8,
           "name": "arrow-right",
           "prevSize": 32
         },
         {
-          "order": 41,
+          "order": 89,
           "id": 9,
           "name": "cross",
           "prevSize": 32
         },
         {
-          "order": 42,
+          "order": 90,
           "id": 10,
           "name": "edit",
           "prevSize": 32
         },
         {
-          "order": 43,
+          "order": 91,
           "id": 11,
           "name": "filters",
           "prevSize": 32
         },
         {
-          "order": 44,
+          "order": 92,
           "id": 12,
           "name": "menu-horizontal",
           "prevSize": 32
         },
         {
-          "order": 45,
+          "order": 93,
           "id": 13,
           "name": "menu-vertical",
           "prevSize": 32
         },
         {
-          "order": 46,
+          "order": 94,
           "id": 5,
           "name": "calendar",
           "prevSize": 32
         },
         {
-          "order": 47,
+          "order": 95,
           "id": 6,
           "name": "message-square",
           "prevSize": 32
         },
         {
-          "order": 48,
+          "order": 96,
           "id": 4,
           "name": "message-square-lines",
           "prevSize": 32
         },
         {
-          "order": 49,
+          "order": 97,
           "id": 3,
           "name": "bell-disabled",
           "prevSize": 32
         },
         {
-          "order": 50,
+          "order": 98,
           "id": 2,
-          "name": "chevron-right-small",
+          "name": "chevron-right",
           "prevSize": 32
         },
         {
           "id": 1,
           "name": "send",
-          "order": 51,
+          "order": 99,
           "prevSize": 32
         },
         {
           "id": 0,
           "name": "image",
-          "order": 52,
+          "order": 100,
           "prevSize": 32
         }
       ],
@@ -790,7 +814,8 @@
         {
           "order": 0,
           "id": 227,
-          "name": "outline-chevron-left"
+          "name": "outline-chevron-left",
+          "prevSize": 32
         },
         {
           "order": 0,
