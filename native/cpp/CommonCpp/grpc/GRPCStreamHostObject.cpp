@@ -28,6 +28,34 @@ GRPCStreamHostObject::get(jsi::Runtime &runtime, const jsi::PropNameID &name) {
     return jsi::Value(this->readyState);
   }
 
+  if (propName == "send") {
+    return jsi::Function::createFromHostFunction(
+        runtime,
+        name,
+        0,
+        [](facebook::jsi::Runtime &rt,
+           const facebook::jsi::Value &thisVal,
+           const facebook::jsi::Value *args,
+           size_t count) {
+          return jsi::String::createFromUtf8(
+              rt, std::string{"GRPCStream.send: unimplemented"});
+        });
+  }
+
+  if (propName == "close") {
+    return jsi::Function::createFromHostFunction(
+        runtime,
+        name,
+        0,
+        [](facebook::jsi::Runtime &rt,
+           const facebook::jsi::Value &thisVal,
+           const facebook::jsi::Value *args,
+           size_t count) {
+          return jsi::String::createFromUtf8(
+              rt, std::string{"GRPCStream.close: unimplemented"});
+        });
+  }
+
   return jsi::String::createFromUtf8(runtime, std::string{"unimplemented"});
 }
 
