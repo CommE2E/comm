@@ -6,19 +6,20 @@ import * as React from 'react';
 import css from './chat-tabs.css';
 
 type Props = {
-  title: string,
-  onClick: (title: string) => void,
-  tabIsActive: boolean,
+  +title: string,
+  +onClick: (title: string) => void,
+  +tabIsActive: boolean,
 };
 function ChatThreadTab(props: Props): React.Node {
+  const { title, onClick, tabIsActive } = props;
   const className = classNames({
     [css.tabItem]: true,
-    [css.tabItemActive]: props.tabIsActive,
-    [css.tabItemInactive]: !props.tabIsActive,
+    [css.tabItemActive]: tabIsActive,
+    [css.tabItemInactive]: !tabIsActive,
   });
   return (
-    <div className={className} onClick={props.onClick}>
-      {props.title}
+    <div className={className} onClick={onClick}>
+      {title}
     </div>
   );
 }
