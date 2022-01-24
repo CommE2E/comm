@@ -27,7 +27,7 @@ function ChatTabs(props: Props): React.Node {
   );
   const { activeTab, setActiveTab } = threadListContext;
 
-  const onClickHome = React.useCallback(() => setActiveTab('Focused'), [
+  const onClickHome = React.useCallback(() => setActiveTab('Focus'), [
     setActiveTab,
   ]);
   const onClickBackground = React.useCallback(
@@ -39,8 +39,8 @@ function ChatTabs(props: Props): React.Node {
     <div className={css.container}>
       <div className={css.tabs}>
         <ChatThreadTab
-          title="Focused"
-          tabIsActive={activeTab === 'Focused'}
+          title="Focus"
+          tabIsActive={activeTab === 'Focus'}
           onClick={onClickHome}
         />
         <ChatThreadTab

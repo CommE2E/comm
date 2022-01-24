@@ -21,7 +21,7 @@ import {
   activeChatThreadItem as activeChatThreadItemSelector,
 } from '../selectors/chat-selectors';
 
-type ChatTabType = 'Focused' | 'Background';
+type ChatTabType = 'Focus' | 'Background';
 type ThreadListContextType = {
   +activeTab: ChatTabType,
   +threadList: $ReadOnlyArray<ChatThreadItem>,
@@ -34,7 +34,7 @@ type ThreadListProviderProps = {
   +children: React.Node,
 };
 function ThreadListProvider(props: ThreadListProviderProps): React.Node {
-  const [activeTab, setActiveTab] = React.useState('Focused');
+  const [activeTab, setActiveTab] = React.useState('Focus');
 
   const activeChatThreadItem = useSelector(activeChatThreadItemSelector);
   const activeThreadInfo = activeChatThreadItem?.threadInfo;
@@ -57,7 +57,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     activeTopLevelThreadInfo?.currentUser.subscription.home;
 
   const activeTopLevelThreadIsFromDifferentTab =
-    (activeTab === 'Focused' && activeTopLevelThreadIsFromHomeTab) ||
+    (activeTab === 'Focus' && activeTopLevelThreadIsFromHomeTab) ||
     (activeTab === 'Background' && !activeTopLevelThreadIsFromHomeTab);
 
   const activeTopLevelThreadIsInChatList = React.useMemo(
@@ -73,9 +73,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     const prevActiveThreadID = prevActiveThreadIDRef.current;
     prevActiveThreadIDRef.current = activeThreadID;
     if (activeThreadID !== prevActiveThreadID && shouldChangeTab) {
-      setActiveTab(
-        activeTopLevelThreadIsFromHomeTab ? 'Focused' : 'Background',
-      );
+      setActiveTab(activeTopLevelThreadIsFromHomeTab ? 'Focus' : 'Background');
     }
   }, [activeThreadID, shouldChangeTab, activeTopLevelThreadIsFromHomeTab]);
 
@@ -156,7 +154,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
       threadInBackgroundChatList(item.threadInfo),
     );
     if (activeTopLevelChatThreadItem && !activeTopLevelThreadIsInChatList) {
-      if (activeThreadOriginalTab === 'Focused') {
+      if (activeThreadOriginalTab === 'Focus') {
         home.unshift(activeTopLevelChatThreadItem);
       } else {
         background.unshift(activeTopLevelChatThreadItem);
@@ -175,7 +173,7 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   ]);
 
   const currentThreadList =
-    activeTab === 'Focused' ? homeThreadList : backgroundThreadList;
+    activeTab === 'Focus' ? homeThreadList : backgroundThreadList;
 
   const threadListContext = React.useMemo(
     () => ({
