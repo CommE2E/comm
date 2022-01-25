@@ -59,4 +59,5 @@
   --calendar-chevron: var(--shades-black-60);
   --calendar-day-bg: var(--shades-black-60);
   --calendar-day-selected-color: var(--violet-dark-80);
+  --community-bg: var(--shades-black-90);
 }

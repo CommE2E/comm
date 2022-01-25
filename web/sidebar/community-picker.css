@@ -1,0 +1,7 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 84px;
+  background: var(--community-bg);
+  border-right: 1px solid var(--border-color);
+}
