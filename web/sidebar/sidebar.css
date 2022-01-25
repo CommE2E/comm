@@ -3,4 +3,10 @@
   background: var(--bg);
   color: var(--color);
   border-right: 1px solid var(--border-color);
+  display: flex;
+  width: 100%;
+}
+
+.container ul {
+  list-style-type: none;
 }
