@@ -14,7 +14,7 @@ import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import getTitle from '../title/getTitle';
 import { updateNavInfoActionType } from '../types/nav-types';
-import css from './sidebar.css';
+import css from './left-layout-aside.css';
 
 function AppSwitcher(): React.Node {
   const activeChatThreadID = useSelector(
