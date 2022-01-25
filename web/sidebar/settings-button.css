@@ -1,0 +1,10 @@
+.btnCls {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--settings-btn-bg);
+  border-radius: 50%;
+  border-color: transparent;
+}
