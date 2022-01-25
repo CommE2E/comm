@@ -38,6 +38,7 @@ import LeftLayoutAside from './sidebar/left-layout-aside.react';
 import Splash from './splash/splash.react';
 import './typography.css';
 import css from './style.css';
+import SWMansionIcon from './SWMansionIcon.react';
 import { type NavInfo, updateNavInfoActionType } from './types/nav-types';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
@@ -168,6 +169,10 @@ class App extends React.PureComponent<Props, State> {
                 loadingClassName={css['page-loading']}
                 errorClassName={css['page-error']}
               />
+            </div>
+            <div className={css.help}>
+              <p>Help</p>
+              <SWMansionIcon icon="question-circle" size={18} />
             </div>
           </div>
         </header>
