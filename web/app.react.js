@@ -189,7 +189,7 @@ class App extends React.PureComponent<Props, State> {
             <ul className={css['nav-bar']}>
               <li className={calendarNavClasses}>
                 <div>
-                  <a onClick={this.onClickCalendar}>
+                  <a>
                     <FontAwesomeIcon
                       icon={faCalendar}
                       className={css['nav-bar-icon']}
@@ -200,7 +200,7 @@ class App extends React.PureComponent<Props, State> {
               </li>
               <li className={chatNavClasses}>
                 <div>
-                  <a onClick={this.onClickChat}>
+                  <a>
                     <FontAwesomeIcon
                       icon={faComments}
                       className={css['nav-bar-icon']}
@@ -239,27 +239,6 @@ class App extends React.PureComponent<Props, State> {
   clearModal() {
     this.setModal(null);
   }
-
-  onClickCalendar = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.dispatch({
-      type: updateNavInfoActionType,
-      payload: { tab: 'calendar' },
-    });
-  };
-
-  onClickChat = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.dispatch({
-      type: updateNavInfoActionType,
-      payload: {
-        tab: 'chat',
-        activeChatThreadID: this.props.activeThreadCurrentlyUnread
-          ? this.props.mostRecentReadThread
-          : this.props.navInfo.activeChatThreadID,
-      },
-    });
-  };
 }
 
 const fetchEntriesLoadingStatusSelector = createLoadingStatusSelector(
