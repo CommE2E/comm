@@ -84,28 +84,6 @@ div.main-header > h1 {
   font-weight: var(--semi-bold);
   font-size: var(--logo-font-22);
 }
-ul.nav-bar {
-  position: absolute;
-  padding-left: 180px;
-}
-ul.nav-bar > li {
-  display: inline-block;
-  list-style-type: none;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  text-transform: uppercase;
-}
-ul.nav-bar > li > div {
-  padding: 3px 20px 3px 20px;
-}
-ul.nav-bar > li > div > a {
-  color: var(--fg);
-}
-svg.nav-bar-icon {
-  padding-right: 8px;
-  font-size: 20px;
-}
 
 div.main-content-container {
   position: relative;

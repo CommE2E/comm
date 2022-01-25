@@ -6,8 +6,6 @@ import '@fontsource/inter/600.css';
 import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
-import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -164,30 +162,6 @@ class App extends React.PureComponent<Props, State> {
         <header className={css['header']}>
           <div className={css['main-header']}>
             <h1>Comm</h1>
-            <ul className={css['nav-bar']}>
-              <li>
-                <div>
-                  <a>
-                    <FontAwesomeIcon
-                      icon={faCalendar}
-                      className={css['nav-bar-icon']}
-                    />
-                    Calendar
-                  </a>
-                </div>
-              </li>
-              <li>
-                <div>
-                  <a>
-                    <FontAwesomeIcon
-                      icon={faComments}
-                      className={css['nav-bar-icon']}
-                    />
-                    Chat
-                  </a>
-                </div>
-              </li>
-            </ul>
             <div className={css['upper-right']}>
               <LoadingIndicator
                 status={this.props.entriesLoadingStatus}
