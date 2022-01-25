@@ -1,5 +1,4 @@
 #include "Client.h"
-#include "Logger.h"
 
 namespace comm {
 namespace network {
@@ -41,7 +40,7 @@ bool Client::becomeNewPrimaryDevice() {
   request.set_devicetoken(this->deviceToken);
 
   grpc::Status status =
-      stub_->BecomeNewPrimaryDevice(&context, request, &response);
+      this->stub_->BecomeNewPrimaryDevice(&context, request, &response);
   if (!status.ok()) {
     throw std::runtime_error(status.error_message());
   }
@@ -56,10 +55,30 @@ void Client::sendPong() {
   request.set_userid(this->id);
   request.set_devicetoken(this->deviceToken);
 
-  grpc::Status status = stub_->SendPong(&context, request, &response);
+  grpc::Status status = this->stub_->SendPong(&context, request, &response);
   if (!status.ok()) {
     throw std::runtime_error(status.error_message());
   }
+}
+
+grpc::Status Client::send(
+    std::string sessionID,
+    std::string toDeviceID,
+    std::string payload,
+    std::vector<std::string> blobHashes) {
+  grpc::ClientContext context;
+  tunnelbroker::SendRequest request;
+  google::protobuf::Empty response;
+
+  request.set_sessionid(sessionID);
+  request.set_todeviceid(toDeviceID);
+  request.set_payload(payload);
+
+  for (const auto &blob : blobHashes) {
+    request.add_blobhashes(blob);
+  }
+
+  return this->stub_->Send(&context, request, &response);
 }
 
 } // namespace network
