@@ -10,3 +10,16 @@
 .container ul {
   list-style-type: none;
 }
+
+div.chatBadge {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 25px;
+  height: 25px;
+  margin-left: 8px;
+  color: white;
+  background-color: red;
+  border-radius: 13px;
+  font-size: 18px;
+  text-align: center;
+}

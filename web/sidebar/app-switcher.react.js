@@ -1,11 +1,16 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
+import {
+  mostRecentReadThreadSelector,
+  unreadCount,
+} from 'lib/selectors/thread-selectors';
 
 import { useSelector } from '../redux/redux-utils';
+import getTitle from '../title/getTitle';
 import { updateNavInfoActionType } from '../types/nav-types';
 import css from './sidebar.css';
 
@@ -19,6 +24,15 @@ function AppSwitcher(): React.Node {
       !activeChatThreadID ||
       !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
   );
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+
+  const boundUnreadCount = useSelector(unreadCount);
+
+  React.useEffect(() => {
+    document.title = getTitle(boundUnreadCount);
+  }, [boundUnreadCount]);
 
   const dispatch = useDispatch();
 
@@ -54,6 +68,12 @@ function AppSwitcher(): React.Node {
     ],
   );
 
+  invariant(viewerID, 'should be set');
+  let chatBadge = null;
+  if (boundUnreadCount > 0) {
+    chatBadge = <div className={css.chatBadge}>{boundUnreadCount}</div>;
+  }
+
   return (
     <div className={css.container}>
       <ul>
@@ -65,6 +85,7 @@ function AppSwitcher(): React.Node {
         <li>
           <p>
             <a onClick={onClickChat}>Chat</a>
+            {chatBadge}
           </p>
         </li>
       </ul>

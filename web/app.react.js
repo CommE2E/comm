@@ -9,7 +9,6 @@ import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
-import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -24,10 +23,7 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
-import {
-  mostRecentReadThreadSelector,
-  unreadCount,
-} from 'lib/selectors/thread-selectors';
+import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
@@ -46,7 +42,6 @@ import SideBar from './sidebar/sidebar.react';
 import Splash from './splash/splash.react';
 import './typography.css';
 import css from './style.css';
-import getTitle from './title/getTitle';
 import { type NavInfo, updateNavInfoActionType } from './types/nav-types';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
@@ -83,8 +78,6 @@ type Props = {
   +loggedIn: boolean,
   +mostRecentReadThread: ?string,
   +activeThreadCurrentlyUnread: boolean,
-  +viewerID: ?string,
-  +unreadCount: number,
   // Redux dispatch functions
   +dispatch: Dispatch,
 };
@@ -174,13 +167,6 @@ class App extends React.PureComponent<Props, State> {
       mainContent = <Chat setModal={this.setModal} />;
     }
 
-    const { viewerID, unreadCount: curUnreadCount } = this.props;
-    invariant(viewerID, 'should be set');
-    let chatBadge = null;
-    if (curUnreadCount > 0) {
-      chatBadge = <div className={css.chatBadge}>{curUnreadCount}</div>;
-    }
-
     return (
       <div className={css.layout}>
         <header className={css['header']}>
@@ -206,7 +192,6 @@ class App extends React.PureComponent<Props, State> {
                       className={css['nav-bar-icon']}
                     />
                     Chat
-                    {chatBadge}
                   </a>
                 </div>
               </li>
@@ -274,15 +259,6 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
     );
 
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    const boundUnreadCount = useSelector(unreadCount);
-
-    React.useEffect(() => {
-      document.title = getTitle(boundUnreadCount);
-    }, [boundUnreadCount]);
-
     const dispatch = useDispatch();
 
     return (
@@ -293,8 +269,6 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         loggedIn={loggedIn}
         mostRecentReadThread={mostRecentReadThread}
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
-        viewerID={viewerID}
-        unreadCount={boundUnreadCount}
         dispatch={dispatch}
       />
     );
