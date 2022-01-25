@@ -52,14 +52,25 @@ input[type='submit']::-moz-focus-inner {
   height: 100%;
 }
 
+div.layout {
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 244px repeat(12, 1fr);
+  grid-template-rows: 65px 1fr;
+  grid-template-areas:
+    'nav nav nav nav nav nav nav nav nav nav nav nav nav'
+    'sBar app app app app app app app app app app app app';
+}
+
 header.header {
   background: var(--bg);
   background-size: 3000px 2000px;
   background-attachment: fixed;
   z-index: 1;
+  grid-area: nav;
 }
 div.main-header {
-  height: 62px;
+  height: 64px;
   background: var(--bg);
   display: flex;
   align-items: center;
@@ -124,7 +135,7 @@ div.chatBadge {
 
 div.main-content-container {
   position: relative;
-  height: calc(100% - 62px);
+  grid-area: app;
 }
 div.main-content {
   height: 100%;
