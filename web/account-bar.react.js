@@ -3,13 +3,10 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import type { LogOutResult } from 'lib/types/account-types';
 import type { PreRequestUserState } from 'lib/types/session-types';
 import type { CurrentUserInfo } from 'lib/types/user-types';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
@@ -31,8 +28,6 @@ type Props = {
   +preRequestUserState: PreRequestUserState,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
 };
 type State = {
   +expanded: boolean,
@@ -89,11 +84,6 @@ class AccountBar extends React.PureComponent<Props, State> {
           onKeyDown={this.onMenuKeyDown}
           ref={this.menuRef}
         >
-          <div>
-            <a href="#" onClick={this.onLogOut}>
-              Log out
-            </a>
-          </div>
           <div>
             <a href="#" onClick={this.onEditAccount}>
               Edit account
@@ -153,15 +143,6 @@ class AccountBar extends React.PureComponent<Props, State> {
     }
   };
 
-  onLogOut = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.dispatchActionPromise(
-      logOutActionTypes,
-      this.props.logOut(this.props.preRequestUserState),
-    );
-    this.setState({ expanded: false });
-  };
-
   onEditAccount = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     // This will blur the focus off the menu which will set expanded to false
@@ -179,14 +160,12 @@ const ConnectedAccountBar: React.ComponentType<BaseProps> = React.memo<BaseProps
     const currentUserInfo = useSelector(state => state.currentUserInfo);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
     const dispatchActionPromise = useDispatchActionPromise();
-    const boundLogOut = useServerCall(logOut);
     return (
       <AccountBar
         {...props}
         currentUserInfo={currentUserInfo}
         preRequestUserState={preRequestUserState}
         dispatchActionPromise={dispatchActionPromise}
-        logOut={boundLogOut}
       />
     );
   },
