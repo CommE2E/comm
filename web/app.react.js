@@ -26,7 +26,6 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { registerConfig } from 'lib/utils/config';
 
-import AccountBar from './account-bar.react';
 import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
@@ -169,7 +168,6 @@ class App extends React.PureComponent<Props, State> {
                 loadingClassName={css['page-loading']}
                 errorClassName={css['page-error']}
               />
-              <AccountBar setModal={this.setModal} />
             </div>
           </div>
         </header>
