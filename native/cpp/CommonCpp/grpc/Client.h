@@ -31,6 +31,12 @@ public:
   CheckResponseType checkIfPrimaryDeviceOnline();
   bool becomeNewPrimaryDevice();
   void sendPong();
+
+  void send(
+      std::string sessionID,
+      std::string toDeviceID,
+      std::string payload,
+      std::vector<std::string> blobHashes);
 };
 
 } // namespace network
