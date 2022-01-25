@@ -9,6 +9,8 @@ import {
   deleteAccount,
   changeUserPasswordActionTypes,
   changeUserPassword,
+  logOut,
+  logOutActionTypes,
 } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -68,6 +70,7 @@ type Props = {
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
   +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
+  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
 };
 type State = {
   +newPassword: string,
@@ -102,6 +105,16 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       ? this.props.currentUserInfo.username
       : undefined;
   }
+
+  onLogOut = (event: SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    this.props.dispatchActionPromise(logOutActionTypes, this.logOut());
+  };
+
+  logOut = async () => {
+    await this.props.logOut(this.props.preRequestUserState);
+    this.clearModal();
+  };
 
   render() {
     let mainContent = null;
@@ -159,12 +172,20 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       );
     } else {
       buttons = (
-        <input
-          type="submit"
-          value="Update account"
-          onClick={this.onSubmit}
-          disabled={this.props.inputDisabled}
-        />
+        <>
+          <input
+            type="submit"
+            value="Update account"
+            onClick={this.onSubmit}
+            disabled={this.props.inputDisabled}
+          />
+          <input
+            type="submit"
+            value="Log out"
+            onClick={this.onLogOut}
+            disabled={this.props.inputDisabled}
+          />
+        </>
       );
     }
 
@@ -390,6 +411,7 @@ const ConnectedUserSettingsModal: React.ComponentType<BaseProps> = React.memo<Ba
     const callDeleteAccount = useServerCall(deleteAccount);
     const callChangeUserPassword = useServerCall(changeUserPassword);
     const dispatchActionPromise = useDispatchActionPromise();
+    const boundLogOut = useServerCall(logOut);
 
     return (
       <UserSettingsModal
@@ -400,6 +422,7 @@ const ConnectedUserSettingsModal: React.ComponentType<BaseProps> = React.memo<Ba
         deleteAccount={callDeleteAccount}
         changeUserPassword={callChangeUserPassword}
         dispatchActionPromise={dispatchActionPromise}
+        logOut={boundLogOut}
       />
     );
   },
