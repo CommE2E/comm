@@ -1,7 +1,14 @@
 .container {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 84px;
   background: var(--community-bg);
+  padding-top: 24px;
   border-right: 1px solid var(--border-color);
+}
+
+.container svg {
+  color: var(--fg);
+  padding: 0;
 }
