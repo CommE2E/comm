@@ -47,7 +47,7 @@ import {
   fetchEntryInfosByID,
   fetchEntriesForSession,
 } from '../fetchers/entry-fetchers';
-import { checkIfUserHasEnoughOneTimeKeys } from '../fetchers/key-fetchers';
+import { checkIfSessionHasEnoughOneTimeKeys } from '../fetchers/key-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchCurrentUserInfo,
@@ -208,8 +208,8 @@ async function processClientResponses(
     if (!viewer.loggedIn) {
       return;
     }
-    const enoughOneTimeKeys = await checkIfUserHasEnoughOneTimeKeys(
-      viewer.userID,
+    const enoughOneTimeKeys = await checkIfSessionHasEnoughOneTimeKeys(
+      viewer.session,
     );
     if (!enoughOneTimeKeys) {
       serverRequests.push({ type: serverRequestTypes.MORE_ONE_TIME_KEYS });

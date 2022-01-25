@@ -17,7 +17,7 @@ import {
   calendarQueryUpdateResponder,
 } from './responders/entry-responders';
 import type { JSONResponder } from './responders/handlers';
-import { getUserPublicKeysResponder } from './responders/keys-responders';
+import { getSessionPublicKeysResponder } from './responders/keys-responders';
 import {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -72,7 +72,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   fetch_entry_revisions: entryRevisionFetchResponder,
   fetch_error_report_infos: errorReportFetchInfosResponder,
   fetch_messages: messageFetchResponder,
-  get_user_public_keys: getUserPublicKeysResponder,
+  get_session_public_keys: getSessionPublicKeysResponder,
   join_thread: threadJoinResponder,
   leave_thread: threadLeaveResponder,
   log_in: logInResponder,

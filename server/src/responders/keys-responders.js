@@ -2,28 +2,28 @@
 
 import t from 'tcomb';
 
-import type { GetUserPublicKeysArgs } from 'lib/types/request-types';
-import type { UserPublicKeys } from 'lib/types/user-types';
+import type { GetSessionPublicKeysArgs } from 'lib/types/request-types';
+import type { SessionPublicKeys } from 'lib/types/session-types';
 import { tShape } from 'lib/utils/validation-utils';
 
-import { fetchUserPublicKeys } from '../fetchers/key-fetchers';
+import { fetchSessionPublicKeys } from '../fetchers/key-fetchers';
 import type { Viewer } from '../session/viewer';
 import { validateInput } from '../utils/validation-utils';
 
-const getUserPublicKeysInputValidator = tShape({
-  userID: t.String,
+const getSessionPublicKeysInputValidator = tShape({
+  session: t.String,
 });
 
-async function getUserPublicKeysResponder(
+async function getSessionPublicKeysResponder(
   viewer: Viewer,
   input: any,
-): Promise<UserPublicKeys | null> {
+): Promise<SessionPublicKeys | null> {
   if (!viewer.loggedIn) {
     return null;
   }
-  const request: GetUserPublicKeysArgs = input;
-  await validateInput(viewer, getUserPublicKeysInputValidator, request);
-  return await fetchUserPublicKeys(viewer, request.userID);
+  const request: GetSessionPublicKeysArgs = input;
+  await validateInput(viewer, getSessionPublicKeysInputValidator, request);
+  return await fetchSessionPublicKeys(request.session);
 }
 
-export { getUserPublicKeysResponder };
+export { getSessionPublicKeysResponder };
