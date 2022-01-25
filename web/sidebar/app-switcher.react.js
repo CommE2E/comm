@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
@@ -18,6 +19,7 @@ function AppSwitcher(): React.Node {
   const activeChatThreadID = useSelector(
     state => state.navInfo.activeChatThreadID,
   );
+  const navInfo = useSelector(state => state.navInfo);
   const mostRecentReadThread = useSelector(mostRecentReadThreadSelector);
   const activeThreadCurrentlyUnread = useSelector(
     state =>
@@ -74,16 +76,23 @@ function AppSwitcher(): React.Node {
     chatBadge = <div className={css.chatBadge}>{boundUnreadCount}</div>;
   }
 
+  const calendarNavClasses = classNames({
+    [css['current-tab']]: navInfo.tab === 'calendar',
+  });
+  const chatNavClasses = classNames({
+    [css['current-tab']]: navInfo.tab === 'chat',
+  });
+
   return (
     <div className={css.container}>
       <ul>
         <li>
-          <p>
+          <p className={calendarNavClasses}>
             <a onClick={onClickCalendar}>Calendar</a>
           </p>
         </li>
         <li>
-          <p>
+          <p className={chatNavClasses}>
             <a onClick={onClickChat}>Chat</a>
             {chatBadge}
           </p>

@@ -8,7 +8,6 @@ import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import { faCalendar, faComments } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import classNames from 'classnames';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -151,13 +150,6 @@ class App extends React.PureComponent<Props, State> {
   }
 
   renderMainContent() {
-    const calendarNavClasses = classNames({
-      [css['current-tab']]: this.props.navInfo.tab === 'calendar',
-    });
-    const chatNavClasses = classNames({
-      [css['current-tab']]: this.props.navInfo.tab === 'chat',
-    });
-
     let mainContent;
     if (this.props.navInfo.tab === 'calendar') {
       mainContent = (
@@ -173,7 +165,7 @@ class App extends React.PureComponent<Props, State> {
           <div className={css['main-header']}>
             <h1>Comm</h1>
             <ul className={css['nav-bar']}>
-              <li className={calendarNavClasses}>
+              <li>
                 <div>
                   <a>
                     <FontAwesomeIcon
@@ -184,7 +176,7 @@ class App extends React.PureComponent<Props, State> {
                   </a>
                 </div>
               </li>
-              <li className={chatNavClasses}>
+              <li>
                 <div>
                   <a>
                     <FontAwesomeIcon

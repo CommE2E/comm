@@ -96,25 +96,11 @@ ul.nav-bar > li {
   cursor: pointer;
   text-transform: uppercase;
 }
-ul.nav-bar > li.current-tab {
-  background-image: url(../images/background.png);
-  background-size: 3000px 2000px;
-  background-attachment: fixed;
-  cursor: default;
-}
 ul.nav-bar > li > div {
   padding: 3px 20px 3px 20px;
 }
 ul.nav-bar > li > div > a {
   color: var(--fg);
-}
-ul.nav-bar > li.current-tab > div > a {
-  color: #444444;
-}
-ul.nav-bar > li.current-tab > div {
-  background-color: rgba(255, 255, 255, 0.84);
-  padding: 18px 20px 19px 20px;
-  height: 25px;
 }
 svg.nav-bar-icon {
   padding-right: 8px;
@@ -520,17 +506,8 @@ ul.tab-panel > li {
   cursor: pointer;
   padding: 3px 10px 3px 10px;
 }
-ul.tab-panel > li.current-tab {
-  background-color: white;
-  border-radius: 5px 5px 0 0;
-  cursor: default;
-}
 ul.tab-panel > li > a {
   color: #555555;
-}
-ul.tab-panel > li.current-tab > a {
-  color: #123a7b;
-  cursor: default;
 }
 ul.tab-panel > li.delete-tab > a {
   color: #ff0000 !important;
@@ -614,7 +591,6 @@ div.intro-modal {
   div.splash-top-container,
   div.splash-bottom,
   div.modal-container,
-  ul.nav-bar > li.current-tab,
   div.calendar-filters-container {
     background: var(--bg);
   }
