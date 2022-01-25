@@ -192,10 +192,10 @@ class Calendar extends React.PureComponent<Props, State> {
               >
                 <SWMansionIcon icon="chevron-left" size={24} />
               </a>
-              <div className={css.monthName}>
+              <h2 className={css.monthName}>
                 {' '}
                 {monthName} {year}{' '}
-              </div>
+              </h2>
               <a
                 className={css.monthLink}
                 href={nextURL}

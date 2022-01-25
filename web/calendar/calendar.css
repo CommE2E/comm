@@ -34,6 +34,7 @@ nav.nav > a.monthLink {
 nav.nav > .monthName {
   display: inline-block;
   width: 200px;
+  color: var(--fg);
 }
 
 table.calendar {
