@@ -215,8 +215,8 @@ async function createTables() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
     CREATE TABLE one_time_keys (
-      user BIGINT(20) NOT NULL,
-      one_time_key CHAR(43) NOT NULL
+      session bigint(20) NOT NULL,
+      one_time_key char(43) NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
     CREATE TABLE user_messages (
@@ -330,7 +330,7 @@ async function createTables() {
       ADD UNIQUE KEY code_version_platform (code_version,platform);
 
     ALTER TABLE one_time_keys
-      ADD PRIMARY KEY (user, one_time_key);
+      ADD PRIMARY KEY (session, one_time_key);
 
     ALTER TABLE user_messages
       ADD INDEX recipient_time (recipient, time),
