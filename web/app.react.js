@@ -178,7 +178,7 @@ class App extends React.PureComponent<Props, State> {
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
-        <SideBar />
+        <SideBar setModal={this.setModal} />
       </div>
     );
   }
