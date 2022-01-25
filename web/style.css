@@ -92,6 +92,21 @@ div.main-content-container {
 div.main-content {
   height: 100%;
 }
+div.help {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  justify-content: flex-end;
+  padding-right: 28px;
+}
+
+div.help p {
+  padding-right: 12px;
+}
+div.help p,
+div.help svg {
+  color: var(--help-color);
+}
 
 div.upper-right {
   position: absolute;
