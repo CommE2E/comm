@@ -75,4 +75,5 @@
   --calendar-day-selected-color: var(--violet-dark-80);
   --community-bg: var(--shades-black-90);
   --unread-bg: var(--error-primary);
+  --settings-btn-bg: var(--violet-dark-100);
 }

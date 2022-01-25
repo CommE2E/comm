@@ -4,8 +4,17 @@
   align-items: center;
   width: 84px;
   background: var(--community-bg);
-  padding-top: 24px;
+  padding: 24px 0 32px 0;
   border-right: 1px solid var(--border-color);
+  flex-grow: 1;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.container button {
+  color: var(--fg);
 }
 
 .container svg {
