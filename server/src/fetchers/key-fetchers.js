@@ -1,20 +1,19 @@
 // @flow
 
-import type { UserPublicKeys } from 'lib/types/user-types';
+import type { SessionPublicKeys } from 'lib/types/session-types';
 import { minimumOneTimeKeysRequired } from 'lib/utils/crypto-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
 import { deleteOneTimeKey } from '../deleters/one-time-key-deleters';
-import type { Viewer } from '../session/viewer';
 
-async function checkIfUserHasEnoughOneTimeKeys(
-  userID: string,
+async function checkIfSessionHasEnoughOneTimeKeys(
+  session: string,
 ): Promise<boolean> {
   const query = SQL`
     SELECT COUNT(*) AS count 
     FROM one_time_keys 
-    WHERE user = ${userID}
+    WHERE session = ${session}
   `;
   const [queryResult] = await dbQuery(query);
   if (!queryResult.length || queryResult[0].count === undefined) {
@@ -24,15 +23,14 @@ async function checkIfUserHasEnoughOneTimeKeys(
   return count >= minimumOneTimeKeysRequired;
 }
 
-async function fetchUserPublicKeys(
-  viewer: Viewer,
-  userID: string,
-): Promise<UserPublicKeys | null> {
+async function fetchSessionPublicKeys(
+  session: string,
+): Promise<SessionPublicKeys | null> {
   const query = SQL`
-    SELECT u.public_key, otk.one_time_key
-    FROM users u
-    LEFT JOIN one_time_keys otk ON otk.user = u.id
-    WHERE u.id = ${userID}
+    SELECT s.public_key, otk.one_time_key
+    FROM sessions s
+    LEFT JOIN one_time_keys otk ON otk.session = s.id
+    WHERE s.id = ${session}
     LIMIT 1
   `;
   const [queryResult] = await dbQuery(query);
@@ -47,9 +45,9 @@ async function fetchUserPublicKeys(
 
   const oneTimeKey = result.one_time_key;
   const identityKey = result.public_key;
-  await deleteOneTimeKey(userID, oneTimeKey);
+  await deleteOneTimeKey(session, oneTimeKey);
 
   return { identityKey, oneTimeKey };
 }
 
-export { fetchUserPublicKeys, checkIfUserHasEnoughOneTimeKeys };
+export { fetchSessionPublicKeys, checkIfSessionHasEnoughOneTimeKeys };

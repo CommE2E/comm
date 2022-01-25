@@ -11,10 +11,13 @@ async function saveOneTimeKeys(
     return;
   }
 
-  const insertData = oneTimeKeys.map(oneTimeKey => [viewer.userID, oneTimeKey]);
+  const insertData = oneTimeKeys.map(oneTimeKey => [
+    viewer.session,
+    oneTimeKey,
+  ]);
 
   const query = SQL`
-    INSERT INTO one_time_keys(user, one_time_key)
+    INSERT INTO one_time_keys(session, one_time_key)
     VALUES ${insertData}
   `;
   await dbQuery(query);
