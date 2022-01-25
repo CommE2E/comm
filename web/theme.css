@@ -84,4 +84,5 @@
   --thread-color-read: var(--shades-white-60);
   --thread-from-color-read: var(--shades-black-80);
   --thread-last-message-color-read: var(--shades-black-60);
+  --help-color: var(--shades-black-60);
 }
