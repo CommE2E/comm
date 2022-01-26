@@ -141,7 +141,8 @@ async function createTables() {
       query json NOT NULL,
       creation_time bigint(20) NOT NULL,
       last_update bigint(20) NOT NULL,
-      last_validated bigint(20) NOT NULL
+      last_validated bigint(20) NOT NULL,
+      public_key char(116) DEFAULT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
     CREATE TABLE threads (
@@ -294,6 +295,7 @@ async function createTables() {
     ALTER TABLE sessions
       ADD PRIMARY KEY (id),
       ADD KEY user (user);
+      ADD UNIQUE INDEX public_key (public_key);
 
     ALTER TABLE threads
       ADD PRIMARY KEY (id),
