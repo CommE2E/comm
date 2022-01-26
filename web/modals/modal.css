@@ -35,7 +35,7 @@ div.large-modal-container {
 div.modal {
   position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
-  background-color: rgba(255, 255, 255, 0.61);
+  background-color: var(--modal-bg);
   border-radius: 15px;
   flex: 1;
   display: flex;
@@ -53,6 +53,7 @@ span.modal-close {
   font-size: 32px;
   font-weight: 300;
   line-height: 30px;
+  color: var(--fg);
 }
 span.modal-close:hover {
   color: black;
@@ -64,6 +65,7 @@ div.modal-header {
 div.modal-header > h2 {
   font-size: 22px;
   font-weight: 300;
+  color: var(--fg);
 }
 
 div.intro-modal {

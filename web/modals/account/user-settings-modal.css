@@ -2,7 +2,7 @@ div.modal-body {
   padding: 6px 6px;
   width: 100%;
   box-sizing: border-box;
-  background-color: white;
+  background-color: var(--modal-bg);
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   flex: 1;
@@ -43,7 +43,7 @@ div.modal-body input[type='submit'] {
   font-size: 12px;
   margin-right: 3px;
   border-radius: 3px;
-  border: 1px solid #c8c8c8;
+  border: 1px solid var(--border-color);
   background-color: #f8f8f8;
   font-weight: 600;
   color: #444444;
@@ -70,7 +70,7 @@ div.modal-body div.form-footer {
   justify-content: space-between;
   align-items: start;
   margin-top: 5px;
-  border-top: 2px solid #efefef;
+  border-top: 2px solid var(--border-color);
   min-height: 26px;
   padding: 7px 4px 4px 0;
 }
@@ -93,6 +93,7 @@ div.modal-body div.form-title {
   font-weight: 600;
   vertical-align: top;
   width: 110px;
+  color: var(--fg);
 }
 div.large-modal-container div.modal-body div.form-title {
   width: 140px;
@@ -101,6 +102,7 @@ div.modal-body div.form-content {
   display: inline-block;
   font-family: var(--font-stack);
   font-size: 15px;
+  color: var(--fg);
 }
 div.modal-body div.form-subtitle {
   font-size: 12px;
@@ -141,10 +143,11 @@ div.form-text > div.form-float-content {
 
 .italic {
   font-style: italic;
+  color: var(--fg);
 }
 
 ul.tab-panel {
-  background-color: #f4f4f4;
+  background-color: var(--modal-bg);
   padding-left: 10px;
   padding-top: 5px;
 }
@@ -164,7 +167,7 @@ ul.tab-panel > li.delete-tab > a {
 }
 
 div.user-settings-current-password {
-  border-top: 2px solid #efefef;
+  border-top: 2px solid var(--border-color);
   padding-top: 4px;
   margin-top: 5px;
 }
