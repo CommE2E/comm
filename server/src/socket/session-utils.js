@@ -120,6 +120,13 @@ const clientResponseInputValidator: TUnion<TInterface> = t.union([
     ),
     keys: t.list(t.String),
   }),
+  tShape({
+    type: t.irreducible(
+      'serverRequestTypes.GET_PUBLIC_KEY',
+      x => x === serverRequestTypes.GET_PUBLIC_KEY,
+    ),
+    key: t.String,
+  }),
 ]);
 
 type StateCheckStatus =
@@ -192,6 +199,7 @@ async function processClientResponses(
     } else if (clientResponse.type === serverRequestTypes.MORE_ONE_TIME_KEYS) {
       invariant(clientResponse.keys, 'keys expected in client response');
       handleAsyncPromise(saveOneTimeKeys(viewer, clientResponse.keys));
+      // } else if (clientResponse.type === serverRequestTypes.GET_PUBLIC_KEY) {
     }
   }
 
