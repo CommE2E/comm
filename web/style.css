@@ -196,58 +196,6 @@ div.color-title {
   margin-top: 4px;
 }
 
-div.modal-body div.form-footer {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-between;
-  align-items: start;
-  margin-top: 5px;
-  border-top: 2px solid #efefef;
-  min-height: 26px;
-  padding: 7px 4px 4px 0;
-}
-div.modal-body div.form-footer div.modal-form-error {
-  font-size: 12px;
-  color: red;
-  font-style: italic;
-  padding-left: 6px;
-  align-self: center;
-}
-div.modal-body div.form-footer div.modal-form-error ol {
-  padding-left: 20px;
-}
-
-div.form-text {
-  display: flex;
-  align-items: baseline;
-}
-div.form-text > div.form-title {
-  vertical-align: initial;
-  flex-shrink: 0;
-}
-div.form-text > div.form-content {
-  margin-left: 3px;
-  margin-bottom: 3px;
-  word-break: break-word;
-}
-
-div.form-text > div.form-float-title {
-  float: left;
-  text-align: right;
-  padding-right: 5px;
-  font-size: 14px;
-  font-weight: 600;
-  width: 110px;
-}
-div.form-text > div.form-float-content {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  font-size: 14px;
-  padding: 1px 20px 3px 4px;
-  margin-top: 5px;
-}
-
 .hidden {
   display: none;
 }
@@ -268,36 +216,6 @@ div.edit-thread-account-password {
   border-top: 2px solid #efefef;
   padding-top: 4px;
   margin-top: 2px;
-}
-div.user-settings-current-password {
-  border-top: 2px solid #efefef;
-  padding-top: 4px;
-  margin-top: 5px;
-}
-div.modal-body p.confirm-account-password {
-  padding: 3px 0px 5px 0px;
-  font-style: italic;
-  font-size: 13px;
-  color: #777777;
-}
-ul.tab-panel {
-  background-color: #f4f4f4;
-  padding-left: 10px;
-  padding-top: 5px;
-}
-ul.tab-panel > li {
-  display: inline-block;
-  list-style-type: none;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 3px 10px 3px 10px;
-}
-ul.tab-panel > li > a {
-  color: #555555;
-}
-ul.tab-panel > li.delete-tab > a {
-  color: #ff0000 !important;
 }
 
 div.new-thread-privacy-container {

@@ -27,8 +27,8 @@ import {
 } from 'lib/utils/action-utils';
 
 import { useSelector } from '../../redux/redux-utils';
-import css from '../../style.css';
 import Modal from '../modal.react';
+import css from './user-settings-modal.css';
 
 type TabType = 'general' | 'delete';
 type TabProps = {

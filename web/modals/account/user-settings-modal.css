@@ -1,0 +1,170 @@
+div.modal-body {
+  padding: 6px 6px;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: white;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+div.resized-modal-body {
+  min-height: 250px;
+}
+div.modal-body p {
+  padding: 1px 3px 4px 3px;
+  font-size: 14px;
+  text-align: center;
+}
+div.modal-body p.form-pre-footer {
+  padding-top: 5px;
+  font-size: 12px;
+  font-style: italic;
+}
+div.modal-body input,
+div.modal-body textarea {
+  margin: 3px;
+}
+div.modal-body input[type='text'],
+div.modal-body input[type='password'],
+div.modal-body textarea {
+  font-size: 14px;
+  padding: 1px;
+  width: 175px;
+}
+div.large-modal-container div.modal-body input[type='text'],
+div.large-modal-container div.modal-body input[type='password'],
+div.large-modal-container div.modal-body textarea {
+  width: 275px;
+}
+div.modal-body input[type='submit'] {
+  padding: 3px 9px;
+  font-size: 12px;
+  margin-right: 3px;
+  border-radius: 3px;
+  border: 1px solid #c8c8c8;
+  background-color: #f8f8f8;
+  font-weight: 600;
+  color: #444444;
+  margin-top: 1px;
+  cursor: pointer;
+}
+div.modal-body input[type='submit']:hover {
+  text-decoration: underline;
+}
+div.modal-body input[type='submit']:disabled {
+  cursor: initial;
+  text-decoration: none;
+  color: #999999;
+}
+div.modal-body p.confirm-account-password {
+  padding: 3px 0px 5px 0px;
+  font-style: italic;
+  font-size: 13px;
+  color: #777777;
+}
+div.modal-body div.form-footer {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: start;
+  margin-top: 5px;
+  border-top: 2px solid #efefef;
+  min-height: 26px;
+  padding: 7px 4px 4px 0;
+}
+div.modal-body div.form-footer div.modal-form-error {
+  font-size: 12px;
+  color: red;
+  font-style: italic;
+  padding-left: 6px;
+  align-self: center;
+}
+div.modal-body div.form-footer div.modal-form-error ol {
+  padding-left: 20px;
+}
+div.modal-body div.form-title {
+  display: inline-block;
+  text-align: right;
+  padding-right: 5px;
+  padding-top: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  vertical-align: top;
+  width: 110px;
+}
+div.large-modal-container div.modal-body div.form-title {
+  width: 140px;
+}
+div.modal-body div.form-content {
+  display: inline-block;
+  font-family: var(--font-stack);
+  font-size: 15px;
+}
+div.modal-body div.form-subtitle {
+  font-size: 12px;
+  padding-left: 4px;
+  font-style: italic;
+}
+
+div.form-text {
+  display: flex;
+  align-items: baseline;
+}
+div.form-text > div.form-title {
+  vertical-align: initial;
+  flex-shrink: 0;
+}
+div.form-text > div.form-content {
+  margin-left: 3px;
+  margin-bottom: 3px;
+  word-break: break-word;
+}
+
+div.form-text > div.form-float-title {
+  float: left;
+  text-align: right;
+  padding-right: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  width: 110px;
+}
+div.form-text > div.form-float-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  padding: 1px 20px 3px 4px;
+  margin-top: 5px;
+}
+
+.italic {
+  font-style: italic;
+}
+
+ul.tab-panel {
+  background-color: #f4f4f4;
+  padding-left: 10px;
+  padding-top: 5px;
+}
+ul.tab-panel > li {
+  display: inline-block;
+  list-style-type: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 3px 10px 3px 10px;
+}
+ul.tab-panel > li > a {
+  color: #555555;
+}
+ul.tab-panel > li.delete-tab > a {
+  color: #ff0000 !important;
+}
+
+div.user-settings-current-password {
+  border-top: 2px solid #efefef;
+  padding-top: 4px;
+  margin-top: 5px;
+}
