@@ -15,7 +15,10 @@ import type {
   SessionIdentification,
   SessionState,
 } from 'lib/types/session-types';
-import type { OneTimeKeyGenerator } from 'lib/types/socket-types';
+import type {
+  OneTimeKeyGenerator,
+  PublicKeyGetter,
+} from 'lib/types/socket-types';
 
 import { calendarActiveSelector } from '../navigation/nav-selectors';
 import type { AppState } from '../redux/state-types';
@@ -50,6 +53,11 @@ function oneTimeKeyGenerator(inc: number): string {
   return str;
 }
 
+function publicKeyGetter(): string {
+  // todo: use getUserPublicKey from CommCoreModule to get the real key
+  return Date.now().toString() + '_' + 'tempKey';
+}
+
 const nativeGetClientResponsesSelector: (
   input: NavPlusRedux,
 ) => (
@@ -61,11 +69,17 @@ const nativeGetClientResponsesSelector: (
     getClientResponsesFunc: (
       calendarActive: boolean,
       oneTimeKeyGenerator: ?OneTimeKeyGenerator,
+      publicKeyGetter: ?PublicKeyGetter,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
     calendarActive: boolean,
   ) => (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
-    getClientResponsesFunc(calendarActive, oneTimeKeyGenerator, serverRequests),
+    getClientResponsesFunc(
+      calendarActive,
+      oneTimeKeyGenerator,
+      publicKeyGetter,
+      serverRequests,
+    ),
 );
 
 const nativeSessionStateFuncSelector: (
