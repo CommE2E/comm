@@ -1,6 +1,7 @@
 #include "AmqpManager.h"
 #include "Constants.h"
 #include "DeliveryBroker.h"
+#include "Tools.h"
 
 #include <amqpcpp/libuv.h>
 #include <uv.h>
@@ -12,7 +13,7 @@ static std::unique_ptr<AMQP::TcpChannel> amqpChannel;
 static std::atomic<bool> amqpReady;
 static long long lastConnectionTimestamp;
 
-void AMQPConnect() {
+void AMQPConnectInternal() {
   std::cout << "AMQP: Connecting to " << AMQP_URI << std::endl;
 
   auto *loop = uv_default_loop();
@@ -21,7 +22,9 @@ void AMQPConnect() {
 
   amqpChannel = std::make_unique<AMQP::TcpChannel>(&connection);
   amqpChannel->onError([](const char *message) {
-    throw std::runtime_error("AMQP: Channel error: " + std::string(message));
+    std::cout << "AMQP: channel error: " << message << ", will try to reconnect"
+              << std::endl;
+    amqpReady = false;
   });
 
   AMQP::Table arguments;
@@ -71,6 +74,24 @@ void AMQPConnect() {
       });
   uv_run(loop, UV_RUN_DEFAULT);
 };
+
+void AMQPConnect() {
+  while (true) {
+    long long currentTimestamp = getCurrentTimestamp();
+    if (lastConnectionTimestamp &&
+        currentTimestamp - lastConnectionTimestamp <
+            AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL) {
+      throw std::runtime_error(
+          "AMQP reconnection attempt interval too short, tried to reconnect "
+          "after " +
+          std::to_string(currentTimestamp - lastConnectionTimestamp) +
+          "ms, the shortest allowed interval is " +
+          std::to_string(AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL) + "ms");
+    }
+    lastConnectionTimestamp = currentTimestamp;
+    AMQPConnectInternal();
+  }
+}
 
 bool AMQPSend(
     std::string toDeviceID,

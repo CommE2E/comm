@@ -10,6 +10,7 @@ namespace comm {
 namespace network {
 
 void AMQPConnect();
+void AMQPConnectInternal();
 bool AMQPSend(
     std::string toDeviceID,
     std::string fromDeviceID,

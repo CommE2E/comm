@@ -33,5 +33,8 @@ const size_t AMQP_QUEUE_TTL = 24 * 3600 * 1000; // 24 hours
 const std::string AMQP_HEADER_FROM_DEVICEID = "fromDeviceid";
 const std::string AMQP_HEADER_TO_DEVICEID = "toDeviceid";
 
+const long long AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL =
+    1000 * 60; // 1 min
+
 } // namespace network
 } // namespace comm

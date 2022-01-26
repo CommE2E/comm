@@ -8,5 +8,7 @@ namespace network {
 
 std::string generateRandomString(std::size_t length);
 
+long long getCurrentTimestamp();
+
 } // namespace network
 } // namespace comm

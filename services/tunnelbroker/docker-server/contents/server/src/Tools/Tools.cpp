@@ -1,5 +1,7 @@
 #include "Tools.h"
 
+#include <chrono>
+
 namespace comm {
 namespace network {
 
@@ -14,6 +16,12 @@ std::string generateRandomString(std::size_t length) {
     random_string += CHARACTERS[distribution(generator)];
   }
   return random_string;
+}
+
+long long getCurrentTimestamp() {
+  using namespace std::chrono;
+  return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+      .count();
 }
 
 } // namespace network
