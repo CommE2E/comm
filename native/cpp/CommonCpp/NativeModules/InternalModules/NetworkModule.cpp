@@ -20,7 +20,7 @@ void NetworkModule::initializeNetworkModule(
 }
 
 void NetworkModule::sendPong() {
-  Logger::log("Sending PONG");
+  networkClient->sendPong();
 }
 
 void NetworkModule::close() {
