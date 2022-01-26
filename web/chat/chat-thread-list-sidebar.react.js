@@ -14,13 +14,14 @@ type Props = {
   +sidebarInfo: SidebarInfo,
 };
 function ChatThreadListSidebar(props: Props): React.Node {
-  const { threadInfo, mostRecentNonLocalMessage } = props.sidebarInfo;
+  const { sidebarInfo } = props;
+  const { threadInfo, mostRecentNonLocalMessage } = sidebarInfo;
   const threadID = threadInfo.id;
   const active = useThreadIsActive(threadID);
   const activeStyle = active ? css.activeThread : null;
   return (
     <div className={classNames(css.thread, css.sidebar, activeStyle)}>
-      <SidebarItem sidebarInfo={props.sidebarInfo} />
+      <SidebarItem sidebarInfo={sidebarInfo} />
       <ChatThreadListItemMenu
         threadInfo={threadInfo}
         mostRecentNonLocalMessage={mostRecentNonLocalMessage}
