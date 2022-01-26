@@ -92,23 +92,25 @@ function ChatThreadListItem(props: Props): React.Node {
   return (
     <>
       <div className={containerClassName}>
+        <div className={css.colorSplotch} style={colorSplotchStyle} />
         <a className={css.threadButton} onClick={onClick}>
           <div className={css.threadRow}>
             <div className={titleClassName}>{item.threadInfo.uiName}</div>
-            <div className={css.colorSplotch} style={colorSplotchStyle} />
           </div>
           <div className={css.threadRow}>
             <MessagePreview
               messageInfo={item.mostRecentMessageInfo}
               threadInfo={item.threadInfo}
             />
-            <div className={lastActivityClassName}>{lastActivity}</div>
           </div>
         </a>
-        <ChatThreadListItemMenu
-          threadInfo={item.threadInfo}
-          mostRecentNonLocalMessage={item.mostRecentNonLocalMessage}
-        />
+        <div>
+          <ChatThreadListItemMenu
+            threadInfo={item.threadInfo}
+            mostRecentNonLocalMessage={item.mostRecentNonLocalMessage}
+          />
+          <div className={lastActivityClassName}>{lastActivity}</div>
+        </div>
       </div>
       {sidebars}
     </>

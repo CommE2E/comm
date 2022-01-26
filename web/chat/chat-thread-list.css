@@ -1,7 +1,15 @@
 div.thread {
   display: flex;
   flex-direction: row;
-  padding: 5px 5px 5px 15px;
+  align-items: flex-end;
+  margin-bottom: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 16px;
+  padding-right: 10px;
+}
+div.thread:first-child {
+  padding-top: 6px;
 }
 div.activeThread,
 div.thread:hover {
@@ -9,16 +17,19 @@ div.thread:hover {
 }
 div.thread div.title {
   flex: 1;
-  font-size: 16px;
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--fg);
+  line-height: var(--line-height-text);
 }
 a.threadButton {
   flex: 1;
   cursor: pointer;
   overflow: hidden;
+  padding-left: 8px;
 }
 div.threadRow {
   display: flex;
@@ -26,11 +37,15 @@ div.threadRow {
   align-items: center;
 }
 div.colorSplotch {
-  height: 20px;
-  width: 20px;
+  height: 40px;
+  width: 40px;
+  border-radius: 1.68px;
 }
 div.lastActivity {
-  font-size: 15px;
+  font-size: var(--xxs-font-10);
+  color: var(--fg);
+  line-height: 1.5;
+  font-weight: var(--semi-bold);
   white-space: nowrap;
 }
 
@@ -83,22 +98,18 @@ div.sidebar .menu > button svg {
 .menu {
   position: relative;
   display: flex;
-  margin: 0 5px;
+  justify-content: end;
 }
 .menu > button {
   background-color: transparent;
   color: var(--fg);
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  padding: 0 10px;
+  align-self: flex-start;
 }
 
 .menu > button:focus {
   outline: none;
-}
-.menu > button svg {
-  font-size: 20px;
 }
 
 .menuContent {
