@@ -106,7 +106,9 @@ div.thread div.sidebarTitle {
 }
 div.sidebarLastActivity {
   white-space: nowrap;
-  font-size: 14px;
+  font-size: var(--xxs-font-10);
+  line-height: var(--line-height-text);
+  font-weight: var(--semi-bold);
 }
 svg.sidebarIcon {
   color: var(--thread-color-read);
