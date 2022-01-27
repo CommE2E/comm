@@ -1,0 +1,90 @@
+div.modal-overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 4;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
+}
+div.resizable-modal-overlay {
+  min-height: 60px;
+}
+div.small-modal-overlay {
+  padding-top: 100px;
+}
+div.large-modal-overlay {
+  padding-top: 50px;
+}
+div.modal-container {
+  background: var(--bg);
+  background-size: 3000px 2000px;
+  max-width: 330px;
+  border-radius: 15px;
+  display: flex;
+  min-height: 0;
+  max-height: 500px;
+}
+div.large-modal-container {
+  max-width: 500px;
+}
+div.modal {
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.61);
+  border-radius: 15px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 330px;
+}
+div.large-modal-container div.modal {
+  width: 500px;
+}
+div.fixed-height-modal {
+  height: 100%;
+}
+span.modal-close {
+  float: right;
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 30px;
+}
+span.modal-close:hover {
+  color: black;
+  cursor: pointer;
+}
+div.modal-header {
+  padding: 8px 15px;
+}
+div.modal-header > h2 {
+  font-size: 22px;
+  font-weight: 300;
+}
+
+div.intro-modal {
+  padding: 10px 21px 12px 21px;
+  border-radius: 5px;
+  border: 1px solid #c8c8c8;
+  background-color: #f8f8f8;
+  width: 310px;
+  position: fixed;
+  font-family: var(--font-stack);
+  margin-top: 100px;
+  box-shadow: 2px 3px 6px 0px rgba(0, 0, 0, 0.1);
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+  only screen and (min--moz-device-pixel-ratio: 2),
+  only screen and (-o-min-device-pixel-ratio: 2/1),
+  only screen and (min-device-pixel-ratio: 2),
+  only screen and (min-resolution: 320dpi),
+  only screen and (min-resolution: 2dppx) {
+  div.modal-container {
+    background: var(--bg);
+  }
+}
