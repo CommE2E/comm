@@ -27,17 +27,19 @@ class Modal extends React.PureComponent<Props> {
   }
 
   render(): React.Node {
+    const { size, children, onClose, fixedHeight, name } = this.props;
+
     const overlayClasses = classNames(
       css['modal-overlay'],
-      { [css['small-modal-overlay']]: this.props.size === 'small' },
-      { [css['large-modal-overlay']]: this.props.size === 'large' },
-      { [css['resizable-modal-overlay']]: !this.props.fixedHeight },
+      { [css['small-modal-overlay']]: size === 'small' },
+      { [css['large-modal-overlay']]: size === 'large' },
+      { [css['resizable-modal-overlay']]: !fixedHeight },
     );
     const modalContainerClasses = classNames(css['modal-container'], {
-      [css['large-modal-container']]: this.props.size === 'large',
+      [css['large-modal-container']]: size === 'large',
     });
     const modalClasses = classNames(css['modal'], {
-      [css['fixed-height-modal']]: this.props.fixedHeight,
+      [css['fixed-height-modal']]: fixedHeight,
     });
     return (
       <div
@@ -50,12 +52,12 @@ class Modal extends React.PureComponent<Props> {
         <div className={modalContainerClasses}>
           <div className={modalClasses}>
             <div className={css['modal-header']}>
-              <span className={css['modal-close']} onClick={this.props.onClose}>
+              <span className={css['modal-close']} onClick={onClose}>
                 ×
               </span>
-              <h2>{this.props.name}</h2>
+              <h2>{name}</h2>
             </div>
-            {this.props.children}
+            {children}
           </div>
         </div>
       </div>
