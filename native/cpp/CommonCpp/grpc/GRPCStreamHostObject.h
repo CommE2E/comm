@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../NativeModules/InternalModules/GlobalNetworkSingleton.h"
 #import <jsi/jsi.h>
 
 using namespace facebook;
