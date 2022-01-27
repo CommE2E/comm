@@ -1,7 +1,5 @@
 // @flow
 
-import { faEllipsisV } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
@@ -19,6 +17,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
+import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-list.css';
 
 type Props = {
@@ -74,7 +73,7 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   return (
     <div className={css.menu} onMouseLeave={hideMenu}>
       <button onClick={toggleMenu}>
-        <FontAwesomeIcon icon={faEllipsisV} />
+        <SWMansionIcon icon="menu-vertical" size={24} />
       </button>
       <div
         className={classNames(css.menuContent, {
