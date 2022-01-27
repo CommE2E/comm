@@ -49,7 +49,10 @@ button.joinButton {
   font-weight: var(--semi-bold);
   cursor: pointer;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5d356340d ([web] re-skin join button)
 button.joinButton {
   display: flex;
   border-radius: 4px;
