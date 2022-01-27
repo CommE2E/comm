@@ -1,4 +1,18 @@
 :root {
+  /* Never use color values defined here directly in CSS. Add color variables to "Color Theme" below 
+     
+     The reason we never use color values defined here directly in CSS is
+
+      1. It makes changing themes from light / dark / user generated impossible.
+      2. Gives the programmer context into the color being used.
+      3. If our color system changes it's much easier to change color values in one place.
+
+     Add a color value to the theme below, and then use it in your CSS.
+     naming convention:
+     - bg: background.
+     - fg: foreground.
+     - color: text-color
+   */
   --shades-white-100: #ffffff;
   --shades-white-90: #f5f5f5;
   --shades-white-80: #ebebeb;
@@ -45,7 +59,7 @@
   --error: var(--error-primary);
   --success: var(--success-dark-50);
 
-  /* Color theme */
+  /* Color Theme */
   --btn-bg-primary: var(--violet-dark-100);
   --chat-bg: var(--violet-dark-80);
   --chat-confirmation-icon: var(--violet-dark-100);
