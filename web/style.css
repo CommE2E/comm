@@ -78,7 +78,7 @@ div.main-header {
 }
 div.main-header > h1 {
   color: var(--fg);
-  padding: 0 6px;
+  padding-left: 92px;
   font-family: var(--font-logo);
   line-height: var(--line-height-text);
   font-weight: var(--semi-bold);
