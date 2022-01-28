@@ -20,10 +20,10 @@ void NetworkModule::initializeNetworkModule(
 }
 
 void NetworkModule::sendPong() {
-  Logger::log("Sending PONG");
+  this->networkClient->sendPong();
 }
 
 void NetworkModule::close() {
-  networkClient.reset();
+  this->networkClient.reset();
 }
 } // namespace comm
