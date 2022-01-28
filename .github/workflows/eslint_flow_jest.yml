@@ -28,6 +28,7 @@ jobs:
         run: |
           mkdir secrets
           touch secrets/db_config.json
+          touch secrets/olm_config.json
           mkdir facts
           touch facts/app_url.json
           touch facts/landing_url.json

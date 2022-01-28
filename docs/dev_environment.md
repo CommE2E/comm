@@ -552,6 +552,23 @@ yarn rsync
 yarn script dist/scripts/create-db.js
 ```
 
+## Olm
+
+The second config file contains some details that the keyserver needs in order to launch Olm sessions to provide E2E encryption.
+
+```
+cd server
+vim secrets/olm_config.json
+```
+
+The Olm config file should look like this:
+
+```json
+{
+  "privateKey": "privateKey"
+}
+```
+
 ## Phabricator
 
 The last configuration step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phabricator.ashoat.com) using your GitHub account.
