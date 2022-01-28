@@ -4,6 +4,8 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
+import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
+import type { ThreadInfo } from 'lib/types/thread-types';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import { useSelector } from '../redux/redux-utils';
@@ -90,21 +92,50 @@ function ChatThreadListItem(props: Props): React.Node {
     }
   });
 
+  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
+    ancestorThreadInfos(threadID),
+  );
+
+  const [first] = ancestorThreads;
+  const secondToLast = ancestorThreads?.length
+    ? ancestorThreads[ancestorThreads.length - 2]
+    : undefined;
+
+  const breadCrumbThread = React.useMemo(() => {
+    return (
+      ancestorThreads.length > 3 && (
+        <>
+          <span className={css.breadCrumb}>
+            <SWMansionIcon icon="chevron-right" size={10} />
+          </span>
+          <span className={css.breadCrumb}>...</span>
+        </>
+      )
+    );
+  }, [ancestorThreads.length]);
+
+  const childThread = React.useMemo(() => {
+    return (
+      ancestorThreads.length > 2 && (
+        <>
+          <span className={css.breadCrumb}>
+            <SWMansionIcon icon="chevron-right" size={10} />
+          </span>
+          <span className={css.breadCrumb}>{secondToLast?.uiName ?? ''}</span>
+        </>
+      )
+    );
+  }, [ancestorThreads.length, secondToLast]);
+
   return (
     <>
       <div className={containerClassName}>
         <div className={css.colorSplotch} style={colorSplotchStyle} />
         <a className={css.threadButton} onClick={onClick}>
           <p className={css.breadCrumbs}>
-            <span className={css.breadCrumb}>Ashoat</span>
-            <span className={css.breadCrumb}>
-              <SWMansionIcon icon="chevron-right" size={10} />
-            </span>{' '}
-            <span className={css.breadCrumb}>...</span>
-            <span className={css.breadCrumb}>
-              <SWMansionIcon icon="chevron-right" size={10} />
-            </span>
-            <span className={css.breadCrumb}>thing</span>
+            <span className={css.breadCrumb}>{first.uiName}</span>
+            {breadCrumbThread}
+            {childThread}
           </p>
           <div className={css.threadRow}>
             <div className={titleClassName}>{item.threadInfo.uiName}</div>
