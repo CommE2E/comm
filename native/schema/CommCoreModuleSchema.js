@@ -43,7 +43,8 @@ export interface Spec extends TurboModule {
   ) => boolean;
   +initializeCryptoAccount: (userId: string) => Promise<string>;
   +getUserPublicKey: () => Promise<string>;
-  +getUserOneTimeKeys: () => Promise<string>;
+  +getUserOneTimeKeys: (oneTimeKeysAmount: number) => Promise<string>;
+  +getUserOneTimeKeysSync: (oneTimeKeysAmount: number) => Promise<string>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
