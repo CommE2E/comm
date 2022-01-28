@@ -52,4 +52,5 @@ export type AppState = {
   deviceCameraInfo: DeviceCameraInfo,
   deviceOrientation: Orientations,
   frozen: boolean,
+  identityKey: ?string,
 };

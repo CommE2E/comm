@@ -125,6 +125,7 @@ const defaultState = ({
   deviceCameraInfo: defaultDeviceCameraInfo,
   deviceOrientation: Orientation.getInitialOrientation(),
   frozen: false,
+  identityKey: null,
 }: AppState);
 
 function reducer(state: AppState = defaultState, action: Action) {
