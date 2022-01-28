@@ -2035,6 +2035,11 @@
     semver "^7.3.5"
     tar "^6.1.11"
 
+"@matrix-org/olm@3.2.4":
+  version "3.2.4"
+  resolved "https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.4.tgz#edc0156a17eb1087df44f6e0b153ef0c9d454495"
+  integrity sha1-7cAVahfrEIffRPbgsVPvDJ1FRJU=
+
 "@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents":
   version "2.1.8-no-fsevents"
   resolved "https://registry.yarnpkg.com/@nicolo-ribaudo/chokidar-2/-/chokidar-2-2.1.8-no-fsevents.tgz#da7c3996b8e6e19ebd14d82eaced2313e7769f9b"
