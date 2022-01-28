@@ -11,6 +11,7 @@ import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/nav-selectors';
+import SWMansionIcon from '../SWMansionIcon.react';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
@@ -94,6 +95,17 @@ function ChatThreadListItem(props: Props): React.Node {
       <div className={containerClassName}>
         <div className={css.colorSplotch} style={colorSplotchStyle} />
         <a className={css.threadButton} onClick={onClick}>
+          <p className={css.breadCrumbs}>
+            <span className={css.breadCrumb}>Ashoat</span>
+            <span className={css.breadCrumb}>
+              <SWMansionIcon icon="chevron-right" size={10} />
+            </span>{' '}
+            <span className={css.breadCrumb}>...</span>
+            <span className={css.breadCrumb}>
+              <SWMansionIcon icon="chevron-right" size={10} />
+            </span>
+            <span className={css.breadCrumb}>thing</span>
+          </p>
           <div className={css.threadRow}>
             <div className={titleClassName}>{item.threadInfo.uiName}</div>
           </div>
