@@ -58,10 +58,10 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUserPublicKey(rt);
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUserOneTimeKeys(rt);
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUserOneTimeKeys(rt, args[0].getNumber());
 }
-static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_openSocket(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->openSocket(rt);
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeysSync(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUserOneTimeKeysSync(rt, args[0].getNumber());
 }
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
@@ -81,8 +81,8 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["processThreadStoreOperationsSync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadStoreOperationsSync};
   methodMap_["initializeCryptoAccount"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
-  methodMap_["getUserOneTimeKeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys};
-  methodMap_["openSocket"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_openSocket};
+  methodMap_["getUserOneTimeKeys"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys};
+  methodMap_["getUserOneTimeKeysSync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeysSync};
 }
 
 

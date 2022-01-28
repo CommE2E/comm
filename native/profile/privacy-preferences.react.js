@@ -10,6 +10,9 @@ import ToggleReport from './toggle-report.react';
 function PrivacyPreferences(props: { ... }): React.Node {
   const styles = useStyles(unboundStyles);
 
+  global.CommCoreModules.initializeCryptoAccount('12345');
+  console.log(global.CommCoreModules.getUserOneTimeKeysSync(10));
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollViewContentContainer}

@@ -16,7 +16,7 @@ import type {
   SessionState,
 } from 'lib/types/session-types';
 import type {
-  OneTimeKeyGenerator,
+  OneTimeKeysGenerator,
   PublicKeyGetter,
 } from 'lib/types/socket-types';
 
@@ -42,15 +42,9 @@ const sessionIdentificationSelector: (
   (cookie: ?string): SessionIdentification => ({ cookie }),
 );
 
-function oneTimeKeyGenerator(inc: number): string {
-  // todo replace this hard code with something like
-  // global.CommCoreModule.generateOneTimeKeys()
-  let str = Date.now().toString() + '_' + inc.toString() + '_';
-  while (str.length < 43) {
-    str += Math.random().toString(36).substr(2, 5);
-  }
-  str = str.substr(0, 43);
-  return str;
+function oneTimeKeysGenerator(numKeys: number): string[] {
+  const stringifiedKeys = global.CommCoreModule.getUserOneTimeKeysSync(numKeys);
+  return JSON.parse(stringifiedKeys).curve25519.values();
 }
 
 function publicKeyGetter(): string {
@@ -68,7 +62,7 @@ const nativeGetClientResponsesSelector: (
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
-      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
+      oneTimeKeysGenerator: ?OneTimeKeysGenerator,
       publicKeyGetter: ?PublicKeyGetter,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
@@ -76,7 +70,7 @@ const nativeGetClientResponsesSelector: (
   ) => (serverRequests: $ReadOnlyArray<ClientServerRequest>) =>
     getClientResponsesFunc(
       calendarActive,
-      oneTimeKeyGenerator,
+      oneTimeKeysGenerator,
       publicKeyGetter,
       serverRequests,
     ),

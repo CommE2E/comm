@@ -16,7 +16,7 @@ import type {
   SessionState,
 } from 'lib/types/session-types';
 import type {
-  OneTimeKeyGenerator,
+  OneTimeKeysGenerator,
   PublicKeyGetter,
 } from 'lib/types/socket-types';
 
@@ -44,7 +44,7 @@ const webGetClientResponsesSelector: (
   (
     getClientResponsesFunc: (
       calendarActive: boolean,
-      oneTimeKeyGenerator: ?OneTimeKeyGenerator,
+      oneTimeKeysGenerator: ?OneTimeKeysGenerator,
       publicKeyGetter: ?PublicKeyGetter,
       serverRequests: $ReadOnlyArray<ClientServerRequest>,
     ) => $ReadOnlyArray<ClientClientResponse>,
