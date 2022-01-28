@@ -864,7 +864,9 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
+jsi::Value
+CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt, double oneTimeKeysAmount) {
+  size_t amount = static_cast<size_t>(oneTimeKeysAmount);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
@@ -873,7 +875,7 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
           if (this->cryptoModule == nullptr) {
             error = "user has not been initialized";
           } else {
-            result = this->cryptoModule->getOneTimeKeys();
+            result = this->cryptoModule->getOneTimeKeys(amount);
           }
           this->jsInvoker_->invokeAsync([=, &innerRt]() {
             if (error.size()) {
@@ -885,6 +887,32 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
         };
         this->cryptoThread->scheduleTask(job);
       });
+}
+
+jsi::Value CommCoreModule::getUserOneTimeKeysSync(
+    jsi::Runtime &rt,
+    double oneTimeKeysAmount) {
+  size_t amount = static_cast<size_t>(oneTimeKeysAmount);
+  std::promise<std::string> getOneTimeKeysResult;
+  std::future<std::string> getOneTimeKeysResultFuture =
+      getOneTimeKeysResult.get_future();
+  this->cryptoThread->scheduleTask([=, &getOneTimeKeysResult, &rt]() {
+    std::string error;
+    std::string result;
+    if (this->cryptoModule == nullptr) {
+      error = "user has not been initialized";
+    } else {
+      result = this->cryptoModule->getOneTimeKeys(amount);
+    }
+    if (!error.size() && result.size()) {
+      getOneTimeKeysResult.set_value(result);
+    } else {
+      getOneTimeKeysResult.set_value("{}");
+    }
+  });
+
+  auto keys = getOneTimeKeysResultFuture.get();
+  return jsi::String::createFromUtf8(rt, keys);
 }
 
 jsi::Value CommCoreModule::openSocket(jsi::Runtime &rt) {
