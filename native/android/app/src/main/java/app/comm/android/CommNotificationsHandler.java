@@ -2,6 +2,8 @@ package app.comm.android;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.service.notification.StatusBarNotification;
+import com.google.firebase.messaging.RemoteMessage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingService;
 
 /**
@@ -30,6 +32,8 @@ import io.invertase.firebase.messaging.RNFirebaseMessagingService;
  * the easiest in terms of making it safe.
  */
 public class CommNotificationsHandler extends RNFirebaseMessagingService {
+  private static final String RESCIND_KEY = "rescind";
+  private static final String RESCIND_ID_KEY = "rescindID";
   private NotificationManager notificationManager;
 
   @Override
@@ -37,5 +41,31 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
     super.onCreate();
     notificationManager = (NotificationManager)this.getSystemService(
         Context.NOTIFICATION_SERVICE);
+  }
+
+  @Override
+  public void onMessageReceived(RemoteMessage message) {
+    String rescind = message.getData().get(RESCIND_KEY);
+    String rescindID = message.getData().get(RESCIND_ID_KEY);
+    if ("true".equals(rescind) &&
+        android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+      for (StatusBarNotification notification :
+           notificationManager.getActiveNotifications()) {
+        if (notification.getTag().equals(rescindID)) {
+          notificationManager.cancel(
+              notification.getTag(), notification.getId());
+        }
+      }
+
+      // It should never happen, but just in case, when a message contains both
+      // data and notification, we still would like to forward it to
+      // RNNotifications. So if getNotification returns non-null, we don't
+      // return and instead execute super.onMessageReceived(message)
+      if (message.getNotification() == null) {
+        return;
+      }
+    }
+
+    super.onMessageReceived(message);
   }
 }
