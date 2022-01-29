@@ -14,6 +14,11 @@ public:
       const std::string &deviceToken,
       const std::string &hostname = "");
   void sendPong();
+  grpc::Status send(
+      std::string sessionID,
+      std::string toDeviceID,
+      std::string payload,
+      std::vector<std::string> blobHashes);
   void close();
 };
 } // namespace comm

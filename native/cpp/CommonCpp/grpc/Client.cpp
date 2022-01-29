@@ -66,5 +66,25 @@ void Client::sendPong() {
   }
 }
 
+grpc::Status Client::send(
+    std::string sessionID,
+    std::string toDeviceID,
+    std::string payload,
+    std::vector<std::string> blobHashes) {
+  grpc::ClientContext context;
+  tunnelbroker::SendRequest request;
+  google::protobuf::Empty response;
+
+  request.set_sessionid(sessionID);
+  request.set_todeviceid(toDeviceID);
+  request.set_payload(payload);
+
+  for (const auto &blob : blobHashes) {
+    request.add_blobhashes(blob);
+  }
+
+  return this->stub_->Send(&context, request, &response);
+}
+
 } // namespace network
 } // namespace comm
