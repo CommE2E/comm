@@ -23,8 +23,8 @@ import {
 
 import { useSelector } from '../../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
-import css from '../../style.css';
 import Modal from '../modal.react';
+import css from './user-settings-modal.css';
 
 type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
