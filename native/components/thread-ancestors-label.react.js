@@ -4,15 +4,9 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 
-import genesis from 'lib/facts/genesis';
-import {
-  threadInfoSelector,
-  ancestorThreadInfos,
-} from 'lib/selectors/thread-selectors';
-import { threadIsPending } from 'lib/shared/thread-utils';
+import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
-import { useSelector } from '../redux/redux-utils';
 import { useColors, useStyles } from '../themes/colors';
 
 type Props = {
@@ -23,13 +17,7 @@ function ThreadAncestorsLabel(props: Props): React.Node {
   const { unread } = threadInfo.currentUser;
   const styles = useStyles(unboundStyles);
   const colors = useColors();
-  const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(state => {
-    if (!threadIsPending(threadInfo.id)) {
-      return ancestorThreadInfos(threadInfo.id)(state).slice(0, -1);
-    }
-    const genesisThreadInfo = threadInfoSelector(state)[genesis.id];
-    return genesisThreadInfo ? [genesisThreadInfo] : [];
-  });
+  const ancestorThreads = useAncestorThreads(threadInfo);
 
   const chevronIcon = React.useMemo(
     () => (
