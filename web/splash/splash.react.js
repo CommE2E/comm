@@ -89,7 +89,7 @@ class Splash extends React.PureComponent<Props, State> {
           <div className={css.top}>
             <header className={css.header}>
               <div className={css.headerContents}>
-                <h1>SquadCal</h1>
+                <h1>Comm</h1>
                 <div className={css.actionLinks}>
                   <a href="#" onClick={this.onClickRequestAccess}>
                     <span className={css.requestAccess}>Request access</span>
@@ -108,7 +108,7 @@ class Splash extends React.PureComponent<Props, State> {
               <div className={css.body}>
                 <div className={css.intro}>
                   <p className={css.introHeader}>
-                    SquadCal is a chat app with an integrated calendar.
+                    Comm is a chat app with an integrated calendar.
                   </p>
                   <p className={css.introDescription}>
                     We make it incredibly easy to plan events with your friends.
