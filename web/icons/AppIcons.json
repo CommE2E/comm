@@ -9,6 +9,24 @@
       "height": 1024,
       "icons": [
         {
+          "id": 30,
+          "paths": ["M512 42.645v938.717M42.645 512h938.717"],
+          "attrs": [
+            {
+              "fill": "none",
+              "stroke": "rgb(0, 26, 114)",
+              "strokeLinejoin": "round",
+              "strokeLinecap": "round",
+              "strokeMiterlimit": "4",
+              "strokeWidth": 64
+            }
+          ],
+          "isMulticolor": false,
+          "isMulticolor2": false,
+          "grid": 24,
+          "tags": ["outline-plus"]
+        },
+        {
           "id": 29,
           "paths": [
             "M407.695 94.775c0-28.804 23.35-52.155 52.155-52.155h104.305c28.805 0 52.155 23.351 52.155 52.155v29.664c0 22.313 14.974 41.694 35.579 50.249 20.614 8.558 44.617 5.297 60.4-10.486l20.981-20.982c20.365-20.367 53.39-20.367 73.755 0l73.755 73.756c20.37 20.367 20.37 53.389 0 73.756l-20.977 20.979c-15.787 15.784-19.046 39.785-10.488 60.402 8.553 20.607 27.937 35.582 50.254 35.582h29.661c28.805 0 52.155 23.35 52.155 52.155v104.305c0 28.805-23.35 52.155-52.155 52.155h-29.665c-22.313 0-41.692 14.974-50.249 35.579-8.558 20.614-5.299 44.617 10.488 60.4l20.977 20.981c20.37 20.365 20.37 53.39 0 73.755l-73.755 73.755c-20.365 20.37-53.39 20.37-73.755 0l-20.981-20.977c-15.783-15.787-39.782-19.046-60.4-10.488-20.606 8.553-35.579 27.937-35.579 50.249v29.665c0 28.805-23.35 52.155-52.155 52.155h-104.305c-28.805 0-52.155-23.35-52.155-52.155v-29.661c0-22.317-14.975-41.7-35.582-50.254-20.613-8.558-44.618-5.299-60.402 10.488l-20.98 20.977c-20.367 20.37-53.389 20.37-73.756 0l-73.756-73.755c-20.366-20.365-20.366-53.39 0-73.755l20.983-20.981c15.783-15.783 19.044-39.782 10.486-60.4-8.555-20.606-27.936-35.579-50.249-35.579h-29.664c-28.804 0-52.155-23.35-52.155-52.155v-104.305c0-28.805 23.351-52.155 52.155-52.155h29.664c22.313 0 41.695-14.974 50.25-35.581 8.558-20.612 5.298-44.616-10.487-60.4l-20.982-20.982c-20.367-20.367-20.367-53.389 0-73.756l73.756-73.756c20.367-20.366 53.389-20.366 73.756 0l20.982 20.982c15.784 15.784 39.784 19.045 60.4 10.487 20.606-8.555 35.581-27.937 35.581-50.251v-29.663z",
@@ -54,7 +72,7 @@
           ],
           "isMulticolor": false,
           "isMulticolor2": false,
-          "grid": 0,
+          "grid": 24,
           "tags": ["wrench"],
           "colorPermutations": {
             "204204204125525525513838381": [
@@ -668,157 +686,163 @@
       },
       "selection": [
         {
-          "order": 119,
+          "order": 148,
+          "id": 29,
+          "name": "plus",
+          "prevSize": 32
+        },
+        {
+          "order": 149,
           "id": 28,
           "name": "settings",
           "prevSize": 32
         },
         {
-          "order": 120,
+          "order": 150,
           "id": 24,
           "name": "wrench",
           "prevSize": 32
         },
         {
-          "order": 121,
+          "order": 151,
           "id": 25,
           "name": "Filled",
           "prevSize": 32
         },
         {
-          "order": 122,
+          "order": 152,
           "id": 27,
           "name": "Union",
           "prevSize": 32
         },
         {
-          "order": 123,
+          "order": 153,
           "id": 18,
           "name": "cloud",
           "prevSize": 32
         },
         {
-          "order": 124,
+          "order": 154,
           "id": 19,
           "name": "copy",
           "prevSize": 32
         },
         {
-          "order": 125,
+          "order": 155,
           "id": 20,
           "name": "smile",
           "prevSize": 32
         },
         {
-          "order": 126,
+          "order": 156,
           "id": 21,
           "name": "inbox",
           "prevSize": 32
         },
         {
-          "order": 127,
+          "order": 157,
           "id": 22,
           "name": "info-circle",
           "prevSize": 32
         },
         {
-          "order": 128,
+          "order": 158,
           "id": 23,
           "name": "message-circle-lines",
           "prevSize": 32
         },
         {
-          "order": 129,
+          "order": 159,
           "id": 16,
           "name": "question-circle",
           "prevSize": 32
         },
         {
-          "order": 130,
+          "order": 160,
           "id": 17,
           "name": "search",
           "prevSize": 32
         },
         {
-          "order": 131,
+          "order": 161,
           "id": 15,
           "name": "outline-key",
           "prevSize": 32
         },
         {
-          "order": 132,
+          "order": 162,
           "id": 14,
           "name": "chevron-left",
           "prevSize": 32
         },
         {
-          "order": 133,
+          "order": 163,
           "id": 7,
           "name": "arrow-left",
           "prevSize": 32
         },
         {
-          "order": 134,
+          "order": 164,
           "id": 8,
           "name": "arrow-right",
           "prevSize": 32
         },
         {
-          "order": 135,
+          "order": 165,
           "id": 9,
           "name": "cross",
           "prevSize": 32
         },
         {
-          "order": 136,
+          "order": 166,
           "id": 10,
           "name": "edit",
           "prevSize": 32
         },
         {
-          "order": 137,
+          "order": 167,
           "id": 11,
           "name": "filters",
           "prevSize": 32
         },
         {
-          "order": 138,
+          "order": 168,
           "id": 12,
           "name": "menu-horizontal",
           "prevSize": 32
         },
         {
-          "order": 139,
+          "order": 169,
           "id": 13,
           "name": "menu-vertical",
           "prevSize": 32
         },
         {
-          "order": 140,
+          "order": 170,
           "id": 5,
           "name": "calendar",
           "prevSize": 32
         },
         {
-          "order": 141,
+          "order": 171,
           "id": 6,
           "name": "message-square",
           "prevSize": 32
         },
         {
-          "order": 142,
+          "order": 172,
           "id": 4,
           "name": "message-square-lines",
           "prevSize": 32
         },
         {
-          "order": 143,
+          "order": 173,
           "id": 3,
           "name": "bell-disabled",
           "prevSize": 32
         },
         {
-          "order": 144,
+          "order": 174,
           "id": 2,
           "name": "chevron-right",
           "prevSize": 32
@@ -826,13 +850,13 @@
         {
           "id": 1,
           "name": "send",
-          "order": 145,
+          "order": 175,
           "prevSize": 32
         },
         {
           "id": 0,
           "name": "image",
-          "order": 146,
+          "order": 176,
           "prevSize": 32
         }
       ],
@@ -1977,7 +2001,8 @@
         {
           "order": 0,
           "id": 104,
-          "name": "outline-plus"
+          "name": "outline-plus",
+          "prevSize": 32
         },
         {
           "order": 0,
