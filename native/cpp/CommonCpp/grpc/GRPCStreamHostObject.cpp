@@ -1,5 +1,5 @@
 #include "GRPCStreamHostObject.h"
-#import <jsi/jsi.h>
+#include "../NativeModules/InternalModules/GlobalNetworkSingleton.h"
 
 using namespace facebook;
 
@@ -11,13 +11,22 @@ GRPCStreamHostObject::GRPCStreamHostObject(jsi::Runtime &rt)
       send{jsi::Function::createFromHostFunction(
           rt,
           jsi::PropNameID::forUtf8(rt, "send"),
-          0,
+          1,
           [](jsi::Runtime &rt,
              const jsi::Value &thisVal,
              const jsi::Value *args,
              size_t count) {
-            return jsi::String::createFromUtf8(
-                rt, std::string{"GRPCStream.send: unimplemented"});
+            auto payload{args->asString(rt).utf8(rt)};
+            comm::GlobalNetworkSingleton::instance.scheduleOrRun(
+                [=](comm::NetworkModule &networkModule) {
+                  std::vector<std::string> blobHashes{};
+                  networkModule.send(
+                      "sessionID-placeholder",
+                      "toDeviceID-placeholder",
+                      payload,
+                      blobHashes);
+                });
+            return jsi::Value::undefined();
           })},
       close{jsi::Function::createFromHostFunction(
           rt,
@@ -30,6 +39,11 @@ GRPCStreamHostObject::GRPCStreamHostObject(jsi::Runtime &rt)
             return jsi::String::createFromUtf8(
                 rt, std::string{"GRPCStream.close: unimplemented"});
           })} {
+  comm::GlobalNetworkSingleton::instance.scheduleOrRun(
+      [](comm::NetworkModule &networkModule) {
+        networkModule.initializeNetworkModule(
+            "userId-placeholder", "deviceToken-placeholder", "localhost");
+      });
 }
 
 std::vector<jsi::PropNameID>
