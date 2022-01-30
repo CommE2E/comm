@@ -29,9 +29,10 @@ target 'Comm' do
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable these next few lines.
-  use_flipper!({ 'Flipper' => '0.98.0', 'Flipper-Folly' => '2.6.7', 'Flipper-RSocket' => '~> 1.4' })
+  use_flipper!()
   post_install do |installer|
     react_native_post_install(installer)
+    __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
     # Excluding arm64 because M1 simulator isn't supported yet
     # Excluding 32-bit x86 because nobody uses it and it causes compilation issues
