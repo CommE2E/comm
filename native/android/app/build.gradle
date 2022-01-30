@@ -118,11 +118,16 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 /**
  * Whether to enable the Hermes VM.
  *
- * This should be set on project.ext.react and mirrored here.  If it is not set
+ * This should be set on project.ext.react and that value will be read here. If it is not set
  * on project.ext.react, JavaScript will not be compiled to Hermes Bytecode
  * and the benefits of using Hermes will therefore be sharply reduced.
  */
 def enableHermes = project.ext.react.get("enableHermes", false)
+
+/**
+ * Architectures to build native code for in debug.
+ */
+def nativeArchitectures = project.getProperties().get("reactNativeDebugArchitectures")
 
 def customDownloadsDir = System.getenv("REACT_NATIVE_DOWNLOADS_DIR")
 def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
@@ -395,6 +400,11 @@ def getBuildTypeABIs() {
         logger.info("Using all architectures to build: ${allAbis}")
         return allAbis
     }
+    if (nativeArchitectures) {
+        // TODO delete this log statement before diffing
+        logger.info("test, nativeArchitectures detected")
+        return nativeArchitectures.split(',')
+    }
     // Get current 'adb devices' architectures
     def commandOutput = new ByteArrayOutputStream()
     exec {
@@ -420,11 +430,6 @@ android {
     ndkVersion rootProject.ext.ndkVersion
 
     compileSdkVersion rootProject.ext.compileSdkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
 
     defaultConfig {
         applicationId 'app.comm.android'
@@ -573,7 +578,7 @@ dependencies {
 // Run this once to be able to run the application with BUCK
 // puts all compile dependencies into folder libs for BUCK to use
 task copyDownloadableDepsToLibs(type: Copy) {
-    from configurations.compile
+    from configurations.implementation
     into 'libs'
 }
 
