@@ -12,6 +12,5 @@
   </style>
   <style name="SplashTheme" parent="NoSplashTheme">
     <item name="android:background">@drawable/splashscreen</item>
-    <item name="android:textColor">#000000</item>
   </style>
 </resources>
