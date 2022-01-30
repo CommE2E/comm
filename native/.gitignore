@@ -49,8 +49,9 @@ yarn-error.log
 # Bundle artifact
 *.jsbundle
 
-# CocoaPods
+# Ruby / CocoaPods
 /ios/Pods/
+/vendor/bundle/
 
 # unimodules
 **/generated/BasePackageList.java
