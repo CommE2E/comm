@@ -867,7 +867,7 @@ PODS:
     - React-Core
   - RNKeychain (8.0.0):
     - React-Core
-  - RNReanimated (2.2.0):
+  - RNReanimated (2.3.1):
     - DoubleConversion
     - FBLazyVector
     - FBReactNativeSpec
@@ -893,7 +893,6 @@ PODS:
     - React-RCTNetwork
     - React-RCTSettings
     - React-RCTText
-    - React-RCTVibration
     - ReactCommon/turbomodule/core
     - Yoga
   - RNScreens (2.14.0):
@@ -1256,7 +1255,7 @@ SPEC CHECKSUMS:
   OLMKit: a15f216aa14ba199b4fd827b3d7ef04629b56636
   OpenSSL-Universal: 1aa4f6a6ee7256b83db99ec1ccdaa80d10f9af9b
   "Protobuf-C++": 8833c36ca1a3b6422e75ec27534d63a6a762c843
-  RCT-Folly: a21c126816d8025b547704b777a2ba552f3d9fa9
+  RCT-Folly: 632694a4b94fb0f2cb090921861846beec77d8b8
   RCTRequired: 4bf86c70714490bca4bf2696148638284622644b
   RCTTypeSafety: c475a7059eb77935fa53d2c17db299893f057d5d
   React: f64af14e3f2c50f6f2c91a5fd250e4ff1b3c3459
@@ -1304,7 +1303,7 @@ SPEC CHECKSUMS:
   RNFS: 54da03c2b7d862c42ea3ca8c7f86f892760a535a
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
-  RNReanimated: e6f76e944bee53772a0b096bbc01662b66ca4ee4
+  RNReanimated: da3860204e5660c0dd66739936732197d359d753
   RNScreens: 2e278a90eb15092ed261d4f2271e3fc9b60d08d4
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4

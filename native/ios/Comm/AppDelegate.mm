@@ -53,9 +53,7 @@ static void InitializeFlipper(UIApplication *application) {
 
 #import <ReactCommon/RCTTurboModuleManager.h>
 
-#import <RNReanimated/NativeProxy.h>
-#import <RNReanimated/REAEventDispatcher.h>
-#import <RNReanimated/REAModule.h>
+#import <RNReanimated/REAInitializer.h>
 
 #import <UserNotifications/UserNotifications.h>
 
@@ -65,14 +63,6 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
     RCTCxxBridgeDelegate,
     RCTTurboModuleManagerDelegate> {
 }
-@end
-
-extern RCTBridge *_bridge_reanimated;
-
-@interface RCTEventDispatcher (Reanimated)
-
-- (void)setBridge:(RCTBridge *)bridge;
-
 @end
 
 @interface UMNativeModulesProxy ()
@@ -253,22 +243,16 @@ extern RCTBridge *_bridge_reanimated;
 #endif
 }
 
-using ExecutorFactory = facebook::react::HermesExecutorFactory;
+using JSExecutorFactory = facebook::react::JSExecutorFactory;
+using HermesExecutorFactory = facebook::react::HermesExecutorFactory;
 using Runtime = facebook::jsi::Runtime;
 
-- (std::unique_ptr<ExecutorFactory>)jsExecutorFactoryForBridge:
+- (std::unique_ptr<JSExecutorFactory>)jsExecutorFactoryForBridge:
     (RCTBridge *)bridge {
   __weak __typeof(self) weakSelf = self;
 
-  // The following code to setup Reanimated is copied from
-  // UIResponder+Reanimated.mm
-  [bridge moduleForClass:[RCTEventDispatcher class]];
-  RCTEventDispatcher *eventDispatcher = [REAEventDispatcher new];
-  [eventDispatcher setBridge:bridge];
-  [bridge updateModuleWithInstance:eventDispatcher];
-  _bridge_reanimated = bridge;
-
-  const auto executor = [weakSelf, bridge](facebook::jsi::Runtime &rt) {
+  const auto commRuntimeInstaller = [weakSelf,
+                                     bridge](facebook::jsi::Runtime &rt) {
     if (!bridge) {
       return;
     }
@@ -281,18 +265,13 @@ using Runtime = facebook::jsi::Runtime;
           rt,
           facebook::jsi::PropNameID::forAscii(rt, "CommCoreModule"),
           facebook::jsi::Object::createFromHostObject(rt, nativeModule));
-
-      auto reanimatedModule =
-          reanimated::createReanimatedModule(bridge.jsCallInvoker);
-      rt.global().setProperty(
-          rt,
-          facebook::jsi::PropNameID::forAscii(rt, "__reanimatedModuleProxy"),
-          facebook::jsi::Object::createFromHostObject(rt, reanimatedModule));
     }
   };
+  const auto installer =
+      reanimated::REAJSIExecutorRuntimeInstaller(bridge, commRuntimeInstaller);
 
-  return std::make_unique<ExecutorFactory>(
-      facebook::react::RCTJSIExecutorRuntimeInstaller(executor),
+  return std::make_unique<HermesExecutorFactory>(
+      facebook::react::RCTJSIExecutorRuntimeInstaller(installer),
       JSIExecutor::defaultTimeoutInvoker,
       makeRuntimeConfig(1024));
 }
