@@ -22,13 +22,22 @@ import tinycolor from 'tinycolor2';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { colors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
-import { dividePastDistance } from '../utils/animation-utils';
 import { useMessageListScreenWidth } from './composed-message-width';
 
 const primaryThreshold = 40;
 const secondaryThreshold = 120;
 
-function makeSpringConfig(velocity: number) {
+function dividePastDistance(value, distance, factor) {
+  'worklet';
+  const absValue = Math.abs(value);
+  if (absValue < distance) {
+    return value;
+  }
+  const absFactor = value >= 0 ? 1 : -1;
+  return absFactor * (distance + (absValue - distance) / factor);
+}
+
+function makeSpringConfig(velocity) {
   'worklet';
   return {
     stiffness: 257.1370588235294,
@@ -41,19 +50,19 @@ function makeSpringConfig(velocity: number) {
   };
 }
 
-function interpolateOpacityForViewerPrimarySnake(translateX: number) {
+function interpolateOpacityForViewerPrimarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [-20, -5], [1, 0], Extrapolate.CLAMP);
 }
-function interpolateOpacityForNonViewerPrimarySnake(translateX: number) {
+function interpolateOpacityForNonViewerPrimarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [5, 20], [0, 1], Extrapolate.CLAMP);
 }
-function interpolateTranslateXForViewerSecondarySnake(translateX: number) {
+function interpolateTranslateXForViewerSecondarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [-130, -120, -60, 0], [-130, -120, -5, 20]);
 }
-function interpolateTranslateXForNonViewerSecondarySnake(translateX: number) {
+function interpolateTranslateXForNonViewerSecondarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
 }

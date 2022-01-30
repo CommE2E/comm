@@ -52,20 +52,6 @@ function clamp(
   );
 }
 
-function dividePastDistance(
-  value: number,
-  distance: number,
-  factor: number,
-): number {
-  'worklet';
-  const absValue = Math.abs(value);
-  if (absValue < distance) {
-    return value;
-  }
-  const absFactor = value >= 0 ? 1 : -1;
-  return absFactor * (distance + (absValue - distance) / factor);
-}
-
 function delta(value: Node): Node {
   const prevValue = new Value(0);
   const deltaValue = new Value(0);
@@ -261,7 +247,6 @@ function animateTowards(
 
 export {
   clamp,
-  dividePastDistance,
   delta,
   gestureJustStarted,
   gestureJustEnded,
