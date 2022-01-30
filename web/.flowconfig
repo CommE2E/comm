@@ -6,10 +6,10 @@
 
 [options]
 module.name_mapper.extension='css' -> '<PROJECT_ROOT>/flow/CSSModule.js.flow'
-esproposal.optional_chaining=enable
-esproposal.nullish_coalescing=enable
 
 exact_by_default=true
+
+format.bracket_spacing=false
 
 [lints]
 sketchy-null-number=warn
