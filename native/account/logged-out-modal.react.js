@@ -23,7 +23,6 @@ import {
   appStartReduxLoggedInButInvalidCookie,
 } from 'lib/actions/user-actions';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
-import type { Shape } from 'lib/types/core';
 import type { Dispatch } from 'lib/types/redux-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 
@@ -147,7 +146,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     // Mostly due to Flow typing requirements...
     const setLogInState = setStateForContainer(
       this.guardedSetState,
-      (change: Shape<LogInState>) => (fullState: State) => ({
+      (change: $Shape<LogInState>) => (fullState: State) => ({
         logInState: {
           ...fullState.logInState,
           state: { ...fullState.logInState.state, ...change },
@@ -156,7 +155,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     );
     const setRegisterState = setStateForContainer(
       this.guardedSetState,
-      (change: Shape<RegisterState>) => (fullState: State) => ({
+      (change: $Shape<RegisterState>) => (fullState: State) => ({
         registerState: {
           ...fullState.registerState,
           state: { ...fullState.registerState.state, ...change },
