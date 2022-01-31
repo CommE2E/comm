@@ -29,7 +29,6 @@ import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import {
-  type KeyboardEvent,
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
@@ -45,7 +44,7 @@ import {
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
 import { splashStyleSelector } from '../splash';
-import type { EmitterSubscription } from '../types/react-native';
+import type { EmitterSubscription, KeyboardEvent } from '../types/react-native';
 import type { ImageStyle } from '../types/styles';
 import {
   runTiming,

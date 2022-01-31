@@ -10,7 +10,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import type { ScreenRect, KeyboardEvent } from '../keyboard/keyboard';
+import type { ScreenRect } from '../keyboard/keyboard';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -19,6 +19,7 @@ import type {
   Layout,
   LayoutEvent,
   EmitterSubscription,
+  KeyboardEvent,
 } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
 

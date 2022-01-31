@@ -17,6 +17,8 @@ export type {
 
 export type { NativeMethods } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 
+export type { KeyboardEvent } from 'react-native/Libraries/Components/Keyboard/Keyboard';
+
 export type AnimatedValue = ReactNativeAnimatedValue;
 
 export type ViewableItemsChange = {

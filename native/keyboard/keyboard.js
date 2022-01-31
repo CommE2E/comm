@@ -3,18 +3,13 @@
 import { Keyboard, Platform, DeviceInfo } from 'react-native';
 
 import type { EmitterSubscription } from '../types/react-native';
+import type { KeyboardEvent } from '../types/react-native';
 
 export type ScreenRect = $ReadOnly<{
   screenX: number,
   screenY: number,
   width: number,
   height: number,
-}>;
-export type KeyboardEvent = $ReadOnly<{
-  duration?: number,
-  easing?: string,
-  endCoordinates: ScreenRect,
-  startCoordinates?: ScreenRect,
 }>;
 
 type ShowKeyboardCallback = (event: KeyboardEvent) => void;

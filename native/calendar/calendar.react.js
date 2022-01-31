@@ -49,7 +49,6 @@ import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import ListLoadingIndicator from '../components/list-loading-indicator.react';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import {
-  type KeyboardEvent,
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
@@ -89,6 +88,7 @@ import type {
   EmitterSubscription,
   ScrollEvent,
   ViewableItemsChange,
+  KeyboardEvent,
 } from '../types/react-native';
 import CalendarInputBar from './calendar-input-bar.react';
 import {
