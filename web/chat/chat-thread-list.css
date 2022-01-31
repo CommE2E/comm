@@ -1,7 +1,7 @@
 div.thread {
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
+  align-items: flex-start;
   margin-bottom: 8px;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -35,6 +35,20 @@ div.threadRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+p.breadCrumbs {
+  display: flex;
+  align-items: center;
+  font-size: var(--xs-font-12);
+  font-weight: var(--normal);
+  color: var(--breadcrumb-color);
+}
+span.breadCrumb {
+  padding-right: 4px;
+}
+
+span.breadCrumb svg {
+  color: var(--fg);
 }
 div.colorSplotch {
   height: 40px;

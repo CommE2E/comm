@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
+import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import { useSelector } from '../redux/redux-utils';
@@ -11,6 +12,7 @@ import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/nav-selectors';
+import SWMansionIcon from '../SWMansionIcon.react';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';
@@ -23,8 +25,9 @@ type Props = {
 };
 function ChatThreadListItem(props: Props): React.Node {
   const { item, setModal } = props;
+  const { threadInfo } = item;
   const threadID = item.threadInfo.id;
-
+  const ancestorThreads = useAncestorThreads(threadInfo);
   const onClick = useOnClickThread(threadID);
 
   const timeZone = useSelector(state => state.timeZone);
@@ -89,11 +92,28 @@ function ChatThreadListItem(props: Props): React.Node {
     }
   });
 
+  const ancestorPath = ancestorThreads.map((thread, idx) => {
+    const isNotLast = idx !== ancestorThreads.length - 1;
+    const chevron = isNotLast && (
+      <span className={css.breadCrumb}>
+        <SWMansionIcon icon="chevron-right" size={10} />
+      </span>
+    );
+
+    return (
+      <React.Fragment key={thread.id}>
+        <span className={css.breadCrumb}>{thread.uiName}</span>
+        {chevron}
+      </React.Fragment>
+    );
+  });
+
   return (
     <>
       <div className={containerClassName}>
         <div className={css.colorSplotch} style={colorSplotchStyle} />
         <a className={css.threadButton} onClick={onClick}>
+          <p className={css.breadCrumbs}>{ancestorPath}</p>
           <div className={css.threadRow}>
             <div className={titleClassName}>{item.threadInfo.uiName}</div>
           </div>

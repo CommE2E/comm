@@ -78,4 +78,7 @@
   --settings-btn-bg: var(--violet-dark-100);
   --modal-bg: var(--shades-black-90);
   --join-bg: var(--shades-black-90);
+  --help-color: var(--shades-black-60);
+  --modal-bg: var(--shades-black-90);
+  --breadcrumb-color: var(--shades-white-60);
 }
