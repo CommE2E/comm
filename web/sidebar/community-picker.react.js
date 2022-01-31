@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 
+import SettingsButton from '../components/settings-button.react';
 import UserSettingsModal from '../modals/account/user-settings-modal.react.js';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './community-picker.css';
-import SettingsButton from './settings-button.react';
 
 type Props = { +setModal: (modal: ?React.Node) => void };
 
