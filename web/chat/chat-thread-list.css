@@ -112,7 +112,7 @@ div.sidebar .menu > button svg {
 .menu {
   position: relative;
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
 }
 .menu > button {
   background-color: transparent;
