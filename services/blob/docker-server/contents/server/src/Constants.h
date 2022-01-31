@@ -23,9 +23,15 @@ const size_t GRPC_METADATA_SIZE_PER_MESSAGE = 5;
 const size_t AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE = 5 * 1024 * 1024;
 
 const std::string AWS_REGION = "us-east-2";
+const std::string BLOB_BUCKET_NAME = "commapp-blob";
+
+#ifdef COMM_TEST_SERVICES
+const std::string BLOB_TABLE_NAME = "blob-service-blob-test";
+const std::string REVERSE_INDEX_TABLE_NAME = "blob-service-reverse-index-test";
+#else
 const std::string BLOB_TABLE_NAME = "blob-service-blob";
 const std::string REVERSE_INDEX_TABLE_NAME = "blob-service-reverse-index";
-const std::string BLOB_BUCKET_NAME = "commapp-blob";
+#endif
 
 } // namespace network
 } // namespace comm
