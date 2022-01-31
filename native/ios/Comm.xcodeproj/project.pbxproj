@@ -118,6 +118,7 @@
 		B70FBC1226B047050040F480 /* Message.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Medium.ttf"; path = "Resources/IBMPlexSans-Medium.ttf"; sourceTree = "<group>"; };
 		B723460626979250009A0709 /* swmansion.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = swmansion.ttf; path = Resources/swmansion.ttf; sourceTree = "<group>"; };
+		B72879B827A865EF008A04CC /* ClientGetReadReactor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ClientGetReadReactor.h; sourceTree = "<group>"; };
 		B7906F692720905A009BBBF5 /* ThreadStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreadStoreOperations.h; sourceTree = "<group>"; };
 		B7906F6A27209091009BBBF5 /* OlmPersistAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OlmPersistAccount.h; sourceTree = "<group>"; };
 		B7906F6B27209091009BBBF5 /* OlmPersistSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OlmPersistSession.h; sourceTree = "<group>"; };
@@ -198,6 +199,7 @@
 				B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */,
 				B7BEE748279B3F2E009CCA35 /* GRPCStreamHostObject.h */,
 				718A3C0626F22D0A00F04A8D /* _generated */,
+				B72879B827A865EF008A04CC /* ClientGetReadReactor.h */,
 			);
 			path = grpc;
 			sourceTree = "<group>";
