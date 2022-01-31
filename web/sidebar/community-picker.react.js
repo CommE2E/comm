@@ -20,7 +20,7 @@ function CommunityPicker(props: Props): React.Node {
     <div className={css.container}>
       <SWMansionIcon icon="inbox" size={28} />
       <div className={css.spacer} />
-      <SettingsButton onClick={setModalToUserSettings}>
+      <SettingsButton variant="round" onClick={setModalToUserSettings}>
         <SWMansionIcon icon="settings" size={16} />
       </SettingsButton>
     </div>
