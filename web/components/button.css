@@ -6,6 +6,13 @@
   border-color: transparent;
 }
 
+.primary {
+  background: var(--btn-bg-primary);
+  padding: 12px 24px;
+  color: var(--fg);
+  border-radius: 4px;
+}
+
 .round {
   width: 30px;
   height: 30px;

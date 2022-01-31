@@ -8,12 +8,15 @@ import css from './button.css';
 type Props = {
   +onClick: () => mixed,
   +children: React.Node,
-  +variant?: 'round',
+  +variant?: 'primary' | 'round',
 };
 
 function Button(props: Props): React.Node {
   const { onClick, children, variant } = props;
-  const btnCls = classnames(css.btn, { [css.round]: variant === 'round' });
+  const btnCls = classnames(css.btn, {
+    [css.round]: variant === 'round',
+    [css.primary]: variant === 'primary',
+  });
 
   return (
     <button className={btnCls} onClick={onClick}>
