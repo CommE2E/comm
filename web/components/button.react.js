@@ -3,7 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import css from './settings-button.css';
+import css from './button.css';
 
 type Props = {
   +onClick: () => mixed,
@@ -11,7 +11,7 @@ type Props = {
   +variant?: 'round',
 };
 
-function SettingsButton(props: Props): React.Node {
+function Button(props: Props): React.Node {
   const { onClick, children, variant } = props;
   const btnCls = classnames(css.btn, { [css.round]: variant === 'round' });
 
@@ -22,4 +22,4 @@ function SettingsButton(props: Props): React.Node {
   );
 }
 
-export default SettingsButton;
+export default Button;
