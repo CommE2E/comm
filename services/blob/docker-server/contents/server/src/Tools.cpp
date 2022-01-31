@@ -66,7 +66,7 @@ findS3Path(const database::ReverseIndexItem &reverseIndexItem) {
   return result;
 }
 
-long long getCurrentTimestamp() {
+uint64_t getCurrentTimestamp() {
   using namespace std::chrono;
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
       .count();

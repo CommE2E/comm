@@ -16,7 +16,7 @@ std::string BlobItem::tableName = BLOB_TABLE_NAME;
 BlobItem::BlobItem(
     const std::string blobHash,
     const S3Path s3Path,
-    long long created)
+    uint64_t created)
     : blobHash(blobHash), s3Path(s3Path), created(created) {
   this->validate();
 }
@@ -61,7 +61,7 @@ S3Path BlobItem::getS3Path() const {
   return this->s3Path;
 }
 
-long long BlobItem::getCreated() const {
+uint64_t BlobItem::getCreated() const {
   return this->created;
 }
 

@@ -13,7 +13,7 @@ class BlobItem : public Item {
 
   std::string blobHash;
   S3Path s3Path;
-  long long created = 0;
+  uint64_t created = 0;
 
   void validate() const override;
 
@@ -28,7 +28,7 @@ public:
   BlobItem(
       const std::string blobHash,
       const S3Path s3Path,
-      long long created = 0);
+      uint64_t created = 0);
   BlobItem(const AttributeValues &itemFromDB);
 
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
@@ -38,7 +38,7 @@ public:
 
   std::string getBlobHash() const;
   S3Path getS3Path() const;
-  long long getCreated() const;
+  uint64_t getCreated() const;
 };
 
 } // namespace database

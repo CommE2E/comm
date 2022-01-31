@@ -16,7 +16,7 @@ database::S3Path findS3Path(const std::string &holder);
 
 database::S3Path findS3Path(const database::ReverseIndexItem &reverseIndexItem);
 
-long long getCurrentTimestamp();
+uint64_t getCurrentTimestamp();
 
 class invalid_argument_error : public std::runtime_error {
 public:
