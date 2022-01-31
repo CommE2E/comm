@@ -8,7 +8,7 @@ import * as TurboModuleRegistry from 'react-native/Libraries/TurboModule/TurboMo
 
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 
-import type { EmitterSubscription } from '../types/react-native';
+import type { EventSubscription } from '../types/react-native';
 
 interface Spec extends TurboModule {
   +getConstants: () => {
@@ -21,20 +21,23 @@ const AndroidLifecycle = (TurboModuleRegistry.getEnforcing<Spec>(
   'AndroidLifecycle',
 ): Spec);
 
-class LifecycleEventEmitter extends NativeEventEmitter {
+type LifecycleEventEmitterArgs = {
+  +LIFECYCLE_CHANGE: [{ +status: ?LifecycleState }],
+};
+class LifecycleEventEmitter extends NativeEventEmitter<LifecycleEventEmitterArgs> {
   currentLifecycleStatus: ?string;
 
   constructor() {
     super(AndroidLifecycle);
     this.currentLifecycleStatus = AndroidLifecycle.getConstants().initialStatus;
     this.addLifecycleListener(state => {
-      this.currentAndroidLifecycle = state;
+      this.currentLifecycleStatus = state;
     });
   }
 
   addLifecycleListener: (
-    listener: (state: ?LifecycleState) => mixed,
-  ) => EmitterSubscription = listener => {
+    listener: (state: ?LifecycleState) => void,
+  ) => EventSubscription = listener => {
     return this.addListener('LIFECYCLE_CHANGE', event => {
       listener(event.status);
     });
