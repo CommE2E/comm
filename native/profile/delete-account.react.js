@@ -104,7 +104,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
             placeholderTextColor={panelForegroundTertiaryLabel}
             secureTextEntry={true}
             textContentType="password"
-            autoCompleteType="password"
+            autoComplete="password"
             returnKeyType="go"
             onSubmitEditing={this.submitDeletion}
             ref={this.passwordInputRef}
