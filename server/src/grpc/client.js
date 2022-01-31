@@ -39,6 +39,21 @@ class GrpcClient {
     });
     return response;
   }
+
+  async send(
+    sessionID: string,
+    toDeviceID: string,
+    payload: Buffer,
+    blobHashes: string[],
+  ): Promise<void> {
+    const response: void = await this.client.send({
+      sessionID: sessionID,
+      toDeviceID: toDeviceID,
+      payload: payload,
+      blobHashes: blobHashes,
+    });
+    return response;
+  }
 }
 
 export { GrpcClient };
