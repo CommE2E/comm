@@ -27,6 +27,18 @@ class GrpcClient {
     });
     return response;
   }
+
+  async newSession(publicKey: Buffer, signature: string): Promise<string> {
+    const response: string = await this.client.newSession({
+      deviceID: deviceID,
+      publicKey: publicKey,
+      signature: signature,
+      deviceType: 2, // enum variant for keyserver
+      deviceAppVersion: process.env.npm_package_version,
+      deviceOS: process.platform,
+    });
+    return response;
+  }
 }
 
 export { GrpcClient };
