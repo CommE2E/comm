@@ -52,6 +52,7 @@
     "express-ws": "^4.0.0",
     "firebase-admin": "^10.0.1",
     "geoip-lite": "^1.4.0",
+    "grpc-caller": "0.14.0",
     "invariant": "^2.2.4",
     "landing": "0.0.1",
     "lib": "0.0.1",
