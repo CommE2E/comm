@@ -6981,6 +6981,11 @@ elliptic@^6.0.0:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
+eme-encryption-scheme-polyfill@^2.0.1:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/eme-encryption-scheme-polyfill/-/eme-encryption-scheme-polyfill-2.0.3.tgz#2ca6e06480e06cceb5e50efd27943ac46c959878"
+  integrity sha512-44CNFMsqzHdKHrzWxlS7xZ8KUHn5XutBqpmCuWzNIynmAyFInHrrD3ozv/RvK9ZhgV6QY6Easx8EWAmxteNodg==
+
 emittery@^0.7.1:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/emittery/-/emittery-0.7.2.tgz#25595908e13af0f5674ab419396e2fb394cdfa82"
@@ -14441,14 +14446,14 @@ react-native-vector-icons@^6.6.0:
     prop-types "^15.6.2"
     yargs "^13.2.2"
 
-react-native-video@^5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-5.0.2.tgz#8f07da0cd85a1d4b316d115f3786409efc9e39fb"
-  integrity sha512-zbItbMH0uZYkK7xFKa41+950QjoTrIl60bY1vAP7gxTn20HGHvHZRw28h9A5npK5T0QuWMAkn8twaGzqcDkTug==
+react-native-video@~5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-5.1.1.tgz#89a7989efeb8d404611c06154d1da227a745d7d8"
+  integrity sha512-zee8gRUrjPWRoZSEBiMebClqu1iAuCQNLjzqpmXFrRWEoJj7azM3BPqLQWJgsnfLiYUYGySeApC/G60THM5+tw==
   dependencies:
     keymirror "^0.1.1"
-    prop-types "^15.5.10"
-    shaka-player "^2.4.4"
+    prop-types "^15.7.2"
+    shaka-player "^2.5.9"
 
 react-native@0.66.4:
   version "0.66.4"
@@ -15611,10 +15616,12 @@ sha.js@^2.4.0, sha.js@^2.4.11, sha.js@^2.4.8:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-shaka-player@^2.4.4:
-  version "2.5.6"
-  resolved "https://registry.yarnpkg.com/shaka-player/-/shaka-player-2.5.6.tgz#1397ffdee9d60fa50c13cda6d584da5228b4607f"
-  integrity sha512-z1BM/kpg5OVk57w5gXYBGk78Le04gfCHBOpT106Nz7h4VU7im7o8ZldUKxC9+FlSL4sPvdU8lY6OxL7L3hw5Fw==
+shaka-player@^2.5.9:
+  version "2.5.23"
+  resolved "https://registry.yarnpkg.com/shaka-player/-/shaka-player-2.5.23.tgz#db92d1c6cf2314f0180a2cec11b0e2f2560336f5"
+  integrity sha512-3MC9k0OXJGw8AZ4n/ZNCZS2yDxx+3as5KgH6Tx4Q5TRboTBBCu6dYPI5vp1DxKeyU12MBN1Zcbs7AKzXv2EnCg==
+  dependencies:
+    eme-encryption-scheme-polyfill "^2.0.1"
 
 shallow-clone@^3.0.0:
   version "3.0.1"
