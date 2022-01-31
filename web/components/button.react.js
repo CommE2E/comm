@@ -9,17 +9,18 @@ type Props = {
   +onClick: () => mixed,
   +children: React.Node,
   +variant?: 'primary' | 'round',
+  +type?: string,
 };
 
 function Button(props: Props): React.Node {
-  const { onClick, children, variant } = props;
+  const { onClick, children, variant, type } = props;
   const btnCls = classnames(css.btn, {
     [css.round]: variant === 'round',
     [css.primary]: variant === 'primary',
   });
 
   return (
-    <button className={btnCls} onClick={onClick}>
+    <button type={type} className={btnCls} onClick={onClick}>
       {children}
     </button>
   );
