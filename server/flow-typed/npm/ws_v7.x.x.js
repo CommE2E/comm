@@ -100,6 +100,11 @@ declare class ws$WebSocketServer extends events$EventEmitter {
   on(event: 'listening', () => mixed): this;
 
   /**
+   * Included for compatibility with events$EventEmitter type.
+   */
+  on(event: string, Function): this;
+
+  /**
    * Returns the bound address, the address family name, and port of the server
    * as reported by the operating system if listening on an IP socket.
    * If the server is listening on a pipe or UNIX domain socket, the name is
@@ -231,6 +236,11 @@ declare class ws$WebSocket extends events$EventEmitter {
    * handshake.
    */
   on('upgrade', ws$UpgradeListener): this;
+
+  /**
+   * Included for compatibility with events$EventEmitter type.
+   */
+  on(event: string, Function): this;
 
   /**
    * Register an event listener emulating the `EventTarget` interface.
