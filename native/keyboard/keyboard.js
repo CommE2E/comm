@@ -2,8 +2,7 @@
 
 import { Keyboard, Platform, DeviceInfo } from 'react-native';
 
-import type { EmitterSubscription } from '../types/react-native';
-import type { KeyboardEvent } from '../types/react-native';
+import type { EventSubscription, KeyboardEvent } from '../types/react-native';
 
 export type ScreenRect = $ReadOnly<{
   screenX: number,
@@ -46,7 +45,7 @@ function callShowCallback(
 }
 function addKeyboardShowListener(
   callback: ShowKeyboardCallback,
-): EmitterSubscription {
+): EventSubscription {
   return Keyboard.addListener(
     Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
     callShowCallback(callback),
@@ -68,7 +67,7 @@ function callHideCallback(
 }
 function addKeyboardDismissListener(
   callback: HideKeyboardCallback,
-): EmitterSubscription {
+): EventSubscription {
   return Keyboard.addListener(
     Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
     callHideCallback(callback),
@@ -76,11 +75,11 @@ function addKeyboardDismissListener(
 }
 function addKeyboardDidDismissListener(
   callback: HideKeyboardCallback,
-): EmitterSubscription {
+): EventSubscription {
   return Keyboard.addListener('keyboardDidHide', callHideCallback(callback));
 }
 
-function removeKeyboardListener(listener: EmitterSubscription) {
+function removeKeyboardListener(listener: EventSubscription) {
   listener.remove();
 }
 

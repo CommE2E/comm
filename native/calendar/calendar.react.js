@@ -85,7 +85,7 @@ import {
   type IndicatorStyle,
 } from '../themes/colors';
 import type {
-  EmitterSubscription,
+  EventSubscription,
   ScrollEvent,
   ViewableItemsChange,
   KeyboardEvent,
@@ -169,8 +169,8 @@ class Calendar extends React.PureComponent<Props, State> {
   // When an entry becomes active, we make a note of its key so that once the
   // keyboard event happens, we know where to move the scrollPos to
   lastEntryKeyActive: ?string = null;
-  keyboardShowListener: ?EmitterSubscription;
-  keyboardDismissListener: ?EmitterSubscription;
+  keyboardShowListener: ?EventSubscription;
+  keyboardDismissListener: ?EventSubscription;
   keyboardShownHeight: ?number = null;
   // If the query fails, we try it again
   topLoadingFromScroll: ?CalendarQuery = null;

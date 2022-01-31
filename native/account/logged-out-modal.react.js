@@ -44,7 +44,7 @@ import {
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
 import { splashStyleSelector } from '../splash';
-import type { EmitterSubscription, KeyboardEvent } from '../types/react-native';
+import type { EventSubscription, KeyboardEvent } from '../types/react-native';
 import type { ImageStyle } from '../types/styles';
 import {
   runTiming,
@@ -123,8 +123,8 @@ type State = {
   +registerState: StateContainer<RegisterState>,
 };
 class LoggedOutModal extends React.PureComponent<Props, State> {
-  keyboardShowListener: ?EmitterSubscription;
-  keyboardHideListener: ?EmitterSubscription;
+  keyboardShowListener: ?EventSubscription;
+  keyboardHideListener: ?EventSubscription;
 
   mounted = false;
   nextMode: LoggedOutMode = 'loading';

@@ -18,7 +18,7 @@ import {
 import type {
   Layout,
   LayoutEvent,
-  EmitterSubscription,
+  EventSubscription,
   KeyboardEvent,
 } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
@@ -50,7 +50,7 @@ class InnerKeyboardAvoidingView extends React.PureComponent<Props, State> {
   state: State = {
     bottom: 0,
   };
-  subscriptions: EmitterSubscription[] = [];
+  subscriptions: EventSubscription[] = [];
   viewFrame: ?Layout;
   keyboardFrame: ?ScreenRect;
   defaultViewFrameHeight = 0;
