@@ -48,7 +48,7 @@ The reason we use both `install` and `upgrade` is that there’s no single Homeb
 [PHP](https://www.php.net) is needed for Arcanist. As of macOS 12 (Monterey), PHP is no longer bundled with the OS and needs to be installed via Homebrew.
 
 ```
-brew install php; brew upgrade php
+brew install php@7.4; brew upgrade php@7.4
 ```
 
 ## Rust
