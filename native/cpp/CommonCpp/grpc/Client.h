@@ -5,6 +5,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include "ClientGetReadReactor.h"
 #include "_generated/tunnelbroker.grpc.pb.h"
 #include "_generated/tunnelbroker.pb.h"
 
@@ -19,6 +20,7 @@ class Client {
   std::unique_ptr<TunnelbrokerService::Stub> stub_;
   const std::string id;
   const std::string deviceToken;
+  std::unique_ptr<ClientGetReadReactor> clientGetReadReactor;
 
 public:
   Client(
@@ -37,6 +39,8 @@ public:
       std::string toDeviceID,
       std::string payload,
       std::vector<std::string> blobHashes);
+
+  void get(std::string sessionID);
 };
 
 } // namespace network

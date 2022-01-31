@@ -20,5 +20,6 @@ public:
       std::string payload,
       std::vector<std::string> blobHashes);
   void close();
+  void get(std::string sessionID);
 };
 } // namespace comm

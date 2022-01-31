@@ -86,5 +86,10 @@ grpc::Status Client::send(
   return this->stub_->Send(&context, request, &response);
 }
 
+void Client::get(std::string sessionID) {
+  this->clientGetReadReactor =
+      std::make_unique<ClientGetReadReactor>(this->stub_.get(), sessionID);
+}
+
 } // namespace network
 } // namespace comm
