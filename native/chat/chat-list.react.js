@@ -11,10 +11,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import type {
-  Props as FlatListProps,
-  DefaultProps as FlatListDefaultProps,
-} from 'react-native/Libraries/Lists/FlatList';
 
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import { localIDPrefix, messageKey } from 'lib/shared/message-utils';
@@ -47,16 +43,10 @@ const animationSpec = {
 };
 
 type BaseProps = {
-  ...$ReadOnly<
-    $Exact<
-      React.Config<
-        FlatListProps<ChatMessageItemWithHeight>,
-        FlatListDefaultProps,
-      >,
-    >,
-  >,
+  ...React.ElementConfig<typeof FlatList>,
   +navigation: ChatNavigationProp<'MessageList'>,
   +data: $ReadOnlyArray<ChatMessageItemWithHeight>,
+  ...
 };
 type Props = {
   ...BaseProps,
@@ -64,6 +54,7 @@ type Props = {
   +viewerID: ?string,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
+  ...
 };
 type State = {
   +newMessageCount: number,
@@ -270,7 +261,6 @@ class ChatList extends React.PureComponent<Props, State> {
     if (this.scrollPos <= 0) {
       this.toggleNewMessagesPill(false);
     }
-    // $FlowFixMe FlatList doesn't type ScrollView props
     this.props.onScroll && this.props.onScroll(event);
   };
 
