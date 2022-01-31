@@ -353,7 +353,6 @@ LoadModule proxy_module libexec/apache2/mod_proxy.so
 LoadModule proxy_http_module libexec/apache2/mod_proxy_http.so
 LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
 LoadModule userdir_module libexec/apache2/mod_userdir.so
-LoadModule php7_module libexec/apache2/libphp7.so
 Include /private/etc/apache2/extra/httpd-userdir.conf
 ```
 
