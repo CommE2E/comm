@@ -62,7 +62,7 @@ async function updateAndReloadGeoipDB(): Promise<void> {
     return;
   }
   for (const id in cluster.workers) {
-    cluster.workers[id].send(reloadMessage);
+    cluster.workers[Number(id)].send(reloadMessage);
   }
 }
 
