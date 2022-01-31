@@ -23,7 +23,6 @@ export type DownloadResponder = (
 ) => Promise<void>;
 export type HTMLResponder = DownloadResponder;
 export type HTTPGetResponder = DownloadResponder;
-export type UploadResponder = (viewer: Viewer, req: $Request) => Promise<*>;
 
 function jsonHandler(
   responder: JSONResponder,
@@ -134,6 +133,20 @@ function htmlHandler(
   };
 }
 
+type MulterFile = {
+  fieldname: string,
+  originalname: string,
+  encoding: string,
+  mimetype: string,
+  buffer: Buffer,
+  size: number,
+};
+export type MulterRequest = $Request & {
+  files?: $ReadOnlyArray<MulterFile>,
+  ...
+};
+type UploadResponder = (viewer: Viewer, req: MulterRequest) => Promise<Object>;
+
 function uploadHandler(
   responder: UploadResponder,
 ): (req: $Request, res: $Response) => Promise<void> {
@@ -144,7 +157,10 @@ function uploadHandler(
         throw new ServerError('invalid_parameters');
       }
       viewer = await fetchViewerForJSONRequest(req);
-      const responderResult = await responder(viewer, req);
+      const responderResult = await responder(
+        viewer,
+        ((req: any): MulterRequest),
+      );
       if (res.headersSent) {
         return;
       }

@@ -19,27 +19,19 @@ import {
   fetchUploadChunk,
   getUploadSize,
 } from '../fetchers/upload-fetchers';
+import type { MulterRequest } from '../responders/handlers';
 import type { Viewer } from '../session/viewer';
 import { validateAndConvert } from './media-utils';
 
 const upload = multer();
 const multerProcessor: Middleware<> = upload.array('multimedia');
 
-type MulterFile = {
-  fieldname: string,
-  originalname: string,
-  encoding: string,
-  mimetype: string,
-  buffer: Buffer,
-  size: number,
-};
-
 type MultimediaUploadResult = {
   results: UploadMultimediaResult[],
 };
 async function multimediaUploadResponder(
   viewer: Viewer,
-  req: $Request & { files?: $ReadOnlyArray<MulterFile>, ... },
+  req: MulterRequest,
 ): Promise<MultimediaUploadResult> {
   const { files, body } = req;
   if (!files || !body || typeof body !== 'object') {

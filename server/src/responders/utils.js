@@ -1,11 +1,7 @@
 // @flow
 
-function getMessageForException(
-  error: Error & { sqlMessage?: string, ... },
-): string {
-  return error.sqlMessage !== null && error.sqlMessage !== undefined
-    ? 'database error'
-    : error.message;
+function getMessageForException(error: Error): string {
+  return 'sqlMessage' in error ? 'database error' : error.message;
 }
 
 export { getMessageForException };
