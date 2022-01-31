@@ -315,9 +315,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return <View style={this.props.styles.separator} />;
   };
 
-  static keyExtractor(item: MediaLibrarySelection) {
+  static keyExtractor = (item: MediaLibrarySelection) => {
     return item.uri;
-  }
+  };
 
   render() {
     let content;

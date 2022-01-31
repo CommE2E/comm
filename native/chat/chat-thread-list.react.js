@@ -336,7 +336,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     );
   };
 
-  static keyExtractor(item: Item) {
+  static keyExtractor = (item: Item) => {
     if (item.type === 'chatThreadItem') {
       return item.threadInfo.id;
     } else if (item.type === 'empty') {
@@ -344,9 +344,9 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     } else {
       return 'search';
     }
-  }
+  };
 
-  static getItemLayout(data: ?$ReadOnlyArray<Item>, index: number) {
+  static getItemLayout = (data: ?$ReadOnlyArray<Item>, index: number) => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
@@ -356,9 +356,9 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     const item = data[index];
     const length = item ? ChatThreadList.itemHeight(item) : 0;
     return { length, offset, index };
-  }
+  };
 
-  static itemHeight(item: Item): number {
+  static itemHeight = (item: Item) => {
     if (item.type === 'search') {
       return Platform.OS === 'ios' ? 54.5 : 55;
     }
@@ -376,7 +376,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       height += spacerHeight;
     }
     return height;
-  }
+  };
 
   static heightOfItems(data: $ReadOnlyArray<Item>): number {
     return _sum(data.map(ChatThreadList.itemHeight));

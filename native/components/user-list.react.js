@@ -36,9 +36,9 @@ class UserList extends React.PureComponent<Props> {
     );
   }
 
-  static keyExtractor(userInfo: UserListItem) {
+  static keyExtractor = (userInfo: UserListItem) => {
     return userInfo.id;
-  }
+  };
 
   renderItem = (row: { item: UserListItem, ... }) => {
     return (
@@ -50,7 +50,10 @@ class UserList extends React.PureComponent<Props> {
     );
   };
 
-  static getItemLayout(data: ?$ReadOnlyArray<UserListItem>, index: number) {
+  static getItemLayout = (
+    data: ?$ReadOnlyArray<UserListItem>,
+    index: number,
+  ) => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
@@ -60,7 +63,7 @@ class UserList extends React.PureComponent<Props> {
     const item = data[index];
     const length = item ? getUserListItemHeight(item) : 0;
     return { length, offset, index };
-  }
+  };
 }
 
 const ConnectedUserList: React.ComponentType<BaseProps> = React.memo<BaseProps>(

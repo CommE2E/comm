@@ -148,7 +148,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
     });
   }
 
-  static keyExtractor(item: ListItem) {
+  static keyExtractor = (item: ListItem) => {
     if (item.userInfo) {
       return item.userInfo.id;
     } else if (item.type === 'empty') {
@@ -159,7 +159,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
       return 'footer';
     }
     invariant(false, 'keyExtractor conditions should be exhaustive');
-  }
+  };
 
   get listData() {
     return this.listDataSelector({ ...this.props, ...this.state });

@@ -94,9 +94,9 @@ class ThreadList extends React.PureComponent<Props, State> {
     );
   }
 
-  static keyExtractor(threadInfo: ThreadInfo) {
+  static keyExtractor = (threadInfo: ThreadInfo) => {
     return threadInfo.id;
-  }
+  };
 
   renderItem = (row: { item: ThreadInfo, ... }) => {
     return (
@@ -109,9 +109,9 @@ class ThreadList extends React.PureComponent<Props, State> {
     );
   };
 
-  static getItemLayout(data: ?$ReadOnlyArray<ThreadInfo>, index: number) {
+  static getItemLayout = (data: ?$ReadOnlyArray<ThreadInfo>, index: number) => {
     return { length: 24, offset: 24 * index, index };
-  }
+  };
 
   onChangeSearchText = (searchText: string) => {
     invariant(this.props.searchIndex, 'should be set');
