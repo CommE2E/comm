@@ -25,7 +25,7 @@ type Props = {
   +active?: boolean,
 };
 
-function ForwardedSearch(props: Props, ref: React.Ref<typeof BaseTextInput>) {
+function ForwardedSearch(props: Props, ref) {
   const { onChangeText, searchText, containerStyle, active, ...rest } = props;
 
   const clearSearch = React.useCallback(() => {
@@ -99,7 +99,12 @@ function ForwardedSearch(props: Props, ref: React.Ref<typeof BaseTextInput>) {
   );
 }
 
-const Search = React.forwardRef<Props, typeof BaseTextInput>(ForwardedSearch);
+const Search: React.AbstractComponent<
+  Props,
+  React.ElementRef<typeof BaseTextInput>,
+> = React.forwardRef<Props, React.ElementRef<typeof BaseTextInput>>(
+  ForwardedSearch,
+);
 Search.displayName = 'Search';
 
 const unboundStyles = {
@@ -132,6 +137,9 @@ const unboundStyles = {
   },
 };
 
-const MemoizedSearch: React.ComponentType<Props> = React.memo<Props>(Search);
+const MemoizedSearch: typeof Search = React.memo<
+  Props,
+  React.ElementRef<typeof BaseTextInput>,
+>(Search);
 
 export default MemoizedSearch;
