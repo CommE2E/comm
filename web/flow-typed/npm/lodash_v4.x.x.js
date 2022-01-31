@@ -1790,6 +1790,12 @@ declare module "lodash/fp" {
     | matchesPropertyIterateeShorthand
     | propertyIterateeShorthand;
 
+  declare type OPredicate2<A> =
+    | ((value: A, key: string) => any)
+    | matchesIterateeShorthand
+    | matchesPropertyIterateeShorthand
+    | propertyIterateeShorthand;
+
   declare type IterateeWithResult<V, R> =
     | ((value: V) => R)
     | string;
@@ -3309,9 +3315,9 @@ declare module "lodash/fp" {
       & ((props: $ReadOnlyArray<string>, object: Object) => Object);
     pickBy:
       & (<A, T: ReadOnlyIndexerObject<A>>(
-        predicate: OPredicate<A>
+        predicate: OPredicate2<A>
       ) => ((object: T) => Object))
-      & (<A, T: ReadOnlyIndexerObject<A>>(predicate: OPredicate<A>, object: T) => Object);
+      & (<A, T: ReadOnlyIndexerObject<A>>(predicate: OPredicate2<A>, object: T) => Object);
     result:
       & ((path: Path) => ((object: Object) => any))
       & ((path: Path, object: Object) => any);
