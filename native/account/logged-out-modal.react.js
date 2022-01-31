@@ -415,7 +415,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   }
 
   keyboardShow = (event: KeyboardEvent) => {
-    if (_isEqual(event.startCoordinates)(event.endCoordinates)) {
+    if (
+      event.startCoordinates &&
+      _isEqual(event.startCoordinates)(event.endCoordinates)
+    ) {
       return;
     }
     const keyboardHeight = Platform.select({
