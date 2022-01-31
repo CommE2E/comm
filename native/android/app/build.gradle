@@ -306,12 +306,12 @@ task prepareOpenSSL(
 task prebuildOpenSSL(dependsOn: dependenciesPath ? [] : [prepareOpenSSL]) {
     inputs.properties([
         'openssl.version': OPENSSL_VERSION,
-        'openssl.abis': getBuildTypeABIs()
+        'openssl.abis': getBuildTypeABIs(nativeArchitectures)
     ])
     outputs.dir("${thirdPartyNdkDir}/openssl/openssl-${OPENSSL_VERSION}/build/")
         .withPropertyName('openssl.output')
     doFirst {
-        getBuildTypeABIs().each { buildABI ->
+        getBuildTypeABIs(nativeArchitectures).each { buildABI ->
             logger.info("Building OpenSSL library for the ${buildABI}")
             exec {
                 commandLine './bash/build_openssl.sh',
@@ -386,7 +386,7 @@ def getPassword(String keyLabel) {
 
 // Returns all ABIs architectures for the 'bundleRelease'
 // or only from 'adb devices' if running debug release.
-def getBuildTypeABIs() {
+def getBuildTypeABIs(nativeArchitectures) {
     if (System.getenv("BUILDKITE") == "true") {
         return ["arm64-v8a"] 
     }
@@ -401,8 +401,6 @@ def getBuildTypeABIs() {
         return allAbis
     }
     if (nativeArchitectures) {
-        // TODO delete this log statement before diffing
-        logger.info("test, nativeArchitectures detected")
         return nativeArchitectures.split(',')
     }
     // Get current 'adb devices' architectures
@@ -466,7 +464,7 @@ android {
         }
     }
     buildTypes {
-        final buildABIs = getBuildTypeABIs()
+        final buildABIs = getBuildTypeABIs(nativeArchitectures)
         release {
             if (project.hasProperty('COMM_UPLOAD_STORE_FILE')) {
                 signingConfig signingConfigs.release
