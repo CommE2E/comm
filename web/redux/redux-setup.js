@@ -167,7 +167,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
     state.threadStore.threadInfos[activeThread].currentUser.unread &&
     typeof document !== 'undefined' &&
     document &&
-    document.hasFocus &&
+    'hasFocus' in document &&
     !document.hasFocus()
   ) {
     console.warn(
@@ -180,7 +180,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
     !getVisibility().hidden() &&
     typeof document !== 'undefined' &&
     document &&
-    document.hasFocus &&
+    'hasFocus' in document &&
     document.hasFocus() &&
     !state.navInfo.pendingThread &&
     state.threadStore.threadInfos[activeThread].currentUser.unread
