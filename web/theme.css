@@ -77,4 +77,5 @@
   --unread-bg: var(--error-primary);
   --settings-btn-bg: var(--violet-dark-100);
   --modal-bg: var(--shades-black-90);
+  --join-bg: var(--shades-black-90);
 }

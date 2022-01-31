@@ -177,20 +177,21 @@ class ChatInputBar extends React.PureComponent<Props> {
         );
       } else {
         buttonContent = (
-          <div>
+          <>
             <SWMansionIcon icon="plus" size={16} />
-            <span className={css.joinButtonText}>Join Thread</span>
-          </div>
+            <p className={css.joinButtonText}>Join Thread</p>
+          </>
         );
       }
       joinButton = (
         <div className={css.joinButtonContainer}>
-          <a
-            style={{ backgroundColor: `#${this.props.threadInfo.color}` }}
+          <button
             onClick={this.onClickJoin}
+            className={css.joinButton}
+            style={{ backgroundColor: `#${this.props.threadInfo.color}` }}
           >
             {buttonContent}
-          </a>
+          </button>
         </div>
       );
     }

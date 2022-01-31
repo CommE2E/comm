@@ -29,22 +29,39 @@ div.inputBarTextInput > textarea {
 div.inputBarTextInput > textarea:focus {
   outline: none;
 }
-div.joinButtonContainer > a {
-  margin: 8px;
-  padding: 3px 0 5px 0;
+div.joinButtonContainer {
+  background: var(--join-bg);
+  padding-top: 8px;
+  padding-bottom: 8px;
   display: flex;
-  border-radius: 8px;
+  flex-direction: row;
+  width: 100%;
+  justify-content: center;
+}
+button.joinButton {
+  display: flex;
+  align-items: center;
+  background: var(--button-bg);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  color: var(--fg);
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
+  cursor: pointer;
+}
+
+button.joinButton {
+  display: flex;
+  border-radius: 4px;
   justify-content: center;
   cursor: pointer;
 }
-div.joinButtonContainer > a svg {
+p.joinButtonText {
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
   color: var(--fg);
-}
-span.joinButtonText {
-  font-size: 18px;
-  color: white;
-  text-align: center;
-  margin-inline: 6px;
+  padding-left: 12px;
 }
 span.explanation {
   color: #777777;
