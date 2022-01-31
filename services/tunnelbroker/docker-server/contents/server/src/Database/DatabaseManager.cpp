@@ -135,6 +135,31 @@ void DatabaseManager::removeSessionSignItem(const std::string &deviceId) {
   this->innerRemoveItem(*(createItemByType<SessionSignItem>()), deviceId);
 }
 
+void DatabaseManager::putPublicKeyItem(const PublicKeyItem &item) {
+  Aws::DynamoDB::Model::PutItemRequest request;
+  request.SetTableName(item.getTableName());
+  request.AddItem(
+      PublicKeyItem::FIELD_DEVICE_ID,
+      Aws::DynamoDB::Model::AttributeValue(item.getDeviceId()));
+  request.AddItem(
+      PublicKeyItem::FIELD_PUBLIC_KEY,
+      Aws::DynamoDB::Model::AttributeValue(item.getPublicKey()));
+  this->innerPutItem(std::make_shared<PublicKeyItem>(item), request);
+}
+
+std::shared_ptr<PublicKeyItem>
+DatabaseManager::findPublicKeyItem(const std::string &deviceId) {
+  Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey(
+      PublicKeyItem::FIELD_DEVICE_ID,
+      Aws::DynamoDB::Model::AttributeValue(deviceId));
+  return std::move(this->innerFindItem<PublicKeyItem>(request));
+}
+
+void DatabaseManager::removePublicKeyItem(const std::string &deviceId) {
+  this->innerRemoveItem(*(createItemByType<PublicKeyItem>()), deviceId);
+}
+
 } // namespace database
 } // namespace network
 } // namespace comm

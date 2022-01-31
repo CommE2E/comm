@@ -12,6 +12,7 @@ const std::string TUNNELBROKER_ID = "tunnel1";
 const std::string DEVICE_SESSIONS_TABLE_NAME = "tunnelbroker-device-session";
 const std::string DEVICE_SESSIONS_VERIFICATION_MESSAGES_TABLE_NAME =
     "tunnelbroker-verification-message";
+const std::string DEVICE_PUBLIC_KEY_TABLE_NAME = "tunnelbroker-public-key";
 
 // Sessions
 const size_t SIGNATURE_REQUEST_LENGTH = 64;

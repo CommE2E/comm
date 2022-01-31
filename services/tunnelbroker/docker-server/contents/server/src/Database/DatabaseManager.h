@@ -35,6 +35,7 @@ class DatabaseManager {
 public:
   static DatabaseManager &getInstance();
   bool isTableAvailable(const std::string &tableName);
+
   void putSessionItem(const DeviceSessionItem &item);
   std::shared_ptr<DeviceSessionItem>
   findSessionItem(const std::string &deviceID);
@@ -43,6 +44,10 @@ public:
   std::shared_ptr<SessionSignItem>
   findSessionSignItem(const std::string &deviceId);
   void removeSessionSignItem(const std::string &deviceId);
+
+  void putPublicKeyItem(const PublicKeyItem &item);
+  std::shared_ptr<PublicKeyItem> findPublicKeyItem(const std::string &deviceId);
+  void removePublicKeyItem(const std::string &deviceId);
 };
 
 } // namespace database

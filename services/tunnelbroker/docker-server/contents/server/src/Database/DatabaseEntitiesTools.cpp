@@ -14,6 +14,10 @@ std::shared_ptr<SessionSignItem> createItemByType<SessionSignItem>() {
   return std::make_shared<SessionSignItem>();
 }
 
+template <> std::shared_ptr<PublicKeyItem> createItemByType<PublicKeyItem>() {
+  return std::make_shared<PublicKeyItem>();
+}
+
 } // namespace database
 } // namespace network
 } // namespace comm
