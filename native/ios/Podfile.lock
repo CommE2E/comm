@@ -766,11 +766,11 @@ PODS:
     - React
   - react-native-safe-area-context (3.1.9):
     - React-Core
-  - react-native-video/Video (5.0.2):
-    - React
-  - react-native-video/VideoCaching (5.0.2):
+  - react-native-video/Video (5.1.1):
+    - React-Core
+  - react-native-video/VideoCaching (5.1.1):
     - DVAssetLoaderDelegate (~> 0.3.1)
-    - React
+    - React-Core
     - react-native-video/Video
     - SPTPersistentCache (~> 1.1.0)
   - React-perflogger (0.66.4)
@@ -1277,7 +1277,7 @@ SPEC CHECKSUMS:
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
   react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
-  react-native-video: d01ed7ff1e38fa7dcc6c15c94cf505e661b7bfd0
+  react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
   React-perflogger: 93075d8931c32cd1fce8a98c15d2d5ccc4d891bd
   React-RCTActionSheet: 7d3041e6761b4f3044a37079ddcb156575fb6d89
   React-RCTAnimation: 743e88b55ac62511ae5c2e22803d4f503f2a3a13
