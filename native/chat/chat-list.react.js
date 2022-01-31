@@ -234,10 +234,10 @@ class ChatList extends React.PureComponent<Props, State> {
     this.flatList = flatList;
   };
 
-  static getItemLayout(
+  static getItemLayout = (
     data: ?$ReadOnlyArray<ChatMessageItemWithHeight>,
     index: number,
-  ) {
+  ) => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
@@ -245,7 +245,7 @@ class ChatList extends React.PureComponent<Props, State> {
     const item = data[index];
     const length = item ? chatMessageItemHeight(item) : 0;
     return { length, offset, index };
-  }
+  };
 
   static heightOfItems(
     data: $ReadOnlyArray<ChatMessageItemWithHeight>,

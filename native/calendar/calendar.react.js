@@ -509,10 +509,10 @@ class Calendar extends React.PureComponent<Props, State> {
     invariant(false, 'keyExtractor conditions should be exhaustive');
   };
 
-  static getItemLayout(
+  static getItemLayout = (
     data: ?$ReadOnlyArray<CalendarItemWithHeight>,
     index: number,
-  ) {
+  ) => {
     if (!data) {
       return { length: 0, offset: 0, index };
     }
@@ -520,9 +520,9 @@ class Calendar extends React.PureComponent<Props, State> {
     const item = data[index];
     const length = item ? Calendar.itemHeight(item) : 0;
     return { length, offset, index };
-  }
+  };
 
-  static itemHeight(item: CalendarItemWithHeight): number {
+  static itemHeight = (item: CalendarItemWithHeight) => {
     if (item.itemType === 'loader') {
       return 56;
     } else if (item.itemType === 'header') {
@@ -534,11 +534,11 @@ class Calendar extends React.PureComponent<Props, State> {
       return 40;
     }
     invariant(false, 'itemHeight conditions should be exhaustive');
-  }
+  };
 
-  static heightOfItems(data: $ReadOnlyArray<CalendarItemWithHeight>): number {
+  static heightOfItems = (data: $ReadOnlyArray<CalendarItemWithHeight>) => {
     return _sum(data.map(Calendar.itemHeight));
-  }
+  };
 
   render() {
     const { listDataWithHeights } = this.state;
