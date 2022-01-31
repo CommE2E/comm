@@ -54,6 +54,7 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
 
   std::shared_ptr<database::DeviceSessionItem> deviceSessionItem;
   std::shared_ptr<database::SessionSignItem> sessionSignItem;
+  std::shared_ptr<database::PublicKeyItem> publicKeyItem;
   const std::string deviceId = request->deviceid();
   const std::string signature = request->signature();
   const std::string publicKey = request->publickey();
@@ -78,6 +79,20 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
                 << std::endl;
       return grpc::Status(
           grpc::StatusCode::NOT_FOUND, "Session sign request not found");
+    }
+    publicKeyItem =
+        database::DatabaseManager::getInstance().findPublicKeyItem(deviceId);
+    if (publicKeyItem == nullptr) {
+      std::shared_ptr<database::PublicKeyItem> newPublicKeyItem =
+          std::make_shared<database::PublicKeyItem>(deviceId, publicKey);
+      database::DatabaseManager::getInstance().putPublicKeyItem(
+          *newPublicKeyItem);
+    } else if (publicKey != publicKeyItem->getPublicKey()) {
+      std::cout << "gRPC: "
+                << "The public key doesn't match for deviceId" << std::endl;
+      return grpc::Status(
+          grpc::StatusCode::PERMISSION_DENIED,
+          "The public key doesn't match for deviceId");
     }
     const std::string verificationMessage = sessionSignItem->getSign();
     if (!comm::network::crypto::rsaVerifyString(
