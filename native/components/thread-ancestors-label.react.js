@@ -48,10 +48,6 @@ function ThreadAncestorsLabel(props: Props): React.Node {
     return unread ? [styles.pathText, styles.unread] : styles.pathText;
   }, [styles.pathText, styles.unread, unread]);
 
-  if (!ancestorPath) {
-    return null;
-  }
-
   return (
     <Text numberOfLines={1} style={ancestorPathStyle}>
       {ancestorPath}
