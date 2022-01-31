@@ -9,6 +9,7 @@ class GrpcClient {
   hostname: string;
   port: string;
   client: any;
+  readyState: number;
 
   constructor(hostname: string, port: string) {
     this.hostname = hostname;
@@ -19,6 +20,7 @@ class GrpcClient {
       protoPath,
       'TunnelbrokerService',
     );
+    this.readyState = 0;
   }
 
   async sessionSignature(): Promise<string> {
