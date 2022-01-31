@@ -22,19 +22,14 @@ div.modal-body p.form-pre-footer {
   font-size: 12px;
   font-style: italic;
 }
-div.modal-body input,
 div.modal-body textarea {
   margin: 3px;
 }
-div.modal-body input[type='text'],
-div.modal-body input[type='password'],
 div.modal-body textarea {
   font-size: 14px;
   padding: 1px;
   width: 175px;
 }
-div.large-modal-container div.modal-body input[type='text'],
-div.large-modal-container div.modal-body input[type='password'],
 div.large-modal-container div.modal-body textarea {
   width: 275px;
 }
@@ -101,7 +96,6 @@ div.large-modal-container div.modal-body div.form-title {
 div.modal-body div.form-content {
   display: inline-block;
   font-family: var(--font-stack);
-  font-size: 15px;
   color: var(--fg);
 }
 div.modal-body div.form-subtitle {

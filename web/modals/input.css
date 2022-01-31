@@ -1,0 +1,22 @@
+.label {
+  color: var(--fg);
+  font-weight: var(--bold);
+  font-size: var(--xl-font-20);
+  line-height: var(--line-height-text);
+}
+
+.input {
+  padding: 12px;
+  background: var(--modal-bg);
+  color: var(--fg);
+}
+
+.input[type='text'],
+.input[type='password'] {
+  border: 1px solid var(--border-color);
+  width: 100%;
+  font-size: var(--m-font-16);
+  line-height: var(--line-height-text);
+  color: var(--fg);
+  border-radius: 4px;
+}

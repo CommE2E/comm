@@ -9,20 +9,26 @@ type Props = {
   +onChange: (value: SyntheticEvent<HTMLInputElement>) => mixed,
   +disabled: boolean,
   +label?: string,
-  id?: string,
+  +id?: string,
 };
+
+import css from './input.css';
 
 function Input(props: Props, ref): React.Node {
   const { label: labelProps, id, ...rest } = props;
   let label;
   if (labelProps) {
-    label = <label htmlFor={id}>{labelProps}</label>;
+    label = (
+      <label className={css.label} htmlFor={id}>
+        {labelProps}
+      </label>
+    );
   }
 
   return (
     <>
       {label}
-      <input id={id} {...rest} ref={ref} />
+      <input className={css.input} id={id} {...rest} ref={ref} />
     </>
   );
 }
