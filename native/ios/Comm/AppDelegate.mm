@@ -273,7 +273,7 @@ using Runtime = facebook::jsi::Runtime;
   return std::make_unique<HermesExecutorFactory>(
       facebook::react::RCTJSIExecutorRuntimeInstaller(installer),
       JSIExecutor::defaultTimeoutInvoker,
-      makeRuntimeConfig(1024));
+      makeRuntimeConfig(3072));
 }
 
 // Copied from
