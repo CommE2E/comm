@@ -99,7 +99,7 @@ class EditPassword extends React.PureComponent<Props, State> {
               placeholderTextColor={panelForegroundTertiaryLabel}
               secureTextEntry={true}
               textContentType="password"
-              autoCompleteType="password"
+              autoComplete="password"
               autoFocus={true}
               returnKeyType="next"
               onSubmitEditing={this.focusNewPassword}
@@ -118,6 +118,7 @@ class EditPassword extends React.PureComponent<Props, State> {
               placeholderTextColor={panelForegroundTertiaryLabel}
               secureTextEntry={true}
               textContentType="newPassword"
+              autoComplete="password-new"
               returnKeyType="next"
               onSubmitEditing={this.focusConfirmPassword}
               ref={this.newPasswordRef}
