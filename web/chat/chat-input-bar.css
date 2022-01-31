@@ -37,6 +37,9 @@ div.joinButtonContainer > a {
   justify-content: center;
   cursor: pointer;
 }
+div.joinButtonContainer > a svg {
+  color: var(--fg);
+}
 span.joinButtonText {
   font-size: 18px;
   color: white;

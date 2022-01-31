@@ -1,7 +1,5 @@
 // @flow
 
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import invariant from 'invariant';
 import _difference from 'lodash/fp/difference';
 import * as React from 'react';
@@ -180,7 +178,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       } else {
         buttonContent = (
           <div>
-            <FontAwesomeIcon color="white" icon={faPlus} />
+            <SWMansionIcon icon="plus" size={16} />
             <span className={css.joinButtonText}>Join Thread</span>
           </div>
         );
