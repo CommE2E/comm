@@ -1,10 +1,10 @@
 // flow-typed signature: 249ddfcae5dfea268feb3f85fbd35f97
 // flow-typed version: d14eb225e8/webpack_v4.x.x/flow_>=v0.71.x <=v0.103.x
 
-import * as http from 'http';
-import fs from 'fs';
-
 declare module 'webpack' {
+  import typeof { Server, ServerResponse } from 'http';
+  import typeof { Stats as FSStats } from 'fs';
+
   declare class $WebpackError extends Error {
     constructor(message: string): WebpackError;
     inspect(): string;
@@ -441,9 +441,9 @@ declare module 'webpack' {
     context?: string,
     dependencies?: Array<string>,
     devServer?: {
-      after?: (app: any, server: http.Server) => void,
+      after?: (app: any, server: Server) => void,
       allowedHosts?: string[],
-      before?: (app: any, server: http.Server) => void,
+      before?: (app: any, server: Server) => void,
       bonjour?: boolean,
       clientLogLevel?: 'none' | 'info' | 'error' | 'warning',
       compress?: boolean,
@@ -498,9 +498,9 @@ declare module 'webpack' {
         maxAge?: number,
         redirect?: boolean,
         setHeaders?: (
-          res: http.OutgoingMessage,
+          res: ServerResponse,
           path: string,
-          stat: fs.Stat
+          stat: FSStats
         ) => void,
       },
       stats?: StatsOptions,
