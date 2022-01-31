@@ -15,7 +15,7 @@ import { useStyles } from '../themes/colors';
 import { type KeyboardState, KeyboardContext } from './keyboard-state';
 
 type BaseProps = {
-  +textInputRef?: React.ElementRef<typeof TextInput>,
+  +textInputRef?: ?React.ElementRef<typeof TextInput>,
 };
 type Props = {
   ...BaseProps,
