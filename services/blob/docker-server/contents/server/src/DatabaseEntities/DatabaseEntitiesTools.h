@@ -6,6 +6,7 @@
 #include "ReverseIndexItem.h"
 
 #include <memory>
+#include <type_traits>
 
 namespace comm {
 namespace network {
@@ -23,13 +24,9 @@ namespace database {
  */
 
 template <typename T> std::shared_ptr<T> createItemByType() {
-  throw std::runtime_error("invalid Item type");
+  static_assert(std::is_base_of<Item, T>::value, "T must inherit from Item");
+  return std::make_shared<T>();
 }
-
-template <> std::shared_ptr<BlobItem> createItemByType<BlobItem>();
-
-template <>
-std::shared_ptr<ReverseIndexItem> createItemByType<ReverseIndexItem>();
 
 } // namespace database
 } // namespace network
