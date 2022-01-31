@@ -150,14 +150,14 @@ class Entry extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  updateHeight() {
+  updateHeight: () => void = () => {
     invariant(
       this.textarea instanceof HTMLTextAreaElement,
       'textarea ref not set',
     );
     this.textarea.style.height = 'auto';
     this.textarea.style.height = this.textarea.scrollHeight + 'px';
-  }
+  };
 
   render(): React.Node {
     let actionLinks = null;
@@ -267,7 +267,7 @@ class Entry extends React.PureComponent<Props, State> {
     }
     const target = event.target;
     invariant(target instanceof HTMLTextAreaElement, 'target not textarea');
-    this.setState({ text: target.value }, this.updateHeight.bind(this));
+    this.setState({ text: target.value }, this.updateHeight);
   };
 
   onKeyDown: (
@@ -384,10 +384,7 @@ class Entry extends React.PureComponent<Props, State> {
       this.currentlySaving = null;
       if (e instanceof ServerError && e.message === 'concurrent_modification') {
         const onRefresh = () => {
-          this.setState(
-            { loadingStatus: 'inactive' },
-            this.updateHeight.bind(this),
-          );
+          this.setState({ loadingStatus: 'inactive' }, this.updateHeight);
           this.props.dispatch({
             type: concurrentModificationResetActionType,
             payload: { id: entryID, dbText: e.payload.db },
