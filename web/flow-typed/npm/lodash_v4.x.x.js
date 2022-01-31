@@ -2880,8 +2880,8 @@ declare module "lodash/fp" {
     divide(dividend: number, divisor: number): number;
     floor(number: number): number;
     max<T>(array: $ReadOnlyArray<T>): T;
-    maxBy<T>(iteratee: Iteratee<T>): (array: $ReadOnlyArray<T>) => T;
     maxBy<T>(iteratee: Iteratee<T>, array: $ReadOnlyArray<T>): T;
+    maxBy<T>(iteratee: Iteratee<T>): (array: $ReadOnlyArray<T>) => T;
     mean(array: $ReadOnlyArray<*>): number;
     meanBy<T>(iteratee: Iteratee<T>): (array: $ReadOnlyArray<T>) => number;
     meanBy<T>(iteratee: Iteratee<T>, array: $ReadOnlyArray<T>): number;
