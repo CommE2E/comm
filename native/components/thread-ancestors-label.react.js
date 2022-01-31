@@ -11,10 +11,10 @@ import { useColors, useStyles } from '../themes/colors';
 
 type Props = {
   +threadInfo: ThreadInfo,
-  +unread: ?boolean,
 };
 function ThreadAncestorsLabel(props: Props): React.Node {
-  const { unread, threadInfo } = props;
+  const { threadInfo } = props;
+  const { unread } = threadInfo.currentUser;
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   const ancestorThreads = useAncestorThreads(threadInfo);
