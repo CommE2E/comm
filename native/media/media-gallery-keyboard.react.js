@@ -31,6 +31,7 @@ import SendMediaButton from './send-media-button.react';
 
 const animationSpec = {
   duration: 400,
+  // $FlowFixMe[method-unbinding]
   easing: Easing.inOut(Easing.ease),
   useNativeDriver: true,
 };

@@ -32,6 +32,7 @@ import {
 
 const animatedSpec = {
   duration: 400,
+  // $FlowFixMe[method-unbinding]
   easing: Easing.inOut(Easing.ease),
   useNativeDriver: true,
 };
