@@ -7,9 +7,6 @@
  * by Vincent Driessen, 2018-12-21
  */
 
-import * as http from 'http';
-import type { Socket } from 'net';
-
 declare module 'cookie-parser' {
   /**
    * NOTE:
