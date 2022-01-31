@@ -19,7 +19,7 @@ import {
   threadPermissions,
   threadTypeIsCommunityRoot,
 } from 'lib/types/thread-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
+import type { UserInfos } from 'lib/types/user-types';
 import { pushAll } from 'lib/utils/array';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
@@ -292,7 +292,7 @@ async function createThread(
       }
 
       let joinUpdateInfos = [];
-      let userInfos: { [id: string]: AccountUserInfo } = {};
+      let userInfos: UserInfos = {};
       let newMessageInfos = [];
       if (threadType !== threadTypes.PERSONAL) {
         const joinThreadResult = await joinThread(viewer, {

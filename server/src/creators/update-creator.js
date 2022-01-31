@@ -32,7 +32,7 @@ import {
   updateTypes,
 } from 'lib/types/update-types';
 import type {
-  AccountUserInfo,
+  UserInfos,
   LoggedInUserInfo,
   OldLoggedInUserInfo,
 } from 'lib/types/user-types';
@@ -407,8 +407,8 @@ async function createUpdates(
 }
 
 export type FetchUpdatesResult = {
-  updateInfos: $ReadOnlyArray<ServerUpdateInfo>,
-  userInfos: { [id: string]: AccountUserInfo },
+  +updateInfos: $ReadOnlyArray<ServerUpdateInfo>,
+  +userInfos: UserInfos,
 };
 async function fetchUpdateInfosWithRawUpdateInfos(
   rawUpdateInfos: $ReadOnlyArray<RawUpdateInfo>,
