@@ -741,7 +741,7 @@ PODS:
   - React-jsinspector (0.66.4)
   - React-logger (0.66.4):
     - glog
-  - react-native-background-upload (5.6.0):
+  - react-native-background-upload (6.5.1):
     - React
   - react-native-camera (3.31.0):
     - React
@@ -1268,7 +1268,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 94ce921e1d8ce7023366873ec371f3441383b396
   React-jsinspector: d0374f7509d407d2264168b6d0fad0b54e300b85
   React-logger: 933f80c97c633ee8965d609876848148e3fef438
-  react-native-background-upload: 6e8ba7f41a6308231306bddc88f11da3b74c9de4
+  react-native-background-upload: c62f25610ffd49b1781fbdf1135b3b17f2f914b9
   react-native-camera: b5c8c7a71feecfdd5b39f0dbbf6b64b957ed55f2
   react-native-ffmpeg: f9a60452aaa5d478aac205b248224994f3bde416
   react-native-flipper: 80b71629f5bf7b942dfae7af0c5f88526d19b3ca
