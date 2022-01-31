@@ -244,7 +244,7 @@ async function leaveThread(
         updatesResult: { newUpdates: [] },
       };
     }
-    const threadInfos = await fetchThreadInfos(viewer);
+    const { threadInfos } = await fetchThreadInfos(viewer);
     return {
       threadInfos,
       updatesResult: {
