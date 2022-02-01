@@ -8,10 +8,23 @@ type Props = {
   +value: string,
   +onChange: (value: SyntheticEvent<HTMLInputElement>) => mixed,
   +disabled: boolean,
+  +label?: string,
+  id?: string,
 };
 
 function Input(props: Props, ref): React.Node {
-  return <input {...props} ref={ref} />;
+  const { label: labelProps, id, ...rest } = props;
+  let label;
+  if (labelProps) {
+    label = <label htmlFor={id}>{labelProps}</label>;
+  }
+
+  return (
+    <>
+      {label}
+      <input id={id} {...rest} ref={ref} />
+    </>
+  );
 }
 
 const ForwardedInput: React.AbstractComponent<
