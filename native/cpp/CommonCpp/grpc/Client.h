@@ -43,6 +43,7 @@ public:
   void get(std::string sessionID);
   void setOnReadDoneCallback(std::function<void(std::string)> callback);
   void setOnOpenCallback(std::function<void()> callback);
+  void setOnCloseCallback(std::function<void()> callback);
 };
 
 } // namespace network

@@ -105,5 +105,12 @@ void Client::setOnOpenCallback(std::function<void()> callback) {
   this->clientGetReadReactor->setOnOpenCallback(callback);
 }
 
+void Client::setOnCloseCallback(std::function<void()> callback) {
+  if (!this->clientGetReadReactor) {
+    return;
+  }
+  this->clientGetReadReactor->setOnCloseCallback(callback);
+}
+
 } // namespace network
 } // namespace comm

@@ -71,12 +71,24 @@ GRPCStreamHostObject::GRPCStreamHostObject(
     });
   };
 
+  auto onCloseCallback = [this, &rt]() {
+    this->jsInvoker->invokeAsync([this, &rt]() {
+      if (this->onclose.isNull()) {
+        return;
+      }
+      this->onclose.asObject(rt).asFunction(rt).call(
+          rt, jsi::Value::undefined(), 0);
+    });
+  };
+
   comm::GlobalNetworkSingleton::instance.scheduleOrRun(
       [onReadDoneCallback = std::move(onReadDoneCallback),
-       onOpenCallback =
-           std::move(onOpenCallback)](comm::NetworkModule &networkModule) {
+       onOpenCallback = std::move(onOpenCallback),
+       onCloseCallback =
+           std::move(onCloseCallback)](comm::NetworkModule &networkModule) {
         networkModule.setOnReadDoneCallback(onReadDoneCallback);
         networkModule.setOnOpenCallback(onOpenCallback);
+        networkModule.setOnCloseCallback(onCloseCallback);
       });
 }
 
@@ -100,33 +112,27 @@ GRPCStreamHostObject::get(jsi::Runtime &runtime, const jsi::PropNameID &name) {
   if (propName == "readyState") {
     return jsi::Value(this->readyState);
   }
-
   if (propName == "send") {
     return this->send.asObject(runtime).asFunction(runtime);
   }
-
   if (propName == "close") {
     return this->close.asObject(runtime).asFunction(runtime);
   }
-
   if (propName == "onopen") {
     return this->onopen.isNull()
         ? jsi::Value::null()
         : this->onopen.asObject(runtime).asFunction(runtime);
   }
-
   if (propName == "onmessage") {
     return this->onmessage.isNull()
         ? jsi::Value::null()
         : this->onmessage.asObject(runtime).asFunction(runtime);
   }
-
   if (propName == "onclose") {
     return this->onclose.isNull()
         ? jsi::Value::null()
         : this->onclose.asObject(runtime).asFunction(runtime);
   }
-
   return jsi::String::createFromUtf8(runtime, std::string{"unimplemented"});
 }
 
