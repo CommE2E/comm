@@ -563,7 +563,8 @@ The Olm config file should look like this:
 
 ```json
 {
-  "privateKey": "privateKey"
+  "privateKey": "privateKey",
+  "publicKey": "publicKey"
 }
 ```
 
