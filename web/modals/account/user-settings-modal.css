@@ -34,14 +34,14 @@ div.large-modal-container div.modal-body textarea {
 }
 
 div.modal-body p.confirm-account-password {
-  padding: 3px 0px 5px 0px;
-  font-style: italic;
-  font-size: 13px;
   color: #777777;
+  margin-bottom: 4px;
+  color: var(--fg);
 }
 div.modal-body div.form-footer {
   display: flex;
   justify-content: space-between;
+  padding-top: 8px;
 }
 div.modal-body div.form-footer div.modal-form-error {
   font-size: 12px;
@@ -71,6 +71,9 @@ div.modal-body div.form-content {
   display: inline-block;
   font-family: var(--font-stack);
   color: var(--fg);
+}
+div.modal-body div.form-content input {
+  margin-bottom: 4px;
 }
 div.modal-body div.form-subtitle {
   font-size: 12px;
