@@ -54,4 +54,11 @@ void NetworkModule::setOnReadDoneCallback(
   this->networkClient->setOnReadDoneCallback(callback);
 }
 
+void NetworkModule::setOnOpenCallback(std::function<void()> callback) {
+  if (!this->networkClient) {
+    return;
+  }
+  this->networkClient->setOnOpenCallback(callback);
+}
+
 } // namespace comm

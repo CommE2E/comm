@@ -11,8 +11,10 @@ class ClientGetReadReactor
   tunnelbroker::GetRequest request;
   tunnelbroker::GetResponse response;
   std::mutex onReadDoneCallbackMutex;
+  std::mutex onOpenCallbackMutex;
   std::string sessionID;
   std::function<void(std::string)> onReadDoneCallback;
+  std::function<void()> onOpenCallback;
 
 public:
   ClientGetReadReactor(
@@ -40,6 +42,11 @@ public:
   setOnReadDoneCallback(std::function<void(std::string)> onReadDoneCallback) {
     std::lock_guard<std::mutex> guard{this->onReadDoneCallbackMutex};
     this->onReadDoneCallback = onReadDoneCallback;
+  }
+
+  void setOnOpenCallback(std::function<void()> onOpenCallback) {
+    std::lock_guard<std::mutex> guard{this->onOpenCallbackMutex};
+    this->onOpenCallback = onOpenCallback;
   }
 
   void tryCancel() {

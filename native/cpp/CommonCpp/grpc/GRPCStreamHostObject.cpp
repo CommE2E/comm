@@ -61,10 +61,22 @@ GRPCStreamHostObject::GRPCStreamHostObject(
     });
   };
 
+  auto onOpenCallback = [this, &rt]() {
+    this->jsInvoker->invokeAsync([this, &rt]() {
+      if (this->onopen.isNull()) {
+        return;
+      }
+      this->onopen.asObject(rt).asFunction(rt).call(
+          rt, jsi::Value::undefined(), 0);
+    });
+  };
+
   comm::GlobalNetworkSingleton::instance.scheduleOrRun(
-      [onReadDoneCallback =
-           std::move(onReadDoneCallback)](comm::NetworkModule &networkModule) {
+      [onReadDoneCallback = std::move(onReadDoneCallback),
+       onOpenCallback =
+           std::move(onOpenCallback)](comm::NetworkModule &networkModule) {
         networkModule.setOnReadDoneCallback(onReadDoneCallback);
+        networkModule.setOnOpenCallback(onOpenCallback);
       });
 }
 
