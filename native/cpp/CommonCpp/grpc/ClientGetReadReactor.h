@@ -56,7 +56,7 @@ public:
     this->onCloseCallback = onCloseCallback;
   }
 
-  void tryCancel() {
+  void close() {
     this->context.TryCancel();
   }
 };

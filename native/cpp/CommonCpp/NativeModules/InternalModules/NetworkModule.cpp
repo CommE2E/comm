@@ -68,4 +68,11 @@ void NetworkModule::setOnCloseCallback(std::function<void()> callback) {
   this->networkClient->setOnCloseCallback(callback);
 }
 
+void NetworkModule::closeGetStream() {
+  if (!this->networkClient) {
+    return;
+  }
+  this->networkClient->closeGetStream();
+}
+
 } // namespace comm

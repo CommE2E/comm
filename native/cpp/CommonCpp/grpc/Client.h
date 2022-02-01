@@ -44,6 +44,7 @@ public:
   void setOnReadDoneCallback(std::function<void(std::string)> callback);
   void setOnOpenCallback(std::function<void()> callback);
   void setOnCloseCallback(std::function<void()> callback);
+  void closeGetStream();
 };
 
 } // namespace network

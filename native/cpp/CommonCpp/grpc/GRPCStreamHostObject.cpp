@@ -38,8 +38,12 @@ GRPCStreamHostObject::GRPCStreamHostObject(
              const jsi::Value &thisVal,
              const jsi::Value *args,
              size_t count) {
-            return jsi::String::createFromUtf8(
-                rt, std::string{"GRPCStream.close: unimplemented"});
+            comm::GlobalNetworkSingleton::instance.scheduleOrRun(
+                [=](comm::NetworkModule &networkModule) {
+                  networkModule.closeGetStream();
+                });
+
+            return jsi::Value::undefined();
           })},
       jsInvoker{jsInvoker} {
 
