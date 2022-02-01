@@ -1,10 +1,9 @@
 div.modal-body {
-  padding: 6px 6px;
+  padding: 32px 40px;
   width: 100%;
   box-sizing: border-box;
   background-color: var(--modal-bg);
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
+  border-radius: 15px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -33,6 +32,7 @@ div.modal-body textarea {
 div.large-modal-container div.modal-body textarea {
   width: 275px;
 }
+
 div.modal-body p.confirm-account-password {
   padding: 3px 0px 5px 0px;
   font-style: italic;
