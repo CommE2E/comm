@@ -2,6 +2,7 @@
 
 #include "../../Tools/WorkerThread.h"
 #include "NetworkModule.h"
+#include "SocketStatus.h"
 #include <functional>
 #include <memory>
 
@@ -14,5 +15,7 @@ public:
   static GlobalNetworkSingleton instance;
   void scheduleOrRun(std::function<void(NetworkModule &)> &&task);
   void enableMultithreading();
+
+  SocketStatus getSocketStatus();
 };
 } // namespace comm

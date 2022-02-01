@@ -24,4 +24,9 @@ void GlobalNetworkSingleton::enableMultithreading() {
     this->networkModule().close();
   }
 }
+
+SocketStatus GlobalNetworkSingleton::getSocketStatus() {
+  return this->networkModule().socketStatus;
+}
+
 } // namespace comm
