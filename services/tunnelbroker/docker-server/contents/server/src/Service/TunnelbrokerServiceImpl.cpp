@@ -39,9 +39,17 @@ grpc::Status TunnelBrokerServiceImpl::SessionSignature(
     grpc::ServerContext *context,
     const tunnelbroker::SessionSignatureRequest *request,
     tunnelbroker::SessionSignatureResponse *reply) {
+  const std::string deviceId = request->deviceid();
+  if (!validateDeviceId(deviceId)) {
+    std::cout << "gRPC: "
+              << "Format validation failed for " << deviceId << std::endl;
+    return grpc::Status(
+        grpc::StatusCode::INVALID_ARGUMENT,
+        "Format validation failed for deviceID");
+  }
   const std::string toSign = generateRandomString(SIGNATURE_REQUEST_LENGTH);
   std::shared_ptr<database::SessionSignItem> SessionSignItem =
-      std::make_shared<database::SessionSignItem>(toSign, request->deviceid());
+      std::make_shared<database::SessionSignItem>(toSign, deviceId);
   database::DatabaseManager::getInstance().putSessionSignItem(*SessionSignItem);
   reply->set_tosign(toSign);
   return grpc::Status::OK;
@@ -56,6 +64,13 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   std::shared_ptr<database::SessionSignItem> sessionSignItem;
   std::shared_ptr<database::PublicKeyItem> publicKeyItem;
   const std::string deviceId = request->deviceid();
+  if (!validateDeviceId(deviceId)) {
+    std::cout << "gRPC: "
+              << "Format validation failed for " << deviceId << std::endl;
+    return grpc::Status(
+        grpc::StatusCode::INVALID_ARGUMENT,
+        "Format validation failed for deviceID");
+  }
   const std::string signature = request->signature();
   const std::string publicKey = request->publickey();
   const boost::uuids::uuid uuid = boost::uuids::random_generator()();
