@@ -137,7 +137,7 @@ GRPCStreamHostObject::get(jsi::Runtime &runtime, const jsi::PropNameID &name) {
         ? jsi::Value::null()
         : this->onclose.asObject(runtime).asFunction(runtime);
   }
-  return jsi::String::createFromUtf8(runtime, std::string{"unimplemented"});
+  return jsi::Value::undefined();
 }
 
 void GRPCStreamHostObject::set(
