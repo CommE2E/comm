@@ -791,7 +791,11 @@ async function updateBadgeCount(
   if (androidVersionsToTokens) {
     for (const [codeVer, deviceTokens] of androidVersionsToTokens) {
       const codeVersion = parseInt(codeVer, 10); // only for Flow
-      const notification = { data: { badge: unreadCount.toString() } };
+      const notificationData =
+        codeVersion < 69
+          ? { badge: unreadCount.toString() }
+          : { badge: unreadCount.toString(), badgeOnly: '1' };
+      const notification = { data: notificationData };
       deliveryPromises.push(
         sendAndroidNotification(notification, [...deviceTokens], {
           source,
