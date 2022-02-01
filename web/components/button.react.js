@@ -11,10 +11,18 @@ type Props = {
   +variant?: 'primary' | 'secondary' | 'danger' | 'round',
   +type?: string,
   +disabled?: boolean,
+  +className?: string,
 };
 
 function Button(props: Props): React.Node {
-  const { onClick, children, variant, type, disabled: disabledProp } = props;
+  const {
+    onClick,
+    children,
+    variant,
+    type,
+    disabled: disabledProp,
+    className = '',
+  } = props;
   const btnCls = classnames(css.btn, {
     [css.round]: variant === 'round',
     [css.primary]: variant === 'primary',
@@ -30,7 +38,7 @@ function Button(props: Props): React.Node {
   return (
     <button
       type={type}
-      className={btnCls}
+      className={`${btnCls} ${className}`}
       onClick={onClick}
       disabled={disabled}
     >
