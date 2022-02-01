@@ -27,6 +27,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import { useSelector } from '../../redux/redux-utils';
+import Input from '../input.react';
 import Modal from '../modal.react';
 import css from './user-settings-modal.css';
 
@@ -130,7 +131,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
             <div className={css['form-title']}>New password</div>
             <div className={css['form-content']}>
               <div>
-                <input
+                <Input
                   type="password"
                   placeholder="New password"
                   value={this.state.newPassword}
@@ -140,7 +141,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
                 />
               </div>
               <div>
-                <input
+                <Input
                   type="password"
                   placeholder="Confirm new password"
                   value={this.state.confirmNewPassword}
@@ -217,7 +218,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
               </p>
               <div className={css['form-title']}>Current password</div>
               <div className={css['form-content']}>
-                <input
+                <Input
                   type="password"
                   placeholder="Current password"
                   value={this.state.currentPassword}

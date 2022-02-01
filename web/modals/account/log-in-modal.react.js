@@ -23,6 +23,7 @@ import {
 
 import { useSelector } from '../../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
+import Input from '../input.react';
 import Modal from '../modal.react';
 import css from './user-settings-modal.css';
 
@@ -67,7 +68,7 @@ class LogInModal extends React.PureComponent<Props, State> {
             <div>
               <div className={css['form-title']}>Username</div>
               <div className={css['form-content']}>
-                <input
+                <Input
                   type="text"
                   placeholder="Username"
                   value={this.state.username}
@@ -80,7 +81,7 @@ class LogInModal extends React.PureComponent<Props, State> {
             <div>
               <div className={css['form-title']}>Password</div>
               <div className={css['form-content']}>
-                <input
+                <Input
                   type="password"
                   placeholder="Password"
                   value={this.state.password}
