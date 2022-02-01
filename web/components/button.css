@@ -18,6 +18,12 @@
   padding: 12px 24px;
   color: var(--fg);
   background: var(--shades-black-90);
+}
+
+.danger {
+  background: var(--btn-bg-danger);
+  padding: 12px 24px;
+  color: var(--fg);
   border-radius: 4px;
 }
 
