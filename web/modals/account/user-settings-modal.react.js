@@ -180,19 +180,19 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
         <>
           <Button
             type="submit"
-            variant="primary"
-            onClick={this.onSubmit}
-            disabled={inputDisabled}
-          >
-            Update Account
-          </Button>
-          <Button
-            type="submit"
             variant="secondary"
             onClick={this.onLogOut}
             disabled={inputDisabled}
           >
             Log out
+          </Button>
+          <Button
+            type="submit"
+            variant="primary"
+            onClick={this.onSubmit}
+            disabled={inputDisabled}
+          >
+            Update Account
           </Button>
         </>
       );

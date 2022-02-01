@@ -41,12 +41,7 @@ div.modal-body p.confirm-account-password {
 }
 div.modal-body div.form-footer {
   display: flex;
-  flex-direction: row-reverse;
   justify-content: space-between;
-  align-items: start;
-  margin-top: 5px;
-  min-height: 26px;
-  padding: 7px 4px 4px 0;
 }
 div.modal-body div.form-footer div.modal-form-error {
   font-size: 12px;
