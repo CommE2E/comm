@@ -42,10 +42,29 @@ GRPCStreamHostObject::GRPCStreamHostObject(
                 rt, std::string{"GRPCStream.close: unimplemented"});
           })},
       jsInvoker{jsInvoker} {
+
   comm::GlobalNetworkSingleton::instance.scheduleOrRun(
       [](comm::NetworkModule &networkModule) {
         networkModule.initializeNetworkModule(
             "userId-placeholder", "deviceToken-placeholder", "localhost");
+        networkModule.get("sessionID-placeholder");
+      });
+
+  auto onReadDoneCallback = [this, &rt](std::string data) {
+    this->jsInvoker->invokeAsync([this, &rt, data]() {
+      if (this->onmessage.isNull()) {
+        return;
+      }
+      auto msgObject = jsi::Object(rt);
+      msgObject.setProperty(rt, "data", jsi::String::createFromUtf8(rt, data));
+      this->onmessage.asObject(rt).asFunction(rt).call(rt, msgObject, 1);
+    });
+  };
+
+  comm::GlobalNetworkSingleton::instance.scheduleOrRun(
+      [onReadDoneCallback =
+           std::move(onReadDoneCallback)](comm::NetworkModule &networkModule) {
+        networkModule.setOnReadDoneCallback(onReadDoneCallback);
       });
 }
 

@@ -46,4 +46,12 @@ grpc::Status NetworkModule::send(
   return this->networkClient->send(sessionID, toDeviceID, payload, blobHashes);
 }
 
+void NetworkModule::setOnReadDoneCallback(
+    std::function<void(std::string)> callback) {
+  if (!this->networkClient) {
+    return;
+  }
+  this->networkClient->setOnReadDoneCallback(callback);
+}
+
 } // namespace comm

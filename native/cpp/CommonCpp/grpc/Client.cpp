@@ -91,5 +91,12 @@ void Client::get(std::string sessionID) {
       std::make_unique<ClientGetReadReactor>(this->stub_.get(), sessionID);
 }
 
+void Client::setOnReadDoneCallback(std::function<void(std::string)> callback) {
+  if (!this->clientGetReadReactor) {
+    return;
+  }
+  this->clientGetReadReactor->setOnReadDoneCallback(callback);
+}
+
 } // namespace network
 } // namespace comm

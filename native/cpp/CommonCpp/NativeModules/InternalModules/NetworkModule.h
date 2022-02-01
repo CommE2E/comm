@@ -21,5 +21,6 @@ public:
       std::vector<std::string> blobHashes);
   void close();
   void get(std::string sessionID);
+  void setOnReadDoneCallback(std::function<void(std::string)> callback);
 };
 } // namespace comm
