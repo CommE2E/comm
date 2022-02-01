@@ -39,9 +39,6 @@ function handleAndroidMessage(
   const { rescind, rescindID } = data;
   if (rescind) {
     invariant(rescindID, 'rescind message without notifID');
-    firebase
-      .notifications()
-      .android.removeDeliveredNotificationsByTag(rescindID);
     dispatch({
       type: rescindAndroidNotificationActionType,
       payload: { notifID: rescindID, threadID: data.threadID },

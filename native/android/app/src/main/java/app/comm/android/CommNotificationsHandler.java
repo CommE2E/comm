@@ -56,14 +56,6 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
               notification.getTag(), notification.getId());
         }
       }
-
-      // It should never happen, but just in case, when a message contains both
-      // data and notification, we still would like to forward it to
-      // RNNotifications. So if getNotification returns non-null, we don't
-      // return and instead execute super.onMessageReceived(message)
-      if (message.getNotification() == null) {
-        return;
-      }
     }
 
     super.onMessageReceived(message);
