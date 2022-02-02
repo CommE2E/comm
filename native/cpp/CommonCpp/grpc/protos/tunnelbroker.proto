@@ -20,6 +20,9 @@ service TunnelbrokerService {
   rpc NewSession(NewSessionRequest) returns (NewSessionResponse) {}
   rpc Send(SendRequest) returns (google.protobuf.Empty) {}
   rpc Get(GetRequest) returns (stream GetResponse) {}
+
+  // Replacing Send and Get with a single bidirectional streaming RPC
+  rpc OpenStream(stream OutboundMessage) returns (stream InboundMessage) {}
 }
 
 // Session
@@ -71,6 +74,19 @@ message GetResponse {
   string fromDeviceID = 1;
   bytes payload = 2;
   repeated string blobHashes = 3;
+}
+
+message OutboundMessage {
+  string toDeviceID = 1;
+  string payload = 2;
+  repeated string blobHashes = 3;
+}
+
+message InboundMessage {
+  string fromDeviceID = 1;
+  string fromConnectionID = 2;
+  string payload = 3;
+  repeated string blobHashes = 4;
 }
 
 // Old API structures
