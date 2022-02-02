@@ -273,9 +273,7 @@ Flipper has a plugin system that allows teams to integrate additional debugging 
 
 To install it, open Flipper and go to View → Manage Plugins. Type in “redux-debugger“ and install the Flipper plugin with that name.
 
-## idb (Intel x86-64 only)
-
-There are issues at the moment (Dec 2021) installing `idb-companion` on Apple silicon Macs. For now, the following `idb` installation steps only work on x86-64 machines.
+## idb
 
 Flipper relies on Facebook’s idb tool to debug iOS apps running on your device. We’ll need to install it:
 
