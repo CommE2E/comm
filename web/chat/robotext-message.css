@@ -1,9 +1,10 @@
 div.robotextContainer {
   text-align: center;
-  color: #333333;
+  color: var(--fg);
   padding: 6px 0;
   margin: 0 40px 5px 40px;
-  font-size: 15px;
+  font-size: var(--s-font-14);
+  line-height: var(--line-height-text);
 }
 div.innerRobotextContainer {
   display: inline-flex;
