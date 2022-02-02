@@ -26,10 +26,6 @@ function handleAndroidMessage(
 ) {
   const firebase = getFirebase();
   const { data } = message;
-  const { badge } = data;
-  if (badge !== undefined && badge !== null) {
-    firebase.notifications().setBadge(parseInt(badge, 10));
-  }
 
   const { messageInfos } = data;
   if (messageInfos) {
@@ -46,7 +42,7 @@ function handleAndroidMessage(
     return;
   }
 
-  const { id, title, prefix, threadID, badgeOnly } = data;
+  const { id, title, prefix, threadID } = data;
   let { body } = data;
   ({ body } = mergePrefixIntoBody({ body, title, prefix }));
 
@@ -56,10 +52,6 @@ function handleAndroidMessage(
     if (isActive) {
       return;
     }
-  }
-
-  if (badgeOnly === '1') {
-    return;
   }
 
   const notification = new firebase.notifications.Notification()

@@ -3,8 +3,10 @@ package app.comm.android;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
 import com.google.firebase.messaging.RemoteMessage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingService;
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 /**
  * We're extending RNFirebaseMessagingService here instead of
@@ -34,6 +36,8 @@ import io.invertase.firebase.messaging.RNFirebaseMessagingService;
 public class CommNotificationsHandler extends RNFirebaseMessagingService {
   private static final String RESCIND_KEY = "rescind";
   private static final String RESCIND_ID_KEY = "rescindID";
+  private static final String BADGE_KEY = "badge";
+  private static final String BADGE_ONLY_KEY = "badgeOnly";
   private NotificationManager notificationManager;
 
   @Override
@@ -56,6 +60,25 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
               notification.getTag(), notification.getId());
         }
       }
+    }
+
+    String badge = message.getData().get(BADGE_KEY);
+    if (badge != null) {
+      try {
+        int badgeCount = Integer.parseInt(badge);
+        if (badgeCount > 0) {
+          ShortcutBadger.applyCount(this, badgeCount);
+        } else {
+          ShortcutBadger.removeCount(this);
+        }
+      } catch (NumberFormatException e) {
+        Log.w("COMM", "Invalid badge count", e);
+      }
+    }
+
+    String badgeOnly = message.getData().get(BADGE_ONLY_KEY);
+    if ("1".equals(badgeOnly)) {
+      return;
     }
 
     super.onMessageReceived(message);
