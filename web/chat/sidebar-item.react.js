@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
-import AlignRightIcon from 'react-entypo-icons/lib/entypo/AlignRight';
 
 import type { SidebarInfo } from 'lib/types/thread-types';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
@@ -24,12 +23,9 @@ function SidebarItem(props: Props): React.Node {
   const lastActivity = shortAbsoluteDate(lastUpdatedTime, timeZone);
 
   const { unread } = threadInfo.currentUser;
-  const unreadCls = classNames(css.sidebarTitle, { [css.unread]: unread });
   return (
     <a className={css.threadButton} onClick={onClick}>
       <div className={css.threadRow}>
-        <div className={unreadCls}>{threadInfo.uiName}</div>
-        <AlignRightIcon className={css.sidebarIcon} />
         <div
           className={classNames([
             css.sidebarLastActivity,
