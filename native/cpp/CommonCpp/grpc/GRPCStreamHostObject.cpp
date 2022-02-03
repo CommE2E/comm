@@ -48,13 +48,6 @@ GRPCStreamHostObject::GRPCStreamHostObject(
           })},
       jsInvoker{jsInvoker} {
 
-  comm::GlobalNetworkSingleton::instance.scheduleOrRun(
-      [](comm::NetworkModule &networkModule) {
-        networkModule.initializeNetworkModule(
-            "userId-placeholder", "deviceToken-placeholder", "localhost");
-        networkModule.get("sessionID-placeholder");
-      });
-
   auto onReadDoneCallback = [this, &rt](std::string data) {
     this->jsInvoker->invokeAsync([this, &rt, data]() {
       if (this->onmessage.isNull()) {
@@ -109,6 +102,18 @@ GRPCStreamHostObject::GRPCStreamHostObject(
         networkModule.setOnCloseCallback(onCloseCallback);
         networkModule.assignSetReadyStateCallback(setReadyStateCallback);
       });
+
+  // We queue up the `.get()` call on the JS thread so we can assign the
+  // JS callbacks (eg `onopen`) before the stream is opened. This mimics
+  // the behavior of the `WebSocket`: https://stackoverflow.com/a/49211579
+  this->jsInvoker->invokeAsync([]() {
+    comm::GlobalNetworkSingleton::instance.scheduleOrRun(
+        [](comm::NetworkModule &networkModule) {
+          networkModule.initializeNetworkModule(
+              "userId-placeholder", "deviceToken-placeholder", "localhost");
+          networkModule.get("sessionID-placeholder");
+        });
+  });
 }
 
 std::vector<jsi::PropNameID>
