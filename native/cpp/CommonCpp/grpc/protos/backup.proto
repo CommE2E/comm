@@ -5,17 +5,17 @@ package backup;
 import "google/protobuf/empty.proto";
 
 service BackupService {
-  rpc ResetKey(stream ResetKeyRequest) returns (google.protobuf.Empty) {}
-  rpc SendLog(SendLogRequest) returns (google.protobuf.Empty) {}
-  rpc PullBackupKey(PullBackupKeyRequest) returns (PullBackupKeyResponse) {}
-  rpc PullCompaction(PullCompactionRequest) returns (stream PullCompactionResponse) {}
+  rpc CreateNewBackup(stream CreateNewBackupRequest) returns (google.protobuf.Empty) {}
+  rpc SendLog(stream SendLogRequest) returns (google.protobuf.Empty) {}
+  rpc PullBackupKey(stream PullBackupKeyRequest) returns (stream PullBackupKeyResponse) {}
+  rpc PullCompaction(stream PullCompactionRequest) returns (stream PullCompactionResponse) {}
 }
 
-// ResetKey
+// CreateNewBackup
 
-message ResetKeyRequest {
-  string userId = 1;
+message CreateNewBackupRequest {
   oneof data {
+    string userID = 1;
     bytes newKey = 2;
     bytes compactionChunk = 3;
   }
@@ -24,31 +24,44 @@ message ResetKeyRequest {
 // SendLog
 
 message SendLogRequest {
-  string userId = 1;
-  bytes data = 2;
+  oneof data {
+    string userID = 1;
+    string backupID = 2;
+    bytes logData = 3;
+  }
 }
 
 // PullBackupKey
 
 message PullBackupKeyRequest {
-  string userId = 1;
-  bytes pakeKey = 2;
+  oneof data {
+    string userID = 1;
+    string backupID = 2;
+    bytes requestBytes = 3;
+  }
 }
 
 message PullBackupKeyResponse {
-  bytes encryptedBackupKey = 1;
+  oneof data {
+    bytes responseBytes = 1;
+    bytes encryptedBackupKey = 2;
+  }
 }
 
 // PullCompaction
 
 message PullCompactionRequest {
-  string userId = 1;
-  bytes message = 2;
+  oneof data {
+    string userID = 1;
+    string backupID = 2;
+    bytes requestBytes = 3;
+  }
 }
 
 message PullCompactionResponse {
   oneof data {
-    bytes compactionChunk = 1;
-    bytes logChunk = 2;
+    bytes responseBytes = 1;
+    bytes compactionChunk = 2;
+    bytes logChunk = 3;
   }
 }
