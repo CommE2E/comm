@@ -42,3 +42,9 @@ void ClientGetReadReactor::setOnCloseCallback(
   std::lock_guard<std::mutex> guard{this->onCloseCallbackMutex};
   this->onCloseCallback = onCloseCallback;
 }
+
+void ClientGetReadReactor::assignSetReadyStateCallback(
+    std::function<void(SocketStatus)> callback) {
+  std::lock_guard<std::mutex> guard{this->setReadyStateMutex};
+  this->setReadyState = callback;
+}

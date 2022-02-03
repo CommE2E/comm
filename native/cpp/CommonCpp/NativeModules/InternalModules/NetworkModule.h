@@ -8,7 +8,6 @@
 namespace comm {
 class NetworkModule {
   std::unique_ptr<network::Client> networkClient;
-  std::function<void(SocketStatus)> setReadyState;
 
 public:
   void initializeNetworkModule(
