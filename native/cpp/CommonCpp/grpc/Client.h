@@ -45,6 +45,7 @@ public:
   void setOnOpenCallback(std::function<void()> callback);
   void setOnCloseCallback(std::function<void()> callback);
   void closeGetStream();
+  void assignSetReadyStateCallback(std::function<void(SocketStatus)> callback);
 };
 
 } // namespace network

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../NativeModules/InternalModules/SocketStatus.h"
 #include <grpcpp/grpcpp.h>
 
 #include "_generated/tunnelbroker.grpc.pb.h"
@@ -14,9 +15,11 @@ class ClientGetReadReactor
   std::mutex onReadDoneCallbackMutex;
   std::mutex onOpenCallbackMutex;
   std::mutex onCloseCallbackMutex;
+  std::mutex setReadyStateMutex;
   std::function<void(std::string)> onReadDoneCallback;
   std::function<void()> onOpenCallback;
   std::function<void()> onCloseCallback;
+  std::function<void(SocketStatus)> setReadyState;
 
 public:
   ClientGetReadReactor(
@@ -30,4 +33,5 @@ public:
   void
   setOnReadDoneCallback(std::function<void(std::string)> onReadDoneCallback);
   void setOnCloseCallback(std::function<void()> onCloseCallback);
+  void assignSetReadyStateCallback(std::function<void(SocketStatus)> callback);
 };

@@ -77,7 +77,10 @@ void NetworkModule::closeGetStream() {
 
 void NetworkModule::assignSetReadyStateCallback(
     std::function<void(SocketStatus)> callback) {
-  this->setReadyState = callback;
+  if (!this->networkClient) {
+    return;
+  }
+  this->networkClient->assignSetReadyStateCallback(callback);
 }
 
 } // namespace comm
