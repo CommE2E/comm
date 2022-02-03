@@ -119,5 +119,13 @@ void Client::closeGetStream() {
   this->clientGetReadReactor->close();
 }
 
+void Client::assignSetReadyStateCallback(
+    std::function<void(SocketStatus)> callback) {
+  if (!this->clientGetReadReactor) {
+    return;
+  }
+  this->clientGetReadReactor->assignSetReadyStateCallback(callback);
+}
+
 } // namespace network
 } // namespace comm
