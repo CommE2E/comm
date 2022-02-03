@@ -21,7 +21,6 @@ class DeviceSessionItem : public Item {
   void validate() const override;
 
 public:
-  static std::string tableName;
   static const std::string FIELD_SESSION_ID;
   static const std::string FIELD_DEVICE_ID;
   static const std::string FIELD_PUBKEY;

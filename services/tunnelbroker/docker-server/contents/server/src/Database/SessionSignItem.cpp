@@ -1,12 +1,10 @@
 #include "SessionSignItem.h"
-#include "Constants.h"
+#include "ConfigManager.h"
 
 namespace comm {
 namespace network {
 namespace database {
 
-std::string SessionSignItem::tableName =
-    DEVICE_SESSIONS_VERIFICATION_MESSAGES_TABLE_NAME;
 const std::string SessionSignItem::FIELD_SESSION_VERIFICATION =
     "VerificationMessage";
 const std::string SessionSignItem::FIELD_DEVICE_ID = "DeviceId";
@@ -46,7 +44,8 @@ void SessionSignItem::assignItemFromDatabase(
 }
 
 std::string SessionSignItem::getTableName() const {
-  return SessionSignItem::tableName;
+  return config::ConfigManager::getInstance().getParameter(
+      config::ConfigManager::OPTION_DYNAMODB_SESSIONS_VERIFICATION_TABLE);
 }
 
 std::string SessionSignItem::getPrimaryKey() const {

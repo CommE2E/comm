@@ -1,4 +1,5 @@
 #include "AmqpManager.h"
+#include "ConfigManager.h"
 #include "Constants.h"
 #include "DeliveryBroker.h"
 #include "Tools.h"
@@ -14,11 +15,19 @@ static std::atomic<bool> amqpReady;
 static long long lastConnectionTimestamp;
 
 void AMQPConnectInternal() {
-  std::cout << "AMQP: Connecting to " << AMQP_URI << std::endl;
+  const std::string amqpUri = config::ConfigManager::getInstance().getParameter(
+      config::ConfigManager::OPTION_AMQP_URI);
+  const std::string tunnelbrokerId =
+      config::ConfigManager::getInstance().getParameter(
+          config::ConfigManager::OPTION_TUNNELBROKER_ID);
+  const std::string fanoutExchangeName =
+      config::ConfigManager::getInstance().getParameter(
+          config::ConfigManager::OPTION_AMQP_FANOUT_EXCHANGE);
+  std::cout << "AMQP: Connecting to " << amqpUri << std::endl;
 
   auto *loop = uv_default_loop();
   AMQP::LibUvHandler handler(loop);
-  AMQP::TcpConnection connection(&handler, AMQP::Address(AMQP_URI));
+  AMQP::TcpConnection connection(&handler, AMQP::Address(amqpUri));
 
   amqpChannel = std::make_unique<AMQP::TcpChannel>(&connection);
   amqpChannel->onError([](const char *message) {
@@ -30,21 +39,21 @@ void AMQPConnectInternal() {
   AMQP::Table arguments;
   arguments["x-message-ttl"] = AMQP_MESSAGE_TTL;
   arguments["x-expires"] = AMQP_QUEUE_TTL;
-  amqpChannel->declareExchange(AMQP_FANOUT_EXCHANGE_NAME, AMQP::fanout);
-  amqpChannel->declareQueue(TUNNELBROKER_ID, AMQP::durable, arguments)
-      .onSuccess([&](const std::string &name,
+  amqpChannel->declareExchange(fanoutExchangeName, AMQP::fanout);
+  amqpChannel->declareQueue(tunnelbrokerId, AMQP::durable, arguments)
+      .onSuccess([tunnelbrokerId, fanoutExchangeName](
+                     const std::string &name,
                      uint32_t messagecount,
                      uint32_t consumercount) {
         std::cout << "AMQP: Queue " << name << " created" << std::endl;
-        amqpChannel->bindQueue(AMQP_FANOUT_EXCHANGE_NAME, TUNNELBROKER_ID, "")
-            .onError([](const char *message) {
-              std::cout << "AMQP: Failed to bind queue:  " << TUNNELBROKER_ID
-                        << " to exchange: " << AMQP_FANOUT_EXCHANGE_NAME
-                        << std::endl;
+        amqpChannel->bindQueue(fanoutExchangeName, tunnelbrokerId, "")
+            .onError([tunnelbrokerId, fanoutExchangeName](const char *message) {
+              std::cout << "AMQP: Failed to bind queue:  " << tunnelbrokerId
+                        << " to exchange: " << fanoutExchangeName << std::endl;
               amqpReady = false;
             });
         amqpReady = true;
-        amqpChannel->consume(TUNNELBROKER_ID)
+        amqpChannel->consume(tunnelbrokerId)
             .onReceived([&](const AMQP::Message &message,
                             uint64_t deliveryTag,
                             bool redelivered) {
@@ -109,7 +118,11 @@ bool AMQPSend(
     // Set delivery mode to: Durable (2)
     env.setDeliveryMode(2);
     env.setHeaders(std::move(headers));
-    amqpChannel->publish(AMQP_FANOUT_EXCHANGE_NAME, "", env);
+    amqpChannel->publish(
+        config::ConfigManager::getInstance().getParameter(
+            config::ConfigManager::OPTION_AMQP_FANOUT_EXCHANGE),
+        "",
+        env);
   } catch (std::runtime_error &e) {
     std::cout << "AMQP: Error while publishing message:  " << e.what()
               << std::endl;
