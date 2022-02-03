@@ -2,6 +2,7 @@
 
 #include "Item.h"
 
+#include "BackupItem.h"
 #include "UserPersistItem.h"
 
 #include <memory>
