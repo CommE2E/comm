@@ -5,48 +5,82 @@ package backup;
 import "google/protobuf/empty.proto";
 
 service BackupService {
-  rpc ResetKey(stream ResetKeyRequest) returns (google.protobuf.Empty) {}
-  rpc SendLog(SendLogRequest) returns (google.protobuf.Empty) {}
-  rpc PullBackupKey(PullBackupKeyRequest) returns (PullBackupKeyResponse) {}
-  rpc PullCompaction(PullCompactionRequest) returns (stream PullCompactionResponse) {}
+  rpc CreateNewBackup(stream CreateNewBackupRequest) returns (stream CreateNewBackupResponse) {}
+  rpc SendLog(stream SendLogRequest) returns (google.protobuf.Empty) {}
+  rpc RecoverBackupKey(stream RecoverBackupKeyRequest) returns (stream RecoverBackupKeyResponse) {}
+  rpc PullBackup(stream PullBackupRequest) returns (stream PullBackupResponse) {}
 }
 
-// ResetKey
+// Helper types
 
-message ResetKeyRequest {
-  string userId = 1;
+message FullAuthenticationRequestData {
+  bytes requestBytes = 1;
+  string userID = 2;
+}
+
+message SimpleAuthenticationRequestData {
+  string backupID = 1;
+  string userID = 2;
+}
+
+enum AuthenticationMethod {
+  PASSWORD = 0;
+  WALLET = 1;
+}
+
+message AuthenticationInformationData {
+  AuthenticationMethod authenticationMethod = 1;
   oneof data {
-    bytes newKey = 2;
-    bytes compactionChunk = 3;
+    bytes nonce = 2;
+    bytes rawMessage = 3;
+  }
+}
+
+// CreateNewBackup
+
+message CreateNewBackupRequest {
+  oneof data {
+    FullAuthenticationRequestData authenticationRequestData = 1;
+    AuthenticationInformationData authenticationInformationData = 2;
+    bytes newCompactionChunk = 3;
+  }
+}
+
+message CreateNewBackupResponse {
+  oneof data {
+    bytes responseBytes = 1;
+    string backupID = 2;
   }
 }
 
 // SendLog
 
 message SendLogRequest {
-  string userId = 1;
-  bytes data = 2;
+  SimpleAuthenticationRequestData authenticationData = 1;
+  bytes logData = 2;
 }
 
-// PullBackupKey
+// RecoverBackupKey
 
-message PullBackupKeyRequest {
-  string userId = 1;
-  bytes pakeKey = 2;
+message RecoverBackupKeyRequest {
+  FullAuthenticationRequestData authenticationData = 1;
 }
 
-message PullBackupKeyResponse {
-  bytes encryptedBackupKey = 1;
+message RecoverBackupKeyResponse {
+  oneof data {
+    bytes responseBytes = 1;
+    AuthenticationInformationData authenticationInformationData = 2;
+    string backupID = 3;
+  }
 }
 
-// PullCompaction
+// PullBackup
 
-message PullCompactionRequest {
-  string userId = 1;
-  bytes message = 2;
+message PullBackupRequest {
+  SimpleAuthenticationRequestData authenticationData = 1;
 }
 
-message PullCompactionResponse {
+message PullBackupResponse {
   oneof data {
     bytes compactionChunk = 1;
     bytes logChunk = 2;

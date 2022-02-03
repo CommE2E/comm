@@ -30,6 +30,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/repeated_field.h>  // IWYU pragma: export
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
+#include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/empty.pb.h>
 // @@protoc_insertion_point(includes)
@@ -47,7 +48,7 @@ struct TableStruct_backup_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[6]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[10]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -56,55 +57,96 @@ struct TableStruct_backup_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_backup_2eproto;
 ::PROTOBUF_NAMESPACE_ID::Metadata descriptor_table_backup_2eproto_metadata_getter(int index);
 namespace backup {
-class PullBackupKeyRequest;
-struct PullBackupKeyRequestDefaultTypeInternal;
-extern PullBackupKeyRequestDefaultTypeInternal _PullBackupKeyRequest_default_instance_;
-class PullBackupKeyResponse;
-struct PullBackupKeyResponseDefaultTypeInternal;
-extern PullBackupKeyResponseDefaultTypeInternal _PullBackupKeyResponse_default_instance_;
-class PullCompactionRequest;
-struct PullCompactionRequestDefaultTypeInternal;
-extern PullCompactionRequestDefaultTypeInternal _PullCompactionRequest_default_instance_;
-class PullCompactionResponse;
-struct PullCompactionResponseDefaultTypeInternal;
-extern PullCompactionResponseDefaultTypeInternal _PullCompactionResponse_default_instance_;
-class ResetKeyRequest;
-struct ResetKeyRequestDefaultTypeInternal;
-extern ResetKeyRequestDefaultTypeInternal _ResetKeyRequest_default_instance_;
+class AuthenticationInformationData;
+struct AuthenticationInformationDataDefaultTypeInternal;
+extern AuthenticationInformationDataDefaultTypeInternal _AuthenticationInformationData_default_instance_;
+class CreateNewBackupRequest;
+struct CreateNewBackupRequestDefaultTypeInternal;
+extern CreateNewBackupRequestDefaultTypeInternal _CreateNewBackupRequest_default_instance_;
+class CreateNewBackupResponse;
+struct CreateNewBackupResponseDefaultTypeInternal;
+extern CreateNewBackupResponseDefaultTypeInternal _CreateNewBackupResponse_default_instance_;
+class FullAuthenticationRequestData;
+struct FullAuthenticationRequestDataDefaultTypeInternal;
+extern FullAuthenticationRequestDataDefaultTypeInternal _FullAuthenticationRequestData_default_instance_;
+class PullBackupRequest;
+struct PullBackupRequestDefaultTypeInternal;
+extern PullBackupRequestDefaultTypeInternal _PullBackupRequest_default_instance_;
+class PullBackupResponse;
+struct PullBackupResponseDefaultTypeInternal;
+extern PullBackupResponseDefaultTypeInternal _PullBackupResponse_default_instance_;
+class RecoverBackupKeyRequest;
+struct RecoverBackupKeyRequestDefaultTypeInternal;
+extern RecoverBackupKeyRequestDefaultTypeInternal _RecoverBackupKeyRequest_default_instance_;
+class RecoverBackupKeyResponse;
+struct RecoverBackupKeyResponseDefaultTypeInternal;
+extern RecoverBackupKeyResponseDefaultTypeInternal _RecoverBackupKeyResponse_default_instance_;
 class SendLogRequest;
 struct SendLogRequestDefaultTypeInternal;
 extern SendLogRequestDefaultTypeInternal _SendLogRequest_default_instance_;
+class SimpleAuthenticationRequestData;
+struct SimpleAuthenticationRequestDataDefaultTypeInternal;
+extern SimpleAuthenticationRequestDataDefaultTypeInternal _SimpleAuthenticationRequestData_default_instance_;
 }  // namespace backup
 PROTOBUF_NAMESPACE_OPEN
-template<> ::backup::PullBackupKeyRequest* Arena::CreateMaybeMessage<::backup::PullBackupKeyRequest>(Arena*);
-template<> ::backup::PullBackupKeyResponse* Arena::CreateMaybeMessage<::backup::PullBackupKeyResponse>(Arena*);
-template<> ::backup::PullCompactionRequest* Arena::CreateMaybeMessage<::backup::PullCompactionRequest>(Arena*);
-template<> ::backup::PullCompactionResponse* Arena::CreateMaybeMessage<::backup::PullCompactionResponse>(Arena*);
-template<> ::backup::ResetKeyRequest* Arena::CreateMaybeMessage<::backup::ResetKeyRequest>(Arena*);
+template<> ::backup::AuthenticationInformationData* Arena::CreateMaybeMessage<::backup::AuthenticationInformationData>(Arena*);
+template<> ::backup::CreateNewBackupRequest* Arena::CreateMaybeMessage<::backup::CreateNewBackupRequest>(Arena*);
+template<> ::backup::CreateNewBackupResponse* Arena::CreateMaybeMessage<::backup::CreateNewBackupResponse>(Arena*);
+template<> ::backup::FullAuthenticationRequestData* Arena::CreateMaybeMessage<::backup::FullAuthenticationRequestData>(Arena*);
+template<> ::backup::PullBackupRequest* Arena::CreateMaybeMessage<::backup::PullBackupRequest>(Arena*);
+template<> ::backup::PullBackupResponse* Arena::CreateMaybeMessage<::backup::PullBackupResponse>(Arena*);
+template<> ::backup::RecoverBackupKeyRequest* Arena::CreateMaybeMessage<::backup::RecoverBackupKeyRequest>(Arena*);
+template<> ::backup::RecoverBackupKeyResponse* Arena::CreateMaybeMessage<::backup::RecoverBackupKeyResponse>(Arena*);
 template<> ::backup::SendLogRequest* Arena::CreateMaybeMessage<::backup::SendLogRequest>(Arena*);
+template<> ::backup::SimpleAuthenticationRequestData* Arena::CreateMaybeMessage<::backup::SimpleAuthenticationRequestData>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace backup {
 
+enum AuthenticationMethod : int {
+  PASSWORD = 0,
+  WALLET = 1,
+  AuthenticationMethod_INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::min(),
+  AuthenticationMethod_INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<::PROTOBUF_NAMESPACE_ID::int32>::max()
+};
+bool AuthenticationMethod_IsValid(int value);
+constexpr AuthenticationMethod AuthenticationMethod_MIN = PASSWORD;
+constexpr AuthenticationMethod AuthenticationMethod_MAX = WALLET;
+constexpr int AuthenticationMethod_ARRAYSIZE = AuthenticationMethod_MAX + 1;
+
+const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* AuthenticationMethod_descriptor();
+template<typename T>
+inline const std::string& AuthenticationMethod_Name(T enum_t_value) {
+  static_assert(::std::is_same<T, AuthenticationMethod>::value ||
+    ::std::is_integral<T>::value,
+    "Incorrect type passed to function AuthenticationMethod_Name.");
+  return ::PROTOBUF_NAMESPACE_ID::internal::NameOfEnum(
+    AuthenticationMethod_descriptor(), enum_t_value);
+}
+inline bool AuthenticationMethod_Parse(
+    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, AuthenticationMethod* value) {
+  return ::PROTOBUF_NAMESPACE_ID::internal::ParseNamedEnum<AuthenticationMethod>(
+    AuthenticationMethod_descriptor(), name, value);
+}
 // ===================================================================
 
-class ResetKeyRequest PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.ResetKeyRequest) */ {
+class FullAuthenticationRequestData PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.FullAuthenticationRequestData) */ {
  public:
-  inline ResetKeyRequest() : ResetKeyRequest(nullptr) {}
-  virtual ~ResetKeyRequest();
-  explicit constexpr ResetKeyRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline FullAuthenticationRequestData() : FullAuthenticationRequestData(nullptr) {}
+  virtual ~FullAuthenticationRequestData();
+  explicit constexpr FullAuthenticationRequestData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  ResetKeyRequest(const ResetKeyRequest& from);
-  ResetKeyRequest(ResetKeyRequest&& from) noexcept
-    : ResetKeyRequest() {
+  FullAuthenticationRequestData(const FullAuthenticationRequestData& from);
+  FullAuthenticationRequestData(FullAuthenticationRequestData&& from) noexcept
+    : FullAuthenticationRequestData() {
     *this = ::std::move(from);
   }
 
-  inline ResetKeyRequest& operator=(const ResetKeyRequest& from) {
+  inline FullAuthenticationRequestData& operator=(const FullAuthenticationRequestData& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ResetKeyRequest& operator=(ResetKeyRequest&& from) noexcept {
+  inline FullAuthenticationRequestData& operator=(FullAuthenticationRequestData&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -122,26 +164,20 @@ class ResetKeyRequest PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const ResetKeyRequest& default_instance() {
+  static const FullAuthenticationRequestData& default_instance() {
     return *internal_default_instance();
   }
-  enum DataCase {
-    kNewKey = 2,
-    kCompactionChunk = 3,
-    DATA_NOT_SET = 0,
-  };
-
-  static inline const ResetKeyRequest* internal_default_instance() {
-    return reinterpret_cast<const ResetKeyRequest*>(
-               &_ResetKeyRequest_default_instance_);
+  static inline const FullAuthenticationRequestData* internal_default_instance() {
+    return reinterpret_cast<const FullAuthenticationRequestData*>(
+               &_FullAuthenticationRequestData_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     0;
 
-  friend void swap(ResetKeyRequest& a, ResetKeyRequest& b) {
+  friend void swap(FullAuthenticationRequestData& a, FullAuthenticationRequestData& b) {
     a.Swap(&b);
   }
-  inline void Swap(ResetKeyRequest* other) {
+  inline void Swap(FullAuthenticationRequestData* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -149,7 +185,7 @@ class ResetKeyRequest PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ResetKeyRequest* other) {
+  void UnsafeArenaSwap(FullAuthenticationRequestData* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -157,17 +193,17 @@ class ResetKeyRequest PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline ResetKeyRequest* New() const final {
-    return CreateMaybeMessage<ResetKeyRequest>(nullptr);
+  inline FullAuthenticationRequestData* New() const final {
+    return CreateMaybeMessage<FullAuthenticationRequestData>(nullptr);
   }
 
-  ResetKeyRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<ResetKeyRequest>(arena);
+  FullAuthenticationRequestData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<FullAuthenticationRequestData>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const ResetKeyRequest& from);
-  void MergeFrom(const ResetKeyRequest& from);
+  void CopyFrom(const FullAuthenticationRequestData& from);
+  void MergeFrom(const FullAuthenticationRequestData& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -181,13 +217,13 @@ class ResetKeyRequest PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(ResetKeyRequest* other);
+  void InternalSwap(FullAuthenticationRequestData* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "backup.ResetKeyRequest";
+    return "backup.FullAuthenticationRequestData";
   }
   protected:
-  explicit ResetKeyRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit FullAuthenticationRequestData(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -206,11 +242,26 @@ class ResetKeyRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUserIdFieldNumber = 1,
-    kNewKeyFieldNumber = 2,
-    kCompactionChunkFieldNumber = 3,
+    kRequestBytesFieldNumber = 1,
+    kUserIDFieldNumber = 2,
   };
-  // string userId = 1;
+  // bytes requestBytes = 1;
+  void clear_requestbytes();
+  const std::string& requestbytes() const;
+  void set_requestbytes(const std::string& value);
+  void set_requestbytes(std::string&& value);
+  void set_requestbytes(const char* value);
+  void set_requestbytes(const void* value, size_t size);
+  std::string* mutable_requestbytes();
+  std::string* release_requestbytes();
+  void set_allocated_requestbytes(std::string* requestbytes);
+  private:
+  const std::string& _internal_requestbytes() const;
+  void _internal_set_requestbytes(const std::string& value);
+  std::string* _internal_mutable_requestbytes();
+  public:
+
+  // string userID = 2;
   void clear_userid();
   const std::string& userid() const;
   void set_userid(const std::string& value);
@@ -226,53 +277,361 @@ class ResetKeyRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_userid();
   public:
 
-  // bytes newKey = 2;
-  bool has_newkey() const;
+  // @@protoc_insertion_point(class_scope:backup.FullAuthenticationRequestData)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr requestbytes_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_backup_2eproto;
+};
+// -------------------------------------------------------------------
+
+class SimpleAuthenticationRequestData PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.SimpleAuthenticationRequestData) */ {
+ public:
+  inline SimpleAuthenticationRequestData() : SimpleAuthenticationRequestData(nullptr) {}
+  virtual ~SimpleAuthenticationRequestData();
+  explicit constexpr SimpleAuthenticationRequestData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  SimpleAuthenticationRequestData(const SimpleAuthenticationRequestData& from);
+  SimpleAuthenticationRequestData(SimpleAuthenticationRequestData&& from) noexcept
+    : SimpleAuthenticationRequestData() {
+    *this = ::std::move(from);
+  }
+
+  inline SimpleAuthenticationRequestData& operator=(const SimpleAuthenticationRequestData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline SimpleAuthenticationRequestData& operator=(SimpleAuthenticationRequestData&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const SimpleAuthenticationRequestData& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const SimpleAuthenticationRequestData* internal_default_instance() {
+    return reinterpret_cast<const SimpleAuthenticationRequestData*>(
+               &_SimpleAuthenticationRequestData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(SimpleAuthenticationRequestData& a, SimpleAuthenticationRequestData& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(SimpleAuthenticationRequestData* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(SimpleAuthenticationRequestData* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline SimpleAuthenticationRequestData* New() const final {
+    return CreateMaybeMessage<SimpleAuthenticationRequestData>(nullptr);
+  }
+
+  SimpleAuthenticationRequestData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<SimpleAuthenticationRequestData>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const SimpleAuthenticationRequestData& from);
+  void MergeFrom(const SimpleAuthenticationRequestData& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
   private:
-  bool _internal_has_newkey() const;
-  public:
-  void clear_newkey();
-  const std::string& newkey() const;
-  void set_newkey(const std::string& value);
-  void set_newkey(std::string&& value);
-  void set_newkey(const char* value);
-  void set_newkey(const void* value, size_t size);
-  std::string* mutable_newkey();
-  std::string* release_newkey();
-  void set_allocated_newkey(std::string* newkey);
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(SimpleAuthenticationRequestData* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "backup.SimpleAuthenticationRequestData";
+  }
+  protected:
+  explicit SimpleAuthenticationRequestData(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
-  const std::string& _internal_newkey() const;
-  void _internal_set_newkey(const std::string& value);
-  std::string* _internal_mutable_newkey();
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   public:
 
-  // bytes compactionChunk = 3;
-  bool has_compactionchunk() const;
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
   private:
-  bool _internal_has_compactionchunk() const;
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_backup_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
   public:
-  void clear_compactionchunk();
-  const std::string& compactionchunk() const;
-  void set_compactionchunk(const std::string& value);
-  void set_compactionchunk(std::string&& value);
-  void set_compactionchunk(const char* value);
-  void set_compactionchunk(const void* value, size_t size);
-  std::string* mutable_compactionchunk();
-  std::string* release_compactionchunk();
-  void set_allocated_compactionchunk(std::string* compactionchunk);
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kBackupIDFieldNumber = 1,
+    kUserIDFieldNumber = 2,
+  };
+  // string backupID = 1;
+  void clear_backupid();
+  const std::string& backupid() const;
+  void set_backupid(const std::string& value);
+  void set_backupid(std::string&& value);
+  void set_backupid(const char* value);
+  void set_backupid(const char* value, size_t size);
+  std::string* mutable_backupid();
+  std::string* release_backupid();
+  void set_allocated_backupid(std::string* backupid);
   private:
-  const std::string& _internal_compactionchunk() const;
-  void _internal_set_compactionchunk(const std::string& value);
-  std::string* _internal_mutable_compactionchunk();
+  const std::string& _internal_backupid() const;
+  void _internal_set_backupid(const std::string& value);
+  std::string* _internal_mutable_backupid();
+  public:
+
+  // string userID = 2;
+  void clear_userid();
+  const std::string& userid() const;
+  void set_userid(const std::string& value);
+  void set_userid(std::string&& value);
+  void set_userid(const char* value);
+  void set_userid(const char* value, size_t size);
+  std::string* mutable_userid();
+  std::string* release_userid();
+  void set_allocated_userid(std::string* userid);
+  private:
+  const std::string& _internal_userid() const;
+  void _internal_set_userid(const std::string& value);
+  std::string* _internal_mutable_userid();
+  public:
+
+  // @@protoc_insertion_point(class_scope:backup.SimpleAuthenticationRequestData)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr backupid_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_backup_2eproto;
+};
+// -------------------------------------------------------------------
+
+class AuthenticationInformationData PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.AuthenticationInformationData) */ {
+ public:
+  inline AuthenticationInformationData() : AuthenticationInformationData(nullptr) {}
+  virtual ~AuthenticationInformationData();
+  explicit constexpr AuthenticationInformationData(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  AuthenticationInformationData(const AuthenticationInformationData& from);
+  AuthenticationInformationData(AuthenticationInformationData&& from) noexcept
+    : AuthenticationInformationData() {
+    *this = ::std::move(from);
+  }
+
+  inline AuthenticationInformationData& operator=(const AuthenticationInformationData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline AuthenticationInformationData& operator=(AuthenticationInformationData&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const AuthenticationInformationData& default_instance() {
+    return *internal_default_instance();
+  }
+  enum DataCase {
+    kNonce = 2,
+    kRawMessage = 3,
+    DATA_NOT_SET = 0,
+  };
+
+  static inline const AuthenticationInformationData* internal_default_instance() {
+    return reinterpret_cast<const AuthenticationInformationData*>(
+               &_AuthenticationInformationData_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(AuthenticationInformationData& a, AuthenticationInformationData& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(AuthenticationInformationData* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(AuthenticationInformationData* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline AuthenticationInformationData* New() const final {
+    return CreateMaybeMessage<AuthenticationInformationData>(nullptr);
+  }
+
+  AuthenticationInformationData* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<AuthenticationInformationData>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const AuthenticationInformationData& from);
+  void MergeFrom(const AuthenticationInformationData& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(AuthenticationInformationData* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "backup.AuthenticationInformationData";
+  }
+  protected:
+  explicit AuthenticationInformationData(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_backup_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kAuthenticationMethodFieldNumber = 1,
+    kNonceFieldNumber = 2,
+    kRawMessageFieldNumber = 3,
+  };
+  // .backup.AuthenticationMethod authenticationMethod = 1;
+  void clear_authenticationmethod();
+  ::backup::AuthenticationMethod authenticationmethod() const;
+  void set_authenticationmethod(::backup::AuthenticationMethod value);
+  private:
+  ::backup::AuthenticationMethod _internal_authenticationmethod() const;
+  void _internal_set_authenticationmethod(::backup::AuthenticationMethod value);
+  public:
+
+  // bytes nonce = 2;
+  bool has_nonce() const;
+  private:
+  bool _internal_has_nonce() const;
+  public:
+  void clear_nonce();
+  const std::string& nonce() const;
+  void set_nonce(const std::string& value);
+  void set_nonce(std::string&& value);
+  void set_nonce(const char* value);
+  void set_nonce(const void* value, size_t size);
+  std::string* mutable_nonce();
+  std::string* release_nonce();
+  void set_allocated_nonce(std::string* nonce);
+  private:
+  const std::string& _internal_nonce() const;
+  void _internal_set_nonce(const std::string& value);
+  std::string* _internal_mutable_nonce();
+  public:
+
+  // bytes rawMessage = 3;
+  bool has_rawmessage() const;
+  private:
+  bool _internal_has_rawmessage() const;
+  public:
+  void clear_rawmessage();
+  const std::string& rawmessage() const;
+  void set_rawmessage(const std::string& value);
+  void set_rawmessage(std::string&& value);
+  void set_rawmessage(const char* value);
+  void set_rawmessage(const void* value, size_t size);
+  std::string* mutable_rawmessage();
+  std::string* release_rawmessage();
+  void set_allocated_rawmessage(std::string* rawmessage);
+  private:
+  const std::string& _internal_rawmessage() const;
+  void _internal_set_rawmessage(const std::string& value);
+  std::string* _internal_mutable_rawmessage();
   public:
 
   void clear_data();
   DataCase data_case() const;
-  // @@protoc_insertion_point(class_scope:backup.ResetKeyRequest)
+  // @@protoc_insertion_point(class_scope:backup.AuthenticationInformationData)
  private:
   class _Internal;
-  void set_has_newkey();
-  void set_has_compactionchunk();
+  void set_has_nonce();
+  void set_has_rawmessage();
 
   inline bool has_data() const;
   inline void clear_has_data();
@@ -280,12 +639,410 @@ class ResetKeyRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
+  int authenticationmethod_;
   union DataUnion {
     constexpr DataUnion() : _constinit_{} {}
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr newkey_;
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr compactionchunk_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr nonce_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr rawmessage_;
+  } data_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
+  friend struct ::TableStruct_backup_2eproto;
+};
+// -------------------------------------------------------------------
+
+class CreateNewBackupRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.CreateNewBackupRequest) */ {
+ public:
+  inline CreateNewBackupRequest() : CreateNewBackupRequest(nullptr) {}
+  virtual ~CreateNewBackupRequest();
+  explicit constexpr CreateNewBackupRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  CreateNewBackupRequest(const CreateNewBackupRequest& from);
+  CreateNewBackupRequest(CreateNewBackupRequest&& from) noexcept
+    : CreateNewBackupRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline CreateNewBackupRequest& operator=(const CreateNewBackupRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CreateNewBackupRequest& operator=(CreateNewBackupRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const CreateNewBackupRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  enum DataCase {
+    kAuthenticationRequestData = 1,
+    kAuthenticationInformationData = 2,
+    kNewCompactionChunk = 3,
+    DATA_NOT_SET = 0,
+  };
+
+  static inline const CreateNewBackupRequest* internal_default_instance() {
+    return reinterpret_cast<const CreateNewBackupRequest*>(
+               &_CreateNewBackupRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(CreateNewBackupRequest& a, CreateNewBackupRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CreateNewBackupRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CreateNewBackupRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline CreateNewBackupRequest* New() const final {
+    return CreateMaybeMessage<CreateNewBackupRequest>(nullptr);
+  }
+
+  CreateNewBackupRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<CreateNewBackupRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const CreateNewBackupRequest& from);
+  void MergeFrom(const CreateNewBackupRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(CreateNewBackupRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "backup.CreateNewBackupRequest";
+  }
+  protected:
+  explicit CreateNewBackupRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_backup_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kAuthenticationRequestDataFieldNumber = 1,
+    kAuthenticationInformationDataFieldNumber = 2,
+    kNewCompactionChunkFieldNumber = 3,
+  };
+  // .backup.FullAuthenticationRequestData authenticationRequestData = 1;
+  bool has_authenticationrequestdata() const;
+  private:
+  bool _internal_has_authenticationrequestdata() const;
+  public:
+  void clear_authenticationrequestdata();
+  const ::backup::FullAuthenticationRequestData& authenticationrequestdata() const;
+  ::backup::FullAuthenticationRequestData* release_authenticationrequestdata();
+  ::backup::FullAuthenticationRequestData* mutable_authenticationrequestdata();
+  void set_allocated_authenticationrequestdata(::backup::FullAuthenticationRequestData* authenticationrequestdata);
+  private:
+  const ::backup::FullAuthenticationRequestData& _internal_authenticationrequestdata() const;
+  ::backup::FullAuthenticationRequestData* _internal_mutable_authenticationrequestdata();
+  public:
+  void unsafe_arena_set_allocated_authenticationrequestdata(
+      ::backup::FullAuthenticationRequestData* authenticationrequestdata);
+  ::backup::FullAuthenticationRequestData* unsafe_arena_release_authenticationrequestdata();
+
+  // .backup.AuthenticationInformationData authenticationInformationData = 2;
+  bool has_authenticationinformationdata() const;
+  private:
+  bool _internal_has_authenticationinformationdata() const;
+  public:
+  void clear_authenticationinformationdata();
+  const ::backup::AuthenticationInformationData& authenticationinformationdata() const;
+  ::backup::AuthenticationInformationData* release_authenticationinformationdata();
+  ::backup::AuthenticationInformationData* mutable_authenticationinformationdata();
+  void set_allocated_authenticationinformationdata(::backup::AuthenticationInformationData* authenticationinformationdata);
+  private:
+  const ::backup::AuthenticationInformationData& _internal_authenticationinformationdata() const;
+  ::backup::AuthenticationInformationData* _internal_mutable_authenticationinformationdata();
+  public:
+  void unsafe_arena_set_allocated_authenticationinformationdata(
+      ::backup::AuthenticationInformationData* authenticationinformationdata);
+  ::backup::AuthenticationInformationData* unsafe_arena_release_authenticationinformationdata();
+
+  // bytes newCompactionChunk = 3;
+  bool has_newcompactionchunk() const;
+  private:
+  bool _internal_has_newcompactionchunk() const;
+  public:
+  void clear_newcompactionchunk();
+  const std::string& newcompactionchunk() const;
+  void set_newcompactionchunk(const std::string& value);
+  void set_newcompactionchunk(std::string&& value);
+  void set_newcompactionchunk(const char* value);
+  void set_newcompactionchunk(const void* value, size_t size);
+  std::string* mutable_newcompactionchunk();
+  std::string* release_newcompactionchunk();
+  void set_allocated_newcompactionchunk(std::string* newcompactionchunk);
+  private:
+  const std::string& _internal_newcompactionchunk() const;
+  void _internal_set_newcompactionchunk(const std::string& value);
+  std::string* _internal_mutable_newcompactionchunk();
+  public:
+
+  void clear_data();
+  DataCase data_case() const;
+  // @@protoc_insertion_point(class_scope:backup.CreateNewBackupRequest)
+ private:
+  class _Internal;
+  void set_has_authenticationrequestdata();
+  void set_has_authenticationinformationdata();
+  void set_has_newcompactionchunk();
+
+  inline bool has_data() const;
+  inline void clear_has_data();
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  union DataUnion {
+    constexpr DataUnion() : _constinit_{} {}
+      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+    ::backup::FullAuthenticationRequestData* authenticationrequestdata_;
+    ::backup::AuthenticationInformationData* authenticationinformationdata_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr newcompactionchunk_;
+  } data_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
+  friend struct ::TableStruct_backup_2eproto;
+};
+// -------------------------------------------------------------------
+
+class CreateNewBackupResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.CreateNewBackupResponse) */ {
+ public:
+  inline CreateNewBackupResponse() : CreateNewBackupResponse(nullptr) {}
+  virtual ~CreateNewBackupResponse();
+  explicit constexpr CreateNewBackupResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  CreateNewBackupResponse(const CreateNewBackupResponse& from);
+  CreateNewBackupResponse(CreateNewBackupResponse&& from) noexcept
+    : CreateNewBackupResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline CreateNewBackupResponse& operator=(const CreateNewBackupResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline CreateNewBackupResponse& operator=(CreateNewBackupResponse&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const CreateNewBackupResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  enum DataCase {
+    kResponseBytes = 1,
+    kBackupID = 2,
+    DATA_NOT_SET = 0,
+  };
+
+  static inline const CreateNewBackupResponse* internal_default_instance() {
+    return reinterpret_cast<const CreateNewBackupResponse*>(
+               &_CreateNewBackupResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(CreateNewBackupResponse& a, CreateNewBackupResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(CreateNewBackupResponse* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(CreateNewBackupResponse* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline CreateNewBackupResponse* New() const final {
+    return CreateMaybeMessage<CreateNewBackupResponse>(nullptr);
+  }
+
+  CreateNewBackupResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<CreateNewBackupResponse>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const CreateNewBackupResponse& from);
+  void MergeFrom(const CreateNewBackupResponse& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(CreateNewBackupResponse* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "backup.CreateNewBackupResponse";
+  }
+  protected:
+  explicit CreateNewBackupResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_backup_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kResponseBytesFieldNumber = 1,
+    kBackupIDFieldNumber = 2,
+  };
+  // bytes responseBytes = 1;
+  bool has_responsebytes() const;
+  private:
+  bool _internal_has_responsebytes() const;
+  public:
+  void clear_responsebytes();
+  const std::string& responsebytes() const;
+  void set_responsebytes(const std::string& value);
+  void set_responsebytes(std::string&& value);
+  void set_responsebytes(const char* value);
+  void set_responsebytes(const void* value, size_t size);
+  std::string* mutable_responsebytes();
+  std::string* release_responsebytes();
+  void set_allocated_responsebytes(std::string* responsebytes);
+  private:
+  const std::string& _internal_responsebytes() const;
+  void _internal_set_responsebytes(const std::string& value);
+  std::string* _internal_mutable_responsebytes();
+  public:
+
+  // string backupID = 2;
+  bool has_backupid() const;
+  private:
+  bool _internal_has_backupid() const;
+  public:
+  void clear_backupid();
+  const std::string& backupid() const;
+  void set_backupid(const std::string& value);
+  void set_backupid(std::string&& value);
+  void set_backupid(const char* value);
+  void set_backupid(const char* value, size_t size);
+  std::string* mutable_backupid();
+  std::string* release_backupid();
+  void set_allocated_backupid(std::string* backupid);
+  private:
+  const std::string& _internal_backupid() const;
+  void _internal_set_backupid(const std::string& value);
+  std::string* _internal_mutable_backupid();
+  public:
+
+  void clear_data();
+  DataCase data_case() const;
+  // @@protoc_insertion_point(class_scope:backup.CreateNewBackupResponse)
+ private:
+  class _Internal;
+  void set_has_responsebytes();
+  void set_has_backupid();
+
+  inline bool has_data() const;
+  inline void clear_has_data();
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  union DataUnion {
+    constexpr DataUnion() : _constinit_{} {}
+      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr responsebytes_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr backupid_;
   } data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
@@ -337,7 +1094,7 @@ class SendLogRequest PROTOBUF_FINAL :
                &_SendLogRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    5;
 
   friend void swap(SendLogRequest& a, SendLogRequest& b) {
     a.Swap(&b);
@@ -407,40 +1164,42 @@ class SendLogRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUserIdFieldNumber = 1,
-    kDataFieldNumber = 2,
+    kLogDataFieldNumber = 2,
+    kAuthenticationDataFieldNumber = 1,
   };
-  // string userId = 1;
-  void clear_userid();
-  const std::string& userid() const;
-  void set_userid(const std::string& value);
-  void set_userid(std::string&& value);
-  void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
-  std::string* mutable_userid();
-  std::string* release_userid();
-  void set_allocated_userid(std::string* userid);
+  // bytes logData = 2;
+  void clear_logdata();
+  const std::string& logdata() const;
+  void set_logdata(const std::string& value);
+  void set_logdata(std::string&& value);
+  void set_logdata(const char* value);
+  void set_logdata(const void* value, size_t size);
+  std::string* mutable_logdata();
+  std::string* release_logdata();
+  void set_allocated_logdata(std::string* logdata);
   private:
-  const std::string& _internal_userid() const;
-  void _internal_set_userid(const std::string& value);
-  std::string* _internal_mutable_userid();
+  const std::string& _internal_logdata() const;
+  void _internal_set_logdata(const std::string& value);
+  std::string* _internal_mutable_logdata();
   public:
 
-  // bytes data = 2;
-  void clear_data();
-  const std::string& data() const;
-  void set_data(const std::string& value);
-  void set_data(std::string&& value);
-  void set_data(const char* value);
-  void set_data(const void* value, size_t size);
-  std::string* mutable_data();
-  std::string* release_data();
-  void set_allocated_data(std::string* data);
+  // .backup.SimpleAuthenticationRequestData authenticationData = 1;
+  bool has_authenticationdata() const;
   private:
-  const std::string& _internal_data() const;
-  void _internal_set_data(const std::string& value);
-  std::string* _internal_mutable_data();
+  bool _internal_has_authenticationdata() const;
   public:
+  void clear_authenticationdata();
+  const ::backup::SimpleAuthenticationRequestData& authenticationdata() const;
+  ::backup::SimpleAuthenticationRequestData* release_authenticationdata();
+  ::backup::SimpleAuthenticationRequestData* mutable_authenticationdata();
+  void set_allocated_authenticationdata(::backup::SimpleAuthenticationRequestData* authenticationdata);
+  private:
+  const ::backup::SimpleAuthenticationRequestData& _internal_authenticationdata() const;
+  ::backup::SimpleAuthenticationRequestData* _internal_mutable_authenticationdata();
+  public:
+  void unsafe_arena_set_allocated_authenticationdata(
+      ::backup::SimpleAuthenticationRequestData* authenticationdata);
+  ::backup::SimpleAuthenticationRequestData* unsafe_arena_release_authenticationdata();
 
   // @@protoc_insertion_point(class_scope:backup.SendLogRequest)
  private:
@@ -449,31 +1208,31 @@ class SendLogRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr data_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr logdata_;
+  ::backup::SimpleAuthenticationRequestData* authenticationdata_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_backup_2eproto;
 };
 // -------------------------------------------------------------------
 
-class PullBackupKeyRequest PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.PullBackupKeyRequest) */ {
+class RecoverBackupKeyRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.RecoverBackupKeyRequest) */ {
  public:
-  inline PullBackupKeyRequest() : PullBackupKeyRequest(nullptr) {}
-  virtual ~PullBackupKeyRequest();
-  explicit constexpr PullBackupKeyRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline RecoverBackupKeyRequest() : RecoverBackupKeyRequest(nullptr) {}
+  virtual ~RecoverBackupKeyRequest();
+  explicit constexpr RecoverBackupKeyRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  PullBackupKeyRequest(const PullBackupKeyRequest& from);
-  PullBackupKeyRequest(PullBackupKeyRequest&& from) noexcept
-    : PullBackupKeyRequest() {
+  RecoverBackupKeyRequest(const RecoverBackupKeyRequest& from);
+  RecoverBackupKeyRequest(RecoverBackupKeyRequest&& from) noexcept
+    : RecoverBackupKeyRequest() {
     *this = ::std::move(from);
   }
 
-  inline PullBackupKeyRequest& operator=(const PullBackupKeyRequest& from) {
+  inline RecoverBackupKeyRequest& operator=(const RecoverBackupKeyRequest& from) {
     CopyFrom(from);
     return *this;
   }
-  inline PullBackupKeyRequest& operator=(PullBackupKeyRequest&& from) noexcept {
+  inline RecoverBackupKeyRequest& operator=(RecoverBackupKeyRequest&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -491,20 +1250,20 @@ class PullBackupKeyRequest PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const PullBackupKeyRequest& default_instance() {
+  static const RecoverBackupKeyRequest& default_instance() {
     return *internal_default_instance();
   }
-  static inline const PullBackupKeyRequest* internal_default_instance() {
-    return reinterpret_cast<const PullBackupKeyRequest*>(
-               &_PullBackupKeyRequest_default_instance_);
+  static inline const RecoverBackupKeyRequest* internal_default_instance() {
+    return reinterpret_cast<const RecoverBackupKeyRequest*>(
+               &_RecoverBackupKeyRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    6;
 
-  friend void swap(PullBackupKeyRequest& a, PullBackupKeyRequest& b) {
+  friend void swap(RecoverBackupKeyRequest& a, RecoverBackupKeyRequest& b) {
     a.Swap(&b);
   }
-  inline void Swap(PullBackupKeyRequest* other) {
+  inline void Swap(RecoverBackupKeyRequest* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -512,7 +1271,7 @@ class PullBackupKeyRequest PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(PullBackupKeyRequest* other) {
+  void UnsafeArenaSwap(RecoverBackupKeyRequest* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -520,17 +1279,17 @@ class PullBackupKeyRequest PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline PullBackupKeyRequest* New() const final {
-    return CreateMaybeMessage<PullBackupKeyRequest>(nullptr);
+  inline RecoverBackupKeyRequest* New() const final {
+    return CreateMaybeMessage<RecoverBackupKeyRequest>(nullptr);
   }
 
-  PullBackupKeyRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<PullBackupKeyRequest>(arena);
+  RecoverBackupKeyRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<RecoverBackupKeyRequest>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const PullBackupKeyRequest& from);
-  void MergeFrom(const PullBackupKeyRequest& from);
+  void CopyFrom(const RecoverBackupKeyRequest& from);
+  void MergeFrom(const RecoverBackupKeyRequest& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -544,13 +1303,13 @@ class PullBackupKeyRequest PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(PullBackupKeyRequest* other);
+  void InternalSwap(RecoverBackupKeyRequest* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "backup.PullBackupKeyRequest";
+    return "backup.RecoverBackupKeyRequest";
   }
   protected:
-  explicit PullBackupKeyRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit RecoverBackupKeyRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -569,73 +1328,57 @@ class PullBackupKeyRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUserIdFieldNumber = 1,
-    kPakeKeyFieldNumber = 2,
+    kAuthenticationDataFieldNumber = 1,
   };
-  // string userId = 1;
-  void clear_userid();
-  const std::string& userid() const;
-  void set_userid(const std::string& value);
-  void set_userid(std::string&& value);
-  void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
-  std::string* mutable_userid();
-  std::string* release_userid();
-  void set_allocated_userid(std::string* userid);
+  // .backup.FullAuthenticationRequestData authenticationData = 1;
+  bool has_authenticationdata() const;
   private:
-  const std::string& _internal_userid() const;
-  void _internal_set_userid(const std::string& value);
-  std::string* _internal_mutable_userid();
+  bool _internal_has_authenticationdata() const;
   public:
-
-  // bytes pakeKey = 2;
-  void clear_pakekey();
-  const std::string& pakekey() const;
-  void set_pakekey(const std::string& value);
-  void set_pakekey(std::string&& value);
-  void set_pakekey(const char* value);
-  void set_pakekey(const void* value, size_t size);
-  std::string* mutable_pakekey();
-  std::string* release_pakekey();
-  void set_allocated_pakekey(std::string* pakekey);
+  void clear_authenticationdata();
+  const ::backup::FullAuthenticationRequestData& authenticationdata() const;
+  ::backup::FullAuthenticationRequestData* release_authenticationdata();
+  ::backup::FullAuthenticationRequestData* mutable_authenticationdata();
+  void set_allocated_authenticationdata(::backup::FullAuthenticationRequestData* authenticationdata);
   private:
-  const std::string& _internal_pakekey() const;
-  void _internal_set_pakekey(const std::string& value);
-  std::string* _internal_mutable_pakekey();
+  const ::backup::FullAuthenticationRequestData& _internal_authenticationdata() const;
+  ::backup::FullAuthenticationRequestData* _internal_mutable_authenticationdata();
   public:
+  void unsafe_arena_set_allocated_authenticationdata(
+      ::backup::FullAuthenticationRequestData* authenticationdata);
+  ::backup::FullAuthenticationRequestData* unsafe_arena_release_authenticationdata();
 
-  // @@protoc_insertion_point(class_scope:backup.PullBackupKeyRequest)
+  // @@protoc_insertion_point(class_scope:backup.RecoverBackupKeyRequest)
  private:
   class _Internal;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr pakekey_;
+  ::backup::FullAuthenticationRequestData* authenticationdata_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_backup_2eproto;
 };
 // -------------------------------------------------------------------
 
-class PullBackupKeyResponse PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.PullBackupKeyResponse) */ {
+class RecoverBackupKeyResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.RecoverBackupKeyResponse) */ {
  public:
-  inline PullBackupKeyResponse() : PullBackupKeyResponse(nullptr) {}
-  virtual ~PullBackupKeyResponse();
-  explicit constexpr PullBackupKeyResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline RecoverBackupKeyResponse() : RecoverBackupKeyResponse(nullptr) {}
+  virtual ~RecoverBackupKeyResponse();
+  explicit constexpr RecoverBackupKeyResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  PullBackupKeyResponse(const PullBackupKeyResponse& from);
-  PullBackupKeyResponse(PullBackupKeyResponse&& from) noexcept
-    : PullBackupKeyResponse() {
+  RecoverBackupKeyResponse(const RecoverBackupKeyResponse& from);
+  RecoverBackupKeyResponse(RecoverBackupKeyResponse&& from) noexcept
+    : RecoverBackupKeyResponse() {
     *this = ::std::move(from);
   }
 
-  inline PullBackupKeyResponse& operator=(const PullBackupKeyResponse& from) {
+  inline RecoverBackupKeyResponse& operator=(const RecoverBackupKeyResponse& from) {
     CopyFrom(from);
     return *this;
   }
-  inline PullBackupKeyResponse& operator=(PullBackupKeyResponse&& from) noexcept {
+  inline RecoverBackupKeyResponse& operator=(RecoverBackupKeyResponse&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -653,20 +1396,27 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const PullBackupKeyResponse& default_instance() {
+  static const RecoverBackupKeyResponse& default_instance() {
     return *internal_default_instance();
   }
-  static inline const PullBackupKeyResponse* internal_default_instance() {
-    return reinterpret_cast<const PullBackupKeyResponse*>(
-               &_PullBackupKeyResponse_default_instance_);
+  enum DataCase {
+    kResponseBytes = 1,
+    kAuthenticationInformationData = 2,
+    kBackupID = 3,
+    DATA_NOT_SET = 0,
+  };
+
+  static inline const RecoverBackupKeyResponse* internal_default_instance() {
+    return reinterpret_cast<const RecoverBackupKeyResponse*>(
+               &_RecoverBackupKeyResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    7;
 
-  friend void swap(PullBackupKeyResponse& a, PullBackupKeyResponse& b) {
+  friend void swap(RecoverBackupKeyResponse& a, RecoverBackupKeyResponse& b) {
     a.Swap(&b);
   }
-  inline void Swap(PullBackupKeyResponse* other) {
+  inline void Swap(RecoverBackupKeyResponse* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -674,7 +1424,7 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(PullBackupKeyResponse* other) {
+  void UnsafeArenaSwap(RecoverBackupKeyResponse* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -682,17 +1432,17 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline PullBackupKeyResponse* New() const final {
-    return CreateMaybeMessage<PullBackupKeyResponse>(nullptr);
+  inline RecoverBackupKeyResponse* New() const final {
+    return CreateMaybeMessage<RecoverBackupKeyResponse>(nullptr);
   }
 
-  PullBackupKeyResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<PullBackupKeyResponse>(arena);
+  RecoverBackupKeyResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<RecoverBackupKeyResponse>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const PullBackupKeyResponse& from);
-  void MergeFrom(const PullBackupKeyResponse& from);
+  void CopyFrom(const RecoverBackupKeyResponse& from);
+  void MergeFrom(const RecoverBackupKeyResponse& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -706,13 +1456,13 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(PullBackupKeyResponse* other);
+  void InternalSwap(RecoverBackupKeyResponse* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "backup.PullBackupKeyResponse";
+    return "backup.RecoverBackupKeyResponse";
   }
   protected:
-  explicit PullBackupKeyResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit RecoverBackupKeyResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -731,55 +1481,115 @@ class PullBackupKeyResponse PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kEncryptedBackupKeyFieldNumber = 1,
+    kResponseBytesFieldNumber = 1,
+    kAuthenticationInformationDataFieldNumber = 2,
+    kBackupIDFieldNumber = 3,
   };
-  // bytes encryptedBackupKey = 1;
-  void clear_encryptedbackupkey();
-  const std::string& encryptedbackupkey() const;
-  void set_encryptedbackupkey(const std::string& value);
-  void set_encryptedbackupkey(std::string&& value);
-  void set_encryptedbackupkey(const char* value);
-  void set_encryptedbackupkey(const void* value, size_t size);
-  std::string* mutable_encryptedbackupkey();
-  std::string* release_encryptedbackupkey();
-  void set_allocated_encryptedbackupkey(std::string* encryptedbackupkey);
+  // bytes responseBytes = 1;
+  bool has_responsebytes() const;
   private:
-  const std::string& _internal_encryptedbackupkey() const;
-  void _internal_set_encryptedbackupkey(const std::string& value);
-  std::string* _internal_mutable_encryptedbackupkey();
+  bool _internal_has_responsebytes() const;
+  public:
+  void clear_responsebytes();
+  const std::string& responsebytes() const;
+  void set_responsebytes(const std::string& value);
+  void set_responsebytes(std::string&& value);
+  void set_responsebytes(const char* value);
+  void set_responsebytes(const void* value, size_t size);
+  std::string* mutable_responsebytes();
+  std::string* release_responsebytes();
+  void set_allocated_responsebytes(std::string* responsebytes);
+  private:
+  const std::string& _internal_responsebytes() const;
+  void _internal_set_responsebytes(const std::string& value);
+  std::string* _internal_mutable_responsebytes();
   public:
 
-  // @@protoc_insertion_point(class_scope:backup.PullBackupKeyResponse)
+  // .backup.AuthenticationInformationData authenticationInformationData = 2;
+  bool has_authenticationinformationdata() const;
+  private:
+  bool _internal_has_authenticationinformationdata() const;
+  public:
+  void clear_authenticationinformationdata();
+  const ::backup::AuthenticationInformationData& authenticationinformationdata() const;
+  ::backup::AuthenticationInformationData* release_authenticationinformationdata();
+  ::backup::AuthenticationInformationData* mutable_authenticationinformationdata();
+  void set_allocated_authenticationinformationdata(::backup::AuthenticationInformationData* authenticationinformationdata);
+  private:
+  const ::backup::AuthenticationInformationData& _internal_authenticationinformationdata() const;
+  ::backup::AuthenticationInformationData* _internal_mutable_authenticationinformationdata();
+  public:
+  void unsafe_arena_set_allocated_authenticationinformationdata(
+      ::backup::AuthenticationInformationData* authenticationinformationdata);
+  ::backup::AuthenticationInformationData* unsafe_arena_release_authenticationinformationdata();
+
+  // string backupID = 3;
+  bool has_backupid() const;
+  private:
+  bool _internal_has_backupid() const;
+  public:
+  void clear_backupid();
+  const std::string& backupid() const;
+  void set_backupid(const std::string& value);
+  void set_backupid(std::string&& value);
+  void set_backupid(const char* value);
+  void set_backupid(const char* value, size_t size);
+  std::string* mutable_backupid();
+  std::string* release_backupid();
+  void set_allocated_backupid(std::string* backupid);
+  private:
+  const std::string& _internal_backupid() const;
+  void _internal_set_backupid(const std::string& value);
+  std::string* _internal_mutable_backupid();
+  public:
+
+  void clear_data();
+  DataCase data_case() const;
+  // @@protoc_insertion_point(class_scope:backup.RecoverBackupKeyResponse)
  private:
   class _Internal;
+  void set_has_responsebytes();
+  void set_has_authenticationinformationdata();
+  void set_has_backupid();
+
+  inline bool has_data() const;
+  inline void clear_has_data();
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr encryptedbackupkey_;
+  union DataUnion {
+    constexpr DataUnion() : _constinit_{} {}
+      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr responsebytes_;
+    ::backup::AuthenticationInformationData* authenticationinformationdata_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr backupid_;
+  } data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
   friend struct ::TableStruct_backup_2eproto;
 };
 // -------------------------------------------------------------------
 
-class PullCompactionRequest PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.PullCompactionRequest) */ {
+class PullBackupRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.PullBackupRequest) */ {
  public:
-  inline PullCompactionRequest() : PullCompactionRequest(nullptr) {}
-  virtual ~PullCompactionRequest();
-  explicit constexpr PullCompactionRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline PullBackupRequest() : PullBackupRequest(nullptr) {}
+  virtual ~PullBackupRequest();
+  explicit constexpr PullBackupRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  PullCompactionRequest(const PullCompactionRequest& from);
-  PullCompactionRequest(PullCompactionRequest&& from) noexcept
-    : PullCompactionRequest() {
+  PullBackupRequest(const PullBackupRequest& from);
+  PullBackupRequest(PullBackupRequest&& from) noexcept
+    : PullBackupRequest() {
     *this = ::std::move(from);
   }
 
-  inline PullCompactionRequest& operator=(const PullCompactionRequest& from) {
+  inline PullBackupRequest& operator=(const PullBackupRequest& from) {
     CopyFrom(from);
     return *this;
   }
-  inline PullCompactionRequest& operator=(PullCompactionRequest&& from) noexcept {
+  inline PullBackupRequest& operator=(PullBackupRequest&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -797,20 +1607,20 @@ class PullCompactionRequest PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const PullCompactionRequest& default_instance() {
+  static const PullBackupRequest& default_instance() {
     return *internal_default_instance();
   }
-  static inline const PullCompactionRequest* internal_default_instance() {
-    return reinterpret_cast<const PullCompactionRequest*>(
-               &_PullCompactionRequest_default_instance_);
+  static inline const PullBackupRequest* internal_default_instance() {
+    return reinterpret_cast<const PullBackupRequest*>(
+               &_PullBackupRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    8;
 
-  friend void swap(PullCompactionRequest& a, PullCompactionRequest& b) {
+  friend void swap(PullBackupRequest& a, PullBackupRequest& b) {
     a.Swap(&b);
   }
-  inline void Swap(PullCompactionRequest* other) {
+  inline void Swap(PullBackupRequest* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -818,7 +1628,7 @@ class PullCompactionRequest PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(PullCompactionRequest* other) {
+  void UnsafeArenaSwap(PullBackupRequest* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -826,17 +1636,17 @@ class PullCompactionRequest PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline PullCompactionRequest* New() const final {
-    return CreateMaybeMessage<PullCompactionRequest>(nullptr);
+  inline PullBackupRequest* New() const final {
+    return CreateMaybeMessage<PullBackupRequest>(nullptr);
   }
 
-  PullCompactionRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<PullCompactionRequest>(arena);
+  PullBackupRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<PullBackupRequest>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const PullCompactionRequest& from);
-  void MergeFrom(const PullCompactionRequest& from);
+  void CopyFrom(const PullBackupRequest& from);
+  void MergeFrom(const PullBackupRequest& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -850,13 +1660,13 @@ class PullCompactionRequest PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(PullCompactionRequest* other);
+  void InternalSwap(PullBackupRequest* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "backup.PullCompactionRequest";
+    return "backup.PullBackupRequest";
   }
   protected:
-  explicit PullCompactionRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit PullBackupRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -875,73 +1685,57 @@ class PullCompactionRequest PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUserIdFieldNumber = 1,
-    kMessageFieldNumber = 2,
+    kAuthenticationDataFieldNumber = 1,
   };
-  // string userId = 1;
-  void clear_userid();
-  const std::string& userid() const;
-  void set_userid(const std::string& value);
-  void set_userid(std::string&& value);
-  void set_userid(const char* value);
-  void set_userid(const char* value, size_t size);
-  std::string* mutable_userid();
-  std::string* release_userid();
-  void set_allocated_userid(std::string* userid);
+  // .backup.SimpleAuthenticationRequestData authenticationData = 1;
+  bool has_authenticationdata() const;
   private:
-  const std::string& _internal_userid() const;
-  void _internal_set_userid(const std::string& value);
-  std::string* _internal_mutable_userid();
+  bool _internal_has_authenticationdata() const;
   public:
-
-  // bytes message = 2;
-  void clear_message();
-  const std::string& message() const;
-  void set_message(const std::string& value);
-  void set_message(std::string&& value);
-  void set_message(const char* value);
-  void set_message(const void* value, size_t size);
-  std::string* mutable_message();
-  std::string* release_message();
-  void set_allocated_message(std::string* message);
+  void clear_authenticationdata();
+  const ::backup::SimpleAuthenticationRequestData& authenticationdata() const;
+  ::backup::SimpleAuthenticationRequestData* release_authenticationdata();
+  ::backup::SimpleAuthenticationRequestData* mutable_authenticationdata();
+  void set_allocated_authenticationdata(::backup::SimpleAuthenticationRequestData* authenticationdata);
   private:
-  const std::string& _internal_message() const;
-  void _internal_set_message(const std::string& value);
-  std::string* _internal_mutable_message();
+  const ::backup::SimpleAuthenticationRequestData& _internal_authenticationdata() const;
+  ::backup::SimpleAuthenticationRequestData* _internal_mutable_authenticationdata();
   public:
+  void unsafe_arena_set_allocated_authenticationdata(
+      ::backup::SimpleAuthenticationRequestData* authenticationdata);
+  ::backup::SimpleAuthenticationRequestData* unsafe_arena_release_authenticationdata();
 
-  // @@protoc_insertion_point(class_scope:backup.PullCompactionRequest)
+  // @@protoc_insertion_point(class_scope:backup.PullBackupRequest)
  private:
   class _Internal;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr message_;
+  ::backup::SimpleAuthenticationRequestData* authenticationdata_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_backup_2eproto;
 };
 // -------------------------------------------------------------------
 
-class PullCompactionResponse PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.PullCompactionResponse) */ {
+class PullBackupResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:backup.PullBackupResponse) */ {
  public:
-  inline PullCompactionResponse() : PullCompactionResponse(nullptr) {}
-  virtual ~PullCompactionResponse();
-  explicit constexpr PullCompactionResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline PullBackupResponse() : PullBackupResponse(nullptr) {}
+  virtual ~PullBackupResponse();
+  explicit constexpr PullBackupResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  PullCompactionResponse(const PullCompactionResponse& from);
-  PullCompactionResponse(PullCompactionResponse&& from) noexcept
-    : PullCompactionResponse() {
+  PullBackupResponse(const PullBackupResponse& from);
+  PullBackupResponse(PullBackupResponse&& from) noexcept
+    : PullBackupResponse() {
     *this = ::std::move(from);
   }
 
-  inline PullCompactionResponse& operator=(const PullCompactionResponse& from) {
+  inline PullBackupResponse& operator=(const PullBackupResponse& from) {
     CopyFrom(from);
     return *this;
   }
-  inline PullCompactionResponse& operator=(PullCompactionResponse&& from) noexcept {
+  inline PullBackupResponse& operator=(PullBackupResponse&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -959,7 +1753,7 @@ class PullCompactionResponse PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const PullCompactionResponse& default_instance() {
+  static const PullBackupResponse& default_instance() {
     return *internal_default_instance();
   }
   enum DataCase {
@@ -968,17 +1762,17 @@ class PullCompactionResponse PROTOBUF_FINAL :
     DATA_NOT_SET = 0,
   };
 
-  static inline const PullCompactionResponse* internal_default_instance() {
-    return reinterpret_cast<const PullCompactionResponse*>(
-               &_PullCompactionResponse_default_instance_);
+  static inline const PullBackupResponse* internal_default_instance() {
+    return reinterpret_cast<const PullBackupResponse*>(
+               &_PullBackupResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    5;
+    9;
 
-  friend void swap(PullCompactionResponse& a, PullCompactionResponse& b) {
+  friend void swap(PullBackupResponse& a, PullBackupResponse& b) {
     a.Swap(&b);
   }
-  inline void Swap(PullCompactionResponse* other) {
+  inline void Swap(PullBackupResponse* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -986,7 +1780,7 @@ class PullCompactionResponse PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(PullCompactionResponse* other) {
+  void UnsafeArenaSwap(PullBackupResponse* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -994,17 +1788,17 @@ class PullCompactionResponse PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline PullCompactionResponse* New() const final {
-    return CreateMaybeMessage<PullCompactionResponse>(nullptr);
+  inline PullBackupResponse* New() const final {
+    return CreateMaybeMessage<PullBackupResponse>(nullptr);
   }
 
-  PullCompactionResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<PullCompactionResponse>(arena);
+  PullBackupResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<PullBackupResponse>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const PullCompactionResponse& from);
-  void MergeFrom(const PullCompactionResponse& from);
+  void CopyFrom(const PullBackupResponse& from);
+  void MergeFrom(const PullBackupResponse& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -1018,13 +1812,13 @@ class PullCompactionResponse PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(PullCompactionResponse* other);
+  void InternalSwap(PullBackupResponse* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "backup.PullCompactionResponse";
+    return "backup.PullBackupResponse";
   }
   protected:
-  explicit PullCompactionResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit PullBackupResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -1088,7 +1882,7 @@ class PullCompactionResponse PROTOBUF_FINAL :
 
   void clear_data();
   DataCase data_case() const;
-  // @@protoc_insertion_point(class_scope:backup.PullCompactionResponse)
+  // @@protoc_insertion_point(class_scope:backup.PullBackupResponse)
  private:
   class _Internal;
   void set_has_compactionchunk();
@@ -1120,59 +1914,120 @@ class PullCompactionResponse PROTOBUF_FINAL :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// ResetKeyRequest
+// FullAuthenticationRequestData
 
-// string userId = 1;
-inline void ResetKeyRequest::clear_userid() {
+// bytes requestBytes = 1;
+inline void FullAuthenticationRequestData::clear_requestbytes() {
+  requestbytes_.ClearToEmpty();
+}
+inline const std::string& FullAuthenticationRequestData::requestbytes() const {
+  // @@protoc_insertion_point(field_get:backup.FullAuthenticationRequestData.requestBytes)
+  return _internal_requestbytes();
+}
+inline void FullAuthenticationRequestData::set_requestbytes(const std::string& value) {
+  _internal_set_requestbytes(value);
+  // @@protoc_insertion_point(field_set:backup.FullAuthenticationRequestData.requestBytes)
+}
+inline std::string* FullAuthenticationRequestData::mutable_requestbytes() {
+  // @@protoc_insertion_point(field_mutable:backup.FullAuthenticationRequestData.requestBytes)
+  return _internal_mutable_requestbytes();
+}
+inline const std::string& FullAuthenticationRequestData::_internal_requestbytes() const {
+  return requestbytes_.Get();
+}
+inline void FullAuthenticationRequestData::_internal_set_requestbytes(const std::string& value) {
+  
+  requestbytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void FullAuthenticationRequestData::set_requestbytes(std::string&& value) {
+  
+  requestbytes_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.FullAuthenticationRequestData.requestBytes)
+}
+inline void FullAuthenticationRequestData::set_requestbytes(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  requestbytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.FullAuthenticationRequestData.requestBytes)
+}
+inline void FullAuthenticationRequestData::set_requestbytes(const void* value,
+    size_t size) {
+  
+  requestbytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.FullAuthenticationRequestData.requestBytes)
+}
+inline std::string* FullAuthenticationRequestData::_internal_mutable_requestbytes() {
+  
+  return requestbytes_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* FullAuthenticationRequestData::release_requestbytes() {
+  // @@protoc_insertion_point(field_release:backup.FullAuthenticationRequestData.requestBytes)
+  return requestbytes_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void FullAuthenticationRequestData::set_allocated_requestbytes(std::string* requestbytes) {
+  if (requestbytes != nullptr) {
+    
+  } else {
+    
+  }
+  requestbytes_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), requestbytes,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:backup.FullAuthenticationRequestData.requestBytes)
+}
+
+// string userID = 2;
+inline void FullAuthenticationRequestData::clear_userid() {
   userid_.ClearToEmpty();
 }
-inline const std::string& ResetKeyRequest::userid() const {
-  // @@protoc_insertion_point(field_get:backup.ResetKeyRequest.userId)
+inline const std::string& FullAuthenticationRequestData::userid() const {
+  // @@protoc_insertion_point(field_get:backup.FullAuthenticationRequestData.userID)
   return _internal_userid();
 }
-inline void ResetKeyRequest::set_userid(const std::string& value) {
+inline void FullAuthenticationRequestData::set_userid(const std::string& value) {
   _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:backup.ResetKeyRequest.userId)
+  // @@protoc_insertion_point(field_set:backup.FullAuthenticationRequestData.userID)
 }
-inline std::string* ResetKeyRequest::mutable_userid() {
-  // @@protoc_insertion_point(field_mutable:backup.ResetKeyRequest.userId)
+inline std::string* FullAuthenticationRequestData::mutable_userid() {
+  // @@protoc_insertion_point(field_mutable:backup.FullAuthenticationRequestData.userID)
   return _internal_mutable_userid();
 }
-inline const std::string& ResetKeyRequest::_internal_userid() const {
+inline const std::string& FullAuthenticationRequestData::_internal_userid() const {
   return userid_.Get();
 }
-inline void ResetKeyRequest::_internal_set_userid(const std::string& value) {
+inline void FullAuthenticationRequestData::_internal_set_userid(const std::string& value) {
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void ResetKeyRequest::set_userid(std::string&& value) {
+inline void FullAuthenticationRequestData::set_userid(std::string&& value) {
   
   userid_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.ResetKeyRequest.userId)
+  // @@protoc_insertion_point(field_set_rvalue:backup.FullAuthenticationRequestData.userID)
 }
-inline void ResetKeyRequest::set_userid(const char* value) {
+inline void FullAuthenticationRequestData::set_userid(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.ResetKeyRequest.userId)
+  // @@protoc_insertion_point(field_set_char:backup.FullAuthenticationRequestData.userID)
 }
-inline void ResetKeyRequest::set_userid(const char* value,
+inline void FullAuthenticationRequestData::set_userid(const char* value,
     size_t size) {
   
   userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.ResetKeyRequest.userId)
+  // @@protoc_insertion_point(field_set_pointer:backup.FullAuthenticationRequestData.userID)
 }
-inline std::string* ResetKeyRequest::_internal_mutable_userid() {
+inline std::string* FullAuthenticationRequestData::_internal_mutable_userid() {
   
   return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* ResetKeyRequest::release_userid() {
-  // @@protoc_insertion_point(field_release:backup.ResetKeyRequest.userId)
+inline std::string* FullAuthenticationRequestData::release_userid() {
+  // @@protoc_insertion_point(field_release:backup.FullAuthenticationRequestData.userID)
   return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void ResetKeyRequest::set_allocated_userid(std::string* userid) {
+inline void FullAuthenticationRequestData::set_allocated_userid(std::string* userid) {
   if (userid != nullptr) {
     
   } else {
@@ -1180,720 +2035,1557 @@ inline void ResetKeyRequest::set_allocated_userid(std::string* userid) {
   }
   userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.ResetKeyRequest.userId)
+  // @@protoc_insertion_point(field_set_allocated:backup.FullAuthenticationRequestData.userID)
 }
 
-// bytes newKey = 2;
-inline bool ResetKeyRequest::_internal_has_newkey() const {
-  return data_case() == kNewKey;
+// -------------------------------------------------------------------
+
+// SimpleAuthenticationRequestData
+
+// string backupID = 1;
+inline void SimpleAuthenticationRequestData::clear_backupid() {
+  backupid_.ClearToEmpty();
 }
-inline bool ResetKeyRequest::has_newkey() const {
-  return _internal_has_newkey();
+inline const std::string& SimpleAuthenticationRequestData::backupid() const {
+  // @@protoc_insertion_point(field_get:backup.SimpleAuthenticationRequestData.backupID)
+  return _internal_backupid();
 }
-inline void ResetKeyRequest::set_has_newkey() {
-  _oneof_case_[0] = kNewKey;
+inline void SimpleAuthenticationRequestData::set_backupid(const std::string& value) {
+  _internal_set_backupid(value);
+  // @@protoc_insertion_point(field_set:backup.SimpleAuthenticationRequestData.backupID)
 }
-inline void ResetKeyRequest::clear_newkey() {
-  if (_internal_has_newkey()) {
-    data_.newkey_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+inline std::string* SimpleAuthenticationRequestData::mutable_backupid() {
+  // @@protoc_insertion_point(field_mutable:backup.SimpleAuthenticationRequestData.backupID)
+  return _internal_mutable_backupid();
+}
+inline const std::string& SimpleAuthenticationRequestData::_internal_backupid() const {
+  return backupid_.Get();
+}
+inline void SimpleAuthenticationRequestData::_internal_set_backupid(const std::string& value) {
+  
+  backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void SimpleAuthenticationRequestData::set_backupid(std::string&& value) {
+  
+  backupid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.SimpleAuthenticationRequestData.backupID)
+}
+inline void SimpleAuthenticationRequestData::set_backupid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.SimpleAuthenticationRequestData.backupID)
+}
+inline void SimpleAuthenticationRequestData::set_backupid(const char* value,
+    size_t size) {
+  
+  backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.SimpleAuthenticationRequestData.backupID)
+}
+inline std::string* SimpleAuthenticationRequestData::_internal_mutable_backupid() {
+  
+  return backupid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* SimpleAuthenticationRequestData::release_backupid() {
+  // @@protoc_insertion_point(field_release:backup.SimpleAuthenticationRequestData.backupID)
+  return backupid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void SimpleAuthenticationRequestData::set_allocated_backupid(std::string* backupid) {
+  if (backupid != nullptr) {
+    
+  } else {
+    
+  }
+  backupid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), backupid,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:backup.SimpleAuthenticationRequestData.backupID)
+}
+
+// string userID = 2;
+inline void SimpleAuthenticationRequestData::clear_userid() {
+  userid_.ClearToEmpty();
+}
+inline const std::string& SimpleAuthenticationRequestData::userid() const {
+  // @@protoc_insertion_point(field_get:backup.SimpleAuthenticationRequestData.userID)
+  return _internal_userid();
+}
+inline void SimpleAuthenticationRequestData::set_userid(const std::string& value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:backup.SimpleAuthenticationRequestData.userID)
+}
+inline std::string* SimpleAuthenticationRequestData::mutable_userid() {
+  // @@protoc_insertion_point(field_mutable:backup.SimpleAuthenticationRequestData.userID)
+  return _internal_mutable_userid();
+}
+inline const std::string& SimpleAuthenticationRequestData::_internal_userid() const {
+  return userid_.Get();
+}
+inline void SimpleAuthenticationRequestData::_internal_set_userid(const std::string& value) {
+  
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void SimpleAuthenticationRequestData::set_userid(std::string&& value) {
+  
+  userid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.SimpleAuthenticationRequestData.userID)
+}
+inline void SimpleAuthenticationRequestData::set_userid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.SimpleAuthenticationRequestData.userID)
+}
+inline void SimpleAuthenticationRequestData::set_userid(const char* value,
+    size_t size) {
+  
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.SimpleAuthenticationRequestData.userID)
+}
+inline std::string* SimpleAuthenticationRequestData::_internal_mutable_userid() {
+  
+  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* SimpleAuthenticationRequestData::release_userid() {
+  // @@protoc_insertion_point(field_release:backup.SimpleAuthenticationRequestData.userID)
+  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void SimpleAuthenticationRequestData::set_allocated_userid(std::string* userid) {
+  if (userid != nullptr) {
+    
+  } else {
+    
+  }
+  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:backup.SimpleAuthenticationRequestData.userID)
+}
+
+// -------------------------------------------------------------------
+
+// AuthenticationInformationData
+
+// .backup.AuthenticationMethod authenticationMethod = 1;
+inline void AuthenticationInformationData::clear_authenticationmethod() {
+  authenticationmethod_ = 0;
+}
+inline ::backup::AuthenticationMethod AuthenticationInformationData::_internal_authenticationmethod() const {
+  return static_cast< ::backup::AuthenticationMethod >(authenticationmethod_);
+}
+inline ::backup::AuthenticationMethod AuthenticationInformationData::authenticationmethod() const {
+  // @@protoc_insertion_point(field_get:backup.AuthenticationInformationData.authenticationMethod)
+  return _internal_authenticationmethod();
+}
+inline void AuthenticationInformationData::_internal_set_authenticationmethod(::backup::AuthenticationMethod value) {
+  
+  authenticationmethod_ = value;
+}
+inline void AuthenticationInformationData::set_authenticationmethod(::backup::AuthenticationMethod value) {
+  _internal_set_authenticationmethod(value);
+  // @@protoc_insertion_point(field_set:backup.AuthenticationInformationData.authenticationMethod)
+}
+
+// bytes nonce = 2;
+inline bool AuthenticationInformationData::_internal_has_nonce() const {
+  return data_case() == kNonce;
+}
+inline bool AuthenticationInformationData::has_nonce() const {
+  return _internal_has_nonce();
+}
+inline void AuthenticationInformationData::set_has_nonce() {
+  _oneof_case_[0] = kNonce;
+}
+inline void AuthenticationInformationData::clear_nonce() {
+  if (_internal_has_nonce()) {
+    data_.nonce_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
     clear_has_data();
   }
 }
-inline const std::string& ResetKeyRequest::newkey() const {
-  // @@protoc_insertion_point(field_get:backup.ResetKeyRequest.newKey)
-  return _internal_newkey();
+inline const std::string& AuthenticationInformationData::nonce() const {
+  // @@protoc_insertion_point(field_get:backup.AuthenticationInformationData.nonce)
+  return _internal_nonce();
 }
-inline void ResetKeyRequest::set_newkey(const std::string& value) {
-  _internal_set_newkey(value);
-  // @@protoc_insertion_point(field_set:backup.ResetKeyRequest.newKey)
+inline void AuthenticationInformationData::set_nonce(const std::string& value) {
+  _internal_set_nonce(value);
+  // @@protoc_insertion_point(field_set:backup.AuthenticationInformationData.nonce)
 }
-inline std::string* ResetKeyRequest::mutable_newkey() {
-  // @@protoc_insertion_point(field_mutable:backup.ResetKeyRequest.newKey)
-  return _internal_mutable_newkey();
+inline std::string* AuthenticationInformationData::mutable_nonce() {
+  // @@protoc_insertion_point(field_mutable:backup.AuthenticationInformationData.nonce)
+  return _internal_mutable_nonce();
 }
-inline const std::string& ResetKeyRequest::_internal_newkey() const {
-  if (_internal_has_newkey()) {
-    return data_.newkey_.Get();
+inline const std::string& AuthenticationInformationData::_internal_nonce() const {
+  if (_internal_has_nonce()) {
+    return data_.nonce_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
-inline void ResetKeyRequest::_internal_set_newkey(const std::string& value) {
-  if (!_internal_has_newkey()) {
+inline void AuthenticationInformationData::_internal_set_nonce(const std::string& value) {
+  if (!_internal_has_nonce()) {
     clear_data();
-    set_has_newkey();
-    data_.newkey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_nonce();
+    data_.nonce_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  data_.newkey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  data_.nonce_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void ResetKeyRequest::set_newkey(std::string&& value) {
-  // @@protoc_insertion_point(field_set:backup.ResetKeyRequest.newKey)
-  if (!_internal_has_newkey()) {
+inline void AuthenticationInformationData::set_nonce(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.AuthenticationInformationData.nonce)
+  if (!_internal_has_nonce()) {
     clear_data();
-    set_has_newkey();
-    data_.newkey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_nonce();
+    data_.nonce_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  data_.newkey_.Set(
+  data_.nonce_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.ResetKeyRequest.newKey)
+  // @@protoc_insertion_point(field_set_rvalue:backup.AuthenticationInformationData.nonce)
 }
-inline void ResetKeyRequest::set_newkey(const char* value) {
+inline void AuthenticationInformationData::set_nonce(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  if (!_internal_has_newkey()) {
+  if (!_internal_has_nonce()) {
     clear_data();
-    set_has_newkey();
-    data_.newkey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_nonce();
+    data_.nonce_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  data_.newkey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+  data_.nonce_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
       ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.ResetKeyRequest.newKey)
+  // @@protoc_insertion_point(field_set_char:backup.AuthenticationInformationData.nonce)
 }
-inline void ResetKeyRequest::set_newkey(const void* value,
+inline void AuthenticationInformationData::set_nonce(const void* value,
                              size_t size) {
-  if (!_internal_has_newkey()) {
+  if (!_internal_has_nonce()) {
     clear_data();
-    set_has_newkey();
-    data_.newkey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_nonce();
+    data_.nonce_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  data_.newkey_.Set(
+  data_.nonce_.Set(
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size),
       GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.ResetKeyRequest.newKey)
+  // @@protoc_insertion_point(field_set_pointer:backup.AuthenticationInformationData.nonce)
 }
-inline std::string* ResetKeyRequest::_internal_mutable_newkey() {
-  if (!_internal_has_newkey()) {
+inline std::string* AuthenticationInformationData::_internal_mutable_nonce() {
+  if (!_internal_has_nonce()) {
     clear_data();
-    set_has_newkey();
-    data_.newkey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_nonce();
+    data_.nonce_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  return data_.newkey_.Mutable(
+  return data_.nonce_.Mutable(
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* ResetKeyRequest::release_newkey() {
-  // @@protoc_insertion_point(field_release:backup.ResetKeyRequest.newKey)
-  if (_internal_has_newkey()) {
+inline std::string* AuthenticationInformationData::release_nonce() {
+  // @@protoc_insertion_point(field_release:backup.AuthenticationInformationData.nonce)
+  if (_internal_has_nonce()) {
     clear_has_data();
-    return data_.newkey_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+    return data_.nonce_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   } else {
     return nullptr;
   }
 }
-inline void ResetKeyRequest::set_allocated_newkey(std::string* newkey) {
+inline void AuthenticationInformationData::set_allocated_nonce(std::string* nonce) {
   if (has_data()) {
     clear_data();
   }
-  if (newkey != nullptr) {
-    set_has_newkey();
-    data_.newkey_.UnsafeSetDefault(newkey);
+  if (nonce != nullptr) {
+    set_has_nonce();
+    data_.nonce_.UnsafeSetDefault(nonce);
     ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
     if (arena != nullptr) {
-      arena->Own(newkey);
+      arena->Own(nonce);
     }
   }
-  // @@protoc_insertion_point(field_set_allocated:backup.ResetKeyRequest.newKey)
+  // @@protoc_insertion_point(field_set_allocated:backup.AuthenticationInformationData.nonce)
 }
 
-// bytes compactionChunk = 3;
-inline bool ResetKeyRequest::_internal_has_compactionchunk() const {
-  return data_case() == kCompactionChunk;
+// bytes rawMessage = 3;
+inline bool AuthenticationInformationData::_internal_has_rawmessage() const {
+  return data_case() == kRawMessage;
 }
-inline bool ResetKeyRequest::has_compactionchunk() const {
-  return _internal_has_compactionchunk();
+inline bool AuthenticationInformationData::has_rawmessage() const {
+  return _internal_has_rawmessage();
 }
-inline void ResetKeyRequest::set_has_compactionchunk() {
-  _oneof_case_[0] = kCompactionChunk;
+inline void AuthenticationInformationData::set_has_rawmessage() {
+  _oneof_case_[0] = kRawMessage;
 }
-inline void ResetKeyRequest::clear_compactionchunk() {
-  if (_internal_has_compactionchunk()) {
-    data_.compactionchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+inline void AuthenticationInformationData::clear_rawmessage() {
+  if (_internal_has_rawmessage()) {
+    data_.rawmessage_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
     clear_has_data();
   }
 }
-inline const std::string& ResetKeyRequest::compactionchunk() const {
-  // @@protoc_insertion_point(field_get:backup.ResetKeyRequest.compactionChunk)
-  return _internal_compactionchunk();
+inline const std::string& AuthenticationInformationData::rawmessage() const {
+  // @@protoc_insertion_point(field_get:backup.AuthenticationInformationData.rawMessage)
+  return _internal_rawmessage();
 }
-inline void ResetKeyRequest::set_compactionchunk(const std::string& value) {
-  _internal_set_compactionchunk(value);
-  // @@protoc_insertion_point(field_set:backup.ResetKeyRequest.compactionChunk)
+inline void AuthenticationInformationData::set_rawmessage(const std::string& value) {
+  _internal_set_rawmessage(value);
+  // @@protoc_insertion_point(field_set:backup.AuthenticationInformationData.rawMessage)
 }
-inline std::string* ResetKeyRequest::mutable_compactionchunk() {
-  // @@protoc_insertion_point(field_mutable:backup.ResetKeyRequest.compactionChunk)
-  return _internal_mutable_compactionchunk();
+inline std::string* AuthenticationInformationData::mutable_rawmessage() {
+  // @@protoc_insertion_point(field_mutable:backup.AuthenticationInformationData.rawMessage)
+  return _internal_mutable_rawmessage();
 }
-inline const std::string& ResetKeyRequest::_internal_compactionchunk() const {
-  if (_internal_has_compactionchunk()) {
-    return data_.compactionchunk_.Get();
+inline const std::string& AuthenticationInformationData::_internal_rawmessage() const {
+  if (_internal_has_rawmessage()) {
+    return data_.rawmessage_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
-inline void ResetKeyRequest::_internal_set_compactionchunk(const std::string& value) {
-  if (!_internal_has_compactionchunk()) {
+inline void AuthenticationInformationData::_internal_set_rawmessage(const std::string& value) {
+  if (!_internal_has_rawmessage()) {
     clear_data();
-    set_has_compactionchunk();
-    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_rawmessage();
+    data_.rawmessage_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  data_.compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  data_.rawmessage_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void ResetKeyRequest::set_compactionchunk(std::string&& value) {
-  // @@protoc_insertion_point(field_set:backup.ResetKeyRequest.compactionChunk)
-  if (!_internal_has_compactionchunk()) {
+inline void AuthenticationInformationData::set_rawmessage(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.AuthenticationInformationData.rawMessage)
+  if (!_internal_has_rawmessage()) {
     clear_data();
-    set_has_compactionchunk();
-    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_rawmessage();
+    data_.rawmessage_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  data_.compactionchunk_.Set(
+  data_.rawmessage_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.ResetKeyRequest.compactionChunk)
+  // @@protoc_insertion_point(field_set_rvalue:backup.AuthenticationInformationData.rawMessage)
 }
-inline void ResetKeyRequest::set_compactionchunk(const char* value) {
+inline void AuthenticationInformationData::set_rawmessage(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  if (!_internal_has_compactionchunk()) {
+  if (!_internal_has_rawmessage()) {
     clear_data();
-    set_has_compactionchunk();
-    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_rawmessage();
+    data_.rawmessage_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  data_.compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+  data_.rawmessage_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
       ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.ResetKeyRequest.compactionChunk)
+  // @@protoc_insertion_point(field_set_char:backup.AuthenticationInformationData.rawMessage)
 }
-inline void ResetKeyRequest::set_compactionchunk(const void* value,
+inline void AuthenticationInformationData::set_rawmessage(const void* value,
                              size_t size) {
-  if (!_internal_has_compactionchunk()) {
+  if (!_internal_has_rawmessage()) {
     clear_data();
-    set_has_compactionchunk();
-    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_rawmessage();
+    data_.rawmessage_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  data_.compactionchunk_.Set(
+  data_.rawmessage_.Set(
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size),
       GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.ResetKeyRequest.compactionChunk)
+  // @@protoc_insertion_point(field_set_pointer:backup.AuthenticationInformationData.rawMessage)
 }
-inline std::string* ResetKeyRequest::_internal_mutable_compactionchunk() {
-  if (!_internal_has_compactionchunk()) {
+inline std::string* AuthenticationInformationData::_internal_mutable_rawmessage() {
+  if (!_internal_has_rawmessage()) {
     clear_data();
-    set_has_compactionchunk();
-    data_.compactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+    set_has_rawmessage();
+    data_.rawmessage_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   }
-  return data_.compactionchunk_.Mutable(
+  return data_.rawmessage_.Mutable(
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* ResetKeyRequest::release_compactionchunk() {
-  // @@protoc_insertion_point(field_release:backup.ResetKeyRequest.compactionChunk)
-  if (_internal_has_compactionchunk()) {
+inline std::string* AuthenticationInformationData::release_rawmessage() {
+  // @@protoc_insertion_point(field_release:backup.AuthenticationInformationData.rawMessage)
+  if (_internal_has_rawmessage()) {
     clear_has_data();
-    return data_.compactionchunk_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+    return data_.rawmessage_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   } else {
     return nullptr;
   }
 }
-inline void ResetKeyRequest::set_allocated_compactionchunk(std::string* compactionchunk) {
+inline void AuthenticationInformationData::set_allocated_rawmessage(std::string* rawmessage) {
   if (has_data()) {
     clear_data();
   }
-  if (compactionchunk != nullptr) {
-    set_has_compactionchunk();
-    data_.compactionchunk_.UnsafeSetDefault(compactionchunk);
+  if (rawmessage != nullptr) {
+    set_has_rawmessage();
+    data_.rawmessage_.UnsafeSetDefault(rawmessage);
     ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
     if (arena != nullptr) {
-      arena->Own(compactionchunk);
+      arena->Own(rawmessage);
     }
   }
-  // @@protoc_insertion_point(field_set_allocated:backup.ResetKeyRequest.compactionChunk)
+  // @@protoc_insertion_point(field_set_allocated:backup.AuthenticationInformationData.rawMessage)
 }
 
-inline bool ResetKeyRequest::has_data() const {
+inline bool AuthenticationInformationData::has_data() const {
   return data_case() != DATA_NOT_SET;
 }
-inline void ResetKeyRequest::clear_has_data() {
+inline void AuthenticationInformationData::clear_has_data() {
   _oneof_case_[0] = DATA_NOT_SET;
 }
-inline ResetKeyRequest::DataCase ResetKeyRequest::data_case() const {
-  return ResetKeyRequest::DataCase(_oneof_case_[0]);
+inline AuthenticationInformationData::DataCase AuthenticationInformationData::data_case() const {
+  return AuthenticationInformationData::DataCase(_oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
+// CreateNewBackupRequest
+
+// .backup.FullAuthenticationRequestData authenticationRequestData = 1;
+inline bool CreateNewBackupRequest::_internal_has_authenticationrequestdata() const {
+  return data_case() == kAuthenticationRequestData;
+}
+inline bool CreateNewBackupRequest::has_authenticationrequestdata() const {
+  return _internal_has_authenticationrequestdata();
+}
+inline void CreateNewBackupRequest::set_has_authenticationrequestdata() {
+  _oneof_case_[0] = kAuthenticationRequestData;
+}
+inline void CreateNewBackupRequest::clear_authenticationrequestdata() {
+  if (_internal_has_authenticationrequestdata()) {
+    if (GetArena() == nullptr) {
+      delete data_.authenticationrequestdata_;
+    }
+    clear_has_data();
+  }
+}
+inline ::backup::FullAuthenticationRequestData* CreateNewBackupRequest::release_authenticationrequestdata() {
+  // @@protoc_insertion_point(field_release:backup.CreateNewBackupRequest.authenticationRequestData)
+  if (_internal_has_authenticationrequestdata()) {
+    clear_has_data();
+      ::backup::FullAuthenticationRequestData* temp = data_.authenticationrequestdata_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    data_.authenticationrequestdata_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::backup::FullAuthenticationRequestData& CreateNewBackupRequest::_internal_authenticationrequestdata() const {
+  return _internal_has_authenticationrequestdata()
+      ? *data_.authenticationrequestdata_
+      : reinterpret_cast< ::backup::FullAuthenticationRequestData&>(::backup::_FullAuthenticationRequestData_default_instance_);
+}
+inline const ::backup::FullAuthenticationRequestData& CreateNewBackupRequest::authenticationrequestdata() const {
+  // @@protoc_insertion_point(field_get:backup.CreateNewBackupRequest.authenticationRequestData)
+  return _internal_authenticationrequestdata();
+}
+inline ::backup::FullAuthenticationRequestData* CreateNewBackupRequest::unsafe_arena_release_authenticationrequestdata() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:backup.CreateNewBackupRequest.authenticationRequestData)
+  if (_internal_has_authenticationrequestdata()) {
+    clear_has_data();
+    ::backup::FullAuthenticationRequestData* temp = data_.authenticationrequestdata_;
+    data_.authenticationrequestdata_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void CreateNewBackupRequest::unsafe_arena_set_allocated_authenticationrequestdata(::backup::FullAuthenticationRequestData* authenticationrequestdata) {
+  clear_data();
+  if (authenticationrequestdata) {
+    set_has_authenticationrequestdata();
+    data_.authenticationrequestdata_ = authenticationrequestdata;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:backup.CreateNewBackupRequest.authenticationRequestData)
+}
+inline ::backup::FullAuthenticationRequestData* CreateNewBackupRequest::_internal_mutable_authenticationrequestdata() {
+  if (!_internal_has_authenticationrequestdata()) {
+    clear_data();
+    set_has_authenticationrequestdata();
+    data_.authenticationrequestdata_ = CreateMaybeMessage< ::backup::FullAuthenticationRequestData >(GetArena());
+  }
+  return data_.authenticationrequestdata_;
+}
+inline ::backup::FullAuthenticationRequestData* CreateNewBackupRequest::mutable_authenticationrequestdata() {
+  // @@protoc_insertion_point(field_mutable:backup.CreateNewBackupRequest.authenticationRequestData)
+  return _internal_mutable_authenticationrequestdata();
+}
+
+// .backup.AuthenticationInformationData authenticationInformationData = 2;
+inline bool CreateNewBackupRequest::_internal_has_authenticationinformationdata() const {
+  return data_case() == kAuthenticationInformationData;
+}
+inline bool CreateNewBackupRequest::has_authenticationinformationdata() const {
+  return _internal_has_authenticationinformationdata();
+}
+inline void CreateNewBackupRequest::set_has_authenticationinformationdata() {
+  _oneof_case_[0] = kAuthenticationInformationData;
+}
+inline void CreateNewBackupRequest::clear_authenticationinformationdata() {
+  if (_internal_has_authenticationinformationdata()) {
+    if (GetArena() == nullptr) {
+      delete data_.authenticationinformationdata_;
+    }
+    clear_has_data();
+  }
+}
+inline ::backup::AuthenticationInformationData* CreateNewBackupRequest::release_authenticationinformationdata() {
+  // @@protoc_insertion_point(field_release:backup.CreateNewBackupRequest.authenticationInformationData)
+  if (_internal_has_authenticationinformationdata()) {
+    clear_has_data();
+      ::backup::AuthenticationInformationData* temp = data_.authenticationinformationdata_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    data_.authenticationinformationdata_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::backup::AuthenticationInformationData& CreateNewBackupRequest::_internal_authenticationinformationdata() const {
+  return _internal_has_authenticationinformationdata()
+      ? *data_.authenticationinformationdata_
+      : reinterpret_cast< ::backup::AuthenticationInformationData&>(::backup::_AuthenticationInformationData_default_instance_);
+}
+inline const ::backup::AuthenticationInformationData& CreateNewBackupRequest::authenticationinformationdata() const {
+  // @@protoc_insertion_point(field_get:backup.CreateNewBackupRequest.authenticationInformationData)
+  return _internal_authenticationinformationdata();
+}
+inline ::backup::AuthenticationInformationData* CreateNewBackupRequest::unsafe_arena_release_authenticationinformationdata() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:backup.CreateNewBackupRequest.authenticationInformationData)
+  if (_internal_has_authenticationinformationdata()) {
+    clear_has_data();
+    ::backup::AuthenticationInformationData* temp = data_.authenticationinformationdata_;
+    data_.authenticationinformationdata_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void CreateNewBackupRequest::unsafe_arena_set_allocated_authenticationinformationdata(::backup::AuthenticationInformationData* authenticationinformationdata) {
+  clear_data();
+  if (authenticationinformationdata) {
+    set_has_authenticationinformationdata();
+    data_.authenticationinformationdata_ = authenticationinformationdata;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:backup.CreateNewBackupRequest.authenticationInformationData)
+}
+inline ::backup::AuthenticationInformationData* CreateNewBackupRequest::_internal_mutable_authenticationinformationdata() {
+  if (!_internal_has_authenticationinformationdata()) {
+    clear_data();
+    set_has_authenticationinformationdata();
+    data_.authenticationinformationdata_ = CreateMaybeMessage< ::backup::AuthenticationInformationData >(GetArena());
+  }
+  return data_.authenticationinformationdata_;
+}
+inline ::backup::AuthenticationInformationData* CreateNewBackupRequest::mutable_authenticationinformationdata() {
+  // @@protoc_insertion_point(field_mutable:backup.CreateNewBackupRequest.authenticationInformationData)
+  return _internal_mutable_authenticationinformationdata();
+}
+
+// bytes newCompactionChunk = 3;
+inline bool CreateNewBackupRequest::_internal_has_newcompactionchunk() const {
+  return data_case() == kNewCompactionChunk;
+}
+inline bool CreateNewBackupRequest::has_newcompactionchunk() const {
+  return _internal_has_newcompactionchunk();
+}
+inline void CreateNewBackupRequest::set_has_newcompactionchunk() {
+  _oneof_case_[0] = kNewCompactionChunk;
+}
+inline void CreateNewBackupRequest::clear_newcompactionchunk() {
+  if (_internal_has_newcompactionchunk()) {
+    data_.newcompactionchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
+}
+inline const std::string& CreateNewBackupRequest::newcompactionchunk() const {
+  // @@protoc_insertion_point(field_get:backup.CreateNewBackupRequest.newCompactionChunk)
+  return _internal_newcompactionchunk();
+}
+inline void CreateNewBackupRequest::set_newcompactionchunk(const std::string& value) {
+  _internal_set_newcompactionchunk(value);
+  // @@protoc_insertion_point(field_set:backup.CreateNewBackupRequest.newCompactionChunk)
+}
+inline std::string* CreateNewBackupRequest::mutable_newcompactionchunk() {
+  // @@protoc_insertion_point(field_mutable:backup.CreateNewBackupRequest.newCompactionChunk)
+  return _internal_mutable_newcompactionchunk();
+}
+inline const std::string& CreateNewBackupRequest::_internal_newcompactionchunk() const {
+  if (_internal_has_newcompactionchunk()) {
+    return data_.newcompactionchunk_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void CreateNewBackupRequest::_internal_set_newcompactionchunk(const std::string& value) {
+  if (!_internal_has_newcompactionchunk()) {
+    clear_data();
+    set_has_newcompactionchunk();
+    data_.newcompactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newcompactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void CreateNewBackupRequest::set_newcompactionchunk(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.CreateNewBackupRequest.newCompactionChunk)
+  if (!_internal_has_newcompactionchunk()) {
+    clear_data();
+    set_has_newcompactionchunk();
+    data_.newcompactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newcompactionchunk_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.CreateNewBackupRequest.newCompactionChunk)
+}
+inline void CreateNewBackupRequest::set_newcompactionchunk(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_newcompactionchunk()) {
+    clear_data();
+    set_has_newcompactionchunk();
+    data_.newcompactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newcompactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.CreateNewBackupRequest.newCompactionChunk)
+}
+inline void CreateNewBackupRequest::set_newcompactionchunk(const void* value,
+                             size_t size) {
+  if (!_internal_has_newcompactionchunk()) {
+    clear_data();
+    set_has_newcompactionchunk();
+    data_.newcompactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newcompactionchunk_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.CreateNewBackupRequest.newCompactionChunk)
+}
+inline std::string* CreateNewBackupRequest::_internal_mutable_newcompactionchunk() {
+  if (!_internal_has_newcompactionchunk()) {
+    clear_data();
+    set_has_newcompactionchunk();
+    data_.newcompactionchunk_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.newcompactionchunk_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* CreateNewBackupRequest::release_newcompactionchunk() {
+  // @@protoc_insertion_point(field_release:backup.CreateNewBackupRequest.newCompactionChunk)
+  if (_internal_has_newcompactionchunk()) {
+    clear_has_data();
+    return data_.newcompactionchunk_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void CreateNewBackupRequest::set_allocated_newcompactionchunk(std::string* newcompactionchunk) {
+  if (has_data()) {
+    clear_data();
+  }
+  if (newcompactionchunk != nullptr) {
+    set_has_newcompactionchunk();
+    data_.newcompactionchunk_.UnsafeSetDefault(newcompactionchunk);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(newcompactionchunk);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.CreateNewBackupRequest.newCompactionChunk)
+}
+
+inline bool CreateNewBackupRequest::has_data() const {
+  return data_case() != DATA_NOT_SET;
+}
+inline void CreateNewBackupRequest::clear_has_data() {
+  _oneof_case_[0] = DATA_NOT_SET;
+}
+inline CreateNewBackupRequest::DataCase CreateNewBackupRequest::data_case() const {
+  return CreateNewBackupRequest::DataCase(_oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
+// CreateNewBackupResponse
+
+// bytes responseBytes = 1;
+inline bool CreateNewBackupResponse::_internal_has_responsebytes() const {
+  return data_case() == kResponseBytes;
+}
+inline bool CreateNewBackupResponse::has_responsebytes() const {
+  return _internal_has_responsebytes();
+}
+inline void CreateNewBackupResponse::set_has_responsebytes() {
+  _oneof_case_[0] = kResponseBytes;
+}
+inline void CreateNewBackupResponse::clear_responsebytes() {
+  if (_internal_has_responsebytes()) {
+    data_.responsebytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
+}
+inline const std::string& CreateNewBackupResponse::responsebytes() const {
+  // @@protoc_insertion_point(field_get:backup.CreateNewBackupResponse.responseBytes)
+  return _internal_responsebytes();
+}
+inline void CreateNewBackupResponse::set_responsebytes(const std::string& value) {
+  _internal_set_responsebytes(value);
+  // @@protoc_insertion_point(field_set:backup.CreateNewBackupResponse.responseBytes)
+}
+inline std::string* CreateNewBackupResponse::mutable_responsebytes() {
+  // @@protoc_insertion_point(field_mutable:backup.CreateNewBackupResponse.responseBytes)
+  return _internal_mutable_responsebytes();
+}
+inline const std::string& CreateNewBackupResponse::_internal_responsebytes() const {
+  if (_internal_has_responsebytes()) {
+    return data_.responsebytes_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void CreateNewBackupResponse::_internal_set_responsebytes(const std::string& value) {
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.responsebytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void CreateNewBackupResponse::set_responsebytes(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.CreateNewBackupResponse.responseBytes)
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.responsebytes_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.CreateNewBackupResponse.responseBytes)
+}
+inline void CreateNewBackupResponse::set_responsebytes(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.responsebytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.CreateNewBackupResponse.responseBytes)
+}
+inline void CreateNewBackupResponse::set_responsebytes(const void* value,
+                             size_t size) {
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.responsebytes_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.CreateNewBackupResponse.responseBytes)
+}
+inline std::string* CreateNewBackupResponse::_internal_mutable_responsebytes() {
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.responsebytes_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* CreateNewBackupResponse::release_responsebytes() {
+  // @@protoc_insertion_point(field_release:backup.CreateNewBackupResponse.responseBytes)
+  if (_internal_has_responsebytes()) {
+    clear_has_data();
+    return data_.responsebytes_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void CreateNewBackupResponse::set_allocated_responsebytes(std::string* responsebytes) {
+  if (has_data()) {
+    clear_data();
+  }
+  if (responsebytes != nullptr) {
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(responsebytes);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(responsebytes);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.CreateNewBackupResponse.responseBytes)
+}
+
+// string backupID = 2;
+inline bool CreateNewBackupResponse::_internal_has_backupid() const {
+  return data_case() == kBackupID;
+}
+inline bool CreateNewBackupResponse::has_backupid() const {
+  return _internal_has_backupid();
+}
+inline void CreateNewBackupResponse::set_has_backupid() {
+  _oneof_case_[0] = kBackupID;
+}
+inline void CreateNewBackupResponse::clear_backupid() {
+  if (_internal_has_backupid()) {
+    data_.backupid_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
+}
+inline const std::string& CreateNewBackupResponse::backupid() const {
+  // @@protoc_insertion_point(field_get:backup.CreateNewBackupResponse.backupID)
+  return _internal_backupid();
+}
+inline void CreateNewBackupResponse::set_backupid(const std::string& value) {
+  _internal_set_backupid(value);
+  // @@protoc_insertion_point(field_set:backup.CreateNewBackupResponse.backupID)
+}
+inline std::string* CreateNewBackupResponse::mutable_backupid() {
+  // @@protoc_insertion_point(field_mutable:backup.CreateNewBackupResponse.backupID)
+  return _internal_mutable_backupid();
+}
+inline const std::string& CreateNewBackupResponse::_internal_backupid() const {
+  if (_internal_has_backupid()) {
+    return data_.backupid_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void CreateNewBackupResponse::_internal_set_backupid(const std::string& value) {
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void CreateNewBackupResponse::set_backupid(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.CreateNewBackupResponse.backupID)
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.backupid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.CreateNewBackupResponse.backupID)
+}
+inline void CreateNewBackupResponse::set_backupid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.CreateNewBackupResponse.backupID)
+}
+inline void CreateNewBackupResponse::set_backupid(const char* value,
+                             size_t size) {
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.backupid_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.CreateNewBackupResponse.backupID)
+}
+inline std::string* CreateNewBackupResponse::_internal_mutable_backupid() {
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.backupid_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* CreateNewBackupResponse::release_backupid() {
+  // @@protoc_insertion_point(field_release:backup.CreateNewBackupResponse.backupID)
+  if (_internal_has_backupid()) {
+    clear_has_data();
+    return data_.backupid_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void CreateNewBackupResponse::set_allocated_backupid(std::string* backupid) {
+  if (has_data()) {
+    clear_data();
+  }
+  if (backupid != nullptr) {
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(backupid);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(backupid);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.CreateNewBackupResponse.backupID)
+}
+
+inline bool CreateNewBackupResponse::has_data() const {
+  return data_case() != DATA_NOT_SET;
+}
+inline void CreateNewBackupResponse::clear_has_data() {
+  _oneof_case_[0] = DATA_NOT_SET;
+}
+inline CreateNewBackupResponse::DataCase CreateNewBackupResponse::data_case() const {
+  return CreateNewBackupResponse::DataCase(_oneof_case_[0]);
 }
 // -------------------------------------------------------------------
 
 // SendLogRequest
 
-// string userId = 1;
-inline void SendLogRequest::clear_userid() {
-  userid_.ClearToEmpty();
+// .backup.SimpleAuthenticationRequestData authenticationData = 1;
+inline bool SendLogRequest::_internal_has_authenticationdata() const {
+  return this != internal_default_instance() && authenticationdata_ != nullptr;
 }
-inline const std::string& SendLogRequest::userid() const {
-  // @@protoc_insertion_point(field_get:backup.SendLogRequest.userId)
-  return _internal_userid();
+inline bool SendLogRequest::has_authenticationdata() const {
+  return _internal_has_authenticationdata();
 }
-inline void SendLogRequest::set_userid(const std::string& value) {
-  _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:backup.SendLogRequest.userId)
+inline void SendLogRequest::clear_authenticationdata() {
+  if (GetArena() == nullptr && authenticationdata_ != nullptr) {
+    delete authenticationdata_;
+  }
+  authenticationdata_ = nullptr;
 }
-inline std::string* SendLogRequest::mutable_userid() {
-  // @@protoc_insertion_point(field_mutable:backup.SendLogRequest.userId)
-  return _internal_mutable_userid();
+inline const ::backup::SimpleAuthenticationRequestData& SendLogRequest::_internal_authenticationdata() const {
+  const ::backup::SimpleAuthenticationRequestData* p = authenticationdata_;
+  return p != nullptr ? *p : reinterpret_cast<const ::backup::SimpleAuthenticationRequestData&>(
+      ::backup::_SimpleAuthenticationRequestData_default_instance_);
 }
-inline const std::string& SendLogRequest::_internal_userid() const {
-  return userid_.Get();
+inline const ::backup::SimpleAuthenticationRequestData& SendLogRequest::authenticationdata() const {
+  // @@protoc_insertion_point(field_get:backup.SendLogRequest.authenticationData)
+  return _internal_authenticationdata();
 }
-inline void SendLogRequest::_internal_set_userid(const std::string& value) {
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
-}
-inline void SendLogRequest::set_userid(std::string&& value) {
-  
-  userid_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.SendLogRequest.userId)
-}
-inline void SendLogRequest::set_userid(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.SendLogRequest.userId)
-}
-inline void SendLogRequest::set_userid(const char* value,
-    size_t size) {
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.SendLogRequest.userId)
-}
-inline std::string* SendLogRequest::_internal_mutable_userid() {
-  
-  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
-}
-inline std::string* SendLogRequest::release_userid() {
-  // @@protoc_insertion_point(field_release:backup.SendLogRequest.userId)
-  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void SendLogRequest::set_allocated_userid(std::string* userid) {
-  if (userid != nullptr) {
+inline void SendLogRequest::unsafe_arena_set_allocated_authenticationdata(
+    ::backup::SimpleAuthenticationRequestData* authenticationdata) {
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(authenticationdata_);
+  }
+  authenticationdata_ = authenticationdata;
+  if (authenticationdata) {
     
   } else {
     
   }
-  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.userId)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:backup.SendLogRequest.authenticationData)
+}
+inline ::backup::SimpleAuthenticationRequestData* SendLogRequest::release_authenticationdata() {
+  
+  ::backup::SimpleAuthenticationRequestData* temp = authenticationdata_;
+  authenticationdata_ = nullptr;
+  if (GetArena() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+  return temp;
+}
+inline ::backup::SimpleAuthenticationRequestData* SendLogRequest::unsafe_arena_release_authenticationdata() {
+  // @@protoc_insertion_point(field_release:backup.SendLogRequest.authenticationData)
+  
+  ::backup::SimpleAuthenticationRequestData* temp = authenticationdata_;
+  authenticationdata_ = nullptr;
+  return temp;
+}
+inline ::backup::SimpleAuthenticationRequestData* SendLogRequest::_internal_mutable_authenticationdata() {
+  
+  if (authenticationdata_ == nullptr) {
+    auto* p = CreateMaybeMessage<::backup::SimpleAuthenticationRequestData>(GetArena());
+    authenticationdata_ = p;
+  }
+  return authenticationdata_;
+}
+inline ::backup::SimpleAuthenticationRequestData* SendLogRequest::mutable_authenticationdata() {
+  // @@protoc_insertion_point(field_mutable:backup.SendLogRequest.authenticationData)
+  return _internal_mutable_authenticationdata();
+}
+inline void SendLogRequest::set_allocated_authenticationdata(::backup::SimpleAuthenticationRequestData* authenticationdata) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
+  if (message_arena == nullptr) {
+    delete authenticationdata_;
+  }
+  if (authenticationdata) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(authenticationdata);
+    if (message_arena != submessage_arena) {
+      authenticationdata = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, authenticationdata, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  authenticationdata_ = authenticationdata;
+  // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.authenticationData)
 }
 
-// bytes data = 2;
-inline void SendLogRequest::clear_data() {
-  data_.ClearToEmpty();
+// bytes logData = 2;
+inline void SendLogRequest::clear_logdata() {
+  logdata_.ClearToEmpty();
 }
-inline const std::string& SendLogRequest::data() const {
-  // @@protoc_insertion_point(field_get:backup.SendLogRequest.data)
-  return _internal_data();
+inline const std::string& SendLogRequest::logdata() const {
+  // @@protoc_insertion_point(field_get:backup.SendLogRequest.logData)
+  return _internal_logdata();
 }
-inline void SendLogRequest::set_data(const std::string& value) {
-  _internal_set_data(value);
-  // @@protoc_insertion_point(field_set:backup.SendLogRequest.data)
+inline void SendLogRequest::set_logdata(const std::string& value) {
+  _internal_set_logdata(value);
+  // @@protoc_insertion_point(field_set:backup.SendLogRequest.logData)
 }
-inline std::string* SendLogRequest::mutable_data() {
-  // @@protoc_insertion_point(field_mutable:backup.SendLogRequest.data)
-  return _internal_mutable_data();
+inline std::string* SendLogRequest::mutable_logdata() {
+  // @@protoc_insertion_point(field_mutable:backup.SendLogRequest.logData)
+  return _internal_mutable_logdata();
 }
-inline const std::string& SendLogRequest::_internal_data() const {
-  return data_.Get();
+inline const std::string& SendLogRequest::_internal_logdata() const {
+  return logdata_.Get();
 }
-inline void SendLogRequest::_internal_set_data(const std::string& value) {
+inline void SendLogRequest::_internal_set_logdata(const std::string& value) {
   
-  data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  logdata_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void SendLogRequest::set_data(std::string&& value) {
+inline void SendLogRequest::set_logdata(std::string&& value) {
   
-  data_.Set(
+  logdata_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.SendLogRequest.data)
+  // @@protoc_insertion_point(field_set_rvalue:backup.SendLogRequest.logData)
 }
-inline void SendLogRequest::set_data(const char* value) {
+inline void SendLogRequest::set_logdata(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
-  data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.SendLogRequest.data)
+  logdata_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.SendLogRequest.logData)
 }
-inline void SendLogRequest::set_data(const void* value,
+inline void SendLogRequest::set_logdata(const void* value,
     size_t size) {
   
-  data_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+  logdata_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.SendLogRequest.data)
+  // @@protoc_insertion_point(field_set_pointer:backup.SendLogRequest.logData)
 }
-inline std::string* SendLogRequest::_internal_mutable_data() {
+inline std::string* SendLogRequest::_internal_mutable_logdata() {
   
-  return data_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+  return logdata_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* SendLogRequest::release_data() {
-  // @@protoc_insertion_point(field_release:backup.SendLogRequest.data)
-  return data_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* SendLogRequest::release_logdata() {
+  // @@protoc_insertion_point(field_release:backup.SendLogRequest.logData)
+  return logdata_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void SendLogRequest::set_allocated_data(std::string* data) {
-  if (data != nullptr) {
+inline void SendLogRequest::set_allocated_logdata(std::string* logdata) {
+  if (logdata != nullptr) {
     
   } else {
     
   }
-  data_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), data,
+  logdata_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), logdata,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.data)
+  // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.logData)
 }
 
 // -------------------------------------------------------------------
 
-// PullBackupKeyRequest
+// RecoverBackupKeyRequest
 
-// string userId = 1;
-inline void PullBackupKeyRequest::clear_userid() {
-  userid_.ClearToEmpty();
+// .backup.FullAuthenticationRequestData authenticationData = 1;
+inline bool RecoverBackupKeyRequest::_internal_has_authenticationdata() const {
+  return this != internal_default_instance() && authenticationdata_ != nullptr;
 }
-inline const std::string& PullBackupKeyRequest::userid() const {
-  // @@protoc_insertion_point(field_get:backup.PullBackupKeyRequest.userId)
-  return _internal_userid();
+inline bool RecoverBackupKeyRequest::has_authenticationdata() const {
+  return _internal_has_authenticationdata();
 }
-inline void PullBackupKeyRequest::set_userid(const std::string& value) {
-  _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:backup.PullBackupKeyRequest.userId)
+inline void RecoverBackupKeyRequest::clear_authenticationdata() {
+  if (GetArena() == nullptr && authenticationdata_ != nullptr) {
+    delete authenticationdata_;
+  }
+  authenticationdata_ = nullptr;
 }
-inline std::string* PullBackupKeyRequest::mutable_userid() {
-  // @@protoc_insertion_point(field_mutable:backup.PullBackupKeyRequest.userId)
-  return _internal_mutable_userid();
+inline const ::backup::FullAuthenticationRequestData& RecoverBackupKeyRequest::_internal_authenticationdata() const {
+  const ::backup::FullAuthenticationRequestData* p = authenticationdata_;
+  return p != nullptr ? *p : reinterpret_cast<const ::backup::FullAuthenticationRequestData&>(
+      ::backup::_FullAuthenticationRequestData_default_instance_);
 }
-inline const std::string& PullBackupKeyRequest::_internal_userid() const {
-  return userid_.Get();
+inline const ::backup::FullAuthenticationRequestData& RecoverBackupKeyRequest::authenticationdata() const {
+  // @@protoc_insertion_point(field_get:backup.RecoverBackupKeyRequest.authenticationData)
+  return _internal_authenticationdata();
 }
-inline void PullBackupKeyRequest::_internal_set_userid(const std::string& value) {
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
-}
-inline void PullBackupKeyRequest::set_userid(std::string&& value) {
-  
-  userid_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupKeyRequest.userId)
-}
-inline void PullBackupKeyRequest::set_userid(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullBackupKeyRequest.userId)
-}
-inline void PullBackupKeyRequest::set_userid(const char* value,
-    size_t size) {
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupKeyRequest.userId)
-}
-inline std::string* PullBackupKeyRequest::_internal_mutable_userid() {
-  
-  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
-}
-inline std::string* PullBackupKeyRequest::release_userid() {
-  // @@protoc_insertion_point(field_release:backup.PullBackupKeyRequest.userId)
-  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void PullBackupKeyRequest::set_allocated_userid(std::string* userid) {
-  if (userid != nullptr) {
+inline void RecoverBackupKeyRequest::unsafe_arena_set_allocated_authenticationdata(
+    ::backup::FullAuthenticationRequestData* authenticationdata) {
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(authenticationdata_);
+  }
+  authenticationdata_ = authenticationdata;
+  if (authenticationdata) {
     
   } else {
     
   }
-  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupKeyRequest.userId)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:backup.RecoverBackupKeyRequest.authenticationData)
 }
-
-// bytes pakeKey = 2;
-inline void PullBackupKeyRequest::clear_pakekey() {
-  pakekey_.ClearToEmpty();
-}
-inline const std::string& PullBackupKeyRequest::pakekey() const {
-  // @@protoc_insertion_point(field_get:backup.PullBackupKeyRequest.pakeKey)
-  return _internal_pakekey();
-}
-inline void PullBackupKeyRequest::set_pakekey(const std::string& value) {
-  _internal_set_pakekey(value);
-  // @@protoc_insertion_point(field_set:backup.PullBackupKeyRequest.pakeKey)
-}
-inline std::string* PullBackupKeyRequest::mutable_pakekey() {
-  // @@protoc_insertion_point(field_mutable:backup.PullBackupKeyRequest.pakeKey)
-  return _internal_mutable_pakekey();
-}
-inline const std::string& PullBackupKeyRequest::_internal_pakekey() const {
-  return pakekey_.Get();
-}
-inline void PullBackupKeyRequest::_internal_set_pakekey(const std::string& value) {
+inline ::backup::FullAuthenticationRequestData* RecoverBackupKeyRequest::release_authenticationdata() {
   
-  pakekey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+  ::backup::FullAuthenticationRequestData* temp = authenticationdata_;
+  authenticationdata_ = nullptr;
+  if (GetArena() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+  return temp;
 }
-inline void PullBackupKeyRequest::set_pakekey(std::string&& value) {
+inline ::backup::FullAuthenticationRequestData* RecoverBackupKeyRequest::unsafe_arena_release_authenticationdata() {
+  // @@protoc_insertion_point(field_release:backup.RecoverBackupKeyRequest.authenticationData)
   
-  pakekey_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupKeyRequest.pakeKey)
+  ::backup::FullAuthenticationRequestData* temp = authenticationdata_;
+  authenticationdata_ = nullptr;
+  return temp;
 }
-inline void PullBackupKeyRequest::set_pakekey(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
+inline ::backup::FullAuthenticationRequestData* RecoverBackupKeyRequest::_internal_mutable_authenticationdata() {
   
-  pakekey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullBackupKeyRequest.pakeKey)
+  if (authenticationdata_ == nullptr) {
+    auto* p = CreateMaybeMessage<::backup::FullAuthenticationRequestData>(GetArena());
+    authenticationdata_ = p;
+  }
+  return authenticationdata_;
 }
-inline void PullBackupKeyRequest::set_pakekey(const void* value,
-    size_t size) {
-  
-  pakekey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupKeyRequest.pakeKey)
+inline ::backup::FullAuthenticationRequestData* RecoverBackupKeyRequest::mutable_authenticationdata() {
+  // @@protoc_insertion_point(field_mutable:backup.RecoverBackupKeyRequest.authenticationData)
+  return _internal_mutable_authenticationdata();
 }
-inline std::string* PullBackupKeyRequest::_internal_mutable_pakekey() {
-  
-  return pakekey_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
-}
-inline std::string* PullBackupKeyRequest::release_pakekey() {
-  // @@protoc_insertion_point(field_release:backup.PullBackupKeyRequest.pakeKey)
-  return pakekey_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void PullBackupKeyRequest::set_allocated_pakekey(std::string* pakekey) {
-  if (pakekey != nullptr) {
+inline void RecoverBackupKeyRequest::set_allocated_authenticationdata(::backup::FullAuthenticationRequestData* authenticationdata) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
+  if (message_arena == nullptr) {
+    delete authenticationdata_;
+  }
+  if (authenticationdata) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(authenticationdata);
+    if (message_arena != submessage_arena) {
+      authenticationdata = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, authenticationdata, submessage_arena);
+    }
     
   } else {
     
   }
-  pakekey_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), pakekey,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupKeyRequest.pakeKey)
+  authenticationdata_ = authenticationdata;
+  // @@protoc_insertion_point(field_set_allocated:backup.RecoverBackupKeyRequest.authenticationData)
 }
 
 // -------------------------------------------------------------------
 
-// PullBackupKeyResponse
+// RecoverBackupKeyResponse
 
-// bytes encryptedBackupKey = 1;
-inline void PullBackupKeyResponse::clear_encryptedbackupkey() {
-  encryptedbackupkey_.ClearToEmpty();
+// bytes responseBytes = 1;
+inline bool RecoverBackupKeyResponse::_internal_has_responsebytes() const {
+  return data_case() == kResponseBytes;
 }
-inline const std::string& PullBackupKeyResponse::encryptedbackupkey() const {
-  // @@protoc_insertion_point(field_get:backup.PullBackupKeyResponse.encryptedBackupKey)
-  return _internal_encryptedbackupkey();
+inline bool RecoverBackupKeyResponse::has_responsebytes() const {
+  return _internal_has_responsebytes();
 }
-inline void PullBackupKeyResponse::set_encryptedbackupkey(const std::string& value) {
-  _internal_set_encryptedbackupkey(value);
-  // @@protoc_insertion_point(field_set:backup.PullBackupKeyResponse.encryptedBackupKey)
+inline void RecoverBackupKeyResponse::set_has_responsebytes() {
+  _oneof_case_[0] = kResponseBytes;
 }
-inline std::string* PullBackupKeyResponse::mutable_encryptedbackupkey() {
-  // @@protoc_insertion_point(field_mutable:backup.PullBackupKeyResponse.encryptedBackupKey)
-  return _internal_mutable_encryptedbackupkey();
+inline void RecoverBackupKeyResponse::clear_responsebytes() {
+  if (_internal_has_responsebytes()) {
+    data_.responsebytes_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
 }
-inline const std::string& PullBackupKeyResponse::_internal_encryptedbackupkey() const {
-  return encryptedbackupkey_.Get();
+inline const std::string& RecoverBackupKeyResponse::responsebytes() const {
+  // @@protoc_insertion_point(field_get:backup.RecoverBackupKeyResponse.responseBytes)
+  return _internal_responsebytes();
 }
-inline void PullBackupKeyResponse::_internal_set_encryptedbackupkey(const std::string& value) {
-  
-  encryptedbackupkey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+inline void RecoverBackupKeyResponse::set_responsebytes(const std::string& value) {
+  _internal_set_responsebytes(value);
+  // @@protoc_insertion_point(field_set:backup.RecoverBackupKeyResponse.responseBytes)
 }
-inline void PullBackupKeyResponse::set_encryptedbackupkey(std::string&& value) {
-  
-  encryptedbackupkey_.Set(
+inline std::string* RecoverBackupKeyResponse::mutable_responsebytes() {
+  // @@protoc_insertion_point(field_mutable:backup.RecoverBackupKeyResponse.responseBytes)
+  return _internal_mutable_responsebytes();
+}
+inline const std::string& RecoverBackupKeyResponse::_internal_responsebytes() const {
+  if (_internal_has_responsebytes()) {
+    return data_.responsebytes_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void RecoverBackupKeyResponse::_internal_set_responsebytes(const std::string& value) {
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.responsebytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void RecoverBackupKeyResponse::set_responsebytes(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.RecoverBackupKeyResponse.responseBytes)
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.responsebytes_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupKeyResponse.encryptedBackupKey)
+  // @@protoc_insertion_point(field_set_rvalue:backup.RecoverBackupKeyResponse.responseBytes)
 }
-inline void PullBackupKeyResponse::set_encryptedbackupkey(const char* value) {
+inline void RecoverBackupKeyResponse::set_responsebytes(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  
-  encryptedbackupkey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullBackupKeyResponse.encryptedBackupKey)
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.responsebytes_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.RecoverBackupKeyResponse.responseBytes)
 }
-inline void PullBackupKeyResponse::set_encryptedbackupkey(const void* value,
-    size_t size) {
-  
-  encryptedbackupkey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupKeyResponse.encryptedBackupKey)
+inline void RecoverBackupKeyResponse::set_responsebytes(const void* value,
+                             size_t size) {
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.responsebytes_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.RecoverBackupKeyResponse.responseBytes)
 }
-inline std::string* PullBackupKeyResponse::_internal_mutable_encryptedbackupkey() {
-  
-  return encryptedbackupkey_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+inline std::string* RecoverBackupKeyResponse::_internal_mutable_responsebytes() {
+  if (!_internal_has_responsebytes()) {
+    clear_data();
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.responsebytes_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* PullBackupKeyResponse::release_encryptedbackupkey() {
-  // @@protoc_insertion_point(field_release:backup.PullBackupKeyResponse.encryptedBackupKey)
-  return encryptedbackupkey_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline std::string* RecoverBackupKeyResponse::release_responsebytes() {
+  // @@protoc_insertion_point(field_release:backup.RecoverBackupKeyResponse.responseBytes)
+  if (_internal_has_responsebytes()) {
+    clear_has_data();
+    return data_.responsebytes_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
 }
-inline void PullBackupKeyResponse::set_allocated_encryptedbackupkey(std::string* encryptedbackupkey) {
-  if (encryptedbackupkey != nullptr) {
+inline void RecoverBackupKeyResponse::set_allocated_responsebytes(std::string* responsebytes) {
+  if (has_data()) {
+    clear_data();
+  }
+  if (responsebytes != nullptr) {
+    set_has_responsebytes();
+    data_.responsebytes_.UnsafeSetDefault(responsebytes);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(responsebytes);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.RecoverBackupKeyResponse.responseBytes)
+}
+
+// .backup.AuthenticationInformationData authenticationInformationData = 2;
+inline bool RecoverBackupKeyResponse::_internal_has_authenticationinformationdata() const {
+  return data_case() == kAuthenticationInformationData;
+}
+inline bool RecoverBackupKeyResponse::has_authenticationinformationdata() const {
+  return _internal_has_authenticationinformationdata();
+}
+inline void RecoverBackupKeyResponse::set_has_authenticationinformationdata() {
+  _oneof_case_[0] = kAuthenticationInformationData;
+}
+inline void RecoverBackupKeyResponse::clear_authenticationinformationdata() {
+  if (_internal_has_authenticationinformationdata()) {
+    if (GetArena() == nullptr) {
+      delete data_.authenticationinformationdata_;
+    }
+    clear_has_data();
+  }
+}
+inline ::backup::AuthenticationInformationData* RecoverBackupKeyResponse::release_authenticationinformationdata() {
+  // @@protoc_insertion_point(field_release:backup.RecoverBackupKeyResponse.authenticationInformationData)
+  if (_internal_has_authenticationinformationdata()) {
+    clear_has_data();
+      ::backup::AuthenticationInformationData* temp = data_.authenticationinformationdata_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    data_.authenticationinformationdata_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::backup::AuthenticationInformationData& RecoverBackupKeyResponse::_internal_authenticationinformationdata() const {
+  return _internal_has_authenticationinformationdata()
+      ? *data_.authenticationinformationdata_
+      : reinterpret_cast< ::backup::AuthenticationInformationData&>(::backup::_AuthenticationInformationData_default_instance_);
+}
+inline const ::backup::AuthenticationInformationData& RecoverBackupKeyResponse::authenticationinformationdata() const {
+  // @@protoc_insertion_point(field_get:backup.RecoverBackupKeyResponse.authenticationInformationData)
+  return _internal_authenticationinformationdata();
+}
+inline ::backup::AuthenticationInformationData* RecoverBackupKeyResponse::unsafe_arena_release_authenticationinformationdata() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:backup.RecoverBackupKeyResponse.authenticationInformationData)
+  if (_internal_has_authenticationinformationdata()) {
+    clear_has_data();
+    ::backup::AuthenticationInformationData* temp = data_.authenticationinformationdata_;
+    data_.authenticationinformationdata_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void RecoverBackupKeyResponse::unsafe_arena_set_allocated_authenticationinformationdata(::backup::AuthenticationInformationData* authenticationinformationdata) {
+  clear_data();
+  if (authenticationinformationdata) {
+    set_has_authenticationinformationdata();
+    data_.authenticationinformationdata_ = authenticationinformationdata;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:backup.RecoverBackupKeyResponse.authenticationInformationData)
+}
+inline ::backup::AuthenticationInformationData* RecoverBackupKeyResponse::_internal_mutable_authenticationinformationdata() {
+  if (!_internal_has_authenticationinformationdata()) {
+    clear_data();
+    set_has_authenticationinformationdata();
+    data_.authenticationinformationdata_ = CreateMaybeMessage< ::backup::AuthenticationInformationData >(GetArena());
+  }
+  return data_.authenticationinformationdata_;
+}
+inline ::backup::AuthenticationInformationData* RecoverBackupKeyResponse::mutable_authenticationinformationdata() {
+  // @@protoc_insertion_point(field_mutable:backup.RecoverBackupKeyResponse.authenticationInformationData)
+  return _internal_mutable_authenticationinformationdata();
+}
+
+// string backupID = 3;
+inline bool RecoverBackupKeyResponse::_internal_has_backupid() const {
+  return data_case() == kBackupID;
+}
+inline bool RecoverBackupKeyResponse::has_backupid() const {
+  return _internal_has_backupid();
+}
+inline void RecoverBackupKeyResponse::set_has_backupid() {
+  _oneof_case_[0] = kBackupID;
+}
+inline void RecoverBackupKeyResponse::clear_backupid() {
+  if (_internal_has_backupid()) {
+    data_.backupid_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
+}
+inline const std::string& RecoverBackupKeyResponse::backupid() const {
+  // @@protoc_insertion_point(field_get:backup.RecoverBackupKeyResponse.backupID)
+  return _internal_backupid();
+}
+inline void RecoverBackupKeyResponse::set_backupid(const std::string& value) {
+  _internal_set_backupid(value);
+  // @@protoc_insertion_point(field_set:backup.RecoverBackupKeyResponse.backupID)
+}
+inline std::string* RecoverBackupKeyResponse::mutable_backupid() {
+  // @@protoc_insertion_point(field_mutable:backup.RecoverBackupKeyResponse.backupID)
+  return _internal_mutable_backupid();
+}
+inline const std::string& RecoverBackupKeyResponse::_internal_backupid() const {
+  if (_internal_has_backupid()) {
+    return data_.backupid_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void RecoverBackupKeyResponse::_internal_set_backupid(const std::string& value) {
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void RecoverBackupKeyResponse::set_backupid(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.RecoverBackupKeyResponse.backupID)
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.backupid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.RecoverBackupKeyResponse.backupID)
+}
+inline void RecoverBackupKeyResponse::set_backupid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.RecoverBackupKeyResponse.backupID)
+}
+inline void RecoverBackupKeyResponse::set_backupid(const char* value,
+                             size_t size) {
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.backupid_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.RecoverBackupKeyResponse.backupID)
+}
+inline std::string* RecoverBackupKeyResponse::_internal_mutable_backupid() {
+  if (!_internal_has_backupid()) {
+    clear_data();
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.backupid_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* RecoverBackupKeyResponse::release_backupid() {
+  // @@protoc_insertion_point(field_release:backup.RecoverBackupKeyResponse.backupID)
+  if (_internal_has_backupid()) {
+    clear_has_data();
+    return data_.backupid_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void RecoverBackupKeyResponse::set_allocated_backupid(std::string* backupid) {
+  if (has_data()) {
+    clear_data();
+  }
+  if (backupid != nullptr) {
+    set_has_backupid();
+    data_.backupid_.UnsafeSetDefault(backupid);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(backupid);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.RecoverBackupKeyResponse.backupID)
+}
+
+inline bool RecoverBackupKeyResponse::has_data() const {
+  return data_case() != DATA_NOT_SET;
+}
+inline void RecoverBackupKeyResponse::clear_has_data() {
+  _oneof_case_[0] = DATA_NOT_SET;
+}
+inline RecoverBackupKeyResponse::DataCase RecoverBackupKeyResponse::data_case() const {
+  return RecoverBackupKeyResponse::DataCase(_oneof_case_[0]);
+}
+// -------------------------------------------------------------------
+
+// PullBackupRequest
+
+// .backup.SimpleAuthenticationRequestData authenticationData = 1;
+inline bool PullBackupRequest::_internal_has_authenticationdata() const {
+  return this != internal_default_instance() && authenticationdata_ != nullptr;
+}
+inline bool PullBackupRequest::has_authenticationdata() const {
+  return _internal_has_authenticationdata();
+}
+inline void PullBackupRequest::clear_authenticationdata() {
+  if (GetArena() == nullptr && authenticationdata_ != nullptr) {
+    delete authenticationdata_;
+  }
+  authenticationdata_ = nullptr;
+}
+inline const ::backup::SimpleAuthenticationRequestData& PullBackupRequest::_internal_authenticationdata() const {
+  const ::backup::SimpleAuthenticationRequestData* p = authenticationdata_;
+  return p != nullptr ? *p : reinterpret_cast<const ::backup::SimpleAuthenticationRequestData&>(
+      ::backup::_SimpleAuthenticationRequestData_default_instance_);
+}
+inline const ::backup::SimpleAuthenticationRequestData& PullBackupRequest::authenticationdata() const {
+  // @@protoc_insertion_point(field_get:backup.PullBackupRequest.authenticationData)
+  return _internal_authenticationdata();
+}
+inline void PullBackupRequest::unsafe_arena_set_allocated_authenticationdata(
+    ::backup::SimpleAuthenticationRequestData* authenticationdata) {
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(authenticationdata_);
+  }
+  authenticationdata_ = authenticationdata;
+  if (authenticationdata) {
     
   } else {
     
   }
-  encryptedbackupkey_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), encryptedbackupkey,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupKeyResponse.encryptedBackupKey)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:backup.PullBackupRequest.authenticationData)
+}
+inline ::backup::SimpleAuthenticationRequestData* PullBackupRequest::release_authenticationdata() {
+  
+  ::backup::SimpleAuthenticationRequestData* temp = authenticationdata_;
+  authenticationdata_ = nullptr;
+  if (GetArena() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+  return temp;
+}
+inline ::backup::SimpleAuthenticationRequestData* PullBackupRequest::unsafe_arena_release_authenticationdata() {
+  // @@protoc_insertion_point(field_release:backup.PullBackupRequest.authenticationData)
+  
+  ::backup::SimpleAuthenticationRequestData* temp = authenticationdata_;
+  authenticationdata_ = nullptr;
+  return temp;
+}
+inline ::backup::SimpleAuthenticationRequestData* PullBackupRequest::_internal_mutable_authenticationdata() {
+  
+  if (authenticationdata_ == nullptr) {
+    auto* p = CreateMaybeMessage<::backup::SimpleAuthenticationRequestData>(GetArena());
+    authenticationdata_ = p;
+  }
+  return authenticationdata_;
+}
+inline ::backup::SimpleAuthenticationRequestData* PullBackupRequest::mutable_authenticationdata() {
+  // @@protoc_insertion_point(field_mutable:backup.PullBackupRequest.authenticationData)
+  return _internal_mutable_authenticationdata();
+}
+inline void PullBackupRequest::set_allocated_authenticationdata(::backup::SimpleAuthenticationRequestData* authenticationdata) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
+  if (message_arena == nullptr) {
+    delete authenticationdata_;
+  }
+  if (authenticationdata) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(authenticationdata);
+    if (message_arena != submessage_arena) {
+      authenticationdata = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, authenticationdata, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  authenticationdata_ = authenticationdata;
+  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupRequest.authenticationData)
 }
 
 // -------------------------------------------------------------------
 
-// PullCompactionRequest
-
-// string userId = 1;
-inline void PullCompactionRequest::clear_userid() {
-  userid_.ClearToEmpty();
-}
-inline const std::string& PullCompactionRequest::userid() const {
-  // @@protoc_insertion_point(field_get:backup.PullCompactionRequest.userId)
-  return _internal_userid();
-}
-inline void PullCompactionRequest::set_userid(const std::string& value) {
-  _internal_set_userid(value);
-  // @@protoc_insertion_point(field_set:backup.PullCompactionRequest.userId)
-}
-inline std::string* PullCompactionRequest::mutable_userid() {
-  // @@protoc_insertion_point(field_mutable:backup.PullCompactionRequest.userId)
-  return _internal_mutable_userid();
-}
-inline const std::string& PullCompactionRequest::_internal_userid() const {
-  return userid_.Get();
-}
-inline void PullCompactionRequest::_internal_set_userid(const std::string& value) {
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
-}
-inline void PullCompactionRequest::set_userid(std::string&& value) {
-  
-  userid_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullCompactionRequest.userId)
-}
-inline void PullCompactionRequest::set_userid(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullCompactionRequest.userId)
-}
-inline void PullCompactionRequest::set_userid(const char* value,
-    size_t size) {
-  
-  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullCompactionRequest.userId)
-}
-inline std::string* PullCompactionRequest::_internal_mutable_userid() {
-  
-  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
-}
-inline std::string* PullCompactionRequest::release_userid() {
-  // @@protoc_insertion_point(field_release:backup.PullCompactionRequest.userId)
-  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void PullCompactionRequest::set_allocated_userid(std::string* userid) {
-  if (userid != nullptr) {
-    
-  } else {
-    
-  }
-  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.PullCompactionRequest.userId)
-}
-
-// bytes message = 2;
-inline void PullCompactionRequest::clear_message() {
-  message_.ClearToEmpty();
-}
-inline const std::string& PullCompactionRequest::message() const {
-  // @@protoc_insertion_point(field_get:backup.PullCompactionRequest.message)
-  return _internal_message();
-}
-inline void PullCompactionRequest::set_message(const std::string& value) {
-  _internal_set_message(value);
-  // @@protoc_insertion_point(field_set:backup.PullCompactionRequest.message)
-}
-inline std::string* PullCompactionRequest::mutable_message() {
-  // @@protoc_insertion_point(field_mutable:backup.PullCompactionRequest.message)
-  return _internal_mutable_message();
-}
-inline const std::string& PullCompactionRequest::_internal_message() const {
-  return message_.Get();
-}
-inline void PullCompactionRequest::_internal_set_message(const std::string& value) {
-  
-  message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
-}
-inline void PullCompactionRequest::set_message(std::string&& value) {
-  
-  message_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullCompactionRequest.message)
-}
-inline void PullCompactionRequest::set_message(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullCompactionRequest.message)
-}
-inline void PullCompactionRequest::set_message(const void* value,
-    size_t size) {
-  
-  message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullCompactionRequest.message)
-}
-inline std::string* PullCompactionRequest::_internal_mutable_message() {
-  
-  return message_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
-}
-inline std::string* PullCompactionRequest::release_message() {
-  // @@protoc_insertion_point(field_release:backup.PullCompactionRequest.message)
-  return message_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void PullCompactionRequest::set_allocated_message(std::string* message) {
-  if (message != nullptr) {
-    
-  } else {
-    
-  }
-  message_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), message,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:backup.PullCompactionRequest.message)
-}
-
-// -------------------------------------------------------------------
-
-// PullCompactionResponse
+// PullBackupResponse
 
 // bytes compactionChunk = 1;
-inline bool PullCompactionResponse::_internal_has_compactionchunk() const {
+inline bool PullBackupResponse::_internal_has_compactionchunk() const {
   return data_case() == kCompactionChunk;
 }
-inline bool PullCompactionResponse::has_compactionchunk() const {
+inline bool PullBackupResponse::has_compactionchunk() const {
   return _internal_has_compactionchunk();
 }
-inline void PullCompactionResponse::set_has_compactionchunk() {
+inline void PullBackupResponse::set_has_compactionchunk() {
   _oneof_case_[0] = kCompactionChunk;
 }
-inline void PullCompactionResponse::clear_compactionchunk() {
+inline void PullBackupResponse::clear_compactionchunk() {
   if (_internal_has_compactionchunk()) {
     data_.compactionchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
     clear_has_data();
   }
 }
-inline const std::string& PullCompactionResponse::compactionchunk() const {
-  // @@protoc_insertion_point(field_get:backup.PullCompactionResponse.compactionChunk)
+inline const std::string& PullBackupResponse::compactionchunk() const {
+  // @@protoc_insertion_point(field_get:backup.PullBackupResponse.compactionChunk)
   return _internal_compactionchunk();
 }
-inline void PullCompactionResponse::set_compactionchunk(const std::string& value) {
+inline void PullBackupResponse::set_compactionchunk(const std::string& value) {
   _internal_set_compactionchunk(value);
-  // @@protoc_insertion_point(field_set:backup.PullCompactionResponse.compactionChunk)
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.compactionChunk)
 }
-inline std::string* PullCompactionResponse::mutable_compactionchunk() {
-  // @@protoc_insertion_point(field_mutable:backup.PullCompactionResponse.compactionChunk)
+inline std::string* PullBackupResponse::mutable_compactionchunk() {
+  // @@protoc_insertion_point(field_mutable:backup.PullBackupResponse.compactionChunk)
   return _internal_mutable_compactionchunk();
 }
-inline const std::string& PullCompactionResponse::_internal_compactionchunk() const {
+inline const std::string& PullBackupResponse::_internal_compactionchunk() const {
   if (_internal_has_compactionchunk()) {
     return data_.compactionchunk_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
-inline void PullCompactionResponse::_internal_set_compactionchunk(const std::string& value) {
+inline void PullBackupResponse::_internal_set_compactionchunk(const std::string& value) {
   if (!_internal_has_compactionchunk()) {
     clear_data();
     set_has_compactionchunk();
@@ -1901,8 +3593,8 @@ inline void PullCompactionResponse::_internal_set_compactionchunk(const std::str
   }
   data_.compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void PullCompactionResponse::set_compactionchunk(std::string&& value) {
-  // @@protoc_insertion_point(field_set:backup.PullCompactionResponse.compactionChunk)
+inline void PullBackupResponse::set_compactionchunk(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.compactionChunk)
   if (!_internal_has_compactionchunk()) {
     clear_data();
     set_has_compactionchunk();
@@ -1910,9 +3602,9 @@ inline void PullCompactionResponse::set_compactionchunk(std::string&& value) {
   }
   data_.compactionchunk_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullCompactionResponse.compactionChunk)
+  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupResponse.compactionChunk)
 }
-inline void PullCompactionResponse::set_compactionchunk(const char* value) {
+inline void PullBackupResponse::set_compactionchunk(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   if (!_internal_has_compactionchunk()) {
     clear_data();
@@ -1921,9 +3613,9 @@ inline void PullCompactionResponse::set_compactionchunk(const char* value) {
   }
   data_.compactionchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
       ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullCompactionResponse.compactionChunk)
+  // @@protoc_insertion_point(field_set_char:backup.PullBackupResponse.compactionChunk)
 }
-inline void PullCompactionResponse::set_compactionchunk(const void* value,
+inline void PullBackupResponse::set_compactionchunk(const void* value,
                              size_t size) {
   if (!_internal_has_compactionchunk()) {
     clear_data();
@@ -1934,9 +3626,9 @@ inline void PullCompactionResponse::set_compactionchunk(const void* value,
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size),
       GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullCompactionResponse.compactionChunk)
+  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupResponse.compactionChunk)
 }
-inline std::string* PullCompactionResponse::_internal_mutable_compactionchunk() {
+inline std::string* PullBackupResponse::_internal_mutable_compactionchunk() {
   if (!_internal_has_compactionchunk()) {
     clear_data();
     set_has_compactionchunk();
@@ -1945,8 +3637,8 @@ inline std::string* PullCompactionResponse::_internal_mutable_compactionchunk() 
   return data_.compactionchunk_.Mutable(
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* PullCompactionResponse::release_compactionchunk() {
-  // @@protoc_insertion_point(field_release:backup.PullCompactionResponse.compactionChunk)
+inline std::string* PullBackupResponse::release_compactionchunk() {
+  // @@protoc_insertion_point(field_release:backup.PullBackupResponse.compactionChunk)
   if (_internal_has_compactionchunk()) {
     clear_has_data();
     return data_.compactionchunk_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
@@ -1954,7 +3646,7 @@ inline std::string* PullCompactionResponse::release_compactionchunk() {
     return nullptr;
   }
 }
-inline void PullCompactionResponse::set_allocated_compactionchunk(std::string* compactionchunk) {
+inline void PullBackupResponse::set_allocated_compactionchunk(std::string* compactionchunk) {
   if (has_data()) {
     clear_data();
   }
@@ -1966,44 +3658,44 @@ inline void PullCompactionResponse::set_allocated_compactionchunk(std::string* c
       arena->Own(compactionchunk);
     }
   }
-  // @@protoc_insertion_point(field_set_allocated:backup.PullCompactionResponse.compactionChunk)
+  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupResponse.compactionChunk)
 }
 
 // bytes logChunk = 2;
-inline bool PullCompactionResponse::_internal_has_logchunk() const {
+inline bool PullBackupResponse::_internal_has_logchunk() const {
   return data_case() == kLogChunk;
 }
-inline bool PullCompactionResponse::has_logchunk() const {
+inline bool PullBackupResponse::has_logchunk() const {
   return _internal_has_logchunk();
 }
-inline void PullCompactionResponse::set_has_logchunk() {
+inline void PullBackupResponse::set_has_logchunk() {
   _oneof_case_[0] = kLogChunk;
 }
-inline void PullCompactionResponse::clear_logchunk() {
+inline void PullBackupResponse::clear_logchunk() {
   if (_internal_has_logchunk()) {
     data_.logchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
     clear_has_data();
   }
 }
-inline const std::string& PullCompactionResponse::logchunk() const {
-  // @@protoc_insertion_point(field_get:backup.PullCompactionResponse.logChunk)
+inline const std::string& PullBackupResponse::logchunk() const {
+  // @@protoc_insertion_point(field_get:backup.PullBackupResponse.logChunk)
   return _internal_logchunk();
 }
-inline void PullCompactionResponse::set_logchunk(const std::string& value) {
+inline void PullBackupResponse::set_logchunk(const std::string& value) {
   _internal_set_logchunk(value);
-  // @@protoc_insertion_point(field_set:backup.PullCompactionResponse.logChunk)
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.logChunk)
 }
-inline std::string* PullCompactionResponse::mutable_logchunk() {
-  // @@protoc_insertion_point(field_mutable:backup.PullCompactionResponse.logChunk)
+inline std::string* PullBackupResponse::mutable_logchunk() {
+  // @@protoc_insertion_point(field_mutable:backup.PullBackupResponse.logChunk)
   return _internal_mutable_logchunk();
 }
-inline const std::string& PullCompactionResponse::_internal_logchunk() const {
+inline const std::string& PullBackupResponse::_internal_logchunk() const {
   if (_internal_has_logchunk()) {
     return data_.logchunk_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
-inline void PullCompactionResponse::_internal_set_logchunk(const std::string& value) {
+inline void PullBackupResponse::_internal_set_logchunk(const std::string& value) {
   if (!_internal_has_logchunk()) {
     clear_data();
     set_has_logchunk();
@@ -2011,8 +3703,8 @@ inline void PullCompactionResponse::_internal_set_logchunk(const std::string& va
   }
   data_.logchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void PullCompactionResponse::set_logchunk(std::string&& value) {
-  // @@protoc_insertion_point(field_set:backup.PullCompactionResponse.logChunk)
+inline void PullBackupResponse::set_logchunk(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.logChunk)
   if (!_internal_has_logchunk()) {
     clear_data();
     set_has_logchunk();
@@ -2020,9 +3712,9 @@ inline void PullCompactionResponse::set_logchunk(std::string&& value) {
   }
   data_.logchunk_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:backup.PullCompactionResponse.logChunk)
+  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupResponse.logChunk)
 }
-inline void PullCompactionResponse::set_logchunk(const char* value) {
+inline void PullBackupResponse::set_logchunk(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   if (!_internal_has_logchunk()) {
     clear_data();
@@ -2031,9 +3723,9 @@ inline void PullCompactionResponse::set_logchunk(const char* value) {
   }
   data_.logchunk_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
       ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:backup.PullCompactionResponse.logChunk)
+  // @@protoc_insertion_point(field_set_char:backup.PullBackupResponse.logChunk)
 }
-inline void PullCompactionResponse::set_logchunk(const void* value,
+inline void PullBackupResponse::set_logchunk(const void* value,
                              size_t size) {
   if (!_internal_has_logchunk()) {
     clear_data();
@@ -2044,9 +3736,9 @@ inline void PullCompactionResponse::set_logchunk(const void* value,
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size),
       GetArena());
-  // @@protoc_insertion_point(field_set_pointer:backup.PullCompactionResponse.logChunk)
+  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupResponse.logChunk)
 }
-inline std::string* PullCompactionResponse::_internal_mutable_logchunk() {
+inline std::string* PullBackupResponse::_internal_mutable_logchunk() {
   if (!_internal_has_logchunk()) {
     clear_data();
     set_has_logchunk();
@@ -2055,8 +3747,8 @@ inline std::string* PullCompactionResponse::_internal_mutable_logchunk() {
   return data_.logchunk_.Mutable(
       ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* PullCompactionResponse::release_logchunk() {
-  // @@protoc_insertion_point(field_release:backup.PullCompactionResponse.logChunk)
+inline std::string* PullBackupResponse::release_logchunk() {
+  // @@protoc_insertion_point(field_release:backup.PullBackupResponse.logChunk)
   if (_internal_has_logchunk()) {
     clear_has_data();
     return data_.logchunk_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
@@ -2064,7 +3756,7 @@ inline std::string* PullCompactionResponse::release_logchunk() {
     return nullptr;
   }
 }
-inline void PullCompactionResponse::set_allocated_logchunk(std::string* logchunk) {
+inline void PullBackupResponse::set_allocated_logchunk(std::string* logchunk) {
   if (has_data()) {
     clear_data();
   }
@@ -2076,17 +3768,17 @@ inline void PullCompactionResponse::set_allocated_logchunk(std::string* logchunk
       arena->Own(logchunk);
     }
   }
-  // @@protoc_insertion_point(field_set_allocated:backup.PullCompactionResponse.logChunk)
+  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupResponse.logChunk)
 }
 
-inline bool PullCompactionResponse::has_data() const {
+inline bool PullBackupResponse::has_data() const {
   return data_case() != DATA_NOT_SET;
 }
-inline void PullCompactionResponse::clear_has_data() {
+inline void PullBackupResponse::clear_has_data() {
   _oneof_case_[0] = DATA_NOT_SET;
 }
-inline PullCompactionResponse::DataCase PullCompactionResponse::data_case() const {
-  return PullCompactionResponse::DataCase(_oneof_case_[0]);
+inline PullBackupResponse::DataCase PullBackupResponse::data_case() const {
+  return PullBackupResponse::DataCase(_oneof_case_[0]);
 }
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
@@ -2101,10 +3793,28 @@ inline PullCompactionResponse::DataCase PullCompactionResponse::data_case() cons
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
 }  // namespace backup
+
+PROTOBUF_NAMESPACE_OPEN
+
+template <> struct is_proto_enum< ::backup::AuthenticationMethod> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::backup::AuthenticationMethod>() {
+  return ::backup::AuthenticationMethod_descriptor();
+}
+
+PROTOBUF_NAMESPACE_CLOSE
 
 // @@protoc_insertion_point(global_scope)
 
