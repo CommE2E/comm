@@ -1,5 +1,6 @@
 #include "DatabaseManager.h"
 #include "Constants.h"
+#include "Tools.h"
 
 #include <aws/core/utils/Outcome.h>
 #include <aws/dynamodb/model/DeleteItemRequest.h>
@@ -69,6 +70,37 @@ DatabaseManager::findUserPersistItem(const std::string &userID) {
 
 void DatabaseManager::removeUserPersistItem(const std::string &userID) {
   this->innerRemoveItem(*(createItemByType<UserPersistItem>()), userID);
+}
+
+void DatabaseManager::putBackupItem(const BackupItem &item) {
+  Aws::DynamoDB::Model::PutItemRequest request;
+  request.SetTableName(BackupItem::tableName);
+  request.AddItem(
+      BackupItem::FIELD_ID, Aws::DynamoDB::Model::AttributeValue(item.getID()));
+  request.AddItem(
+      BackupItem::FIELD_COMPACTION_ID,
+      Aws::DynamoDB::Model::AttributeValue(item.getCompactionID()));
+  request.AddItem(
+      BackupItem::FIELD_ENCRYPTED_BACKUP_KEY,
+      Aws::DynamoDB::Model::AttributeValue(item.getEncryptedBackupKey()));
+  request.AddItem(
+      BackupItem::FIELD_CREATED,
+      Aws::DynamoDB::Model::AttributeValue(
+          std::to_string(getCurrentTimestamp())));
+
+  this->innerPutItem(std::make_shared<BackupItem>(item), request);
+}
+
+std::shared_ptr<BackupItem>
+DatabaseManager::findBackupItem(const std::string &id) {
+  Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey(
+      BackupItem::FIELD_ID, Aws::DynamoDB::Model::AttributeValue(id));
+  return std::move(this->innerFindItem<BackupItem>(request));
+}
+
+void DatabaseManager::removeBackupItem(const std::string &id) {
+  this->innerRemoveItem(*(createItemByType<BackupItem>()), id);
 }
 
 } // namespace database

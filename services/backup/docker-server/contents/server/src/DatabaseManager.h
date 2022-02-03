@@ -41,6 +41,10 @@ public:
   std::shared_ptr<UserPersistItem>
   findUserPersistItem(const std::string &userID);
   void removeUserPersistItem(const std::string &userID);
+
+  void putBackupItem(const BackupItem &item);
+  std::shared_ptr<BackupItem> findBackupItem(const std::string &id);
+  void removeBackupItem(const std::string &id);
 };
 
 template <typename T>
