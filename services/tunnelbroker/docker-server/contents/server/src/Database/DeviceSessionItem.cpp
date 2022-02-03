@@ -1,11 +1,10 @@
 #include "DeviceSessionItem.h"
-#include "Constants.h"
+#include "ConfigManager.h"
 
 namespace comm {
 namespace network {
 namespace database {
 
-std::string DeviceSessionItem::tableName = DEVICE_SESSIONS_TABLE_NAME;
 const std::string DeviceSessionItem::FIELD_SESSION_ID = "SessionId";
 const std::string DeviceSessionItem::FIELD_DEVICE_ID = "DeviceId";
 const std::string DeviceSessionItem::FIELD_PUBKEY = "PubKey";
@@ -69,7 +68,8 @@ void DeviceSessionItem::assignItemFromDatabase(
 }
 
 std::string DeviceSessionItem::getTableName() const {
-  return DeviceSessionItem::tableName;
+  return config::ConfigManager::getInstance().getParameter(
+      config::ConfigManager::OPTION_DYNAMODB_SESSIONS_TABLE);
 }
 
 std::string DeviceSessionItem::getPrimaryKey() const {
