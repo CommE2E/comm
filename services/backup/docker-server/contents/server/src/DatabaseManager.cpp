@@ -2,9 +2,9 @@
 #include "Constants.h"
 
 #include <aws/core/utils/Outcome.h>
+#include <aws/dynamodb/model/DeleteItemRequest.h>
 #include <aws/dynamodb/model/QueryRequest.h>
 #include <aws/dynamodb/model/ScanRequest.h>
-#include <aws/dynamodb/model/DeleteItemRequest.h>
 
 #include <iostream>
 
@@ -40,6 +40,35 @@ void DatabaseManager::innerRemoveItem(
   if (!outcome.IsSuccess()) {
     throw std::runtime_error(outcome.GetError().GetMessage());
   }
+}
+
+void DatabaseManager::putUserPersistItem(const UserPersistItem &item) {
+  Aws::DynamoDB::Model::PutItemRequest request;
+  request.SetTableName(UserPersistItem::tableName);
+  request.AddItem(
+      UserPersistItem::FIELD_USER_ID,
+      Aws::DynamoDB::Model::AttributeValue(item.getUserID()));
+  request.AddItem(
+      UserPersistItem::FIELD_BACKUP_IDS,
+      Aws::DynamoDB::Model::AttributeValue(item.getBackupIDs()));
+  request.AddItem(
+      UserPersistItem::FIELD_RECOVERY_DATA,
+      Aws::DynamoDB::Model::AttributeValue(item.getRecoveryData()));
+
+  this->innerPutItem(std::make_shared<UserPersistItem>(item), request);
+}
+
+std::shared_ptr<UserPersistItem>
+DatabaseManager::findUserPersistItem(const std::string &userID) {
+  Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey(
+      UserPersistItem::FIELD_USER_ID,
+      Aws::DynamoDB::Model::AttributeValue(userID));
+  return std::move(this->innerFindItem<UserPersistItem>(request));
+}
+
+void DatabaseManager::removeUserPersistItem(const std::string &userID) {
+  this->innerRemoveItem(*(createItemByType<UserPersistItem>()), userID);
 }
 
 } // namespace database
