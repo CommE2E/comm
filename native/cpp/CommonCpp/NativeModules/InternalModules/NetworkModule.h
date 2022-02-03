@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../../grpc/Client.h"
-#include "SocketStatus.h"
 #include <memory>
 #include <string>
 
@@ -10,7 +9,6 @@ class NetworkModule {
   std::unique_ptr<network::Client> networkClient;
 
 public:
-  SocketStatus socketStatus;
   void initializeNetworkModule(
       const std::string &userId,
       const std::string &deviceToken,
