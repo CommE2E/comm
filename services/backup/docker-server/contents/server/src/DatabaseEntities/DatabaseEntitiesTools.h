@@ -2,6 +2,8 @@
 
 #include "Item.h"
 
+#include "UserPersistItem.h"
+
 #include <memory>
 #include <type_traits>
 
