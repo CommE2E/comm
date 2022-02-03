@@ -1,11 +1,10 @@
 #include <gtest/gtest.h>
 
 #include "DatabaseManager.h"
+#include "Tools.h"
 
 #include <iostream>
 
-#include <algorithm>
-#include <chrono>
 #include <memory>
 #include <string>
 #include <vector>
@@ -24,10 +23,7 @@ protected:
 };
 
 std::string generateName(const std::string prefix = "") {
-  std::chrono::milliseconds ms =
-      std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::system_clock::now().time_since_epoch());
-  return prefix + std::to_string(ms.count());
+  return prefix + std::to_string(comm::network::getCurrentTimestamp());
 }
 
 TEST_F(DatabaseManagerTest, TestOperationsOnUserPersistItems) {
@@ -48,11 +44,36 @@ TEST_F(DatabaseManagerTest, TestOperationsOnUserPersistItems) {
       memcmp(
           item.getRecoveryData().data(),
           foundItem->getRecoveryData().data(),
-          item.getBackupIDs().size()),
+          item.getRecoveryData().size()),
       0);
 
   DatabaseManager::getInstance().removeUserPersistItem(item.getUserID());
   EXPECT_EQ(
       DatabaseManager::getInstance().findUserPersistItem(item.getUserID()),
       nullptr);
+}
+
+TEST_F(DatabaseManagerTest, TestOperationsOnBackupItems) {
+  const BackupItem item(
+      generateName("backup001"),
+      generateName("compaction001"),
+      generateName("encryptedBackupKey"),
+      comm::network::getCurrentTimestamp());
+
+  DatabaseManager::getInstance().putBackupItem(item);
+  std::shared_ptr<BackupItem> foundItem =
+      DatabaseManager::getInstance().findBackupItem(item.getID());
+  EXPECT_NE(foundItem, nullptr);
+  EXPECT_EQ(item.getCompactionID(), foundItem->getCompactionID());
+  EXPECT_EQ(
+      memcmp(
+          item.getEncryptedBackupKey().data(),
+          foundItem->getEncryptedBackupKey().data(),
+          item.getEncryptedBackupKey().size()),
+      0);
+  EXPECT_EQ(item.getCreated(), foundItem->getCreated());
+
+  DatabaseManager::getInstance().removeBackupItem(item.getID());
+  EXPECT_EQ(
+      DatabaseManager::getInstance().findBackupItem(item.getID()), nullptr);
 }
