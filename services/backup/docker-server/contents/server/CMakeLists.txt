@@ -62,6 +62,7 @@ endforeach()
 
 include_directories(
   ./src
+  ./src/DatabaseEntities
   ./_generated
   ${Boost_INCLUDE_DIR}
   ${DEV_HEADERS_PATH}
