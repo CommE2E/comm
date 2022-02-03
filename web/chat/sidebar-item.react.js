@@ -8,6 +8,7 @@ import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import { useSelector } from '../redux/redux-utils';
 import { useOnClickThread } from '../selectors/nav-selectors';
+import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-list.css';
 
 type Props = {
@@ -25,19 +26,22 @@ function SidebarItem(props: Props): React.Node {
   const { unread } = threadInfo.currentUser;
   const unreadCls = classNames(css.sidebarTitle, { [css.unread]: unread });
   return (
-    <a className={css.threadButton} onClick={onClick}>
-      <div className={css.threadRow}>
-        <div className={unreadCls}>{threadInfo.uiName}</div>
-        <div
-          className={classNames([
-            css.sidebarLastActivity,
-            unread ? css.black : css.dark,
-          ])}
-        >
-          {lastActivity}
+    <>
+      <SWMansionIcon icon="right-angle-arrow" size={28} />
+      <a className={css.threadButtonSidebar} onClick={onClick}>
+        <div className={css.threadRow}>
+          <div className={unreadCls}>{threadInfo.uiName}</div>
+          <div
+            className={classNames([
+              css.sidebarLastActivity,
+              unread ? css.black : css.dark,
+            ])}
+          >
+            {lastActivity}
+          </div>
         </div>
-      </div>
-    </a>
+      </a>
+    </>
   );
 }
 

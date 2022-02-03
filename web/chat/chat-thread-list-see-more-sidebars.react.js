@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
-import DotsThreeHorizontal from 'react-entypo-icons/lib/entypo/DotsThreeHorizontal';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 
@@ -29,7 +28,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
     <div className={classNames(css.thread, css.sidebar)} onClick={onClick}>
       <a className={css.threadButton}>
         <div className={css.threadRow}>
-          <DotsThreeHorizontal className={css.sidebarIcon} />
+          {/* <DotsThreeHorizontal className={css.sidebarIcon} /> */}
           <div
             className={classNames([
               css.sidebarTitle,

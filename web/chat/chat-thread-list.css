@@ -8,6 +8,15 @@ div.thread {
   padding-left: 16px;
   padding-right: 10px;
 }
+div.threadListSideBar {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding-bottom: 4px;
+  padding-left: 16px;
+  padding-right: 10px;
+  position: relative;
+}
 div.thread:first-child {
   padding-top: 6px;
 }
@@ -35,10 +44,17 @@ a.threadButton {
   overflow: hidden;
   padding-left: 8px;
 }
+.threadButtonSidebar {
+  flex: 1;
+  cursor: pointer;
+  overflow: hidden;
+  padding-left: 8px;
+  background: red;
+}
 div.threadRow {
-  display: flex;
+  /* display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; */
 }
 p.breadCrumbs {
   display: flex;
@@ -94,8 +110,7 @@ div.dark {
 div.italic {
   font-style: italic;
 }
-
-div.thread div.sidebarTitle {
+div.sidebarTitle {
   flex: 1;
   font-size: 15px;
   white-space: nowrap;

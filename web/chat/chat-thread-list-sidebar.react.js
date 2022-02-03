@@ -26,6 +26,7 @@ function ChatThreadListSidebar(props: Props): React.Node {
       })}
     >
       <SidebarItem sidebarInfo={sidebarInfo} />
+      <div style={{ color: 'red' }}>hijjjjjjjj</div>
       <ChatThreadListItemMenu
         threadInfo={threadInfo}
         mostRecentNonLocalMessage={mostRecentNonLocalMessage}

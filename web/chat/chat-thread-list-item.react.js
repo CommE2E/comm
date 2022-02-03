@@ -71,6 +71,7 @@ function ChatThreadListItem(props: Props): React.Node {
   const sidebars = item.sidebars.map(sidebarItem => {
     if (sidebarItem.type === 'sidebar') {
       const { type, ...sidebarInfo } = sidebarItem;
+      // We need to toggle styling based on this state
       return (
         <ChatThreadListSidebar
           sidebarInfo={sidebarInfo}
@@ -110,6 +111,7 @@ function ChatThreadListItem(props: Props): React.Node {
 
   return (
     <>
+      {/* This class here needs to be updated */}
       <div className={containerClassName}>
         <div className={css.colorSplotch} style={colorSplotchStyle} />
         <a className={css.threadButton} onClick={onClick}>
