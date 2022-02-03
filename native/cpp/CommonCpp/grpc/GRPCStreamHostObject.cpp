@@ -1,5 +1,6 @@
 #include "GRPCStreamHostObject.h"
 #include "../NativeModules/InternalModules/GlobalNetworkSingleton.h"
+#include "../NativeModules/InternalModules/SocketStatus.h"
 
 using namespace facebook;
 
@@ -85,14 +86,28 @@ GRPCStreamHostObject::GRPCStreamHostObject(
     });
   };
 
+  // We pass the following lambda to the `NetworkModule` on the "network"
+  // thread with a reference to `this` bound in. This allows us to directly
+  // modify the value of `readyState` in a synchronous manner.
+  auto setReadyStateCallback = [this](SocketStatus newSocketStatus) {
+    if (!this) {
+      // This handles the case where `GRPCStreamHostObj` may have been freed
+      // by the JS garbage collector and `this` is no longer a valid reference.
+      return;
+    }
+    this->readyState = newSocketStatus;
+  };
+
   comm::GlobalNetworkSingleton::instance.scheduleOrRun(
       [onReadDoneCallback = std::move(onReadDoneCallback),
        onOpenCallback = std::move(onOpenCallback),
-       onCloseCallback =
-           std::move(onCloseCallback)](comm::NetworkModule &networkModule) {
+       onCloseCallback = std::move(onCloseCallback),
+       setReadyStateCallback = std::move(setReadyStateCallback)](
+          comm::NetworkModule &networkModule) {
         networkModule.setOnReadDoneCallback(onReadDoneCallback);
         networkModule.setOnOpenCallback(onOpenCallback);
         networkModule.setOnCloseCallback(onCloseCallback);
+        networkModule.assignSetReadyStateCallback(setReadyStateCallback);
       });
 }
 

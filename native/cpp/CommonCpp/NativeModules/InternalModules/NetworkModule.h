@@ -1,12 +1,14 @@
 #pragma once
 
 #include "../../grpc/Client.h"
+#include "SocketStatus.h"
 #include <memory>
 #include <string>
 
 namespace comm {
 class NetworkModule {
   std::unique_ptr<network::Client> networkClient;
+  std::function<void(SocketStatus)> setReadyState;
 
 public:
   void initializeNetworkModule(
@@ -25,5 +27,6 @@ public:
   void setOnReadDoneCallback(std::function<void(std::string)> callback);
   void setOnOpenCallback(std::function<void()> callback);
   void setOnCloseCallback(std::function<void()> callback);
+  void assignSetReadyStateCallback(std::function<void(SocketStatus)> callback);
 };
 } // namespace comm
