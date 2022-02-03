@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../NativeModules/InternalModules/SocketStatus.h"
 #include <ReactCommon/CallInvoker.h>
 #import <jsi/jsi.h>
 
