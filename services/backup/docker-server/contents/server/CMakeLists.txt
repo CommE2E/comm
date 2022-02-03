@@ -41,6 +41,10 @@ find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
 
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
+if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
+  add_compile_definitions(COMM_TEST_SERVICES)
+endif()
+
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 set(DEV_SOURCE_CODE "")
 set(DEV_HEADERS_PATH "")
