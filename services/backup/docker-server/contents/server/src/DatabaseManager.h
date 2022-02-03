@@ -36,6 +36,11 @@ class DatabaseManager {
 
 public:
   static DatabaseManager &getInstance();
+
+  void putUserPersistItem(const UserPersistItem &item);
+  std::shared_ptr<UserPersistItem>
+  findUserPersistItem(const std::string &userID);
+  void removeUserPersistItem(const std::string &userID);
 };
 
 template <typename T>
