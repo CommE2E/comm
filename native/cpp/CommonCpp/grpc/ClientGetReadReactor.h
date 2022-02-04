@@ -26,6 +26,7 @@ public:
       tunnelbroker::TunnelbrokerService::Stub *stub,
       std::string sessionID);
 
+  void OnReadInitialMetadataDone(bool ok) override;
   void OnReadDone(bool ok) override;
   void close();
 
