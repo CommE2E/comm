@@ -48,3 +48,8 @@ void ClientGetReadReactor::assignSetReadyStateCallback(
   std::lock_guard<std::mutex> guard{this->setReadyStateMutex};
   this->setReadyState = callback;
 }
+
+void ClientGetReadReactor::OnReadInitialMetadataDone(bool ok) {
+  std::lock_guard<std::mutex> guard{this->setReadyStateMutex};
+  this->setReadyState(SocketStatus::OPEN);
+}

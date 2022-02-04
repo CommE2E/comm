@@ -91,27 +91,19 @@ GRPCStreamHostObject::GRPCStreamHostObject(
     this->readyState = newSocketStatus;
   };
 
-  comm::GlobalNetworkSingleton::instance.scheduleOrRun(
-      [onReadDoneCallback = std::move(onReadDoneCallback),
-       onOpenCallback = std::move(onOpenCallback),
-       onCloseCallback = std::move(onCloseCallback),
-       setReadyStateCallback = std::move(setReadyStateCallback)](
-          comm::NetworkModule &networkModule) {
-        networkModule.setOnReadDoneCallback(onReadDoneCallback);
-        networkModule.setOnOpenCallback(onOpenCallback);
-        networkModule.setOnCloseCallback(onCloseCallback);
-        networkModule.assignSetReadyStateCallback(setReadyStateCallback);
-      });
-
   // We queue up the `.get()` call on the JS thread so we can assign the
   // JS callbacks (eg `onopen`) before the stream is opened. This mimics
   // the behavior of the `WebSocket`: https://stackoverflow.com/a/49211579
-  this->jsInvoker->invokeAsync([]() {
+  this->jsInvoker->invokeAsync([=]() {
     comm::GlobalNetworkSingleton::instance.scheduleOrRun(
-        [](comm::NetworkModule &networkModule) {
+        [=](comm::NetworkModule &networkModule) {
           networkModule.initializeNetworkModule(
               "userId-placeholder", "deviceToken-placeholder", "localhost");
           networkModule.get("sessionID-placeholder");
+          networkModule.setOnReadDoneCallback(onReadDoneCallback);
+          networkModule.setOnOpenCallback(onOpenCallback);
+          networkModule.setOnCloseCallback(onCloseCallback);
+          networkModule.assignSetReadyStateCallback(setReadyStateCallback);
         });
   });
 }
