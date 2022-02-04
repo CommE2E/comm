@@ -64,8 +64,6 @@ div.layout {
 
 header.header {
   background: var(--bg);
-  background-size: 3000px 2000px;
-  background-attachment: fixed;
   z-index: 1;
   grid-area: nav;
 }
