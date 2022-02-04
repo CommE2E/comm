@@ -12,7 +12,8 @@ namespace comm {
 namespace network {
 
 class TunnelBrokerServiceImpl final
-    : public tunnelbroker::TunnelbrokerService::Service {
+    : public tunnelbroker::TunnelbrokerService::WithCallbackMethod_OpenStream<
+          grpc::Service> {
 
 public:
   TunnelBrokerServiceImpl();
@@ -37,6 +38,11 @@ public:
   Get(grpc::ServerContext *context,
       const tunnelbroker::GetRequest *request,
       grpc::ServerWriter<tunnelbroker::GetResponse> *stream) override;
+
+  grpc::ServerBidiReactor<
+      tunnelbroker::OutboundMessage,
+      tunnelbroker::InboundMessage> *
+  OpenStream(CallbackServerContext *context) override;
 };
 
 } // namespace network
