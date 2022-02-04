@@ -7,12 +7,6 @@
 #include "DatabaseManager.h"
 #include "DeliveryBroker.h"
 #include "Tools.h"
-
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 namespace comm {
 namespace network {
 
@@ -77,19 +71,8 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   }
   const std::string signature = request->signature();
   const std::string publicKey = request->publickey();
-  const boost::uuids::uuid uuid = boost::uuids::random_generator()();
-  const std::string newSessionID = boost::lexical_cast<std::string>(uuid);
-
+  const std::string newSessionID = generateUUID();
   try {
-    deviceSessionItem =
-        database::DatabaseManager::getInstance().findSessionItem(newSessionID);
-    if (deviceSessionItem != nullptr) {
-      std::cout << "gRPC: "
-                << "Session unique ID " << newSessionID << " already used"
-                << std::endl;
-      return grpc::Status(
-          grpc::StatusCode::INTERNAL, "Session unique ID already used");
-    }
     sessionSignItem =
         database::DatabaseManager::getInstance().findSessionSignItem(deviceID);
     if (sessionSignItem == nullptr) {
