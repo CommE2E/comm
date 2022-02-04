@@ -14,6 +14,7 @@ div.thread:first-child {
 div.activeThread,
 div.thread:hover {
   background: var(--selected-thread-bg);
+  color: var(--fg);
 }
 div.thread div.title {
   flex: 1;
@@ -22,8 +23,11 @@ div.thread div.title {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--fg);
+  color: var(--thread-color-read);
   line-height: var(--line-height-text);
+}
+div.thread div.title.unread {
+  color: var(--fg);
 }
 a.threadButton {
   flex: 1;
@@ -63,25 +67,28 @@ div.lastActivity {
   white-space: nowrap;
 }
 
-div.lastMessage {
+div.lastMessage span {
   font-size: 16px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
 }
+div.threadRow > .lastMessage {
+  color: var(--thread-last-message-color-read);
+}
 div.unread {
   color: var(--fg);
-  font-weight: 600;
+  font-weight: var(--semi-bold);
 }
 .black {
   color: var(--fg);
 }
 div.dark {
-  color: var(--fg);
+  color: var(--thread-color-read);
 }
 .light {
-  color: var(--fg);
+  color: var(--thread-from-color-read);
 }
 div.italic {
   font-style: italic;
@@ -93,7 +100,7 @@ div.thread div.sidebarTitle {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--fg);
+  color: var(--thread-color-read);
   align-self: flex-start;
 }
 div.sidebarLastActivity {
@@ -101,12 +108,13 @@ div.sidebarLastActivity {
   font-size: 14px;
 }
 svg.sidebarIcon {
-  color: var(--fg);
+  color: var(--thread-color-read);
   padding: 0 6px;
   font-size: 20px;
 }
 div.sidebar .menu > button svg {
   font-size: 16px;
+  color: var(--thread-color-read);
 }
 
 .menu {
@@ -116,7 +124,7 @@ div.sidebar .menu > button svg {
 }
 .menu > button {
   background-color: transparent;
-  color: var(--fg);
+  color: var(--thread-color-read);
   border: none;
   cursor: pointer;
   align-self: flex-start;
