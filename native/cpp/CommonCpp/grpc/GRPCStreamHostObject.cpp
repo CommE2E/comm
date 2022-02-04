@@ -91,24 +91,33 @@ GRPCStreamHostObject::GRPCStreamHostObject(
     this->readyState = newSocketStatus;
   };
 
-  comm::GlobalNetworkSingleton::instance.scheduleOrRun(
-      [onReadDoneCallback = std::move(onReadDoneCallback),
-       onOpenCallback = std::move(onOpenCallback),
-       onCloseCallback = std::move(onCloseCallback),
-       setReadyStateCallback = std::move(setReadyStateCallback)](
-          comm::NetworkModule &networkModule) {
-        networkModule.setOnReadDoneCallback(onReadDoneCallback);
-        networkModule.setOnOpenCallback(onOpenCallback);
-        networkModule.setOnCloseCallback(onCloseCallback);
-        networkModule.assignSetReadyStateCallback(setReadyStateCallback);
-      });
-
-  this->jsInvoker->invokeAsync([]() {
+  // The reason we're queueing up the `.get()` call on the JS event loop is
+  // to handle the case of an `.onopen` callback being set right after a
+  // call to `openSocket(...)`.
+  //
+  // This isn't an issue with the existing `WebSocket` approach because the
+  // socket will not actually open until the block of JS--which includes the
+  // setting of the `.onopen` callback--finishes executing.
+  // See the following for background: https://stackoverflow.com/a/49211579.
+  //
+  // Without wrapping the `scheduleOrRun(...)` in an `invokeAsync(...)`,
+  // it is possible for the gRPC `Get()` stream to open before the `.onopen`
+  // callback has been properly set. We queue the `get()` call on the JS
+  // event loop to guarantee that the `.onopen` callback is set before the
+  // socket can possibly open. This mimics the existing `WebSocket` behavior.
+  this->jsInvoker->invokeAsync([=]() {
     comm::GlobalNetworkSingleton::instance.scheduleOrRun(
-        [](comm::NetworkModule &networkModule) {
+        [=](comm::NetworkModule &networkModule) {
+          // The callbacks are set after the call to `.get()` because they
+          // need to be passed to the `ClientGetReadReactor` object, which is
+          // only constructed after a call to `.get()`.
           networkModule.initializeNetworkModule(
               "userId-placeholder", "deviceToken-placeholder", "localhost");
           networkModule.get("sessionID-placeholder");
+          networkModule.setOnReadDoneCallback(onReadDoneCallback);
+          networkModule.setOnOpenCallback(onOpenCallback);
+          networkModule.setOnCloseCallback(onCloseCallback);
+          networkModule.assignSetReadyStateCallback(setReadyStateCallback);
         });
   });
 }
