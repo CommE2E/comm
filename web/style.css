@@ -40,7 +40,6 @@ textarea {
 input[type='submit'] {
   -webkit-appearance: none;
   -moz-appearance: none;
-  -webkit-border-radius: 0;
 }
 input[type='submit']::-moz-focus-inner {
   border: 0;
