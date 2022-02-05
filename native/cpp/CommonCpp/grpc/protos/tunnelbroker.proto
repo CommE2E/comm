@@ -37,7 +37,7 @@ message SessionSignatureResponse {
 
 message NewSessionRequest {
   string deviceID = 1;
-  bytes publicKey = 2;
+  string publicKey = 2;
   string signature = 3;
   optional string notifyToken = 4;
   DeviceTypes deviceType = 5;
