@@ -83,7 +83,7 @@ div.lastActivity {
   white-space: nowrap;
 }
 
-div.lastMessage span {
+div.lastMessage {
   font-size: 16px;
   white-space: nowrap;
   overflow: hidden;
