@@ -19,6 +19,8 @@ const size_t SIGNATURE_REQUEST_LENGTH = 64;
 const size_t SESSION_ID_LENGTH = 64;
 const size_t SESSION_RECORD_TTL = 30 * 24 * 3600; // 30 days
 const size_t SESSION_SIGN_RECORD_TTL = 24 * 3600; // 24 hours
+const std::regex SESSION_ID_FORMAT_REGEX(
+    "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
 // gRPC Server
 const std::string SERVER_LISTEN_ADDRESS = "0.0.0.0:50051";
