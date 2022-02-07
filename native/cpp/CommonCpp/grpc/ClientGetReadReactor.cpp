@@ -22,6 +22,10 @@ void ClientGetReadReactor::OnReadDone(bool ok) {
 }
 
 void ClientGetReadReactor::close() {
+  {
+    std::lock_guard<std::mutex> guard{this->setReadyStateMutex};
+    this->setReadyState(SocketStatus::CLOSING);
+  }
   this->context.TryCancel();
 }
 
