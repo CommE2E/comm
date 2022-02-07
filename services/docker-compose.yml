@@ -45,7 +45,7 @@ services:
     build: 
       dockerfile: services/blob/docker-base/Dockerfile
       context: ../
-    image: commapp/blob-base:1.0
+    image: commapp/blob-base:1.1
   blob-server:
     build: 
       dockerfile: services/blob/docker-server/Dockerfile
