@@ -3,6 +3,11 @@
 import '@fontsource/inter';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
+
+import '@fontsource/ibm-plex-sans';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+
 import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';

@@ -1891,6 +1891,11 @@
   dependencies:
     tslib "^2.1.0"
 
+"@fontsource/ibm-plex-sans@^4.5.3":
+  version "4.5.3"
+  resolved "https://registry.yarnpkg.com/@fontsource/ibm-plex-sans/-/ibm-plex-sans-4.5.3.tgz#4bf76a9771727c98dadc3f52aabe24816476dae2"
+  integrity sha512-vW5XE5Z0SFR8U6MlsTT54lHp3FOQNvL7rmT9nTQQGDQNhp8SmO535tmkS2Yg/ii+eC/5ZuuOdBnQMRoWjPOBFw==
+
 "@fontsource/inter@^4.5.1":
   version "4.5.1"
   resolved "https://registry.yarnpkg.com/@fontsource/inter/-/inter-4.5.1.tgz#058d8a02354f3c78e369d452c15d33557ec1b705"
