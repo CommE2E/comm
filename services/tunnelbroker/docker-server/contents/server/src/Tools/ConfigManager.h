@@ -21,6 +21,7 @@ public:
   static const std::string OPTION_DYNAMODB_SESSIONS_TABLE;
   static const std::string OPTION_DYNAMODB_SESSIONS_VERIFICATION_TABLE;
   static const std::string OPTION_DYNAMODB_SESSIONS_PUBLIC_KEY_TABLE;
+  static const std::string OPTION_DYNAMODB_MESSAGES_TABLE;
 
   static ConfigManager &getInstance();
   void load();

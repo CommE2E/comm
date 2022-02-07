@@ -20,6 +20,8 @@ const std::string ConfigManager::OPTION_DYNAMODB_SESSIONS_VERIFICATION_TABLE =
     "dynamodb.sessions_verification_table_name";
 const std::string ConfigManager::OPTION_DYNAMODB_SESSIONS_PUBLIC_KEY_TABLE =
     "dynamodb.sessions_public_key_table_name";
+const std::string ConfigManager::OPTION_DYNAMODB_MESSAGES_TABLE =
+    "dynamodb.messages_table_name";
 
 ConfigManager &ConfigManager::getInstance() {
   static ConfigManager instance;
@@ -68,6 +70,11 @@ void ConfigManager::load() {
         boost::program_options::value<std::string>()->default_value(
             DEVICE_PUBLIC_KEY_TABLE_NAME),
         "DynamoDB table name for public keys");
+    description.add_options()(
+        this->OPTION_DYNAMODB_MESSAGES_TABLE.c_str(),
+        boost::program_options::value<std::string>()->default_value(
+            MESSAGES_TABLE_NAME),
+        "DynamoDB table name for messages");
 
     boost::program_options::parsed_options parsedDescription =
         boost::program_options::parse_config_file(
