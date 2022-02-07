@@ -61,7 +61,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKe
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getUserOneTimeKeys(rt);
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_openSocket(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->openSocket(rt);
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->openSocket(rt, args[0].getString(rt));
 }
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
@@ -82,7 +82,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["initializeCryptoAccount"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount};
   methodMap_["getUserPublicKey"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserPublicKey};
   methodMap_["getUserOneTimeKeys"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getUserOneTimeKeys};
-  methodMap_["openSocket"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_openSocket};
+  methodMap_["openSocket"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_openSocket};
 }
 
 

@@ -44,7 +44,7 @@ export interface Spec extends TurboModule {
   +initializeCryptoAccount: (userId: string) => Promise<string>;
   +getUserPublicKey: () => Promise<string>;
   +getUserOneTimeKeys: () => Promise<string>;
-  +openSocket: () => Object;
+  +openSocket: (endpoint: string) => Object;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
