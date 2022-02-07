@@ -1,4 +1,4 @@
-FROM commapp/blob-base:1.0
+FROM commapp/blob-base:1.1
 
 ARG COMM_SERVICES_DEV_MODE
 
