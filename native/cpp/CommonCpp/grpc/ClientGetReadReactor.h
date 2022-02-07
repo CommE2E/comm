@@ -28,6 +28,7 @@ public:
 
   void OnReadInitialMetadataDone(bool ok) override;
   void OnReadDone(bool ok) override;
+  void OnDone(const grpc::Status &status) override;
   void close();
 
   void setOnOpenCallback(std::function<void()> onOpenCallback);

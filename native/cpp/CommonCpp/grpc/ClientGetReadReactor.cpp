@@ -53,3 +53,8 @@ void ClientGetReadReactor::OnReadInitialMetadataDone(bool ok) {
   std::lock_guard<std::mutex> guard{this->setReadyStateMutex};
   this->setReadyState(SocketStatus::OPEN);
 }
+
+void ClientGetReadReactor::OnDone(const grpc::Status &status) {
+  std::lock_guard<std::mutex> guard{this->setReadyStateMutex};
+  this->setReadyState(SocketStatus::CLOSED);
+}
