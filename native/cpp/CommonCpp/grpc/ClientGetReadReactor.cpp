@@ -52,9 +52,17 @@ void ClientGetReadReactor::assignSetReadyStateCallback(
 void ClientGetReadReactor::OnReadInitialMetadataDone(bool ok) {
   std::lock_guard<std::mutex> guard{this->setReadyStateMutex};
   this->setReadyState(SocketStatus::OPEN);
+  if (this->onOpenCallback) {
+    std::lock_guard<std::mutex> onOpenGuard{this->onOpenCallbackMutex};
+    this->onOpenCallback();
+  }
 }
 
 void ClientGetReadReactor::OnDone(const grpc::Status &status) {
   std::lock_guard<std::mutex> guard{this->setReadyStateMutex};
   this->setReadyState(SocketStatus::CLOSED);
+  if (this->onCloseCallback) {
+    std::lock_guard<std::mutex> onCloseGuard{this->onCloseCallbackMutex};
+    this->onCloseCallback();
+  }
 }
