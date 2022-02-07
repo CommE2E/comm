@@ -297,7 +297,7 @@ Because of C++ build dependencies, this could not be bundled as an npm package. 
 
 If you find yourself needing to modify the Protobuf schema files, you’ll need to set up the tools to run the codegen. Follow the steps below:
 
-- `brew install autoconf automake libtool curl make g++ unzip`
+- `brew install autoconf automake libtool curl make unzip`
 - `wget https://github.com/protocolbuffers/protobuf/releases/download/v3.15.8/protobuf-cpp-3.15.8.tar.gz`
 - `tar xfzv protobuf-cpp-3.15.8.tar.gz`
 - `cd protobuf-3.15.8`
