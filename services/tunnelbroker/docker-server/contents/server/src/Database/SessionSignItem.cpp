@@ -12,8 +12,8 @@ const std::string SessionSignItem::FIELD_EXPIRE = "Expire";
 
 SessionSignItem::SessionSignItem(
     const std::string sign,
-    const std::string deviceId)
-    : sign(sign), deviceId(deviceId) {
+    const std::string deviceID)
+    : sign(sign), deviceID(deviceID) {
   this->validate();
 }
 
@@ -22,8 +22,8 @@ SessionSignItem::SessionSignItem(const AttributeValues &itemFromDB) {
 }
 
 void SessionSignItem::validate() const {
-  if (!this->deviceId.size()) {
-    throw std::runtime_error("Error: DeviceId is empty");
+  if (!this->deviceID.size()) {
+    throw std::runtime_error("Error: DeviceID is empty");
   }
   if (!this->sign.size()) {
     throw std::runtime_error("Error: Sign is empty");
@@ -35,7 +35,7 @@ void SessionSignItem::assignItemFromDatabase(
   try {
     this->sign =
         itemFromDB.at(SessionSignItem::FIELD_SESSION_VERIFICATION).GetS();
-    this->deviceId = itemFromDB.at(SessionSignItem::FIELD_DEVICE_ID).GetS();
+    this->deviceID = itemFromDB.at(SessionSignItem::FIELD_DEVICE_ID).GetS();
   } catch (const std::exception &e) {
     throw std::runtime_error(
         "Got an exception at SessionSignItem: " + std::string(e.what()));
@@ -56,8 +56,8 @@ std::string SessionSignItem::getSign() const {
   return this->sign;
 }
 
-std::string SessionSignItem::getDeviceId() const {
-  return this->deviceId;
+std::string SessionSignItem::getDeviceID() const {
+  return this->deviceID;
 }
 
 } // namespace database

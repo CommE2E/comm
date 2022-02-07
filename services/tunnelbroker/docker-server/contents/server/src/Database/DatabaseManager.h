@@ -42,12 +42,12 @@ public:
 
   void putSessionSignItem(const SessionSignItem &item);
   std::shared_ptr<SessionSignItem>
-  findSessionSignItem(const std::string &deviceId);
-  void removeSessionSignItem(const std::string &deviceId);
+  findSessionSignItem(const std::string &deviceID);
+  void removeSessionSignItem(const std::string &deviceID);
 
   void putPublicKeyItem(const PublicKeyItem &item);
-  std::shared_ptr<PublicKeyItem> findPublicKeyItem(const std::string &deviceId);
-  void removePublicKeyItem(const std::string &deviceId);
+  std::shared_ptr<PublicKeyItem> findPublicKeyItem(const std::string &deviceID);
+  void removePublicKeyItem(const std::string &deviceID);
 };
 
 } // namespace database

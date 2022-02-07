@@ -10,7 +10,7 @@ namespace database {
 
 class SessionSignItem : public Item {
   std::string sign;
-  std::string deviceId;
+  std::string deviceID;
 
   void validate() const override;
 
@@ -22,11 +22,11 @@ public:
   std::string getPrimaryKey() const override;
   std::string getTableName() const override;
   std::string getSign() const;
-  std::string getDeviceId() const;
+  std::string getDeviceID() const;
 
   SessionSignItem() {
   }
-  SessionSignItem(const std::string sign, const std::string deviceId);
+  SessionSignItem(const std::string sign, const std::string deviceID);
   SessionSignItem(const AttributeValues &itemFromDB);
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
 };

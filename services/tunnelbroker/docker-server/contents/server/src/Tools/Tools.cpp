@@ -28,19 +28,19 @@ long long getCurrentTimestamp() {
       .count();
 }
 
-bool validateDeviceId(std::string deviceId) {
+bool validateDeviceID(std::string deviceID) {
   try {
-    static const std::regex deviceIdKeyserverRegexp("^ks:.*");
-    if (std::regex_match(deviceId, deviceIdKeyserverRegexp)) {
+    static const std::regex deviceIDKeyserverRegexp("^ks:.*");
+    if (std::regex_match(deviceID, deviceIDKeyserverRegexp)) {
       return (
-          deviceId ==
+          deviceID ==
           config::ConfigManager::getInstance().getParameter(
               config::ConfigManager::OPTION_DEFAULT_KEYSERVER_ID));
     }
-    return std::regex_match(deviceId, DEVICEID_FORMAT_REGEX);
+    return std::regex_match(deviceID, DEVICEID_FORMAT_REGEX);
   } catch (const std::exception &e) {
     std::cout << "Tools: "
-              << "Got an exception at `validateDeviceId`: " << e.what()
+              << "Got an exception at `validateDeviceID`: " << e.what()
               << std::endl;
     return false;
   }

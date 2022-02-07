@@ -8,7 +8,7 @@ namespace network {
 
 std::string generateRandomString(std::size_t length);
 long long getCurrentTimestamp();
-bool validateDeviceId(std::string deviceId);
+bool validateDeviceID(std::string deviceID);
 
 } // namespace network
 } // namespace comm

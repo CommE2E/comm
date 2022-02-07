@@ -43,17 +43,17 @@ grpc::Status TunnelBrokerServiceImpl::SessionSignature(
     grpc::ServerContext *context,
     const tunnelbroker::SessionSignatureRequest *request,
     tunnelbroker::SessionSignatureResponse *reply) {
-  const std::string deviceId = request->deviceid();
-  if (!validateDeviceId(deviceId)) {
+  const std::string deviceID = request->deviceid();
+  if (!validateDeviceID(deviceID)) {
     std::cout << "gRPC: "
-              << "Format validation failed for " << deviceId << std::endl;
+              << "Format validation failed for " << deviceID << std::endl;
     return grpc::Status(
         grpc::StatusCode::INVALID_ARGUMENT,
         "Format validation failed for deviceID");
   }
   const std::string toSign = generateRandomString(SIGNATURE_REQUEST_LENGTH);
   std::shared_ptr<database::SessionSignItem> SessionSignItem =
-      std::make_shared<database::SessionSignItem>(toSign, deviceId);
+      std::make_shared<database::SessionSignItem>(toSign, deviceID);
   database::DatabaseManager::getInstance().putSessionSignItem(*SessionSignItem);
   reply->set_tosign(toSign);
   return grpc::Status::OK;
@@ -67,10 +67,10 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   std::shared_ptr<database::DeviceSessionItem> deviceSessionItem;
   std::shared_ptr<database::SessionSignItem> sessionSignItem;
   std::shared_ptr<database::PublicKeyItem> publicKeyItem;
-  const std::string deviceId = request->deviceid();
-  if (!validateDeviceId(deviceId)) {
+  const std::string deviceID = request->deviceid();
+  if (!validateDeviceID(deviceID)) {
     std::cout << "gRPC: "
-              << "Format validation failed for " << deviceId << std::endl;
+              << "Format validation failed for " << deviceID << std::endl;
     return grpc::Status(
         grpc::StatusCode::INVALID_ARGUMENT,
         "Format validation failed for deviceID");
@@ -78,40 +78,40 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   const std::string signature = request->signature();
   const std::string publicKey = request->publickey();
   const boost::uuids::uuid uuid = boost::uuids::random_generator()();
-  const std::string newSessionId = boost::lexical_cast<std::string>(uuid);
+  const std::string newSessionID = boost::lexical_cast<std::string>(uuid);
 
   try {
     deviceSessionItem =
-        database::DatabaseManager::getInstance().findSessionItem(newSessionId);
+        database::DatabaseManager::getInstance().findSessionItem(newSessionID);
     if (deviceSessionItem != nullptr) {
       std::cout << "gRPC: "
-                << "Session unique ID " << newSessionId << " already used"
+                << "Session unique ID " << newSessionID << " already used"
                 << std::endl;
       return grpc::Status(
           grpc::StatusCode::INTERNAL, "Session unique ID already used");
     }
     sessionSignItem =
-        database::DatabaseManager::getInstance().findSessionSignItem(deviceId);
+        database::DatabaseManager::getInstance().findSessionSignItem(deviceID);
     if (sessionSignItem == nullptr) {
       std::cout << "gRPC: "
-                << "Session sign request not found for deviceId: " << deviceId
+                << "Session sign request not found for deviceID: " << deviceID
                 << std::endl;
       return grpc::Status(
           grpc::StatusCode::NOT_FOUND, "Session sign request not found");
     }
     publicKeyItem =
-        database::DatabaseManager::getInstance().findPublicKeyItem(deviceId);
+        database::DatabaseManager::getInstance().findPublicKeyItem(deviceID);
     if (publicKeyItem == nullptr) {
       std::shared_ptr<database::PublicKeyItem> newPublicKeyItem =
-          std::make_shared<database::PublicKeyItem>(deviceId, publicKey);
+          std::make_shared<database::PublicKeyItem>(deviceID, publicKey);
       database::DatabaseManager::getInstance().putPublicKeyItem(
           *newPublicKeyItem);
     } else if (publicKey != publicKeyItem->getPublicKey()) {
       std::cout << "gRPC: "
-                << "The public key doesn't match for deviceId" << std::endl;
+                << "The public key doesn't match for deviceID" << std::endl;
       return grpc::Status(
           grpc::StatusCode::PERMISSION_DENIED,
-          "The public key doesn't match for deviceId");
+          "The public key doesn't match for deviceID");
     }
     const std::string verificationMessage = sessionSignItem->getSign();
     if (!comm::network::crypto::rsaVerifyString(
@@ -123,11 +123,11 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
           grpc::StatusCode::PERMISSION_DENIED,
           "Signature for the verification message is not valid");
     }
-    database::DatabaseManager::getInstance().removeSessionSignItem(deviceId);
+    database::DatabaseManager::getInstance().removeSessionSignItem(deviceID);
 
     deviceSessionItem = std::make_shared<database::DeviceSessionItem>(
-        newSessionId,
-        deviceId,
+        newSessionID,
+        deviceID,
         request->publickey(),
         request->notifytoken(),
         tunnelbroker::NewSessionRequest_DeviceTypes_Name(request->devicetype()),
@@ -140,7 +140,7 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
               << std::endl;
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
-  reply->set_sessionid(newSessionId);
+  reply->set_sessionid(newSessionID);
   return grpc::Status::OK;
 };
 
@@ -149,20 +149,20 @@ grpc::Status TunnelBrokerServiceImpl::Send(
     const tunnelbroker::SendRequest *request,
     google::protobuf::Empty *reply) {
   try {
-    const std::string sessionId = request->sessionid();
+    const std::string sessionID = request->sessionid();
     std::shared_ptr<database::DeviceSessionItem> sessionItem =
-        database::DatabaseManager::getInstance().findSessionItem(sessionId);
+        database::DatabaseManager::getInstance().findSessionItem(sessionID);
     if (sessionItem == nullptr) {
       std::cout << "gRPC: "
-                << "Session " << sessionId << " not found" << std::endl;
+                << "Session " << sessionID << " not found" << std::endl;
       return grpc::Status(
           grpc::StatusCode::PERMISSION_DENIED,
-          "No such session found. SessionId: " + sessionId);
+          "No such session found. SessionID: " + sessionID);
     }
-    const std::string clientDeviceId = sessionItem->getDeviceId();
+    const std::string clientDeviceID = sessionItem->getDeviceID();
     if (!AMQPSend(
             request->todeviceid(),
-            clientDeviceId,
+            clientDeviceID,
             std::string(request->payload()))) {
       std::cout << "gRPC: "
                 << "Error while publish the message to AMQP" << std::endl;
@@ -184,20 +184,20 @@ grpc::Status TunnelBrokerServiceImpl::Get(
     const tunnelbroker::GetRequest *request,
     grpc::ServerWriter<tunnelbroker::GetResponse> *writer) {
   try {
-    const std::string sessionId = request->sessionid();
+    const std::string sessionID = request->sessionid();
     std::shared_ptr<database::DeviceSessionItem> sessionItem =
-        database::DatabaseManager::getInstance().findSessionItem(sessionId);
+        database::DatabaseManager::getInstance().findSessionItem(sessionID);
     if (sessionItem == nullptr) {
       std::cout << "gRPC: "
-                << "Session " << sessionId << " not found" << std::endl;
+                << "Session " << sessionID << " not found" << std::endl;
       return grpc::Status(
           grpc::StatusCode::PERMISSION_DENIED,
-          "No such session found. SessionId: " + sessionId);
+          "No such session found. SessionID: " + sessionID);
     }
-    const std::string clientDeviceId = sessionItem->getDeviceId();
+    const std::string clientDeviceID = sessionItem->getDeviceID();
     std::vector<DeliveryBrokerMessage> messagesToDeliver;
     while (1) {
-      messagesToDeliver = DeliveryBroker::getInstance().get(clientDeviceId);
+      messagesToDeliver = DeliveryBroker::getInstance().get(clientDeviceID);
       for (auto const &message : messagesToDeliver) {
         tunnelbroker::GetResponse response;
         response.set_fromdeviceid(message.fromDeviceID);
@@ -208,10 +208,10 @@ grpc::Status TunnelBrokerServiceImpl::Get(
         }
         AMQPAck(message.deliveryTag);
       }
-      if (!DeliveryBroker::getInstance().isEmpty(clientDeviceId)) {
-        DeliveryBroker::getInstance().remove(clientDeviceId);
+      if (!DeliveryBroker::getInstance().isEmpty(clientDeviceID)) {
+        DeliveryBroker::getInstance().remove(clientDeviceID);
       }
-      DeliveryBroker::getInstance().wait(clientDeviceId);
+      DeliveryBroker::getInstance().wait(clientDeviceID);
     }
   } catch (std::runtime_error &e) {
     std::cout << "gRPC: "

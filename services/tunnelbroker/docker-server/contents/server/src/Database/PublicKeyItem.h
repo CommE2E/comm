@@ -9,7 +9,7 @@ namespace network {
 namespace database {
 
 class PublicKeyItem : public Item {
-  std::string deviceId;
+  std::string deviceID;
   std::string publicKey;
 
   void validate() const override;
@@ -20,12 +20,12 @@ public:
 
   std::string getPrimaryKey() const override;
   std::string getTableName() const override;
-  std::string getDeviceId() const;
+  std::string getDeviceID() const;
   std::string getPublicKey() const;
 
   PublicKeyItem() {
   }
-  PublicKeyItem(const std::string deviceId, const std::string publicKey);
+  PublicKeyItem(const std::string deviceID, const std::string publicKey);
   PublicKeyItem(const AttributeValues &itemFromDB);
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
 };

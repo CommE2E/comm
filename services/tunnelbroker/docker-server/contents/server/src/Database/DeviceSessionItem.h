@@ -9,8 +9,8 @@ namespace network {
 namespace database {
 
 class DeviceSessionItem : public Item {
-  std::string sessionId;
-  std::string deviceId;
+  std::string sessionID;
+  std::string deviceID;
   std::string pubKey;
   std::string notifyToken;
   std::string deviceType;
@@ -33,8 +33,8 @@ public:
 
   std::string getPrimaryKey() const override;
   std::string getTableName() const override;
-  std::string getSessionId() const;
-  std::string getDeviceId() const;
+  std::string getSessionID() const;
+  std::string getDeviceID() const;
   std::string getPubKey() const;
   std::string getNotifyToken() const;
   std::string getDeviceType() const;
@@ -45,8 +45,8 @@ public:
   DeviceSessionItem() {
   }
   DeviceSessionItem(
-      const std::string sessionId,
-      const std::string deviceId,
+      const std::string sessionID,
+      const std::string deviceID,
       const std::string pubKey,
       const std::string notifyToken,
       const std::string deviceType,

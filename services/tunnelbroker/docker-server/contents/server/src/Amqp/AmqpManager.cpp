@@ -17,7 +17,7 @@ static long long lastConnectionTimestamp;
 void AMQPConnectInternal() {
   const std::string amqpUri = config::ConfigManager::getInstance().getParameter(
       config::ConfigManager::OPTION_AMQP_URI);
-  const std::string tunnelbrokerId =
+  const std::string tunnelbrokerID =
       config::ConfigManager::getInstance().getParameter(
           config::ConfigManager::OPTION_TUNNELBROKER_ID);
   const std::string fanoutExchangeName =
@@ -40,20 +40,20 @@ void AMQPConnectInternal() {
   arguments["x-message-ttl"] = AMQP_MESSAGE_TTL;
   arguments["x-expires"] = AMQP_QUEUE_TTL;
   amqpChannel->declareExchange(fanoutExchangeName, AMQP::fanout);
-  amqpChannel->declareQueue(tunnelbrokerId, AMQP::durable, arguments)
-      .onSuccess([tunnelbrokerId, fanoutExchangeName](
+  amqpChannel->declareQueue(tunnelbrokerID, AMQP::durable, arguments)
+      .onSuccess([tunnelbrokerID, fanoutExchangeName](
                      const std::string &name,
                      uint32_t messagecount,
                      uint32_t consumercount) {
         std::cout << "AMQP: Queue " << name << " created" << std::endl;
-        amqpChannel->bindQueue(fanoutExchangeName, tunnelbrokerId, "")
-            .onError([tunnelbrokerId, fanoutExchangeName](const char *message) {
-              std::cout << "AMQP: Failed to bind queue:  " << tunnelbrokerId
+        amqpChannel->bindQueue(fanoutExchangeName, tunnelbrokerID, "")
+            .onError([tunnelbrokerID, fanoutExchangeName](const char *message) {
+              std::cout << "AMQP: Failed to bind queue:  " << tunnelbrokerID
                         << " to exchange: " << fanoutExchangeName << std::endl;
               amqpReady = false;
             });
         amqpReady = true;
-        amqpChannel->consume(tunnelbrokerId)
+        amqpChannel->consume(tunnelbrokerID)
             .onReceived([&](const AMQP::Message &message,
                             uint64_t deliveryTag,
                             bool redelivered) {
@@ -63,7 +63,7 @@ void AMQPConnectInternal() {
                 const std::string toDeviceID(headers[AMQP_HEADER_TO_DEVICEID]);
                 const std::string fromDeviceID(
                     headers[AMQP_HEADER_FROM_DEVICEID]);
-                std::cout << "AMQP: Message consumed for deviceId: "
+                std::cout << "AMQP: Message consumed for deviceID: "
                           << toDeviceID << std::endl;
                 DeliveryBroker::getInstance().push(
                     deliveryTag, toDeviceID, fromDeviceID, payload);

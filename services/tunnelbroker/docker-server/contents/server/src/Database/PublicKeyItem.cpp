@@ -9,9 +9,9 @@ const std::string PublicKeyItem::FIELD_DEVICE_ID = "DeviceId";
 const std::string PublicKeyItem::FIELD_PUBLIC_KEY = "PublicKey";
 
 PublicKeyItem::PublicKeyItem(
-    const std::string deviceId,
+    const std::string deviceID,
     const std::string publicKey)
-    : deviceId(deviceId), publicKey(publicKey) {
+    : deviceID(deviceID), publicKey(publicKey) {
   this->validate();
 }
 
@@ -20,8 +20,8 @@ PublicKeyItem::PublicKeyItem(const AttributeValues &itemFromDB) {
 }
 
 void PublicKeyItem::validate() const {
-  if (!this->deviceId.size()) {
-    throw std::runtime_error("Error: DeviceId is empty");
+  if (!this->deviceID.size()) {
+    throw std::runtime_error("Error: DeviceID is empty");
   }
   if (!this->publicKey.size()) {
     throw std::runtime_error("Error: PublicKey is empty");
@@ -31,7 +31,7 @@ void PublicKeyItem::validate() const {
 void PublicKeyItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
   try {
     this->publicKey = itemFromDB.at(PublicKeyItem::FIELD_PUBLIC_KEY).GetS();
-    this->deviceId = itemFromDB.at(PublicKeyItem::FIELD_DEVICE_ID).GetS();
+    this->deviceID = itemFromDB.at(PublicKeyItem::FIELD_DEVICE_ID).GetS();
   } catch (const std::exception &e) {
     throw std::runtime_error(
         "Got an exception at PublicKeyItem: " + std::string(e.what()));
@@ -48,8 +48,8 @@ std::string PublicKeyItem::getPrimaryKey() const {
   return PublicKeyItem::FIELD_DEVICE_ID;
 }
 
-std::string PublicKeyItem::getDeviceId() const {
-  return this->deviceId;
+std::string PublicKeyItem::getDeviceID() const {
+  return this->deviceID;
 }
 
 std::string PublicKeyItem::getPublicKey() const {
