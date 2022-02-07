@@ -51,7 +51,7 @@ const baseHref = baseDomain + baseURL;
 
 const access = promisify(fs.access);
 const googleFontsURL =
-  'https://fonts.googleapis.com/css?family=Open+Sans:300,600%7CAnaheim&family=IBM+Plex+Sans:wght@400;500&display=swap';
+  'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap';
 const localFontsURL = 'fonts/local-fonts.css';
 async function getFontsURL() {
   try {
