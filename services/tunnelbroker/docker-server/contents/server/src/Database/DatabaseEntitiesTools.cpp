@@ -18,6 +18,10 @@ template <> std::shared_ptr<PublicKeyItem> createItemByType<PublicKeyItem>() {
   return std::make_shared<PublicKeyItem>();
 }
 
+template <> std::shared_ptr<MessageItem> createItemByType<MessageItem>() {
+  return std::make_shared<MessageItem>();
+}
+
 } // namespace database
 } // namespace network
 } // namespace comm

@@ -2,6 +2,7 @@
 
 #include "DeviceSessionItem.h"
 #include "Item.h"
+#include "MessageItem.h"
 #include "PublicKeyItem.h"
 #include "SessionSignItem.h"
 
@@ -22,6 +23,8 @@ template <>
 std::shared_ptr<SessionSignItem> createItemByType<SessionSignItem>();
 
 template <> std::shared_ptr<PublicKeyItem> createItemByType<PublicKeyItem>();
+
+template <> std::shared_ptr<MessageItem> createItemByType<MessageItem>();
 
 } // namespace database
 } // namespace network
