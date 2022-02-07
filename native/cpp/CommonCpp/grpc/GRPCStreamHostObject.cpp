@@ -172,10 +172,7 @@ void GRPCStreamHostObject::set(
     const jsi::Value &value) {
   auto propName = name.utf8(runtime);
 
-  if (propName == "readyState" && value.isNumber()) {
-    this->readyState = static_cast<int>(value.asNumber());
-  } else if (
-      propName == "onopen" && value.isObject() &&
+  if (propName == "onopen" && value.isObject() &&
       value.asObject(runtime).isFunction(runtime)) {
     this->onopen = value.asObject(runtime).asFunction(runtime);
   } else if (
