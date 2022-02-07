@@ -18,9 +18,13 @@ function ChatThreadListSidebar(props: Props): React.Node {
   const { threadInfo, mostRecentNonLocalMessage } = sidebarInfo;
   const threadID = threadInfo.id;
   const active = useThreadIsActive(threadID);
-  const activeStyle = active ? css.activeThread : null;
+
   return (
-    <div className={classNames(css.thread, css.sidebar, activeStyle)}>
+    <div
+      className={classNames(css.thread, css.sidebar, {
+        [css.activeThread]: active,
+      })}
+    >
       <SidebarItem sidebarInfo={sidebarInfo} />
       <ChatThreadListItemMenu
         threadInfo={threadInfo}
