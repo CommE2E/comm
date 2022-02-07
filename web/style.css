@@ -56,7 +56,7 @@ div.layout {
   height: 100vh;
   display: grid;
   grid-template-columns: 244px repeat(12, 1fr);
-  grid-template-rows: 65px 1fr;
+  grid-template-rows: 65px calc(100vh - 65px);
   grid-template-areas:
     'nav nav nav nav nav nav nav nav nav nav nav nav nav'
     'sBar app app app app app app app app app app app app';
