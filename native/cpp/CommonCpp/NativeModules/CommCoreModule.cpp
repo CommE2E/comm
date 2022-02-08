@@ -900,6 +900,10 @@ CommCoreModule::CommCoreModule(
       databaseThread(std::make_unique<WorkerThread>("database")),
       cryptoThread(std::make_unique<WorkerThread>("crypto")) {
   GlobalNetworkSingleton::instance.enableMultithreading();
+}
+
+double CommCoreModule::getCodeVersion(jsi::Runtime &rt) {
+  return this->codeVersion;
 };
 
 } // namespace comm

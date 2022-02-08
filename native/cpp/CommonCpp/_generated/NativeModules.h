@@ -35,6 +35,7 @@ virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &
 virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
 virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) = 0;
 virtual jsi::Object openSocket(jsi::Runtime &rt, const jsi::String &endpoint) = 0;
+virtual double getCodeVersion(jsi::Runtime &rt) = 0;
 
 };
 
