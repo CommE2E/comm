@@ -71,6 +71,7 @@ include_directories(
 
   # comm native mutual code
   ../../cpp/CommonCpp/NativeModules
+  ../../cpp/CommonCpp/NativeModules/InternalModules
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
   ../../cpp/CommonCpp/grpc/_generated
