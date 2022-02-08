@@ -4,6 +4,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+import app.comm.android.fbjni.NetworkModule;
 import com.google.firebase.messaging.RemoteMessage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingService;
 import me.leolin.shortcutbadger.ShortcutBadger;
@@ -38,6 +39,7 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
   private static final String RESCIND_ID_KEY = "rescindID";
   private static final String BADGE_KEY = "badge";
   private static final String BADGE_ONLY_KEY = "badgeOnly";
+  private static final String BACKGROUND_NOTIF_TYPE_KEY = "backgroundNotifType";
   private NotificationManager notificationManager;
 
   @Override
@@ -78,6 +80,13 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
 
     String badgeOnly = message.getData().get(BADGE_ONLY_KEY);
     if ("1".equals(badgeOnly)) {
+      return;
+    }
+
+    String backgroundNotifType =
+        message.getData().get(BACKGROUND_NOTIF_TYPE_KEY);
+    if ("PING".equals(backgroundNotifType)) {
+      NetworkModule.sendPong();
       return;
     }
 
