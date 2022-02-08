@@ -46,6 +46,8 @@ public:
   void setOnCloseCallback(std::function<void()> callback);
   void closeGetStream();
   void assignSetReadyStateCallback(std::function<void(SocketStatus)> callback);
+
+  std::string sessionSignature(std::string deviceID);
 };
 
 } // namespace network

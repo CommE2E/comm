@@ -127,5 +127,18 @@ void Client::assignSetReadyStateCallback(
   this->clientGetReadReactor->assignSetReadyStateCallback(callback);
 }
 
+std::string Client::sessionSignature(std::string deviceID) {
+  grpc::ClientContext context;
+  tunnelbroker::SessionSignatureRequest request;
+  tunnelbroker::SessionSignatureResponse response;
+
+  request.set_deviceid(deviceID);
+  auto status{this->stub_->SessionSignature(&context, request, &response)};
+  if (!status.ok()) {
+    return std::string{};
+  }
+  return response.tosign();
+}
+
 } // namespace network
 } // namespace comm
