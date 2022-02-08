@@ -48,6 +48,14 @@ public:
   void assignSetReadyStateCallback(std::function<void(SocketStatus)> callback);
 
   std::string sessionSignature(std::string deviceID);
+  std::string newSession(
+      std::string deviceID,
+      std::string publicKey,
+      std::string signature,
+      std::string notifyToken,
+      tunnelbroker::NewSessionRequest_DeviceTypes deviceType,
+      std::string deviceAppVersion,
+      std::string deviceOS);
 };
 
 } // namespace network

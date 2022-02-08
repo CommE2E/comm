@@ -140,5 +140,32 @@ std::string Client::sessionSignature(std::string deviceID) {
   return response.tosign();
 }
 
+std::string Client::newSession(
+    std::string deviceID,
+    std::string publicKey,
+    std::string signature,
+    std::string notifyToken,
+    tunnelbroker::NewSessionRequest_DeviceTypes deviceType,
+    std::string deviceAppVersion,
+    std::string deviceOS) {
+  grpc::ClientContext context;
+  tunnelbroker::NewSessionRequest request;
+  tunnelbroker::NewSessionResponse response;
+
+  request.set_deviceid(deviceID);
+  request.set_publickey(publicKey);
+  request.set_signature(signature);
+  request.set_notifytoken(notifyToken);
+  request.set_devicetype(deviceType);
+  request.set_deviceappversion(deviceAppVersion);
+  request.set_deviceos(deviceOS);
+
+  auto status{this->stub_->NewSession(&context, request, &response)};
+  if (!status.ok()) {
+    return std::string{};
+  }
+  return response.sessionid();
+}
+
 } // namespace network
 } // namespace comm
