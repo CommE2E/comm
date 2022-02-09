@@ -3,6 +3,7 @@
 #include "sqlite_orm.h"
 
 #include "entities/Media.h"
+#include "entities/Metadata.h"
 #include <sqlite3.h>
 #include <cerrno>
 #include <cstdio>
@@ -243,6 +244,14 @@ bool enable_write_ahead_logging_mode(sqlite3 *db) {
   return false;
 }
 
+bool create_metadata_table(sqlite3 *db) {
+  std::string query =
+      "CREATE TABLE IF NOT EXISTS metadata ( "
+      "name TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "data TEXT);";
+  return create_table(db, query, "metadata");
+}
+
 void set_encryption_key(sqlite3 *db) {
   std::string set_encryption_key_query =
       "PRAGMA key = \"x'" + SQLiteQueryExecutor::encryptionKey + "'\";";
@@ -383,7 +392,8 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {19, {create_media_idx_container, true}},
      {20, {create_threads_table, true}},
      {21, {update_threadID_for_pending_threads_in_drafts, true}},
-     {22, {enable_write_ahead_logging_mode, false}}}};
+     {22, {enable_write_ahead_logging_mode, false}},
+     {23, {create_metadata_table, true}}}};
 
 void SQLiteQueryExecutor::migrate() {
   validate_encryption();
@@ -492,7 +502,11 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("roles", &Thread::roles),
           make_column("current_user", &Thread::current_user),
           make_column("source_message_id", &Thread::source_message_id),
-          make_column("replies_count", &Thread::replies_count)));
+          make_column("replies_count", &Thread::replies_count)),
+      make_table(
+          "metadata",
+          make_column("name", &Metadata::name, unique(), primary_key()),
+          make_column("data", &Metadata::data)));
   storage.on_open = set_encryption_key;
   return storage;
 }

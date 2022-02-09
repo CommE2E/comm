@@ -62,6 +62,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Comm/main.m; sourceTree = "<group>"; };
 		2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientGetReadReactor.cpp; sourceTree = "<group>"; };
 		2DDA05D6D8D20D885F22F82C /* SocketStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketStatus.h; sourceTree = "<group>"; };
+		2DDA0A22FECC9DAA5C19C35D /* Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Metadata.h; sourceTree = "<group>"; };
 		71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.pb.cc; sourceTree = "<group>"; };
 		71009A7426FDCA67002C8453 /* tunnelbroker.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.pb.h; sourceTree = "<group>"; };
 		71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.grpc.pb.cc; sourceTree = "<group>"; };
@@ -301,6 +302,7 @@
 				71BE84452636A944002849D2 /* Draft.h */,
 				B70FBC1226B047050040F480 /* Message.h */,
 				B7E937CA26F448E700022A7C /* Media.h */,
+				2DDA0A22FECC9DAA5C19C35D /* Metadata.h */,
 			);
 			path = entities;
 			sourceTree = "<group>";
