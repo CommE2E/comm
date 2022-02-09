@@ -4,13 +4,10 @@
 #import "RNNotifications.h"
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
+#import <React/RCTConvert.h>
 #import <React/RCTRootView.h>
 
-#import <EXSplashScreen/EXSplashScreenService.h>
-#import <UMCore/UMModuleRegistry.h>
-#import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
-#import <UMReactNativeAdapter/UMNativeModulesProxy.h>
-
+#import <ExpoModulesCore/EXModuleRegistryProvider.h>
 #import <React/RCTBridge+Private.h>
 #import <React/RCTCxxBridgeDelegate.h>
 #import <React/RCTJSIExecutorRuntimeInstaller.h>
@@ -65,14 +62,6 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 }
 @end
 
-@interface UMNativeModulesProxy ()
-@property(nonatomic, strong) UMModuleRegistry *umModuleRegistry;
-@end
-
-@interface AppDelegate () <RCTBridgeDelegate>
-@property(nonatomic, strong) UMModuleRegistryAdapter *moduleRegistryAdapter;
-@end
-
 @interface CommSecureStoreIOSWrapper ()
 - (void)init:(EXSecureStore *)secureStore;
 @end
@@ -85,8 +74,6 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
   InitializeFlipper(application);
 #endif
 
-  self.moduleRegistryAdapter = [[UMModuleRegistryAdapter alloc]
-      initWithModuleRegistryProvider:[[UMModuleRegistryProvider alloc] init]];
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self
                                             launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
@@ -116,11 +103,11 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
   rootView.loadingViewFadeDelay = 0;
   rootView.loadingViewFadeDuration = 0.001;
 
-  UMNativeModulesProxy *proxy =
-      [bridge moduleForClass:[UMNativeModulesProxy class]];
-  UMModuleRegistry *moduleRegistry = [proxy umModuleRegistry];
+  EXModuleRegistryProvider *moduleRegistryProvider =
+      [[EXModuleRegistryProvider alloc] init];
   EXSecureStore *secureStore =
-      [moduleRegistry getExportedModuleOfClass:[EXSecureStore class]];
+      (EXSecureStore *)[[moduleRegistryProvider moduleRegistry]
+          getExportedModuleOfClass:EXSecureStore.class];
   [[CommSecureStoreIOSWrapper sharedInstance] init:secureStore];
 
   // set sqlite file path
@@ -149,11 +136,9 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 }
 
 - (NSArray<id<RCTBridgeModule>> *)extraModulesForBridge:(RCTBridge *)bridge {
-  NSArray<id<RCTBridgeModule>> *extraModules =
-      [_moduleRegistryAdapter extraModulesForBridge:bridge];
   // If you'd like to export some custom RCTBridgeModules that are not Expo
   // modules, add them here!
-  return extraModules;
+  return @[];
 }
 
 - (void)application:(UIApplication *)application
