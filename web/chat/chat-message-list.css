@@ -41,10 +41,9 @@ div.loading {
 }
 
 div.conversationHeader {
-  text-transform: uppercase;
   color: var(--chat-timestamp-color);
-  font-size: 14px;
-  padding: 7px 0;
+  font-size: var(--xs-font-12);
+  line-height: var(--line-height-text);
   text-align: center;
 }
 div.conversationHeader:last-child {
