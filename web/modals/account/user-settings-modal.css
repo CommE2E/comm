@@ -38,7 +38,6 @@ div.modal-body input[type='submit'] {
   font-size: 12px;
   margin-right: 3px;
   border-radius: 3px;
-  border: 1px solid var(--border-color);
   background-color: #f8f8f8;
   font-weight: 600;
   color: #444444;
@@ -65,7 +64,6 @@ div.modal-body div.form-footer {
   justify-content: space-between;
   align-items: start;
   margin-top: 5px;
-  border-top: 2px solid var(--border-color);
   min-height: 26px;
   padding: 7px 4px 4px 0;
 }
@@ -161,7 +159,6 @@ ul.tab-panel > li.delete-tab > a {
 }
 
 div.user-settings-current-password {
-  border-top: 2px solid var(--border-color);
   padding-top: 4px;
   margin-top: 5px;
 }
