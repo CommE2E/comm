@@ -35,6 +35,8 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
+import DisconnectedBar from './redux/disconnected-bar';
+import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
 import FocusHandler from './redux/focus-handler.react';
 import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
@@ -163,6 +165,8 @@ class App extends React.PureComponent<Props, State> {
 
     return (
       <div className={css.layout}>
+        <DisconnectedBarVisibilityHandler />
+        <DisconnectedBar />
         <header className={css['header']}>
           <div className={css['main-header']}>
             <h1>Comm</h1>

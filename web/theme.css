@@ -90,4 +90,8 @@
   --relationship-button-green: var(--success-dark-50);
   --relationship-button-red: var(--error-primary);
   --relationship-button-text: var(--fg);
+  --disconnected-bar-alert-bg: var(--error-dark-50);
+  --disconnected-bar-alert-color: var(--shades-white-100);
+  --disconnected-bar-connecting-bg: var(--shades-white-70);
+  --disconnected-bar-connecting-color: var(--shades-black-100);
 }

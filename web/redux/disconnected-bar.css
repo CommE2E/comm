@@ -1,0 +1,19 @@
+p.bar {
+  position: fixed;
+  z-index: 2;
+  left: 50%;
+  padding: 0.5rem 2rem;
+  transform: translateX(-50%);
+  font-weight: var(--semi-bold);
+  font-size: var(--m-font-16);
+}
+
+p.connecting {
+  background-color: var(--disconnected-bar-connecting-bg);
+  color: var(--disconnected-bar-connecting-color);
+}
+
+p.disconnected {
+  background-color: var(--disconnected-bar-alert-bg);
+  color: var(--disconnected-bar-alert-color);
+}
