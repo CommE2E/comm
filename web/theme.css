@@ -80,5 +80,11 @@
   --join-bg: var(--shades-black-90);
   --help-color: var(--shades-black-60);
   --modal-bg: var(--shades-black-90);
-  --breadcrumb-color: var(--shades-white-60);
+  --breadcrumb-color: var(--shades-black-60);
+  --breadcrumb-color-unread: var(--shades-white-60);
+  --join-bg: var(--shades-black-90);
+  --btn-secondary-border: var(--shades-black-60);
+  --thread-color-read: var(--shades-black-60);
+  --thread-from-color-read: var(--shades-black-80);
+  --thread-last-message-color-read: var(--shades-black-60);
 }
