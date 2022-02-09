@@ -167,7 +167,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     if (this.state.currentTabType === 'delete') {
       buttons = (
         <Button
-          variant="primary"
+          variant="danger"
           type="submit"
           onClick={this.onDelete}
           disabled={inputDisabled}

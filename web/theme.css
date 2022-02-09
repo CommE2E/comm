@@ -61,6 +61,7 @@
 
   /* Color Theme */
   --btn-bg-primary: var(--violet-dark-100);
+  --btn-bg-danger: var(--error-primary);
   --chat-bg: var(--violet-dark-80);
   --chat-confirmation-icon: var(--violet-dark-100);
   --keyserver-selection: var(--violet-dark-60);
