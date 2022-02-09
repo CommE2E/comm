@@ -83,4 +83,32 @@ void NetworkModule::assignSetReadyStateCallback(
   this->networkClient->assignSetReadyStateCallback(callback);
 }
 
+std::string NetworkModule::sessionSignature(std::string deviceID) {
+  if (!this->networkClient) {
+    return std::string{};
+  }
+  return this->networkClient->sessionSignature(deviceID);
+}
+
+std::string NetworkModule::newSession(
+    std::string deviceID,
+    std::string publicKey,
+    std::string signature,
+    std::string notifyToken,
+    tunnelbroker::NewSessionRequest_DeviceTypes deviceType,
+    std::string deviceAppVersion,
+    std::string deviceOS) {
+  if (!this->networkClient) {
+    return std::string{};
+  }
+  return this->networkClient->newSession(
+      deviceID,
+      publicKey,
+      signature,
+      notifyToken,
+      deviceType,
+      deviceAppVersion,
+      deviceOS);
+}
+
 } // namespace comm
