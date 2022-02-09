@@ -43,6 +43,10 @@ const clangPaths = [
     extensions: ['mm'],
   },
   {
+    path: 'native/ios/NotificationService',
+    extensions: ['h', 'm', 'mm'],
+  },
+  {
     path: 'native/android/app/src/main/java/app/comm',
     extensions: ['java'],
     excludes: ['generated'],
