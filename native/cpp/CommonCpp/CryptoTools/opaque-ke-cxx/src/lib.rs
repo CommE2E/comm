@@ -12,6 +12,7 @@ use opaque_ke::{
   RegistrationResponse,
 };
 use rand::rngs::OsRng;
+use std::ops::Deref;
 
 struct Cipher;
 
@@ -51,6 +52,11 @@ mod ffi {
     session: Vec<u8>,
   }
 
+  struct ServerKeyPair {
+    public: Vec<u8>,
+    private: Vec<u8>,
+  }
+
   extern "Rust" {
     fn client_register_cxx(password: String) -> Result<MessageState>;
     fn client_register_finish_cxx(
@@ -62,6 +68,7 @@ mod ffi {
       client_login_state: Vec<u8>,
       server_message: Vec<u8>,
     ) -> Result<MessageSession>;
+    fn server_kp() -> ServerKeyPair;
   }
 }
 
@@ -153,6 +160,17 @@ fn client_login_finish(
   server_message: CredentialResponse<Cipher>,
 ) -> Result<ClientLoginFinishResult<Cipher>, ProtocolError> {
   client_login_state.finish(server_message, ClientLoginFinishParameters::default())
+}
+
+fn server_kp() -> ffi::ServerKeyPair {
+  let mut rng = OsRng;
+  let keypair = Cipher::generate_random_keypair(&mut rng);
+  let public_key = keypair.public().deref().to_vec();
+  let private_key = keypair.private().deref().to_vec();
+  ffi::ServerKeyPair {
+    public: public_key,
+    private: private_key,
+  }
 }
 
 #[cfg(test)]
@@ -363,5 +381,12 @@ mod tests {
       client_login_finish_cxx(client_login_start_result.state.serialize().unwrap(), vec![]),
       Err(ProtocolError::VerificationError(_))
     );
+  }
+
+  #[test]
+  fn test_server_kp_ok() {
+    let keys = server_kp();
+    assert_eq!(keys.public.len(), 32);
+    assert_eq!(keys.private.len(), 32);
   }
 }
