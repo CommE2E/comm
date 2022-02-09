@@ -19,4 +19,8 @@ void PlatformSpecificTools::generateSecureRandomBytes(
   }
 }
 
+std::string PlatformSpecificTools::getDeviceOS() {
+  return std::string{"ios"};
+}
+
 };

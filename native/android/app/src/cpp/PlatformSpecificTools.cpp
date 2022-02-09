@@ -33,4 +33,8 @@ void PlatformSpecificTools::generateSecureRandomBytes(
   buffer = PlatformSpecificToolsJavaClass::generateSecureRandomBytes(size);
 }
 
+std::string PlatformSpecificTools::getDeviceOS() {
+  return std::string{"android"};
+}
+
 } // namespace comm
