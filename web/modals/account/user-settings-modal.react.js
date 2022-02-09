@@ -198,6 +198,13 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       );
     }
 
+    let errorMsg;
+    if (this.state.errorMessage) {
+      errorMsg = (
+        <div className={css['modal-form-error']}>{this.state.errorMessage}</div>
+      );
+    }
+
     return (
       <Modal name="Edit account" onClose={this.clearModal} size="large">
         <ul className={css['tab-panel']}>
@@ -237,9 +244,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
             </div>
             <div className={css['form-footer']}>
               {buttons}
-              <div className={css['modal-form-error']}>
-                {this.state.errorMessage}
-              </div>
+              {errorMsg}
             </div>
           </form>
         </div>
