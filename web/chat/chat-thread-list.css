@@ -89,6 +89,7 @@ div.lastMessage {
 }
 div.threadRow > .lastMessage {
   color: var(--thread-last-message-color-read);
+  font-size: var(--s-font-14);
 }
 div.thread.activeThread a {
   color: red;
