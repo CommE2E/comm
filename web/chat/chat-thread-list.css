@@ -2,11 +2,24 @@ div.thread {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  margin-bottom: 8px;
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 16px;
   padding-right: 10px;
+}
+div.threadListSideBar {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding-bottom: 4px;
+  padding-left: 16px;
+  padding-right: 10px;
+  position: relative;
+}
+div.threadListSideBar > svg {
+  position: absolute;
+  top: -13px;
+  left: 30px;
 }
 div.thread:first-child {
   padding-top: 6px;
@@ -43,10 +56,11 @@ a.threadButton {
   overflow: hidden;
   padding-left: 8px;
 }
-div.threadRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.threadButtonSidebar {
+  flex: 1;
+  cursor: pointer;
+  overflow: hidden;
+  padding-left: 8px;
 }
 p.breadCrumbs {
   display: flex;
@@ -67,6 +81,7 @@ span.breadCrumb {
 span.breadCrumb svg {
   color: var(--fg);
 }
+div.spacer,
 div.colorSplotch {
   height: 40px;
   width: 40px;
@@ -110,8 +125,7 @@ div.dark {
 div.italic {
   font-style: italic;
 }
-
-div.thread div.sidebarTitle {
+div.sidebarTitle {
   flex: 1;
   font-size: 15px;
   white-space: nowrap;
@@ -139,7 +153,8 @@ div.sidebar .menu {
   display: none;
 }
 div.sidebar:hover .menu {
-  display: block;
+  display: flex;
+  align-self: flex-end;
 }
 .menu {
   position: relative;
