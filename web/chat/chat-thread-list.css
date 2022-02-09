@@ -60,6 +60,8 @@ p.breadCrumbs.unread {
 }
 span.breadCrumb {
   padding-right: 4px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 span.breadCrumb svg {
