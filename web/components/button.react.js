@@ -8,7 +8,7 @@ import css from './button.css';
 type Props = {
   +onClick: (event: SyntheticEvent<HTMLButtonElement>) => void,
   +children: React.Node,
-  +variant?: 'primary' | 'round',
+  +variant?: 'primary' | 'secondary' | 'round',
   +type?: string,
   +disabled?: boolean,
 };
@@ -18,6 +18,7 @@ function Button(props: Props): React.Node {
   const btnCls = classnames(css.btn, {
     [css.round]: variant === 'round',
     [css.primary]: variant === 'primary',
+    [css.secondary]: variant === 'secondary',
   });
 
   return (
