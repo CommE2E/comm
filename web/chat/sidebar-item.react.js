@@ -28,8 +28,8 @@ function SidebarItem(props: Props): React.Node {
   return (
     <a className={css.threadButton} onClick={onClick}>
       <div className={css.threadRow}>
-        <div className={unreadCls}>{threadInfo.uiName}</div>
         <AlignRightIcon className={css.sidebarIcon} />
+        <div className={unreadCls}>{threadInfo.uiName}</div>
         <div
           className={classNames([
             css.sidebarLastActivity,
