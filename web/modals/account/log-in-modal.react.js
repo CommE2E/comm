@@ -21,6 +21,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
+import Button from '../../components/button.react';
 import { useSelector } from '../../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import Input from '../input.react';
@@ -92,12 +93,13 @@ class LogInModal extends React.PureComponent<Props, State> {
               </div>
             </div>
             <div className={css['form-footer']}>
-              <input
+              <Button
                 type="submit"
-                value="Log in"
                 onClick={this.onSubmit}
                 disabled={this.props.inputDisabled}
-              />
+              >
+                Log in
+              </Button>
               <div className={css['modal-form-error']}>
                 {this.state.errorMessage}
               </div>
@@ -128,7 +130,7 @@ class LogInModal extends React.PureComponent<Props, State> {
     this.setState({ password: target.value });
   };
 
-  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
+  onSubmit = (event: SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     if (this.state.username.search(validEmailRegex) > -1) {
