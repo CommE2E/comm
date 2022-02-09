@@ -7,7 +7,7 @@ using namespace facebook;
 GRPCStreamHostObject::GRPCStreamHostObject(
     jsi::Runtime &rt,
     std::shared_ptr<react::CallInvoker> jsInvoker)
-    : readyState{0},
+    : readyState{SocketStatus::CONNECTING},
       onopen{},
       onmessage{},
       onclose{},
