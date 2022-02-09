@@ -134,7 +134,12 @@ div.sidebar .menu > button svg {
   font-size: 16px;
   color: var(--thread-color-read);
 }
-
+div.sidebar .menu {
+  display: none;
+}
+div.sidebar:hover .menu {
+  display: block;
+}
 .menu {
   position: relative;
   display: flex;
