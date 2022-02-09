@@ -4,6 +4,14 @@
   justify-content: center;
   background: var(--settings-btn-bg);
   border-color: transparent;
+  font-size: var(--m-font-16);
+}
+
+.primary {
+  background: var(--btn-bg-primary);
+  padding: 12px 24px;
+  color: var(--fg);
+  border-radius: 4px;
 }
 
 .round {
