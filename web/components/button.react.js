@@ -18,17 +18,12 @@ function Button(props: Props): React.Node {
   const {
     onClick,
     children,
-    variant,
+    variant = 'primary',
     type,
     disabled = false,
     className = '',
   } = props;
-  const btnCls = classnames(css.btn, {
-    [css.round]: variant === 'round',
-    [css.primary]: variant === 'primary',
-    [css.secondary]: variant === 'secondary',
-    [css.danger]: variant === 'danger',
-  });
+  const btnCls = classnames(css.btn, css[variant]);
 
   return (
     <button
