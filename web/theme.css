@@ -87,4 +87,7 @@
   --thread-color-read: var(--shades-black-60);
   --thread-from-color-read: var(--shades-black-80);
   --thread-last-message-color-read: var(--shades-black-60);
+  --relationship-button-green: var(--success-dark-50);
+  --relationship-button-red: var(--error-primary);
+  --relationship-button-text: var(--fg);
 }
