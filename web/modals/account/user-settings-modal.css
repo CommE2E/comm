@@ -33,25 +33,6 @@ div.modal-body textarea {
 div.large-modal-container div.modal-body textarea {
   width: 275px;
 }
-div.modal-body input[type='submit'] {
-  padding: 3px 9px;
-  font-size: 12px;
-  margin-right: 3px;
-  border-radius: 3px;
-  background-color: #f8f8f8;
-  font-weight: 600;
-  color: #444444;
-  margin-top: 1px;
-  cursor: pointer;
-}
-div.modal-body input[type='submit']:hover {
-  text-decoration: underline;
-}
-div.modal-body input[type='submit']:disabled {
-  cursor: initial;
-  text-decoration: none;
-  color: #999999;
-}
 div.modal-body p.confirm-account-password {
   padding: 3px 0px 5px 0px;
   font-style: italic;

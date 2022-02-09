@@ -26,6 +26,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
+import Button from '../../components/button.react';
 import { useSelector } from '../../redux/redux-utils';
 import Input from '../input.react';
 import Modal from '../modal.react';
@@ -107,7 +108,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       : undefined;
   }
 
-  onLogOut = (event: SyntheticEvent<HTMLAnchorElement>) => {
+  onLogOut = (event: SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
     this.props.dispatchActionPromise(logOutActionTypes, this.logOut());
   };
@@ -165,28 +166,34 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     let buttons = null;
     if (this.state.currentTabType === 'delete') {
       buttons = (
-        <input
+        <Button
+          variant="primary"
           type="submit"
-          value="Delete account"
           onClick={this.onDelete}
           disabled={inputDisabled}
-        />
+        >
+          Delete account
+        </Button>
       );
     } else {
       buttons = (
         <>
-          <input
+          <Button
             type="submit"
-            value="Update account"
+            variant="primary"
             onClick={this.onSubmit}
             disabled={inputDisabled}
-          />
-          <input
+          >
+            Update Account
+          </Button>
+          <Button
             type="submit"
-            value="Log out"
+            variant="primary"
             onClick={this.onLogOut}
             disabled={inputDisabled}
-          />
+          >
+            Log out
+          </Button>
         </>
       );
     }
@@ -270,7 +277,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     this.setState({ currentPassword: target.value });
   };
 
-  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
+  onSubmit = (event: SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     if (this.state.newPassword === '') {
@@ -351,7 +358,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     }
   }
 
-  onDelete = (event: SyntheticEvent<HTMLInputElement>) => {
+  onDelete = (event: SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       deleteAccountActionTypes,
