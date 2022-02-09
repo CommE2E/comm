@@ -38,7 +38,7 @@ void BlobItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
     this->s3Path = S3Path(itemFromDB.at(BlobItem::FIELD_S3_PATH).GetS());
     this->created = std::stoll(
         std::string(itemFromDB.at(BlobItem::FIELD_CREATED).GetS()).c_str());
-  } catch (std::out_of_range &e) {
+  } catch (std::logic_error &e) {
     throw std::runtime_error(
         "invalid blob item provided, " + std::string(e.what()));
   }

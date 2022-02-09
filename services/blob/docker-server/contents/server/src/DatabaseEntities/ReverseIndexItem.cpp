@@ -33,13 +33,8 @@ void ReverseIndexItem::validate() const {
 
 void ReverseIndexItem::assignItemFromDatabase(
     const AttributeValues &itemFromDB) {
-  try {
-    this->holder = itemFromDB.at(ReverseIndexItem::FIELD_HOLDER).GetS();
-    this->blobHash = itemFromDB.at(ReverseIndexItem::FIELD_BLOB_HASH).GetS();
-  } catch (std::out_of_range &e) {
-    throw std::runtime_error(
-        "invalid reverse index item provided, " + std::string(e.what()));
-  }
+  this->holder = itemFromDB.at(ReverseIndexItem::FIELD_HOLDER).GetS();
+  this->blobHash = itemFromDB.at(ReverseIndexItem::FIELD_BLOB_HASH).GetS();
   this->validate();
 }
 

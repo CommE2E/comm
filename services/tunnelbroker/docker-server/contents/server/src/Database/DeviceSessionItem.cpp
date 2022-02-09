@@ -60,7 +60,7 @@ void DeviceSessionItem::assignItemFromDatabase(
         std::string(
             itemFromDB.at(DeviceSessionItem::FIELD_CHECKPOINT_TIME).GetS())
             .c_str());
-  } catch (std::out_of_range &e) {
+  } catch (std::logic_error &e) {
     throw std::runtime_error(
         "Invalid device session database value " + std::string(e.what()));
   }
