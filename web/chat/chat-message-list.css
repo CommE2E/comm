@@ -119,9 +119,10 @@ div.emojiOnlyTextMessage {
   font-family: emoji;
 }
 span.authorName {
-  color: #777777;
-  font-size: 14px;
-  padding: 4px 24px;
+  color: var(--fg);
+  font-size: var(--xxs-font-10);
+  line-height: var(--line-height-text);
+  padding: 4px 24px 8px;
 }
 div.darkTextMessage {
   color: white;
