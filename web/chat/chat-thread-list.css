@@ -167,7 +167,8 @@ div.sidebar:hover .menu {
   color: var(--thread-color-read);
   border: none;
   cursor: pointer;
-  align-self: flex-start;
+  display: flex;
+  align-items: center;
 }
 
 .menu > button:focus {
