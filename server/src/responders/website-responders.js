@@ -249,6 +249,7 @@ async function websiteResponder(
       </head>
       <body>
         <div id="react-root">
+        <div id="modal-root"></div>
   `);
 
   const statePromises = {
