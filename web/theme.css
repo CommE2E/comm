@@ -95,4 +95,5 @@
   --disconnected-bar-alert-color: var(--shades-white-100);
   --disconnected-bar-connecting-bg: var(--shades-white-70);
   --disconnected-bar-connecting-color: var(--shades-black-100);
+  --permission-color: var(--shades-white-60);
 }
