@@ -150,7 +150,7 @@ grpc::Status TunnelBrokerServiceImpl::Send(
           "No such session found. SessionID: " + sessionID);
     }
     const std::string clientDeviceID = sessionItem->getDeviceID();
-    if (!AMQPSend(
+    if (!AmqpManager::getInstance().send(
             request->todeviceid(),
             clientDeviceID,
             std::string(request->payload()))) {
@@ -203,7 +203,7 @@ grpc::Status TunnelBrokerServiceImpl::Get(
           throw std::runtime_error(
               "gRPC: 'Get' writer error on sending data to the client");
         }
-        AMQPAck(message.deliveryTag);
+        comm::network::AmqpManager::getInstance().ack(message.deliveryTag);
       }
       if (!DeliveryBroker::getInstance().isEmpty(clientDeviceID)) {
         DeliveryBroker::getInstance().remove(clientDeviceID);

@@ -4,17 +4,17 @@
 #include "DeliveryBroker.h"
 #include "Tools.h"
 
-#include <amqpcpp/libuv.h>
 #include <uv.h>
 
 namespace comm {
 namespace network {
 
-static std::unique_ptr<AMQP::TcpChannel> amqpChannel;
-static std::atomic<bool> amqpReady;
-static long long lastConnectionTimestamp;
+AmqpManager &AmqpManager::getInstance() {
+  static AmqpManager instance;
+  return instance;
+}
 
-void AMQPConnectInternal() {
+void AmqpManager::connectInternal() {
   const std::string amqpUri = config::ConfigManager::getInstance().getParameter(
       config::ConfigManager::OPTION_AMQP_URI);
   const std::string tunnelbrokerID =
@@ -29,34 +29,35 @@ void AMQPConnectInternal() {
   AMQP::LibUvHandler handler(loop);
   AMQP::TcpConnection connection(&handler, AMQP::Address(amqpUri));
 
-  amqpChannel = std::make_unique<AMQP::TcpChannel>(&connection);
-  amqpChannel->onError([](const char *message) {
+  this->amqpChannel = std::make_unique<AMQP::TcpChannel>(&connection);
+  this->amqpChannel->onError([this](const char *message) {
     std::cout << "AMQP: channel error: " << message << ", will try to reconnect"
               << std::endl;
-    amqpReady = false;
+    this->amqpReady = false;
   });
 
   AMQP::Table arguments;
   arguments["x-message-ttl"] = AMQP_MESSAGE_TTL;
   arguments["x-expires"] = AMQP_QUEUE_TTL;
-  amqpChannel->declareExchange(fanoutExchangeName, AMQP::fanout);
-  amqpChannel->declareQueue(tunnelbrokerID, AMQP::durable, arguments)
-      .onSuccess([tunnelbrokerID, fanoutExchangeName](
+  this->amqpChannel->declareExchange(fanoutExchangeName, AMQP::fanout);
+  this->amqpChannel->declareQueue(tunnelbrokerID, AMQP::durable, arguments)
+      .onSuccess([this, tunnelbrokerID, fanoutExchangeName](
                      const std::string &name,
                      uint32_t messagecount,
                      uint32_t consumercount) {
         std::cout << "AMQP: Queue " << name << " created" << std::endl;
-        amqpChannel->bindQueue(fanoutExchangeName, tunnelbrokerID, "")
-            .onError([tunnelbrokerID, fanoutExchangeName](const char *message) {
+        this->amqpChannel->bindQueue(fanoutExchangeName, tunnelbrokerID, "")
+            .onError([this, tunnelbrokerID, fanoutExchangeName](
+                         const char *message) {
               std::cout << "AMQP: Failed to bind queue:  " << tunnelbrokerID
                         << " to exchange: " << fanoutExchangeName << std::endl;
-              amqpReady = false;
+              this->amqpReady = false;
             });
-        amqpReady = true;
-        amqpChannel->consume(tunnelbrokerID)
-            .onReceived([&](const AMQP::Message &message,
-                            uint64_t deliveryTag,
-                            bool redelivered) {
+        this->amqpReady = true;
+        this->amqpChannel->consume(tunnelbrokerID)
+            .onReceived([](const AMQP::Message &message,
+                           uint64_t deliveryTag,
+                           bool redelivered) {
               try {
                 AMQP::Table headers = message.headers();
                 const std::string payload(message.body());
@@ -84,29 +85,29 @@ void AMQPConnectInternal() {
   uv_run(loop, UV_RUN_DEFAULT);
 };
 
-void AMQPConnect() {
+void AmqpManager::connect() {
   while (true) {
     long long currentTimestamp = getCurrentTimestamp();
-    if (lastConnectionTimestamp &&
-        currentTimestamp - lastConnectionTimestamp <
+    if (this->lastConnectionTimestamp &&
+        currentTimestamp - this->lastConnectionTimestamp <
             AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL) {
       throw std::runtime_error(
           "AMQP reconnection attempt interval too short, tried to reconnect "
           "after " +
-          std::to_string(currentTimestamp - lastConnectionTimestamp) +
+          std::to_string(currentTimestamp - this->lastConnectionTimestamp) +
           "ms, the shortest allowed interval is " +
           std::to_string(AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL) + "ms");
     }
-    lastConnectionTimestamp = currentTimestamp;
-    AMQPConnectInternal();
+    this->lastConnectionTimestamp = currentTimestamp;
+    this->connectInternal();
   }
 }
 
-bool AMQPSend(
+bool AmqpManager::send(
     std::string toDeviceID,
     std::string fromDeviceID,
     std::string payload) {
-  if (!amqpReady) {
+  if (!this->amqpReady) {
     std::cout << "AMQP: Message send error: channel not ready" << std::endl;
     return false;
   }
@@ -118,7 +119,7 @@ bool AMQPSend(
     // Set delivery mode to: Durable (2)
     env.setDeliveryMode(2);
     env.setHeaders(std::move(headers));
-    amqpChannel->publish(
+    this->amqpChannel->publish(
         config::ConfigManager::getInstance().getParameter(
             config::ConfigManager::OPTION_AMQP_FANOUT_EXCHANGE),
         "",
@@ -131,12 +132,12 @@ bool AMQPSend(
   return true;
 };
 
-void AMQPAck(uint64_t deliveryTag) {
-  if (!amqpReady) {
+void AmqpManager::ack(uint64_t deliveryTag) {
+  if (!this->amqpReady) {
     std::cout << "AMQP: Message ACK error: channel not ready" << std::endl;
     return;
   }
-  amqpChannel->ack(deliveryTag);
+  this->amqpChannel->ack(deliveryTag);
 }
 
 } // namespace network
