@@ -1,7 +1,5 @@
 // @flow
 
-import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
@@ -13,6 +11,7 @@ import {
   useOnClickThread,
   useOnClickPendingSidebar,
 } from '../selectors/nav-selectors';
+import SWMansionIcon from '../SWMansionIcon.react';
 import css from './message-action-button.css';
 import type {
   ItemAndContainerPositionInfo,
@@ -121,7 +120,7 @@ function MessageActionButton(props: MessageActionTooltipProps): React.Node {
         onMouseLeave={hideTooltip}
         onClick={toggleTooltip}
       >
-        <FontAwesomeIcon icon={faEllipsisH} />
+        <SWMansionIcon icon="message-circle-lines" size={18} />
         {tooltipMenu}
       </div>
     </div>
