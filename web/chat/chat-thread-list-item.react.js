@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads';
+import { useLastActiveTime } from 'lib/shared/thread-utils';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import { useSelector } from '../redux/redux-utils';
@@ -23,15 +24,16 @@ type Props = {
   +item: ChatThreadItem,
   +setModal: (modal: ?React.Node) => void,
 };
+
 function ChatThreadListItem(props: Props): React.Node {
   const { item, setModal } = props;
   const { threadInfo } = item;
   const threadID = item.threadInfo.id;
   const ancestorThreads = useAncestorThreads(threadInfo);
   const onClick = useOnClickThread(threadID);
-
   const timeZone = useSelector(state => state.timeZone);
-  const lastActivity = shortAbsoluteDate(item.lastUpdatedTime, timeZone);
+  const rawLastActivity = useLastActiveTime(item);
+  const lastActivity = shortAbsoluteDate(rawLastActivity, timeZone);
 
   const active = useThreadIsActive(threadID);
   const containerClassName = React.useMemo(
