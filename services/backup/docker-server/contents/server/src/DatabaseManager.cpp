@@ -115,6 +115,73 @@ void DatabaseManager::removeBackupItem(std::shared_ptr<BackupItem> item) {
   }
 }
 
+void DatabaseManager::putLogItem(const LogItem &item) {
+  Aws::DynamoDB::Model::PutItemRequest request;
+  request.SetTableName(LogItem::tableName);
+  request.AddItem(
+      LogItem::FIELD_BACKUP_ID,
+      Aws::DynamoDB::Model::AttributeValue(item.getBackupID()));
+  request.AddItem(
+      LogItem::FIELD_LOG_ID,
+      Aws::DynamoDB::Model::AttributeValue(item.getLogID()));
+  request.AddItem(
+      LogItem::FIELD_PERSISTED_IN_BLOB,
+      Aws::DynamoDB::Model::AttributeValue(
+          std::to_string(item.getPersistedInBlob())));
+  request.AddItem(
+      LogItem::FIELD_VALUE,
+      Aws::DynamoDB::Model::AttributeValue(item.getValue()));
+  request.AddItem(
+      LogItem::FIELD_ATTACHMENT_HOLDERS,
+      Aws::DynamoDB::Model::AttributeValue(item.getAttachmentHolders()));
+
+  this->innerPutItem(std::make_shared<LogItem>(item), request);
+}
+
+std::vector<std::shared_ptr<LogItem>>
+DatabaseManager::findLogItemsForBackup(const std::string &backupID) {
+  std::vector<std::shared_ptr<database::LogItem>> result;
+  std::shared_ptr<LogItem> item = createItemByType<LogItem>();
+
+  Aws::DynamoDB::Model::QueryRequest req;
+  req.SetTableName(LogItem::tableName);
+  req.SetKeyConditionExpression(item->getPrimaryKey() + " = :valueToMatch");
+
+  AttributeValues attributeValues;
+  attributeValues.emplace(":valueToMatch", backupID);
+
+  req.SetExpressionAttributeValues(attributeValues);
+
+  const Aws::DynamoDB::Model::QueryOutcome &outcome =
+      getDynamoDBClient()->Query(req);
+  if (!outcome.IsSuccess()) {
+    throw std::runtime_error(outcome.GetError().GetMessage());
+  }
+  const Aws::Vector<AttributeValues> &items = outcome.GetResult().GetItems();
+  for (auto &item : items) {
+    result.push_back(std::make_shared<database::LogItem>(item));
+  }
+
+  return result;
+}
+
+void DatabaseManager::removeLogItem(std::shared_ptr<LogItem> item) {
+  Aws::DynamoDB::Model::DeleteItemRequest request;
+  request.SetTableName(item->getTableName());
+  request.AddKey(
+      LogItem::FIELD_BACKUP_ID,
+      Aws::DynamoDB::Model::AttributeValue(item->getBackupID()));
+  request.AddKey(
+      LogItem::FIELD_LOG_ID,
+      Aws::DynamoDB::Model::AttributeValue(item->getLogID()));
+
+  const Aws::DynamoDB::Model::DeleteItemOutcome &outcome =
+      getDynamoDBClient()->DeleteItem(request);
+  if (!outcome.IsSuccess()) {
+    throw std::runtime_error(outcome.GetError().GetMessage());
+  }
+}
+
 } // namespace database
 } // namespace network
 } // namespace comm
