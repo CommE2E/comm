@@ -5,25 +5,31 @@ import * as React from 'react';
 
 import { emptyItemText } from 'lib/shared/thread-utils';
 
-import css from './chat-tabs.css';
 import ChatThreadListItem from './chat-thread-list-item.react';
+import css from './chat-thread-list.css';
 import { ThreadListContext } from './thread-list-provider';
+import ThreadListSearch from './thread-list-search.react';
 
 type Props = {
   +setModal: (modal: ?React.Node) => void,
 };
+
 function ChatThreadList(props: Props): React.Node {
   const { setModal } = props;
-
   const threadListContext = React.useContext(ThreadListContext);
   invariant(
     threadListContext,
     'threadListContext should be set in ChatThreadList',
   );
-  const { threadList, activeTab } = threadListContext;
-  const isBackground = activeTab === 'BACKGROUND';
+  const {
+    activeTab,
+    threadList,
+    setSearchText,
+    searchText,
+  } = threadListContext;
+  const isBackground = activeTab === 'Background';
 
-  const listData: React.Node[] = React.useMemo(() => {
+  const threadComponents: React.Node[] = React.useMemo(() => {
     const threads = threadList.map(item => (
       <ChatThreadListItem
         item={item}
@@ -36,7 +42,13 @@ function ChatThreadList(props: Props): React.Node {
     }
     return threads;
   }, [threadList, isBackground, setModal]);
-  return <div>{listData}</div>;
+
+  return (
+    <div className={css.threadListContainer}>
+      <ThreadListSearch onChangeText={setSearchText} searchText={searchText} />
+      <div>{threadComponents}</div>
+    </div>
+  );
 }
 
 function EmptyItem() {

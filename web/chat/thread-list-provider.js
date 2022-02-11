@@ -5,13 +5,15 @@ import * as React from 'react';
 
 import {
   type ChatThreadItem,
-  chatListData as chatListDataSelector,
+  useFlattenedChatListData,
 } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   threadInBackgroundChatList,
   threadInHomeChatList,
   threadInChatList,
+  getThreadListSearchResults,
+  useThreadListSearch,
 } from 'lib/shared/thread-utils';
 import { threadTypes } from 'lib/types/thread-types';
 
@@ -24,8 +26,10 @@ import {
 type ChatTabType = 'Focus' | 'Background';
 type ThreadListContextType = {
   +activeTab: ChatTabType,
-  +threadList: $ReadOnlyArray<ChatThreadItem>,
   +setActiveTab: (newActiveTab: ChatTabType) => void,
+  +threadList: $ReadOnlyArray<ChatThreadItem>,
+  +searchText: string,
+  +setSearchText: (searchText: string) => void,
 };
 
 const ThreadListContext: React.Context<?ThreadListContextType> = React.createContext<?ThreadListContextType>();
@@ -39,7 +43,6 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
   const activeChatThreadItem = useSelector(activeChatThreadItemSelector);
   const activeThreadInfo = activeChatThreadItem?.threadInfo;
   const activeThreadID = activeThreadInfo?.id;
-
   const activeSidebarParentThreadInfo = useSelector(state => {
     if (!activeThreadInfo || activeThreadInfo.type !== threadTypes.SIDEBAR) {
       return null;
@@ -142,48 +145,65 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     [activeChatThreadItem],
   );
 
-  const chatListData = useSelector(chatListDataSelector);
+  const chatListData = useFlattenedChatListData();
+  const [searchText, setSearchText] = React.useState('');
+
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+
+  const { threadSearchResults, usersSearchResults } = useThreadListSearch(
+    chatListData,
+    searchText,
+    viewerID,
+  );
+  const threadFilter =
+    activeTab === 'Background'
+      ? threadInBackgroundChatList
+      : threadInHomeChatList;
+  const chatListDataWithoutFilter = getThreadListSearchResults(
+    chatListData,
+    searchText,
+    threadFilter,
+    threadSearchResults,
+    usersSearchResults,
+    viewerID,
+  );
   const activeTopLevelChatThreadItem = useChatThreadItem(
     activeTopLevelThreadInfo,
   );
-  const { homeThreadList, backgroundThreadList } = React.useMemo(() => {
-    const home = chatListData.filter(item =>
-      threadInHomeChatList(item.threadInfo),
-    );
-    const background = chatListData.filter(item =>
-      threadInBackgroundChatList(item.threadInfo),
-    );
-    if (activeTopLevelChatThreadItem && !activeTopLevelThreadIsInChatList) {
-      if (activeThreadOriginalTab === 'Focus') {
-        home.unshift(activeTopLevelChatThreadItem);
-      } else {
-        background.unshift(activeTopLevelChatThreadItem);
-      }
+  const threadList = React.useMemo(() => {
+    let threadListWithTopLevelItem = chatListDataWithoutFilter;
+
+    if (
+      activeTopLevelChatThreadItem &&
+      !activeTopLevelThreadIsInChatList &&
+      activeThreadOriginalTab === activeTab
+    ) {
+      threadListWithTopLevelItem = [
+        activeTopLevelChatThreadItem,
+        ...threadListWithTopLevelItem,
+      ];
     }
-    return {
-      homeThreadList: makeSureActiveSidebarIsIncluded(home),
-      backgroundThreadList: makeSureActiveSidebarIsIncluded(background),
-    };
+    return makeSureActiveSidebarIsIncluded(threadListWithTopLevelItem);
   }, [
+    activeTab,
     activeThreadOriginalTab,
     activeTopLevelChatThreadItem,
     activeTopLevelThreadIsInChatList,
-    chatListData,
+    chatListDataWithoutFilter,
     makeSureActiveSidebarIsIncluded,
   ]);
-
-  const currentThreadList =
-    activeTab === 'Focus' ? homeThreadList : backgroundThreadList;
-
   const threadListContext = React.useMemo(
     () => ({
       activeTab,
-      threadList: currentThreadList,
+      threadList,
       setActiveTab,
+      searchText,
+      setSearchText,
     }),
-    [activeTab, currentThreadList],
+    [activeTab, threadList, searchText],
   );
-
   return (
     <ThreadListContext.Provider value={threadListContext}>
       {props.children}
