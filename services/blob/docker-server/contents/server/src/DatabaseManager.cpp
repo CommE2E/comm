@@ -29,11 +29,18 @@ void DatabaseManager::innerPutItem(
 
 void DatabaseManager::innerRemoveItem(
     const Item &item,
-    const std::string &key) {
+    const PrimaryKey primaryKeyValue) {
   Aws::DynamoDB::Model::DeleteItemRequest request;
   request.SetTableName(item.getTableName());
+  PrimaryKey pk = item.getPrimaryKey();
   request.AddKey(
-      item.getPrimaryKey(), Aws::DynamoDB::Model::AttributeValue(key));
+      pk.partitionKey,
+      Aws::DynamoDB::Model::AttributeValue(primaryKeyValue.partitionKey));
+  if (pk.sortKey != nullptr && primaryKeyValue.sortKey != nullptr) {
+    request.AddKey(
+        *pk.sortKey,
+        Aws::DynamoDB::Model::AttributeValue(*primaryKeyValue.sortKey));
+  }
 
   const Aws::DynamoDB::Model::DeleteItemOutcome &outcome =
       getDynamoDBClient()->DeleteItem(request);
@@ -69,7 +76,7 @@ DatabaseManager::findBlobItem(const std::string &blobHash) {
 }
 
 void DatabaseManager::removeBlobItem(const std::string &blobHash) {
-  this->innerRemoveItem(*(createItemByType<BlobItem>()), blobHash);
+  this->innerRemoveItem(*(createItemByType<BlobItem>()), PrimaryKey(blobHash));
 }
 
 void DatabaseManager::putReverseIndexItem(const ReverseIndexItem &item) {
@@ -133,7 +140,7 @@ bool DatabaseManager::removeReverseIndexItem(const std::string &holder) {
   if (item == nullptr) {
     return false;
   }
-  this->innerRemoveItem(*item, item->getHolder());
+  this->innerRemoveItem(*item, PrimaryKey(item->getHolder()));
   return true;
 }
 

@@ -49,8 +49,8 @@ std::string BlobItem::getTableName() const {
   return BlobItem::tableName;
 }
 
-std::string BlobItem::getPrimaryKey() const {
-  return BlobItem::FIELD_BLOB_HASH;
+PrimaryKey BlobItem::getPrimaryKey() const {
+  return PrimaryKey(BlobItem::FIELD_BLOB_HASH);
 }
 
 std::string BlobItem::getBlobHash() const {
