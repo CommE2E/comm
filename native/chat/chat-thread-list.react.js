@@ -26,8 +26,7 @@ import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import {
   createPendingThread,
-  createPendingThreadItem,
-  threadIsTopLevel,
+  getThreadListSearchResults,
 } from 'lib/shared/thread-utils';
 import type { UserSearchResult } from 'lib/types/search-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -389,6 +388,8 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.threadsSearchResults,
     (propsAndState: PropsAndState) => propsAndState.emptyItem,
     (propsAndState: PropsAndState) => propsAndState.usersSearchResults,
+    (propsAndState: PropsAndState) => propsAndState.filterThreads,
+    (propsAndState: PropsAndState) => propsAndState.viewerID,
     (
       reduxChatListData: $ReadOnlyArray<ChatThreadItem>,
       searchStatus: SearchStatus,
@@ -396,43 +397,19 @@ class ChatThreadList extends React.PureComponent<Props, State> {
       threadsSearchResults: Set<string>,
       emptyItem?: React.ComponentType<{}>,
       usersSearchResults: $ReadOnlyArray<GlobalAccountUserInfo>,
+      filterThreads: ThreadInfo => boolean,
+      viewerID: ?string,
     ): $ReadOnlyArray<Item> => {
-      const chatItems = [];
+      const chatThreadItems = getThreadListSearchResults(
+        reduxChatListData,
+        searchText,
+        filterThreads,
+        threadsSearchResults,
+        usersSearchResults,
+        viewerID,
+      );
 
-      if (!searchText) {
-        chatItems.push(
-          ...reduxChatListData.filter(
-            item =>
-              threadIsTopLevel(item.threadInfo) &&
-              this.props.filterThreads(item.threadInfo),
-          ),
-        );
-      } else {
-        const privateThreads = [];
-        const personalThreads = [];
-        const otherThreads = [];
-        for (const item of reduxChatListData) {
-          if (!threadsSearchResults.has(item.threadInfo.id)) {
-            continue;
-          }
-          if (item.threadInfo.type === threadTypes.PRIVATE) {
-            privateThreads.push({ ...item, sidebars: [] });
-          } else if (item.threadInfo.type === threadTypes.PERSONAL) {
-            personalThreads.push({ ...item, sidebars: [] });
-          } else {
-            otherThreads.push({ ...item, sidebars: [] });
-          }
-        }
-        chatItems.push(...privateThreads, ...personalThreads, ...otherThreads);
-        const { viewerID } = this.props;
-        if (viewerID) {
-          chatItems.push(
-            ...usersSearchResults.map(user =>
-              createPendingThreadItem(viewerID, user),
-            ),
-          );
-        }
-      }
+      const chatItems: Item[] = [...chatThreadItems];
 
       if (emptyItem && chatItems.length === 0) {
         chatItems.push({ type: 'empty', emptyItem });
