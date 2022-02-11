@@ -930,6 +930,27 @@ CommCoreModule::setNotifyToken(jsi::Runtime &rt, const jsi::String &token) {
           });
         });
       });
+}
+
+jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        this->databaseThread->scheduleTask([this, promise]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().clearNotifyToken();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        });
+      });
 };
 
 } // namespace comm

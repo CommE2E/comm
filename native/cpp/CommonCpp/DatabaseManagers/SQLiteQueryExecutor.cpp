@@ -741,4 +741,8 @@ void SQLiteQueryExecutor::setNotifyToken(std::string token) const {
   SQLiteQueryExecutor::getStorage().replace(entry);
 }
 
+void SQLiteQueryExecutor::clearNotifyToken() const {
+  SQLiteQueryExecutor::getStorage().remove<Metadata>("notify_token");
+}
+
 } // namespace comm

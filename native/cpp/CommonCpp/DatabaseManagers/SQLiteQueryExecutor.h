@@ -49,6 +49,7 @@ public:
   folly::Optional<std::string> getOlmPersistAccountData() const override;
   void storeOlmPersistData(crypto::Persist persist) const override;
   void setNotifyToken(std::string token) const override;
+  void clearNotifyToken() const override;
 };
 
 } // namespace comm
