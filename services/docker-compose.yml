@@ -20,6 +20,7 @@ services:
     ports:
       - "${COMM_SERVICES_PORT_TUNNELBROKER}:50051"
     volumes:
+      - $HOME/.aws/config:/root/.aws/config:ro
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
       - ./tunnelbroker/tunnelbroker.ini:/root/tunnelbroker/tunnelbroker.ini:ro
   # backup

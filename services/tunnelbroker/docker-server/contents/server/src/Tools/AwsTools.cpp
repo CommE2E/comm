@@ -13,13 +13,6 @@ Aws::String getAwsRegion() {
       return profileRegion;
     }
   }
-  if (Aws::Config::HasCachedCredentialsProfile(profileName)) {
-    auto profile = Aws::Config::GetCachedCredentialsProfile(profileName);
-    Aws::String credRegion = profile.GetRegion();
-    if (!credRegion.empty()) {
-      return credRegion;
-    }
-  }
   return {};
 }
 
@@ -28,7 +21,7 @@ std::unique_ptr<Aws::DynamoDB::DynamoDBClient> getDynamoDBClient() {
   config.region = getAwsRegion();
   if (config.region.empty()) {
     throw std::runtime_error(
-        "Error: AWS region is not provided in the credentials.");
+        "Error: AWS region is not provided in the ~/.aws/config");
   }
   return std::make_unique<Aws::DynamoDB::DynamoDBClient>(config);
 }
