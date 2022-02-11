@@ -25,10 +25,16 @@ type Props = {
 };
 function ChatThreadListItem(props: Props): React.Node {
   const { item, setModal } = props;
-  const { threadInfo, lastUpdatedTimeIncludingSidebars } = item;
-  const threadID = item.threadInfo.id;
+  const {
+    threadInfo,
+    lastUpdatedTimeIncludingSidebars,
+    mostRecentNonLocalMessage,
+    mostRecentMessageInfo,
+  } = item;
+  const { id, currentUser } = threadInfo;
+
   const ancestorThreads = useAncestorThreads(threadInfo);
-  const onClick = useOnClickThread(threadID);
+  const onClick = useOnClickThread(id);
 
   const timeZone = useSelector(state => state.timeZone);
   const lastActivity = shortAbsoluteDate(
@@ -36,7 +42,7 @@ function ChatThreadListItem(props: Props): React.Node {
     timeZone,
   );
 
-  const active = useThreadIsActive(threadID);
+  const active = useThreadIsActive(id);
   const containerClassName = React.useMemo(
     () =>
       classNames({
@@ -46,7 +52,7 @@ function ChatThreadListItem(props: Props): React.Node {
     [active],
   );
 
-  const { unread } = item.threadInfo.currentUser;
+  const { unread } = currentUser;
   const titleClassName = React.useMemo(
     () =>
       classNames({
@@ -126,19 +132,19 @@ function ChatThreadListItem(props: Props): React.Node {
         <a className={css.threadButton} onClick={onClick}>
           <p className={breadCrumbsClassName}>{ancestorPath}</p>
           <div className={css.threadRow}>
-            <div className={titleClassName}>{item.threadInfo.uiName}</div>
+            <div className={titleClassName}>{threadInfo.uiName}</div>
           </div>
           <div className={css.threadRow}>
             <MessagePreview
-              messageInfo={item.mostRecentMessageInfo}
-              threadInfo={item.threadInfo}
+              messageInfo={mostRecentMessageInfo}
+              threadInfo={threadInfo}
             />
           </div>
         </a>
         <div>
           <ChatThreadListItemMenu
-            threadInfo={item.threadInfo}
-            mostRecentNonLocalMessage={item.mostRecentNonLocalMessage}
+            threadInfo={threadInfo}
+            mostRecentNonLocalMessage={mostRecentNonLocalMessage}
           />
           <div className={lastActivityClassName}>{lastActivity}</div>
         </div>
