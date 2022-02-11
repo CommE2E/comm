@@ -175,19 +175,14 @@ div.sidebar:hover .menu {
 .menuContentVisible {
   display: block;
 }
-.menuContent ul {
-  list-style: none;
-}
-.menuContent li:not(:last-child) {
-  border-bottom: 1px solid #dddddd;
-}
-.menuContent button {
+
+button.menuContent {
   border: none;
   cursor: pointer;
   padding: 10px;
   font-size: 16px;
 }
-.menuContent button:hover {
+button.menuContent:hover {
   background-color: #dddddd;
 }
 
