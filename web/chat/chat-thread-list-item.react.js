@@ -79,6 +79,11 @@ function ChatThreadListItem(props: Props): React.Node {
     [unread],
   );
 
+  let unreadDot = null;
+  if (unread) {
+    unreadDot = <div className={css.unreadDot}></div>;
+  }
+
   const { color } = item.threadInfo;
   const colorSplotchStyle = React.useMemo(
     () => ({ backgroundColor: `#${color}` }),
@@ -128,7 +133,11 @@ function ChatThreadListItem(props: Props): React.Node {
   return (
     <>
       <div className={containerClassName}>
-        <div className={css.colorSplotch} style={colorSplotchStyle} />
+        <div className={css.colorContainer}>
+          <div className={css.dotContainer}>{unreadDot}</div>
+
+          <div className={css.colorSplotch} style={colorSplotchStyle} />
+        </div>
         <a className={css.threadButton} onClick={onClick}>
           <p className={breadCrumbsClassName}>{ancestorPath}</p>
           <div className={css.threadRow}>
