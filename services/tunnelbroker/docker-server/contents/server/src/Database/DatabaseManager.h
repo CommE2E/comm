@@ -3,7 +3,6 @@
 #include "AwsTools.h"
 #include "Constants.h"
 #include "DatabaseEntitiesTools.h"
-#include "DeviceSessionItem.h"
 #include "Tools.h"
 
 #include <aws/core/Aws.h>
@@ -48,6 +47,10 @@ public:
   void putPublicKeyItem(const PublicKeyItem &item);
   std::shared_ptr<PublicKeyItem> findPublicKeyItem(const std::string &deviceID);
   void removePublicKeyItem(const std::string &deviceID);
+
+  void putMessageItem(const MessageItem &item);
+  std::shared_ptr<MessageItem> findMessageItem(const std::string &messageID);
+  void removeMessageItem(const std::string &messageID);
 };
 
 } // namespace database

@@ -160,6 +160,43 @@ void DatabaseManager::removePublicKeyItem(const std::string &deviceID) {
   this->innerRemoveItem(*(createItemByType<PublicKeyItem>()), deviceID);
 }
 
+void DatabaseManager::putMessageItem(const MessageItem &item) {
+  Aws::DynamoDB::Model::PutItemRequest request;
+  request.SetTableName(item.getTableName());
+  request.AddItem(
+      MessageItem::FIELD_MESSAGE_ID,
+      Aws::DynamoDB::Model::AttributeValue(item.getMessageID()));
+  request.AddItem(
+      MessageItem::FIELD_FROM_DEVICE_ID,
+      Aws::DynamoDB::Model::AttributeValue(item.getFromDeviceID()));
+  request.AddItem(
+      MessageItem::FIELD_TO_DEVICE_ID,
+      Aws::DynamoDB::Model::AttributeValue(item.getToDeviceID()));
+  request.AddItem(
+      MessageItem::FIELD_PAYLOAD,
+      Aws::DynamoDB::Model::AttributeValue(item.getPayload()));
+  request.AddItem(
+      MessageItem::FIELD_BLOB_HASHES,
+      Aws::DynamoDB::Model::AttributeValue(item.getBlobHashes()));
+  request.AddItem(
+      MessageItem::FIELD_EXPIRE,
+      Aws::DynamoDB::Model::AttributeValue(std::to_string(item.getExpire())));
+  this->innerPutItem(std::make_shared<MessageItem>(item), request);
+}
+
+std::shared_ptr<MessageItem>
+DatabaseManager::findMessageItem(const std::string &messageID) {
+  Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey(
+      MessageItem::FIELD_MESSAGE_ID,
+      Aws::DynamoDB::Model::AttributeValue(messageID));
+  return std::move(this->innerFindItem<MessageItem>(request));
+}
+
+void DatabaseManager::removeMessageItem(const std::string &messageID) {
+  this->innerRemoveItem(*(createItemByType<MessageItem>()), messageID);
+}
+
 } // namespace database
 } // namespace network
 } // namespace comm

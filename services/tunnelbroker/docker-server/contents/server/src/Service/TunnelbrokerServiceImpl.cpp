@@ -20,7 +20,9 @@ TunnelBrokerServiceImpl::TunnelBrokerServiceImpl() {
       config::ConfigManager::getInstance().getParameter(
           config::ConfigManager::OPTION_DYNAMODB_SESSIONS_VERIFICATION_TABLE),
       config::ConfigManager::getInstance().getParameter(
-          config::ConfigManager::OPTION_DYNAMODB_SESSIONS_PUBLIC_KEY_TABLE)};
+          config::ConfigManager::OPTION_DYNAMODB_SESSIONS_PUBLIC_KEY_TABLE),
+      config::ConfigManager::getInstance().getParameter(
+          config::ConfigManager::OPTION_DYNAMODB_MESSAGES_TABLE)};
   for (const std::string &table : tablesList) {
     if (!database::DatabaseManager::getInstance().isTableAvailable(table)) {
       throw std::runtime_error(
