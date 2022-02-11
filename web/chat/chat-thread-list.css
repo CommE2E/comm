@@ -150,11 +150,12 @@ div.sidebar .menu > button svg {
   color: var(--thread-color-read);
 }
 div.sidebar .menu {
-  display: none;
+  opacity: 0;
 }
 div.sidebar:hover .menu {
   display: flex;
   align-self: flex-end;
+  opacity: 1;
 }
 .menu {
   position: relative;
