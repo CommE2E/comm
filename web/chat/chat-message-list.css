@@ -100,9 +100,6 @@ div.nonViewerMessageActionLinks {
 div.messageActionLinks > div + div {
   margin-left: 4px;
 }
-div.messageReplyButton {
-  font-size: 14px;
-}
 div.messageActionLinkIcon:hover {
   cursor: pointer;
 }
