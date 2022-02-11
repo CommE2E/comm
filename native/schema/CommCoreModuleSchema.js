@@ -46,6 +46,7 @@ export interface Spec extends TurboModule {
   +getUserOneTimeKeys: () => Promise<string>;
   +openSocket: (endpoint: string) => Object;
   +getCodeVersion: () => number;
+  +setNotifyToken: (token: string) => Promise<void>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

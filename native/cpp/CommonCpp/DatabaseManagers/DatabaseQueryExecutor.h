@@ -55,6 +55,7 @@ public:
   virtual std::vector<OlmPersistSession> getOlmPersistSessionsData() const = 0;
   virtual folly::Optional<std::string> getOlmPersistAccountData() const = 0;
   virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
+  virtual void setNotifyToken(std::string token) const = 0;
 };
 
 } // namespace comm

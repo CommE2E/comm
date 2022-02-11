@@ -55,6 +55,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   jsi::Object
   openSocket(jsi::Runtime &rt, const jsi::String &endpoint) override;
   double getCodeVersion(jsi::Runtime &rt) override;
+  jsi::Value
+  setNotifyToken(jsi::Runtime &rt, const jsi::String &token) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

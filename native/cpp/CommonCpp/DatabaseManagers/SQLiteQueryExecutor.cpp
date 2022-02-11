@@ -733,4 +733,12 @@ void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
   }
 }
 
+void SQLiteQueryExecutor::setNotifyToken(std::string token) const {
+  Metadata entry{
+      "notify_token",
+      token,
+  };
+  SQLiteQueryExecutor::getStorage().replace(entry);
+}
+
 } // namespace comm
