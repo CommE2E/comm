@@ -14,8 +14,8 @@ type Props = {
 };
 function SidebarItem(props: Props): React.Node {
   const { threadInfo } = props.sidebarInfo;
-  const threadID = threadInfo.id;
-  const onClick = useOnClickThread(threadID);
+  const onClick = useOnClickThread(threadInfo);
+
   const { unread } = threadInfo.currentUser;
   const unreadCls = classNames(css.sidebarTitle, { [css.unread]: unread });
 

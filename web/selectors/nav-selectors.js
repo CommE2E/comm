@@ -125,24 +125,35 @@ const nonThreadCalendarQuery: (
 );
 
 function useOnClickThread(
-  threadID: ?string,
+  thread: ?ThreadInfo,
 ): (event: SyntheticEvent<HTMLElement>) => void {
   const dispatch = useDispatch();
   return React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       invariant(
-        threadID,
+        thread?.id,
         'useOnClickThread should be called with threadID set',
       );
       event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          activeChatThreadID: threadID,
-        },
-      });
+      const { id: threadID } = thread;
+      if (threadID.includes('pending')) {
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: {
+            activeChatThreadID: threadID,
+            pendingThread: thread,
+          },
+        });
+      } else {
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: {
+            activeChatThreadID: threadID,
+          },
+        });
+      }
     },
-    [dispatch, threadID],
+    [dispatch, thread],
   );
 }
 

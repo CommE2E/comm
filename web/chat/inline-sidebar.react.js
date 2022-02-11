@@ -23,7 +23,7 @@ type Props = {
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;
 
-  const onClick = useOnClickThread(threadInfo.id);
+  const onClick = useOnClickThread(threadInfo);
 
   let viewerIcon, nonViewerIcon, alignStyle;
   if (props.positioning === 'right') {

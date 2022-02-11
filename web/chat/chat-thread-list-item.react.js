@@ -28,7 +28,7 @@ function ChatThreadListItem(props: Props): React.Node {
   const { threadInfo, lastUpdatedTimeIncludingSidebars } = item;
   const threadID = item.threadInfo.id;
   const ancestorThreads = useAncestorThreads(threadInfo);
-  const onClick = useOnClickThread(threadID);
+  const onClick = useOnClickThread(item.threadInfo);
 
   const timeZone = useSelector(state => state.timeZone);
   const lastActivity = shortAbsoluteDate(

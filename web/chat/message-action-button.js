@@ -76,7 +76,7 @@ function MessageActionButton(props: MessageActionTooltipProps): React.Node {
 
   const { threadCreatedFromMessage, messageInfo } = item;
 
-  const onThreadOpen = useOnClickThread(threadCreatedFromMessage?.id);
+  const onThreadOpen = useOnClickThread(threadCreatedFromMessage);
   const onPendingSidebarOpen = useOnClickPendingSidebar(
     messageInfo,
     threadInfo,
