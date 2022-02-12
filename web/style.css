@@ -19,10 +19,6 @@ body {
   overflow: hidden;
   font-size: 1.6rem;
 }
-a {
-  text-decoration: none;
-  color: #2a5db0;
-}
 img,
 iframe {
   display: block;
