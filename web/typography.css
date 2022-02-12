@@ -70,6 +70,9 @@ p {
   font-size: var(--m-font-16);
 }
 
+a {
+  text-decoration: none;
+}
 .small,
 small {
   font-size: var(--xs-font-12);
