@@ -17,29 +17,23 @@ bool rsaVerifyString(
     const std::string &publicKeyBase64,
     const std::string &message,
     const std::string &signatureBase64) {
-
   CryptoPP::RSA::PublicKey publicKey;
   std::string decodedSignature;
-  std::unique_ptr<CryptoPP::Base64Decoder> base64Decoder;
-
   try {
-    base64Decoder = std::make_unique<CryptoPP::Base64Decoder>();
-    publicKey.Load(
-        CryptoPP::StringSource(publicKeyBase64, true, base64Decoder.release())
-            .Ref());
-
-    base64Decoder = std::make_unique<CryptoPP::Base64Decoder>(
-        std::make_unique<CryptoPP::StringSink>(decodedSignature).release());
+    publicKey.Load(CryptoPP::StringSource(
+                       publicKeyBase64, true, new CryptoPP::Base64Decoder())
+                       .Ref());
     CryptoPP::StringSource stringSource(
-        signatureBase64, true, base64Decoder.release());
-
+        signatureBase64,
+        true,
+        new CryptoPP::Base64Decoder(
+            new CryptoPP::StringSink(decodedSignature)));
     CryptoPP::RSASSA_PKCS1v15_SHA_Verifier verifierSha256(publicKey);
     return verifierSha256.VerifyMessage(
         reinterpret_cast<const unsigned char *>(message.c_str()),
         message.length(),
         reinterpret_cast<const unsigned char *>(decodedSignature.c_str()),
         decodedSignature.length());
-
   } catch (const std::exception &e) {
     std::cout << "CryptoTools: "
               << "Got an exception " << e.what() << std::endl;
