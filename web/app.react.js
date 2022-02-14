@@ -11,6 +11,7 @@ import '@fontsource/ibm-plex-sans/600.css';
 import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
+import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -35,6 +36,7 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
+import { ModalContext } from './modals/modal/modal-context';
 import DisconnectedBar from './redux/disconnected-bar';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
 import FocusHandler from './redux/focus-handler.react';
@@ -83,6 +85,7 @@ type Props = {
   +activeThreadCurrentlyUnread: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
+  +modal: ?React.Node,
 };
 type State = {
   +currentModal: ?React.Node,
@@ -233,7 +236,8 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     );
 
     const dispatch = useDispatch();
-
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'modal should be null or undefined');
     return (
       <App
         {...props}
@@ -243,6 +247,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         mostRecentReadThread={mostRecentReadThread}
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
         dispatch={dispatch}
+        modal={modalContext.modal}
       />
     );
   },
