@@ -11,6 +11,7 @@ import '@fontsource/ibm-plex-sans/600.css';
 import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
+import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -35,6 +36,7 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
+import { ModalContext } from './modals/modal/modal-context';
 import DisconnectedBar from './redux/disconnected-bar';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
 import FocusHandler from './redux/focus-handler.react';
@@ -83,15 +85,11 @@ type Props = {
   +activeThreadCurrentlyUnread: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
-};
-type State = {
   +modal: ?React.Node,
+  +setModal: (component: ?React.Node) => void,
 };
-class App extends React.PureComponent<Props, State> {
-  state: State = {
-    modal: null,
-  };
 
+class App extends React.PureComponent<Props> {
   componentDidMount() {
     const {
       navInfo,
@@ -137,7 +135,10 @@ class App extends React.PureComponent<Props, State> {
       content = this.renderMainContent();
     } else {
       content = (
-        <Splash setModal={this.setModal} currentModal={this.state.modal} />
+        <Splash
+          setModal={this.props.setModal}
+          currentModal={this.props.modal}
+        />
       );
     }
     return (
@@ -145,7 +146,7 @@ class App extends React.PureComponent<Props, State> {
         <FocusHandler />
         <VisibilityHandler />
         {content}
-        {this.state.modal}
+        {this.props.modal}
       </DndProvider>
     );
   }
@@ -154,10 +155,13 @@ class App extends React.PureComponent<Props, State> {
     let mainContent;
     if (this.props.navInfo.tab === 'calendar') {
       mainContent = (
-        <Calendar setModal={this.setModal} url={this.props.location.pathname} />
+        <Calendar
+          setModal={this.props.setModal}
+          url={this.props.location.pathname}
+        />
       );
     } else if (this.props.navInfo.tab === 'chat') {
-      mainContent = <Chat setModal={this.setModal} />;
+      mainContent = <Chat setModal={this.props.setModal} />;
     }
 
     return (
@@ -177,22 +181,14 @@ class App extends React.PureComponent<Props, State> {
             </div>
           </div>
         </header>
-        <InputStateContainer setModal={this.setModal}>
+        <InputStateContainer setModal={this.props.setModal}>
           <div className={css['main-content-container']}>
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
-        <LeftLayoutAside setModal={this.setModal} />
+        <LeftLayoutAside setModal={this.props.setModal} />
       </div>
     );
-  }
-
-  setModal = (modal: ?React.Node) => {
-    this.setState({ modal });
-  };
-
-  clearModal() {
-    this.setModal(null);
   }
 }
 
@@ -230,7 +226,8 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     );
 
     const dispatch = useDispatch();
-
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'modal should not be null or undefined');
     return (
       <App
         {...props}
@@ -240,6 +237,8 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         mostRecentReadThread={mostRecentReadThread}
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
         dispatch={dispatch}
+        modal={modalContext.modal}
+        setModal={modalContext.setModal}
       />
     );
   },
