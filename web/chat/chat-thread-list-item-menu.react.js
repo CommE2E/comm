@@ -23,8 +23,10 @@ import css from './chat-thread-list.css';
 type Props = {
   +threadInfo: ThreadInfo,
   +mostRecentNonLocalMessage: ?string,
+  +renderStyle?: 'chat' | 'thread',
 };
 function ChatThreadListItemMenu(props: Props): React.Node {
+  const { renderStyle = 'chat' } = props;
   const [menuVisible, setMenuVisible] = React.useState(false);
 
   const toggleMenu = React.useCallback(() => {
@@ -70,10 +72,12 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   const toggleUnreadStatusButtonText = `Mark as ${
     threadInfo.currentUser.unread ? 'read' : 'unread'
   }`;
+
+  const menuIconSize = renderStyle === 'chat' ? 24 : 16;
   return (
     <div className={css.menu} onMouseLeave={hideMenu}>
       <button onClick={toggleMenu}>
-        <SWMansionIcon icon="menu-vertical" size={24} />
+        <SWMansionIcon icon="menu-vertical" size={menuIconSize} />
       </button>
       <div
         className={classNames(css.menuContent, {
