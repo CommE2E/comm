@@ -38,18 +38,6 @@ div.thread div.title {
   color: var(--thread-color-read);
   line-height: var(--line-height-text);
 }
-div.thread div.title.unread,
-div.thread.activeThread div.title,
-div.thread.activeThread div.lastMessage,
-div.thread.activeThread div.breadCrumbs,
-div.thread.activeThread div.lastActivity,
-div.thread.activeThread .menu button {
-  color: var(--fg);
-}
-
-div.thread.activeThread p.breadCrumbs {
-  color: var(--breadcrumb-color-unread);
-}
 a.threadButton {
   flex: 1;
   cursor: pointer;
