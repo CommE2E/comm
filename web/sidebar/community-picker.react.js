@@ -13,7 +13,7 @@ function CommunityPicker(props: Props): React.Node {
   const { setModal } = props;
 
   const setModalToUserSettings = React.useCallback(() => {
-    setModal(<UserSettingsModal setModal={setModal} />);
+    setModal(<UserSettingsModal />);
   }, [setModal]);
 
   return (
