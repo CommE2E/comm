@@ -5,7 +5,6 @@ import android.content.res.Configuration;
 import android.database.CursorWindow;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
-import app.comm.android.fbjni.CommSecureStore;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -15,37 +14,19 @@ import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
 import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
 import expo.modules.ApplicationLifecycleDispatcher;
-import expo.modules.ExpoModulesPackage;
-import expo.modules.ExpoModulesPackageList;
 import expo.modules.ReactNativeHostWrapper;
-import expo.modules.adapters.react.ModuleRegistryAdapter;
-import expo.modules.adapters.react.ReactModuleRegistryProvider;
-import expo.modules.core.interfaces.Package;
-import expo.modules.securestore.SecureStoreModule;
-import expo.modules.securestore.SecureStorePackage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.security.Security;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 public class MainApplication
     extends MultiDexApplication implements ReactApplication {
 
   static {
     System.loadLibrary("comm_jni_module");
   }
-
-  Map<Boolean, List<Package>> expoPackagesPartitioning =
-      ExpoModulesPackageList.getPackageList().stream().collect(
-          Collectors.partitioningBy(
-              expoPackage -> (expoPackage instanceof SecureStorePackage)));
-  private final ReactModuleRegistryProvider reactNativeModuleRegistryProvider =
-      new ReactModuleRegistryProvider(expoPackagesPartitioning.get(false));
-  private final ReactModuleRegistryProvider secureStoreModuleRegistryProvider =
-      new ReactModuleRegistryProvider(expoPackagesPartitioning.get(true));
 
   private final ReactNativeHost mReactNativeHost =
       new ReactNativeHostWrapper(this, new ReactNativeHost(this) {
@@ -57,23 +38,12 @@ public class MainApplication
         @Override
         protected List<ReactPackage> getPackages() {
           @SuppressWarnings("UnnecessaryLocalVariable")
-          List<ReactPackage> allPackages = new PackageList(this).getPackages();
-          List<ReactPackage> reactNativePackages =
-              allPackages.stream()
-                  .filter(
-                      reactPackage
-                      -> !(reactPackage instanceof ExpoModulesPackage))
-                  .collect(Collectors.toList());
-          reactNativePackages.add(new RNFirebaseMessagingPackage());
-          reactNativePackages.add(new RNFirebaseNotificationsPackage());
-          reactNativePackages.add(
-              new KeyboardInputPackage(this.getApplication()));
-          reactNativePackages.add(new CommPackage());
-
-          ModuleRegistryAdapter reactNativeModuleRegistryAdapter =
-              new ModuleRegistryAdapter(reactNativeModuleRegistryProvider);
-          reactNativePackages.add(reactNativeModuleRegistryAdapter);
-          return reactNativePackages;
+          List<ReactPackage> packages = new PackageList(this).getPackages();
+          packages.add(new RNFirebaseMessagingPackage());
+          packages.add(new RNFirebaseNotificationsPackage());
+          packages.add(new KeyboardInputPackage(this.getApplication()));
+          packages.add(new CommPackage());
+          return packages;
         }
 
         @Override
@@ -83,12 +53,6 @@ public class MainApplication
 
         @Override
         protected JSIModulePackage getJSIModulePackage() {
-          SecureStoreModule secureStoreModule =
-              (SecureStoreModule)(secureStoreModuleRegistryProvider
-                                      .get(getApplicationContext())
-                                      .getExportedModuleOfClass(
-                                          SecureStoreModule.class));
-          CommSecureStore.getInstance().initialize(secureStoreModule);
           return new CommCoreJSIModulePackage();
         }
       });
