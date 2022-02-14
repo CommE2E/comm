@@ -88,11 +88,11 @@ type Props = {
   +modal: ?React.Node,
 };
 type State = {
-  +currentModal: ?React.Node,
+  +modal: ?React.Node,
 };
 class App extends React.PureComponent<Props, State> {
   state: State = {
-    currentModal: null,
+    modal: null,
   };
 
   componentDidMount() {
@@ -140,10 +140,7 @@ class App extends React.PureComponent<Props, State> {
       content = this.renderMainContent();
     } else {
       content = (
-        <Splash
-          setModal={this.setModal}
-          currentModal={this.state.currentModal}
-        />
+        <Splash setModal={this.setModal} currentModal={this.state.modal} />
       );
     }
     return (
@@ -151,7 +148,7 @@ class App extends React.PureComponent<Props, State> {
         <FocusHandler />
         <VisibilityHandler />
         {content}
-        {this.state.currentModal}
+        {this.state.modal}
       </DndProvider>
     );
   }
@@ -194,7 +191,7 @@ class App extends React.PureComponent<Props, State> {
   }
 
   setModal = (modal: ?React.Node) => {
-    this.setState({ currentModal: modal });
+    this.setState({ modal });
   };
 
   clearModal() {
