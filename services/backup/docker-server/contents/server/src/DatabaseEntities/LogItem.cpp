@@ -69,8 +69,12 @@ std::string LogItem::getTableName() const {
   return LogItem::tableName;
 }
 
-std::string LogItem::getPrimaryKey() const {
-  return LogItem::FIELD_BACKUP_ID;
+PrimaryKey LogItem::getPrimaryKey() const {
+  return PrimaryKey(LogItem::FIELD_BACKUP_ID, LogItem::FIELD_LOG_ID);
+}
+
+PrimaryKeyValue LogItem::getPrimaryKeyValue() const {
+  return PrimaryKeyValue(this->backupID, this->logID);
 }
 
 std::string LogItem::getBackupID() const {
