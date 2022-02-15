@@ -27,7 +27,7 @@ const defaultRequestAccessScrollHeight = 390;
 
 type BaseProps = {
   +setModal: (modal: ?React.Node) => void,
-  +currentModal: ?React.Node,
+  +modal: ?React.Node,
 };
 type Props = {
   ...BaseProps,
@@ -178,7 +178,7 @@ class Splash extends React.PureComponent<Props, State> {
             </div>
           </div>
         </div>
-        {this.props.currentModal}
+        {this.props.modal}
       </React.Fragment>
     );
   }
