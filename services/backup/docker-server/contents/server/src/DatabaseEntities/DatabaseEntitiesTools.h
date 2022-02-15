@@ -3,6 +3,7 @@
 #include "Item.h"
 
 #include "LogItem.h"
+#include "BackupItem.h"
 
 #include <memory>
 #include <type_traits>
