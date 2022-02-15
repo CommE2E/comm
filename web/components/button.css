@@ -32,3 +32,16 @@
   border-radius: 50%;
   padding: 0;
 }
+
+.unread {
+  background: var(--unread-btn-bg);
+  color: var(--fg);
+  position: absolute;
+  z-index: 1;
+  font-size: var(--xs-font-12);
+  font-weight: var(--semi-bold);
+  top: 0;
+  right: 25px;
+  width: max-content;
+  padding: 10px;
+}

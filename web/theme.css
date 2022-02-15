@@ -1,6 +1,6 @@
 :root {
-  /* Never use color values defined here directly in CSS. Add color variables to "Color Theme" below 
-     
+  /* Never use color values defined here directly in CSS. Add color variables to "Color Theme" below
+
      The reason we never use color values defined here directly in CSS is
 
       1. It makes changing themes from light / dark / user generated impossible.
@@ -101,4 +101,5 @@
   --thread-ancestor-keyserver-border: var(--shades-black-70);
   --thread-ancestor-color-light: var(--shades-white-70);
   --thread-ancestor-color-dark: var(--shades-black-100);
+  --unread-btn-bg: var(--shades-black-80);
 }

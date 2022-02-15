@@ -145,6 +145,7 @@ div.sidebar:hover .menu {
 .menu {
   position: relative;
   display: flex;
+  padding: 5px;
   justify-content: flex-end;
 }
 .menu > button {
@@ -172,16 +173,7 @@ div.sidebar:hover .menu {
   border-radius: 5px;
   box-shadow: 1px 1px 5px 2px #00000022;
 }
-.menuContentVisible {
-  display: block;
-}
-.menuContent ul {
-  list-style: none;
-}
-.menuContent li:not(:last-child) {
-  border-bottom: 1px solid #dddddd;
-}
-.menuContent button {
+button.menuContent {
   border: none;
   cursor: pointer;
   padding: 10px;
