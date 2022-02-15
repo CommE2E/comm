@@ -166,7 +166,7 @@ class Calendar extends React.PureComponent<Props, State> {
     let calendarContentStyle = null;
     let filterButtonStyle = null;
     if (this.state.filterPanelOpen) {
-      filterPanel = <FilterPanel setModal={this.props.setModal} />;
+      filterPanel = <FilterPanel />;
       calendarContentStyle = { marginLeft: '300px' };
       filterButtonStyle = { backgroundColor: 'rgba(0,0,0,0.67)' };
     }
