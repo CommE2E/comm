@@ -4,7 +4,6 @@ div.thread {
   align-items: flex-start;
   padding-top: 4px;
   padding-bottom: 4px;
-  padding-left: 16px;
   padding-right: 10px;
 }
 div.threadListSideBar {
@@ -66,6 +65,10 @@ span.breadCrumb {
   text-overflow: ellipsis;
 }
 
+div.colorContainer {
+  display: flex;
+}
+
 div.spacer,
 div.colorSplotch {
   height: 40px;
@@ -106,6 +109,19 @@ div.dark {
 }
 .light {
   color: var(--thread-from-color-read);
+}
+div.dotContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+}
+div.unreadDot {
+  height: 4px;
+  width: 4px;
+  background: var(--fg);
+  border-radius: 15px;
+  align-self: center;
 }
 div.italic {
   font-style: italic;
