@@ -31,7 +31,6 @@
 		724995D527B4103A00323FCE /* NotificationService.mm in Sources */ = {isa = PBXBuildFile; fileRef = 724995D427B4103A00323FCE /* NotificationService.mm */; };
 		724995D927B4103A00323FCE /* NotificationService.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 724995D127B4103A00323FCE /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724995FA27BA9E8C00323FCE /* UserNotifications.framework */; };
-		724995FD27BA9EC000323FCE /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 724995FC27BA9EC000323FCE /* libPods-Comm.a */; };
 		726E5D752731A4790032361D /* NetworkModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D732731A4790032361D /* NetworkModule.cpp */; };
 		726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
@@ -132,7 +131,6 @@
 		724995D427B4103A00323FCE /* NotificationService.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NotificationService.mm; sourceTree = "<group>"; };
 		724995D627B4103A00323FCE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		724995FA27BA9E8C00323FCE /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
-		724995FC27BA9EC000323FCE /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		726E5D732731A4790032361D /* NetworkModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkModule.cpp; sourceTree = "<group>"; };
 		726E5D742731A4790032361D /* NetworkModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkModule.h; sourceTree = "<group>"; };
 		726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalNetworkSingleton.cpp; sourceTree = "<group>"; };
@@ -186,7 +184,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				724995FD27BA9EC000323FCE /* libPods-Comm.a in Frameworks */,
 				724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -411,7 +408,6 @@
 		7FF0870B1E833C3F000A1ACF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				724995FC27BA9EC000323FCE /* libPods-Comm.a */,
 				724995FA27BA9E8C00323FCE /* UserNotifications.framework */,
 				711CF80E25DC096000A00FBD /* libFolly.a */,
 				7F761E292201141E001B6FB7 /* JavaScriptCore.framework */,
