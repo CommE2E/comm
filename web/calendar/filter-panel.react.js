@@ -37,17 +37,14 @@ import {
 import { MagnifyingGlass } from '../vectors.react';
 import css from './filter-panel.css';
 
-type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
-};
 type Props = {
-  ...BaseProps,
   +filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
   +filterThreadSearchIndex: () => SearchIndex,
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
   +clearModal: () => void,
+  +setModal: (?React.Node) => void,
 };
 type State = {
   +query: string,
@@ -371,28 +368,26 @@ class Category extends React.PureComponent<CategoryProps> {
   };
 }
 
-const ConnectedFilterPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedFilterPanel(props) {
-    const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
-    const filterThreadInfos = useSelector(webFilterThreadInfos);
-    const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
-    const includeDeleted = useSelector(includeDeletedSelector);
-    const dispatch = useDispatch();
-    const modalContext = React.useContext(ModalContext);
-    invariant(modalContext, 'ModalContext not defined');
+function ConnectedFilterPanel(): React.Node {
+  const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
+  const filterThreadInfos = useSelector(webFilterThreadInfos);
+  const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
+  const includeDeleted = useSelector(includeDeletedSelector);
+  const dispatch = useDispatch();
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'ModalContext not defined');
 
-    return (
-      <FilterPanel
-        {...props}
-        filteredThreadIDs={filteredThreadIDs}
-        filterThreadInfos={filterThreadInfos}
-        filterThreadSearchIndex={filterThreadSearchIndex}
-        includeDeleted={includeDeleted}
-        dispatch={dispatch}
-        clearModal={modalContext.clearModal}
-      />
-    );
-  },
-);
+  return (
+    <FilterPanel
+      filteredThreadIDs={filteredThreadIDs}
+      filterThreadInfos={filterThreadInfos}
+      filterThreadSearchIndex={filterThreadSearchIndex}
+      includeDeleted={includeDeleted}
+      dispatch={dispatch}
+      clearModal={modalContext.clearModal}
+      setModal={modalContext.setModal}
+    />
+  );
+}
 
 export default ConnectedFilterPanel;
