@@ -98,4 +98,7 @@
   --permission-color: var(--shades-white-60);
   --thread-top-bar-color: var(--shades-white-100);
   --thread-top-bar-menu-color: var(--shades-white-70);
+  --thread-ancestor-keyserver-border: var(--shades-black-70);
+  --thread-ancestor-color-light: var(--shades-white-70);
+  --thread-ancestor-color-dark: var(--shades-black-100);
 }

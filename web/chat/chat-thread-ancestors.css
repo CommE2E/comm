@@ -1,0 +1,47 @@
+div.ancestorThreadsContainer {
+  font-size: var(--xs-font-12);
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+}
+
+div.ancestorName {
+  display: flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 2px;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+button.seeFullStructure {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+div.ancestorKeyserver {
+  display: flex;
+  align-items: center;
+}
+
+div.ancestorKeyserverName {
+  border-radius: 0px 2px 2px 0px;
+}
+
+div.ancestorKeyserverOperator {
+  display: flex;
+  column-gap: 5px;
+  padding: 0px 5px;
+  align-items: center;
+  border: 1px solid var(--thread-ancestor-keyserver-border);
+  border-radius: 2px 0px 0px 2px;
+  height: 22px;
+  box-sizing: border-box;
+}
+
+button.seeFullAncestor {
+  font-size: var(--xs-font-12);
+  font-weight: var(--semi-bold);
+  cursor: pointer;
+}
