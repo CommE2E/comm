@@ -219,5 +219,75 @@ grpc::Status TunnelBrokerServiceImpl::Get(
   return grpc::Status::OK;
 };
 
+grpc::ServerBidiReactor<
+    tunnelbroker::OutboundMessage,
+    tunnelbroker::InboundMessage> *
+TunnelBrokerServiceImpl::OpenStream(grpc::CallbackServerContext *context) {
+  class Reactor : public grpc::ServerBidiReactor<
+                      tunnelbroker::OutboundMessage,
+                      tunnelbroker::InboundMessage> {
+  public:
+    Reactor(grpc::CallbackServerContext *ctx) : ctx_(ctx) {
+      const std::string uuid = generateUUID();
+      connectionId_ = boost::lexical_cast<std::string>(uuid);
+      if (ctx->client_metadata().find("sessionId") !=
+          ctx->client_metadata().end()) {
+        grpc::string_ref sessionId =
+            ctx->client_metadata().find("sessionId")->second;
+        std::shared_ptr<database::DeviceSessionItem> sessionItem =
+            database::DatabaseManager::getInstance().findSessionItem(
+                sessionId.data());
+        if (sessionItem == nullptr) {
+          std::cout << "gRPC: "
+                    << "Session " << sessionId << " not found" << std::endl;
+          ctx->TryCancel();
+        }
+        clientDeviceId_ = sessionItem->getDeviceID();
+      } else {
+        ctx->TryCancel();
+      }
+      StartRead(&outbound_);
+    }
+
+    void OnDone() override {
+      GPR_ASSERT(finished_);
+      delete this;
+    }
+
+    void OnCancel() override {
+    }
+
+    void OnReadDone(bool ok) override {
+      if (!ok) {
+        Finish(grpc::Status::OK);
+        finished_ = true;
+        return;
+      }
+      inbound_.set_fromdeviceid(clientDeviceId_);
+      inbound_.set_fromconnectionid(connectionId_);
+      inbound_.set_payload(outbound_.payload());
+
+      StartWrite(&inbound_);
+    }
+
+    void OnWriteDone(bool ok) override {
+      if (!ok) {
+        gpr_log(GPR_ERROR, "Server write failed");
+        return;
+      }
+      StartRead(&outbound_);
+    }
+
+  private:
+    grpc::CallbackServerContext *const ctx_;
+    tunnelbroker::OutboundMessage outbound_;
+    tunnelbroker::InboundMessage inbound_;
+    std::string clientDeviceId_;
+    std::string connectionId_;
+    bool finished_{false};
+  };
+
+  return new Reactor(context);
+};
 } // namespace network
 } // namespace comm
