@@ -201,7 +201,7 @@ class Splash extends React.PureComponent<Props, State> {
 
   onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.setModal(<LogInModal setModal={this.props.setModal} />);
+    this.props.setModal(<LogInModal />);
   };
 
   onClickRequestAccess = (event: SyntheticEvent<HTMLAnchorElement>) => {
