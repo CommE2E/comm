@@ -4,8 +4,10 @@ ENV SHELL=/bin/bash
 
 COPY services/tunnelbroker/docker-base/contents /transferred
 
-RUN apk update
-RUN apk add curl-dev openssl-dev zlib-dev
+RUN apt-get update && apt-get install -y \
+	libcurl4-openssl-dev \
+	libssl-dev \
+	zlib1g-dev
 
 # Install SDKs
 RUN /transferred/install_folly.sh

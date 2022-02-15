@@ -4,8 +4,12 @@ ENV SHELL=/bin/bash
 
 COPY services/backup/docker-base/contents /transferred
 
-RUN apk update
-RUN apk add curl-dev openssl-dev libuuid zlib-dev
+RUN apt-get update && apt-get install -y \
+	libcurl4-openssl-dev \
+	libssl-dev \
+	uuid-dev \
+	zlib1g-dev
+	
 RUN cd /
 RUN /transferred/install_aws_sdk.sh
 
