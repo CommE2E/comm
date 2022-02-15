@@ -8,6 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
+import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import Switch from 'react-switch';
@@ -26,6 +27,7 @@ import {
 } from 'lib/types/filter-types';
 import type { Dispatch } from 'lib/types/redux-types';
 
+import { ModalContext } from '../modals/modal/modal-context';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import {
@@ -45,6 +47,7 @@ type Props = {
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
+  +clearModal: () => void,
 };
 type State = {
   +query: string,
@@ -205,7 +208,10 @@ class FilterPanel extends React.PureComponent<Props, State> {
 
   onClickSettings = (threadID: string) => {
     this.props.setModal(
-      <ThreadSettingsModal threadID={threadID} onClose={this.clearModal} />,
+      <ThreadSettingsModal
+        threadID={threadID}
+        onClose={this.props.clearModal}
+      />,
     );
   };
 
@@ -237,10 +243,6 @@ class FilterPanel extends React.PureComponent<Props, State> {
         includeDeleted,
       },
     });
-  };
-
-  clearModal = () => {
-    this.props.setModal(null);
   };
 }
 
@@ -376,6 +378,8 @@ const ConnectedFilterPanel: React.ComponentType<BaseProps> = React.memo<BaseProp
     const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
     const includeDeleted = useSelector(includeDeletedSelector);
     const dispatch = useDispatch();
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'ModalContext not defined');
 
     return (
       <FilterPanel
@@ -385,6 +389,7 @@ const ConnectedFilterPanel: React.ComponentType<BaseProps> = React.memo<BaseProp
         filterThreadSearchIndex={filterThreadSearchIndex}
         includeDeleted={includeDeleted}
         dispatch={dispatch}
+        clearModal={modalContext.clearModal}
       />
     );
   },
