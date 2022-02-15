@@ -45,6 +45,7 @@ import LoadingIndicator from '../loading-indicator.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
+import { ModalContext } from '../modals/modal/modal-context';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { HistoryVector, DeleteVector } from '../vectors.react';
@@ -68,6 +69,7 @@ type Props = {
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
+  +clearModal: () => void,
 };
 type State = {
   +focused: boolean,
@@ -384,11 +386,11 @@ class Entry extends React.PureComponent<Props, State> {
             type: concurrentModificationResetActionType,
             payload: { id: entryID, dbText: e.payload.db },
           });
-          this.clearModal();
+          this.props.clearModal();
         };
         this.props.setModal(
           <ConcurrentModificationModal
-            onClose={this.clearModal}
+            onClose={this.props.clearModal}
             onRefresh={onRefresh}
           />,
         );
@@ -449,14 +451,10 @@ class Entry extends React.PureComponent<Props, State> {
           this.props.entryInfo.month,
           this.props.entryInfo.day,
         )}
-        onClose={this.clearModal}
+        onClose={this.props.clearModal}
         currentEntryID={this.props.entryInfo.id}
       />,
     );
-  };
-
-  clearModal: () => void = () => {
-    this.props.setModal(null);
   };
 }
 
@@ -481,6 +479,8 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const callDeleteEntry = useServerCall(deleteEntry);
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'modalContext should be defined');
 
     return (
       <Entry
@@ -494,6 +494,7 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         deleteEntry={callDeleteEntry}
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
+        clearModal={modalContext.clearModal}
       />
     );
   },
