@@ -204,9 +204,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
   }
 
   onClickSettings = (threadID: string) => {
-    this.props.setModal(
-      <ThreadSettingsModal threadID={threadID} onClose={this.clearModal} />,
-    );
+    this.props.setModal(<ThreadSettingsModal threadID={threadID} />);
   };
 
   onChangeQuery = (event: SyntheticEvent<HTMLInputElement>) => {
