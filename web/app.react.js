@@ -178,7 +178,7 @@ class App extends React.PureComponent<Props> {
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
-        <LeftLayoutAside setModal={this.props.setModal} />
+        <LeftLayoutAside />
       </div>
     );
   }
