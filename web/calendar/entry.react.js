@@ -45,6 +45,7 @@ import LoadingIndicator from '../loading-indicator.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
+import { ModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { HistoryVector, DeleteVector } from '../vectors.react';
@@ -54,7 +55,6 @@ type BaseProps = {
   +innerRef: (key: string, me: Entry) => void,
   +entryInfo: EntryInfo,
   +focusOnFirstEntryNewerThan: (time: number) => void,
-  +setModal: (modal: ?React.Node) => void,
   +tabIndex: number,
 };
 type Props = {
@@ -68,6 +68,7 @@ type Props = {
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
+  +setModal: (modal: ?React.Node) => void,
 };
 type State = {
   +focused: boolean,
@@ -492,6 +493,9 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
 
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'ModalContext not found');
+
     return (
       <Entry
         {...props}
@@ -504,6 +508,7 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         deleteEntry={callDeleteEntry}
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
+        setModal={modalContext.setModal}
       />
     );
   },
