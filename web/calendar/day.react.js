@@ -35,7 +35,6 @@ import ThreadPicker from './thread-picker.react';
 type BaseProps = {
   +dayString: string,
   +entryInfos: $ReadOnlyArray<EntryInfo>,
-  +setModal: (modal: ?React.Node) => void,
   +startingTabIndex: number,
 };
 type Props = {
@@ -46,6 +45,8 @@ type Props = {
   +nextLocalID: number,
   +timeZone: ?string,
   +dispatch: Dispatch,
+  +clearModal: () => void,
+  +setModal: (modal: ?React.Node) => void,
 };
 type State = {
   +pickerOpen: boolean,
@@ -244,7 +245,7 @@ class Day extends React.PureComponent<Props, State> {
       <HistoryModal
         mode="day"
         dayString={this.props.dayString}
-        onClose={this.clearModal}
+        onClose={this.props.clearModal}
       />,
     );
   };
@@ -258,10 +259,6 @@ class Day extends React.PureComponent<Props, State> {
       invariant(entry, 'entry for entryinfo should be defined');
       entry.focus();
     }
-  };
-
-  clearModal = () => {
-    this.props.setModal(null);
   };
 }
 
@@ -289,6 +286,7 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         timeZone={timeZone}
         dispatch={dispatch}
         setModal={modalContext.setModal}
+        clearModal={modalContext.clearModal}
       />
     );
   },
