@@ -36,6 +36,7 @@ import {
 } from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
+import { ModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -71,7 +72,6 @@ class Tab extends React.PureComponent<TabProps> {
 
 type BaseProps = {
   +threadID: string,
-  +onClose: () => void,
 };
 type Props = {
   ...BaseProps,
@@ -87,6 +87,7 @@ type Props = {
   +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
+  +clearModal: () => void,
 };
 type State = {
   +queuedChanges: ThreadChanges,
@@ -377,7 +378,11 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Modal name="Thread settings" onClose={this.props.onClose} size="large">
+      <Modal
+        name="Thread settings"
+        onClose={this.props.clearModal}
+        size="large"
+      >
         <ul className={css['tab-panel']}>{tabs}</ul>
         <div className={css['modal-body']}>
           <form method="POST">
@@ -481,7 +486,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         threadID: this.props.threadInfo.id,
         changes: this.state.queuedChanges,
       });
-      this.props.onClose();
+      this.props.clearModal();
       return response;
     } catch (e) {
       this.setState(
@@ -515,7 +520,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         this.props.threadInfo.id,
         this.state.accountPassword,
       );
-      this.props.onClose();
+      this.props.clearModal();
       return response;
     } catch (e) {
       const errorMessage =
@@ -564,9 +569,12 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     const threadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[props.threadID],
     );
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'ModalContext not found');
+
     if (!threadInfo) {
       return (
-        <Modal onClose={props.onClose} name="Invalid thread">
+        <Modal onClose={modalContext.clearModal} name="Invalid thread">
           <div className={css['modal-body']}>
             <p>You no longer have permission to view this thread</p>
           </div>
@@ -584,6 +592,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         deleteThread={callDeleteThread}
         changeThreadSettings={callChangeThreadSettings}
         dispatchActionPromise={dispatchActionPromise}
+        clearModal={modalContext.clearModal}
       />
     );
   },
