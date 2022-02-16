@@ -9,6 +9,7 @@ import thunk from 'redux-thunk';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 
 import HotRoot from './hot';
+import { ModalProvider } from './modals/modal-provider.react';
 import { reducer } from './redux/redux-setup';
 import type { AppState, Action } from './redux/redux-setup';
 
@@ -21,7 +22,9 @@ const store: Store<AppState, Action> = createStore(
 
 const RootProvider = (): React.Node => (
   <Provider store={store}>
-    <HotRoot />
+    <ModalProvider>
+      <HotRoot />
+    </ModalProvider>
   </Provider>
 );
 
