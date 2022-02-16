@@ -73,13 +73,13 @@ import { getMessageForException, cloneError } from 'lib/utils/errors';
 
 import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
+import { ModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { type PendingMultimediaUpload, InputStateContext } from './input-state';
 
 type BaseProps = {
   +children: React.Node,
-  +setModal: (modal: ?React.Node) => void,
 };
 type Props = {
   ...BaseProps,
@@ -108,6 +108,7 @@ type Props = {
     text: string,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
+  +setModal: (modal: ?React.Node) => void,
 };
 type State = {
   +pendingUploads: {
@@ -1245,6 +1246,8 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
     const callNewThread = useServerCall(newThread);
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'ModalContext not found');
 
     return (
       <InputStateContainer
@@ -1262,6 +1265,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
         newThread={callNewThread}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
+        setModal={modalContext.setModal}
       />
     );
   },
