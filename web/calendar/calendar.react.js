@@ -150,7 +150,6 @@ class Calendar extends React.PureComponent<Props, State> {
           <Day
             dayString={dayString}
             entryInfos={entries}
-            setModal={this.props.setModal}
             key={curDayOfMonth}
             startingTabIndex={tabIndex}
           />,
