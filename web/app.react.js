@@ -131,12 +131,7 @@ class App extends React.PureComponent<Props> {
     if (this.props.loggedIn) {
       content = this.renderMainContent();
     } else {
-      content = (
-        <Splash
-          setModal={this.props.setModal}
-          currentModal={this.props.modal}
-        />
-      );
+      content = <Splash />;
     }
     return (
       <DndProvider backend={HTML5Backend}>
