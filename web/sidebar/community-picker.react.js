@@ -1,20 +1,21 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import Button from '../components/button.react';
 import UserSettingsModal from '../modals/account/user-settings-modal.react.js';
+import { ModalContext } from '../modals/modal-provider.react';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './community-picker.css';
 
-type Props = { +setModal: (modal: ?React.Node) => void };
-
-function CommunityPicker(props: Props): React.Node {
-  const { setModal } = props;
+function CommunityPicker(): React.Node {
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'ModalContext not found');
 
   const setModalToUserSettings = React.useCallback(() => {
-    setModal(<UserSettingsModal />);
-  }, [setModal]);
+    modalContext.setModal(<UserSettingsModal />);
+  }, [modalContext]);
 
   return (
     <div className={css.container}>
