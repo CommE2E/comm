@@ -109,7 +109,6 @@ class Day extends React.PureComponent<Props, State> {
           <Entry
             entryInfo={entryInfo}
             focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan}
-            setModal={this.props.setModal}
             tabIndex={this.props.startingTabIndex + i}
             key={key}
             innerRef={this.entryRef}
