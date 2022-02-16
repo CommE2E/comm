@@ -1,0 +1,51 @@
+div.body {
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: 40px 20px 40px;
+}
+
+div.qr_link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 48px;
+  padding: 16px 32px;
+  margin-top: 28px;
+  color: #ffffff;
+}
+div.qr_link:hover {
+  background-image: none;
+  background-color: #ffffff;
+}
+
+/* TWITTER */
+div.qr_link_twitter {
+  background-image: linear-gradient(#3ecffa, #1da1f2);
+}
+div.qr_link_twitter:hover {
+  color: #1da1f2;
+}
+
+/* GITHUB */
+div.qr_link_github {
+  background-image: linear-gradient(#2f3845, #1f252e);
+}
+div.qr_link_github:hover {
+  color: #1f252e;
+}
+
+/* COMM */
+div.qr_link_comm {
+  background-image: linear-gradient(#9b66ff, #6236ff);
+}
+div.qr_link_comm:hover {
+  color: #6236ff;
+}
+
+/* APPSTORE */
+div.qr_link_appstore {
+  background-image: linear-gradient(#5ec3f6, #386de9);
+}
+div.qr_link_appstore:hover {
+  color: #386de9;
+}

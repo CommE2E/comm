@@ -8,6 +8,7 @@ import Footer from './footer.react';
 import Header from './header.react';
 import Keyservers from './keyservers.react';
 import Privacy from './privacy.react';
+import QR from './qr.react';
 import Support from './support.react';
 import Terms from './terms.react';
 import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react';
@@ -20,6 +21,7 @@ function Landing(): React.Node {
   const onTerms = useRouteMatch({ path: '/terms' });
   const onSupport = useRouteMatch({ path: '/support' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
+  const onQR = useRouteMatch({ path: '/qr' });
 
   const scrollToSubscriptionForm = React.useCallback(async (e: Event) => {
     e.preventDefault();
@@ -36,16 +38,35 @@ function Landing(): React.Node {
       return <Support />;
     } else if (onKeyservers) {
       return <Keyservers />;
+    } else if (onQR) {
+      return <QR />;
     } else {
       return <AppLanding onRequestAccess={scrollToSubscriptionForm} />;
     }
-  }, [onKeyservers, onPrivacy, onSupport, onTerms, scrollToSubscriptionForm]);
+  }, [
+    onKeyservers,
+    onPrivacy,
+    onSupport,
+    onTerms,
+    onQR,
+    scrollToSubscriptionForm,
+  ]);
+
+  let header;
+  if (!onQR) {
+    header = <Header onRequestAccess={scrollToSubscriptionForm} />;
+  }
+
+  let footer;
+  if (!onQR) {
+    footer = <Footer />;
+  }
 
   return (
     <>
-      <Header onRequestAccess={scrollToSubscriptionForm} />
+      {header}
       {activePage}
-      <Footer />
+      {footer}
     </>
   );
 }
