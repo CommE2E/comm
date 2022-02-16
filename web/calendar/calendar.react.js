@@ -30,6 +30,7 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils';
 
+import { ModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import {
   yearAssertingSelector,
@@ -44,7 +45,6 @@ import Day from './day.react';
 import FilterPanel from './filter-panel.react';
 
 type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
   +url: string,
 };
 type Props = {
@@ -60,6 +60,7 @@ type Props = {
     calendarQuery: CalendarQuery,
     reduxAlreadyUpdated?: boolean,
   ) => Promise<CalendarQueryUpdateResult>,
+  +setModal: (modal: ?React.Node) => void,
 };
 type State = {
   filterPanelOpen: boolean,
@@ -270,6 +271,8 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const loggedIn = useSelector(isLoggedIn);
     const callUpdateCalendarQuery = useServerCall(updateCalendarQuery);
     const dispatchActionPromise = useDispatchActionPromise();
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'ModalContext not found');
 
     return (
       <Calendar
@@ -282,6 +285,7 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         loggedIn={loggedIn}
         dispatchActionPromise={dispatchActionPromise}
         updateCalendarQuery={callUpdateCalendarQuery}
+        setModal={modalContext.setModal}
       />
     );
   },
