@@ -86,14 +86,7 @@ type Props = {
   +setModal: (?React.Node) => void,
   +modal: ?React.Node,
 };
-type State = {
-  +modal: ?React.Node,
-};
-class App extends React.PureComponent<Props, State> {
-  state: State = {
-    modal: null,
-  };
-
+class App extends React.PureComponent<Props> {
   componentDidMount() {
     const {
       navInfo,
@@ -139,7 +132,10 @@ class App extends React.PureComponent<Props, State> {
       content = this.renderMainContent();
     } else {
       content = (
-        <Splash setModal={this.setModal} currentModal={this.props.modal} />
+        <Splash
+          setModal={this.props.setModal}
+          currentModal={this.props.modal}
+        />
       );
     }
     return (
@@ -156,10 +152,13 @@ class App extends React.PureComponent<Props, State> {
     let mainContent;
     if (this.props.navInfo.tab === 'calendar') {
       mainContent = (
-        <Calendar setModal={this.setModal} url={this.props.location.pathname} />
+        <Calendar
+          setModal={this.props.setModal}
+          url={this.props.location.pathname}
+        />
       );
     } else if (this.props.navInfo.tab === 'chat') {
-      mainContent = <Chat setModal={this.setModal} />;
+      mainContent = <Chat setModal={this.props.setModal} />;
     }
 
     return (
@@ -179,7 +178,7 @@ class App extends React.PureComponent<Props, State> {
             </div>
           </div>
         </header>
-        <InputStateContainer setModal={this.setModal}>
+        <InputStateContainer setModal={this.props.setModal}>
           <div className={css['main-content-container']}>
             <div className={css['main-content']}>{mainContent}</div>
           </div>
@@ -188,10 +187,6 @@ class App extends React.PureComponent<Props, State> {
       </div>
     );
   }
-
-  setModal = (modal: ?React.Node) => {
-    this.setState({ modal });
-  };
 }
 
 const fetchEntriesLoadingStatusSelector = createLoadingStatusSelector(
