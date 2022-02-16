@@ -29,6 +29,7 @@ import {
 import Button from '../../components/button.react';
 import { useSelector } from '../../redux/redux-utils';
 import Input from '../input.react';
+import { ModalContext } from '../modal-provider.react';
 import Modal from '../modal.react';
 import css from './user-settings-modal.css';
 
@@ -58,11 +59,7 @@ class Tab extends React.PureComponent<TabProps> {
   };
 }
 
-type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
-};
 type Props = {
-  ...BaseProps,
   +currentUserInfo: ?CurrentUserInfo,
   +preRequestUserState: PreRequestUserState,
   +inputDisabled: boolean,
@@ -73,6 +70,8 @@ type Props = {
   ) => Promise<LogOutResult>,
   +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
+  +setModal: (modal: ?React.Node) => void,
+  +clearModal: () => void,
 };
 type State = {
   +newPassword: string,
@@ -115,7 +114,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   logOut = async () => {
     await this.props.logOut(this.props.preRequestUserState);
-    this.clearModal();
+    this.props.clearModal();
   };
 
   render() {
@@ -206,7 +205,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Modal name="Edit account" onClose={this.clearModal} size="large">
+      <Modal name="Edit account" onClose={this.props.clearModal} size="large">
         <ul className={css['tab-panel']}>
           <Tab
             name="General"
@@ -328,7 +327,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
         },
         currentPassword: this.state.currentPassword,
       });
-      this.clearModal();
+      this.props.clearModal();
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         this.setState(
@@ -377,7 +376,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
         this.state.currentPassword,
         this.props.preRequestUserState,
       );
-      this.clearModal();
+      this.props.clearModal();
       return response;
     } catch (e) {
       const errorMessage =
@@ -400,10 +399,6 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
       throw e;
     }
   }
-
-  clearModal = () => {
-    this.props.setModal(null);
-  };
 }
 
 const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
@@ -413,33 +408,35 @@ const changeUserPasswordLoadingStatusSelector = createLoadingStatusSelector(
   changeUserPasswordActionTypes,
 );
 
-const ConnectedUserSettingsModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedUserSettingsModal(props) {
-    const currentUserInfo = useSelector(state => state.currentUserInfo);
-    const preRequestUserState = useSelector(preRequestUserStateSelector);
-    const inputDisabled = useSelector(
-      state =>
-        deleteAccountLoadingStatusSelector(state) === 'loading' ||
-        changeUserPasswordLoadingStatusSelector(state) === 'loading',
-    );
-    const callDeleteAccount = useServerCall(deleteAccount);
-    const callChangeUserPassword = useServerCall(changeUserPassword);
-    const dispatchActionPromise = useDispatchActionPromise();
-    const boundLogOut = useServerCall(logOut);
+function ConnectedUserSettingsModal(): React.Node {
+  const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+  const inputDisabled = useSelector(
+    state =>
+      deleteAccountLoadingStatusSelector(state) === 'loading' ||
+      changeUserPasswordLoadingStatusSelector(state) === 'loading',
+  );
+  const callDeleteAccount = useServerCall(deleteAccount);
+  const callChangeUserPassword = useServerCall(changeUserPassword);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const boundLogOut = useServerCall(logOut);
 
-    return (
-      <UserSettingsModal
-        {...props}
-        currentUserInfo={currentUserInfo}
-        preRequestUserState={preRequestUserState}
-        inputDisabled={inputDisabled}
-        deleteAccount={callDeleteAccount}
-        changeUserPassword={callChangeUserPassword}
-        dispatchActionPromise={dispatchActionPromise}
-        logOut={boundLogOut}
-      />
-    );
-  },
-);
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'modalContext not set');
+
+  return (
+    <UserSettingsModal
+      currentUserInfo={currentUserInfo}
+      preRequestUserState={preRequestUserState}
+      inputDisabled={inputDisabled}
+      deleteAccount={callDeleteAccount}
+      changeUserPassword={callChangeUserPassword}
+      dispatchActionPromise={dispatchActionPromise}
+      logOut={boundLogOut}
+      setModal={modalContext.setModal}
+      clearModal={modalContext.clearModal}
+    />
+  );
+}
 
 export default ConnectedUserSettingsModal;
