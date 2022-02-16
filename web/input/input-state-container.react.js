@@ -518,7 +518,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     );
 
     if (appendResults.some(({ result }) => !result.success)) {
-      setModal(<InvalidUploadModal setModal={setModal} />);
+      setModal(<InvalidUploadModal />);
 
       const time = Date.now() - selectionTime;
       const reports = [];
