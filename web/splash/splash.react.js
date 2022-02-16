@@ -20,20 +20,18 @@ import {
 
 import LoadingIndicator from '../loading-indicator.react';
 import LogInModal from '../modals/account/log-in-modal.react';
+import { ModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import css from './splash.css';
 
 const defaultRequestAccessScrollHeight = 390;
 
-type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
-  +currentModal: ?React.Node,
-};
 type Props = {
-  ...BaseProps,
   +loadingStatus: LoadingStatus,
   +dispatchActionPromise: DispatchActionPromise,
   +requestAccess: (accessRequest: AccessRequest) => Promise<void>,
+  +setModal: (modal: React.Node) => void,
+  +modal: ?React.Node,
 };
 type State = {
   +platform: DeviceType,
@@ -178,7 +176,7 @@ class Splash extends React.PureComponent<Props, State> {
             </div>
           </div>
         </div>
-        {this.props.currentModal}
+        {this.props.modal}
       </React.Fragment>
     );
   }
@@ -260,21 +258,23 @@ class Splash extends React.PureComponent<Props, State> {
 const loadingStatusSelector = createLoadingStatusSelector(
   requestAccessActionTypes,
 );
-const ConnectedSplash: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedSplash(props) {
-    const loadingStatus = useSelector(loadingStatusSelector);
-    const callRequestAccess = useServerCall(requestAccess);
-    const dispatchActionPromise = useDispatchActionPromise();
+function ConnectedSplash(): React.Node {
+  const loadingStatus = useSelector(loadingStatusSelector);
+  const callRequestAccess = useServerCall(requestAccess);
+  const dispatchActionPromise = useDispatchActionPromise();
 
-    return (
-      <Splash
-        {...props}
-        loadingStatus={loadingStatus}
-        requestAccess={callRequestAccess}
-        dispatchActionPromise={dispatchActionPromise}
-      />
-    );
-  },
-);
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'modalConext should exist');
+
+  return (
+    <Splash
+      loadingStatus={loadingStatus}
+      requestAccess={callRequestAccess}
+      dispatchActionPromise={dispatchActionPromise}
+      setModal={modalContext.setModal}
+      modal={modalContext.modal}
+    />
+  );
+}
 
 export default ConnectedSplash;
