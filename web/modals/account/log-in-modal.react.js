@@ -29,11 +29,7 @@ import { ModalContext } from '../modal-provider.react';
 import Modal from '../modal.react';
 import css from './user-settings-modal.css';
 
-type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
-};
 type Props = {
-  ...BaseProps,
   +inputDisabled: boolean,
   +logInExtraInfo: () => LogInExtraInfo,
   +dispatchActionPromise: DispatchActionPromise,
@@ -222,26 +218,23 @@ class LogInModal extends React.PureComponent<Props, State> {
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 
-const ConnectedLoginModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedLoginModal(props) {
-    const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
-    const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
-    const callLogIn = useServerCall(logIn);
-    const dispatchActionPromise = useDispatchActionPromise();
+function ConnectedLoginModal(): React.Node {
+  const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+  const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
+  const callLogIn = useServerCall(logIn);
+  const dispatchActionPromise = useDispatchActionPromise();
 
-    const modalContext = React.useContext(ModalContext);
-    invariant(modalContext, 'modalContext unset');
-    return (
-      <LogInModal
-        {...props}
-        inputDisabled={inputDisabled}
-        logInExtraInfo={loginExtraInfo}
-        logIn={callLogIn}
-        dispatchActionPromise={dispatchActionPromise}
-        clearModal={modalContext.clearModal}
-      />
-    );
-  },
-);
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'modalContext unset');
+  return (
+    <LogInModal
+      inputDisabled={inputDisabled}
+      logInExtraInfo={loginExtraInfo}
+      logIn={callLogIn}
+      dispatchActionPromise={dispatchActionPromise}
+      clearModal={modalContext.clearModal}
+    />
+  );
+}
 
 export default ConnectedLoginModal;
