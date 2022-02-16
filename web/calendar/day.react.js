@@ -23,6 +23,7 @@ import {
 
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
+import { ModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { AddVector, HistoryVector } from '../vectors.react';
@@ -275,6 +276,8 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const nextLocalID = useSelector(state => state.nextLocalID);
     const timeZone = useSelector(state => state.timeZone);
     const dispatch = useDispatch();
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'ModalContext not found');
 
     return (
       <Day
@@ -285,6 +288,7 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         nextLocalID={nextLocalID}
         timeZone={timeZone}
         dispatch={dispatch}
+        setModal={modalContext.setModal}
       />
     );
   },
