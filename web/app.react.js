@@ -190,10 +190,6 @@ class App extends React.PureComponent<Props, State> {
   setModal = (modal: ?React.Node) => {
     this.setState({ modal });
   };
-
-  clearModal() {
-    this.setModal(null);
-  }
 }
 
 const fetchEntriesLoadingStatusSelector = createLoadingStatusSelector(
