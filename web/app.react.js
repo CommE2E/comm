@@ -1,16 +1,15 @@
 // @flow
 
+import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
+import invariant from 'invariant';
 import '@fontsource/inter';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
-
 import '@fontsource/ibm-plex-sans';
 import '@fontsource/ibm-plex-sans/500.css';
 import '@fontsource/ibm-plex-sans/600.css';
-
 import 'basscss/css/basscss.min.css';
 import './theme.css';
-import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -35,6 +34,7 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
+import { ModalContext } from './modals/modal-provider.react';
 import DisconnectedBar from './redux/disconnected-bar';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
 import FocusHandler from './redux/focus-handler.react';
@@ -83,6 +83,7 @@ type Props = {
   +activeThreadCurrentlyUnread: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
+  +setModal: (?React.Node) => void,
 };
 type State = {
   +modal: ?React.Node,
@@ -182,7 +183,7 @@ class App extends React.PureComponent<Props, State> {
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
-        <LeftLayoutAside setModal={this.setModal} />
+        <LeftLayoutAside setModal={this.props.setModal} />
       </div>
     );
   }
@@ -227,6 +228,11 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
 
     const dispatch = useDispatch();
 
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'ModalContext not found');
+
+    const { setModal } = modalContext;
+
     return (
       <App
         {...props}
@@ -236,6 +242,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         mostRecentReadThread={mostRecentReadThread}
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
         dispatch={dispatch}
+        setModal={setModal}
       />
     );
   },
