@@ -37,7 +37,7 @@ class LogInFirstModal extends React.PureComponent<Props> {
 
   onClickLogIn: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
-    this.props.setModal(<LogInModal setModal={this.props.setModal} />);
+    this.props.setModal(<LogInModal />);
   };
 }
 
