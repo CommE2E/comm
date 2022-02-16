@@ -217,12 +217,7 @@ class Day extends React.PureComponent<Props, State> {
 
   createNewEntry = (threadID: string) => {
     if (!this.props.loggedIn) {
-      this.props.setModal(
-        <LogInFirstModal
-          inOrderTo="edit this calendar"
-          setModal={this.props.setModal}
-        />,
-      );
+      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     const viewerID = this.props.viewerID;
