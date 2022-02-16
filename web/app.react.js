@@ -84,6 +84,7 @@ type Props = {
   // Redux dispatch functions
   +dispatch: Dispatch,
   +setModal: (?React.Node) => void,
+  +modal: ?React.Node,
 };
 type State = {
   +modal: ?React.Node,
@@ -138,7 +139,7 @@ class App extends React.PureComponent<Props, State> {
       content = this.renderMainContent();
     } else {
       content = (
-        <Splash setModal={this.setModal} currentModal={this.state.modal} />
+        <Splash setModal={this.setModal} currentModal={this.props.modal} />
       );
     }
     return (
@@ -146,7 +147,7 @@ class App extends React.PureComponent<Props, State> {
         <FocusHandler />
         <VisibilityHandler />
         {content}
-        {this.state.modal}
+        {this.props.modal}
       </DndProvider>
     );
   }
@@ -231,7 +232,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const modalContext = React.useContext(ModalContext);
     invariant(modalContext, 'ModalContext not found');
 
-    const { setModal } = modalContext;
+    const { setModal, modal } = modalContext;
 
     return (
       <App
@@ -243,6 +244,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
         dispatch={dispatch}
         setModal={setModal}
+        modal={modal}
       />
     );
   },
