@@ -25,6 +25,7 @@ import Button from '../../components/button.react';
 import { useSelector } from '../../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../../selectors/account-selectors';
 import Input from '../input.react';
+import { ModalContext } from '../modal-provider.react';
 import Modal from '../modal.react';
 import css from './user-settings-modal.css';
 
@@ -37,6 +38,7 @@ type Props = {
   +logInExtraInfo: () => LogInExtraInfo,
   +dispatchActionPromise: DispatchActionPromise,
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
+  +clearModal: () => void,
 };
 type State = {
   +username: string,
@@ -63,7 +65,7 @@ class LogInModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal name="Log in" onClose={this.clearModal}>
+      <Modal name="Log in" onClose={this.props.clearModal}>
         <div className={css['modal-body']}>
           <form method="POST">
             <div>
@@ -175,7 +177,7 @@ class LogInModal extends React.PureComponent<Props, State> {
         password: this.state.password,
         ...extraInfo,
       });
-      this.clearModal();
+      this.props.clearModal();
       return result;
     } catch (e) {
       if (e.message === 'invalid_parameters') {
@@ -216,10 +218,6 @@ class LogInModal extends React.PureComponent<Props, State> {
       throw e;
     }
   }
-
-  clearModal = () => {
-    this.props.setModal(null);
-  };
 }
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
@@ -231,6 +229,8 @@ const ConnectedLoginModal: React.ComponentType<BaseProps> = React.memo<BaseProps
     const callLogIn = useServerCall(logIn);
     const dispatchActionPromise = useDispatchActionPromise();
 
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'modalContext unset');
     return (
       <LogInModal
         {...props}
@@ -238,6 +238,7 @@ const ConnectedLoginModal: React.ComponentType<BaseProps> = React.memo<BaseProps
         logInExtraInfo={loginExtraInfo}
         logIn={callLogIn}
         dispatchActionPromise={dispatchActionPromise}
+        clearModal={modalContext.clearModal}
       />
     );
   },
