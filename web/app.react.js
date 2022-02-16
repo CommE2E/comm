@@ -173,7 +173,7 @@ class App extends React.PureComponent<Props> {
             </div>
           </div>
         </header>
-        <InputStateContainer setModal={this.props.setModal}>
+        <InputStateContainer>
           <div className={css['main-content-container']}>
             <div className={css['main-content']}>{mainContent}</div>
           </div>
