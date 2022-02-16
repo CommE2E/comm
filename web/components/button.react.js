@@ -8,7 +8,7 @@ import css from './button.css';
 type Props = {
   +onClick: (event: SyntheticEvent<HTMLButtonElement>) => void,
   +children: React.Node,
-  +variant?: 'primary' | 'secondary' | 'danger' | 'round' | 'toggle_read',
+  +variant?: 'primary' | 'secondary' | 'danger' | 'round',
   +type?: string,
   +disabled?: boolean,
   +className?: string,

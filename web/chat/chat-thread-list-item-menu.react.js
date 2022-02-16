@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import {
@@ -16,7 +17,6 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
-import Button from '../components/button.react';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-list.css';
 
@@ -74,22 +74,24 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   }`;
 
   const menuIconSize = renderStyle === 'chat' ? 24 : 16;
-
-  let btn;
-  if (menuVisible) {
-    btn = (
-      <Button variant="toggle_read" onClick={toggleUnreadStatus}>
-        {toggleUnreadStatusButtonText}
-      </Button>
-    );
-  }
-
   return (
     <div className={css.menu} onMouseLeave={hideMenu}>
       <button onClick={toggleMenu}>
         <SWMansionIcon icon="menu-vertical" size={menuIconSize} />
       </button>
-      <div>{btn}</div>
+      <div
+        className={classNames(css.menuContent, {
+          [css.menuContentVisible]: menuVisible,
+        })}
+      >
+        <ul>
+          <li>
+            <button onClick={toggleUnreadStatus}>
+              {toggleUnreadStatusButtonText}
+            </button>
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }
