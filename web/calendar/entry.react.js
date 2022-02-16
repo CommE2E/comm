@@ -258,12 +258,7 @@ class Entry extends React.PureComponent<Props, State> {
 
   onChange: (event: SyntheticEvent<HTMLTextAreaElement>) => void = event => {
     if (!this.props.loggedIn) {
-      this.props.setModal(
-        <LogInFirstModal
-          inOrderTo="edit this calendar"
-          setModal={this.props.setModal}
-        />,
-      );
+      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     const target = event.target;
@@ -406,12 +401,7 @@ class Entry extends React.PureComponent<Props, State> {
   onDelete: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
     if (!this.props.loggedIn) {
-      this.props.setModal(
-        <LogInFirstModal
-          inOrderTo="edit this calendar"
-          setModal={this.props.setModal}
-        />,
-      );
+      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     this.dispatchDelete(this.props.entryInfo.id, true);
