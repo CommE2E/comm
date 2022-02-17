@@ -69,6 +69,7 @@ type Props = {
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
   +setModal: (modal: ?React.Node) => void,
+  +clearModal: () => void,
 };
 type State = {
   +focused: boolean,
@@ -385,7 +386,7 @@ class Entry extends React.PureComponent<Props, State> {
             type: concurrentModificationResetActionType,
             payload: { id: entryID, dbText: e.payload.db },
           });
-          this.clearModal();
+          this.props.clearModal();
         };
         this.props.setModal(
           <ConcurrentModificationModal onRefresh={onRefresh} />,
@@ -451,10 +452,6 @@ class Entry extends React.PureComponent<Props, State> {
       />,
     );
   };
-
-  clearModal: () => void = () => {
-    this.props.setModal(null);
-  };
 }
 
 export type InnerEntry = Entry;
@@ -495,6 +492,7 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
         setModal={modalContext.setModal}
+        clearModal={modalContext.clearModal}
       />
     );
   },
