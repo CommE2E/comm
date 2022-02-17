@@ -12,7 +12,7 @@ function InvalidUploadModal(): React.Node {
   invariant(modalContext, 'ModalContext not found');
 
   return (
-    <Modal name="Invalid upload" onClose={modalContext.clearModal}>
+    <Modal name="Invalid upload" clearModal={modalContext.clearModal}>
       <div className={css['modal-body']}>
         <p>We don&apos;t support that file type yet :(</p>
       </div>

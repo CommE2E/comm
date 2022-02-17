@@ -23,7 +23,7 @@ function LogInFirstModal(props: Props): React.Node {
   };
 
   return (
-    <Modal name="Log in" onClose={this.clearModal}>
+    <Modal name="Log in" clearModal={this.clearModal}>
       <div className={css['modal-body']}>
         <p>
           {`In order to ${props.inOrderTo}, you'll first need to `}

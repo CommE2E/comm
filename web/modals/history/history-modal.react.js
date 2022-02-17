@@ -167,7 +167,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
     });
 
     return (
-      <Modal name="History" onClose={this.props.onClose}>
+      <Modal name="History" clearModal={this.props.onClose}>
         <div className={css.modalBody}>
           <div className={css.header}>
             {allHistoryButton}
