@@ -236,11 +236,7 @@ class Day extends React.PureComponent<Props, State> {
   onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
-      <HistoryModal
-        mode="day"
-        dayString={this.props.dayString}
-        onClose={this.props.clearModal}
-      />,
+      <HistoryModal mode="day" dayString={this.props.dayString} />,
     );
   };
 
