@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { ModalContext } from './modal-provider.react';
 import css from './modal.css';
 
 export type ModalSize = 'small' | 'large';
@@ -85,4 +86,21 @@ class Modal extends React.PureComponent<Props> {
   };
 }
 
-export default Modal;
+const ConnectedModal = (props: Props): React.Node => {
+  const { name, size, children, fixedHeight } = props;
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'modalContext should be set');
+
+  return (
+    <Modal
+      name={name}
+      onClose={modalContext.clearModal}
+      fixedHeight={fixedHeight}
+      size={size}
+    >
+      {children}
+    </Modal>
+  );
+};
+
+export default ConnectedModal;
