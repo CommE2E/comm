@@ -8,6 +8,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
+import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import Switch from 'react-switch';
@@ -26,6 +27,7 @@ import {
 } from 'lib/types/filter-types';
 import type { Dispatch } from 'lib/types/redux-types';
 
+import { ModalContext } from '../modals/modal-provider.react';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import {
@@ -35,16 +37,13 @@ import {
 import { MagnifyingGlass } from '../vectors.react';
 import css from './filter-panel.css';
 
-type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
-};
 type Props = {
-  ...BaseProps,
   +filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
   +filterThreadSearchIndex: () => SearchIndex,
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
+  +setModal: (modal: ?React.Node) => void,
 };
 type State = {
   +query: string,
@@ -363,25 +362,25 @@ class Category extends React.PureComponent<CategoryProps> {
   };
 }
 
-const ConnectedFilterPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedFilterPanel(props) {
-    const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
-    const filterThreadInfos = useSelector(webFilterThreadInfos);
-    const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
-    const includeDeleted = useSelector(includeDeletedSelector);
-    const dispatch = useDispatch();
+function ConnectedFilterPanel(): React.Node {
+  const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
+  const filterThreadInfos = useSelector(webFilterThreadInfos);
+  const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
+  const includeDeleted = useSelector(includeDeletedSelector);
+  const dispatch = useDispatch();
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'modalContext should be set');
 
-    return (
-      <FilterPanel
-        {...props}
-        filteredThreadIDs={filteredThreadIDs}
-        filterThreadInfos={filterThreadInfos}
-        filterThreadSearchIndex={filterThreadSearchIndex}
-        includeDeleted={includeDeleted}
-        dispatch={dispatch}
-      />
-    );
-  },
-);
+  return (
+    <FilterPanel
+      filteredThreadIDs={filteredThreadIDs}
+      filterThreadInfos={filterThreadInfos}
+      filterThreadSearchIndex={filterThreadSearchIndex}
+      includeDeleted={includeDeleted}
+      dispatch={dispatch}
+      setModal={modalContext.setModal}
+    />
+  );
+}
 
 export default ConnectedFilterPanel;
