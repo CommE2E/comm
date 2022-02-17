@@ -11,10 +11,7 @@ import ChatThreadList from './chat-thread-list.react';
 import ChatThreadTab from './chat-thread-tab.react';
 import { ThreadListContext } from './thread-list-provider';
 
-type Props = {
-  +setModal: (modal: ?React.Node) => void,
-};
-function ChatTabs(props: Props): React.Node {
+function ChatTabs(): React.Node {
   let backgroundTitle = 'Background';
   const unreadBackgroundCountVal = useSelector(unreadBackgroundCount);
   if (unreadBackgroundCountVal) {
@@ -52,7 +49,7 @@ function ChatTabs(props: Props): React.Node {
         />
       </div>
       <div className={css.threadList}>
-        <ChatThreadList setModal={props.setModal} />
+        <ChatThreadList />
       </div>
     </div>
   );
