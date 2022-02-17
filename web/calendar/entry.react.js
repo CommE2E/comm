@@ -447,7 +447,6 @@ class Entry extends React.PureComponent<Props, State> {
           this.props.entryInfo.month,
           this.props.entryInfo.day,
         )}
-        onClose={this.clearModal}
         currentEntryID={this.props.entryInfo.id}
       />,
     );

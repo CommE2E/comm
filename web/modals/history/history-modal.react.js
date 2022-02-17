@@ -33,6 +33,7 @@ import {
 import { dateFromString } from 'lib/utils/date-utils';
 
 import LoadingIndicator from '../../loading-indicator.react';
+import { ModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
 import { allDaysToEntries } from '../../selectors/entry-selectors';
 import Modal from '../modal.react';
@@ -43,7 +44,6 @@ import css from './history.css';
 type BaseProps = {
   +mode: HistoryMode,
   +dayString: string,
-  +onClose: () => void,
   +currentEntryID?: ?string,
 };
 type Props = {
@@ -59,6 +59,7 @@ type Props = {
   +fetchRevisionsForEntry: (
     entryID: string,
   ) => Promise<$ReadOnlyArray<HistoryRevisionInfo>>,
+  +onClose: () => void,
 };
 type State = {
   +mode: HistoryMode,
@@ -262,6 +263,8 @@ const ConnectedHistoryModal: React.ComponentType<BaseProps> = React.memo<BasePro
     const callFetchEntries = useServerCall(fetchEntries);
     const callFetchRevisionsForEntry = useServerCall(fetchRevisionsForEntry);
     const dispatchActionPromise = useDispatchActionPromise();
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'modal should be set');
 
     return (
       <HistoryModal
@@ -273,6 +276,7 @@ const ConnectedHistoryModal: React.ComponentType<BaseProps> = React.memo<BasePro
         fetchEntries={callFetchEntries}
         fetchRevisionsForEntry={callFetchRevisionsForEntry}
         dispatchActionPromise={dispatchActionPromise}
+        onClose={modalContext.clearModal}
       />
     );
   },
