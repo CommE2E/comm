@@ -3,6 +3,7 @@
 import { faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { sidebarInfoSelector } from 'lib/selectors/thread-selectors';
@@ -15,7 +16,12 @@ import SidebarItem from '../../chat/sidebar-item.react';
 import { useSelector } from '../../redux/redux-utils';
 import globalCSS from '../../style.css';
 import { MagnifyingGlass } from '../../vectors.react';
+import { ModalContext } from '../modal-provider.react';
 import Modal from '../modal.react';
+
+type BaseProps = {
+  +threadInfo: ThreadInfo,
+};
 
 type Props = {
   +setModal: (modal: ?React.Node) => void,
@@ -141,5 +147,16 @@ function SidebarListModal(props: Props): React.Node {
     </Modal>
   );
 }
+function ConnectedSidebarListModal(props: BaseProps): React.Node {
+  const { threadInfo } = props;
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'modalContext should be set');
 
-export default SidebarListModal;
+  return (
+    <SidebarListModal
+      setModal={modalContext.setModal}
+      threadInfo={threadInfo}
+    />
+  );
+}
+export default ConnectedSidebarListModal;
