@@ -61,7 +61,7 @@ class LogInModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal name="Log in" onClose={this.props.clearModal}>
+      <Modal name="Log in" clearModal={this.props.clearModal}>
         <div className={css['modal-body']}>
           <form method="POST">
             <div>

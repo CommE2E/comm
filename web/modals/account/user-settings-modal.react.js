@@ -205,7 +205,11 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Modal name="Edit account" onClose={this.props.clearModal} size="large">
+      <Modal
+        name="Edit account"
+        clearModal={this.props.clearModal}
+        size="large"
+      >
         <ul className={css['tab-panel']}>
           <Tab
             name="General"

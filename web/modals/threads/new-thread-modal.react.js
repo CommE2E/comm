@@ -130,7 +130,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <Modal name="New thread" onClose={this.props.onClose} size="large">
+      <Modal name="New thread" clearModal={this.props.onClose} size="large">
         <div className={css['modal-body']}>
           <form method="POST">
             <div>

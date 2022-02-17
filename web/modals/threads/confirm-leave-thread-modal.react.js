@@ -14,7 +14,7 @@ type Props = {
 };
 function ConfirmLeaveThreadModal(props: Props): React.Node {
   return (
-    <Modal name="Confirm leave thread" onClose={props.onClose}>
+    <Modal name="Confirm leave thread" clearModal={props.onClose}>
       <div className={css['modal-body']}>
         <p>
           {'Are you sure you want to leave "'}

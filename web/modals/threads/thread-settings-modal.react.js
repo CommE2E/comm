@@ -380,7 +380,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     return (
       <Modal
         name="Thread settings"
-        onClose={this.props.clearModal}
+        clearModal={this.props.clearModal}
         size="large"
       >
         <ul className={css['tab-panel']}>{tabs}</ul>
@@ -574,7 +574,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
 
     if (!threadInfo) {
       return (
-        <Modal onClose={modalContext.clearModal} name="Invalid thread">
+        <Modal clearModal={modalContext.clearModal} name="Invalid thread">
           <div className={css['modal-body']}>
             <p>You no longer have permission to view this thread</p>
           </div>
