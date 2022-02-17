@@ -13,7 +13,7 @@ function Chat(props: Props): React.Node {
   return (
     <>
       <ThreadListProvider>
-        <ChatTabs setModal={props.setModal} />
+        <ChatTabs />
       </ThreadListProvider>
       <ChatMessageList setModal={props.setModal} />
     </>
