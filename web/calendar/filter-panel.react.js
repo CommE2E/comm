@@ -236,10 +236,6 @@ class FilterPanel extends React.PureComponent<Props, State> {
       },
     });
   };
-
-  clearModal = () => {
-    this.props.setModal(null);
-  };
 }
 
 type ItemProps = {
