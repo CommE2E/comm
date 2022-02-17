@@ -12,7 +12,7 @@ type Props = {
 
 export default function ConcurrentModificationModal(props: Props): React.Node {
   return (
-    <Modal name="Concurrent modification" onClose={props.onClose}>
+    <Modal name="Concurrent modification" clearModal={props.onClose}>
       <div className={css['modal-body']}>
         <p>
           It looks like somebody is attempting to modify that field at the same
