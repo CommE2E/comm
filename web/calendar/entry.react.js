@@ -388,10 +388,7 @@ class Entry extends React.PureComponent<Props, State> {
           this.clearModal();
         };
         this.props.setModal(
-          <ConcurrentModificationModal
-            onClose={this.clearModal}
-            onRefresh={onRefresh}
-          />,
+          <ConcurrentModificationModal onRefresh={onRefresh} />,
         );
       }
       throw e;
