@@ -34,6 +34,7 @@ import {
 import { type InputState, InputStateContext } from '../input/input-state';
 import LoadingIndicator from '../loading-indicator.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';
+import { ModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import ChatInputBar from './chat-input-bar.react';
 import css from './chat-message-list.css';
@@ -47,11 +48,7 @@ import type {
 import RelationshipPrompt from './relationship-prompt/relationship-prompt';
 import ThreadTopBar from './thread-top-bar.react';
 
-type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
-};
 type PassedProps = {
-  ...BaseProps,
   // Redux state
   +activeChatThreadID: ?string,
   +threadInfo: ?ThreadInfo,
@@ -68,6 +65,7 @@ type PassedProps = {
   ) => Promise<FetchMessageInfosPayload>,
   // withInputState
   +inputState: ?InputState,
+  +setModal: (modal: ?React.Node) => void,
 };
 type ReactDnDProps = {
   isActive: boolean,
@@ -384,113 +382,109 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
 
-const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedChatMessageList(props) {
-    const userAgent = useSelector(state => state.userAgent);
-    const supportsReverseFlex = React.useMemo(() => {
-      const browser = detectBrowser(userAgent);
-      return (
-        !browser ||
-        browser.name !== 'firefox' ||
-        parseInt(browser.version) >= 81
-      );
-    }, [userAgent]);
-
-    const timeZone = useSelector(state => state.timeZone);
-
-    const activeChatThreadID = useSelector(
-      state => state.navInfo.activeChatThreadID,
-    );
-    const baseThreadInfo = useSelector(state => {
-      const activeID = state.navInfo.activeChatThreadID;
-      if (!activeID) {
-        return null;
-      }
-      return threadInfoSelector(state)[activeID] ?? state.navInfo.pendingThread;
-    });
-    const existingThreadInfoFinder = useExistingThreadInfoFinder(
-      baseThreadInfo,
-    );
-    const threadInfo = React.useMemo(
-      () =>
-        existingThreadInfoFinder({
-          searching: false,
-          userInfoInputArray: [],
-        }),
-      [existingThreadInfoFinder],
-    );
-
-    const messageListData = useMessageListData({
-      threadInfo,
-      searching: false,
-      userInfoInputArray: [],
-    });
-
-    const startReached = useSelector(state => {
-      const activeID = state.navInfo.activeChatThreadID;
-      if (!activeID) {
-        return null;
-      }
-
-      if (state.navInfo.pendingThread) {
-        return true;
-      }
-
-      const threadMessageInfo = state.messageStore.threads[activeID];
-      if (!threadMessageInfo) {
-        return null;
-      }
-      return threadMessageInfo.startReached;
-    });
-
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callFetchMessagesBeforeCursor = useServerCall(
-      fetchMessagesBeforeCursor,
-    );
-
-    const inputState = React.useContext(InputStateContext);
-    const [dndProps, connectDropTarget] = useDrop({
-      accept: NativeTypes.FILE,
-      drop: item => {
-        const { files } = item;
-        if (inputState && files.length > 0) {
-          inputState.appendFiles(files);
-        }
-      },
-      collect: monitor => ({
-        isActive: monitor.isOver() && monitor.canDrop(),
-      }),
-    });
-
-    const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo?.id);
-    const messageListContext = React.useMemo(() => {
-      if (!getTextMessageMarkdownRules) {
-        return undefined;
-      }
-      return { getTextMessageMarkdownRules };
-    }, [getTextMessageMarkdownRules]);
-
-    useWatchThread(threadInfo);
-
+function ConnectedChatMessageList(): React.Node {
+  const userAgent = useSelector(state => state.userAgent);
+  const supportsReverseFlex = React.useMemo(() => {
+    const browser = detectBrowser(userAgent);
     return (
-      <MessageListContext.Provider value={messageListContext}>
-        <ChatMessageList
-          {...props}
-          activeChatThreadID={activeChatThreadID}
-          threadInfo={threadInfo}
-          messageListData={messageListData}
-          startReached={startReached}
-          timeZone={timeZone}
-          supportsReverseFlex={supportsReverseFlex}
-          inputState={inputState}
-          dispatchActionPromise={dispatchActionPromise}
-          fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
-          {...dndProps}
-          connectDropTarget={connectDropTarget}
-        />
-      </MessageListContext.Provider>
+      !browser || browser.name !== 'firefox' || parseInt(browser.version) >= 81
     );
-  },
-);
+  }, [userAgent]);
+
+  const timeZone = useSelector(state => state.timeZone);
+
+  const activeChatThreadID = useSelector(
+    state => state.navInfo.activeChatThreadID,
+  );
+  const baseThreadInfo = useSelector(state => {
+    const activeID = state.navInfo.activeChatThreadID;
+    if (!activeID) {
+      return null;
+    }
+    return threadInfoSelector(state)[activeID] ?? state.navInfo.pendingThread;
+  });
+  const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
+  const threadInfo = React.useMemo(
+    () =>
+      existingThreadInfoFinder({
+        searching: false,
+        userInfoInputArray: [],
+      }),
+    [existingThreadInfoFinder],
+  );
+
+  const messageListData = useMessageListData({
+    threadInfo,
+    searching: false,
+    userInfoInputArray: [],
+  });
+
+  const startReached = useSelector(state => {
+    const activeID = state.navInfo.activeChatThreadID;
+    if (!activeID) {
+      return null;
+    }
+
+    if (state.navInfo.pendingThread) {
+      return true;
+    }
+
+    const threadMessageInfo = state.messageStore.threads[activeID];
+    if (!threadMessageInfo) {
+      return null;
+    }
+    return threadMessageInfo.startReached;
+  });
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callFetchMessagesBeforeCursor = useServerCall(
+    fetchMessagesBeforeCursor,
+  );
+
+  const inputState = React.useContext(InputStateContext);
+  const [dndProps, connectDropTarget] = useDrop({
+    accept: NativeTypes.FILE,
+    drop: item => {
+      const { files } = item;
+      if (inputState && files.length > 0) {
+        inputState.appendFiles(files);
+      }
+    },
+    collect: monitor => ({
+      isActive: monitor.isOver() && monitor.canDrop(),
+    }),
+  });
+
+  const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo?.id);
+  const messageListContext = React.useMemo(() => {
+    if (!getTextMessageMarkdownRules) {
+      return undefined;
+    }
+    return { getTextMessageMarkdownRules };
+  }, [getTextMessageMarkdownRules]);
+
+  useWatchThread(threadInfo);
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'modalContext should be set');
+
+  return (
+    <MessageListContext.Provider value={messageListContext}>
+      <ChatMessageList
+        activeChatThreadID={activeChatThreadID}
+        threadInfo={threadInfo}
+        messageListData={messageListData}
+        startReached={startReached}
+        timeZone={timeZone}
+        supportsReverseFlex={supportsReverseFlex}
+        inputState={inputState}
+        dispatchActionPromise={dispatchActionPromise}
+        fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
+        {...dndProps}
+        connectDropTarget={connectDropTarget}
+        setModal={modalContext.setModal}
+      />
+    </MessageListContext.Provider>
+  );
+}
 
 export default ConnectedChatMessageList;

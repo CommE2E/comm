@@ -148,7 +148,7 @@ class App extends React.PureComponent<Props> {
     if (this.props.navInfo.tab === 'calendar') {
       mainContent = <Calendar url={this.props.location.pathname} />;
     } else if (this.props.navInfo.tab === 'chat') {
-      mainContent = <Chat setModal={this.props.setModal} />;
+      mainContent = <Chat />;
     }
 
     return (
