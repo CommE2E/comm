@@ -40,7 +40,8 @@ public:
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
 
   std::string getTableName() const override;
-  std::string getPrimaryKey() const override;
+  PrimaryKey getPrimaryKey() const override;
+  PrimaryKeyValue getPrimaryKeyValue() const override;
 
   std::string getBackupID() const;
   std::string getLogID() const;
