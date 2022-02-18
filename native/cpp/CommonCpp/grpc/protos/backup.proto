@@ -6,7 +6,7 @@ import "google/protobuf/empty.proto";
 
 service BackupService {
   rpc CreateNewBackup(stream CreateNewBackupRequest) returns (stream CreateNewBackupResponse) {}
-  rpc SendLog(stream SendLogRequest) returns (google.protobuf.Empty) {}
+  rpc SendLog(stream SendLogRequest) returns (stream google.protobuf.Empty) {}
   rpc RecoverBackupKey(stream RecoverBackupKeyRequest) returns (stream RecoverBackupKeyResponse) {}
   rpc PullBackup(stream PullBackupRequest) returns (stream PullBackupResponse) {}
 }

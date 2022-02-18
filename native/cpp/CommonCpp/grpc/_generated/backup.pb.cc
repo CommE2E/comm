@@ -320,23 +320,23 @@ const char descriptor_table_protodef_backup_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "\022C\n\022authenticationData\030\001 \001(\0132\'.backup.Si"
   "mpleAuthenticationRequestData\"K\n\022PullBac"
   "kupResponse\022\031\n\017compactionChunk\030\001 \001(\014H\000\022\022"
-  "\n\010logChunk\030\002 \001(\014H\000B\006\n\004data2\320\002\n\rBackupSer"
+  "\n\010logChunk\030\002 \001(\014H\000B\006\n\004data2\322\002\n\rBackupSer"
   "vice\022X\n\017CreateNewBackup\022\036.backup.CreateN"
   "ewBackupRequest\032\037.backup.CreateNewBackup"
-  "Response\"\000(\0010\001\022=\n\007SendLog\022\026.backup.SendL"
-  "ogRequest\032\026.google.protobuf.Empty\"\000(\001\022[\n"
-  "\020RecoverBackupKey\022\037.backup.RecoverBackup"
-  "KeyRequest\032 .backup.RecoverBackupKeyResp"
-  "onse\"\000(\0010\001\022I\n\nPullBackup\022\031.backup.PullBa"
-  "ckupRequest\032\032.backup.PullBackupResponse\""
-  "\000(\0010\001b\006proto3"
+  "Response\"\000(\0010\001\022\?\n\007SendLog\022\026.backup.SendL"
+  "ogRequest\032\026.google.protobuf.Empty\"\000(\0010\001\022"
+  "[\n\020RecoverBackupKey\022\037.backup.RecoverBack"
+  "upKeyRequest\032 .backup.RecoverBackupKeyRe"
+  "sponse\"\000(\0010\001\022I\n\nPullBackup\022\031.backup.Pull"
+  "BackupRequest\032\032.backup.PullBackupRespons"
+  "e\"\000(\0010\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_backup_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_backup_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_backup_2eproto = {
-  false, false, 1973, descriptor_table_protodef_backup_2eproto, "backup.proto", 
+  false, false, 1975, descriptor_table_protodef_backup_2eproto, "backup.proto", 
   &descriptor_table_backup_2eproto_once, descriptor_table_backup_2eproto_deps, 1, 11,
   schemas, file_default_instances, TableStruct_backup_2eproto::offsets,
   file_level_metadata_backup_2eproto, file_level_enum_descriptors_backup_2eproto, file_level_service_descriptors_backup_2eproto,
