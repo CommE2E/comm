@@ -10,45 +10,29 @@ endif(COMMAND cmake_policy)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
+set(WITH_GTEST "Use Google Test" OFF)
+
 # FIND LIBS
-set(protobuf_MODULE_COMPATIBLE TRUE)
-find_package(Protobuf CONFIG REQUIRED)
-message(STATUS "Using protobuf ${Protobuf_VERSION}")
+include(./cmake-components/grpc.cmake)
+include(./cmake-components/folly.cmake)
+add_subdirectory(./lib/glog)
+find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
+find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
-set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+# FIND FILES
+file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 
-# gRPC building parameters
-set(gRPC_BUILD_CSHARP_EXT OFF)
-set(gRPC_SSL_PROVIDER "package" CACHE STRING "SSL library provider")
-# Disable unused plugins
-set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF)
-set(gRPC_BUILD_GRPC_RUBY_PLUGIN OFF)
-set(gRPC_BUILD_GRPC_PYTHON_PLUGIN OFF)
-set(gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF)
 
 if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
   add_compile_definitions(COMM_TEST_SERVICES)
 endif()
 
-# Find gRPC installation
-# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
-find_package(gRPC CONFIG REQUIRED)
-message(STATUS "Using gRPC ${gRPC_VERSION}")
-
-set(_GRPC_GRPCPP gRPC::grpc++)
-set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
-
-set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
-
-find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
-
-find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
-
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 set(DEV_SOURCE_CODE "")
 set(DEV_HEADERS_PATH "")
 if ($ENV{COMM_SERVICES_DEV_MODE} MATCHES 1)
+  add_compile_definitions(COMM_SERVICES_DEV_MODE)
   file(GLOB DEV_SOURCE_CODE "./dev/*.cpp" "./src/*.dev.cpp")
   set(DEV_HEADERS_PATH "./dev")
 endif()
@@ -68,27 +52,30 @@ include_directories(
   ./src
   ./src/DatabaseEntities
   ./_generated
+  ${FOLLY_INCLUDES}
+  ./lib/double-conversion
   ${Boost_INCLUDE_DIR}
   ${DEV_HEADERS_PATH}
+)
+
+# SERVER
+add_executable(
+  backup
+  
+  ${GENERATED_CODE}
+  ${DOUBLE_CONVERSION_SOURCES}
+  ${FOLLY_SOURCES}
+  
+  ${SOURCE_CODE}
 )
 
 set(
   LIBS
 
-  ${_GRPC_GRPCPP}
-  ${_PROTOBUF_LIBPROTOBUF}
-  gRPC::grpc++_reflection
+  ${GRPC_LIBS}
   ${AWSSDK_LINK_LIBRARIES}
   ${Boost_LIBRARIES}
-)
-
-#SERVER
-add_executable(
-  backup
-  
-  ${GENERATED_CODE}
-  
-  ${SOURCE_CODE}
+  glog::glog
 )
 
 target_link_libraries(
@@ -118,6 +105,8 @@ if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
     runTests
 
     ${GENERATED_CODE}
+    ${DOUBLE_CONVERSION_SOURCES}
+    ${FOLLY_SOURCES}
     ${SOURCE_CODE}
     ${TEST_CODE}
   )
