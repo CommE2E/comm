@@ -28,13 +28,13 @@ std::string generateName(const std::string prefix = "") {
 
 BackupItem
 generateBackupItem(const std::string &userID, const std::string &backupID) {
-  return BackupItem(
-      userID,
-      backupID,
-      comm::network::getCurrentTimestamp(),
-      "xxx",
-      "xxx",
-      {""});
+  // this simulates operations that are going to occur one after another on the
+  // timeline. For the dev mode this was failing when reading the current time
+  // because operations on collections were fast and occuring at the same
+  // exact millisecond. In practice, this should never happen(grpc connection
+  // should cause the delay)
+  static uint64_t operationID = comm::network::getCurrentTimestamp();
+  return BackupItem(userID, backupID, operationID++, "xxx", "xxx", {""});
 }
 
 LogItem generateLogItem(const std::string &backupID, const std::string &logID) {
@@ -86,7 +86,9 @@ TEST_F(DatabaseManagerTest, TestOperationsOnLogItems) {
   EXPECT_EQ(items2.size(), 2);
 
   for (size_t i = 0; i < items1.size(); ++i) {
-    EXPECT_EQ(logIDs1.at(i), items1.at(i)->getLogID());
+    EXPECT_NE(
+        std::find(logIDs1.begin(), logIDs1.end(), items1.at(i)->getLogID()),
+        logIDs1.end());
     DatabaseManager::getInstance().removeLogItem(items1.at(i));
   }
   EXPECT_EQ(
@@ -94,7 +96,9 @@ TEST_F(DatabaseManagerTest, TestOperationsOnLogItems) {
       0);
 
   for (size_t i = 0; i < items2.size(); ++i) {
-    EXPECT_EQ(logIDs2.at(i), items2.at(i)->getLogID());
+    EXPECT_NE(
+        std::find(logIDs2.begin(), logIDs2.end(), items2.at(i)->getLogID()),
+        logIDs2.end());
     DatabaseManager::getInstance().removeLogItem(items2.at(i));
   }
   EXPECT_EQ(
