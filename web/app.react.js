@@ -83,7 +83,6 @@ type Props = {
   +activeThreadCurrentlyUnread: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
-  +setModal: (?React.Node) => void,
   +modal: ?React.Node,
 };
 class App extends React.PureComponent<Props> {
@@ -217,7 +216,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const modalContext = React.useContext(ModalContext);
     invariant(modalContext, 'ModalContext not found');
 
-    const { setModal, modal } = modalContext;
+    const { modal } = modalContext;
 
     return (
       <App
@@ -228,7 +227,6 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         mostRecentReadThread={mostRecentReadThread}
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
         dispatch={dispatch}
-        setModal={setModal}
         modal={modal}
       />
     );
