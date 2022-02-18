@@ -60,7 +60,6 @@ type Props = {
     calendarQuery: CalendarQuery,
     reduxAlreadyUpdated?: boolean,
   ) => Promise<CalendarQueryUpdateResult>,
-  +setModal: (modal: ?React.Node) => void,
 };
 type State = {
   filterPanelOpen: boolean,
@@ -284,7 +283,6 @@ const ConnectedCalendar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         loggedIn={loggedIn}
         dispatchActionPromise={dispatchActionPromise}
         updateCalendarQuery={callUpdateCalendarQuery}
-        setModal={modalContext.setModal}
       />
     );
   },
