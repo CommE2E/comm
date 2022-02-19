@@ -4,12 +4,18 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
+import { ModalContext } from '../modals/modal-provider.react';
 import css from './media.css';
 
-type Props = {
+type BaseProps = {
   +uri: string,
+};
+
+type Props = {
+  ...BaseProps,
   +setModal: (modal: ?React.Node) => void,
 };
+
 class MultimediaModal extends React.PureComponent<Props> {
   overlay: ?HTMLDivElement;
 
@@ -61,4 +67,12 @@ class MultimediaModal extends React.PureComponent<Props> {
   };
 }
 
-export default MultimediaModal;
+function ConnectedMultiMediaModal(props: Props): React.Node {
+  const { uri } = props;
+  const modalContext = React.useContext(ModalContext);
+  invariant(modalContext, 'modalContext should be set in MultimediaModal');
+
+  return <MultimediaModal uri={uri} setModal={modalContext.setModal} />;
+}
+
+export default ConnectedMultiMediaModal;
