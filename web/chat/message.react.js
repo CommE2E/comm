@@ -58,7 +58,6 @@ function Message(props: Props): React.Node {
         threadInfo={props.threadInfo}
         setMouseOverMessagePosition={props.setMouseOverMessagePosition}
         mouseOverMessagePosition={props.mouseOverMessagePosition}
-        setModal={props.setModal}
       />
     );
   } else {
