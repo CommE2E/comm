@@ -65,7 +65,6 @@ type PassedProps = {
   ) => Promise<FetchMessageInfosPayload>,
   // withInputState
   +inputState: ?InputState,
-  +setModal: (modal: ?React.Node) => void,
 };
 type ReactDnDProps = {
   isActive: boolean,
@@ -189,7 +188,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         </div>
       );
     }
-    const { threadInfo, setModal } = this.props;
+    const { threadInfo } = this.props;
     invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
     return (
       <Message
@@ -197,7 +196,6 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         threadInfo={threadInfo}
         setMouseOverMessagePosition={this.setMouseOverMessagePosition}
         mouseOverMessagePosition={this.state.mouseOverMessagePosition}
-        setModal={setModal}
         timeZone={this.props.timeZone}
         key={ChatMessageList.keyExtractor(item)}
       />
@@ -481,7 +479,6 @@ function ConnectedChatMessageList(): React.Node {
         fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
         {...dndProps}
         connectDropTarget={connectDropTarget}
-        setModal={modalContext.setModal}
       />
     </MessageListContext.Provider>
   );
