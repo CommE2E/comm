@@ -24,7 +24,6 @@ type Props = {
     messagePositionInfo: MessagePositionInfo,
   ) => void,
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
-  +setModal: (modal: ?React.Node) => void,
   +timeZone: ?string,
 };
 function Message(props: Props): React.Node {
