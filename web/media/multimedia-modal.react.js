@@ -13,7 +13,7 @@ type BaseProps = {
 
 type Props = {
   ...BaseProps,
-  +setModal: (modal: ?React.Node) => void,
+  +clearModal: (modal: ?React.Node) => void,
 };
 
 class MultimediaModal extends React.PureComponent<Props> {
@@ -35,7 +35,7 @@ class MultimediaModal extends React.PureComponent<Props> {
       >
         <img src={this.props.uri} />
         <XCircleIcon
-          onClick={this.close}
+          onClick={this.props.clearModal}
           className={css.closeMultimediaModal}
         />
       </div>
@@ -50,7 +50,7 @@ class MultimediaModal extends React.PureComponent<Props> {
     event: SyntheticEvent<HTMLDivElement>,
   ) => void = event => {
     if (event.target === this.overlay) {
-      this.close();
+      this.props.clearModal();
     }
   };
 
@@ -58,21 +58,17 @@ class MultimediaModal extends React.PureComponent<Props> {
     event: SyntheticKeyboardEvent<HTMLDivElement>,
   ) => void = event => {
     if (event.keyCode === 27) {
-      this.close();
+      this.props.clearModal();
     }
-  };
-
-  close: () => void = () => {
-    this.props.setModal(null);
   };
 }
 
-function ConnectedMultiMediaModal(props: Props): React.Node {
+function ConnectedMultiMediaModal(props: BaseProps): React.Node {
   const { uri } = props;
   const modalContext = React.useContext(ModalContext);
   invariant(modalContext, 'modalContext should be set in MultimediaModal');
 
-  return <MultimediaModal uri={uri} setModal={modalContext.setModal} />;
+  return <MultimediaModal uri={uri} clearModal={modalContext.clearModal} />;
 }
 
 export default ConnectedMultiMediaModal;

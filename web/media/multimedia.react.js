@@ -11,16 +11,20 @@ import {
 } from 'react-feather';
 
 import { type PendingMultimediaUpload } from '../input/input-state';
+import { ModalContext } from '../modals/modal-provider.react';
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react';
 
-type Props = {
-  uri: string,
+type BaseProps = {
+  +uri: string,
   pendingUpload?: ?PendingMultimediaUpload,
   remove?: (uploadID: string) => void,
-  setModal?: (modal: ?React.Node) => void,
   multimediaCSSClass: string,
   multimediaImageCSSClass: string,
+};
+type Props = {
+  ...BaseProps,
+  setModal?: (modal: ?React.Node) => void,
 };
 class Multimedia extends React.PureComponent<Props> {
   componentDidUpdate(prevProps: Props) {
@@ -108,8 +112,33 @@ class Multimedia extends React.PureComponent<Props> {
 
     const { setModal, uri } = this.props;
     invariant(setModal, 'should be set');
-    setModal(<MultimediaModal uri={uri} setModal={setModal} />);
+    setModal(<MultimediaModal uri={uri} />);
   };
 }
 
-export default Multimedia;
+const ConnectedMultimediaContainer: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedMultimediaContainer(props) {
+    const {
+      uri,
+      pendingUpload,
+      remove,
+      multimediaCSSClass,
+      multimediaImageCSSClass,
+    } = props;
+    const modalContext = React.useContext(ModalContext);
+    invariant(modalContext, 'modalContext should be defined');
+
+    return (
+      <Multimedia
+        uri={uri}
+        pendingUpload={pendingUpload}
+        remove={remove}
+        multimediaCSSClass={multimediaCSSClass}
+        multimediaImageCSSClass={multimediaImageCSSClass}
+        setModal={modalContext.setModal}
+      />
+    );
+  },
+);
+
+export default ConnectedMultimediaContainer;

@@ -9,7 +9,6 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { type InputState, InputStateContext } from '../input/input-state';
 import Multimedia from '../media/multimedia.react';
-import { ModalContext } from '../modals/modal-provider.react';
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import sendFailed from './multimedia-message-send-failed';
@@ -30,11 +29,10 @@ type Props = {
   ...BaseProps,
   // withInputState
   +inputState: ?InputState,
-  +setModal: (modal: ?React.Node) => void,
 };
 class MultimediaMessage extends React.PureComponent<Props> {
   render() {
-    const { item, setModal, inputState } = this.props;
+    const { item, inputState } = this.props;
     invariant(
       item.messageInfo.type === messageTypes.IMAGES ||
         item.messageInfo.type === messageTypes.MULTIMEDIA,
@@ -53,7 +51,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
         <Multimedia
           uri={singleMedia.uri}
           pendingUpload={pendingUpload}
-          setModal={setModal}
           multimediaCSSClass={css.multimedia}
           multimediaImageCSSClass={css.multimediaImage}
           key={singleMedia.id}
@@ -89,16 +86,8 @@ class MultimediaMessage extends React.PureComponent<Props> {
 const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedMultimediaMessage(props) {
     const inputState = React.useContext(InputStateContext);
-    const modalContext = React.useContext(ModalContext);
-    invariant(modalContext, 'ModalContext should be set in MultimediaMessage');
 
-    return (
-      <MultimediaMessage
-        {...props}
-        inputState={inputState}
-        setModal={modalContext.setModal}
-      />
-    );
+    return <MultimediaMessage {...props} inputState={inputState} />;
   },
 );
 
