@@ -187,7 +187,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     if (item.itemType === 'loader') {
       return (
         <div key="loader" className={css.loading}>
-          <LoadingIndicator status="loading" size="large" color="black" />
+          <LoadingIndicator status="loading" size="large" color="white" />
         </div>
       );
     }
