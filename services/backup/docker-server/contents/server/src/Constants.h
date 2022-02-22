@@ -24,8 +24,10 @@ const std::string AWS_REGION = "us-east-2";
 
 #ifdef COMM_TEST_SERVICES
 const std::string LOG_TABLE_NAME = "backup-service-log-test";
+const std::string BACKUP_TABLE_NAME = "backup-service-backup-test";
 #else
 const std::string LOG_TABLE_NAME = "backup-service-log";
+const std::string BACKUP_TABLE_NAME = "backup-service-backup";
 #endif
 
 } // namespace network
