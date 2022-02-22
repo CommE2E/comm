@@ -2,6 +2,8 @@
 
 #include "Item.h"
 
+#include "LogItem.h"
+
 #include <memory>
 #include <type_traits>
 
