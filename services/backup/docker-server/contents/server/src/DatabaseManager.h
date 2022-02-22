@@ -32,7 +32,7 @@ class DatabaseManager {
   template <typename T>
   std::shared_ptr<T>
   innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request);
-  void innerRemoveItem(const Item &item, const std::string &key);
+  void innerRemoveItem(const Item &item);
 
 public:
   static DatabaseManager &getInstance();
