@@ -5,48 +5,108 @@ package backup;
 import "google/protobuf/empty.proto";
 
 service BackupService {
-  rpc ResetKey(stream ResetKeyRequest) returns (google.protobuf.Empty) {}
-  rpc SendLog(SendLogRequest) returns (google.protobuf.Empty) {}
-  rpc PullBackupKey(PullBackupKeyRequest) returns (PullBackupKeyResponse) {}
-  rpc PullCompaction(PullCompactionRequest) returns (stream PullCompactionResponse) {}
+  rpc CreateNewBackup(stream CreateNewBackupRequest) returns (stream CreateNewBackupResponse) {}
+  rpc SendLog(stream SendLogRequest) returns (google.protobuf.Empty) {}
+  rpc RecoverBackupKey(stream RecoverBackupKeyRequest) returns (stream RecoverBackupKeyResponse) {}
+  rpc PullBackup(stream PullBackupRequest) returns (stream PullBackupResponse) {}
 }
 
-// ResetKey
+// Helper types
 
-message ResetKeyRequest {
-  string userId = 1;
+message PakeAuthenticationRequestData {
   oneof data {
-    bytes newKey = 2;
-    bytes compactionChunk = 3;
+    bytes nonce = 1;
+    bytes pakeRegistrationRequest = 2;
+    bytes pakeRegistrationUpload = 3;
+    bytes pakeCredentialRequest = 4;
+    bytes pakeCredentialFinalization = 5;
+    bytes pakeClientMAC = 6;
+  }
+  string userID = 7;
+}
+
+message WalletAuthenticationRequestData {
+  bytes rawMessage = 1;
+  string userID = 2;
+}
+
+message FullAuthenticationRequestData {
+  oneof data {
+    PakeAuthenticationRequestData pakeAuthenticationRequestData = 1;
+    WalletAuthenticationRequestData walletAuthenticationRequestData = 2;
+  }
+}
+
+message WalletAuthenticationResponseData {
+  bool success = 1;
+}
+
+message PakeAuthenticationResponseData {
+  oneof data {
+    bytes pakeRegistrationResponse = 1;
+    bool pakeRegistrationSuccess = 2;
+    bytes pakeCredentialResponse = 3;
+    bytes pakeServerMAC = 4;
+  }
+}
+
+message FullAuthenticationResponseData {
+  oneof data {
+    PakeAuthenticationResponseData pakeAuthenticationResponseData = 1;
+    WalletAuthenticationResponseData walletAuthenticationResponseData = 2;
+  }
+}
+
+message SimpleAuthenticationRequestData {
+  string backupID = 1;
+  string userID = 2;
+}
+
+// CreateNewBackup
+
+message CreateNewBackupRequest {
+  oneof data {
+    FullAuthenticationRequestData authenticationRequestData = 1;
+    bytes newCompactionChunk = 2;
+  }
+}
+
+message CreateNewBackupResponse {
+  oneof data {
+    FullAuthenticationResponseData authenticationResponseData = 1;
+    string backupID = 2;
   }
 }
 
 // SendLog
 
 message SendLogRequest {
-  string userId = 1;
-  bytes data = 2;
+  SimpleAuthenticationRequestData authenticationData = 1;
+  bytes logData = 2;
 }
 
-// PullBackupKey
+// RecoverBackupKey
 
-message PullBackupKeyRequest {
-  string userId = 1;
-  bytes pakeKey = 2;
+message RecoverBackupKeyRequest {
+  FullAuthenticationRequestData authenticationData = 1;
 }
 
-message PullBackupKeyResponse {
-  bytes encryptedBackupKey = 1;
+message RecoverBackupKeyResponse {
+  oneof data {
+    FullAuthenticationResponseData authenticationResponseData = 1;
+    bytes nonce = 2;
+    bytes rawMessage = 3;
+    string backupID = 4;
+  }
 }
 
-// PullCompaction
+// PullBackup
 
-message PullCompactionRequest {
-  string userId = 1;
-  bytes message = 2;
+message PullBackupRequest {
+  SimpleAuthenticationRequestData authenticationData = 1;
 }
 
-message PullCompactionResponse {
+message PullBackupResponse {
   oneof data {
     bytes compactionChunk = 1;
     bytes logChunk = 2;
