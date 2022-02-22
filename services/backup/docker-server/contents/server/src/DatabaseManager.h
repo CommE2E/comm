@@ -40,6 +40,11 @@ public:
   void putBackupItem(const BackupItem &item);
   std::shared_ptr<BackupItem> findLastBackupItem(const std::string &userID);
   void removeBackupItem(std::shared_ptr<BackupItem> item);
+
+  void putLogItem(const LogItem &item);
+  std::vector<std::shared_ptr<LogItem>>
+  findLogItemsForBackup(const std::string &backupID);
+  void removeLogItem(std::shared_ptr<LogItem> item);
 };
 
 template <typename T>
