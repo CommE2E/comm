@@ -1,4 +1,4 @@
-FROM commapp/backup-base:1.0
+FROM commapp/backup-base:1.1
 
 ARG COMM_TEST_SERVICES
 ARG COMM_SERVICES_DEV_MODE
