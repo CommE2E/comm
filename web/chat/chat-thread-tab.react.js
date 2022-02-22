@@ -3,14 +3,14 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import SWMansionIcon from '../SWMansionIcon.react';
+import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
 import css from './chat-tabs.css';
 
 type Props = {
   +title: string,
   +onClick: (title: string) => void,
   +tabIsActive: boolean,
-  +icon: string,
+  +icon: Icon,
 };
 function ChatThreadTab(props: Props): React.Node {
   const { title, onClick, tabIsActive, icon } = props;
