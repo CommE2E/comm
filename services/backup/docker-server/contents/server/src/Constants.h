@@ -22,5 +22,11 @@ const size_t GRPC_METADATA_SIZE_PER_MESSAGE = 5;
 
 const std::string AWS_REGION = "us-east-2";
 
+#ifdef COMM_TEST_SERVICES
+const std::string LOG_TABLE_NAME = "backup-service-log-test";
+#else
+const std::string LOG_TABLE_NAME = "backup-service-log";
+#endif
+
 } // namespace network
 } // namespace comm
