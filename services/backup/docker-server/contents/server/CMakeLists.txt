@@ -27,6 +27,10 @@ set(gRPC_BUILD_GRPC_RUBY_PLUGIN OFF)
 set(gRPC_BUILD_GRPC_PYTHON_PLUGIN OFF)
 set(gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF)
 
+if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
+  add_compile_definitions(COMM_TEST_SERVICES)
+endif()
+
 # Find gRPC installation
 # Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
 find_package(gRPC CONFIG REQUIRED)
