@@ -1,10 +1,10 @@
 package app.comm.android;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.database.CursorWindow;
+import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
-import app.comm.android.fbjni.CommSecureStore;
-import app.comm.android.generated.BasePackageList;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -13,17 +13,14 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JSIModulePackage;
 import com.facebook.soloader.SoLoader;
 import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
-import expo.modules.securestore.SecureStoreModule;
+import expo.modules.ApplicationLifecycleDispatcher;
+import expo.modules.ReactNativeHostWrapper;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.security.Security;
-import java.util.Arrays;
 import java.util.List;
-import org.unimodules.adapters.react.ModuleRegistryAdapter;
-import org.unimodules.adapters.react.ReactModuleRegistryProvider;
-
 public class MainApplication
     extends MultiDexApplication implements ReactApplication {
 
@@ -31,47 +28,34 @@ public class MainApplication
     System.loadLibrary("comm_jni_module");
   }
 
-  private final ReactModuleRegistryProvider mModuleRegistryProvider =
-      new ReactModuleRegistryProvider(
-          new BasePackageList().getPackageList(),
-          null);
+  private final ReactNativeHost mReactNativeHost =
+      new ReactNativeHostWrapper(this, new ReactNativeHost(this) {
+        @Override
+        public boolean getUseDeveloperSupport() {
+          return BuildConfig.DEBUG;
+        }
 
-  private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
-    @Override
-    public boolean getUseDeveloperSupport() {
-      return BuildConfig.DEBUG;
-    }
+        @Override
+        protected List<ReactPackage> getPackages() {
+          @SuppressWarnings("UnnecessaryLocalVariable")
+          List<ReactPackage> packages = new PackageList(this).getPackages();
+          packages.add(new RNFirebaseMessagingPackage());
+          packages.add(new RNFirebaseNotificationsPackage());
+          packages.add(new KeyboardInputPackage(this.getApplication()));
+          packages.add(new CommPackage());
+          return packages;
+        }
 
-    @Override
-    protected List<ReactPackage> getPackages() {
-      List<ReactPackage> packages = new PackageList(this).getPackages();
-      packages.add(new RNFirebaseMessagingPackage());
-      packages.add(new RNFirebaseNotificationsPackage());
-      packages.add(new KeyboardInputPackage(this.getApplication()));
-      packages.add(new CommPackage());
+        @Override
+        protected String getJSMainModuleName() {
+          return "index";
+        }
 
-      // Add unimodules
-      List<ReactPackage> unimodules = Arrays.<ReactPackage>asList(
-          new ModuleRegistryAdapter(mModuleRegistryProvider));
-      packages.addAll(unimodules);
-      return packages;
-    }
-
-    @Override
-    protected String getJSMainModuleName() {
-      return "index";
-    }
-
-    @Override
-    protected JSIModulePackage getJSIModulePackage() {
-      SecureStoreModule secureStoreModule =
-          (SecureStoreModule)mModuleRegistryProvider
-              .get(getApplicationContext())
-              .getExportedModuleOfClass(SecureStoreModule.class);
-      CommSecureStore.getInstance().initialize(secureStoreModule);
-      return new CommCoreJSIModulePackage();
-    }
-  };
+        @Override
+        protected JSIModulePackage getJSIModulePackage() {
+          return new CommCoreJSIModulePackage();
+        }
+      });
 
   @Override
   public ReactNativeHost getReactNativeHost() {
@@ -84,6 +68,7 @@ public class MainApplication
     Security.insertProviderAt(new org.conscrypt.OpenSSLProvider(), 1);
     SoLoader.init(this, /* native exopackage */ false);
     initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    ApplicationLifecycleDispatcher.onApplicationCreate(this);
     try {
       Field field = CursorWindow.class.getDeclaredField("sCursorWindowSize");
       field.setAccessible(true);
@@ -93,6 +78,12 @@ public class MainApplication
         e.printStackTrace();
       }
     }
+  }
+
+  @Override
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig);
   }
 
   /**
