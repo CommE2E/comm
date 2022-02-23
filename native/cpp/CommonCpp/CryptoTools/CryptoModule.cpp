@@ -5,7 +5,7 @@
 namespace comm {
 namespace crypto {
 
-CryptoModule::CryptoModule(std::string id) : id(id) {
+CryptoModule::CryptoModule(std::string id) : id{id} {
   this->createAccount();
 }
 
@@ -13,7 +13,7 @@ CryptoModule::CryptoModule(
     std::string id,
     std::string secretKey,
     Persist persist)
-    : id(id) {
+    : id{id} {
   if (persist.isEmpty()) {
     this->createAccount();
   } else {
@@ -31,7 +31,7 @@ void CryptoModule::createAccount() {
 
   if (-1 ==
       ::olm_create_account(this->account, randomBuffer.data(), randomSize)) {
-    throw std::runtime_error("error createAccount => ::olm_create_account");
+    throw std::runtime_error{"error createAccount => ::olm_create_account"};
   };
 }
 
@@ -47,8 +47,8 @@ void CryptoModule::exposePublicIdentityKeys() {
           this->account,
           this->keys.identityKeys.data(),
           this->keys.identityKeys.size())) {
-    throw std::runtime_error(
-        "error generateIdentityKeys => ::olm_account_identity_keys");
+    throw std::runtime_error{
+        "error generateIdentityKeys => ::olm_account_identity_keys"};
   }
 }
 
@@ -64,8 +64,8 @@ void CryptoModule::generateOneTimeKeys(size_t oneTimeKeysAmount) {
   if (-1 ==
       ::olm_account_generate_one_time_keys(
           this->account, oneTimeKeysAmount, random.data(), random.size())) {
-    throw std::runtime_error(
-        "error generateOneTimeKeys => ::olm_account_generate_one_time_keys");
+    throw std::runtime_error{
+        "error generateOneTimeKeys => ::olm_account_generate_one_time_keys"};
   }
 }
 
@@ -78,8 +78,8 @@ size_t CryptoModule::publishOneTimeKeys() {
           this->account,
           this->keys.oneTimeKeys.data(),
           this->keys.oneTimeKeys.size())) {
-    throw std::runtime_error(
-        "error publishOneTimeKeys => ::olm_account_one_time_keys");
+    throw std::runtime_error{
+        "error publishOneTimeKeys => ::olm_account_one_time_keys"};
   }
   return ::olm_account_mark_keys_as_published(this->account);
 }
@@ -94,23 +94,23 @@ Keys CryptoModule::keysFromStrings(
 
 std::string CryptoModule::getIdentityKeys() {
   this->exposePublicIdentityKeys();
-  return std::string(
-      this->keys.identityKeys.begin(), this->keys.identityKeys.end());
+  return std::string{
+      this->keys.identityKeys.begin(), this->keys.identityKeys.end()};
 }
 
 std::string CryptoModule::getOneTimeKeys(size_t oneTimeKeysAmount) {
   this->generateOneTimeKeys(oneTimeKeysAmount);
   size_t publishedOneTimeKeys = this->publishOneTimeKeys();
   if (publishedOneTimeKeys != oneTimeKeysAmount) {
-    throw std::runtime_error(
+    throw std::runtime_error{
         "error generateKeys => invalid amount of one-time keys published. "
         "Expected " +
         std::to_string(oneTimeKeysAmount) + ", got " +
-        std::to_string(publishedOneTimeKeys));
+        std::to_string(publishedOneTimeKeys)};
   }
 
-  return std::string(
-      this->keys.oneTimeKeys.begin(), this->keys.oneTimeKeys.end());
+  return std::string{
+      this->keys.oneTimeKeys.begin(), this->keys.oneTimeKeys.end()};
 }
 
 void CryptoModule::initializeInboundForReceivingSession(
@@ -122,9 +122,9 @@ void CryptoModule::initializeInboundForReceivingSession(
     if (overwrite) {
       this->sessions.erase(this->sessions.find(targetUserId));
     } else {
-      throw std::runtime_error(
+      throw std::runtime_error{
           "error initializeInboundForReceivingSession => session already "
-          "initialized");
+          "initialized"};
     }
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsResponder(
@@ -138,9 +138,9 @@ void CryptoModule::initializeOutboundForSendingSession(
     const OlmBuffer &oneTimeKeys,
     size_t keyIndex) {
   if (this->hasSessionFor(targetUserId)) {
-    throw std::runtime_error(
+    throw std::runtime_error{
         "error initializeOutboundForSendingSession => session already "
-        "initialized");
+        "initialized"};
   }
   std::unique_ptr<Session> newSession = Session::createSessionAsInitializer(
       this->account,
@@ -196,7 +196,7 @@ Persist CryptoModule::storeAsB64(const std::string &secretKey) {
           secretKey.size(),
           accountPickleBuffer.data(),
           accountPickleLength)) {
-    throw std::runtime_error("error storeAsB64 => ::olm_pickle_account");
+    throw std::runtime_error{"error storeAsB64 => ::olm_pickle_account"};
   }
   persist.account = accountPickleBuffer;
 
@@ -221,11 +221,11 @@ void CryptoModule::restoreFromB64(
           secretKey.size(),
           persist.account.data(),
           persist.account.size())) {
-    throw std::runtime_error("error restoreFromB64 => ::olm_unpickle_account");
+    throw std::runtime_error{"error restoreFromB64 => ::olm_unpickle_account"};
   }
   if (persist.account.size() != ::olm_pickle_account_length(this->account)) {
-    throw std::runtime_error(
-        "error restoreFromB64 => ::olm_pickle_account_length");
+    throw std::runtime_error{
+        "error restoreFromB64 => ::olm_pickle_account_length"};
   }
 
   std::unordered_map<std::string, OlmBuffer>::iterator it;
@@ -240,7 +240,7 @@ EncryptedData CryptoModule::encrypt(
     const std::string &targetUserId,
     const std::string &content) {
   if (!this->hasSessionFor(targetUserId)) {
-    throw std::runtime_error("error encrypt => uninitialized session");
+    throw std::runtime_error{"error encrypt => uninitialized session"};
   }
   OlmSession *session = this->sessions.at(targetUserId)->getOlmSession();
   OlmBuffer encryptedMessage(
@@ -258,7 +258,7 @@ EncryptedData CryptoModule::encrypt(
           messageRandom.size(),
           encryptedMessage.data(),
           encryptedMessage.size())) {
-    throw std::runtime_error("error encrypt => ::olm_encrypt");
+    throw std::runtime_error{"error encrypt => ::olm_encrypt"};
   }
   return {encryptedMessage, messageType};
 }
@@ -268,7 +268,7 @@ std::string CryptoModule::decrypt(
     EncryptedData encryptedData,
     const OlmBuffer &theirIdentityKey) {
   if (!this->hasSessionFor(targetUserId)) {
-    throw std::runtime_error("error decrypt => uninitialized session");
+    throw std::runtime_error{"error decrypt => uninitialized session"};
   }
   OlmSession *session = this->sessions.at(targetUserId)->getOlmSession();
 
@@ -277,7 +277,7 @@ std::string CryptoModule::decrypt(
   if (encryptedData.messageType == (size_t)olm::MessageType::PRE_KEY) {
     if (!this->matchesInboundSession(
             targetUserId, encryptedData, theirIdentityKey)) {
-      throw std::runtime_error("error decrypt => matchesInboundSession");
+      throw std::runtime_error{"error decrypt => matchesInboundSession"};
     }
   }
 
@@ -295,9 +295,9 @@ std::string CryptoModule::decrypt(
       decryptedMessage.data(),
       decryptedMessage.size());
   if (decryptedSize == -1) {
-    throw std::runtime_error("error ::olm_decrypt");
+    throw std::runtime_error{"error ::olm_decrypt"};
   }
-  return std::string((char *)decryptedMessage.data(), decryptedSize);
+  return std::string{(char *)decryptedMessage.data(), decryptedSize};
 }
 
 } // namespace crypto
