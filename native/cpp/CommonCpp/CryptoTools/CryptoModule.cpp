@@ -176,16 +176,13 @@ bool CryptoModule::matchesInboundSession(
   // Check that the inbound session matches the key this message is supposed
   // to be from.
   tmpEncryptedMessage = OlmBuffer(encryptedData.message);
-  if (1 !=
+  return 1 ==
       ::olm_matches_inbound_session_from(
-          session,
-          theirIdentityKey.data() + ID_KEYS_PREFIX_OFFSET,
-          KEYSIZE,
-          tmpEncryptedMessage.data(),
-          tmpEncryptedMessage.size())) {
-    return false;
-  }
-  return true;
+             session,
+             theirIdentityKey.data() + ID_KEYS_PREFIX_OFFSET,
+             KEYSIZE,
+             tmpEncryptedMessage.data(),
+             tmpEncryptedMessage.size());
 }
 
 Persist CryptoModule::storeAsB64(const std::string &secretKey) {
