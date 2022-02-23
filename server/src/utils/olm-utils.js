@@ -3,7 +3,8 @@
 import olmConfig from '../../secrets/olm_config';
 
 type OlmConfig = {
-  +privateKey: string,
+  +picklingKey: string,
+  +pickledAccount: string,
 };
 
 function getOlmConfig(): OlmConfig {
