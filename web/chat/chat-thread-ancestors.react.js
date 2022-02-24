@@ -11,6 +11,8 @@ import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-ancestors.css';
 
+const SHOW_SEE_FULL_STRUCTURE = false;
+
 type ThreadAncestorsProps = {
   +threadInfo: ThreadInfo,
 };
@@ -97,6 +99,18 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
     );
   }, [threadHasNoAncestors, threadColorStyle, threadInfo.uiName]);
 
+  let seeFullStructure = null;
+  if (SHOW_SEE_FULL_STRUCTURE) {
+    seeFullStructure = (
+      <button
+        style={fullStructureButtonColorStyle}
+        className={css.seeFullStructure}
+      >
+        See full structure
+      </button>
+    );
+  }
+
   return (
     <>
       <div className={css.ancestorThreadsContainer}>
@@ -104,12 +118,7 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
         {middlePath}
         {currentThread}
       </div>
-      <button
-        style={fullStructureButtonColorStyle}
-        className={css.seeFullStructure}
-      >
-        See full structure
-      </button>
+      {seeFullStructure}
     </>
   );
 }
