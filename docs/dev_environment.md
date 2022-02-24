@@ -287,7 +287,7 @@ Since we run `pip3 install` with `--user` instead of running it with `sudo`, the
 
 If you have trouble getting Flipper to work with a physical iOS device, it may be due to Python weirdness. The above steps have been tested with Python 3.9 sourced from Homebrew. Let @ashoat know if you have any trouble!
 
-### Codegen for gRPC
+## Codegen for gRPC
 
 gRPC is a framework from Google for writing services. As a developer, you define your service’s API using Protobufs, and gRPC handles the networking and basic infrastructure for you.
 
@@ -775,7 +775,23 @@ JSI is a framework in React Native that allows C++ and JS to communicate synchro
 
 The script to generate this code is written in JavaScript and is included as a npm package so no additional software is needed to use it. The schema has to be defined in Flow as an interface, and that interface must inherit from react-native’s `TurboModule` interface.
 
-To run the JSI codegen, just run `cd native && yarn codegen-jsi`. The input Flow schemas are located in `native/schema`.
+To run the JSI codegen, just run:
+
+```
+cd native
+yarn codegen-jsi
+```
+
+The input Flow schemas are located in `native/schema`.
+
+### Codegen for gRPC
+
+In order to generate the codegen files for gRPC, you should run the following command:
+
+```
+cd native
+yarn codegen-grpc
+```
 
 # Debugging
 
