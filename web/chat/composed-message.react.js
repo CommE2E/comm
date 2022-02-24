@@ -85,10 +85,10 @@ class ComposedMessage extends React.PureComponent<Props> {
       [css.fixedWidthMessageBox]: this.props.fixedWidth,
     });
     const messageBoxStyle = {
-      borderTopRightRadius: isViewer && !item.startsCluster ? 0 : borderRadius,
-      borderBottomRightRadius: isViewer && !item.endsCluster ? 0 : borderRadius,
-      borderTopLeftRadius: !isViewer && !item.startsCluster ? 0 : borderRadius,
-      borderBottomLeftRadius: !isViewer && !item.endsCluster ? 0 : borderRadius,
+      borderTopRightRadius: isViewer && !item.startsCluster ? 2 : borderRadius,
+      borderBottomRightRadius: isViewer && !item.endsCluster ? 2 : borderRadius,
+      borderTopLeftRadius: !isViewer && !item.startsCluster ? 2 : borderRadius,
+      borderBottomLeftRadius: !isViewer && !item.endsCluster ? 2 : borderRadius,
     };
 
     let authorName = null;
