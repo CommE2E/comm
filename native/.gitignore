@@ -54,9 +54,6 @@ yarn-error.log
 /ios/Pods/
 /vendor/bundle/
 
-# unimodules
-**/generated/BasePackageList.java
-
 android/app/.cxx/
 codegen/dist
 
