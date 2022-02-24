@@ -37,15 +37,6 @@ textarea {
   border-radius: 1px;
   font-family: var(--font-stack);
 }
-input[type='submit'] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  -webkit-border-radius: 0;
-}
-input[type='submit']::-moz-focus-inner {
-  border: 0;
-  padding: 0;
-}
 :global(#react-root) {
   display: flex;
   flex-direction: column;
