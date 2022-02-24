@@ -39,18 +39,17 @@ function TextMessage(props: Props): React.Node {
   } = props.item.messageInfo;
 
   const messageStyle = {};
-  let darkColor = false;
+  let darkColor = true;
   if (isViewer) {
     const threadColor = props.threadInfo.color;
     darkColor = colorIsDark(threadColor);
     messageStyle.backgroundColor = `#${threadColor}`;
-  } else {
-    messageStyle.backgroundColor = 'rgba(221,221,221,0.73)';
   }
 
   const onlyEmoji = onlyEmojiRegex.test(text);
   const messageClassName = classNames({
     [css.textMessage]: true,
+    [css.textMessageDefaultBackground]: !isViewer,
     [css.normalTextMessage]: !onlyEmoji,
     [css.emojiOnlyTextMessage]: onlyEmoji,
     [css.darkTextMessage]: darkColor,
