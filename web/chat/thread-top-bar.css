@@ -5,7 +5,7 @@ div.topBarContainer {
   justify-content: space-between;
   padding: 16px;
   color: var(--thread-top-bar-color);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 3px solid var(--border);
 }
 
 div.topBarThreadInfo {

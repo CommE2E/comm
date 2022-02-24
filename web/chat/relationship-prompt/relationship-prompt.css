@@ -1,12 +1,13 @@
 div.promptButtonContainer {
   display: flex;
+  margin: 1rem 0.5rem 1rem;
 }
 button.promptButton {
   font-size: var(--m-font-16);
   font-weight: var(--semi-bold);
   cursor: pointer;
-  margin: 0.5rem;
-  padding: 1.2rem;
+  margin-inline: 0.5rem;
+  padding: 0.8rem;
   display: flex;
   flex-direction: row;
   align-items: center;
