@@ -39,13 +39,13 @@ function TextMessage(props: Props): React.Node {
   } = props.item.messageInfo;
 
   const messageStyle = {};
-  let darkColor = false;
+  let darkColor = true;
   if (isViewer) {
     const threadColor = props.threadInfo.color;
     darkColor = colorIsDark(threadColor);
     messageStyle.backgroundColor = `#${threadColor}`;
   } else {
-    messageStyle.backgroundColor = 'rgba(221,221,221,0.73)';
+    messageStyle.backgroundColor = '#404040';
   }
 
   const onlyEmoji = onlyEmojiRegex.test(text);
