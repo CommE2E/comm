@@ -274,6 +274,7 @@ div.searchContainer {
   display: flex;
   align-items: center;
   margin: 1rem;
+  border-radius: 4px;
 }
 
 input.searchInput {
@@ -284,6 +285,7 @@ input.searchInput {
   border: none;
   color: var(--text-input-color);
   outline: none;
+  border-radius: 4px;
 }
 
 input.searchInput::placeholder {
