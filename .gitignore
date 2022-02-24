@@ -9,6 +9,8 @@ web/dist
 server/dist
 server/node_modules
 server/secrets
+docs/node_modules
+docs/build
 server/facts
 .eslintcache
 .vscode
