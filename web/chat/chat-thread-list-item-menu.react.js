@@ -74,23 +74,18 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   }`;
 
   const menuIconSize = renderStyle === 'chat' ? 24 : 16;
+  const btnCls = classNames(css.menuContent, {
+    [css.menuContentVisible]: menuVisible,
+  });
   return (
     <div className={css.menu} onMouseLeave={hideMenu}>
       <button onClick={toggleMenu}>
         <SWMansionIcon icon="menu-vertical" size={menuIconSize} />
       </button>
-      <div
-        className={classNames(css.menuContent, {
-          [css.menuContentVisible]: menuVisible,
-        })}
-      >
-        <ul>
-          <li>
-            <button onClick={toggleUnreadStatus}>
-              {toggleUnreadStatusButtonText}
-            </button>
-          </li>
-        </ul>
+      <div>
+        <button className={btnCls} onClick={toggleUnreadStatus}>
+          {toggleUnreadStatusButtonText}
+        </button>
       </div>
     </div>
   );
