@@ -1,0 +1,239 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "loadedVersions": [
+        {
+          "versionName": "current",
+          "versionLabel": "Next",
+          "versionPath": "/",
+          "tagsPath": "/tags",
+          "versionBanner": null,
+          "versionBadge": false,
+          "versionClassName": "docs-version-current",
+          "isLast": true,
+          "routePriority": -1,
+          "sidebarFilePath": "/Users/anand/comm/docs/sidebars.js",
+          "contentPath": "/Users/anand/comm/docs/docs",
+          "contentPathLocalized": "/Users/anand/comm/docs/i18n/en/docusaurus-plugin-content-docs/current",
+          "mainDocId": "my-home-doc",
+          "docs": [
+            {
+              "unversionedId": "dev_environment_mac/configuration",
+              "id": "dev_environment_mac/configuration",
+              "isDocsHomePage": false,
+              "title": "Configuration",
+              "description": "Apache",
+              "source": "@site/docs/dev_environment_mac/configuration.md",
+              "sourceDirName": "dev_environment_mac",
+              "slug": "/dev_environment_mac/configuration",
+              "permalink": "/dev_environment_mac/configuration",
+              "tags": [],
+              "version": "current",
+              "sidebarPosition": 2,
+              "frontMatter": {
+                "sidebar_position": 2
+              },
+              "sidebar": "tutorialSidebar",
+              "previous": {
+                "title": "Prerequisites",
+                "permalink": "/dev_environment_mac/prerequisites"
+              },
+              "next": {
+                "title": "Development",
+                "permalink": "/dev_environment_mac/development/development"
+              }
+            },
+            {
+              "unversionedId": "dev_environment_mac/development/debugging",
+              "id": "dev_environment_mac/development/debugging",
+              "isDocsHomePage": false,
+              "title": "Debugging",
+              "description": "React Developer Tools",
+              "source": "@site/docs/dev_environment_mac/development/debugging.mdx",
+              "sourceDirName": "dev_environment_mac/development",
+              "slug": "/dev_environment_mac/development/debugging",
+              "permalink": "/dev_environment_mac/development/debugging",
+              "tags": [],
+              "version": "current",
+              "sidebarPosition": 2,
+              "frontMatter": {
+                "sidebar_position": 2
+              },
+              "sidebar": "tutorialSidebar",
+              "previous": {
+                "title": "Development",
+                "permalink": "/dev_environment_mac/development/development"
+              },
+              "next": {
+                "title": "Instructions (Linux)",
+                "permalink": "/linux_dev_environment"
+              }
+            },
+            {
+              "unversionedId": "dev_environment_mac/development/development",
+              "id": "dev_environment_mac/development/development",
+              "isDocsHomePage": false,
+              "title": "Development",
+              "description": "Flow typechecker",
+              "source": "@site/docs/dev_environment_mac/development/development.mdx",
+              "sourceDirName": "dev_environment_mac/development",
+              "slug": "/dev_environment_mac/development/development",
+              "permalink": "/dev_environment_mac/development/development",
+              "tags": [],
+              "version": "current",
+              "sidebarPosition": 1,
+              "frontMatter": {
+                "sidebar_position": 1
+              },
+              "sidebar": "tutorialSidebar",
+              "previous": {
+                "title": "Configuration",
+                "permalink": "/dev_environment_mac/configuration"
+              },
+              "next": {
+                "title": "Debugging",
+                "permalink": "/dev_environment_mac/development/debugging"
+              }
+            },
+            {
+              "unversionedId": "dev_environment_mac/prerequisites",
+              "id": "dev_environment_mac/prerequisites",
+              "isDocsHomePage": false,
+              "title": "Prerequisites",
+              "description": "Xcode",
+              "source": "@site/docs/dev_environment_mac/prerequisites.md",
+              "sourceDirName": "dev_environment_mac",
+              "slug": "/dev_environment_mac/prerequisites",
+              "permalink": "/dev_environment_mac/prerequisites",
+              "tags": [],
+              "version": "current",
+              "sidebarPosition": 1,
+              "frontMatter": {
+                "sidebar_position": 1
+              },
+              "sidebar": "tutorialSidebar",
+              "previous": {
+                "title": "Requirements",
+                "permalink": "/"
+              },
+              "next": {
+                "title": "Configuration",
+                "permalink": "/dev_environment_mac/configuration"
+              }
+            },
+            {
+              "unversionedId": "linux_dev_environment",
+              "id": "linux_dev_environment",
+              "isDocsHomePage": false,
+              "title": "Linux Instructions",
+              "description": "The instructions to set up Comm development environment are only tested and available for Ubuntu 20.04.",
+              "source": "@site/docs/linux_dev_environment.md",
+              "sourceDirName": ".",
+              "slug": "/linux_dev_environment",
+              "permalink": "/linux_dev_environment",
+              "tags": [],
+              "version": "current",
+              "sidebarPosition": 3,
+              "frontMatter": {
+                "sidebar_label": "Instructions (Linux)",
+                "sidebar_position": 3
+              },
+              "sidebar": "tutorialSidebar",
+              "previous": {
+                "title": "Debugging",
+                "permalink": "/dev_environment_mac/development/debugging"
+              }
+            },
+            {
+              "unversionedId": "my-home-doc",
+              "id": "my-home-doc",
+              "isDocsHomePage": false,
+              "title": "Requirements",
+              "description": "Please note that our dev environment currently only works on macOS and Linux.",
+              "source": "@site/docs/dev_requirements.md",
+              "sourceDirName": ".",
+              "slug": "/",
+              "permalink": "/",
+              "tags": [],
+              "version": "current",
+              "sidebarPosition": 1,
+              "frontMatter": {
+                "id": "my-home-doc",
+                "sidebar_position": 1,
+                "slug": "/"
+              },
+              "sidebar": "tutorialSidebar",
+              "next": {
+                "title": "Prerequisites",
+                "permalink": "/dev_environment_mac/prerequisites"
+              }
+            }
+          ],
+          "sidebars": {
+            "tutorialSidebar": [
+              {
+                "type": "doc",
+                "id": "my-home-doc"
+              },
+              {
+                "type": "category",
+                "label": "Instructions (macOS)",
+                "collapsible": true,
+                "collapsed": true,
+                "items": [
+                  {
+                    "type": "doc",
+                    "id": "dev_environment_mac/prerequisites"
+                  },
+                  {
+                    "type": "doc",
+                    "id": "dev_environment_mac/configuration"
+                  },
+                  {
+                    "type": "category",
+                    "label": "Development",
+                    "collapsible": true,
+                    "collapsed": true,
+                    "items": [
+                      {
+                        "type": "doc",
+                        "id": "dev_environment_mac/development/development"
+                      },
+                      {
+                        "type": "doc",
+                        "id": "dev_environment_mac/development/debugging"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "doc",
+                "id": "linux_dev_environment",
+                "label": "Instructions (Linux)"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "docusaurus-plugin-content-blog": {
+    "default": {
+      "blogSidebarTitle": "Recent posts",
+      "blogPosts": [],
+      "blogListPaginated": [],
+      "blogTags": {},
+      "blogTagsListPath": null
+    }
+  },
+  "docusaurus-plugin-content-pages": {
+    "default": []
+  },
+  "docusaurus-plugin-debug": {
+    "default": null
+  },
+  "docusaurus-theme-classic": {
+    "default": null
+  }
+}

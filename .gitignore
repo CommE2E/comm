@@ -10,5 +10,7 @@ server/dist
 server/node_modules
 server/secrets
 server/facts
+docs/node_modules
+docs/build
 .eslintcache
 .vscode

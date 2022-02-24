@@ -1,0 +1,114 @@
+---
+sidebar_position: 2
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Debugging
+
+## React Developer Tools
+
+<Tabs groupId="platform">
+  <TabItem value="web" label="For web">
+
+- You can access the React Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Components” or “Profiler” tabs. This should work in both our development environment and in production.
+
+
+  </TabItem>
+  <TabItem value="mobile" label="For iOS and Android">
+
+- You can access the React Developer Tools through Flipper. First start a debug build of a React Native app. Next, just open up Flipper and you should be able to see an option for “React DevTools”. Flipper communicates with the app through the Metro bundler that gets started when you run `cd native && yarn dev`.
+
+
+  </TabItem>
+</Tabs>
+
+
+
+## Redux Developer Tools
+
+<Tabs groupId="platform">
+  <TabItem value="web" label="For web">
+
+- You can access the Redux Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Redux” tab. This should work in both our development environment and in production, although in production you won’t be able to see Redux actions from before you opened up the Redux dev tools.
+
+
+  </TabItem>
+  <TabItem value="mobile" label="For iOS and Android">
+
+- You can access the Redux Developer Tools through the Chrome extension’s Remote DevTools functionality. First, to open the Remote DevTools, right click on any webpage, go into the “Redux DevTools” menu, and select “Open Remote DevTools”. Then hit “Settings”, select “Use custom (local) server”, and configure it to connect to `localhost` on port 8043. This will connect to the `remotedev-server` instance that you started when you ran `cd native && yarn dev`.
+
+
+  </TabItem>
+
+</Tabs>
+
+## Debugging JavaScript
+
+<Tabs groupId="platform">
+  <TabItem value="web" label="For web">
+
+- You can just use your browser of choice’s dev tools.
+
+
+  </TabItem>
+  <TabItem value="mobile" label="For iOS and Android">
+
+- You should use Flipper. First start a debug build of a React Native app. Next, just open up Flipper and you should be able to see an option for “Hermes Debugger (RN)”. Flipper communicates with the app through the Metro bundler that gets started when you run `cd native && yarn dev`.
+
+
+  </TabItem>
+
+</Tabs>
+
+## Working with Phabricator
+
+### Creating a new diff
+
+The biggest difference between GitHub’s PR workflow and Phabricator’s “diff” workflow is that Phabricator lets you create a diff from any commit, or set of commits. In contrast, GitHub can only create PRs from branches.
+
+When you have a commit ready and want to submit a diff for code review, just run `arc diff` from within the Comm Git repo. Arcanist will attempt to determine the “base” for your diff automatically, but by default it will take the single most recent commit. You can see what base Arcanist thinks it should use by running `arc which`. You can also explicitly specify a base by using `arc diff --base`. For instance, `arc diff --base HEAD^` will create a diff from the most recent commit, which should be the default behavior.
+
+Keep in mind that `arc diff` always diffs the base against your current working copy. Though this nominally includes any unstashed changes you might have, `arc diff`’s interactive prompts will help you exclude unrelated changes in your working copy.
+
+It’s generally easiest to keep a 1:1 correspondence between diffs and commits. If you’re working with a stack of commits, you can use Git’s interactive rebase feature (`git rebase -i`) to run `arc diff` on each commit individually.
+
+### Updating a diff
+
+Whereas with GitHub PRs, updates are usually created by adding on more commits, in Phabricator the easiest way to update a diff is by amending the existing commit.
+
+When you run `arc diff` on a commit for the first time, it amends the commit message to include a link to the Phabricator diff. If and when you want to update that diff, just run `arc diff` again.
+
+If you’re working with a stack of diffs, and want to update an earlier diff, you can use Git’s interactive rebase feature (`git rebase -i`) to open the stack to a particular point. Then you can amend that commit and run `arc diff` before continuing the rebase.
+
+### Committing a diff
+
+After your diff has been accepted, you should be able to land it. To land a diff just run `arc land` from within the repository.
+
+If you’re dealing with a stack, `arc land` will make sure to only land the diffs that have been accepted, and shouldn’t land any diffs that depend on other diffs that haven’t been accepted yet.
+
+Note that you need commit rights to the repository in order to run `arc land`. If you don’t have commit rights, reach out to @ashoat for assistance.
+
+## Creating a Herald rule
+
+Once you have access to Phabricator, you may want to set up a Herald rule so that you get CC’d on any new diffs. The way to do that in Phabricator is:
+
+1. Go to “More Applications” on the left-hand sidebar.
+2. Select “Herald” from the list.
+3. Press the “Create Herald Rule” button in the upper-right corner of the screen.
+4. Select “Differential Revisions” from the list.
+5. Select “Personal Rule” from the list.
+6. Set up your new rule to match [this one](https://phabricator.ashoat.com/H2).
+
+## Final notes
+
+:::tip
+  When developing, I usually just pop up three terminal windows, one for `yarn dev` in each of server, web, and native.
+:::
+
+:::note
+It’s currently only possible to create a user account using the iOS or Android apps. The website supports logging in, but does not support account creation.
+:::
+
+Good luck, and let @ashoat know if you have any questions!

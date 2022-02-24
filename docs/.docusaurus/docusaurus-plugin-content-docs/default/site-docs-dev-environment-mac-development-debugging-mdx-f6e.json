@@ -1,0 +1,26 @@
+{
+  "unversionedId": "dev_environment_mac/development/debugging",
+  "id": "dev_environment_mac/development/debugging",
+  "isDocsHomePage": false,
+  "title": "Debugging",
+  "description": "React Developer Tools",
+  "source": "@site/docs/dev_environment_mac/development/debugging.mdx",
+  "sourceDirName": "dev_environment_mac/development",
+  "slug": "/dev_environment_mac/development/debugging",
+  "permalink": "/dev_environment_mac/development/debugging",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Development",
+    "permalink": "/dev_environment_mac/development/development"
+  },
+  "next": {
+    "title": "Instructions (Linux)",
+    "permalink": "/linux_dev_environment"
+  }
+}

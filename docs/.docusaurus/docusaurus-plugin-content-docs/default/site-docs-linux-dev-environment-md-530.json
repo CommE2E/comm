@@ -1,0 +1,23 @@
+{
+  "unversionedId": "linux_dev_environment",
+  "id": "linux_dev_environment",
+  "isDocsHomePage": false,
+  "title": "Linux Instructions",
+  "description": "The instructions to set up Comm development environment are only tested and available for Ubuntu 20.04.",
+  "source": "@site/docs/linux_dev_environment.md",
+  "sourceDirName": ".",
+  "slug": "/linux_dev_environment",
+  "permalink": "/linux_dev_environment",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "sidebar_label": "Instructions (Linux)",
+    "sidebar_position": 3
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Debugging",
+    "permalink": "/dev_environment_mac/development/debugging"
+  }
+}

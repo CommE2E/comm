@@ -1,0 +1,26 @@
+{
+  "unversionedId": "dev_environment_mac/configuration",
+  "id": "dev_environment_mac/configuration",
+  "isDocsHomePage": false,
+  "title": "Configuration",
+  "description": "Apache",
+  "source": "@site/docs/dev_environment_mac/configuration.md",
+  "sourceDirName": "dev_environment_mac",
+  "slug": "/dev_environment_mac/configuration",
+  "permalink": "/dev_environment_mac/configuration",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "sidebar_position": 2
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Prerequisites",
+    "permalink": "/dev_environment_mac/prerequisites"
+  },
+  "next": {
+    "title": "Development",
+    "permalink": "/dev_environment_mac/development/development"
+  }
+}
