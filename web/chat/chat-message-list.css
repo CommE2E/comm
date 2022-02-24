@@ -82,24 +82,43 @@ div.messageBottomRightTooltip:after {
   border-color: transparent transparent var(--tool-tip-bg) transparent;
 }
 
-div.messageActionLinks {
+div.messageActionActiveArea {
   position: absolute;
   display: flex;
   top: 0;
   bottom: 0;
   align-items: center;
-  color: gray;
-  padding: 0 6px;
+  padding: 0 12px;
 }
-div.viewerMessageActionLinks {
+
+div.viewerMessageActionActiveArea {
   right: 100%;
 }
-div.nonViewerMessageActionLinks {
+div.nonViewerMessageActiveArea {
   left: 100%;
 }
-div.messageActionLinks > div + div {
+div.messageActionActiveArea > div + div {
   margin-left: 4px;
 }
+
+div.messageActionContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  background-color: var(--message-action-tooltip-bg);
+  border-radius: 8px;
+}
+
+div.messageActionContainer svg {
+  padding: 10px 6px 6px;
+  color: var(--fg);
+}
+div.messageActionContainer svg:hover {
+  cursor: pointer;
+}
+
 div.messageActionLinkIcon:hover {
   cursor: pointer;
 }

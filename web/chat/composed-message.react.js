@@ -166,24 +166,28 @@ class ComposedMessage extends React.PureComponent<Props> {
       viewerActionLinks = (
         <div
           className={classNames(
-            css.messageActionLinks,
-            css.viewerMessageActionLinks,
+            css.messageActionActiveArea,
+            css.viewerMessageActionActiveArea,
           )}
         >
-          {messageActionButton}
-          {replyButton}
+          <div className={css.messageActionContainer}>
+            {messageActionButton}
+            {replyButton}
+          </div>
         </div>
       );
     } else if (replyButton || messageActionButton) {
       nonViewerActionLinks = (
         <div
           className={classNames(
-            css.messageActionLinks,
-            css.nonViewerMessageActionLinks,
+            css.messageActionActiveArea,
+            css.nonViewerMessageActiveArea,
           )}
         >
-          {replyButton}
-          {messageActionButton}
+          <div className={css.messageActionContainer}>
+            {replyButton}
+            {messageActionButton}
+          </div>
         </div>
       );
     }
