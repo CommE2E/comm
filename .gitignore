@@ -11,3 +11,10 @@ server/secrets
 server/facts
 .eslintcache
 .vscode
+
+# Nix
+result
+result-*
+
+# Direnv
+.direnv
