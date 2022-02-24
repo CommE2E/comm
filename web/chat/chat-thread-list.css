@@ -73,7 +73,7 @@ div.spacer,
 div.colorSplotch {
   height: 40px;
   width: 40px;
-  border-radius: 1.68px;
+  border-radius: 4px;
 }
 div.lastActivity {
   font-size: var(--xxs-font-10);
