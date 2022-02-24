@@ -77,7 +77,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
         mouseOverMessagePosition={this.props.mouseOverMessagePosition}
         canReply={false}
         fixedWidth={multimedia.length > 1}
-        borderRadius={16}
       >
         {content}
       </ComposedMessage>
