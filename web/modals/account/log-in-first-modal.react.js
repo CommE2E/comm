@@ -2,18 +2,25 @@
 
 import * as React from 'react';
 
+import { useModalContext } from '../../modals/modal-provider.react';
 import css from '../../style.css';
 import Modal from '../modal.react';
 import LogInModal from './log-in-modal.react';
 
-type Props = {
+type BaseProps = {
   +inOrderTo: string,
-  +setModal: (modal: ?React.Node) => void,
 };
+
+type Props = {
+  ...BaseProps,
+  +setModal: (modal: ?React.Node) => void,
+  +clearModal: () => void,
+};
+
 class LogInFirstModal extends React.PureComponent<Props> {
   render(): React.Node {
     return (
-      <Modal name="Log in" onClose={this.clearModal}>
+      <Modal name="Log in" onClose={this.props.clearModal}>
         <div className={css['modal-body']}>
           <p>
             {`In order to ${this.props.inOrderTo}, you'll first need to `}
@@ -31,14 +38,22 @@ class LogInFirstModal extends React.PureComponent<Props> {
     );
   }
 
-  clearModal: () => void = () => {
-    this.props.setModal(null);
-  };
-
   onClickLogIn: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
-    this.props.setModal(<LogInModal setModal={this.props.setModal} />);
+    this.props.setModal(<LogInModal />);
   };
 }
 
-export default LogInFirstModal;
+function ConnectedLoginFirstModal(props: BaseProps): React.Node {
+  const modalContext = useModalContext();
+
+  return (
+    <LogInFirstModal
+      {...props}
+      setModal={modalContext.setModal}
+      clearModal={modalContext.clearModal}
+    />
+  );
+}
+
+export default ConnectedLoginFirstModal;

@@ -35,6 +35,7 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
+import { ModalProvider, useModalContext } from './modals/modal-provider.react';
 import DisconnectedBar from './redux/disconnected-bar';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
 import FocusHandler from './redux/focus-handler.react';
@@ -83,15 +84,9 @@ type Props = {
   +activeThreadCurrentlyUnread: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
-};
-type State = {
   +modal: ?React.Node,
 };
-class App extends React.PureComponent<Props, State> {
-  state: State = {
-    modal: null,
-  };
-
+class App extends React.PureComponent<Props> {
   componentDidMount() {
     const {
       navInfo,
@@ -136,16 +131,14 @@ class App extends React.PureComponent<Props, State> {
     if (this.props.loggedIn) {
       content = this.renderMainContent();
     } else {
-      content = (
-        <Splash setModal={this.setModal} currentModal={this.state.modal} />
-      );
+      content = <Splash />;
     }
     return (
       <DndProvider backend={HTML5Backend}>
         <FocusHandler />
         <VisibilityHandler />
         {content}
-        {this.state.modal}
+        {this.props.modal}
       </DndProvider>
     );
   }
@@ -153,11 +146,9 @@ class App extends React.PureComponent<Props, State> {
   renderMainContent() {
     let mainContent;
     if (this.props.navInfo.tab === 'calendar') {
-      mainContent = (
-        <Calendar setModal={this.setModal} url={this.props.location.pathname} />
-      );
+      mainContent = <Calendar url={this.props.location.pathname} />;
     } else if (this.props.navInfo.tab === 'chat') {
-      mainContent = <Chat setModal={this.setModal} />;
+      mainContent = <Chat />;
     }
 
     return (
@@ -177,22 +168,14 @@ class App extends React.PureComponent<Props, State> {
             </div>
           </div>
         </header>
-        <InputStateContainer setModal={this.setModal}>
+        <InputStateContainer>
           <div className={css['main-content-container']}>
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
-        <LeftLayoutAside setModal={this.setModal} />
+        <LeftLayoutAside />
       </div>
     );
-  }
-
-  setModal = (modal: ?React.Node) => {
-    this.setState({ modal });
-  };
-
-  clearModal() {
-    this.setModal(null);
   }
 }
 
@@ -230,6 +213,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     );
 
     const dispatch = useDispatch();
+    const modalContext = useModalContext();
 
     return (
       <App
@@ -240,9 +224,18 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         mostRecentReadThread={mostRecentReadThread}
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
         dispatch={dispatch}
+        modal={modalContext.modal}
       />
     );
   },
 );
 
-export default ConnectedApp;
+function AppWithProvider(props: BaseProps): React.Node {
+  return (
+    <ModalProvider>
+      <ConnectedApp {...props} />
+    </ModalProvider>
+  );
+}
+
+export default AppWithProvider;

@@ -23,6 +23,7 @@ import {
 
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
+import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { AddVector, HistoryVector } from '../vectors.react';
@@ -34,7 +35,6 @@ import ThreadPicker from './thread-picker.react';
 type BaseProps = {
   +dayString: string,
   +entryInfos: $ReadOnlyArray<EntryInfo>,
-  +setModal: (modal: ?React.Node) => void,
   +startingTabIndex: number,
 };
 type Props = {
@@ -45,6 +45,7 @@ type Props = {
   +nextLocalID: number,
   +timeZone: ?string,
   +dispatch: Dispatch,
+  +setModal: (modal: ?React.Node) => void,
 };
 type State = {
   +pickerOpen: boolean,
@@ -107,7 +108,6 @@ class Day extends React.PureComponent<Props, State> {
           <Entry
             entryInfo={entryInfo}
             focusOnFirstEntryNewerThan={this.focusOnFirstEntryNewerThan}
-            setModal={this.props.setModal}
             tabIndex={this.props.startingTabIndex + i}
             key={key}
             innerRef={this.entryRef}
@@ -216,12 +216,7 @@ class Day extends React.PureComponent<Props, State> {
 
   createNewEntry = (threadID: string) => {
     if (!this.props.loggedIn) {
-      this.props.setModal(
-        <LogInFirstModal
-          inOrderTo="edit this calendar"
-          setModal={this.props.setModal}
-        />,
-      );
+      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     const viewerID = this.props.viewerID;
@@ -240,11 +235,7 @@ class Day extends React.PureComponent<Props, State> {
   onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.props.setModal(
-      <HistoryModal
-        mode="day"
-        dayString={this.props.dayString}
-        onClose={this.clearModal}
-      />,
+      <HistoryModal mode="day" dayString={this.props.dayString} />,
     );
   };
 
@@ -257,10 +248,6 @@ class Day extends React.PureComponent<Props, State> {
       invariant(entry, 'entry for entryinfo should be defined');
       entry.focus();
     }
-  };
-
-  clearModal = () => {
-    this.props.setModal(null);
   };
 }
 
@@ -275,6 +262,7 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const nextLocalID = useSelector(state => state.nextLocalID);
     const timeZone = useSelector(state => state.timeZone);
     const dispatch = useDispatch();
+    const modalContext = useModalContext();
 
     return (
       <Day
@@ -285,6 +273,7 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         nextLocalID={nextLocalID}
         timeZone={timeZone}
         dispatch={dispatch}
+        setModal={modalContext.setModal}
       />
     );
   },

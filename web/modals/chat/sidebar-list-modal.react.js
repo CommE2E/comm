@@ -15,22 +15,20 @@ import SidebarItem from '../../chat/sidebar-item.react';
 import { useSelector } from '../../redux/redux-utils';
 import globalCSS from '../../style.css';
 import { MagnifyingGlass } from '../../vectors.react';
+import { useModalContext } from '../modal-provider.react';
 import Modal from '../modal.react';
 
 type Props = {
-  +setModal: (modal: ?React.Node) => void,
   +threadInfo: ThreadInfo,
 };
+
 function SidebarListModal(props: Props): React.Node {
-  const { setModal, threadInfo } = props;
+  const { threadInfo } = props;
   const [searchState, setSearchState] = React.useState({
     text: '',
     results: new Set<string>(),
   });
-
-  const clearModal = React.useCallback(() => {
-    setModal(null);
-  }, [setModal]);
+  const { clearModal } = useModalContext();
 
   const sidebarInfos = useSelector(
     state => sidebarInfoSelector(state)[threadInfo.id] ?? [],

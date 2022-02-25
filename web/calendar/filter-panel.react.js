@@ -26,6 +26,7 @@ import {
 } from 'lib/types/filter-types';
 import type { Dispatch } from 'lib/types/redux-types';
 
+import { useModalContext } from '../modals/modal-provider.react';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import {
@@ -35,16 +36,13 @@ import {
 import { MagnifyingGlass } from '../vectors.react';
 import css from './filter-panel.css';
 
-type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
-};
 type Props = {
-  ...BaseProps,
   +filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
   +filterThreadSearchIndex: () => SearchIndex,
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
+  +setModal: (modal: ?React.Node) => void,
 };
 type State = {
   +query: string,
@@ -204,9 +202,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
   }
 
   onClickSettings = (threadID: string) => {
-    this.props.setModal(
-      <ThreadSettingsModal threadID={threadID} onClose={this.clearModal} />,
-    );
+    this.props.setModal(<ThreadSettingsModal threadID={threadID} />);
   };
 
   onChangeQuery = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -237,10 +233,6 @@ class FilterPanel extends React.PureComponent<Props, State> {
         includeDeleted,
       },
     });
-  };
-
-  clearModal = () => {
-    this.props.setModal(null);
   };
 }
 
@@ -369,22 +361,23 @@ class Category extends React.PureComponent<CategoryProps> {
   };
 }
 
-const ConnectedFilterPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedFilterPanel(props) {
+const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
+  function ConnectedFilterPanel(): React.Node {
     const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
     const filterThreadInfos = useSelector(webFilterThreadInfos);
     const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
     const includeDeleted = useSelector(includeDeletedSelector);
     const dispatch = useDispatch();
+    const modalContext = useModalContext();
 
     return (
       <FilterPanel
-        {...props}
         filteredThreadIDs={filteredThreadIDs}
         filterThreadInfos={filterThreadInfos}
         filterThreadSearchIndex={filterThreadSearchIndex}
         includeDeleted={includeDeleted}
         dispatch={dispatch}
+        setModal={modalContext.setModal}
       />
     );
   },

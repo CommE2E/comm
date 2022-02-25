@@ -24,7 +24,6 @@ type Props = {
     messagePositionInfo: MessagePositionInfo,
   ) => void,
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
-  +setModal: (modal: ?React.Node) => void,
   +timeZone: ?string,
 };
 function Message(props: Props): React.Node {
@@ -58,7 +57,6 @@ function Message(props: Props): React.Node {
         threadInfo={props.threadInfo}
         setMouseOverMessagePosition={props.setMouseOverMessagePosition}
         mouseOverMessagePosition={props.mouseOverMessagePosition}
-        setModal={props.setModal}
       />
     );
   } else {

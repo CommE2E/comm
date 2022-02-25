@@ -36,6 +36,7 @@ import {
 } from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
+import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -71,7 +72,6 @@ class Tab extends React.PureComponent<TabProps> {
 
 type BaseProps = {
   +threadID: string,
-  +onClose: () => void,
 };
 type Props = {
   ...BaseProps,
@@ -87,6 +87,7 @@ type Props = {
   +changeThreadSettings: (
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
+  +onClose: () => void,
 };
 type State = {
   +queuedChanges: ThreadChanges,
@@ -564,9 +565,11 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     const threadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[props.threadID],
     );
+    const modalContext = useModalContext();
+
     if (!threadInfo) {
       return (
-        <Modal onClose={props.onClose} name="Invalid thread">
+        <Modal onClose={modalContext.clearModal} name="Invalid thread">
           <div className={css['modal-body']}>
             <p>You no longer have permission to view this thread</p>
           </div>
@@ -584,6 +587,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         deleteThread={callDeleteThread}
         changeThreadSettings={callChangeThreadSettings}
         dispatchActionPromise={dispatchActionPromise}
+        onClose={modalContext.clearModal}
       />
     );
   },

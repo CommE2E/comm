@@ -10,12 +10,7 @@ import css from './chat-thread-list.css';
 import { ThreadListContext } from './thread-list-provider';
 import ThreadListSearch from './thread-list-search.react';
 
-type Props = {
-  +setModal: (modal: ?React.Node) => void,
-};
-
-function ChatThreadList(props: Props): React.Node {
-  const { setModal } = props;
+function ChatThreadList(): React.Node {
   const threadListContext = React.useContext(ThreadListContext);
   invariant(
     threadListContext,
@@ -31,17 +26,13 @@ function ChatThreadList(props: Props): React.Node {
 
   const threadComponents: React.Node[] = React.useMemo(() => {
     const threads = threadList.map(item => (
-      <ChatThreadListItem
-        item={item}
-        key={item.threadInfo.id}
-        setModal={setModal}
-      />
+      <ChatThreadListItem item={item} key={item.threadInfo.id} />
     ));
     if (threads.length === 0 && isBackground) {
       threads.push(<EmptyItem key="emptyItem" />);
     }
     return threads;
-  }, [threadList, isBackground, setModal]);
+  }, [threadList, isBackground]);
 
   return (
     <div className={css.threadListContainer}>

@@ -44,7 +44,6 @@ import Day from './day.react';
 import FilterPanel from './filter-panel.react';
 
 type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
   +url: string,
 };
 type Props = {
@@ -149,7 +148,6 @@ class Calendar extends React.PureComponent<Props, State> {
           <Day
             dayString={dayString}
             entryInfos={entries}
-            setModal={this.props.setModal}
             key={curDayOfMonth}
             startingTabIndex={tabIndex}
           />,
@@ -166,7 +164,7 @@ class Calendar extends React.PureComponent<Props, State> {
     let calendarContentStyle = null;
     let filterButtonStyle = null;
     if (this.state.filterPanelOpen) {
-      filterPanel = <FilterPanel setModal={this.props.setModal} />;
+      filterPanel = <FilterPanel />;
       calendarContentStyle = { marginLeft: '300px' };
       filterButtonStyle = { backgroundColor: 'rgba(0,0,0,0.67)' };
     }

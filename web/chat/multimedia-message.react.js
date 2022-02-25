@@ -24,7 +24,6 @@ type BaseProps = {
     messagePositionInfo: MessagePositionInfo,
   ) => void,
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
-  +setModal: (modal: ?React.Node) => void,
 };
 type Props = {
   ...BaseProps,
@@ -33,7 +32,7 @@ type Props = {
 };
 class MultimediaMessage extends React.PureComponent<Props> {
   render() {
-    const { item, setModal, inputState } = this.props;
+    const { item, inputState } = this.props;
     invariant(
       item.messageInfo.type === messageTypes.IMAGES ||
         item.messageInfo.type === messageTypes.MULTIMEDIA,
@@ -52,7 +51,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
         <Multimedia
           uri={singleMedia.uri}
           pendingUpload={pendingUpload}
-          setModal={setModal}
           multimediaCSSClass={css.multimedia}
           multimediaImageCSSClass={css.multimediaImage}
           key={singleMedia.id}

@@ -47,11 +47,7 @@ import type {
 import RelationshipPrompt from './relationship-prompt/relationship-prompt';
 import ThreadTopBar from './thread-top-bar.react';
 
-type BaseProps = {
-  +setModal: (modal: ?React.Node) => void,
-};
 type PassedProps = {
-  ...BaseProps,
   // Redux state
   +activeChatThreadID: ?string,
   +threadInfo: ?ThreadInfo,
@@ -191,7 +187,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         </div>
       );
     }
-    const { threadInfo, setModal } = this.props;
+    const { threadInfo } = this.props;
     invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
     return (
       <Message
@@ -199,7 +195,6 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         threadInfo={threadInfo}
         setMouseOverMessagePosition={this.setMouseOverMessagePosition}
         mouseOverMessagePosition={this.state.mouseOverMessagePosition}
-        setModal={setModal}
         timeZone={this.props.timeZone}
         key={ChatMessageList.keyExtractor(item)}
       />
@@ -383,9 +378,8 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
-
-const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedChatMessageList(props) {
+const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
+  function ConnectedChatMessageList(): React.Node {
     const userAgent = useSelector(state => state.userAgent);
     const supportsReverseFlex = React.useMemo(() => {
       const browser = detectBrowser(userAgent);
@@ -475,7 +469,6 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<Base
     return (
       <MessageListContext.Provider value={messageListContext}>
         <ChatMessageList
-          {...props}
           activeChatThreadID={activeChatThreadID}
           threadInfo={threadInfo}
           messageListData={messageListData}

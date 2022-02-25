@@ -45,6 +45,7 @@ import LoadingIndicator from '../loading-indicator.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
+import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { HistoryVector, DeleteVector } from '../vectors.react';
@@ -54,7 +55,6 @@ type BaseProps = {
   +innerRef: (key: string, me: Entry) => void,
   +entryInfo: EntryInfo,
   +focusOnFirstEntryNewerThan: (time: number) => void,
-  +setModal: (modal: ?React.Node) => void,
   +tabIndex: number,
 };
 type Props = {
@@ -68,6 +68,8 @@ type Props = {
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
+  +setModal: (modal: ?React.Node) => void,
+  +clearModal: () => void,
 };
 type State = {
   +focused: boolean,
@@ -257,12 +259,7 @@ class Entry extends React.PureComponent<Props, State> {
 
   onChange: (event: SyntheticEvent<HTMLTextAreaElement>) => void = event => {
     if (!this.props.loggedIn) {
-      this.props.setModal(
-        <LogInFirstModal
-          inOrderTo="edit this calendar"
-          setModal={this.props.setModal}
-        />,
-      );
+      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     const target = event.target;
@@ -389,13 +386,10 @@ class Entry extends React.PureComponent<Props, State> {
             type: concurrentModificationResetActionType,
             payload: { id: entryID, dbText: e.payload.db },
           });
-          this.clearModal();
+          this.props.clearModal();
         };
         this.props.setModal(
-          <ConcurrentModificationModal
-            onClose={this.clearModal}
-            onRefresh={onRefresh}
-          />,
+          <ConcurrentModificationModal onRefresh={onRefresh} />,
         );
       }
       throw e;
@@ -405,12 +399,7 @@ class Entry extends React.PureComponent<Props, State> {
   onDelete: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
     if (!this.props.loggedIn) {
-      this.props.setModal(
-        <LogInFirstModal
-          inOrderTo="edit this calendar"
-          setModal={this.props.setModal}
-        />,
-      );
+      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     this.dispatchDelete(this.props.entryInfo.id, true);
@@ -459,14 +448,9 @@ class Entry extends React.PureComponent<Props, State> {
           this.props.entryInfo.month,
           this.props.entryInfo.day,
         )}
-        onClose={this.clearModal}
         currentEntryID={this.props.entryInfo.id}
       />,
     );
-  };
-
-  clearModal: () => void = () => {
-    this.props.setModal(null);
   };
 }
 
@@ -492,6 +476,8 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
 
+    const modalContext = useModalContext();
+
     return (
       <Entry
         {...props}
@@ -504,6 +490,8 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         deleteEntry={callDeleteEntry}
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
+        setModal={modalContext.setModal}
+        clearModal={modalContext.clearModal}
       />
     );
   },
