@@ -13,6 +13,9 @@
 
 .input[type='text'],
 .input[type='password'] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -webkit-border-radius: 0;
   border: 1px solid var(--border-color);
   width: 100%;
   font-size: var(--m-font-16);
