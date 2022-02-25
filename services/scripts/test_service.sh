@@ -2,8 +2,6 @@
 
 set -e
 
-. ./scripts/services_config.sh
-
 SERVICES=`./scripts/list_services.sh`
 SERVICE=`echo "$SERVICES" | grep $1` || echo "No such service: $1"
 
