@@ -482,7 +482,7 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
       state =>
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     );
-    const calanderQuery = useSelector(nonThreadCalendarQuery);
+    const calendarQuery = useSelector(nonThreadCalendarQuery);
     const online = useSelector(
       state => state.connection.status === 'connected',
     );
@@ -497,7 +497,7 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         {...props}
         threadInfo={threadInfo}
         loggedIn={loggedIn}
-        calendarQuery={calanderQuery}
+        calendarQuery={calendarQuery}
         online={online}
         createEntry={callCreateEntry}
         saveEntry={callSaveEntry}
