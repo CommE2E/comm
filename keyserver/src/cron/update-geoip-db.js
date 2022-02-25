@@ -28,7 +28,7 @@ async function getGeoipLicense() {
 async function updateGeoipDB(): Promise<void> {
   const geoipLicense = await getGeoipLicense();
   if (!geoipLicense) {
-    console.log('no server/secrets/geoip_license.json so skipping update');
+    console.log('no keyserver/secrets/geoip_license.json so skipping update');
     return;
   }
   await spawnUpdater(geoipLicense);
