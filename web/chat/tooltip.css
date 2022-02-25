@@ -14,14 +14,6 @@ div.messageTooltipMenu ul {
 div.messageTooltipMenu li:not(:last-child) {
   padding-bottom: 5px;
 }
-div.messageTooltipMenu:after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-width: 7px;
-  border-style: solid;
-}
 div.messageTooltipMenu button {
   border: none;
   cursor: pointer;
