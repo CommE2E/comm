@@ -27,8 +27,6 @@ img,
 iframe {
   display: block;
 }
-input[type='text'],
-input[type='password'],
 textarea {
   border: 1px solid #dddddd;
   border-radius: 1px;
