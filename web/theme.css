@@ -112,4 +112,5 @@
   --app-list-icon-enabled-color: var(--success-primary);
   --app-list-icon-disabled-color: var(--shades-white-80);
   --account-settings-label: var(--shades-black-60);
+  --account-button-color: var(--violet-dark-100);
 }

@@ -2,10 +2,20 @@
 
 import * as React from 'react';
 
+import { logOut } from 'lib/actions/user-actions';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { useServerCall } from 'lib/utils/action-utils';
+
 import { useSelector } from '../redux/redux-utils';
 import css from './account-settings.css';
 
 function AccountSettings(): React.Node {
+  const sendLogoutRequest = useServerCall(logOut);
+  const preRequestUserState = useSelector(preRequestUserStateSelector);
+  const logOutUser = React.useCallback(() => {
+    sendLogoutRequest(preRequestUserState);
+  }, [sendLogoutRequest, preRequestUserState]);
+
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
@@ -22,6 +32,9 @@ function AccountSettings(): React.Node {
               <span className={css.logoutLabel}>{'Logged in as '}</span>
               <span className={css.username}>{username}</span>
             </p>
+            <button className={css.button} onClick={logOutUser}>
+              Log out
+            </button>
           </li>
         </ul>
       </div>
