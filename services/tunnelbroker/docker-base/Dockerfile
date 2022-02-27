@@ -7,7 +7,8 @@ COPY services/tunnelbroker/docker-base/contents /transferred
 RUN apt-get update && apt-get install -y \
 	libcurl4-openssl-dev \
 	libssl-dev \
-	zlib1g-dev
+	zlib1g-dev \
+	&& rm -rf /var/lib/apt/lists/*
 
 # Install SDKs
 RUN /transferred/install_folly.sh

@@ -15,7 +15,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	pkg-config \
 	libboost-all-dev \
 	libfmt-dev \ 
-	libgtest-dev
+	libgtest-dev \
+	&& rm -rf /var/lib/apt/lists/*
 
 RUN /transferred/install_grpc.sh
 
