@@ -276,7 +276,7 @@ div.color-picker-selector {
   only screen and (min-device-pixel-ratio: 2),
   only screen and (min-resolution: 320dpi),
   only screen and (min-resolution: 2dppx) {
-  headqer.header,
+  header.header,
   header.main-header,
   div.splash-header-container,
   div.splash-top-container,
