@@ -140,7 +140,6 @@ class ComposedMessage extends React.PureComponent<Props> {
           mouseOverMessagePosition={this.props.mouseOverMessagePosition}
           canReply={this.props.canReply}
           inputState={this.props.inputState}
-          sidebarExistsOrCanBeCreated={this.props.sidebarExistsOrCanBeCreated}
         />
       );
     }

@@ -5,6 +5,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
+import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import type { InputState } from '../input/input-state.js';
@@ -44,7 +45,6 @@ type MessageActionButtonsProps = {
   +mouseOverMessagePosition?: OnMessagePositionWithContainerInfo,
   +canReply?: boolean,
   +inputState?: ?InputState,
-  +sidebarExistsOrCanBeCreated?: boolean,
 };
 function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
   const {
@@ -56,7 +56,6 @@ function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
     mouseOverMessagePosition,
     canReply,
     inputState,
-    sidebarExistsOrCanBeCreated,
   } = props;
 
   const [tooltipVisible, setTooltipVisible] = React.useState(false);
@@ -156,6 +155,11 @@ function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
       />
     );
   }
+
+  const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
+    threadInfo,
+    item,
+  );
 
   let sidebarButton;
   if (sidebarExistsOrCanBeCreated) {
