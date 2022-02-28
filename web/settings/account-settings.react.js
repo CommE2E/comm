@@ -46,6 +46,14 @@ function AccountSettings(): React.Node {
               </a>
             </span>
           </li>
+          <li>
+            <span>Friend List</span>
+            <button className={css.button}>See List</button>
+          </li>
+          <li>
+            <span>Block List</span>
+            <button className={css.button}>See List</button>
+          </li>
         </ul>
       </div>
     </div>
