@@ -19,7 +19,7 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import { InlineSidebar } from './inline-sidebar.react';
-import MessageActionButton from './message-action-button';
+import MessageActionButtons from './message-action-buttons';
 import MessageReplyButton from './message-reply-button.react';
 import {
   type OnMessagePositionWithContainerInfo,
@@ -148,7 +148,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         : availableTooltipPositionsForNonViewerMessage;
 
       messageActionButton = (
-        <MessageActionButton
+        <MessageActionButtons
           threadInfo={threadInfo}
           item={item}
           containerPosition={

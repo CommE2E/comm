@@ -12,7 +12,7 @@ import {
   useOnClickPendingSidebar,
 } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
-import css from './message-action-button.css';
+import css from './message-action-buttons.css';
 import type {
   ItemAndContainerPositionInfo,
   PositionInfo,
@@ -25,13 +25,13 @@ const ellipsisIconExcessVerticalWhitespace = 10;
 const openSidebarText = 'Go to sidebar';
 const createSidebarText = 'Create sidebar';
 
-type MessageActionTooltipProps = {
+type MessageActionButtonsProps = {
   +threadInfo: ThreadInfo,
   +item: ChatMessageInfoItem,
   +containerPosition: PositionInfo,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
 };
-function MessageActionButton(props: MessageActionTooltipProps): React.Node {
+function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
   const {
     threadInfo,
     item,
@@ -161,4 +161,4 @@ function getMessageActionTooltipStyle(
   return { className };
 }
 
-export default MessageActionButton;
+export default MessageActionButtons;
