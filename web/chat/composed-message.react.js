@@ -76,8 +76,6 @@ class ComposedMessage extends React.PureComponent<Props> {
     });
     const messageBoxContainerClassName = classNames({
       [css.messageBoxContainer]: true,
-      [css.viewerMessageBoxContainer]: isViewer,
-      [css.nonViewerMessageBoxContainer]: !isViewer,
       [css.fixedWidthMessageBoxContainer]: this.props.fixedWidth,
     });
     const messageBoxClassName = classNames({

@@ -134,28 +134,24 @@ function getMessageActionTooltipStyle(
   if (tooltipPosition === tooltipPositions.TOP_RIGHT) {
     className = classNames(
       css.messageActionTopRightTooltip,
-      css.messageTopRightTooltip,
       css.messageActionExtraAreaTop,
       css.messageActionExtraAreaTopRight,
     );
   } else if (tooltipPosition === tooltipPositions.TOP_LEFT) {
     className = classNames(
       css.messageActionTopLeftTooltip,
-      css.messageTopLeftTooltip,
       css.messageActionExtraAreaTop,
       css.messageActionExtraAreaTopLeft,
     );
   } else if (tooltipPosition === tooltipPositions.RIGHT) {
     className = classNames(
       css.messageActionRightTooltip,
-      css.messageRightTooltip,
       css.messageActionExtraArea,
       css.messageActionExtraAreaRight,
     );
   } else if (tooltipPosition === tooltipPositions.LEFT) {
     className = classNames(
       css.messageActionLeftTooltip,
-      css.messageLeftTooltip,
       css.messageActionExtraArea,
       css.messageActionExtraAreaLeft,
     );
