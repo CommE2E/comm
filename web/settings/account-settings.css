@@ -47,3 +47,17 @@
   line-height: var(--line-height-text);
   white-space: nowrap;
 }
+
+.passwordContainer {
+  display: flex;
+}
+
+.password {
+  align-items: center;
+  padding-right: 16px;
+}
+
+.editPasswordLink {
+  color: var(--account-settings-label);
+  cursor: pointer;
+}

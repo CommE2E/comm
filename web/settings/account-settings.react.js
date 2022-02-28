@@ -7,6 +7,7 @@ import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { useServerCall } from 'lib/utils/action-utils';
 
 import { useSelector } from '../redux/redux-utils';
+import SWMansionIcon from '../SWMansionIcon.react';
 import css from './account-settings.css';
 
 function AccountSettings(): React.Node {
@@ -35,6 +36,15 @@ function AccountSettings(): React.Node {
             <button className={css.button} onClick={logOutUser}>
               Log out
             </button>
+          </li>
+          <li>
+            <span>Password</span>
+            <span className={css.passwordContainer}>
+              <span className={css.password}>******</span>
+              <a className={css.editPasswordLink}>
+                <SWMansionIcon icon="edit" size={22} />
+              </a>
+            </span>
           </li>
         </ul>
       </div>
