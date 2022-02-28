@@ -1,4 +1,5 @@
 #include "SQLiteQueryExecutor.h"
+#include "CommSecureStore.h"
 #include "Logger.h"
 #include "sqlite_orm.h"
 
@@ -14,6 +15,7 @@
 #include <sstream>
 #include <string>
 #include <system_error>
+#include <thread>
 
 #define ACCOUNT_ID 1
 
@@ -23,6 +25,10 @@ using namespace sqlite_orm;
 
 std::string SQLiteQueryExecutor::sqliteFilePath;
 std::string SQLiteQueryExecutor::encryptionKey;
+std::once_flag SQLiteQueryExecutor::initialized;
+int SQLiteQueryExecutor::sqlcipherEncryptionKeySize = 64;
+std::string SQLiteQueryExecutor::secureStoreEncryptionKeyID =
+    "comm.encryptionKey";
 
 bool create_table(sqlite3 *db, std::string query, std::string tableName) {
   char *error;
@@ -509,6 +515,25 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("data", &Metadata::data)));
   storage.on_open = set_encryption_key;
   return storage;
+}
+
+void SQLiteQueryExecutor::initialize(std::string &databasePath) {
+  std::call_once(SQLiteQueryExecutor::initialized, [&databasePath]() {
+    SQLiteQueryExecutor::sqliteFilePath = databasePath;
+    CommSecureStore commSecureStore;
+    folly::Optional<std::string> maybeEncryptionKey =
+        commSecureStore.get(SQLiteQueryExecutor::secureStoreEncryptionKeyID);
+
+    if (maybeEncryptionKey) {
+      SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
+      return;
+    }
+    std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
+        SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
+    commSecureStore.set(
+        SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
+    SQLiteQueryExecutor::encryptionKey = encryptionKey;
+  });
 }
 
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
