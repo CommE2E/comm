@@ -1,7 +1,6 @@
 // @flow
 
 import classNames from 'classnames';
-import invariant from 'invariant';
 import * as React from 'react';
 import {
   Circle as CircleIcon,
@@ -20,7 +19,6 @@ import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import { InlineSidebar } from './inline-sidebar.react';
 import MessageActionButtons from './message-action-buttons';
-import MessageReplyButton from './message-reply-button.react';
 import {
   type OnMessagePositionWithContainerInfo,
   type MessagePositionInfo,
@@ -120,34 +118,17 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let replyButton;
+    let messageActionButtons;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
-      this.props.canReply
-    ) {
-      const { inputState } = this.props;
-      invariant(inputState, 'inputState should be set in ComposedMessage');
-      replyButton = (
-        <MessageReplyButton
-          messagePositionInfo={this.props.mouseOverMessagePosition}
-          onReplyClick={this.onMouseLeave}
-          inputState={inputState}
-        />
-      );
-    }
-
-    let messageActionButton;
-    if (
-      this.props.mouseOverMessagePosition &&
-      this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
-      this.props.sidebarExistsOrCanBeCreated
+      (this.props.sidebarExistsOrCanBeCreated || this.props.canReply)
     ) {
       const availableTooltipPositions = isViewer
         ? availableTooltipPositionsForViewerMessage
         : availableTooltipPositionsForNonViewerMessage;
 
-      messageActionButton = (
+      messageActionButtons = (
         <MessageActionButtons
           threadInfo={threadInfo}
           item={item}
@@ -155,40 +136,34 @@ class ComposedMessage extends React.PureComponent<Props> {
             this.props.mouseOverMessagePosition.containerPosition
           }
           availableTooltipPositions={availableTooltipPositions}
+          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
+          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
+          canReply={this.props.canReply}
+          inputState={this.props.inputState}
+          sidebarExistsOrCanBeCreated={this.props.sidebarExistsOrCanBeCreated}
         />
       );
     }
 
-    let viewerActionLinks, nonViewerActionLinks;
-    if (isViewer && (replyButton || messageActionButton)) {
-      viewerActionLinks = (
-        <div
-          className={classNames(
-            css.messageActionActiveArea,
-            css.viewerMessageActionActiveArea,
-          )}
-        >
+    let messageActionLinks;
+    if (messageActionButtons) {
+      const actionLinksClassName = classNames({
+        [css.messageActionActiveArea]: true,
+        [css.viewerMessageActionActiveArea]: isViewer,
+        [css.nonViewerMessageActiveArea]: !isViewer,
+      });
+
+      messageActionLinks = (
+        <div className={actionLinksClassName}>
           <div className={css.messageActionContainer}>
-            {messageActionButton}
-            {replyButton}
-          </div>
-        </div>
-      );
-    } else if (replyButton || messageActionButton) {
-      nonViewerActionLinks = (
-        <div
-          className={classNames(
-            css.messageActionActiveArea,
-            css.nonViewerMessageActiveArea,
-          )}
-        >
-          <div className={css.messageActionContainer}>
-            {replyButton}
-            {messageActionButton}
+            {messageActionButtons}
           </div>
         </div>
       );
     }
+
+    const viewerActionLinks = isViewer ? messageActionLinks : null;
+    const nonViewerActionLinks = !isViewer ? messageActionLinks : null;
 
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
