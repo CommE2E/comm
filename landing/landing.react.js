@@ -3,6 +3,8 @@
 import * as React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 
+import { isDev } from 'lib/utils/dev-utils';
+
 import AppLanding from './app-landing.react';
 import Footer from './footer.react';
 import Header from './header.react';
@@ -10,6 +12,7 @@ import Keyservers from './keyservers.react';
 import Privacy from './privacy.react';
 import QR from './qr.react';
 import Support from './support.react';
+import Team from './team.react';
 import Terms from './terms.react';
 import useScrollToTopOnNavigate from './use-scroll-to-top-on-navigate.react';
 import './reset.css';
@@ -22,6 +25,7 @@ function Landing(): React.Node {
   const onSupport = useRouteMatch({ path: '/support' });
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
   const onQR = useRouteMatch({ path: '/qr' });
+  const onTeam = useRouteMatch({ path: '/team' });
 
   const scrollToSubscriptionForm = React.useCallback(async (e: Event) => {
     e.preventDefault();
@@ -40,6 +44,8 @@ function Landing(): React.Node {
       return <Keyservers />;
     } else if (onQR) {
       return <QR />;
+    } else if (isDev && onTeam) {
+      return <Team />;
     } else {
       return <AppLanding onRequestAccess={scrollToSubscriptionForm} />;
     }
@@ -48,6 +54,7 @@ function Landing(): React.Node {
     onPrivacy,
     onSupport,
     onTerms,
+    onTeam,
     onQR,
     scrollToSubscriptionForm,
   ]);
