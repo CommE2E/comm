@@ -9,7 +9,7 @@ For the Linux instructions [head to the Linux configuration steps](linux_dev_env
 Why not Windows? (click to expand)
 </summary>
 <p>
-It’s primarily because Apple only supports iOS development using macOS. It’s true that we could support web, server, and Android development on other operating systems, but because of the Apple requirement, all of our active developers currently run macOS. We’d very much welcome a PR to build out support on Windows!
+It’s primarily because Apple only supports iOS development using macOS. It’s true that we could support web, keyserver, and Android development on other operating systems, but because of the Apple requirement, all of our active developers currently run macOS. We’d very much welcome a PR to build out support on Windows!
 </p>
 </details>
 
@@ -77,7 +77,7 @@ brew install watchman; brew upgrade watchman
 
 ## Node Version Manager
 
-Node Version Manager (nvm) is a tool that ensures we use the same version of Node on our server between prod and dev environments.
+Node Version Manager (nvm) is a tool that ensures we use the same version of Node on our keyserver between prod and dev environments.
 
 ```
 brew install nvm; brew upgrade nvm
@@ -99,7 +99,7 @@ source ~/.bash_profile
 
 ## MySQL
 
-For now we’re using MySQL 5.7 as the primary server-side database. Hopefully we’ll change this soon, but for now, install MySQL 5.7 using Homebrew.
+For now we’re using MySQL 5.7 as the primary keyserver-side database. Hopefully we’ll change this soon, but for now, install MySQL 5.7 using Homebrew.
 
 ```
 brew install mysql@5.7; brew upgrade mysql@5.7
@@ -126,7 +126,7 @@ mysqladmin -u root password
 
 ## Redis
 
-We use Redis on the server side as a message broker.
+We use Redis on the keyserver side as a message broker.
 
 ```
 brew install redis; brew upgrade redis
@@ -471,11 +471,11 @@ yarn cleaninstall
 
 ## URLs
 
-The server needs to know some info about paths in order to properly construct URLs.
+The keyserver needs to know some info about paths in order to properly construct URLs.
 
 ```
-mkdir -p server/facts
-vim server/facts/url.json
+mkdir -p keyserver/facts
+vim keyserver/facts/url.json
 ```
 
 Your `url.json` file should look like this:
@@ -489,7 +489,7 @@ Your `url.json` file should look like this:
 Next, we’ll create a file for constructing URLs for the main app.
 
 ```
-vim server/facts/app_url.json
+vim keyserver/facts/app_url.json
 ```
 
 Your `app_url.json` file should look like this:
@@ -505,7 +505,7 @@ Your `app_url.json` file should look like this:
 Finally, we’ll create a file for the URLs in the landing page.
 
 ```
-vim server/facts/landing_url.json
+vim keyserver/facts/landing_url.json
 ```
 
 Your `landing_url.json` file should look like this:
@@ -521,10 +521,10 @@ Your `landing_url.json` file should look like this:
 
 ## MySQL
 
-The server side needs to see some config files before things can work. The first is a config file with MySQL details.
+The keyserver side needs to see some config files before things can work. The first is a config file with MySQL details.
 
 ```
-cd server
+cd keyserver
 mkdir secrets
 vim secrets/db_config.json
 ```
@@ -555,11 +555,11 @@ yarn script dist/scripts/create-db.js
 The second config file contains some details that the keyserver needs in order to launch Olm sessions to provide E2E encryption.
 
 ```
-cd server
+cd keyserver
 yarn script dist/scripts/generate-olm-config.json
 ```
 
-This script will create the `server/secrets/olm_config.json` config file.
+This script will create the `keyserver/secrets/olm_config.json` config file.
 
 ## Phabricator
 
@@ -607,7 +607,7 @@ cd web
 yarn dev
 ```
 
-This will start two processes. One is `webpack-dev-server`, which will serve the JS files. `webpack-dev-server` also makes sure the website automatically hot-reloads whenever any of the source files change. The other process is `webpack --watch`, which will build the `app.build.cjs` file, as well as rebuilding it whenever any of the source files change. The `app.build.cjs` file is consumed by the Node server in order to pre-render the initial HTML from the web source (“Server-Side Rendering”).
+This will start two processes. One is `webpack-dev-server`, which will serve the JS files. `webpack-dev-server` also makes sure the website automatically hot-reloads whenever any of the source files change. The other process is `webpack --watch`, which will build the `app.build.cjs` file, as well as rebuilding it whenever any of the source files change. The `app.build.cjs` file is consumed by the Node keyserver in order to pre-render the initial HTML from the web source (“Server-Side Rendering”).
 
 ## Running landing page
 
@@ -618,14 +618,14 @@ cd landing
 yarn dev
 ```
 
-This runs the same two processes as the web app, but for the landing page. Note that the `landing.build.cjs` file (similar to the web app’s `app.build.cjs` file) is consumed by the Node server.
+This runs the same two processes as the web app, but for the landing page. Note that the `landing.build.cjs` file (similar to the web app’s `app.build.cjs` file) is consumed by the Node keyserver.
 
-## Running server
+## Running keyserver
 
 Open a new terminal and run:
 
 ```
-cd server
+cd keyserver
 yarn dev
 ```
 
@@ -633,7 +633,7 @@ You should now be able to load the web app in your web browser at http://localho
 
 This command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-db.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
 
-Note that if you run `yarn dev` in `server` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
+Note that if you run `yarn dev` in `keyserver` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
 
 ## Running mobile app on iOS Simulator
 
@@ -713,15 +713,15 @@ This command runs the Metro bundler and `remotedev-server` for Redux (see the �
 
 You should finally be ready to build and deploy the app in Xcode! Select your physical device from ”run destinations” in the Workspace Toolbar. Then hit the Run button to build and run the project.
 
-If you’re connecting to a local server instance, you’ll want to “Allow Comm to Access” the “Local Network” in your device Settings. This toggle can be found from Settings → Comm. Note that this setting is not enabled by default, and you may have to re-enable it on subsequent build deployments.
+If you’re connecting to a local keyserver instance, you’ll want to “Allow Comm to Access” the “Local Network” in your device Settings. This toggle can be found from Settings → Comm. Note that this setting is not enabled by default, and you may have to re-enable it on subsequent build deployments.
 
-### Connecting to local server
+### Connecting to local keyserver
 
-If you want your custom build of the app to connect to your local instance of the Node.js server (the `server` subdirectory of the repo), you’ll need to do some additional work. First, confirm that your computer and physical iOS device are on the same network. If you’re running a local server instance, you’ll need to be able to reach it with your device. Local servers run on the local IP address at port 8043.
+If you want your custom build of the app to connect to your local instance of the Node.js keyserver (the `keyserver` subdirectory of the repo), you’ll need to do some additional work. First, confirm that your computer and physical iOS device are on the same network. If you’re running a local keyserver instance, you’ll need to be able to reach it with your device. Local keyservers run on the local IP address at port 8043.
 
 To find your machine’s local IP address, navigate to System Preferences → Network, and select the hardware interface you’re currently using to connect to the internet (Wi-Fi, or potentially a Thunderbolt port for ethernet connections). Next, click “Advanced” and go to the “TCP/IP” tab. Your local IP address is listed as the “IPv4 Address”. Try visiting this IP address using a browser on your device. It should display an “It works!” message if your iOS device can reach your machine.
 
-Finally, we need to direct the mobile app to use your local server instance. There are a few different ways to do this, depending on your situation:
+Finally, we need to direct the mobile app to use your local keyserver instance. There are a few different ways to do this, depending on your situation:
 
 - As long as you’re deploying a debug build, this strategy should work for you. You can create a `network.json` file in `native/facts` that will override the default.
 
@@ -756,14 +756,14 @@ Finally, we need to direct the mobile app to use your local server instance. The
 
 ## Running Node scripts
 
-To run one of the scripts in `server/src/scripts`, you should start by making sure that the Node server is running. If you haven’t already, open a new terminal and run:
+To run one of the scripts in `keyserver/src/scripts`, you should start by making sure that the Node keyserver is running. If you haven’t already, open a new terminal and run:
 
 ```
 cd native
 yarn dev
 ```
 
-Then, from the `server` directory, run `yarn script dist/scripts/name.js`, where `name.js` is the file containing the script.
+Then, from the `key server` directory, run `yarn script dist/scripts/name.js`, where `name.js` is the file containing the script.
 
 ## Codegen
 
@@ -851,7 +851,7 @@ Once you have access to Phabricator, you may want to set up a Herald rule so tha
 
 ## Final notes
 
-When developing, I usually just pop up three terminal windows, one for `yarn dev` in each of server, web, and native.
+When developing, I usually just pop up three terminal windows, one for `yarn dev` in each of keyserver, web, and native.
 
 Note that it’s currently only possible to create a user account using the iOS or Android apps. The website supports logging in, but does not support account creation.
 
