@@ -110,28 +110,10 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
           getExportedModuleOfClass:EXSecureStore.class];
   [[CommSecureStoreIOSWrapper sharedInstance] init:secureStore];
 
-  // set sqlite file path
-  comm::SQLiteQueryExecutor::sqliteFilePath =
+  // initialize SQLiteQueryExecutor
+  std::string sqliteFilePath =
       std::string([[Tools getSQLiteFilePath] UTF8String]);
-
-  // set sqlcipher encryption key
-  comm::CommSecureStore commSecureStore;
-  folly::Optional<std::string> maybeEncryptionKey;
-  try {
-    maybeEncryptionKey = commSecureStore.get("comm.encryptionKey");
-  } catch (NSException *exception) {
-    maybeEncryptionKey = folly::none;
-  }
-
-  if (maybeEncryptionKey) {
-    comm::SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
-  } else {
-    int sqlcipherEncryptionKeySize = 64;
-    std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
-        sqlcipherEncryptionKeySize);
-    commSecureStore.set("comm.encryptionKey", encryptionKey);
-    comm::SQLiteQueryExecutor::encryptionKey = encryptionKey;
-  }
+  comm::SQLiteQueryExecutor::initialize(sqliteFilePath);
   return YES;
 }
 
