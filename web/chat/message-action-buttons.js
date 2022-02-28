@@ -173,7 +173,7 @@ function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
   }
 
   return (
-    <div className={css.messageActionButton}>
+    <div className={css.messageActionButtonsContainer}>
       {sidebarButton}
       {replyButton}
     </div>
