@@ -23,8 +23,8 @@ jobs:
         working-directory: ./lib
         run: ./node_modules/.bin/flow
 
-      - name: '[server] flow'
-        working-directory: ./server
+      - name: '[keyserver] flow'
+        working-directory: ./keyserver
         run: |
           mkdir secrets
           touch secrets/db_config.json
