@@ -85,7 +85,7 @@ function AppSwitcher(): React.Node {
   });
 
   return (
-    <div className={css.container}>
+    <div className={css.appSwitcherContainer}>
       <ul>
         <li>
           <p className={chatNavClasses}>

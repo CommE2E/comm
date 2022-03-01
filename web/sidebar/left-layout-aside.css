@@ -4,7 +4,10 @@
   color: var(--color);
   border-right: 1px solid var(--border-color);
   display: flex;
-  width: 100%;
+}
+
+.appSwitcherContainer {
+  width: 160px;
 }
 
 .container ul {
