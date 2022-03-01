@@ -4,12 +4,19 @@ import {
   faArrowRight,
   faBell,
   faCog,
+  faCommentAlt,
+  faPlusCircle,
   faUserFriends,
 } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
 import { childThreadInfos } from 'lib/selectors/thread-selectors';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
+import { threadHasPermission } from 'lib/shared/thread-utils';
+import {
+  type ThreadInfo,
+  threadTypes,
+  threadPermissions,
+} from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -51,6 +58,43 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [hasSidebars]);
 
+  const canCreateSubchannels = React.useMemo(
+    () => threadHasPermission(threadInfo, threadPermissions.CREATE_SUBCHANNELS),
+    [threadInfo],
+  );
+
+  const hasSubchannels = React.useMemo(() => {
+    return childThreads?.some(
+      childThreadInfo => childThreadInfo.type !== threadTypes.SIDEBAR,
+    );
+  }, [childThreads]);
+
+  const viewSubchannelsItem = React.useMemo(() => {
+    if (!hasSubchannels && !canCreateSubchannels) {
+      return null;
+    }
+    return (
+      <ThreadMenuItem
+        key="subchannels"
+        text="Subchannels"
+        icon={faCommentAlt}
+      />
+    );
+  }, [canCreateSubchannels, hasSubchannels]);
+
+  const createSubchannelsItem = React.useMemo(() => {
+    if (!canCreateSubchannels) {
+      return null;
+    }
+    return (
+      <ThreadMenuItem
+        key="newSubchannel"
+        text="Create new subchannel"
+        icon={faPlusCircle}
+      />
+    );
+  }, [canCreateSubchannels]);
+
   const menuItems = React.useMemo(() => {
     const settingsItem = (
       <ThreadMenuItem key="settings" text="Settings" icon={faCog} />
@@ -58,9 +102,16 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     const notificationsItem = (
       <ThreadMenuItem key="notifications" text="Notifications" icon={faBell} />
     );
-    const items = [settingsItem, notificationsItem, membersItem, sidebarItem];
+    const items = [
+      settingsItem,
+      notificationsItem,
+      membersItem,
+      sidebarItem,
+      viewSubchannelsItem,
+      createSubchannelsItem,
+    ];
     return items.filter(Boolean);
-  }, [membersItem, sidebarItem]);
+  }, [membersItem, sidebarItem, viewSubchannelsItem, createSubchannelsItem]);
 
   const closeMenuCallback = React.useCallback(() => {
     document.removeEventListener('click', closeMenuCallback);
