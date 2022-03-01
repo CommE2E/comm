@@ -5,13 +5,14 @@ import {
   faBell,
   faCog,
   faCommentAlt,
+  faSignOutAlt,
   faPlusCircle,
   faUserFriends,
 } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
 import { childThreadInfos } from 'lib/selectors/thread-selectors';
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import { threadHasPermission, viewerIsMember } from 'lib/shared/thread-utils';
 import {
   type ThreadInfo,
   threadTypes,
@@ -95,6 +96,24 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [canCreateSubchannels]);
 
+  const leaveThreadItem = React.useMemo(() => {
+    const canLeaveThread = threadHasPermission(
+      threadInfo,
+      threadPermissions.LEAVE_THREAD,
+    );
+    if (!viewerIsMember(threadInfo) || !canLeaveThread) {
+      return null;
+    }
+    return (
+      <ThreadMenuItem
+        key="leave"
+        text="Leave Thread"
+        icon={faSignOutAlt}
+        dangerous
+      />
+    );
+  }, [threadInfo]);
+
   const menuItems = React.useMemo(() => {
     const settingsItem = (
       <ThreadMenuItem key="settings" text="Settings" icon={faCog} />
@@ -102,6 +121,8 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     const notificationsItem = (
       <ThreadMenuItem key="notifications" text="Notifications" icon={faBell} />
     );
+    const separator = <hr key="separator" className={css.separator} />;
+
     const items = [
       settingsItem,
       notificationsItem,
@@ -109,9 +130,17 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       sidebarItem,
       viewSubchannelsItem,
       createSubchannelsItem,
+      leaveThreadItem && separator,
+      leaveThreadItem,
     ];
     return items.filter(Boolean);
-  }, [membersItem, sidebarItem, viewSubchannelsItem, createSubchannelsItem]);
+  }, [
+    membersItem,
+    sidebarItem,
+    viewSubchannelsItem,
+    createSubchannelsItem,
+    leaveThreadItem,
+  ]);
 
   const closeMenuCallback = React.useCallback(() => {
     document.removeEventListener('click', closeMenuCallback);
