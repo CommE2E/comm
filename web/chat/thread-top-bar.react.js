@@ -4,8 +4,8 @@ import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import SWMansionIcon from '../SWMansionIcon.react';
 import ThreadAncestors from './chat-thread-ancestors.react';
+import ThreadMenu from './thread-menu.react';
 import css from './thread-top-bar.css';
 
 type threadTopBarProps = {
@@ -30,9 +30,7 @@ function ThreadTopBar(props: threadTopBarProps): React.Node {
         <p className={css.threadTitle}>{threadInfo.uiName}</p>
         <ThreadAncestors threadInfo={threadInfo} />
       </div>
-      <button className={css.topBarMenu}>
-        <SWMansionIcon icon="menu-vertical" size={20} />
-      </button>
+      <ThreadMenu threadInfo={threadInfo} />
     </div>
   );
 }

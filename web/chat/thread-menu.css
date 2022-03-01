@@ -1,0 +1,18 @@
+button.topBarMenuButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--thread-top-bar-menu-color);
+}
+
+div.topBarMenuActionList {
+  position: absolute;
+  right: 10px;
+  top: 55px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--thread-menu-bg);
+  border-radius: 4px;
+  padding: 4px 0;
+}

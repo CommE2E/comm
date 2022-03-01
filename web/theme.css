@@ -101,4 +101,5 @@
   --thread-ancestor-color-dark: var(--shades-black-100);
   --text-message-default-background: var(--shades-black-80);
   --message-action-tooltip-bg: var(--shades-black-90);
+  --thread-menu-bg: var(--shades-black-90);
 }
