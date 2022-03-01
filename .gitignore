@@ -6,11 +6,10 @@ lib/node_modules
 native/cpp/CommonCpp/CryptoTools/opaque-ke-cxx/target
 web/node_modules
 web/dist
-server/dist
-server/node_modules
-server/secrets
-server/facts
-services/identity/target
+keyserver/dist
+keyserver/node_modules
+keyserver/secrets
+keyserver/facts
 .eslintcache
 .vscode
 !.vscode/extensions.json
