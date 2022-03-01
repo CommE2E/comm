@@ -102,4 +102,9 @@
   --text-message-default-background: var(--shades-black-80);
   --message-action-tooltip-bg: var(--shades-black-90);
   --thread-menu-bg: var(--shades-black-90);
+  --thread-menu-separator-color: var(--shades-black-80);
+  --thread-menu-color: var(--shades-black-60);
+  --thread-menu-color-hover: var(--shades-white-100);
+  --thread-menu-color-dangerous: var(--error-primary);
+  --thread-menu-color-dangerous-hover: var(--error-light-50);
 }

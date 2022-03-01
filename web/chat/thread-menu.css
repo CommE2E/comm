@@ -16,3 +16,36 @@ div.topBarMenuActionList {
   border-radius: 4px;
   padding: 4px 0;
 }
+
+button.topBarMenuAction {
+  z-index: 1;
+  background-color: transparent;
+  padding: 12px 16px;
+  color: var(--thread-menu-color);
+  background-color: var(--thread-menu-bg);
+  font-size: var(--m-font-16);
+  line-height: 1.5;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+button.topBarMenuAction:hover {
+  color: var(--thread-menu-color-hover);
+}
+
+div.topBarMenuActionIcon {
+  font-size: var(--l-font-18);
+  display: flex;
+  justify-content: center;
+  margin-right: 8px;
+  width: 20px;
+}
+
+button.topBarMenuActionDangerous {
+  color: var(--thread-menu-color-dangerous);
+}
+button.topBarMenuActionDangerous:hover {
+  color: var(--thread-menu-color-dangerous-hover);
+}
