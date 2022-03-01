@@ -69,9 +69,7 @@ class RobotextMessage extends React.PureComponent<Props> {
         <MessageActionButtons
           threadInfo={threadInfo}
           item={item}
-          containerPosition={
-            this.props.mouseOverMessagePosition.containerPosition
-          }
+          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
           availableTooltipPositions={availableTooltipPositionsForRobotext}
         />
       );

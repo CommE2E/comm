@@ -132,9 +132,6 @@ class ComposedMessage extends React.PureComponent<Props> {
         <MessageActionButtons
           threadInfo={threadInfo}
           item={item}
-          containerPosition={
-            this.props.mouseOverMessagePosition.containerPosition
-          }
           availableTooltipPositions={availableTooltipPositions}
           setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
           mouseOverMessagePosition={this.props.mouseOverMessagePosition}

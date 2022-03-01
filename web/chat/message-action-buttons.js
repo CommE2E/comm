@@ -20,7 +20,6 @@ import type {
   ItemAndContainerPositionInfo,
   MessagePositionInfo,
   OnMessagePositionWithContainerInfo,
-  PositionInfo,
 } from './position-types';
 import { tooltipPositions, type TooltipPosition } from './tooltip-utils';
 import {
@@ -37,12 +36,11 @@ const createSidebarText = 'Create sidebar';
 type MessageActionButtonsProps = {
   +threadInfo: ThreadInfo,
   +item: ChatMessageInfoItem,
-  +containerPosition: PositionInfo,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
   +setMouseOverMessagePosition?: (
     messagePositionInfo: MessagePositionInfo,
   ) => void,
-  +mouseOverMessagePosition?: OnMessagePositionWithContainerInfo,
+  +mouseOverMessagePosition: OnMessagePositionWithContainerInfo,
   +canReply?: boolean,
   +inputState?: ?InputState,
 };
@@ -50,13 +48,14 @@ function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
   const {
     threadInfo,
     item,
-    containerPosition,
     availableTooltipPositions,
     setMouseOverMessagePosition,
     mouseOverMessagePosition,
     canReply,
     inputState,
   } = props;
+
+  const { containerPosition } = mouseOverMessagePosition;
 
   const [tooltipVisible, setTooltipVisible] = React.useState(false);
   const [pointingTo, setPointingTo] = React.useState();
