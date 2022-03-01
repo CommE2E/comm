@@ -11,7 +11,6 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DDA0AE067906E18B83A455C /* ClientGetReadReactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */; };
-		3DCF3A98D5D5FA67307E4040 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */; };
 		71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */; };
 		71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */; };
 		71009A7B26FDCD72002C8453 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7926FDCD71002C8453 /* Client.cpp */; };
@@ -770,8 +769,7 @@
 				726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
-				2DDA0AE067906E18B83A455C /* ClientGetReadReactor.cpp in Sources
-				3DCF3A98D5D5FA67307E4040 /* ExpoModulesProvider.swift in Sources */,
+				2DDA0AE067906E18B83A455C /* ClientGetReadReactor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
