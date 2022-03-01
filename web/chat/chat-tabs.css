@@ -24,6 +24,10 @@ div.tabItem {
   padding: 16px 0;
   text-align: center;
   cursor: pointer;
+  background-color: var(--bg);
+  color: var(--color-disabled);
+  border: 2px solid var(--border-color);
+  border-width: 0 0 3px 0;
 }
 div.tabItem svg {
   padding-right: 8px;
@@ -35,8 +39,7 @@ div.tabItemActive {
 div.tabItemInactive {
   background-color: var(--bg);
   color: var(--color-disabled);
-  border: 2px solid var(--border-color);
-  border-width: 0 0 3px 0;
+  color: var(--fg);
 }
 
 div.threadList {

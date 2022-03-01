@@ -14,10 +14,8 @@ type Props = {
 };
 function ChatThreadTab(props: Props): React.Node {
   const { title, onClick, tabIsActive, icon } = props;
-  const className = classNames({
-    [css.tabItem]: true,
+  const className = classNames(css.tabItem, {
     [css.tabItemActive]: tabIsActive,
-    [css.tabItemInactive]: !tabIsActive,
   });
 
   return (
