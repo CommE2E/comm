@@ -18,7 +18,7 @@ const baseBrowserConfig = {
   },
   resolve: {
     alias: {
-      '../images': path.resolve('../server/images'),
+      '../images': path.resolve('../keyserver/images'),
     },
   },
 };
@@ -52,7 +52,7 @@ const baseProdBrowserConfig = {
 const baseNodeServerRenderingConfig = {
   externals: ['react', 'react-dom', 'react-redux'],
   entry: {
-    server: ['./app.react.js'],
+    keyserver: ['./app.react.js'],
   },
   output: {
     filename: 'app.build.cjs',
