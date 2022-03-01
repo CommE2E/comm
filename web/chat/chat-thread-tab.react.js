@@ -19,12 +19,11 @@ function ChatThreadTab(props: Props): React.Node {
     [css.tabItemActive]: tabIsActive,
     [css.tabItemInactive]: !tabIsActive,
   });
+
   return (
     <div className={className} onClick={onClick}>
-      <span>
-        <SWMansionIcon icon={icon} size={24} />
-        {title}
-      </span>
+      <SWMansionIcon icon={icon} size={24} />
+      <span>{title}</span>
     </div>
   );
 }

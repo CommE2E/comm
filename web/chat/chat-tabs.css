@@ -19,16 +19,14 @@ div.tabs {
 div.tabItem {
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 50%;
   padding: 16px 0;
   text-align: center;
   cursor: pointer;
 }
-div.tabItem span {
-  display: flex;
-}
-div.tabItem span svg {
-  padding-right: 12px;
+div.tabItem svg {
+  padding-right: 8px;
 }
 div.tabItemActive {
   border: outset var(--thread-selection);
