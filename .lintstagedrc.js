@@ -23,7 +23,7 @@ module.exports = {
     return 'yarn workspace native flow --quiet';
   },
   '{server,web,lib}/**/*.js': function serverFlow(files) {
-    return 'yarn workspace server flow --quiet';
+    return 'yarn workspace keyserver flow --quiet';
   },
   '{landing,lib}/**/*.js': function landingFlow(files) {
     return 'yarn workspace landing flow --quiet';
