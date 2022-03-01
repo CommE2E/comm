@@ -20,7 +20,7 @@ import type {
 import { tooltipPositions, type TooltipPosition } from './tooltip-utils';
 import { TooltipMenu, type TooltipStyle, TooltipButton } from './tooltip.react';
 
-const ellipsisIconExcessVerticalWhitespace = 10;
+const messageActionIconExcessVerticalWhitespace = 10;
 
 const openSidebarText = 'Go to sidebar';
 const createSidebarText = 'Create sidebar';
@@ -50,22 +50,24 @@ function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
       const rect = event.currentTarget.getBoundingClientRect();
       const { top, bottom, left, right, width, height } = rect;
 
-      const dotsPosition: ItemAndContainerPositionInfo = {
+      const iconPosition: ItemAndContainerPositionInfo = {
         containerPosition,
         itemPosition: {
           top:
-            top - containerPosition.top + ellipsisIconExcessVerticalWhitespace,
+            top -
+            containerPosition.top +
+            messageActionIconExcessVerticalWhitespace,
           bottom:
             bottom -
             containerPosition.top -
-            ellipsisIconExcessVerticalWhitespace,
+            messageActionIconExcessVerticalWhitespace,
           left: left - containerPosition.left,
           right: right - containerPosition.left,
           width,
-          height: height - ellipsisIconExcessVerticalWhitespace * 2,
+          height: height - messageActionIconExcessVerticalWhitespace * 2,
         },
       };
-      setPointingTo(dotsPosition);
+      setPointingTo(iconPosition);
     },
     [containerPosition, tooltipVisible],
   );
