@@ -22,7 +22,7 @@ module.exports = {
   '{native,lib}/**/*.js': function nativeFlow(files) {
     return 'yarn workspace native flow --quiet';
   },
-  '{server,web,lib}/**/*.js': function serverFlow(files) {
+  '{keyserver,web,lib}/**/*.js': function keyServerFlow(files) {
     return 'yarn workspace keyserver flow --quiet';
   },
   '{landing,lib}/**/*.js': function landingFlow(files) {

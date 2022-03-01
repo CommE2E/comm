@@ -51,6 +51,6 @@
       "version": "detect"
     },
     "import/ignore": ["react-native"],
-    "import/internal-regex": "^(lib|native|server|web)/"
+    "import/internal-regex": "^(lib|native|keyserver|web)/"
   }
 }
