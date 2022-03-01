@@ -1,10 +1,12 @@
 // @flow
 
+import { faBell, faCog } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import SWMansionIcon from '../SWMansionIcon.react';
+import ThreadMenuItem from './thread-menu-item.react';
 import css from './thread-menu.css';
 
 type ThreadMenuProps = {
@@ -17,7 +19,16 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   // eslint-disable-next-line no-unused-vars
   const { threadInfo } = props;
 
-  const menuItems = [];
+  const menuItems = React.useMemo(() => {
+    const settingsItem = (
+      <ThreadMenuItem key="settings" text="Settings" icon={faCog} />
+    );
+    const notificationsItem = (
+      <ThreadMenuItem key="notifications" text="Notifications" icon={faBell} />
+    );
+    const items = [settingsItem, notificationsItem];
+    return items.filter(Boolean);
+  }, []);
 
   const closeMenuCallback = React.useCallback(() => {
     document.removeEventListener('click', closeMenuCallback);
