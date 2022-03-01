@@ -1,10 +1,17 @@
 // @flow
 
-import { faBell, faCog } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowRight,
+  faBell,
+  faCog,
+  faUserFriends,
+} from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { childThreadInfos } from 'lib/selectors/thread-selectors';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 
+import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import ThreadMenuItem from './thread-menu-item.react';
 import css from './thread-menu.css';
@@ -16,8 +23,33 @@ type ThreadMenuProps = {
 function ThreadMenu(props: ThreadMenuProps): React.Node {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  // eslint-disable-next-line no-unused-vars
   const { threadInfo } = props;
+
+  const membersItem = React.useMemo(() => {
+    if (threadInfo.type === threadTypes.PERSONAL) {
+      return null;
+    }
+    return <ThreadMenuItem key="members" text="Members" icon={faUserFriends} />;
+  }, [threadInfo.type]);
+
+  const childThreads = useSelector(
+    state => childThreadInfos(state)[threadInfo.id],
+  );
+
+  const hasSidebars = React.useMemo(() => {
+    return childThreads?.some(
+      childThreadInfo => childThreadInfo.type === threadTypes.SIDEBAR,
+    );
+  }, [childThreads]);
+
+  const sidebarItem = React.useMemo(() => {
+    if (!hasSidebars) {
+      return null;
+    }
+    return (
+      <ThreadMenuItem key="sidebars" text="Sidebars" icon={faArrowRight} />
+    );
+  }, [hasSidebars]);
 
   const menuItems = React.useMemo(() => {
     const settingsItem = (
@@ -26,9 +58,9 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     const notificationsItem = (
       <ThreadMenuItem key="notifications" text="Notifications" icon={faBell} />
     );
-    const items = [settingsItem, notificationsItem];
+    const items = [settingsItem, notificationsItem, membersItem, sidebarItem];
     return items.filter(Boolean);
-  }, []);
+  }, [membersItem, sidebarItem]);
 
   const closeMenuCallback = React.useCallback(() => {
     document.removeEventListener('click', closeMenuCallback);
