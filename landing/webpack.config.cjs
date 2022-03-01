@@ -18,7 +18,7 @@ const baseBrowserConfig = {
   },
   resolve: {
     alias: {
-      '../images': path.resolve('../server/images'),
+      '../images': path.resolve('../keyserver/images'),
     },
   },
 };
