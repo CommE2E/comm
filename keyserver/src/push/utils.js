@@ -42,10 +42,10 @@ async function apnPush({
   const pushProfile = getAPNPushProfileForCodeVersion(codeVersion);
   const apnProvider = await getAPNProvider(pushProfile);
   if (!apnProvider && process.env.NODE_ENV === 'development') {
-    console.log(`no server/secrets/${pushProfile}.json so ignoring notifs`);
+    console.log(`no keyserver/secrets/${pushProfile}.json so ignoring notifs`);
     return { success: true };
   }
-  invariant(apnProvider, `server/secrets/${pushProfile}.json should exist`);
+  invariant(apnProvider, `keyserver/secrets/${pushProfile}.json should exist`);
   const result = await apnProvider.send(notification, deviceTokens);
   const errors = [];
   const invalidTokens = [];
@@ -90,10 +90,10 @@ async function fcmPush({
   const pushProfile = getFCMPushProfileForCodeVersion(codeVersion);
   const fcmProvider = await getFCMProvider(pushProfile);
   if (!fcmProvider && process.env.NODE_ENV === 'development') {
-    console.log(`no server/secrets/${pushProfile}.json so ignoring notifs`);
+    console.log(`no keyserver/secrets/${pushProfile}.json so ignoring notifs`);
     return { success: true };
   }
-  invariant(fcmProvider, `server/secrets/${pushProfile}.json should exist`);
+  invariant(fcmProvider, `keyserver/secrets/${pushProfile}.json should exist`);
   const options: Object = {
     priority: 'high',
   };

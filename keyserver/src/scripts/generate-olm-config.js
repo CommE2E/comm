@@ -22,8 +22,10 @@ async function generateOlmConfig() {
   };
   const scriptWorkingDirectory = path.resolve();
 
-  if (!scriptWorkingDirectory.endsWith('comm/server')) {
-    throw new Error('Script must be run in server directory in comm project.');
+  if (!scriptWorkingDirectory.endsWith('comm/keyserver')) {
+    throw new Error(
+      'Script must be run in keyserver directory in comm project.',
+    );
   }
 
   const olmConfigFilePath = path.join(

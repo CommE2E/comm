@@ -1,3 +1,4 @@
+// @flow
 const localPackages = ['landing', 'lib', 'web'];
 
 async function resolve(specifier, context, defaultResolve) {
@@ -7,7 +8,7 @@ async function resolve(specifier, context, defaultResolve) {
   if (localPackages.some(pkg => specifier.startsWith(`${pkg}/`))) {
     const url = defaultResult.url.replace(
       specifier,
-      `server/dist/${specifier}`,
+      `keyserver/dist/${specifier}`,
     );
     return { url };
   }

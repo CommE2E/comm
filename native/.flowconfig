@@ -11,7 +11,7 @@
 .*/Libraries/Utilities/LoadingView.js
 
 .*/comm/web/.*
-.*/comm/server/.*
+.*/comm/keyserver/.*
 
 .*/android/app/build/.*
 
