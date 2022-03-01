@@ -123,15 +123,24 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
     const separator = <hr key="separator" className={css.separator} />;
 
+    // TODO: Enable menu items when the modals are implemented
+    const SHOW_SETTINGS = false;
+    const SHOW_NOTIFICATIONS = false;
+    const SHOW_MEMBERS = false;
+    const SHOW_SIDEBAR = false;
+    const SHOW_VIEW_SUBCHANNELS = false;
+    const SHOW_CREATE_SUBCHANNELS = false;
+    const SHOW_LEAVE_THREAD = false;
+
     const items = [
-      settingsItem,
-      notificationsItem,
-      membersItem,
-      sidebarItem,
-      viewSubchannelsItem,
-      createSubchannelsItem,
-      leaveThreadItem && separator,
-      leaveThreadItem,
+      SHOW_SETTINGS && settingsItem,
+      SHOW_NOTIFICATIONS && notificationsItem,
+      SHOW_MEMBERS && membersItem,
+      SHOW_SIDEBAR && sidebarItem,
+      SHOW_VIEW_SUBCHANNELS && viewSubchannelsItem,
+      SHOW_CREATE_SUBCHANNELS && createSubchannelsItem,
+      SHOW_LEAVE_THREAD && leaveThreadItem && separator,
+      SHOW_LEAVE_THREAD && leaveThreadItem,
     ];
     return items.filter(Boolean);
   }, [
