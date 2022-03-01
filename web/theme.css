@@ -1,6 +1,6 @@
 :root {
-  /* Never use color values defined here directly in CSS. Add color variables to "Color Theme" below 
-     
+  /* Never use color values defined here directly in CSS. Add color variables to "Color Theme" below
+
      The reason we never use color values defined here directly in CSS is
 
       1. It makes changing themes from light / dark / user generated impossible.
@@ -70,7 +70,7 @@
   --chat-timestamp-color: var(--shades-black-60);
   --tool-tip-bg: var(--shades-black-80);
   --tool-tip-color: var(--shades-black-60);
-  --border-color: var(--shades-black-60);
+  --border-color: var(--shades-black-80);
   --calendar-chevron: var(--shades-black-60);
   --calendar-day-bg: var(--shades-black-60);
   --calendar-day-selected-color: var(--violet-dark-80);
