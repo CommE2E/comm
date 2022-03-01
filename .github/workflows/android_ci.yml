@@ -7,7 +7,7 @@ on:
       - 'landing/**'
       - 'web/**'
       - 'docs/**'
-      - 'server/**'
+      - 'keyserver/**'
 
 jobs:
   build:
