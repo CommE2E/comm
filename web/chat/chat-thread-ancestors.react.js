@@ -51,7 +51,7 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
     () => (
       <div className={css.ancestorKeyserver}>
         <div className={css.ancestorKeyserverOperator}>
-          <SWMansionIcon icon="cloud" size={10} />
+          <SWMansionIcon icon="cloud" size={12} />
           <span>{keyserverOwnerUsername}</span>
         </div>
         <div
