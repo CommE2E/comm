@@ -294,7 +294,7 @@ async function createTables() {
 
     ALTER TABLE sessions
       ADD PRIMARY KEY (id),
-      ADD KEY user (user);
+      ADD KEY user (user),
       ADD UNIQUE INDEX public_key (public_key);
 
     ALTER TABLE threads
