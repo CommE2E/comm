@@ -22,6 +22,7 @@ import {
   viewerIsMember,
   threadInChatList,
   getSingleOtherUser,
+  threadIsChannel,
 } from 'lib/shared/thread-utils';
 import threadWatcher from 'lib/shared/thread-watcher';
 import type { RelationshipButton } from 'lib/types/relationship-types';
@@ -479,10 +480,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     ) => {
       const listData: ChatSettingsItem[] = [];
 
-      const subchannels =
-        childThreads?.filter(
-          childThreadInfo => childThreadInfo.type !== threadTypes.SIDEBAR,
-        ) ?? [];
+      const subchannels = childThreads?.filter(threadIsChannel) ?? [];
       const canCreateSubchannels = threadHasPermission(
         threadInfo,
         threadPermissions.CREATE_SUBCHANNELS,
