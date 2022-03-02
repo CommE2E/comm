@@ -17,10 +17,10 @@ function CommunityPicker(): React.Node {
 
   return (
     <div className={css.container}>
-      <SWMansionIcon icon="inbox" size={28} />
+      <SWMansionIcon icon="inbox" size={36} />
       <div className={css.spacer} />
       <Button variant="round" onClick={setModalToUserSettings}>
-        <SWMansionIcon icon="settings" size={16} />
+        <SWMansionIcon icon="settings" size={22} />
       </Button>
     </div>
   );
