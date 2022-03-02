@@ -37,7 +37,7 @@ div.tabItemActive {
 div.tabItemInactive {
   background-color: var(--bg);
   color: var(--color-disabled);
-  border: outset var(--border-color);
+  border: 2px solid var(--border-color);
   border-width: 0 0 3px 0;
 }
 
