@@ -58,6 +58,8 @@ function canonicalURLFromReduxState(
       if (activeChatThreadID) {
         newURL += `thread/${activeChatThreadID}/`;
       }
+    } else if (navInfo.tab === 'settings' && navInfo.settingsSection) {
+      newURL += `${navInfo.settingsSection}/`;
     }
   }
 
@@ -102,13 +104,24 @@ function navInfoFromURL(
     tab = 'calendar';
   } else if (urlInfo.apps) {
     tab = 'apps';
+  } else if (urlInfo.settings) {
+    tab = 'settings';
   }
 
-  return {
+  const newNavInfo = {
     tab,
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
     activeChatThreadID,
+  };
+
+  if (!urlInfo.settings) {
+    return newNavInfo;
+  }
+
+  return {
+    ...newNavInfo,
+    settingsSection: urlInfo.settings,
   };
 }
 
