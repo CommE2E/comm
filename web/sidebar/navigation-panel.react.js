@@ -1,138 +1,62 @@
 // @flow
 
 import classNames from 'classnames';
-import invariant from 'invariant';
 import * as React from 'react';
-import { useDispatch } from 'react-redux';
-
-import {
-  mostRecentReadThreadSelector,
-  unreadCount,
-} from 'lib/selectors/thread-selectors';
 
 import { useSelector } from '../redux/redux-utils';
-import SWMansionIcon from '../SWMansionIcon.react';
-import { updateNavInfoActionType } from '../types/nav-types';
+import type { NavigationTab } from '../types/nav-types';
 import css from './left-layout-aside.css';
 
-function NavigationPanel(): React.Node {
-  const activeChatThreadID = useSelector(
-    state => state.navInfo.activeChatThreadID,
-  );
+type NavigationPanelItemProps = {
+  +tab: NavigationTab,
+  +children: React.Node,
+};
+
+function NavigationPanelItem(props: NavigationPanelItemProps): React.Node {
+  const { children } = props;
+  return children;
+}
+
+type NavigationPanelContainerProps = {
+  +children: React.ChildrenArray<?React.Element<typeof NavigationPanelItem>>,
+};
+
+function NavigationPanelContainer(
+  props: NavigationPanelContainerProps,
+): React.Node {
+  const { children } = props;
   const navInfo = useSelector(state => state.navInfo);
-  const mostRecentReadThread = useSelector(mostRecentReadThreadSelector);
-  const activeThreadCurrentlyUnread = useSelector(
-    state =>
-      !activeChatThreadID ||
-      !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
+
+  const items = React.useMemo(
+    () =>
+      React.Children.map(children, child => {
+        if (!child) {
+          return null;
+        }
+        return (
+          <li
+            key={child.props.tab}
+            className={classNames({
+              [css['current-tab']]: navInfo.tab === child.props.tab,
+            })}
+          >
+            {child}
+          </li>
+        );
+      }),
+    [children, navInfo.tab],
   );
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-
-  const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
-
-  const dispatch = useDispatch();
-
-  const onClickCalendar = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
-      event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: { tab: 'calendar' },
-      });
-    },
-    [dispatch],
-  );
-
-  const onClickChat = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
-      event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          tab: 'chat',
-          activeChatThreadID: activeThreadCurrentlyUnread
-            ? mostRecentReadThread
-            : activeChatThreadID,
-        },
-      });
-    },
-    [
-      dispatch,
-      activeThreadCurrentlyUnread,
-      mostRecentReadThread,
-      activeChatThreadID,
-    ],
-  );
-
-  const onClickApps = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
-      event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          tab: 'apps',
-        },
-      });
-    },
-    [dispatch],
-  );
-
-  const boundUnreadCount = useSelector(unreadCount);
-
-  invariant(viewerID, 'should be set');
-  let chatBadge = null;
-  if (boundUnreadCount > 0) {
-    chatBadge = <span className={css.chatBadge}>{boundUnreadCount}</span>;
-  }
-
-  const chatNavClasses = classNames({
-    [css['current-tab']]: navInfo.tab === 'chat',
-  });
-  const appsNavClasses = classNames({
-    [css['current-tab']]: navInfo.tab === 'apps',
-  });
-
-  const calendarLink = React.useMemo(() => {
-    if (!isCalendarEnabled) {
-      return null;
-    }
-    const calendarNavClasses = classNames({
-      [css['current-tab']]: navInfo.tab === 'calendar',
-    });
-    return (
-      <li>
-        <p className={calendarNavClasses}>
-          <SWMansionIcon icon="calendar" size={24} />
-          <a onClick={onClickCalendar}>Calendar</a>
-        </p>
-      </li>
-    );
-  }, [isCalendarEnabled, navInfo.tab, onClickCalendar]);
 
   return (
     <div className={css.navigationPanelContainer}>
-      <ul>
-        <li>
-          <p className={chatNavClasses}>
-            <span className={css.chatIconWrapper}>
-              <SWMansionIcon icon="message-square" size={24} />
-              {chatBadge}
-            </span>
-            <a onClick={onClickChat}>Chat</a>
-          </p>
-        </li>
-        {calendarLink}
-        <li>
-          <p className={appsNavClasses}>
-            <SWMansionIcon icon="wrench" size={24} />
-            <a onClick={onClickApps}>Apps</a>
-          </p>
-        </li>
-      </ul>
+      <ul>{items}</ul>
     </div>
   );
 }
+
+const NavigationPanel = {
+  Item: NavigationPanelItem,
+  Container: NavigationPanelContainer,
+};
 
 export default NavigationPanel;

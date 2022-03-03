@@ -57,12 +57,12 @@ span.chatBadge {
   line-height: 1.25;
 }
 
-p.current-tab svg {
+li.current-tab svg {
   color: var(--fg);
 }
 
-p.current-tab a,
-p.current-tab svg {
+li.current-tab a,
+li.current-tab svg {
   fill: var(--fg);
   color: var(--fg);
 }
