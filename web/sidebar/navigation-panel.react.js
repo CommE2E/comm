@@ -15,7 +15,7 @@ import SWMansionIcon from '../SWMansionIcon.react';
 import { updateNavInfoActionType } from '../types/nav-types';
 import css from './left-layout-aside.css';
 
-function AppSwitcher(): React.Node {
+function NavigationPanel(): React.Node {
   const activeChatThreadID = useSelector(
     state => state.navInfo.activeChatThreadID,
   );
@@ -112,7 +112,7 @@ function AppSwitcher(): React.Node {
   }, [isCalendarEnabled, navInfo.tab, onClickCalendar]);
 
   return (
-    <div className={css.appSwitcherContainer}>
+    <div className={css.navigationPanelContainer}>
       <ul>
         <li>
           <p className={chatNavClasses}>
@@ -135,4 +135,4 @@ function AppSwitcher(): React.Node {
   );
 }
 
-export default AppSwitcher;
+export default NavigationPanel;
