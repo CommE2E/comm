@@ -29,7 +29,7 @@ div.ancestorKeyserverName {
   border-radius: 0px 2px 2px 0px;
 }
 
-div.ancestorSeparator {
+svg.ancestorSeparator {
   color: var(--thread-ancestor-separator-color);
 }
 

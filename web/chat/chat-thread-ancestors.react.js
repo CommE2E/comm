@@ -71,9 +71,11 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
     }
     return (
       <>
-        <div className={css.ancestorSeparator}>
-          <SWMansionIcon icon="chevron-right" size={10} />
-        </div>
+        <SWMansionIcon
+          className={css.ancestorSeparator}
+          icon="chevron-right"
+          size={12}
+        />
         <div style={threadColorStyle} className={css.ancestorName}>
           &hellip;
         </div>
@@ -89,9 +91,11 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
     }
     return (
       <>
-        <div className={css.ancestorSeparator}>
-          <SWMansionIcon icon="chevron-right" size={10} />
-        </div>
+        <SWMansionIcon
+          className={css.ancestorSeparator}
+          icon="chevron-right"
+          size={12}
+        />
         <div style={threadColorStyle} className={css.ancestorName}>
           {threadInfo.uiName}
         </div>
