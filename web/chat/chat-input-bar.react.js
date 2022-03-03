@@ -178,7 +178,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       } else {
         buttonContent = (
           <>
-            <SWMansionIcon icon="plus" size={16} />
+            <SWMansionIcon icon="plus" size={24} />
             <p className={css.joinButtonText}>Join Thread</p>
           </>
         );

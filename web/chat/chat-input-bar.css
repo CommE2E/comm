@@ -60,7 +60,7 @@ p.joinButtonText {
   font-size: var(--m-font-16);
   font-weight: var(--semi-bold);
   color: var(--fg);
-  padding-left: 12px;
+  padding-left: 8px;
 }
 span.explanation {
   color: var(--permission-color);
