@@ -29,6 +29,7 @@ static const char* TunnelbrokerService_method_names[] = {
   "/tunnelbroker.TunnelbrokerService/NewSession",
   "/tunnelbroker.TunnelbrokerService/Send",
   "/tunnelbroker.TunnelbrokerService/Get",
+  "/tunnelbroker.TunnelbrokerService/OpenStream",
 };
 
 std::unique_ptr< TunnelbrokerService::Stub> TunnelbrokerService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -45,6 +46,7 @@ TunnelbrokerService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>
   , rpcmethod_NewSession_(TunnelbrokerService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_Send_(TunnelbrokerService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_Get_(TunnelbrokerService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
+  , rpcmethod_OpenStream_(TunnelbrokerService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::BIDI_STREAMING, channel)
   {}
 
 ::grpc::Status TunnelbrokerService::Stub::CheckIfPrimaryDeviceOnline(::grpc::ClientContext* context, const ::tunnelbroker::CheckRequest& request, ::tunnelbroker::CheckResponse* response) {
@@ -201,6 +203,22 @@ void TunnelbrokerService::Stub::async::Get(::grpc::ClientContext* context, const
   return ::grpc::internal::ClientAsyncReaderFactory< ::tunnelbroker::GetResponse>::Create(channel_.get(), cq, rpcmethod_Get_, context, request, false, nullptr);
 }
 
+::grpc::ClientReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* TunnelbrokerService::Stub::OpenStreamRaw(::grpc::ClientContext* context) {
+  return ::grpc::internal::ClientReaderWriterFactory< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>::Create(channel_.get(), rpcmethod_OpenStream_, context);
+}
+
+void TunnelbrokerService::Stub::async::OpenStream(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::tunnelbroker::OutboundMessage,::tunnelbroker::InboundMessage>* reactor) {
+  ::grpc::internal::ClientCallbackReaderWriterFactory< ::tunnelbroker::OutboundMessage,::tunnelbroker::InboundMessage>::Create(stub_->channel_.get(), stub_->rpcmethod_OpenStream_, context, reactor);
+}
+
+::grpc::ClientAsyncReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* TunnelbrokerService::Stub::AsyncOpenStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) {
+  return ::grpc::internal::ClientAsyncReaderWriterFactory< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>::Create(channel_.get(), cq, rpcmethod_OpenStream_, context, true, tag);
+}
+
+::grpc::ClientAsyncReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* TunnelbrokerService::Stub::PrepareAsyncOpenStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncReaderWriterFactory< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>::Create(channel_.get(), cq, rpcmethod_OpenStream_, context, false, nullptr);
+}
+
 TunnelbrokerService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       TunnelbrokerService_method_names[0],
@@ -272,6 +290,16 @@ TunnelbrokerService::Service::Service() {
              ::grpc::ServerWriter<::tunnelbroker::GetResponse>* writer) {
                return service->Get(ctx, req, writer);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      TunnelbrokerService_method_names[7],
+      ::grpc::internal::RpcMethod::BIDI_STREAMING,
+      new ::grpc::internal::BidiStreamingHandler< TunnelbrokerService::Service, ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>(
+          [](TunnelbrokerService::Service* service,
+             ::grpc::ServerContext* ctx,
+             ::grpc::ServerReaderWriter<::tunnelbroker::InboundMessage,
+             ::tunnelbroker::OutboundMessage>* stream) {
+               return service->OpenStream(ctx, stream);
+             }, this)));
 }
 
 TunnelbrokerService::Service::~Service() {
@@ -323,6 +351,12 @@ TunnelbrokerService::Service::~Service() {
   (void) context;
   (void) request;
   (void) writer;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status TunnelbrokerService::Service::OpenStream(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::tunnelbroker::InboundMessage, ::tunnelbroker::OutboundMessage>* stream) {
+  (void) context;
+  (void) stream;
   return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
