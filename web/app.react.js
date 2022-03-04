@@ -35,6 +35,7 @@ import FocusHandler from './redux/focus-handler.react';
 import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
+import AccountSettings from './settings/account-settings.react';
 import LeftLayoutAside from './sidebar/left-layout-aside.react';
 import Splash from './splash/splash.react';
 import './typography.css';
@@ -144,6 +145,11 @@ class App extends React.PureComponent<Props> {
       mainContent = <Chat />;
     } else if (this.props.navInfo.tab === 'apps') {
       mainContent = <AppsDirectory />;
+    } else if (
+      this.props.navInfo.tab === 'settings' &&
+      this.props.navInfo.settingsSection === 'account'
+    ) {
+      mainContent = <AccountSettings />;
     }
 
     return (
