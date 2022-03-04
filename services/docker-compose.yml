@@ -1,17 +1,8 @@
 version: "3.9"
 services:
-  base:
-    build: base-image
-    image: commapp/services-base:1.0
-  # tunnelbroker
-  tunnelbroker-base:
-    build:
-      dockerfile: services/tunnelbroker/docker-base/Dockerfile
-      context: ../
-    image: commapp/tunnelbroker-base:2.0
   tunnelbroker-server:
     build:
-      dockerfile: services/tunnelbroker/docker-server/Dockerfile
+      dockerfile: services/tunnelbroker/Dockerfile
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
@@ -44,12 +35,12 @@ services:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
   # blob
   blob-base:
-    build: 
+    build:
       dockerfile: services/blob/docker-base/Dockerfile
       context: ../
     image: commapp/blob-base:1.1
   blob-server:
-    build: 
+    build:
       dockerfile: services/blob/docker-server/Dockerfile
       context: ../
       args:
