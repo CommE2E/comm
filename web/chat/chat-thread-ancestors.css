@@ -29,6 +29,10 @@ div.ancestorKeyserverName {
   border-radius: 0px 2px 2px 0px;
 }
 
+div.ancestorSeparator {
+  color: var(--thread-ancestor-separator-color);
+}
+
 div.ancestorKeyserverOperator {
   display: flex;
   column-gap: 5px;
