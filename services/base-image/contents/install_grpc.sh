@@ -5,8 +5,8 @@ set -e
 echo "installing grpc..."
 
 if [[ -d /usr/lib/grpc ]]; then
-    echo "grpc already exists, skipping installation(if the installation seems to be broken, remove this container/image and recreate it)..."
-    exit 0;
+  echo "grpc already exists, skipping installation(if the installation seems to be broken, remove this container/image and recreate it)..."
+  exit 0;
 fi
 
 pushd /usr/lib
