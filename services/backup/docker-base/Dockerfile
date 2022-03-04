@@ -13,5 +13,6 @@ RUN apt-get update && apt-get install -y \
 	
 RUN cd /
 RUN /transferred/install_aws_sdk.sh
+RUN /transferred/install_folly.sh
 
 CMD /bin/bash
