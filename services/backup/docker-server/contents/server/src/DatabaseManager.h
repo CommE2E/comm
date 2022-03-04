@@ -36,6 +36,10 @@ class DatabaseManager {
 
 public:
   static DatabaseManager &getInstance();
+
+  void putBackupItem(const BackupItem &item);
+  std::shared_ptr<BackupItem> findLastBackupItem(const std::string &userID);
+  void removeBackupItem(std::shared_ptr<BackupItem> item);
 };
 
 template <typename T>
