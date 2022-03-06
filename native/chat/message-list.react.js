@@ -297,13 +297,18 @@ class MessageList extends React.PureComponent<Props, State> {
       return;
     }
 
+    this.setState({ loadingFromScroll: true });
     const oldestMessageServerID = this.oldestMessageServerID();
+    const threadID = this.props.threadInfo.id;
     if (oldestMessageServerID) {
-      this.setState({ loadingFromScroll: true });
-      const threadID = this.props.threadInfo.id;
       this.props.dispatchActionPromise(
         fetchMessagesBeforeCursorActionTypes,
         this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
+      );
+    } else {
+      this.props.dispatchActionPromise(
+        fetchMostRecentMessagesActionTypes,
+        this.props.fetchMostRecentMessages(threadID),
       );
     }
   };
