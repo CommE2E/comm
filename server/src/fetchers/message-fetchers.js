@@ -15,7 +15,7 @@ import {
   messageTypes,
   type MessageType,
   assertMessageType,
-  type ThreadSelectionCriteria,
+  type MessageSelectionCriteria,
   type MessageTruncationStatus,
   messageTruncationStatus,
   type FetchMessageInfosResult,
@@ -245,10 +245,10 @@ function rawMessageInfoFromRows(
 
 async function fetchMessageInfos(
   viewer: Viewer,
-  criteria: ThreadSelectionCriteria,
+  criteria: MessageSelectionCriteria,
   numberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
-  const threadSelectionClause = threadSelectionCriteriaToSQLClause(criteria);
+  const selectionClause = messageSelectionCriteriaToSQLClause(criteria);
   const truncationStatuses = {};
 
   const viewerID = viewer.id;
@@ -280,7 +280,7 @@ async function fetchMessageInfos(
           AND stm.thread = m.content AND stm.user = ${viewerID}
         WHERE JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
-  query.append(threadSelectionClause);
+  query.append(selectionClause);
   query.append(SQL`
         ORDER BY m.thread, m.time DESC
       ) x
@@ -345,7 +345,9 @@ async function fetchMessageInfos(
   };
 }
 
-function threadSelectionCriteriaToSQLClause(criteria: ThreadSelectionCriteria) {
+function messageSelectionCriteriaToSQLClause(
+  criteria: MessageSelectionCriteria,
+) {
   const conditions = [];
   if (criteria.joinedThreads === true) {
     conditions.push(SQL`mm.role > 0`);
@@ -366,8 +368,8 @@ function threadSelectionCriteriaToSQLClause(criteria: ThreadSelectionCriteria) {
   return mergeOrConditions(conditions);
 }
 
-function threadSelectionCriteriaToInitialTruncationStatuses(
-  criteria: ThreadSelectionCriteria,
+function messageSelectionCriteriaToInitialTruncationStatuses(
+  criteria: MessageSelectionCriteria,
   defaultTruncationStatus: MessageTruncationStatus,
 ) {
   const truncationStatuses = {};
@@ -381,12 +383,12 @@ function threadSelectionCriteriaToInitialTruncationStatuses(
 
 async function fetchMessageInfosSince(
   viewer: Viewer,
-  criteria: ThreadSelectionCriteria,
+  criteria: MessageSelectionCriteria,
   currentAsOf: number,
   maxNumberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
-  const threadSelectionClause = threadSelectionCriteriaToSQLClause(criteria);
-  const truncationStatuses = threadSelectionCriteriaToInitialTruncationStatuses(
+  const selectionClause = messageSelectionCriteriaToSQLClause(criteria);
+  const truncationStatuses = messageSelectionCriteriaToInitialTruncationStatuses(
     criteria,
     messageTruncationStatus.UNCHANGED,
   );
@@ -407,7 +409,7 @@ async function fetchMessageInfosSince(
     WHERE m.time > ${currentAsOf} AND
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
-  query.append(threadSelectionClause);
+  query.append(selectionClause);
   query.append(SQL`
     ORDER BY m.thread, m.time DESC
   `);

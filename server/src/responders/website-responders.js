@@ -132,14 +132,14 @@ async function websiteResponder(
     endDate: initialNavInfo.endDate,
     filters: defaultCalendarFilters,
   };
-  const threadSelectionCriteria = { joinedThreads: true };
+  const messageSelectionCriteria = { joinedThreads: true };
   const initialTime = Date.now();
 
   const assetInfoPromise = getAssetInfo();
   const threadInfoPromise = fetchThreadInfos(viewer);
   const messageInfoPromise = fetchMessageInfos(
     viewer,
-    threadSelectionCriteria,
+    messageSelectionCriteria,
     defaultNumberPerThread,
   );
   const entryInfoPromise = fetchEntryInfos(viewer, [calendarQuery]);

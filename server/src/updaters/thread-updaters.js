@@ -773,7 +773,7 @@ async function joinThread(
   };
   const newMessages = await createMessages(viewer, [messageData]);
 
-  const threadSelectionCriteria = {
+  const messageSelectionCriteria = {
     threadCursors: { [request.threadID]: false },
   };
 
@@ -789,7 +789,7 @@ async function joinThread(
   }
 
   const [fetchMessagesResult, fetchEntriesResult] = await Promise.all([
-    fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
+    fetchMessageInfos(viewer, messageSelectionCriteria, defaultNumberPerThread),
     calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
   ]);
   const rawEntryInfos = fetchEntriesResult && fetchEntriesResult.rawEntryInfos;

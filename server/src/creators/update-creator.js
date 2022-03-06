@@ -458,13 +458,13 @@ async function fetchUpdateInfosWithRawUpdateInfos(
     calendarQuery = defaultCalendarQuery(viewer.platform, viewer.timeZone);
   }
   if (threadIDsNeedingDetailedFetch.size > 0) {
-    const threadSelectionCriteria = { threadCursors: {} };
+    const messageSelectionCriteria = { threadCursors: {} };
     for (const threadID of threadIDsNeedingDetailedFetch) {
-      threadSelectionCriteria.threadCursors[threadID] = false;
+      messageSelectionCriteria.threadCursors[threadID] = false;
     }
     promises.messageInfosResult = fetchMessageInfos(
       viewer,
-      threadSelectionCriteria,
+      messageSelectionCriteria,
       defaultNumberPerThread,
     );
     const threadCalendarQuery = {

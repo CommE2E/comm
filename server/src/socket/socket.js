@@ -426,14 +426,14 @@ class Socket {
     for (const watchedThreadID of watchedIDs) {
       threadCursors[watchedThreadID] = null;
     }
-    const threadSelectionCriteria = { threadCursors, joinedThreads: true };
+    const messageSelectionCriteria = { threadCursors, joinedThreads: true };
     const [
       fetchMessagesResult,
       { serverRequests, activityUpdateResult },
     ] = await Promise.all([
       fetchMessageInfosSince(
         viewer,
-        threadSelectionCriteria,
+        messageSelectionCriteria,
         oldMessagesCurrentAsOf,
         defaultNumberPerThread,
       ),

@@ -252,7 +252,7 @@ async function logInResponder(
   for (const watchedThreadID of request.watchedIDs) {
     threadCursors[watchedThreadID] = null;
   }
-  const threadSelectionCriteria = { threadCursors, joinedThreads: true };
+  const messageSelectionCriteria = { threadCursors, joinedThreads: true };
 
   const [
     threadsResult,
@@ -262,7 +262,7 @@ async function logInResponder(
     currentUserInfo,
   ] = await Promise.all([
     fetchThreadInfos(viewer),
-    fetchMessageInfos(viewer, threadSelectionCriteria, defaultNumberPerThread),
+    fetchMessageInfos(viewer, messageSelectionCriteria, defaultNumberPerThread),
     calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
     fetchKnownUserInfos(viewer),
     fetchLoggedInUserInfo(viewer),
