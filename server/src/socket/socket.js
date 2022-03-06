@@ -426,7 +426,11 @@ class Socket {
     for (const watchedThreadID of watchedIDs) {
       threadCursors[watchedThreadID] = null;
     }
-    const messageSelectionCriteria = { threadCursors, joinedThreads: true };
+    const messageSelectionCriteria = {
+      threadCursors,
+      joinedThreads: true,
+      newerThan: oldMessagesCurrentAsOf,
+    };
     const [
       fetchMessagesResult,
       { serverRequests, activityUpdateResult },
@@ -434,7 +438,6 @@ class Socket {
       fetchMessageInfosSince(
         viewer,
         messageSelectionCriteria,
-        oldMessagesCurrentAsOf,
         defaultNumberPerThread,
       ),
       processClientResponses(viewer, clientResponses),

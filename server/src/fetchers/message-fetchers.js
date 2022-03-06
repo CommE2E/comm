@@ -23,7 +23,12 @@ import {
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import {
+  dbQuery,
+  SQL,
+  mergeOrConditions,
+  mergeAndConditions,
+} from '../database/database';
 import type { PushInfo } from '../push/send';
 import type { Viewer } from '../session/viewer';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
@@ -348,24 +353,32 @@ async function fetchMessageInfos(
 function messageSelectionCriteriaToSQLClause(
   criteria: MessageSelectionCriteria,
 ) {
-  const conditions = [];
+  const threadConditions = [];
   if (criteria.joinedThreads === true) {
-    conditions.push(SQL`mm.role > 0`);
+    threadConditions.push(SQL`mm.role > 0`);
   }
   if (criteria.threadCursors) {
     for (const threadID in criteria.threadCursors) {
       const cursor = criteria.threadCursors[threadID];
       if (cursor) {
-        conditions.push(SQL`(m.thread = ${threadID} AND m.id < ${cursor})`);
+        threadConditions.push(
+          SQL`(m.thread = ${threadID} AND m.id < ${cursor})`,
+        );
       } else {
-        conditions.push(SQL`m.thread = ${threadID}`);
+        threadConditions.push(SQL`m.thread = ${threadID}`);
       }
     }
   }
-  if (conditions.length === 0) {
+  if (threadConditions.length === 0) {
     throw new ServerError('internal_error');
   }
-  return mergeOrConditions(conditions);
+  const threadClause = mergeOrConditions(threadConditions);
+
+  const conditions = [threadClause];
+  if (criteria.newerThan) {
+    conditions.push(SQL`m.time > ${criteria.newerThan}`);
+  }
+  return mergeAndConditions(conditions);
 }
 
 function messageSelectionCriteriaToInitialTruncationStatuses(
@@ -384,7 +397,6 @@ function messageSelectionCriteriaToInitialTruncationStatuses(
 async function fetchMessageInfosSince(
   viewer: Viewer,
   criteria: MessageSelectionCriteria,
-  currentAsOf: number,
   maxNumberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
   const selectionClause = messageSelectionCriteriaToSQLClause(criteria);
@@ -406,8 +418,7 @@ async function fetchMessageInfosSince(
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
-    WHERE m.time > ${currentAsOf} AND
-      JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
+    WHERE JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
   query.append(selectionClause);
   query.append(SQL`
