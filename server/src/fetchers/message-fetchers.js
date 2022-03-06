@@ -19,6 +19,7 @@ import {
   type MessageTruncationStatus,
   messageTruncationStatus,
   type FetchMessageInfosResult,
+  defaultMaxMessageAge,
 } from 'lib/types/message-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
@@ -353,8 +354,19 @@ async function fetchMessageInfos(
 function messageSelectionCriteriaToSQLClause(
   criteria: MessageSelectionCriteria,
 ) {
+  const minMessageTime = Date.now() - defaultMaxMessageAge;
+
+  let globalTimeFilter;
+  if (criteria.newerThan) {
+    globalTimeFilter = SQL`m.time > ${criteria.newerThan}`;
+  } else if (!criteria.threadCursors) {
+    globalTimeFilter = SQL`m.time > ${minMessageTime}`;
+  }
+
   const threadConditions = [];
-  if (criteria.joinedThreads === true) {
+  if (criteria.joinedThreads === true && !globalTimeFilter) {
+    threadConditions.push(SQL`(mm.role > 0 AND m.time > ${minMessageTime})`);
+  } else if (criteria.joinedThreads === true) {
     threadConditions.push(SQL`mm.role > 0`);
   }
   if (criteria.threadCursors) {
@@ -374,10 +386,7 @@ function messageSelectionCriteriaToSQLClause(
   }
   const threadClause = mergeOrConditions(threadConditions);
 
-  const conditions = [threadClause];
-  if (criteria.newerThan) {
-    conditions.push(SQL`m.time > ${criteria.newerThan}`);
-  }
+  const conditions = [globalTimeFilter, threadClause].filter(Boolean);
   return mergeAndConditions(conditions);
 }
 
