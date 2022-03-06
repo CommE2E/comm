@@ -11,6 +11,7 @@ import {
   fetchMessagesBeforeCursorActionTypes,
   fetchMessagesBeforeCursor,
   fetchMostRecentMessagesActionTypes,
+  fetchMostRecentMessages,
 } from 'lib/actions/message-actions';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import {
@@ -61,6 +62,9 @@ type PassedProps = {
   +fetchMessagesBeforeCursor: (
     threadID: string,
     beforeMessageID: string,
+  ) => Promise<FetchMessageInfosPayload>,
+  +fetchMostRecentMessages: (
+    threadID: string,
   ) => Promise<FetchMessageInfosPayload>,
   // withInputState
   +inputState: ?InputState,
@@ -341,6 +345,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     if (!this.messageContainer) {
       return;
     }
+
     const { scrollTop, scrollHeight, clientHeight } = this.messageContainer;
     if (
       this.props.startReached ||
@@ -348,20 +353,27 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     ) {
       return;
     }
-    const oldestMessageServerID = this.oldestMessageServerID();
-    if (!oldestMessageServerID) {
-      return;
-    }
+
     if (this.loadingFromScroll) {
       return;
     }
     this.loadingFromScroll = true;
+
     const threadID = this.props.activeChatThreadID;
     invariant(threadID, 'should be set');
-    this.props.dispatchActionPromise(
-      fetchMessagesBeforeCursorActionTypes,
-      this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
-    );
+
+    const oldestMessageServerID = this.oldestMessageServerID();
+    if (oldestMessageServerID) {
+      this.props.dispatchActionPromise(
+        fetchMessagesBeforeCursorActionTypes,
+        this.props.fetchMessagesBeforeCursor(threadID, oldestMessageServerID),
+      );
+    } else {
+      this.props.dispatchActionPromise(
+        fetchMostRecentMessagesActionTypes,
+        this.props.fetchMostRecentMessages(threadID),
+      );
+    }
   }
 
   oldestMessageServerID(): ?string {
@@ -441,6 +453,7 @@ const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
     const callFetchMessagesBeforeCursor = useServerCall(
       fetchMessagesBeforeCursor,
     );
+    const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
 
     const inputState = React.useContext(InputStateContext);
     const [dndProps, connectDropTarget] = useDrop({
@@ -478,6 +491,7 @@ const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
           inputState={inputState}
           dispatchActionPromise={dispatchActionPromise}
           fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
+          fetchMostRecentMessages={callFetchMostRecentMessages}
           {...dndProps}
           connectDropTarget={connectDropTarget}
         />
