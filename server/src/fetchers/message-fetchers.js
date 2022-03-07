@@ -8,6 +8,7 @@ import {
 } from 'lib/shared/message-utils';
 import { messageSpecs } from 'lib/shared/messages/message-specs';
 import { notifCollapseKeyForRawMessageInfo } from 'lib/shared/notif-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import {
   type RawMessageInfo,
   type RawComposableMessageInfo,
@@ -254,7 +255,7 @@ async function fetchMessageInfos(
   criteria: MessageSelectionCriteria,
   numberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
-  const selectionClause = messageSelectionCriteriaToSQLClause(criteria);
+  const selectionClause = messageSelectionCriteriaToSQLClause(viewer, criteria);
   const truncationStatuses = {};
 
   const viewerID = viewer.id;
@@ -352,19 +353,25 @@ async function fetchMessageInfos(
 }
 
 function messageSelectionCriteriaToSQLClause(
+  viewer: Viewer,
   criteria: MessageSelectionCriteria,
 ) {
   const minMessageTime = Date.now() - defaultMaxMessageAge;
+  const shouldApplyTimeFilter = hasMinCodeVersion(viewer.platformDetails, 130);
 
   let globalTimeFilter;
   if (criteria.newerThan) {
     globalTimeFilter = SQL`m.time > ${criteria.newerThan}`;
-  } else if (!criteria.threadCursors) {
+  } else if (!criteria.threadCursors && shouldApplyTimeFilter) {
     globalTimeFilter = SQL`m.time > ${minMessageTime}`;
   }
 
   const threadConditions = [];
-  if (criteria.joinedThreads === true && !globalTimeFilter) {
+  if (
+    criteria.joinedThreads === true &&
+    shouldApplyTimeFilter &&
+    !globalTimeFilter
+  ) {
     threadConditions.push(SQL`(mm.role > 0 AND m.time > ${minMessageTime})`);
   } else if (criteria.joinedThreads === true) {
     threadConditions.push(SQL`mm.role > 0`);
@@ -408,7 +415,7 @@ async function fetchMessageInfosSince(
   criteria: MessageSelectionCriteria,
   maxNumberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
-  const selectionClause = messageSelectionCriteriaToSQLClause(criteria);
+  const selectionClause = messageSelectionCriteriaToSQLClause(viewer, criteria);
   const truncationStatuses = messageSelectionCriteriaToInitialTruncationStatuses(
     criteria,
     messageTruncationStatus.UNCHANGED,
