@@ -1,0 +1,41 @@
+.wrapper {
+  padding: 16px 0;
+  margin: 0 auto 48px auto;
+}
+
+.header {
+  font-family: 'iA Writer Duo S', monospace;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  grid-area: head;
+  text-align: center;
+  --scale: calc(0.75rem + 2vw);
+  --smallest-font-size: 30px;
+  --largest-font-size: 50px;
+  --smallest-padding-size: 32px;
+  --largest-padding-size: 64px;
+
+  padding-bottom: clamp(
+    var(--smallest-padding-size),
+    var(--scale),
+    var(--largest-padding-size)
+  );
+
+  font-size: clamp(
+    var(--smallest-font-size),
+    var(--scale),
+    var(--largest-font-size)
+  );
+}
+
+.teamWrapper {
+  transition-property: max-width;
+  transition: 300ms;
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 16px;
+  justify-content: flex-start;
+  min-width: 320px;
+  margin: 0 auto;
+}
