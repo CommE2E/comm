@@ -108,4 +108,7 @@
   --thread-menu-color-hover: var(--shades-white-100);
   --thread-menu-color-dangerous: var(--error-primary);
   --thread-menu-color-dangerous-hover: var(--error-light-50);
+  --app-list-icon-read-only-color: var(--shades-black-60);
+  --app-list-icon-enabled-color: var(--success-primary);
+  --app-list-icon-disabled-color: var(--shades-white-80);
 }
