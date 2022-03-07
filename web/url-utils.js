@@ -97,8 +97,15 @@ function navInfoFromURL(
     activeChatThreadID = navInfo.activeChatThreadID;
   }
 
+  let tab = 'chat';
+  if (urlInfo.calendar) {
+    tab = 'calendar';
+  } else if (urlInfo.apps) {
+    tab = 'apps';
+  }
+
   return {
-    tab: urlInfo.chat ? 'chat' : 'calendar',
+    tab,
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
     activeChatThreadID,

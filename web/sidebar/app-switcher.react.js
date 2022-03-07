@@ -71,6 +71,19 @@ function AppSwitcher(): React.Node {
     ],
   );
 
+  const onClickApps = React.useCallback(
+    (event: SyntheticEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          tab: 'apps',
+        },
+      });
+    },
+    [dispatch],
+  );
+
   invariant(viewerID, 'should be set');
   let chatBadge = null;
   if (boundUnreadCount > 0) {
@@ -82,6 +95,9 @@ function AppSwitcher(): React.Node {
   });
   const chatNavClasses = classNames({
     [css['current-tab']]: navInfo.tab === 'chat',
+  });
+  const appsNavClasses = classNames({
+    [css['current-tab']]: navInfo.tab === 'apps',
   });
 
   return (
@@ -100,6 +116,12 @@ function AppSwitcher(): React.Node {
           <p className={calendarNavClasses}>
             <SWMansionIcon icon="calendar" size={24} />
             <a onClick={onClickCalendar}>Calendar</a>
+          </p>
+        </li>
+        <li>
+          <p className={appsNavClasses}>
+            <SWMansionIcon icon="wrench" size={24} />
+            <a onClick={onClickApps}>Apps</a>
           </p>
         </li>
       </ul>

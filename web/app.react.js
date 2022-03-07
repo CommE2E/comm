@@ -31,6 +31,7 @@ import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { registerConfig } from 'lib/utils/config';
 
+import AppsDirectory from './apps/apps-directory.react';
 import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
@@ -149,6 +150,8 @@ class App extends React.PureComponent<Props> {
       mainContent = <Calendar url={this.props.location.pathname} />;
     } else if (this.props.navInfo.tab === 'chat') {
       mainContent = <Chat />;
+    } else if (this.props.navInfo.tab === 'apps') {
+      mainContent = <AppsDirectory />;
     }
 
     return (
