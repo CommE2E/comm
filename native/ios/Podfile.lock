@@ -383,6 +383,7 @@ PODS:
     - React-Core
   - EXSecureStore (11.0.3):
     - ExpoModulesCore
+  - EXSecureStoreNotificationService (11.0.3)
   - EXSplashScreen (0.13.5):
     - ExpoModulesCore
     - React-Core
@@ -933,6 +934,7 @@ DEPENDENCIES:
   - Expo (from `../../node_modules/expo/ios`)
   - ExpoModulesCore (from `../../node_modules/expo-modules-core/ios`)
   - EXSecureStore (from `../../node_modules/expo-secure-store/ios`)
+  - EXSecureStoreNotificationService (from `../../node_modules/expo-secure-store-notification-service/ios`)
   - EXSplashScreen (from `../../node_modules/expo-splash-screen/ios`)
   - FBLazyVector (from `../../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../../node_modules/react-native/React/FBReactNativeSpec`)
@@ -1079,6 +1081,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/expo-modules-core/ios"
   EXSecureStore:
     :path: "../../node_modules/expo-secure-store/ios"
+  EXSecureStoreNotificationService:
+    :path: "../../node_modules/expo-secure-store-notification-service/ios"
   EXSplashScreen:
     :path: "../../node_modules/expo-splash-screen/ios"
   FBLazyVector:
@@ -1224,6 +1228,7 @@ SPEC CHECKSUMS:
   Expo: f3357f1f9796d0b4d396d0be84c49933671db4ad
   ExpoModulesCore: c9438f6add0fb7b04b7c64eb97a833d2752a7834
   EXSecureStore: 919bf7c28472862020d2cd7b59b69aae160b5d40
+  EXSecureStoreNotificationService: 1843e2df045aa9aba2e6812bfadf054d6dd9ca95
   EXSplashScreen: 57f329dbf25c5c12800feed79068a056453dc772
   FBLazyVector: e5569e42a1c79ca00521846c223173a57aca1fe1
   FBReactNativeSpec: fe08c1cd7e2e205718d77ad14b34957cce949b58
@@ -1308,6 +1313,6 @@ SPEC CHECKSUMS:
   Yoga: e7dc4e71caba6472ff48ad7d234389b91dadc280
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 29d35525f36d9b1828f8c1a0d1bb4d88f9715f02
+PODFILE CHECKSUM: 69d48fc497328f8a751e6fea6a3ff1065bf7b9bb
 
 COCOAPODS: 1.11.2

@@ -68,6 +68,7 @@
     "expo-image-manipulator": "~10.1.2",
     "expo-media-library": "~13.0.3",
     "expo-secure-store": "~11.0.3",
+    "expo-secure-store-notification-service": "npm:expo-secure-store@~11.3.0",
     "expo-splash-screen": "~0.13.5",
     "find-root": "^1.1.0",
     "invariant": "^2.2.4",

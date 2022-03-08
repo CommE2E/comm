@@ -1,0 +1,171 @@
+diff --git a/node_modules/expo-secure-store-notification-service/ios/.DS_Store b/node_modules/expo-secure-store-notification-service/ios/.DS_Store
+new file mode 100644
+index 0000000..e69de29
+diff --git a/node_modules/expo-secure-store-notification-service/ios/EXSecureStore.podspec b/node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService.podspec
+similarity index 51%
+rename from node_modules/expo-secure-store-notification-service/ios/EXSecureStore.podspec
+rename to node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService.podspec
+index 27ce557..70fe508 100644
+--- a/node_modules/expo-secure-store-notification-service/ios/EXSecureStore.podspec
++++ b/node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService.podspec
+@@ -3,7 +3,7 @@ require 'json'
+ package = JSON.parse(File.read(File.join(__dir__, '..', 'package.json')))
+ 
+ Pod::Spec.new do |s|
+-  s.name           = 'EXSecureStore'
++  s.name           = 'EXSecureStoreNotificationService'
+   s.version        = package['version']
+   s.summary        = package['description']
+   s.description    = package['description']
+@@ -12,14 +12,6 @@ Pod::Spec.new do |s|
+   s.homepage       = package['homepage']
+   s.platform       = :ios, '12.0'
+   s.source         = { git: 'https://github.com/expo/expo.git' }
+-  s.static_framework = true
+   
+-  s.dependency 'ExpoModulesCore'
+-
+-  if !$ExpoUseSources&.include?(package['name']) && ENV['EXPO_USE_SOURCE'].to_i == 0 && File.exist?("#{s.name}.xcframework") && Gem::Version.new(Pod::VERSION) >= Gem::Version.new('1.10.0')
+-    s.source_files = "#{s.name}/**/*.h"
+-    s.vendored_frameworks = "#{s.name}.xcframework"
+-  else
+-    s.source_files = "#{s.name}/**/*.{h,m}"
+-  end
++  s.source_files = "EXSecureStoreNotificationService/**/*.{h,m}"
+ end
+diff --git a/node_modules/expo-secure-store-notification-service/ios/EXSecureStore/EXSecureStore.h b/node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService/EXSecureStore.h
+similarity index 77%
+rename from node_modules/expo-secure-store-notification-service/ios/EXSecureStore/EXSecureStore.h
+rename to node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService/EXSecureStore.h
+index b36b09c..30654fb 100644
+--- a/node_modules/expo-secure-store-notification-service/ios/EXSecureStore/EXSecureStore.h
++++ b/node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService/EXSecureStore.h
+@@ -1,7 +1,5 @@
+ //  Copyright © 2018 650 Industries. All rights reserved.
+-
+-#import <ExpoModulesCore/EXExportedModule.h>
+-#import <ExpoModulesCore/EXModuleRegistryConsumer.h>
++#import <Foundation/Foundation.h>
+ 
+ typedef NS_ENUM(NSInteger, EXSecureStoreAccessible) {
+   EXSecureStoreAccessibleAfterFirstUnlock = 0,
+@@ -13,6 +11,6 @@ typedef NS_ENUM(NSInteger, EXSecureStoreAccessible) {
+   EXSecureStoreAccessibleWhenUnlockedThisDeviceOnly = 6
+ };
+ 
+-@interface EXSecureStore : EXExportedModule
++@interface EXSecureStore : NSObject<NSCopying>
+ 
+ @end
+diff --git a/node_modules/expo-secure-store-notification-service/ios/EXSecureStore/EXSecureStore.m b/node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService/EXSecureStore.m
+similarity index 66%
+rename from node_modules/expo-secure-store-notification-service/ios/EXSecureStore/EXSecureStore.m
+rename to node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService/EXSecureStore.m
+index 6697c5c..d2f0c17 100644
+--- a/node_modules/expo-secure-store-notification-service/ios/EXSecureStore/EXSecureStore.m
++++ b/node_modules/expo-secure-store-notification-service/ios/EXSecureStoreNotificationService/EXSecureStore.m
+@@ -1,6 +1,6 @@
+ //  Copyright © 2018 650 Industries. All rights reserved.
+ 
+-#import <EXSecureStore/EXSecureStore.h>
++#import <EXSecureStoreNotificationService/EXSecureStore.h>
+ 
+ #import <CommonCrypto/CommonHMAC.h>
+ #import <Security/Security.h>
+@@ -185,96 +185,4 @@
+   }
+ }
+ 
+-#pragma mark - SecureStore API
+-
+-- (NSDictionary *)constantsToExport
+-{
+-  return @{
+-           @"AFTER_FIRST_UNLOCK":@(EXSecureStoreAccessibleAfterFirstUnlock),
+-           @"AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY":@(EXSecureStoreAccessibleAfterFirstUnlockThisDeviceOnly),
+-           @"ALWAYS":@(EXSecureStoreAccessibleAlways),
+-           @"WHEN_PASSCODE_SET_THIS_DEVICE_ONLY":@(EXSecureStoreAccessibleWhenPasscodeSetThisDeviceOnly),
+-           @"ALWAYS_THIS_DEVICE_ONLY":@(EXSecureStoreAccessibleAlwaysThisDeviceOnly),
+-           @"WHEN_UNLOCKED":@(EXSecureStoreAccessibleWhenUnlocked),
+-           @"WHEN_UNLOCKED_THIS_DEVICE_ONLY":@(EXSecureStoreAccessibleWhenUnlockedThisDeviceOnly)
+-           };
+-};
+-
+-EX_EXPORT_MODULE(ExpoSecureStore);
+-
+-EX_EXPORT_METHOD_AS(setValueWithKeyAsync,
+-                    setValueWithKeyAsync:(NSString *)value
+-                    key:(NSString *)key
+-                    options:(NSDictionary *)options
+-                    resolver:(EXPromiseResolveBlock)resolve
+-                    rejecter:(EXPromiseRejectBlock)reject)
+-{
+-  NSString *validatedKey = [self validatedKey:key];
+-  if (!validatedKey) {
+-    reject(@"E_SECURESTORE_SETVALUEFAIL", nil, EXErrorWithMessage(@"Invalid key."));
+-  } else {
+-    NSError *error;
+-    BOOL setValue = [self _setValue:value
+-                            withKey:validatedKey
+-                        withOptions:options
+-                              error:&error];
+-    if (setValue) {
+-      resolve(nil);
+-    } else {
+-      reject(@"E_SECURESTORE_SETVALUEFAIL", nil, EXErrorWithMessage([[self class] _messageForError:error]));
+-    }
+-  }
+-}
+-
+-EX_EXPORT_METHOD_AS(getValueWithKeyAsync,
+-                    getValueWithKeyAsync:(NSString *)key
+-                    options:(NSDictionary *)options
+-                    resolver:(EXPromiseResolveBlock)resolve
+-                    rejecter:(EXPromiseRejectBlock)reject)
+-{
+-  NSString *validatedKey = [self validatedKey:key];
+-  if (!validatedKey) {
+-    reject(@"E_SECURESTORE_GETVALUEFAIL", nil, EXErrorWithMessage(@"Invalid key."));
+-  } else {
+-    NSError *error;
+-    NSString *value = [self _getValueWithKey:validatedKey
+-                                 withOptions:options
+-                                       error:&error];
+-    if (error) {
+-      if (error.code == errSecItemNotFound) {
+-        resolve([NSNull null]);
+-      } else {
+-        reject(@"E_SECURESTORE_GETVALUEFAIL", nil, EXErrorWithMessage([[self class] _messageForError:error]));
+-      }
+-    } else {
+-      resolve(value);
+-    }
+-  }
+-}
+-
+-EX_EXPORT_METHOD_AS(deleteValueWithKeyAsync,
+-                    deleteValueWithKeyAsync:(NSString *)key
+-                    options:(NSDictionary *)options
+-                    resolver:(EXPromiseResolveBlock)resolve
+-                    rejecter:(EXPromiseRejectBlock)reject)
+-{
+-  NSString *validatedKey = [self validatedKey:key];
+-  if (!validatedKey) {
+-    reject(@"E_SECURESTORE_DELETEVALUEFAIL", nil, EXErrorWithMessage(@"Invalid key."));
+-  } else {
+-    [self _deleteValueWithKey:validatedKey
+-                  withOptions:options];
+-    resolve(nil);
+-  }
+-}
+-
+-- (NSString *)validatedKey:(NSString *)key
+-{
+-  NSString *trimmedKey = [key stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+-  if (!key || trimmedKey.length == 0) {
+-    return nil;
+-  }
+-  return key;
+-}
+-
+ @end
