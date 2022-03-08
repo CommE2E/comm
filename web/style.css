@@ -22,6 +22,10 @@ body {
 a {
   text-decoration: none;
   color: #2a5db0;
+  cursor: pointer;
+}
+button {
+  cursor: pointer;
 }
 img,
 iframe {
