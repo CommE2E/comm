@@ -103,6 +103,7 @@ div.previews > span.multimedia > span.multimediaImage > img {
 
 a.sendButton {
   padding: 8px 0 0 10px;
+  cursor: pointer;
 }
 
 a.sendButton svg {
