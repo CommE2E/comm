@@ -354,7 +354,6 @@
         "attrs": [
           {
             "fill": "none",
-            "stroke": "rgb(128, 128, 128)",
             "strokeLinejoin": "round",
             "strokeLinecap": "round",
             "strokeMiterlimit": "4",
