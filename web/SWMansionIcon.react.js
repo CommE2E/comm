@@ -53,6 +53,7 @@ type SWMansionIconProps = {
   +className?: string,
   +disableFill?: boolean,
   +removeInlineStyle?: boolean,
+  +style?: $Shape<CSSStyleDeclaration>,
 };
 
 function SWMansionIcon(props: SWMansionIconProps): React.Node {
