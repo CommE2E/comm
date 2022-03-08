@@ -132,6 +132,9 @@ div.sidebarTitle {
   color: var(--thread-color-read);
   align-self: flex-start;
 }
+div.sidebarTitle.unread {
+  color: var(--fg);
+}
 div.sidebarLastActivity {
   white-space: nowrap;
   font-size: var(--xxs-font-10);
