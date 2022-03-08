@@ -10,6 +10,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; };
 		2DDA0AE067906E18B83A455C /* ClientGetReadReactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */; };
 		71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */; };
 		71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */; };
@@ -43,7 +44,24 @@
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		B723460726979250009A0709 /* swmansion.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B723460626979250009A0709 /* swmansion.ttf */; };
 		B7BEE749279B3FB6009CCA35 /* GRPCStreamHostObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */; };
+		CB1648AD27CFBBBB00394D9D /* ClientGetReadReactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */; };
+		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
+		CB3C621127CE4A320054F24C /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
+		CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
+		CB4821A527CF9F38001AB7E1 /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
+		CB4821A627CFB153001AB7E1 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7926FDCD71002C8453 /* Client.cpp */; };
+		CB4821A827CFB153001AB7E1 /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */; };
+		CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; };
+		CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
+		CB4821AB27CFB17C001AB7E1 /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */; };
+		CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6F26B3FF0900EDE27D /* Session.cpp */; };
+		CB4821AD27CFB17C001AB7E1 /* NetworkModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D732731A4790032361D /* NetworkModule.cpp */; };
+		CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7326B401D300EDE27D /* Tools.cpp */; };
+		CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
+		CB4821B127CFB1FA001AB7E1 /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
+		CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
+		F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -87,6 +105,7 @@
 		2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientGetReadReactor.cpp; sourceTree = "<group>"; };
 		2DDA05D6D8D20D885F22F82C /* SocketStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketStatus.h; sourceTree = "<group>"; };
 		2DDA0A22FECC9DAA5C19C35D /* Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Metadata.h; sourceTree = "<group>"; };
+		3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.pb.cc; sourceTree = "<group>"; };
 		71009A7426FDCA67002C8453 /* tunnelbroker.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.pb.h; sourceTree = "<group>"; };
@@ -136,6 +155,7 @@
 		726E5D742731A4790032361D /* NetworkModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkModule.h; sourceTree = "<group>"; };
 		726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalNetworkSingleton.cpp; sourceTree = "<group>"; };
 		726E5D772731A5E10032361D /* GlobalNetworkSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalNetworkSingleton.h; sourceTree = "<group>"; };
+		769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-NotificationService/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
 		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = Comm/Info.debug.plist; sourceTree = "<group>"; };
 		7F761E292201141E001B6FB7 /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -147,6 +167,8 @@
 		7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Bold.ttf"; path = "Resources/IBMPlexSans-Bold.ttf"; sourceTree = "<group>"; };
 		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
+		891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
+		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
 		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageStoreOperations.h; sourceTree = "<group>"; };
 		B70FBC1226B047050040F480 /* Message.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
@@ -161,6 +183,9 @@
 		B7BEE748279B3F2E009CCA35 /* GRPCStreamHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRPCStreamHostObject.h; sourceTree = "<group>"; };
 		B7E937CA26F448E700022A7C /* Media.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Media.h; sourceTree = "<group>"; };
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
+		CB1648B027CFD07E00394D9D /* CommRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = CommRelease.entitlements; path = Comm/CommRelease.entitlements; sourceTree = "<group>"; };
+		CB30C12327D0ACF700FBE8DE /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
+		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -186,6 +211,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */,
+				F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,6 +221,7 @@
 		13B07FAE1A68108700A75B9A /* Comm */ = {
 			isa = PBXGroup;
 			children = (
+				CB1648B027CFD07E00394D9D /* CommRelease.entitlements */,
 				71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */,
 				7F788C2B248AA2130098F071 /* SplashScreen.storyboard */,
 				7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */,
@@ -208,6 +235,14 @@
 				7F26E81B24440D87004049C6 /* dummy.swift */,
 			);
 			name = Comm;
+			sourceTree = "<group>";
+		};
+		5F5A6FB2C6AD630620BBF58C /* NotificationService */ = {
+			isa = PBXGroup;
+			children = (
+				769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */,
+			);
+			name = NotificationService;
 			sourceTree = "<group>";
 		};
 		6534411766BE4CA4B0AB0A78 /* Resources */ = {
@@ -387,6 +422,7 @@
 		724995D227B4103A00323FCE /* NotificationService */ = {
 			isa = PBXGroup;
 			children = (
+				CB30C12327D0ACF700FBE8DE /* NotificationService.entitlements */,
 				724995D327B4103A00323FCE /* NotificationService.h */,
 				724995D427B4103A00323FCE /* NotificationService.mm */,
 				724995D627B4103A00323FCE /* Info.plist */,
@@ -409,10 +445,12 @@
 		7FF0870B1E833C3F000A1ACF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CB3C621327CE66540054F24C /* libEXSecureStore.a */,
 				724995FA27BA9E8C00323FCE /* UserNotifications.framework */,
 				711CF80E25DC096000A00FBD /* libFolly.a */,
 				7F761E292201141E001B6FB7 /* JavaScriptCore.framework */,
 				994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */,
+				3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -448,6 +486,7 @@
 			isa = PBXGroup;
 			children = (
 				E75E6E4967CE9A8BBA89ED86 /* Comm */,
+				5F5A6FB2C6AD630620BBF58C /* NotificationService */,
 			);
 			name = ExpoModulesProviders;
 			sourceTree = "<group>";
@@ -457,6 +496,8 @@
 			children = (
 				F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */,
 				C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */,
+				891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */,
+				913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -517,9 +558,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 724995DD27B4103A00323FCE /* Build configuration list for PBXNativeTarget "NotificationService" */;
 			buildPhases = (
+				6735FA74B2C82E3B27E18258 /* [CP] Check Pods Manifest.lock */,
 				724995CD27B4103A00323FCE /* Sources */,
 				724995CE27B4103A00323FCE /* Frameworks */,
 				724995CF27B4103A00323FCE /* Resources */,
+				E6221695BEF4548AF41DD8EB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -667,6 +710,28 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		6735FA74B2C82E3B27E18258 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-NotificationService-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -719,6 +784,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Comm/Pods-Comm-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E6221695BEF4548AF41DD8EB /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-NotificationService/Pods-NotificationService-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/gRPC-C++/gRPCCertificates-Cpp.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/gRPCCertificates-Cpp.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NotificationService/Pods-NotificationService-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		EA2E8897D838D7F3E680EACE /* [CP] Embed Pods Frameworks */ = {
@@ -785,7 +872,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */,
+				CB1648AD27CFBBBB00394D9D /* ClientGetReadReactor.cpp in Sources */,
+				CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */,
+				CB4821B127CFB1FA001AB7E1 /* GlobalNetworkSingleton.cpp in Sources */,
+				CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */,
+				CB4821AB27CFB17C001AB7E1 /* tunnelbroker.pb.cc in Sources */,
+				CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */,
+				CB4821AD27CFB17C001AB7E1 /* NetworkModule.cpp in Sources */,
+				CB4821A627CFB153001AB7E1 /* Client.cpp in Sources */,
+				CB4821A827CFB153001AB7E1 /* tunnelbroker.grpc.pb.cc in Sources */,
+				CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */,
+				CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */,
+				CB4821A527CF9F38001AB7E1 /* CommSecureStore.mm in Sources */,
+				CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */,
+				CB3C621127CE4A320054F24C /* Logger.mm in Sources */,
 				724995D527B4103A00323FCE /* NotificationService.mm in Sources */,
+				CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */,
+				1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -972,7 +1076,9 @@
 		};
 		724995DB27B4103A00323FCE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -980,12 +1086,14 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = H98Y8MH53M;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -995,22 +1103,33 @@
 				INFOPLIST_FILE = NotificationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Comm Technologies, Inc. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DSQLITE_HAS_CODEC",
+					"-DFOLLY_NO_CONFIG",
+					"-DSQLITE_TEMP_STORE=2",
+					"-DSQLCIPHER_CRYPTO_OPENSSL",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				PRODUCT_BUNDLE_IDENTIFIER = app.comm.NotificationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
 		724995DC27B4103A00323FCE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -1018,6 +1137,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = NotificationService/NotificationService.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -1025,19 +1145,29 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = H98Y8MH53M;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = NotificationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Comm Technologies, Inc. All rights reserved.";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-DSQLITE_HAS_CODEC",
+					"-DFOLLY_NO_CONFIG",
+					"-DSQLITE_TEMP_STORE=2",
+					"-DSQLCIPHER_CRYPTO_OPENSSL",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = app.comm.NotificationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
+				SKIP_INSTALL = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
