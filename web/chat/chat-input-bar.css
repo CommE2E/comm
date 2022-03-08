@@ -85,6 +85,9 @@ a.multimediaUpload > input[type='file'] {
 }
 
 a.multimediaUpload > svg {
+  color: var(--color-disabled);
+}
+a.multimediaUpload:hover > svg {
   color: var(--fg);
 }
 
