@@ -9,7 +9,7 @@ nav.wrapper {
   align-items: center;
   grid-template-columns: 40px repeat(12, 1fr) 40px;
   column-gap: 1.5%;
-  grid-template-areas: '. logo logo . . . page_nav page_nav . cta_btn cta_btn cta_btn sIcons .';
+  grid-template-areas: '. logo logo . . . page_nav page_nav . cta_btn cta_btn sIcons sIcons .';
 }
 
 .logo {
@@ -48,21 +48,14 @@ div.button_container {
   justify-content: flex-end;
 }
 
-.social_icons {
+.social_icons_container {
   grid-area: sIcons;
   display: flex;
-  justify-self: flex-end;
+  justify-content: space-evenly;
 }
 
-.github_icon {
-  padding-left: 14px;
+.social_icon {
   font-size: 20px;
-  grid-area: gIcon;
-}
-
-.twitter_icon {
-  font-size: 20px;
-  grid-area: tIcon;
 }
 
 @media screen and (max-width: 1099px) {
@@ -86,8 +79,7 @@ div.button_container {
     display: none;
   }
 
-  .github_icon,
-  .twitter_icon {
+  .social_icon {
     display: block;
   }
 }

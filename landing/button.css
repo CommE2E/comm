@@ -5,7 +5,7 @@ button.btn {
   background-color: var(--btn-bg);
   color: var(--btn-color);
   justify-content: center;
-  padding: 12px 24px;
+  padding: 8px 16px;
   transition: 300ms;
   flex-basis: 120px;
   text-align: center;
