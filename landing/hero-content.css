@@ -1,15 +1,8 @@
 .cycling_header {
-  --smallest-font-size: 30px;
-  --largest-font-size: 72px;
-  --font-scale: calc(1rem + 2vw);
   font-weight: bold;
   font-family: 'iA Writer Duo S', monospace;
   padding-bottom: 16px;
-  font-size: clamp(
-    var(--smallest-font-size),
-    var(--font-scale),
-    var(--largest-font-size)
-  );
+  font-size: 72px;
 }
 
 .sub_heading {
@@ -46,6 +39,47 @@
 
 button.request_access {
   display: none;
+}
+
+@media (max-width: 1899px) {
+  .cycling_header {
+    font-size: 68px;
+  }
+}
+@media (max-width: 1799px) {
+  .cycling_header {
+    font-size: 64px;
+  }
+}
+@media (max-width: 1699px) {
+  .cycling_header {
+    font-size: 60px;
+  }
+}
+@media (max-width: 1599px) {
+  .cycling_header {
+    font-size: 56px;
+  }
+}
+@media (max-width: 1499px) {
+  .cycling_header {
+    font-size: 52px;
+  }
+}
+@media (max-width: 1399px) {
+  .cycling_header {
+    font-size: 48px;
+  }
+}
+@media (max-width: 1299px) {
+  .cycling_header {
+    font-size: 44px;
+  }
+}
+@media (max-width: 1199px) {
+  .cycling_header {
+    font-size: 40px;
+  }
 }
 
 @media screen and (max-width: 1099px) {
