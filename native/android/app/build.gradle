@@ -416,7 +416,7 @@ def getBuildTypeABIs(nativeArchitectures) {
 }
 
 android {
-    buildFeatures {
+    buildFeatures {å
         prefab true
     }
     configurations {
@@ -434,8 +434,8 @@ android {
         applicationId 'app.comm.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 129
-        versionName '1.0.129'
+        versionCode 130
+        versionName '1.0.130'
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
