@@ -21,7 +21,7 @@ function ChatThreadListSidebar(props: Props): React.Node {
 
   return (
     <div
-      className={classNames(css.threadListSideBar, css.sidebar, {
+      className={classNames(css.threadListSidebar, css.sidebar, {
         [css.activeThread]: active,
       })}
     >
