@@ -23,6 +23,8 @@ import {
   threadPermissions,
 } from 'lib/types/thread-types';
 
+import { useModalContext } from '../modals/modal-provider.react';
+import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import ThreadMenuItem from './thread-menu-item.react';
@@ -35,7 +37,25 @@ type ThreadMenuProps = {
 function ThreadMenu(props: ThreadMenuProps): React.Node {
   const [isOpen, setIsOpen] = React.useState(false);
 
+  const { setModal } = useModalContext();
+
   const { threadInfo } = props;
+
+  const onClickSettings = React.useCallback(
+    () => setModal(<ThreadSettingsModal threadID={threadInfo.id} />),
+    [setModal, threadInfo.id],
+  );
+
+  const settingsItem = React.useMemo(() => {
+    return (
+      <ThreadMenuItem
+        key="settings"
+        text="Settings"
+        icon={faCog}
+        onClick={onClickSettings}
+      />
+    );
+  }, [onClickSettings]);
 
   const membersItem = React.useMemo(() => {
     if (threadInfo.type === threadTypes.PERSONAL) {
@@ -117,16 +137,12 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   }, [threadInfo]);
 
   const menuItems = React.useMemo(() => {
-    const settingsItem = (
-      <ThreadMenuItem key="settings" text="Settings" icon={faCog} />
-    );
     const notificationsItem = (
       <ThreadMenuItem key="notifications" text="Notifications" icon={faBell} />
     );
     const separator = <hr key="separator" className={css.separator} />;
 
     // TODO: Enable menu items when the modals are implemented
-    const SHOW_SETTINGS = false;
     const SHOW_NOTIFICATIONS = false;
     const SHOW_MEMBERS = false;
     const SHOW_SIDEBAR = false;
@@ -135,7 +151,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     const SHOW_LEAVE_THREAD = false;
 
     const items = [
-      SHOW_SETTINGS && settingsItem,
+      settingsItem,
       SHOW_NOTIFICATIONS && notificationsItem,
       SHOW_MEMBERS && membersItem,
       SHOW_SIDEBAR && sidebarItem,
@@ -146,6 +162,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     ];
     return items.filter(Boolean);
   }, [
+    settingsItem,
     membersItem,
     sidebarItem,
     viewSubchannelsItem,
