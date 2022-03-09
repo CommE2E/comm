@@ -7,6 +7,7 @@
 #import <React/RCTConvert.h>
 #import <React/RCTRootView.h>
 
+#import <ExpoModulesCore/EXModuleRegistryProvider.h>
 #import <React/RCTBridge+Private.h>
 #import <React/RCTCxxBridgeDelegate.h>
 #import <React/RCTJSIExecutorRuntimeInstaller.h>
@@ -14,7 +15,11 @@
 #import <jsireact/JSIExecutor.h>
 #import <reacthermes/HermesExecutorFactory.h>
 
+#import <EXSecureStore/EXSecureStore.h>
+
 #import "CommCoreModule.h"
+#import "CommSecureStore.h"
+#import "CommSecureStoreIOSWrapper.h"
 #import "GlobalNetworkSingleton.h"
 #import "NetworkModule.h"
 #import "SQLiteQueryExecutor.h"
@@ -57,13 +62,11 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 }
 @end
 
-@implementation AppDelegate
+@interface CommSecureStoreIOSWrapper ()
+- (void)init:(EXSecureStore *)secureStore;
+@end
 
-- (BOOL)application:(UIApplication *)application
-    willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  [self attemptDatabaseInitialization];
-  return YES;
-}
+@implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -100,6 +103,35 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
   rootView.loadingViewFadeDelay = 0;
   rootView.loadingViewFadeDuration = 0.001;
 
+  EXModuleRegistryProvider *moduleRegistryProvider =
+      [[EXModuleRegistryProvider alloc] init];
+  EXSecureStore *secureStore =
+      (EXSecureStore *)[[moduleRegistryProvider moduleRegistry]
+          getExportedModuleOfClass:EXSecureStore.class];
+  [[CommSecureStoreIOSWrapper sharedInstance] init:secureStore];
+
+  // set sqlite file path
+  comm::SQLiteQueryExecutor::sqliteFilePath =
+      std::string([[Tools getSQLiteFilePath] UTF8String]);
+
+  // set sqlcipher encryption key
+  comm::CommSecureStore commSecureStore;
+  folly::Optional<std::string> maybeEncryptionKey;
+  try {
+    maybeEncryptionKey = commSecureStore.get("comm.encryptionKey");
+  } catch (NSException *exception) {
+    maybeEncryptionKey = folly::none;
+  }
+
+  if (maybeEncryptionKey) {
+    comm::SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
+  } else {
+    int sqlcipherEncryptionKeySize = 64;
+    std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
+        sqlcipherEncryptionKeySize);
+    commSecureStore.set("comm.encryptionKey", encryptionKey);
+    comm::SQLiteQueryExecutor::encryptionKey = encryptionKey;
+  }
   return YES;
 }
 
@@ -227,12 +259,6 @@ using Runtime = facebook::jsi::Runtime;
       facebook::react::RCTJSIExecutorRuntimeInstaller(installer),
       JSIExecutor::defaultTimeoutInvoker,
       makeRuntimeConfig(3072));
-}
-
-- (void)attemptDatabaseInitialization {
-  std::string sqliteFilePath =
-      std::string([[Tools getSQLiteFilePath] UTF8String]);
-  comm::SQLiteQueryExecutor::initialize(sqliteFilePath);
 }
 
 // Copied from

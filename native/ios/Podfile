@@ -5,11 +5,13 @@ require File.join(File.dirname(`node --print "require.resolve('@react-native-com
 platform :ios, '12.0'
 
 require 'json'
+podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
 
-def common_comm_target_pods
-  podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
-
+target 'Comm' do
+  pod 'ReactNativeKeyboardTrackingView', :path => '../../node_modules/react-native-keyboard-tracking-view'
+  pod 'ReactNativeKeyboardInput', :path => '../../node_modules/react-native-keyboard-input'
   pod 'react-native-ffmpeg/min-lts', :podspec => '../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec'
+  pod 'react-native-video/VideoCaching', :podspec => '../../node_modules/react-native-video/react-native-video.podspec'
   pod 'SQLCipher-Amalgamation', :path => '../../node_modules/@commapp/sqlcipher-amalgamation'
 
   pod 'gRPC-C++', :podspec => './pod-patch/.patched/gRPC-C++/1.40.0/gRPC-C++.podspec.json'
@@ -30,33 +32,15 @@ def common_comm_target_pods
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable these next few lines.
   use_flipper!({ "Flipper-DoubleConversion" => "1.1.7" })
-end
+  post_install do |installer|
+    react_native_post_install(installer)
+    __apply_Xcode_12_5_M1_post_install_workaround(installer)
 
-target 'Comm' do
-  pod 'ReactNativeKeyboardTrackingView', :path => '../../node_modules/react-native-keyboard-tracking-view'
-  pod 'ReactNativeKeyboardInput', :path => '../../node_modules/react-native-keyboard-input'
-  pod 'react-native-video/VideoCaching', :podspec => '../../node_modules/react-native-video/react-native-video.podspec'
-  common_comm_target_pods
-end
-
-target 'NotificationService' do
-  common_comm_target_pods
-end
-
-post_install do |installer|
-  react_native_post_install(installer)
-  __apply_Xcode_12_5_M1_post_install_workaround(installer)
-
-  # Excluding arm64 because M1 simulator isn't supported yet
-  # Excluding 32-bit x86 because nobody uses it and it causes compilation issues
-  installer.pods_project.build_configurations.each do |config|
-    config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64 i386"
-    config.build_settings['OTHER_CPLUSPLUSFLAGS'] = '-DDONT_AUTOINSTALL_REANIMATED'
-  end
-
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['APPLICATION_EXTENSION_API_ONLY'] = 'No'
+    # Excluding arm64 because M1 simulator isn't supported yet
+    # Excluding 32-bit x86 because nobody uses it and it causes compilation issues
+    installer.pods_project.build_configurations.each do |config|
+      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64 i386"
+      config.build_settings['OTHER_CPLUSPLUSFLAGS'] = '-DDONT_AUTOINSTALL_REANIMATED'
     end
-  end 
+  end
 end
