@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -20,7 +19,7 @@ function AppSwitcher(): React.Node {
     state => state.navInfo.activeChatThreadID,
   );
   const mostRecentlyReadThread = useSelector(mostRecentlyReadThreadSelector);
-  const activeThreadCurrentlyUnread = useSelector(
+  const isActiveThreadCurrentlyUnread = useSelector(
     state =>
       !activeChatThreadID ||
       !!state.threadStore.threadInfos[activeChatThreadID]?.currentUser.unread,
@@ -35,7 +34,7 @@ function AppSwitcher(): React.Node {
         type: updateNavInfoActionType,
         payload: {
           tab: 'chat',
-          activeChatThreadID: activeThreadCurrentlyUnread
+          activeChatThreadID: isActiveThreadCurrentlyUnread
             ? mostRecentlyReadThread
             : activeChatThreadID,
         },
@@ -43,19 +42,14 @@ function AppSwitcher(): React.Node {
     },
     [
       dispatch,
-      activeThreadCurrentlyUnread,
+      isActiveThreadCurrentlyUnread,
       mostRecentlyReadThread,
       activeChatThreadID,
     ],
   );
 
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-
   const boundUnreadCount = useSelector(unreadCount);
 
-  invariant(viewerID, 'should be set');
   let chatBadge = null;
   if (boundUnreadCount > 0) {
     chatBadge = <span className={css.chatBadge}>{boundUnreadCount}</span>;
