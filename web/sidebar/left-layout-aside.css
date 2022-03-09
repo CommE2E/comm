@@ -40,7 +40,7 @@
   position: relative;
 }
 
-div.chatBadge {
+span.chatBadge {
   position: absolute;
   top: -4px;
   left: 13px;
