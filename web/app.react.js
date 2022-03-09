@@ -17,10 +17,7 @@ import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
-import {
-  mostRecentReadThreadSelector,
-  unreadCount,
-} from 'lib/selectors/thread-selectors';
+import { unreadCount } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
@@ -77,7 +74,6 @@ type Props = {
   +navInfo: NavInfo,
   +entriesLoadingStatus: LoadingStatus,
   +loggedIn: boolean,
-  +mostRecentReadThread: ?string,
   +activeThreadCurrentlyUnread: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
@@ -204,7 +200,6 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     );
 
     const loggedIn = useSelector(isLoggedIn);
-    const mostRecentReadThread = useSelector(mostRecentReadThreadSelector);
     const activeThreadCurrentlyUnread = useSelector(
       state =>
         !activeChatThreadID ||
@@ -225,7 +220,6 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         navInfo={navInfo}
         entriesLoadingStatus={entriesLoadingStatus}
         loggedIn={loggedIn}
-        mostRecentReadThread={mostRecentReadThread}
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
         dispatch={dispatch}
         modal={modalContext.modal}
