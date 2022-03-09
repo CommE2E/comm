@@ -11,6 +11,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
+import {
+  leaveThread,
+  leaveThreadActionTypes,
+} from 'lib/actions/thread-actions';
 import { childThreadInfos } from 'lib/selectors/thread-selectors';
 import {
   threadHasPermission,
@@ -22,9 +26,14 @@ import {
   threadTypes,
   threadPermissions,
 } from 'lib/types/thread-types';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import SidebarListModal from '../modals/chat/sidebar-list-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
+import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -38,7 +47,7 @@ type ThreadMenuProps = {
 function ThreadMenu(props: ThreadMenuProps): React.Node {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const { setModal } = useModalContext();
+  const { setModal, clearModal } = useModalContext();
 
   const { threadInfo } = props;
 
@@ -129,6 +138,29 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [canCreateSubchannels]);
 
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callLeaveThread = useServerCall(leaveThread);
+
+  const onConfirmLeaveThread = React.useCallback(() => {
+    dispatchActionPromise(
+      leaveThreadActionTypes,
+      callLeaveThread(threadInfo.id),
+    );
+    clearModal();
+  }, [callLeaveThread, clearModal, dispatchActionPromise, threadInfo.id]);
+
+  const onClickLeaveThread = React.useCallback(
+    () =>
+      setModal(
+        <ConfirmLeaveThreadModal
+          threadInfo={threadInfo}
+          onClose={clearModal}
+          onConfirm={onConfirmLeaveThread}
+        />,
+      ),
+    [clearModal, onConfirmLeaveThread, setModal, threadInfo],
+  );
+
   const leaveThreadItem = React.useMemo(() => {
     const canLeaveThread = threadHasPermission(
       threadInfo,
@@ -143,9 +175,10 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
         text="Leave Thread"
         icon={faSignOutAlt}
         dangerous
+        onClick={onClickLeaveThread}
       />
     );
-  }, [threadInfo]);
+  }, [onClickLeaveThread, threadInfo]);
 
   const menuItems = React.useMemo(() => {
     const notificationsItem = (
@@ -158,7 +191,6 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     const SHOW_MEMBERS = false;
     const SHOW_VIEW_SUBCHANNELS = false;
     const SHOW_CREATE_SUBCHANNELS = false;
-    const SHOW_LEAVE_THREAD = false;
 
     const items = [
       settingsItem,
@@ -167,8 +199,8 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       sidebarItem,
       SHOW_VIEW_SUBCHANNELS && viewSubchannelsItem,
       SHOW_CREATE_SUBCHANNELS && createSubchannelsItem,
-      SHOW_LEAVE_THREAD && leaveThreadItem && separator,
-      SHOW_LEAVE_THREAD && leaveThreadItem,
+      leaveThreadItem && separator,
+      leaveThreadItem,
     ];
     return items.filter(Boolean);
   }, [
