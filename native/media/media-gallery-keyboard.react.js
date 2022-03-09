@@ -189,7 +189,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       } = await MediaLibrary.getAssetsAsync({
         first: 20,
         after,
-        mediaType: [MediaLibrary.MediaType.photo, MediaLibrary.MediaType.video],
+        mediaType: [MediaLibrary.MediaType.photo],
         sortBy: [MediaLibrary.SortBy.modificationTime],
       });
 
