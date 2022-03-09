@@ -7,7 +7,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 import baseReducer from 'lib/reducers/master-reducer';
-import { mostRecentReadThreadSelector } from 'lib/selectors/thread-selectors';
+import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import type { Shape } from 'lib/types/core';
 import type { EnabledApps } from 'lib/types/enabled-apps';
@@ -144,7 +144,7 @@ function validateState(oldState: AppState, state: AppState): AppState {
       ...state,
       navInfo: {
         ...state.navInfo,
-        activeChatThreadID: mostRecentReadThreadSelector(state),
+        activeChatThreadID: mostRecentlyReadThreadSelector(state),
       },
     };
   }

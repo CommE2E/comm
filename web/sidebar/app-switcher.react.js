@@ -5,7 +5,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
-  mostRecentReadThreadSelector,
+  mostRecentlyReadThreadSelector,
   unreadCount,
 } from 'lib/selectors/thread-selectors';
 
@@ -19,7 +19,7 @@ function AppSwitcher(): React.Node {
   const activeChatThreadID = useSelector(
     state => state.navInfo.activeChatThreadID,
   );
-  const mostRecentReadThread = useSelector(mostRecentReadThreadSelector);
+  const mostRecentlyReadThread = useSelector(mostRecentlyReadThreadSelector);
   const activeThreadCurrentlyUnread = useSelector(
     state =>
       !activeChatThreadID ||
@@ -36,7 +36,7 @@ function AppSwitcher(): React.Node {
         payload: {
           tab: 'chat',
           activeChatThreadID: activeThreadCurrentlyUnread
-            ? mostRecentReadThread
+            ? mostRecentlyReadThread
             : activeChatThreadID,
         },
       });
@@ -44,7 +44,7 @@ function AppSwitcher(): React.Node {
     [
       dispatch,
       activeThreadCurrentlyUnread,
-      mostRecentReadThread,
+      mostRecentlyReadThread,
       activeChatThreadID,
     ],
   );

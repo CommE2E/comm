@@ -13,7 +13,7 @@ import { promisify } from 'util';
 
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
-import { mostRecentReadThread } from 'lib/selectors/thread-selectors';
+import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import { threadHasPermission } from 'lib/shared/thread-utils';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps';
@@ -202,7 +202,10 @@ async function websiteResponder(
     }
 
     if (!finalNavInfo.activeChatThreadID) {
-      const mostRecentThread = mostRecentReadThread(messageStore, threadInfos);
+      const mostRecentThread = mostRecentlyReadThread(
+        messageStore,
+        threadInfos,
+      );
       if (mostRecentThread) {
         finalNavInfo.activeChatThreadID = mostRecentThread;
       }
