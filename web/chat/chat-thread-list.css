@@ -6,7 +6,7 @@ div.thread {
   padding-bottom: 4px;
   padding-right: 10px;
 }
-div.threadListSideBar {
+div.threadListSidebar {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -15,7 +15,7 @@ div.threadListSideBar {
   padding-right: 10px;
   position: relative;
 }
-div.threadListSideBar > svg {
+div.threadListSidebar > svg {
   position: absolute;
   top: -13px;
   left: 30px;
@@ -25,7 +25,7 @@ div.thread:first-child {
 }
 div.activeThread,
 div.thread:hover,
-div.threadListSideBar:hover {
+div.threadListSidebar:hover {
   background: var(--selected-thread-bg);
 }
 div.title {
