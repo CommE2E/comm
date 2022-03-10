@@ -7,12 +7,7 @@ import { assetMetaData } from './asset-meta-data';
 import css from './hero-content.css';
 import SubscriptionForm from './subscription-form.react';
 
-type HeroContentProps = {
-  +onRequestAccess: (e: Event) => Promise<void>,
-};
-
-function HeroContent(props: HeroContentProps): React.Node {
-  const { onRequestAccess } = props;
+function HeroContent(): React.Node {
   const [hero] = assetMetaData;
 
   return (
@@ -34,9 +29,6 @@ function HeroContent(props: HeroContentProps): React.Node {
         <p className={css.sub_heading}>(think &quot;Web3 Discord&quot;)</p>
         <SubscriptionForm />
       </div>
-      <button className={css.request_access} onClick={onRequestAccess}>
-        Request Access
-      </button>
     </section>
   );
 }

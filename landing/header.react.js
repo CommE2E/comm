@@ -8,12 +8,7 @@ import { NavLink } from 'react-router-dom';
 
 import { isDev } from 'lib/utils/dev-utils.js';
 
-import Button from './button.react.js';
 import css from './header.css';
-
-type HeaderProps = {
-  +onRequestAccess: (e: Event) => Promise<void>,
-};
 
 const iconProps = {
   size: 'lg',
@@ -27,9 +22,7 @@ const navLinkProps = {
   },
 };
 
-function Header(props: HeaderProps): React.Node {
-  const { onRequestAccess } = props;
-
+function Header(): React.Node {
   let launchAppIcon;
   if (isDev) {
     launchAppIcon = (
@@ -50,9 +43,6 @@ function Header(props: HeaderProps): React.Node {
         <NavLink to="/keyservers" exact {...navLinkProps}>
           Keyserver
         </NavLink>
-      </div>
-      <div className={css.button_container}>
-        <Button onClick={onRequestAccess}>Request Access</Button>
       </div>
       <div className={css.social_icons_container}>
         {launchAppIcon}

@@ -27,12 +27,6 @@ function Landing(): React.Node {
   const onQR = useRouteMatch({ path: '/qr' });
   const onTeam = useRouteMatch({ path: '/team' });
 
-  const scrollToSubscriptionForm = React.useCallback(async (e: Event) => {
-    e.preventDefault();
-    window?.scrollTo(0, document.body?.scrollHeight);
-    document.getElementById('subscription-form')?.focus();
-  }, []);
-
   const activePage = React.useMemo(() => {
     if (onPrivacy) {
       return <Privacy />;
@@ -47,21 +41,13 @@ function Landing(): React.Node {
     } else if (isDev && onTeam) {
       return <Team />;
     } else {
-      return <AppLanding onRequestAccess={scrollToSubscriptionForm} />;
+      return <AppLanding />;
     }
-  }, [
-    onKeyservers,
-    onPrivacy,
-    onSupport,
-    onTerms,
-    onTeam,
-    onQR,
-    scrollToSubscriptionForm,
-  ]);
+  }, [onKeyservers, onPrivacy, onSupport, onTerms, onTeam, onQR]);
 
   let header;
   if (!onQR) {
-    header = <Header onRequestAccess={scrollToSubscriptionForm} />;
+    header = <Header />;
   }
 
   let footer;
