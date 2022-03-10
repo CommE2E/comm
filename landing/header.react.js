@@ -22,7 +22,6 @@ const navLinkProps = {
   className: css.tab,
   activeStyle: {
     color: 'white',
-    fontWeight: '500',
   },
 };
 

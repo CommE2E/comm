@@ -24,10 +24,14 @@ nav.wrapper {
 
 .tab {
   font-size: 24px;
-  font-weight: 400;
-  color: var(--unselected);
+  font-weight: 500;
+  color: #808080;
   font-family: 'IBM Plex Sans', sans-serif;
-  transition: 300ms;
+  transition: 150ms;
+  transition-property: color;
+}
+.tab:hover {
+  color: #ffffff;
 }
 
 .page_nav {
