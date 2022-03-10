@@ -43,7 +43,24 @@ export type Icon =
   | 'send'
   | 'calendar'
   | 'message-circle-lines'
-  | 'image';
+  | 'image'
+  | 'upload'
+  | 'user-circle'
+  | 'arrow-left-small'
+  | 'cross-circle'
+  | 'document-clean'
+  | 'globe'
+  | 'link'
+  | 'lock-on'
+  | 'mail'
+  | 'message-circle'
+  | 'smart-phone'
+  | 'user-plus'
+  | 'warning-circle'
+  | 'dino-avatar'
+  | 'laptop'
+  | 'list-filled'
+  | 'reply-chat-bubble';
 
 type SWMansionIconProps = {
   +icon: Icon,
