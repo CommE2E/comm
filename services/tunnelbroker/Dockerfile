@@ -3,7 +3,6 @@ FROM commapp/services-base:1.1
 ARG MAKE_JOBS=4
 ENV MAKEFLAGS="-j${MAKE_JOBS}"
 
-RUN mkdir /transferred/scripts
 WORKDIR /transferred/scripts
 
 # Install SDKs

@@ -2,10 +2,6 @@ FROM ubuntu:20.04
 
 ENV SHELL=/bin/bash
 
-WORKDIR /
-
-COPY contents /transferred
-
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	cmake \
 	git \
@@ -14,15 +10,23 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	libtool \
 	pkg-config \
 	libboost-all-dev \
-	libfmt-dev \ 
+	libfmt-dev \
 	libgtest-dev \
   libcurl4-openssl-dev \
   libssl-dev \
   zlib1g-dev \
   && rm -rf /var/lib/apt/lists/*
 
-RUN /transferred/install_grpc.sh
-RUN /transferred/install_aws_sdk.sh
-RUN /transferred/install_folly.sh
+RUN mkdir -p /transferred/scripts
+WORKDIR /transferred/scripts
+
+COPY contents/install_grpc.sh .
+RUN ./install_grpc.sh
+
+COPY contents/install_aws_sdk.sh .
+RUN ./install_aws_sdk.sh
+
+COPY contents/install_folly.sh .
+RUN ./install_folly.sh
 
 CMD /bin/bash
