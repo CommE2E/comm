@@ -13,11 +13,11 @@ ln -s /usr/lib/glog
 ln -s /usr/lib/double-conversion
 popd # lib
 
-rm -rf _generated
-mkdir _generated
-
 rm -rf cmake/build
 mkdir -p cmake/build
 
-./generate.sh
-./build.sh
+echo "building the server (MAKEFLAGS=$MAKEFLAGS)..."
+pushd cmake/build
+cmake ../..
+make
+popd # cmake/build

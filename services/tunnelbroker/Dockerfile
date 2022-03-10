@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
 	zlib1g-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
+ARG MAKE_JOBS=4
+ENV MAKEFLAGS="-j${MAKE_JOBS}"
+
 RUN mkdir /transferred/scripts
 WORKDIR /transferred/scripts
 

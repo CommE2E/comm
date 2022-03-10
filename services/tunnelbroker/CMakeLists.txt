@@ -16,6 +16,7 @@ find_package(Protobuf CONFIG REQUIRED)
 message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
 set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+set(_REFLECTION gRPC::grpc++_reflection)
 set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
 
 # gRPC building parameters
@@ -59,8 +60,31 @@ find_package(OpenSSL REQUIRED)
 
 add_subdirectory(./lib/glog)
 
+# Generated sources
+get_filename_component(proto "protos/tunnelbroker.proto" ABSOLUTE)
+get_filename_component(proto_path "${proto}" PATH)
+
+set(GENERATED_BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}/gen")
+set(GENERATED_CODE_DIR "${GENERATED_BASE_DIR}/_generated")
+file(MAKE_DIRECTORY ${GENERATED_CODE_DIR})
+
+set(proto_srcs "${GENERATED_CODE_DIR}/tunnelbroker.pb.cc")
+set(proto_hdrs "${GENERATED_CODE_DIR}/tunnelbroker.pb.h")
+set(grpc_srcs "${GENERATED_CODE_DIR}/tunnelbroker.grpc.pb.cc")
+set(grpc_hdrs "${GENERATED_CODE_DIR}/tunnelbroker.grpc.pb.h")
+add_custom_command(
+  OUTPUT "${proto_srcs}" "${proto_hdrs}" "${grpc_srcs}" "${grpc_hdrs}"
+  COMMAND ${_PROTOBUF_PROTOC}
+  ARGS --grpc_out "${GENERATED_CODE_DIR}"
+  --cpp_out "${GENERATED_CODE_DIR}"
+  -I "${proto_path}"
+  --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
+  "${proto}"
+  DEPENDS "${proto}"
+)
+
 file(GLOB SOURCE_CODE "./src/*.cpp" "./src/**/*.cpp")
-file(GLOB GENERATED_CODE "./_generated/*.cc")
+set(GENERATED_CODE ${proto_srcs} ${proto_hdrs} ${grpc_srcs} ${grpc_hdrs})
 file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 
 add_definitions(
@@ -78,7 +102,7 @@ include_directories(
   ./src/Service
   ./src/Tools
   ./src/Amqp
-  ./_generated
+  ${GENERATED_BASE_DIR}
   ./lib/folly
   ./lib/double-conversion
   ${Boost_INCLUDE_DIR}
@@ -89,7 +113,7 @@ include_directories(
 
 set(
   SOURCE_CODE
-  
+
   # folly
   ./lib/folly/folly/detail/Futex.cpp
   ./lib/folly/folly/synchronization/ParkingLot.cpp
@@ -138,7 +162,7 @@ set(
 
   ${_GRPC_GRPCPP}
   ${_PROTOBUF_LIBPROTOBUF}
-  gRPC::grpc++_reflection
+  ${_REFLECTION}
   ${AWSSDK_LINK_LIBRARIES}
   ${AMQPCPP_LIBRARIES}
   ${CRYPTOPP_LIBRARIES}
@@ -184,7 +208,7 @@ if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
   )
   target_link_libraries(
     runTests
-  
+
     ${LIBS}
     gtest
     gtest_main
