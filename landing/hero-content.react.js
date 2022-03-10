@@ -5,6 +5,7 @@ import TextLoop from 'react-text-loop';
 
 import { assetMetaData } from './asset-meta-data';
 import css from './hero-content.css';
+import SubscriptionForm from './subscription-form.react';
 
 type HeroContentProps = {
   +onRequestAccess: (e: Event) => Promise<void>,
@@ -31,6 +32,7 @@ function HeroContent(props: HeroContentProps): React.Node {
           </TextLoop>
         </h1>
         <p className={css.sub_heading}>(think &quot;Web3 Discord&quot;)</p>
+        <SubscriptionForm />
       </div>
       <button className={css.request_access} onClick={onRequestAccess}>
         Request Access

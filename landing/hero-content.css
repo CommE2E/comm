@@ -13,6 +13,7 @@
 }
 
 .sub_heading {
+  color: var(--sub-heading-color);
   --smallest-font-size: 16px;
   --largest-font-size: 50px;
   --font-scale: calc(0.75rem + 1.25vw);
@@ -22,6 +23,16 @@
     var(--font-scale),
     var(--largest-font-size)
   );
+  margin-bottom: 60px;
+}
+
+form {
+  width: 92%;
+}
+@media (max-width: 1099px) {
+  form {
+    width: 100%;
+  }
 }
 
 .cycling_content,
@@ -34,10 +45,6 @@
 
 .cycling_content {
   background: var(--sub-heading-color);
-}
-
-.sub_heading {
-  color: var(--sub-heading-color);
 }
 
 .contentWrapper {
