@@ -17,6 +17,15 @@ import iconSet from './icons/selection.json';
 
 */
 
+/*
+To see all of the icons the application uses and what their names are:
+
+- Go to: https://icomoon.io/app/#/select
+- Click the import project button, then upload the AppIcons.json file then click load.
+- All of the icons in the selected icons section are used in the app.
+- To see the icon image mapped to the name go to https://icomoon.io/app/#/select/image after going through the steps above.
+*/
+
 export type Icon =
   | 'arrow-right-small'
   | 'bell'
