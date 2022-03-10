@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 	uuid-dev \
 	zlib1g-dev \
 	&& rm -rf /var/lib/apt/lists/*
-	
+
 RUN cd /
 RUN /transferred/install_aws_sdk.sh
 
