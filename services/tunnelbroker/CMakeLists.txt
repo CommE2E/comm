@@ -10,6 +10,8 @@ endif(COMMAND cmake_policy)
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(PkgConfig REQUIRED)
+
 # FIND LIBS
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
@@ -37,19 +39,13 @@ set(_GRPC_GRPCPP gRPC::grpc++)
 set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
 
 # Find AMQP-CPP installation
-set(AMQPCPP_ROOT "/usr/lib/AMQP-CPP")
-set(AMQPCPP_INCLUDE_DIR ${AMQPCPP_ROOT}/include)
-set(AMQPCPP_LIBRARIES ${AMQPCPP_ROOT}/build/bin/libamqpcpp.so)
+find_package(amqpcpp CONFIG REQUIRED)
 
 # Find Cryptopp installation
-set(CRYPTOPP_ROOT "/usr/lib/cryptopp/build")
-set(CRYPTOPP_INCLUDE_DIR ${CRYPTOPP_ROOT}/include)
-set(CRYPTOPP_LIBRARIES ${CRYPTOPP_ROOT}/lib/libcryptopp.a)
+pkg_check_modules(CRYPTOPP REQUIRED libcryptopp=8.6)
 
 # Find Libuv installation
-set(LIBUV_ROOT "/usr/lib/libuv")
-set(LIBUV_INCLUDE_DIR ${LIBUV_ROOT}/include)
-set(LIBUV_LIBRARIES ${LIBUV_ROOT}/build/libuv.so)
+pkg_check_modules(LIBUV REQUIRED libuv=1.43.0)
 
 set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
 set(WITH_GFLAGS OFF CACHE BOOL "Turn off gflags" FORCE)
@@ -106,9 +102,8 @@ include_directories(
   ./lib/folly
   ./lib/double-conversion
   ${Boost_INCLUDE_DIR}
-  ${AMQPCPP_INCLUDE_DIR}
-  ${CRYPTOPP_INCLUDE_DIR}
-  ${LIBUV_INCLUDE_DIR}
+  ${CRYPTOPP_INCLUDE_DIRS}
+  ${LIBUV_INCLUDE_DIRS}
 )
 
 set(
@@ -164,10 +159,10 @@ set(
   ${_PROTOBUF_LIBPROTOBUF}
   ${_REFLECTION}
   ${AWSSDK_LINK_LIBRARIES}
-  ${AMQPCPP_LIBRARIES}
   ${CRYPTOPP_LIBRARIES}
   ${LIBUV_LIBRARIES}
   ${Boost_LIBRARIES}
+  amqpcpp
   OpenSSL::SSL
   glog::glog
 )

@@ -14,7 +14,8 @@ pushd cryptopp
 mkdir build
 CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11"
 make
-make install PREFIX=/usr/lib/cryptopp/build
+make libcryptopp.pc
+make install
 
 popd # cryptopp
 popd # /usr/lib
