@@ -310,13 +310,20 @@ async function fetchMessageInfos(
   }
 
   for (const [threadID, messageCount] of threadToMessageCount) {
+    // If we matched the exact amount we limited to, we're probably truncating
+    // our result set. By setting TRUNCATED here, we tell the client that the
+    // result set might not be continguous with what's already in their
+    // MessageStore. More details about TRUNCATED can be found in
+    // lib/types/message-types.js
     if (messageCount >= numberPerThread) {
-      // If we matched the exact amount we limited to, we're probably truncating
-      // our result set. By setting TRUNCATED here, we tell the client that the
-      // result set might not be continguous with what's already in their
-      // MessageStore. Note that we may unset TRUNCATED below. More details
-      // about TRUNCATED can be found in lib/types/message-types.js
-      truncationStatuses[threadID] = messageTruncationStatus.TRUNCATED;
+      // We won't set TRUNCATED if a cursor was specified for a given thread,
+      // since then the result is guaranteed to be contiguous with what the
+      // client has
+      if (criteria.threadCursors && criteria.threadCursors[threadID]) {
+        truncationStatuses[threadID] = messageTruncationStatus.UNCHANGED;
+      } else {
+        truncationStatuses[threadID] = messageTruncationStatus.TRUNCATED;
+      }
       continue;
     }
     const hasTimeFilter = messageSelectionCriteriaHasTimeFilterForThread(
@@ -341,31 +348,24 @@ async function fetchMessageInfos(
 
   for (const threadID in criteria.threadCursors) {
     const truncationStatus = truncationStatuses[threadID];
-    if (truncationStatus === null || truncationStatus === undefined) {
-      const hasTimeFilter = messageSelectionCriteriaHasTimeFilterForThread(
-        viewer,
-        criteria,
-        threadID,
-      );
-      if (!hasTimeFilter) {
-        // If there is no time filter for a given thread, and zero messages were
-        // returned, we can conclude that this thread has zero messages. This is
-        // a case of database corruption that should not be possible, but likely
-        // we have some threads like this on prod (either due to some transient
-        // issues or due to old buggy code)
-        truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
-      } else {
-        // If this thread was explicitly queried for, and we got no results, but
-        // we can't conclude that it's EXHAUSTIVE, then we'll set to UNCHANGED.
-        truncationStatuses[threadID] = messageTruncationStatus.UNCHANGED;
-      }
-    } else if (
-      truncationStatus === messageTruncationStatus.TRUNCATED &&
-      criteria.threadCursors[threadID]
-    ) {
-      // If a cursor was specified for a given thread, then the result is
-      // guaranteed to be contiguous with what the client has, and as such the
-      // result should never be TRUNCATED
+    if (truncationStatus !== null && truncationStatus !== undefined) {
+      continue;
+    }
+    const hasTimeFilter = messageSelectionCriteriaHasTimeFilterForThread(
+      viewer,
+      criteria,
+      threadID,
+    );
+    if (!hasTimeFilter) {
+      // If there is no time filter for a given thread, and zero messages were
+      // returned, we can conclude that this thread has zero messages. This is
+      // a case of database corruption that should not be possible, but likely
+      // we have some threads like this on prod (either due to some transient
+      // issues or due to old buggy code)
+      truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
+    } else {
+      // If this thread was explicitly queried for, and we got no results, but
+      // we can't conclude that it's EXHAUSTIVE, then we'll set to UNCHANGED.
       truncationStatuses[threadID] = messageTruncationStatus.UNCHANGED;
     }
   }
