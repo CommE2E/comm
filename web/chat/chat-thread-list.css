@@ -191,8 +191,6 @@ div.sidebar:hover .menu {
 }
 .menuContentVisible {
   display: block;
-  background-color: #eeeeee;
-  color: black;
 }
 
 button.menuContent {
