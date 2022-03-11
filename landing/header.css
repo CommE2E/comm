@@ -44,12 +44,46 @@ nav.wrapper {
 .social_icons_container {
   grid-area: sIcons;
   display: flex;
-  justify-content: flex-end;
+  justify-self: flex-end;
+  align-items: center;
 }
 
-.social_icon {
-  font-size: 20px;
-  margin-left: 20px;
+div.twitter_icon,
+div.github_icon,
+div.webapp_icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  margin-inline: 4px;
+  border-radius: 50px;
+  width: 44px;
+  height: 44px;
+  transition: 300ms;
+}
+
+div.twitter_icon svg,
+div.github_icon svg,
+div.webapp_icon svg {
+  transition: 300ms;
+}
+
+div.github_icon:hover svg {
+  color: #151013;
+  transition: 300ms;
+}
+div.github_icon:hover {
+  background-color: #ffffff;
+  transition: 300ms;
+}
+
+div.webapp_icon:hover {
+  background-color: var(--btn-bg);
+  transition: 300ms;
+}
+div.twitter_icon:hover {
+  background-color: #1d9bf0;
+  transition: 300ms;
 }
 
 @media screen and (max-width: 1099px) {
