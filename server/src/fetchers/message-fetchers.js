@@ -310,13 +310,26 @@ async function fetchMessageInfos(
   }
 
   for (const [threadID, messageCount] of threadToMessageCount) {
-    // If there are fewer messages returned than the max for a given thread,
-    // then our result set includes all messages in the query range for that
-    // thread
-    truncationStatuses[threadID] =
-      messageCount < numberPerThread
-        ? messageTruncationStatus.EXHAUSTIVE
-        : messageTruncationStatus.TRUNCATED;
+    if (messageCount >= numberPerThread) {
+      // If we matched the exact amount we limited to, we're probably truncating
+      // our result set. By setting TRUNCATED here, we tell the client that the
+      // result set might not be continguous with what's already in their
+      // MessageStore. Note that we may unset TRUNCATED below. More details
+      // about TRUNCATED can be found in lib/types/message-types.js
+      truncationStatuses[threadID] = messageTruncationStatus.TRUNCATED;
+      continue;
+    }
+    const hasTimeFilter = messageSelectionCriteriaHasTimeFilterForThread(
+      viewer,
+      criteria,
+      threadID,
+    );
+    if (!hasTimeFilter) {
+      // If there is no time filter for a given thread, and there are fewer
+      // messages returned than the max we queried for a given thread, we can
+      // conclude that our result set includes all messages for that thread
+      truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
+    }
   }
 
   for (const rawMessageInfo of rawMessageInfos) {
@@ -329,10 +342,23 @@ async function fetchMessageInfos(
   for (const threadID in criteria.threadCursors) {
     const truncationStatus = truncationStatuses[threadID];
     if (truncationStatus === null || truncationStatus === undefined) {
-      // If nothing was returned for a thread that was explicitly queried for,
-      // then our result set includes all messages in the query range for that
-      // thread
-      truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
+      const hasTimeFilter = messageSelectionCriteriaHasTimeFilterForThread(
+        viewer,
+        criteria,
+        threadID,
+      );
+      if (!hasTimeFilter) {
+        // If there is no time filter for a given thread, and zero messages were
+        // returned, we can conclude that this thread has zero messages. This is
+        // a case of database corruption that should not be possible, but likely
+        // we have some threads like this on prod (either due to some transient
+        // issues or due to old buggy code)
+        truncationStatuses[threadID] = messageTruncationStatus.EXHAUSTIVE;
+      } else {
+        // If this thread was explicitly queried for, and we got no results, but
+        // we can't conclude that it's EXHAUSTIVE, then we'll set to UNCHANGED.
+        truncationStatuses[threadID] = messageTruncationStatus.UNCHANGED;
+      }
     } else if (truncationStatus === messageTruncationStatus.TRUNCATED) {
       // If a cursor was specified for a given thread, then the result is
       // guaranteed to be contiguous with what the client has, and as such the
@@ -352,6 +378,45 @@ async function fetchMessageInfos(
   };
 }
 
+// This function is set up to track the behavior of
+// messageSelectionCriteriaToSQLClause, and any changes there must be kept in
+// sync here.
+function messageSelectionCriteriaHasTimeFilterForThread(
+  viewer: Viewer,
+  criteria: MessageSelectionCriteria,
+  threadID: string,
+) {
+  // If newerThan is set, then a global time filter is applied, no matter what
+  if (criteria.newerThan) {
+    return true;
+  }
+
+  // If newerThan isn't set, and threadID is present in threadCursors, then
+  // there definitely is no time filter for this thread, since:
+  // (1) There is no global time filter because newerThan isn't set and
+  //     threadCursors is
+  // (2) The threadCursors clause will not be time-filtered, even if
+  //     joinedThreads is (and those clauses are OR'd)
+  if (criteria.threadCursors && threadID in criteria.threadCursors) {
+    return false;
+  }
+
+  // If the above two conditions don't match, then we have to ask if there is a
+  // default global time filter applied. If we're not applying a default global
+  // time filter, then there's no time filter here
+  const shouldApplyTimeFilter = hasMinCodeVersion(viewer.platformDetails, 130);
+  if (!shouldApplyTimeFilter) {
+    return false;
+  }
+
+  // If threadCursors is set, we never apply a global time filter
+  return !criteria.threadCursors;
+}
+
+// The function defined above (messageSelectionCriteriaHasTimeFilterForThread)
+// is set up to track the behavior of this function
+// (messageSelectionCriteriaToSQLClause), and any changes here must be kept in
+// sync there.
 function messageSelectionCriteriaToSQLClause(
   viewer: Viewer,
   criteria: MessageSelectionCriteria,
