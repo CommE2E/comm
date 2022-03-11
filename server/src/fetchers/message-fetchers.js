@@ -359,7 +359,10 @@ async function fetchMessageInfos(
         // we can't conclude that it's EXHAUSTIVE, then we'll set to UNCHANGED.
         truncationStatuses[threadID] = messageTruncationStatus.UNCHANGED;
       }
-    } else if (truncationStatus === messageTruncationStatus.TRUNCATED) {
+    } else if (
+      truncationStatus === messageTruncationStatus.TRUNCATED &&
+      criteria.threadCursors[threadID]
+    ) {
       // If a cursor was specified for a given thread, then the result is
       // guaranteed to be contiguous with what the client has, and as such the
       // result should never be TRUNCATED
