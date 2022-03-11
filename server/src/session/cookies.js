@@ -32,11 +32,9 @@ import { handleAsyncPromise } from '../responders/handlers';
 import { clearDeviceToken } from '../updaters/device-token-updaters';
 import { updateThreadMembers } from '../updaters/thread-updaters';
 import { assertSecureRequest } from '../utils/security-utils';
-import { getSquadCalURLFacts } from '../utils/urls';
+import { type AppURLFacts } from '../utils/urls';
 import { Viewer } from './viewer';
 import type { AnonymousViewerData, UserViewerData } from './viewer';
-
-const { baseDomain, basePath, https } = getSquadCalURLFacts();
 
 function cookieIsExpired(lastUsed: number) {
   return lastUsed + cookieLifetime <= Date.now();
@@ -534,11 +532,11 @@ function createViewerForInvalidFetchViewerResult(
   return viewer;
 }
 
-const domainAsURL = new url.URL(baseDomain);
 function addSessionChangeInfoToResult(
   viewer: Viewer,
   res: $Response,
   result: Object,
+  appURLFacts: AppURLFacts,
 ) {
   let threadInfos = {},
     userInfos = {};
@@ -566,7 +564,7 @@ function addSessionChangeInfoToResult(
   if (viewer.cookieSource === cookieSources.BODY) {
     sessionChange.cookie = viewer.cookiePairString;
   } else {
-    addActualHTTPCookie(viewer, res);
+    addActualHTTPCookie(viewer, res, appURLFacts);
   }
   if (viewer.sessionIdentifierType === sessionIdentifierTypes.BODY_SESSION_ID) {
     sessionChange.sessionID = viewer.sessionID ? viewer.sessionID : null;
@@ -721,6 +719,7 @@ function addCookieToJSONResponse(
   res: $Response,
   result: Object,
   expectCookieInvalidation: boolean,
+  appURLFacts: AppURLFacts,
 ) {
   if (expectCookieInvalidation) {
     viewer.cookieInvalidated = false;
@@ -729,31 +728,48 @@ function addCookieToJSONResponse(
     handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
   }
   if (viewer.sessionChanged) {
-    addSessionChangeInfoToResult(viewer, res, result);
+    addSessionChangeInfoToResult(viewer, res, result, appURLFacts);
   } else if (viewer.cookieSource !== cookieSources.BODY) {
-    addActualHTTPCookie(viewer, res);
+    addActualHTTPCookie(viewer, res, appURLFacts);
   }
 }
 
-function addCookieToHomeResponse(viewer: Viewer, res: $Response) {
+function addCookieToHomeResponse(
+  viewer: Viewer,
+  res: $Response,
+  appURLFacts: AppURLFacts,
+) {
   if (!viewer.getData().cookieInsertedThisRequest) {
     handleAsyncPromise(extendCookieLifespan(viewer.cookieID));
   }
-  addActualHTTPCookie(viewer, res);
+  addActualHTTPCookie(viewer, res, appURLFacts);
 }
 
-const cookieOptions = {
-  domain: domainAsURL.hostname,
-  path: basePath,
-  httpOnly: true,
-  secure: https,
-  maxAge: cookieLifetime,
-  sameSite: 'Strict',
-};
-function addActualHTTPCookie(viewer: Viewer, res: $Response) {
-  res.cookie(viewer.cookieName, viewer.cookieString, cookieOptions);
+function getCookieOptions(appURLFacts: AppURLFacts) {
+  const { baseDomain, basePath, https } = appURLFacts;
+  const domainAsURL = new url.URL(baseDomain);
+  return {
+    domain: domainAsURL.hostname,
+    path: basePath,
+    httpOnly: true,
+    secure: https,
+    maxAge: cookieLifetime,
+    sameSite: 'Strict',
+  };
+}
+
+function addActualHTTPCookie(
+  viewer: Viewer,
+  res: $Response,
+  appURLFacts: AppURLFacts,
+) {
+  res.cookie(
+    viewer.cookieName,
+    viewer.cookieString,
+    getCookieOptions(appURLFacts),
+  );
   if (viewer.cookieName !== viewer.initialCookieName) {
-    res.clearCookie(viewer.initialCookieName, cookieOptions);
+    res.clearCookie(viewer.initialCookieName, getCookieOptions(appURLFacts));
   }
 }
 
