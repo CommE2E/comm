@@ -82,11 +82,9 @@ function ChatThreadListItemMenu(props: Props): React.Node {
       <button onClick={toggleMenu}>
         <SWMansionIcon icon="menu-vertical" size={menuIconSize} />
       </button>
-      <div>
-        <button className={btnCls} onClick={toggleUnreadStatus}>
-          {toggleUnreadStatusButtonText}
-        </button>
-      </div>
+      <button className={btnCls} onClick={toggleUnreadStatus}>
+        {toggleUnreadStatusButtonText}
+      </button>
     </div>
   );
 }
