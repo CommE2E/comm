@@ -32,11 +32,11 @@ import { handleAsyncPromise } from '../responders/handlers';
 import { clearDeviceToken } from '../updaters/device-token-updaters';
 import { updateThreadMembers } from '../updaters/thread-updaters';
 import { assertSecureRequest } from '../utils/security-utils';
-import { getAppURLFacts } from '../utils/urls';
+import { getSquadCalURLFacts } from '../utils/urls';
 import { Viewer } from './viewer';
 import type { AnonymousViewerData, UserViewerData } from './viewer';
 
-const { baseDomain, basePath, https } = getAppURLFacts();
+const { baseDomain, basePath, https } = getSquadCalURLFacts();
 
 function cookieIsExpired(lastUsed: number) {
   return lastUsed + cookieLifetime <= Date.now();

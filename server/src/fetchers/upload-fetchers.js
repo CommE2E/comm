@@ -5,9 +5,9 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
-import { getAppURLFacts } from '../utils/urls';
+import { getSquadCalURLFacts } from '../utils/urls';
 
-const { baseDomain, basePath } = getAppURLFacts();
+const { baseDomain, basePath } = getSquadCalURLFacts();
 
 type UploadInfo = {
   content: Buffer,

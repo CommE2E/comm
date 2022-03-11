@@ -27,11 +27,11 @@ import { fetchUsername } from '../fetchers/user-fetchers';
 import { handleAsyncPromise } from '../responders/handlers';
 import { createBotViewer } from '../session/bots';
 import type { Viewer } from '../session/viewer';
-import { getAppURLFacts } from '../utils/urls';
+import { getSquadCalURLFacts } from '../utils/urls';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
 
-const { baseDomain, basePath } = getAppURLFacts();
+const { baseDomain, basePath } = getSquadCalURLFacts();
 const { commbot } = bots;
 
 async function createReport(

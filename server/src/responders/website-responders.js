@@ -41,9 +41,9 @@ import {
 import { setNewSession } from '../session/cookies';
 import { Viewer } from '../session/viewer';
 import { streamJSON, waitForStream } from '../utils/json-stream';
-import { getAppURLFacts } from '../utils/urls';
+import { getSquadCalURLFacts } from '../utils/urls';
 
-const { basePath, baseDomain } = getAppURLFacts();
+const { basePath, baseDomain } = getSquadCalURLFacts();
 const { renderToNodeStream } = ReactDOMServer;
 
 const baseURL = basePath.replace(/\/$/, '');

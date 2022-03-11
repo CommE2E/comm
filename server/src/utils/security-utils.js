@@ -2,9 +2,9 @@
 
 import type { $Request } from 'express';
 
-import { getAppURLFacts } from './urls';
+import { getSquadCalURLFacts } from './urls';
 
-const { https } = getAppURLFacts();
+const { https } = getSquadCalURLFacts();
 
 function assertSecureRequest(req: $Request) {
   if (https && req.get('X-Forwarded-SSL') !== 'on') {
