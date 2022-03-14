@@ -51,6 +51,7 @@ endforeach()
 include_directories(
   ./src
   ./src/DatabaseEntities
+  ./src/Authentication
   ./_generated
   ${FOLLY_INCLUDES}
   ./lib/double-conversion
