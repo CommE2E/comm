@@ -221,7 +221,40 @@ grpc::ServerUnaryReactor *BlobServiceImpl::Remove(
     grpc::CallbackServerContext *context,
     const blob::RemoveRequest *request,
     google::protobuf::Empty *response) {
-  return nullptr;
+  grpc::Status status = grpc::Status::OK;
+  const std::string holder = request->holder();
+  try {
+    std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
+        database::DatabaseManager::getInstance().findReverseIndexItemByHolder(
+            holder);
+    if (reverseIndexItem == nullptr) {
+      throw std::runtime_error("no item found for holder: " + holder);
+    }
+    // TODO handle cleanup here properly
+    // for now the object's being removed right away
+    const std::string blobHash = reverseIndexItem->getBlobHash();
+    if (!database::DatabaseManager::getInstance().removeReverseIndexItem(
+            holder)) {
+      throw std::runtime_error(
+          "could not remove an item for holder " + holder +
+          "(probably does not exist)");
+    }
+    if (database::DatabaseManager::getInstance()
+            .findReverseIndexItemsByHash(reverseIndexItem->getBlobHash())
+            .size() == 0) {
+      database::S3Path s3Path = findS3Path(*reverseIndexItem);
+      AwsS3Bucket bucket = getBucket(s3Path.getBucketName());
+      bucket.removeObject(s3Path.getObjectName());
+
+      database::DatabaseManager::getInstance().removeBlobItem(blobHash);
+    }
+  } catch (std::runtime_error &e) {
+    std::cout << "error: " << e.what() << std::endl;
+    status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
+  auto *reactor = context->DefaultReactor();
+  reactor->Finish(status);
+  return reactor;
 }
 
 } // namespace network
