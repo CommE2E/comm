@@ -34,7 +34,10 @@ function ImagePasteModal(props: Props): React.Node {
     },
   } = props;
 
+  const [sendButtonDisabled, setSendButtonDisabled] = React.useState(false);
+
   const sendImage = React.useCallback(async () => {
+    setSendButtonDisabled(true);
     navigation.goBackOnce();
     const selection: $ReadOnlyArray<PhotoPaste> = [imagePasteStagingInfo];
     invariant(inputState, 'inputState should be set in ImagePasteModal');
@@ -52,7 +55,7 @@ function ImagePasteModal(props: Props): React.Node {
       <Image style={styles.image} source={{ uri: imagePasteStagingInfo.uri }} />
       <View style={styles.linebreak} />
       <View style={styles.spacer} />
-      <Button title="Send" onPress={sendImage} />
+      <Button disabled={sendButtonDisabled} title="Send" onPress={sendImage} />
       <View style={styles.linebreak} />
       <View style={styles.spacer} />
       <Button title="Cancel" onPress={cancel} />
