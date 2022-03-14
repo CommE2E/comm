@@ -39,10 +39,6 @@ function ImagePasteModal(props: Props): React.Node {
     const selection: $ReadOnlyArray<PhotoPaste> = [imagePasteStagingInfo];
     invariant(inputState, 'inputState should be set in ImagePasteModal');
     await inputState.sendMultimediaMessage(selection, threadInfo);
-    invariant(
-      imagePasteStagingInfo,
-      'imagePasteStagingInfo should be set in ImagePasteModal',
-    );
   }, [imagePasteStagingInfo, inputState, navigation, threadInfo]);
 
   const cancel = React.useCallback(async () => {
