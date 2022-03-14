@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import Button from '../components/button.react';
 import css from '../style.css';
 import { useModalContext } from './modal-provider.react';
 import Modal from './modal.react';
@@ -21,11 +22,9 @@ export default function ConcurrentModificationModal(props: Props): React.Node {
           time as you! Please refresh the entry and try again.
         </p>
         <div className={css['form-footer']}>
-          <input
-            type="submit"
-            value="Refresh entry"
-            onClick={props.onRefresh}
-          />
+          <Button onClick={props.onRefresh} type="submit">
+            Refresh entry
+          </Button>
         </div>
       </div>
     </Modal>

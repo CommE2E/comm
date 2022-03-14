@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { type ThreadInfo } from 'lib/types/thread-types';
 
+import Button from '../../components/button.react';
 import css from '../../style.css';
 import Modal from '../modal.react';
 
@@ -22,7 +23,9 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
           {'"?'}
         </p>
         <div className={css['form-footer']}>
-          <input type="submit" value="Leave thread" onClick={props.onConfirm} />
+          <Button onClick={props.onConfirm} type="submit">
+            Leave Thread
+          </Button>
         </div>
       </div>
     </Modal>

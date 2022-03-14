@@ -26,6 +26,7 @@ import {
 } from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
+import Button from '../../components/button.react';
 import { useSelector } from '../../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../../selectors/nav-selectors';
 import css from '../../style.css';
@@ -172,12 +173,13 @@ class NewThreadModal extends React.PureComponent<Props, State> {
               </div>
             </div>
             <div className={css['form-footer']}>
-              <input
-                type="submit"
-                value="Save"
+              <Button
                 onClick={this.onSubmit}
                 disabled={this.props.inputDisabled}
-              />
+                type="submit"
+              >
+                Save
+              </Button>
               <div className={css['modal-form-error']}>
                 {this.state.errorMessage}
               </div>
@@ -220,7 +222,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     });
   };
 
-  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
+  onSubmit = (event: SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
 
     const threadType = this.state.threadType;

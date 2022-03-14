@@ -36,6 +36,7 @@ import {
 } from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
+import Button from '../../components/button.react';
 import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
 import css from '../../style.css';
@@ -315,21 +316,23 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     let buttons = null;
     if (this.state.currentTabType === 'delete') {
       buttons = (
-        <input
-          type="submit"
-          value="Delete"
+        <Button
           onClick={this.onDelete}
+          variant="danger"
           disabled={inputDisabled}
-        />
+        >
+          Delete
+        </Button>
       );
     } else {
       buttons = (
-        <input
+        <Button
           type="submit"
-          value="Save"
           onClick={this.onSubmit}
           disabled={inputDisabled || !this.changeQueued()}
-        />
+        >
+          Save
+        </Button>
       );
     }
 
@@ -468,7 +471,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     this.setState({ accountPassword: target.value });
   };
 
-  onSubmit = (event: SyntheticEvent<HTMLInputElement>) => {
+  onSubmit = (event: SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
@@ -502,7 +505,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     }
   }
 
-  onDelete = (event: SyntheticEvent<HTMLInputElement>) => {
+  onDelete = (event: SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     this.props.dispatchActionPromise(
       deleteThreadActionTypes,

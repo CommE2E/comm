@@ -18,6 +18,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
+import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
 import LogInModal from '../modals/account/log-in-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
@@ -157,13 +158,13 @@ class Splash extends React.PureComponent<Props, State> {
                             <option value="android">Android</option>
                           </select>
                         </div>
-                        <button
+                        <Button
                           type="submit"
                           className={css.requestAccessSubmit}
                           onClick={this.onSubmitRequestAccess}
                         >
                           {submitButtonContent}
-                        </button>
+                        </Button>
                       </form>
                       {androidWarning}
                     </div>
@@ -220,7 +221,7 @@ class Splash extends React.PureComponent<Props, State> {
     }
   };
 
-  onSubmitRequestAccess = (event: SyntheticEvent<HTMLInputElement>) => {
+  onSubmitRequestAccess = (event: SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
 
     if (this.state.email.search(validEmailRegex) === -1) {
