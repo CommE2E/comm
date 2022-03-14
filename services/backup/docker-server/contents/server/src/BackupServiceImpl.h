@@ -8,31 +8,28 @@
 namespace comm {
 namespace network {
 
-class BackupServiceImpl final : public backup::BackupService::Service {
+class BackupServiceImpl final : public backup::BackupService::CallbackService {
 
 public:
   BackupServiceImpl();
   virtual ~BackupServiceImpl();
 
-  grpc::Status CreateNewBackup(
-      grpc::ServerContext *context,
-      grpc::ServerReaderWriter<
-          backup::CreateNewBackupResponse,
-          backup::CreateNewBackupRequest> *stream) override;
-  grpc::Status SendLog(
-      grpc::ServerContext *context,
-      grpc::ServerReader<backup::SendLogRequest> *reader,
+  grpc::ServerBidiReactor<
+      backup::CreateNewBackupRequest,
+      backup::CreateNewBackupResponse> *
+  CreateNewBackup(grpc::CallbackServerContext *context) override;
+
+  grpc::ServerReadReactor<backup::SendLogRequest> *SendLog(
+      grpc::CallbackServerContext *context,
       google::protobuf::Empty *response) override;
-  grpc::Status RecoverBackupKey(
-      grpc::ServerContext *context,
-      grpc::ServerReaderWriter<
-          backup::RecoverBackupKeyResponse,
-          backup::RecoverBackupKeyRequest> *stream) override;
-  grpc::Status PullBackup(
-      grpc::ServerContext *context,
-      grpc::ServerReaderWriter<
-          backup::PullBackupResponse,
-          backup::PullBackupRequest> *stream) override;
+
+  grpc::ServerBidiReactor<
+      backup::RecoverBackupKeyRequest,
+      backup::RecoverBackupKeyResponse> *
+  RecoverBackupKey(grpc::CallbackServerContext *context) override;
+
+  grpc::ServerBidiReactor<backup::PullBackupRequest, backup::PullBackupResponse>
+      *PullBackup(grpc::CallbackServerContext *context) override;
 };
 
 } // namespace network
