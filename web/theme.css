@@ -66,7 +66,8 @@
   --chat-confirmation-icon: var(--violet-dark-100);
   --keyserver-selection: var(--violet-dark-60);
   --thread-selection: var(--violet-light-80);
-  --selected-thread-bg: var(--shades-black-90);
+  --thread-hover-bg: var(--shades-black-90);
+  --thread-active-bg: var(--shades-black-80);
   --chat-timestamp-color: var(--shades-black-60);
   --tool-tip-bg: var(--shades-black-80);
   --tool-tip-color: var(--shades-white-60);
@@ -80,7 +81,7 @@
   --modal-bg: var(--shades-black-90);
   --join-bg: var(--shades-black-90);
   --help-color: var(--shades-black-60);
-  --breadcrumb-color: var(--shades-black-60);
+  --breadcrumb-color: var(--shades-white-60);
   --breadcrumb-color-unread: var(--shades-white-60);
   --btn-secondary-border: var(--shades-black-60);
   --thread-color-read: var(--shades-black-60);
