@@ -15,12 +15,6 @@ RUN mkdir /transferred/scripts
 WORKDIR /transferred/scripts
 
 # Install SDKs
-COPY services/tunnelbroker/docker/install_folly.sh .
-RUN ./install_folly.sh
-
-COPY services/tunnelbroker/docker/install_aws_sdk.sh .
-RUN ./install_aws_sdk.sh
-
 COPY services/tunnelbroker/docker/install_amqp_cpp.sh .
 RUN ./install_amqp_cpp.sh
 
