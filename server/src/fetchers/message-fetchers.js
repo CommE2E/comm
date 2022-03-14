@@ -31,6 +31,7 @@ import {
   mergeOrConditions,
   mergeAndConditions,
 } from '../database/database';
+import type { SQLStatementType } from '../database/types';
 import type { PushInfo } from '../push/send';
 import type { Viewer } from '../session/viewer';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
@@ -255,7 +256,10 @@ async function fetchMessageInfos(
   criteria: MessageSelectionCriteria,
   numberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
-  const selectionClause = messageSelectionCriteriaToSQLClause(viewer, criteria);
+  const {
+    sqlClause: selectionClause,
+    timeFilterData,
+  } = parseMessageSelectionCriteria(viewer, criteria);
   const truncationStatuses = {};
 
   const viewerID = viewer.id;
@@ -326,11 +330,7 @@ async function fetchMessageInfos(
       }
       continue;
     }
-    const hasTimeFilter = messageSelectionCriteriaHasTimeFilterForThread(
-      viewer,
-      criteria,
-      threadID,
-    );
+    const hasTimeFilter = hasTimeFilterForThread(timeFilterData, threadID);
     if (!hasTimeFilter) {
       // If there is no time filter for a given thread, and there are fewer
       // messages returned than the max we queried for a given thread, we can
@@ -351,11 +351,7 @@ async function fetchMessageInfos(
     if (truncationStatus !== null && truncationStatus !== undefined) {
       continue;
     }
-    const hasTimeFilter = messageSelectionCriteriaHasTimeFilterForThread(
-      viewer,
-      criteria,
-      threadID,
-    );
+    const hasTimeFilter = hasTimeFilterForThread(timeFilterData, threadID);
     if (!hasTimeFilter) {
       // If there is no time filter for a given thread, and zero messages were
       // returned, we can conclude that this thread has zero messages. This is
@@ -381,49 +377,38 @@ async function fetchMessageInfos(
   };
 }
 
-// This function is set up to track the behavior of
-// messageSelectionCriteriaToSQLClause, and any changes there must be kept in
-// sync here.
-function messageSelectionCriteriaHasTimeFilterForThread(
-  viewer: Viewer,
-  criteria: MessageSelectionCriteria,
+function hasTimeFilterForThread(
+  timeFilterData: TimeFilterData,
   threadID: string,
 ) {
-  // If newerThan is set, then a global time filter is applied, no matter what
-  if (criteria.newerThan) {
+  if (timeFilterData.timeFilter === 'ALL') {
     return true;
-  }
-
-  // If newerThan isn't set, and threadID is present in threadCursors, then
-  // there definitely is no time filter for this thread, since:
-  // (1) There is no global time filter because newerThan isn't set and
-  //     threadCursors is
-  // (2) The threadCursors clause will not be time-filtered, even if
-  //     joinedThreads is (and those clauses are OR'd)
-  if (criteria.threadCursors && threadID in criteria.threadCursors) {
+  } else if (timeFilterData.timeFilter === 'NONE') {
     return false;
+  } else if (timeFilterData.timeFilter === 'ALL_EXCEPT_EXCLUDED') {
+    return !timeFilterData.excludedFromTimeFilter.has(threadID);
+  } else {
+    invariant(
+      false,
+      `unrecognized timeFilter type ${timeFilterData.timeFilter}`,
+    );
   }
-
-  // If the above two conditions don't match, then we have to ask if there is a
-  // default global time filter applied. If we're not applying a default global
-  // time filter, then there's no time filter here
-  const shouldApplyTimeFilter = hasMinCodeVersion(viewer.platformDetails, 130);
-  if (!shouldApplyTimeFilter) {
-    return false;
-  }
-
-  // If threadCursors is set, we never apply a global time filter
-  return !criteria.threadCursors;
 }
 
-// The function defined above (messageSelectionCriteriaHasTimeFilterForThread)
-// is set up to track the behavior of this function
-// (messageSelectionCriteriaToSQLClause), and any changes here must be kept in
-// sync there.
-function messageSelectionCriteriaToSQLClause(
+type TimeFilterData =
+  | { +timeFilter: 'ALL' | 'NONE' }
+  | {
+      +timeFilter: 'ALL_EXCEPT_EXCLUDED',
+      +excludedFromTimeFilter: $ReadOnlySet<string>,
+    };
+type ParsedMessageSelectionCriteria = {
+  +sqlClause: SQLStatementType,
+  +timeFilterData: TimeFilterData,
+};
+function parseMessageSelectionCriteria(
   viewer: Viewer,
   criteria: MessageSelectionCriteria,
-) {
+): ParsedMessageSelectionCriteria {
   const minMessageTime = Date.now() - defaultMaxMessageAge;
   const shouldApplyTimeFilter = hasMinCodeVersion(viewer.platformDetails, 130);
 
@@ -461,8 +446,27 @@ function messageSelectionCriteriaToSQLClause(
   }
   const threadClause = mergeOrConditions(threadConditions);
 
+  let timeFilterData;
+  if (globalTimeFilter) {
+    timeFilterData = { timeFilter: 'ALL' };
+  } else if (!shouldApplyTimeFilter) {
+    timeFilterData = { timeFilter: 'NONE' };
+  } else {
+    invariant(
+      criteria.threadCursors,
+      'ALL_EXCEPT_EXCLUDED should correspond to threadCursors being set',
+    );
+    const excludedFromTimeFilter = new Set(Object.keys(criteria.threadCursors));
+    timeFilterData = {
+      timeFilter: 'ALL_EXCEPT_EXCLUDED',
+      excludedFromTimeFilter,
+    };
+  }
+
   const conditions = [globalTimeFilter, threadClause].filter(Boolean);
-  return mergeAndConditions(conditions);
+  const sqlClause = mergeAndConditions(conditions);
+
+  return { sqlClause, timeFilterData };
 }
 
 function messageSelectionCriteriaToInitialTruncationStatuses(
@@ -483,7 +487,10 @@ async function fetchMessageInfosSince(
   criteria: MessageSelectionCriteria,
   maxNumberPerThread: number,
 ): Promise<FetchMessageInfosResult> {
-  const selectionClause = messageSelectionCriteriaToSQLClause(viewer, criteria);
+  const { sqlClause: selectionClause } = parseMessageSelectionCriteria(
+    viewer,
+    criteria,
+  );
   const truncationStatuses = messageSelectionCriteriaToInitialTruncationStatuses(
     criteria,
     messageTruncationStatus.UNCHANGED,
