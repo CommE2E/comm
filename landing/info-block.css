@@ -17,29 +17,12 @@
 }
 
 .title {
-  --smallest-font-size: 30px;
-  --largest-font-size: 50px;
-  --smallest-padding-size: 16px;
-  --largest-padding-size: 48px;
-  --scale: calc(0.75rem + 2vw);
-
   font-family: 'iA Writer Duo S', monospace;
   font-style: normal;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
-
-  padding-bottom: clamp(
-    var(--smallest-padding-size),
-    var(--scale),
-    var(--largest-padding-size)
-  );
   text-align: left;
-
-  font-size: clamp(
-    var(--smallest-font-size),
-    var(--scale),
-    var(--largest-font-size)
-  );
+  line-height: 1.35;
+  padding-bottom: clamp(1rem, 0.5817rem + 2.0915vw, 3rem);
+  font-size: clamp(1.875rem, 1.6136rem + 1.3072vw, 3.125rem);
 }
 
 .description {
