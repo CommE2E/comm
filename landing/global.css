@@ -14,20 +14,11 @@
 
 /* ===== GENERAL PAGE STYLES ===== */
 html {
-  background: radial-gradient(ellipse at bottom, #1f252e, #111827);
-  background-attachment: fixed;
+  background: radial-gradient(ellipse at bottom, #1f252e, #111827) fixed;
   font-family: 'IBM Plex Sans', sans-serif;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   color: white;
-  /* Fallback styling if clamp isn't supported  */
-  font-size: 1rem;
-  /* https://css-tricks.com/simplified-fluid-typography/ */
-  font-size: clamp(
-    var(--min-font-size),
-    calc(0.75rem + 1vw),
-    var(--max-font-size)
-  );
   word-break: break-word;
 }
 
