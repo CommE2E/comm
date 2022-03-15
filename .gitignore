@@ -11,4 +11,3 @@ server/node_modules
 server/secrets
 server/facts
 .eslintcache
-.vscode
