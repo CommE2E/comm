@@ -1,13 +1,7 @@
 #!/bin/bash
 set -e
 
-if [[ -d /usr/lib/libuv ]]; then
-  echo "Libuv sources already exists, you can try remove this container/image and recreate it."
-  echo "Installation skipped."
-  exit 0
-fi
-
-pushd /usr/lib
+cd /tmp
 
 git clone --recurse-submodules -b v1.43.0 --single-branch https://github.com/libuv/libuv.git
 pushd libuv
@@ -18,4 +12,4 @@ make
 make install
 
 popd # libuv
-popd # /usr/lib
+rm -rf libuv

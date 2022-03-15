@@ -1,13 +1,7 @@
 #!/bin/bash
 set -e
 
-if [[ -d /usr/lib/AMQP-CPP ]]; then
-  echo "AMQP-CPP sources already exists, you can try remove this container/image and recreate it."
-  echo "Installation skipped."
-  exit 0
-fi
-
-pushd /usr/lib
+cd /tmp
 
 git clone --recurse-submodules -b v4.3.16 --single-branch https://github.com/CopernicaMarketingSoftware/AMQP-CPP
 pushd AMQP-CPP
@@ -18,4 +12,4 @@ cmake --build . --target install
 
 popd # build
 popd # AMQP-CPP-BUILD
-popd # /usr/lib
+rm -rf AMQP-CPP-BUILD
