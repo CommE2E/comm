@@ -7,5 +7,5 @@ if [ "$#" -gt 1 ]; then
   exit 1
 fi
 
-tag=${1:-"1.0"}
+tag=${1:-"1.1"}
 docker build -t commapp/services-base:${tag} base-image
