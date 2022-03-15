@@ -1,8 +1,8 @@
 #include "BackupServiceImpl.h"
 
 #include "AuthenticationManager.h"
-#include "BidiReactorBase.h"
-#include "ReadReactorBase.h"
+#include "ServerBidiReactorBase.h"
+#include "ServerReadReactorBase.h"
 
 #include <aws/core/Aws.h>
 
@@ -21,7 +21,7 @@ grpc::ServerBidiReactor<
     backup::CreateNewBackupRequest,
     backup::CreateNewBackupResponse> *
 BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
-  class CreateNewBackupReactor : public BidiReactorBase<
+  class CreateNewBackupReactor : public ServerBidiReactorBase<
                                      backup::CreateNewBackupRequest,
                                      backup::CreateNewBackupResponse> {
     auth::AuthenticationManager authenticationManager;
@@ -50,6 +50,11 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
         response->set_allocated_authenticationresponsedata(authResponse);
         return nullptr;
       }
+      // for now we're skipping authentication
+      if (!request.has_newcompactionchunk()) {
+        return nullptr;
+      }
+      std::cout << "processing data chunk" << std::endl;
       // TODO handle request
       return std::make_unique<grpc::Status>(
           grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
@@ -62,12 +67,13 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
 grpc::ServerReadReactor<backup::SendLogRequest> *BackupServiceImpl::SendLog(
     grpc::CallbackServerContext *context,
     google::protobuf::Empty *response) {
-  class SendLogReactor : public ReadReactorBase<
+  class SendLogReactor : public ServerReadReactorBase<
                              backup::SendLogRequest,
                              google::protobuf::Empty> {
   public:
-    using ReadReactorBase<backup::SendLogRequest, google::protobuf::Empty>::
-        ReadReactorBase;
+    using ServerReadReactorBase<
+        backup::SendLogRequest,
+        google::protobuf::Empty>::ServerReadReactorBase;
     std::unique_ptr<grpc::Status>
     readRequest(backup::SendLogRequest request) override {
       // TODO handle request
@@ -83,7 +89,7 @@ grpc::ServerBidiReactor<
     backup::RecoverBackupKeyRequest,
     backup::RecoverBackupKeyResponse> *
 BackupServiceImpl::RecoverBackupKey(grpc::CallbackServerContext *context) {
-  class RecoverBackupKeyReactor : public BidiReactorBase<
+  class RecoverBackupKeyReactor : public ServerBidiReactorBase<
                                       backup::RecoverBackupKeyRequest,
                                       backup::RecoverBackupKeyResponse> {
   public:
@@ -101,7 +107,7 @@ BackupServiceImpl::RecoverBackupKey(grpc::CallbackServerContext *context) {
 
 grpc::ServerBidiReactor<backup::PullBackupRequest, backup::PullBackupResponse> *
 BackupServiceImpl::PullBackup(grpc::CallbackServerContext *context) {
-  class PullBackupReactor : public BidiReactorBase<
+  class PullBackupReactor : public ServerBidiReactorBase<
                                 backup::PullBackupRequest,
                                 backup::PullBackupResponse> {
   public:

@@ -9,14 +9,14 @@ namespace comm {
 namespace network {
 
 template <class Request, class Response>
-class ReadReactorBase : public grpc::ServerReadReactor<Request> {
+class ServerReadReactorBase : public grpc::ServerReadReactor<Request> {
   Request request;
 
 protected:
   Response *response;
 
 public:
-  ReadReactorBase(Response *response);
+  ServerReadReactorBase(Response *response);
 
   void OnDone() override;
   void OnReadDone(bool ok) override;
@@ -27,20 +27,21 @@ public:
 };
 
 template <class Request, class Response>
-ReadReactorBase<Request, Response>::ReadReactorBase(Response *response)
+ServerReadReactorBase<Request, Response>::ServerReadReactorBase(
+    Response *response)
     : response(response) {
   this->initialize();
   this->StartRead(&this->request);
 }
 
 template <class Request, class Response>
-void ReadReactorBase<Request, Response>::OnDone() {
+void ServerReadReactorBase<Request, Response>::OnDone() {
   this->doneCallback();
   delete this;
 }
 
 template <class Request, class Response>
-void ReadReactorBase<Request, Response>::OnReadDone(bool ok) {
+void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
   if (!ok) {
     this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, "reading error"));
     return;

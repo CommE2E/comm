@@ -51,7 +51,8 @@ include_directories(
   ./src
   ./src/DatabaseEntities
   ./src/Authentication
-  ./src/Reactors
+  ./src/Reactors/server
+  ./src/Reactors/client
   ./_generated
   ${FOLLY_INCLUDES}
   ./lib/double-conversion
