@@ -44,15 +44,7 @@ footer.wrapper {
 }
 
 .navigation a {
-  --smallest-font-size: 16px;
-  --largest-font-size: 24px;
-  --scale: calc(0.75rem + 2vw);
-
-  font-size: clamp(
-    var(--smallest-font-size),
-    var(--scale),
-    var(--largest-font-size)
-  );
+  font-size: clamp(1rem, 0.8954rem + 0.5229vw, 1.5rem);
   font-weight: 400;
 }
 .navigation a,
