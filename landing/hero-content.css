@@ -14,15 +14,7 @@
 
 .sub_heading {
   color: var(--sub-heading-color);
-  --smallest-font-size: 16px;
-  --largest-font-size: 50px;
-  --font-scale: calc(0.75rem + 1.25vw);
-
-  font-size: clamp(
-    var(--smallest-font-size),
-    var(--font-scale),
-    var(--largest-font-size)
-  );
+  font-size: clamp(1rem, 0.5556rem + 2.2222vw, 3.125rem);
   margin-bottom: 60px;
 }
 
