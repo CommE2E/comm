@@ -4,23 +4,11 @@ import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {
-  setThreadUnreadStatus,
-  setThreadUnreadStatusActionTypes,
-} from 'lib/actions/activity-actions';
-import type {
-  SetThreadUnreadStatusPayload,
-  SetThreadUnreadStatusRequest,
-} from 'lib/types/activity-types';
+import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils';
 
 import Swipeable from '../components/swipeable';
 import { useColors } from '../themes/colors';
-
 type Props = {
   +threadInfo: ThreadInfo,
   +mostRecentNonLocalMessage: ?string,
@@ -54,33 +42,21 @@ function SwipeableThread(props: Props): React.Node {
 
   const colors = useColors();
   const { mostRecentNonLocalMessage, iconSize } = props;
-  const updateUnreadStatus: (
-    request: SetThreadUnreadStatusRequest,
-  ) => Promise<SetThreadUnreadStatusPayload> = useServerCall(
-    setThreadUnreadStatus,
+
+  const swipeableClose = React.useCallback(() => {
+    if (swipeable.current) {
+      swipeable.current.close();
+    }
+  }, []);
+
+  const toggleUnreadStatus = useToggleUnreadStatus(
+    threadInfo,
+    mostRecentNonLocalMessage,
+    swipeableClose,
   );
-  const dispatchActionPromise = useDispatchActionPromise();
+
   const swipeableActions = React.useMemo(() => {
     const isUnread = threadInfo.currentUser.unread;
-    const toggleUnreadStatus = () => {
-      const request = {
-        unread: !isUnread,
-        threadID: threadInfo.id,
-        latestMessage: mostRecentNonLocalMessage,
-      };
-      dispatchActionPromise(
-        setThreadUnreadStatusActionTypes,
-        updateUnreadStatus(request),
-        undefined,
-        {
-          threadID: threadInfo.id,
-          unread: !isUnread,
-        },
-      );
-      if (swipeable.current) {
-        swipeable.current.close();
-      }
-    };
     return [
       {
         key: 'action1',
@@ -96,12 +72,11 @@ function SwipeableThread(props: Props): React.Node {
       },
     ];
   }, [
-    colors,
-    threadInfo,
-    mostRecentNonLocalMessage,
+    threadInfo.currentUser.unread,
+    toggleUnreadStatus,
+    colors.vibrantRedButton,
+    colors.vibrantGreenButton,
     iconSize,
-    updateUnreadStatus,
-    dispatchActionPromise,
   ]);
 
   return (
