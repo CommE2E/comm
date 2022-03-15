@@ -16,8 +16,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	libboost-all-dev \
 	libfmt-dev \ 
 	libgtest-dev \
-	&& rm -rf /var/lib/apt/lists/*
+  libcurl4-openssl-dev \
+  libssl-dev \
+  zlib1g-dev \
+  && rm -rf /var/lib/apt/lists/*
 
 RUN /transferred/install_grpc.sh
+RUN /transferred/install_aws_sdk.sh
+RUN /transferred/install_folly.sh
 
 CMD /bin/bash
