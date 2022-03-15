@@ -3,19 +3,8 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import {
-  setThreadUnreadStatusActionTypes,
-  setThreadUnreadStatus,
-} from 'lib/actions/activity-actions';
-import type {
-  SetThreadUnreadStatusPayload,
-  SetThreadUnreadStatusRequest,
-} from 'lib/types/activity-types';
+import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import {
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils';
 
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-list-item-menu.css';
@@ -38,37 +27,11 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   }, []);
 
   const { threadInfo, mostRecentNonLocalMessage } = props;
-  const dispatchActionPromise = useDispatchActionPromise();
-  const boundSetThreadUnreadStatus: (
-    request: SetThreadUnreadStatusRequest,
-  ) => Promise<SetThreadUnreadStatusPayload> = useServerCall(
-    setThreadUnreadStatus,
-  );
-  const toggleUnreadStatus = React.useCallback(() => {
-    const { unread } = threadInfo.currentUser;
-    const request = {
-      threadID: threadInfo.id,
-      unread: !unread,
-      latestMessage: mostRecentNonLocalMessage,
-    };
-    dispatchActionPromise(
-      setThreadUnreadStatusActionTypes,
-      boundSetThreadUnreadStatus(request),
-      undefined,
-      {
-        threadID: threadInfo.id,
-        unread: !unread,
-      },
-    );
-    hideMenu();
-  }, [
+  const toggleUnreadStatus = useToggleUnreadStatus(
     threadInfo,
     mostRecentNonLocalMessage,
-    dispatchActionPromise,
     hideMenu,
-    boundSetThreadUnreadStatus,
-  ]);
-
+  );
   const toggleUnreadStatusButtonText = `Mark as ${
     threadInfo.currentUser.unread ? 'read' : 'unread'
   }`;
