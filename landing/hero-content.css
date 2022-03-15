@@ -1,15 +1,13 @@
 .cycling_header {
-  --smallest-font-size: 30px;
-  --largest-font-size: 72px;
-  --font-scale: calc(1rem + 2vw);
   font-weight: bold;
   font-family: 'iA Writer Duo S', monospace;
   padding-bottom: 16px;
-  font-size: clamp(
-    var(--smallest-font-size),
-    var(--font-scale),
-    var(--largest-font-size)
-  );
+  font-size: clamp(2.5rem, -0.5rem + 4vw, 4.25rem);
+}
+@media (max-width: 1099px) {
+  .cycling_header {
+    font-size: clamp(1.5rem, 0.0122rem + 5.9514vw, 4.1rem);
+  }
 }
 
 .sub_heading {
@@ -32,7 +30,6 @@ form {
   font-family: 'iA Writer Duo S', monospace;
   text-align: left;
   line-height: 1.35;
-  letter-spacing: -0.01em;
 }
 
 .cycling_content {
