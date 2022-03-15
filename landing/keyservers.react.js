@@ -105,7 +105,7 @@ function Keyservers(): React.Node {
           />
         </div>
         <div className={`${css.server_copy} ${css.section}`}>
-          <h2 className={css.mono}>Apps need servers.</h2>
+          <h1 className={css.mono}>Apps need servers.</h1>
           <p>
             Sophisticated applications rely on servers to do things that your
             devices simply can&apos;t.

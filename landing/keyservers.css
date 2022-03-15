@@ -4,12 +4,13 @@ div.body_grid {
   margin-right: auto;
   display: grid;
   column-gap: 6em;
-  padding-left: 60px;
-  padding-right: 60px;
-  padding-top: 20px;
-  padding-bottom: 40px;
+  padding: 20px 60px 40px;
   transition-property: max-width;
   transition: 300ms;
+}
+
+div.body_grid h1 {
+  font-size: clamp(1.5rem, 1.0817rem + 2.0915vw, 3.5rem);
 }
 
 .mono {
@@ -90,12 +91,9 @@ div.body_grid > div + .starting_section {
   /* ===== COMMON CSS GRID LAYOUT ===== */
   div.body_grid,
   div.app_landing_grid {
-    padding-left: 3%;
-    padding-right: 3%;
     grid-template-columns: minmax(auto, 540px);
     justify-content: center;
-    padding-top: 0vh;
-    padding-bottom: 2vh;
+    padding: 0 3% 2vh;
   }
 
   /* ===== CSS BODY GRID LAYOUT ===== */
@@ -113,9 +111,6 @@ div.body_grid > div + .starting_section {
   div.keyserver_company {
     text-align: left;
     padding-top: 60px;
-  }
-  .keyserver_company > h1 {
-    font-size: 24px;
   }
   div.keyserver_copy {
     padding-bottom: 0;
