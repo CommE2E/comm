@@ -8,8 +8,6 @@
   --btn-color: var(--white1);
   --logo-color: var(--white);
   --sub-heading-color: var(--purple);
-  --min-font-size: 12px;
-  --max-font-size: 28px;
 }
 
 /* ===== GENERAL PAGE STYLES ===== */
@@ -37,6 +35,10 @@ html,
 body,
 :global(div#react-root) {
   height: 100%;
+}
+
+p {
+  font-size: clamp(0.75rem, 0.5408rem + 1.0458vw, 1.75rem);
 }
 
 a {
