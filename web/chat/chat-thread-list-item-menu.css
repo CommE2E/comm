@@ -1,0 +1,55 @@
+div.sidebar .menu > button svg {
+  font-size: 16px;
+  color: var(--thread-color-read);
+}
+div.sidebar .menu {
+  opacity: 0;
+}
+div.sidebar:hover .menu {
+  display: flex;
+  align-self: flex-end;
+  opacity: 1;
+}
+.menu {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+.menu > button {
+  background-color: transparent;
+  color: var(--thread-color-read);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.menu > button:focus {
+  outline: none;
+}
+
+.menuContent {
+  display: none;
+  position: absolute;
+  top: calc(100% + 1px);
+  right: 0;
+  z-index: 1;
+  width: max-content;
+  overflow: hidden;
+  background-color: #eeeeee;
+  border-radius: 5px;
+  box-shadow: 1px 1px 5px 2px #00000022;
+}
+.menuContentVisible {
+  display: block;
+}
+
+button.menuContent {
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 16px;
+}
+button.menuContent:hover {
+  background-color: #dddddd;
+}

@@ -18,7 +18,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import SWMansionIcon from '../SWMansionIcon.react';
-import css from './chat-thread-list.css';
+import css from './chat-thread-list-item-menu.css';
 
 type Props = {
   +threadInfo: ThreadInfo,
