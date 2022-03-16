@@ -43,22 +43,6 @@ class Splash extends React.PureComponent<Props> {
               </div>
             </div>
           </div>
-          <div className={css.bottomContainer}>
-            <div className={css.bottom}>
-              <div className={css.headerRest}>
-                <div className={css.prompt}>
-                  <p className={css.promptHeader}>
-                    We&apos;re currently alpha testing the first version of our
-                    app.
-                  </p>
-                  <p className={css.promptDescription}>
-                    If you&apos;d like to try it out, please let us know!
-                  </p>
-                </div>
-              </div>
-              <div className={css.headerOverscroll} />
-            </div>
-          </div>
         </div>
         {this.props.modal}
       </React.Fragment>
