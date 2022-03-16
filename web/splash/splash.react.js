@@ -6,36 +6,24 @@ import LogInModal from '../modals/account/log-in-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import css from './splash.css';
 
-type Props = {
-  +setModal: (modal: React.Node) => void,
-  +modal: ?React.Node,
-};
-class Splash extends React.PureComponent<Props> {
-  render() {
-    return (
-      <React.Fragment>
-        <div onClick={this.onClickLogIn} className={css.loginContainer}>
-          <h1>Log in</h1>
-        </div>
-        {this.props.modal}
-      </React.Fragment>
-    );
-  }
+function Splash(): React.Node {
+  const modalContext = useModalContext();
+  const onClickLogIn = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.preventDefault();
+      modalContext.setModal(<LogInModal />);
+    },
+    [modalContext],
+  );
 
-  onClickLogIn = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.props.setModal(<LogInModal />);
-  };
+  return (
+    <React.Fragment>
+      <div onClick={onClickLogIn} className={css.loginContainer}>
+        <h1>Log in</h1>
+      </div>
+      {modalContext.modal}
+    </React.Fragment>
+  );
 }
 
-const ConnectedSplash: React.ComponentType<{}> = React.memo<{}>(
-  function ConnectedSplash(): React.Node {
-    const modalContext = useModalContext();
-
-    return (
-      <Splash setModal={modalContext.setModal} modal={modalContext.modal} />
-    );
-  },
-);
-
-export default ConnectedSplash;
+export default Splash;
