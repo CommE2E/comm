@@ -36,7 +36,7 @@ header.header h1 {
   color: white;
   font-size: 38px;
 }
-header.header span.requestAccess {
+header.header {
   padding: 10px 20px;
   border-radius: 20px;
   border: 1px solid white;
@@ -100,112 +100,4 @@ p.promptDescription {
   font-size: 18px;
   padding-top: 9px;
   text-align: center;
-}
-div.requestAccessContainer {
-  margin: 25px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-form.requestAccessForm {
-  display: flex;
-  align-items: center;
-}
-input.requestAccessEmail {
-  width: 300px;
-  border: 0;
-  padding: 10px 10px 8px 10px;
-  font-size: 18px;
-  border-radius: 5px;
-  background-color: rgba(119, 119, 119, 0.13);
-  color: black;
-}
-input.requestAccessEmail::placeholder,
-input.requestAccessEmail::-ms-input-placeholder {
-  color: #777777;
-}
-button.requestAccessSubmit {
-  border: 0px;
-  padding: 10px 10px 8px 10px;
-  font-size: 18px;
-  border-radius: 5px;
-  background-color: rgba(0, 170, 0, 0.53);
-  color: white;
-  margin-left: 15px;
-  cursor: pointer;
-  width: 78px;
-  height: 39px;
-}
-p.androidWarning {
-  font-size: 14px;
-  padding: 5px;
-}
-p.requestAccessError {
-  font-size: 14px;
-  padding: 10px;
-  text-align: center;
-  color: red;
-}
-p.requestAccessSuccess {
-  font-size: 18px;
-  padding: 20px;
-  text-align: center;
-}
-
-div.customSelect {
-  position: relative;
-  display: block;
-  border: 1px solid #bbb;
-  border-radius: 0.3em;
-  background-color: #f5f5f5;
-  margin-left: 15px;
-}
-div.customSelect::after {
-  content: ' ';
-  position: absolute;
-  top: 50%;
-  right: 1em;
-  z-index: 2;
-  pointer-events: none;
-  display: none;
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 7px solid #666;
-  margin-top: -3px;
-}
-div.customSelect select {
-  width: 100%;
-  margin: 0;
-  outline: none;
-  padding: 0.6em 0.8em 0.5em 0.8em;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  font-size: 16px;
-  font-family: sans-serif;
-  color: #444;
-  border-radius: 0.2em;
-}
-div.customSelect select:focus {
-  color: #222;
-  outline: none;
-}
-@supports (-webkit-appearance: none) or (appearance: none) or
-  ((-moz-appearance: none) and (mask-type: alpha)) {
-  div.customSelect::after {
-    display: block;
-  }
-  div.customSelect select {
-    padding-right: 2em;
-    background: none;
-    border: 1px solid transparent;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-  }
-  div.customSelect select:focus {
-    border-color: #aaa;
-  }
 }
