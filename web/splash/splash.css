@@ -1,28 +1,5 @@
-div.headerContainer {
-  flex: 1 1 auto;
-  padding: 0 10px;
-}
-div.headerContents {
+div.loginContainer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 5px;
-  padding-bottom: 7px;
-}
-div.actionLinks > * {
-  padding-right: 15px;
+  justify-content: center;
   color: white;
-  font-weight: 300;
-}
-div.actionLinks > *:last-child {
-  padding-right: 0;
-}
-header.header h1 {
-  color: white;
-  font-size: 38px;
-}
-header.header {
-  padding: 10px 20px;
-  border-radius: 20px;
-  border: 1px solid white;
 }

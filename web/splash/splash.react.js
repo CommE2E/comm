@@ -14,19 +14,8 @@ class Splash extends React.PureComponent<Props> {
   render() {
     return (
       <React.Fragment>
-        <div className={css.headerContainer}>
-          <div className={css.top}>
-            <header className={css.header}>
-              <div className={css.headerContents}>
-                <h1>Comm</h1>
-                <div className={css.actionLinks}>
-                  <a href="#" onClick={this.onClickLogIn}>
-                    <span>Log in</span>
-                  </a>
-                </div>
-              </div>
-            </header>
-          </div>
+        <div onClick={this.onClickLogIn} className={css.loginContainer}>
+          <h1>Log in</h1>
         </div>
         {this.props.modal}
       </React.Fragment>
