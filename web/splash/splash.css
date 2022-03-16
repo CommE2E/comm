@@ -1,8 +1,5 @@
 div.headerContainer {
   flex: 1 1 auto;
-  background-image: url(../images/background.png);
-  background-size: 3000px 2000px;
-  background-attachment: fixed;
   padding: 0 10px;
 }
 div.topContainer {
@@ -70,9 +67,6 @@ div.bottomContainer {
 }
 div.bottom {
   margin-top: 728px;
-  background-image: url(../images/background.png);
-  background-size: 3000px 2000px;
-  background-attachment: fixed;
   min-height: 100%;
   display: flex;
   flex-direction: column;
