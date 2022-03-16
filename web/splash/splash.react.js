@@ -28,22 +28,6 @@ class Splash extends React.PureComponent<Props> {
             </header>
           </div>
         </div>
-        <div className={css.content}>
-          <div className={css.topContainer}>
-            <div className={css.top}>
-              <div className={css.body}>
-                <div className={css.intro}>
-                  <p className={css.introHeader}>
-                    Comm is a chat app with an integrated calendar.
-                  </p>
-                  <p className={css.introDescription}>
-                    We make it incredibly easy to plan events with your friends.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         {this.props.modal}
       </React.Fragment>
     );

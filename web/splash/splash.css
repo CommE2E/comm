@@ -2,21 +2,6 @@ div.headerContainer {
   flex: 1 1 auto;
   padding: 0 10px;
 }
-div.topContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-}
-div.content {
-  flex: 1 0 0;
-  position: relative;
-  min-height: 100%;
-}
-div.top {
-  max-width: 1024px;
-  margin: 0 auto;
-}
 div.headerContents {
   display: flex;
   justify-content: space-between;
@@ -40,22 +25,4 @@ header.header {
   padding: 10px 20px;
   border-radius: 20px;
   border: 1px solid white;
-}
-div.body {
-  padding: 30px 0 20px 0;
-}
-div.intro {
-  text-align: center;
-  margin-bottom: 50px;
-}
-p.introHeader {
-  color: white;
-  font-size: 28px;
-  font-weight: 300;
-}
-p.introDescription {
-  color: white;
-  font-size: 21px;
-  font-weight: 300;
-  padding-top: 5px;
 }
