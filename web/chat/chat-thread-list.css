@@ -10,8 +10,7 @@ div.thread {
 div.threadListSidebar {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  padding-bottom: 4px;
+  height: 32px;
   padding-left: 16px;
   padding-right: 10px;
   position: relative;
@@ -19,7 +18,7 @@ div.threadListSidebar {
 }
 div.threadListSidebar > svg {
   position: absolute;
-  top: -13px;
+  top: -7px;
   left: 30px;
 }
 div.thread:first-child {
@@ -69,6 +68,8 @@ a.threadButton + div {
   flex: 1;
   cursor: pointer;
   overflow: hidden;
+  display: flex;
+  align-items: center;
   padding-left: 8px;
 }
 p.breadCrumbs {
@@ -150,7 +151,7 @@ div.italic {
 }
 div.sidebarTitle {
   flex: 1;
-  font-size: 15px;
+  font-size: var(--s-font-14);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
