@@ -113,20 +113,6 @@ class Splash extends React.PureComponent<Props, State> {
                     We make it incredibly easy to plan events with your friends.
                   </p>
                 </div>
-                <div className={css.devices}>
-                  <img
-                    src="images/ios_screenshot.png"
-                    srcSet="images/ios_screenshot@2x.png 526w"
-                    width={263}
-                    height={527}
-                  />
-                  <img
-                    src="images/android_screenshot.png"
-                    srcSet="images/android_screenshot@2x.png 570w"
-                    width={285}
-                    height={527}
-                  />
-                </div>
               </div>
             </div>
           </div>

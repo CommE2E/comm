@@ -62,11 +62,6 @@ p.introDescription {
   font-weight: 300;
   padding-top: 5px;
 }
-div.devices {
-  display: flex;
-  justify-content: space-between;
-  margin: 0 159px;
-}
 div.bottomContainer {
   z-index: 2;
   position: relative;
