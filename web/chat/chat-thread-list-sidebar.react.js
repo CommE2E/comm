@@ -16,8 +16,16 @@ type Props = {
 function ChatThreadListSidebar(props: Props): React.Node {
   const { sidebarInfo } = props;
   const { threadInfo, mostRecentNonLocalMessage } = sidebarInfo;
-  const threadID = threadInfo.id;
+  const {
+    currentUser: { unread },
+    id: threadID,
+  } = threadInfo;
   const active = useThreadIsActive(threadID);
+
+  let unreadDot;
+  if (unread) {
+    unreadDot = <div className={css.unreadDot} />;
+  }
 
   return (
     <div
@@ -25,6 +33,7 @@ function ChatThreadListSidebar(props: Props): React.Node {
         [css.activeThread]: active,
       })}
     >
+      <div className={css.dotContainer}>{unreadDot}</div>
       <SidebarItem sidebarInfo={sidebarInfo} />
       <ChatThreadListItemMenu
         threadInfo={threadInfo}

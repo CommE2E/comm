@@ -10,7 +10,6 @@ div.threadListSidebar {
   display: flex;
   flex-direction: row;
   height: 32px;
-  padding-left: 16px;
   padding-right: 10px;
   position: relative;
 }
@@ -147,6 +146,9 @@ div.sidebarTitle {
   text-overflow: ellipsis;
   color: var(--thread-color-read);
   align-self: flex-start;
+}
+div.threadListSidebar > div.dotContainer {
+  width: 16px;
 }
 div.sidebarTitle.unread {
   color: var(--fg);
