@@ -34,24 +34,20 @@ function NavigationPanelContainer(
           return null;
         }
         return (
-          <li
+          <div
             key={child.props.tab}
             className={classNames({
-              [css['current-tab']]: navInfo.tab === child.props.tab,
+              [css.current_tab]: navInfo.tab === child.props.tab,
             })}
           >
             {child}
-          </li>
+          </div>
         );
       }),
     [children, navInfo.tab],
   );
 
-  return (
-    <div className={css.navigationPanelContainer}>
-      <ul>{items}</ul>
-    </div>
-  );
+  return <div className={css.navigationPanelContainer}>{items}</div>;
 }
 
 const NavigationPanel = {

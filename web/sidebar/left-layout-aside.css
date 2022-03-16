@@ -1,34 +1,46 @@
 .container {
   grid-area: sBar;
   background: var(--bg);
-  color: var(--color);
+  color: var(--fg);
   border-right: 1px solid var(--border-color);
   display: flex;
 }
 
 .navigationPanelContainer {
   width: 160px;
+  margin-top: 12px;
 }
 
-.container ul {
-  list-style-type: none;
-  padding-top: 24px;
-  padding-left: 28px;
-}
-
-.container ul li {
+div.navigationPanelTab {
+  display: flex;
+  flex-direction: row;
+  padding: 12px 0 12px 28px;
   cursor: pointer;
-  padding-bottom: 24px;
-  line-height: 0;
+}
+
+div.navigationPanelTab svg {
+  padding-right: 12px;
+  color: var(--color-disabled);
+  stroke: var(--color-disabled);
+  fill: var(--color-disabled);
+}
+
+div.navigationPanelTab p {
+  color: var(--color-disabled);
+}
+
+div.navigationPanelTab:hover p,
+div.navigationPanelTab:hover svg,
+div.current_tab p,
+div.current_tab svg {
+  color: var(--fg);
+  stroke: var(--fg);
+  fill: var(--fg);
 }
 
 .container p {
   display: flex;
   align-content: center;
-}
-
-.container ul a {
-  color: var(--color-disabled);
 }
 
 .container svg {
@@ -55,14 +67,4 @@ span.chatBadge {
   border-radius: 13px;
   font-size: 8px;
   line-height: 1.25;
-}
-
-li.current-tab svg {
-  color: var(--fg);
-}
-
-li.current-tab a,
-li.current-tab svg {
-  fill: var(--fg);
-  color: var(--fg);
 }

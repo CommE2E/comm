@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { updateNavInfoActionType } from '../types/nav-types';
+import css from './left-layout-aside.css';
 import NavigationPanel from './navigation-panel.react';
 
 function SettingsSwitcher(): React.Node {
@@ -21,9 +22,9 @@ function SettingsSwitcher(): React.Node {
 
   const accountSettingsNavigationItem = React.useMemo(
     () => (
-      <p>
-        <a onClick={onClickAccountSettings}>My Account</a>
-      </p>
+      <div className={css.navigationPanelTab} onClick={onClickAccountSettings}>
+        <p>My Account</p>
+      </div>
     ),
     [onClickAccountSettings],
   );
