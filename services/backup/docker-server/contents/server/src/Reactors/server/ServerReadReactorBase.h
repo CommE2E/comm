@@ -12,8 +12,11 @@ template <class Request, class Response>
 class ServerReadReactorBase : public grpc::ServerReadReactor<Request> {
   Request request;
 
+  void terminate(grpc::Status status);
+
 protected:
   Response *response;
+  grpc::Status status;
 
 public:
   ServerReadReactorBase(Response *response);
@@ -25,6 +28,12 @@ public:
   virtual void initialize(){};
   virtual void doneCallback(){};
 };
+
+template <class Request, class Response>
+void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
+  this->status = status;
+  this->Finish(status);
+}
 
 template <class Request, class Response>
 ServerReadReactorBase<Request, Response>::ServerReadReactorBase(
@@ -43,17 +52,17 @@ void ServerReadReactorBase<Request, Response>::OnDone() {
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
   if (!ok) {
-    this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, "reading error"));
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, "reading error"));
     return;
   }
   try {
     std::unique_ptr<grpc::Status> status = this->readRequest(this->request);
     if (status != nullptr) {
-      this->Finish(*status);
+      this->terminate(*status);
       return;
     }
   } catch (std::runtime_error &e) {
-    this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
     return;
   }
   this->StartRead(&this->request);

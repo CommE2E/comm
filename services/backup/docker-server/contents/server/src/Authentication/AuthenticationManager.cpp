@@ -49,6 +49,20 @@ backup::FullAuthenticationResponseData *AuthenticationManager::processRequest(
   return this->authenticationHandler->processRequest(request);
 }
 
+bool AuthenticationManager::performSimpleAuthentication(
+    const backup::SimpleAuthenticationRequestData &authenticationData) {
+  std::string userID = authenticationData.userid();
+  std::string backupID = authenticationData.backupid();
+
+  if (userID.empty() || backupID.empty()) {
+    return false;
+  }
+
+  // TODO check with the DB
+  // for now, mock the success
+  return true;
+}
+
 } // namespace auth
 } // namespace network
 } // namespace comm

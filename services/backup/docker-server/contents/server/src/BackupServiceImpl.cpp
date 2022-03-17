@@ -24,6 +24,13 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
   class CreateNewBackupReactor : public ServerBidiReactorBase<
                                      backup::CreateNewBackupRequest,
                                      backup::CreateNewBackupResponse> {
+    enum class State {
+      AUTHENTICATION = 1,
+      KEY_ENTROPY = 2,
+      DATA_CHUNKS = 3,
+    };
+
+    State state = State::AUTHENTICATION;
     auth::AuthenticationManager authenticationManager;
     std::string keyEntropy;
 
@@ -32,52 +39,63 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
         backup::CreateNewBackupRequest request,
         backup::CreateNewBackupResponse *response) override {
       std::cout << "here handle request" << std::endl;
-      if (this->authenticationManager.getState() !=
-              auth::AuthenticationState::SUCCESS &&
-          !request.has_authenticationrequestdata()) {
-        return std::make_unique<grpc::Status>(
-            grpc::StatusCode::INTERNAL,
-            "authentication has not been finished properly");
-      }
-      if (this->authenticationManager.getState() ==
-          auth::AuthenticationState::FAIL) {
-        return std::make_unique<grpc::Status>(
-            grpc::StatusCode::INTERNAL, "authentication failure");
-      }
-      if (this->authenticationManager.getState() !=
-          auth::AuthenticationState::SUCCESS) {
-        std::cout << "here handle request auth" << std::endl;
-        backup::FullAuthenticationResponseData *authResponse =
-            this->authenticationManager.processRequest(
-                request.authenticationrequestdata());
-        response->set_allocated_authenticationresponsedata(authResponse);
-        return nullptr;
-      }
-      // receive `BackupKeyEntropy`
-      if (this->keyEntropy.empty() && !request.has_backupkeyentropy()) {
-        throw std::runtime_error(
-            "backup key entropy expected but not received");
-      }
-      if (this->keyEntropy.empty()) {
-        std::cout << "here handle request key entropy" << std::endl;
-        if (this->authenticationManager.getAuthenticationType() ==
-            auth::AuthenticationType::PAKE) {
-          this->keyEntropy = request.backupkeyentropy().nonce();
-        } else if (
-            this->authenticationManager.getAuthenticationType() ==
-            auth::AuthenticationType::WALLET) {
-          this->keyEntropy = request.backupkeyentropy().rawmessage();
-        } else {
-          throw std::runtime_error("no key entropy provided");
+      switch (this->state) {
+        case State::AUTHENTICATION: {
+          if (this->authenticationManager.getState() !=
+                  auth::AuthenticationState::SUCCESS &&
+              !request.has_authenticationrequestdata()) {
+            throw std::runtime_error(
+                "authentication has not been finished properly");
+          }
+          if (this->authenticationManager.getState() ==
+              auth::AuthenticationState::FAIL) {
+            throw std::runtime_error("authentication failure");
+          }
+          if (this->authenticationManager.getState() !=
+              auth::AuthenticationState::SUCCESS) {
+            std::cout << "here handle request auth" << std::endl;
+            backup::FullAuthenticationResponseData *authResponse =
+                this->authenticationManager.processRequest(
+                    request.authenticationrequestdata());
+            if (this->authenticationManager.getState() ==
+                auth::AuthenticationState::SUCCESS) {
+              this->state = State::KEY_ENTROPY;
+            }
+            response->set_allocated_authenticationresponsedata(authResponse);
+            return nullptr;
+          }
+          throw std::runtime_error(
+              "invalid state, still authenticating while authentication's "
+              "succeeded");
         }
-        return nullptr;
+        case State::KEY_ENTROPY: {
+          if (!request.has_backupkeyentropy()) {
+            throw std::runtime_error(
+                "backup key entropy expected but not received");
+          }
+          std::cout << "here handle request key entropy" << std::endl;
+          if (this->authenticationManager.getAuthenticationType() ==
+              auth::AuthenticationType::PAKE) {
+            this->keyEntropy = request.backupkeyentropy().nonce();
+          } else if (
+              this->authenticationManager.getAuthenticationType() ==
+              auth::AuthenticationType::WALLET) {
+            this->keyEntropy = request.backupkeyentropy().rawmessage();
+          } else {
+            throw std::runtime_error(
+                "key entropy: invalid authentication type");
+          }
+          this->state = State::DATA_CHUNKS;
+          return nullptr;
+        }
+        case State::DATA_CHUNKS: {
+          std::cout << "here handle request data chunk"
+                    << request.newcompactionchunk().size() << std::endl;
+
+          return nullptr;
+        }
       }
-
-      // receive `newCompactionChunk`s...
-      std::cout << "here handle request data chunk"
-                << request.newcompactionchunk().size() << std::endl;
-
-      return nullptr;
+      throw std::runtime_error("new backup - invalid state");
     }
 
     void doneCallback() {
@@ -95,15 +113,43 @@ grpc::ServerReadReactor<backup::SendLogRequest> *BackupServiceImpl::SendLog(
   class SendLogReactor : public ServerReadReactorBase<
                              backup::SendLogRequest,
                              google::protobuf::Empty> {
+    enum class State {
+      AUTHENTICATION = 1,
+      RECEIVING_LOGS = 2,
+    };
+
+    auth::AuthenticationManager authenticationManager;
+    State state = State::AUTHENTICATION;
+
   public:
     using ServerReadReactorBase<
         backup::SendLogRequest,
         google::protobuf::Empty>::ServerReadReactorBase;
     std::unique_ptr<grpc::Status>
     readRequest(backup::SendLogRequest request) override {
-      // TODO handle request
-      return std::make_unique<grpc::Status>(
-          grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
+      std::cout << "here send log enter" << std::endl;
+      switch (this->state) {
+        case State::AUTHENTICATION: {
+          std::cout << "here send log auth" << std::endl;
+          if (!this->authenticationManager.performSimpleAuthentication(
+                  request.authenticationdata())) {
+            throw std::runtime_error("simple authentication failed");
+          }
+          this->state = State::RECEIVING_LOGS;
+          return nullptr;
+        }
+        case State::RECEIVING_LOGS: {
+          std::cout << "here handle request log chunk "
+                    << request.logdata().size() << std::endl;
+          return nullptr;
+        }
+      }
+      throw std::runtime_error("send log - invalid state");
+    }
+
+    void doneCallback() override {
+      std::cout << "receive logs done " << this->status.error_code() << "/"
+                << this->status.error_message() << std::endl;
     }
   };
 
@@ -120,8 +166,8 @@ BackupServiceImpl::RecoverBackupKey(grpc::CallbackServerContext *context) {
   public:
     std::unique_ptr<grpc::Status> handleRequest(
         backup::RecoverBackupKeyRequest request,
-        backup::RecoverBackupKeyResponse *response) override {
-      // TODO handle request
+        backup::RecoverBackupKeyResponse *response)
+        override { // TODO handle request
       return std::make_unique<grpc::Status>(
           grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
     }

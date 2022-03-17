@@ -22,6 +22,9 @@ public:
   AuthenticationType getAuthenticationType() const;
   backup::FullAuthenticationResponseData *
   processRequest(const backup::FullAuthenticationRequestData &request);
+
+  bool performSimpleAuthentication(
+      const backup::SimpleAuthenticationRequestData &authenticationData);
 };
 
 } // namespace auth

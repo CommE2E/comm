@@ -14,6 +14,7 @@ namespace auth {
 enum class AuthenticationType {
   PAKE = 1,
   WALLET = 2,
+  SIMPLE = 3,
 };
 
 enum class AuthenticationState {
