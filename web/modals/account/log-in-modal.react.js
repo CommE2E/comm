@@ -10,13 +10,10 @@ import {
   oldValidUsernameRegex,
 } from 'lib/shared/account-utils';
 import type {
-  LogInInfo,
   LogInExtraInfo,
-  LogInResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
 import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
@@ -29,212 +26,133 @@ import { useModalContext } from '../modal-provider.react';
 import Modal from '../modal.react';
 import css from './user-settings-modal.css';
 
-type Props = {
-  +inputDisabled: boolean,
-  +logInExtraInfo: () => LogInExtraInfo,
-  +dispatchActionPromise: DispatchActionPromise,
-  +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
-  +clearModal: () => void,
-};
-type State = {
-  +username: string,
-  +password: string,
-  +errorMessage: string,
-};
-class LogInModal extends React.PureComponent<Props, State> {
-  usernameInput: ?HTMLInputElement;
-  passwordInput: ?HTMLInputElement;
+const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
+function LoginModal(): React.Node {
+  const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
+  const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
+  const callLogIn = useServerCall(logIn);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const modalContext = useModalContext();
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      username: '',
-      password: '',
-      errorMessage: '',
-    };
-  }
+  const [username, setUsername] = React.useState<string>('');
+  const [password, setPassword] = React.useState<string>('');
+  const [errorMessage, setErrorMessage] = React.useState<string>('');
 
-  componentDidMount() {
-    invariant(this.usernameInput, 'username ref unset');
-    this.usernameInput.focus();
-  }
+  const usernameInputRef = React.useRef();
+  const passwordInputRef = React.useRef();
 
-  render() {
-    return (
-      <Modal name="Log in" onClose={this.props.clearModal}>
-        <div className={css['modal-body']}>
-          <form method="POST">
-            <div>
-              <div className={css['form-title']}>Username</div>
-              <div className={css['form-content']}>
-                <Input
-                  type="text"
-                  placeholder="Username"
-                  value={this.state.username}
-                  onChange={this.onChangeUsername}
-                  ref={this.usernameInputRef}
-                  disabled={this.props.inputDisabled}
-                />
-              </div>
-            </div>
-            <div>
-              <div className={css['form-title']}>Password</div>
-              <div className={css['form-content']}>
-                <Input
-                  type="password"
-                  placeholder="Password"
-                  value={this.state.password}
-                  onChange={this.onChangePassword}
-                  ref={this.passwordInputRef}
-                  disabled={this.props.inputDisabled}
-                />
-              </div>
-            </div>
-            <div className={css['form-footer']}>
-              <Button
-                type="submit"
-                onClick={this.onSubmit}
-                disabled={this.props.inputDisabled}
-              >
-                Log in
-              </Button>
-              <div className={css['modal-form-error']}>
-                {this.state.errorMessage}
-              </div>
-            </div>
-          </form>
-        </div>
-      </Modal>
-    );
-  }
+  React.useEffect(() => {
+    usernameInputRef.current?.focus();
+  }, []);
 
-  usernameInputRef = (usernameInput: ?HTMLInputElement) => {
-    this.usernameInput = usernameInput;
-  };
+  const onUsernameChange = React.useCallback(e => {
+    invariant(e.target instanceof HTMLInputElement, 'target not input');
+    setUsername(e.target.value);
+  }, []);
 
-  passwordInputRef = (passwordInput: ?HTMLInputElement) => {
-    this.passwordInput = passwordInput;
-  };
+  const onPasswordChange = React.useCallback(e => {
+    invariant(e.target instanceof HTMLInputElement, 'target not input');
+    setPassword(e.target.value);
+  }, []);
 
-  onChangeUsername = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, 'target not input');
-    this.setState({ username: target.value });
-  };
-
-  onChangePassword = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, 'target not input');
-    this.setState({ password: target.value });
-  };
-
-  onSubmit = (event: SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-
-    if (this.state.username.search(validEmailRegex) > -1) {
-      this.setState(
-        {
-          username: '',
-          errorMessage: 'usernames only, not emails',
-        },
-        () => {
-          invariant(this.usernameInput, 'usernameInput ref unset');
-          this.usernameInput.focus();
-        },
-      );
-      return;
-    } else if (this.state.username.search(oldValidUsernameRegex) === -1) {
-      this.setState(
-        {
-          username: '',
-          errorMessage: 'alphanumeric usernames only',
-        },
-        () => {
-          invariant(this.usernameInput, 'usernameInput ref unset');
-          this.usernameInput.focus();
-        },
-      );
-      return;
-    }
-
-    const extraInfo = this.props.logInExtraInfo();
-    this.props.dispatchActionPromise(
-      logInActionTypes,
-      this.logInAction(extraInfo),
-      undefined,
-      ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
-    );
-  };
-
-  async logInAction(extraInfo: LogInExtraInfo) {
-    try {
-      const result = await this.props.logIn({
-        username: this.state.username,
-        password: this.state.password,
-        ...extraInfo,
-      });
-      this.props.clearModal();
-      return result;
-    } catch (e) {
-      if (e.message === 'invalid_parameters') {
-        this.setState(
-          {
-            username: '',
-            errorMessage: "user doesn't exist",
-          },
-          () => {
-            invariant(this.usernameInput, 'usernameInput ref unset');
-            this.usernameInput.focus();
-          },
-        );
-      } else if (e.message === 'invalid_credentials') {
-        this.setState(
-          {
-            password: '',
-            errorMessage: 'wrong password',
-          },
-          () => {
-            invariant(this.passwordInput, 'passwordInput ref unset');
-            this.passwordInput.focus();
-          },
-        );
-      } else {
-        this.setState(
-          {
-            username: '',
-            password: '',
-            errorMessage: 'unknown error',
-          },
-          () => {
-            invariant(this.usernameInput, 'usernameInput ref unset');
-            this.usernameInput.focus();
-          },
-        );
+  const logInAction = React.useCallback(
+    async (extraInfo: LogInExtraInfo) => {
+      try {
+        const result = await callLogIn({
+          username,
+          password,
+          ...extraInfo,
+        });
+        modalContext.clearModal();
+        return result;
+      } catch (e) {
+        if (e.message === 'invalid_parameters') {
+          setUsername('');
+          setErrorMessage(`user doesn't exist`);
+          usernameInputRef.current?.focus();
+        } else if (e.message === 'invalid_credentials') {
+          setPassword('');
+          setErrorMessage('wrong password');
+          passwordInputRef.current?.focus();
+        } else {
+          setUsername('');
+          setPassword('');
+          setErrorMessage('unknown error');
+          usernameInputRef.current?.focus();
+        }
+        throw e;
       }
-      throw e;
-    }
-  }
+    },
+    [callLogIn, modalContext, password, username],
+  );
+
+  const onSubmit = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.preventDefault();
+
+      if (username.search(validEmailRegex) > -1) {
+        setUsername('');
+        setErrorMessage('usernames only, not emails');
+        usernameInputRef.current?.focus();
+        return;
+      } else if (username.search(oldValidUsernameRegex) === -1) {
+        setUsername('');
+        setErrorMessage('alphanumeric usernames only');
+        usernameInputRef.current?.focus();
+        return;
+      }
+
+      const extraInfo = loginExtraInfo();
+      dispatchActionPromise(
+        logInActionTypes,
+        logInAction(extraInfo),
+        undefined,
+        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
+      );
+    },
+    [dispatchActionPromise, logInAction, loginExtraInfo, username],
+  );
+
+  return (
+    <Modal name="Log in" onClose={modalContext.clearModal}>
+      <div className={css['modal-body']}>
+        <form method="POST">
+          <div>
+            <div className={css['form-title']}>Username</div>
+            <div className={css['form-content']}>
+              <Input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={onUsernameChange}
+                ref={usernameInputRef}
+                disabled={inputDisabled}
+              />
+            </div>
+          </div>
+          <div>
+            <div className={css['form-title']}>Password</div>
+            <div className={css['form-content']}>
+              <Input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={onPasswordChange}
+                ref={passwordInputRef}
+                disabled={inputDisabled}
+              />
+            </div>
+          </div>
+          <div className={css['form-footer']}>
+            <Button type="submit" disabled={inputDisabled} onClick={onSubmit}>
+              Log in
+            </Button>
+            <div className={css['modal-form-error']}>{errorMessage}</div>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  );
 }
 
-const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
-const ConnectedLoginModal: React.ComponentType<{}> = React.memo<{}>(
-  function ConnectedLoginModal(): React.Node {
-    const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
-    const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
-    const callLogIn = useServerCall(logIn);
-    const dispatchActionPromise = useDispatchActionPromise();
-    const modalContext = useModalContext();
-
-    return (
-      <LogInModal
-        inputDisabled={inputDisabled}
-        logInExtraInfo={loginExtraInfo}
-        logIn={callLogIn}
-        dispatchActionPromise={dispatchActionPromise}
-        clearModal={modalContext.clearModal}
-      />
-    );
-  },
-);
-
-export default ConnectedLoginModal;
+export default LoginModal;
