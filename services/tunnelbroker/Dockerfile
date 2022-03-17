@@ -1,4 +1,4 @@
-FROM commapp/services-base:1.0
+FROM commapp/services-base:1.1
 
 ENV SHELL=/bin/bash
 
