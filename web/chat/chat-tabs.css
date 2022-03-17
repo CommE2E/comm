@@ -34,6 +34,7 @@ div.tabItem svg {
 }
 div.tabItemActive {
   border: outset var(--thread-selection);
+  color: var(--fg);
   border-width: 0 0 3px 0;
 }
 div.tabItemInactive {
