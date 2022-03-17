@@ -8,7 +8,10 @@ namespace network {
 namespace auth {
 
 AuthenticationState AuthenticationManager::getState() const {
-  return this->state;
+  if (this->authenticationHandler == nullptr) {
+    return AuthenticationState::UNKNOWN;
+  }
+  return this->authenticationHandler->getState();
 }
 
 AuthenticationType AuthenticationManager::getAuthenticationTypeForRequest(
@@ -21,7 +24,11 @@ AuthenticationType AuthenticationManager::getAuthenticationTypeForRequest(
   throw std::runtime_error("invalid authentication type detected");
 }
 
-backup::FullAuthenticationResponseData* AuthenticationManager::processRequest(
+AuthenticationType AuthenticationManager::getAuthenticationType() const {
+  return this->authenticationHandler->getAuthenticationType();
+}
+
+backup::FullAuthenticationResponseData *AuthenticationManager::processRequest(
     const backup::FullAuthenticationRequestData &request) {
   if (this->authenticationHandler == nullptr) {
     AuthenticationType authenticationType =

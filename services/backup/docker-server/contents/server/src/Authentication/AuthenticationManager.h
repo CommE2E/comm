@@ -11,14 +11,7 @@ namespace comm {
 namespace network {
 namespace auth {
 
-enum class AuthenticationState {
-  IN_PROGRESS = 1,
-  SUCCESS = 2,
-  FAIL = 3,
-};
-
 class AuthenticationManager {
-  std::atomic<AuthenticationState> state = AuthenticationState::IN_PROGRESS;
   std::unique_ptr<AuthenticationHandlerBase> authenticationHandler;
 
   AuthenticationType getAuthenticationTypeForRequest(
@@ -26,7 +19,8 @@ class AuthenticationManager {
 
 public:
   AuthenticationState getState() const;
-  backup::FullAuthenticationResponseData*
+  AuthenticationType getAuthenticationType() const;
+  backup::FullAuthenticationResponseData *
   processRequest(const backup::FullAuthenticationRequestData &request);
 };
 

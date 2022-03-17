@@ -25,11 +25,13 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
                                      backup::CreateNewBackupRequest,
                                      backup::CreateNewBackupResponse> {
     auth::AuthenticationManager authenticationManager;
+    std::string keyEntropy;
 
   public:
     std::unique_ptr<grpc::Status> handleRequest(
         backup::CreateNewBackupRequest request,
         backup::CreateNewBackupResponse *response) override {
+      std::cout << "here handle request" << std::endl;
       if (this->authenticationManager.getState() !=
               auth::AuthenticationState::SUCCESS &&
           !request.has_authenticationrequestdata()) {
@@ -44,20 +46,43 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
       }
       if (this->authenticationManager.getState() !=
           auth::AuthenticationState::SUCCESS) {
+        std::cout << "here handle request auth" << std::endl;
         backup::FullAuthenticationResponseData *authResponse =
             this->authenticationManager.processRequest(
                 request.authenticationrequestdata());
         response->set_allocated_authenticationresponsedata(authResponse);
         return nullptr;
       }
-      // for now we're skipping authentication
-      if (!request.has_newcompactionchunk()) {
+      // receive `BackupKeyEntropy`
+      if (this->keyEntropy.empty() && !request.has_backupkeyentropy()) {
+        throw std::runtime_error(
+            "backup key entropy expected but not received");
+      }
+      if (this->keyEntropy.empty()) {
+        std::cout << "here handle request key entropy" << std::endl;
+        if (this->authenticationManager.getAuthenticationType() ==
+            auth::AuthenticationType::PAKE) {
+          this->keyEntropy = request.backupkeyentropy().nonce();
+        } else if (
+            this->authenticationManager.getAuthenticationType() ==
+            auth::AuthenticationType::WALLET) {
+          this->keyEntropy = request.backupkeyentropy().rawmessage();
+        } else {
+          throw std::runtime_error("no key entropy provided");
+        }
         return nullptr;
       }
-      std::cout << "processing data chunk" << std::endl;
-      // TODO handle request
-      return std::make_unique<grpc::Status>(
-          grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
+
+      // receive `newCompactionChunk`s...
+      std::cout << "here handle request data chunk"
+                << request.newcompactionchunk().size() << std::endl;
+
+      return nullptr;
+    }
+
+    void doneCallback() {
+      std::cout << "create new backup done " << this->status.error_code() << "/"
+                << this->status.error_message() << std::endl;
     }
   };
 
