@@ -1,12 +1,14 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
 
 namespace comm {
 namespace network {
+namespace reactor {
 
 template <class Request, class Response>
 class WriteReactorBase : public grpc::ServerWriteReactor<Response> {
@@ -46,6 +48,7 @@ void WriteReactorBase<Request, Response>::NextWrite() {
       this->initialize();
       this->initialized = true;
     }
+    this->response = Response();
     std::unique_ptr<grpc::Status> status = this->writeResponse(&this->response);
     if (status != nullptr) {
       this->Finish(*status);
@@ -77,5 +80,6 @@ void WriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
   }
 }
 
+} // namespace reactor
 } // namespace network
 } // namespace comm

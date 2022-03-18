@@ -1,12 +1,14 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
 
 namespace comm {
 namespace network {
+namespace reactor {
 
 template <class Request, class Response>
 class ServerBidiReactorBase
@@ -59,6 +61,7 @@ void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
     return;
   }
   try {
+    this->response = Response();
     std::unique_ptr<grpc::Status> status =
         this->handleRequest(this->request, &this->response);
     if (status != nullptr) {
@@ -80,5 +83,6 @@ void ServerBidiReactorBase<Request, Response>::OnWriteDone(bool ok) {
   this->StartRead(&this->request);
 }
 
+} // namespace reactor
 } // namespace network
 } // namespace comm

@@ -1,12 +1,14 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
 
 namespace comm {
 namespace network {
+namespace reactor {
 
 template <class Request, class Response>
 class ServerReadReactorBase : public grpc::ServerReadReactor<Request> {
@@ -68,5 +70,6 @@ void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
   this->StartRead(&this->request);
 }
 
+} // namespace reactor
 } // namespace network
 } // namespace comm
