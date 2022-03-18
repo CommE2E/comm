@@ -3,6 +3,9 @@
 #include "AuthenticationManager.h"
 #include "ServerReadReactorBase.h"
 
+#include "../_generated/backup.grpc.pb.h"
+#include "../_generated/backup.pb.h"
+
 #include <iostream>
 #include <memory>
 #include <string>
