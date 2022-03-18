@@ -1,23 +1,25 @@
 #include <grpcpp/grpcpp.h>
 
-#include "../_generated/blob.grpc.pb.h"
-#include "../_generated/blob.pb.h"
+namespace comm {
+namespace network {
+namespace reactor {
 
 template <class Request, class Response>
 class ClientBidiReactorBase
     : public grpc::ClientBidiReactor<Request, Response> {
   std::shared_ptr<Response> response = nullptr;
-  grpc::Status status;
   bool done = false;
   bool initialized = 0;
 
 protected:
   Request request;
+  grpc::Status status;
 
 public:
   grpc::ClientContext context;
 
   void nextWrite() {
+    this->request = Request();
     std::unique_ptr<grpc::Status> status =
         this->prepareRequest(this->request, this->response);
     if (status != nullptr) {
@@ -40,6 +42,7 @@ public:
     std::cout << "DONE [code=" << status.error_code()
               << "][err=" << status.error_message() << "]" << std::endl;
     this->done = true;
+    this->doneCallback();
   }
 
   bool isDone() {
@@ -71,4 +74,9 @@ public:
   virtual std::unique_ptr<grpc::Status> prepareRequest(
       Request &request,
       std::shared_ptr<Response> previousResponse) = 0;
+  virtual void doneCallback(){};
 };
+
+} // namespace reactor
+} // namespace network
+} // namespace comm

@@ -2,8 +2,9 @@
 
 #include <functional>
 
-#include "../_generated/blob.grpc.pb.h"
-#include "../_generated/blob.pb.h"
+namespace comm {
+namespace network {
+namespace reactor {
 
 template <class Request, class Response>
 class ClientReadReactorBase : public grpc::ClientReadReactor<Response> {
@@ -56,3 +57,7 @@ public:
   readResponse(const Response &response) = 0;
   virtual void doneCallback(){};
 };
+
+} // namespace reactor
+} // namespace network
+} // namespace comm

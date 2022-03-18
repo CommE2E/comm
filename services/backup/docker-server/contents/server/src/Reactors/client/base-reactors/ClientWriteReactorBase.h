@@ -1,7 +1,8 @@
 #include <grpcpp/grpcpp.h>
 
-#include "../_generated/blob.grpc.pb.h"
-#include "../_generated/blob.pb.h"
+namespace comm {
+namespace network {
+namespace reactor {
 
 template <class Request, class Response>
 class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request> {
@@ -15,6 +16,7 @@ public:
   grpc::ClientContext context;
 
   void nextWrite() {
+    this->request = Request();
     std::unique_ptr<grpc::Status> status = this->prepareRequest(this->request);
     if (status != nullptr) {
       this->terminate(*status);
@@ -59,3 +61,7 @@ public:
   virtual void doneCallback() {
   }
 };
+
+} // namespace reactor
+} // namespace network
+} // namespace comm
