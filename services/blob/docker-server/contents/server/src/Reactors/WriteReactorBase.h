@@ -46,6 +46,7 @@ void WriteReactorBase<Request, Response>::NextWrite() {
       this->initialize();
       this->initialized = true;
     }
+    this->response = Response();
     std::unique_ptr<grpc::Status> status = this->writeResponse(&this->response);
     if (status != nullptr) {
       this->Finish(*status);

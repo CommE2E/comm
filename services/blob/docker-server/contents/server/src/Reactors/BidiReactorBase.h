@@ -63,6 +63,7 @@ void BidiReactorBase<Request, Response>::OnReadDone(bool ok) {
     return;
   }
   try {
+    this->response = Response();
     std::unique_ptr<grpc::Status> status =
         this->handleRequest(this->request, &this->response);
     if (status != nullptr) {
