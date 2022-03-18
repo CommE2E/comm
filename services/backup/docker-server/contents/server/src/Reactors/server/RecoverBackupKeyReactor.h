@@ -20,12 +20,15 @@ class RecoverBackupKeyReactor : public ServerBidiReactorBase<
 public:
   std::unique_ptr<grpc::Status> handleRequest(
       backup::RecoverBackupKeyRequest request,
-      backup::RecoverBackupKeyResponse *response)
-      override { // TODO handle request
-    return std::make_unique<grpc::Status>(
-        grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
-  }
+      backup::RecoverBackupKeyResponse *response);
 };
+
+std::unique_ptr<grpc::Status> RecoverBackupKeyReactor::handleRequest(
+    backup::RecoverBackupKeyRequest request,
+    backup::RecoverBackupKeyResponse *response) { // TODO handle request
+  return std::make_unique<grpc::Status>(
+      grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
+}
 
 } // namespace reactor
 } // namespace network

@@ -26,6 +26,7 @@ class ServiceBlobClient {
 
 public:
   static ServiceBlobClient &getInstance() {
+    // todo consider threads
     static ServiceBlobClient instance;
     return instance;
   }
@@ -44,8 +45,6 @@ public:
   }
   // void get(const std::string &holder);
   // void remove(const std::string &holder);
-
-  bool reactorActive();
 };
 
 } // namespace network

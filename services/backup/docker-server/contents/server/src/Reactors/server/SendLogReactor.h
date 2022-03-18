@@ -28,33 +28,38 @@ class SendLogReactor : public ServerReadReactorBase<
 public:
   using ServerReadReactorBase<backup::SendLogRequest, google::protobuf::Empty>::
       ServerReadReactorBase;
-  std::unique_ptr<grpc::Status>
-  readRequest(backup::SendLogRequest request) override {
-    std::cout << "here send log enter" << std::endl;
-    switch (this->state) {
-      case State::AUTHENTICATION: {
-        std::cout << "here send log auth" << std::endl;
-        if (!this->authenticationManager.performSimpleAuthentication(
-                request.authenticationdata())) {
-          throw std::runtime_error("simple authentication failed");
-        }
-        this->state = State::RECEIVING_LOGS;
-        return nullptr;
-      }
-      case State::RECEIVING_LOGS: {
-        std::cout << "here handle request log chunk "
-                  << request.logdata().size() << std::endl;
-        return nullptr;
-      }
-    }
-    throw std::runtime_error("send log - invalid state");
-  }
 
-  void doneCallback() override {
-    std::cout << "receive logs done " << this->status.error_code() << "/"
-              << this->status.error_message() << std::endl;
-  }
+  std::unique_ptr<grpc::Status>
+  readRequest(backup::SendLogRequest request) override;
+  void doneCallback() override;
 };
+
+std::unique_ptr<grpc::Status>
+SendLogReactor::readRequest(backup::SendLogRequest request) {
+  std::cout << "here send log enter" << std::endl;
+  switch (this->state) {
+    case State::AUTHENTICATION: {
+      std::cout << "here send log auth" << std::endl;
+      if (!this->authenticationManager.performSimpleAuthentication(
+              request.authenticationdata())) {
+        throw std::runtime_error("simple authentication failed");
+      }
+      this->state = State::RECEIVING_LOGS;
+      return nullptr;
+    }
+    case State::RECEIVING_LOGS: {
+      std::cout << "here handle request log chunk " << request.logdata().size()
+                << std::endl;
+      return nullptr;
+    }
+  }
+  throw std::runtime_error("send log - invalid state");
+}
+
+void SendLogReactor::doneCallback() {
+  std::cout << "receive logs done " << this->status.error_code() << "/"
+            << this->status.error_message() << std::endl;
+}
 
 } // namespace reactor
 } // namespace network

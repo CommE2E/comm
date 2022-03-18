@@ -20,12 +20,16 @@ class PullBackupReactor : public ServerBidiReactorBase<
 public:
   std::unique_ptr<grpc::Status> handleRequest(
       backup::PullBackupRequest request,
-      backup::PullBackupResponse *response) override {
-    // TODO handle request
-    return std::make_unique<grpc::Status>(
-        grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
-  }
+      backup::PullBackupResponse *response) override;
 };
+
+std::unique_ptr<grpc::Status> PullBackupReactor::handleRequest(
+    backup::PullBackupRequest request,
+    backup::PullBackupResponse *response) {
+  // TODO handle request
+  return std::make_unique<grpc::Status>(
+      grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
+}
 
 } // namespace reactor
 } // namespace network
