@@ -22,16 +22,18 @@ type Props = {
   +threadInfo: ThreadInfo,
 };
 function MessagePreview(props: Props): React.Node {
+  const previewCls = classNames(css.lastMessage, css.dark);
+  const unread = props.threadInfo.currentUser.unread;
+  const colorStyle = unread ? css.black : css.dark;
+  const lastMsgCls = classNames(css.lastMessage, colorStyle);
+
   if (!props.messageInfo) {
-    return (
-      <div className={classNames(css.lastMessage, css.dark)}>No messages</div>
-    );
+    return <div className={previewCls}>No messages</div>;
   }
   const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
     props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
       ? props.messageInfo.sourceMessage
       : props.messageInfo;
-  const unread = props.threadInfo.currentUser.unread;
   const messageTitle = getMessageTitle(
     messageInfo,
     props.threadInfo,
@@ -49,20 +51,14 @@ function MessagePreview(props: Props): React.Node {
       const usernameStyle = unread ? css.black : css.light;
       usernameText = <span className={usernameStyle}>{username}</span>;
     }
-    const colorStyle = unread ? css.black : css.dark;
     return (
-      <div className={classNames(css.lastMessage, colorStyle)}>
+      <div className={lastMsgCls}>
         {usernameText}
         {messageTitle}
       </div>
     );
   } else {
-    const colorStyle = unread ? css.black : css.light;
-    return (
-      <div className={classNames([css.lastMessage, colorStyle])}>
-        {messageTitle}
-      </div>
-    );
+    return <div className={lastMsgCls}>{messageTitle}</div>;
   }
 }
 
