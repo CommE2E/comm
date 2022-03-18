@@ -74,7 +74,11 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
 
     const { inputDisabled } = this.props;
     return (
-      <Modal name="Edit account" onClose={this.props.clearModal} size="large">
+      <Modal
+        name="Change Password"
+        onClose={this.props.clearModal}
+        size="large"
+      >
         <div className={css['modal-body']}>
           <form method="POST">
             <div>
@@ -129,7 +133,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
                   onClick={this.onSubmit}
                   disabled={inputDisabled}
                 >
-                  Update Account
+                  Change Password
                 </Button>
                 {errorMsg}
               </div>
