@@ -24,9 +24,7 @@ type Props = {
 function MessagePreview(props: Props): React.Node {
   if (!props.messageInfo) {
     return (
-      <div className={classNames(css.lastMessage, css.dark, css.italic)}>
-        No messages
-      </div>
+      <div className={classNames(css.lastMessage, css.dark)}>No messages</div>
     );
   }
   const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
