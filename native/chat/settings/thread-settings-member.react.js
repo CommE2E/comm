@@ -19,6 +19,7 @@ import {
   threadHasPermission,
   memberIsAdmin,
   memberHasAdminPowers,
+  threadHasAdminRole,
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -95,7 +96,11 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
       result.push('remove_user');
     }
 
-    if (canChangeRoles && this.props.memberInfo.username) {
+    if (
+      canChangeRoles &&
+      this.props.memberInfo.username &&
+      threadHasAdminRole(this.props.threadInfo)
+    ) {
       result.push(
         memberIsAdmin(this.props.memberInfo, this.props.threadInfo)
           ? 'remove_admin'
