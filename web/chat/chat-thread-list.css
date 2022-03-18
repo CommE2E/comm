@@ -1,8 +1,6 @@
 div.thread {
   display: flex;
   flex-direction: row;
-  padding-top: 4px;
-  padding-bottom: 4px;
 }
 div.threadListSidebar {
   display: flex;
@@ -63,6 +61,7 @@ a.threadButton + div {
 a.threadButton + div {
   display: flex;
   flex-direction: column;
+  padding-top: 8px;
 }
 .threadButtonSidebar {
   flex: 1;
@@ -113,6 +112,8 @@ div.lastMessage {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: var(--line-height-text);
+  padding-bottom: 8px;
 }
 div.threadRow > .lastMessage {
   color: var(--thread-last-message-color-read);
