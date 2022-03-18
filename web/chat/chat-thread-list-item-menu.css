@@ -15,7 +15,6 @@ div.sidebar:hover .menu {
   display: flex;
   justify-content: flex-end;
   padding-right: 8px;
-  flex-grow: 1;
 }
 .menu > button {
   background-color: transparent;

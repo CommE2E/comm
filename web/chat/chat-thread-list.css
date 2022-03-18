@@ -1,8 +1,6 @@
 div.thread {
   display: flex;
   flex-direction: row;
-  padding-top: 4px;
-  padding-bottom: 4px;
 }
 div.threadListSidebar {
   display: flex;
@@ -38,11 +36,12 @@ a.threadButton {
   flex: 1;
   cursor: pointer;
   overflow: hidden;
-  padding-left: 8px;
+  padding-left: 12px;
 }
 a.threadButton + div {
   display: flex;
   flex-direction: column;
+  padding-top: 8px;
 }
 .threadButtonSidebar {
   flex: 1;
@@ -54,6 +53,7 @@ a.threadButton + div {
 }
 p.breadCrumbs {
   display: flex;
+  padding: 8px 0 2px 0;
   font-size: var(--xs-font-12);
   font-weight: var(--normal);
   color: var(--breadcrumb-color);
@@ -70,6 +70,7 @@ span.breadCrumb {
 
 div.colorContainer {
   display: flex;
+  padding-top: 8px;
 }
 
 div.spacer,
@@ -91,6 +92,8 @@ div.lastMessage {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: var(--line-height-text);
+  padding-bottom: 8px;
 }
 div.threadRow > .lastMessage {
   color: var(--thread-last-message-color-read);
