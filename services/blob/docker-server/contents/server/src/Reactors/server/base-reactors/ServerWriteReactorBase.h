@@ -1,15 +1,17 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
 
 namespace comm {
 namespace network {
+namespace reactor {
 
 template <class Request, class Response>
-class WriteReactorBase : public grpc::ServerWriteReactor<Response> {
+class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response> {
   Response response;
   bool initialized = false;
 
@@ -18,7 +20,7 @@ protected:
   const Request &request;
 
 public:
-  WriteReactorBase(const Request *request);
+  ServerWriteReactorBase(const Request *request);
 
   virtual void NextWrite();
   void OnDone() override;
@@ -30,7 +32,8 @@ public:
 };
 
 template <class Request, class Response>
-WriteReactorBase<Request, Response>::WriteReactorBase(const Request *request)
+ServerWriteReactorBase<Request, Response>::ServerWriteReactorBase(
+    const Request *request)
     : request(*request) {
   // we cannot call this->NextWrite() here because it's going to call it on
   // the base class, not derived leading to the runtime error of calling
@@ -40,7 +43,7 @@ WriteReactorBase<Request, Response>::WriteReactorBase(const Request *request)
 }
 
 template <class Request, class Response>
-void WriteReactorBase<Request, Response>::NextWrite() {
+void ServerWriteReactorBase<Request, Response>::NextWrite() {
   try {
     if (!this->initialized) {
       this->initialize();
@@ -60,13 +63,13 @@ void WriteReactorBase<Request, Response>::NextWrite() {
 }
 
 template <class Request, class Response>
-void WriteReactorBase<Request, Response>::OnDone() {
+void ServerWriteReactorBase<Request, Response>::OnDone() {
   this->doneCallback();
   delete this;
 }
 
 template <class Request, class Response>
-void WriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
+void ServerWriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
   if (!ok) {
     this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, "writing error"));
     return;
@@ -78,5 +81,6 @@ void WriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
   }
 }
 
+} // namespace reactor
 } // namespace network
 } // namespace comm

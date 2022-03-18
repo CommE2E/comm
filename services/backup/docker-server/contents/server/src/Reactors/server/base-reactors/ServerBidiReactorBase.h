@@ -19,6 +19,7 @@ class ServerBidiReactorBase
 protected:
   grpc::Status status;
   bool readingAborted = false;
+  bool sendLastResponse = false;
 
 public:
   ServerBidiReactorBase();
@@ -50,7 +51,11 @@ void ServerBidiReactorBase<Request, Response>::OnDone() {
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::terminate(grpc::Status status) {
   this->status = status;
-  this->Finish(status);
+  if (this->sendLastResponse) {
+    this->StartWriteAndFinish(&this->response, grpc::WriteOptions(), status);
+  } else {
+    this->Finish(status);
+  }
 }
 
 template <class Request, class Response>

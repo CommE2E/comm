@@ -1,22 +1,27 @@
 #pragma once
 
 #include <grpcpp/grpcpp.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
 
 namespace comm {
 namespace network {
+namespace reactor {
 
 template <class Request, class Response>
-class ReadReactorBase : public grpc::ServerReadReactor<Request> {
+class ServerReadReactorBase : public grpc::ServerReadReactor<Request> {
   Request request;
+
+  void terminate(grpc::Status status);
 
 protected:
   Response *response;
+  grpc::Status status;
 
 public:
-  ReadReactorBase(Response *response);
+  ServerReadReactorBase(Response *response);
 
   void OnDone() override;
   void OnReadDone(bool ok) override;
@@ -27,36 +32,44 @@ public:
 };
 
 template <class Request, class Response>
-ReadReactorBase<Request, Response>::ReadReactorBase(Response *response)
+void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
+  this->status = status;
+  this->Finish(status);
+}
+
+template <class Request, class Response>
+ServerReadReactorBase<Request, Response>::ServerReadReactorBase(
+    Response *response)
     : response(response) {
   this->initialize();
   this->StartRead(&this->request);
 }
 
 template <class Request, class Response>
-void ReadReactorBase<Request, Response>::OnDone() {
+void ServerReadReactorBase<Request, Response>::OnDone() {
   this->doneCallback();
   delete this;
 }
 
 template <class Request, class Response>
-void ReadReactorBase<Request, Response>::OnReadDone(bool ok) {
+void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
   if (!ok) {
-    this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, "reading error"));
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, "reading error"));
     return;
   }
   try {
     std::unique_ptr<grpc::Status> status = this->readRequest(this->request);
     if (status != nullptr) {
-      this->Finish(*status);
+      this->terminate(*status);
       return;
     }
   } catch (std::runtime_error &e) {
-    this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
     return;
   }
   this->StartRead(&this->request);
 }
 
+} // namespace reactor
 } // namespace network
 } // namespace comm
