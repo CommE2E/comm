@@ -79,7 +79,8 @@ message CreateNewBackupRequest {
   oneof data {
     FullAuthenticationRequestData authenticationRequestData = 1;
     BackupKeyEntropy backupKeyEntropy = 2;
-    bytes newCompactionChunk = 3;
+    bytes newCompactionHash = 3;
+    bytes newCompactionChunk = 4;
   }
 }
 

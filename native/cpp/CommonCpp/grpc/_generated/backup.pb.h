@@ -1857,7 +1857,8 @@ class CreateNewBackupRequest PROTOBUF_FINAL :
   enum DataCase {
     kAuthenticationRequestData = 1,
     kBackupKeyEntropy = 2,
-    kNewCompactionChunk = 3,
+    kNewCompactionHash = 3,
+    kNewCompactionChunk = 4,
     DATA_NOT_SET = 0,
   };
 
@@ -1938,7 +1939,8 @@ class CreateNewBackupRequest PROTOBUF_FINAL :
   enum : int {
     kAuthenticationRequestDataFieldNumber = 1,
     kBackupKeyEntropyFieldNumber = 2,
-    kNewCompactionChunkFieldNumber = 3,
+    kNewCompactionHashFieldNumber = 3,
+    kNewCompactionChunkFieldNumber = 4,
   };
   // .backup.FullAuthenticationRequestData authenticationRequestData = 1;
   bool has_authenticationrequestdata() const;
@@ -1976,7 +1978,27 @@ class CreateNewBackupRequest PROTOBUF_FINAL :
       ::backup::BackupKeyEntropy* backupkeyentropy);
   ::backup::BackupKeyEntropy* unsafe_arena_release_backupkeyentropy();
 
-  // bytes newCompactionChunk = 3;
+  // bytes newCompactionHash = 3;
+  bool has_newcompactionhash() const;
+  private:
+  bool _internal_has_newcompactionhash() const;
+  public:
+  void clear_newcompactionhash();
+  const std::string& newcompactionhash() const;
+  void set_newcompactionhash(const std::string& value);
+  void set_newcompactionhash(std::string&& value);
+  void set_newcompactionhash(const char* value);
+  void set_newcompactionhash(const void* value, size_t size);
+  std::string* mutable_newcompactionhash();
+  std::string* release_newcompactionhash();
+  void set_allocated_newcompactionhash(std::string* newcompactionhash);
+  private:
+  const std::string& _internal_newcompactionhash() const;
+  void _internal_set_newcompactionhash(const std::string& value);
+  std::string* _internal_mutable_newcompactionhash();
+  public:
+
+  // bytes newCompactionChunk = 4;
   bool has_newcompactionchunk() const;
   private:
   bool _internal_has_newcompactionchunk() const;
@@ -2003,6 +2025,7 @@ class CreateNewBackupRequest PROTOBUF_FINAL :
   class _Internal;
   void set_has_authenticationrequestdata();
   void set_has_backupkeyentropy();
+  void set_has_newcompactionhash();
   void set_has_newcompactionchunk();
 
   inline bool has_data() const;
@@ -2016,6 +2039,7 @@ class CreateNewBackupRequest PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
     ::backup::FullAuthenticationRequestData* authenticationrequestdata_;
     ::backup::BackupKeyEntropy* backupkeyentropy_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr newcompactionhash_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr newcompactionchunk_;
   } data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -5159,7 +5183,117 @@ inline ::backup::BackupKeyEntropy* CreateNewBackupRequest::mutable_backupkeyentr
   return _internal_mutable_backupkeyentropy();
 }
 
-// bytes newCompactionChunk = 3;
+// bytes newCompactionHash = 3;
+inline bool CreateNewBackupRequest::_internal_has_newcompactionhash() const {
+  return data_case() == kNewCompactionHash;
+}
+inline bool CreateNewBackupRequest::has_newcompactionhash() const {
+  return _internal_has_newcompactionhash();
+}
+inline void CreateNewBackupRequest::set_has_newcompactionhash() {
+  _oneof_case_[0] = kNewCompactionHash;
+}
+inline void CreateNewBackupRequest::clear_newcompactionhash() {
+  if (_internal_has_newcompactionhash()) {
+    data_.newcompactionhash_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
+}
+inline const std::string& CreateNewBackupRequest::newcompactionhash() const {
+  // @@protoc_insertion_point(field_get:backup.CreateNewBackupRequest.newCompactionHash)
+  return _internal_newcompactionhash();
+}
+inline void CreateNewBackupRequest::set_newcompactionhash(const std::string& value) {
+  _internal_set_newcompactionhash(value);
+  // @@protoc_insertion_point(field_set:backup.CreateNewBackupRequest.newCompactionHash)
+}
+inline std::string* CreateNewBackupRequest::mutable_newcompactionhash() {
+  // @@protoc_insertion_point(field_mutable:backup.CreateNewBackupRequest.newCompactionHash)
+  return _internal_mutable_newcompactionhash();
+}
+inline const std::string& CreateNewBackupRequest::_internal_newcompactionhash() const {
+  if (_internal_has_newcompactionhash()) {
+    return data_.newcompactionhash_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void CreateNewBackupRequest::_internal_set_newcompactionhash(const std::string& value) {
+  if (!_internal_has_newcompactionhash()) {
+    clear_data();
+    set_has_newcompactionhash();
+    data_.newcompactionhash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newcompactionhash_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void CreateNewBackupRequest::set_newcompactionhash(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.CreateNewBackupRequest.newCompactionHash)
+  if (!_internal_has_newcompactionhash()) {
+    clear_data();
+    set_has_newcompactionhash();
+    data_.newcompactionhash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newcompactionhash_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.CreateNewBackupRequest.newCompactionHash)
+}
+inline void CreateNewBackupRequest::set_newcompactionhash(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_newcompactionhash()) {
+    clear_data();
+    set_has_newcompactionhash();
+    data_.newcompactionhash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newcompactionhash_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.CreateNewBackupRequest.newCompactionHash)
+}
+inline void CreateNewBackupRequest::set_newcompactionhash(const void* value,
+                             size_t size) {
+  if (!_internal_has_newcompactionhash()) {
+    clear_data();
+    set_has_newcompactionhash();
+    data_.newcompactionhash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newcompactionhash_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.CreateNewBackupRequest.newCompactionHash)
+}
+inline std::string* CreateNewBackupRequest::_internal_mutable_newcompactionhash() {
+  if (!_internal_has_newcompactionhash()) {
+    clear_data();
+    set_has_newcompactionhash();
+    data_.newcompactionhash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.newcompactionhash_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* CreateNewBackupRequest::release_newcompactionhash() {
+  // @@protoc_insertion_point(field_release:backup.CreateNewBackupRequest.newCompactionHash)
+  if (_internal_has_newcompactionhash()) {
+    clear_has_data();
+    return data_.newcompactionhash_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void CreateNewBackupRequest::set_allocated_newcompactionhash(std::string* newcompactionhash) {
+  if (has_data()) {
+    clear_data();
+  }
+  if (newcompactionhash != nullptr) {
+    set_has_newcompactionhash();
+    data_.newcompactionhash_.UnsafeSetDefault(newcompactionhash);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(newcompactionhash);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.CreateNewBackupRequest.newCompactionHash)
+}
+
+// bytes newCompactionChunk = 4;
 inline bool CreateNewBackupRequest::_internal_has_newcompactionchunk() const {
   return data_case() == kNewCompactionChunk;
 }
