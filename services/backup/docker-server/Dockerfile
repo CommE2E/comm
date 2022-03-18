@@ -9,6 +9,7 @@ ENV COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
 
 COPY services/backup/docker-server/contents /transferred
 COPY native/cpp/CommonCpp/grpc/protos/backup.proto /transferred/server/protos/backup.proto
+COPY native/cpp/CommonCpp/grpc/protos/blob.proto /transferred/server/protos/blob.proto
 
 RUN /transferred/build_server.sh
 
