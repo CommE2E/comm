@@ -104,6 +104,10 @@ div.twitter_icon:hover {
   .social_icon {
     display: block;
   }
+
+  div.webapp_icon {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 480px) {
