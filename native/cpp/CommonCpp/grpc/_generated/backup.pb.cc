@@ -301,6 +301,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_backup_2eproto::offsets[] PROT
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::backup::CreateNewBackupRequest, data_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::backup::CreateNewBackupResponse, _internal_metadata_),
@@ -359,12 +360,12 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 58, -1, sizeof(::backup::SimpleAuthenticationRequestData)},
   { 65, -1, sizeof(::backup::BackupKeyEntropy)},
   { 73, -1, sizeof(::backup::CreateNewBackupRequest)},
-  { 82, -1, sizeof(::backup::CreateNewBackupResponse)},
-  { 91, -1, sizeof(::backup::SendLogRequest)},
-  { 98, -1, sizeof(::backup::RecoverBackupKeyRequest)},
-  { 104, -1, sizeof(::backup::RecoverBackupKeyResponse)},
-  { 113, -1, sizeof(::backup::PullBackupRequest)},
-  { 119, -1, sizeof(::backup::PullBackupResponse)},
+  { 83, -1, sizeof(::backup::CreateNewBackupResponse)},
+  { 92, -1, sizeof(::backup::SendLogRequest)},
+  { 99, -1, sizeof(::backup::RecoverBackupKeyRequest)},
+  { 105, -1, sizeof(::backup::RecoverBackupKeyResponse)},
+  { 114, -1, sizeof(::backup::PullBackupRequest)},
+  { 120, -1, sizeof(::backup::PullBackupResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -418,46 +419,46 @@ const char descriptor_table_protodef_backup_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "DataH\000B\006\n\004data\"C\n\037SimpleAuthenticationRe"
   "questData\022\020\n\010backupID\030\001 \001(\t\022\016\n\006userID\030\002 "
   "\001(\t\"A\n\020BackupKeyEntropy\022\017\n\005nonce\030\001 \001(\014H\000"
-  "\022\024\n\nrawMessage\030\002 \001(\014H\000B\006\n\004data\"\300\001\n\026Creat"
+  "\022\024\n\nrawMessage\030\002 \001(\014H\000B\006\n\004data\"\335\001\n\026Creat"
   "eNewBackupRequest\022J\n\031authenticationReque"
   "stData\030\001 \001(\0132%.backup.FullAuthentication"
   "RequestDataH\000\0224\n\020backupKeyEntropy\030\002 \001(\0132"
-  "\030.backup.BackupKeyEntropyH\000\022\034\n\022newCompac"
-  "tionChunk\030\003 \001(\014H\000B\006\n\004data\"\233\001\n\027CreateNewB"
-  "ackupResponse\022L\n\032authenticationResponseD"
-  "ata\030\001 \001(\0132&.backup.FullAuthenticationRes"
-  "ponseDataH\000\022\026\n\014entropyValid\030\002 \001(\010H\000\022\022\n\010b"
-  "ackupID\030\003 \001(\tH\000B\006\n\004data\"f\n\016SendLogReques"
-  "t\022C\n\022authenticationData\030\001 \001(\0132\'.backup.S"
-  "impleAuthenticationRequestData\022\017\n\007logDat"
-  "a\030\002 \001(\014\"\\\n\027RecoverBackupKeyRequest\022A\n\022au"
-  "thenticationData\030\001 \001(\0132%.backup.FullAuth"
-  "enticationRequestData\"\272\001\n\030RecoverBackupK"
-  "eyResponse\022L\n\032authenticationResponseData"
-  "\030\001 \001(\0132&.backup.FullAuthenticationRespon"
-  "seDataH\000\0224\n\020backupKeyEntropy\030\002 \001(\0132\030.bac"
-  "kup.BackupKeyEntropyH\000\022\022\n\010backupID\030\004 \001(\t"
-  "H\000B\006\n\004data\"X\n\021PullBackupRequest\022C\n\022authe"
-  "nticationData\030\001 \001(\0132\'.backup.SimpleAuthe"
-  "nticationRequestData\"K\n\022PullBackupRespon"
-  "se\022\031\n\017compactionChunk\030\001 \001(\014H\000\022\022\n\010logChun"
-  "k\030\002 \001(\014H\000B\006\n\004data2\320\002\n\rBackupService\022X\n\017C"
-  "reateNewBackup\022\036.backup.CreateNewBackupR"
-  "equest\032\037.backup.CreateNewBackupResponse\""
-  "\000(\0010\001\022=\n\007SendLog\022\026.backup.SendLogRequest"
-  "\032\026.google.protobuf.Empty\"\000(\001\022[\n\020RecoverB"
-  "ackupKey\022\037.backup.RecoverBackupKeyReques"
-  "t\032 .backup.RecoverBackupKeyResponse\"\000(\0010"
-  "\001\022I\n\nPullBackup\022\031.backup.PullBackupReque"
-  "st\032\032.backup.PullBackupResponse\"\000(\0010\001b\006pr"
-  "oto3"
+  "\030.backup.BackupKeyEntropyH\000\022\033\n\021newCompac"
+  "tionHash\030\003 \001(\014H\000\022\034\n\022newCompactionChunk\030\004"
+  " \001(\014H\000B\006\n\004data\"\233\001\n\027CreateNewBackupRespon"
+  "se\022L\n\032authenticationResponseData\030\001 \001(\0132&"
+  ".backup.FullAuthenticationResponseDataH\000"
+  "\022\026\n\014entropyValid\030\002 \001(\010H\000\022\022\n\010backupID\030\003 \001"
+  "(\tH\000B\006\n\004data\"f\n\016SendLogRequest\022C\n\022authen"
+  "ticationData\030\001 \001(\0132\'.backup.SimpleAuthen"
+  "ticationRequestData\022\017\n\007logData\030\002 \001(\014\"\\\n\027"
+  "RecoverBackupKeyRequest\022A\n\022authenticatio"
+  "nData\030\001 \001(\0132%.backup.FullAuthenticationR"
+  "equestData\"\272\001\n\030RecoverBackupKeyResponse\022"
+  "L\n\032authenticationResponseData\030\001 \001(\0132&.ba"
+  "ckup.FullAuthenticationResponseDataH\000\0224\n"
+  "\020backupKeyEntropy\030\002 \001(\0132\030.backup.BackupK"
+  "eyEntropyH\000\022\022\n\010backupID\030\004 \001(\tH\000B\006\n\004data\""
+  "X\n\021PullBackupRequest\022C\n\022authenticationDa"
+  "ta\030\001 \001(\0132\'.backup.SimpleAuthenticationRe"
+  "questData\"K\n\022PullBackupResponse\022\031\n\017compa"
+  "ctionChunk\030\001 \001(\014H\000\022\022\n\010logChunk\030\002 \001(\014H\000B\006"
+  "\n\004data2\320\002\n\rBackupService\022X\n\017CreateNewBac"
+  "kup\022\036.backup.CreateNewBackupRequest\032\037.ba"
+  "ckup.CreateNewBackupResponse\"\000(\0010\001\022=\n\007Se"
+  "ndLog\022\026.backup.SendLogRequest\032\026.google.p"
+  "rotobuf.Empty\"\000(\001\022[\n\020RecoverBackupKey\022\037."
+  "backup.RecoverBackupKeyRequest\032 .backup."
+  "RecoverBackupKeyResponse\"\000(\0010\001\022I\n\nPullBa"
+  "ckup\022\031.backup.PullBackupRequest\032\032.backup"
+  ".PullBackupResponse\"\000(\0010\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_backup_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_backup_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_backup_2eproto = {
-  false, false, 2524, descriptor_table_protodef_backup_2eproto, "backup.proto", 
+  false, false, 2553, descriptor_table_protodef_backup_2eproto, "backup.proto", 
   &descriptor_table_backup_2eproto_once, descriptor_table_backup_2eproto_deps, 1, 16,
   schemas, file_default_instances, TableStruct_backup_2eproto::offsets,
   file_level_metadata_backup_2eproto, file_level_enum_descriptors_backup_2eproto, file_level_service_descriptors_backup_2eproto,
@@ -3053,6 +3054,10 @@ CreateNewBackupRequest::CreateNewBackupRequest(const CreateNewBackupRequest& fro
       _internal_mutable_backupkeyentropy()->::backup::BackupKeyEntropy::MergeFrom(from._internal_backupkeyentropy());
       break;
     }
+    case kNewCompactionHash: {
+      _internal_set_newcompactionhash(from._internal_newcompactionhash());
+      break;
+    }
     case kNewCompactionChunk: {
       _internal_set_newcompactionchunk(from._internal_newcompactionchunk());
       break;
@@ -3106,6 +3111,10 @@ void CreateNewBackupRequest::clear_data() {
       }
       break;
     }
+    case kNewCompactionHash: {
+      data_.newcompactionhash_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+      break;
+    }
     case kNewCompactionChunk: {
       data_.newcompactionchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
       break;
@@ -3149,9 +3158,17 @@ const char* CreateNewBackupRequest::_InternalParse(const char* ptr, ::PROTOBUF_N
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bytes newCompactionChunk = 3;
+      // bytes newCompactionHash = 3;
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          auto str = _internal_mutable_newcompactionhash();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes newCompactionChunk = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
           auto str = _internal_mutable_newcompactionchunk();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -3201,10 +3218,16 @@ failure:
         2, _Internal::backupkeyentropy(this), target, stream);
   }
 
-  // bytes newCompactionChunk = 3;
+  // bytes newCompactionHash = 3;
+  if (_internal_has_newcompactionhash()) {
+    target = stream->WriteBytesMaybeAliased(
+        3, this->_internal_newcompactionhash(), target);
+  }
+
+  // bytes newCompactionChunk = 4;
   if (_internal_has_newcompactionchunk()) {
     target = stream->WriteBytesMaybeAliased(
-        3, this->_internal_newcompactionchunk(), target);
+        4, this->_internal_newcompactionchunk(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3238,7 +3261,14 @@ size_t CreateNewBackupRequest::ByteSizeLong() const {
           *data_.backupkeyentropy_);
       break;
     }
-    // bytes newCompactionChunk = 3;
+    // bytes newCompactionHash = 3;
+    case kNewCompactionHash: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_newcompactionhash());
+      break;
+    }
+    // bytes newCompactionChunk = 4;
     case kNewCompactionChunk: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
@@ -3287,6 +3317,10 @@ void CreateNewBackupRequest::MergeFrom(const CreateNewBackupRequest& from) {
     }
     case kBackupKeyEntropy: {
       _internal_mutable_backupkeyentropy()->::backup::BackupKeyEntropy::MergeFrom(from._internal_backupkeyentropy());
+      break;
+    }
+    case kNewCompactionHash: {
+      _internal_set_newcompactionhash(from._internal_newcompactionhash());
       break;
     }
     case kNewCompactionChunk: {
