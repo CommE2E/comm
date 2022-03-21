@@ -1,4 +1,7 @@
 version: "3.9"
+networks:
+  services-net:
+    name: services-net
 services:
   tunnelbroker-server:
     build:
@@ -21,6 +24,8 @@ services:
       context: ../
     image: commapp/backup-base:1.2
   backup-server:
+    networks:
+      - services-net
     build:
       dockerfile: services/backup/docker-server/Dockerfile
       context: ../
@@ -34,6 +39,8 @@ services:
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
   blob-server:
+    networks:
+      - services-net
     build:
       dockerfile: services/blob/Dockerfile
       context: ../
