@@ -44,6 +44,10 @@ div.sidebar:hover .menu {
   display: block;
 }
 
+.menuSidebar {
+  padding-right: 2px;
+}
+
 button.menuContent {
   border: none;
   cursor: pointer;
