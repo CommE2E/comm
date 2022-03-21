@@ -14,7 +14,7 @@
 namespace comm {
 namespace network {
 
-class BlobServiceImpl final : public blob::BlobService::Service {
+class BlobServiceImpl final : public blob::BlobService::CallbackService {
   void verifyBlobHash(
       const std::string &expectedBlobHash,
       const database::S3Path &s3Path);
@@ -27,16 +27,13 @@ public:
   BlobServiceImpl();
   virtual ~BlobServiceImpl();
 
-  grpc::Status
-  Put(grpc::ServerContext *context,
-      grpc::ServerReaderWriter<blob::PutResponse, blob::PutRequest> *stream)
-      override;
-  grpc::Status
-  Get(grpc::ServerContext *context,
-      const blob::GetRequest *request,
-      grpc::ServerWriter<blob::GetResponse> *writer) override;
-  grpc::Status Remove(
-      grpc::ServerContext *context,
+  grpc::ServerBidiReactor<blob::PutRequest, blob::PutResponse> *
+  Put(grpc::CallbackServerContext *context) override;
+  grpc::ServerWriteReactor<blob::GetResponse> *
+  Get(grpc::CallbackServerContext *context,
+      const blob::GetRequest *request) override;
+  grpc::ServerUnaryReactor *Remove(
+      grpc::CallbackServerContext *context,
       const blob::RemoveRequest *request,
       google::protobuf::Empty *response) override;
 };
