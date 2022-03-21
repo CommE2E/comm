@@ -23,32 +23,10 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
   class CreateNewBackupReactor : public BidiReactorBase<
                                      backup::CreateNewBackupRequest,
                                      backup::CreateNewBackupResponse> {
-    auth::AuthenticationManager authenticationManager;
-
   public:
     std::unique_ptr<grpc::Status> handleRequest(
         backup::CreateNewBackupRequest request,
         backup::CreateNewBackupResponse *response) override {
-      if (this->authenticationManager.getState() !=
-              auth::AuthenticationState::SUCCESS &&
-          !request.has_authenticationrequestdata()) {
-        return std::make_unique<grpc::Status>(
-            grpc::StatusCode::INTERNAL,
-            "authentication has not been finished properly");
-      }
-      if (this->authenticationManager.getState() ==
-          auth::AuthenticationState::FAIL) {
-        return std::make_unique<grpc::Status>(
-            grpc::StatusCode::INTERNAL, "authentication failure");
-      }
-      if (this->authenticationManager.getState() !=
-          auth::AuthenticationState::SUCCESS) {
-        backup::FullAuthenticationResponseData *authResponse =
-            this->authenticationManager.processRequest(
-                request.authenticationrequestdata());
-        response->set_allocated_authenticationresponsedata(authResponse);
-        return nullptr;
-      }
       // TODO handle request
       return std::make_unique<grpc::Status>(
           grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
