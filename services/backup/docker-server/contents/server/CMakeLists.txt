@@ -50,7 +50,6 @@ endforeach()
 include_directories(
   ./src
   ./src/DatabaseEntities
-  ./src/Authentication
   ./src/Reactors/server
   ./src/Reactors/server/base-reactors
   ./src/Reactors/client

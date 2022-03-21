@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AuthenticationManager.h"
 #include "ServerBidiReactorBase.h"
 #include "ServiceBlobClient.h"
 #include "Tools.h"
@@ -23,14 +22,12 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
                                    backup::CreateNewBackupRequest,
                                    backup::CreateNewBackupResponse> {
   enum class State {
-    AUTHENTICATION = 1,
-    KEY_ENTROPY = 2,
-    DATA_HASH = 3,
-    DATA_CHUNKS = 4,
+    KEY_ENTROPY = 1,
+    DATA_HASH = 2,
+    DATA_CHUNKS = 3,
   };
 
-  State state = State::AUTHENTICATION;
-  auth::AuthenticationManager authenticationManager;
+  State state = State::KEY_ENTROPY;
   std::string keyEntropy;
   std::string dataHash;
   std::string backupID;
@@ -54,50 +51,13 @@ std::unique_ptr<grpc::Status> CreateNewBackupReactor::handleRequest(
     backup::CreateNewBackupResponse *response) {
   std::cout << "[CNR] here handle request" << std::endl;
   switch (this->state) {
-    case State::AUTHENTICATION: {
-      if (this->authenticationManager.getState() !=
-              auth::AuthenticationState::SUCCESS &&
-          !request.has_authenticationrequestdata()) {
-        throw std::runtime_error(
-            "authentication has not been finished properly");
-      }
-      if (this->authenticationManager.getState() ==
-          auth::AuthenticationState::FAIL) {
-        throw std::runtime_error("authentication failure");
-      }
-      if (this->authenticationManager.getState() !=
-          auth::AuthenticationState::SUCCESS) {
-        std::cout << "[CNR] here handle request auth" << std::endl;
-        backup::FullAuthenticationResponseData *authResponse =
-            this->authenticationManager.processRequest(
-                request.authenticationrequestdata());
-        if (this->authenticationManager.getState() ==
-            auth::AuthenticationState::SUCCESS) {
-          this->state = State::KEY_ENTROPY;
-        }
-        response->set_allocated_authenticationresponsedata(authResponse);
-        return nullptr;
-      }
-      throw std::runtime_error(
-          "invalid state, still authenticating while authentication's "
-          "succeeded");
-    }
     case State::KEY_ENTROPY: {
-      if (!request.has_backupkeyentropy()) {
+      if (!request.has_keyentropy()) {
         throw std::runtime_error(
             "backup key entropy expected but not received");
       }
       std::cout << "[CNR] here handle request key entropy" << std::endl;
-      if (this->authenticationManager.getAuthenticationType() ==
-          auth::AuthenticationType::PAKE) {
-        this->keyEntropy = request.backupkeyentropy().nonce();
-      } else if (
-          this->authenticationManager.getAuthenticationType() ==
-          auth::AuthenticationType::WALLET) {
-        this->keyEntropy = request.backupkeyentropy().rawmessage();
-      } else {
-        throw std::runtime_error("key entropy: invalid authentication type");
-      }
+      this->keyEntropy = request.keyentropy();
       this->state = State::DATA_HASH;
       return nullptr;
     }

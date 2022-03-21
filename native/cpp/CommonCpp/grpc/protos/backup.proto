@@ -11,104 +11,34 @@ service BackupService {
   rpc PullBackup(stream PullBackupRequest) returns (stream PullBackupResponse) {}
 }
 
-// Helper types
-
-message PakeRegistrationRequestAndUserID {
-  string userID = 1;
-  bytes pakeRegistrationRequest = 2;
-}
-
-message PakeAuthenticationRequestData {
-  oneof data {
-    PakeRegistrationRequestAndUserID pakeRegistrationRequestAndUserID = 1;
-    bytes pakeRegistrationUpload = 2;
-    bytes pakeCredentialRequest = 3;
-    bytes pakeCredentialFinalization = 4;
-    bytes pakeClientMAC = 5;
-  }
-}
-
-message WalletAuthenticationRequestData {
-  string userID = 1;
-  string walletAddress = 2;
-  bytes signedMessage = 3;
-}
-
-message FullAuthenticationRequestData {
-  oneof data {
-    PakeAuthenticationRequestData pakeAuthenticationRequestData = 1;
-    WalletAuthenticationRequestData walletAuthenticationRequestData = 2;
-  }
-}
-
-message WalletAuthenticationResponseData {
-  bool success = 1;
-}
-
-message PakeAuthenticationResponseData {
-  oneof data {
-    bytes pakeRegistrationResponse = 1;
-    bool pakeRegistrationSuccess = 2;
-    bytes pakeCredentialResponse = 3;
-    bytes pakeServerMAC = 4;
-  }
-}
-
-message FullAuthenticationResponseData {
-  oneof data {
-    PakeAuthenticationResponseData pakeAuthenticationResponseData = 1;
-    WalletAuthenticationResponseData walletAuthenticationResponseData = 2;
-  }
-}
-
-message SimpleAuthenticationRequestData {
-  string backupID = 1;
-  string userID = 2;
-}
-
-message BackupKeyEntropy {
-  oneof data {
-    bytes nonce = 1;
-    bytes rawMessage = 2;
-  }
-}
-
 // CreateNewBackup
 
 message CreateNewBackupRequest {
   oneof data {
-    FullAuthenticationRequestData authenticationRequestData = 1;
-    BackupKeyEntropy backupKeyEntropy = 2;
-    bytes newCompactionHash = 3;
-    bytes newCompactionChunk = 4;
+    bytes keyEntropy = 1;
+    bytes newCompactionHash = 2;
+    bytes newCompactionChunk = 3;
   }
 }
 
 message CreateNewBackupResponse {
-  oneof data {
-    FullAuthenticationResponseData authenticationResponseData = 1;
-    bool entropyValid = 2;
-    string backupID = 3;
-  }
+  string backupID = 1;
 }
 
 // SendLog
 
 message SendLogRequest {
-  SimpleAuthenticationRequestData authenticationData = 1;
-  bytes logData = 2;
+  bytes logData = 1;
 }
 
 // RecoverBackupKey
 
 message RecoverBackupKeyRequest {
-  FullAuthenticationRequestData authenticationData = 1;
+  string userID = 1;
 }
 
 message RecoverBackupKeyResponse {
   oneof data {
-    FullAuthenticationResponseData authenticationResponseData = 1;
-    BackupKeyEntropy backupKeyEntropy = 2;
     string backupID = 4;
   }
 }
@@ -116,7 +46,7 @@ message RecoverBackupKeyResponse {
 // PullBackup
 
 message PullBackupRequest {
-  SimpleAuthenticationRequestData authenticationData = 1;
+  string userID = 1;
 }
 
 message PullBackupResponse {
