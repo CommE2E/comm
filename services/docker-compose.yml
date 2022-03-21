@@ -33,15 +33,9 @@ services:
       - "${COMM_SERVICES_PORT_BACKUP}:50051"
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
-  # blob
-  blob-base:
-    build:
-      dockerfile: services/blob/docker-base/Dockerfile
-      context: ../
-    image: commapp/blob-base:1.3
   blob-server:
     build:
-      dockerfile: services/blob/docker-server/Dockerfile
+      dockerfile: services/blob/Dockerfile
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
