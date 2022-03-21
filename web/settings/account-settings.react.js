@@ -6,9 +6,11 @@ import { logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { useServerCall } from 'lib/utils/action-utils';
 
+import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './account-settings.css';
+import PasswordChangeModal from './password-change-modal';
 
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useServerCall(logOut);
@@ -16,6 +18,12 @@ function AccountSettings(): React.Node {
   const logOutUser = React.useCallback(() => {
     sendLogoutRequest(preRequestUserState);
   }, [sendLogoutRequest, preRequestUserState]);
+
+  const { setModal } = useModalContext();
+  const showPasswordChangeModal = React.useCallback(
+    () => setModal(<PasswordChangeModal />),
+    [setModal],
+  );
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   if (!currentUserInfo || currentUserInfo.anonymous) {
@@ -41,7 +49,10 @@ function AccountSettings(): React.Node {
             <span>Password</span>
             <span className={css.passwordContainer}>
               <span className={css.password}>******</span>
-              <a className={css.editPasswordLink}>
+              <a
+                className={css.editPasswordLink}
+                onClick={showPasswordChangeModal}
+              >
                 <SWMansionIcon icon="edit" size={22} />
               </a>
             </span>
