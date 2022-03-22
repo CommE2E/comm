@@ -50,6 +50,7 @@ function ChatThreadListItemMenu(props: Props): React.Node {
       </button>
       <div>
         <button className={btnCls} onClick={toggleUnreadStatus}>
+          <SWMansionIcon className={css.mailIcon} icon="mail" size={18} />
           {toggleUnreadStatusButtonText}
         </button>
       </div>

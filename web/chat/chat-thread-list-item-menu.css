@@ -1,6 +1,6 @@
 div.sidebar .menu > button svg {
-  font-size: 16px;
   color: var(--thread-color-read);
+  padding-right: 8px;
 }
 div.sidebar .menu {
   opacity: 0;
@@ -24,6 +24,10 @@ div.sidebar:hover .menu {
   align-items: center;
 }
 
+.mailIcon {
+  padding-right: 8px;
+}
+
 .menu > button:focus {
   outline: none;
 }
@@ -32,16 +36,17 @@ div.sidebar:hover .menu {
   display: none;
   position: absolute;
   top: calc(100% + 1px);
-  right: 0;
+  right: 11px;
   z-index: 1;
   width: max-content;
   overflow: hidden;
-  background-color: #eeeeee;
-  border-radius: 5px;
-  box-shadow: 1px 1px 5px 2px #00000022;
+  border-radius: 4px;
+
+  background-color: var(--chat-thread-list-menu-bg);
 }
 .menuContentVisible {
   display: block;
+  background-color: var(--chat-thread-list-menu-bg);
 }
 
 .menuSidebar {
@@ -51,9 +56,9 @@ div.sidebar:hover .menu {
 button.menuContent {
   border: none;
   cursor: pointer;
-  padding: 10px;
-  font-size: 16px;
-}
-button.menuContent:hover {
-  background-color: #dddddd;
+  padding: 8px;
+  font-size: var(--xs-font-12);
+  line-height: var(--line-height-text);
+  color: var(--chat-thread-list-menu-color);
+  background-color: var(--chat-thread-list-menu-bg);
 }

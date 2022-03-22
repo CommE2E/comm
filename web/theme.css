@@ -114,4 +114,6 @@
   --app-list-icon-disabled-color: var(--shades-white-80);
   --account-settings-label: var(--shades-black-60);
   --account-button-color: var(--violet-dark-100);
+  --chat-thread-list-menu-color: var(--shades-white-60);
+  --chat-thread-list-menu-bg: var(--shades-black-90);
 }
