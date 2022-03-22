@@ -9,6 +9,16 @@ namespace comm {
 namespace network {
 namespace database {
 
+/**
+ * this class is used for representing two things: the rows in the main table,
+ * and also the rows in the secondary index
+ *
+ * Needs userID(pk)-created(sk)-index that projects:
+ *  userID
+ *  backupID
+ *  created
+ *  recoveryData
+ */
 class BackupItem : public Item {
 
   std::string userID;

@@ -8,6 +8,11 @@ namespace comm {
 namespace network {
 namespace database {
 
+/**
+ * Needs blobHash(pk)-index that projects:
+ *  blobHash
+ *  holder
+ */
 class ReverseIndexItem : public Item {
 
   std::string holder;
