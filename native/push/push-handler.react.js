@@ -389,12 +389,12 @@ class PushHandler extends React.PureComponent<Props, State> {
     const deviceType = Platform.OS;
     if (deviceType === 'ios') {
       iosPushPermissionResponseReceived();
-      if (__DEV__) {
-        // iOS simulator can't handle notifs
-        return;
-      }
+    } else {
+      this.showNotifAlertOnAndroid();
     }
+  };
 
+  showNotifAlertOnAndroid() {
     const alertInfo = this.props.notifPermissionAlertInfo;
     if (
       (alertInfo.totalAlerts > 3 &&
@@ -411,24 +411,15 @@ class PushHandler extends React.PureComponent<Props, State> {
       payload: { time: Date.now() },
     });
 
-    if (deviceType === 'ios') {
-      Alert.alert(
-        'Need notif permissions',
-        'Comm needs notification permissions to keep you in the loop! ' +
-          'Please enable in Settings App -> Notifications -> Comm.',
-        [{ text: 'OK' }],
-      );
-    } else if (deviceType === 'android') {
-      Alert.alert(
-        'Unable to initialize notifs!',
-        'Please check your network connection, make sure Google Play ' +
-          'services are installed and enabled, and confirm that your Google ' +
-          'Play credentials are valid in the Google Play Store.',
-        undefined,
-        { cancelable: true },
-      );
-    }
-  };
+    Alert.alert(
+      'Unable to initialize notifs!',
+      'Please check your network connection, make sure Google Play ' +
+        'services are installed and enabled, and confirm that your Google ' +
+        'Play credentials are valid in the Google Play Store.',
+      undefined,
+      { cancelable: true },
+    );
+  }
 
   navigateToThread(threadInfo: ThreadInfo, clearChatRoutes: boolean) {
     if (clearChatRoutes) {
