@@ -22,6 +22,8 @@
     "test-all-services": "./scripts/test_all_services.sh",
     "test-all-services-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/test_all_services.sh",
     "run-all-services-dev-mode": "export COMM_SERVICES_DEV_MODE=1 && ./scripts/run_all_services.sh",
-    "backup-aws": "./scripts/backup_aws.sh"
+    "backup-aws": "./scripts/backup_aws.sh",
+    "run-local-cloud": "./scripts/run_local_cloud.sh",
+    "setup-local-cloud": "./scripts/setup_localstack.sh"
   }
 }
