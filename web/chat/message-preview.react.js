@@ -22,7 +22,10 @@ type Props = {
   +threadInfo: ThreadInfo,
 };
 function MessagePreview(props: Props): React.Node {
-  if (!props.messageInfo) {
+  const { messageInfo: messageInfoProps, threadInfo } = props;
+  const { unread } = threadInfo.currentUser;
+
+  if (!messageInfoProps) {
     return (
       <div className={classNames(css.lastMessage, css.dark, css.italic)}>
         No messages
@@ -30,20 +33,19 @@ function MessagePreview(props: Props): React.Node {
     );
   }
   const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
-    props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
-      ? props.messageInfo.sourceMessage
-      : props.messageInfo;
-  const unread = props.threadInfo.currentUser.unread;
+    messageInfoProps.type === messageTypes.SIDEBAR_SOURCE
+      ? messageInfoProps.sourceMessage
+      : messageInfoProps;
   const messageTitle = getMessageTitle(
     messageInfo,
-    props.threadInfo,
+    threadInfo,
     getDefaultTextMessageRules().simpleMarkdownRules,
   );
   if (messageInfo.type === messageTypes.TEXT) {
     let usernameText = null;
     if (
-      threadIsGroupChat(props.threadInfo) ||
-      props.threadInfo.name !== '' ||
+      threadIsGroupChat(threadInfo) ||
+      threadInfo.name !== '' ||
       messageInfo.creator.isViewer
     ) {
       const userString = stringForUser(messageInfo.creator);
