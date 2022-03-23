@@ -35,10 +35,13 @@ function MessagePreview(props: Props): React.Node {
       </div>
     );
   }
-  const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
-    messageInfoProps.type === messageTypes.SIDEBAR_SOURCE
-      ? messageInfoProps.sourceMessage
-      : messageInfoProps;
+
+  let messageInfo: ComposableMessageInfo | RobotextMessageInfo;
+  if (messageInfoProps.type === messageTypes.SIDEBAR_SOURCE) {
+    messageInfo = messageInfoProps.sourceMessage;
+  } else {
+    messageInfo = messageInfoProps;
+  }
 
   const messageTitle = getMessageTitle(
     messageInfo,
