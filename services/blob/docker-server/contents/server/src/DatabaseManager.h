@@ -14,19 +14,12 @@
 #include <string>
 #include <vector>
 
-#ifdef COMM_SERVICES_DEV_MODE
-#include "DatabaseSimulator.h"
-#endif
-
 namespace comm {
 namespace network {
 namespace database {
 
 // this class should be thread-safe in case any shared resources appear
 class DatabaseManager {
-#ifdef COMM_SERVICES_DEV_MODE
-  DatabaseSimulator dbSimulator;
-#endif
 
   void innerPutItem(
       std::shared_ptr<Item> item,
