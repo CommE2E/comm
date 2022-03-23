@@ -51,7 +51,7 @@ function MessagePreview(props: Props): React.Node {
       const usernameStyle = unread ? css.white : css.light;
       usernameText = <span className={usernameStyle}>{username}</span>;
     }
-    const colorStyle = unread ? css.white : css.dark;
+    const colorStyle = unread ? css.white : css.light;
     return (
       <div className={classNames(css.lastMessage, colorStyle)}>
         {usernameText}
