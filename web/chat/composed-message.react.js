@@ -150,11 +150,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       });
 
       messageActionLinks = (
-        <div className={actionLinksClassName}>
-          <div className={css.messageActionContainer}>
-            {messageActionButtons}
-          </div>
-        </div>
+        <div className={actionLinksClassName}>{messageActionButtons}</div>
       );
     }
 

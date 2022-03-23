@@ -189,13 +189,14 @@ function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
   }
 
   const { isViewer } = messageInfo.creator;
-  const messageActionButtonsContainer = classNames({
+  const messageActionButtonsContainerClassName = classNames({
+    [css.messageActionContainer]: true,
     [css.messageActionButtons]: true,
     [css.messageActionButtonsViewer]: isViewer,
     [css.messageActionButtonsNonViewer]: !isViewer,
   });
   return (
-    <div className={messageActionButtonsContainer}>
+    <div className={messageActionButtonsContainerClassName}>
       {sidebarButton}
       {replyButton}
     </div>

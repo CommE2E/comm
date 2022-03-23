@@ -101,24 +101,6 @@ div.messageActionActiveArea > div + div {
   margin-left: 4px;
 }
 
-div.messageActionContainer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 0 6px;
-  background-color: var(--message-action-tooltip-bg);
-  border-radius: 8px;
-}
-
-div.messageActionContainer svg {
-  padding: 10px 6px 6px;
-  color: var(--fg);
-}
-div.messageActionContainer svg:hover {
-  cursor: pointer;
-}
-
 div.messageActionLinkIcon:hover {
   cursor: pointer;
 }
