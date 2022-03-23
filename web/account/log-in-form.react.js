@@ -19,11 +19,11 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../components/button.react';
-import css from '../modals/account/user-settings-modal.css';
 import Input from '../modals/input.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors';
+import css from './log-in-form.css';
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function LoginForm(): React.Node {
