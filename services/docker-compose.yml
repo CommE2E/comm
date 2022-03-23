@@ -36,6 +36,8 @@ services:
       - "${COMM_SERVICES_PORT_BACKUP}:50051"
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
+    networks:
+      - services-net
   # blob
   blob-base:
     build:
