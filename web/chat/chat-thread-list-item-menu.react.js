@@ -6,6 +6,7 @@ import * as React from 'react';
 import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import { useThreadIsActive } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-list-item-menu.css';
 
@@ -16,6 +17,7 @@ type Props = {
 };
 function ChatThreadListItemMenu(props: Props): React.Node {
   const { renderStyle = 'chat', threadInfo, mostRecentNonLocalMessage } = props;
+  const active = useThreadIsActive(threadInfo.id);
   const [menuVisible, setMenuVisible] = React.useState(false);
   const toggleMenu = React.useCallback(() => {
     setMenuVisible(!menuVisible);
@@ -40,6 +42,7 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   });
   const btnCls = classNames(css.menuContent, {
     [css.menuContentVisible]: menuVisible,
+    [css.active]: active,
   });
   return (
     <div className={menuCls} onMouseLeave={hideMenu}>
