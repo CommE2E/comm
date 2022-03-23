@@ -25,6 +25,8 @@ function MessagePreview(props: Props): React.Node {
   const { messageInfo: messageInfoProps, threadInfo } = props;
   const { unread } = threadInfo.currentUser;
 
+  const colorStyle = unread ? css.white : css.light;
+
   if (!messageInfoProps) {
     return (
       <div className={classNames(css.lastMessage, css.dark, css.italic)}>
@@ -36,6 +38,7 @@ function MessagePreview(props: Props): React.Node {
     messageInfoProps.type === messageTypes.SIDEBAR_SOURCE
       ? messageInfoProps.sourceMessage
       : messageInfoProps;
+
   const messageTitle = getMessageTitle(
     messageInfo,
     threadInfo,
@@ -50,10 +53,8 @@ function MessagePreview(props: Props): React.Node {
     ) {
       const userString = stringForUser(messageInfo.creator);
       const username = `${userString}: `;
-      const usernameStyle = unread ? css.white : css.light;
-      usernameText = <span className={usernameStyle}>{username}</span>;
+      usernameText = <span className={colorStyle}>{username}</span>;
     }
-    const colorStyle = unread ? css.white : css.light;
     return (
       <div className={classNames(css.lastMessage, colorStyle)}>
         {usernameText}
@@ -61,7 +62,6 @@ function MessagePreview(props: Props): React.Node {
       </div>
     );
   } else {
-    const colorStyle = unread ? css.white : css.light;
     return (
       <div className={classNames([css.lastMessage, colorStyle])}>
         {messageTitle}
