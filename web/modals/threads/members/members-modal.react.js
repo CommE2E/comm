@@ -7,22 +7,19 @@ import { userStoreSearchIndex } from 'lib/selectors/user-selectors';
 import { memberHasAdminPowers, memberIsAdmin } from 'lib/shared/thread-utils';
 import { type RelativeMemberInfo } from 'lib/types/thread-types';
 
-import Search from '../../../components/search.react';
 import Tabs from '../../../components/tabs.react';
 import { useSelector } from '../../../redux/redux-utils';
-import Modal from '../../modal.react';
+import SearchModal from '../../search-modal.react';
 import ThreadMembersList from './members-list.react';
-import css from './members-modal.css';
 
-type Props = {
+type ContentProps = {
+  +searchText: string,
   +threadID: string,
-  +onClose: () => void,
 };
-function ThreadMembersModal(props: Props): React.Node {
-  const { threadID, onClose } = props;
+function ThreadMembersModalContent(props: ContentProps): React.Node {
+  const { threadID, searchText } = props;
 
   const [tab, setTab] = React.useState<'All Members' | 'Admins'>('All Members');
-  const [searchText, setSearchText] = React.useState('');
 
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
   const { members: threadMembersNotFiltered } = threadInfo;
@@ -72,19 +69,33 @@ function ThreadMembersModal(props: Props): React.Node {
   );
 
   return (
-    <Modal name="Members" onClose={onClose}>
-      <div className={css.membersContainer}>
-        <Search
-          onChangeText={setSearchText}
-          searchText={searchText}
-          placeholder="Search members"
-        />
-        <Tabs.Container activeTab={tab} setTab={setTab}>
-          {allUsersTab}
-          {allAdminsTab}
-        </Tabs.Container>
-      </div>
-    </Modal>
+    <Tabs.Container activeTab={tab} setTab={setTab}>
+      {allUsersTab}
+      {allAdminsTab}
+    </Tabs.Container>
+  );
+}
+
+type Props = {
+  +threadID: string,
+  +onClose: () => void,
+};
+function ThreadMembersModal(props: Props): React.Node {
+  const { onClose, threadID } = props;
+  const renderModalContent = React.useCallback(
+    (searchText: string) => (
+      <ThreadMembersModalContent threadID={threadID} searchText={searchText} />
+    ),
+    [threadID],
+  );
+  return (
+    <SearchModal
+      name="Members"
+      searchPlaceholder="Search members"
+      onClose={onClose}
+    >
+      {renderModalContent}
+    </SearchModal>
   );
 }
 
