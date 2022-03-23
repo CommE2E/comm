@@ -1,0 +1,24 @@
+{
+  "TableName": "backup-service-log-test",
+  "KeySchema": [
+    {
+      "AttributeName": "backupID",
+      "KeyType": "HASH"
+    },
+    {
+      "AttributeName": "logID",
+      "KeyType": "RANGE"
+    }
+  ],
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "backupID",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "logID",
+      "AttributeType": "S"
+    }
+  ],
+  "BillingMode": "PAY_PER_REQUEST"
+}

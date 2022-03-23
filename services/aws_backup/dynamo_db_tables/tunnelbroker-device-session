@@ -1,0 +1,16 @@
+{
+  "TableName": "tunnelbroker-device-session",
+  "KeySchema": [
+    {
+      "AttributeName": "SessionId",
+      "KeyType": "HASH"
+    }
+  ],
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "SessionId",
+      "AttributeType": "S"
+    }
+  ],
+  "BillingMode": "PAY_PER_REQUEST"
+}
