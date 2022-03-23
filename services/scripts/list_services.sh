@@ -2,4 +2,4 @@
 
 set -e
 
-ls | grep -vE 'base-image|docker.compose.yml|package.json|scripts'
+ls | grep -vE 'base-image|docker.compose.yml|package.json|scripts|aws_backup'
