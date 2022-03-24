@@ -5,9 +5,7 @@ import * as React from 'react';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads';
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
-import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickThread,
   useThreadIsActive,
@@ -35,12 +33,6 @@ function ChatThreadListItem(props: Props): React.Node {
   const ancestorThreads = useAncestorThreads(threadInfo);
   const onClick = useOnClickThread(item.threadInfo);
 
-  const timeZone = useSelector(state => state.timeZone);
-  const lastActivity = shortAbsoluteDate(
-    lastUpdatedTimeIncludingSidebars,
-    timeZone,
-  );
-
   const active = useThreadIsActive(threadID);
   const containerClassName = React.useMemo(
     () =>
@@ -57,15 +49,6 @@ function ChatThreadListItem(props: Props): React.Node {
       classNames({
         [css.title]: true,
         [css.unread]: unread,
-      }),
-    [unread],
-  );
-  const lastActivityClassName = React.useMemo(
-    () =>
-      classNames({
-        [css.lastActivity]: true,
-        [css.unread]: unread,
-        [css.dark]: !unread,
       }),
     [unread],
   );
@@ -145,6 +128,9 @@ function ChatThreadListItem(props: Props): React.Node {
             <MessagePreview
               messageInfo={mostRecentMessageInfo}
               threadInfo={threadInfo}
+              lastUpdatedTimeIncludingSidebars={
+                lastUpdatedTimeIncludingSidebars
+              }
             />
           </div>
         </a>
@@ -153,7 +139,6 @@ function ChatThreadListItem(props: Props): React.Node {
             threadInfo={threadInfo}
             mostRecentNonLocalMessage={mostRecentNonLocalMessage}
           />
-          <div className={lastActivityClassName}>{lastActivity}</div>
         </div>
       </div>
       {sidebars}

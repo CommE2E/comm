@@ -90,12 +90,12 @@ div.colorSplotch {
   width: 42px;
   border-radius: 1.68px;
 }
-div.lastActivity {
+span.lastActivity {
   font-size: var(--xxs-font-10);
-  color: var(--fg);
   line-height: 1.5;
   font-weight: var(--semi-bold);
   white-space: nowrap;
+  text-align: end;
 }
 
 div.lastMessage {
@@ -104,6 +104,7 @@ div.lastMessage {
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
+  display: flex;
 }
 div.threadRow > .lastMessage {
   color: var(--thread-last-message-color-read);

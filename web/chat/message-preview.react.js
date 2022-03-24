@@ -13,20 +13,33 @@ import {
   type RobotextMessageInfo,
 } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
+import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
+import { useSelector } from '../redux/redux-utils';
 import css from './chat-thread-list.css';
 
 type Props = {
   +messageInfo: ?MessageInfo,
   +threadInfo: ThreadInfo,
+  +lastUpdatedTimeIncludingSidebars: number,
 };
 function MessagePreview(props: Props): React.Node {
-  const { messageInfo: messageInfoProps, threadInfo } = props;
+  const {
+    messageInfo: messageInfoProps,
+    threadInfo,
+    lastUpdatedTimeIncludingSidebars,
+  } = props;
   const { unread } = threadInfo.currentUser;
 
   let usernameText = null;
   const colorStyle = unread ? css.white : css.light;
+
+  const timeZone = useSelector(state => state.timeZone);
+  const lastActivity = shortAbsoluteDate(
+    lastUpdatedTimeIncludingSidebars,
+    timeZone,
+  );
 
   if (!messageInfoProps) {
     return (
@@ -63,6 +76,7 @@ function MessagePreview(props: Props): React.Node {
     <div className={classNames(css.lastMessage, colorStyle)}>
       {usernameText}
       {messageTitle}
+      <span className={css.lastActivity}>{lastActivity}</span>
     </div>
   );
 }
