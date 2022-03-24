@@ -48,7 +48,10 @@ div.sidebar:hover .menu {
   display: block;
   background-color: var(--chat-thread-list-menu-bg);
 }
-
+.menuContent.active {
+  color: var(--chat-thread-list-menu-active-color);
+  background: var(--chat-thread-list-menu-active-bg);
+}
 .menuSidebar {
   padding-right: 2px;
 }
@@ -59,6 +62,6 @@ button.menuContent {
   padding: 8px;
   font-size: var(--xs-font-12);
   line-height: var(--line-height-text);
+  background: var(--chat-thread-list-menu-bg);
   color: var(--chat-thread-list-menu-color);
-  background-color: var(--chat-thread-list-menu-bg);
 }

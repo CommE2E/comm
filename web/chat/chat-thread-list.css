@@ -28,7 +28,7 @@ div.threadListSidebar:hover {
   background: var(--thread-active-bg);
 }
 
-div.activeThread :is(div.dark, button, .lastMessage span.light, .title) {
+div.activeThread :is(div.dark, .lastMessage span.light, .title) {
   color: var(--fg);
 }
 
