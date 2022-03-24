@@ -1,6 +1,6 @@
 #include "BackupServiceImpl.h"
 
-#include "ReadReactorBase.h"
+#include "ServerReadReactorBase.h"
 #include "ServerBidiReactorBase.h"
 
 #include <aws/core/Aws.h>
@@ -39,12 +39,13 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
 grpc::ServerReadReactor<backup::SendLogRequest> *BackupServiceImpl::SendLog(
     grpc::CallbackServerContext *context,
     google::protobuf::Empty *response) {
-  class SendLogReactor : public ReadReactorBase<
+  class SendLogReactor : public reactor::ServerReadReactorBase<
                              backup::SendLogRequest,
                              google::protobuf::Empty> {
   public:
-    using ReadReactorBase<backup::SendLogRequest, google::protobuf::Empty>::
-        ReadReactorBase;
+    using ServerReadReactorBase<
+        backup::SendLogRequest,
+        google::protobuf::Empty>::ServerReadReactorBase;
     std::unique_ptr<grpc::Status>
     readRequest(backup::SendLogRequest request) override {
       // TODO handle request
