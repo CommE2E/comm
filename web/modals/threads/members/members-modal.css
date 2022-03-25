@@ -1,3 +1,13 @@
+div.membersList {
+  overflow: scroll;
+  padding: 8px 0;
+  color: var(--members-modal-member-text);
+}
+
+div.noScroll {
+  overflow: hidden;
+}
+
 div.memberContainer {
   display: flex;
   flex-direction: row;
@@ -22,4 +32,15 @@ div.memberInfo {
 
 div.memberAction {
   position: relative;
+}
+
+h5.memberletterHeader {
+  margin: 16px;
+  color: var(--members-modal-member-text);
+  font-size: var(--s-font-14);
+}
+
+div.noUsers {
+  padding-top: 16px;
+  text-align: center;
 }

@@ -132,6 +132,8 @@
   --tabs-header-background-border: var(--shades-black-80);
   --tabs-header-background-color-hover: var(--shades-white-80);
   --tabs-header-background-border-hover: var(--shades-black-70);
+  --members-modal-member-text: var(--shades-black-60);
+  --members-modal-member-text-hover: var(--shades-white-100);
   --label-default-bg: var(--violet-dark-80);
   --label-default-color: var(--shades-white-80);
 }
