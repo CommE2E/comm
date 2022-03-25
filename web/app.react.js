@@ -28,6 +28,7 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
+import { MenuProvider } from './menu-provider.react';
 import { ModalProvider, useModalContext } from './modals/modal-provider.react';
 import DisconnectedBar from './redux/disconnected-bar';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
@@ -129,10 +130,12 @@ class App extends React.PureComponent<Props> {
     }
     return (
       <DndProvider backend={HTML5Backend}>
-        <FocusHandler />
-        <VisibilityHandler />
-        {content}
-        {this.props.modal}
+        <MenuProvider>
+          <FocusHandler />
+          <VisibilityHandler />
+          {content}
+          {this.props.modal}
+        </MenuProvider>
       </DndProvider>
     );
   }
