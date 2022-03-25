@@ -1,18 +1,22 @@
 // @flow
 
+import classnames from 'classnames';
 import * as React from 'react';
 
 import css from './menu.css';
 
+type MenuVariant = 'thread-actions' | 'member-actions';
+
 type MenuProps = {
   +icon: React.Node,
   +children?: React.Node,
+  +variant?: MenuVariant,
 };
 
 function Menu(props: MenuProps): React.Node {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const { icon, children } = props;
+  const { icon, children, variant = 'thread-actions' } = props;
 
   const closeMenuCallback = React.useCallback(() => {
     document.removeEventListener('click', closeMenuCallback);
@@ -39,7 +43,12 @@ function Menu(props: MenuProps): React.Node {
 
   let menuActionList = null;
   if (isOpen) {
-    menuActionList = <div className={css.menuActionList}>{children}</div>;
+    const menuActionListClasses = classnames(css.menuActionList, {
+      [css.menuActionListThreadActions]: variant === 'thread-actions',
+      [css.menuActionListMemberActions]: variant === 'member-actions',
+    });
+
+    menuActionList = <div className={menuActionListClasses}>{children}</div>;
   }
 
   return (

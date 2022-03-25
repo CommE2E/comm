@@ -105,8 +105,10 @@
   --text-message-default-background: var(--shades-black-80);
   --message-action-tooltip-bg: var(--shades-black-90);
   --menu-bg: var(--shades-black-90);
+  --menu-bg-light: var(--shades-black-80);
   --menu-separator-color: var(--shades-black-80);
   --menu-color: var(--shades-black-60);
+  --menu-color-light: var(--shades-white-60);
   --menu-color-hover: var(--shades-white-100);
   --menu-color-dangerous: var(--error-primary);
   --menu-color-dangerous-hover: var(--error-light-50);
