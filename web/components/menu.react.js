@@ -3,6 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
+import { useRenderMenu } from '../menu-provider.react';
 import css from './menu.css';
 
 type MenuVariant = 'thread-actions' | 'member-actions';
@@ -11,53 +12,110 @@ type MenuProps = {
   +icon: React.Node,
   +children?: React.Node,
   +variant?: MenuVariant,
+  +onChange?: boolean => void,
 };
 
 function Menu(props: MenuProps): React.Node {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const buttonRef = React.useRef();
+  const {
+    renderMenu,
+    setMenuPosition,
+    closeMenu,
+    setCurrentOpenMenu,
+    currentOpenMenu,
+  } = useRenderMenu();
+  const { icon, children, variant = 'thread-actions', onChange } = props;
+  const ourSymbol = React.useRef(Symbol());
+  const menuActionListClasses = React.useMemo(
+    () =>
+      classnames(css.menuActionList, {
+        [css.menuActionListThreadActions]: variant === 'thread-actions',
+        [css.menuActionListMemberActions]: variant === 'member-actions',
+      }),
+    [variant],
+  );
 
-  const { icon, children, variant = 'thread-actions' } = props;
+  const menuActionList = React.useMemo(
+    () => <div className={menuActionListClasses}>{children}</div>,
+    [children, menuActionListClasses],
+  );
 
-  const closeMenuCallback = React.useCallback(() => {
-    document.removeEventListener('click', closeMenuCallback);
-    if (isOpen) {
-      setIsOpen(false);
+  const isOurMenuOpen = currentOpenMenu === ourSymbol.current;
+
+  const updatePosition = React.useCallback(() => {
+    if (buttonRef.current && isOurMenuOpen) {
+      const { top, left } = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({ top, left });
     }
-  }, [isOpen]);
+  }, [isOurMenuOpen, setMenuPosition]);
 
   React.useEffect(() => {
-    if (!document || !isOpen) {
+    if (!window) {
+      return undefined;
+    }
+
+    window.addEventListener('resize', updatePosition);
+    return () => window.removeEventListener('resize', updatePosition);
+  }, [updatePosition]);
+
+  // useLayoutEffect is necessary so that the menu position is immediately
+  // updated in the first render of component
+  React.useLayoutEffect(() => {
+    updatePosition();
+  }, [updatePosition]);
+
+  const closeMenuCallback = React.useCallback(() => {
+    closeMenu(menuActionList);
+  }, [closeMenu, menuActionList]);
+
+  React.useEffect(() => {
+    onChange?.(isOurMenuOpen);
+  }, [isOurMenuOpen, onChange]);
+
+  React.useEffect(() => {
+    if (!isOurMenuOpen) {
       return undefined;
     }
     document.addEventListener('click', closeMenuCallback);
-    return () => document.removeEventListener('click', closeMenuCallback);
-  }, [closeMenuCallback, isOpen]);
+    return () => {
+      document.removeEventListener('click', closeMenuCallback);
+    };
+  }, [closeMenuCallback, isOurMenuOpen]);
 
-  const switchMenuCallback = React.useCallback(() => {
-    setIsOpen(isMenuOpen => !isMenuOpen);
-  }, []);
+  const prevActionListRef = React.useRef<React.Node>(null);
+  React.useEffect(() => {
+    if (!isOurMenuOpen) {
+      prevActionListRef.current = null;
+      return;
+    }
+    if (prevActionListRef.current === menuActionList) {
+      return;
+    }
+    renderMenu(menuActionList);
+
+    prevActionListRef.current = menuActionList;
+  }, [isOurMenuOpen, menuActionList, renderMenu]);
+
+  React.useEffect(() => {
+    return () => closeMenu(prevActionListRef.current);
+  }, [closeMenu]);
+
+  const onClickMenuCallback = React.useCallback(() => {
+    setCurrentOpenMenu(ourSymbol.current);
+  }, [setCurrentOpenMenu]);
 
   if (React.Children.count(children) === 0) {
     return null;
   }
 
-  let menuActionList = null;
-  if (isOpen) {
-    const menuActionListClasses = classnames(css.menuActionList, {
-      [css.menuActionListThreadActions]: variant === 'thread-actions',
-      [css.menuActionListMemberActions]: variant === 'member-actions',
-    });
-
-    menuActionList = <div className={menuActionListClasses}>{children}</div>;
-  }
-
   return (
-    <div>
-      <button className={css.menuButton} onClick={switchMenuCallback}>
-        {icon}
-      </button>
-      {menuActionList}
-    </div>
+    <button
+      ref={buttonRef}
+      className={css.menuButton}
+      onClick={onClickMenuCallback}
+    >
+      {icon}
+    </button>
   );
 }
 
