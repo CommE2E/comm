@@ -32,6 +32,10 @@ div.activeThread :is(div.dark, .lastMessage span.light, .title) {
   color: var(--fg);
 }
 
+div.activeThread .lastMessage.light {
+  color: var(--fg);
+}
+
 div.activeThread.thread:hover {
   background: var(--thread-active-bg);
 }
@@ -109,7 +113,7 @@ div.unread {
   color: var(--fg);
   font-weight: var(--semi-bold);
 }
-div.lastMessage.black {
+div.lastMessage.white {
   color: var(--fg);
 }
 div.dark {
