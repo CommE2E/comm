@@ -49,13 +49,13 @@ function MessagePreview(props: Props): React.Node {
     getDefaultTextMessageRules().simpleMarkdownRules,
   );
 
+  const hasUsername =
+    threadIsGroupChat(threadInfo) ||
+    threadInfo.name !== '' ||
+    messageInfo.creator.isViewer;
+
   let usernameText = null;
-  if (
-    messageInfo.type === messageTypes.TEXT &&
-    (threadIsGroupChat(threadInfo) ||
-      threadInfo.name !== '' ||
-      messageInfo.creator.isViewer)
-  ) {
+  if (messageInfo.type === messageTypes.TEXT && hasUsername) {
     const userString = stringForUser(messageInfo.creator);
     usernameText = <span className={colorStyle}>{`${userString}: `}</span>;
   }
