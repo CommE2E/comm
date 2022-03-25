@@ -30,6 +30,7 @@ function MessagePreview(props: Props): React.Node {
     },
   } = props;
 
+  const colorStyle = unread ? css.unread : css.read;
   if (!originalMessageInfo) {
     return (
       <div className={classNames(css.lastMessage, css.dark, css.italic)}>
@@ -56,10 +57,8 @@ function MessagePreview(props: Props): React.Node {
     ) {
       const userString = stringForUser(messageInfo.creator);
       const username = `${userString}: `;
-      const usernameStyle = unread ? css.white : css.light;
-      usernameText = <span className={usernameStyle}>{username}</span>;
+      usernameText = <span className={colorStyle}>{username}</span>;
     }
-    const colorStyle = unread ? css.white : css.light;
     return (
       <div className={classNames(css.lastMessage, colorStyle)}>
         {usernameText}
@@ -67,9 +66,8 @@ function MessagePreview(props: Props): React.Node {
       </div>
     );
   } else {
-    const colorStyle = unread ? css.white : css.light;
     return (
-      <div className={classNames([css.lastMessage, colorStyle])}>
+      <div className={classNames(css.lastMessage, colorStyle)}>
         {messageTitle}
       </div>
     );
