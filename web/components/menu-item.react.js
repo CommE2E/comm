@@ -1,15 +1,14 @@
 // @flow
 
-import type { IconDefinition } from '@fortawesome/fontawesome-common-types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
+import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
 import css from './menu.css';
 
 type MenuItemProps = {
   +onClick?: () => mixed,
-  +icon: IconDefinition,
+  +icon: Icon,
   +text: string,
   +dangerous?: boolean,
 };
@@ -23,7 +22,7 @@ function MenuItem(props: MenuItemProps): React.Node {
   return (
     <button className={itemClasses} onClick={onClick}>
       <div className={css.menuActionIcon}>
-        <FontAwesomeIcon icon={icon} className={css.promptIcon} />
+        <SWMansionIcon size="100%" icon={icon} />
       </div>
       <div>{text}</div>
     </button>

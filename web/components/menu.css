@@ -52,10 +52,16 @@ button.menuAction:hover {
 }
 
 div.menuActionIcon {
-  font-size: 1.125em;
   display: flex;
   justify-content: center;
   margin-right: 8px;
+  height: 24px;
+  width: 24px;
+}
+
+div.menuActionListMemberActions div.menuActionIcon {
+  height: 18px;
+  width: 18px;
 }
 
 button.menuActionDangerous {

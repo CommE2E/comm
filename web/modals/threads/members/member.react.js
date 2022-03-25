@@ -1,10 +1,5 @@
 // @flow
 
-import {
-  faPlusCircle,
-  faMinusCircle,
-  faSignOutAlt,
-} from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
 import * as React from 'react';
 
@@ -117,7 +112,7 @@ function ThreadMember(props: Props): React.Node {
         <MenuItem
           key="remove_admin"
           text="Remove admin"
-          icon={faMinusCircle}
+          icon="cross-circle"
           onClick={onMemberAdminRoleToggled}
         />,
       );
@@ -126,7 +121,7 @@ function ThreadMember(props: Props): React.Node {
         <MenuItem
           key="make_admin"
           text="Make admin"
-          icon={faPlusCircle}
+          icon="plus-circle"
           onClick={onMemberAdminRoleToggled}
         />,
       );
@@ -141,7 +136,7 @@ function ThreadMember(props: Props): React.Node {
         <MenuItem
           key="remove_user"
           text="Remove user"
-          icon={faSignOutAlt}
+          icon="logout"
           onClick={onClickRemoveUser}
           dangerous
         />,

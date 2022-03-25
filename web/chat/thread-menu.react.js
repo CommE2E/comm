@@ -1,14 +1,5 @@
 // @flow
 
-import {
-  faArrowRight,
-  faBell,
-  faCog,
-  faCommentAlt,
-  faSignOutAlt,
-  faPlusCircle,
-  faUserFriends,
-} from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
 
 import {
@@ -61,7 +52,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       <MenuItem
         key="settings"
         text="Settings"
-        icon={faCog}
+        icon="wrench"
         onClick={onClickSettings}
       />
     );
@@ -82,7 +73,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       <MenuItem
         key="members"
         text="Members"
-        icon={faUserFriends}
+        icon="users"
         onClick={onClickMembers}
       />
     );
@@ -111,7 +102,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       <MenuItem
         key="sidebars"
         text="Sidebars"
-        icon={faArrowRight}
+        icon="arrow-right-small"
         onClick={onClickSidebars}
       />
     );
@@ -131,7 +122,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       return null;
     }
     return (
-      <MenuItem key="subchannels" text="Subchannels" icon={faCommentAlt} />
+      <MenuItem key="subchannels" text="Subchannels" icon="message-square" />
     );
   }, [canCreateSubchannels, hasSubchannels]);
 
@@ -143,7 +134,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       <MenuItem
         key="newSubchannel"
         text="Create new subchannel"
-        icon={faPlusCircle}
+        icon="plus-circle"
       />
     );
   }, [canCreateSubchannels]);
@@ -183,7 +174,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       <MenuItem
         key="leave"
         text="Leave Thread"
-        icon={faSignOutAlt}
+        icon="logout"
         dangerous
         onClick={onClickLeaveThread}
       />
@@ -192,7 +183,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
 
   const menuItems = React.useMemo(() => {
     const notificationsItem = (
-      <MenuItem key="notifications" text="Notifications" icon={faBell} />
+      <MenuItem key="notifications" text="Notifications" icon="bell" />
     );
     const separator = <hr key="separator" className={css.separator} />;
 
