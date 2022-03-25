@@ -9,42 +9,13 @@ div.container {
   flex-direction: column;
 }
 
-div.tabs {
-  display: flex;
-  flex-direction: row;
-  color: var(--fg);
-  background: var(--bg);
-}
-
 div.tabItem {
   display: flex;
-  justify-content: center;
   align-items: center;
-  width: 50%;
-  padding: 16px 0;
-  text-align: center;
-  cursor: pointer;
-  background-color: var(--bg);
-  color: var(--color-disabled);
-  border: 2px solid var(--border-color);
-  border-width: 0 0 3px 0;
-  transition: 150ms;
 }
-div.tabItem:hover {
-  color: var(--fg);
-  transition: 150ms;
-}
+
 div.tabItem svg {
   padding-right: 8px;
-}
-div.tabItemActive {
-  border: outset var(--thread-selection);
-  color: var(--fg);
-  border-width: 0 0 3px 0;
-}
-div.tabItemInactive {
-  background-color: var(--bg);
-  color: var(--color-disabled);
 }
 
 div.threadList {
