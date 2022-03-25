@@ -16,17 +16,15 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
-  threadHasPermission,
   memberIsAdmin,
   memberHasAdminPowers,
-  threadHasAdminRole,
+  getAvailableThreadMemberActions,
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
   type RelativeMemberInfo,
-  threadPermissions,
 } from 'lib/types/thread-types';
 
 import PencilIcon from '../../components/pencil-icon.react';
@@ -70,47 +68,6 @@ type Props = {
 class ThreadSettingsMember extends React.PureComponent<Props> {
   editButton: ?React.ElementRef<typeof View>;
 
-  visibleEntryIDs() {
-    const role = this.props.memberInfo.role;
-    if (!this.props.canEdit || !role) {
-      return [];
-    }
-
-    const canRemoveMembers = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.REMOVE_MEMBERS,
-    );
-    const canChangeRoles = threadHasPermission(
-      this.props.threadInfo,
-      threadPermissions.CHANGE_ROLE,
-    );
-
-    const result = [];
-    if (
-      canRemoveMembers &&
-      !this.props.memberInfo.isViewer &&
-      (canChangeRoles ||
-        (this.props.threadInfo.roles[role] &&
-          this.props.threadInfo.roles[role].isDefault))
-    ) {
-      result.push('remove_user');
-    }
-
-    if (
-      canChangeRoles &&
-      this.props.memberInfo.username &&
-      threadHasAdminRole(this.props.threadInfo)
-    ) {
-      result.push(
-        memberIsAdmin(this.props.memberInfo, this.props.threadInfo)
-          ? 'remove_admin'
-          : 'make_admin',
-      );
-    }
-
-    return result;
-  }
-
   render() {
     const userText = stringForUser(this.props.memberInfo);
     let userInfo = null;
@@ -139,7 +96,13 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
           color={this.props.colors.panelForegroundSecondaryLabel}
         />
       );
-    } else if (this.visibleEntryIDs().length !== 0) {
+    } else if (
+      getAvailableThreadMemberActions(
+        this.props.memberInfo,
+        this.props.threadInfo,
+        this.props.canEdit,
+      ).length !== 0
+    ) {
       editButton = (
         <TouchableOpacity
           onPress={this.onPressEdit}
@@ -224,7 +187,11 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
           presentedFrom: this.props.threadSettingsRouteKey,
           initialCoordinates: coordinates,
           verticalBounds,
-          visibleEntryIDs: this.visibleEntryIDs(),
+          visibleEntryIDs: getAvailableThreadMemberActions(
+            this.props.memberInfo,
+            this.props.threadInfo,
+            this.props.canEdit,
+          ),
           memberInfo: this.props.memberInfo,
           threadInfo: this.props.threadInfo,
         },

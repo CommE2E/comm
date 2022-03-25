@@ -10,16 +10,15 @@ import {
 import {
   memberIsAdmin,
   memberHasAdminPowers,
-  threadHasPermission,
   removeMemberFromThread,
   switchMemberAdminRoleInThread,
+  getAvailableThreadMemberActions,
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import type { SetState } from 'lib/types/hook-types';
 import {
   type RelativeMemberInfo,
   type ThreadInfo,
-  threadPermissions,
 } from 'lib/types/thread-types';
 import {
   useDispatchActionPromise,
@@ -89,62 +88,44 @@ function ThreadMember(props: Props): React.Node {
     ],
   );
 
-  const menuItems = React.useMemo(() => {
-    const { role } = memberInfo;
-    if (!role) {
-      return [];
-    }
-
-    const canRemoveMembers = threadHasPermission(
-      threadInfo,
-      threadPermissions.REMOVE_MEMBERS,
-    );
-    const canChangeRoles = threadHasPermission(
-      threadInfo,
-      threadPermissions.CHANGE_ROLE,
-    );
-
-    const actions = [];
-
-    const isAdmin = memberIsAdmin(memberInfo, threadInfo);
-    if (canChangeRoles && memberInfo.username && isAdmin) {
-      actions.push(
-        <MenuItem
-          key="remove_admin"
-          text="Remove admin"
-          icon="cross-circle"
-          onClick={onMemberAdminRoleToggled}
-        />,
-      );
-    } else if (canChangeRoles && memberInfo.username) {
-      actions.push(
-        <MenuItem
-          key="make_admin"
-          text="Make admin"
-          icon="plus-circle"
-          onClick={onMemberAdminRoleToggled}
-        />,
-      );
-    }
-
-    if (
-      canRemoveMembers &&
-      !memberInfo.isViewer &&
-      (canChangeRoles || threadInfo.roles[role]?.isDefault)
-    ) {
-      actions.push(
-        <MenuItem
-          key="remove_user"
-          text="Remove user"
-          icon="logout"
-          onClick={onClickRemoveUser}
-          dangerous
-        />,
-      );
-    }
-
-    return actions;
-  }, [memberInfo, onClickRemoveUser, onMemberAdminRoleToggled, threadInfo]);
+  const menuItems = React.useMemo(
+    () =>
+      getAvailableThreadMemberActions(memberInfo, threadInfo).map(action => {
+        if (action === 'remove_admin') {
+          return (
+            <MenuItem
+              key="remove_admin"
+              text="Remove admin"
+              icon="cross-circle"
+              onClick={onMemberAdminRoleToggled}
+            />
+          );
+        }
+        if (action === 'make_admin') {
+          return (
+            <MenuItem
+              key="make_admin"
+              text="Make admin"
+              icon="plus-circle"
+              onClick={onMemberAdminRoleToggled}
+            />
+          );
+        }
+        if (action === 'remove_user') {
+          return (
+            <MenuItem
+              key="remove_user"
+              text="Remove user"
+              icon="logout"
+              onClick={onClickRemoveUser}
+              dangerous
+            />
+          );
+        }
+        return null;
+      }),
+    [memberInfo, onClickRemoveUser, onMemberAdminRoleToggled, threadInfo],
+  );
 
   const userSettingsIcon = React.useMemo(
     () => <SWMansionIcon icon="edit" size={17} />,
