@@ -36,6 +36,7 @@ import Menu from '../components/menu.react';
 import SidebarListModal from '../modals/chat/sidebar-list-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
+import ThreadMembersModal from '../modals/threads/members/members-modal.react';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -66,12 +67,26 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [onClickSettings]);
 
+  const onClickMembers = React.useCallback(
+    () =>
+      setModal(
+        <ThreadMembersModal threadID={threadInfo.id} onClose={clearModal} />,
+      ),
+    [clearModal, setModal, threadInfo.id],
+  );
   const membersItem = React.useMemo(() => {
     if (threadInfo.type === threadTypes.PERSONAL) {
       return null;
     }
-    return <MenuItem key="members" text="Members" icon={faUserFriends} />;
-  }, [threadInfo.type]);
+    return (
+      <MenuItem
+        key="members"
+        text="Members"
+        icon={faUserFriends}
+        onClick={onClickMembers}
+      />
+    );
+  }, [onClickMembers, threadInfo.type]);
 
   const childThreads = useSelector(
     state => childThreadInfos(state)[threadInfo.id],
@@ -183,14 +198,13 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
 
     // TODO: Enable menu items when the modals are implemented
     const SHOW_NOTIFICATIONS = false;
-    const SHOW_MEMBERS = false;
     const SHOW_VIEW_SUBCHANNELS = false;
     const SHOW_CREATE_SUBCHANNELS = false;
 
     const items = [
       settingsItem,
       SHOW_NOTIFICATIONS && notificationsItem,
-      SHOW_MEMBERS && membersItem,
+      membersItem,
       sidebarItem,
       SHOW_VIEW_SUBCHANNELS && viewSubchannelsItem,
       SHOW_CREATE_SUBCHANNELS && createSubchannelsItem,
