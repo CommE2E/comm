@@ -1,0 +1,25 @@
+div.memberContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 8px 16px;
+}
+
+div.memberContainer:hover {
+  color: var(--members-modal-member-text-hover);
+}
+
+div.memberContainerWithMenuOpen {
+  color: var(--members-modal-member-text-hover);
+}
+
+div.memberInfo {
+  font-size: var(--l-font-18);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+div.memberAction {
+  position: relative;
+}
