@@ -1,58 +1,6 @@
-button.topBarMenuButton {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  color: var(--thread-top-bar-menu-color);
-}
-
-div.topBarMenuActionList {
-  position: absolute;
-  right: 10px;
-  top: 55px;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--thread-menu-bg);
-  border-radius: 4px;
-  padding: 4px 0;
-}
-
-button.topBarMenuAction {
-  z-index: 1;
-  background-color: transparent;
-  padding: 12px 16px;
-  color: var(--thread-menu-color);
-  background-color: var(--thread-menu-bg);
-  font-size: var(--m-font-16);
-  line-height: 1.5;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-}
-
-button.topBarMenuAction:hover {
-  color: var(--thread-menu-color-hover);
-}
-
-div.topBarMenuActionIcon {
-  font-size: var(--l-font-18);
-  display: flex;
-  justify-content: center;
-  margin-right: 8px;
-  width: 20px;
-}
-
-button.topBarMenuActionDangerous {
-  color: var(--thread-menu-color-dangerous);
-}
-button.topBarMenuActionDangerous:hover {
-  color: var(--thread-menu-color-dangerous-hover);
-}
-
 hr.separator {
   height: 1px;
-  background: var(--thread-menu-separator-color);
+  background: var(--menu-separator-color);
   margin: 10px 16px;
   max-width: 130px;
   border: none;

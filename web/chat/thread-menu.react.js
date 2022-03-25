@@ -31,13 +31,14 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
+import MenuItem from '../components/menu-item.react';
+import Menu from '../components/menu.react';
 import SidebarListModal from '../modals/chat/sidebar-list-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
-import ThreadMenuItem from './thread-menu-item.react';
 import css from './thread-menu.css';
 
 type ThreadMenuProps = {
@@ -45,8 +46,6 @@ type ThreadMenuProps = {
 };
 
 function ThreadMenu(props: ThreadMenuProps): React.Node {
-  const [isOpen, setIsOpen] = React.useState(false);
-
   const { setModal, clearModal } = useModalContext();
 
   const { threadInfo } = props;
@@ -58,7 +57,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
 
   const settingsItem = React.useMemo(() => {
     return (
-      <ThreadMenuItem
+      <MenuItem
         key="settings"
         text="Settings"
         icon={faCog}
@@ -71,7 +70,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     if (threadInfo.type === threadTypes.PERSONAL) {
       return null;
     }
-    return <ThreadMenuItem key="members" text="Members" icon={faUserFriends} />;
+    return <MenuItem key="members" text="Members" icon={faUserFriends} />;
   }, [threadInfo.type]);
 
   const childThreads = useSelector(
@@ -94,7 +93,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       return null;
     }
     return (
-      <ThreadMenuItem
+      <MenuItem
         key="sidebars"
         text="Sidebars"
         icon={faArrowRight}
@@ -117,11 +116,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       return null;
     }
     return (
-      <ThreadMenuItem
-        key="subchannels"
-        text="Subchannels"
-        icon={faCommentAlt}
-      />
+      <MenuItem key="subchannels" text="Subchannels" icon={faCommentAlt} />
     );
   }, [canCreateSubchannels, hasSubchannels]);
 
@@ -130,7 +125,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       return null;
     }
     return (
-      <ThreadMenuItem
+      <MenuItem
         key="newSubchannel"
         text="Create new subchannel"
         icon={faPlusCircle}
@@ -170,7 +165,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       return null;
     }
     return (
-      <ThreadMenuItem
+      <MenuItem
         key="leave"
         text="Leave Thread"
         icon={faSignOutAlt}
@@ -182,7 +177,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
 
   const menuItems = React.useMemo(() => {
     const notificationsItem = (
-      <ThreadMenuItem key="notifications" text="Notifications" icon={faBell} />
+      <MenuItem key="notifications" text="Notifications" icon={faBell} />
     );
     const separator = <hr key="separator" className={css.separator} />;
 
@@ -211,45 +206,11 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     createSubchannelsItem,
     leaveThreadItem,
   ]);
-
-  const closeMenuCallback = React.useCallback(() => {
-    document.removeEventListener('click', closeMenuCallback);
-    if (isOpen) {
-      setIsOpen(false);
-    }
-  }, [isOpen]);
-
-  React.useEffect(() => {
-    if (!document || !isOpen) {
-      return undefined;
-    }
-    document.addEventListener('click', closeMenuCallback);
-    return () => document.removeEventListener('click', closeMenuCallback);
-  }, [closeMenuCallback, isOpen]);
-
-  const switchMenuCallback = React.useCallback(() => {
-    setIsOpen(isMenuOpen => !isMenuOpen);
-  }, []);
-
-  if (menuItems.length === 0) {
-    return null;
-  }
-
-  let menuActionList = null;
-  if (isOpen) {
-    menuActionList = (
-      <div className={css.topBarMenuActionList}>{menuItems}</div>
-    );
-  }
-
-  return (
-    <>
-      <button className={css.topBarMenuButton} onClick={switchMenuCallback}>
-        <SWMansionIcon icon="menu-vertical" size={24} />
-      </button>
-      {menuActionList}
-    </>
+  const icon = React.useMemo(
+    () => <SWMansionIcon icon="menu-vertical" size={20} />,
+    [],
   );
+  return <Menu icon={icon}>{menuItems}</Menu>;
 }
 
 export default ThreadMenu;

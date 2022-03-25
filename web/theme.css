@@ -104,12 +104,12 @@
   --thread-ancestor-separator-color: var(--shades-white-60);
   --text-message-default-background: var(--shades-black-80);
   --message-action-tooltip-bg: var(--shades-black-90);
-  --thread-menu-bg: var(--shades-black-90);
-  --thread-menu-separator-color: var(--shades-black-80);
-  --thread-menu-color: var(--shades-black-60);
-  --thread-menu-color-hover: var(--shades-white-100);
-  --thread-menu-color-dangerous: var(--error-primary);
-  --thread-menu-color-dangerous-hover: var(--error-light-50);
+  --menu-bg: var(--shades-black-90);
+  --menu-separator-color: var(--shades-black-80);
+  --menu-color: var(--shades-black-60);
+  --menu-color-hover: var(--shades-white-100);
+  --menu-color-dangerous: var(--error-primary);
+  --menu-color-dangerous-hover: var(--error-light-50);
   --app-list-icon-read-only-color: var(--shades-black-60);
   --app-list-icon-enabled-color: var(--success-primary);
   --app-list-icon-disabled-color: var(--shades-white-80);

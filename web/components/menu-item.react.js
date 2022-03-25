@@ -5,24 +5,24 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
-import css from './thread-menu.css';
+import css from './menu.css';
 
-type ThreadMenuItemProps = {
+type MenuItemProps = {
   +onClick?: () => mixed,
   +icon: IconDefinition,
   +text: string,
   +dangerous?: boolean,
 };
 
-function ThreadMenuItem(props: ThreadMenuItemProps): React.Node {
+function MenuItem(props: MenuItemProps): React.Node {
   const { onClick, icon, text, dangerous } = props;
 
-  const itemClasses = classNames(css.topBarMenuAction, {
-    [css.topBarMenuActionDangerous]: dangerous,
+  const itemClasses = classNames(css.menuAction, {
+    [css.menuActionDangerous]: dangerous,
   });
   return (
     <button className={itemClasses} onClick={onClick}>
-      <div className={css.topBarMenuActionIcon}>
+      <div className={css.menuActionIcon}>
         <FontAwesomeIcon icon={icon} className={css.promptIcon} />
       </div>
       <div>{text}</div>
@@ -30,8 +30,8 @@ function ThreadMenuItem(props: ThreadMenuItemProps): React.Node {
   );
 }
 
-const MemoizedThreadMenuItem: React.ComponentType<ThreadMenuItemProps> = React.memo(
-  ThreadMenuItem,
+const MemoizedMenuItem: React.ComponentType<MenuItemProps> = React.memo(
+  MenuItem,
 );
 
-export default MemoizedThreadMenuItem;
+export default MemoizedMenuItem;
