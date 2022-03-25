@@ -3,29 +3,38 @@ div.searchContainer {
   display: flex;
   align-items: center;
   margin: 1rem;
+  border-radius: 16px;
+  padding: 8px;
+}
+
+div.searchIcon {
+  display: flex;
+  color: var(--search-icon-color);
 }
 
 input.searchInput {
-  background-color: var(--text-input-bg);
-  font-size: var(--s-font-14);
-  padding: 1rem;
+  background-color: transparent;
+  font-size: var(--m-font-16);
+  line-height: 1.5;
+  padding: 4px 12px;
   flex: 1;
   border: none;
-  color: var(--text-input-color);
+  color: var(--search-input-color);
   outline: none;
 }
 
 input.searchInput::placeholder {
-  color: var(--text-input-placeholder);
+  color: var(--search-input-placeholder);
 }
 
 button.clearSearch {
-  color: var(--text-input-color);
+  color: var(--search-clear-color);
   transition: ease-in-out 0.15s;
   border: none;
-  padding: 0 1rem;
-  font-size: var(--m-font-16);
-  background: none;
+  background: var(--search-clear-bg);
+  border-radius: 50%;
+  display: flex;
+  padding: 6px;
 }
 
 button.clearSearchDisabled {

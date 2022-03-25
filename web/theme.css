@@ -119,4 +119,9 @@
   --chat-thread-list-menu-bg: var(--shades-black-80);
   --chat-thread-list-menu-active-color: var(--shades-white-60);
   --chat-thread-list-menu-active-bg: var(--shades-black-90);
+  --search-clear-color: var(--shades-white-100);
+  --search-clear-bg: var(--shades-black-70);
+  --search-input-color: var(--shades-white-100);
+  --search-input-placeholder: var(--shades-black-60);
+  --search-icon-color: var(--shades-black-60);
 }
