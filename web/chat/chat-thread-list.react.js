@@ -5,10 +5,10 @@ import * as React from 'react';
 
 import { emptyItemText } from 'lib/shared/thread-utils';
 
+import Search from '../components/search.react';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import css from './chat-thread-list.css';
 import { ThreadListContext } from './thread-list-provider';
-import ThreadListSearch from './thread-list-search.react';
 
 function ChatThreadList(): React.Node {
   const threadListContext = React.useContext(ThreadListContext);
@@ -36,7 +36,11 @@ function ChatThreadList(): React.Node {
 
   return (
     <div className={css.threadListContainer}>
-      <ThreadListSearch onChangeText={setSearchText} searchText={searchText} />
+      <Search
+        onChangeText={setSearchText}
+        searchText={searchText}
+        placeholder="Search threads"
+      />
       <div>{threadComponents}</div>
     </div>
   );

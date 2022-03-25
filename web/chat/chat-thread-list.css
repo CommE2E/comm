@@ -288,37 +288,3 @@ div.threadListContainer {
   display: flex;
   flex-direction: column;
 }
-
-div.searchContainer {
-  background-color: var(--text-input-bg);
-  display: flex;
-  align-items: center;
-  margin: 1rem;
-}
-
-input.searchInput {
-  background-color: var(--text-input-bg);
-  font-size: var(--s-font-14);
-  padding: 1rem;
-  flex: 1;
-  border: none;
-  color: var(--text-input-color);
-  outline: none;
-}
-
-input.searchInput::placeholder {
-  color: var(--text-input-placeholder);
-}
-
-button.clearSearch {
-  color: var(--text-input-color);
-  transition: ease-in-out 0.15s;
-  border: none;
-  padding: 0 1rem;
-  font-size: var(--m-font-16);
-  background: none;
-}
-
-button.clearSearchDisabled {
-  opacity: 0;
-}

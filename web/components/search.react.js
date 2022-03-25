@@ -2,16 +2,17 @@
 
 import * as React from 'react';
 
-import css from './chat-thread-list.css';
 import ClearSearchButton from './clear-search-button.react';
+import css from './search.css';
 
-type ThreadListSearchProps = {
+type Props = {
   +searchText: string,
   +onChangeText: (searchText: string) => mixed,
+  +placeholder?: string,
 };
 
-function ThreadListSearch(props: ThreadListSearchProps): React.Node {
-  const { searchText, onChangeText } = props;
+function Search(props: Props): React.Node {
+  const { searchText, onChangeText, placeholder } = props;
 
   const showClearButton = !!searchText;
 
@@ -33,11 +34,11 @@ function ThreadListSearch(props: ThreadListSearchProps): React.Node {
         onChange={onChange}
         value={searchText}
         type="text"
-        placeholder="Search threads"
+        placeholder={placeholder}
       />
       <ClearSearchButton onClick={onClear} active={showClearButton} />
     </div>
   );
 }
 
-export default ThreadListSearch;
+export default Search;

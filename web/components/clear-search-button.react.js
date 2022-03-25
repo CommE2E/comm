@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
-import css from './chat-thread-list.css';
+import css from './search.css';
 
 type ClearSearchButtonProps = {
   +active: boolean,
