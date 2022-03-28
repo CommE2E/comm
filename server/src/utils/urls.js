@@ -55,6 +55,14 @@ function generateBaseAndCommAppRoutePaths(endpoint: string): string[] {
   return [baseRoutePath + endpoint, commAppBaseRoutePath + endpoint];
 }
 
+function stripCommAppBasePathFromURL(url: string): string {
+  const commAppBaseRoutePath = commAppURLFacts.basePath;
+  if (url.startsWith(commAppBaseRoutePath)) {
+    return url.replace(commAppBaseRoutePath, baseURLFacts.baseRoutePath);
+  }
+  return url;
+}
+
 export {
   getGlobalURLFacts,
   getSquadCalURLFacts,
@@ -63,4 +71,5 @@ export {
   getAppURLFactsFromRequestURL,
   generateAllRoutePaths,
   generateBaseAndCommAppRoutePaths,
+  stripCommAppBasePathFromURL,
 };

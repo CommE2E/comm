@@ -41,7 +41,10 @@ import {
 import { setNewSession } from '../session/cookies';
 import { Viewer } from '../session/viewer';
 import { streamJSON, waitForStream } from '../utils/json-stream';
-import { getAppURLFactsFromRequestURL } from '../utils/urls';
+import {
+  getAppURLFactsFromRequestURL,
+  stripCommAppBasePathFromURL,
+} from '../utils/urls';
 
 const { renderToNodeStream } = ReactDOMServer;
 
@@ -115,12 +118,13 @@ async function websiteResponder(
   const { basePath, baseDomain } = getAppURLFactsFromRequestURL(req.url);
   const baseURL = basePath.replace(/\/$/, '');
   const baseHref = baseDomain + baseURL;
+  const reqURLSansBasePath = stripCommAppBasePathFromURL(req.url);
 
   const appPromise = getWebpackCompiledRootComponentForSSR();
 
   let initialNavInfo;
   try {
-    initialNavInfo = navInfoFromURL(req.url, {
+    initialNavInfo = navInfoFromURL(reqURLSansBasePath, {
       now: currentDateInTimeZone(viewer.timeZone),
     });
   } catch (e) {
@@ -300,7 +304,7 @@ async function websiteResponder(
   const reactStream = renderToNodeStream(
     <Provider store={store}>
       <StaticRouter
-        location={req.url}
+        location={reqURLSansBasePath}
         basename={baseURL}
         context={routerContext}
       >
