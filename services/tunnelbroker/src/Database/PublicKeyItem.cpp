@@ -1,5 +1,6 @@
 #include "PublicKeyItem.h"
 #include "ConfigManager.h"
+#include "Tools.h"
 
 namespace comm {
 namespace network {
@@ -20,12 +21,7 @@ PublicKeyItem::PublicKeyItem(const AttributeValues &itemFromDB) {
 }
 
 void PublicKeyItem::validate() const {
-  if (!this->deviceID.size()) {
-    throw std::runtime_error("Error: DeviceID is empty");
-  }
-  if (!this->publicKey.size()) {
-    throw std::runtime_error("Error: PublicKey is empty");
-  }
+  tools::checkIfNotEmpty("publicKey", this->publicKey);
 }
 
 void PublicKeyItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {

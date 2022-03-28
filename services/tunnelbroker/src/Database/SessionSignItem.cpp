@@ -1,5 +1,6 @@
 #include "SessionSignItem.h"
 #include "ConfigManager.h"
+#include "Tools.h"
 
 namespace comm {
 namespace network {
@@ -22,12 +23,7 @@ SessionSignItem::SessionSignItem(const AttributeValues &itemFromDB) {
 }
 
 void SessionSignItem::validate() const {
-  if (!this->deviceID.size()) {
-    throw std::runtime_error("Error: DeviceID is empty");
-  }
-  if (!this->sign.size()) {
-    throw std::runtime_error("Error: Sign is empty");
-  }
+  tools::checkIfNotEmpty("sign", this->sign);
 }
 
 void SessionSignItem::assignItemFromDatabase(
