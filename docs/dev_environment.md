@@ -43,6 +43,20 @@ brew install node@16; brew upgrade node@16
 
 The reason we use both `install` and `upgrade` is that there’s no single Homebrew command equivalent to “install if not installed, and upgrade if already installed”.
 
+After installing Node, we want to create a symlink at `/usr/local/bin/node` to the Homebrew-installed `node` executable. Since `usr/local/bin` is in the default `$PATH` (see `/etc/paths`), this symlink makes it possible to resolve `node` without having to source the user's shell profile.
+
+Intel x86-64:
+
+```
+sudo ln -s /usr/local/opt/node@16/bin/node /usr/local/bin/node
+```
+
+Apple silicon:
+
+```
+sudo ln -s /opt/homebrew/opt/node@16/bin/node /usr/local/bin/node
+```
+
 ## PHP
 
 [PHP](https://www.php.net) is needed for Arcanist. As of macOS 12 (Monterey), PHP is no longer bundled with the OS and needs to be installed via Homebrew.
