@@ -47,6 +47,7 @@ div.conversationHeader {
   font-size: var(--xs-font-12);
   line-height: var(--line-height-text);
   text-align: center;
+  padding-bottom: 8px;
 }
 div.conversationHeader:last-child {
   padding-top: 6px;
