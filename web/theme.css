@@ -118,4 +118,5 @@
   --chat-thread-list-menu-bg: var(--shades-black-80);
   --chat-thread-list-menu-active-color: var(--shades-white-60);
   --chat-thread-list-menu-active-bg: var(--shades-black-90);
+  --arrow-extension-color: var(--shades-black-60);
 }
