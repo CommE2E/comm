@@ -9,7 +9,7 @@ import { promisify } from 'util';
 
 import { type LandingSSRProps } from '../landing/landing-ssr.react';
 import { waitForStream } from '../utils/json-stream';
-import { getLandingURLFacts } from '../utils/urls';
+import { getLandingURLFacts, clientURLFromLocalURL } from '../utils/urls';
 import { getMessageForException } from './utils';
 
 async function landingHandler(req: $Request, res: $Response) {
@@ -91,14 +91,9 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
-const { basePath, baseRoutePath } = getLandingURLFacts();
+const urlFacts = getLandingURLFacts();
+const { basePath } = urlFacts;
 const { renderToNodeStream } = ReactDOMServer;
-
-const replaceURLRegex = new RegExp(`^${baseRoutePath}(.*)$`);
-const replaceURLModifier = `${basePath}$1`;
-function clientURLFromLocalURL(url: string): string {
-  return url.replace(replaceURLRegex, replaceURLModifier);
-}
 
 async function landingResponder(req: $Request, res: $Response) {
   const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
@@ -145,7 +140,7 @@ async function landingResponder(req: $Request, res: $Response) {
 
   // We remove trailing slash for `react-router`
   const routerBasename = basePath.replace(/\/$/, '');
-  const publicURL = clientURLFromLocalURL(req.url);
+  const publicURL = clientURLFromLocalURL(req.url, urlFacts);
   const reactStream = renderToNodeStream(
     <LandingSSR url={publicURL} basename={routerBasename} />,
   );

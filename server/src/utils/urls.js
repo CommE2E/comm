@@ -30,9 +30,15 @@ function getLandingURLFacts(): AppURLFacts {
   return landingURLFacts;
 }
 
+function clientURLFromLocalURL(url: string, urlFacts: AppURLFacts): string {
+  const { basePath } = urlFacts;
+  return basePath + url;
+}
+
 export {
   getSquadCalURLFacts,
   getCommAppURLFacts,
   getLandingURLFacts,
   getAppURLFactsFromRequestURL,
+  clientURLFromLocalURL,
 };
