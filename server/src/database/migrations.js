@@ -1,12 +1,44 @@
 // @flow
 
+import fs from 'fs';
 import type { QueryResults } from 'mysql';
 
 import { getMessageForException } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from './database';
 
-const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map();
+async function makeSureBaseRoutePathExists(filePath: string): Promise<void> {
+  const readFile = await fs.promises.open(filePath, 'r');
+  const contents = await readFile.readFile('utf8');
+  const json = JSON.parse(contents);
+  await readFile.close();
+  if (json.baseRoutePath) {
+    return;
+  }
+  let baseRoutePath;
+  if (json.baseDomain === 'http://localhost') {
+    baseRoutePath = json.basePath;
+  } else if (filePath.endsWith('commapp_url.json')) {
+    baseRoutePath = '/commweb/';
+  } else {
+    baseRoutePath = '/';
+  }
+  const newJSON = { ...json, baseRoutePath };
+  console.warn(`updating ${filePath} to ${JSON.stringify(newJSON)}`);
+  const writeFile = await fs.promises.open(filePath, 'w');
+  await writeFile.writeFile(JSON.stringify(newJSON, null, '  '), 'utf8');
+  await writeFile.close();
+}
+
+const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
+  [
+    0,
+    async () => {
+      await makeSureBaseRoutePathExists('facts/commapp_url.json');
+      await makeSureBaseRoutePathExists('facts/squadcal_url.json');
+    },
+  ],
+]);
 
 async function migrate(): Promise<boolean> {
   let dbVersion = null;
