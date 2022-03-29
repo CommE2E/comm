@@ -41,7 +41,10 @@ import {
 import { setNewSession } from '../session/cookies';
 import { Viewer } from '../session/viewer';
 import { streamJSON, waitForStream } from '../utils/json-stream';
-import { getAppURLFactsFromRequestURL } from '../utils/urls';
+import {
+  getAppURLFactsFromRequestURL,
+  clientURLFromLocalURL,
+} from '../utils/urls';
 
 const { renderToNodeStream } = ReactDOMServer;
 
@@ -112,7 +115,8 @@ async function websiteResponder(
   req: $Request,
   res: $Response,
 ): Promise<void> {
-  const { basePath, baseDomain } = getAppURLFactsFromRequestURL(req.url);
+  const appURLFacts = getAppURLFactsFromRequestURL(req.url);
+  const { basePath, baseDomain } = appURLFacts;
   const baseURL = basePath.replace(/\/$/, '');
   const baseHref = baseDomain + baseURL;
 
@@ -297,10 +301,11 @@ async function websiteResponder(
   const store: Store<AppState, Action> = createStore(reducer, state);
 
   const routerContext = {};
+  const clientURL = clientURLFromLocalURL(req.url, appURLFacts);
   const reactStream = renderToNodeStream(
     <Provider store={store}>
       <StaticRouter
-        location={req.url}
+        location={clientURL}
         basename={baseURL}
         context={routerContext}
       >
