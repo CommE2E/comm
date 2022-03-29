@@ -30,9 +30,9 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads';
-import { getGlobalURLFacts, getLandingURLFacts } from './utils/urls';
+import { getSquadCalURLFacts, getLandingURLFacts } from './utils/urls';
 
-const { baseRoutePath } = getGlobalURLFacts();
+const squadCalBaseRoutePath = getSquadCalURLFacts().baseRoutePath;
 const landingBaseRoutePath = getLandingURLFacts().baseRoutePath;
 
 if (cluster.isMaster) {
@@ -56,13 +56,11 @@ if (cluster.isMaster) {
   server.use(express.json({ limit: '50mb' }));
   server.use(cookieParser());
 
-  const router = express.Router();
-  router.use('/images', express.static('images'));
-  router.use('/commlanding/images', express.static('images'));
-  router.use('/fonts', express.static('fonts'));
-  router.use('/commlanding/fonts', express.static('fonts'));
-  router.use('/misc', express.static('misc'));
-  router.use(
+  const squadCalRouter = express.Router();
+  squadCalRouter.use('/images', express.static('images'));
+  squadCalRouter.use('/fonts', express.static('fonts'));
+  squadCalRouter.use('/misc', express.static('misc'));
+  squadCalRouter.use(
     '/.well-known',
     express.static(
       '.well-known',
@@ -76,58 +74,64 @@ if (cluster.isMaster) {
     process.env.NODE_ENV === 'development'
       ? undefined
       : { maxAge: '1y', immutable: true };
-  router.use(
+  squadCalRouter.use(
     '/compiled',
     express.static('app_compiled', compiledFolderOptions),
   );
-  router.use(
-    '/commlanding/compiled',
-    express.static('landing_compiled', compiledFolderOptions),
-  );
-  router.use('/', express.static('icons'));
-  router.use('/commlanding', express.static('landing_icons'));
+  squadCalRouter.use('/', express.static('icons'));
 
   for (const endpoint in jsonEndpoints) {
     // $FlowFixMe Flow thinks endpoint is string
     const responder = jsonEndpoints[endpoint];
     const expectCookieInvalidation = endpoint === 'log_out';
-    router.post(
+    squadCalRouter.post(
       `/${endpoint}`,
       jsonHandler(responder, expectCookieInvalidation),
     );
   }
 
-  router.post('/commlanding/subscribe_email', emailSubscriptionResponder);
-
-  router.get(
+  squadCalRouter.get(
     '/create_version/:deviceType/:codeVersion',
     httpGetHandler(createNewVersionResponder),
   );
-  router.get(
+  squadCalRouter.get(
     '/mark_version_deployed/:deviceType/:codeVersion',
     httpGetHandler(markVersionDeployedResponder),
   );
 
-  router.get(
+  squadCalRouter.get(
     '/download_error_report/:reportID',
     downloadHandler(errorReportDownloadResponder),
   );
-  router.get(
+  squadCalRouter.get(
     '/upload/:uploadID/:secret',
     downloadHandler(uploadDownloadResponder),
   );
 
   // $FlowFixMe express-ws has side effects that can't be typed
-  router.ws('/ws', onConnection);
-  router.get(`${landingBaseRoutePath}*`, landingHandler);
-  router.get('*', htmlHandler(websiteResponder));
+  squadCalRouter.ws('/ws', onConnection);
+  squadCalRouter.get('*', htmlHandler(websiteResponder));
 
-  router.post(
+  squadCalRouter.post(
     '/upload_multimedia',
     multerProcessor,
     uploadHandler(multimediaUploadResponder),
   );
 
-  server.use(baseRoutePath, router);
+  server.use(squadCalBaseRoutePath, squadCalRouter);
+
+  const landingRouter = express.Router();
+  landingRouter.use('/images', express.static('images'));
+  landingRouter.use('/fonts', express.static('fonts'));
+  landingRouter.use(
+    '/compiled',
+    express.static('landing_compiled', compiledFolderOptions),
+  );
+  landingRouter.use('/', express.static('landing_icons'));
+  landingRouter.post('/subscribe_email', emailSubscriptionResponder);
+  landingRouter.get('*', landingHandler);
+
+  server.use(landingBaseRoutePath, landingRouter);
+
   server.listen(parseInt(process.env.PORT, 10) || 3000, 'localhost');
 }

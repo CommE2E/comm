@@ -38,6 +38,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       await makeSureBaseRoutePathExists('facts/squadcal_url.json');
     },
   ],
+  [
+    1,
+    async () => {
+      try {
+        await fs.promises.unlink('facts/url.json');
+      } catch {}
+    },
+  ],
 ]);
 
 async function migrate(): Promise<boolean> {

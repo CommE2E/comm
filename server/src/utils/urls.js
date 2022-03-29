@@ -3,15 +3,6 @@
 import commAppURLFacts from '../../facts/commapp_url';
 import landingURLFacts from '../../facts/landing_url';
 import squadCalURLFacts from '../../facts/squadcal_url';
-import baseURLFacts from '../../facts/url';
-
-type GlobalURLFacts = {
-  +baseRoutePath: string,
-};
-
-function getGlobalURLFacts(): GlobalURLFacts {
-  return baseURLFacts;
-}
 
 export type AppURLFacts = {
   +baseDomain: string,
@@ -40,7 +31,6 @@ function getLandingURLFacts(): AppURLFacts {
 }
 
 export {
-  getGlobalURLFacts,
   getSquadCalURLFacts,
   getCommAppURLFacts,
   getLandingURLFacts,
