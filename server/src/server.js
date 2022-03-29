@@ -58,9 +58,9 @@ if (cluster.isMaster) {
 
   const router = express.Router();
   router.use('/images', express.static('images'));
-  router.use(`${landingBaseRoutePath}images`, express.static('images'));
+  router.use('/commlanding/images', express.static('images'));
   router.use('/fonts', express.static('fonts'));
-  router.use(`${landingBaseRoutePath}fonts`, express.static('fonts'));
+  router.use('/commlanding/fonts', express.static('fonts'));
   router.use('/misc', express.static('misc'));
   router.use(
     '/.well-known',
@@ -81,7 +81,7 @@ if (cluster.isMaster) {
     express.static('app_compiled', compiledFolderOptions),
   );
   router.use(
-    `${landingBaseRoutePath}compiled`,
+    '/commlanding/compiled',
     express.static('landing_compiled', compiledFolderOptions),
   );
   router.use('/', express.static('icons'));
@@ -97,10 +97,7 @@ if (cluster.isMaster) {
     );
   }
 
-  router.post(
-    `${landingBaseRoutePath}subscribe_email`,
-    emailSubscriptionResponder,
-  );
+  router.post('/commlanding/subscribe_email', emailSubscriptionResponder);
 
   router.get(
     '/create_version/:deviceType/:codeVersion',
