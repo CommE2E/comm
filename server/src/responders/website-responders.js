@@ -41,7 +41,11 @@ import {
 import { setNewSession } from '../session/cookies';
 import { Viewer } from '../session/viewer';
 import { streamJSON, waitForStream } from '../utils/json-stream';
-import { getAppURLFactsFromRequestURL } from '../utils/urls';
+import {
+  getCommAppURLFacts,
+  getGlobalURLFacts,
+  removeDuplicateSlashesFromPath,
+} from '../utils/urls';
 
 const { renderToNodeStream } = ReactDOMServer;
 
@@ -107,15 +111,26 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
+const commAppURLFacts = getCommAppURLFacts();
+const basePath = commAppURLFacts.basePath;
+const routePath =
+  getGlobalURLFacts().baseRoutePath + commAppURLFacts.baseRoutePath;
+const replaceURLRegex = new RegExp(
+  `^${removeDuplicateSlashesFromPath(routePath)}(.*)$`,
+);
+const replaceURLModifier = `${basePath}$1`;
+function clientURLFromLocalURL(url: string): string {
+  return url.replace(replaceURLRegex, replaceURLModifier);
+}
+const baseDomain = commAppURLFacts.baseDomain;
+const baseURL = basePath.replace(/\/$/, '');
+const baseHref = baseDomain + baseURL;
+
 async function websiteResponder(
   viewer: Viewer,
   req: $Request,
   res: $Response,
 ): Promise<void> {
-  const { basePath, baseDomain } = getAppURLFactsFromRequestURL(req.url);
-  const baseURL = basePath.replace(/\/$/, '');
-  const baseHref = baseDomain + baseURL;
-
   const appPromise = getWebpackCompiledRootComponentForSSR();
 
   let initialNavInfo;
@@ -297,10 +312,11 @@ async function websiteResponder(
   const store: Store<AppState, Action> = createStore(reducer, state);
 
   const routerContext = {};
+  const publicURL = clientURLFromLocalURL(req.url);
   const reactStream = renderToNodeStream(
     <Provider store={store}>
       <StaticRouter
-        location={req.url}
+        location={publicURL}
         basename={baseURL}
         context={routerContext}
       >
