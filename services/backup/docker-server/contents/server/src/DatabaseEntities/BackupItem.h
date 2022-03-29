@@ -10,6 +10,17 @@ namespace network {
 namespace database {
 
 /**
+ * backup - backups assigned to users along with the data necessary to
+ * decrypt
+ *  `created` - when the backup was created. This is a search key because
+ *    we want to be able to perform effective queries based on this info
+ *    (for example get me the latest backup, get me backup from some day)
+ *  `attachmentHolders` - this is a list of attachment references
+ *  `recoveryData` - data serialized with protobuf which is described by
+ *    one of the following structures:
+ *      { authType: 'password', pakePasswordCiphertext: string, nonce: string }
+ *      { authType: 'wallet', walletAddress: string, rawMessage: string }
+ *
  * this class is used for representing two things: the rows in the main table,
  * and also the rows in the secondary index
  *

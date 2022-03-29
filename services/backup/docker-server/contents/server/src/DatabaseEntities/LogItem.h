@@ -9,6 +9,14 @@ namespace comm {
 namespace network {
 namespace database {
 
+/*
+ * log - a single log record
+ *  `backupID` - id of the backup that this log is assigned to
+ *  `value` - either the value itself which is a dump of a single operation (if
+ * `persistedInBlob` is false) or the holder to blob (if `persistedInBlob` is
+ * true)
+ *  `attachmentHolders` - this is a list of attachment references
+ */
 class LogItem : public Item {
 
   std::string backupID;
