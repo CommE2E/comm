@@ -36,7 +36,6 @@ void ClientReadReactorBase<Request, Response>::terminate(
   }
   this->status = status;
   this->done = true;
-  this->doneCallback();
 }
 
 template <class Request, class Response>
@@ -66,6 +65,7 @@ template <class Request, class Response>
 void ClientReadReactorBase<Request, Response>::OnDone(
     const grpc::Status &status) {
   this->terminate(status);
+  this->doneCallback();
 }
 
 template <class Request, class Response>

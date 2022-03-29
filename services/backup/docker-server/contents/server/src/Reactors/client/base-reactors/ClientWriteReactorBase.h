@@ -59,7 +59,6 @@ void ClientWriteReactorBase<Request, Response>::terminate(
   this->status = status;
   this->done = true;
   this->StartWritesDone();
-  this->doneCallback();
 }
 
 template <class Request, class Response>
@@ -71,6 +70,7 @@ template <class Request, class Response>
 void ClientWriteReactorBase<Request, Response>::OnDone(
     const grpc::Status &status) {
   this->terminate(status);
+  this->doneCallback();
 }
 
 } // namespace reactor
