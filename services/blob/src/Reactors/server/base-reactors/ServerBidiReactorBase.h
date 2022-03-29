@@ -61,6 +61,9 @@ template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::terminate(
     ServerBidiReactorStatus status) {
   this->status = status;
+  if (!this->status.status.ok()) {
+    std::cout << "error: " << this->status.status.error_message() << std::endl;
+  }
   if (this->status.sendLastResponse) {
     this->StartWriteAndFinish(
         &this->response, grpc::WriteOptions(), this->status.status);

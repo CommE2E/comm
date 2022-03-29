@@ -33,6 +33,9 @@ public:
 
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
+  if (!this->status.ok()) {
+    std::cout << "error: " << this->status.error_message() << std::endl;
+  }
   this->status = status;
   this->Finish(status);
 }
