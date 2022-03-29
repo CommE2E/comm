@@ -19,9 +19,13 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   const { renderStyle = 'chat', threadInfo, mostRecentNonLocalMessage } = props;
   const active = useThreadIsActive(threadInfo.id);
   const [menuVisible, setMenuVisible] = React.useState(false);
-  const toggleMenu = React.useCallback(() => {
-    setMenuVisible(!menuVisible);
-  }, [menuVisible]);
+  const toggleMenu = React.useCallback(
+    event => {
+      event.stopPropagation();
+      setMenuVisible(!menuVisible);
+    },
+    [menuVisible],
+  );
 
   const hideMenu = React.useCallback(() => {
     setMenuVisible(false);
@@ -32,6 +36,15 @@ function ChatThreadListItemMenu(props: Props): React.Node {
     mostRecentNonLocalMessage,
     hideMenu,
   );
+
+  const onToggleUnreadStatusClicked = React.useCallback(
+    event => {
+      event.stopPropagation();
+      toggleUnreadStatus();
+    },
+    [toggleUnreadStatus],
+  );
+
   const toggleUnreadStatusButtonText = `Mark as ${
     threadInfo.currentUser.unread ? 'read' : 'unread'
   }`;
@@ -50,7 +63,7 @@ function ChatThreadListItemMenu(props: Props): React.Node {
         <SWMansionIcon icon="menu-vertical" size={menuIconSize} />
       </button>
       <div>
-        <button className={btnCls} onClick={toggleUnreadStatus}>
+        <button className={btnCls} onClick={onToggleUnreadStatusClicked}>
           <SWMansionIcon className={css.mailIcon} icon="mail" size={18} />
           {toggleUnreadStatusButtonText}
         </button>

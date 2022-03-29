@@ -130,13 +130,13 @@ function ChatThreadListItem(props: Props): React.Node {
 
   return (
     <>
-      <div className={containerClassName}>
+      <div className={containerClassName} onClick={onClick}>
         <div className={css.colorContainer}>
           <div className={css.dotContainer}>{unreadDot}</div>
 
           <div className={css.colorSplotch} style={colorSplotchStyle} />
         </div>
-        <a className={css.threadButton} onClick={onClick}>
+        <div className={css.threadButton}>
           <p className={breadCrumbsClassName}>{ancestorPath}</p>
           <div className={css.threadRow}>
             <div className={titleClassName}>{threadInfo.uiName}</div>
@@ -147,7 +147,7 @@ function ChatThreadListItem(props: Props): React.Node {
               threadInfo={threadInfo}
             />
           </div>
-        </a>
+        </div>
         <div>
           <ChatThreadListItemMenu
             threadInfo={threadInfo}

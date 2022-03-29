@@ -1,6 +1,11 @@
 div.thread {
   display: flex;
   flex-direction: row;
+  align-items: flex-start;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-right: 10px;
+  cursor: pointer;
 }
 div.threadListSidebar {
   display: flex;
@@ -48,7 +53,7 @@ div.title {
   color: var(--thread-color-read);
   line-height: var(--line-height-text);
 }
-a.threadButton {
+div.threadButton {
   flex: 1;
   cursor: pointer;
   overflow: hidden;
