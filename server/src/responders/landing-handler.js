@@ -9,7 +9,11 @@ import { promisify } from 'util';
 
 import { type LandingSSRProps } from '../landing/landing-ssr.react';
 import { waitForStream } from '../utils/json-stream';
-import { getLandingURLFacts } from '../utils/urls';
+import {
+  getGlobalURLFacts,
+  getLandingURLFacts,
+  removeDuplicateSlashesFromPath,
+} from '../utils/urls';
 import { getMessageForException } from './utils';
 
 async function landingHandler(req: $Request, res: $Response) {
@@ -92,9 +96,13 @@ async function getWebpackCompiledRootComponentForSSR() {
 }
 
 const { basePath, baseRoutePath } = getLandingURLFacts();
+const globalBaseRoutePath = getGlobalURLFacts().baseRoutePath;
+const routePath = globalBaseRoutePath + baseRoutePath;
 const { renderToNodeStream } = ReactDOMServer;
 
-const replaceURLRegex = new RegExp(`^${baseRoutePath}(.*)$`);
+const replaceURLRegex = new RegExp(
+  `^${removeDuplicateSlashesFromPath(routePath)}(.*)$`,
+);
 const replaceURLModifier = `${basePath}$1`;
 function clientURLFromLocalURL(url: string): string {
   return url.replace(replaceURLRegex, replaceURLModifier);
