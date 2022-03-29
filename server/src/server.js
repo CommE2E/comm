@@ -30,12 +30,7 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads';
-import {
-  getGlobalURLFacts,
-  getLandingURLFacts,
-  generateAllRoutePaths,
-  generateBaseAndCommAppRoutePaths,
-} from './utils/urls';
+import { getGlobalURLFacts, getLandingURLFacts } from './utils/urls';
 
 const { baseRoutePath } = getGlobalURLFacts();
 const landingBaseRoutePath = getLandingURLFacts().baseRoutePath;
@@ -62,15 +57,11 @@ if (cluster.isMaster) {
   server.use(cookieParser());
 
   const router = express.Router();
-  for (const routePath of generateAllRoutePaths('images')) {
-    router.use(routePath, express.static('images'));
-  }
-  for (const routePath of generateAllRoutePaths('fonts')) {
-    router.use(routePath, express.static('fonts'));
-  }
-  for (const routePath of generateBaseAndCommAppRoutePaths('misc')) {
-    router.use(routePath, express.static('misc'));
-  }
+  router.use('/images', express.static('images'));
+  router.use(`${landingBaseRoutePath}images`, express.static('images'));
+  router.use('/fonts', express.static('fonts'));
+  router.use(`${landingBaseRoutePath}fonts`, express.static('fonts'));
+  router.use('/misc', express.static('misc'));
   router.use(
     '/.well-known',
     express.static(
@@ -85,28 +76,25 @@ if (cluster.isMaster) {
     process.env.NODE_ENV === 'development'
       ? undefined
       : { maxAge: '1y', immutable: true };
-  for (const routePath of generateBaseAndCommAppRoutePaths('compiled')) {
-    router.use(
-      routePath,
-      express.static('app_compiled', compiledFolderOptions),
-    );
-  }
+  router.use(
+    '/compiled',
+    express.static('app_compiled', compiledFolderOptions),
+  );
   router.use(
     `${landingBaseRoutePath}compiled`,
     express.static('landing_compiled', compiledFolderOptions),
   );
-  for (const routePath of generateBaseAndCommAppRoutePaths('')) {
-    router.use(routePath, express.static('icons'));
-  }
-  router.use(`${landingBaseRoutePath}`, express.static('landing_icons'));
+  router.use('/', express.static('icons'));
+  router.use('/commlanding', express.static('landing_icons'));
 
   for (const endpoint in jsonEndpoints) {
     // $FlowFixMe Flow thinks endpoint is string
     const responder = jsonEndpoints[endpoint];
     const expectCookieInvalidation = endpoint === 'log_out';
-    for (const routePath of generateBaseAndCommAppRoutePaths(endpoint)) {
-      router.post(routePath, jsonHandler(responder, expectCookieInvalidation));
-    }
+    router.post(
+      `/${endpoint}`,
+      jsonHandler(responder, expectCookieInvalidation),
+    );
   }
 
   router.post(
@@ -114,41 +102,34 @@ if (cluster.isMaster) {
     emailSubscriptionResponder,
   );
 
-  for (const routePath of generateBaseAndCommAppRoutePaths(
-    'create_version/:deviceType/:codeVersion',
-  )) {
-    router.get(routePath, httpGetHandler(createNewVersionResponder));
-  }
-  for (const routePath of generateBaseAndCommAppRoutePaths(
-    'mark_version_deployed/:deviceType/:codeVersion',
-  )) {
-    router.get(routePath, httpGetHandler(markVersionDeployedResponder));
-  }
-  for (const routePath of generateBaseAndCommAppRoutePaths(
-    'download_error_report/:reportID',
-  )) {
-    router.get(routePath, downloadHandler(errorReportDownloadResponder));
-  }
-  for (const routePath of generateBaseAndCommAppRoutePaths(
-    'upload/:uploadID/:secret',
-  )) {
-    router.get(routePath, downloadHandler(uploadDownloadResponder));
-  }
+  router.get(
+    '/create_version/:deviceType/:codeVersion',
+    httpGetHandler(createNewVersionResponder),
+  );
+  router.get(
+    '/mark_version_deployed/:deviceType/:codeVersion',
+    httpGetHandler(markVersionDeployedResponder),
+  );
+
+  router.get(
+    '/download_error_report/:reportID',
+    downloadHandler(errorReportDownloadResponder),
+  );
+  router.get(
+    '/upload/:uploadID/:secret',
+    downloadHandler(uploadDownloadResponder),
+  );
 
   // $FlowFixMe express-ws has side effects that can't be typed
-  router.ws(`${baseRoutePath}ws`, onConnection);
+  router.ws('/ws', onConnection);
   router.get(`${landingBaseRoutePath}*`, landingHandler);
   router.get('*', htmlHandler(websiteResponder));
 
-  for (const routePath of generateBaseAndCommAppRoutePaths(
-    'upload_multimedia',
-  )) {
-    router.post(
-      routePath,
-      multerProcessor,
-      uploadHandler(multimediaUploadResponder),
-    );
-  }
+  router.post(
+    '/upload_multimedia',
+    multerProcessor,
+    uploadHandler(multimediaUploadResponder),
+  );
 
   server.use(baseRoutePath, router);
   server.listen(parseInt(process.env.PORT, 10) || 3000, 'localhost');
