@@ -16,11 +16,11 @@ function getGlobalURLFacts(): GlobalURLFacts {
 export type AppURLFacts = {
   +baseDomain: string,
   +basePath: string,
+  +baseRoutePath: string,
   +https: boolean,
 };
 type LandingURLFacts = {
   ...AppURLFacts,
-  +baseRoutePath: string,
 };
 
 function getSquadCalURLFacts(): AppURLFacts {
@@ -33,7 +33,8 @@ function getCommAppURLFacts(): AppURLFacts {
 
 function getAppURLFactsFromRequestURL(url: string): AppURLFacts {
   const commURLFacts = getCommAppURLFacts();
-  return url.startsWith(commURLFacts.basePath)
+  const routePath = baseURLFacts.baseRoutePath + commURLFacts.baseRoutePath;
+  return url.startsWith(removeDuplicateSlashesFromPath(routePath))
     ? commURLFacts
     : getSquadCalURLFacts();
 }
@@ -50,9 +51,13 @@ function generateAllRoutePaths(endpoint: string): string[] {
 }
 
 function generateBaseAndCommAppRoutePaths(endpoint: string): string[] {
-  const { baseRoutePath } = baseURLFacts;
-  const commAppBaseRoutePath = commAppURLFacts.basePath;
-  return [baseRoutePath + endpoint, commAppBaseRoutePath + endpoint];
+  const globalBaseRoutePath = baseURLFacts.baseRoutePath;
+  const commAppBaseRoutePath = commAppURLFacts.baseRoutePath;
+  return [globalBaseRoutePath + endpoint, commAppBaseRoutePath + endpoint];
+}
+
+function removeDuplicateSlashesFromPath(routePath: string): string {
+  return routePath.replace(/\/\//g, '/');
 }
 
 export {
@@ -63,4 +68,5 @@ export {
   getAppURLFactsFromRequestURL,
   generateAllRoutePaths,
   generateBaseAndCommAppRoutePaths,
+  removeDuplicateSlashesFromPath,
 };
