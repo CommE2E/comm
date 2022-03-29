@@ -15,6 +15,7 @@ div.threadListSidebar {
   padding-left: 16px;
   padding-right: 10px;
   position: relative;
+  cursor: pointer;
 }
 div.threadListSidebar > svg {
   position: absolute;

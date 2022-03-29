@@ -5,7 +5,10 @@ import * as React from 'react';
 
 import type { SidebarInfo } from 'lib/types/thread-types';
 
-import { useThreadIsActive } from '../selectors/nav-selectors';
+import {
+  useOnClickThread,
+  useThreadIsActive,
+} from '../selectors/nav-selectors';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import css from './chat-thread-list.css';
 import SidebarItem from './sidebar-item.react';
@@ -19,11 +22,14 @@ function ChatThreadListSidebar(props: Props): React.Node {
   const threadID = threadInfo.id;
   const active = useThreadIsActive(threadID);
 
+  const onClick = useOnClickThread(threadInfo);
+
   return (
     <div
       className={classNames(css.threadListSidebar, css.sidebar, {
         [css.activeThread]: active,
       })}
+      onClick={onClick}
     >
       <SidebarItem sidebarInfo={sidebarInfo} />
       <ChatThreadListItemMenu
