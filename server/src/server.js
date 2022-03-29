@@ -136,7 +136,7 @@ if (cluster.isMaster) {
   }
 
   // $FlowFixMe express-ws has side effects that can't be typed
-  router.ws(`${baseRoutePath}ws`, onConnection);
+  router.ws(`/ws`, onConnection);
   router.get(`${landingBaseRoutePath}*`, landingHandler);
   router.get('*', htmlHandler(websiteResponder));
 
