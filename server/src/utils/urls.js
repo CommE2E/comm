@@ -17,9 +17,6 @@ export type AppURLFacts = {
   +baseDomain: string,
   +basePath: string,
   +https: boolean,
-};
-type LandingURLFacts = {
-  ...AppURLFacts,
   +baseRoutePath: string,
 };
 
@@ -38,7 +35,7 @@ function getAppURLFactsFromRequestURL(url: string): AppURLFacts {
     : getSquadCalURLFacts();
 }
 
-function getLandingURLFacts(): LandingURLFacts {
+function getLandingURLFacts(): AppURLFacts {
   return landingURLFacts;
 }
 
