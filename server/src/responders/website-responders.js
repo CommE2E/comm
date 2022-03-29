@@ -115,7 +115,7 @@ async function websiteResponder(
   req: $Request,
   res: $Response,
 ): Promise<void> {
-  const appURLFacts = getAppURLFactsFromRequestURL(req.url);
+  const appURLFacts = getAppURLFactsFromRequestURL(req.originalUrl);
   const { basePath, baseDomain } = appURLFacts;
   const baseURL = basePath.replace(/\/$/, '');
   const baseHref = baseDomain + baseURL;

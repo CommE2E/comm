@@ -47,14 +47,14 @@ function jsonHandler(
         res,
         result,
         expectCookieInvalidation,
-        getAppURLFactsFromRequestURL(req.url),
+        getAppURLFactsFromRequestURL(req.originalUrl),
       );
       res.json({ success: true, ...result });
     } catch (e) {
       await handleException(
         e,
         res,
-        getAppURLFactsFromRequestURL(req.url),
+        getAppURLFactsFromRequestURL(req.originalUrl),
         viewer,
         expectCookieInvalidation,
       );
@@ -74,7 +74,7 @@ function httpGetHandler(
       await handleException(
         e,
         res,
-        getAppURLFactsFromRequestURL(req.url),
+        getAppURLFactsFromRequestURL(req.originalUrl),
         viewer,
       );
     }
@@ -91,7 +91,11 @@ function downloadHandler(
     } catch (e) {
       // Passing viewer in only makes sense if we want to handle failures as
       // JSON. We don't, and presume all download handlers avoid ServerError.
-      await handleException(e, res, getAppURLFactsFromRequestURL(req.url));
+      await handleException(
+        e,
+        res,
+        getAppURLFactsFromRequestURL(req.originalUrl),
+      );
     }
   };
 }
@@ -149,7 +153,7 @@ function htmlHandler(
       addCookieToHomeResponse(
         viewer,
         res,
-        getAppURLFactsFromRequestURL(req.url),
+        getAppURLFactsFromRequestURL(req.originalUrl),
       );
       res.type('html');
       await responder(viewer, req, res);
@@ -199,14 +203,14 @@ function uploadHandler(
         res,
         result,
         false,
-        getAppURLFactsFromRequestURL(req.url),
+        getAppURLFactsFromRequestURL(req.originalUrl),
       );
       res.json({ success: true, ...result });
     } catch (e) {
       await handleException(
         e,
         res,
-        getAppURLFactsFromRequestURL(req.url),
+        getAppURLFactsFromRequestURL(req.originalUrl),
         viewer,
       );
     }
