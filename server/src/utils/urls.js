@@ -21,7 +21,7 @@ function getCommAppURLFacts(): AppURLFacts {
 
 function getAppURLFactsFromRequestURL(url: string): AppURLFacts {
   const commURLFacts = getCommAppURLFacts();
-  return url.startsWith(commURLFacts.basePath)
+  return url.startsWith(commURLFacts.baseRoutePath)
     ? commURLFacts
     : getSquadCalURLFacts();
 }
