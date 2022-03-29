@@ -30,10 +30,20 @@ import {
   multimediaUploadResponder,
   uploadDownloadResponder,
 } from './uploads/uploads';
-import { getSquadCalURLFacts, getLandingURLFacts } from './utils/urls';
+import {
+  getSquadCalURLFacts,
+  getLandingURLFacts,
+  getCommAppURLFacts,
+} from './utils/urls';
 
 const squadCalBaseRoutePath = getSquadCalURLFacts().baseRoutePath;
 const landingBaseRoutePath = getLandingURLFacts().baseRoutePath;
+const commAppBaseRoutePath = getCommAppURLFacts().baseRoutePath;
+
+const compiledFolderOptions =
+  process.env.NODE_ENV === 'development'
+    ? undefined
+    : { maxAge: '1y', immutable: true };
 
 if (cluster.isMaster) {
   (async () => {
@@ -56,69 +66,72 @@ if (cluster.isMaster) {
   server.use(express.json({ limit: '50mb' }));
   server.use(cookieParser());
 
-  const squadCalRouter = express.Router();
-  squadCalRouter.use('/images', express.static('images'));
-  squadCalRouter.use('/fonts', express.static('fonts'));
-  squadCalRouter.use('/misc', express.static('misc'));
-  squadCalRouter.use(
-    '/.well-known',
-    express.static(
-      '.well-known',
-      // Necessary for apple-app-site-association file
-      {
-        setHeaders: res => res.setHeader('Content-Type', 'application/json'),
-      },
-    ),
-  );
-  const compiledFolderOptions =
-    process.env.NODE_ENV === 'development'
-      ? undefined
-      : { maxAge: '1y', immutable: true };
-  squadCalRouter.use(
-    '/compiled',
-    express.static('app_compiled', compiledFolderOptions),
-  );
-  squadCalRouter.use('/', express.static('icons'));
-
-  for (const endpoint in jsonEndpoints) {
-    // $FlowFixMe Flow thinks endpoint is string
-    const responder = jsonEndpoints[endpoint];
-    const expectCookieInvalidation = endpoint === 'log_out';
-    squadCalRouter.post(
-      `/${endpoint}`,
-      jsonHandler(responder, expectCookieInvalidation),
+  const setupAppRouter = router => {
+    router.use('/images', express.static('images'));
+    router.use('/fonts', express.static('fonts'));
+    router.use('/misc', express.static('misc'));
+    router.use(
+      '/.well-known',
+      express.static(
+        '.well-known',
+        // Necessary for apple-app-site-association file
+        {
+          setHeaders: res => res.setHeader('Content-Type', 'application/json'),
+        },
+      ),
     );
-  }
+    router.use(
+      '/compiled',
+      express.static('app_compiled', compiledFolderOptions),
+    );
+    router.use('/', express.static('icons'));
 
-  squadCalRouter.get(
-    '/create_version/:deviceType/:codeVersion',
-    httpGetHandler(createNewVersionResponder),
-  );
-  squadCalRouter.get(
-    '/mark_version_deployed/:deviceType/:codeVersion',
-    httpGetHandler(markVersionDeployedResponder),
-  );
+    for (const endpoint in jsonEndpoints) {
+      // $FlowFixMe Flow thinks endpoint is string
+      const responder = jsonEndpoints[endpoint];
+      const expectCookieInvalidation = endpoint === 'log_out';
+      router.post(
+        `/${endpoint}`,
+        jsonHandler(responder, expectCookieInvalidation),
+      );
+    }
 
-  squadCalRouter.get(
-    '/download_error_report/:reportID',
-    downloadHandler(errorReportDownloadResponder),
-  );
-  squadCalRouter.get(
-    '/upload/:uploadID/:secret',
-    downloadHandler(uploadDownloadResponder),
-  );
+    router.get(
+      '/create_version/:deviceType/:codeVersion',
+      httpGetHandler(createNewVersionResponder),
+    );
+    router.get(
+      '/mark_version_deployed/:deviceType/:codeVersion',
+      httpGetHandler(markVersionDeployedResponder),
+    );
 
-  // $FlowFixMe express-ws has side effects that can't be typed
-  squadCalRouter.ws('/ws', onConnection);
-  squadCalRouter.get('*', htmlHandler(websiteResponder));
+    router.get(
+      '/download_error_report/:reportID',
+      downloadHandler(errorReportDownloadResponder),
+    );
+    router.get(
+      '/upload/:uploadID/:secret',
+      downloadHandler(uploadDownloadResponder),
+    );
 
-  squadCalRouter.post(
-    '/upload_multimedia',
-    multerProcessor,
-    uploadHandler(multimediaUploadResponder),
-  );
+    // $FlowFixMe express-ws has side effects that can't be typed
+    router.ws('/ws', onConnection);
+    router.get('*', htmlHandler(websiteResponder));
 
+    router.post(
+      '/upload_multimedia',
+      multerProcessor,
+      uploadHandler(multimediaUploadResponder),
+    );
+  };
+
+  const squadCalRouter = express.Router();
+  setupAppRouter(squadCalRouter);
   server.use(squadCalBaseRoutePath, squadCalRouter);
+
+  const commAppRouter = express.Router();
+  setupAppRouter(commAppRouter);
+  server.use(commAppBaseRoutePath, commAppRouter);
 
   const landingRouter = express.Router();
   landingRouter.use('/images', express.static('images'));
