@@ -1,0 +1,8 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  color: var(--relationship-modal-color);
+  font-size: var(--l-font-18);
+  line-height: var(--line-height-display);
+}
