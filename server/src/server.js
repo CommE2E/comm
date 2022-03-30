@@ -125,13 +125,11 @@ if (cluster.isMaster) {
     );
   };
 
-  const squadCalRouter = express.Router();
-  setupAppRouter(squadCalRouter);
-  server.use(squadCalBaseRoutePath, squadCalRouter);
-
-  const commAppRouter = express.Router();
-  setupAppRouter(commAppRouter);
-  server.use(commAppBaseRoutePath, commAppRouter);
+  // Note - the order of router declarations matters. On prod we have
+  // squadCalBaseRoutePath configured to '/', which means it's a catch-all. If
+  // we call server.use on squadCalRouter first, it will catch all requests and
+  // prevent commAppRouter and landingRouter from working correctly. So we make
+  // sure that squadCalRouter goes last
 
   const landingRouter = express.Router();
   landingRouter.use('/images', express.static('images'));
@@ -143,8 +141,15 @@ if (cluster.isMaster) {
   landingRouter.use('/', express.static('landing_icons'));
   landingRouter.post('/subscribe_email', emailSubscriptionResponder);
   landingRouter.get('*', landingHandler);
-
   server.use(landingBaseRoutePath, landingRouter);
+
+  const commAppRouter = express.Router();
+  setupAppRouter(commAppRouter);
+  server.use(commAppBaseRoutePath, commAppRouter);
+
+  const squadCalRouter = express.Router();
+  setupAppRouter(squadCalRouter);
+  server.use(squadCalBaseRoutePath, squadCalRouter);
 
   server.listen(parseInt(process.env.PORT, 10) || 3000, 'localhost');
 }
