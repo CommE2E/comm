@@ -11,7 +11,7 @@ import { deviceTokenUpdater } from '../updaters/device-token-updaters';
 import { validateInput } from '../utils/validation-utils';
 
 const deviceTokenUpdateRequestInputValidator: TInterface = tShape({
-  deviceToken: t.String,
+  deviceToken: t.maybe(t.String),
   deviceType: t.maybe(t.enums.of(['ios', 'android'])),
   platformDetails: t.maybe(tPlatformDetails),
 });
