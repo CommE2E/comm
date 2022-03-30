@@ -24,13 +24,14 @@ public:
 
   virtual std::unique_ptr<grpc::Status>
   readResponse(const Response &response) = 0;
-  virtual void doneCallback() {
-  }
+  virtual void doneCallback(){};
+  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
 void ClientReadReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
+  this->terminateCallback();
   if (this->done) {
     return;
   }

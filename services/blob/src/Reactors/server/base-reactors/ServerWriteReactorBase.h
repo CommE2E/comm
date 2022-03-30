@@ -15,6 +15,8 @@ class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response> {
   Response response;
   bool initialized = false;
 
+  void terminate(grpc::Status status);
+
 protected:
   // this is a const ref since it's not meant to be modified
   const Request &request;
@@ -30,7 +32,18 @@ public:
   virtual std::unique_ptr<grpc::Status> writeResponse(Response *response) = 0;
   virtual void initialize(){};
   virtual void doneCallback(){};
+  virtual void terminateCallback(){};
 };
+
+template <class Request, class Response>
+void ServerWriteReactorBase<Request, Response>::terminate(grpc::Status status) {
+  this->terminateCallback();
+  if (!this->status.ok()) {
+    std::cout << "error: " << this->status.error_message() << std::endl;
+  }
+  this->status = status;
+  this->Finish(status);
+}
 
 template <class Request, class Response>
 ServerWriteReactorBase<Request, Response>::ServerWriteReactorBase(
@@ -53,13 +66,13 @@ void ServerWriteReactorBase<Request, Response>::NextWrite() {
     this->response = Response();
     std::unique_ptr<grpc::Status> status = this->writeResponse(&this->response);
     if (status != nullptr) {
-      this->Finish(*status);
+      this->terminate(*status);
       return;
     }
     this->StartWrite(&this->response);
   } catch (std::runtime_error &e) {
     std::cout << "error: " << e.what() << std::endl;
-    this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
 }
 
@@ -72,14 +85,10 @@ void ServerWriteReactorBase<Request, Response>::OnDone() {
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
   if (!ok) {
-    this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, "writing error"));
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, "writing error"));
     return;
   }
-  try {
-    this->NextWrite();
-  } catch (std::runtime_error &e) {
-    this->Finish(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
-  }
+  this->NextWrite();
 }
 
 } // namespace reactor

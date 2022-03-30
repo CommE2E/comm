@@ -22,8 +22,8 @@ public:
   void OnDone(const grpc::Status &status) override;
 
   virtual std::unique_ptr<grpc::Status> prepareRequest(Request &request) = 0;
-  virtual void doneCallback() {
-  }
+  virtual void doneCallback(){};
+  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
@@ -53,6 +53,7 @@ void ClientWriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
 template <class Request, class Response>
 void ClientWriteReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
+  this->terminateCallback();
   if (this->done) {
     return;
   }
