@@ -10,6 +10,7 @@ server/dist
 server/node_modules
 server/secrets
 server/facts
+services/identity/target
 .eslintcache
 .vscode
 !.vscode/extensions.json
