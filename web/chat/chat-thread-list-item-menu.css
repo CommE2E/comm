@@ -25,6 +25,10 @@ div.sidebar:hover .menu {
   align-items: center;
 }
 
+.menu > button:hover svg {
+  color: var(--fg);
+}
+
 .mailIcon {
   padding-right: 8px;
 }
