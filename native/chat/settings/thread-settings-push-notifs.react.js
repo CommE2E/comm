@@ -1,7 +1,9 @@
 // @flow
 
 import * as React from 'react';
-import { View, Switch } from 'react-native';
+import { View, Switch, TouchableOpacity, Platform } from 'react-native';
+import Alert from 'react-native/Libraries/Alert/Alert';
+import Linking from 'react-native/Libraries/Linking/Linking';
 
 import {
   updateSubscriptionActionTypes,
@@ -19,6 +21,8 @@ import {
 } from 'lib/utils/action-utils';
 
 import { SingleLine } from '../../components/single-line.react';
+import SWMansionIcon from '../../components/swmansion-icon.react';
+import { useSelector } from '../../redux/redux-utils';
 import { useStyles } from '../../themes/colors';
 
 type BaseProps = {
@@ -31,6 +35,7 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
+  +hasPushPermissions: boolean,
   +updateSubscription: (
     subscriptionUpdate: SubscriptionUpdateRequest,
   ) => Promise<SubscriptionUpdateResult>,
@@ -48,15 +53,29 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
 
   render() {
     const componentLabel = 'Push notifs';
+    let notificationsSettingsLinkingIcon = undefined;
+    if (!this.props.hasPushPermissions) {
+      notificationsSettingsLinkingIcon = (
+        <TouchableOpacity
+          onPress={this.onNotificationsSettingsLinkingIconPress}
+        >
+          <View style={this.props.styles.infoIcon}>
+            <SWMansionIcon name="info-circle" size={25} color="gray" />
+          </View>
+        </TouchableOpacity>
+      );
+    }
     return (
       <View style={this.props.styles.row}>
         <SingleLine style={this.props.styles.label} adjustsFontSizeToFit={true}>
           {componentLabel}
         </SingleLine>
+        {notificationsSettingsLinkingIcon}
         <View style={this.props.styles.currentValue}>
           <Switch
             value={this.state.currentValue}
             onValueChange={this.onValueChange}
+            disabled={!this.props.hasPushPermissions}
           />
         </View>
       </View>
@@ -74,6 +93,40 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
         },
       }),
     );
+  };
+
+  onNotificationsSettingsLinkingIconPress = () => {
+    const alertTitle =
+      Platform.OS === 'ios'
+        ? 'Need notif permissions'
+        : 'Unable to initialize notifs';
+    let alertMessage;
+    if (Platform.OS === 'ios' && this.state.currentValue) {
+      alertMessage =
+        'Notifs for this thread are enabled, but cannot be delivered ' +
+        'to this device because you haven’t granted notif permissions to Comm. ' +
+        'Please enable them in Settings App → Notifications → Comm';
+    } else if (Platform.OS === 'ios') {
+      alertMessage =
+        'In order to enable push notifs for this thread, ' +
+        'you need to first grant notif permissions to Comm. ' +
+        'Please enable them in Settings App → Notifications → Comm';
+    } else {
+      alertMessage =
+        'Please check your network connection, make sure Google Play ' +
+        'services are installed and enabled, and confirm that your Google ' +
+        'Play credentials are valid in the Google Play Store.';
+    }
+    Alert.alert(alertTitle, alertMessage, [
+      {
+        text: 'Go to settings',
+        onPress: () => Linking.openSettings(),
+      },
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+    ]);
   };
 }
 
@@ -97,6 +150,9 @@ const unboundStyles = {
     paddingHorizontal: 24,
     paddingVertical: 3,
   },
+  infoIcon: {
+    paddingRight: 20,
+  },
 };
 
 const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> = React.memo<BaseProps>(
@@ -104,12 +160,16 @@ const ConnectedThreadSettingsPushNotifs: React.ComponentType<BaseProps> = React.
     const styles = useStyles(unboundStyles);
     const dispatchActionPromise = useDispatchActionPromise();
     const callUpdateSubscription = useServerCall(updateSubscription);
+    const hasPushPermissions = useSelector(
+      state => state.deviceToken !== null && state.deviceToken !== undefined,
+    );
     return (
       <ThreadSettingsPushNotifs
         {...props}
         styles={styles}
         dispatchActionPromise={dispatchActionPromise}
         updateSubscription={callUpdateSubscription}
+        hasPushPermissions={hasPushPermissions}
       />
     );
   },
