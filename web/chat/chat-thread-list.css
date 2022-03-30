@@ -108,6 +108,10 @@ div.lastActivity {
   line-height: 1.5;
   font-weight: var(--semi-bold);
   white-space: nowrap;
+  flex-grow: 1;
+  padding-bottom: 12px;
+  align-items: flex-end;
+  display: flex;
 }
 
 div.lastMessage {
@@ -132,7 +136,6 @@ div.lastMessage.unread {
 }
 div.dark {
   color: var(--thread-color-read);
-  font-size: var(--s-font-14);
   padding-right: 16px;
 }
 .read {
