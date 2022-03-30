@@ -130,6 +130,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_backup_2eproto::offsets[] PROT
   ~0u,  // no _weak_field_map_
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::backup::SendLogRequest, data_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::backup::RecoverBackupKeyRequest, _internal_metadata_),
@@ -163,10 +164,10 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 0, -1, sizeof(::backup::CreateNewBackupRequest)},
   { 10, -1, sizeof(::backup::CreateNewBackupResponse)},
   { 16, -1, sizeof(::backup::SendLogRequest)},
-  { 24, -1, sizeof(::backup::RecoverBackupKeyRequest)},
-  { 30, -1, sizeof(::backup::RecoverBackupKeyResponse)},
-  { 37, -1, sizeof(::backup::PullBackupRequest)},
-  { 43, -1, sizeof(::backup::PullBackupResponse)},
+  { 25, -1, sizeof(::backup::RecoverBackupKeyRequest)},
+  { 31, -1, sizeof(::backup::RecoverBackupKeyResponse)},
+  { 38, -1, sizeof(::backup::PullBackupRequest)},
+  { 44, -1, sizeof(::backup::PullBackupResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -185,30 +186,30 @@ const char descriptor_table_protodef_backup_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "\n\006userID\030\001 \001(\tH\000\022\024\n\nkeyEntropy\030\002 \001(\014H\000\022\033"
   "\n\021newCompactionHash\030\003 \001(\014H\000\022\034\n\022newCompac"
   "tionChunk\030\004 \001(\014H\000B\006\n\004data\"+\n\027CreateNewBa"
-  "ckupResponse\022\020\n\010backupID\030\001 \001(\t\"=\n\016SendLo"
-  "gRequest\022\020\n\006userID\030\001 \001(\tH\000\022\021\n\007logData\030\002 "
-  "\001(\014H\000B\006\n\004data\")\n\027RecoverBackupKeyRequest"
-  "\022\016\n\006userID\030\001 \001(\t\"6\n\030RecoverBackupKeyResp"
-  "onse\022\022\n\010backupID\030\004 \001(\tH\000B\006\n\004data\"#\n\021Pull"
-  "BackupRequest\022\016\n\006userID\030\001 \001(\t\"K\n\022PullBac"
-  "kupResponse\022\031\n\017compactionChunk\030\001 \001(\014H\000\022\022"
-  "\n\010logChunk\030\002 \001(\014H\000B\006\n\004data2\320\002\n\rBackupSer"
-  "vice\022X\n\017CreateNewBackup\022\036.backup.CreateN"
-  "ewBackupRequest\032\037.backup.CreateNewBackup"
-  "Response\"\000(\0010\001\022=\n\007SendLog\022\026.backup.SendL"
-  "ogRequest\032\026.google.protobuf.Empty\"\000(\001\022[\n"
-  "\020RecoverBackupKey\022\037.backup.RecoverBackup"
-  "KeyRequest\032 .backup.RecoverBackupKeyResp"
-  "onse\"\000(\0010\001\022I\n\nPullBackup\022\031.backup.PullBa"
-  "ckupRequest\032\032.backup.PullBackupResponse\""
-  "\000(\0010\001b\006proto3"
+  "ckupResponse\022\020\n\010backupID\030\001 \001(\t\"P\n\016SendLo"
+  "gRequest\022\020\n\006userID\030\001 \001(\tH\000\022\021\n\007logHash\030\002 "
+  "\001(\014H\000\022\021\n\007logData\030\003 \001(\014H\000B\006\n\004data\")\n\027Reco"
+  "verBackupKeyRequest\022\016\n\006userID\030\001 \001(\t\"6\n\030R"
+  "ecoverBackupKeyResponse\022\022\n\010backupID\030\004 \001("
+  "\tH\000B\006\n\004data\"#\n\021PullBackupRequest\022\016\n\006user"
+  "ID\030\001 \001(\t\"K\n\022PullBackupResponse\022\031\n\017compac"
+  "tionChunk\030\001 \001(\014H\000\022\022\n\010logChunk\030\002 \001(\014H\000B\006\n"
+  "\004data2\320\002\n\rBackupService\022X\n\017CreateNewBack"
+  "up\022\036.backup.CreateNewBackupRequest\032\037.bac"
+  "kup.CreateNewBackupResponse\"\000(\0010\001\022=\n\007Sen"
+  "dLog\022\026.backup.SendLogRequest\032\026.google.pr"
+  "otobuf.Empty\"\000(\001\022[\n\020RecoverBackupKey\022\037.b"
+  "ackup.RecoverBackupKeyRequest\032 .backup.R"
+  "ecoverBackupKeyResponse\"\000(\0010\001\022I\n\nPullBac"
+  "kup\022\031.backup.PullBackupRequest\032\032.backup."
+  "PullBackupResponse\"\000(\0010\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_backup_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_backup_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_backup_2eproto = {
-  false, false, 853, descriptor_table_protodef_backup_2eproto, "backup.proto", 
+  false, false, 872, descriptor_table_protodef_backup_2eproto, "backup.proto", 
   &descriptor_table_backup_2eproto_once, descriptor_table_backup_2eproto_deps, 1, 7,
   schemas, file_default_instances, TableStruct_backup_2eproto::offsets,
   file_level_metadata_backup_2eproto, file_level_enum_descriptors_backup_2eproto, file_level_service_descriptors_backup_2eproto,
@@ -777,6 +778,10 @@ SendLogRequest::SendLogRequest(const SendLogRequest& from)
       _internal_set_userid(from._internal_userid());
       break;
     }
+    case kLogHash: {
+      _internal_set_loghash(from._internal_loghash());
+      break;
+    }
     case kLogData: {
       _internal_set_logdata(from._internal_logdata());
       break;
@@ -822,6 +827,10 @@ void SendLogRequest::clear_data() {
       data_.userid_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
       break;
     }
+    case kLogHash: {
+      data_.loghash_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+      break;
+    }
     case kLogData: {
       data_.logdata_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
       break;
@@ -860,9 +869,17 @@ const char* SendLogRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bytes logData = 2;
+      // bytes logHash = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          auto str = _internal_mutable_loghash();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes logData = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_logdata();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
@@ -906,10 +923,16 @@ failure:
         1, this->_internal_userid(), target);
   }
 
-  // bytes logData = 2;
+  // bytes logHash = 2;
+  if (_internal_has_loghash()) {
+    target = stream->WriteBytesMaybeAliased(
+        2, this->_internal_loghash(), target);
+  }
+
+  // bytes logData = 3;
   if (_internal_has_logdata()) {
     target = stream->WriteBytesMaybeAliased(
-        2, this->_internal_logdata(), target);
+        3, this->_internal_logdata(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -936,7 +959,14 @@ size_t SendLogRequest::ByteSizeLong() const {
           this->_internal_userid());
       break;
     }
-    // bytes logData = 2;
+    // bytes logHash = 2;
+    case kLogHash: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_loghash());
+      break;
+    }
+    // bytes logData = 3;
     case kLogData: {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
@@ -981,6 +1011,10 @@ void SendLogRequest::MergeFrom(const SendLogRequest& from) {
   switch (from.data_case()) {
     case kUserID: {
       _internal_set_userid(from._internal_userid());
+      break;
+    }
+    case kLogHash: {
+      _internal_set_loghash(from._internal_loghash());
       break;
     }
     case kLogData: {
