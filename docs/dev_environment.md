@@ -498,7 +498,7 @@ Your `squadcal_url.json` file should look like this:
 {
   "baseDomain": "http://localhost",
   "basePath": "/comm/",
-  "baseRoutePath": "/comm/",
+  "baseRoutePath": "/",
   "https": false
 }
 ```

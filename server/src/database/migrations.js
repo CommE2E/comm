@@ -30,6 +30,22 @@ async function makeSureBaseRoutePathExists(filePath: string): Promise<void> {
   await writeFile.close();
 }
 
+async function fixBaseRoutePathForLocalhost(filePath: string): Promise<void> {
+  const readFile = await fs.promises.open(filePath, 'r');
+  const contents = await readFile.readFile('utf8');
+  let json = JSON.parse(contents);
+  await readFile.close();
+  if (json.baseDomain !== 'http://localhost') {
+    return;
+  }
+  const baseRoutePath = '/';
+  json = { ...json, baseRoutePath };
+  console.warn(`updating ${filePath} to ${JSON.stringify(json)}`);
+  const writeFile = await fs.promises.open(filePath, 'w');
+  await writeFile.writeFile(JSON.stringify(json, null, '  '), 'utf8');
+  await writeFile.close();
+}
+
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   [
     0,
@@ -44,6 +60,13 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       try {
         await fs.promises.unlink('facts/url.json');
       } catch {}
+    },
+  ],
+  [
+    2,
+    async () => {
+      await fixBaseRoutePathForLocalhost('facts/commapp_url.json');
+      await fixBaseRoutePathForLocalhost('facts/squadcal_url.json');
     },
   ],
 ]);
