@@ -6,6 +6,25 @@ div.messageActionContainer {
   padding: 0 6px;
   background-color: var(--message-action-tooltip-bg);
   border-radius: 8px;
+  width: fit-content;
+}
+
+div.timestampContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  margin-top: 6px;
+  background-color: var(--message-action-tooltip-bg);
+  border-radius: 8px;
+  color: var(--tool-tip-color);
+}
+
+div.timestampContainer p {
+  white-space: nowrap;
+  padding: 5px;
+  font-size: var(--s-font-14);
 }
 
 div.messageActionButtons {
@@ -22,9 +41,13 @@ div.messageActionButtons svg:hover {
 }
 div.messageActionButtonsViewer {
   flex-direction: row;
+  margin-left: auto;
+  margin-right: 0;
 }
 div.messageActionButtonsNonViewer {
   flex-direction: row-reverse;
+  margin-left: 0;
+  margin-right: auto;
 }
 div.messageActionLinkIcon {
   margin: 0 3px;

@@ -7,8 +7,10 @@ import * as React from 'react';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import type { InputState } from '../input/input-state.js';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   useOnClickThread,
   useOnClickPendingSidebar,
@@ -188,6 +190,12 @@ function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
     );
   }
 
+  const timezone = useSelector(state => state.timeZone);
+  const timestampText = React.useMemo(
+    () => longAbsoluteDate(messageInfo.time, timezone),
+    [messageInfo.time, timezone],
+  );
+
   const { isViewer } = messageInfo.creator;
   const messageActionButtonsContainerClassName = classNames({
     [css.messageActionContainer]: true,
@@ -196,9 +204,14 @@ function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
     [css.messageActionButtonsNonViewer]: !isViewer,
   });
   return (
-    <div className={messageActionButtonsContainerClassName}>
-      {sidebarButton}
-      {replyButton}
+    <div>
+      <div className={messageActionButtonsContainerClassName}>
+        {sidebarButton}
+        {replyButton}
+      </div>
+      <div className={css.timestampContainer}>
+        <p>{timestampText}</p>
+      </div>
     </div>
   );
 }
