@@ -28,6 +28,11 @@ div.tabItem {
   color: var(--color-disabled);
   border: 2px solid var(--border-color);
   border-width: 0 0 3px 0;
+  transition: 150ms;
+}
+div.tabItem:hover {
+  color: var(--fg);
+  transition: 150ms;
 }
 div.tabItem svg {
   padding-right: 8px;
@@ -40,7 +45,6 @@ div.tabItemActive {
 div.tabItemInactive {
   background-color: var(--bg);
   color: var(--color-disabled);
-  color: var(--fg);
 }
 
 div.threadList {
