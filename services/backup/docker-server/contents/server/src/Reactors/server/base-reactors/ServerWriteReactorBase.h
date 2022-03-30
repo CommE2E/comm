@@ -32,10 +32,12 @@ public:
   virtual std::unique_ptr<grpc::Status> writeResponse(Response *response) = 0;
   virtual void initialize(){};
   virtual void doneCallback(){};
+  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::terminate(grpc::Status status) {
+  this->terminateCallback();
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
