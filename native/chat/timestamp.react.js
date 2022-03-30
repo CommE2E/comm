@@ -19,11 +19,7 @@ function Timestamp(props: Props): React.Node {
   if (props.display === 'modal') {
     style.push(styles.modal);
   }
-  return (
-    <SingleLine style={style}>
-      {longAbsoluteDate(props.time).toUpperCase()}
-    </SingleLine>
-  );
+  return <SingleLine style={style}>{longAbsoluteDate(props.time)}</SingleLine>;
 }
 
 const timestampHeight = 26;
