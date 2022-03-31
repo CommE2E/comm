@@ -74,6 +74,21 @@ void BackupItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
   this->validate();
 }
 
+void BackupItem::assignItemFromDatabaseUserIDCreatedIndex(
+    const AttributeValues &itemFromDB) {
+  try {
+    this->userID = itemFromDB.at(BackupItem::FIELD_USER_ID).GetS();
+    this->backupID = itemFromDB.at(BackupItem::FIELD_BACKUP_ID).GetS();
+    this->created = std::stoll(
+        std::string(itemFromDB.at(BackupItem::FIELD_CREATED).GetS()).c_str());
+    this->recoveryData = itemFromDB.at(BackupItem::FIELD_RECOVERY_DATA).GetS();
+  } catch (std::logic_error &e) {
+    throw std::runtime_error(
+        "invalid backup item provided, " + std::string(e.what()));
+  }
+  this->validate();
+}
+
 std::string BackupItem::getTableName() const {
   return BackupItem::tableName;
 }
