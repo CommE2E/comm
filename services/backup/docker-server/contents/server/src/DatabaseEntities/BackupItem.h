@@ -62,6 +62,8 @@ public:
   BackupItem(const AttributeValues &itemFromDB);
 
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
+  void
+  assignItemFromDatabaseUserIDCreatedIndex(const AttributeValues &itemFromDB);
 
   std::string getTableName() const override;
   PrimaryKey getPrimaryKey() const override;
