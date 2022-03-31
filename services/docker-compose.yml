@@ -3,6 +3,7 @@ networks:
   services-net:
     name: services-net
 services:
+  # tunnelbroker
   tunnelbroker-server:
     build:
       dockerfile: services/tunnelbroker/Dockerfile
@@ -38,6 +39,7 @@ services:
       - "${COMM_SERVICES_PORT_BACKUP}:50051"
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
+  # blob
   blob-server:
     networks:
       - services-net
@@ -53,3 +55,14 @@ services:
       - "${COMM_SERVICES_PORT_BLOB}:50051"
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
+  # identity
+  identity-server:
+    networks:
+      - services-net
+    build:
+      dockerfile: services/identity/Dockerfile
+      context: ../
+    image: commapp/identity-server:0.1
+    container_name: identity-server
+    ports:
+      - "${COMM_SERVICES_PORT_IDENTITY}:50051"
