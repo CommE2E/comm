@@ -87,7 +87,7 @@ void AmqpManager::connectInternal() {
 
 void AmqpManager::connect() {
   while (true) {
-    long long currentTimestamp = getCurrentTimestamp();
+    long long currentTimestamp = tools::getCurrentTimestamp();
     if (this->lastConnectionTimestamp &&
         currentTimestamp - this->lastConnectionTimestamp <
             AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL) {

@@ -14,6 +14,7 @@
 
 namespace comm {
 namespace network {
+namespace tools {
 
 std::string generateRandomString(std::size_t length) {
   const std::string CHARACTERS =
@@ -67,5 +68,6 @@ bool validateSessionID(std::string sessionID) {
   }
 }
 
+} // namespace tools
 } // namespace network
 } // namespace comm

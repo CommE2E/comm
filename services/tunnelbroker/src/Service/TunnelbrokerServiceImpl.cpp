@@ -40,14 +40,15 @@ grpc::Status TunnelBrokerServiceImpl::SessionSignature(
     const tunnelbroker::SessionSignatureRequest *request,
     tunnelbroker::SessionSignatureResponse *reply) {
   const std::string deviceID = request->deviceid();
-  if (!validateDeviceID(deviceID)) {
+  if (!tools::validateDeviceID(deviceID)) {
     std::cout << "gRPC: "
               << "Format validation failed for " << deviceID << std::endl;
     return grpc::Status(
         grpc::StatusCode::INVALID_ARGUMENT,
         "Format validation failed for deviceID");
   }
-  const std::string toSign = generateRandomString(SIGNATURE_REQUEST_LENGTH);
+  const std::string toSign =
+      tools::generateRandomString(SIGNATURE_REQUEST_LENGTH);
   std::shared_ptr<database::SessionSignItem> SessionSignItem =
       std::make_shared<database::SessionSignItem>(toSign, deviceID);
   database::DatabaseManager::getInstance().putSessionSignItem(*SessionSignItem);
@@ -64,7 +65,7 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   std::shared_ptr<database::SessionSignItem> sessionSignItem;
   std::shared_ptr<database::PublicKeyItem> publicKeyItem;
   const std::string deviceID = request->deviceid();
-  if (!validateDeviceID(deviceID)) {
+  if (!tools::validateDeviceID(deviceID)) {
     std::cout << "gRPC: "
               << "Format validation failed for " << deviceID << std::endl;
     return grpc::Status(
@@ -73,7 +74,7 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   }
   const std::string signature = request->signature();
   const std::string publicKey = request->publickey();
-  const std::string newSessionID = generateUUID();
+  const std::string newSessionID = tools::generateUUID();
   try {
     sessionSignItem =
         database::DatabaseManager::getInstance().findSessionSignItem(deviceID);
@@ -135,7 +136,7 @@ grpc::Status TunnelBrokerServiceImpl::Send(
     google::protobuf::Empty *reply) {
   try {
     const std::string sessionID = request->sessionid();
-    if (!validateSessionID(sessionID)) {
+    if (!tools::validateSessionID(sessionID)) {
       std::cout << "gRPC: "
                 << "Format validation failed for " << sessionID << std::endl;
       return grpc::Status(
@@ -177,7 +178,7 @@ grpc::Status TunnelBrokerServiceImpl::Get(
     grpc::ServerWriter<tunnelbroker::GetResponse> *writer) {
   try {
     const std::string sessionID = request->sessionid();
-    if (!validateSessionID(sessionID)) {
+    if (!tools::validateSessionID(sessionID)) {
       std::cout << "gRPC: "
                 << "Format validation failed for " << sessionID << std::endl;
       return grpc::Status(
