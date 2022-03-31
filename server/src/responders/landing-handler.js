@@ -9,7 +9,7 @@ import { promisify } from 'util';
 
 import { type LandingSSRProps } from '../landing/landing-ssr.react';
 import { waitForStream } from '../utils/json-stream';
-import { getLandingURLFacts, clientURLFromLocalURL } from '../utils/urls';
+import { getLandingURLFacts, clientPathFromRouterPath } from '../utils/urls';
 import { getMessageForException } from './utils';
 
 async function landingHandler(req: $Request, res: $Response) {
@@ -140,9 +140,9 @@ async function landingResponder(req: $Request, res: $Response) {
 
   // We remove trailing slash for `react-router`
   const routerBasename = basePath.replace(/\/$/, '');
-  const publicURL = clientURLFromLocalURL(req.url, urlFacts);
+  const clientPath = clientPathFromRouterPath(req.url, urlFacts);
   const reactStream = renderToNodeStream(
-    <LandingSSR url={publicURL} basename={routerBasename} />,
+    <LandingSSR url={clientPath} basename={routerBasename} />,
   );
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);

@@ -43,7 +43,7 @@ import { Viewer } from '../session/viewer';
 import { streamJSON, waitForStream } from '../utils/json-stream';
 import {
   getAppURLFactsFromRequestURL,
-  clientURLFromLocalURL,
+  clientPathFromRouterPath,
 } from '../utils/urls';
 
 const { renderToNodeStream } = ReactDOMServer;
@@ -301,11 +301,11 @@ async function websiteResponder(
   const store: Store<AppState, Action> = createStore(reducer, state);
 
   const routerContext = {};
-  const clientURL = clientURLFromLocalURL(req.url, appURLFacts);
+  const clientPath = clientPathFromRouterPath(req.url, appURLFacts);
   const reactStream = renderToNodeStream(
     <Provider store={store}>
       <StaticRouter
-        location={clientURL}
+        location={clientPath}
         basename={baseURL}
         context={routerContext}
       >

@@ -30,9 +30,12 @@ function getLandingURLFacts(): AppURLFacts {
   return landingURLFacts;
 }
 
-function clientURLFromLocalURL(url: string, urlFacts: AppURLFacts): string {
+function clientPathFromRouterPath(
+  routerPath: string,
+  urlFacts: AppURLFacts,
+): string {
   const { basePath } = urlFacts;
-  return basePath + url;
+  return basePath + routerPath;
 }
 
 export {
@@ -40,5 +43,5 @@ export {
   getCommAppURLFacts,
   getLandingURLFacts,
   getAppURLFactsFromRequestURL,
-  clientURLFromLocalURL,
+  clientPathFromRouterPath,
 };
