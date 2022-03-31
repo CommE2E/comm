@@ -1,7 +1,7 @@
 #include "BackupServiceImpl.h"
 
-#include "BidiReactorBase.h"
 #include "ReadReactorBase.h"
+#include "ServerBidiReactorBase.h"
 
 #include <aws/core/Aws.h>
 
@@ -20,16 +20,16 @@ grpc::ServerBidiReactor<
     backup::CreateNewBackupRequest,
     backup::CreateNewBackupResponse> *
 BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
-  class CreateNewBackupReactor : public BidiReactorBase<
+  class CreateNewBackupReactor : public reactor::ServerBidiReactorBase<
                                      backup::CreateNewBackupRequest,
                                      backup::CreateNewBackupResponse> {
   public:
-    std::unique_ptr<grpc::Status> handleRequest(
+    std::unique_ptr<reactor::ServerBidiReactorStatus> handleRequest(
         backup::CreateNewBackupRequest request,
         backup::CreateNewBackupResponse *response) override {
       // TODO handle request
-      return std::make_unique<grpc::Status>(
-          grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
+      return std::make_unique<reactor::ServerBidiReactorStatus>(
+          grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
     }
   };
 
@@ -60,16 +60,16 @@ grpc::ServerBidiReactor<
     backup::RecoverBackupKeyRequest,
     backup::RecoverBackupKeyResponse> *
 BackupServiceImpl::RecoverBackupKey(grpc::CallbackServerContext *context) {
-  class RecoverBackupKeyReactor : public BidiReactorBase<
+  class RecoverBackupKeyReactor : public reactor::ServerBidiReactorBase<
                                       backup::RecoverBackupKeyRequest,
                                       backup::RecoverBackupKeyResponse> {
   public:
-    std::unique_ptr<grpc::Status> handleRequest(
+    std::unique_ptr<reactor::ServerBidiReactorStatus> handleRequest(
         backup::RecoverBackupKeyRequest request,
         backup::RecoverBackupKeyResponse *response) override {
       // TODO handle request
-      return std::make_unique<grpc::Status>(
-          grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
+      return std::make_unique<reactor::ServerBidiReactorStatus>(
+          grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
     }
   };
 
@@ -78,16 +78,16 @@ BackupServiceImpl::RecoverBackupKey(grpc::CallbackServerContext *context) {
 
 grpc::ServerBidiReactor<backup::PullBackupRequest, backup::PullBackupResponse> *
 BackupServiceImpl::PullBackup(grpc::CallbackServerContext *context) {
-  class PullBackupReactor : public BidiReactorBase<
+  class PullBackupReactor : public reactor::ServerBidiReactorBase<
                                 backup::PullBackupRequest,
                                 backup::PullBackupResponse> {
   public:
-    std::unique_ptr<grpc::Status> handleRequest(
+    std::unique_ptr<reactor::ServerBidiReactorStatus> handleRequest(
         backup::PullBackupRequest request,
         backup::PullBackupResponse *response) override {
       // TODO handle request
-      return std::make_unique<grpc::Status>(
-          grpc::StatusCode::UNIMPLEMENTED, "unimplemented");
+      return std::make_unique<reactor::ServerBidiReactorStatus>(
+          grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
     }
   };
 
