@@ -103,7 +103,10 @@ DatabaseManager::findLastBackupItem(const std::string &userID) {
   if (items.empty()) {
     return nullptr;
   }
-  return std::make_shared<database::BackupItem>(items[0]);
+  std::shared_ptr<database::BackupItem> result =
+      std::make_shared<database::BackupItem>();
+  result->assignItemFromDatabaseUserIDCreatedIndex(items[0]);
+  return result;
 }
 
 void DatabaseManager::removeBackupItem(std::shared_ptr<BackupItem> item) {
@@ -126,9 +129,11 @@ void DatabaseManager::putLogItem(const LogItem &item) {
   request.AddItem(
       LogItem::FIELD_VALUE,
       Aws::DynamoDB::Model::AttributeValue(item.getValue()));
-  request.AddItem(
-      LogItem::FIELD_ATTACHMENT_HOLDERS,
-      Aws::DynamoDB::Model::AttributeValue(item.getAttachmentHolders()));
+  if (!item.getAttachmentHolders().empty()) {
+    request.AddItem(
+        LogItem::FIELD_ATTACHMENT_HOLDERS,
+        Aws::DynamoDB::Model::AttributeValue(item.getAttachmentHolders()));
+  }
 
   this->innerPutItem(std::make_shared<LogItem>(item), request);
 }
