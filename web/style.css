@@ -200,19 +200,8 @@ div.color-title {
   font-style: italic;
 }
 
-div.edit-thread-color-container {
-  margin-top: -5px;
-}
 div.form-textarea-container {
   margin-top: 1px;
-}
-div.edit-thread-privacy-container {
-  margin-bottom: 6px;
-}
-div.edit-thread-account-password {
-  border-top: 2px solid #efefef;
-  padding-top: 4px;
-  margin-top: 2px;
 }
 
 div.new-thread-privacy-container {

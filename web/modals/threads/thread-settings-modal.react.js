@@ -39,9 +39,9 @@ import { firstLine } from 'lib/utils/string-utils';
 import Button from '../../components/button.react';
 import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
-import css from '../../style.css';
 import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
+import css from './thread-settings-modal.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
 

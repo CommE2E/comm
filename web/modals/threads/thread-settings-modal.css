@@ -141,3 +141,62 @@ div.user-settings-current-password {
   padding-top: 4px;
   margin-top: 5px;
 }
+
+div.form-textarea-container {
+  margin-top: 1px;
+}
+
+div.edit-thread-color-container {
+  margin-top: -5px;
+}
+
+div.color-title {
+  margin-top: 4px;
+}
+
+div.edit-thread-privacy-container {
+  margin-bottom: 6px;
+}
+
+div.form-enum-selector {
+  display: inline-block;
+  padding-bottom: 4px;
+}
+div.form-enum-selector > div.form-enum-container {
+  padding-top: 5px;
+}
+div.form-enum-selector > div.form-enum-container > input {
+  vertical-align: top;
+  margin-top: 4px;
+}
+div.form-enum-selector div.form-enum-option {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 600;
+  padding-left: 3px;
+}
+div.form-enum-selector span.form-enum-description {
+  display: block;
+  font-family: var(--font-stack);
+  font-weight: normal;
+  font-size: 13px;
+  max-width: 260px;
+  color: gray;
+}
+
+div.form-enum-selector > div.form-enum-container {
+  padding-top: 5px;
+}
+div.form-enum-selector > div.form-enum-container > input {
+  vertical-align: top;
+  margin-top: 4px;
+}
+.italic {
+  font-style: italic;
+}
+
+div.edit-thread-account-password {
+  border-top: 2px solid #efefef;
+  padding-top: 4px;
+  margin-top: 2px;
+}
