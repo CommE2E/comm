@@ -75,7 +75,8 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       }
 
       ServiceBlobClient::getInstance().putReactor->scheduleSendingDataChunk(
-          request.newcompactionchunk());
+          std::make_unique<std::string>(
+              std::move(*request.mutable_newcompactionchunk())));
 
       return nullptr;
     }
@@ -84,7 +85,8 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 }
 
 void CreateNewBackupReactor::doneCallback() {
-  ServiceBlobClient::getInstance().putReactor->scheduleSendingDataChunk("");
+  ServiceBlobClient::getInstance().putReactor->scheduleSendingDataChunk(
+      std::make_unique<std::string>(""));
 }
 
 } // namespace reactor
