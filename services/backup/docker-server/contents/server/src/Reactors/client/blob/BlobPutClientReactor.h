@@ -36,7 +36,7 @@ class BlobPutClientReactor
 
 public:
   BlobPutClientReactor(const std::string &holder, const std::string &hash);
-  void scheduleSendingDataChunk(const std::string &dataChunk);
+  void scheduleSendingDataChunk(std::unique_ptr<std::string> dataChunk);
   std::unique_ptr<grpc::Status> prepareRequest(
       blob::PutRequest &request,
       std::shared_ptr<blob::PutResponse> previousResponse) override;
@@ -51,11 +51,8 @@ BlobPutClientReactor::BlobPutClientReactor(
 }
 
 void BlobPutClientReactor::scheduleSendingDataChunk(
-    const std::string &dataChunk) {
-  // TODO: we may be copying a big chunk of data, but `write` seems to only
-  // accept `std::move`
-  std::string str = std::string(dataChunk);
-  if (!this->dataChunks.write(std::move(str))) {
+    std::unique_ptr<std::string> dataChunk) {
+  if (!this->dataChunks.write(std::move(*dataChunk))) {
     throw std::runtime_error(
         "Error scheduling sending a data chunk to send to the blob service");
   }
