@@ -54,6 +54,9 @@ void ClientBidiReactorBase<Request, Response>::terminate(
   if (this->done) {
     return;
   }
+  if (!this->status.ok()) {
+    std::cout << "error: " << this->status.error_message() << std::endl;
+  }
   this->StartWritesDone();
   this->status = status;
   this->done = true;

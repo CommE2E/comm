@@ -34,6 +34,9 @@ void ClientReadReactorBase<Request, Response>::terminate(
   if (this->done) {
     return;
   }
+  if (!this->status.ok()) {
+    std::cout << "error: " << this->status.error_message() << std::endl;
+  }
   this->status = status;
   this->done = true;
 }
