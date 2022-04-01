@@ -45,7 +45,7 @@ public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
       backup::CreateNewBackupRequest request,
       backup::CreateNewBackupResponse *response) override;
-  void doneCallback();
+  void terminateCallback();
 };
 
 std::string CreateNewBackupReactor::generateBackupID() {
@@ -101,7 +101,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
   throw std::runtime_error("new backup - invalid state");
 }
 
-void CreateNewBackupReactor::doneCallback() {
+void CreateNewBackupReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   if (this->putReactor == nullptr) {
     return;
