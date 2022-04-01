@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DatabaseManager.h"
 #include "ServerBidiReactorBase.h"
 #include "ServiceBlobClient.h"
 #include "Tools.h"
@@ -30,6 +31,7 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::string userID;
   std::string keyEntropy;
   std::string dataHash;
+  std::string holder;
   std::string backupID;
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
   ServiceBlobClient blobClient;
@@ -84,8 +86,9 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 
       // TODO confirm - holder may be a backup id
       this->backupID = this->generateBackupID();
+      this->holder = this->backupID;
       this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
-          this->backupID, this->dataHash, &this->waitingForBlobClientCV);
+          this->holder, this->dataHash, &this->waitingForBlobClientCV);
       this->blobClient.put(this->putReactor);
       return nullptr;
     }
@@ -107,6 +110,20 @@ void CreateNewBackupReactor::doneCallback() {
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lock2(this->waitingForBlobClientCVMutex);
   this->waitingForBlobClientCV.wait(lock2);
+  try {
+    // TODO add recovery data
+    // TODO handle attachments holders
+    database::BackupItem backupItem(
+        this->userID,
+        this->backupID,
+        getCurrentTimestamp(),
+        generateRandomString(),
+        this->holder,
+        {});
+    database::DatabaseManager::getInstance().putBackupItem(backupItem);
+  } catch (std::runtime_error &e) {
+    std::cout << "db operations error: " << e.what() << std::endl;
+  }
 }
 
 } // namespace reactor
