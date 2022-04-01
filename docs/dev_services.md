@@ -56,6 +56,6 @@ You can find the full list of scripts [here](https://github.com/CommE2E/comm/blo
 
 # Developing and debugging
 
-## VSCode
+## Visual Studio Code
 
-If you are using VSCode as your code editor you can [attach to a Docker container](https://code.visualstudio.com/docs/remote/attach-container) and develop right inside it. That will save you time and resources neither deploy the code into container every time.
+If you are using Visual Studio Code as your code editor you can [attach to a Docker container](https://code.visualstudio.com/docs/remote/attach-container) and develop inside it.
