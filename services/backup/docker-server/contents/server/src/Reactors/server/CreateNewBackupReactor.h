@@ -20,12 +20,14 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
                                    backup::CreateNewBackupRequest,
                                    backup::CreateNewBackupResponse> {
   enum class State {
-    KEY_ENTROPY = 1,
-    DATA_HASH = 2,
-    DATA_CHUNKS = 3,
+    USER_ID = 1,
+    KEY_ENTROPY = 2,
+    DATA_HASH = 3,
+    DATA_CHUNKS = 4,
   };
 
-  State state = State::KEY_ENTROPY;
+  State state = State::USER_ID;
+  std::string userID;
   std::string keyEntropy;
   std::string dataHash;
   std::string backupID;
@@ -56,6 +58,14 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
   // as there may be multiple threads from the pool taking over here
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   switch (this->state) {
+    case State::USER_ID: {
+      if (!request.has_userid()) {
+        throw std::runtime_error("user id expected but not received");
+      }
+      this->userID = request.userid();
+      this->state = State::KEY_ENTROPY;
+      return nullptr;
+    }
     case State::KEY_ENTROPY: {
       if (!request.has_keyentropy()) {
         throw std::runtime_error(
