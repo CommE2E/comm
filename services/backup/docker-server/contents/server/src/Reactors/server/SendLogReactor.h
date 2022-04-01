@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Constants.h"
 #include "ServerReadReactorBase.h"
 
 #include "../_generated/backup.grpc.pb.h"
@@ -21,8 +22,21 @@ class SendLogReactor : public ServerReadReactorBase<
     LOG_CHUNK = 2,
   };
 
+  enum class PersistenceMethod {
+    UNKNOWN = 0,
+    DB = 1,
+    BLOB = 2,
+  };
+
   State state = State::USER_ID;
+  PersistenceMethod persistenceMethod = PersistenceMethod::UNKNOWN;
   std::string userID;
+
+  void storeInDatabase(const std::string &data) {
+  }
+
+  void storeInBlob(const std::string &data) {
+  }
 
 public:
   using ServerReadReactorBase<backup::SendLogRequest, google::protobuf::Empty>::
@@ -49,8 +63,28 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
       if (!request.has_logdata()) {
         throw std::runtime_error("log data expected but not received");
       }
-      std::string chunk = request.logdata();
-      std::cout << "log data received " << chunk << std::endl;
+      std::string *chunk = request.mutable_logdata();
+      // decide if keep in DB or upload to blob
+      if (chunk->size() <= LOG_DATA_SIZE_DATABASE_LIMIT) {
+        if (this->persistenceMethod != PersistenceMethod::UNKNOWN) {
+          throw std::runtime_error(
+              "error - invalid persistence state, storing in the database is "
+              "allowed only once per session");
+        }
+        this->persistenceMethod = PersistenceMethod::DB;
+        this->storeInDatabase(*chunk);
+      } else {
+        if (this->persistenceMethod != PersistenceMethod::UNKNOWN &&
+            this->persistenceMethod != PersistenceMethod::BLOB) {
+          throw std::runtime_error(
+              "error - invalid persistence state, uploading to blob should be "
+              "continued but it is not");
+        }
+        this->persistenceMethod = PersistenceMethod::BLOB;
+        this->storeInBlob(*chunk);
+      }
+      std::cout << "log data received " << chunk->size() << std::endl;
+      return nullptr;
     };
   }
   throw std::runtime_error("send log - invalid state");
