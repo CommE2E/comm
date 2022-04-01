@@ -7,7 +7,9 @@
 #include "../_generated/backup.grpc.pb.h"
 #include "../_generated/backup.pb.h"
 
+#include <condition_variable>
 #include <memory>
+#include <mutex>
 #include <string>
 
 namespace comm {
@@ -27,6 +29,11 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::string keyEntropy;
   std::string dataHash;
   std::string backupID;
+  std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
+  ServiceBlobClient blobClient;
+  std::mutex blobPutClientReactorMutex;
+  std::condition_variable waitingForBlobClientCV;
+  std::mutex waitingForBlobClientCVMutex;
 
   std::string generateBackupID();
 
@@ -45,6 +52,9 @@ std::string CreateNewBackupReactor::generateBackupID() {
 std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
     backup::CreateNewBackupRequest request,
     backup::CreateNewBackupResponse *response) {
+  // we make sure that the blob client's state is flushed to the main memory
+  // as there may be multiple threads from the pool taking over here
+  const std::lock_guard<std::mutex> lock(this->blobPutClientReactorMutex);
   switch (this->state) {
     case State::KEY_ENTROPY: {
       if (!request.has_keyentropy()) {
@@ -64,20 +74,14 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 
       // TODO confirm - holder may be a backup id
       this->backupID = this->generateBackupID();
-      ServiceBlobClient::getInstance().put(this->backupID, this->dataHash);
+      this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
+          this->backupID, this->dataHash, &this->waitingForBlobClientCV);
+      this->blobClient.put(this->putReactor);
       return nullptr;
     }
     case State::DATA_CHUNKS: {
-      // TODO initialize blob client reactor
-      if (ServiceBlobClient::getInstance().putReactor == nullptr) {
-        throw std::runtime_error(
-            "blob client reactor has not been initialized");
-      }
-
-      ServiceBlobClient::getInstance().putReactor->scheduleSendingDataChunk(
-          std::make_unique<std::string>(
-              std::move(*request.mutable_newcompactionchunk())));
-
+      this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(
+          std::move(*request.mutable_newcompactionchunk())));
       return nullptr;
     }
   }
@@ -85,8 +89,10 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 }
 
 void CreateNewBackupReactor::doneCallback() {
-  ServiceBlobClient::getInstance().putReactor->scheduleSendingDataChunk(
-      std::make_unique<std::string>(""));
+  const std::lock_guard<std::mutex> lock(this->blobPutClientReactorMutex);
+  this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
+  std::unique_lock<std::mutex> lock2(this->waitingForBlobClientCVMutex);
+  this->waitingForBlobClientCV.wait(lock2);
 }
 
 } // namespace reactor
