@@ -35,7 +35,7 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::string backupID;
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
   ServiceBlobClient blobClient;
-  std::mutex blobPutClientReactorMutex;
+  std::mutex reactorStateMutex;
   std::condition_variable waitingForBlobClientCV;
   std::mutex waitingForBlobClientCVMutex;
 
@@ -49,7 +49,7 @@ public:
 };
 
 std::string CreateNewBackupReactor::generateBackupID() {
-  // mock
+  // TODO replace mock
   return generateRandomString();
 }
 
@@ -58,7 +58,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
     backup::CreateNewBackupResponse *response) {
   // we make sure that the blob client's state is flushed to the main memory
   // as there may be multiple threads from the pool taking over here
-  const std::lock_guard<std::mutex> lock(this->blobPutClientReactorMutex);
+  const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   switch (this->state) {
     case State::USER_ID: {
       if (!request.has_userid()) {
@@ -102,7 +102,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 }
 
 void CreateNewBackupReactor::terminateCallback() {
-  const std::lock_guard<std::mutex> lock(this->blobPutClientReactorMutex);
+  const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   if (this->putReactor == nullptr) {
     return;
   }
