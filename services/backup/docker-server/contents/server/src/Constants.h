@@ -30,5 +30,9 @@ const std::string LOG_TABLE_NAME = "backup-service-log";
 const std::string BACKUP_TABLE_NAME = "backup-service-backup";
 #endif
 
+// this has to be smaller than GRPC_CHUNK_SIZE_LIMIT because we need to
+// recognize if we may receive multiple chunks or just one
+const size_t LOG_DATA_SIZE_DATABASE_LIMIT = 1 * 1024 * 1024;
+
 } // namespace network
 } // namespace comm
