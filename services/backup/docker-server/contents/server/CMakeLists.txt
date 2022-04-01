@@ -49,6 +49,7 @@ endforeach()
 
 include_directories(
   ./src
+  ./src/grpc-client
   ./src/DatabaseEntities
   ./src/Reactors
   ./src/Reactors/server
