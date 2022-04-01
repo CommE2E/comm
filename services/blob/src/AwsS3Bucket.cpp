@@ -117,9 +117,10 @@ std::string AwsS3Bucket::getObjectData(const std::string &objectName) const {
 
   Aws::IOStream &retrievedFile = outcome.GetResultWithOwnership().GetBody();
 
-  std::string result;
+  std::stringstream buffer;
+  buffer << retrievedFile.rdbuf();
+  std::string result(buffer.str());
   result.resize(size);
-  retrievedFile.get((char *)result.data(), size + 1);
 
   return result;
 }
@@ -152,9 +153,11 @@ void AwsS3Bucket::getObjectDataChunks(
 
     Aws::IOStream &retrievedFile =
         getOutcome.GetResultWithOwnership().GetBody();
-    std::string result;
+
+    std::stringstream buffer;
+    buffer << retrievedFile.rdbuf();
+    std::string result(buffer.str());
     result.resize(nextSize);
-    retrievedFile.get((char *)result.data(), nextSize + 1);
     callback(result);
   }
 }
