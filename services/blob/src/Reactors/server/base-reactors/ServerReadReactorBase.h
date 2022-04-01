@@ -29,10 +29,12 @@ public:
   virtual std::unique_ptr<grpc::Status> readRequest(Request request) = 0;
   virtual void initialize(){};
   virtual void doneCallback(){};
+  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
+  this->terminateCallback();
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
