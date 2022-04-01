@@ -32,7 +32,7 @@ namespace backup {
 //  CreateNewBackup - This method is called when we want to create a new backup.
 //    We send a new backup key encrypted with the user's password and also the
 //    new compaction. New logs that will be sent from now on will be assigned to
-//    this the compaction of this backup.
+//    this backup.
 //  SendLog - User sends a new log to the backup service. The log is being
 //    assigned to the latest(or desired) backup's compaction item.
 //  RecoverBackupKey - Pulls data necessary for regenerating the backup key
