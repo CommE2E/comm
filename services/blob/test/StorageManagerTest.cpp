@@ -12,7 +12,7 @@
 
 using namespace comm::network;
 
-class AWSToolsTest : public testing::Test {
+class StorageManagerTest : public testing::Test {
 public:
 protected:
   const std::string bucketName = "commapp-test";
@@ -29,7 +29,7 @@ protected:
   }
 };
 
-TEST_F(AWSToolsTest, ObjectOperationsTest) {
+TEST_F(StorageManagerTest, ObjectOperationsTest) {
   EXPECT_TRUE(getBucket(bucketName).isAvailable());
   std::string objectName = createObject(getBucket(bucketName));
 
