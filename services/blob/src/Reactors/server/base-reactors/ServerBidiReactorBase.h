@@ -43,6 +43,7 @@ public:
   handleRequest(Request request, Response *response) = 0;
   virtual void initialize(){};
   virtual void doneCallback(){};
+  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
@@ -60,6 +61,7 @@ void ServerBidiReactorBase<Request, Response>::OnDone() {
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::terminate(
     ServerBidiReactorStatus status) {
+  this->terminateCallback();
   this->status = status;
   if (!this->status.status.ok()) {
     std::cout << "error: " << this->status.status.error_message() << std::endl;
