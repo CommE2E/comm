@@ -28,8 +28,8 @@ public:
   virtual std::unique_ptr<grpc::Status> prepareRequest(
       Request &request,
       std::shared_ptr<Response> previousResponse) = 0;
-  virtual void doneCallback() {
-  }
+  virtual void doneCallback(){};
+  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
@@ -51,6 +51,7 @@ void ClientBidiReactorBase<Request, Response>::nextWrite() {
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
+  this->terminateCallback();
   if (this->done) {
     return;
   }
