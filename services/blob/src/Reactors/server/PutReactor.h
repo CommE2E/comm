@@ -68,8 +68,8 @@ public:
     return nullptr;
   }
 
-  void doneCallback() override {
-    if (!this->status.status.error_code()) {
+  void terminateCallback() override {
+    if (!this->status.status.ok()) {
       return;
     }
     if (!this->readingAborted || this->uploader == nullptr) {
