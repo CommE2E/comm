@@ -68,9 +68,11 @@ void DatabaseManager::putBackupItem(const BackupItem &item) {
   request.AddItem(
       BackupItem::FIELD_COMPACTION_HOLDER,
       Aws::DynamoDB::Model::AttributeValue(item.getCompactionHolder()));
-  request.AddItem(
-      BackupItem::FIELD_ATTACHMENT_HOLDERS,
-      Aws::DynamoDB::Model::AttributeValue(item.getAttachmentHolders()));
+  if (!item.getAttachmentHolders().empty()) {
+    request.AddItem(
+        BackupItem::FIELD_ATTACHMENT_HOLDERS,
+        Aws::DynamoDB::Model::AttributeValue(item.getAttachmentHolders()));
+  }
 
   this->innerPutItem(std::make_shared<BackupItem>(item), request);
 }
