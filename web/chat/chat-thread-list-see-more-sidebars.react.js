@@ -28,10 +28,10 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
       <a className={css.threadButton}>
         <div className={css.threadRow}>
           <div
-            className={classNames([
-              css.sidebarTitle,
-              unread ? css.unread : null,
-            ])}
+            className={classNames({
+              [css.sidebarTitle]: true,
+              [css.unread]: unread,
+            })}
           >
             {buttonText}
           </div>
