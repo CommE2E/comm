@@ -35,10 +35,10 @@ public:
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
   this->terminateCallback();
+  this->status = status;
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  this->status = status;
   this->Finish(status);
 }
 
@@ -59,7 +59,12 @@ void ServerReadReactorBase<Request, Response>::OnDone() {
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
   if (!ok) {
-    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, "reading error"));
+    // we should suppress this as we want to have an ability to gracefully end a
+    // connection on the other side. This will result in `!ok` here. I think it
+    // is somehow broken and simple bool flag doesn't give us enough information
+    // on what happened.
+    // We should manually check if the data we received is valid
+    this->terminate(grpc::Status::OK);
     return;
   }
   try {

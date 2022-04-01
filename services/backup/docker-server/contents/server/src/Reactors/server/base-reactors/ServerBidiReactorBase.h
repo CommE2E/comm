@@ -78,8 +78,12 @@ template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
   if (!ok) {
     this->readingAborted = true;
-    this->terminate(ServerBidiReactorStatus(
-        grpc::Status(grpc::StatusCode::ABORTED, "no more reads")));
+    // we should suppress this as we want to have an ability to gracefully end a
+    // connection on the other side. This will result in `!ok` here. I think it
+    // is somehow broken and simple bool flag doesn't give us enough information
+    // on what happened.
+    // We should manually check if the data we received is valid
+    this->terminate(grpc::Status::OK);
     return;
   }
   try {
