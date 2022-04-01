@@ -29,9 +29,10 @@ service BackupService {
 
 message CreateNewBackupRequest {
   oneof data {
-    bytes keyEntropy = 1;
-    bytes newCompactionHash = 2;
-    bytes newCompactionChunk = 3;
+    string userID = 1;
+    bytes keyEntropy = 2;
+    bytes newCompactionHash = 3;
+    bytes newCompactionChunk = 4;
   }
 }
 
@@ -42,7 +43,12 @@ message CreateNewBackupResponse {
 // SendLog
 
 message SendLogRequest {
-  bytes logData = 1;
+  oneof data {
+    string userID = 1;
+    string backupID = 2;
+    bytes logHash = 3;
+    bytes logData = 4;
+  }
 }
 
 // RecoverBackupKey
