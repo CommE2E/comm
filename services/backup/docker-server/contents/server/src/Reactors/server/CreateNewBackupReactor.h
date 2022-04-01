@@ -101,6 +101,9 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 
 void CreateNewBackupReactor::doneCallback() {
   const std::lock_guard<std::mutex> lock(this->blobPutClientReactorMutex);
+  if (this->putReactor == nullptr) {
+    return;
+  }
   std::string emptyString = "";
   this->putReactor->scheduleSendingDataChunk(emptyString);
   std::unique_lock<std::mutex> lock2(this->waitingForBlobClientCVMutex);
