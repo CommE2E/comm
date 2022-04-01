@@ -49,6 +49,7 @@ endforeach()
 
 include_directories(
   ./src
+  ./src/Communication
   ./src/DatabaseEntities
   ./src/Reactors
   ./src/Reactors/server
