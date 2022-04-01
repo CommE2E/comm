@@ -512,7 +512,8 @@ class SendLogRequest PROTOBUF_FINAL :
   }
   enum DataCase {
     kUserID = 1,
-    kLogData = 2,
+    kLogHash = 2,
+    kLogData = 3,
     DATA_NOT_SET = 0,
   };
 
@@ -592,7 +593,8 @@ class SendLogRequest PROTOBUF_FINAL :
 
   enum : int {
     kUserIDFieldNumber = 1,
-    kLogDataFieldNumber = 2,
+    kLogHashFieldNumber = 2,
+    kLogDataFieldNumber = 3,
   };
   // string userID = 1;
   bool has_userid() const;
@@ -614,7 +616,27 @@ class SendLogRequest PROTOBUF_FINAL :
   std::string* _internal_mutable_userid();
   public:
 
-  // bytes logData = 2;
+  // bytes logHash = 2;
+  bool has_loghash() const;
+  private:
+  bool _internal_has_loghash() const;
+  public:
+  void clear_loghash();
+  const std::string& loghash() const;
+  void set_loghash(const std::string& value);
+  void set_loghash(std::string&& value);
+  void set_loghash(const char* value);
+  void set_loghash(const void* value, size_t size);
+  std::string* mutable_loghash();
+  std::string* release_loghash();
+  void set_allocated_loghash(std::string* loghash);
+  private:
+  const std::string& _internal_loghash() const;
+  void _internal_set_loghash(const std::string& value);
+  std::string* _internal_mutable_loghash();
+  public:
+
+  // bytes logData = 3;
   bool has_logdata() const;
   private:
   bool _internal_has_logdata() const;
@@ -640,6 +662,7 @@ class SendLogRequest PROTOBUF_FINAL :
  private:
   class _Internal;
   void set_has_userid();
+  void set_has_loghash();
   void set_has_logdata();
 
   inline bool has_data() const;
@@ -652,6 +675,7 @@ class SendLogRequest PROTOBUF_FINAL :
     constexpr DataUnion() : _constinit_{} {}
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr loghash_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr logdata_;
   } data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -1940,7 +1964,117 @@ inline void SendLogRequest::set_allocated_userid(std::string* userid) {
   // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.userID)
 }
 
-// bytes logData = 2;
+// bytes logHash = 2;
+inline bool SendLogRequest::_internal_has_loghash() const {
+  return data_case() == kLogHash;
+}
+inline bool SendLogRequest::has_loghash() const {
+  return _internal_has_loghash();
+}
+inline void SendLogRequest::set_has_loghash() {
+  _oneof_case_[0] = kLogHash;
+}
+inline void SendLogRequest::clear_loghash() {
+  if (_internal_has_loghash()) {
+    data_.loghash_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
+}
+inline const std::string& SendLogRequest::loghash() const {
+  // @@protoc_insertion_point(field_get:backup.SendLogRequest.logHash)
+  return _internal_loghash();
+}
+inline void SendLogRequest::set_loghash(const std::string& value) {
+  _internal_set_loghash(value);
+  // @@protoc_insertion_point(field_set:backup.SendLogRequest.logHash)
+}
+inline std::string* SendLogRequest::mutable_loghash() {
+  // @@protoc_insertion_point(field_mutable:backup.SendLogRequest.logHash)
+  return _internal_mutable_loghash();
+}
+inline const std::string& SendLogRequest::_internal_loghash() const {
+  if (_internal_has_loghash()) {
+    return data_.loghash_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void SendLogRequest::_internal_set_loghash(const std::string& value) {
+  if (!_internal_has_loghash()) {
+    clear_data();
+    set_has_loghash();
+    data_.loghash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.loghash_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void SendLogRequest::set_loghash(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.SendLogRequest.logHash)
+  if (!_internal_has_loghash()) {
+    clear_data();
+    set_has_loghash();
+    data_.loghash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.loghash_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.SendLogRequest.logHash)
+}
+inline void SendLogRequest::set_loghash(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_loghash()) {
+    clear_data();
+    set_has_loghash();
+    data_.loghash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.loghash_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.SendLogRequest.logHash)
+}
+inline void SendLogRequest::set_loghash(const void* value,
+                             size_t size) {
+  if (!_internal_has_loghash()) {
+    clear_data();
+    set_has_loghash();
+    data_.loghash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.loghash_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.SendLogRequest.logHash)
+}
+inline std::string* SendLogRequest::_internal_mutable_loghash() {
+  if (!_internal_has_loghash()) {
+    clear_data();
+    set_has_loghash();
+    data_.loghash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.loghash_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* SendLogRequest::release_loghash() {
+  // @@protoc_insertion_point(field_release:backup.SendLogRequest.logHash)
+  if (_internal_has_loghash()) {
+    clear_has_data();
+    return data_.loghash_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void SendLogRequest::set_allocated_loghash(std::string* loghash) {
+  if (has_data()) {
+    clear_data();
+  }
+  if (loghash != nullptr) {
+    set_has_loghash();
+    data_.loghash_.UnsafeSetDefault(loghash);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(loghash);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.SendLogRequest.logHash)
+}
+
+// bytes logData = 3;
 inline bool SendLogRequest::_internal_has_logdata() const {
   return data_case() == kLogData;
 }
