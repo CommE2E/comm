@@ -121,6 +121,13 @@ class App extends React.PureComponent<Props> {
     }
   }
 
+  onWordmarkClicked = () => {
+    this.props.dispatch({
+      type: updateNavInfoActionType,
+      payload: { tab: 'chat' },
+    });
+  };
+
   render() {
     let content;
     if (this.props.loggedIn) {
@@ -161,7 +168,15 @@ class App extends React.PureComponent<Props> {
         <DisconnectedBar />
         <header className={css['header']}>
           <div className={css['main-header']}>
-            <h1>Comm</h1>
+            <h1 className={css.wordmark}>
+              <a
+                title="Comm Home"
+                aria-label="Go to Comm Home"
+                onClick={this.onWordmarkClicked}
+              >
+                Comm
+              </a>
+            </h1>
             <div className={css['upper-right']}>
               <LoadingIndicator
                 status={this.props.entriesLoadingStatus}
