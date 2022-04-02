@@ -27,6 +27,11 @@ div.form-footer {
   margin-top: 16px;
 }
 
+div.form-footer > button:disabled {
+  min-height: 48px;
+  opacity: 0.5;
+}
+
 div.modal-form-error {
   margin-top: 16px;
   font-size: 14px;
