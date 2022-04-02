@@ -107,9 +107,6 @@ span.loading-indicator-loading {
     transform: rotate(360deg);
   }
 }
-span.loading-indicator-loading {
-  display: inline-block;
-}
 span.loading-indicator-loading-medium:after {
   content: ' ';
   display: block;
