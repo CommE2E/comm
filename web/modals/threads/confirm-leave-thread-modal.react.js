@@ -18,7 +18,7 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
   const { uiName } = threadInfo;
 
   return (
-    <Modal name="Confirm leave thread" onClose={onClose}>
+    <Modal name="Leaving channel" icon="warning-circle" onClose={onClose}>
       <div className={css['modal-body']}>
         <p>
           {'Are you sure you want to leave "'}
