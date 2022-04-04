@@ -4,11 +4,13 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
+import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
 import css from './modal.css';
 
 export type ModalSize = 'small' | 'large';
 type Props = {
-  +name: string,
+  +name: React.Node,
+  +icon?: Icon,
   +onClose: () => void,
   +children?: React.Node,
   +size?: ModalSize,
@@ -27,7 +29,7 @@ class Modal extends React.PureComponent<Props> {
   }
 
   render(): React.Node {
-    const { size, children, onClose, fixedHeight, name } = this.props;
+    const { size, children, onClose, fixedHeight, name, icon } = this.props;
 
     const overlayClasses = classNames(
       css['modal-overlay'],
@@ -55,7 +57,10 @@ class Modal extends React.PureComponent<Props> {
               <span className={css['modal-close']} onClick={onClose}>
                 ×
               </span>
-              <h2>{name}</h2>
+              <h2>
+                <span>{icon && <SWMansionIcon size={24} icon={icon} />}</span>
+                {name}
+              </h2>
             </div>
             {children}
           </div>
