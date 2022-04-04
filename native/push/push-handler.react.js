@@ -332,12 +332,8 @@ class PushHandler extends React.PureComponent<Props, State> {
     const firebase = getFirebase();
     const hasPermission = await firebase.messaging().hasPermission();
     if (!hasPermission) {
-      try {
-        await firebase.messaging().requestPermission();
-      } catch {
-        this.failedToRegisterPushPermissions();
-        return;
-      }
+      this.failedToRegisterPushPermissions();
+      return;
     }
 
     const fcmToken = await firebase.messaging().getToken();
