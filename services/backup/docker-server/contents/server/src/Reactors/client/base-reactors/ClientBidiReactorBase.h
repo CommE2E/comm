@@ -7,7 +7,7 @@ namespace reactor {
 template <class Request, class Response>
 class ClientBidiReactorBase
     : public grpc::ClientBidiReactor<Request, Response> {
-  std::shared_ptr<Response> response = nullptr;
+  std::shared_ptr<Response> response = std::make_shared<Response>();
   bool done = false;
   bool initialized = 0;
 
