@@ -69,7 +69,7 @@ public:
     return nullptr;
   }
 
-  void terminateCallback() override {
+  void doneCallback() override {
     if (!this->status.status.ok()) {
       return;
     }
