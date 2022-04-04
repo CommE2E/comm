@@ -44,6 +44,13 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
       this->state = State::LOG_CHUNK;
       return nullptr;
     };
+    case State::LOG_CHUNK: {
+      if (!request.has_logdata()) {
+        throw std::runtime_error("log data expected but not received");
+      }
+      std::string chunk = request.logdata();
+      std::cout << "log data received " << chunk << std::endl;
+    };
   }
   throw std::runtime_error("send log - invalid state");
 }
