@@ -40,7 +40,6 @@ div.joinButtonContainer {
 button.joinButton {
   display: flex;
   align-items: center;
-  background: var(--button-bg);
   border: none;
   padding: 12px 24px;
   border-radius: 4px;

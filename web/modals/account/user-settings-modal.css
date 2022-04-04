@@ -34,7 +34,6 @@ div.large-modal-container div.modal-body textarea {
   width: 275px;
 }
 div.modal-body p.confirm-account-password {
-  color: #777777;
   margin-bottom: 4px;
   color: var(--fg);
 }

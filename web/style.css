@@ -175,7 +175,6 @@ div.form-enum-selector > div.form-enum-container > input {
   margin-top: 4px;
 }
 div.form-enum-selector div.form-enum-option {
-  font-weight: bold;
   display: inline-block;
   font-size: 15px;
   font-weight: 600;
