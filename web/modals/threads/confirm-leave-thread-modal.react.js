@@ -14,23 +14,18 @@ type Props = {
   +onConfirm: () => void,
 };
 function ConfirmLeaveThreadModal(props: Props): React.Node {
-  const {
-    threadInfo: { uiName },
-    onClose,
-    onConfirm,
-  } = props;
+  const { onClose, onConfirm } = props;
 
   return (
-    <Modal name="Confirm leave thread" onClose={onClose}>
+    <Modal name="Leaving channel" onClose={onClose}>
       <div className={css['modal-body']}>
         <p>
-          {'Are you sure you want to leave "'}
-          <span className={css['thread-name']}>{uiName}</span>
-          {'"?'}
+          Are you sure you want to leave thread? This and this will happen if
+          you do so.
         </p>
         <div className={css['form-footer']}>
           <Button onClick={onConfirm} type="submit">
-            Leave Thread
+            Yes, leave Thread
           </Button>
         </div>
       </div>
