@@ -506,7 +506,7 @@ Your `squadcal_url.json` file should look like this:
 Copy the contents of `squadcal_url.json` to a file called `commapp_url.json`.
 
 ```
-cp server/facts/squadcal_url.json server/facts/commapp_url.json
+cp keyserver/facts/squadcal_url.json keyserver/facts/commapp_url.json
 ```
 
 Finally, we’ll create a file for the URLs in the landing page.
