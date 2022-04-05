@@ -29,10 +29,14 @@ public:
 template <class Request, class Response>
 void ClientWriteReactorBase<Request, Response>::nextWrite() {
   this->request = Request();
-  std::unique_ptr<grpc::Status> status = this->prepareRequest(this->request);
-  if (status != nullptr) {
-    this->terminate(*status);
-    return;
+  try {
+    std::unique_ptr<grpc::Status> status = this->prepareRequest(this->request);
+    if (status != nullptr) {
+      this->terminate(*status);
+      return;
+    }
+  } catch (std::runtime_error &e) {
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
   this->StartWrite(&this->request);
   if (!this->initialized) {

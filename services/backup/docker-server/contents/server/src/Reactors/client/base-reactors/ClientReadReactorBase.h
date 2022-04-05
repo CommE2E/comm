@@ -59,10 +59,14 @@ void ClientReadReactorBase<Request, Response>::OnReadDone(bool ok) {
     this->terminate(grpc::Status::OK);
     return;
   }
-  std::unique_ptr<grpc::Status> status = this->readResponse(this->response);
-  if (status != nullptr) {
-    this->terminate(*status);
-    return;
+  try {
+    std::unique_ptr<grpc::Status> status = this->readResponse(this->response);
+    if (status != nullptr) {
+      this->terminate(*status);
+      return;
+    }
+  } catch (std::runtime_error &e) {
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
   this->StartRead(&this->response);
 }
