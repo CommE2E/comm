@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import { assetUrl } from './asset-meta-data';
+import { assetsCacheURLPrefix } from './asset-meta-data';
 import css from './read-docs-btn.css';
 
 function ReadDocsButton(): React.Node {
@@ -13,7 +13,10 @@ function ReadDocsButton(): React.Node {
     >
       <button className={css.button}>
         <span className={css.buttonText}>Read the documentation</span>
-        <img src={`${assetUrl}/corner_arrow.svg`} className={css.cornerIcon} />
+        <img
+          src={`${assetsCacheURLPrefix}/corner_arrow.svg`}
+          className={css.cornerIcon}
+        />
       </button>
     </a>
   );

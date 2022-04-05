@@ -3,7 +3,7 @@
 import { create } from '@lottiefiles/lottie-interactivity';
 import * as React from 'react';
 
-import { assetUrl } from './asset-meta-data';
+import { assetsCacheURLPrefix } from './asset-meta-data';
 import css from './keyservers.css';
 import ReadDocsButton from './read-docs-btn.react';
 import StarBackground from './star-background.react';
@@ -76,7 +76,7 @@ function Keyservers(): React.Node {
             id="eye-illustration"
             ref={setEyeNode}
             mode="normal"
-            src={`${assetUrl}/animated_eye.json`}
+            src={`${assetsCacheURLPrefix}/animated_eye.json`}
             speed={1}
           />
         </div>
@@ -100,7 +100,7 @@ function Keyservers(): React.Node {
             id="cloud-illustration"
             ref={setCloudNode}
             mode="normal"
-            src={`${assetUrl}/animated_cloud.json`}
+            src={`${assetsCacheURLPrefix}/animated_cloud.json`}
             speed={1}
           />
         </div>

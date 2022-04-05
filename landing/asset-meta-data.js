@@ -11,11 +11,11 @@ export type Asset = {
   +infoStyle: string,
 };
 
-export const assetUrl = 'https://dh9fld3hutpxf.cloudfront.net';
+export const assetsCacheURLPrefix = 'https://dh9fld3hutpxf.cloudfront.net';
 export const assetMetaData = [
   {
     alt: 'a mobile phone screen highlighting chat and DAO voting',
-    url: `${assetUrl}/Header`,
+    url: `${assetsCacheURLPrefix}/Header`,
     imageStyle: css.heroImage,
     infoStyle: css.heroInfo,
     title: 'Header',
@@ -23,7 +23,7 @@ export const assetMetaData = [
   },
   {
     alt: 'a mobile phone screen highlighting chat organization',
-    url: `${assetUrl}/Federated`,
+    url: `${assetsCacheURLPrefix}/Federated`,
     imageStyle: css.federatedImage,
     infoStyle: css.federatedInfo,
     title: 'Federated',
@@ -34,7 +34,7 @@ export const assetMetaData = [
   },
   {
     alt: 'a web app screen highlighting web3 apps in Comm',
-    url: `${assetUrl}/Customizable`,
+    url: `${assetsCacheURLPrefix}/Customizable`,
     imageStyle: css.customizableImage,
     infoStyle: css.customizableInfo,
     title: 'Customizable',
@@ -43,7 +43,7 @@ export const assetMetaData = [
   },
   {
     alt: 'a mobile phone screen highlighting a conversation',
-    url: `${assetUrl}/E2E-encrypted`,
+    url: `${assetsCacheURLPrefix}/E2E-encrypted`,
     imageStyle: css.encryptedImage,
     infoStyle: css.encryptedInfo,
     title: 'E2E-encrypted',
@@ -52,7 +52,7 @@ export const assetMetaData = [
   },
   {
     alt: 'a mobile phone user information screen',
-    url: `${assetUrl}/Sovereign`,
+    url: `${assetsCacheURLPrefix}/Sovereign`,
     imageStyle: css.sovereignImage,
     infoStyle: css.sovereignInfo,
     title: 'Sovereign',
@@ -61,7 +61,7 @@ export const assetMetaData = [
   },
   {
     alt: 'a web app screen highlighting web3 apps in Comm',
-    url: `${assetUrl}/Open-Source`,
+    url: `${assetsCacheURLPrefix}/Open-Source`,
     imageStyle: css.openSourceImage,
     infoStyle: css.openSourceInfo,
     title: 'Open Source',
@@ -70,7 +70,7 @@ export const assetMetaData = [
   },
   {
     alt: 'a mobile phone notification options screen',
-    url: `${assetUrl}/Less-Noisy`,
+    url: `${assetsCacheURLPrefix}/Less-Noisy`,
     imageStyle: css.lessNoisyImage,
     infoStyle: css.lessNoisyInfo,
     title: 'Less Noisy',
