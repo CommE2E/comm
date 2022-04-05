@@ -573,7 +573,7 @@ The second config file contains some details that the keyserver needs in order t
 
 ```
 cd keyserver
-yarn script dist/scripts/generate-olm-config.json
+yarn script dist/scripts/generate-olm-config.js
 ```
 
 This script will create the `keyserver/secrets/olm_config.json` config file.
