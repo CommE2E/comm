@@ -1,0 +1,17 @@
+div.container {
+  padding: 0 40px 32px 40px;
+  border-radius: 8px;
+  background: var(--modal-bg);
+  color: var(--modal-fg);
+  min-width: 635px;
+  box-sizing: border-box;
+}
+div.container > p {
+  font-size: var(--xl-font-20);
+  padding-bottom: 32px;
+}
+div.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+}
