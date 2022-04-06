@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BlobGetClientReactor.h"
 #include "BlobPutClientReactor.h"
 
 #include "../_generated/blob.grpc.pb.h"
@@ -34,7 +35,16 @@ public:
     this->stub->async()->Put(&putReactor->context, &(*putReactor));
     putReactor->nextWrite();
   }
-  // void get(const std::string &holder);
+
+  void get(std::shared_ptr<reactor::BlobGetClientReactor> getReactor) {
+    if (getReactor == nullptr) {
+      throw std::runtime_error(
+          "get reactor is being used but has not been initialized");
+    }
+    this->stub->async()->Get(
+        &getReactor->context, &getReactor->request, &(*getReactor));
+    getReactor->start();
+  }
   // void remove(const std::string &holder);
 };
 
