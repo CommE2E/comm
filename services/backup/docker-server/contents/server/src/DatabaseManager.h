@@ -38,6 +38,8 @@ public:
   static DatabaseManager &getInstance();
 
   void putBackupItem(const BackupItem &item);
+  std::shared_ptr<BackupItem>
+  findBackupItem(const std::string &userID, const std::string &backupID);
   std::shared_ptr<BackupItem> findLastBackupItem(const std::string &userID);
   void removeBackupItem(std::shared_ptr<BackupItem> item);
 
