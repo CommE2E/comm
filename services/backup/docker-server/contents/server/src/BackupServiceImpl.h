@@ -28,8 +28,9 @@ public:
       backup::RecoverBackupKeyResponse> *
   RecoverBackupKey(grpc::CallbackServerContext *context) override;
 
-  grpc::ServerBidiReactor<backup::PullBackupRequest, backup::PullBackupResponse>
-      *PullBackup(grpc::CallbackServerContext *context) override;
+  grpc::ServerWriteReactor<backup::PullBackupResponse> *PullBackup(
+      grpc::CallbackServerContext *context,
+      const backup::PullBackupRequest *request) override;
 };
 
 } // namespace network
