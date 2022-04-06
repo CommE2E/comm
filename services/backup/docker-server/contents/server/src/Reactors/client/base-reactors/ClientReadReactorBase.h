@@ -22,8 +22,7 @@ public:
   void OnDone(const grpc::Status &status) override;
   bool isDone();
 
-  virtual std::unique_ptr<grpc::Status>
-  readResponse(const Response &response) = 0;
+  virtual std::unique_ptr<grpc::Status> readResponse(Response &response) = 0;
   virtual void doneCallback(){};
   virtual void terminateCallback(){};
 };
