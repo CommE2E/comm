@@ -22,7 +22,7 @@ service BackupService {
   rpc CreateNewBackup(stream CreateNewBackupRequest) returns (stream CreateNewBackupResponse) {}
   rpc SendLog(stream SendLogRequest) returns (google.protobuf.Empty) {}
   rpc RecoverBackupKey(stream RecoverBackupKeyRequest) returns (stream RecoverBackupKeyResponse) {}
-  rpc PullBackup(stream PullBackupRequest) returns (stream PullBackupResponse) {}
+  rpc PullBackup(PullBackupRequest) returns (stream PullBackupResponse) {}
 }
 
 // CreateNewBackup
@@ -58,15 +58,14 @@ message RecoverBackupKeyRequest {
 }
 
 message RecoverBackupKeyResponse {
-  oneof data {
-    string backupID = 4;
-  }
+  string backupID = 4;
 }
 
 // PullBackup
 
 message PullBackupRequest {
   string userID = 1;
+  string backupID = 2;
 }
 
 message PullBackupResponse {
