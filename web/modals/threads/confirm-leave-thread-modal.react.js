@@ -14,7 +14,7 @@ type Props = {
   +onConfirm: () => void,
 };
 function ConfirmLeaveThreadModal(props: Props): React.Node {
-  const { threadInfo, onClose, onConfirm } = props;
+  const { onClose, onConfirm, threadInfo } = props;
   const { uiName } = threadInfo;
 
   return (
@@ -22,7 +22,7 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
       <div className={css.container}>
         <p>
           {'Are you sure you want to leave "'}
-          <span className={css['thread-name']}>{uiName}</span>
+          {uiName}
           {'"?'}
         </p>
         <div className={css.buttonContainer}>
@@ -30,7 +30,7 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
             Cancel
           </Button>
           <Button variant="danger" onClick={onConfirm} type="submit">
-            Yes, leave Thread
+            Leave Thread
           </Button>
         </div>
       </div>
