@@ -141,7 +141,7 @@ span.rightActionLinks {
   overflow: hidden;
 }
 div.actionLinks svg {
-  fill: gray;
+  fill: var(--fg);
   width: 10px;
   height: 10px;
 }
@@ -150,7 +150,7 @@ div.actionLinks svg.history {
   top: 1px;
 }
 div.darkEntry div.actionLinks svg {
-  fill: lightgray;
+  fill: var(--fg);
 }
 div.actionLinks a:hover svg {
   fill: black;
@@ -162,7 +162,7 @@ div.focusedEntry {
   z-index: 3 !important;
 }
 div.actionLinks a {
-  color: gray;
+  color: var(--fg);
 }
 div.actionLinks a:hover {
   color: black;
