@@ -38,9 +38,13 @@ BackupServiceImpl::RecoverBackupKey(grpc::CallbackServerContext *context) {
   return new reactor::RecoverBackupKeyReactor();
 }
 
-grpc::ServerBidiReactor<backup::PullBackupRequest, backup::PullBackupResponse> *
-BackupServiceImpl::PullBackup(grpc::CallbackServerContext *context) {
-  return new reactor::PullBackupReactor();
+grpc::ServerWriteReactor<backup::PullBackupResponse> *
+BackupServiceImpl::PullBackup(
+    grpc::CallbackServerContext *context,
+    const backup::PullBackupRequest *request) {
+  reactor::PullBackupReactor *reactor = new reactor::PullBackupReactor(request);
+  reactor->NextWrite();
+  return reactor;
 }
 
 } // namespace network
