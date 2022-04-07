@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ServerBidiReactorBase.h"
+#include "ServerWriteReactorBase.h"
 
 #include "../_generated/backup.grpc.pb.h"
 #include "../_generated/backup.pb.h"
@@ -13,21 +13,22 @@ namespace comm {
 namespace network {
 namespace reactor {
 
-class PullBackupReactor : public ServerBidiReactorBase<
+class PullBackupReactor : public ServerWriteReactorBase<
                               backup::PullBackupRequest,
                               backup::PullBackupResponse> {
 public:
-  std::unique_ptr<ServerBidiReactorStatus> handleRequest(
-      backup::PullBackupRequest request,
-      backup::PullBackupResponse *response) override;
+  using ServerWriteReactorBase<
+      backup::PullBackupRequest,
+      backup::PullBackupResponse>::ServerWriteReactorBase;
+
+  std::unique_ptr<grpc::Status>
+  writeResponse(backup::PullBackupResponse *response) override;
 };
 
-std::unique_ptr<ServerBidiReactorStatus> PullBackupReactor::handleRequest(
-    backup::PullBackupRequest request,
-    backup::PullBackupResponse *response) {
+std::unique_ptr<grpc::Status>
+PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
   // TODO handle request
-  return std::make_unique<ServerBidiReactorStatus>(
-      grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
+  return std::make_unique<grpc::Status>(grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
 }
 
 } // namespace reactor
