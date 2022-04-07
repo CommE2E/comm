@@ -31,9 +31,14 @@ class SendLogReactor : public ServerReadReactorBase<
   State state = State::USER_ID;
   PersistenceMethod persistenceMethod = PersistenceMethod::UNKNOWN;
   std::string userID;
+  std::string backupID;
+  // either the value itself which is a dump of a single operation (if
+  // `persistedInBlob` is false) or the holder to blob (if `persistedInBlob` is
+  // true)
+  std::string value;
 
-  void storeInDatabase(const std::string &data) {
-  }
+  void storeInDatabase();
+  std::string generateLogID();
 
   void storeInBlob(const std::string &data) {
   }
@@ -46,6 +51,22 @@ public:
   readRequest(backup::SendLogRequest request) override;
   void doneCallback() override;
 };
+
+void SendLogReactor::storeInDatabase() {
+  // TODO handle attachment holders
+  database::LogItem logItem(
+      this->backupID,
+      this->generateLogID(),
+      (this->persistenceMethod == PersistenceMethod::BLOB),
+      this->value,
+      {});
+  database::DatabaseManager::getInstance().putLogItem(logItem);
+}
+
+std::string SendLogReactor::generateLogID() {
+  // TODO replace mock
+  return generateRandomString();
+}
 
 std::unique_ptr<grpc::Status>
 SendLogReactor::readRequest(backup::SendLogRequest request) {
@@ -71,7 +92,8 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
       if (chunk->size() <= LOG_DATA_SIZE_DATABASE_LIMIT) {
         if (this->persistenceMethod == PersistenceMethod::UNKNOWN) {
           this->persistenceMethod = PersistenceMethod::DB;
-          this->storeInDatabase(*chunk);
+          this->value = std::move(*chunk);
+          this->storeInDatabase();
         } else if (this->persistenceMethod == PersistenceMethod::BLOB) {
           this->storeInBlob(*chunk);
         } else {
