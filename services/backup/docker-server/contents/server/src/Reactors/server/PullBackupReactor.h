@@ -88,7 +88,28 @@ void PullBackupReactor::initialize() {
 
 std::unique_ptr<grpc::Status>
 PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
-  throw std::runtime_error("unimplemented");
+  // we make sure that the blob client's state is flushed to the main memory
+  // as there may be multiple threads from the pool taking over here
+  const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
+  switch (this->state) {
+    case State::COMPACTION: {
+      this->initializeGetReactor(this->backupItem->getCompactionHolder());
+      std::string dataChunk;
+      this->dataChunks->blockingRead(dataChunk);
+      if (dataChunk.empty()) {
+        // TODO try to immediately start writing logs instead of wasting a cycle
+        // sending nothing
+        this->state = State::LOGS;
+        return nullptr;
+      }
+      response->set_compactionchunk(dataChunk);
+      return nullptr;
+    }
+    case State::LOGS: {
+      throw std::runtime_error("unimplemented");
+    }
+  }
+  throw std::runtime_error("unhandled state");
 }
 
 } // namespace reactor
