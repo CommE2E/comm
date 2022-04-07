@@ -86,6 +86,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 
       // TODO confirm - holder may be a backup id
       this->backupID = this->generateBackupID();
+      response->set_backupid(this->backupID);
       this->holder = this->backupID;
       this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
           this->holder, this->dataHash, &this->blobDoneCV);
