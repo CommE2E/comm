@@ -1,0 +1,23 @@
+div.container {
+  height: 48px;
+  width: 48px;
+  border-radius: 24px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  transition: 150ms;
+}
+
+div.active,
+div.container:hover {
+  background-color: var(--color-selector-active-bg);
+  transition: 150ms;
+}
+
+div.colorSplotch {
+  height: 32px;
+  width: 32px;
+  border-radius: 16px;
+  cursor: pointer;
+}
