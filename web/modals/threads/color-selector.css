@@ -1,0 +1,14 @@
+div.container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+div.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 0;
+}
