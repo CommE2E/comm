@@ -192,8 +192,8 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       mainContent = (
         <div>
           <div>
-            <div className={css['form-title']}>Thread name</div>
-            <div className={css['form-content']}>
+            <div className={css.form_title}>Thread name</div>
+            <div className={css.form_content}>
               <input
                 type="text"
                 value={firstLine(this.possiblyChangedValue('name'))}
@@ -204,9 +204,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
               />
             </div>
           </div>
-          <div className={css['form-textarea-container']}>
-            <div className={css['form-title']}>Description</div>
-            <div className={css['form-content']}>
+          <div className={css.form_textarea_container}>
+            <div className={css.form_title}>Description</div>
+            <div className={css.form_content}>
               <textarea
                 value={this.possiblyChangedValue('description')}
                 placeholder="Thread description"
@@ -215,11 +215,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
               ></textarea>
             </div>
           </div>
-          <div className={css['edit-thread-color-container']}>
-            <div className={`${css['form-title']} ${css['color-title']}`}>
-              Color
-            </div>
-            <div className={css['form-content']}>
+          <div className={css.edit_thread_color_container}>
+            <div className={`${css.form_title} ${css.color_title}`}>Color</div>
+            <div className={css.form_content}>
               <ColorPicker
                 id="edit-thread-color"
                 value={this.possiblyChangedValue('color')}
@@ -232,11 +230,11 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       );
     } else if (this.state.currentTabType === 'privacy') {
       mainContent = (
-        <div className={css['edit-thread-privacy-container']}>
+        <div className={css.edit_thread_privacy_container}>
           <div className={css['modal-radio-selector']}>
-            <div className={css['form-title']}>Thread type</div>
-            <div className={css['form-enum-selector']}>
-              <div className={css['form-enum-container']}>
+            <div className={css.form_title}>Thread type</div>
+            <div className={css.form_enum_selector}>
+              <div className={css.form_enum_container}>
                 <input
                   type="radio"
                   name="edit-thread-type"
@@ -249,16 +247,16 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   onChange={this.onChangeThreadType}
                   disabled={inputDisabled}
                 />
-                <div className={css['form-enum-option']}>
+                <div className={css.form_enum_option}>
                   <label htmlFor="edit-thread-open">
                     Open
-                    <span className={css['form-enum-description']}>
+                    <span className={css.form_enum_description}>
                       {threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD]}
                     </span>
                   </label>
                 </div>
               </div>
-              <div className={css['form-enum-container']}>
+              <div className={css.form_enum_container}>
                 <input
                   type="radio"
                   name="edit-thread-type"
@@ -271,10 +269,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                   onChange={this.onChangeThreadType}
                   disabled={inputDisabled}
                 />
-                <div className={css['form-enum-option']}>
+                <div className={css.form_enum_option}>
                   <label htmlFor="edit-thread-closed">
                     Secret
-                    <span className={css['form-enum-description']}>
+                    <span className={css.form_enum_description}>
                       {threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD]}
                     </span>
                   </label>
@@ -288,17 +286,17 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       mainContent = (
         <>
           <div>
-            <p className={css['italic']}>
+            <p className={css.italic}>
               Your thread will be permanently deleted. There is no way to
               reverse this.
             </p>
           </div>
-          <div className={css['edit-thread-account-password']}>
-            <p className={css['confirm-account-password']}>
+          <div className={css.edit_thread_account_password}>
+            <p className={css.confirm_account_password}>
               Please enter your account password to confirm your identity
             </p>
-            <div className={css['form-title']}>Account password</div>
-            <div className={css['form-content']}>
+            <div className={css.form_title}>Account password</div>
+            <div className={css.form_content}>
               <input
                 type="password"
                 placeholder="Personal account password"
@@ -382,13 +380,13 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
     return (
       <Modal name="Thread settings" onClose={this.props.onClose} size="large">
-        <ul className={css['tab-panel']}>{tabs}</ul>
-        <div className={css['modal-body']}>
+        <ul className={css.tab_panel}>{tabs}</ul>
+        <div className={css.modal_body}>
           <form method="POST">
             {mainContent}
-            <div className={css['form-footer']}>
+            <div className={css.form_footer}>
               {buttons}
-              <div className={css['modal-form-error']}>
+              <div className={css.modal_form_error}>
                 {this.state.errorMessage}
               </div>
             </div>
@@ -573,7 +571,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
-          <div className={css['modal-body']}>
+          <div className={css.modal_body}>
             <p>You no longer have permission to view this thread</p>
           </div>
         </Modal>

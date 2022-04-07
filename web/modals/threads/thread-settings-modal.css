@@ -1,4 +1,4 @@
-div.modal-body {
+div.modal_body {
   padding: 6px 6px;
   width: 100%;
   box-sizing: border-box;
@@ -9,37 +9,37 @@ div.modal-body {
   display: flex;
   flex-direction: column;
 }
-div.modal-body p {
+div.modal_body p {
   padding: 1px 3px 4px 3px;
   font-size: 14px;
   text-align: center;
 }
-div.modal-body textarea {
+div.modal_body textarea {
   margin: 3px;
 }
-div.modal-body textarea {
+div.modal_body textarea {
   font-size: 14px;
   padding: 1px;
   width: 175px;
 }
-div.modal-body p.confirm-account-password {
+div.modal_body p.confirm_account_password {
   margin-bottom: 4px;
   color: var(--fg);
 }
-div.modal-body div.form-footer {
+div.modal_body div.form_footer {
   display: flex;
   flex-direction: row-reverse;
   justify-content: space-between;
   padding-top: 8px;
 }
-div.modal-body div.form-footer div.modal-form-error {
+div.modal_body div.form_footer div.modal_form_error {
   font-size: 12px;
   color: red;
   font-style: italic;
   padding-left: 6px;
   align-self: center;
 }
-div.modal-body div.form-title {
+div.modal_body div.form_title {
   display: inline-block;
   text-align: right;
   padding-right: 5px;
@@ -50,12 +50,12 @@ div.modal-body div.form-title {
   width: 110px;
   color: var(--fg);
 }
-div.modal-body div.form-content {
+div.modal_body div.form_content {
   display: inline-block;
   font-family: var(--font-stack);
   color: var(--fg);
 }
-div.modal-body div.form-content input {
+div.modal_body div.form_content input {
   margin-bottom: 4px;
 }
 
@@ -64,12 +64,12 @@ div.modal-body div.form-content input {
   color: var(--fg);
 }
 
-ul.tab-panel {
+ul.tab_panel {
   background-color: var(--modal-bg);
   padding-left: 10px;
   padding-top: 5px;
 }
-ul.tab-panel > li {
+ul.tab_panel > li {
   display: inline-block;
   list-style-type: none;
   font-size: 13px;
@@ -77,44 +77,44 @@ ul.tab-panel > li {
   cursor: pointer;
   padding: 3px 10px 3px 10px;
 }
-ul.tab-panel > li > a {
+ul.tab_panel > li > a {
   color: #555555;
 }
 
-div.form-textarea-container {
+div.form_textarea_container {
   margin-top: 1px;
 }
 
-div.edit-thread-color-container {
+div.edit_thread_color_container {
   margin-top: -5px;
 }
 
-div.color-title {
+div.color_title {
   margin-top: 4px;
 }
 
-div.edit-thread-privacy-container {
+div.edit_thread_privacy_container {
   margin-bottom: 6px;
 }
 
-div.form-enum-selector {
+div.form_enum_selector {
   display: inline-block;
   padding-bottom: 4px;
 }
-div.form-enum-selector > div.form-enum-container {
+div.form_enum_selector > div.form_enum_container {
   padding-top: 5px;
 }
-div.form-enum-selector > div.form-enum-container > input {
+div.form_enum_selector > div.form_enum_container > input {
   vertical-align: top;
   margin-top: 4px;
 }
-div.form-enum-selector div.form-enum-option {
+div.form_enum_selector div.form_enum_option {
   display: inline-block;
   font-size: 15px;
   font-weight: 600;
   padding-left: 3px;
 }
-div.form-enum-selector span.form-enum-description {
+div.form_enum_selector span.form_enum_description {
   display: block;
   font-family: var(--font-stack);
   font-weight: normal;
@@ -123,10 +123,10 @@ div.form-enum-selector span.form-enum-description {
   color: gray;
 }
 
-div.form-enum-selector > div.form-enum-container {
+div.form_enum_selector > div.form_enum_container {
   padding-top: 5px;
 }
-div.form-enum-selector > div.form-enum-container > input {
+div.form_enum_selector > div.form_enum_container > input {
   vertical-align: top;
   margin-top: 4px;
 }
@@ -134,7 +134,7 @@ div.form-enum-selector > div.form-enum-container > input {
   font-style: italic;
 }
 
-div.edit-thread-account-password {
+div.edit_thread_account_password {
   border-top: 2px solid #efefef;
   padding-top: 4px;
   margin-top: 2px;
