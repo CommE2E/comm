@@ -6,8 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
-import { isDev } from 'lib/utils/dev-utils.js';
-
 import css from './header.css';
 
 const iconProps = {
@@ -23,16 +21,6 @@ const navLinkProps = {
 };
 
 function Header(): React.Node {
-  let launchAppIcon;
-  if (isDev) {
-    launchAppIcon = (
-      <a href="https://web.comm.app">
-        <div className={css.webapp_icon}>
-          <FontAwesomeIcon icon={faExternalLinkAlt} {...iconProps} />
-        </div>
-      </a>
-    );
-  }
   return (
     <nav className={css.wrapper}>
       <NavLink to="/" className={css.logo}>
@@ -47,7 +35,11 @@ function Header(): React.Node {
         </NavLink>
       </div>
       <div className={css.social_icons_container}>
-        {launchAppIcon}
+        <a href="https://web.comm.app">
+          <div className={css.webapp_icon}>
+            <FontAwesomeIcon icon={faExternalLinkAlt} {...iconProps} />
+          </div>
+        </a>
         <a href="https://twitter.com/commdotapp">
           <div className={css.twitter_icon}>
             <FontAwesomeIcon icon={faTwitter} {...iconProps} />
