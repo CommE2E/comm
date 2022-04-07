@@ -40,6 +40,7 @@ class SendLogReactor : public ServerReadReactorBase<
   // `persistedInBlob` is false) or the holder to blob (if `persistedInBlob` is
   // true)
   std::string value;
+  std::mutex reactorStateMutex;
   std::condition_variable blobDoneCV;
 
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
@@ -94,6 +95,9 @@ void SendLogReactor::initializePutReactor() {
 
 std::unique_ptr<grpc::Status>
 SendLogReactor::readRequest(backup::SendLogRequest request) {
+  // we make sure that the blob client's state is flushed to the main memory
+  // as there may be multiple threads from the pool taking over here
+  const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   switch (this->state) {
     case State::USER_ID: {
       if (!request.has_userid()) {
@@ -150,6 +154,9 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
 }
 
 void SendLogReactor::doneCallback() {
+  // we make sure that the blob client's state is flushed to the main memory
+  // as there may be multiple threads from the pool taking over here
+  const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   // TODO implement
   std::cout << "receive logs done " << this->status.error_code() << "/"
             << this->status.error_message() << std::endl;
