@@ -114,33 +114,44 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         throw std::runtime_error("user id expected but not received");
       }
       this->userID = request.userid();
-      return std::make_unique<grpc::Status>(
-          grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
+      this->state = State::BACKUP_ID;
+      return nullptr;
     };
     case State::BACKUP_ID: {
-      return std::make_unique<grpc::Status>(
-          grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
+      if (!request.has_backupid()) {
+        throw std::runtime_error("backup id expected but not received");
+      }
+      this->backupID = request.backupid();
+      this->state = State::LOG_HASH;
+      return nullptr;
     };
     case State::LOG_HASH: {
+      if (!request.has_loghash()) {
+        throw std::runtime_error("log hash expected but not received");
+      }
+      this->hash = request.loghash();
+      this->state = State::LOG_CHUNK;
       return nullptr;
     };
     case State::LOG_CHUNK: {
       if (!request.has_logdata()) {
         throw std::runtime_error("log data expected but not received");
       }
-      if (this->persistenceMethod == PersistenceMethod::DB) {
-        throw std::runtime_error(
-            "storing multiple chunks in the database is not allowed");
+      std::unique_ptr<std::string> chunk =
+          std::make_unique<std::string>(std::move(*request.mutable_logdata()));
+      if (chunk->size() == 0) {
+        return std::make_unique<grpc::Status>(grpc::Status::OK);
       }
-      std::string *chunk = request.mutable_logdata();
       // decide if keep in DB or upload to blob
       if (chunk->size() <= LOG_DATA_SIZE_DATABASE_LIMIT) {
         if (this->persistenceMethod == PersistenceMethod::UNKNOWN) {
           this->persistenceMethod = PersistenceMethod::DB;
           this->value = std::move(*chunk);
           this->storeInDatabase();
+          return std::make_unique<grpc::Status>(grpc::Status::OK);
         } else if (this->persistenceMethod == PersistenceMethod::BLOB) {
-          this->storeInBlob(*chunk);
+          this->initializePutReactor();
+          this->putReactor->scheduleSendingDataChunk(std::move(chunk));
         } else {
           throw std::runtime_error(
               "error - invalid persistence state for chunk smaller than "
@@ -153,10 +164,16 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
               "error - invalid persistence state, uploading to blob should be "
               "continued but it is not");
         }
-        this->persistenceMethod = PersistenceMethod::BLOB;
-        this->storeInBlob(*chunk);
+        if (this->persistenceMethod == PersistenceMethod::UNKNOWN) {
+          this->persistenceMethod = PersistenceMethod::BLOB;
+        }
+        if (this->value.empty()) {
+          this->value = this->generateHolder();
+        }
+        this->initializePutReactor();
+        this->putReactor->scheduleSendingDataChunk(std::move(chunk));
       }
-      std::cout << "log data received " << chunk->size() << std::endl;
+
       return nullptr;
     };
   }
