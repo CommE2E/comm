@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+package identity;
+
+service IdentityService {
+  // Called by user to register with the Identity Service (PAKE only)
+  rpc RegisterUser(stream RegistrationRequest) returns (stream RegistrationResponse) {}
+  // Called by user to create an active session and get an access token
+  rpc LoginUser(stream LoginRequest) returns (stream LoginResponse) {}
+  // Called by other services to get a user's token
+  rpc GetUserToken(GetUserTokenRequest) returns (GetUserTokenResponse) {}
+}
+
+// Helper types
+
+message PakeRegistrationRequestAndUserID {
+  string userID = 1;
+  bytes pakeRegistrationRequest = 2;
+}
+
+message pakeCredentialRequestAndUserID {
+  string userID = 1;
+  bytes pakeCredentialRequest = 2;
+}
+
+message PakeLoginRequest {
+  oneof data {
+    pakeCredentialRequestAndUserID pakeCredentialRequestAndUserID = 1;
+    bytes pakeCredentialFinalization = 2;
+  }
+}
+
+message PakeLoginResponse {
+  bytes pakeCredentialResponse = 1;
+}
+
+message WalletLoginRequest {
+  string userID = 1;
+  string walletAddress = 2;
+  bytes signedMessage = 3;
+}
+
+message WalletLoginResponse {
+  bytes token = 1;
+}
+
+// RegisterUser
+
+message RegistrationRequest {
+  oneof data {
+    PakeRegistrationRequestAndUserID pakeRegistrationRequestAndUserID = 1;
+    bytes pakeRegistrationUpload = 2;
+  }
+}
+
+message RegistrationResponse {
+  bytes pakeRegistrationResponse = 1;
+}
+
+// LoginUser
+
+message LoginRequest {
+  oneof data {
+    PakeLoginRequest pakeLoginRequest = 1;
+    WalletLoginRequest walletLoginRequest = 2;
+  }
+}
+
+message LoginResponse {
+  oneof data {
+    PakeLoginResponse pakeLoginResponse = 1;
+    WalletLoginResponse walletLoginResponse = 2;
+  }
+}
+
+// GetUserToken
+
+message GetUserTokenRequest {
+  string userID = 1;
+}
+
+message GetUserTokenResponse {
+  bytes token = 2;
+}
+
+
+/**
+ * Database - Structure:
+ * token
+ *  userID[PK]            string
+ *  created               timestamp
+ *  token                 bytes
+ *  registrationData      bytes
+ *  valid                 boolean
+ */
+
+/**
+ * Database - Description:
+ *  token - tokens assigned to users along with the data necessary to retrieve
+ *    them
+ *        `created` - when the token was created
+ *        `registrationData` - serialized data described by one of the
+ *           following structures
+ *            { authType: 'password', pakePasswordCiphertext: string }
+ *            { authType: 'wallet', walletAddress: string }
+ *        `valid` - false if the token has been revoked
+ */
