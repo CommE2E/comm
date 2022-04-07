@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "ServerReadReactorBase.h"
 #include "ServiceBlobClient.h"
+#include "Tools.h"
 
 #include "../_generated/backup.grpc.pb.h"
 #include "../_generated/backup.pb.h"
@@ -42,9 +43,11 @@ class SendLogReactor : public ServerReadReactorBase<
   std::string value;
   std::mutex reactorStateMutex;
   std::condition_variable blobDoneCV;
+  std::mutex blobDoneCVMutex;
 
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
   ServiceBlobClient blobClient;
+
   void storeInDatabase();
   std::string generateHolder();
   std::string generateLogID();
@@ -60,6 +63,7 @@ public:
   std::unique_ptr<grpc::Status>
   readRequest(backup::SendLogRequest request) override;
   void doneCallback() override;
+  void terminateCallback() override;
 };
 
 void SendLogReactor::storeInDatabase() {
@@ -157,6 +161,20 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
     };
   }
   throw std::runtime_error("send log - invalid state");
+}
+
+void SendLogReactor::terminateCallback() {
+  const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
+
+  if (this->persistenceMethod == PersistenceMethod::DB ||
+      this->putReactor == nullptr) {
+    return;
+  }
+  this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
+  std::unique_lock<std::mutex> lock2(this->blobDoneCVMutex);
+  this->blobDoneCV.wait(lock2);
+  // store in db only when we successfully upload chunks
+  this->storeInDatabase();
 }
 
 void SendLogReactor::doneCallback() {
