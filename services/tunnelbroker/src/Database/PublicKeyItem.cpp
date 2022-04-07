@@ -21,6 +21,9 @@ PublicKeyItem::PublicKeyItem(const AttributeValues &itemFromDB) {
 }
 
 void PublicKeyItem::validate() const {
+  if (!tools::validateDeviceID(this->deviceID)) {
+    throw std::runtime_error("Error: DeviceID format is wrong.");
+  }
   tools::checkIfNotEmpty("publicKey", this->publicKey);
 }
 

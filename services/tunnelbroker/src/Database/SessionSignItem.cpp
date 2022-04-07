@@ -23,6 +23,9 @@ SessionSignItem::SessionSignItem(const AttributeValues &itemFromDB) {
 }
 
 void SessionSignItem::validate() const {
+  if (!tools::validateDeviceID(this->deviceID)) {
+    throw std::runtime_error("Error: DeviceID format is wrong.");
+  }
   tools::checkIfNotEmpty("sign", this->sign);
 }
 

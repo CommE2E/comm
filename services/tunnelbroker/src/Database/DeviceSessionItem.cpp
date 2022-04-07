@@ -41,6 +41,12 @@ DeviceSessionItem::DeviceSessionItem(const AttributeValues &itemFromDB) {
 }
 
 void DeviceSessionItem::validate() const {
+  if (!tools::validateSessionID(this->sessionID)) {
+    throw std::runtime_error("Error: SessionID format is wrong.");
+  }
+  if (!tools::validateDeviceID(this->deviceID)) {
+    throw std::runtime_error("Error: DeviceID format is wrong.");
+  }
   tools::checkIfNotEmpty("pubKey", this->pubKey);
   tools::checkIfNotEmpty("notifyToken", this->notifyToken);
   tools::checkIfNotEmpty("deviceType", this->deviceType);

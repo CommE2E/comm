@@ -36,6 +36,12 @@ MessageItem::MessageItem(const AttributeValues &itemFromDB) {
 }
 
 void MessageItem::validate() const {
+  if (!tools::validateDeviceID(this->fromDeviceID)) {
+    throw std::runtime_error("Error: FromDeviceID format is wrong.");
+  }
+  if (!tools::validateDeviceID(this->toDeviceID)) {
+    throw std::runtime_error("Error: ToDeviceID format is wrong.");
+  }
   tools::checkIfNotEmpty("messageID", this->messageID);
   tools::checkIfNotZero("expire", this->expire);
 }
