@@ -46,6 +46,7 @@ class SendLogReactor : public ServerReadReactorBase<
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
   ServiceBlobClient blobClient;
   void storeInDatabase();
+  std::string generateHolder();
   std::string generateLogID();
   void initializePutReactor();
 
@@ -70,6 +71,11 @@ void SendLogReactor::storeInDatabase() {
       this->value,
       {});
   database::DatabaseManager::getInstance().putLogItem(logItem);
+}
+
+std::string SendLogReactor::generateHolder() {
+  // TODO replace mock
+  return generateRandomString();
 }
 
 std::string SendLogReactor::generateLogID() {
