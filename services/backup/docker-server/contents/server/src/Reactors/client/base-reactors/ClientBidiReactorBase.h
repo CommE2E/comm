@@ -36,10 +36,15 @@ public:
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::nextWrite() {
   this->request = Request();
-  std::unique_ptr<grpc::Status> status =
-      this->prepareRequest(this->request, this->response);
-  if (status != nullptr) {
-    this->terminate(*status);
+  try {
+    std::unique_ptr<grpc::Status> status =
+        this->prepareRequest(this->request, this->response);
+    if (status != nullptr) {
+      this->terminate(*status);
+      return;
+    }
+  } catch (std::runtime_error &e) {
+    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
     return;
   }
   this->StartWrite(&this->request);
