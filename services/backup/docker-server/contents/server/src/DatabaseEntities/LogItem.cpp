@@ -56,8 +56,11 @@ void LogItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
         std::string(itemFromDB.at(LogItem::FIELD_PERSISTED_IN_BLOB).GetS())
             .c_str());
     this->value = itemFromDB.at(LogItem::FIELD_VALUE).GetS();
-    this->attachmentHolders =
-        itemFromDB.at(LogItem::FIELD_ATTACHMENT_HOLDERS).GetSS();
+    auto attachmentsHolders =
+        itemFromDB.find(LogItem::FIELD_ATTACHMENT_HOLDERS);
+    if (attachmentsHolders != itemFromDB.end()) {
+      this->attachmentHolders = attachmentsHolders->second.GetSS();
+    }
   } catch (std::logic_error &e) {
     throw std::runtime_error(
         "invalid log item provided, " + std::string(e.what()));
