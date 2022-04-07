@@ -50,9 +50,10 @@ public:
 
     Aws::IOStream &retrievedFile =
         getOutcome.GetResultWithOwnership().GetBody();
-    std::string result;
-    result.resize(nextSize);
-    retrievedFile.get((char *)result.data(), nextSize + 1);
+
+    std::stringstream buffer;
+    buffer << retrievedFile.rdbuf();
+    std::string result(buffer.str());
     response->set_datachunk(result);
 
     this->offset += nextSize;
