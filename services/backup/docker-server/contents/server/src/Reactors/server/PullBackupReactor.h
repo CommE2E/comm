@@ -29,6 +29,7 @@ class PullBackupReactor : public ServerWriteReactorBase<
 
   std::shared_ptr<database::BackupItem> backupItem;
   std::shared_ptr<reactor::BlobGetClientReactor> getReactor;
+  std::mutex reactorStateMutex;
   std::shared_ptr<folly::MPMCQueue<std::string>> dataChunks;
   ServiceBlobClient blobClient;
   State state = State::COMPACTION;
@@ -65,7 +66,24 @@ void PullBackupReactor::initializeGetReactor(const std::string &holder) {
 }
 
 void PullBackupReactor::initialize() {
-  throw std::runtime_error("unimplemented");
+  // we make sure that the blob client's state is flushed to the main memory
+  // as there may be multiple threads from the pool taking over here
+  const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
+  if (this->request.userid().empty()) {
+    throw std::runtime_error("no user id provided");
+  }
+  if (this->request.backupid().empty()) {
+    throw std::runtime_error("no backup id provided");
+  }
+  this->backupItem = database::DatabaseManager::getInstance().findBackupItem(
+      this->request.userid(), this->request.backupid());
+  if (this->backupItem == nullptr) {
+    throw std::runtime_error(
+        "no backup found for provided parameters: user id [" +
+        this->request.userid() + "], backup id [" + this->request.backupid() +
+        "]");
+  }
+  // TODO get logs
 }
 
 std::unique_ptr<grpc::Status>
