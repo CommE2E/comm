@@ -77,6 +77,19 @@ void DatabaseManager::putBackupItem(const BackupItem &item) {
   this->innerPutItem(std::make_shared<BackupItem>(item), request);
 }
 
+std::shared_ptr<BackupItem> DatabaseManager::findBackupItem(
+    const std::string &userID,
+    const std::string &backupID) {
+  Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey(
+      BackupItem::FIELD_USER_ID, Aws::DynamoDB::Model::AttributeValue(userID));
+  request.AddKey(
+      BackupItem::FIELD_BACKUP_ID,
+      Aws::DynamoDB::Model::AttributeValue(backupID));
+
+  return std::move(this->innerFindItem<BackupItem>(request));
+}
+
 std::shared_ptr<BackupItem>
 DatabaseManager::findLastBackupItem(const std::string &userID) {
   std::shared_ptr<BackupItem> item = createItemByType<BackupItem>();
