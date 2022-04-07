@@ -6,3 +6,27 @@
   font-size: var(--l-font-18);
   line-height: var(--line-height-display);
 }
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.button {
+  font-size: var(--s-font-14);
+  line-height: var(--line-height-text);
+  color: var(--btn-bg-primary);
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.destructive {
+  color: var(--btn-bg-danger);
+}
+
+.edit_button {
+  color: var(--relationship-modal-color);
+}
