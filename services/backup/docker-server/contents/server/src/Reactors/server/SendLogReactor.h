@@ -20,7 +20,9 @@ class SendLogReactor : public ServerReadReactorBase<
                            google::protobuf::Empty> {
   enum class State {
     USER_ID = 1,
-    LOG_CHUNK = 2,
+    BACKUP_ID = 2,
+    LOG_HASH = 3,
+    LOG_CHUNK = 4,
   };
 
   enum class PersistenceMethod {
@@ -98,7 +100,14 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         throw std::runtime_error("user id expected but not received");
       }
       this->userID = request.userid();
-      this->state = State::LOG_CHUNK;
+      return std::make_unique<grpc::Status>(
+          grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
+    };
+    case State::BACKUP_ID: {
+      return std::make_unique<grpc::Status>(
+          grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
+    };
+    case State::LOG_HASH: {
       return nullptr;
     };
     case State::LOG_CHUNK: {
