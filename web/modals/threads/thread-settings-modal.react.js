@@ -39,6 +39,7 @@ import { firstLine } from 'lib/utils/string-utils';
 import Button from '../../components/button.react';
 import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
+import Input from '../input.react';
 import Modal from '../modal.react';
 import ColorPicker from './color-picker.react';
 import css from './thread-settings-modal.css';
@@ -194,7 +195,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           <div>
             <div className={css.form_title}>Thread name</div>
             <div className={css.form_content}>
-              <input
+              <Input
                 type="text"
                 value={firstLine(this.possiblyChangedValue('name'))}
                 placeholder={this.namePlaceholder()}
@@ -212,7 +213,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
                 placeholder="Thread description"
                 onChange={this.onChangeDescription}
                 disabled={inputDisabled}
-              ></textarea>
+              />
             </div>
           </div>
           <div className={css.edit_thread_color_container}>
@@ -328,6 +329,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           type="submit"
           onClick={this.onSubmit}
           disabled={inputDisabled || !this.changeQueued()}
+          className={css.save_button}
         >
           Save
         </Button>
@@ -379,7 +381,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Modal name="Thread settings" onClose={this.props.onClose} size="large">
+      <Modal name="Thread settings" onClose={this.props.onClose}>
         <ul className={css.tab_panel}>{tabs}</ul>
         <div className={css.modal_body}>
           <form method="POST">

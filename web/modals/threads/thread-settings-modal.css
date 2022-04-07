@@ -1,10 +1,7 @@
 div.modal_body {
-  padding: 6px 6px;
-  width: 100%;
-  box-sizing: border-box;
+  padding: 20px;
   background-color: var(--modal-bg);
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
+  border-radius: 16px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -14,22 +11,12 @@ div.modal_body p {
   font-size: 14px;
   text-align: center;
 }
-div.modal_body textarea {
-  margin: 3px;
-}
-div.modal_body textarea {
-  font-size: 14px;
-  padding: 1px;
-  width: 175px;
-}
 div.modal_body p.confirm_account_password {
   margin-bottom: 4px;
   color: var(--fg);
 }
 div.modal_body div.form_footer {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-between;
   padding-top: 8px;
 }
 div.modal_body div.form_footer div.modal_form_error {
@@ -40,23 +27,31 @@ div.modal_body div.form_footer div.modal_form_error {
   align-self: center;
 }
 div.modal_body div.form_title {
-  display: inline-block;
-  text-align: right;
-  padding-right: 5px;
-  padding-top: 5px;
+  padding: 6px 6px 0 0;
   font-size: 14px;
   font-weight: 600;
   vertical-align: top;
-  width: 110px;
   color: var(--fg);
 }
 div.modal_body div.form_content {
-  display: inline-block;
+  display: flex;
   font-family: var(--font-stack);
   color: var(--fg);
+  margin-top: 4px;
+  margin-bottom: 8px;
 }
 div.modal_body div.form_content input {
   margin-bottom: 4px;
+}
+
+div.form_content textarea {
+  padding: 12px;
+  background: var(--modal-bg);
+  color: var(--fg);
+  border: 1px solid var(--border-color);
+  font-size: var(--m-font-16);
+  border-radius: 4px;
+  width: 100%;
 }
 
 .italic {
@@ -138,4 +133,8 @@ div.edit_thread_account_password {
   border-top: 2px solid #efefef;
   padding-top: 4px;
   margin-top: 2px;
+}
+
+.save_button {
+  width: 100%;
 }
