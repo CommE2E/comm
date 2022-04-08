@@ -53,6 +53,8 @@ services:
       - "${COMM_SERVICES_PORT_BLOB}:50051"
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
+    networks:
+      - services-net
   # localstack
   localstack:
     image: localstack/localstack
