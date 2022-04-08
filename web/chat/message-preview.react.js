@@ -3,15 +3,8 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { getMessageTitle } from 'lib/shared/message-utils';
-import { threadIsGroupChat } from 'lib/shared/thread-utils';
-import { stringForUser } from 'lib/shared/user-utils';
-import {
-  type MessageInfo,
-  messageTypes,
-  type ComposableMessageInfo,
-  type RobotextMessageInfo,
-} from 'lib/types/message-types';
+import { getMessagePreview } from 'lib/shared/message-utils';
+import { type MessageInfo } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
@@ -38,26 +31,16 @@ function MessagePreview(props: Props): React.Node {
       </div>
     );
   }
-  const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
-    originalMessageInfo.type === messageTypes.SIDEBAR_SOURCE
-      ? originalMessageInfo.sourceMessage
-      : originalMessageInfo;
 
-  const messageTitle = getMessageTitle(
-    messageInfo,
+  const { message: messageTitle, username } = getMessagePreview(
+    originalMessageInfo,
     threadInfo,
     getDefaultTextMessageRules().simpleMarkdownRules,
   );
 
-  const hasUsername =
-    threadIsGroupChat(threadInfo) ||
-    threadInfo.name !== '' ||
-    messageInfo.creator.isViewer;
-
   let usernameText = null;
-  if (messageInfo.type === messageTypes.TEXT && hasUsername) {
-    const userString = stringForUser(messageInfo.creator);
-    usernameText = <span className={colorStyle}>{`${userString}: `}</span>;
+  if (username) {
+    usernameText = <span className={colorStyle}>{`${username}: `}</span>;
   }
 
   return (
