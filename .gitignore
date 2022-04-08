@@ -14,3 +14,6 @@ services/identity/target
 .eslintcache
 .vscode
 !.vscode/extensions.json
+
+# Nix
+result*
