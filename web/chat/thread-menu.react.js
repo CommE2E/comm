@@ -28,6 +28,7 @@ import SidebarListModal from '../modals/chat/sidebar-list-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
 import ThreadMembersModal from '../modals/threads/members/members-modal.react';
+import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.react';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -117,14 +118,27 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     return !!childThreads?.some(threadIsChannel);
   }, [childThreads]);
 
+  const onClickViewSubchannels = React.useCallback(
+    () =>
+      setModal(
+        <SubchannelsModal threadID={threadInfo.id} onClose={clearModal} />,
+      ),
+    [clearModal, setModal, threadInfo.id],
+  );
+
   const viewSubchannelsItem = React.useMemo(() => {
-    if (!hasSubchannels && !canCreateSubchannels) {
+    if (!hasSubchannels) {
       return null;
     }
     return (
-      <MenuItem key="subchannels" text="Subchannels" icon="message-square" />
+      <MenuItem
+        key="subchannels"
+        text="Subchannels"
+        icon="message-square"
+        onClick={onClickViewSubchannels}
+      />
     );
-  }, [canCreateSubchannels, hasSubchannels]);
+  }, [hasSubchannels, onClickViewSubchannels]);
 
   const createSubchannelsItem = React.useMemo(() => {
     if (!canCreateSubchannels) {
@@ -189,7 +203,6 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
 
     // TODO: Enable menu items when the modals are implemented
     const SHOW_NOTIFICATIONS = false;
-    const SHOW_VIEW_SUBCHANNELS = false;
     const SHOW_CREATE_SUBCHANNELS = false;
 
     const items = [
@@ -197,7 +210,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       SHOW_NOTIFICATIONS && notificationsItem,
       membersItem,
       sidebarItem,
-      SHOW_VIEW_SUBCHANNELS && viewSubchannelsItem,
+      viewSubchannelsItem,
       SHOW_CREATE_SUBCHANNELS && createSubchannelsItem,
       leaveThreadItem && separator,
       leaveThreadItem,
