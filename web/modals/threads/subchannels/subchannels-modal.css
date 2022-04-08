@@ -1,0 +1,39 @@
+div.subchannelContainer {
+  cursor: pointer;
+  display: flex;
+  padding: 8px 16px;
+  column-gap: 8px;
+}
+
+div.subchannelContainer:hover {
+  color: var(--subchannels-modal-color-hover);
+}
+
+div.subchannelInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  overflow: hidden;
+}
+
+div.longTextEllipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+div.lastMessage {
+  display: flex;
+  justify-content: space-between;
+  column-gap: 14px;
+}
+
+div.noMessage {
+  text-align: center;
+  font-style: italic;
+}
+
+div.lastActivity {
+  white-space: nowrap;
+}
