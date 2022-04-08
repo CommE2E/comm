@@ -5,8 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
-import { isDev } from 'lib/utils/dev-utils';
-
 import css from './footer.css';
 import SubscriptionForm from './subscription-form.react';
 
@@ -18,15 +16,6 @@ const navLinkProps = {
 };
 
 function Footer(): React.Node {
-  let teamLink;
-  if (isDev) {
-    teamLink = (
-      <NavLink to="/team" exact {...navLinkProps}>
-        Team
-      </NavLink>
-    );
-  }
-
   return (
     <footer className={css.wrapper}>
       <div className={css.contentWrapper}>
@@ -40,7 +29,9 @@ function Footer(): React.Node {
           <NavLink to="/support" exact {...navLinkProps}>
             Support
           </NavLink>
-          {teamLink}
+          <NavLink to="/team" exact {...navLinkProps}>
+            Team
+          </NavLink>
           <NavLink to="/terms" exact {...navLinkProps}>
             Terms of Use
           </NavLink>

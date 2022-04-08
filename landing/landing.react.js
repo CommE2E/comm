@@ -3,8 +3,6 @@
 import * as React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 
-import { isDev } from 'lib/utils/dev-utils';
-
 import AppLanding from './app-landing.react';
 import Footer from './footer.react';
 import Header from './header.react';
@@ -38,7 +36,7 @@ function Landing(): React.Node {
       return <Keyservers />;
     } else if (onQR) {
       return <QR />;
-    } else if (isDev && onTeam) {
+    } else if (onTeam) {
       return <Team />;
     } else {
       return <AppLanding />;
