@@ -1,0 +1,49 @@
+{
+  "TableName": "backup-service-backup-test",
+  "KeySchema": [
+    {
+      "AttributeName": "userID",
+      "KeyType": "HASH"
+    },
+    {
+      "AttributeName": "backupID",
+      "KeyType": "RANGE"
+    }
+  ],
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "backupID",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "created",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "userID",
+      "AttributeType": "S"
+    }
+  ],
+  "GlobalSecondaryIndexes": [
+    {
+      "IndexName": "userID-created-index",
+      "KeySchema": [
+        {
+          "AttributeName": "userID",
+          "KeyType": "HASH"
+        },
+        {
+          "AttributeName": "created",
+          "KeyType": "RANGE"
+        }
+      ],
+      "Projection": {
+        "ProjectionType": "INCLUDE",
+        "NonKeyAttributes": [
+          "recoveryData"
+        ]
+      }
+    }
+  ],
+  "BillingMode": "PAY_PER_REQUEST"
+}

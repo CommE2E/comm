@@ -1,0 +1,16 @@
+{
+  "TableName": "blob-service-blob-test",
+  "KeySchema": [
+    {
+      "AttributeName": "blobHash",
+      "KeyType": "HASH"
+    }
+  ],
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "blobHash",
+      "AttributeType": "S"
+    }
+  ],
+  "BillingMode": "PAY_PER_REQUEST"
+}

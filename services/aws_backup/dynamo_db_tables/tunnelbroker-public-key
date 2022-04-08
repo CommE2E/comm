@@ -1,0 +1,16 @@
+{
+  "TableName": "tunnelbroker-public-key",
+  "KeySchema": [
+    {
+      "AttributeName": "DeviceId",
+      "KeyType": "HASH"
+    }
+  ],
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "DeviceId",
+      "AttributeType": "S"
+    }
+  ],
+  "BillingMode": "PAY_PER_REQUEST"
+}
