@@ -1,3 +1,16 @@
+div.subchannelsListContainer {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  line-height: var(--line-height-text);
+  color: var(--subchannels-modal-color);
+  row-gap: 8px;
+}
+
+div.noSubchannels {
+  text-align: center;
+}
+
 div.subchannelContainer {
   cursor: pointer;
   display: flex;
