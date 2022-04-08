@@ -53,3 +53,18 @@ services:
       - "${COMM_SERVICES_PORT_BLOB}:50051"
     volumes:
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
+  # localstack
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    hostname: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,dynamodb
+      - DEFAULT_REGION=eu-east-2
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=localstack
+    networks:
+      - services-net
