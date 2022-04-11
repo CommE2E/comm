@@ -75,6 +75,7 @@
     "redux-thunk": "^2.2.0",
     "reselect": "^4.0.0",
     "simple-markdown": "^0.7.2",
+    "tinycolor2": "^1.4.1",
     "visibilityjs": "^2.0.2"
   }
 }
