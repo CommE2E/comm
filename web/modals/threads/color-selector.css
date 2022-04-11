@@ -1,14 +1,11 @@
 div.container {
   display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-div.row {
-  display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  column-gap: 12px;
+  row-gap: 6px;
   width: 100%;
   padding: 6px 0;
 }
