@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import Button from '../components/button.react';
-import UserSettingsModal from '../modals/account/user-settings-modal.react.js';
+import UserSettingsModal from '../modals/account/user-settings-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './community-picker.css';

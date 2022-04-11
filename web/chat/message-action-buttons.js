@@ -7,10 +7,10 @@ import * as React from 'react';
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import { longAbsoluteDate } from 'lib/utils/date-utils.js';
+import { longAbsoluteDate } from 'lib/utils/date-utils';
 
-import type { InputState } from '../input/input-state.js';
-import { useSelector } from '../redux/redux-utils.js';
+import type { InputState } from '../input/input-state';
+import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickThread,
   useOnClickPendingSidebar,

@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { assetsCacheURLPrefix } from './asset-meta-data';
 import Button from './button.react.js';
-import TeamProfile from './team-profile.react.js';
+import TeamProfile from './team-profile.react';
 import css from './team.css';
 
 function Team(): React.Node {
