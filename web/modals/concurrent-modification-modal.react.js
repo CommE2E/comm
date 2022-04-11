@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import Button from '../components/button.react';
-import css from '../style.css';
+import css from './concurrent-modification-modal.css';
 import { useModalContext } from './modal-provider.react';
 import Modal from './modal.react';
 
@@ -16,16 +16,18 @@ export default function ConcurrentModificationModal(props: Props): React.Node {
 
   return (
     <Modal name="Concurrent modification" onClose={modalContext.clearModal}>
-      <div className={css['modal-body']}>
+      <div className={css.modal_body}>
         <p>
           It looks like somebody is attempting to modify that field at the same
           time as you! Please refresh the entry and try again.
         </p>
-        <div className={css['form-footer']}>
-          <Button onClick={props.onRefresh} type="submit">
-            Refresh entry
-          </Button>
-        </div>
+        <Button
+          onClick={props.onRefresh}
+          type="submit"
+          className={css.refresh_button}
+        >
+          Refresh entry
+        </Button>
       </div>
     </Modal>
   );
