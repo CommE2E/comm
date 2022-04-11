@@ -1,14 +1,15 @@
 /* eslint-disable flowtype/require-valid-file-annotation */
 /* eslint-disable no-undef */
-const path = require('path');
 const AssetsPlugin = require('assets-webpack-plugin');
+const path = require('path');
 
-const babelConfig = require('./babel.config.cjs');
 const {
   createProdBrowserConfig,
   createDevBrowserConfig,
   createNodeServerRenderingConfig,
 } = require('lib/webpack/shared.cjs');
+
+const babelConfig = require('./babel.config.cjs');
 
 const baseBrowserConfig = {
   entry: {
