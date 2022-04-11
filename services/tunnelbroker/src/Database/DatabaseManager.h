@@ -38,6 +38,7 @@ public:
   void putSessionItem(const DeviceSessionItem &item);
   std::shared_ptr<DeviceSessionItem>
   findSessionItem(const std::string &deviceID);
+  void removeSessionItem(const std::string &sessionID);
 
   void putSessionSignItem(const SessionSignItem &item);
   std::shared_ptr<SessionSignItem>

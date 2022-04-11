@@ -106,6 +106,10 @@ DatabaseManager::findSessionItem(const std::string &sessionID) {
   return std::move(this->innerFindItem<DeviceSessionItem>(request));
 }
 
+void DatabaseManager::removeSessionItem(const std::string &sessionID) {
+  this->innerRemoveItem(*(createItemByType<DeviceSessionItem>()), sessionID);
+}
+
 void DatabaseManager::putSessionSignItem(const SessionSignItem &item) {
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(item.getTableName());
