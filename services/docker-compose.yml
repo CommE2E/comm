@@ -2,6 +2,8 @@ version: "3.9"
 networks:
   services-net:
     name: services-net
+volumes:
+  localstack:
 services:
   # tunnelbroker
   tunnelbroker-server:
@@ -61,3 +63,18 @@ services:
     container_name: identity-server
     ports:
       - "${COMM_SERVICES_PORT_IDENTITY}:50051"
+  # localstack
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    hostname: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,dynamodb
+      - DATA_DIR=/tmp/localstack
+      - HOSTNAME_EXTERNAL=localstack
+    volumes:
+      - localstack:/tmp/localstack
+    networks:
+      - services-net
