@@ -54,7 +54,7 @@ void MessageItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
     this->toDeviceID = itemFromDB.at(MessageItem::FIELD_TO_DEVICE_ID).GetS();
     this->payload = itemFromDB.at(MessageItem::FIELD_PAYLOAD).GetS();
     this->blobHashes = itemFromDB.at(MessageItem::FIELD_BLOB_HASHES).GetS();
-    this->expire = std::stoull(itemFromDB.at(MessageItem::FIELD_EXPIRE).GetN());
+    this->expire = std::stoull(itemFromDB.at(MessageItem::FIELD_EXPIRE).GetS());
   } catch (const std::exception &e) {
     throw std::runtime_error(
         "Got an exception at MessageItem: " + std::string(e.what()));
