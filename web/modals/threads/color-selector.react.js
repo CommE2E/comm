@@ -14,60 +14,20 @@ type ColorSelectorProps = {
 function ColorSelector(props: ColorSelectorProps): React.Node {
   const { currentColor, onColorSelection } = props;
 
-  return (
-    <div className={css.container}>
-      <ColorSelectorButton
-        color={selectedThreadColors[0]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[1]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[2]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[3]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[4]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[5]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[6]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[7]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[8]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-      <ColorSelectorButton
-        color={selectedThreadColors[9]}
-        currentColor={currentColor}
-        onColorSelection={onColorSelection}
-      />
-    </div>
+  const colorSelectorButtons = React.useMemo(
+    () =>
+      selectedThreadColors.map(color => (
+        <ColorSelectorButton
+          key={color}
+          color={color}
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
+        />
+      )),
+    [currentColor, onColorSelection],
   );
+
+  return <div className={css.container}>{colorSelectorButtons}</div>;
 }
 
 export default ColorSelector;
