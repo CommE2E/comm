@@ -3,10 +3,12 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import { type SelectedThreadColors } from 'lib/shared/thread-utils.js';
+
 import css from './color-selector-button.css';
 
 type ColorSelectorButtonProps = {
-  +color: string,
+  +color: SelectedThreadColors,
   +active: boolean,
 };
 function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
@@ -18,7 +20,7 @@ function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
 
   const colorSplotchStyle = React.useMemo(
     () => ({
-      backgroundColor: color,
+      backgroundColor: `#${color}`,
     }),
     [color],
   );
