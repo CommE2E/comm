@@ -6,68 +6,66 @@ import ColorSelectorButton from './color-selector-button.react';
 import css from './color-selector.css';
 
 type ColorSelectorProps = {
-  +currentThreadColor: string,
+  +currentColor: string,
+  +onColorSelection: (hex: string) => void,
 };
 function ColorSelector(props: ColorSelectorProps): React.Node {
-  const { currentThreadColor } = props;
-  const [pendingColorSelection, setPendingColorSelection] = React.useState(
-    currentThreadColor,
-  );
+  const { currentColor, onColorSelection } = props;
 
   return (
     <div className={css.container}>
       <div className={css.row}>
         <ColorSelectorButton
-          color="#4B87AA"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="4B87AA"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
         <ColorSelectorButton
-          color="#5C9F5F"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="5C9F5F"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
         <ColorSelectorButton
-          color="#B8753D"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="B8753D"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
         <ColorSelectorButton
-          color="#AA4B4B"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="AA4B4B"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
         <ColorSelectorButton
-          color="#6D49AB"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="6D49AB"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
       </div>
       <div className={css.row}>
         <ColorSelectorButton
-          color="#C85000"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="C85000"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
         <ColorSelectorButton
-          color="#008F83"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="008F83"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
         <ColorSelectorButton
-          color="#648CAA"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="648CAA"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
         <ColorSelectorButton
-          color="#57697F"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="57697F"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
         <ColorSelectorButton
-          color="#575757"
-          pendingColorSelection={pendingColorSelection}
-          setPendingColorSelection={setPendingColorSelection}
+          color="575757"
+          currentColor={currentColor}
+          onColorSelection={onColorSelection}
         />
       </div>
     </div>

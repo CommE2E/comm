@@ -3,33 +3,31 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { type SetState } from 'lib/types/hook-types.js';
-
 import css from './color-selector-button.css';
 
 type ColorSelectorButtonProps = {
   +color: string,
-  +pendingColorSelection: string,
-  +setPendingColorSelection: SetState<string>,
+  +currentColor: string,
+  +onColorSelection: (hex: string) => void,
 };
 function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
-  const { color, pendingColorSelection, setPendingColorSelection } = props;
+  const { color, currentColor, onColorSelection } = props;
 
-  const active = color === pendingColorSelection;
+  const active = color === currentColor;
   const containerClassName = classNames(css.container, {
     [css.active]: active,
   });
 
   const colorSplotchStyle = React.useMemo(
     () => ({
-      backgroundColor: color,
+      backgroundColor: `#${color}`,
     }),
     [color],
   );
 
   const onColorSplotchClicked = React.useCallback(() => {
-    setPendingColorSelection(color);
-  }, [setPendingColorSelection, color]);
+    onColorSelection(color);
+  }, [onColorSelection, color]);
 
   return (
     <div onClick={onColorSplotchClicked} className={containerClassName}>
