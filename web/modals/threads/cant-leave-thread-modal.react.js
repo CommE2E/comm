@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 
-import css from '../../style.css';
+import Button from '../../components/button.react.js';
 import Modal from '../modal.react';
+import css from './cant-leave-thread-modal.css';
 
 type Props = {
   +onClose: () => void,
@@ -11,11 +12,19 @@ type Props = {
 function CantLeaveThreadModal(props: Props): React.Node {
   return (
     <Modal name="Cannot leave thread" onClose={props.onClose}>
-      <div className={css['modal-body']}>
+      <div className={css.modal_body}>
         <p>
           You are the only admin left of this thread. Please promote somebody
           else to admin before leaving.
         </p>
+        <Button
+          onClick={props.onClose}
+          type="submit"
+          variant="primary"
+          className={css.ok_button}
+        >
+          OK
+        </Button>
       </div>
     </Modal>
   );

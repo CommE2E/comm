@@ -1,0 +1,14 @@
+div.modal_body {
+  padding: 20px;
+  color: var(--fg);
+  background-color: var(--modal-bg);
+  border-radius: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.ok_button {
+  width: 100%;
+  margin-top: 24px;
+}
