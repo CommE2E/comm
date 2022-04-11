@@ -1,3 +1,5 @@
+/* eslint-disable flowtype/require-valid-file-annotation */
+/* eslint-disable no-undef */
 const path = require('path');
 const AssetsPlugin = require('assets-webpack-plugin');
 
