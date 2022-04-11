@@ -38,7 +38,7 @@ Install [Homebrew](https://brew.sh/), a package manager for macOS.
 Next, install [Node](https://nodejs.org/) using Homebrew. We’re going to use version 16 to avoid some possible issues that come up on Apple silicon when we install project dependencies.
 
 ```
-brew install node@16; brew upgrade node@16
+brew install node@16 && brew upgrade node@16
 ```
 
 The reason we use both `install` and `upgrade` is that there’s no single Homebrew command equivalent to “install if not installed, and upgrade if already installed”.
@@ -58,7 +58,7 @@ Installing Python 2.x via Homebrew is no longer officially supported. Instead, d
 [PHP](https://www.php.net) is needed for Arcanist. As of macOS 12 (Monterey), PHP is no longer bundled with the OS and needs to be installed via Homebrew.
 
 ```
-brew install php@7.4; brew upgrade php@7.4
+brew install php@7.4 && brew upgrade php@7.4
 ```
 
 ## Rust
@@ -74,7 +74,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 We use the [Yarn](https://yarnpkg.com/) package manager for JavaScript in our repo.
 
 ```
-brew install yarn; brew upgrade yarn
+brew install yarn && brew upgrade yarn
 ```
 
 ## Watchman
@@ -82,7 +82,7 @@ brew install yarn; brew upgrade yarn
 Watchman is a tool from Facebook used in the React Native dev environment to watch for changes to your filesystem.
 
 ```
-brew install watchman; brew upgrade watchman
+brew install watchman && brew upgrade watchman
 ```
 
 ## Node Version Manager
@@ -90,7 +90,7 @@ brew install watchman; brew upgrade watchman
 Node Version Manager (nvm) is a tool that ensures we use the same version of Node on our keyserver between prod and dev environments.
 
 ```
-brew install nvm; brew upgrade nvm
+brew install nvm && brew upgrade nvm
 ```
 
 After installing, Homebrew will print out some instructions under the Caveats section of its output. It will ask you to do two things: `mkdir ~/.nvm`, and to add some lines to your `~/.bash_profile` (or desired shell configuration file). We recommend that you append `--no-use` to the line that loads nvm, so that you continue to use your Homebrew-sourced Node distribution by default:
@@ -112,7 +112,7 @@ source ~/.bash_profile
 For now we’re using MySQL 5.7 as the primary server-side database. Hopefully we’ll change this soon, but for now, install MySQL 5.7 using Homebrew.
 
 ```
-brew install mysql@5.7; brew upgrade mysql@5.7
+brew install mysql@5.7 && brew upgrade mysql@5.7
 ```
 
 Next we’ll configure MySQL to start when your computer boots using `brew services`:
@@ -139,7 +139,7 @@ mysqladmin -u root password
 We use Redis on the keyserver side as a message broker.
 
 ```
-brew install redis; brew upgrade redis
+brew install redis && brew upgrade redis
 ```
 
 We’ll set it up to start on boot with `brew services`:
@@ -153,7 +153,7 @@ brew services start redis
 CocoaPods is a dependency management system for iOS development. React Native uses it to manage native modules.
 
 ```
-brew install cocoapods; brew upgrade cocoapods
+brew install cocoapods && brew upgrade cocoapods
 ```
 
 ## Reactotron
@@ -161,7 +161,7 @@ brew install cocoapods; brew upgrade cocoapods
 Reactotron is an event tracker and logger that can be used to aid in debugging on React Native.
 
 ```
-brew install reactotron; brew upgrade reactotron
+brew install reactotron && brew upgrade reactotron
 ```
 
 ## React Dev Tools Chrome extension
