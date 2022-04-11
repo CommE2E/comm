@@ -41,7 +41,7 @@ import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
 import Input from '../input.react';
 import Modal from '../modal.react';
-import ColorPicker from './color-picker.react';
+import ColorSelector from './color-selector.react';
 import css from './thread-settings-modal.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
@@ -218,14 +218,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           </div>
           <div className={css.edit_thread_color_container}>
             <div className={`${css.form_title} ${css.color_title}`}>Color</div>
-            <div className={css.form_content}>
-              <ColorPicker
-                id="edit-thread-color"
-                value={this.possiblyChangedValue('color')}
-                disabled={inputDisabled}
-                onChange={this.onChangeColor}
-              />
-            </div>
+            <ColorSelector
+              currentColor={this.possiblyChangedValue('color')}
+              onColorSelection={this.onChangeColor}
+            />
           </div>
         </div>
       );
