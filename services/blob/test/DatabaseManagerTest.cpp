@@ -38,13 +38,7 @@ TEST_F(DatabaseManagerTest, TestOperationsOnBlobItems) {
   std::shared_ptr<BlobItem> foundItem =
       DatabaseManager::getInstance().findBlobItem(item.getBlobHash());
   EXPECT_NE(foundItem->getCreated(), 0);
-  EXPECT_EQ(item.getBlobHash().size(), foundItem->getBlobHash().size());
-  EXPECT_EQ(
-      memcmp(
-          item.getBlobHash().data(),
-          foundItem->getBlobHash().data(),
-          item.getBlobHash().size()),
-      0);
+  EXPECT_EQ(item.getBlobHash(), foundItem->getBlobHash());
   const BlobItem item2(generateName(), S3Path(generateName(), generateName()));
   DatabaseManager::getInstance().putBlobItem(item2);
   DatabaseManager::getInstance().removeBlobItem(item.getBlobHash());
@@ -65,22 +59,10 @@ TEST_F(DatabaseManagerTest, TestOperationsOnReverseIndexItems) {
           item.getBlobHash());
   EXPECT_EQ(foundItems.size(), 1);
   std::shared_ptr<ReverseIndexItem> foundItem = foundItems.at(0);
-  EXPECT_EQ(item.getBlobHash().size(), foundItem->getBlobHash().size());
-  EXPECT_EQ(
-      memcmp(
-          item.getBlobHash().data(),
-          foundItem->getBlobHash().data(),
-          item.getBlobHash().size()),
-      0);
+  EXPECT_EQ(item.getBlobHash(), foundItem->getBlobHash());
   foundItem = std::dynamic_pointer_cast<ReverseIndexItem>(
       DatabaseManager::getInstance().findReverseIndexItemByHolder(
           item.getHolder()));
-  EXPECT_EQ(item.getBlobHash().size(), foundItem->getBlobHash().size());
-  EXPECT_EQ(
-      memcmp(
-          item.getBlobHash().data(),
-          foundItem->getBlobHash().data(),
-          item.getBlobHash().size()),
-      0);
+  EXPECT_EQ(item.getBlobHash(), foundItem->getBlobHash());
   DatabaseManager::getInstance().removeReverseIndexItem(foundItem->getHolder());
 }
