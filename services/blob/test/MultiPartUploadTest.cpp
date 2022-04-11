@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "AwsS3Bucket.h"
+#include "AwsTools.h"
 #include "MultiPartUploader.h"
 #include "TestTools.h"
 #include "Tools.h"
@@ -20,9 +21,7 @@ protected:
 
   virtual void SetUp() {
     Aws::InitAPI({});
-    Aws::Client::ClientConfiguration config;
-    config.region = "us-east-2";
-    s3Client = std::make_shared<Aws::S3::S3Client>(config);
+    s3Client = std::move(getS3Client());
     bucket = std::make_unique<AwsS3Bucket>(bucketName);
   }
 
