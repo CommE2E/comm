@@ -6,13 +6,11 @@ div.container {
   align-items: center;
   justify-content: center;
   display: flex;
-  transition: 150ms;
 }
 
 div.active,
 div.container:hover {
   background-color: var(--color-selector-active-bg);
-  transition: 150ms;
 }
 
 div.colorSplotch {
