@@ -160,6 +160,9 @@ div.sidebarTitle {
 div.sidebarTitle.unread {
   color: var(--fg);
 }
+div.seeMoreButton {
+  padding-left: 66px;
+}
 div.sidebarLastActivity {
   white-space: nowrap;
   font-size: var(--xxs-font-10);

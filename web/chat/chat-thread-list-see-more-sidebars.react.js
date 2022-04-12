@@ -30,6 +30,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
           <div
             className={classNames({
               [css.sidebarTitle]: true,
+              [css.seeMoreButton]: true,
               [css.unread]: unread,
             })}
           >
