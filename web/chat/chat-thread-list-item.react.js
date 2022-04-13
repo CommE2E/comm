@@ -89,12 +89,13 @@ function ChatThreadListItem(props: Props): React.Node {
     [color],
   );
 
-  const sidebars = item.sidebars.map(sidebarItem => {
+  const sidebars = item.sidebars.map((sidebarItem, index) => {
     if (sidebarItem.type === 'sidebar') {
       const { type, ...sidebarInfo } = sidebarItem;
       return (
         <ChatThreadListSidebar
           sidebarInfo={sidebarInfo}
+          isMultipleSidebarItem={index > 0}
           key={sidebarInfo.threadInfo.id}
         />
       );

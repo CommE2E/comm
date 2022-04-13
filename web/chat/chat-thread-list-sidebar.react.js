@@ -15,9 +15,10 @@ import SidebarItem from './sidebar-item.react';
 
 type Props = {
   +sidebarInfo: SidebarInfo,
+  +isMultipleSidebarItem: boolean,
 };
 function ChatThreadListSidebar(props: Props): React.Node {
-  const { sidebarInfo } = props;
+  const { sidebarInfo, isMultipleSidebarItem } = props;
   const { threadInfo, mostRecentNonLocalMessage } = sidebarInfo;
   const {
     currentUser: { unread },
@@ -39,7 +40,10 @@ function ChatThreadListSidebar(props: Props): React.Node {
       onClick={onClick}
     >
       <div className={css.dotContainer}>{unreadDot}</div>
-      <SidebarItem sidebarInfo={sidebarInfo} />
+      <SidebarItem
+        sidebarInfo={sidebarInfo}
+        extendArrow={isMultipleSidebarItem}
+      />
       <ChatThreadListItemMenu
         threadInfo={threadInfo}
         mostRecentNonLocalMessage={mostRecentNonLocalMessage}
