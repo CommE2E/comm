@@ -189,7 +189,13 @@ void SendLogReactor::terminateCallback() {
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lock2(this->blobDoneCVMutex);
-  this->blobDoneCV.wait(lock2);
+  if (this->putReactor->isDone()) {
+    if (!this->putReactor->getStatus().ok()) {
+      throw std::runtime_error(this->putReactor->getStatus().error_message());
+    }
+  } else {
+    this->blobDoneCV.wait(lock2);
+  }
   // store in db only when we successfully upload chunks
   this->storeInDatabase();
 }

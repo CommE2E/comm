@@ -48,6 +48,7 @@ public:
 
   std::unique_ptr<grpc::Status>
   writeResponse(backup::PullBackupResponse *response) override;
+  void terminateCallback() override;
 };
 
 PullBackupReactor::PullBackupReactor(const backup::PullBackupRequest *request)
@@ -150,6 +151,12 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     }
   }
   throw std::runtime_error("unhandled state");
+}
+
+void PullBackupReactor::terminateCallback() {
+  if (!this->getReactor->getStatus().ok()) {
+    throw std::runtime_error(this->getReactor->getStatus().error_message());
+  }
 }
 
 } // namespace reactor
