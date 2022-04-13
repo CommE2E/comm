@@ -28,17 +28,23 @@ public:
 
   virtual std::unique_ptr<grpc::Status> readRequest(Request request) = 0;
   virtual void initialize(){};
+  virtual void validate(){};
   virtual void doneCallback(){};
   virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
+  this->status = status;
   this->terminateCallback();
+  try {
+    this->validate();
+  } catch (std::runtime_error &e) {
+    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  this->status = status;
   this->Finish(status);
 }
 
@@ -59,7 +65,10 @@ void ServerReadReactorBase<Request, Response>::OnDone() {
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
   if (!ok) {
-    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, "reading error"));
+    // Ending a connection on the other side results in the `ok` flag being set
+    // to false. It makes it impossible to detect a failure based just on the
+    // flag. We should manually check if the data we received is valid
+    this->terminate(grpc::Status::OK);
     return;
   }
   try {
