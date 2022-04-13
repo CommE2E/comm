@@ -32,21 +32,27 @@ public:
 
   virtual std::unique_ptr<grpc::Status> writeResponse(Response *response) = 0;
   virtual void initialize(){};
+  virtual void validate(){};
   virtual void doneCallback(){};
   virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::terminate(grpc::Status status) {
-  this->terminateCallback();
+  this->status = status;
+  try {
+    this->terminateCallback();
+    this->validate();
+  } catch (std::runtime_error &e) {
+    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  this->status = status;
   if (this->finished) {
     return;
   }
-  this->Finish(status);
+  this->Finish(this->status);
   this->finished = true;
 }
 

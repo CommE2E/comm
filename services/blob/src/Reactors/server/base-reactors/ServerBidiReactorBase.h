@@ -64,8 +64,8 @@ template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::terminate(
     ServerBidiReactorStatus status) {
   this->status = status;
-  this->terminateCallback();
   try {
+    this->terminateCallback();
     this->validate();
   } catch (std::runtime_error &e) {
     this->status = ServerBidiReactorStatus(
