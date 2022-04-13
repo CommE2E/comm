@@ -7,7 +7,7 @@ namespace reactor {
 template <class Request, class Response>
 class ClientReadReactorBase : public grpc::ClientReadReactor<Response> {
   Response response;
-  grpc::Status status;
+  grpc::Status status = grpc::Status::OK;
   bool done = false;
   bool initialized = false;
 
@@ -24,6 +24,7 @@ public:
 
   virtual std::unique_ptr<grpc::Status>
   readResponse(const Response &response) = 0;
+  virtual void validate(){};
   virtual void doneCallback(){};
   virtual void terminateCallback(){};
 };
@@ -31,14 +32,21 @@ public:
 template <class Request, class Response>
 void ClientReadReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
-  this->terminateCallback();
-  if (this->done) {
-    return;
+  if (this->status.ok()) {
+    this->status = status;
   }
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  this->status = status;
+  if (this->done) {
+    return;
+  }
+  this->terminateCallback();
+  try {
+    this->validate();
+  } catch (std::runtime_error &e) {
+    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
   this->done = true;
 }
 
@@ -54,7 +62,10 @@ void ClientReadReactorBase<Request, Response>::start() {
 template <class Request, class Response>
 void ClientReadReactorBase<Request, Response>::OnReadDone(bool ok) {
   if (!ok) {
-    this->terminate(grpc::Status(grpc::StatusCode::UNKNOWN, "read error"));
+    // Ending a connection on the other side results in the `ok` flag being set
+    // to false. It makes it impossible to detect a failure based just on the
+    // flag. We should manually check if the data we received is valid
+    this->terminate(grpc::Status::OK);
     return;
   }
   std::unique_ptr<grpc::Status> status = this->readResponse(this->response);

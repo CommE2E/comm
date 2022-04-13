@@ -6,7 +6,7 @@ namespace reactor {
 
 template <class Request, class Response>
 class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request> {
-  grpc::Status status;
+  grpc::Status status = grpc::Status::OK;
   bool done = false;
   bool initialized = 0;
   Request request;
@@ -22,6 +22,7 @@ public:
   void OnDone(const grpc::Status &status) override;
 
   virtual std::unique_ptr<grpc::Status> prepareRequest(Request &request) = 0;
+  virtual void validate(){};
   virtual void doneCallback(){};
   virtual void terminateCallback(){};
 };
@@ -53,14 +54,21 @@ void ClientWriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
 template <class Request, class Response>
 void ClientWriteReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
-  this->terminateCallback();
-  if (this->done) {
-    return;
+  if (this->status.ok()) {
+    this->status = status;
   }
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  this->status = status;
+  if (this->done) {
+    return;
+  }
+  this->terminateCallback();
+  try {
+    this->validate();
+  } catch (std::runtime_error &e) {
+    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
   this->done = true;
   this->StartWritesDone();
 }
