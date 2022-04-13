@@ -8,6 +8,7 @@ template <class Request, class Response>
 class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request> {
   grpc::Status status = grpc::Status::OK;
   bool done = false;
+  bool terminated = false;
   bool initialized = 0;
   Request request;
 
@@ -19,6 +20,7 @@ public:
   void OnWriteDone(bool ok) override;
   void terminate(const grpc::Status &status);
   bool isDone();
+  bool isTerminated();
   void OnDone(const grpc::Status &status) override;
 
   virtual std::unique_ptr<grpc::Status> prepareRequest(Request &request) = 0;
@@ -64,7 +66,7 @@ void ClientWriteReactorBase<Request, Response>::terminate(
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  if (this->done) {
+  if (this->terminated) {
     return;
   }
   this->terminateCallback();
@@ -73,7 +75,7 @@ void ClientWriteReactorBase<Request, Response>::terminate(
   } catch (std::runtime_error &e) {
     this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
-  this->done = true;
+  this->terminated = true;
   this->StartWritesDone();
 }
 
@@ -83,9 +85,15 @@ bool ClientWriteReactorBase<Request, Response>::isDone() {
 }
 
 template <class Request, class Response>
+bool ClientWriteReactorBase<Request, Response>::isTerminated() {
+  return this->terminated;
+}
+
+template <class Request, class Response>
 void ClientWriteReactorBase<Request, Response>::OnDone(
     const grpc::Status &status) {
   this->terminate(status);
+  this->done = true;
   this->doneCallback();
 }
 
