@@ -142,7 +142,6 @@ div.lastMessage.unread {
 }
 div.dark {
   color: var(--thread-color-read);
-  font-size: var(--s-font-14);
   padding-right: 16px;
 }
 .read {
