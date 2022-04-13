@@ -1,0 +1,37 @@
+div.form_title {
+  padding: 6px 6px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  vertical-align: top;
+  color: var(--fg);
+}
+
+div.edit_thread_privacy_container {
+  margin-bottom: 6px;
+}
+
+div.form_enum_selector {
+  display: inline-block;
+  padding-bottom: 4px;
+}
+div.form_enum_selector > div.form_enum_container {
+  padding-top: 5px;
+}
+div.form_enum_selector > div.form_enum_container > input {
+  vertical-align: top;
+  margin-top: 4px;
+}
+div.form_enum_selector div.form_enum_option {
+  display: inline-block;
+  font-size: 15px;
+  font-weight: 600;
+  padding-left: 3px;
+}
+div.form_enum_selector span.form_enum_description {
+  display: block;
+  font-family: var(--font-stack);
+  font-weight: normal;
+  font-size: 13px;
+  max-width: 260px;
+  color: gray;
+}

@@ -13,11 +13,7 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import {
-  threadHasPermission,
-  threadTypeDescriptions,
-  robotextName,
-} from 'lib/shared/thread-utils';
+import { threadHasPermission, robotextName } from 'lib/shared/thread-utils';
 import {
   type ThreadInfo,
   threadTypes,
@@ -43,8 +39,7 @@ import Modal from '../modal.react';
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react';
 import ThreadSettingsGeneralTab from './thread-settings-general-tab.react';
 import css from './thread-settings-modal.css';
-
-const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
+import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react';
 
 type TabType = 'general' | 'privacy' | 'delete';
 type TabProps = {
@@ -205,57 +200,11 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       );
     } else if (this.state.currentTabType === 'privacy') {
       mainContent = (
-        <div className={css.edit_thread_privacy_container}>
-          <div className={css['modal-radio-selector']}>
-            <div className={css.form_title}>Thread type</div>
-            <div className={css.form_enum_selector}>
-              <div className={css.form_enum_container}>
-                <input
-                  type="radio"
-                  name="edit-thread-type"
-                  id="edit-thread-open"
-                  value={COMMUNITY_OPEN_SUBTHREAD}
-                  checked={
-                    this.possiblyChangedValue('type') ===
-                    COMMUNITY_OPEN_SUBTHREAD
-                  }
-                  onChange={this.onChangeThreadType}
-                  disabled={inputDisabled}
-                />
-                <div className={css.form_enum_option}>
-                  <label htmlFor="edit-thread-open">
-                    Open
-                    <span className={css.form_enum_description}>
-                      {threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD]}
-                    </span>
-                  </label>
-                </div>
-              </div>
-              <div className={css.form_enum_container}>
-                <input
-                  type="radio"
-                  name="edit-thread-type"
-                  id="edit-thread-closed"
-                  value={COMMUNITY_SECRET_SUBTHREAD}
-                  checked={
-                    this.possiblyChangedValue('type') ===
-                    COMMUNITY_SECRET_SUBTHREAD
-                  }
-                  onChange={this.onChangeThreadType}
-                  disabled={inputDisabled}
-                />
-                <div className={css.form_enum_option}>
-                  <label htmlFor="edit-thread-closed">
-                    Secret
-                    <span className={css.form_enum_description}>
-                      {threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD]}
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ThreadSettingsPrivacyTab
+          possiblyChangedThreadType={this.possiblyChangedValue('type')}
+          onChangeThreadType={this.onChangeThreadType}
+          inputDisabled={inputDisabled}
+        />
       );
     } else if (this.state.currentTabType === 'delete') {
       mainContent = (
