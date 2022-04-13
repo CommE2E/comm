@@ -28,6 +28,7 @@ public:
   std::unique_ptr<grpc::Status>
   readResponse(blob::GetResponse &response) override;
   void doneCallback() override;
+  grpc::Status getStatus() const;
 };
 
 BlobGetClientReactor::BlobGetClientReactor(
@@ -47,6 +48,10 @@ BlobGetClientReactor::readResponse(blob::GetResponse &response) {
 
 void BlobGetClientReactor::doneCallback() {
   this->dataChunks->write("");
+}
+
+grpc::Status BlobGetClientReactor::getStatus() const {
+  return this->status;
 }
 
 } // namespace reactor
