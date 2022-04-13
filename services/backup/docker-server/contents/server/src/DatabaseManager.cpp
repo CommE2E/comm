@@ -126,9 +126,11 @@ void DatabaseManager::putLogItem(const LogItem &item) {
   request.AddItem(
       LogItem::FIELD_VALUE,
       Aws::DynamoDB::Model::AttributeValue(item.getValue()));
-  request.AddItem(
-      LogItem::FIELD_ATTACHMENT_HOLDERS,
-      Aws::DynamoDB::Model::AttributeValue(item.getAttachmentHolders()));
+  if (!item.getAttachmentHolders().empty()) {
+    request.AddItem(
+        LogItem::FIELD_ATTACHMENT_HOLDERS,
+        Aws::DynamoDB::Model::AttributeValue(item.getAttachmentHolders()));
+  }
 
   this->innerPutItem(std::make_shared<LogItem>(item), request);
 }
