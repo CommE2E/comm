@@ -14,6 +14,7 @@ template <class Request, class Response>
 class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response> {
   Response response;
   bool initialized = false;
+  bool finished = false;
 
   void terminate(grpc::Status status);
 
@@ -42,7 +43,11 @@ void ServerWriteReactorBase<Request, Response>::terminate(grpc::Status status) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
   this->status = status;
+  if (this->finished) {
+    return;
+  }
   this->Finish(status);
+  this->finished = true;
 }
 
 template <class Request, class Response>
