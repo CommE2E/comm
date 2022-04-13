@@ -8,6 +8,7 @@ template <class Request, class Response>
 class ClientBidiReactorBase
     : public grpc::ClientBidiReactor<Request, Response> {
   std::shared_ptr<Response> response = nullptr;
+  bool terminated = false;
   bool done = false;
   bool initialized = 0;
 
@@ -20,6 +21,7 @@ public:
 
   void nextWrite();
   void terminate(const grpc::Status &status);
+  bool isTerminated();
   bool isDone();
   void OnWriteDone(bool ok) override;
   void OnReadDone(bool ok) override;
@@ -63,7 +65,7 @@ void ClientBidiReactorBase<Request, Response>::terminate(
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  if (this->done) {
+  if (this->terminated) {
     return;
   }
   this->terminateCallback();
@@ -73,7 +75,12 @@ void ClientBidiReactorBase<Request, Response>::terminate(
     this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
   this->StartWritesDone();
-  this->done = true;
+  this->terminated = true;
+}
+
+template <class Request, class Response>
+bool ClientBidiReactorBase<Request, Response>::isTerminated() {
+  return this->terminated;
 }
 
 template <class Request, class Response>
@@ -104,6 +111,7 @@ void ClientBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::OnDone(
     const grpc::Status &status) {
+  this->done = true;
   this->terminate(status);
   this->doneCallback();
 }
