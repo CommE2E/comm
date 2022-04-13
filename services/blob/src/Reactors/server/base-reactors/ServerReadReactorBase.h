@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <atomic>
 
 namespace comm {
 namespace network {
@@ -13,6 +14,7 @@ namespace reactor {
 template <class Request, class Response>
 class ServerReadReactorBase : public grpc::ServerReadReactor<Request> {
   Request request;
+  std::atomic<bool> finished = false;
 
   void terminate(grpc::Status status);
 
@@ -45,7 +47,11 @@ void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
+  if (this->finished) {
+    return;
+  }
   this->Finish(status);
+  this->finished = true;
 }
 
 template <class Request, class Response>

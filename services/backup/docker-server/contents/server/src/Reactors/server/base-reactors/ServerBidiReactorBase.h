@@ -2,6 +2,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <atomic>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -25,6 +26,7 @@ class ServerBidiReactorBase
     : public grpc::ServerBidiReactor<Request, Response> {
   Request request;
   Response response;
+  std::atomic<bool> finished = false;
 
 protected:
   ServerBidiReactorStatus status;
@@ -70,12 +72,16 @@ void ServerBidiReactorBase<Request, Response>::terminate(
     this->status = ServerBidiReactorStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
+  if (this->finished) {
+    return;
+  }
   if (this->status.sendLastResponse) {
     this->StartWriteAndFinish(
         &this->response, grpc::WriteOptions(), this->status.status);
   } else {
     this->Finish(this->status.status);
   }
+  this->finished = true;
 }
 
 template <class Request, class Response>
