@@ -45,7 +45,7 @@ public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
       backup::CreateNewBackupRequest request,
       backup::CreateNewBackupResponse *response) override;
-  void terminateCallback();
+  void terminateCallback() override;
 };
 
 std::string CreateNewBackupReactor::generateBackupID() {
@@ -109,7 +109,13 @@ void CreateNewBackupReactor::terminateCallback() {
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lock2(this->blobDoneCVMutex);
-  this->blobDoneCV.wait(lock2);
+  if (this->putReactor->isDone()) {
+    if (!this->putReactor->getStatus().ok()) {
+      throw std::runtime_error(this->putReactor->getStatus().error_message());
+    }
+  } else {
+    this->blobDoneCV.wait(lock2);
+  }
   try {
     // TODO add recovery data
     // TODO handle attachments holders
