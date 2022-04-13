@@ -1,0 +1,43 @@
+div.modal_body p.confirm_account_password {
+  margin-bottom: 4px;
+  color: var(--fg);
+}
+
+div.form_title {
+  padding: 6px 6px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  vertical-align: top;
+  color: var(--fg);
+}
+div.form_content {
+  display: flex;
+  font-family: var(--font-stack);
+  color: var(--fg);
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+div.form_content input {
+  margin-bottom: 4px;
+}
+
+div.form_content textarea {
+  padding: 12px;
+  background: var(--modal-bg);
+  color: var(--fg);
+  border: 1px solid var(--border-color);
+  font-size: var(--m-font-16);
+  border-radius: 4px;
+  width: 100%;
+}
+
+.italic {
+  font-style: italic;
+  color: var(--fg);
+}
+
+div.edit_thread_account_password {
+  border-top: 2px solid #efefef;
+  padding-top: 4px;
+  margin-top: 2px;
+}
