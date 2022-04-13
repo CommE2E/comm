@@ -39,9 +39,8 @@ import { firstLine } from 'lib/utils/string-utils';
 import Button from '../../components/button.react';
 import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
-import Input from '../input.react';
 import Modal from '../modal.react';
-import ColorSelector from './color-selector.react';
+import ThreadSettingsGeneralTab from './thread-settings-general-tab.react';
 import css from './thread-settings-modal.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
@@ -190,39 +189,18 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     let mainContent = null;
     if (this.state.currentTabType === 'general') {
       mainContent = (
-        <div>
-          <div>
-            <div className={css.form_title}>Thread name</div>
-            <div className={css.form_content}>
-              <Input
-                type="text"
-                value={firstLine(this.possiblyChangedValue('name'))}
-                placeholder={this.namePlaceholder()}
-                onChange={this.onChangeName}
-                disabled={inputDisabled}
-                ref={this.nameInputRef}
-              />
-            </div>
-          </div>
-          <div className={css.form_textarea_container}>
-            <div className={css.form_title}>Description</div>
-            <div className={css.form_content}>
-              <textarea
-                value={this.possiblyChangedValue('description')}
-                placeholder="Thread description"
-                onChange={this.onChangeDescription}
-                disabled={inputDisabled}
-              />
-            </div>
-          </div>
-          <div className={css.edit_thread_color_container}>
-            <div className={`${css.form_title} ${css.color_title}`}>Color</div>
-            <ColorSelector
-              currentColor={this.possiblyChangedValue('color')}
-              onColorSelection={this.onChangeColor}
-            />
-          </div>
-        </div>
+        <ThreadSettingsGeneralTab
+          threadNameValue={firstLine(this.possiblyChangedValue('name'))}
+          threadNamePlaceholder={this.namePlaceholder()}
+          threadNameOnChange={this.onChangeName}
+          threadNameDisabled={inputDisabled}
+          threadNameInputRef={this.nameInputRef}
+          threadDescriptionValue={this.possiblyChangedValue('description')}
+          threadDescriptionOnChange={this.onChangeDescription}
+          threadDescriptionDisabled={inputDisabled}
+          threadColorCurrentColor={this.possiblyChangedValue('color')}
+          threadColorOnColorSelection={this.onChangeColor}
+        />
       );
     } else if (this.state.currentTabType === 'privacy') {
       mainContent = (
