@@ -3,13 +3,12 @@
 import { create } from '@lottiefiles/lottie-interactivity';
 import * as React from 'react';
 
+import { useIsomorphicLayoutEffect } from 'lib/hooks/isomorphic-layout-effect.react';
+
 import { assetsCacheURLPrefix } from './asset-meta-data';
 import css from './keyservers.css';
 import ReadDocsButton from './read-docs-btn.react';
 import StarBackground from './star-background.react';
-
-const useIsomorphicLayoutEffect =
-  typeof window !== 'undefined' ? React.useLayoutEffect : React.useEffect;
 
 function Keyservers(): React.Node {
   React.useEffect(() => {
