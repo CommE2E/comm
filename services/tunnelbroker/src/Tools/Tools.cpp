@@ -28,7 +28,7 @@ std::string generateRandomString(std::size_t length) {
   return random_string;
 }
 
-long long getCurrentTimestamp() {
+int64_t getCurrentTimestamp() {
   using namespace std::chrono;
   return duration_cast<milliseconds>(system_clock::now().time_since_epoch())
       .count();

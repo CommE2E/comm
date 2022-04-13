@@ -15,7 +15,7 @@ class AmqpManager {
 
   std::unique_ptr<AMQP::TcpChannel> amqpChannel;
   std::atomic<bool> amqpReady;
-  std::atomic<long long> lastConnectionTimestamp;
+  std::atomic<int64_t> lastConnectionTimestamp;
   void connectInternal();
 
 public:

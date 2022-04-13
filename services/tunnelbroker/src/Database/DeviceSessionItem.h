@@ -16,7 +16,7 @@ class DeviceSessionItem : public Item {
   std::string deviceType;
   std::string appVersion;
   std::string deviceOs;
-  long long checkpointTime = 0;
+  int64_t checkpointTime = 0;
 
   void validate() const override;
 
@@ -40,7 +40,7 @@ public:
   std::string getDeviceType() const;
   std::string getAppVersion() const;
   std::string getDeviceOs() const;
-  long long getCheckpointTime() const;
+  int64_t getCheckpointTime() const;
 
   DeviceSessionItem() {
   }

@@ -115,7 +115,7 @@ std::string DeviceSessionItem::getDeviceOs() const {
   return this->deviceOs;
 }
 
-long long DeviceSessionItem::getCheckpointTime() const {
+int64_t DeviceSessionItem::getCheckpointTime() const {
   return this->checkpointTime;
 }
 
