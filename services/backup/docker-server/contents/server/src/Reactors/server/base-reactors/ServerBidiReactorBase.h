@@ -57,6 +57,8 @@ ServerBidiReactorBase<Request, Response>::ServerBidiReactorBase() {
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::OnDone() {
   this->doneCallback();
+  // This looks weird but apparently it is okay to do this. More information:
+  // https://phabricator.ashoat.com/D3246#87890
   delete this;
 }
 
