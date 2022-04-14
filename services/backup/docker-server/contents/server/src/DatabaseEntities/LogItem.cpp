@@ -45,7 +45,12 @@ void LogItem::validate() const {
   if (!this->value.size()) {
     throw std::runtime_error("value empty");
   }
-  // todo maybe check if values is not too big if persistedInBlob is false
+  if (!this->persistedInBlob &&
+      this->value.size() > LOG_DATA_SIZE_DATABASE_LIMIT) {
+    throw std::runtime_error(
+        "the value of this log is too big to be stored in the database, it "
+        "should be stored in the blob instead");
+  }
 }
 
 void LogItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
