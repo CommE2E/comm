@@ -5,6 +5,8 @@ import * as React from 'react';
 import {
   leaveThread,
   leaveThreadActionTypes,
+  changeThreadSettingsActionTypes,
+  changeThreadSettings,
 } from 'lib/actions/thread-actions';
 import { childThreadInfos } from 'lib/selectors/thread-selectors';
 import {
@@ -156,6 +158,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callLeaveThread = useServerCall(leaveThread);
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
 
   const onConfirmLeaveThread = React.useCallback(() => {
     dispatchActionPromise(
@@ -196,7 +199,19 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [onClickLeaveThread, threadInfo]);
 
-  const onClickPromoteThread = React.useCallback(() => {}, []);
+  const onClickPromoteThread = React.useCallback(() => {
+    try {
+      dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        callChangeThreadSettings({
+          threadID: threadInfo.id,
+          changes: { type: threadTypes.COMMUNITY_OPEN_SUBTHREAD },
+        }),
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }, [callChangeThreadSettings, dispatchActionPromise, threadInfo.id]);
 
   const promoteSubchannelItem = React.useMemo(() => {
     return (
