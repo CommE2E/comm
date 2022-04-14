@@ -90,6 +90,8 @@ void ServerWriteReactorBase<Request, Response>::NextWrite() {
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::OnDone() {
   this->doneCallback();
+  // This looks weird but apparently it is okay to do this. More information:
+  // https://phabricator.ashoat.com/D3246#87890
   delete this;
 }
 
