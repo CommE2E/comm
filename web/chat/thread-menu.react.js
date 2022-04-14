@@ -21,6 +21,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import { isDev } from 'lib/utils/dev-utils';
 
 import MenuItem from '../components/menu-item.react';
 import Menu from '../components/menu.react';
@@ -195,6 +196,19 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [onClickLeaveThread, threadInfo]);
 
+  const onClickPromoteThread = React.useCallback(() => {}, []);
+
+  const promoteSubchannelItem = React.useMemo(() => {
+    return (
+      <MenuItem
+        key="promote"
+        text="Promote Thread"
+        icon="message-square-lines"
+        onClick={onClickPromoteThread}
+      />
+    );
+  }, [onClickPromoteThread]);
+
   const menuItems = React.useMemo(() => {
     const notificationsItem = (
       <MenuItem key="notifications" text="Notifications" icon="bell" />
@@ -204,6 +218,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     // TODO: Enable menu items when the modals are implemented
     const SHOW_NOTIFICATIONS = false;
     const SHOW_CREATE_SUBCHANNELS = false;
+    const SHOW_PROMOTE_SUBCHANNEL = isDev;
 
     const items = [
       settingsItem,
@@ -213,6 +228,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       viewSubchannelsItem,
       SHOW_CREATE_SUBCHANNELS && createSubchannelsItem,
       leaveThreadItem && separator,
+      SHOW_PROMOTE_SUBCHANNEL && promoteSubchannelItem,
       leaveThreadItem,
     ];
     return items.filter(Boolean);
@@ -221,6 +237,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     membersItem,
     sidebarItem,
     viewSubchannelsItem,
+    promoteSubchannelItem,
     createSubchannelsItem,
     leaveThreadItem,
   ]);
