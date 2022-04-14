@@ -65,6 +65,8 @@ ServerReadReactorBase<Request, Response>::ServerReadReactorBase(
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::OnDone() {
   this->doneCallback();
+  // This looks weird but apparently it is okay to do this. More information:
+  // https://phabricator.ashoat.com/D3246#87890
   delete this;
 }
 
