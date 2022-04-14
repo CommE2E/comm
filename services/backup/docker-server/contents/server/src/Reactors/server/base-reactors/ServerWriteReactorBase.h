@@ -17,6 +17,7 @@ class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response> {
   bool finished = false;
 
   void terminate(grpc::Status status);
+  void nextWrite();
 
 protected:
   // this is a const ref since it's not meant to be modified
@@ -26,7 +27,7 @@ protected:
 public:
   ServerWriteReactorBase(const Request *request);
 
-  virtual void NextWrite();
+  void start();
   void OnDone() override;
   void OnWriteDone(bool ok) override;
 
@@ -60,15 +61,15 @@ template <class Request, class Response>
 ServerWriteReactorBase<Request, Response>::ServerWriteReactorBase(
     const Request *request)
     : request(*request) {
-  // we cannot call this->NextWrite() here because it's going to call it on
+  // we cannot call this->nextWrite() here because it's going to call it on
   // the base class, not derived leading to the runtime error of calling
   // a pure virtual function
-  // NextWrite has to be exposed as a public function and called explicitly
+  // nextWrite has to be exposed as a public function and called explicitly
   // to initialize writing
 }
 
 template <class Request, class Response>
-void ServerWriteReactorBase<Request, Response>::NextWrite() {
+void ServerWriteReactorBase<Request, Response>::nextWrite() {
   try {
     if (!this->initialized) {
       this->initialize();
@@ -88,6 +89,11 @@ void ServerWriteReactorBase<Request, Response>::NextWrite() {
 }
 
 template <class Request, class Response>
+void ServerWriteReactorBase<Request, Response>::start() {
+  this->nextWrite();
+}
+
+template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::OnDone() {
   this->doneCallback();
   // This looks weird but apparently it is okay to do this. More information:
@@ -101,7 +107,7 @@ void ServerWriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
     this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, "writing error"));
     return;
   }
-  this->NextWrite();
+  this->nextWrite();
 }
 
 } // namespace reactor
