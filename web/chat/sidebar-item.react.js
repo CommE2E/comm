@@ -26,7 +26,7 @@ function SidebarItem(props: Props): React.Node {
 
   return (
     <>
-      <SWMansionIcon icon="right-angle-arrow" size={28} />
+      <SWMansionIcon icon="right-angle-arrow" color="transparent" size={28} />
       <div className={css.spacer} />
       <a className={css.threadButtonSidebar} onClick={onClick}>
         <div className={css.threadRow}>
