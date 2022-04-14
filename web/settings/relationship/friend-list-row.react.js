@@ -3,6 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
+import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 
 import SWMansionIcon from '../../SWMansionIcon.react';
@@ -11,10 +12,15 @@ import type { UserRowProps } from './user-list.react';
 
 function FriendListRow(props: UserRowProps): React.Node {
   const { userInfo } = props;
+
+  const { friendUser, unfriendUser } = useRelationshipCallbacks(userInfo.id);
   let buttons = null;
   if (userInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT) {
     buttons = (
-      <button className={classnames([css.button, css.destructive])}>
+      <button
+        className={classnames([css.button, css.destructive])}
+        onClick={unfriendUser}
+      >
         Cancel request
       </button>
     );
@@ -23,8 +29,13 @@ function FriendListRow(props: UserRowProps): React.Node {
   ) {
     buttons = (
       <>
-        <button className={css.button}>Accept</button>
-        <button className={classnames([css.button, css.destructive])}>
+        <button className={css.button} onClick={friendUser}>
+          Accept
+        </button>
+        <button
+          className={classnames([css.button, css.destructive])}
+          onClick={unfriendUser}
+        >
           Reject
         </button>
       </>
