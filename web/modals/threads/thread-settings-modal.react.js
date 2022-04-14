@@ -99,7 +99,6 @@ type State = {
 };
 class ThreadSettingsModal extends React.PureComponent<Props, State> {
   nameInput: ?HTMLInputElement;
-  newThreadPasswordInput: ?HTMLInputElement;
   accountPasswordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
@@ -400,10 +399,6 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   nameInputRef = (nameInput: ?HTMLInputElement) => {
     this.nameInput = nameInput;
-  };
-
-  newThreadPasswordInputRef = (newThreadPasswordInput: ?HTMLInputElement) => {
-    this.newThreadPasswordInput = newThreadPasswordInput;
   };
 
   accountPasswordInputRef = (accountPasswordInput: ?HTMLInputElement) => {
