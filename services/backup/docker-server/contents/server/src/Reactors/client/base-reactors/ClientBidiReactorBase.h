@@ -12,6 +12,8 @@ class ClientBidiReactorBase
   bool done = false;
   bool initialized = 0;
 
+  void nextWrite();
+
 protected:
   Request request;
   grpc::Status status = grpc::Status::OK;
@@ -19,7 +21,7 @@ protected:
 public:
   grpc::ClientContext context;
 
-  void nextWrite();
+  void start();
   void terminate(const grpc::Status &status);
   bool isTerminated();
   bool isDone();
@@ -54,6 +56,11 @@ void ClientBidiReactorBase<Request, Response>::nextWrite() {
     this->StartCall();
     this->initialized = true;
   }
+}
+
+template <class Request, class Response>
+void ClientBidiReactorBase<Request, Response>::start() {
+  this->nextWrite();
 }
 
 template <class Request, class Response>

@@ -33,7 +33,7 @@ public:
           "put reactor is being used but has not been initialized");
     }
     this->stub->async()->Put(&putReactor->context, &(*putReactor));
-    putReactor->nextWrite();
+    putReactor->start();
   }
 
   void get(std::shared_ptr<reactor::BlobGetClientReactor> getReactor) {
