@@ -43,7 +43,7 @@ BackupServiceImpl::PullBackup(
     grpc::CallbackServerContext *context,
     const backup::PullBackupRequest *request) {
   reactor::PullBackupReactor *reactor = new reactor::PullBackupReactor(request);
-  reactor->NextWrite();
+  reactor->start();
   return reactor;
 }
 
