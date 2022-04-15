@@ -1,28 +1,13 @@
 // @flow
 
 import * as React from 'react';
-import { Text, Alert, ActivityIndicator, View } from 'react-native';
+import { Text, ActivityIndicator, View, Alert } from 'react-native';
 
-import {
-  changeThreadSettingsActionTypes,
-  changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import {
-  type ThreadInfo,
-  type UpdateThreadRequest,
-  type ChangeThreadSettingsPayload,
-  threadTypes,
-} from 'lib/types/thread-types';
-import {
-  type DispatchActionPromise,
-  useServerCall,
-  useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
-import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../../themes/colors';
 import type { ViewStyle } from '../../types/styles';
 
@@ -32,16 +17,10 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +loadingStatus: LoadingStatus,
   +colors: Colors,
   +styles: typeof unboundStyles,
-  // Redux dispatch functions
-  +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  +changeThreadSettings: (
-    request: UpdateThreadRequest,
-  ) => Promise<ChangeThreadSettingsPayload>,
+  +promoteSidebar: () => mixed,
 };
 class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
   render() {
@@ -56,7 +35,7 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
     return (
       <View style={this.props.styles.container}>
         <Button
-          onPress={this.onPress}
+          onPress={this.props.promoteSidebar}
           style={[this.props.styles.button, this.props.buttonStyle]}
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
@@ -66,28 +45,6 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
         </Button>
       </View>
     );
-  }
-
-  onPress = () => {
-    this.props.dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      this.changeThreadSettings(),
-    );
-  };
-
-  async changeThreadSettings() {
-    const threadID = this.props.threadInfo.id;
-    try {
-      return await this.props.changeThreadSettings({
-        threadID,
-        changes: { type: threadTypes.COMMUNITY_OPEN_SUBTHREAD },
-      });
-    } catch (e) {
-      Alert.alert('Unknown error', 'Uhh... try again?', undefined, {
-        cancelable: true,
-      });
-      throw e;
-    }
   }
 }
 
@@ -108,25 +65,29 @@ const unboundStyles = {
   },
 };
 
-const loadingStatusSelector = createLoadingStatusSelector(
-  changeThreadSettingsActionTypes,
-);
+const onError = () => {
+  Alert.alert('Unknown error', 'Uhh... try again?', undefined, {
+    cancelable: true,
+  });
+};
 
 const ConnectedThreadSettingsPromoteSidebar: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedThreadSettingsPromoteSidebar(props: BaseProps) {
-    const loadingStatus = useSelector(loadingStatusSelector);
+    const { threadInfo } = props;
     const colors = useColors();
     const styles = useStyles(unboundStyles);
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useServerCall(changeThreadSettings);
+    const { onPromoteSidebar, loading } = usePromoteSidebar(
+      threadInfo,
+      onError,
+    );
+
     return (
       <ThreadSettingsPromoteSidebar
         {...props}
-        loadingStatus={loadingStatus}
         colors={colors}
         styles={styles}
-        dispatchActionPromise={dispatchActionPromise}
-        changeThreadSettings={callChangeThreadSettings}
+        promoteSidebar={onPromoteSidebar}
+        loadingStatus={loading}
       />
     );
   },
