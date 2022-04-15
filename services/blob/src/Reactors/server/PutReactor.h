@@ -20,6 +20,7 @@ class PutReactor
   std::unique_ptr<database::S3Path> s3Path;
   std::shared_ptr<database::BlobItem> blobItem;
   std::unique_ptr<MultiPartUploader> uploader;
+  bool dataExists = false;
 
 public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
@@ -43,6 +44,7 @@ public:
         this->s3Path =
             std::make_unique<database::S3Path>(this->blobItem->getS3Path());
         response->set_dataexists(true);
+        this->dataExists = true;
         return std::make_unique<ServerBidiReactorStatus>(
             grpc::Status::OK, true);
       }
@@ -73,8 +75,14 @@ public:
     if (!this->status.status.ok()) {
       return;
     }
-    if (!this->readingAborted || this->uploader == nullptr) {
-      throw std::runtime_error(this->status.status.error_message());
+    if (this->uploader == nullptr) {
+      if (!this->dataExists) {
+        throw std::runtime_error("uploader not initialized as expected");
+      }
+      return;
+    }
+    if (!this->readingAborted) {
+      return;
     }
     if (!currentChunk.empty()) {
       this->uploader->addPart(this->currentChunk);
