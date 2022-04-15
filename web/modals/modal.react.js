@@ -12,6 +12,7 @@ type Props = {
   +name: React.Node,
   +icon?: Icon,
   +onClose: () => void,
+  +withCloseButton?: boolean,
   +children?: React.Node,
   +size?: ModalSize,
   +fixedHeight?: boolean,
@@ -29,7 +30,15 @@ class Modal extends React.PureComponent<Props> {
   }
 
   render(): React.Node {
-    const { size, children, onClose, fixedHeight, name, icon } = this.props;
+    const {
+      size,
+      children,
+      onClose,
+      fixedHeight,
+      name,
+      icon,
+      withCloseButton = false,
+    } = this.props;
 
     const overlayClasses = classNames(
       css['modal-overlay'],
@@ -49,6 +58,15 @@ class Modal extends React.PureComponent<Props> {
       headerIcon = <SWMansionIcon size={24} icon={icon} />;
     }
 
+    let cornerCloseButton;
+    if (withCloseButton) {
+      cornerCloseButton = (
+        <span className={css['modal-close']} onClick={onClose}>
+          <SWMansionIcon size={24} icon="cross" />
+        </span>
+      );
+    }
+
     return (
       <div
         className={overlayClasses}
@@ -60,9 +78,7 @@ class Modal extends React.PureComponent<Props> {
         <div className={modalContainerClasses}>
           <div className={modalClasses}>
             <div className={css['modal-header']}>
-              <span className={css['modal-close']} onClick={onClose}>
-                ×
-              </span>
+              {cornerCloseButton}
               <h2>
                 {headerIcon}
                 {name}
