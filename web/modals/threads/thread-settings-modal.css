@@ -11,10 +11,6 @@ div.modal_body p {
   font-size: 14px;
   text-align: center;
 }
-div.modal_body p.confirm_account_password {
-  margin-bottom: 4px;
-  color: var(--fg);
-}
 div.modal_body div.form_footer {
   display: flex;
   padding-top: 8px;
@@ -25,38 +21,6 @@ div.modal_body div.form_footer div.modal_form_error {
   font-style: italic;
   padding-left: 6px;
   align-self: center;
-}
-div.modal_body div.form_title {
-  padding: 6px 6px 0 0;
-  font-size: 14px;
-  font-weight: 600;
-  vertical-align: top;
-  color: var(--fg);
-}
-div.modal_body div.form_content {
-  display: flex;
-  font-family: var(--font-stack);
-  color: var(--fg);
-  margin-top: 4px;
-  margin-bottom: 8px;
-}
-div.modal_body div.form_content input {
-  margin-bottom: 4px;
-}
-
-div.form_content textarea {
-  padding: 12px;
-  background: var(--modal-bg);
-  color: var(--fg);
-  border: 1px solid var(--border-color);
-  font-size: var(--m-font-16);
-  border-radius: 4px;
-  width: 100%;
-}
-
-.italic {
-  font-style: italic;
-  color: var(--fg);
 }
 
 ul.tab_panel {
@@ -74,65 +38,6 @@ ul.tab_panel > li {
 }
 ul.tab_panel > li > a {
   color: #555555;
-}
-
-div.form_textarea_container {
-  margin-top: 1px;
-}
-
-div.edit_thread_color_container {
-  margin-top: -5px;
-}
-
-div.color_title {
-  margin-top: 4px;
-}
-
-div.edit_thread_privacy_container {
-  margin-bottom: 6px;
-}
-
-div.form_enum_selector {
-  display: inline-block;
-  padding-bottom: 4px;
-}
-div.form_enum_selector > div.form_enum_container {
-  padding-top: 5px;
-}
-div.form_enum_selector > div.form_enum_container > input {
-  vertical-align: top;
-  margin-top: 4px;
-}
-div.form_enum_selector div.form_enum_option {
-  display: inline-block;
-  font-size: 15px;
-  font-weight: 600;
-  padding-left: 3px;
-}
-div.form_enum_selector span.form_enum_description {
-  display: block;
-  font-family: var(--font-stack);
-  font-weight: normal;
-  font-size: 13px;
-  max-width: 260px;
-  color: gray;
-}
-
-div.form_enum_selector > div.form_enum_container {
-  padding-top: 5px;
-}
-div.form_enum_selector > div.form_enum_container > input {
-  vertical-align: top;
-  margin-top: 4px;
-}
-.italic {
-  font-style: italic;
-}
-
-div.edit_thread_account_password {
-  border-top: 2px solid #efefef;
-  padding-top: 4px;
-  margin-top: 2px;
 }
 
 .save_button {
