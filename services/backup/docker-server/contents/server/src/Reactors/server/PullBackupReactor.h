@@ -63,12 +63,10 @@ void PullBackupReactor::initializeGetReactor(const std::string &holder) {
     throw std::runtime_error(
         "get reactor cannot be initialized when backup item is missing");
   }
-  if (this->getReactor == nullptr) {
-    this->getReactor = std::make_shared<reactor::BlobGetClientReactor>(
-        holder, this->dataChunks);
-    this->getReactor->request.set_holder(holder);
-    this->blobClient.get(this->getReactor);
-  }
+  this->getReactor.reset(
+      new reactor::BlobGetClientReactor(holder, this->dataChunks));
+  this->getReactor->request.set_holder(holder);
+  this->blobClient.get(this->getReactor);
 }
 
 void PullBackupReactor::initialize() {
@@ -99,7 +97,9 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
   // as there may be multiple threads from the pool taking over here
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   if (this->state == State::COMPACTION) {
-    this->initializeGetReactor(this->backupItem->getCompactionHolder());
+    if (this->getReactor == nullptr) {
+      this->initializeGetReactor(this->backupItem->getCompactionHolder());
+    }
     std::string dataChunk;
     this->dataChunks->blockingRead(dataChunk);
     if (!dataChunk.empty()) {
@@ -110,7 +110,9 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
       throw std::runtime_error(
           "dangling data discovered after reading compaction");
     }
-    this->getReactor = nullptr;
+    if (!this->getReactor->getStatus().ok()) {
+      throw std::runtime_error(this->getReactor->getStatus().error_message());
+    }
     this->state = State::LOGS;
   }
   if (this->state == State::LOGS) {
@@ -119,6 +121,9 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
       return std::make_unique<grpc::Status>(grpc::Status::OK);
     }
     if (this->currentLogIndex == this->logs.size()) {
+      if (!this->dataChunks->isEmpty()) {
+        throw std::runtime_error("dangling data discovered after reading logs");
+      }
       return std::make_unique<grpc::Status>(grpc::Status::OK);
     }
     if (this->currentLogIndex > this->logs.size()) {
@@ -137,15 +142,26 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     }
     std::string dataChunk;
     this->dataChunks->blockingRead(dataChunk);
+    if (!this->getReactor->getStatus().ok()) {
+      throw std::runtime_error(this->getReactor->getStatus().error_message());
+    }
     if (dataChunk.empty()) {
       ++this->currentLogIndex;
       this->currentLog = nullptr;
-    } else {
-      response->set_logchunk(dataChunk);
+      return nullptr;
     }
-    return nullptr;
   }
-  throw std::runtime_error("unhandled state");
+  std::string dataChunk;
+  this->dataChunks->blockingRead(dataChunk);
+  if (dataChunk.empty()) {
+    ++this->currentLogIndex;
+    this->currentLog = nullptr;
+  } else {
+    response->set_logchunk(dataChunk);
+  }
+  return nullptr;
+}
+throw std::runtime_error("unhandled state");
 }
 
 void PullBackupReactor::terminateCallback() {

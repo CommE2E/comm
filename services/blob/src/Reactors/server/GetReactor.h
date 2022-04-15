@@ -38,7 +38,7 @@ public:
         std::min(this->chunkSize, this->fileSize - this->offset);
 
     std::string range = "bytes=" + std::to_string(this->offset) + "-" +
-        std::to_string(this->offset + nextSize);
+        std::to_string(this->offset + nextSize - 1);
     this->getRequest.SetRange(range);
 
     Aws::S3::Model::GetObjectOutcome getOutcome =
