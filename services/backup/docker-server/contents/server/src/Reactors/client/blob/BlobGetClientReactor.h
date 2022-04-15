@@ -40,8 +40,7 @@ BlobGetClientReactor::BlobGetClientReactor(
 std::unique_ptr<grpc::Status>
 BlobGetClientReactor::readResponse(blob::GetResponse &response) {
   if (!this->dataChunks->write(std::move(*response.mutable_datachunk()))) {
-    throw std::runtime_error(
-        "error reading compaction data from the blob service");
+    throw std::runtime_error("error reading data from the blob service");
   }
   return nullptr;
 }
