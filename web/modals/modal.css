@@ -40,7 +40,6 @@ div.modal {
   flex: 1;
   display: flex;
   flex-direction: column;
-  width: 330px;
 }
 div.large-modal-container div.modal {
   width: 500px;
@@ -56,16 +55,21 @@ span.modal-close {
   color: var(--fg);
 }
 span.modal-close:hover {
-  color: black;
   cursor: pointer;
 }
 div.modal-header {
-  padding: 8px 15px;
+  padding: 32px 40px 16px 40px;
 }
 div.modal-header > h2 {
-  font-size: 22px;
-  font-weight: 300;
+  font-size: var(--xl-font-20);
+  font-weight: var(--bold);
   color: var(--fg);
+  display: flex;
+  align-items: center;
+}
+div.modal-header > h2 svg {
+  padding-right: 8px;
+  display: flex;
 }
 
 div.intro-modal {
