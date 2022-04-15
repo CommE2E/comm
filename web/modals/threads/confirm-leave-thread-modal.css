@@ -1,15 +1,17 @@
-div.modal_body {
-  padding: 20px;
-  color: var(--fg);
-  background-color: var(--modal-bg);
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-  font-weight: var(--bold);
+div.container {
+  padding: 0 40px 32px;
+  border-radius: 8px;
+  background: var(--modal-bg);
+  color: var(--modal-fg);
+  min-width: 635px;
+  box-sizing: border-box;
 }
-
-.leave_button {
-  width: 100%;
-  margin-top: 24px;
+div.container > p {
+  font-size: var(--xl-font-20);
+  padding-bottom: 32px;
+}
+div.buttonContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
 }

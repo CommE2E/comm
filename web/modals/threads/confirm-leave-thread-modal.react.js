@@ -18,17 +18,21 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
   const { uiName } = threadInfo;
 
   return (
-    <Modal name="Confirm leave thread" onClose={onClose}>
-      <div className={css.modal_body}>
-        <p>{`Are you sure you want to leave "${uiName}"?`}</p>
-        <Button
-          onClick={onConfirm}
-          type="submit"
-          variant="danger"
-          className={css.leave_button}
-        >
-          Leave Thread
-        </Button>
+    <Modal name="Leaving channel" icon="warning-circle" onClose={onClose}>
+      <div className={css.container}>
+        <p>
+          {'Are you sure you want to leave "'}
+          <span className={css['thread-name']}>{uiName}</span>
+          {'"?'}
+        </p>
+        <div className={css.buttonContainer}>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={onConfirm} type="submit">
+            Yes, leave Thread
+          </Button>
+        </div>
       </div>
     </Modal>
   );
