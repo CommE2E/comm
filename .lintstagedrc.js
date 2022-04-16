@@ -5,6 +5,7 @@ const cli = new CLIEngine({});
 
 module.exports = {
   '*.{js,mjs}': function eslint(files) {
+    // This logic is likely broken and needs to be updated. see ENG-1011
     return (
       'eslint --cache --fix --max-warnings=0 ' +
       files.filter(file => !cli.isPathIgnored(file)).join(' ')
