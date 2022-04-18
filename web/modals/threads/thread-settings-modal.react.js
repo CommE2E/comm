@@ -90,10 +90,11 @@ type Props = {
   +setErrorMessage: SetState<string>,
   +accountPassword: string,
   +setAccountPassword: SetState<string>,
+  +currentTabType: TabType,
+  +setCurrentTabType: SetState<TabType>,
 };
 type State = {
   +queuedChanges: ThreadChanges,
-  +currentTabType: TabType,
 };
 class ThreadSettingsModal extends React.PureComponent<Props, State> {
   nameInput: ?HTMLInputElement;
@@ -103,7 +104,6 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       queuedChanges: Object.freeze({}),
-      currentTabType: 'general',
     };
   }
 
@@ -113,7 +113,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props) {
-    if (this.state.currentTabType !== 'delete') {
+    if (this.props.currentTabType !== 'delete') {
       return;
     }
 
@@ -181,10 +181,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     const { threadInfo } = this.props;
     const inputDisabled =
       this.props.changeInProgress ||
-      !this.hasPermissionForTab(threadInfo, this.state.currentTabType);
+      !this.hasPermissionForTab(threadInfo, this.props.currentTabType);
 
     let mainContent = null;
-    if (this.state.currentTabType === 'general') {
+    if (this.props.currentTabType === 'general') {
       mainContent = (
         <ThreadSettingsGeneralTab
           threadNameValue={firstLine(this.possiblyChangedValue('name'))}
@@ -199,7 +199,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           threadColorOnColorSelection={this.onChangeColor}
         />
       );
-    } else if (this.state.currentTabType === 'privacy') {
+    } else if (this.props.currentTabType === 'privacy') {
       mainContent = (
         <ThreadSettingsPrivacyTab
           possiblyChangedThreadType={this.possiblyChangedValue('type')}
@@ -207,7 +207,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           inputDisabled={inputDisabled}
         />
       );
-    } else if (this.state.currentTabType === 'delete') {
+    } else if (this.props.currentTabType === 'delete') {
       mainContent = (
         <ThreadSettingsDeleteTab
           accountPassword={this.props.accountPassword}
@@ -219,7 +219,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     }
 
     let buttons = null;
-    if (this.state.currentTabType === 'delete') {
+    if (this.props.currentTabType === 'delete') {
       buttons = (
         <Button
           onClick={this.onDelete}
@@ -247,7 +247,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         name="General"
         tabType="general"
         onClick={this.setTab}
-        selected={this.state.currentTabType === 'general'}
+        selected={this.props.currentTabType === 'general'}
         key="general"
       />,
     ];
@@ -268,7 +268,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           name="Privacy"
           tabType="privacy"
           onClick={this.setTab}
-          selected={this.state.currentTabType === 'privacy'}
+          selected={this.props.currentTabType === 'privacy'}
           key="privacy"
         />,
       );
@@ -280,7 +280,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           name="Delete"
           tabType="delete"
           onClick={this.setTab}
-          selected={this.state.currentTabType === 'delete'}
+          selected={this.props.currentTabType === 'delete'}
           key="delete"
         />,
       );
@@ -305,7 +305,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
   }
 
   setTab = (tabType: TabType) => {
-    this.setState({ currentTabType: tabType });
+    this.props.setCurrentTabType(tabType);
   };
 
   nameInputRef = (nameInput: ?HTMLInputElement) => {
@@ -392,11 +392,11 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     } catch (e) {
       this.props.setErrorMessage('unknown error');
       this.props.setAccountPassword('');
+      this.props.setCurrentTabType('general');
       this.setState(
         prevState => ({
           ...prevState,
           queuedChanges: Object.freeze({}),
-          currentTabType: 'general',
         }),
         () => {
           invariant(this.nameInput, 'nameInput ref unset');
@@ -464,6 +464,9 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     const modalContext = useModalContext();
     const [errorMessage, setErrorMessage] = React.useState('');
     const [accountPassword, setAccountPassword] = React.useState('');
+    const [currentTabType, setCurrentTabType] = React.useState<TabType>(
+      'general',
+    );
 
     if (!threadInfo) {
       return (
@@ -490,6 +493,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         setErrorMessage={setErrorMessage}
         accountPassword={accountPassword}
         setAccountPassword={setAccountPassword}
+        currentTabType={currentTabType}
+        setCurrentTabType={setCurrentTabType}
       />
     );
   },
