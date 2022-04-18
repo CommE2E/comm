@@ -94,6 +94,7 @@ type Props = {
   +setCurrentTabType: SetState<TabType>,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
+  +namePlaceholder: string,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -153,14 +154,6 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
       : this.props.threadInfo[key];
   }
 
-  namePlaceholder() {
-    return robotextName(
-      this.props.threadInfo,
-      this.props.viewerID,
-      this.props.userInfos,
-    );
-  }
-
   changeQueued() {
     return (
       Object.keys(
@@ -184,7 +177,7 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
       mainContent = (
         <ThreadSettingsGeneralTab
           threadNameValue={firstLine(this.possiblyChangedValue('name'))}
-          threadNamePlaceholder={this.namePlaceholder()}
+          threadNamePlaceholder={this.props.namePlaceholder}
           threadNameOnChange={this.onChangeName}
           threadNameDisabled={inputDisabled}
           threadNameInputRef={this.nameInputRef}
@@ -456,6 +449,11 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       Object.freeze({}),
     );
 
+    const namePlaceholder: string = React.useMemo(() => {
+      invariant(threadInfo, 'threadInfo should exist in namePlaceholder');
+      return robotextName(threadInfo, viewerID, userInfos);
+    }, [threadInfo, userInfos, viewerID]);
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
@@ -485,6 +483,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         setCurrentTabType={setCurrentTabType}
         queuedChanges={queuedChanges}
         setQueuedChanges={setQueuedChanges}
+        namePlaceholder={namePlaceholder}
       />
     );
   },
