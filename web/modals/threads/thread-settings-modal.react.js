@@ -96,6 +96,7 @@ type Props = {
   +namePlaceholder: string,
   +changeQueued: boolean,
   +onChangeName: (event: SyntheticEvent<HTMLInputElement>) => void,
+  +onChangeDescription: (event: SyntheticEvent<HTMLTextAreaElement>) => void,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -171,7 +172,7 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
           threadNameDisabled={inputDisabled}
           threadNameInputRef={this.nameInputRef}
           threadDescriptionValue={this.possiblyChangedValue('description')}
-          threadDescriptionOnChange={this.onChangeDescription}
+          threadDescriptionOnChange={this.props.onChangeDescription}
           threadDescriptionDisabled={inputDisabled}
           threadColorCurrentColor={this.possiblyChangedValue('color')}
           threadColorOnColorSelection={this.onChangeColor}
@@ -292,20 +293,6 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
 
   accountPasswordInputRef = (accountPasswordInput: ?HTMLInputElement) => {
     this.accountPasswordInput = accountPasswordInput;
-  };
-
-  onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
-    const target = event.currentTarget;
-    const newValue =
-      target.value !== this.props.threadInfo.description
-        ? target.value
-        : undefined;
-    this.props.setQueuedChanges(
-      Object.freeze({
-        ...this.props.queuedChanges,
-        description: newValue,
-      }),
-    );
   };
 
   onChangeColor = (color: string) => {
@@ -452,6 +439,18 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       [queuedChanges, threadInfo?.name],
     );
 
+    const onChangeDescription = React.useCallback(
+      (event: SyntheticEvent<HTMLTextAreaElement>) => {
+        const target = event.currentTarget;
+        setQueuedChanges({
+          ...queuedChanges,
+          description:
+            target.value !== threadInfo?.description ? target.value : undefined,
+        });
+      },
+      [queuedChanges, threadInfo?.description],
+    );
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
@@ -484,6 +483,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         namePlaceholder={namePlaceholder}
         changeQueued={changeQueued}
         onChangeName={onChangeName}
+        onChangeDescription={onChangeDescription}
       />
     );
   },
