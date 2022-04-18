@@ -100,6 +100,7 @@ type Props = {
   +onChangeColor: (color: string) => void,
   +onChangeThreadType: (event: SyntheticEvent<HTMLInputElement>) => void,
   +onChangeAccountPassword: (event: SyntheticEvent<HTMLInputElement>) => void,
+  +hasPermissionForTab: (thread: ThreadInfo, tab: TabType) => boolean,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -119,11 +120,11 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
       return;
     }
 
-    const permissionForDeleteTab = this.hasPermissionForTab(
+    const permissionForDeleteTab = this.props.hasPermissionForTab(
       this.props.threadInfo,
       'delete',
     );
-    const prevPermissionForDeleteTab = this.hasPermissionForTab(
+    const prevPermissionForDeleteTab = this.props.hasPermissionForTab(
       prevProps.threadInfo,
       'delete',
     );
@@ -131,23 +132,6 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
     if (!permissionForDeleteTab && prevPermissionForDeleteTab) {
       this.setTab('general');
     }
-  }
-
-  hasPermissionForTab(threadInfo: ThreadInfo, tab: TabType) {
-    if (tab === 'general') {
-      return threadHasPermission(
-        threadInfo,
-        threadPermissions.EDIT_THREAD_NAME,
-      );
-    } else if (tab === 'privacy') {
-      return threadHasPermission(
-        threadInfo,
-        threadPermissions.EDIT_PERMISSIONS,
-      );
-    } else if (tab === 'delete') {
-      return threadHasPermission(threadInfo, threadPermissions.DELETE_THREAD);
-    }
-    invariant(false, `invalid tab ${tab}`);
   }
 
   possiblyChangedValue(key: string) {
@@ -163,7 +147,7 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
     const { threadInfo } = this.props;
     const inputDisabled =
       this.props.changeInProgress ||
-      !this.hasPermissionForTab(threadInfo, this.props.currentTabType);
+      !this.props.hasPermissionForTab(threadInfo, this.props.currentTabType);
 
     let mainContent = null;
     if (this.props.currentTabType === 'general') {
@@ -255,7 +239,10 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
         />,
       );
     }
-    const canDeleteThread = this.hasPermissionForTab(threadInfo, 'delete');
+    const canDeleteThread = this.props.hasPermissionForTab(
+      threadInfo,
+      'delete',
+    );
     if (canDeleteThread) {
       tabs.push(
         <Tab
@@ -466,6 +453,26 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       [],
     );
 
+    const hasPermissionForTab = React.useCallback(
+      (thread: ThreadInfo, tab: TabType) => {
+        if (tab === 'general') {
+          return threadHasPermission(
+            thread,
+            threadPermissions.EDIT_THREAD_NAME,
+          );
+        } else if (tab === 'privacy') {
+          return threadHasPermission(
+            thread,
+            threadPermissions.EDIT_PERMISSIONS,
+          );
+        } else if (tab === 'delete') {
+          return threadHasPermission(thread, threadPermissions.DELETE_THREAD);
+        }
+        invariant(false, `invalid tab: ${tab}`);
+      },
+      [],
+    );
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
@@ -502,6 +509,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         onChangeColor={onChangeColor}
         onChangeThreadType={onChangeThreadType}
         onChangeAccountPassword={onChangeAccountPassword}
+        hasPermissionForTab={hasPermissionForTab}
       />
     );
   },
