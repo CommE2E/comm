@@ -9,58 +9,59 @@ DeliveryBroker &DeliveryBroker::getInstance() {
 };
 
 void DeliveryBroker::push(
+    const std::string messageID,
     const uint64_t deliveryTag,
     const std::string toDeviceID,
     const std::string fromDeviceID,
     const std::string payload) {
   try {
-    std::unique_lock<std::mutex> localLock(this->localMutex);
-    std::vector<DeliveryBrokerMessage> messagesList;
-    const DeliveryBrokerMessage newMessage = {
-        .deliveryTag = deliveryTag,
-        .fromDeviceID = fromDeviceID,
-        .payload = payload};
-
     if (this->messagesMap.find(toDeviceID) == this->messagesMap.end()) {
-      messagesList.push_back(newMessage);
-      this->messagesMap.insert({toDeviceID, messagesList});
-      this->localCv.notify_all();
-      return;
+      this->messagesMap.insert(
+          toDeviceID,
+          std::make_unique<DeliveryBrokerQueue>(
+              DELIVERY_BROKER_MAX_QUEUE_SIZE));
     }
-
-    messagesList = this->messagesMap[toDeviceID];
-    messagesList.push_back(newMessage);
-    this->messagesMap.assign(toDeviceID, messagesList);
-    this->localCv.notify_all();
+    this->messagesMap.find(toDeviceID)
+        ->second->blockingWrite(DeliveryBrokerMessage{
+            .messageID = messageID,
+            .deliveryTag = deliveryTag,
+            .fromDeviceID = fromDeviceID,
+            .payload = payload});
   } catch (const std::exception &e) {
-    std::cout << "DeliveryBroker: "
+    std::cout << "DeliveryBroker push: "
               << "Got an exception " << e.what() << std::endl;
-    this->localCv.notify_all();
   }
 };
 
-std::vector<DeliveryBrokerMessage>
-DeliveryBroker::get(const std::string deviceID) {
+bool DeliveryBroker::isEmpty(const std::string deviceID) {
   if (this->messagesMap.find(deviceID) == this->messagesMap.end()) {
-    return {};
-  }
-  return this->messagesMap[deviceID];
-};
-
-bool DeliveryBroker::isEmpty(const std::string key) {
-  if (this->messagesMap.empty()) {
     return true;
+  };
+  return this->messagesMap.find(deviceID)->second->isEmpty();
+};
+
+DeliveryBrokerMessage DeliveryBroker::pop(const std::string deviceID) {
+  try {
+    // If we don't already have a queue, insert it for the blocking read purpose
+    // in case we listen first before the insert happens.
+    if (this->messagesMap.find(deviceID) == this->messagesMap.end()) {
+      this->messagesMap.insert(
+          deviceID,
+          std::make_unique<DeliveryBrokerQueue>(
+              DELIVERY_BROKER_MAX_QUEUE_SIZE));
+    }
+    DeliveryBrokerMessage receievedMessage;
+    this->messagesMap.find(deviceID)->second->blockingRead(receievedMessage);
+    return receievedMessage;
+  } catch (const std::exception &e) {
+    std::cout << "DeliveryBroker pop: "
+              << "Got an exception " << e.what() << std::endl;
   }
-  return (this->messagesMap.find(key) == this->messagesMap.end());
+  return {};
 };
 
-void DeliveryBroker::remove(const std::string key) {
-  this->messagesMap.erase(key);
-};
-
-void DeliveryBroker::wait(const std::string key) {
-  std::unique_lock<std::mutex> localLock(this->localMutex);
-  this->localCv.wait(localLock, [this, &key] { return !this->isEmpty(key); });
+void DeliveryBroker::erase(const std::string deviceID) {
+  this->messagesMap.erase(deviceID);
 };
 
 } // namespace network

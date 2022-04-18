@@ -21,8 +21,11 @@ class AmqpManager {
 public:
   static AmqpManager &getInstance();
   void connect();
-  bool
-  send(std::string toDeviceID, std::string fromDeviceID, std::string payload);
+  bool send(
+      std::string messageID,
+      std::string fromDeviceID,
+      std::string toDeviceID,
+      std::string payload);
   void ack(uint64_t deliveryTag);
 
   AmqpManager(AmqpManager const &) = delete;

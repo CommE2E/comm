@@ -7,6 +7,7 @@
 #include "DatabaseManager.h"
 #include "DeliveryBroker.h"
 #include "Tools.h"
+
 namespace comm {
 namespace network {
 
@@ -153,9 +154,11 @@ grpc::Status TunnelBrokerServiceImpl::Send(
           "No such session found. SessionID: " + sessionID);
     }
     const std::string clientDeviceID = sessionItem->getDeviceID();
+    const std::string messageID = tools::generateUUID();
     if (!AmqpManager::getInstance().send(
-            request->todeviceid(),
+            messageID,
             clientDeviceID,
+            request->todeviceid(),
             std::string(request->payload()))) {
       std::cout << "gRPC: "
                 << "Error while publish the message to AMQP" << std::endl;
@@ -195,23 +198,21 @@ grpc::Status TunnelBrokerServiceImpl::Get(
           "No such session found. SessionID: " + sessionID);
     }
     const std::string clientDeviceID = sessionItem->getDeviceID();
-    std::vector<DeliveryBrokerMessage> messagesToDeliver;
+    DeliveryBrokerMessage messageToDeliver;
     while (1) {
-      messagesToDeliver = DeliveryBroker::getInstance().get(clientDeviceID);
-      for (auto const &message : messagesToDeliver) {
-        tunnelbroker::GetResponse response;
-        response.set_fromdeviceid(message.fromDeviceID);
-        response.set_payload(message.payload);
-        if (!writer->Write(response)) {
-          throw std::runtime_error(
-              "gRPC: 'Get' writer error on sending data to the client");
-        }
-        comm::network::AmqpManager::getInstance().ack(message.deliveryTag);
+      messageToDeliver = DeliveryBroker::getInstance().pop(clientDeviceID);
+      tunnelbroker::GetResponse response;
+      response.set_fromdeviceid(messageToDeliver.fromDeviceID);
+      response.set_payload(messageToDeliver.payload);
+      if (!writer->Write(response)) {
+        throw std::runtime_error(
+            "gRPC: 'Get' writer error on sending data to the client");
       }
-      if (!DeliveryBroker::getInstance().isEmpty(clientDeviceID)) {
-        DeliveryBroker::getInstance().remove(clientDeviceID);
+      comm::network::AmqpManager::getInstance().ack(
+          messageToDeliver.deliveryTag);
+      if (DeliveryBroker::getInstance().isEmpty(clientDeviceID)) {
+        DeliveryBroker::getInstance().erase(clientDeviceID);
       }
-      DeliveryBroker::getInstance().wait(clientDeviceID);
     }
   } catch (std::runtime_error &e) {
     std::cout << "gRPC: "

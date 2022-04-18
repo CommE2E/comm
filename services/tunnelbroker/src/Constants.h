@@ -32,8 +32,9 @@ const size_t AMQP_MESSAGE_TTL = 300 * 1000; // 5 min
 // queue TTL in case of no consumers (tunnelbroker is down)
 const size_t AMQP_QUEUE_TTL = 24 * 3600 * 1000; // 24 hours
 // routing message headers name
-const std::string AMQP_HEADER_FROM_DEVICEID = "fromDeviceid";
-const std::string AMQP_HEADER_TO_DEVICEID = "toDeviceid";
+const std::string AMQP_HEADER_FROM_DEVICEID = "fromDeviceID";
+const std::string AMQP_HEADER_TO_DEVICEID = "toDeviceID";
+const std::string AMQP_HEADER_MESSAGEID = "messageID";
 
 const int64_t AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL =
     1000 * 60; // 1 min
@@ -47,6 +48,9 @@ const std::regex DEVICEID_FORMAT_REGEX(
 // Config
 const std::string CONFIG_FILE_PATH =
     std::string(std::getenv("HOME")) + "/tunnelbroker/tunnelbroker.ini";
+
+// DeliveryBroker
+const size_t DELIVERY_BROKER_MAX_QUEUE_SIZE = 100;
 
 } // namespace network
 } // namespace comm

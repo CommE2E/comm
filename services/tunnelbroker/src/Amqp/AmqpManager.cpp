@@ -61,13 +61,14 @@ void AmqpManager::connectInternal() {
               try {
                 AMQP::Table headers = message.headers();
                 const std::string payload(message.body());
+                const std::string messageID(headers[AMQP_HEADER_MESSAGEID]);
                 const std::string toDeviceID(headers[AMQP_HEADER_TO_DEVICEID]);
                 const std::string fromDeviceID(
                     headers[AMQP_HEADER_FROM_DEVICEID]);
                 std::cout << "AMQP: Message consumed for deviceID: "
                           << toDeviceID << std::endl;
                 DeliveryBroker::getInstance().push(
-                    deliveryTag, toDeviceID, fromDeviceID, payload);
+                    messageID, deliveryTag, toDeviceID, fromDeviceID, payload);
               } catch (const std::exception &e) {
                 std::cout << "AMQP: Message parsing exception: " << e.what()
                           << std::endl;
@@ -104,8 +105,9 @@ void AmqpManager::connect() {
 }
 
 bool AmqpManager::send(
-    std::string toDeviceID,
+    std::string messageID,
     std::string fromDeviceID,
+    std::string toDeviceID,
     std::string payload) {
   if (!this->amqpReady) {
     std::cout << "AMQP: Message send error: channel not ready" << std::endl;
@@ -114,6 +116,7 @@ bool AmqpManager::send(
   try {
     AMQP::Envelope env(payload.c_str(), payload.size());
     AMQP::Table headers;
+    headers[AMQP_HEADER_MESSAGEID] = messageID;
     headers[AMQP_HEADER_FROM_DEVICEID] = fromDeviceID;
     headers[AMQP_HEADER_TO_DEVICEID] = toDeviceID;
     // Set delivery mode to: Durable (2)
