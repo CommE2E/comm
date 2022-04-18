@@ -99,6 +99,7 @@ type Props = {
   +onChangeDescription: (event: SyntheticEvent<HTMLTextAreaElement>) => void,
   +onChangeColor: (color: string) => void,
   +onChangeThreadType: (event: SyntheticEvent<HTMLInputElement>) => void,
+  +onChangeAccountPassword: (event: SyntheticEvent<HTMLInputElement>) => void,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -192,7 +193,7 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
       mainContent = (
         <ThreadSettingsDeleteTab
           accountPassword={this.props.accountPassword}
-          onChangeAccountPassword={this.onChangeAccountPassword}
+          onChangeAccountPassword={this.props.onChangeAccountPassword}
           inputDisabled={inputDisabled}
           accountPasswordInputRef={this.accountPasswordInputRef}
         />
@@ -295,11 +296,6 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
 
   accountPasswordInputRef = (accountPasswordInput: ?HTMLInputElement) => {
     this.accountPasswordInput = accountPasswordInput;
-  };
-
-  onChangeAccountPassword = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.currentTarget;
-    this.props.setAccountPassword(target.value);
   };
 
   onSubmit = (event: SyntheticEvent<HTMLElement>) => {
@@ -462,6 +458,14 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       [queuedChanges, threadInfo?.type],
     );
 
+    const onChangeAccountPassword = React.useCallback(
+      (event: SyntheticEvent<HTMLInputElement>) => {
+        const target = event.currentTarget;
+        setAccountPassword(target.value);
+      },
+      [],
+    );
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
@@ -497,6 +501,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         onChangeDescription={onChangeDescription}
         onChangeColor={onChangeColor}
         onChangeThreadType={onChangeThreadType}
+        onChangeAccountPassword={onChangeAccountPassword}
       />
     );
   },
