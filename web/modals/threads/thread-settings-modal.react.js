@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import _pickBy from 'lodash/fp/pickBy';
 import * as React from 'react';
 
 import {
@@ -95,6 +94,7 @@ type Props = {
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
   +namePlaceholder: string,
+  +changeQueued: boolean,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -154,18 +154,6 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
       : this.props.threadInfo[key];
   }
 
-  changeQueued() {
-    return (
-      Object.keys(
-        _pickBy(
-          value => value !== null && value !== undefined,
-          // the lodash/fp libdef coerces the returned object's properties to the
-          // same type, which means it only works for object-as-maps $FlowFixMe
-        )(this.props.queuedChanges),
-      ).length > 0
-    );
-  }
-
   render() {
     const { threadInfo } = this.props;
     const inputDisabled =
@@ -223,7 +211,7 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
         <Button
           type="submit"
           onClick={this.onSubmit}
-          disabled={inputDisabled || !this.changeQueued()}
+          disabled={inputDisabled || !this.props.changeQueued}
           className={css.save_button}
         >
           Save
@@ -454,6 +442,12 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       return robotextName(threadInfo, viewerID, userInfos);
     }, [threadInfo, userInfos, viewerID]);
 
+    const changeQueued: boolean = React.useMemo(
+      () =>
+        Object.values(queuedChanges).some(v => v !== null && v !== undefined),
+      [queuedChanges],
+    );
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
@@ -484,6 +478,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         queuedChanges={queuedChanges}
         setQueuedChanges={setQueuedChanges}
         namePlaceholder={namePlaceholder}
+        changeQueued={changeQueued}
       />
     );
   },
