@@ -97,6 +97,7 @@ type Props = {
   +changeQueued: boolean,
   +onChangeName: (event: SyntheticEvent<HTMLInputElement>) => void,
   +onChangeDescription: (event: SyntheticEvent<HTMLTextAreaElement>) => void,
+  +onChangeColor: (color: string) => void,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -175,7 +176,7 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
           threadDescriptionOnChange={this.props.onChangeDescription}
           threadDescriptionDisabled={inputDisabled}
           threadColorCurrentColor={this.possiblyChangedValue('color')}
-          threadColorOnColorSelection={this.onChangeColor}
+          threadColorOnColorSelection={this.props.onChangeColor}
         />
       );
     } else if (this.props.currentTabType === 'privacy') {
@@ -293,16 +294,6 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
 
   accountPasswordInputRef = (accountPasswordInput: ?HTMLInputElement) => {
     this.accountPasswordInput = accountPasswordInput;
-  };
-
-  onChangeColor = (color: string) => {
-    const newValue = color !== this.props.threadInfo.color ? color : undefined;
-    this.props.setQueuedChanges(
-      Object.freeze({
-        ...this.props.queuedChanges,
-        color: newValue,
-      }),
-    );
   };
 
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -442,13 +433,29 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     const onChangeDescription = React.useCallback(
       (event: SyntheticEvent<HTMLTextAreaElement>) => {
         const target = event.currentTarget;
-        setQueuedChanges({
-          ...queuedChanges,
-          description:
-            target.value !== threadInfo?.description ? target.value : undefined,
-        });
+        setQueuedChanges(
+          Object.freeze({
+            ...queuedChanges,
+            description:
+              target.value !== threadInfo?.description
+                ? target.value
+                : undefined,
+          }),
+        );
       },
       [queuedChanges, threadInfo?.description],
+    );
+
+    const onChangeColor = React.useCallback(
+      (color: string) => {
+        setQueuedChanges(
+          Object.freeze({
+            ...queuedChanges,
+            color: color !== threadInfo?.color ? color : undefined,
+          }),
+        );
+      },
+      [queuedChanges, threadInfo?.color],
     );
 
     if (!threadInfo) {
@@ -484,6 +491,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         changeQueued={changeQueued}
         onChangeName={onChangeName}
         onChangeDescription={onChangeDescription}
+        onChangeColor={onChangeColor}
       />
     );
   },
