@@ -14,6 +14,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { threadHasPermission, robotextName } from 'lib/shared/thread-utils';
+import { type SetState } from 'lib/types/hook-types.js';
 import {
   type ThreadInfo,
   threadTypes,
@@ -85,10 +86,11 @@ type Props = {
     update: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
   +onClose: () => void,
+  +errorMessage: string,
+  +setErrorMessage: SetState<string>,
 };
 type State = {
   +queuedChanges: ThreadChanges,
-  +errorMessage: string,
   +accountPassword: string,
   +currentTabType: TabType,
 };
@@ -100,7 +102,6 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       queuedChanges: Object.freeze({}),
-      errorMessage: '',
       accountPassword: '',
       currentTabType: 'general',
     };
@@ -294,7 +295,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
             <div className={css.form_footer}>
               {buttons}
               <div className={css.modal_form_error}>
-                {this.state.errorMessage}
+                {this.props.errorMessage}
               </div>
             </div>
           </form>
@@ -389,12 +390,12 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       this.props.onClose();
       return response;
     } catch (e) {
+      this.props.setErrorMessage('unknown error');
       this.setState(
         prevState => ({
           ...prevState,
           queuedChanges: Object.freeze({}),
           accountPassword: '',
-          errorMessage: 'unknown error',
           currentTabType: 'general',
         }),
         () => {
@@ -427,10 +428,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
         e.message === 'invalid_credentials'
           ? 'wrong password'
           : 'unknown error';
+      this.props.setErrorMessage(errorMessage);
       this.setState(
         {
           accountPassword: '',
-          errorMessage: errorMessage,
         },
         () => {
           invariant(
@@ -470,6 +471,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       state => threadInfoSelector(state)[props.threadID],
     );
     const modalContext = useModalContext();
+    const [errorMessage, setErrorMessage] = React.useState('');
 
     if (!threadInfo) {
       return (
@@ -492,6 +494,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         changeThreadSettings={callChangeThreadSettings}
         dispatchActionPromise={dispatchActionPromise}
         onClose={modalContext.clearModal}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
       />
     );
   },
