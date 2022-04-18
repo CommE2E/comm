@@ -88,10 +88,11 @@ type Props = {
   +onClose: () => void,
   +errorMessage: string,
   +setErrorMessage: SetState<string>,
+  +accountPassword: string,
+  +setAccountPassword: SetState<string>,
 };
 type State = {
   +queuedChanges: ThreadChanges,
-  +accountPassword: string,
   +currentTabType: TabType,
 };
 class ThreadSettingsModal extends React.PureComponent<Props, State> {
@@ -102,7 +103,6 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     super(props);
     this.state = {
       queuedChanges: Object.freeze({}),
-      accountPassword: '',
       currentTabType: 'general',
     };
   }
@@ -210,7 +210,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     } else if (this.state.currentTabType === 'delete') {
       mainContent = (
         <ThreadSettingsDeleteTab
-          accountPassword={this.state.accountPassword}
+          accountPassword={this.props.accountPassword}
           onChangeAccountPassword={this.onChangeAccountPassword}
           inputDisabled={inputDisabled}
           accountPasswordInputRef={this.accountPasswordInputRef}
@@ -370,7 +370,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   onChangeAccountPassword = (event: SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
-    this.setState({ accountPassword: target.value });
+    this.props.setAccountPassword(target.value);
   };
 
   onSubmit = (event: SyntheticEvent<HTMLElement>) => {
@@ -391,11 +391,11 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       return response;
     } catch (e) {
       this.props.setErrorMessage('unknown error');
+      this.props.setAccountPassword('');
       this.setState(
         prevState => ({
           ...prevState,
           queuedChanges: Object.freeze({}),
-          accountPassword: '',
           currentTabType: 'general',
         }),
         () => {
@@ -419,7 +419,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     try {
       const response = await this.props.deleteThread(
         this.props.threadInfo.id,
-        this.state.accountPassword,
+        this.props.accountPassword,
       );
       this.props.onClose();
       return response;
@@ -429,18 +429,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           ? 'wrong password'
           : 'unknown error';
       this.props.setErrorMessage(errorMessage);
-      this.setState(
-        {
-          accountPassword: '',
-        },
-        () => {
-          invariant(
-            this.accountPasswordInput,
-            'accountPasswordInput ref unset',
-          );
-          this.accountPasswordInput.focus();
-        },
-      );
+      this.props.setAccountPassword('');
+      invariant(this.accountPasswordInput, 'accountPasswordInput ref unset');
+      this.accountPasswordInput.focus();
       throw e;
     }
   }
@@ -472,6 +463,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     );
     const modalContext = useModalContext();
     const [errorMessage, setErrorMessage] = React.useState('');
+    const [accountPassword, setAccountPassword] = React.useState('');
 
     if (!threadInfo) {
       return (
@@ -496,6 +488,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         onClose={modalContext.clearModal}
         errorMessage={errorMessage}
         setErrorMessage={setErrorMessage}
+        accountPassword={accountPassword}
+        setAccountPassword={setAccountPassword}
       />
     );
   },
