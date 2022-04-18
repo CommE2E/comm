@@ -2,10 +2,12 @@
 
 import * as React from 'react';
 
+import type { OnClick } from 'lib/types/core';
+
 import css from './button.css';
 
 type Props = {
-  +onClick: (event: SyntheticEvent<HTMLButtonElement>) => mixed,
+  +onClick: OnClick,
   +children?: React.Node,
 };
 
