@@ -92,19 +92,15 @@ type Props = {
   +setAccountPassword: SetState<string>,
   +currentTabType: TabType,
   +setCurrentTabType: SetState<TabType>,
-};
-type State = {
   +queuedChanges: ThreadChanges,
+  +setQueuedChanges: SetState<ThreadChanges>,
 };
-class ThreadSettingsModal extends React.PureComponent<Props, State> {
+class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
   accountPasswordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      queuedChanges: Object.freeze({}),
-    };
   }
 
   componentDidMount() {
@@ -150,10 +146,10 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
 
   possiblyChangedValue(key: string) {
     const valueChanged =
-      this.state.queuedChanges[key] !== null &&
-      this.state.queuedChanges[key] !== undefined;
+      this.props.queuedChanges[key] !== null &&
+      this.props.queuedChanges[key] !== undefined;
     return valueChanged
-      ? this.state.queuedChanges[key]
+      ? this.props.queuedChanges[key]
       : this.props.threadInfo[key];
   }
 
@@ -172,7 +168,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
           value => value !== null && value !== undefined,
           // the lodash/fp libdef coerces the returned object's properties to the
           // same type, which means it only works for object-as-maps $FlowFixMe
-        )(this.state.queuedChanges),
+        )(this.props.queuedChanges),
       ).length > 0
     );
   }
@@ -320,13 +316,12 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     const target = event.currentTarget;
     const newValue =
       target.value !== this.props.threadInfo.name ? target.value : undefined;
-    this.setState((prevState: State) => ({
-      ...prevState,
-      queuedChanges: {
-        ...prevState.queuedChanges,
+    this.props.setQueuedChanges(
+      Object.freeze({
+        ...this.props.queuedChanges,
         name: firstLine(newValue),
-      },
-    }));
+      }),
+    );
   };
 
   onChangeDescription = (event: SyntheticEvent<HTMLTextAreaElement>) => {
@@ -335,37 +330,34 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       target.value !== this.props.threadInfo.description
         ? target.value
         : undefined;
-    this.setState((prevState: State) => ({
-      ...prevState,
-      queuedChanges: {
-        ...prevState.queuedChanges,
+    this.props.setQueuedChanges(
+      Object.freeze({
+        ...this.props.queuedChanges,
         description: newValue,
-      },
-    }));
+      }),
+    );
   };
 
   onChangeColor = (color: string) => {
     const newValue = color !== this.props.threadInfo.color ? color : undefined;
-    this.setState((prevState: State) => ({
-      ...prevState,
-      queuedChanges: {
-        ...prevState.queuedChanges,
+    this.props.setQueuedChanges(
+      Object.freeze({
+        ...this.props.queuedChanges,
         color: newValue,
-      },
-    }));
+      }),
+    );
   };
 
   onChangeThreadType = (event: SyntheticEvent<HTMLInputElement>) => {
     const uiValue = assertThreadType(parseInt(event.currentTarget.value, 10));
     const newValue =
       uiValue !== this.props.threadInfo.type ? uiValue : undefined;
-    this.setState((prevState: State) => ({
-      ...prevState,
-      queuedChanges: {
-        ...prevState.queuedChanges,
+    this.props.setQueuedChanges(
+      Object.freeze({
+        ...this.props.queuedChanges,
         type: newValue,
-      },
-    }));
+      }),
+    );
   };
 
   onChangeAccountPassword = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -385,7 +377,7 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
     try {
       const response = await this.props.changeThreadSettings({
         threadID: this.props.threadInfo.id,
-        changes: this.state.queuedChanges,
+        changes: this.props.queuedChanges,
       });
       this.props.onClose();
       return response;
@@ -393,16 +385,9 @@ class ThreadSettingsModal extends React.PureComponent<Props, State> {
       this.props.setErrorMessage('unknown error');
       this.props.setAccountPassword('');
       this.props.setCurrentTabType('general');
-      this.setState(
-        prevState => ({
-          ...prevState,
-          queuedChanges: Object.freeze({}),
-        }),
-        () => {
-          invariant(this.nameInput, 'nameInput ref unset');
-          this.nameInput.focus();
-        },
-      );
+      this.props.setQueuedChanges(Object.freeze({}));
+      invariant(this.nameInput, 'nameInput ref unset');
+      this.nameInput.focus();
       throw e;
     }
   }
@@ -467,6 +452,9 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     const [currentTabType, setCurrentTabType] = React.useState<TabType>(
       'general',
     );
+    const [queuedChanges, setQueuedChanges] = React.useState<ThreadChanges>(
+      Object.freeze({}),
+    );
 
     if (!threadInfo) {
       return (
@@ -495,6 +483,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         setAccountPassword={setAccountPassword}
         currentTabType={currentTabType}
         setCurrentTabType={setCurrentTabType}
+        queuedChanges={queuedChanges}
+        setQueuedChanges={setQueuedChanges}
       />
     );
   },
