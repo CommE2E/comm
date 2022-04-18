@@ -23,6 +23,23 @@ type Props = {
   +promoteSidebar: () => mixed,
 };
 class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
+  onClick = () => {
+    Alert.alert(
+      'Are you sure?',
+      "This promoting a sidebar to a full thread can't be undone.",
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes',
+          onPress: this.props.promoteSidebar,
+        },
+      ],
+    );
+  };
+
   render() {
     const {
       panelIosHighlightUnderlay,
@@ -32,10 +49,11 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color={panelForegroundSecondaryLabel} />
       ) : null;
+
     return (
       <View style={this.props.styles.container}>
         <Button
-          onPress={this.props.promoteSidebar}
+          onPress={this.onClick}
           style={[this.props.styles.button, this.props.buttonStyle]}
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
