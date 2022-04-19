@@ -36,6 +36,10 @@ public:
       grpc::CallbackServerContext *context,
       const blob::RemoveRequest *request,
       google::protobuf::Empty *response) override;
+  grpc::ServerUnaryReactor *AppendHolder(
+      grpc::CallbackServerContext *context,
+      const blob::AppendHolderRequest *request,
+      google::protobuf::Empty *response) override;
 };
 
 } // namespace network
