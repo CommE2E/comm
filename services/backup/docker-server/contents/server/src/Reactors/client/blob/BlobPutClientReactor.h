@@ -35,6 +35,7 @@ class BlobPutClientReactor
       GRPC_CHUNK_SIZE_LIMIT - GRPC_METADATA_SIZE_PER_MESSAGE;
   folly::MPMCQueue<std::string> dataChunks;
   std::condition_variable *terminationNotifier;
+  bool dataExists = false;
 
 public:
   BlobPutClientReactor(
@@ -47,6 +48,7 @@ public:
       std::shared_ptr<blob::PutResponse> previousResponse) override;
   void doneCallback() override;
   grpc::Status getStatus() const;
+  bool getDataExists() const;
 };
 
 BlobPutClientReactor::BlobPutClientReactor(
@@ -81,6 +83,7 @@ std::unique_ptr<grpc::Status> BlobPutClientReactor::prepareRequest(
     return nullptr;
   }
   if (previousResponse->dataexists()) {
+    this->dataExists = true;
     return std::make_unique<grpc::Status>(grpc::Status::OK);
   }
   std::string dataChunk;
@@ -98,6 +101,10 @@ void BlobPutClientReactor::doneCallback() {
 
 grpc::Status BlobPutClientReactor::getStatus() const {
   return this->status;
+}
+
+bool BlobPutClientReactor::getDataExists() const {
+  return this->dataExists;
 }
 
 } // namespace reactor
