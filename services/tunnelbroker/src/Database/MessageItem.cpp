@@ -15,6 +15,7 @@ const std::string MessageItem::FIELD_PAYLOAD = "Payload";
 const std::string MessageItem::FIELD_BLOB_HASHES = "BlobHashes";
 const std::string MessageItem::FIELD_EXPIRE = "Expire";
 const std::string MessageItem::FIELD_CREATED_AT = "CreatedAt";
+const std::string MessageItem::INDEX_TO_DEVICE_ID = "ToDeviceID-index";
 
 MessageItem::MessageItem(
     const std::string messageID,

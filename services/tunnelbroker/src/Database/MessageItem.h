@@ -27,6 +27,7 @@ public:
   static const std::string FIELD_BLOB_HASHES;
   static const std::string FIELD_EXPIRE;
   static const std::string FIELD_CREATED_AT;
+  static const std::string INDEX_TO_DEVICE_ID;
 
   std::string getPrimaryKey() const override;
   std::string getTableName() const override;
