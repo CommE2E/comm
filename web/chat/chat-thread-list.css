@@ -109,6 +109,7 @@ div.lastActivity {
   font-size: var(--xxs-font-10);
   color: var(--fg);
   line-height: 1.5;
+  padding-right: 16px;
   font-weight: var(--semi-bold);
   white-space: nowrap;
   flex-grow: 1;
@@ -131,7 +132,6 @@ div.threadRow > .lastMessage {
 }
 div.unread {
   color: var(--fg);
-  font-size: var(--s-font-14);
   font-weight: var(--semi-bold);
 }
 div.lastMessage.unread {
