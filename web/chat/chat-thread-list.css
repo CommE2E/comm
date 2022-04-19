@@ -31,11 +31,11 @@ div.threadListSidebar:hover {
 }
 
 div.activeThread :is(div.dark, .lastMessage span.read, .title) {
-  color: var(--fg);
+  color: var(--chat-thread-list-color-active);
 }
 
 div.activeThread .lastMessage.read {
-  color: var(--fg);
+  color: var(--chat-thread-list-color-active);
 }
 
 div.activeThread.thread:hover {
