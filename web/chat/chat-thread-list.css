@@ -98,9 +98,12 @@ div.colorContainer {
 
 div.spacer,
 div.colorSplotch {
-  height: 42px;
   width: 42px;
   border-radius: 1.68px;
+}
+div.colorSplotchContainer {
+  height: 42px;
+  display: flex;
 }
 div.lastActivity {
   font-size: var(--xxs-font-10);

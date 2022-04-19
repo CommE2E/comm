@@ -132,9 +132,10 @@ function ChatThreadListItem(props: Props): React.Node {
     <>
       <div className={containerClassName} onClick={onClick}>
         <div className={css.colorContainer}>
-          <div className={css.dotContainer}>{unreadDot}</div>
-
-          <div className={css.colorSplotch} style={colorSplotchStyle} />
+          <div className={css.colorSplotchContainer}>
+            <div className={css.dotContainer}>{unreadDot}</div>
+            <div className={css.colorSplotch} style={colorSplotchStyle} />
+          </div>
         </div>
         <div className={css.threadButton}>
           <p className={breadCrumbsClassName}>{ancestorPath}</p>
