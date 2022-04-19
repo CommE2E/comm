@@ -1,17 +1,12 @@
 div.thread {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-right: 10px;
-  cursor: pointer;
 }
 div.threadListSidebar {
   display: flex;
   flex-direction: row;
   height: 32px;
-  padding-right: 10px;
+  padding-right: 8px;
   position: relative;
   cursor: pointer;
 }
@@ -52,16 +47,24 @@ div.title {
   color: var(--thread-color-read);
   line-height: var(--line-height-text);
 }
-div.threadButton {
+div.threadArrowExtender {
+  width: 10px;
+  position: absolute;
+  border-left: 0.5px solid var(--arrow-extension-color);
+  height: 8px;
+  top: -15px;
+  left: 32px;
+}
+
+.threadButton {
   flex: 1;
   cursor: pointer;
   overflow: hidden;
   padding-left: 12px;
 }
-a.threadButton + div {
+.threadButton + div {
   display: flex;
   flex-direction: column;
-  padding-top: 8px;
 }
 .threadButtonSidebar {
   flex: 1;
@@ -105,6 +108,10 @@ div.lastActivity {
   line-height: 1.5;
   font-weight: var(--semi-bold);
   white-space: nowrap;
+  flex-grow: 1;
+  padding-bottom: 12px;
+  align-items: flex-end;
+  display: flex;
 }
 
 div.lastMessage {
@@ -121,6 +128,7 @@ div.threadRow > .lastMessage {
 }
 div.unread {
   color: var(--fg);
+  font-size: var(--s-font-14);
   font-weight: var(--semi-bold);
 }
 div.lastMessage.unread {
@@ -128,6 +136,7 @@ div.lastMessage.unread {
 }
 div.dark {
   color: var(--thread-color-read);
+  padding-right: 16px;
 }
 .read {
   color: var(--thread-from-color-read);
