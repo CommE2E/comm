@@ -15,10 +15,10 @@ import SidebarItem from './sidebar-item.react';
 
 type Props = {
   +sidebarInfo: SidebarInfo,
-  +isMultipleSidebarItem: boolean,
+  +isSubsequentItem: boolean,
 };
 function ChatThreadListSidebar(props: Props): React.Node {
-  const { sidebarInfo, isMultipleSidebarItem } = props;
+  const { sidebarInfo, isSubsequentItem } = props;
   const { threadInfo, mostRecentNonLocalMessage } = sidebarInfo;
   const {
     currentUser: { unread },
@@ -40,10 +40,7 @@ function ChatThreadListSidebar(props: Props): React.Node {
       onClick={onClick}
     >
       <div className={css.dotContainer}>{unreadDot}</div>
-      <SidebarItem
-        sidebarInfo={sidebarInfo}
-        extendArrow={isMultipleSidebarItem}
-      />
+      <SidebarItem sidebarInfo={sidebarInfo} extendArrow={isSubsequentItem} />
       <ChatThreadListItemMenu
         threadInfo={threadInfo}
         mostRecentNonLocalMessage={mostRecentNonLocalMessage}

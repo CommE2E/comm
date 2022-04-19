@@ -95,7 +95,7 @@ function ChatThreadListItem(props: Props): React.Node {
       return (
         <ChatThreadListSidebar
           sidebarInfo={sidebarInfo}
-          isMultipleSidebarItem={index > 0}
+          isSubsequentItem={index > 0}
           key={sidebarInfo.threadInfo.id}
         />
       );

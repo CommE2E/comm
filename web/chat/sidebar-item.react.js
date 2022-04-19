@@ -26,9 +26,14 @@ function SidebarItem(props: Props): React.Node {
 
   const unreadCls = classNames(css.sidebarTitle, { [css.unread]: unread });
 
+  let arrowExtender;
+  if (extendArrow) {
+    arrowExtender = <div className={css.threadArrowExtender} />;
+  }
+
   return (
     <>
-      {extendArrow ? <div className={css.threadArrowExtender} /> : null}
+      {arrowExtender}
       <SWMansionIcon icon="right-angle-arrow" size={28} />
       <div className={css.spacer} />
       <a className={css.threadButtonSidebar} onClick={onClick}>
