@@ -5,9 +5,7 @@
 #include "../_generated/backup.grpc.pb.h"
 #include "../_generated/backup.pb.h"
 
-#include <iostream>
 #include <memory>
-#include <string>
 
 namespace comm {
 namespace network {
@@ -21,13 +19,6 @@ public:
       backup::RecoverBackupKeyRequest request,
       backup::RecoverBackupKeyResponse *response);
 };
-
-std::unique_ptr<ServerBidiReactorStatus> RecoverBackupKeyReactor::handleRequest(
-    backup::RecoverBackupKeyRequest request,
-    backup::RecoverBackupKeyResponse *response) { // TODO handle request
-  return std::make_unique<ServerBidiReactorStatus>(
-      grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "unimplemented"));
-}
 
 } // namespace reactor
 } // namespace network
