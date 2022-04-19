@@ -8,6 +8,7 @@ service BlobService {
   rpc Put(stream PutRequest) returns (stream PutResponse) {}
   rpc Get(GetRequest) returns (stream GetResponse) {}
   rpc Remove(RemoveRequest) returns (google.protobuf.Empty) {}
+  rpc AppendHolder(AppendHolderRequest) returns (google.protobuf.Empty) {}
 }
 
 // Put
@@ -38,4 +39,11 @@ message GetResponse {
 
 message RemoveRequest {
   string holder = 1;
+}
+
+// AppendHolder
+
+message AppendHolderRequest {
+  string holder = 1;
+  string blobHash = 2;
 }

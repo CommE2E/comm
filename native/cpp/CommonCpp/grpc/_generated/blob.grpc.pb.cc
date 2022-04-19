@@ -25,6 +25,7 @@ static const char* BlobService_method_names[] = {
   "/blob.BlobService/Put",
   "/blob.BlobService/Get",
   "/blob.BlobService/Remove",
+  "/blob.BlobService/AppendHolder",
 };
 
 std::unique_ptr< BlobService::Stub> BlobService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -37,6 +38,7 @@ BlobService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channe
   : channel_(channel), rpcmethod_Put_(BlobService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::BIDI_STREAMING, channel)
   , rpcmethod_Get_(BlobService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
   , rpcmethod_Remove_(BlobService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_AppendHolder_(BlobService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::ClientReaderWriter< ::blob::PutRequest, ::blob::PutResponse>* BlobService::Stub::PutRaw(::grpc::ClientContext* context) {
@@ -94,6 +96,29 @@ void BlobService::Stub::async::Remove(::grpc::ClientContext* context, const ::bl
   return result;
 }
 
+::grpc::Status BlobService::Stub::AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::google::protobuf::Empty* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::blob::AppendHolderRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_AppendHolder_, context, request, response);
+}
+
+void BlobService::Stub::async::AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::blob::AppendHolderRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AppendHolder_, context, request, response, std::move(f));
+}
+
+void BlobService::Stub::async::AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_AppendHolder_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* BlobService::Stub::PrepareAsyncAppendHolderRaw(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::google::protobuf::Empty, ::blob::AppendHolderRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_AppendHolder_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* BlobService::Stub::AsyncAppendHolderRaw(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncAppendHolderRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 BlobService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       BlobService_method_names[0],
@@ -125,6 +150,16 @@ BlobService::Service::Service() {
              ::google::protobuf::Empty* resp) {
                return service->Remove(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      BlobService_method_names[3],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< BlobService::Service, ::blob::AppendHolderRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](BlobService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::blob::AppendHolderRequest* req,
+             ::google::protobuf::Empty* resp) {
+               return service->AppendHolder(ctx, req, resp);
+             }, this)));
 }
 
 BlobService::Service::~Service() {
@@ -144,6 +179,13 @@ BlobService::Service::~Service() {
 }
 
 ::grpc::Status BlobService::Service::Remove(::grpc::ServerContext* context, const ::blob::RemoveRequest* request, ::google::protobuf::Empty* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status BlobService::Service::AppendHolder(::grpc::ServerContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response) {
   (void) context;
   (void) request;
   (void) response;
