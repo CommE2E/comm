@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BlobAppendHolderClientReactor.h"
 #include "BlobGetClientReactor.h"
 #include "BlobPutClientReactor.h"
 
@@ -46,6 +47,16 @@ public:
     getReactor->start();
   }
   // void remove(const std::string &holder);
+
+  void appendHolder(std::shared_ptr<reactor::BlobAppendHolderClientReactor>
+                        appendHolderReactor) {
+    this->stub->async()->AppendHolder(
+        &appendHolderReactor->context,
+        &appendHolderReactor->request,
+        &appendHolderReactor->response,
+        &(*appendHolderReactor));
+    appendHolderReactor->StartCall();
+  }
 };
 
 } // namespace network
