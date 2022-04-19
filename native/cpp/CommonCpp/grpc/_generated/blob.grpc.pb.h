@@ -60,6 +60,13 @@ class BlobService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>> PrepareAsyncRemove(::grpc::ClientContext* context, const ::blob::RemoveRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>>(PrepareAsyncRemoveRaw(context, request, cq));
     }
+    virtual ::grpc::Status AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::google::protobuf::Empty* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>> AsyncAppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>>(AsyncAppendHolderRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>> PrepareAsyncAppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>>(PrepareAsyncAppendHolderRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
@@ -67,6 +74,8 @@ class BlobService final {
       virtual void Get(::grpc::ClientContext* context, const ::blob::GetRequest* request, ::grpc::ClientReadReactor< ::blob::GetResponse>* reactor) = 0;
       virtual void Remove(::grpc::ClientContext* context, const ::blob::RemoveRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)>) = 0;
       virtual void Remove(::grpc::ClientContext* context, const ::blob::RemoveRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -80,6 +89,8 @@ class BlobService final {
     virtual ::grpc::ClientAsyncReaderInterface< ::blob::GetResponse>* PrepareAsyncGetRaw(::grpc::ClientContext* context, const ::blob::GetRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>* AsyncRemoveRaw(::grpc::ClientContext* context, const ::blob::RemoveRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>* PrepareAsyncRemoveRaw(::grpc::ClientContext* context, const ::blob::RemoveRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>* AsyncAppendHolderRaw(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>* PrepareAsyncAppendHolderRaw(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -109,6 +120,13 @@ class BlobService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>> PrepareAsyncRemove(::grpc::ClientContext* context, const ::blob::RemoveRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>>(PrepareAsyncRemoveRaw(context, request, cq));
     }
+    ::grpc::Status AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::google::protobuf::Empty* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>> AsyncAppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>>(AsyncAppendHolderRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>> PrepareAsyncAppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>>(PrepareAsyncAppendHolderRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
@@ -116,6 +134,8 @@ class BlobService final {
       void Get(::grpc::ClientContext* context, const ::blob::GetRequest* request, ::grpc::ClientReadReactor< ::blob::GetResponse>* reactor) override;
       void Remove(::grpc::ClientContext* context, const ::blob::RemoveRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)>) override;
       void Remove(::grpc::ClientContext* context, const ::blob::RemoveRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)>) override;
+      void AppendHolder(::grpc::ClientContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -135,9 +155,12 @@ class BlobService final {
     ::grpc::ClientAsyncReader< ::blob::GetResponse>* PrepareAsyncGetRaw(::grpc::ClientContext* context, const ::blob::GetRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* AsyncRemoveRaw(::grpc::ClientContext* context, const ::blob::RemoveRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* PrepareAsyncRemoveRaw(::grpc::ClientContext* context, const ::blob::RemoveRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* AsyncAppendHolderRaw(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* PrepareAsyncAppendHolderRaw(::grpc::ClientContext* context, const ::blob::AppendHolderRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_Put_;
     const ::grpc::internal::RpcMethod rpcmethod_Get_;
     const ::grpc::internal::RpcMethod rpcmethod_Remove_;
+    const ::grpc::internal::RpcMethod rpcmethod_AppendHolder_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -148,6 +171,7 @@ class BlobService final {
     virtual ::grpc::Status Put(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::blob::PutResponse, ::blob::PutRequest>* stream);
     virtual ::grpc::Status Get(::grpc::ServerContext* context, const ::blob::GetRequest* request, ::grpc::ServerWriter< ::blob::GetResponse>* writer);
     virtual ::grpc::Status Remove(::grpc::ServerContext* context, const ::blob::RemoveRequest* request, ::google::protobuf::Empty* response);
+    virtual ::grpc::Status AppendHolder(::grpc::ServerContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_Put : public BaseClass {
@@ -209,7 +233,27 @@ class BlobService final {
       ::grpc::Service::RequestAsyncUnary(2, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_Put<WithAsyncMethod_Get<WithAsyncMethod_Remove<Service > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_AppendHolder : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_AppendHolder() {
+      ::grpc::Service::MarkMethodAsync(3);
+    }
+    ~WithAsyncMethod_AppendHolder() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AppendHolder(::grpc::ServerContext* /*context*/, const ::blob::AppendHolderRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestAppendHolder(::grpc::ServerContext* context, ::blob::AppendHolderRequest* request, ::grpc::ServerAsyncResponseWriter< ::google::protobuf::Empty>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_Put<WithAsyncMethod_Get<WithAsyncMethod_Remove<WithAsyncMethod_AppendHolder<Service > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_Put : public BaseClass {
    private:
@@ -282,7 +326,34 @@ class BlobService final {
     virtual ::grpc::ServerUnaryReactor* Remove(
       ::grpc::CallbackServerContext* /*context*/, const ::blob::RemoveRequest* /*request*/, ::google::protobuf::Empty* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_Put<WithCallbackMethod_Get<WithCallbackMethod_Remove<Service > > > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_AppendHolder : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_AppendHolder() {
+      ::grpc::Service::MarkMethodCallback(3,
+          new ::grpc::internal::CallbackUnaryHandler< ::blob::AppendHolderRequest, ::google::protobuf::Empty>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::blob::AppendHolderRequest* request, ::google::protobuf::Empty* response) { return this->AppendHolder(context, request, response); }));}
+    void SetMessageAllocatorFor_AppendHolder(
+        ::grpc::MessageAllocator< ::blob::AppendHolderRequest, ::google::protobuf::Empty>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(3);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::blob::AppendHolderRequest, ::google::protobuf::Empty>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_AppendHolder() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AppendHolder(::grpc::ServerContext* /*context*/, const ::blob::AppendHolderRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* AppendHolder(
+      ::grpc::CallbackServerContext* /*context*/, const ::blob::AppendHolderRequest* /*request*/, ::google::protobuf::Empty* /*response*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_Put<WithCallbackMethod_Get<WithCallbackMethod_Remove<WithCallbackMethod_AppendHolder<Service > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_Put : public BaseClass {
@@ -331,6 +402,23 @@ class BlobService final {
     }
     // disable synchronous version of this method
     ::grpc::Status Remove(::grpc::ServerContext* /*context*/, const ::blob::RemoveRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_AppendHolder : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_AppendHolder() {
+      ::grpc::Service::MarkMethodGeneric(3);
+    }
+    ~WithGenericMethod_AppendHolder() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AppendHolder(::grpc::ServerContext* /*context*/, const ::blob::AppendHolderRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -393,6 +481,26 @@ class BlobService final {
     }
     void RequestRemove(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(2, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_AppendHolder : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_AppendHolder() {
+      ::grpc::Service::MarkMethodRaw(3);
+    }
+    ~WithRawMethod_AppendHolder() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AppendHolder(::grpc::ServerContext* /*context*/, const ::blob::AppendHolderRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestAppendHolder(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -463,6 +571,28 @@ class BlobService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
+  class WithRawCallbackMethod_AppendHolder : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_AppendHolder() {
+      ::grpc::Service::MarkMethodRawCallback(3,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->AppendHolder(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_AppendHolder() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AppendHolder(::grpc::ServerContext* /*context*/, const ::blob::AppendHolderRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* AppendHolder(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
   class WithStreamedUnaryMethod_Remove : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
@@ -489,7 +619,34 @@ class BlobService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedRemove(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::blob::RemoveRequest,::google::protobuf::Empty>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_Remove<Service > StreamedUnaryService;
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_AppendHolder : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_AppendHolder() {
+      ::grpc::Service::MarkMethodStreamed(3,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::blob::AppendHolderRequest, ::google::protobuf::Empty>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::blob::AppendHolderRequest, ::google::protobuf::Empty>* streamer) {
+                       return this->StreamedAppendHolder(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_AppendHolder() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status AppendHolder(::grpc::ServerContext* /*context*/, const ::blob::AppendHolderRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedAppendHolder(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::blob::AppendHolderRequest,::google::protobuf::Empty>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_Remove<WithStreamedUnaryMethod_AppendHolder<Service > > StreamedUnaryService;
   template <class BaseClass>
   class WithSplitStreamingMethod_Get : public BaseClass {
    private:
@@ -518,7 +675,7 @@ class BlobService final {
     virtual ::grpc::Status StreamedGet(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::blob::GetRequest,::blob::GetResponse>* server_split_streamer) = 0;
   };
   typedef WithSplitStreamingMethod_Get<Service > SplitStreamedService;
-  typedef WithSplitStreamingMethod_Get<WithStreamedUnaryMethod_Remove<Service > > StreamedService;
+  typedef WithSplitStreamingMethod_Get<WithStreamedUnaryMethod_Remove<WithStreamedUnaryMethod_AppendHolder<Service > > > StreamedService;
 };
 
 }  // namespace blob

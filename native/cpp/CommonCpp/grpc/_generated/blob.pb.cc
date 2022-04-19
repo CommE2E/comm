@@ -77,8 +77,21 @@ struct RemoveRequestDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RemoveRequestDefaultTypeInternal _RemoveRequest_default_instance_;
+constexpr AppendHolderRequest::AppendHolderRequest(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : holder_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , blobhash_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+struct AppendHolderRequestDefaultTypeInternal {
+  constexpr AppendHolderRequestDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~AppendHolderRequestDefaultTypeInternal() {}
+  union {
+    AppendHolderRequest _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT AppendHolderRequestDefaultTypeInternal _AppendHolderRequest_default_instance_;
 }  // namespace blob
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_blob_2eproto[5];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_blob_2eproto[6];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_blob_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_blob_2eproto = nullptr;
 
@@ -116,6 +129,13 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_blob_2eproto::offsets[] PROTOB
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::blob::RemoveRequest, holder_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::blob::AppendHolderRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::blob::AppendHolderRequest, holder_),
+  PROTOBUF_FIELD_OFFSET(::blob::AppendHolderRequest, blobhash_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::blob::PutRequest)},
@@ -123,6 +143,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 15, -1, sizeof(::blob::GetRequest)},
   { 21, -1, sizeof(::blob::GetResponse)},
   { 27, -1, sizeof(::blob::RemoveRequest)},
+  { 33, -1, sizeof(::blob::AppendHolderRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -131,6 +152,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::blob::_GetRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::blob::_GetResponse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::blob::_RemoveRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::blob::_AppendHolderRequest_default_instance_),
 };
 
 const char descriptor_table_protodef_blob_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -140,19 +162,23 @@ const char descriptor_table_protodef_blob_2eproto[] PROTOBUF_SECTION_VARIABLE(pr
   "B\006\n\004data\"!\n\013PutResponse\022\022\n\ndataExists\030\001 "
   "\001(\010\"\034\n\nGetRequest\022\016\n\006holder\030\001 \001(\t\" \n\013Get"
   "Response\022\021\n\tdataChunk\030\001 \001(\014\"\037\n\rRemoveReq"
-  "uest\022\016\n\006holder\030\001 \001(\t2\250\001\n\013BlobService\0220\n\003"
-  "Put\022\020.blob.PutRequest\032\021.blob.PutResponse"
-  "\"\000(\0010\001\022.\n\003Get\022\020.blob.GetRequest\032\021.blob.G"
-  "etResponse\"\0000\001\0227\n\006Remove\022\023.blob.RemoveRe"
-  "quest\032\026.google.protobuf.Empty\"\000b\006proto3"
+  "uest\022\016\n\006holder\030\001 \001(\t\"7\n\023AppendHolderRequ"
+  "est\022\016\n\006holder\030\001 \001(\t\022\020\n\010blobHash\030\002 \001(\t2\355\001"
+  "\n\013BlobService\0220\n\003Put\022\020.blob.PutRequest\032\021"
+  ".blob.PutResponse\"\000(\0010\001\022.\n\003Get\022\020.blob.Ge"
+  "tRequest\032\021.blob.GetResponse\"\0000\001\0227\n\006Remov"
+  "e\022\023.blob.RemoveRequest\032\026.google.protobuf"
+  ".Empty\"\000\022C\n\014AppendHolder\022\031.blob.AppendHo"
+  "lderRequest\032\026.google.protobuf.Empty\"\000b\006p"
+  "roto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_blob_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_blob_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_blob_2eproto = {
-  false, false, 439, descriptor_table_protodef_blob_2eproto, "blob.proto", 
-  &descriptor_table_blob_2eproto_once, descriptor_table_blob_2eproto_deps, 1, 5,
+  false, false, 565, descriptor_table_protodef_blob_2eproto, "blob.proto", 
+  &descriptor_table_blob_2eproto_once, descriptor_table_blob_2eproto_deps, 1, 6,
   schemas, file_default_instances, TableStruct_blob_2eproto::offsets,
   file_level_metadata_blob_2eproto, file_level_enum_descriptors_blob_2eproto, file_level_service_descriptors_blob_2eproto,
 };
@@ -1253,6 +1279,244 @@ void RemoveRequest::InternalSwap(RemoveRequest* other) {
 }
 
 
+// ===================================================================
+
+class AppendHolderRequest::_Internal {
+ public:
+};
+
+AppendHolderRequest::AppendHolderRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+  SharedCtor();
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:blob.AppendHolderRequest)
+}
+AppendHolderRequest::AppendHolderRequest(const AppendHolderRequest& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  holder_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_holder().empty()) {
+    holder_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_holder(), 
+      GetArena());
+  }
+  blobhash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_blobhash().empty()) {
+    blobhash_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_blobhash(), 
+      GetArena());
+  }
+  // @@protoc_insertion_point(copy_constructor:blob.AppendHolderRequest)
+}
+
+void AppendHolderRequest::SharedCtor() {
+holder_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+blobhash_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+AppendHolderRequest::~AppendHolderRequest() {
+  // @@protoc_insertion_point(destructor:blob.AppendHolderRequest)
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+void AppendHolderRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
+  holder_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  blobhash_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+void AppendHolderRequest::ArenaDtor(void* object) {
+  AppendHolderRequest* _this = reinterpret_cast< AppendHolderRequest* >(object);
+  (void)_this;
+}
+void AppendHolderRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void AppendHolderRequest::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void AppendHolderRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:blob.AppendHolderRequest)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  holder_.ClearToEmpty();
+  blobhash_.ClearToEmpty();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* AppendHolderRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string holder = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          auto str = _internal_mutable_holder();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "blob.AppendHolderRequest.holder"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string blobHash = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          auto str = _internal_mutable_blobhash();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "blob.AppendHolderRequest.blobHash"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* AppendHolderRequest::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:blob.AppendHolderRequest)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string holder = 1;
+  if (this->holder().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_holder().data(), static_cast<int>(this->_internal_holder().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "blob.AppendHolderRequest.holder");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_holder(), target);
+  }
+
+  // string blobHash = 2;
+  if (this->blobhash().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_blobhash().data(), static_cast<int>(this->_internal_blobhash().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "blob.AppendHolderRequest.blobHash");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_blobhash(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:blob.AppendHolderRequest)
+  return target;
+}
+
+size_t AppendHolderRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:blob.AppendHolderRequest)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string holder = 1;
+  if (this->holder().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_holder());
+  }
+
+  // string blobHash = 2;
+  if (this->blobhash().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_blobhash());
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void AppendHolderRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:blob.AppendHolderRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  const AppendHolderRequest* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<AppendHolderRequest>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:blob.AppendHolderRequest)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:blob.AppendHolderRequest)
+    MergeFrom(*source);
+  }
+}
+
+void AppendHolderRequest::MergeFrom(const AppendHolderRequest& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:blob.AppendHolderRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.holder().size() > 0) {
+    _internal_set_holder(from._internal_holder());
+  }
+  if (from.blobhash().size() > 0) {
+    _internal_set_blobhash(from._internal_blobhash());
+  }
+}
+
+void AppendHolderRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:blob.AppendHolderRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void AppendHolderRequest::CopyFrom(const AppendHolderRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:blob.AppendHolderRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool AppendHolderRequest::IsInitialized() const {
+  return true;
+}
+
+void AppendHolderRequest::InternalSwap(AppendHolderRequest* other) {
+  using std::swap;
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  holder_.Swap(&other->holder_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  blobhash_.Swap(&other->blobhash_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata AppendHolderRequest::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace blob
 PROTOBUF_NAMESPACE_OPEN
@@ -1270,6 +1534,9 @@ template<> PROTOBUF_NOINLINE ::blob::GetResponse* Arena::CreateMaybeMessage< ::b
 }
 template<> PROTOBUF_NOINLINE ::blob::RemoveRequest* Arena::CreateMaybeMessage< ::blob::RemoveRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::blob::RemoveRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::blob::AppendHolderRequest* Arena::CreateMaybeMessage< ::blob::AppendHolderRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::blob::AppendHolderRequest >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

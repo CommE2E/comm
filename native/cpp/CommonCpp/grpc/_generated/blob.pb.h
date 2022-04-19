@@ -47,7 +47,7 @@ struct TableStruct_blob_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[6]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -56,6 +56,9 @@ struct TableStruct_blob_2eproto {
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_blob_2eproto;
 ::PROTOBUF_NAMESPACE_ID::Metadata descriptor_table_blob_2eproto_metadata_getter(int index);
 namespace blob {
+class AppendHolderRequest;
+struct AppendHolderRequestDefaultTypeInternal;
+extern AppendHolderRequestDefaultTypeInternal _AppendHolderRequest_default_instance_;
 class GetRequest;
 struct GetRequestDefaultTypeInternal;
 extern GetRequestDefaultTypeInternal _GetRequest_default_instance_;
@@ -73,6 +76,7 @@ struct RemoveRequestDefaultTypeInternal;
 extern RemoveRequestDefaultTypeInternal _RemoveRequest_default_instance_;
 }  // namespace blob
 PROTOBUF_NAMESPACE_OPEN
+template<> ::blob::AppendHolderRequest* Arena::CreateMaybeMessage<::blob::AppendHolderRequest>(Arena*);
 template<> ::blob::GetRequest* Arena::CreateMaybeMessage<::blob::GetRequest>(Arena*);
 template<> ::blob::GetResponse* Arena::CreateMaybeMessage<::blob::GetResponse>(Arena*);
 template<> ::blob::PutRequest* Arena::CreateMaybeMessage<::blob::PutRequest>(Arena*);
@@ -863,6 +867,168 @@ class RemoveRequest PROTOBUF_FINAL :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_blob_2eproto;
 };
+// -------------------------------------------------------------------
+
+class AppendHolderRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:blob.AppendHolderRequest) */ {
+ public:
+  inline AppendHolderRequest() : AppendHolderRequest(nullptr) {}
+  virtual ~AppendHolderRequest();
+  explicit constexpr AppendHolderRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  AppendHolderRequest(const AppendHolderRequest& from);
+  AppendHolderRequest(AppendHolderRequest&& from) noexcept
+    : AppendHolderRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline AppendHolderRequest& operator=(const AppendHolderRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline AppendHolderRequest& operator=(AppendHolderRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const AppendHolderRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const AppendHolderRequest* internal_default_instance() {
+    return reinterpret_cast<const AppendHolderRequest*>(
+               &_AppendHolderRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    5;
+
+  friend void swap(AppendHolderRequest& a, AppendHolderRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(AppendHolderRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(AppendHolderRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline AppendHolderRequest* New() const final {
+    return CreateMaybeMessage<AppendHolderRequest>(nullptr);
+  }
+
+  AppendHolderRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<AppendHolderRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const AppendHolderRequest& from);
+  void MergeFrom(const AppendHolderRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(AppendHolderRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "blob.AppendHolderRequest";
+  }
+  protected:
+  explicit AppendHolderRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_blob_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kHolderFieldNumber = 1,
+    kBlobHashFieldNumber = 2,
+  };
+  // string holder = 1;
+  void clear_holder();
+  const std::string& holder() const;
+  void set_holder(const std::string& value);
+  void set_holder(std::string&& value);
+  void set_holder(const char* value);
+  void set_holder(const char* value, size_t size);
+  std::string* mutable_holder();
+  std::string* release_holder();
+  void set_allocated_holder(std::string* holder);
+  private:
+  const std::string& _internal_holder() const;
+  void _internal_set_holder(const std::string& value);
+  std::string* _internal_mutable_holder();
+  public:
+
+  // string blobHash = 2;
+  void clear_blobhash();
+  const std::string& blobhash() const;
+  void set_blobhash(const std::string& value);
+  void set_blobhash(std::string&& value);
+  void set_blobhash(const char* value);
+  void set_blobhash(const char* value, size_t size);
+  std::string* mutable_blobhash();
+  std::string* release_blobhash();
+  void set_allocated_blobhash(std::string* blobhash);
+  private:
+  const std::string& _internal_blobhash() const;
+  void _internal_set_blobhash(const std::string& value);
+  std::string* _internal_mutable_blobhash();
+  public:
+
+  // @@protoc_insertion_point(class_scope:blob.AppendHolderRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr holder_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr blobhash_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_blob_2eproto;
+};
 // ===================================================================
 
 
@@ -1432,9 +1598,137 @@ inline void RemoveRequest::set_allocated_holder(std::string* holder) {
   // @@protoc_insertion_point(field_set_allocated:blob.RemoveRequest.holder)
 }
 
+// -------------------------------------------------------------------
+
+// AppendHolderRequest
+
+// string holder = 1;
+inline void AppendHolderRequest::clear_holder() {
+  holder_.ClearToEmpty();
+}
+inline const std::string& AppendHolderRequest::holder() const {
+  // @@protoc_insertion_point(field_get:blob.AppendHolderRequest.holder)
+  return _internal_holder();
+}
+inline void AppendHolderRequest::set_holder(const std::string& value) {
+  _internal_set_holder(value);
+  // @@protoc_insertion_point(field_set:blob.AppendHolderRequest.holder)
+}
+inline std::string* AppendHolderRequest::mutable_holder() {
+  // @@protoc_insertion_point(field_mutable:blob.AppendHolderRequest.holder)
+  return _internal_mutable_holder();
+}
+inline const std::string& AppendHolderRequest::_internal_holder() const {
+  return holder_.Get();
+}
+inline void AppendHolderRequest::_internal_set_holder(const std::string& value) {
+  
+  holder_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void AppendHolderRequest::set_holder(std::string&& value) {
+  
+  holder_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:blob.AppendHolderRequest.holder)
+}
+inline void AppendHolderRequest::set_holder(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  holder_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:blob.AppendHolderRequest.holder)
+}
+inline void AppendHolderRequest::set_holder(const char* value,
+    size_t size) {
+  
+  holder_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:blob.AppendHolderRequest.holder)
+}
+inline std::string* AppendHolderRequest::_internal_mutable_holder() {
+  
+  return holder_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* AppendHolderRequest::release_holder() {
+  // @@protoc_insertion_point(field_release:blob.AppendHolderRequest.holder)
+  return holder_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void AppendHolderRequest::set_allocated_holder(std::string* holder) {
+  if (holder != nullptr) {
+    
+  } else {
+    
+  }
+  holder_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), holder,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:blob.AppendHolderRequest.holder)
+}
+
+// string blobHash = 2;
+inline void AppendHolderRequest::clear_blobhash() {
+  blobhash_.ClearToEmpty();
+}
+inline const std::string& AppendHolderRequest::blobhash() const {
+  // @@protoc_insertion_point(field_get:blob.AppendHolderRequest.blobHash)
+  return _internal_blobhash();
+}
+inline void AppendHolderRequest::set_blobhash(const std::string& value) {
+  _internal_set_blobhash(value);
+  // @@protoc_insertion_point(field_set:blob.AppendHolderRequest.blobHash)
+}
+inline std::string* AppendHolderRequest::mutable_blobhash() {
+  // @@protoc_insertion_point(field_mutable:blob.AppendHolderRequest.blobHash)
+  return _internal_mutable_blobhash();
+}
+inline const std::string& AppendHolderRequest::_internal_blobhash() const {
+  return blobhash_.Get();
+}
+inline void AppendHolderRequest::_internal_set_blobhash(const std::string& value) {
+  
+  blobhash_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void AppendHolderRequest::set_blobhash(std::string&& value) {
+  
+  blobhash_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:blob.AppendHolderRequest.blobHash)
+}
+inline void AppendHolderRequest::set_blobhash(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  blobhash_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:blob.AppendHolderRequest.blobHash)
+}
+inline void AppendHolderRequest::set_blobhash(const char* value,
+    size_t size) {
+  
+  blobhash_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:blob.AppendHolderRequest.blobHash)
+}
+inline std::string* AppendHolderRequest::_internal_mutable_blobhash() {
+  
+  return blobhash_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* AppendHolderRequest::release_blobhash() {
+  // @@protoc_insertion_point(field_release:blob.AppendHolderRequest.blobHash)
+  return blobhash_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void AppendHolderRequest::set_allocated_blobhash(std::string* blobhash) {
+  if (blobhash != nullptr) {
+    
+  } else {
+    
+  }
+  blobhash_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), blobhash,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:blob.AppendHolderRequest.blobHash)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
