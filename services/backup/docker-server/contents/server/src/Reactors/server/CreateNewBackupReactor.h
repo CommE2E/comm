@@ -34,12 +34,19 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::string holder;
   std::string backupID;
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
+  std::shared_ptr<reactor::BlobAppendHolderClientReactor> holderReactor;
+
   ServiceBlobClient blobClient;
   std::mutex reactorStateMutex;
-  std::condition_variable blobDoneCV;
-  std::mutex blobDoneCVMutex;
+
+  std::condition_variable blobPutDoneCV;
+  std::mutex blobPutDoneCVMutex;
+
+  std::condition_variable blobAppendHolderDoneCV;
+  std::mutex blobAppendHolderDoneCVMutex;
 
   std::string generateBackupID();
+  void initializeHolderReactor();
 
 public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
@@ -51,6 +58,23 @@ public:
 std::string CreateNewBackupReactor::generateBackupID() {
   // mock
   return generateRandomString();
+}
+
+void CreateNewBackupReactor::initializeHolderReactor() {
+  if (this->holder.empty()) {
+    throw std::runtime_error(
+        "holder reactor cannot be initialized with empty holder");
+  }
+  if (this->dataHash.empty()) {
+    throw std::runtime_error(
+        "holder reactor cannot be initialized with empty hash");
+  }
+  if (this->holderReactor == nullptr) {
+    this->holderReactor =
+        std::make_shared<reactor::BlobAppendHolderClientReactor>(
+            this->holder, this->dataHash, &this->blobAppendHolderDoneCV);
+    this->blobClient.appendHolder(this->holderReactor);
+  }
 }
 
 std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
@@ -89,7 +113,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       response->set_backupid(this->backupID);
       this->holder = this->backupID;
       this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
-          this->holder, this->dataHash, &this->blobDoneCV);
+          this->holder, this->dataHash, &this->blobPutDoneCV);
       this->blobClient.put(this->putReactor);
       return nullptr;
     }
@@ -108,11 +132,24 @@ void CreateNewBackupReactor::terminateCallback() {
     return;
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
-  std::unique_lock<std::mutex> lock2(this->blobDoneCVMutex);
-  if (!this->putReactor->isDone()) {
-    this->blobDoneCV.wait(lock2);
-  } else if (!this->putReactor->getStatus().ok()) {
+  std::unique_lock<std::mutex> lock2(this->blobPutDoneCVMutex);
+  if (this->putReactor->isDone() && !this->putReactor->getStatus().ok()) {
     throw std::runtime_error(this->putReactor->getStatus().error_message());
+  }
+  if (!this->putReactor->isDone()) {
+    this->blobPutDoneCV.wait(lock2);
+  }
+  if (this->putReactor->getDataExists()) {
+    this->initializeHolderReactor();
+    std::unique_lock<std::mutex> lockHolder(this->blobAppendHolderDoneCVMutex);
+    if (this->holderReactor->isDone() &&
+        !this->holderReactor->getStatus().ok()) {
+      throw std::runtime_error(
+          this->holderReactor->getStatus().error_message());
+    }
+    if (!this->holderReactor->isDone()) {
+      this->blobAppendHolderDoneCV.wait(lockHolder);
+    }
   }
   try {
     // TODO add recovery data
