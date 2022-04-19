@@ -103,5 +103,30 @@ grpc::ServerUnaryReactor *BlobServiceImpl::Remove(
   return reactor;
 }
 
+grpc::ServerUnaryReactor *BlobServiceImpl::AppendHolder(
+    grpc::CallbackServerContext *context,
+    const blob::AppendHolderRequest *request,
+    google::protobuf::Empty *response) {
+  grpc::Status status = grpc::Status::OK;
+  const std::string holder = request->holder();
+  const std::string blobHash = request->blobhash();
+  try {
+    std::shared_ptr<database::BlobItem> blobItem =
+        database::DatabaseManager::getInstance().findBlobItem(blobHash);
+    if (blobItem == nullptr) {
+      throw std::runtime_error("target blob item does not exist");
+    }
+    database::ReverseIndexItem reverseIndexItem(holder, blobHash);
+    database::DatabaseManager::getInstance().putReverseIndexItem(
+        reverseIndexItem);
+  } catch (std::runtime_error &e) {
+    std::cout << "error: " << e.what() << std::endl;
+    status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
+  auto *reactor = context->DefaultReactor();
+  reactor->Finish(status);
+  return reactor;
+}
+
 } // namespace network
 } // namespace comm
