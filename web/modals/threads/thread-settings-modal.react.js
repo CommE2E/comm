@@ -101,6 +101,7 @@ type Props = {
   +onChangeThreadType: (event: SyntheticEvent<HTMLInputElement>) => void,
   +onChangeAccountPassword: (event: SyntheticEvent<HTMLInputElement>) => void,
   +hasPermissionForTab: (thread: ThreadInfo, tab: TabType) => boolean,
+  +deleteThreadAction: () => Promise<LeaveThreadPayload>,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -316,30 +317,9 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
     event.preventDefault();
     this.props.dispatchActionPromise(
       deleteThreadActionTypes,
-      this.deleteThreadAction(),
+      this.props.deleteThreadAction(),
     );
   };
-
-  async deleteThreadAction() {
-    try {
-      const response = await this.props.deleteThread(
-        this.props.threadInfo.id,
-        this.props.accountPassword,
-      );
-      this.props.onClose();
-      return response;
-    } catch (e) {
-      const errorMessage =
-        e.message === 'invalid_credentials'
-          ? 'wrong password'
-          : 'unknown error';
-      this.props.setErrorMessage(errorMessage);
-      this.props.setAccountPassword('');
-      invariant(this.accountPasswordInput, 'accountPasswordInput ref unset');
-      this.accountPasswordInput.focus();
-      throw e;
-    }
-  }
 }
 
 const deleteThreadLoadingStatusSelector = createLoadingStatusSelector(
@@ -473,6 +453,25 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       [],
     );
 
+    const deleteThreadAction = React.useCallback(async () => {
+      invariant(threadInfo, 'threadInfo should exist in deleteThreadAction');
+      try {
+        const response = await callDeleteThread(threadInfo.id, accountPassword);
+        modalContext.clearModal();
+        return response;
+      } catch (e) {
+        setErrorMessage(
+          e.message === 'invalid_credentials'
+            ? 'wrong password'
+            : 'unknown error',
+        );
+        setAccountPassword('');
+        // TODO: accountPasswordInput.focus()
+        // (once ref is moved up to functional component)
+        throw e;
+      }
+    }, [accountPassword, callDeleteThread, modalContext, threadInfo]);
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
@@ -510,6 +509,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         onChangeThreadType={onChangeThreadType}
         onChangeAccountPassword={onChangeAccountPassword}
         hasPermissionForTab={hasPermissionForTab}
+        deleteThreadAction={deleteThreadAction}
       />
     );
   },
