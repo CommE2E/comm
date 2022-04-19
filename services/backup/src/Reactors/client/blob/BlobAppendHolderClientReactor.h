@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <string>
+#include <condition_variable>
 
 namespace comm {
 namespace network {
@@ -25,25 +26,10 @@ public:
   BlobAppendHolderClientReactor(
       const std::string &holder,
       const std::string &hash,
-      std::condition_variable *terminationNotifier)
-      : terminationNotifier(terminationNotifier) {
-    this->request.set_holder(holder);
-    this->request.set_blobhash(hash);
-  }
-
-  void OnDone(const grpc::Status &status) {
-    this->status = status;
-    this->done = true;
-    this->terminationNotifier->notify_one();
-  }
-
-  bool isDone() const {
-    return this->done;
-  }
-
-  grpc::Status getStatus() const {
-    return this->status;
-  }
+      std::condition_variable *terminationNotifier);
+  void OnDone(const grpc::Status &status);
+  bool isDone() const;
+  grpc::Status getStatus() const;
 };
 
 } // namespace reactor
