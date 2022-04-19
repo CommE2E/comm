@@ -142,4 +142,5 @@
   --subchannels-modal-color-hover: var(--shades-white-100);
   --color-selector-active-bg: var(--shades-black-80);
   --relationship-modal-color: var(--shades-black-60);
+  --arrow-extension-color: var(--shades-black-60);
 }
