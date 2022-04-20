@@ -30,7 +30,6 @@ public:
       const std::string &hash,
       std::condition_variable *terminationNotifier);
   void OnDone(const grpc::Status &status);
-  grpc::Status getStatus() const;
 };
 
 } // namespace reactor
