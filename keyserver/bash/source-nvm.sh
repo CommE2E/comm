@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # source as: logged in user
 # source from: package.json (via npm/yarn scripts)

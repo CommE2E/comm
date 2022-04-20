@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # run as: ssh user on root wheel
 # run from: wherever
