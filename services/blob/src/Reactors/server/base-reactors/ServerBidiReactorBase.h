@@ -24,14 +24,15 @@ struct ServerBidiReactorStatus {
 };
 
 template <class Request, class Response>
-class ServerBidiReactorBase
-    : public grpc::ServerBidiReactor<Request, Response>, public BaseReactor {
+class ServerBidiReactorBase : public grpc::ServerBidiReactor<Request, Response>,
+                              public BaseReactor {
   Request request;
   Response response;
 
 protected:
   ServerBidiReactorStatus status;
   bool readingAborted = false;
+
 public:
   ServerBidiReactorBase();
 
@@ -39,7 +40,9 @@ public:
   void OnReadDone(bool ok) override;
   void OnWriteDone(bool ok) override;
 
-  void terminate(ServerBidiReactorStatus status); // ???
+  void terminate(ServerBidiReactorStatus status);
+  ServerBidiReactorStatus getStatus() const;
+  void setStatus(const ServerBidiReactorStatus &status);
 
   virtual std::unique_ptr<ServerBidiReactorStatus>
   handleRequest(Request request, Response *response) = 0;
@@ -63,24 +66,36 @@ void ServerBidiReactorBase<Request, Response>::OnDone() {
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::terminate(
     ServerBidiReactorStatus status) {
-  this->status = status;
+  this->setStatus(status);
   try {
     this->terminateCallback();
     this->validate();
   } catch (std::runtime_error &e) {
-    this->status = ServerBidiReactorStatus(
-        grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
+    this->setStatus(ServerBidiReactorStatus(
+        grpc::Status(grpc::StatusCode::INTERNAL, e.what())));
   }
   if (this->state != ReactorState::RUNNING) {
     return;
   }
-  if (this->status.sendLastResponse) {
+  if (this->getStatus().sendLastResponse) {
     this->StartWriteAndFinish(
-        &this->response, grpc::WriteOptions(), this->status.status);
+        &this->response, grpc::WriteOptions(), this->getStatus().status);
   } else {
-    this->Finish(this->status.status);
+    this->Finish(this->getStatus().status);
   }
   this->state = ReactorState::TERMINATED;
+}
+
+template <class Request, class Response>
+ServerBidiReactorStatus
+ServerBidiReactorBase<Request, Response>::getStatus() const {
+  return this->status;
+}
+
+template <class Request, class Response>
+void ServerBidiReactorBase<Request, Response>::setStatus(
+    const ServerBidiReactorStatus &status) {
+  this->status = status;
 }
 
 template <class Request, class Response>

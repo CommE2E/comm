@@ -55,6 +55,7 @@ public:
       response->set_dataexists(false);
       return nullptr;
     }
+    std::cout << "here data chunk " << request.datachunk().size() << std::endl;
     if (request.datachunk().empty()) {
       return std::make_unique<ServerBidiReactorStatus>(grpc::Status(
           grpc::StatusCode::INVALID_ARGUMENT, "data chunk expected"));
@@ -72,7 +73,7 @@ public:
   }
 
   void doneCallback() override {
-    if (!this->status.status.ok()) {
+    if (!this->getStatus().status.ok()) {
       return;
     }
     if (this->uploader == nullptr) {
