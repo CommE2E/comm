@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BaseReactor.h"
+
 #include <grpcpp/grpcpp.h>
 
 namespace comm {
@@ -7,13 +9,9 @@ namespace network {
 namespace reactor {
 
 template <class Request, class Response>
-class ClientReadReactorBase : public grpc::ClientReadReactor<Response> {
+class ClientReadReactorBase : public grpc::ClientReadReactor<Response>,
+                              public BaseReactor {
   Response response;
-  bool done = false;
-  bool terminated = false;
-  bool initialized = false;
-
-  void terminate(const grpc::Status &status);
 
 protected:
   grpc::Status status = grpc::Status::OK;
@@ -24,43 +22,21 @@ public:
 
   void start();
   void OnReadDone(bool ok) override;
+  void terminate(const grpc::Status &status) override;
   void OnDone(const grpc::Status &status) override;
-  bool isDone();
-  bool isTerminated();
 
   virtual std::unique_ptr<grpc::Status> readResponse(Response &response) = 0;
-  virtual void validate(){};
-  virtual void doneCallback(){};
-  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
-void ClientReadReactorBase<Request, Response>::terminate(
-    const grpc::Status &status) {
-  if (this->status.ok()) {
-    this->status = status;
-  }
-  if (!this->status.ok()) {
-    std::cout << "error: " << this->status.error_message() << std::endl;
-  }
-  if (this->terminated) {
+void ClientReadReactorBase<Request, Response>::start() {
+  if (this->state != ReactorState::NONE) {
     return;
   }
-  this->terminateCallback();
-  try {
-    this->validate();
-  } catch (std::runtime_error &e) {
-    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-  }
-  this->terminated = true;
-}
-
-template <class Request, class Response>
-void ClientReadReactorBase<Request, Response>::start() {
   this->StartRead(&this->response);
-  if (!this->initialized) {
+  if (this->state != ReactorState::RUNNING) {
     this->StartCall();
-    this->initialized = true;
+    this->state = ReactorState::RUNNING;
   }
 }
 
@@ -86,21 +62,32 @@ void ClientReadReactorBase<Request, Response>::OnReadDone(bool ok) {
 }
 
 template <class Request, class Response>
+void ClientReadReactorBase<Request, Response>::terminate(
+    const grpc::Status &status) {
+  if (this->status.ok()) {
+    this->status = status;
+  }
+  if (!this->status.ok()) {
+    std::cout << "error: " << this->status.error_message() << std::endl;
+  }
+  if (this->state != ReactorState::RUNNING) {
+    return;
+  }
+  this->terminateCallback();
+  try {
+    this->validate();
+  } catch (std::runtime_error &e) {
+    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
+  this->state = ReactorState::TERMINATED;
+}
+
+template <class Request, class Response>
 void ClientReadReactorBase<Request, Response>::OnDone(
     const grpc::Status &status) {
-  this->terminated = true;
+  this->state = ReactorState::DONE;
   this->terminate(status);
   this->doneCallback();
-}
-
-template <class Request, class Response>
-bool ClientReadReactorBase<Request, Response>::isDone() {
-  return this->done;
-}
-
-template <class Request, class Response>
-bool ClientReadReactorBase<Request, Response>::isTerminated() {
-  return this->terminated;
 }
 
 } // namespace reactor

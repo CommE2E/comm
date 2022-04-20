@@ -133,7 +133,7 @@ void SendLogReactor::terminateCallback() {
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lockPut(this->blobPutDoneCVMutex);
-  if (!this->putReactor->isDone()) {
+  if (this->putReactor->getState() != ReactorState::DONE) {
     this->blobPutDoneCV.wait(lockPut);
   } else if (!this->putReactor->getStatus().ok()) {
     throw std::runtime_error(this->putReactor->getStatus().error_message());
