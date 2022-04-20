@@ -104,6 +104,7 @@ type Props = {
   +deleteThreadAction: () => Promise<LeaveThreadPayload>,
   +onDelete: (event: SyntheticEvent<HTMLElement>) => void,
   +changeThreadSettingsAction: () => Promise<ChangeThreadSettingsPayload>,
+  +onSubmit: (event: SyntheticEvent<HTMLElement>) => void,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -202,7 +203,7 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
       buttons = (
         <Button
           type="submit"
-          onClick={this.onSubmit}
+          onClick={this.props.onSubmit}
           disabled={inputDisabled || !this.props.changeQueued}
           className={css.save_button}
         >
@@ -286,14 +287,6 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
 
   accountPasswordInputRef = (accountPasswordInput: ?HTMLInputElement) => {
     this.accountPasswordInput = accountPasswordInput;
-  };
-
-  onSubmit = (event: SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
-    this.props.dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      this.props.changeThreadSettingsAction(),
-    );
   };
 }
 
@@ -478,6 +471,17 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       }
     }, [callChangeThreadSettings, modalContext, queuedChanges, threadInfo]);
 
+    const onSubmit = React.useCallback(
+      (event: SyntheticEvent<HTMLElement>) => {
+        event.preventDefault();
+        dispatchActionPromise(
+          changeThreadSettingsActionTypes,
+          changeThreadSettingsAction(),
+        );
+      },
+      [changeThreadSettingsAction, dispatchActionPromise],
+    );
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
@@ -518,6 +522,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         deleteThreadAction={deleteThreadAction}
         onDelete={onDelete}
         changeThreadSettingsAction={changeThreadSettingsAction}
+        onSubmit={onSubmit}
       />
     );
   },
