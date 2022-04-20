@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BaseReactor.h"
+
 #include <grpcpp/grpcpp.h>
 
 #include <atomic>
@@ -23,15 +25,13 @@ struct ServerBidiReactorStatus {
 
 template <class Request, class Response>
 class ServerBidiReactorBase
-    : public grpc::ServerBidiReactor<Request, Response> {
+    : public grpc::ServerBidiReactor<Request, Response>, public BaseReactor {
   Request request;
   Response response;
-  std::atomic<bool> finished = false;
 
 protected:
   ServerBidiReactorStatus status;
   bool readingAborted = false;
-
 public:
   ServerBidiReactorBase();
 
@@ -43,20 +43,17 @@ public:
 
   virtual std::unique_ptr<ServerBidiReactorStatus>
   handleRequest(Request request, Response *response) = 0;
-  virtual void initialize(){};
-  virtual void validate(){};
-  virtual void doneCallback(){};
-  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
 ServerBidiReactorBase<Request, Response>::ServerBidiReactorBase() {
-  this->initialize();
+  this->state = ReactorState::RUNNING;
   this->StartRead(&this->request);
 }
 
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::OnDone() {
+  this->state = ReactorState::DONE;
   this->doneCallback();
   // This looks weird but apparently it is okay to do this. More information:
   // https://phabricator.ashoat.com/D3246#87890
@@ -74,7 +71,7 @@ void ServerBidiReactorBase<Request, Response>::terminate(
     this->status = ServerBidiReactorStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
-  if (this->finished) {
+  if (this->state != ReactorState::RUNNING) {
     return;
   }
   if (this->status.sendLastResponse) {
@@ -83,7 +80,7 @@ void ServerBidiReactorBase<Request, Response>::terminate(
   } else {
     this->Finish(this->status.status);
   }
-  this->finished = true;
+  this->state = ReactorState::TERMINATED;
 }
 
 template <class Request, class Response>
