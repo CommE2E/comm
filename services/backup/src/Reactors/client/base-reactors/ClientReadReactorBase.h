@@ -11,8 +11,6 @@ namespace reactor {
 template <class Request, class Response>
 class ClientReadReactorBase : public grpc::ClientReadReactor<Response>, public BaseReactor {
   Response response;
-protected:
-  grpc::Status status = grpc::Status::OK;
 public:
   Request request;
   grpc::ClientContext context;
@@ -61,11 +59,11 @@ void ClientReadReactorBase<Request, Response>::OnReadDone(bool ok) {
 template <class Request, class Response>
 void ClientReadReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
-  if (this->status.ok()) {
-    this->status = status;
+  if (this->getStatus().ok()) {
+    this->setStatus(status);
   }
-  if (!this->status.ok()) {
-    std::cout << "error: " << this->status.error_message() << std::endl;
+  if (!this->getStatus().ok()) {
+    std::cout << "error: " << this->getStatus().error_message() << std::endl;
   }
   if (this->state != ReactorState::RUNNING) {
     return;
@@ -74,7 +72,7 @@ void ClientReadReactorBase<Request, Response>::terminate(
   try {
     this->validate();
   } catch (std::runtime_error &e) {
-    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+    this->setStatus(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
   this->state = ReactorState::TERMINATED;
 }

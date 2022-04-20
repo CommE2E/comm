@@ -14,13 +14,9 @@ BlobAppendHolderClientReactor::BlobAppendHolderClientReactor(
 }
 
 void BlobAppendHolderClientReactor::OnDone(const grpc::Status &status) {
-  this->status = status;
+  this->setStatus(status);
   this->state = ReactorState::DONE;
   this->terminationNotifier->notify_one();
-}
-
-grpc::Status BlobAppendHolderClientReactor::getStatus() const {
-  return this->status;
 }
 
 } // namespace reactor

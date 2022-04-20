@@ -47,7 +47,6 @@ public:
       blob::PutRequest &request,
       std::shared_ptr<blob::PutResponse> previousResponse) override;
   void doneCallback() override;
-  grpc::Status getStatus() const;
   bool getDataExists() const;
 };
 
