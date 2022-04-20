@@ -22,8 +22,6 @@ class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response>, public
 protected:
   // this is a const ref since it's not meant to be modified
   const Request &request;
-  grpc::Status status;
-
 public:
   ServerWriteReactorBase(const Request *request);
 
@@ -39,20 +37,20 @@ public:
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
-  this->status = status;
+  this->setStatus(status);
   try {
     this->terminateCallback();
     this->validate();
   } catch (std::runtime_error &e) {
-    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+    this->setStatus(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
-  if (!this->status.ok()) {
-    std::cout << "error: " << this->status.error_message() << std::endl;
+  if (!this->getStatus().ok()) {
+    std::cout << "error: " << this->getStatus().error_message() << std::endl;
   }
   if (this->state != ReactorState::RUNNING) {
     return;
   }
-  this->Finish(this->status);
+  this->Finish(this->getStatus());
   this->state = ReactorState::TERMINATED;
 }
 
