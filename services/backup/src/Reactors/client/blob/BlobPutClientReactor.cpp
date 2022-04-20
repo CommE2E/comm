@@ -54,10 +54,6 @@ void BlobPutClientReactor::doneCallback() {
   this->terminationNotifier->notify_one();
 }
 
-grpc::Status BlobPutClientReactor::getStatus() const {
-  return this->status;
-}
-
 bool BlobPutClientReactor::getDataExists() const {
   return this->dataExists;
 }
