@@ -15,12 +15,8 @@ BlobAppendHolderClientReactor::BlobAppendHolderClientReactor(
 
 void BlobAppendHolderClientReactor::OnDone(const grpc::Status &status) {
   this->status = status;
-  this->done = true;
+  this->state = ReactorState::DONE;
   this->terminationNotifier->notify_one();
-}
-
-bool BlobAppendHolderClientReactor::isDone() const {
-  return this->done;
 }
 
 grpc::Status BlobAppendHolderClientReactor::getStatus() const {
