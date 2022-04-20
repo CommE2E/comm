@@ -103,6 +103,7 @@ type Props = {
   +hasPermissionForTab: (thread: ThreadInfo, tab: TabType) => boolean,
   +deleteThreadAction: () => Promise<LeaveThreadPayload>,
   +onDelete: (event: SyntheticEvent<HTMLElement>) => void,
+  +changeThreadSettingsAction: () => Promise<ChangeThreadSettingsPayload>,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   nameInput: ?HTMLInputElement;
@@ -291,28 +292,9 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
     event.preventDefault();
     this.props.dispatchActionPromise(
       changeThreadSettingsActionTypes,
-      this.changeThreadSettingsAction(),
+      this.props.changeThreadSettingsAction(),
     );
   };
-
-  async changeThreadSettingsAction() {
-    try {
-      const response = await this.props.changeThreadSettings({
-        threadID: this.props.threadInfo.id,
-        changes: this.props.queuedChanges,
-      });
-      this.props.onClose();
-      return response;
-    } catch (e) {
-      this.props.setErrorMessage('unknown error');
-      this.props.setAccountPassword('');
-      this.props.setCurrentTabType('general');
-      this.props.setQueuedChanges(Object.freeze({}));
-      invariant(this.nameInput, 'nameInput ref unset');
-      this.nameInput.focus();
-      throw e;
-    }
-  }
 }
 
 const deleteThreadLoadingStatusSelector = createLoadingStatusSelector(
@@ -473,6 +455,29 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       [deleteThreadAction, dispatchActionPromise],
     );
 
+    const changeThreadSettingsAction = React.useCallback(async () => {
+      invariant(
+        threadInfo,
+        'threadInfo should exist in changeThreadSettingsAction',
+      );
+      try {
+        const response = await callChangeThreadSettings({
+          threadID: threadInfo.id,
+          changes: queuedChanges,
+        });
+        modalContext.clearModal();
+        return response;
+      } catch (e) {
+        setErrorMessage('unknown_error');
+        setAccountPassword('');
+        setCurrentTabType('general');
+        setQueuedChanges(Object.freeze({}));
+        // TODO: nameInput.focus()
+        // (once ref is moved up to functional component)
+        throw e;
+      }
+    }, [callChangeThreadSettings, modalContext, queuedChanges, threadInfo]);
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.clearModal} name="Invalid thread">
@@ -512,6 +517,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         hasPermissionForTab={hasPermissionForTab}
         deleteThreadAction={deleteThreadAction}
         onDelete={onDelete}
+        changeThreadSettingsAction={changeThreadSettingsAction}
       />
     );
   },
