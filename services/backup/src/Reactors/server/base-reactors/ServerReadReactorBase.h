@@ -19,8 +19,6 @@ class ServerReadReactorBase : public grpc::ServerReadReactor<Request>,
   Request request;
 protected:
   Response *response;
-  grpc::Status status;
-
 public:
   ServerReadReactorBase(Response *response);
   void OnReadDone(bool ok) override;
@@ -62,20 +60,20 @@ void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
-  this->status = status;
+  this->setStatus(status);
   try {
     this->terminateCallback();
     this->validate();
   } catch (std::runtime_error &e) {
-    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+    this->setStatus(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
-  if (!this->status.ok()) {
-    std::cout << "error: " << this->status.error_message() << std::endl;
+  if (!this->getStatus().ok()) {
+    std::cout << "error: " << this->getStatus().error_message() << std::endl;
   }
   if (this->state != ReactorState::RUNNING) {
     return;
   }
-  this->Finish(this->status);
+  this->Finish(this->getStatus());
   this->state = ReactorState::TERMINATED;
 }
 

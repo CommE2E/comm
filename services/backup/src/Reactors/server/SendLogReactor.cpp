@@ -174,8 +174,8 @@ void SendLogReactor::doneCallback() {
   // as there may be multiple threads from the pool taking over here
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   // TODO implement
-  std::cout << "receive logs done " << this->status.error_code() << "/"
-            << this->status.error_message() << std::endl;
+  std::cout << "receive logs done " << this->getStatus().error_code() << "/"
+            << this->getStatus().error_message() << std::endl;
 }
 
 } // namespace reactor

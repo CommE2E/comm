@@ -23,10 +23,6 @@ void BlobGetClientReactor::doneCallback() {
   this->dataChunks->write("");
 }
 
-grpc::Status BlobGetClientReactor::getStatus() const {
-  return this->status;
-}
-
 } // namespace reactor
 } // namespace network
 } // namespace comm
