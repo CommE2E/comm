@@ -1,7 +1,7 @@
 use tonic::transport::Server;
 
-mod identity;
-use identity::{IdentityServiceServer, MyIdentityService};
+mod service;
+use service::{IdentityServiceServer, MyIdentityService};
 
 const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::]:50051";
 
