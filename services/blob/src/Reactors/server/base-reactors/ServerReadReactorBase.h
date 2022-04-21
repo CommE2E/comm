@@ -50,7 +50,7 @@ void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
   if (this->finished) {
     return;
   }
-  this->Finish(status);
+  this->Finish(this->status);
   this->finished = true;
 }
 
