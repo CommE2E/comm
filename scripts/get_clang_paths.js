@@ -7,27 +7,27 @@ const clangPaths = [
     excludes: ['_generated'],
   },
   {
-    path: 'services/tunnelbroker/docker-server/contents/server/src',
+    path: 'services/tunnelbroker/src',
     extensions: ['cpp', 'h'],
   },
   {
-    path: 'services/backup/docker-server/contents/server/src',
+    path: 'services/tunnelbroker/test',
     extensions: ['cpp', 'h'],
   },
   {
-    path: 'services/backup/docker-server/contents/server/test',
+    path: 'services/backup/src',
     extensions: ['cpp', 'h'],
   },
   {
-    path: 'services/backup/docker-server/contents/server/dev',
+    path: 'services/backup/test',
     extensions: ['cpp', 'h'],
   },
   {
-    path: 'services/blob/docker-server/contents/server/src',
+    path: 'services/blob/src',
     extensions: ['cpp', 'h'],
   },
   {
-    path: 'services/blob/docker-server/contents/server/test',
+    path: 'services/blob/test',
     extensions: ['cpp', 'h'],
   },
   {

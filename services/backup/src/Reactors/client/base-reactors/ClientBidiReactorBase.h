@@ -9,8 +9,8 @@ namespace network {
 namespace reactor {
 
 template <class Request, class Response>
-class ClientBidiReactorBase
-    : public grpc::ClientBidiReactor<Request, Response>, public BaseReactor {
+class ClientBidiReactorBase : public grpc::ClientBidiReactor<Request, Response>,
+                              public BaseReactor {
   std::shared_ptr<Response> response = nullptr;
   void nextWrite();
 

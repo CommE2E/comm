@@ -12,6 +12,7 @@ template <class Request, class Response>
 class ClientReadReactorBase : public grpc::ClientReadReactor<Response>,
                               public BaseReactor {
   Response response;
+
 public:
   Request request;
   grpc::ClientContext context;

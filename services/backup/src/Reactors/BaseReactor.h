@@ -19,8 +19,10 @@ class BaseReactor {
 private:
   grpc::Status status = grpc::Status::OK;
   std::mutex statusAccessMutex;
+
 protected:
   ReactorState state = ReactorState::NONE;
+
 public:
   grpc::Status getStatus() {
     const std::unique_lock<std::mutex> lock(this->statusAccessMutex);
