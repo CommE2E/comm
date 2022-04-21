@@ -38,8 +38,8 @@ public:
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(grpc::Status status) {
   this->status = status;
-  this->terminateCallback();
   try {
+    this->terminateCallback();
     this->validate();
   } catch (std::runtime_error &e) {
     this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
