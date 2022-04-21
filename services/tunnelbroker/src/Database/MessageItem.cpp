@@ -22,14 +22,12 @@ MessageItem::MessageItem(
     const std::string fromDeviceID,
     const std::string toDeviceID,
     const std::string payload,
-    const std::string blobHashes,
-    const uint64_t expire)
+    const std::string blobHashes)
     : messageID(messageID),
       fromDeviceID(fromDeviceID),
       toDeviceID(toDeviceID),
       payload(payload),
-      blobHashes(blobHashes),
-      expire(expire) {
+      blobHashes(blobHashes) {
   this->validate();
 }
 
@@ -45,7 +43,6 @@ void MessageItem::validate() const {
     throw std::runtime_error("Error: ToDeviceID format is wrong.");
   }
   tools::checkIfNotEmpty("messageID", this->messageID);
-  tools::checkIfNotZero("expire", this->expire);
 }
 
 void MessageItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {

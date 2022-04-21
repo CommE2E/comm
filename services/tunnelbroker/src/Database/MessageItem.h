@@ -46,8 +46,7 @@ public:
       const std::string fromDeviceID,
       const std::string toDeviceID,
       const std::string payload,
-      const std::string blobHashes,
-      const uint64_t expire);
+      const std::string blobHashes);
   MessageItem(const AttributeValues &itemFromDB);
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
 };

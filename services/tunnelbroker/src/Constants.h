@@ -27,7 +27,7 @@ const std::string SERVER_LISTEN_ADDRESS = "0.0.0.0:50051";
 
 // AMQP (RabbitMQ)
 const std::string AMQP_FANOUT_EXCHANGE_NAME = "allBrokers";
-// message TTL
+// Message broker queue message TTL
 const size_t AMQP_MESSAGE_TTL = 300 * 1000; // 5 min
 // queue TTL in case of no consumers (tunnelbroker is down)
 const size_t AMQP_QUEUE_TTL = 24 * 3600 * 1000; // 24 hours
@@ -50,6 +50,8 @@ const std::string CONFIG_FILE_PATH =
 
 // DeliveryBroker
 const size_t DELIVERY_BROKER_MAX_QUEUE_SIZE = 100;
+// Database messages TTL
+const size_t MESSAGE_RECORD_TTL = 300 * 24 * 60 * 60; // 300 days
 
 } // namespace network
 } // namespace comm
