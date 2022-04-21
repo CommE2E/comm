@@ -33,6 +33,7 @@ public:
 
   virtual std::unique_ptr<grpc::Status> writeResponse(Response *response) = 0;
   virtual void initialize(){};
+  virtual void validate(){};
   virtual void doneCallback(){};
   virtual void terminateCallback(){};
 };
@@ -42,6 +43,7 @@ void ServerWriteReactorBase<Request, Response>::terminate(grpc::Status status) {
   this->status = status;
   try {
     this->terminateCallback();
+    this->validate();
   } catch (std::runtime_error &e) {
     this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
