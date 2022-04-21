@@ -39,11 +39,15 @@ public:
 
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::terminate(grpc::Status status) {
-  this->terminateCallback();
+  this->status = status;
+  try {
+    this->terminateCallback();
+  } catch (std::runtime_error &e) {
+    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  this->status = status;
   if (this->finished) {
     return;
   }
