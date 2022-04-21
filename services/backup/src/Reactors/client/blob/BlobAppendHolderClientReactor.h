@@ -7,9 +7,9 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <condition_variable>
 #include <memory>
 #include <string>
-#include <condition_variable>
 
 namespace comm {
 namespace network {

@@ -1,7 +1,7 @@
 #include "SendLogReactor.h"
 
-#include "DatabaseManager.h"
 #include "Constants.h"
+#include "DatabaseManager.h"
 #include "Tools.h"
 
 #include <iostream>

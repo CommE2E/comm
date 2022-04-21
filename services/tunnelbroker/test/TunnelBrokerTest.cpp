@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
-class TunnelBrokerTest : public testing::Test
-{
+class TunnelBrokerTest : public testing::Test {
 protected:
   virtual void SetUp() {
     //...

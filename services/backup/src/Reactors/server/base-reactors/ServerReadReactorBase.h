@@ -17,8 +17,10 @@ template <class Request, class Response>
 class ServerReadReactorBase : public grpc::ServerReadReactor<Request>,
                               public BaseReactor {
   Request request;
+
 protected:
   Response *response;
+
 public:
   ServerReadReactorBase(Response *response);
   void OnReadDone(bool ok) override;

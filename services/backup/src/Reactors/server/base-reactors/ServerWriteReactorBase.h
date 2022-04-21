@@ -24,6 +24,7 @@ class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response>,
 protected:
   // this is a const ref since it's not meant to be modified
   const Request &request;
+
 public:
   ServerWriteReactorBase(const Request *request);
 
