@@ -15,6 +15,7 @@ class MessageItem : public Item {
   std::string payload;
   std::string blobHashes;
   uint64_t expire;
+  uint64_t createdAt;
 
   void validate() const override;
 
@@ -25,6 +26,7 @@ public:
   static const std::string FIELD_PAYLOAD;
   static const std::string FIELD_BLOB_HASHES;
   static const std::string FIELD_EXPIRE;
+  static const std::string FIELD_CREATED_AT;
 
   std::string getPrimaryKey() const override;
   std::string getTableName() const override;
@@ -34,6 +36,7 @@ public:
   std::string getPayload() const;
   std::string getBlobHashes() const;
   uint64_t getExpire() const;
+  uint64_t getCreatedAt() const;
 
   MessageItem() {
   }

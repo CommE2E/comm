@@ -185,6 +185,10 @@ void DatabaseManager::putMessageItem(const MessageItem &item) {
   request.AddItem(
       MessageItem::FIELD_EXPIRE,
       Aws::DynamoDB::Model::AttributeValue(std::to_string(item.getExpire())));
+  request.AddItem(
+      MessageItem::FIELD_CREATED_AT,
+      Aws::DynamoDB::Model::AttributeValue(
+          std::to_string(static_cast<size_t>(std::time(0)))));
   this->innerPutItem(std::make_shared<MessageItem>(item), request);
 }
 

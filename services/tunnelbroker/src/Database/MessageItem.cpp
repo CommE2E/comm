@@ -14,6 +14,7 @@ const std::string MessageItem::FIELD_TO_DEVICE_ID = "ToDeviceID";
 const std::string MessageItem::FIELD_PAYLOAD = "Payload";
 const std::string MessageItem::FIELD_BLOB_HASHES = "BlobHashes";
 const std::string MessageItem::FIELD_EXPIRE = "Expire";
+const std::string MessageItem::FIELD_CREATED_AT = "CreatedAt";
 
 MessageItem::MessageItem(
     const std::string messageID,
@@ -55,6 +56,8 @@ void MessageItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
     this->payload = itemFromDB.at(MessageItem::FIELD_PAYLOAD).GetS();
     this->blobHashes = itemFromDB.at(MessageItem::FIELD_BLOB_HASHES).GetS();
     this->expire = std::stoull(itemFromDB.at(MessageItem::FIELD_EXPIRE).GetS());
+    this->createdAt =
+        std::stoull(itemFromDB.at(MessageItem::FIELD_CREATED_AT).GetS());
   } catch (const std::exception &e) {
     throw std::runtime_error(
         "Got an exception at MessageItem: " + std::string(e.what()));
@@ -93,6 +96,10 @@ std::string MessageItem::getBlobHashes() const {
 
 uint64_t MessageItem::getExpire() const {
   return this->expire;
+}
+
+uint64_t MessageItem::getCreatedAt() const {
+  return this->createdAt;
 }
 
 } // namespace database
