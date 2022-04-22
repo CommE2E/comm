@@ -4,6 +4,9 @@ FROM rust:1.57
 RUN useradd -m comm
 USER comm
 
+# The build.rs script depends on rustfmt
+RUN rustup component add rustfmt
+
 RUN mkdir -p /home/comm/app/identity
 WORKDIR /home/comm/app/identity
 RUN cargo init --bin
@@ -19,9 +22,6 @@ COPY services/identity .
 # Remove the previously-built binary so that only the application itself is
 # rebuilt
 RUN rm ./target/release/deps/identity*
-
-# The build.rs script depends on rustfmt
-RUN rustup component add rustfmt
 
 RUN cargo build --release
 
