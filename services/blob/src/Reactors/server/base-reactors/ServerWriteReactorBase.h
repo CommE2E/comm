@@ -14,19 +14,23 @@ namespace network {
 namespace reactor {
 
 template <class Request, class Response>
-class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response>, public BaseReactor {
+class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response>,
+                               public BaseReactor {
   Response response;
   bool initialized = false;
 
   void nextWrite();
+
 protected:
   // this is a const ref since it's not meant to be modified
   const Request &request;
+
 public:
   ServerWriteReactorBase(const Request *request);
 
   void start();
-  virtual void initialize() {}
+  virtual void initialize() {
+  }
   void OnWriteDone(bool ok) override;
   void terminate(const grpc::Status &status);
   void OnDone() override;

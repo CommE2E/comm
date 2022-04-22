@@ -14,6 +14,7 @@ class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request>,
   Request request;
 
   void nextWrite();
+
 public:
   Response response;
   grpc::ClientContext context;
