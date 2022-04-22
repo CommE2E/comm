@@ -68,10 +68,11 @@ void CreateNewBackupReactor::terminateCallback() {
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lock2(this->blobPutDoneCVMutex);
-  if (this->putReactor->isDone() && !this->putReactor->getStatus().ok()) {
+  if (this->putReactor->getState() == ReactorState::DONE &&
+      !this->putReactor->getStatus().ok()) {
     throw std::runtime_error(this->putReactor->getStatus().error_message());
   }
-  if (!this->putReactor->isDone()) {
+  if (this->putReactor->getState() != ReactorState::DONE) {
     this->blobPutDoneCV.wait(lock2);
   }
   try {

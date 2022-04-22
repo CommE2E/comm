@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BaseReactor.h"
+
 #include <grpcpp/grpcpp.h>
 
 namespace comm {
@@ -8,12 +10,8 @@ namespace reactor {
 
 template <class Request, class Response>
 class ClientBidiReactorBase
-    : public grpc::ClientBidiReactor<Request, Response> {
+    : public grpc::ClientBidiReactor<Request, Response>, public BaseReactor {
   std::shared_ptr<Response> response = nullptr;
-  bool terminated = false;
-  bool done = false;
-  bool initialized = 0;
-
   void nextWrite();
 
 protected:
@@ -24,19 +22,14 @@ public:
   grpc::ClientContext context;
 
   void start();
-  void terminate(const grpc::Status &status);
-  bool isTerminated();
-  bool isDone();
   void OnWriteDone(bool ok) override;
   void OnReadDone(bool ok) override;
+  void terminate(const grpc::Status &status) override;
   void OnDone(const grpc::Status &status) override;
 
   virtual std::unique_ptr<grpc::Status> prepareRequest(
       Request &request,
       std::shared_ptr<Response> previousResponse) = 0;
-  virtual void validate(){};
-  virtual void doneCallback(){};
-  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
@@ -54,47 +47,16 @@ void ClientBidiReactorBase<Request, Response>::nextWrite() {
     return;
   }
   this->StartWrite(&this->request);
-  if (!this->initialized) {
-    this->StartCall();
-    this->initialized = true;
-  }
 }
 
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::start() {
-  this->nextWrite();
-}
-
-template <class Request, class Response>
-void ClientBidiReactorBase<Request, Response>::terminate(
-    const grpc::Status &status) {
-  if (this->status.ok()) {
-    this->status = status;
-  }
-  if (!this->status.ok()) {
-    std::cout << "error: " << this->status.error_message() << std::endl;
-  }
-  if (this->terminated) {
+  if (this->state != ReactorState::NONE) {
     return;
   }
-  this->terminateCallback();
-  try {
-    this->validate();
-  } catch (std::runtime_error &e) {
-    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
-  }
-  this->StartWritesDone();
-  this->terminated = true;
-}
-
-template <class Request, class Response>
-bool ClientBidiReactorBase<Request, Response>::isTerminated() {
-  return this->terminated;
-}
-
-template <class Request, class Response>
-bool ClientBidiReactorBase<Request, Response>::isDone() {
-  return this->done;
+  this->state = ReactorState::RUNNING;
+  this->nextWrite();
+  this->StartCall();
 }
 
 template <class Request, class Response>
@@ -118,10 +80,32 @@ void ClientBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
 }
 
 template <class Request, class Response>
+void ClientBidiReactorBase<Request, Response>::terminate(
+    const grpc::Status &status) {
+  if (this->status.ok()) {
+    this->status = status;
+  }
+  if (!this->status.ok()) {
+    std::cout << "error: " << this->status.error_message() << std::endl;
+  }
+  if (this->state != ReactorState::RUNNING) {
+    return;
+  }
+  this->terminateCallback();
+  try {
+    this->validate();
+  } catch (std::runtime_error &e) {
+    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+  }
+  this->StartWritesDone();
+  this->state = ReactorState::TERMINATED;
+}
+
+template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::OnDone(
     const grpc::Status &status) {
+  this->state = ReactorState::DONE;
   this->terminate(status);
-  this->done = true;
   this->doneCallback();
 }
 

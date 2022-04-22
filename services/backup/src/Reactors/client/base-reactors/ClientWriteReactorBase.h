@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BaseReactor.h"
+
 #include <grpcpp/grpcpp.h>
 
 namespace comm {
@@ -7,29 +9,22 @@ namespace network {
 namespace reactor {
 
 template <class Request, class Response>
-class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request> {
+class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request>,
+                               public BaseReactor {
   grpc::Status status = grpc::Status::OK;
-  bool done = false;
-  bool terminated = false;
-  bool initialized = 0;
   Request request;
 
   void nextWrite();
-
 public:
   Response response;
   grpc::ClientContext context;
 
+  void start();
   void OnWriteDone(bool ok) override;
-  void terminate(const grpc::Status &status);
-  bool isDone();
-  bool isTerminated();
+  void terminate(const grpc::Status &status) override;
   void OnDone(const grpc::Status &status) override;
 
   virtual std::unique_ptr<grpc::Status> prepareRequest(Request &request) = 0;
-  virtual void validate(){};
-  virtual void doneCallback(){};
-  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
@@ -53,6 +48,10 @@ void ClientWriteReactorBase<Request, Response>::nextWrite() {
 
 template <class Request, class Response>
 void ClientWriteReactorBase<Request, Response>::start() {
+  if (this->start != ReactorState::NONE) {
+    return;
+  }
+  this->state = ReactorState::RUNNING;
   this->nextWrite();
 }
 
@@ -74,7 +73,7 @@ void ClientWriteReactorBase<Request, Response>::terminate(
   if (!this->status.ok()) {
     std::cout << "error: " << this->status.error_message() << std::endl;
   }
-  if (this->terminated) {
+  if (this->state != ReactorState::RUNNING) {
     return;
   }
   this->terminateCallback();
@@ -83,25 +82,15 @@ void ClientWriteReactorBase<Request, Response>::terminate(
   } catch (std::runtime_error &e) {
     this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
-  this->terminated = true;
+  this->state = ReactorState::TERMINATED;
   this->StartWritesDone();
-}
-
-template <class Request, class Response>
-bool ClientWriteReactorBase<Request, Response>::isDone() {
-  return this->done;
-}
-
-template <class Request, class Response>
-bool ClientWriteReactorBase<Request, Response>::isTerminated() {
-  return this->terminated;
 }
 
 template <class Request, class Response>
 void ClientWriteReactorBase<Request, Response>::OnDone(
     const grpc::Status &status) {
+  this->state = ReactorState::DONE;
   this->terminate(status);
-  this->done = true;
   this->doneCallback();
 }
 
