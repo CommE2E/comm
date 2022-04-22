@@ -34,10 +34,12 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::string holder;
   std::string backupID;
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
+
   ServiceBlobClient blobClient;
   std::mutex reactorStateMutex;
-  std::condition_variable blobDoneCV;
-  std::mutex blobDoneCVMutex;
+
+  std::condition_variable blobPutDoneCV;
+  std::mutex blobPutDoneCVMutex;
 
   std::string generateBackupID();
 
@@ -89,7 +91,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       response->set_backupid(this->backupID);
       this->holder = this->backupID;
       this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
-          this->holder, this->dataHash, &this->blobDoneCV);
+          this->holder, this->dataHash, &this->blobPutDoneCV);
       this->blobClient.put(this->putReactor);
       return nullptr;
     }
@@ -108,11 +110,12 @@ void CreateNewBackupReactor::terminateCallback() {
     return;
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
-  std::unique_lock<std::mutex> lock2(this->blobDoneCVMutex);
-  if (!this->putReactor->isDone()) {
-    this->blobDoneCV.wait(lock2);
-  } else if (!this->putReactor->getStatus().ok()) {
+  std::unique_lock<std::mutex> lock2(this->blobPutDoneCVMutex);
+  if (this->putReactor->isDone() && !this->putReactor->getStatus().ok()) {
     throw std::runtime_error(this->putReactor->getStatus().error_message());
+  }
+  if (!this->putReactor->isDone()) {
+    this->blobPutDoneCV.wait(lock2);
   }
   try {
     // TODO add recovery data
