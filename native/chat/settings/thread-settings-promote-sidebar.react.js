@@ -26,7 +26,7 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
   onClick = () => {
     Alert.alert(
       'Are you sure?',
-      "This promoting a sidebar to a full thread can't be undone.",
+      'Promoting a sidebar to a full thread cannot be undone.',
       [
         {
           text: 'Cancel',
