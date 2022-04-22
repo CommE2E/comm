@@ -117,9 +117,6 @@ void CreateNewBackupReactor::terminateCallback() {
   if (!this->putReactor->isDone()) {
     this->blobPutDoneCV.wait(lock2);
   }
-  if (this->putReactor->getDataExists()) {
-    // todo use put to add a new holder to the existing hash
-  }
   try {
     // TODO add recovery data
     // TODO handle attachments holders
