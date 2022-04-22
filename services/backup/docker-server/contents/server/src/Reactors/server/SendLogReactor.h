@@ -42,8 +42,9 @@ class SendLogReactor : public ServerReadReactorBase<
   // true)
   std::string value;
   std::mutex reactorStateMutex;
-  std::condition_variable blobDoneCV;
-  std::mutex blobDoneCVMutex;
+
+  std::condition_variable blobPutDoneCV;
+  std::mutex blobPutDoneCVMutex;
 
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
   ServiceBlobClient blobClient;
@@ -98,7 +99,7 @@ void SendLogReactor::initializePutReactor() {
   }
   if (this->putReactor == nullptr) {
     this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
-        this->value, this->hash, &this->blobDoneCV);
+        this->value, this->hash, &this->blobPutDoneCV);
     this->blobClient.put(this->putReactor);
   }
 }
@@ -188,9 +189,9 @@ void SendLogReactor::terminateCallback() {
     return;
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
-  std::unique_lock<std::mutex> lock2(this->blobDoneCVMutex);
+  std::unique_lock<std::mutex> lockPut(this->blobPutDoneCVMutex);
   if (!this->putReactor->isDone()) {
-    this->blobDoneCV.wait(lock2);
+    this->blobPutDoneCV.wait(lockPut);
   } else if (!this->putReactor->getStatus().ok()) {
     throw std::runtime_error(this->putReactor->getStatus().error_message());
   }
