@@ -1,3 +1,5 @@
+#pragma once
+
 #include <grpcpp/grpcpp.h>
 
 namespace comm {
