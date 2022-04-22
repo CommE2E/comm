@@ -59,7 +59,7 @@ grpc::ServerWriteReactor<blob::GetResponse> *BlobServiceImpl::Get(
     const blob::GetRequest *request) {
 
   reactor::GetReactor *gr = new reactor::GetReactor(request);
-  gr->NextWrite();
+  gr->start();
   return gr;
 }
 

@@ -12,11 +12,12 @@ class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request> {
   bool initialized = 0;
   Request request;
 
+  void nextWrite();
+
 public:
   Response response;
   grpc::ClientContext context;
 
-  void nextWrite();
   void OnWriteDone(bool ok) override;
   void terminate(const grpc::Status &status);
   bool isDone();
@@ -46,6 +47,11 @@ void ClientWriteReactorBase<Request, Response>::nextWrite() {
     this->StartCall();
     this->initialized = true;
   }
+}
+
+template <class Request, class Response>
+void ClientWriteReactorBase<Request, Response>::start() {
+  this->nextWrite();
 }
 
 template <class Request, class Response>
