@@ -8,18 +8,12 @@ type ThreadSettingsDeleteTabProps = {
   +accountPassword: string,
   +onChangeAccountPassword: (event: SyntheticEvent<HTMLInputElement>) => void,
   +inputDisabled: boolean,
-  +accountPasswordInputRef: (accountPasswordInput: ?HTMLInputElement) => void,
 };
 
 function ThreadSettingsDeleteTab(
   props: ThreadSettingsDeleteTabProps,
 ): React.Node {
-  const {
-    accountPassword,
-    onChangeAccountPassword,
-    inputDisabled,
-    accountPasswordInputRef,
-  } = props;
+  const { accountPassword, onChangeAccountPassword, inputDisabled } = props;
   return (
     <>
       <div>
@@ -40,7 +34,6 @@ function ThreadSettingsDeleteTab(
             value={accountPassword}
             onChange={onChangeAccountPassword}
             disabled={inputDisabled}
-            ref={accountPasswordInputRef}
           />
         </div>
       </div>

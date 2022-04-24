@@ -11,7 +11,6 @@ type ThreadSettingsGeneralTabProps = {
   +threadNamePlaceholder: string,
   +threadNameOnChange: (event: SyntheticEvent<HTMLInputElement>) => void,
   +threadNameDisabled: boolean,
-  +threadNameInputRef: (nameInput: ?HTMLInputElement) => void,
   +threadDescriptionValue: string,
   +threadDescriptionOnChange: (
     event: SyntheticEvent<HTMLTextAreaElement>,
@@ -28,7 +27,6 @@ function ThreadSettingsGeneralTab(
     threadNamePlaceholder,
     threadNameOnChange,
     threadNameDisabled,
-    threadNameInputRef,
     threadDescriptionValue,
     threadDescriptionOnChange,
     threadDescriptionDisabled,
@@ -47,7 +45,6 @@ function ThreadSettingsGeneralTab(
             placeholder={threadNamePlaceholder}
             onChange={threadNameOnChange}
             disabled={threadNameDisabled}
-            ref={threadNameInputRef}
           />
         </div>
       </div>
