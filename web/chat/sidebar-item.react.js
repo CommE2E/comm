@@ -15,6 +15,7 @@ type Props = {
 function SidebarItem(props: Props): React.Node {
   const {
     sidebarInfo: { threadInfo },
+    extendArrow = false,
   } = props;
   const {
     currentUser: { unread },
@@ -23,9 +24,16 @@ function SidebarItem(props: Props): React.Node {
   const onClick = useOnClickThread(threadInfo);
 
   const unreadCls = classNames(css.sidebarTitle, { [css.unread]: unread });
+  let arrow;
+  if (extendArrow) {
+    arrow = <img src="images/long_arrow.svg" alt="sidebar arrow" />;
+  } else {
+    arrow = <img src="images/arrow.svg" alt="sidebar arrow" />;
+  }
 
   return (
     <>
+      {arrow}
       <div className={css.spacer} />
       <a className={css.threadButtonSidebar} onClick={onClick}>
         <div className={css.threadRow}>
