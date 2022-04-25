@@ -6,7 +6,6 @@ import * as React from 'react';
 import type { SidebarInfo } from 'lib/types/thread-types';
 
 import { useOnClickThread } from '../selectors/nav-selectors';
-import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-list.css';
 
 type Props = {
@@ -16,7 +15,6 @@ type Props = {
 function SidebarItem(props: Props): React.Node {
   const {
     sidebarInfo: { threadInfo },
-    extendArrow = false,
   } = props;
   const {
     currentUser: { unread },
@@ -26,15 +24,8 @@ function SidebarItem(props: Props): React.Node {
 
   const unreadCls = classNames(css.sidebarTitle, { [css.unread]: unread });
 
-  let arrowExtender;
-  if (extendArrow) {
-    arrowExtender = <div className={css.threadArrowExtender} />;
-  }
-
   return (
     <>
-      {arrowExtender}
-      <SWMansionIcon icon="right-angle-arrow" size={28} />
       <div className={css.spacer} />
       <a className={css.threadButtonSidebar} onClick={onClick}>
         <div className={css.threadRow}>

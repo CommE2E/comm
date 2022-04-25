@@ -47,15 +47,6 @@ div.title {
   color: var(--thread-color-read);
   line-height: var(--line-height-text);
 }
-div.threadArrowExtender {
-  width: 10px;
-  position: absolute;
-  border-left: 0.5px solid var(--arrow-extension-color);
-  height: 8px;
-  top: -15px;
-  left: 32px;
-}
-
 .threadButton {
   flex: 1;
   cursor: pointer;
