@@ -15,6 +15,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 2
 
+# We use nvm to make sure we're running the right Node version
+ENV NVM_DIR /root/.nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh \
+  | bash
+
 #-------------------------------------------------------------------------------
 # STEP 1: YARN CLEANINSTALL
 # We run yarn cleaninstall before copying most of the files in for build caching
