@@ -7,7 +7,7 @@ import DisconnectedBar from './disconnected-bar.react';
 
 type Props = {
   ...StackHeaderProps,
-  activeTab: boolean,
+  +activeTab: boolean,
 };
 export default function CustomHeader(props: Props): React.Node {
   const { activeTab, ...rest } = props;

@@ -16,10 +16,10 @@ global.ErrorUtils.setGlobalHandler(error => {
 });
 
 type Props = {
-  children: React.Node,
+  +children: React.Node,
 };
 type State = {
-  errorData: $ReadOnlyArray<ErrorData>,
+  +errorData: $ReadOnlyArray<ErrorData>,
 };
 class ErrorBoundary extends React.PureComponent<Props, State> {
   state: State = {

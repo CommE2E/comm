@@ -15,10 +15,10 @@ import type { ViewStyle } from '../types/styles';
 
 type Props = {
   ...React.ElementConfig<typeof View>,
-  onPress: () => mixed,
-  queueCount?: number,
-  containerStyle?: ViewStyle,
-  style?: ViewStyle,
+  +onPress: () => mixed,
+  +queueCount?: number,
+  +containerStyle?: ViewStyle,
+  +style?: ViewStyle,
 };
 function SendMediaButton(props: Props): React.Node {
   const {

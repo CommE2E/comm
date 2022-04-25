@@ -9,7 +9,7 @@ import type { ClearableTextInputProps } from './clearable-text-input';
 import TextInput from './text-input.react';
 
 type State = {
-  textInputKey: number,
+  +textInputKey: number,
 };
 class ClearableTextInput extends React.PureComponent<
   ClearableTextInputProps,

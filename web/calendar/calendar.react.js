@@ -61,7 +61,7 @@ type Props = {
   ) => Promise<CalendarQueryUpdateResult>,
 };
 type State = {
-  filterPanelOpen: boolean,
+  +filterPanelOpen: boolean,
 };
 class Calendar extends React.PureComponent<Props, State> {
   state: State = {

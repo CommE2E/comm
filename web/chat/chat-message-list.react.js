@@ -69,8 +69,8 @@ type PassedProps = {
   +inputState: ?InputState,
 };
 type ReactDnDProps = {
-  isActive: boolean,
-  connectDropTarget: (node: React.Node) => React.Node,
+  +isActive: boolean,
+  +connectDropTarget: (node: React.Node) => React.Node,
 };
 type Props = {
   ...PassedProps,

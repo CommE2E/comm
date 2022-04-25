@@ -6,8 +6,8 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import type { Colors } from '../themes/colors';
 
 type Props = {
-  fillType: 'flex' | 'absolute',
-  colors: Colors,
+  +fillType: 'flex' | 'absolute',
+  +colors: Colors,
 };
 function ContentLoading(props: Props): React.Node {
   const viewStyle =

@@ -7,7 +7,7 @@ import { firstLine } from 'lib/utils/string-utils';
 
 type Props = {
   ...React.ElementConfig<typeof Text>,
-  children: ?string,
+  +children: ?string,
 };
 function SingleLine(props: Props): React.Node {
   const text = firstLine(props.children);

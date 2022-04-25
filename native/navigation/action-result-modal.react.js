@@ -17,8 +17,8 @@ export type ActionResultModalParams = {
 };
 
 type Props = {
-  navigation: AppNavigationProp<'ActionResultModal'>,
-  route: NavigationRoute<'ActionResultModal'>,
+  +navigation: AppNavigationProp<'ActionResultModal'>,
+  +route: NavigationRoute<'ActionResultModal'>,
 };
 function ActionResultModal(props: Props): React.Node {
   const overlayContext = React.useContext(OverlayContext);

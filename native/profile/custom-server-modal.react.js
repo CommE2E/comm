@@ -32,7 +32,7 @@ type Props = {
   +dispatch: Dispatch,
 };
 type State = {
-  customServer: string,
+  +customServer: string,
 };
 class CustomServerModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {

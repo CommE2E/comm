@@ -26,8 +26,8 @@ export type ThreadPickerModalParams = {
 };
 
 type Props = {
-  navigation: RootNavigationProp<'ThreadPickerModal'>,
-  route: NavigationRoute<'ThreadPickerModal'>,
+  +navigation: RootNavigationProp<'ThreadPickerModal'>,
+  +route: NavigationRoute<'ThreadPickerModal'>,
 };
 function ThreadPickerModal(props: Props): React.Node {
   const {

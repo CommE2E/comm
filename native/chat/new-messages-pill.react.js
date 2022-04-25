@@ -8,10 +8,10 @@ import { useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 
 type Props = {
-  onPress: () => mixed,
-  newMessageCount: number,
-  containerStyle?: ViewStyle,
-  style?: ViewStyle,
+  +onPress: () => mixed,
+  +newMessageCount: number,
+  +containerStyle?: ViewStyle,
+  +style?: ViewStyle,
   ...React.ElementConfig<typeof View>,
 };
 function NewMessagesPill(props: Props): React.Node {
