@@ -52,5 +52,18 @@
     },
     "import/ignore": ["react-native"],
     "import/internal-regex": "^(lib|native|keyserver|web)/"
-  }
+  },
+  "overrides": [
+    {
+      "files": "*.cjs",
+      "env": {
+        "node": true,
+        "commonjs": true
+      },
+      "rules": {
+        "flowtype/require-valid-file-annotation": 0,
+        "flowtype/require-exact-type": 0
+      }
+    }
+  ]
 }
