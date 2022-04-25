@@ -60,7 +60,7 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     std::string dataChunk;
     this->dataChunks->blockingRead(dataChunk);
     if (!dataChunk.empty()) {
-      response->set_compactionchunk(dataChunk);
+      response->add_inner()->set_compactionchunk(dataChunk);
       return nullptr;
     }
     if (!this->dataChunks->isEmpty()) {
@@ -70,7 +70,20 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     if (!this->getReactor->getStatus().ok()) {
       throw std::runtime_error(this->getReactor->getStatus().error_message());
     }
+    this->state = State::ATTACHMENT_HOLDERS;
+  }
+  if (this->state == State::ATTACHMENT_HOLDERS) {
+    if (this->backupItem->getAttachmentHolders().empty()) {
+      this->state = State::LOGS;
+      return nullptr;
+    }
+    for (size_t i = 0; i < this->backupItem->getAttachmentHolders().size();
+         ++i) {
+      response->add_inner()->set_attachmentholder(
+          this->backupItem->getAttachmentHolders().at(i));
+    }
     this->state = State::LOGS;
+    return nullptr;
   }
   if (this->state == State::LOGS) {
     // TODO make sure logs are received in correct order regardless their size
@@ -106,7 +119,7 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
         // if the item is persisted in the database, we just take it, send the
         // data to the client and reset currentLog so the next invocation of
         // writeResponse will take another one from the collection
-        response->set_logchunk(this->currentLog->getValue());
+        response->add_inner()->set_logchunk(this->currentLog->getValue());
         ++this->currentLogIndex;
         this->currentLog = nullptr;
         return nullptr;
@@ -127,7 +140,7 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
       this->currentLog = nullptr;
       return nullptr;
     } else {
-      response->set_logchunk(dataChunk);
+      response->add_inner()->set_logchunk(dataChunk);
     }
     return nullptr;
   }

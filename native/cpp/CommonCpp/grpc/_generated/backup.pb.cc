@@ -90,9 +90,21 @@ struct PullBackupRequestDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PullBackupRequestDefaultTypeInternal _PullBackupRequest_default_instance_;
-constexpr PullBackupResponse::PullBackupResponse(
+constexpr PullBackupResponse_InnerPullBackupResponse::PullBackupResponse_InnerPullBackupResponse(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : _oneof_case_{}{}
+struct PullBackupResponse_InnerPullBackupResponseDefaultTypeInternal {
+  constexpr PullBackupResponse_InnerPullBackupResponseDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~PullBackupResponse_InnerPullBackupResponseDefaultTypeInternal() {}
+  union {
+    PullBackupResponse_InnerPullBackupResponse _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PullBackupResponse_InnerPullBackupResponseDefaultTypeInternal _PullBackupResponse_InnerPullBackupResponse_default_instance_;
+constexpr PullBackupResponse::PullBackupResponse(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : inner_(){}
 struct PullBackupResponseDefaultTypeInternal {
   constexpr PullBackupResponseDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -103,7 +115,7 @@ struct PullBackupResponseDefaultTypeInternal {
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PullBackupResponseDefaultTypeInternal _PullBackupResponse_default_instance_;
 }  // namespace backup
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_backup_2eproto[7];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_backup_2eproto[8];
 static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_backup_2eproto = nullptr;
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_backup_2eproto = nullptr;
 
@@ -154,13 +166,20 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_backup_2eproto::offsets[] PROT
   PROTOBUF_FIELD_OFFSET(::backup::PullBackupRequest, userid_),
   PROTOBUF_FIELD_OFFSET(::backup::PullBackupRequest, backupid_),
   ~0u,  // no _has_bits_
-  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse, _internal_metadata_),
+  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse_InnerPullBackupResponse, _internal_metadata_),
   ~0u,  // no _extensions_
-  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse, _oneof_case_[0]),
+  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse_InnerPullBackupResponse, _oneof_case_[0]),
   ~0u,  // no _weak_field_map_
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
-  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse, data_),
+  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse_InnerPullBackupResponse, data_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse, inner_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::backup::CreateNewBackupRequest)},
@@ -169,7 +188,8 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 26, -1, sizeof(::backup::RecoverBackupKeyRequest)},
   { 32, -1, sizeof(::backup::RecoverBackupKeyResponse)},
   { 38, -1, sizeof(::backup::PullBackupRequest)},
-  { 45, -1, sizeof(::backup::PullBackupResponse)},
+  { 45, -1, sizeof(::backup::PullBackupResponse_InnerPullBackupResponse)},
+  { 54, -1, sizeof(::backup::PullBackupResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -179,6 +199,7 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_RecoverBackupKeyRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_RecoverBackupKeyResponse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_PullBackupRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_PullBackupResponse_InnerPullBackupResponse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::backup::_PullBackupResponse_default_instance_),
 };
 
@@ -194,26 +215,29 @@ const char descriptor_table_protodef_backup_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "(\014H\000B\006\n\004data\")\n\027RecoverBackupKeyRequest\022"
   "\016\n\006userID\030\001 \001(\t\",\n\030RecoverBackupKeyRespo"
   "nse\022\020\n\010backupID\030\004 \001(\t\"5\n\021PullBackupReque"
-  "st\022\016\n\006userID\030\001 \001(\t\022\020\n\010backupID\030\002 \001(\t\"K\n\022"
-  "PullBackupResponse\022\031\n\017compactionChunk\030\001 "
-  "\001(\014H\000\022\022\n\010logChunk\030\002 \001(\014H\000B\006\n\004data2\316\002\n\rBa"
-  "ckupService\022X\n\017CreateNewBackup\022\036.backup."
-  "CreateNewBackupRequest\032\037.backup.CreateNe"
-  "wBackupResponse\"\000(\0010\001\022=\n\007SendLog\022\026.backu"
-  "p.SendLogRequest\032\026.google.protobuf.Empty"
-  "\"\000(\001\022[\n\020RecoverBackupKey\022\037.backup.Recove"
-  "rBackupKeyRequest\032 .backup.RecoverBackup"
-  "KeyResponse\"\000(\0010\001\022G\n\nPullBackup\022\031.backup"
-  ".PullBackupRequest\032\032.backup.PullBackupRe"
-  "sponse\"\0000\001b\006proto3"
+  "st\022\016\n\006userID\030\001 \001(\t\022\020\n\010backupID\030\002 \001(\t\"\305\001\n"
+  "\022PullBackupResponse\022A\n\005inner\030\001 \003(\01322.bac"
+  "kup.PullBackupResponse.InnerPullBackupRe"
+  "sponse\032l\n\027InnerPullBackupResponse\022\031\n\017com"
+  "pactionChunk\030\001 \001(\014H\000\022\032\n\020attachmentHolder"
+  "\030\002 \001(\tH\000\022\022\n\010logChunk\030\003 \001(\014H\000B\006\n\004data2\316\002\n"
+  "\rBackupService\022X\n\017CreateNewBackup\022\036.back"
+  "up.CreateNewBackupRequest\032\037.backup.Creat"
+  "eNewBackupResponse\"\000(\0010\001\022=\n\007SendLog\022\026.ba"
+  "ckup.SendLogRequest\032\026.google.protobuf.Em"
+  "pty\"\000(\001\022[\n\020RecoverBackupKey\022\037.backup.Rec"
+  "overBackupKeyRequest\032 .backup.RecoverBac"
+  "kupKeyResponse\"\000(\0010\001\022G\n\nPullBackup\022\031.bac"
+  "kup.PullBackupRequest\032\032.backup.PullBacku"
+  "pResponse\"\0000\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_backup_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_backup_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_backup_2eproto = {
-  false, false, 898, descriptor_table_protodef_backup_2eproto, "backup.proto", 
-  &descriptor_table_backup_2eproto_once, descriptor_table_backup_2eproto_deps, 1, 7,
+  false, false, 1021, descriptor_table_protodef_backup_2eproto, "backup.proto", 
+  &descriptor_table_backup_2eproto_once, descriptor_table_backup_2eproto_deps, 1, 8,
   schemas, file_default_instances, TableStruct_backup_2eproto::offsets,
   file_level_metadata_backup_2eproto, file_level_enum_descriptors_backup_2eproto, file_level_service_descriptors_backup_2eproto,
 };
@@ -1738,23 +1762,27 @@ void PullBackupRequest::InternalSwap(PullBackupRequest* other) {
 
 // ===================================================================
 
-class PullBackupResponse::_Internal {
+class PullBackupResponse_InnerPullBackupResponse::_Internal {
  public:
 };
 
-PullBackupResponse::PullBackupResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+PullBackupResponse_InnerPullBackupResponse::PullBackupResponse_InnerPullBackupResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
   RegisterArenaDtor(arena);
-  // @@protoc_insertion_point(arena_constructor:backup.PullBackupResponse)
+  // @@protoc_insertion_point(arena_constructor:backup.PullBackupResponse.InnerPullBackupResponse)
 }
-PullBackupResponse::PullBackupResponse(const PullBackupResponse& from)
+PullBackupResponse_InnerPullBackupResponse::PullBackupResponse_InnerPullBackupResponse(const PullBackupResponse_InnerPullBackupResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   clear_has_data();
   switch (from.data_case()) {
     case kCompactionChunk: {
       _internal_set_compactionchunk(from._internal_compactionchunk());
+      break;
+    }
+    case kAttachmentHolder: {
+      _internal_set_attachmentholder(from._internal_attachmentholder());
       break;
     }
     case kLogChunk: {
@@ -1765,41 +1793,45 @@ PullBackupResponse::PullBackupResponse(const PullBackupResponse& from)
       break;
     }
   }
-  // @@protoc_insertion_point(copy_constructor:backup.PullBackupResponse)
+  // @@protoc_insertion_point(copy_constructor:backup.PullBackupResponse.InnerPullBackupResponse)
 }
 
-void PullBackupResponse::SharedCtor() {
+void PullBackupResponse_InnerPullBackupResponse::SharedCtor() {
 clear_has_data();
 }
 
-PullBackupResponse::~PullBackupResponse() {
-  // @@protoc_insertion_point(destructor:backup.PullBackupResponse)
+PullBackupResponse_InnerPullBackupResponse::~PullBackupResponse_InnerPullBackupResponse() {
+  // @@protoc_insertion_point(destructor:backup.PullBackupResponse.InnerPullBackupResponse)
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-void PullBackupResponse::SharedDtor() {
+void PullBackupResponse_InnerPullBackupResponse::SharedDtor() {
   GOOGLE_DCHECK(GetArena() == nullptr);
   if (has_data()) {
     clear_data();
   }
 }
 
-void PullBackupResponse::ArenaDtor(void* object) {
-  PullBackupResponse* _this = reinterpret_cast< PullBackupResponse* >(object);
+void PullBackupResponse_InnerPullBackupResponse::ArenaDtor(void* object) {
+  PullBackupResponse_InnerPullBackupResponse* _this = reinterpret_cast< PullBackupResponse_InnerPullBackupResponse* >(object);
   (void)_this;
 }
-void PullBackupResponse::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+void PullBackupResponse_InnerPullBackupResponse::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
 }
-void PullBackupResponse::SetCachedSize(int size) const {
+void PullBackupResponse_InnerPullBackupResponse::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
 
-void PullBackupResponse::clear_data() {
-// @@protoc_insertion_point(one_of_clear_start:backup.PullBackupResponse)
+void PullBackupResponse_InnerPullBackupResponse::clear_data() {
+// @@protoc_insertion_point(one_of_clear_start:backup.PullBackupResponse.InnerPullBackupResponse)
   switch (data_case()) {
     case kCompactionChunk: {
       data_.compactionchunk_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+      break;
+    }
+    case kAttachmentHolder: {
+      data_.attachmentholder_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
       break;
     }
     case kLogChunk: {
@@ -1814,8 +1846,8 @@ void PullBackupResponse::clear_data() {
 }
 
 
-void PullBackupResponse::Clear() {
-// @@protoc_insertion_point(message_clear_start:backup.PullBackupResponse)
+void PullBackupResponse_InnerPullBackupResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:backup.PullBackupResponse.InnerPullBackupResponse)
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
@@ -1824,7 +1856,7 @@ void PullBackupResponse::Clear() {
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* PullBackupResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* PullBackupResponse_InnerPullBackupResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
@@ -1839,12 +1871,265 @@ const char* PullBackupResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
-      // bytes logChunk = 2;
+      // string attachmentHolder = 2;
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          auto str = _internal_mutable_attachmentholder();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "backup.PullBackupResponse.InnerPullBackupResponse.attachmentHolder"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // bytes logChunk = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_logchunk();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* PullBackupResponse_InnerPullBackupResponse::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:backup.PullBackupResponse.InnerPullBackupResponse)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // bytes compactionChunk = 1;
+  if (_internal_has_compactionchunk()) {
+    target = stream->WriteBytesMaybeAliased(
+        1, this->_internal_compactionchunk(), target);
+  }
+
+  // string attachmentHolder = 2;
+  if (_internal_has_attachmentholder()) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_attachmentholder().data(), static_cast<int>(this->_internal_attachmentholder().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "backup.PullBackupResponse.InnerPullBackupResponse.attachmentHolder");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_attachmentholder(), target);
+  }
+
+  // bytes logChunk = 3;
+  if (_internal_has_logchunk()) {
+    target = stream->WriteBytesMaybeAliased(
+        3, this->_internal_logchunk(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:backup.PullBackupResponse.InnerPullBackupResponse)
+  return target;
+}
+
+size_t PullBackupResponse_InnerPullBackupResponse::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:backup.PullBackupResponse.InnerPullBackupResponse)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  switch (data_case()) {
+    // bytes compactionChunk = 1;
+    case kCompactionChunk: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_compactionchunk());
+      break;
+    }
+    // string attachmentHolder = 2;
+    case kAttachmentHolder: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+          this->_internal_attachmentholder());
+      break;
+    }
+    // bytes logChunk = 3;
+    case kLogChunk: {
+      total_size += 1 +
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
+          this->_internal_logchunk());
+      break;
+    }
+    case DATA_NOT_SET: {
+      break;
+    }
+  }
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void PullBackupResponse_InnerPullBackupResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:backup.PullBackupResponse.InnerPullBackupResponse)
+  GOOGLE_DCHECK_NE(&from, this);
+  const PullBackupResponse_InnerPullBackupResponse* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<PullBackupResponse_InnerPullBackupResponse>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:backup.PullBackupResponse.InnerPullBackupResponse)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:backup.PullBackupResponse.InnerPullBackupResponse)
+    MergeFrom(*source);
+  }
+}
+
+void PullBackupResponse_InnerPullBackupResponse::MergeFrom(const PullBackupResponse_InnerPullBackupResponse& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:backup.PullBackupResponse.InnerPullBackupResponse)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  switch (from.data_case()) {
+    case kCompactionChunk: {
+      _internal_set_compactionchunk(from._internal_compactionchunk());
+      break;
+    }
+    case kAttachmentHolder: {
+      _internal_set_attachmentholder(from._internal_attachmentholder());
+      break;
+    }
+    case kLogChunk: {
+      _internal_set_logchunk(from._internal_logchunk());
+      break;
+    }
+    case DATA_NOT_SET: {
+      break;
+    }
+  }
+}
+
+void PullBackupResponse_InnerPullBackupResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:backup.PullBackupResponse.InnerPullBackupResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void PullBackupResponse_InnerPullBackupResponse::CopyFrom(const PullBackupResponse_InnerPullBackupResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:backup.PullBackupResponse.InnerPullBackupResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool PullBackupResponse_InnerPullBackupResponse::IsInitialized() const {
+  return true;
+}
+
+void PullBackupResponse_InnerPullBackupResponse::InternalSwap(PullBackupResponse_InnerPullBackupResponse* other) {
+  using std::swap;
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  swap(data_, other->data_);
+  swap(_oneof_case_[0], other->_oneof_case_[0]);
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata PullBackupResponse_InnerPullBackupResponse::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
+// ===================================================================
+
+class PullBackupResponse::_Internal {
+ public:
+};
+
+PullBackupResponse::PullBackupResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena),
+  inner_(arena) {
+  SharedCtor();
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:backup.PullBackupResponse)
+}
+PullBackupResponse::PullBackupResponse(const PullBackupResponse& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message(),
+      inner_(from.inner_) {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  // @@protoc_insertion_point(copy_constructor:backup.PullBackupResponse)
+}
+
+void PullBackupResponse::SharedCtor() {
+}
+
+PullBackupResponse::~PullBackupResponse() {
+  // @@protoc_insertion_point(destructor:backup.PullBackupResponse)
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+void PullBackupResponse::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
+}
+
+void PullBackupResponse::ArenaDtor(void* object) {
+  PullBackupResponse* _this = reinterpret_cast< PullBackupResponse* >(object);
+  (void)_this;
+}
+void PullBackupResponse::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void PullBackupResponse::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void PullBackupResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:backup.PullBackupResponse)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  inner_.Clear();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* PullBackupResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // repeated .backup.PullBackupResponse.InnerPullBackupResponse inner = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          ptr -= 1;
+          do {
+            ptr += 1;
+            ptr = ctx->ParseMessage(_internal_add_inner(), ptr);
+            CHK_(ptr);
+            if (!ctx->DataAvailable(ptr)) break;
+          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else goto handle_unusual;
         continue;
       default: {
@@ -1875,16 +2160,12 @@ failure:
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // bytes compactionChunk = 1;
-  if (_internal_has_compactionchunk()) {
-    target = stream->WriteBytesMaybeAliased(
-        1, this->_internal_compactionchunk(), target);
-  }
-
-  // bytes logChunk = 2;
-  if (_internal_has_logchunk()) {
-    target = stream->WriteBytesMaybeAliased(
-        2, this->_internal_logchunk(), target);
+  // repeated .backup.PullBackupResponse.InnerPullBackupResponse inner = 1;
+  for (unsigned int i = 0,
+      n = static_cast<unsigned int>(this->_internal_inner_size()); i < n; i++) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(1, this->_internal_inner(i), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1903,25 +2184,13 @@ size_t PullBackupResponse::ByteSizeLong() const {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  switch (data_case()) {
-    // bytes compactionChunk = 1;
-    case kCompactionChunk: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-          this->_internal_compactionchunk());
-      break;
-    }
-    // bytes logChunk = 2;
-    case kLogChunk: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
-          this->_internal_logchunk());
-      break;
-    }
-    case DATA_NOT_SET: {
-      break;
-    }
+  // repeated .backup.PullBackupResponse.InnerPullBackupResponse inner = 1;
+  total_size += 1UL * this->_internal_inner_size();
+  for (const auto& msg : this->inner_) {
+    total_size +=
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(msg);
   }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
         _internal_metadata_, total_size, &_cached_size_);
@@ -1953,19 +2222,7 @@ void PullBackupResponse::MergeFrom(const PullBackupResponse& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  switch (from.data_case()) {
-    case kCompactionChunk: {
-      _internal_set_compactionchunk(from._internal_compactionchunk());
-      break;
-    }
-    case kLogChunk: {
-      _internal_set_logchunk(from._internal_logchunk());
-      break;
-    }
-    case DATA_NOT_SET: {
-      break;
-    }
-  }
+  inner_.MergeFrom(from.inner_);
 }
 
 void PullBackupResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1989,8 +2246,7 @@ bool PullBackupResponse::IsInitialized() const {
 void PullBackupResponse::InternalSwap(PullBackupResponse* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  swap(data_, other->data_);
-  swap(_oneof_case_[0], other->_oneof_case_[0]);
+  inner_.InternalSwap(&other->inner_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata PullBackupResponse::GetMetadata() const {
@@ -2018,6 +2274,9 @@ template<> PROTOBUF_NOINLINE ::backup::RecoverBackupKeyResponse* Arena::CreateMa
 }
 template<> PROTOBUF_NOINLINE ::backup::PullBackupRequest* Arena::CreateMaybeMessage< ::backup::PullBackupRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::backup::PullBackupRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::backup::PullBackupResponse_InnerPullBackupResponse* Arena::CreateMaybeMessage< ::backup::PullBackupResponse_InnerPullBackupResponse >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::backup::PullBackupResponse_InnerPullBackupResponse >(arena);
 }
 template<> PROTOBUF_NOINLINE ::backup::PullBackupResponse* Arena::CreateMaybeMessage< ::backup::PullBackupResponse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::backup::PullBackupResponse >(arena);

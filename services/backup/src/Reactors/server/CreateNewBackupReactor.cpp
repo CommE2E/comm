@@ -84,7 +84,7 @@ void CreateNewBackupReactor::terminateCallback() {
         getCurrentTimestamp(),
         generateRandomString(),
         this->holder,
-        {});
+        {"aaa", "bbb", "cc"});
     database::DatabaseManager::getInstance().putBackupItem(backupItem);
   } catch (std::runtime_error &e) {
     std::cout << "db operations error: " << e.what() << std::endl;

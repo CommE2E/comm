@@ -25,7 +25,8 @@ class PullBackupReactor : public ServerWriteReactorBase<
 
   enum class State {
     COMPACTION = 1,
-    LOGS = 2,
+    ATTACHMENT_HOLDERS = 2,
+    LOGS = 3,
   };
 
   std::shared_ptr<database::BackupItem> backupItem;
