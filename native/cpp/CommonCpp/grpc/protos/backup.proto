@@ -69,8 +69,14 @@ message PullBackupRequest {
 }
 
 message PullBackupResponse {
-  oneof data {
-    bytes compactionChunk = 1;
-    bytes logChunk = 2;
+  // repeated is only needed for attachmentHolders
+  repeated InnerPullBackupResponse inner = 1;
+
+  message InnerPullBackupResponse {
+    oneof data {
+      bytes compactionChunk = 1;
+      string attachmentHolders = 2;
+      bytes logChunk = 3;
+    }
   }
 }
