@@ -21,11 +21,20 @@ function channelNameForUpdateTarget(updateTarget: UpdateTarget): string {
   }
 }
 
+const redisConfig = (() => {
+  if (!process.env.REDIS_URL) {
+    return undefined;
+  }
+  return {
+    url: process.env.REDIS_URL,
+  };
+})();
+
 class RedisPublisher {
   pub: RedisClient;
 
   constructor() {
-    this.pub = redis.createClient();
+    this.pub = redis.createClient(redisConfig);
   }
 
   sendMessage(target: UpdateTarget, message: RedisMessage) {
@@ -52,7 +61,7 @@ class RedisSubscriber {
   onMessageCallback: OnMessage;
 
   constructor(sessionIdentifier: SessionIdentifier, onMessage: OnMessage) {
-    this.sub = redis.createClient();
+    this.sub = redis.createClient(redisConfig);
     this.instanceID = uuidv4();
     this.onMessageCallback = onMessage;
 
