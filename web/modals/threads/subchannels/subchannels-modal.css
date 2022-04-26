@@ -5,6 +5,8 @@ div.subchannelsListContainer {
   line-height: var(--line-height-text);
   color: var(--subchannels-modal-color);
   row-gap: 8px;
+  width: 383px;
+  height: 458px;
 }
 
 div.noSubchannels {
