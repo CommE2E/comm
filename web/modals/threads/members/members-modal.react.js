@@ -11,6 +11,7 @@ import Tabs from '../../../components/tabs.react';
 import { useSelector } from '../../../redux/redux-utils';
 import SearchModal from '../../search-modal.react';
 import ThreadMembersList from './members-list.react';
+import css from './members-modal.css';
 
 type ContentProps = {
   +searchText: string,
@@ -69,10 +70,12 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
   );
 
   return (
-    <Tabs.Container activeTab={tab} setTab={setTab}>
-      {allUsersTab}
-      {allAdminsTab}
-    </Tabs.Container>
+    <div className={css.modalContentContainer}>
+      <Tabs.Container activeTab={tab} setTab={setTab}>
+        {allUsersTab}
+        {allAdminsTab}
+      </Tabs.Container>
+    </div>
   );
 }
 
@@ -93,6 +96,7 @@ function ThreadMembersModal(props: Props): React.Node {
       name="Members"
       searchPlaceholder="Search members"
       onClose={onClose}
+      size="fit-content"
     >
       {renderModalContent}
     </SearchModal>

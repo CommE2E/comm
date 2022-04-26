@@ -1,3 +1,8 @@
+div.modalContentContainer {
+  width: 383px;
+  height: 617px;
+}
+
 div.membersList {
   overflow: auto;
   padding: 8px 0;
