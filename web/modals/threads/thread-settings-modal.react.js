@@ -105,6 +105,7 @@ type Props = {
   +onDelete: (event: SyntheticEvent<HTMLElement>) => void,
   +changeThreadSettingsAction: () => Promise<ChangeThreadSettingsPayload>,
   +onSubmit: (event: SyntheticEvent<HTMLElement>) => void,
+  +buttons: ?React.Node,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   constructor(props: Props) {
@@ -156,30 +157,6 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
           onChangeAccountPassword={this.props.onChangeAccountPassword}
           inputDisabled={inputDisabled}
         />
-      );
-    }
-
-    let buttons = null;
-    if (this.props.currentTabType === 'delete') {
-      buttons = (
-        <Button
-          onClick={this.props.onDelete}
-          variant="danger"
-          disabled={inputDisabled}
-        >
-          Delete
-        </Button>
-      );
-    } else {
-      buttons = (
-        <Button
-          type="submit"
-          onClick={this.props.onSubmit}
-          disabled={inputDisabled || !this.props.changeQueued}
-          className={css.save_button}
-        >
-          Save
-        </Button>
       );
     }
 
@@ -237,7 +214,7 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
           <form method="POST">
             {mainContent}
             <div className={css.form_footer}>
-              {buttons}
+              {this.props.buttons}
               <div className={css.modal_form_error}>
                 {this.props.errorMessage}
               </div>
@@ -464,6 +441,29 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       );
     }
 
+    const inputDisabled =
+      changeInProgress || !hasPermissionForTab(threadInfo, currentTabType);
+
+    let buttons;
+    if (currentTabType === 'delete') {
+      buttons = (
+        <Button onClick={onDelete} variant="danger" disabled={inputDisabled}>
+          Delete
+        </Button>
+      );
+    } else {
+      buttons = (
+        <Button
+          type="submit"
+          onClick={onSubmit}
+          disabled={inputDisabled || !changeQueued}
+          className={css.save_button}
+        >
+          Save
+        </Button>
+      );
+    }
+
     return (
       <ThreadSettingsModal
         {...props}
@@ -495,6 +495,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         onDelete={onDelete}
         changeThreadSettingsAction={changeThreadSettingsAction}
         onSubmit={onSubmit}
+        buttons={buttons}
       />
     );
   },
