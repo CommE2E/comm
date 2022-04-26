@@ -37,7 +37,7 @@ class Modal extends React.PureComponent<Props> {
       fixedHeight,
       name,
       icon,
-      withCloseButton = false,
+      withCloseButton = true,
     } = this.props;
 
     const overlayClasses = classNames(
