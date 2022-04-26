@@ -3,27 +3,25 @@
 import * as React from 'react';
 
 import Search from '../components/search.react';
-import Modal, { type ModalSize } from './modal.react';
+import Modal, { type ModalOverridableProps } from './modal.react';
 import css from './search-modal.css';
 
 type Props = {
-  +name: string,
-  +searchPlaceholder: string,
-  +size?: ModalSize,
-  +onClose: () => void,
+  ...ModalOverridableProps,
   +children: (searchText: string) => React.Node,
+  +searchPlaceholder: string,
 };
 
 function SearchModal(props: Props): React.Node {
   const [searchText, setSearchText] = React.useState('');
-  const { name, searchPlaceholder, size, onClose, children } = props;
+  const { children, searchPlaceholder, ...modalProps } = props;
   const child = React.useMemo(() => children(searchText), [
     children,
     searchText,
   ]);
 
   return (
-    <Modal name={name} onClose={onClose} size={size}>
+    <Modal {...modalProps}>
       <div className={css.container}>
         <Search
           onChangeText={setSearchText}

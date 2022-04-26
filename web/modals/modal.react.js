@@ -7,16 +7,21 @@ import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
 import css from './modal.css';
 
 export type ModalSize = 'small' | 'large' | 'fit-content';
-type Props = {
+
+export type ModalOverridableProps = {
   +name: string,
   +icon?: Icon,
   +onClose: () => void,
   +withCloseButton?: boolean,
-  +children?: React.Node,
   +size?: ModalSize,
 };
 
-function Modal(props: Props): React.Node {
+type ModalProps = {
+  ...ModalOverridableProps,
+  +children?: React.Node,
+};
+
+function Modal(props: ModalProps): React.Node {
   const {
     size = 'small',
     children,
