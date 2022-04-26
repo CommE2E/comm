@@ -13,21 +13,8 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(PkgConfig REQUIRED)
 
 # FIND LIBS
-set(protobuf_MODULE_COMPATIBLE TRUE)
-find_package(Protobuf CONFIG REQUIRED)
-message(STATUS "Using protobuf ${Protobuf_VERSION}")
-
-set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
-set(_REFLECTION gRPC::grpc++_reflection)
-set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
-
-# Find gRPC installation
-# Looks for gRPCConfig.cmake file installed by gRPC's cmake installation.
-find_package(gRPC CONFIG REQUIRED)
-message(STATUS "Using gRPC ${gRPC_VERSION}")
-
-set(_GRPC_GRPCPP gRPC::grpc++)
-set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+include(./cmake-components/grpc.cmake)
+include(./cmake-components/folly.cmake)
 
 # Find AMQP-CPP installation
 find_package(amqpcpp CONFIG REQUIRED)
@@ -74,14 +61,6 @@ file(GLOB SOURCE_CODE "./src/*.cpp" "./src/**/*.cpp")
 set(GENERATED_CODE ${proto_srcs} ${proto_hdrs} ${grpc_srcs} ${grpc_hdrs})
 file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 
-add_definitions(
-  -DFOLLY_NO_CONFIG=1
-  -DFOLLY_HAVE_CLOCK_GETTIME=1
-  -DFOLLY_HAVE_MEMRCHR=1
-  -DFOLLY_USE_LIBCPP=0
-  -DFOLLY_MOBILE=0
-)
-
 include_directories(
   ./src
   ./src/Database
@@ -90,7 +69,7 @@ include_directories(
   ./src/Tools
   ./src/Amqp
   ${GENERATED_BASE_DIR}
-  ./lib/folly
+  ${FOLLY_INCLUDES}
   ./lib/double-conversion
   ${Boost_INCLUDE_DIR}
   ${CRYPTOPP_INCLUDE_DIRS}
@@ -100,44 +79,6 @@ include_directories(
 set(
   SOURCE_CODE
 
-  # folly
-  ./lib/folly/folly/detail/Futex.cpp
-  ./lib/folly/folly/synchronization/ParkingLot.cpp
-  ./lib/folly/folly/lang/SafeAssert.cpp
-  ./lib/folly/folly/FileUtil.cpp
-  ./lib/folly/folly/Subprocess.cpp
-  ./lib/folly/folly/File.cpp
-  ./lib/folly/folly/Format.cpp
-  ./lib/folly/folly/Conv.cpp
-  ./lib/folly/folly/io/IOBuf.cpp
-  ./lib/folly/folly/memory/detail/MallocImpl.cpp
-  ./lib/folly/folly/ScopeGuard.cpp
-  ./lib/folly/folly/hash/SpookyHashV2.cpp
-  ./lib/folly/folly/io/IOBufQueue.cpp
-  ./lib/folly/folly/lang/Assume.cpp
-  ./lib/folly/folly/String.cpp
-  ./lib/folly/folly/portability/SysUio.cpp
-  ./lib/folly/folly/net/NetOps.cpp
-  ./lib/folly/folly/synchronization/Hazptr.cpp
-  ./lib/folly/folly/detail/ThreadLocalDetail.cpp
-  ./lib/folly/folly/SharedMutex.cpp
-  ./lib/folly/folly/concurrency/CacheLocality.cpp
-  ./lib/folly/folly/detail/StaticSingletonManager.cpp
-  ./lib/folly/folly/executors/ThreadPoolExecutor.cpp
-  ./lib/folly/folly/executors/GlobalThreadPoolList.cpp
-  ./lib/folly/folly/Demangle.cpp
-  ./lib/folly/folly/synchronization/AsymmetricMemoryBarrier.cpp
-  ./lib/folly/folly/io/async/Request.cpp
-  ./lib/folly/folly/detail/MemoryIdler.cpp
-  ./lib/folly/folly/detail/AtFork.cpp
-  ./lib/folly/folly/Executor.cpp
-  ./lib/folly/folly/lang/CString.cpp
-  ./lib/folly/folly/portability/SysMembarrier.cpp
-  ./lib/folly/folly/container/detail/F14Table.cpp
-  ./lib/folly/folly/detail/UniqueInstance.cpp
-  ./lib/folly/folly/executors/QueuedImmediateExecutor.cpp
-  ./lib/folly/folly/memory/MallctlHelper.cpp
-
   ${DOUBLE_CONVERSION_SOURCES}
   ${GENERATED_CODE}
   ${SOURCE_CODE}
@@ -146,7 +87,7 @@ set(
 set(
   LIBS
 
-  ${_GRPC_GRPCPP}
+  ${GRPC_LIBS}
   ${_PROTOBUF_LIBPROTOBUF}
   ${_REFLECTION}
   ${AWSSDK_LINK_LIBRARIES}
@@ -162,6 +103,7 @@ set(
 add_executable(
   tunnelbroker
 
+  ${FOLLY_SOURCES}
   ${GENERATED_CODE}
   ${SOURCE_CODE}
 )
@@ -189,6 +131,7 @@ if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
   add_executable(
     runTests
 
+    ${FOLLY_SOURCES}
     ${SOURCE_CODE}
     ${TEST_CODE}
   )
