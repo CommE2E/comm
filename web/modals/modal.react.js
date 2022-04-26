@@ -6,15 +6,14 @@ import * as React from 'react';
 import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
 import css from './modal.css';
 
-export type ModalSize = 'small' | 'large';
+export type ModalSize = 'small' | 'large' | 'fit-content';
 type Props = {
-  +name: React.Node,
+  +name: string,
   +icon?: Icon,
   +onClose: () => void,
   +withCloseButton?: boolean,
   +children?: React.Node,
   +size?: ModalSize,
-  +fixedHeight?: boolean,
 };
 
 function Modal(props: Props): React.Node {
@@ -22,7 +21,6 @@ function Modal(props: Props): React.Node {
     size = 'small',
     children,
     onClose,
-    fixedHeight,
     name,
     icon,
     withCloseButton = true,
@@ -53,26 +51,13 @@ function Modal(props: Props): React.Node {
     }
   }, []);
 
-  const overlayClasses = React.useMemo(
-    () =>
-      classNames(css['modal-overlay'], {
-        [css['resizable-modal-overlay']]: !fixedHeight,
-      }),
-    [fixedHeight],
-  );
   const modalContainerClasses = React.useMemo(
     () =>
-      classNames(css['modal-container'], {
-        [css['large-modal-container']]: size === 'large',
+      classNames(css.modalContainer, {
+        [css.modalContainerLarge]: size === 'large',
+        [css.modalContainerSmall]: size === 'small',
       }),
     [size],
-  );
-  const modalClasses = React.useMemo(
-    () =>
-      classNames(css['modal'], {
-        [css['fixed-height-modal']]: fixedHeight,
-      }),
-    [fixedHeight],
   );
 
   const cornerCloseButton = React.useMemo(() => {
@@ -80,7 +65,7 @@ function Modal(props: Props): React.Node {
       return null;
     }
     return (
-      <span className={css['modal-close']} onClick={onClose}>
+      <span className={css.modalClose} onClick={onClose}>
         <SWMansionIcon size={24} icon="cross" />
       </span>
     );
@@ -95,23 +80,21 @@ function Modal(props: Props): React.Node {
 
   return (
     <div
-      className={overlayClasses}
+      className={css.modalOverlay}
       ref={overlayRef}
       onClick={onBackgroundClick}
       tabIndex={0}
       onKeyDown={onKeyDown}
     >
       <div className={modalContainerClasses}>
-        <div className={modalClasses}>
-          <div className={css['modal-header']}>
-            {cornerCloseButton}
-            <h2>
-              {headerIcon}
-              {name}
-            </h2>
-          </div>
-          {children}
+        <div className={css.modalHeader}>
+          <h2 className={css.title}>
+            {headerIcon}
+            {name}
+          </h2>
+          {cornerCloseButton}
         </div>
+        {children}
       </div>
     </div>
   );

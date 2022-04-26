@@ -1,79 +1,60 @@
-div.modal-overlay {
+div.modalOverlay {
   position: fixed;
   left: 0;
   top: 0;
-  bottom: 0;
+  height: 100%;
   z-index: 4;
   width: 100%;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: auto;
 }
-div.resizable-modal-overlay {
-  min-height: 60px;
-}
-div.modal-container {
-  background: var(--bg);
-  background-size: 3000px 2000px;
-  max-width: 330px;
+
+div.modalContainer {
   border-radius: 15px;
   display: flex;
-  min-height: 0;
+  background-color: var(--modal-bg);
+  border-radius: 8px;
+  flex-direction: column;
+  margin: 20px;
+  overflow: hidden;
+}
+
+div.modalContainerSmall {
+  width: 330px;
   max-height: 500px;
 }
-div.large-modal-container {
-  max-width: 500px;
-}
-div.modal {
-  position: relative;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.1);
-  background-color: var(--modal-bg);
-  border-radius: 15px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-div.large-modal-container div.modal {
+
+div.modalContainerLarge {
   width: 500px;
+  max-height: 500px;
 }
-div.fixed-height-modal {
-  height: 100%;
+
+span.modalClose {
+  display: flex;
+  color: var(--modal-close-color);
 }
-span.modal-close {
-  float: right;
-  font-size: 32px;
-  font-weight: 300;
-  line-height: 30px;
-  color: var(--fg);
-}
-span.modal-close:hover {
+
+span.modalClose:hover {
   cursor: pointer;
+  color: var(--modal-close-color-hover);
 }
-div.modal-header {
-  padding: 32px 40px 16px 40px;
+
+div.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 32px 0px 32px;
 }
-div.modal-header > h2 {
-  font-size: var(--xl-font-20);
-  font-weight: var(--bold);
+
+h2.title {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 32px;
   color: var(--fg);
   display: flex;
   align-items: center;
-}
-div.modal-header > h2 svg {
-  padding-right: 8px;
-  display: flex;
-}
-
-@media only screen and (-webkit-min-device-pixel-ratio: 2),
-  only screen and (min--moz-device-pixel-ratio: 2),
-  only screen and (-o-min-device-pixel-ratio: 2/1),
-  only screen and (min-device-pixel-ratio: 2),
-  only screen and (min-resolution: 320dpi),
-  only screen and (min-resolution: 2dppx) {
-  div.modal-container {
-    background: var(--bg);
-  }
+  column-gap: 8px;
 }
