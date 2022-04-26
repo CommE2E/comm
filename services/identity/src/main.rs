@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use tonic::transport::Server;
+use tracing_subscriber::FmtSubscriber;
 
 mod config;
 mod keygen;
@@ -35,6 +36,8 @@ enum Commands {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+  let subscriber = FmtSubscriber::new();
+  tracing::subscriber::set_global_default(subscriber)?;
   let cli = Cli::parse();
   match &cli.command {
     Commands::Keygen { dir } => {
