@@ -24,7 +24,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +setModal: (modal: ?React.Node) => void,
+  +pushModal: (modal: React.Node) => void,
 };
 
 class Multimedia extends React.PureComponent<Props> {
@@ -44,7 +44,7 @@ class Multimedia extends React.PureComponent<Props> {
   render(): React.Node {
     let progressIndicator, errorIndicator, removeButton;
 
-    const { pendingUpload, remove, setModal } = this.props;
+    const { pendingUpload, remove } = this.props;
     if (pendingUpload) {
       const { progressPercent, failed } = pendingUpload;
 
@@ -79,16 +79,15 @@ class Multimedia extends React.PureComponent<Props> {
       css.multimediaImage,
       this.props.multimediaImageCSSClass,
     ];
-    let onClick;
-    if (setModal) {
-      imageContainerClasses.push(css.clickable);
-      onClick = this.onClick;
-    }
+    imageContainerClasses.push(css.clickable);
 
     const containerClasses = [css.multimedia, this.props.multimediaCSSClass];
     return (
       <span className={classNames(containerClasses)}>
-        <span className={classNames(imageContainerClasses)} onClick={onClick}>
+        <span
+          className={classNames(imageContainerClasses)}
+          onClick={this.onClick}
+        >
           <img src={this.props.uri} />
           {removeButton}
         </span>
@@ -111,16 +110,15 @@ class Multimedia extends React.PureComponent<Props> {
   onClick: (event: SyntheticEvent<HTMLSpanElement>) => void = event => {
     event.stopPropagation();
 
-    const { setModal, uri } = this.props;
-    invariant(setModal, 'should be set');
-    setModal(<MultimediaModal uri={uri} />);
+    const { pushModal, uri } = this.props;
+    pushModal(<MultimediaModal uri={uri} />);
   };
 }
 
 function ConnectedMultimediaContainer(props: BaseProps): React.Node {
   const modalContext = useModalContext();
 
-  return <Multimedia {...props} setModal={modalContext.setModal} />;
+  return <Multimedia {...props} pushModal={modalContext.pushModal} />;
 }
 
 export default ConnectedMultimediaContainer;

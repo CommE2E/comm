@@ -19,10 +19,10 @@ function AccountSettings(): React.Node {
     sendLogoutRequest(preRequestUserState);
   }, [sendLogoutRequest, preRequestUserState]);
 
-  const { setModal } = useModalContext();
+  const { pushModal } = useModalContext();
   const showPasswordChangeModal = React.useCallback(
-    () => setModal(<PasswordChangeModal />),
-    [setModal],
+    () => pushModal(<PasswordChangeModal />),
+    [pushModal],
   );
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);

@@ -30,7 +30,7 @@ type Props = {
   +inputDisabled: boolean,
   +dispatchActionPromise: DispatchActionPromise,
   +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
-  +clearModal: () => void,
+  +popModal: () => void,
 };
 type State = {
   +newPassword: string,
@@ -74,11 +74,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
 
     const { inputDisabled } = this.props;
     return (
-      <Modal
-        name="Change Password"
-        onClose={this.props.clearModal}
-        size="large"
-      >
+      <Modal name="Change Password" onClose={this.props.popModal} size="large">
         <div className={css['modal-body']}>
           <form method="POST">
             <div className={css['form-content']}>
@@ -201,7 +197,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
         },
         currentPassword: this.state.currentPassword,
       });
-      this.props.clearModal();
+      this.props.popModal();
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         this.setState(
@@ -256,7 +252,7 @@ const ConnectedPasswordChangeModal: React.ComponentType<{}> = React.memo<{}>(
         inputDisabled={inputDisabled}
         changeUserPassword={callChangeUserPassword}
         dispatchActionPromise={dispatchActionPromise}
-        clearModal={modalContext.clearModal}
+        popModal={modalContext.popModal}
       />
     );
   },

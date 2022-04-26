@@ -63,7 +63,7 @@ function LoginForm(): React.Node {
           password,
           ...extraInfo,
         });
-        modalContext.clearModal();
+        modalContext.popModal();
         return result;
       } catch (e) {
         if (e.message === 'invalid_parameters') {

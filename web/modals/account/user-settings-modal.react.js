@@ -70,7 +70,7 @@ type Props = {
   ) => Promise<LogOutResult>,
   +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
-  +clearModal: () => void,
+  +popModal: () => void,
 };
 type State = {
   +newPassword: string,
@@ -113,7 +113,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
 
   logOut = async () => {
     await this.props.logOut(this.props.preRequestUserState);
-    this.props.clearModal();
+    this.props.popModal();
   };
 
   render() {
@@ -204,7 +204,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Modal name="Edit account" onClose={this.props.clearModal} size="large">
+      <Modal name="Edit account" onClose={this.props.popModal} size="large">
         <ul className={css['tab-panel']}>
           <Tab
             name="General"
@@ -326,7 +326,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
         },
         currentPassword: this.state.currentPassword,
       });
-      this.props.clearModal();
+      this.props.popModal();
     } catch (e) {
       if (e.message === 'invalid_credentials') {
         this.setState(
@@ -375,7 +375,7 @@ class UserSettingsModal extends React.PureComponent<Props, State> {
         this.state.currentPassword,
         this.props.preRequestUserState,
       );
-      this.props.clearModal();
+      this.props.popModal();
       return response;
     } catch (e) {
       const errorMessage =
@@ -431,7 +431,7 @@ const ConnectedUserSettingsModal: React.ComponentType<{}> = React.memo<{}>(
         changeUserPassword={callChangeUserPassword}
         dispatchActionPromise={dispatchActionPromise}
         logOut={boundLogOut}
-        clearModal={modalContext.clearModal}
+        popModal={modalContext.popModal}
       />
     );
   },

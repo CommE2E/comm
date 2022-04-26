@@ -28,7 +28,7 @@ function SidebarListModal(props: Props): React.Node {
     text: '',
     results: new Set<string>(),
   });
-  const { clearModal } = useModalContext();
+  const { popModal } = useModalContext();
 
   const sidebarInfos = useSelector(
     state => sidebarInfoSelector(state)[threadInfo.id] ?? [],
@@ -53,12 +53,12 @@ function SidebarListModal(props: Props): React.Node {
             chatThreadListCSS.sidebar,
           )}
           key={item.threadInfo.id}
-          onClick={clearModal}
+          onClick={popModal}
         >
           <SidebarItem sidebarInfo={item} />
         </div>
       )),
-    [clearModal, listData],
+    [popModal, listData],
   );
 
   const viewerID = useSelector(
@@ -115,7 +115,7 @@ function SidebarListModal(props: Props): React.Node {
   }
 
   return (
-    <Modal name="Sidebars" onClose={clearModal} fixedHeight={false}>
+    <Modal name="Sidebars" onClose={popModal} fixedHeight={false}>
       <div
         className={classNames(
           globalCSS['modal-body'],

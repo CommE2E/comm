@@ -45,7 +45,7 @@ type Props = {
   +nextLocalID: number,
   +timeZone: ?string,
   +dispatch: Dispatch,
-  +setModal: (modal: ?React.Node) => void,
+  +pushModal: (modal: React.Node) => void,
 };
 type State = {
   +pickerOpen: boolean,
@@ -216,7 +216,7 @@ class Day extends React.PureComponent<Props, State> {
 
   createNewEntry = (threadID: string) => {
     if (!this.props.loggedIn) {
-      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
+      this.props.pushModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     const viewerID = this.props.viewerID;
@@ -234,7 +234,7 @@ class Day extends React.PureComponent<Props, State> {
 
   onHistory = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.props.setModal(
+    this.props.pushModal(
       <HistoryModal mode="day" dayString={this.props.dayString} />,
     );
   };
@@ -273,7 +273,7 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         nextLocalID={nextLocalID}
         timeZone={timeZone}
         dispatch={dispatch}
-        setModal={modalContext.setModal}
+        pushModal={modalContext.pushModal}
       />
     );
   },

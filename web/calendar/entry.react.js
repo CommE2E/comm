@@ -68,8 +68,8 @@ type Props = {
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
-  +setModal: (modal: ?React.Node) => void,
-  +clearModal: () => void,
+  +pushModal: (modal: React.Node) => void,
+  +popModal: () => void,
 };
 type State = {
   +focused: boolean,
@@ -259,7 +259,7 @@ class Entry extends React.PureComponent<Props, State> {
 
   onChange: (event: SyntheticEvent<HTMLTextAreaElement>) => void = event => {
     if (!this.props.loggedIn) {
-      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
+      this.props.pushModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     const target = event.target;
@@ -386,9 +386,9 @@ class Entry extends React.PureComponent<Props, State> {
             type: concurrentModificationResetActionType,
             payload: { id: entryID, dbText: e.payload.db },
           });
-          this.props.clearModal();
+          this.props.popModal();
         };
-        this.props.setModal(
+        this.props.pushModal(
           <ConcurrentModificationModal onRefresh={onRefresh} />,
         );
       }
@@ -399,7 +399,7 @@ class Entry extends React.PureComponent<Props, State> {
   onDelete: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
     if (!this.props.loggedIn) {
-      this.props.setModal(<LogInFirstModal inOrderTo="edit this calendar" />);
+      this.props.pushModal(<LogInFirstModal inOrderTo="edit this calendar" />);
       return;
     }
     this.dispatchDelete(this.props.entryInfo.id, true);
@@ -440,7 +440,7 @@ class Entry extends React.PureComponent<Props, State> {
 
   onHistory: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
-    this.props.setModal(
+    this.props.pushModal(
       <HistoryModal
         mode="entry"
         dayString={dateString(
@@ -490,8 +490,8 @@ const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         deleteEntry={callDeleteEntry}
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
-        setModal={modalContext.setModal}
-        clearModal={modalContext.clearModal}
+        pushModal={modalContext.pushModal}
+        popModal={modalContext.popModal}
       />
     );
   },

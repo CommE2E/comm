@@ -108,7 +108,7 @@ type Props = {
     text: string,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
-  +setModal: (modal: ?React.Node) => void,
+  +pushModal: (modal: React.Node) => void,
 };
 type State = {
   +pendingUploads: {
@@ -512,14 +512,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     files: $ReadOnlyArray<File>,
   ): Promise<boolean> {
     const selectionTime = Date.now();
-    const { setModal } = this.props;
+    const { pushModal } = this.props;
 
     const appendResults = await Promise.all(
       files.map(file => this.appendFile(file, selectionTime)),
     );
 
     if (appendResults.some(({ result }) => !result.success)) {
-      setModal(<InvalidUploadModal />);
+      pushModal(<InvalidUploadModal />);
 
       const time = Date.now() - selectionTime;
       const reports = [];
@@ -1264,7 +1264,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
         newThread={callNewThread}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
-        setModal={modalContext.setModal}
+        pushModal={modalContext.pushModal}
       />
     );
   },

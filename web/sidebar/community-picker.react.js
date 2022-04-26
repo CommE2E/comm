@@ -9,11 +9,11 @@ import SWMansionIcon from '../SWMansionIcon.react';
 import css from './community-picker.css';
 
 function CommunityPicker(): React.Node {
-  const { setModal } = useModalContext();
+  const { pushModal } = useModalContext();
 
   const setModalToUserSettings = React.useCallback(() => {
-    setModal(<UserSettingsModal />);
-  }, [setModal]);
+    pushModal(<UserSettingsModal />);
+  }, [pushModal]);
 
   return (
     <div className={css.container}>

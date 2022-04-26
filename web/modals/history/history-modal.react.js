@@ -275,7 +275,7 @@ const ConnectedHistoryModal: React.ComponentType<BaseProps> = React.memo<BasePro
         fetchEntries={callFetchEntries}
         fetchRevisionsForEntry={callFetchRevisionsForEntry}
         dispatchActionPromise={dispatchActionPromise}
-        onClose={modalContext.clearModal}
+        onClose={modalContext.popModal}
       />
     );
   },

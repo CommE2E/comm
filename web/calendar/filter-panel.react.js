@@ -42,7 +42,7 @@ type Props = {
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
-  +setModal: (modal: ?React.Node) => void,
+  +pushModal: (modal: React.Node) => void,
 };
 type State = {
   +query: string,
@@ -202,7 +202,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
   }
 
   onClickSettings = (threadID: string) => {
-    this.props.setModal(<ThreadSettingsModal threadID={threadID} />);
+    this.props.pushModal(<ThreadSettingsModal threadID={threadID} />);
   };
 
   onChangeQuery = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -377,7 +377,7 @@ const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
         filterThreadSearchIndex={filterThreadSearchIndex}
         includeDeleted={includeDeleted}
         dispatch={dispatch}
-        setModal={modalContext.setModal}
+        pushModal={modalContext.pushModal}
       />
     );
   },

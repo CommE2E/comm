@@ -79,7 +79,7 @@ type Props = {
   +activeThreadCurrentlyUnread: boolean,
   // Redux dispatch functions
   +dispatch: Dispatch,
-  +modal: ?React.Node,
+  +modals: $ReadOnlyArray<React.Node>,
 };
 class App extends React.PureComponent<Props> {
   componentDidMount() {
@@ -141,7 +141,7 @@ class App extends React.PureComponent<Props> {
           <FocusHandler />
           <VisibilityHandler />
           {content}
-          {this.props.modal}
+          {this.props.modals}
         </MenuProvider>
       </DndProvider>
     );
@@ -237,6 +237,13 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
 
     const dispatch = useDispatch();
     const modalContext = useModalContext();
+    const modals = React.useMemo(
+      () =>
+        modalContext.modals.map(([modal, key]) => (
+          <React.Fragment key={key}>{modal}</React.Fragment>
+        )),
+      [modalContext.modals],
+    );
 
     return (
       <App
@@ -246,7 +253,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         loggedIn={loggedIn}
         activeThreadCurrentlyUnread={activeThreadCurrentlyUnread}
         dispatch={dispatch}
-        modal={modalContext.modal}
+        modals={modals}
       />
     );
   },

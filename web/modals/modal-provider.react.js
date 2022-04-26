@@ -3,35 +3,51 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import { getUUID } from 'lib/utils/uuid';
+
 type Props = {
   +children: React.Node,
 };
 type ModalContextType = {
-  +modal: ?React.Node,
-  +setModal: (?React.Node) => void,
-  +clearModal: () => void,
+  +modals: $ReadOnlyArray<[React.Node, string]>,
+  +pushModal: React.Node => void,
+  +popModal: () => void,
+  +clearModals: () => void,
 };
 
 const ModalContext: React.Context<?ModalContextType> = React.createContext<?ModalContextType>(
   {
-    modal: null,
-    setModal: () => {},
-    clearModal: () => {},
+    modals: [],
+    pushModal: () => {},
+    popModal: () => {},
+    clearModals: () => {},
   },
 );
 
 function ModalProvider(props: Props): React.Node {
   const { children } = props;
-  const [modal, setModal] = React.useState(null);
-  const clearModal = React.useCallback(() => setModal(null), []);
+  const [modals, setModals] = React.useState<
+    $ReadOnlyArray<[React.Node, string]>,
+  >([]);
+  const popModal = React.useCallback(
+    () => setModals(oldModals => oldModals.slice(0, oldModals.length - 1)),
+    [],
+  );
+  const pushModal = React.useCallback(newModal => {
+    const key = getUUID();
+    setModals(oldModals => [...oldModals, [newModal, key]]);
+  }, []);
+
+  const clearModals = React.useCallback(() => setModals([]), []);
 
   const value = React.useMemo(
     () => ({
-      modal,
-      setModal,
-      clearModal,
+      modals,
+      pushModal,
+      popModal,
+      clearModals,
     }),
-    [modal, clearModal],
+    [modals, pushModal, popModal, clearModals],
   );
 
   return (

@@ -9,7 +9,7 @@ import Modal from '../modal.react';
 function LoginModal(): React.Node {
   const modalContext = useModalContext();
   return (
-    <Modal name="Log in" onClose={modalContext.clearModal}>
+    <Modal name="Log in" onClose={modalContext.popModal}>
       <LoginForm />
     </Modal>
   );

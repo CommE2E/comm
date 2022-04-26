@@ -13,14 +13,14 @@ type BaseProps = {
 
 type Props = {
   ...BaseProps,
-  +setModal: (modal: ?React.Node) => void,
-  +clearModal: () => void,
+  +pushModal: (modal: React.Node) => void,
+  +popModal: () => void,
 };
 
 class LogInFirstModal extends React.PureComponent<Props> {
   render(): React.Node {
     return (
-      <Modal name="Log in" onClose={this.props.clearModal}>
+      <Modal name="Log in" onClose={this.props.popModal}>
         <div className={css['modal-body']}>
           <p>
             {`In order to ${this.props.inOrderTo}, you'll first need to `}
@@ -40,7 +40,7 @@ class LogInFirstModal extends React.PureComponent<Props> {
 
   onClickLogIn: (event: SyntheticEvent<HTMLAnchorElement>) => void = event => {
     event.preventDefault();
-    this.props.setModal(<LogInModal />);
+    this.props.pushModal(<LogInModal />);
   };
 }
 
@@ -50,8 +50,8 @@ function ConnectedLoginFirstModal(props: BaseProps): React.Node {
   return (
     <LogInFirstModal
       {...props}
-      setModal={modalContext.setModal}
-      clearModal={modalContext.clearModal}
+      pushModal={modalContext.pushModal}
+      popModal={modalContext.popModal}
     />
   );
 }
