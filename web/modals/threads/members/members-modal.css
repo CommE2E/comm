@@ -1,5 +1,5 @@
 div.membersList {
-  overflow: scroll;
+  overflow: auto;
   padding: 8px 0;
   color: var(--members-modal-member-text);
 }

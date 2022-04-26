@@ -1,7 +1,7 @@
 div.subchannelsListContainer {
   display: flex;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
   line-height: var(--line-height-text);
   color: var(--subchannels-modal-color);
   row-gap: 8px;
