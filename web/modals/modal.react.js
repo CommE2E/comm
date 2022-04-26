@@ -40,12 +40,9 @@ class Modal extends React.PureComponent<Props> {
       withCloseButton = true,
     } = this.props;
 
-    const overlayClasses = classNames(
-      css['modal-overlay'],
-      { [css['small-modal-overlay']]: size === 'small' },
-      { [css['large-modal-overlay']]: size === 'large' },
-      { [css['resizable-modal-overlay']]: !fixedHeight },
-    );
+    const overlayClasses = classNames(css['modal-overlay'], {
+      [css['resizable-modal-overlay']]: !fixedHeight,
+    });
     const modalContainerClasses = classNames(css['modal-container'], {
       [css['large-modal-container']]: size === 'large',
     });
