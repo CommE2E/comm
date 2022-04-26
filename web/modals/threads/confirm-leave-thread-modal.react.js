@@ -19,6 +19,7 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
 
   return (
     <Modal
+      size="fit-content"
       name="Leaving channel"
       icon="warning-circle"
       withCloseButton={false}
