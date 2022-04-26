@@ -141,7 +141,9 @@ const unboundStyles = {
   },
   colorPickerContainer: {
     backgroundColor: 'modalBackground',
+    borderColor: 'modalForegroundBorder',
     borderRadius: 5,
+    borderWidth: 2,
     flex: 0,
     marginHorizontal: 15,
     marginVertical: 20,
