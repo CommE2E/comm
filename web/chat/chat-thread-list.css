@@ -63,7 +63,7 @@ div.title {
   overflow: hidden;
   display: flex;
   align-items: center;
-  padding-left: 8px;
+  padding-left: 12px;
 }
 p.breadCrumbs {
   display: flex;
@@ -296,4 +296,16 @@ div.emptyItem {
 div.threadListContainer {
   display: flex;
   flex-direction: column;
+}
+img.longArrow {
+  height: 40px;
+  position: absolute;
+  left: 22px;
+  top: -19px;
+}
+
+img.arrow {
+  position: absolute;
+  left: 28px;
+  top: -10px;
 }
