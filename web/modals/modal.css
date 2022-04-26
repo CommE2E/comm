@@ -67,18 +67,6 @@ div.modal-header > h2 svg {
   display: flex;
 }
 
-div.intro-modal {
-  padding: 10px 21px 12px 21px;
-  border-radius: 5px;
-  border: 1px solid #c8c8c8;
-  background-color: #f8f8f8;
-  width: 310px;
-  position: fixed;
-  font-family: var(--font-stack);
-  margin-top: 100px;
-  box-shadow: 2px 3px 6px 0px rgba(0, 0, 0, 0.1);
-}
-
 @media only screen and (-webkit-min-device-pixel-ratio: 2),
   only screen and (min--moz-device-pixel-ratio: 2),
   only screen and (-o-min-device-pixel-ratio: 2/1),
