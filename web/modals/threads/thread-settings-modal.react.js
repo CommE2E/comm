@@ -106,6 +106,7 @@ type Props = {
   +changeThreadSettingsAction: () => Promise<ChangeThreadSettingsPayload>,
   +onSubmit: (event: SyntheticEvent<HTMLElement>) => void,
   +buttons: ?React.Node,
+  +tabs: ?React.Node,
 };
 class ThreadSettingsModal extends React.PureComponent<Props> {
   constructor(props: Props) {
@@ -160,56 +161,9 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
       );
     }
 
-    const tabs = [
-      <Tab
-        name="General"
-        tabType="general"
-        onClick={this.props.setCurrentTabType}
-        selected={this.props.currentTabType === 'general'}
-        key="general"
-      />,
-    ];
-
-    // This UI needs to be updated to handle sidebars but we haven't gotten
-    // there yet. We'll probably end up ripping it out anyways, so for now we
-    // are just hiding the privacy tab for any thread that was created as a
-    // sidebar
-    const canSeePrivacyTab =
-      this.possiblyChangedValue('parentThreadID') &&
-      threadInfo.sourceMessageID &&
-      (threadInfo.type === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
-        threadInfo.type === threadTypes.COMMUNITY_SECRET_SUBTHREAD);
-
-    if (canSeePrivacyTab) {
-      tabs.push(
-        <Tab
-          name="Privacy"
-          tabType="privacy"
-          onClick={this.props.setCurrentTabType}
-          selected={this.props.currentTabType === 'privacy'}
-          key="privacy"
-        />,
-      );
-    }
-    const canDeleteThread = this.props.hasPermissionForTab(
-      threadInfo,
-      'delete',
-    );
-    if (canDeleteThread) {
-      tabs.push(
-        <Tab
-          name="Delete"
-          tabType="delete"
-          onClick={this.props.setCurrentTabType}
-          selected={this.props.currentTabType === 'delete'}
-          key="delete"
-        />,
-      );
-    }
-
     return (
       <Modal name="Thread settings" onClose={this.props.onClose}>
-        <ul className={css.tab_panel}>{tabs}</ul>
+        <ul className={css.tab_panel}>{this.props.tabs}</ul>
         <div className={css.modal_body}>
           <form method="POST">
             {mainContent}
@@ -464,6 +418,51 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       );
     }
 
+    const tabs = [
+      <Tab
+        name="General"
+        tabType="general"
+        onClick={setCurrentTabType}
+        selected={currentTabType === 'general'}
+        key="general"
+      />,
+    ];
+
+    // This UI needs to be updated to handle sidebars but we haven't gotten
+    // there yet. We'll probably end up ripping it out anyways, so for now we
+    // are just hiding the privacy tab for any thread that was created as a
+    // sidebar
+    const canSeePrivacyTab =
+      (queuedChanges['parentThreadID'] ?? threadInfo['parentThreadID']) &&
+      threadInfo.sourceMessageID &&
+      (threadInfo.type === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
+        threadInfo.type === threadTypes.COMMUNITY_SECRET_SUBTHREAD);
+
+    if (canSeePrivacyTab) {
+      tabs.push(
+        <Tab
+          name="Privacy"
+          tabType="privacy"
+          onClick={setCurrentTabType}
+          selected={currentTabType === 'privacy'}
+          key="privacy"
+        />,
+      );
+    }
+
+    const canDeleteThread = hasPermissionForTab(threadInfo, 'delete');
+    if (canDeleteThread) {
+      tabs.push(
+        <Tab
+          name="Delete"
+          tabType="delete"
+          onClick={setCurrentTabType}
+          selected={currentTabType === 'delete'}
+          key="delete"
+        />,
+      );
+    }
+
     return (
       <ThreadSettingsModal
         {...props}
@@ -496,6 +495,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         changeThreadSettingsAction={changeThreadSettingsAction}
         onSubmit={onSubmit}
         buttons={buttons}
+        tabs={tabs}
       />
     );
   },
