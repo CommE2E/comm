@@ -1,7 +1,6 @@
 // @flow
 
 import classNames from 'classnames';
-import invariant from 'invariant';
 import * as React from 'react';
 
 import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
@@ -17,96 +16,105 @@ type Props = {
   +size?: ModalSize,
   +fixedHeight?: boolean,
 };
-class Modal extends React.PureComponent<Props> {
-  static defaultProps: { +size: ModalSize, fixedHeight: boolean } = {
-    size: 'small',
-    fixedHeight: true,
-  };
-  overlay: ?HTMLDivElement;
 
-  componentDidMount() {
-    invariant(this.overlay, 'overlay ref unset');
-    this.overlay.focus();
-  }
+function Modal(props: Props): React.Node {
+  const {
+    size = 'small',
+    children,
+    onClose,
+    fixedHeight,
+    name,
+    icon,
+    withCloseButton = true,
+  } = props;
+  const overlayRef = React.useRef();
 
-  render(): React.Node {
-    const {
-      size,
-      children,
-      onClose,
-      fixedHeight,
-      name,
-      icon,
-      withCloseButton = true,
-    } = this.props;
+  const onBackgroundClick = React.useCallback(
+    event => {
+      if (event.target === overlayRef.current) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
 
-    const overlayClasses = classNames(css['modal-overlay'], {
-      [css['resizable-modal-overlay']]: !fixedHeight,
-    });
-    const modalContainerClasses = classNames(css['modal-container'], {
-      [css['large-modal-container']]: size === 'large',
-    });
-    const modalClasses = classNames(css['modal'], {
-      [css['fixed-height-modal']]: fixedHeight,
-    });
+  const onKeyDown = React.useCallback(
+    event => {
+      if (event.keyCode === 27) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
 
-    let headerIcon;
-    if (icon) {
-      headerIcon = <SWMansionIcon size={24} icon={icon} />;
+  React.useEffect(() => {
+    if (overlayRef.current) {
+      overlayRef.current.focus();
     }
+  }, []);
 
-    let cornerCloseButton;
-    if (withCloseButton) {
-      cornerCloseButton = (
-        <span className={css['modal-close']} onClick={onClose}>
-          <SWMansionIcon size={24} icon="cross" />
-        </span>
-      );
+  const overlayClasses = React.useMemo(
+    () =>
+      classNames(css['modal-overlay'], {
+        [css['resizable-modal-overlay']]: !fixedHeight,
+      }),
+    [fixedHeight],
+  );
+  const modalContainerClasses = React.useMemo(
+    () =>
+      classNames(css['modal-container'], {
+        [css['large-modal-container']]: size === 'large',
+      }),
+    [size],
+  );
+  const modalClasses = React.useMemo(
+    () =>
+      classNames(css['modal'], {
+        [css['fixed-height-modal']]: fixedHeight,
+      }),
+    [fixedHeight],
+  );
+
+  const cornerCloseButton = React.useMemo(() => {
+    if (!withCloseButton) {
+      return null;
     }
-
     return (
-      <div
-        className={overlayClasses}
-        ref={this.overlayRef}
-        onClick={this.onBackgroundClick}
-        tabIndex={0}
-        onKeyDown={this.onKeyDown}
-      >
-        <div className={modalContainerClasses}>
-          <div className={modalClasses}>
-            <div className={css['modal-header']}>
-              {cornerCloseButton}
-              <h2>
-                {headerIcon}
-                {name}
-              </h2>
-            </div>
-            {children}
+      <span className={css['modal-close']} onClick={onClose}>
+        <SWMansionIcon size={24} icon="cross" />
+      </span>
+    );
+  }, [onClose, withCloseButton]);
+
+  const headerIcon = React.useMemo(() => {
+    if (!icon) {
+      return null;
+    }
+    return <SWMansionIcon size={24} icon={icon} />;
+  }, [icon]);
+
+  return (
+    <div
+      className={overlayClasses}
+      ref={overlayRef}
+      onClick={onBackgroundClick}
+      tabIndex={0}
+      onKeyDown={onKeyDown}
+    >
+      <div className={modalContainerClasses}>
+        <div className={modalClasses}>
+          <div className={css['modal-header']}>
+            {cornerCloseButton}
+            <h2>
+              {headerIcon}
+              {name}
+            </h2>
           </div>
+          {children}
         </div>
       </div>
-    );
-  }
-
-  overlayRef: (overlay: ?HTMLDivElement) => void = overlay => {
-    this.overlay = overlay;
-  };
-
-  onBackgroundClick: (
-    event: SyntheticEvent<HTMLDivElement>,
-  ) => void = event => {
-    if (event.target === this.overlay) {
-      this.props.onClose();
-    }
-  };
-
-  onKeyDown: (
-    event: SyntheticKeyboardEvent<HTMLDivElement>,
-  ) => void = event => {
-    if (event.keyCode === 27) {
-      this.props.onClose();
-    }
-  };
+    </div>
+  );
 }
 
 export default Modal;
