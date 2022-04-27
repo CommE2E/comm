@@ -7,6 +7,12 @@
   line-height: var(--line-height-display);
 }
 
+.usernameContainer {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
 .buttons {
   display: flex;
   flex-direction: row;
@@ -21,6 +27,7 @@
   cursor: pointer;
   background: none;
   border: none;
+  white-space: nowrap;
 }
 
 .destructive {

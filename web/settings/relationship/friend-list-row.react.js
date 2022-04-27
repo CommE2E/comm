@@ -50,7 +50,7 @@ function FriendListRow(props: UserRowProps): React.Node {
 
   return (
     <div className={css.container}>
-      {userInfo.username}
+      <div className={css.usernameContainer}>{userInfo.username}</div>
       <div className={css.buttons}>{buttons}</div>
     </div>
   );
