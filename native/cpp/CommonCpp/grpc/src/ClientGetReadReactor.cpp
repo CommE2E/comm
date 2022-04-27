@@ -1,4 +1,4 @@
-#include "ClientGetReadReactor.h"
+#include <comm/grpc/ClientGetReadReactor.h>
 
 ClientGetReadReactor::ClientGetReadReactor(
     tunnelbroker::TunnelbrokerService::Stub *stub,

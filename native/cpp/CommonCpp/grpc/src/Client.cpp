@@ -1,5 +1,5 @@
-#include "Client.h"
-#include "Logger.h"
+#include <comm/Tools/Logger.h>
+#include <comm/grpc/Client.h>
 #include <sstream>
 
 namespace comm {
