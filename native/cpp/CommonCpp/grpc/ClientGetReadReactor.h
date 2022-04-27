@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../NativeModules/InternalModules/SocketStatus.h"
+#include <Internal/SocketStatus.h>
 #include <grpcpp/grpcpp.h>
 
-#include "_generated/tunnelbroker.grpc.pb.h"
-#include "_generated/tunnelbroker.pb.h"
+#include <tunnelbroker.grpc.pb.h>
+#include <tunnelbroker.pb.h>
 
 class ClientGetReadReactor
     : public grpc::ClientReadReactor<tunnelbroker::GetResponse> {
