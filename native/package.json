@@ -60,7 +60,7 @@
     "@react-navigation/bottom-tabs": "^5.11.1",
     "@react-navigation/devtools": "^5.1.17",
     "@react-navigation/material-top-tabs": "^5.3.9",
-    "@react-navigation/native": "^5.8.9",
+    "@react-navigation/native": "^5.9.8",
     "@react-navigation/stack": "^5.12.8",
     "base-64": "^0.1.0",
     "expo": "43.0.0",
