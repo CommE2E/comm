@@ -101,7 +101,7 @@
     "react-native-safe-area-context": "^3.1.9",
     "react-native-safe-area-view": "^2.0.0",
     "react-native-screens": "~3.8.0",
-    "react-native-svg": "^12.1.1",
+    "react-native-svg": "^12.3.0",
     "react-native-tab-view": "^2.15.2",
     "react-native-vector-icons": "^6.6.0",
     "react-native-video": "~5.1.1",
