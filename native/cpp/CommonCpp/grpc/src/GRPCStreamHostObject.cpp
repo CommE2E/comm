@@ -1,6 +1,6 @@
-#include "GRPCStreamHostObject.h"
-#include "../NativeModules/InternalModules/GlobalNetworkSingleton.h"
-#include "../NativeModules/InternalModules/SocketStatus.h"
+#include <comm/Internal/GlobalNetworkSingleton.h>
+#include <comm/Internal/SocketStatus.h>
+#include <comm/grpc/GRPCStreamHostObject.h>
 
 using namespace facebook;
 
