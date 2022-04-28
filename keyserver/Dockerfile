@@ -40,3 +40,26 @@ COPY native/ios/Podfile native/ios/
 
 # Actually run yarn
 RUN yarn cleaninstall
+
+#-------------------------------------------------------------------------------
+# STEP 2: COPY IN SOURCE FILES
+# We run this later so the above layers are cached if only source files change
+#-------------------------------------------------------------------------------
+
+COPY . .
+
+#-------------------------------------------------------------------------------
+# STEP 3: RUN BUILD SCRIPTS
+# We need to populate keyserver/dist, among other things
+#-------------------------------------------------------------------------------
+
+WORKDIR /app/keyserver
+RUN yarn prod-build
+
+#-------------------------------------------------------------------------------
+# STEP 4: RUN THE SERVER
+# Actually run the Node.js keyserver using nvm
+#-------------------------------------------------------------------------------
+
+EXPOSE 3000
+CMD bash/run-prod.sh
