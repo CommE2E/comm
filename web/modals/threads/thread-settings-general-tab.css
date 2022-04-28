@@ -36,3 +36,7 @@ div.edit_thread_color_container {
 div.color_title {
   margin-top: 4px;
 }
+
+.save_button {
+  width: 100%;
+}

@@ -188,6 +188,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
           threadNamePlaceholder={namePlaceholder}
           queuedChanges={queuedChanges}
           setQueuedChanges={setQueuedChanges}
+          setErrorMessage={setErrorMessage}
         />
       );
     } else if (currentTabType === 'privacy') {
@@ -210,7 +211,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     }
 
     let buttons;
-    if (currentTabType !== 'delete') {
+    if (currentTabType === 'privacy') {
       buttons = (
         <Button
           type="submit"

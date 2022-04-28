@@ -2,11 +2,21 @@
 
 import * as React from 'react';
 
+import {
+  changeThreadSettingsActionTypes,
+  changeThreadSettings,
+} from 'lib/actions/thread-actions';
 import { type SetState } from 'lib/types/hook-types.js';
 import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
+import Button from '../../components/button.react';
 import Input from '../input.react.js';
+import { useModalContext } from '../modal-provider.react.js';
 import ColorSelector from './color-selector.react.js';
 import css from './thread-settings-general-tab.css';
 
@@ -16,6 +26,7 @@ type ThreadSettingsGeneralTabProps = {
   +threadNamePlaceholder: string,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
+  +setErrorMessage: SetState<string>,
 };
 function ThreadSettingsGeneralTab(
   props: ThreadSettingsGeneralTabProps,
@@ -26,13 +37,23 @@ function ThreadSettingsGeneralTab(
     threadNamePlaceholder,
     queuedChanges,
     setQueuedChanges,
+    setErrorMessage,
   } = props;
+
+  const modalContext = useModalContext();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
 
   const nameInputRef = React.useRef();
 
   React.useEffect(() => {
     nameInputRef.current?.focus();
   }, [inputDisabled]);
+
+  const changeQueued: boolean = React.useMemo(
+    () => Object.values(queuedChanges).some(v => v !== null && v !== undefined),
+    [queuedChanges],
+  );
 
   const onChangeName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
@@ -75,6 +96,39 @@ function ThreadSettingsGeneralTab(
     [queuedChanges, setQueuedChanges, threadInfo.color],
   );
 
+  const changeThreadSettingsAction = React.useCallback(async () => {
+    try {
+      const response = await callChangeThreadSettings({
+        threadID: threadInfo.id,
+        changes: queuedChanges,
+      });
+      modalContext.popModal();
+      return response;
+    } catch (e) {
+      setErrorMessage('unknown_error');
+      setQueuedChanges(Object.freeze({}));
+      throw e;
+    }
+  }, [
+    callChangeThreadSettings,
+    modalContext,
+    queuedChanges,
+    setErrorMessage,
+    setQueuedChanges,
+    threadInfo.id,
+  ]);
+
+  const onSubmit = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.preventDefault();
+      dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        changeThreadSettingsAction(),
+      );
+    },
+    [changeThreadSettingsAction, dispatchActionPromise],
+  );
+
   return (
     <div>
       <div>
@@ -108,6 +162,14 @@ function ThreadSettingsGeneralTab(
           onColorSelection={onChangeColor}
         />
       </div>
+      <Button
+        type="submit"
+        onClick={onSubmit}
+        disabled={inputDisabled || !changeQueued}
+        className={css.save_button}
+      >
+        Save
+      </Button>
     </div>
   );
 }
