@@ -31,6 +31,7 @@ file(GLOB SOURCE_CODE "./src/*.cpp" "./src/**/*.cpp")
 include_directories(
   ./src
   ./src/DatabaseEntities
+  ./src/Reactors/
   ./src/Reactors/server
   ./src/Reactors/server/base-reactors
   ./_generated
