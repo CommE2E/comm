@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BaseReactor.h"
+
 #include <grpcpp/grpcpp.h>
 
 #include <atomic>
@@ -22,11 +24,11 @@ struct ServerBidiReactorStatus {
 };
 
 template <class Request, class Response>
-class ServerBidiReactorBase
-    : public grpc::ServerBidiReactor<Request, Response> {
+class ServerBidiReactorBase : public grpc::ServerBidiReactor<Request, Response>,
+                              public BaseReactor {
+  std::shared_ptr<ReactorUtility> utility;
   Request request;
   Response response;
-  std::atomic<bool> finished = false;
 
 protected:
   ServerBidiReactorStatus status;
@@ -35,28 +37,39 @@ protected:
 public:
   ServerBidiReactorBase();
 
+  void terminate(const grpc::Status &status) override;
+  void validate() override{};
+  void doneCallback() override{};
+  void terminateCallback() override{};
+
   void OnDone() override;
   void OnReadDone(bool ok) override;
   void OnWriteDone(bool ok) override;
+  std::shared_ptr<ReactorUtility> getUtility() override;
 
   void terminate(ServerBidiReactorStatus status);
+  ServerBidiReactorStatus getStatus() const;
+  void setStatus(const ServerBidiReactorStatus &status);
 
   virtual std::unique_ptr<ServerBidiReactorStatus>
   handleRequest(Request request, Response *response) = 0;
-  virtual void initialize(){};
-  virtual void validate(){};
-  virtual void doneCallback(){};
-  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
 ServerBidiReactorBase<Request, Response>::ServerBidiReactorBase() {
-  this->initialize();
+  this->utility->state = ReactorState::RUNNING;
   this->StartRead(&this->request);
 }
 
 template <class Request, class Response>
+void ServerBidiReactorBase<Request, Response>::terminate(
+    const grpc::Status &status) {
+  this->terminate(ServerBidiReactorStatus(status));
+}
+
+template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::OnDone() {
+  this->utility->state = ReactorState::DONE;
   this->doneCallback();
   // This looks weird but apparently it is okay to do this. More information:
   // https://phabricator.ashoat.com/D3246#87890
@@ -66,24 +79,36 @@ void ServerBidiReactorBase<Request, Response>::OnDone() {
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::terminate(
     ServerBidiReactorStatus status) {
-  this->status = status;
+  this->setStatus(status);
   try {
     this->terminateCallback();
     this->validate();
   } catch (std::runtime_error &e) {
-    this->status = ServerBidiReactorStatus(
-        grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
+    this->setStatus(ServerBidiReactorStatus(
+        grpc::Status(grpc::StatusCode::INTERNAL, e.what())));
   }
-  if (this->finished) {
+  if (this->utility->state != ReactorState::RUNNING) {
     return;
   }
-  if (this->status.sendLastResponse) {
+  if (this->getStatus().sendLastResponse) {
     this->StartWriteAndFinish(
-        &this->response, grpc::WriteOptions(), this->status.status);
+        &this->response, grpc::WriteOptions(), this->getStatus().status);
   } else {
-    this->Finish(this->status.status);
+    this->Finish(this->getStatus().status);
   }
-  this->finished = true;
+  this->utility->state = ReactorState::TERMINATED;
+}
+
+template <class Request, class Response>
+ServerBidiReactorStatus
+ServerBidiReactorBase<Request, Response>::getStatus() const {
+  return this->status;
+}
+
+template <class Request, class Response>
+void ServerBidiReactorBase<Request, Response>::setStatus(
+    const ServerBidiReactorStatus &status) {
+  this->status = status;
 }
 
 template <class Request, class Response>
@@ -119,6 +144,12 @@ void ServerBidiReactorBase<Request, Response>::OnWriteDone(bool ok) {
     return;
   }
   this->StartRead(&this->request);
+}
+
+template <class Request, class Response>
+std::shared_ptr<ReactorUtility>
+ServerBidiReactorBase<Request, Response>::getUtility() {
+  return this->utility;
 }
 
 } // namespace reactor
