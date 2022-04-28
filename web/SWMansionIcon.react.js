@@ -76,7 +76,8 @@ export type Icon =
   | 'all-notifs'
   | 'badge-notifs'
   | 'muted-notifs'
-  | 'check';
+  | 'check'
+  | 'user-cross';
 
 type SWMansionIconProps = {
   +icon: Icon,
