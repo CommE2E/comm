@@ -24,7 +24,6 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
-import { firstLine } from 'lib/utils/string-utils';
 
 import Button from '../../components/button.react';
 import { useModalContext } from '../../modals/modal-provider.react';
@@ -108,49 +107,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       () =>
         Object.values(queuedChanges).some(v => v !== null && v !== undefined),
       [queuedChanges],
-    );
-
-    const onChangeName = React.useCallback(
-      (event: SyntheticEvent<HTMLInputElement>) => {
-        const target = event.currentTarget;
-        setQueuedChanges(
-          Object.freeze({
-            ...queuedChanges,
-            name: firstLine(
-              target.value !== threadInfo?.name ? target.value : undefined,
-            ),
-          }),
-        );
-      },
-      [queuedChanges, threadInfo?.name],
-    );
-
-    const onChangeDescription = React.useCallback(
-      (event: SyntheticEvent<HTMLTextAreaElement>) => {
-        const target = event.currentTarget;
-        setQueuedChanges(
-          Object.freeze({
-            ...queuedChanges,
-            description:
-              target.value !== threadInfo?.description
-                ? target.value
-                : undefined,
-          }),
-        );
-      },
-      [queuedChanges, threadInfo?.description],
-    );
-
-    const onChangeColor = React.useCallback(
-      (color: string) => {
-        setQueuedChanges(
-          Object.freeze({
-            ...queuedChanges,
-            color: color !== threadInfo?.color ? color : undefined,
-          }),
-        );
-      },
-      [queuedChanges, threadInfo?.color],
     );
 
     const onChangeThreadType = React.useCallback(
@@ -288,19 +244,10 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       mainContent = (
         <ThreadSettingsGeneralTab
           inputDisabled={inputDisabled}
-          threadNameValue={firstLine(
-            queuedChanges['name'] ?? threadInfo['name'],
-          )}
+          threadInfo={threadInfo}
           threadNamePlaceholder={namePlaceholder}
-          threadNameOnChange={onChangeName}
-          threadDescriptionValue={
-            queuedChanges['description'] ?? threadInfo['description'] ?? ''
-          }
-          threadDescriptionOnChange={onChangeDescription}
-          threadColorCurrentColor={
-            queuedChanges['color'] ?? threadInfo['color']
-          }
-          threadColorOnColorSelection={onChangeColor}
+          queuedChanges={queuedChanges}
+          setQueuedChanges={setQueuedChanges}
         />
       );
     } else if (currentTabType === 'privacy') {

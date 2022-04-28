@@ -2,35 +2,72 @@
 
 import * as React from 'react';
 
+import { type SetState } from 'lib/types/hook-types.js';
+import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types';
+import { firstLine } from 'lib/utils/string-utils';
+
 import Input from '../input.react.js';
 import ColorSelector from './color-selector.react.js';
 import css from './thread-settings-general-tab.css';
 
 type ThreadSettingsGeneralTabProps = {
   +inputDisabled: boolean,
-  +threadNameValue: string,
+  +threadInfo: ThreadInfo,
   +threadNamePlaceholder: string,
-  +threadNameOnChange: (event: SyntheticEvent<HTMLInputElement>) => void,
-  +threadDescriptionValue: string,
-  +threadDescriptionOnChange: (
-    event: SyntheticEvent<HTMLTextAreaElement>,
-  ) => void,
-  +threadColorCurrentColor: string,
-  +threadColorOnColorSelection: (color: string) => void,
+  +queuedChanges: ThreadChanges,
+  +setQueuedChanges: SetState<ThreadChanges>,
 };
 function ThreadSettingsGeneralTab(
   props: ThreadSettingsGeneralTabProps,
 ): React.Node {
   const {
     inputDisabled,
-    threadNameValue,
+    threadInfo,
     threadNamePlaceholder,
-    threadNameOnChange,
-    threadDescriptionValue,
-    threadDescriptionOnChange,
-    threadColorCurrentColor,
-    threadColorOnColorSelection,
+    queuedChanges,
+    setQueuedChanges,
   } = props;
+
+  const onChangeName = React.useCallback(
+    (event: SyntheticEvent<HTMLInputElement>) => {
+      const target = event.currentTarget;
+      setQueuedChanges(
+        Object.freeze({
+          ...queuedChanges,
+          name: firstLine(
+            target.value !== threadInfo.name ? target.value : undefined,
+          ),
+        }),
+      );
+    },
+    [queuedChanges, setQueuedChanges, threadInfo.name],
+  );
+
+  const onChangeDescription = React.useCallback(
+    (event: SyntheticEvent<HTMLTextAreaElement>) => {
+      const target = event.currentTarget;
+      setQueuedChanges(
+        Object.freeze({
+          ...queuedChanges,
+          description:
+            target.value !== threadInfo.description ? target.value : undefined,
+        }),
+      );
+    },
+    [queuedChanges, setQueuedChanges, threadInfo.description],
+  );
+
+  const onChangeColor = React.useCallback(
+    (color: string) => {
+      setQueuedChanges(
+        Object.freeze({
+          ...queuedChanges,
+          color: color !== threadInfo.color ? color : undefined,
+        }),
+      );
+    },
+    [queuedChanges, setQueuedChanges, threadInfo.color],
+  );
 
   return (
     <div>
@@ -39,9 +76,9 @@ function ThreadSettingsGeneralTab(
         <div className={css.form_content}>
           <Input
             type="text"
-            value={threadNameValue}
+            value={firstLine(queuedChanges.name ?? threadInfo.name)}
             placeholder={threadNamePlaceholder}
-            onChange={threadNameOnChange}
+            onChange={onChangeName}
             disabled={inputDisabled}
           />
         </div>
@@ -50,9 +87,9 @@ function ThreadSettingsGeneralTab(
         <div className={css.form_title}>Description</div>
         <div className={css.form_content}>
           <textarea
-            value={threadDescriptionValue}
+            value={queuedChanges.description ?? threadInfo.description ?? ''}
             placeholder="Thread description"
-            onChange={threadDescriptionOnChange}
+            onChange={onChangeDescription}
             disabled={inputDisabled}
           />
         </div>
@@ -60,8 +97,8 @@ function ThreadSettingsGeneralTab(
       <div className={css.edit_thread_color_container}>
         <div className={`${css.form_title} ${css.color_title}`}>Color</div>
         <ColorSelector
-          currentColor={threadColorCurrentColor}
-          onColorSelection={threadColorOnColorSelection}
+          currentColor={queuedChanges.color ?? threadInfo.color}
+          onColorSelection={onChangeColor}
         />
       </div>
     </div>
