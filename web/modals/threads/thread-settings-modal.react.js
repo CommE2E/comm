@@ -6,7 +6,6 @@ import * as React from 'react';
 
 import {
   deleteThreadActionTypes,
-  deleteThread,
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
@@ -81,7 +80,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
     const userInfos = useSelector(state => state.userStore.userInfos);
-    const callDeleteThread = useServerCall(deleteThread);
     const callChangeThreadSettings = useServerCall(changeThreadSettings);
     const dispatchActionPromise = useDispatchActionPromise();
     const threadInfo: ?ThreadInfo = useSelector(
@@ -134,33 +132,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         invariant(false, `invalid tab: ${tab}`);
       },
       [],
-    );
-
-    const deleteThreadAction = React.useCallback(async () => {
-      invariant(threadInfo, 'threadInfo should exist in deleteThreadAction');
-      try {
-        const response = await callDeleteThread(threadInfo.id, accountPassword);
-        modalContext.popModal();
-        return response;
-      } catch (e) {
-        setErrorMessage(
-          e.message === 'invalid_credentials'
-            ? 'wrong password'
-            : 'unknown error',
-        );
-        setAccountPassword('');
-        // TODO: accountPasswordInput.focus()
-        // (once ref is moved up to functional component)
-        throw e;
-      }
-    }, [accountPassword, callDeleteThread, modalContext, threadInfo]);
-
-    const onDelete = React.useCallback(
-      (event: SyntheticEvent<HTMLElement>) => {
-        event.preventDefault();
-        dispatchActionPromise(deleteThreadActionTypes, deleteThreadAction());
-      },
-      [deleteThreadAction, dispatchActionPromise],
     );
 
     const changeThreadSettingsAction = React.useCallback(async () => {
@@ -242,20 +213,17 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       mainContent = (
         <ThreadSettingsDeleteTab
           accountPassword={accountPassword}
+          setAccountPassword={setAccountPassword}
           onChangeAccountPassword={onChangeAccountPassword}
           inputDisabled={inputDisabled}
+          threadInfo={threadInfo}
+          setErrorMessage={setErrorMessage}
         />
       );
     }
 
     let buttons;
-    if (currentTabType === 'delete') {
-      buttons = (
-        <Button onClick={onDelete} variant="danger" disabled={inputDisabled}>
-          Delete
-        </Button>
-      );
-    } else {
+    if (currentTabType !== 'delete') {
       buttons = (
         <Button
           type="submit"

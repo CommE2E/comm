@@ -2,18 +2,79 @@
 
 import * as React from 'react';
 
+import {
+  deleteThreadActionTypes,
+  deleteThread,
+} from 'lib/actions/thread-actions';
+import { type SetState } from 'lib/types/hook-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
+
+import Button from '../../components/button.react.js';
+import { useModalContext } from '../modal-provider.react.js';
 import css from './thread-settings-modal.css';
 
 type ThreadSettingsDeleteTabProps = {
   +accountPassword: string,
+  +setAccountPassword: SetState<string>,
   +onChangeAccountPassword: (event: SyntheticEvent<HTMLInputElement>) => void,
   +inputDisabled: boolean,
+  +threadInfo: ThreadInfo,
+  +setErrorMessage: SetState<string>,
 };
 
 function ThreadSettingsDeleteTab(
   props: ThreadSettingsDeleteTabProps,
 ): React.Node {
-  const { accountPassword, onChangeAccountPassword, inputDisabled } = props;
+  const {
+    accountPassword,
+    setAccountPassword,
+    onChangeAccountPassword,
+    inputDisabled,
+    threadInfo,
+    setErrorMessage,
+  } = props;
+
+  const modalContext = useModalContext();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callDeleteThread = useServerCall(deleteThread);
+
+  const deleteThreadAction = React.useCallback(async () => {
+    try {
+      const response = await callDeleteThread(threadInfo.id, accountPassword);
+      modalContext.popModal();
+      return response;
+    } catch (e) {
+      setErrorMessage(
+        e.message === 'invalid_credentials'
+          ? 'wrong password'
+          : 'unknown error',
+      );
+      setAccountPassword('');
+      // TODO: accountPasswordInput.focus()
+      // (once ref is moved up to functional component)
+      throw e;
+    }
+  }, [
+    accountPassword,
+    callDeleteThread,
+    modalContext,
+    setAccountPassword,
+    setErrorMessage,
+    threadInfo.id,
+  ]);
+
+  const onDelete = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.preventDefault();
+      dispatchActionPromise(deleteThreadActionTypes, deleteThreadAction());
+    },
+    [deleteThreadAction, dispatchActionPromise],
+  );
+
   return (
     <>
       <div>
@@ -37,6 +98,9 @@ function ThreadSettingsDeleteTab(
           />
         </div>
       </div>
+      <Button onClick={onDelete} variant="danger" disabled={inputDisabled}>
+        Delete
+      </Button>
     </>
   );
 }
