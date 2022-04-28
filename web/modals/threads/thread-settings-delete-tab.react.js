@@ -42,6 +42,8 @@ function ThreadSettingsDeleteTab(
   const dispatchActionPromise = useDispatchActionPromise();
   const callDeleteThread = useServerCall(deleteThread);
 
+  const accountPasswordInputRef = React.useRef();
+
   const deleteThreadAction = React.useCallback(async () => {
     try {
       const response = await callDeleteThread(threadInfo.id, accountPassword);
@@ -54,8 +56,7 @@ function ThreadSettingsDeleteTab(
           : 'unknown error',
       );
       setAccountPassword('');
-      // TODO: accountPasswordInput.focus()
-      // (once ref is moved up to functional component)
+      accountPasswordInputRef.current?.focus();
       throw e;
     }
   }, [
@@ -95,6 +96,7 @@ function ThreadSettingsDeleteTab(
             value={accountPassword}
             onChange={onChangeAccountPassword}
             disabled={inputDisabled}
+            ref={accountPasswordInputRef}
           />
         </div>
       </div>
