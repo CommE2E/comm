@@ -180,8 +180,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         setAccountPassword('');
         setCurrentTabType('general');
         setQueuedChanges(Object.freeze({}));
-        // TODO: nameInput.focus()
-        // (once ref is moved up to functional component)
         throw e;
       }
     }, [callChangeThreadSettings, modalContext, queuedChanges, threadInfo]);
@@ -198,9 +196,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     );
 
     React.useEffect(() => {
-      // TODO: nameInput.focus()
-      // (once ref is moved up to functional component)
-
       if (
         threadInfo &&
         currentTabType !== 'general' &&

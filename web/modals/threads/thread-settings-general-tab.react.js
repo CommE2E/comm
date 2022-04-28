@@ -28,6 +28,12 @@ function ThreadSettingsGeneralTab(
     setQueuedChanges,
   } = props;
 
+  const nameInputRef = React.useRef();
+
+  React.useEffect(() => {
+    nameInputRef.current?.focus();
+  }, [inputDisabled]);
+
   const onChangeName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
       const target = event.currentTarget;
@@ -80,6 +86,7 @@ function ThreadSettingsGeneralTab(
             placeholder={threadNamePlaceholder}
             onChange={onChangeName}
             disabled={inputDisabled}
+            ref={nameInputRef}
           />
         </div>
       </div>
