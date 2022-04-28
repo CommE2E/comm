@@ -87,7 +87,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     );
     const modalContext = useModalContext();
     const [errorMessage, setErrorMessage] = React.useState('');
-    const [accountPassword, setAccountPassword] = React.useState('');
     const [currentTabType, setCurrentTabType] = React.useState<TabType>(
       'general',
     );
@@ -104,14 +103,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       () =>
         Object.values(queuedChanges).some(v => v !== null && v !== undefined),
       [queuedChanges],
-    );
-
-    const onChangeAccountPassword = React.useCallback(
-      (event: SyntheticEvent<HTMLInputElement>) => {
-        const target = event.currentTarget;
-        setAccountPassword(target.value);
-      },
-      [],
     );
 
     const hasPermissionForTab = React.useCallback(
@@ -148,7 +139,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         return response;
       } catch (e) {
         setErrorMessage('unknown_error');
-        setAccountPassword('');
         setCurrentTabType('general');
         setQueuedChanges(Object.freeze({}));
         throw e;
@@ -212,9 +202,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     } else if (currentTabType === 'delete') {
       mainContent = (
         <ThreadSettingsDeleteTab
-          accountPassword={accountPassword}
-          setAccountPassword={setAccountPassword}
-          onChangeAccountPassword={onChangeAccountPassword}
           inputDisabled={inputDisabled}
           threadInfo={threadInfo}
           setErrorMessage={setErrorMessage}

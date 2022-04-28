@@ -18,9 +18,6 @@ import { useModalContext } from '../modal-provider.react.js';
 import css from './thread-settings-modal.css';
 
 type ThreadSettingsDeleteTabProps = {
-  +accountPassword: string,
-  +setAccountPassword: SetState<string>,
-  +onChangeAccountPassword: (event: SyntheticEvent<HTMLInputElement>) => void,
   +inputDisabled: boolean,
   +threadInfo: ThreadInfo,
   +setErrorMessage: SetState<string>,
@@ -29,20 +26,22 @@ type ThreadSettingsDeleteTabProps = {
 function ThreadSettingsDeleteTab(
   props: ThreadSettingsDeleteTabProps,
 ): React.Node {
-  const {
-    accountPassword,
-    setAccountPassword,
-    onChangeAccountPassword,
-    inputDisabled,
-    threadInfo,
-    setErrorMessage,
-  } = props;
+  const { inputDisabled, threadInfo, setErrorMessage } = props;
 
   const modalContext = useModalContext();
   const dispatchActionPromise = useDispatchActionPromise();
   const callDeleteThread = useServerCall(deleteThread);
 
   const accountPasswordInputRef = React.useRef();
+  const [accountPassword, setAccountPassword] = React.useState('');
+
+  const onChangeAccountPassword = React.useCallback(
+    (event: SyntheticEvent<HTMLInputElement>) => {
+      const target = event.currentTarget;
+      setAccountPassword(target.value);
+    },
+    [],
+  );
 
   const deleteThreadAction = React.useCallback(async () => {
     try {
