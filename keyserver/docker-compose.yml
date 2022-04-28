@@ -11,8 +11,6 @@ services:
       REDIS_URL: redis://cache
     depends_on:
       - cache
-    links:
-      - cache
   cache:
     image: redis:6.2.6-bullseye
     restart: always
