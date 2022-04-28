@@ -2,25 +2,43 @@
 
 import * as React from 'react';
 
-import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
-import { threadTypes } from 'lib/types/thread-types.js';
+import { threadTypeDescriptions } from 'lib/shared/thread-utils';
+import { type SetState } from 'lib/types/hook-types';
+import {
+  type ThreadInfo,
+  type ThreadChanges,
+  assertThreadType,
+  threadTypes,
+} from 'lib/types/thread-types';
 
 import css from './thread-settings-privacy-tab.css';
+
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
 
 type ThreadSettingsPrivacyTabProps = {
-  +possiblyChangedThreadType: number,
-  +onChangeThreadType: (event: SyntheticEvent<HTMLInputElement>) => void,
   +inputDisabled: boolean,
+  +threadInfo: ThreadInfo,
+  +queuedChanges: ThreadChanges,
+  +setQueuedChanges: SetState<ThreadChanges>,
 };
 function ThreadSettingsPrivacyTab(
   props: ThreadSettingsPrivacyTabProps,
 ): React.Node {
-  const {
-    possiblyChangedThreadType,
-    onChangeThreadType,
-    inputDisabled,
-  } = props;
+  const { inputDisabled, threadInfo, queuedChanges, setQueuedChanges } = props;
+
+  const onChangeThreadType = React.useCallback(
+    (event: SyntheticEvent<HTMLInputElement>) => {
+      const uiValue = assertThreadType(parseInt(event.currentTarget.value, 10));
+      setQueuedChanges(
+        Object.freeze({
+          ...queuedChanges,
+          type: uiValue !== threadInfo.type ? uiValue : undefined,
+        }),
+      );
+    },
+    [queuedChanges, setQueuedChanges, threadInfo.type],
+  );
+
   return (
     <div className={css.edit_thread_privacy_container}>
       <div className={css['modal-radio-selector']}>
@@ -32,7 +50,10 @@ function ThreadSettingsPrivacyTab(
               name="edit-thread-type"
               id="edit-thread-open"
               value={COMMUNITY_OPEN_SUBTHREAD}
-              checked={possiblyChangedThreadType === COMMUNITY_OPEN_SUBTHREAD}
+              checked={
+                (queuedChanges.type ?? threadInfo.type) ===
+                COMMUNITY_OPEN_SUBTHREAD
+              }
               onChange={onChangeThreadType}
               disabled={inputDisabled}
             />
@@ -51,7 +72,10 @@ function ThreadSettingsPrivacyTab(
               name="edit-thread-type"
               id="edit-thread-closed"
               value={COMMUNITY_SECRET_SUBTHREAD}
-              checked={possiblyChangedThreadType === COMMUNITY_SECRET_SUBTHREAD}
+              checked={
+                (queuedChanges.type ?? threadInfo.type) ===
+                COMMUNITY_SECRET_SUBTHREAD
+              }
               onChange={onChangeThreadType}
               disabled={inputDisabled}
             />

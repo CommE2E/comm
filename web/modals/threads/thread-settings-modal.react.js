@@ -16,7 +16,6 @@ import { threadHasPermission, robotextName } from 'lib/shared/thread-utils';
 import {
   type ThreadInfo,
   threadTypes,
-  assertThreadType,
   threadPermissions,
   type ThreadChanges,
 } from 'lib/types/thread-types';
@@ -107,21 +106,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       () =>
         Object.values(queuedChanges).some(v => v !== null && v !== undefined),
       [queuedChanges],
-    );
-
-    const onChangeThreadType = React.useCallback(
-      (event: SyntheticEvent<HTMLInputElement>) => {
-        const uiValue = assertThreadType(
-          parseInt(event.currentTarget.value, 10),
-        );
-        setQueuedChanges(
-          Object.freeze({
-            ...queuedChanges,
-            type: uiValue !== threadInfo?.type ? uiValue : undefined,
-          }),
-        );
-      },
-      [queuedChanges, threadInfo?.type],
     );
 
     const onChangeAccountPassword = React.useCallback(
@@ -253,11 +237,10 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     } else if (currentTabType === 'privacy') {
       mainContent = (
         <ThreadSettingsPrivacyTab
-          possiblyChangedThreadType={
-            queuedChanges['type'] ?? threadInfo['type']
-          }
-          onChangeThreadType={onChangeThreadType}
           inputDisabled={inputDisabled}
+          threadInfo={threadInfo}
+          queuedChanges={queuedChanges}
+          setQueuedChanges={setQueuedChanges}
         />
       );
     } else if (currentTabType === 'delete') {
