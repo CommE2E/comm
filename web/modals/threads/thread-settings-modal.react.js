@@ -287,17 +287,16 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     if (currentTabType === 'general') {
       mainContent = (
         <ThreadSettingsGeneralTab
+          inputDisabled={inputDisabled}
           threadNameValue={firstLine(
             queuedChanges['name'] ?? threadInfo['name'],
           )}
           threadNamePlaceholder={namePlaceholder}
           threadNameOnChange={onChangeName}
-          threadNameDisabled={inputDisabled}
           threadDescriptionValue={
             queuedChanges['description'] ?? threadInfo['description'] ?? ''
           }
           threadDescriptionOnChange={onChangeDescription}
-          threadDescriptionDisabled={inputDisabled}
           threadColorCurrentColor={
             queuedChanges['color'] ?? threadInfo['color']
           }

@@ -7,15 +7,14 @@ import ColorSelector from './color-selector.react.js';
 import css from './thread-settings-general-tab.css';
 
 type ThreadSettingsGeneralTabProps = {
+  +inputDisabled: boolean,
   +threadNameValue: string,
   +threadNamePlaceholder: string,
   +threadNameOnChange: (event: SyntheticEvent<HTMLInputElement>) => void,
-  +threadNameDisabled: boolean,
   +threadDescriptionValue: string,
   +threadDescriptionOnChange: (
     event: SyntheticEvent<HTMLTextAreaElement>,
   ) => void,
-  +threadDescriptionDisabled: boolean,
   +threadColorCurrentColor: string,
   +threadColorOnColorSelection: (color: string) => void,
 };
@@ -23,13 +22,12 @@ function ThreadSettingsGeneralTab(
   props: ThreadSettingsGeneralTabProps,
 ): React.Node {
   const {
+    inputDisabled,
     threadNameValue,
     threadNamePlaceholder,
     threadNameOnChange,
-    threadNameDisabled,
     threadDescriptionValue,
     threadDescriptionOnChange,
-    threadDescriptionDisabled,
     threadColorCurrentColor,
     threadColorOnColorSelection,
   } = props;
@@ -44,7 +42,7 @@ function ThreadSettingsGeneralTab(
             value={threadNameValue}
             placeholder={threadNamePlaceholder}
             onChange={threadNameOnChange}
-            disabled={threadNameDisabled}
+            disabled={inputDisabled}
           />
         </div>
       </div>
@@ -55,7 +53,7 @@ function ThreadSettingsGeneralTab(
             value={threadDescriptionValue}
             placeholder="Thread description"
             onChange={threadDescriptionOnChange}
-            disabled={threadDescriptionDisabled}
+            disabled={inputDisabled}
           />
         </div>
       </div>
