@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Tools.h"
+
 #include <string>
 
 namespace comm {
@@ -22,13 +24,9 @@ const size_t GRPC_METADATA_SIZE_PER_MESSAGE = 5;
 
 const std::string AWS_REGION = "us-east-2";
 
-#ifdef COMM_TEST_SERVICES
-const std::string LOG_TABLE_NAME = "backup-service-log-test";
-const std::string BACKUP_TABLE_NAME = "backup-service-backup-test";
-#else
-const std::string LOG_TABLE_NAME = "backup-service-log";
-const std::string BACKUP_TABLE_NAME = "backup-service-backup";
-#endif
+const std::string LOG_TABLE_NAME = decorateTableName("backup-service-log");
+const std::string BACKUP_TABLE_NAME =
+    decorateTableName("backup-service-backup");
 
 // This has to be smaller than GRPC_CHUNK_SIZE_LIMIT because we need to
 // recognize if we may receive multiple chunks or just one. If it was larger
