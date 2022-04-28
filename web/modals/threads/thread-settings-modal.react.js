@@ -105,6 +105,7 @@ type Props = {
   +onDelete: (event: SyntheticEvent<HTMLElement>) => void,
   +changeThreadSettingsAction: () => Promise<ChangeThreadSettingsPayload>,
   +onSubmit: (event: SyntheticEvent<HTMLElement>) => void,
+  +mainContent: ?React.Node,
   +buttons: ?React.Node,
   +tabs: ?React.Node,
 };
@@ -123,50 +124,12 @@ class ThreadSettingsModal extends React.PureComponent<Props> {
   }
 
   render() {
-    const { threadInfo } = this.props;
-    const inputDisabled =
-      this.props.changeInProgress ||
-      !this.props.hasPermissionForTab(threadInfo, this.props.currentTabType);
-
-    let mainContent = null;
-    if (this.props.currentTabType === 'general') {
-      mainContent = (
-        <ThreadSettingsGeneralTab
-          threadNameValue={firstLine(this.possiblyChangedValue('name'))}
-          threadNamePlaceholder={this.props.namePlaceholder}
-          threadNameOnChange={this.props.onChangeName}
-          threadNameDisabled={inputDisabled}
-          threadDescriptionValue={this.possiblyChangedValue('description')}
-          threadDescriptionOnChange={this.props.onChangeDescription}
-          threadDescriptionDisabled={inputDisabled}
-          threadColorCurrentColor={this.possiblyChangedValue('color')}
-          threadColorOnColorSelection={this.props.onChangeColor}
-        />
-      );
-    } else if (this.props.currentTabType === 'privacy') {
-      mainContent = (
-        <ThreadSettingsPrivacyTab
-          possiblyChangedThreadType={this.possiblyChangedValue('type')}
-          onChangeThreadType={this.props.onChangeThreadType}
-          inputDisabled={inputDisabled}
-        />
-      );
-    } else if (this.props.currentTabType === 'delete') {
-      mainContent = (
-        <ThreadSettingsDeleteTab
-          accountPassword={this.props.accountPassword}
-          onChangeAccountPassword={this.props.onChangeAccountPassword}
-          inputDisabled={inputDisabled}
-        />
-      );
-    }
-
     return (
       <Modal name="Thread settings" onClose={this.props.onClose}>
         <ul className={css.tab_panel}>{this.props.tabs}</ul>
         <div className={css.modal_body}>
           <form method="POST">
-            {mainContent}
+            {this.props.mainContent}
             <div className={css.form_footer}>
               {this.props.buttons}
               <div className={css.modal_form_error}>
@@ -398,6 +361,47 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     const inputDisabled =
       changeInProgress || !hasPermissionForTab(threadInfo, currentTabType);
 
+    let mainContent;
+    if (currentTabType === 'general') {
+      mainContent = (
+        <ThreadSettingsGeneralTab
+          threadNameValue={firstLine(
+            queuedChanges['name'] ?? threadInfo['name'],
+          )}
+          threadNamePlaceholder={namePlaceholder}
+          threadNameOnChange={onChangeName}
+          threadNameDisabled={inputDisabled}
+          threadDescriptionValue={
+            queuedChanges['description'] ?? threadInfo['description'] ?? ''
+          }
+          threadDescriptionOnChange={onChangeDescription}
+          threadDescriptionDisabled={inputDisabled}
+          threadColorCurrentColor={
+            queuedChanges['color'] ?? threadInfo['color']
+          }
+          threadColorOnColorSelection={onChangeColor}
+        />
+      );
+    } else if (currentTabType === 'privacy') {
+      mainContent = (
+        <ThreadSettingsPrivacyTab
+          possiblyChangedThreadType={
+            queuedChanges['type'] ?? threadInfo['type']
+          }
+          onChangeThreadType={onChangeThreadType}
+          inputDisabled={inputDisabled}
+        />
+      );
+    } else if (currentTabType === 'delete') {
+      mainContent = (
+        <ThreadSettingsDeleteTab
+          accountPassword={accountPassword}
+          onChangeAccountPassword={onChangeAccountPassword}
+          inputDisabled={inputDisabled}
+        />
+      );
+    }
+
     let buttons;
     if (currentTabType === 'delete') {
       buttons = (
@@ -494,6 +498,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         onDelete={onDelete}
         changeThreadSettingsAction={changeThreadSettingsAction}
         onSubmit={onSubmit}
+        mainContent={mainContent}
         buttons={buttons}
         tabs={tabs}
       />
