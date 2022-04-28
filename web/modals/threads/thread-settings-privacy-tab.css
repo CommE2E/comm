@@ -35,3 +35,7 @@ div.form_enum_selector span.form_enum_description {
   max-width: 260px;
   color: gray;
 }
+
+.save_button {
+  width: 100%;
+}

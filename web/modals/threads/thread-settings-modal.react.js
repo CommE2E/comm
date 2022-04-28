@@ -7,7 +7,6 @@ import * as React from 'react';
 import {
   deleteThreadActionTypes,
   changeThreadSettingsActionTypes,
-  changeThreadSettings,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
@@ -18,12 +17,7 @@ import {
   threadPermissions,
   type ThreadChanges,
 } from 'lib/types/thread-types';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils';
 
-import Button from '../../components/button.react';
 import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
 import Modal from '../modal.react';
@@ -80,8 +74,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
     const userInfos = useSelector(state => state.userStore.userInfos);
-    const callChangeThreadSettings = useServerCall(changeThreadSettings);
-    const dispatchActionPromise = useDispatchActionPromise();
     const threadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[props.threadID],
     );
@@ -98,12 +90,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       invariant(threadInfo, 'threadInfo should exist in namePlaceholder');
       return robotextName(threadInfo, viewerID, userInfos);
     }, [threadInfo, userInfos, viewerID]);
-
-    const changeQueued: boolean = React.useMemo(
-      () =>
-        Object.values(queuedChanges).some(v => v !== null && v !== undefined),
-      [queuedChanges],
-    );
 
     const hasPermissionForTab = React.useCallback(
       (thread: ThreadInfo, tab: TabType) => {
@@ -123,37 +109,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         invariant(false, `invalid tab: ${tab}`);
       },
       [],
-    );
-
-    const changeThreadSettingsAction = React.useCallback(async () => {
-      invariant(
-        threadInfo,
-        'threadInfo should exist in changeThreadSettingsAction',
-      );
-      try {
-        const response = await callChangeThreadSettings({
-          threadID: threadInfo.id,
-          changes: queuedChanges,
-        });
-        modalContext.popModal();
-        return response;
-      } catch (e) {
-        setErrorMessage('unknown_error');
-        setCurrentTabType('general');
-        setQueuedChanges(Object.freeze({}));
-        throw e;
-      }
-    }, [callChangeThreadSettings, modalContext, queuedChanges, threadInfo]);
-
-    const onSubmit = React.useCallback(
-      (event: SyntheticEvent<HTMLElement>) => {
-        event.preventDefault();
-        dispatchActionPromise(
-          changeThreadSettingsActionTypes,
-          changeThreadSettingsAction(),
-        );
-      },
-      [changeThreadSettingsAction, dispatchActionPromise],
     );
 
     React.useEffect(() => {
@@ -198,6 +153,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
           threadInfo={threadInfo}
           queuedChanges={queuedChanges}
           setQueuedChanges={setQueuedChanges}
+          setErrorMessage={setErrorMessage}
         />
       );
     } else if (currentTabType === 'delete') {
@@ -207,20 +163,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
           threadInfo={threadInfo}
           setErrorMessage={setErrorMessage}
         />
-      );
-    }
-
-    let buttons;
-    if (currentTabType === 'privacy') {
-      buttons = (
-        <Button
-          type="submit"
-          onClick={onSubmit}
-          disabled={inputDisabled || !changeQueued}
-          className={css.save_button}
-        >
-          Save
-        </Button>
       );
     }
 
@@ -276,7 +218,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
           <form method="POST">
             {mainContent}
             <div className={css.form_footer}>
-              {buttons}
               <div className={css.modal_form_error}>{errorMessage}</div>
             </div>
           </form>

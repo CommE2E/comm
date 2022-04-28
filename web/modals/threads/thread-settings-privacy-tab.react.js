@@ -2,6 +2,10 @@
 
 import * as React from 'react';
 
+import {
+  changeThreadSettings,
+  changeThreadSettingsActionTypes,
+} from 'lib/actions/thread-actions.js';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import { type SetState } from 'lib/types/hook-types';
 import {
@@ -10,7 +14,13 @@ import {
   assertThreadType,
   threadTypes,
 } from 'lib/types/thread-types';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
+import Button from '../../components/button.react.js';
+import { useModalContext } from '../modal-provider.react.js';
 import css from './thread-settings-privacy-tab.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
@@ -20,11 +30,27 @@ type ThreadSettingsPrivacyTabProps = {
   +threadInfo: ThreadInfo,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
+  +setErrorMessage: SetState<string>,
 };
 function ThreadSettingsPrivacyTab(
   props: ThreadSettingsPrivacyTabProps,
 ): React.Node {
-  const { inputDisabled, threadInfo, queuedChanges, setQueuedChanges } = props;
+  const {
+    inputDisabled,
+    threadInfo,
+    queuedChanges,
+    setQueuedChanges,
+    setErrorMessage,
+  } = props;
+
+  const modalContext = useModalContext();
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+
+  const changeQueued: boolean = React.useMemo(
+    () => Object.values(queuedChanges).some(v => v !== null && v !== undefined),
+    [queuedChanges],
+  );
 
   const onChangeThreadType = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
@@ -37,6 +63,39 @@ function ThreadSettingsPrivacyTab(
       );
     },
     [queuedChanges, setQueuedChanges, threadInfo.type],
+  );
+
+  const changeThreadSettingsAction = React.useCallback(async () => {
+    try {
+      const response = await callChangeThreadSettings({
+        threadID: threadInfo.id,
+        changes: queuedChanges,
+      });
+      modalContext.popModal();
+      return response;
+    } catch (e) {
+      setErrorMessage('unknown_error');
+      setQueuedChanges(Object.freeze({}));
+      throw e;
+    }
+  }, [
+    callChangeThreadSettings,
+    modalContext,
+    queuedChanges,
+    setErrorMessage,
+    setQueuedChanges,
+    threadInfo.id,
+  ]);
+
+  const onSubmit = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.preventDefault();
+      dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        changeThreadSettingsAction(),
+      );
+    },
+    [changeThreadSettingsAction, dispatchActionPromise],
   );
 
   return (
@@ -90,6 +149,14 @@ function ThreadSettingsPrivacyTab(
           </div>
         </div>
       </div>
+      <Button
+        type="submit"
+        onClick={onSubmit}
+        disabled={inputDisabled || !changeQueued}
+        className={css.save_button}
+      >
+        Save
+      </Button>
     </div>
   );
 }
