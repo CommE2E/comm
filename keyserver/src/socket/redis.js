@@ -31,10 +31,13 @@ const redisConfig = (() => {
 })();
 
 class RedisPublisher {
-  pub: RedisClient;
+  client: ?RedisClient;
 
-  constructor() {
-    this.pub = redis.createClient(redisConfig);
+  get pub(): RedisClient {
+    if (!this.client) {
+      this.client = redis.createClient(redisConfig);
+    }
+    return this.client;
   }
 
   sendMessage(target: UpdateTarget, message: RedisMessage) {
@@ -49,7 +52,7 @@ class RedisPublisher {
   }
 
   end() {
-    this.pub.unref();
+    this.client?.unref();
   }
 }
 const publisher: RedisPublisher = new RedisPublisher();
