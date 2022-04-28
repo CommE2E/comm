@@ -3,26 +3,35 @@
 import * as React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 
+import { selectedThreadColors } from 'lib/shared/thread-utils';
+
 import ColorSelectorButton from './color-selector-button.react';
 
-function ColorSelector(): React.Node {
+type ColorSelectorProps = {
+  +currentColor: string,
+};
+
+function ColorSelector(props: ColorSelectorProps): React.Node {
+  const { currentColor } = props;
+
+  const colorSelectorButtons = React.useMemo(
+    () =>
+      selectedThreadColors.map(color => (
+        <ColorSelectorButton
+          key={color}
+          color={color}
+          currentColor={currentColor}
+        />
+      )),
+    [currentColor],
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
         <Text style={styles.text}>Select thread color</Text>
       </View>
-      <View style={styles.colorButtons}>
-        <ColorSelectorButton color="#4B87AA" />
-        <ColorSelectorButton color="#5C9F5F" />
-        <ColorSelectorButton color="#B8753D" />
-        <ColorSelectorButton color="#AA4B4B" />
-        <ColorSelectorButton color="#6D49AB" />
-        <ColorSelectorButton color="#C85000" />
-        <ColorSelectorButton color="#008F83" />
-        <ColorSelectorButton color="#648CAA" />
-        <ColorSelectorButton color="#57697F" />
-        <ColorSelectorButton color="#575757" />
-      </View>
+      <View style={styles.colorButtons}>{colorSelectorButtons}</View>
     </View>
   );
 }
