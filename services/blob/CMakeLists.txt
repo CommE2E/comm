@@ -24,15 +24,7 @@ find_package(OpenSSL REQUIRED)
 # FIND FILES
 file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 
-
-if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
-  add_compile_definitions(COMM_TEST_SERVICES)
-endif()
-
 file(GLOB GENERATED_CODE "./_generated/*.cc")
-if ($ENV{COMM_SERVICES_DEV_MODE} MATCHES 1)
-  add_compile_definitions(COMM_SERVICES_DEV_MODE)
-endif()
 
 file(GLOB SOURCE_CODE "./src/*.cpp" "./src/**/*.cpp")
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Constants.h"
 #include "DatabaseEntitiesTools.h"
 #include "S3Path.h"
 
@@ -17,6 +16,10 @@ database::S3Path findS3Path(const std::string &holder);
 database::S3Path findS3Path(const database::ReverseIndexItem &reverseIndexItem);
 
 uint64_t getCurrentTimestamp();
+
+std::string decorateTableName(const std::string &baseName);
+
+bool isDevMode();
 
 class invalid_argument_error : public std::runtime_error {
 public:

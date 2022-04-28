@@ -23,14 +23,7 @@ find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 # FIND FILES
 file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 
-if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
-  add_compile_definitions(COMM_TEST_SERVICES)
-endif()
-
 file(GLOB GENERATED_CODE "./_generated/*.cc")
-if ($ENV{COMM_SERVICES_DEV_MODE} MATCHES 1)
-  add_compile_definitions(COMM_SERVICES_DEV_MODE)
-endif()
 
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 
