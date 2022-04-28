@@ -1,6 +1,5 @@
 // @flow
 
-import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -18,6 +17,7 @@ import {
   type ThreadChanges,
 } from 'lib/types/thread-types';
 
+import Tabs from '../../components/tabs.react';
 import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
 import Modal from '../modal.react';
@@ -27,31 +27,6 @@ import css from './thread-settings-modal.css';
 import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react';
 
 type TabType = 'general' | 'privacy' | 'delete';
-type TabProps = {
-  +name: string,
-  +tabType: TabType,
-  +selected: boolean,
-  +onClick: (tabType: TabType) => void,
-};
-class Tab extends React.PureComponent<TabProps> {
-  render() {
-    const classNamesForTab = classNames({
-      [css['current-tab']]: this.props.selected,
-      [css['delete-tab']]:
-        this.props.selected && this.props.tabType === 'delete',
-    });
-    return (
-      <li className={classNamesForTab} onClick={this.onClick}>
-        <a>{this.props.name}</a>
-      </li>
-    );
-  }
-
-  onClick = () => {
-    return this.props.onClick(this.props.tabType);
-  };
-}
-
 type BaseProps = {
   +threadID: string,
 };
@@ -134,9 +109,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     const inputDisabled =
       changeInProgress || !hasPermissionForTab(threadInfo, currentTabType);
 
-    let mainContent;
-    if (currentTabType === 'general') {
-      mainContent = (
+    const tabs = [
+      <Tabs.Item id="general" header="General" key="general">
         <ThreadSettingsGeneralTab
           inputDisabled={inputDisabled}
           threadInfo={threadInfo}
@@ -145,35 +119,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
           setQueuedChanges={setQueuedChanges}
           setErrorMessage={setErrorMessage}
         />
-      );
-    } else if (currentTabType === 'privacy') {
-      mainContent = (
-        <ThreadSettingsPrivacyTab
-          inputDisabled={inputDisabled}
-          threadInfo={threadInfo}
-          queuedChanges={queuedChanges}
-          setQueuedChanges={setQueuedChanges}
-          setErrorMessage={setErrorMessage}
-        />
-      );
-    } else if (currentTabType === 'delete') {
-      mainContent = (
-        <ThreadSettingsDeleteTab
-          inputDisabled={inputDisabled}
-          threadInfo={threadInfo}
-          setErrorMessage={setErrorMessage}
-        />
-      );
-    }
-
-    const tabs = [
-      <Tab
-        name="General"
-        tabType="general"
-        onClick={setCurrentTabType}
-        selected={currentTabType === 'general'}
-        key="general"
-      />,
+      </Tabs.Item>,
     ];
 
     // This UI needs to be updated to handle sidebars but we haven't gotten
@@ -185,38 +131,43 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       threadInfo.sourceMessageID &&
       (threadInfo.type === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
         threadInfo.type === threadTypes.COMMUNITY_SECRET_SUBTHREAD);
-
     if (canSeePrivacyTab) {
       tabs.push(
-        <Tab
-          name="Privacy"
-          tabType="privacy"
-          onClick={setCurrentTabType}
-          selected={currentTabType === 'privacy'}
-          key="privacy"
-        />,
+        <Tabs.Item id="privacy" header="Privacy" key="privacy">
+          <ThreadSettingsPrivacyTab
+            inputDisabled={inputDisabled}
+            threadInfo={threadInfo}
+            queuedChanges={queuedChanges}
+            setQueuedChanges={setQueuedChanges}
+            setErrorMessage={setErrorMessage}
+          />
+        </Tabs.Item>,
       );
     }
 
     const canDeleteThread = hasPermissionForTab(threadInfo, 'delete');
     if (canDeleteThread) {
       tabs.push(
-        <Tab
-          name="Delete"
-          tabType="delete"
-          onClick={setCurrentTabType}
-          selected={currentTabType === 'delete'}
-          key="delete"
-        />,
+        <Tabs.Item id="delete" header="Delete" key="delete">
+          <ThreadSettingsDeleteTab
+            inputDisabled={inputDisabled}
+            threadInfo={threadInfo}
+            setErrorMessage={setErrorMessage}
+          />
+        </Tabs.Item>,
       );
     }
 
     return (
       <Modal name="Thread settings" onClose={modalContext.popModal}>
-        <ul className={css.tab_panel}>{tabs}</ul>
         <div className={css.modal_body}>
           <form method="POST">
-            {mainContent}
+            <Tabs.Container
+              activeTab={currentTabType}
+              setTab={setCurrentTabType}
+            >
+              {tabs}
+            </Tabs.Container>
             <div className={css.form_footer}>
               <div className={css.modal_form_error}>{errorMessage}</div>
             </div>
