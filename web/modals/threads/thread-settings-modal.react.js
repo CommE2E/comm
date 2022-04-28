@@ -13,22 +13,16 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { threadHasPermission, robotextName } from 'lib/shared/thread-utils';
-import { type SetState } from 'lib/types/hook-types.js';
 import {
   type ThreadInfo,
   threadTypes,
   assertThreadType,
-  type ChangeThreadSettingsPayload,
-  type UpdateThreadRequest,
-  type LeaveThreadPayload,
   threadPermissions,
   type ThreadChanges,
 } from 'lib/types/thread-types';
-import type { UserInfos } from 'lib/types/user-types';
 import {
   useDispatchActionPromise,
   useServerCall,
-  type DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
@@ -70,78 +64,6 @@ class Tab extends React.PureComponent<TabProps> {
 type BaseProps = {
   +threadID: string,
 };
-type Props = {
-  ...BaseProps,
-  +threadInfo: ThreadInfo,
-  +changeInProgress: boolean,
-  +viewerID: ?string,
-  +userInfos: UserInfos,
-  +dispatchActionPromise: DispatchActionPromise,
-  +deleteThread: (
-    threadID: string,
-    currentAccountPassword: string,
-  ) => Promise<LeaveThreadPayload>,
-  +changeThreadSettings: (
-    update: UpdateThreadRequest,
-  ) => Promise<ChangeThreadSettingsPayload>,
-  +onClose: () => void,
-  +errorMessage: string,
-  +setErrorMessage: SetState<string>,
-  +accountPassword: string,
-  +setAccountPassword: SetState<string>,
-  +currentTabType: TabType,
-  +setCurrentTabType: SetState<TabType>,
-  +queuedChanges: ThreadChanges,
-  +setQueuedChanges: SetState<ThreadChanges>,
-  +namePlaceholder: string,
-  +changeQueued: boolean,
-  +onChangeName: (event: SyntheticEvent<HTMLInputElement>) => void,
-  +onChangeDescription: (event: SyntheticEvent<HTMLTextAreaElement>) => void,
-  +onChangeColor: (color: string) => void,
-  +onChangeThreadType: (event: SyntheticEvent<HTMLInputElement>) => void,
-  +onChangeAccountPassword: (event: SyntheticEvent<HTMLInputElement>) => void,
-  +hasPermissionForTab: (thread: ThreadInfo, tab: TabType) => boolean,
-  +deleteThreadAction: () => Promise<LeaveThreadPayload>,
-  +onDelete: (event: SyntheticEvent<HTMLElement>) => void,
-  +changeThreadSettingsAction: () => Promise<ChangeThreadSettingsPayload>,
-  +onSubmit: (event: SyntheticEvent<HTMLElement>) => void,
-  +mainContent: ?React.Node,
-  +buttons: ?React.Node,
-  +tabs: ?React.Node,
-};
-class ThreadSettingsModal extends React.PureComponent<Props> {
-  constructor(props: Props) {
-    super(props);
-  }
-
-  possiblyChangedValue(key: string) {
-    const valueChanged =
-      this.props.queuedChanges[key] !== null &&
-      this.props.queuedChanges[key] !== undefined;
-    return valueChanged
-      ? this.props.queuedChanges[key]
-      : this.props.threadInfo[key];
-  }
-
-  render() {
-    return (
-      <Modal name="Thread settings" onClose={this.props.onClose}>
-        <ul className={css.tab_panel}>{this.props.tabs}</ul>
-        <div className={css.modal_body}>
-          <form method="POST">
-            {this.props.mainContent}
-            <div className={css.form_footer}>
-              {this.props.buttons}
-              <div className={css.modal_form_error}>
-                {this.props.errorMessage}
-              </div>
-            </div>
-          </form>
-        </div>
-      </Modal>
-    );
-  }
-}
 
 const deleteThreadLoadingStatusSelector = createLoadingStatusSelector(
   deleteThreadActionTypes,
@@ -468,40 +390,18 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     }
 
     return (
-      <ThreadSettingsModal
-        {...props}
-        threadInfo={threadInfo}
-        changeInProgress={changeInProgress}
-        viewerID={viewerID}
-        userInfos={userInfos}
-        deleteThread={callDeleteThread}
-        changeThreadSettings={callChangeThreadSettings}
-        dispatchActionPromise={dispatchActionPromise}
-        onClose={modalContext.popModal}
-        errorMessage={errorMessage}
-        setErrorMessage={setErrorMessage}
-        accountPassword={accountPassword}
-        setAccountPassword={setAccountPassword}
-        currentTabType={currentTabType}
-        setCurrentTabType={setCurrentTabType}
-        queuedChanges={queuedChanges}
-        setQueuedChanges={setQueuedChanges}
-        namePlaceholder={namePlaceholder}
-        changeQueued={changeQueued}
-        onChangeName={onChangeName}
-        onChangeDescription={onChangeDescription}
-        onChangeColor={onChangeColor}
-        onChangeThreadType={onChangeThreadType}
-        onChangeAccountPassword={onChangeAccountPassword}
-        hasPermissionForTab={hasPermissionForTab}
-        deleteThreadAction={deleteThreadAction}
-        onDelete={onDelete}
-        changeThreadSettingsAction={changeThreadSettingsAction}
-        onSubmit={onSubmit}
-        mainContent={mainContent}
-        buttons={buttons}
-        tabs={tabs}
-      />
+      <Modal name="Thread settings" onClose={modalContext.popModal}>
+        <ul className={css.tab_panel}>{tabs}</ul>
+        <div className={css.modal_body}>
+          <form method="POST">
+            {mainContent}
+            <div className={css.form_footer}>
+              {buttons}
+              <div className={css.modal_form_error}>{errorMessage}</div>
+            </div>
+          </form>
+        </div>
+      </Modal>
     );
   },
 );
