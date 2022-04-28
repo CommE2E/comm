@@ -28,7 +28,6 @@ public:
   std::unique_ptr<grpc::Status>
   readResponse(blob::GetResponse &response) override;
   void doneCallback() override;
-  grpc::Status getStatus() const;
 };
 
 } // namespace reactor
