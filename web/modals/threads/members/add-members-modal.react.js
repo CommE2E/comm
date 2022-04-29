@@ -2,6 +2,10 @@
 
 import * as React from 'react';
 
+import {
+  changeThreadSettingsActionTypes,
+  changeThreadSettings,
+} from 'lib/actions/thread-actions';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   userSearchIndexForPotentialMembers,
@@ -9,6 +13,10 @@ import {
 } from 'lib/selectors/user-selectors';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadActualMembers } from 'lib/shared/thread-utils';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
 import Button from '../../../components/button.react';
 import { useSelector } from '../../../redux/redux-utils';
@@ -80,6 +88,26 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     [],
   );
 
+  const dispatchActionPromise = useDispatchActionPromise();
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+
+  const addUsers = React.useCallback(() => {
+    dispatchActionPromise(
+      changeThreadSettingsActionTypes,
+      callChangeThreadSettings({
+        threadID,
+        changes: { newMemberIDs: Array.from(pendingUsersToAdd) },
+      }),
+    );
+    onClose();
+  }, [
+    callChangeThreadSettings,
+    dispatchActionPromise,
+    onClose,
+    pendingUsersToAdd,
+    threadID,
+  ]);
+
   return (
     <div className={css.addMembersContent}>
       <div className={css.addMembersListContainer}>
@@ -96,7 +124,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
         <Button
           disabled={!pendingUsersToAdd.size}
           variant="primary"
-          onClick={() => {}}
+          onClick={addUsers}
         >
           Add selected members
         </Button>
