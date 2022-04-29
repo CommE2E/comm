@@ -62,7 +62,14 @@
   /* Color Theme */
   --btn-bg-primary: var(--violet-dark-100);
   --btn-bg-primary-hover: var(--violet-dark-80);
+  --btn-bg-primary-disabled: var(--shades-black-80);
+  --btn-bg-secondary: var(--shades-black-90);
+  --btn-bg-secondary-hover: var(--shades-black-80);
+  --btn-bg-secondary-disabled: var(--shades-black-90);
   --btn-bg-danger: var(--error-primary);
+  --btn-bg-danger-hover: var(--error-dark-50);
+  --btn-bg-danger-disabled: var(--shades-black-80);
+  --btn-disabled-color: var(--shades-black-60);
   --chat-bg: var(--violet-dark-80);
   --chat-confirmation-icon: var(--violet-dark-100);
   --keyserver-selection: var(--violet-dark-60);

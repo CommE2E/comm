@@ -10,26 +10,54 @@
   cursor: pointer;
 }
 
+.btn:hover {
+  transition-duration: 200ms;
+  transition-property: background, color;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  color: var(--btn-disabled-color);
+}
+
 .primary {
   background: var(--btn-bg-primary);
   color: var(--fg);
-  transition: 200ms;
 }
 
 .primary:hover {
-  background-color: var(--btn-bg-primary-hover);
-  transition: 200ms;
+  background: var(--btn-bg-primary-hover);
+}
+
+.primary:disabled {
+  background: var(--btn-bg-primary-disabled);
 }
 
 .secondary {
-  background: var(--shades-black-90);
+  background: var(--btn-bg-secondary);
   color: var(--fg);
   border: 1px solid var(--btn-secondary-border);
+}
+
+.secondary:hover {
+  background: var(--btn-bg-secondary-hover);
+}
+
+.secondary:disabled {
+  background: var(--btn-bg-secondary-disabled);
 }
 
 .danger {
   background: var(--btn-bg-danger);
   color: var(--fg);
+}
+
+.danger:hover {
+  background: var(--btn-bg-danger-hover);
+}
+
+.danger:disabled {
+  background: var(--btn-bg-danger-disabled);
 }
 
 .round {
