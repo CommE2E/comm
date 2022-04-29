@@ -4,12 +4,22 @@ import * as React from 'react';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors';
-import { memberHasAdminPowers, memberIsAdmin } from 'lib/shared/thread-utils';
-import { type RelativeMemberInfo } from 'lib/types/thread-types';
+import {
+  memberHasAdminPowers,
+  memberIsAdmin,
+  threadHasPermission,
+} from 'lib/shared/thread-utils';
+import {
+  type RelativeMemberInfo,
+  threadPermissions,
+} from 'lib/types/thread-types';
 
+import Button from '../../../components/button.react';
 import Tabs from '../../../components/tabs.react';
 import { useSelector } from '../../../redux/redux-utils';
+import { useModalContext } from '../../modal-provider.react';
 import SearchModal from '../../search-modal.react';
+import AddMembersModal from './add-members-modal.react';
 import ThreadMembersList from './members-list.react';
 import css from './members-modal.css';
 
@@ -69,12 +79,37 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
     [adminMembers, threadInfo],
   );
 
+  const { pushModal, popModal } = useModalContext();
+
+  const onClickAddMembers = React.useCallback(() => {
+    pushModal(<AddMembersModal onClose={popModal} threadID={threadID} />);
+  }, [popModal, pushModal, threadID]);
+
+  const canAddMembers = threadHasPermission(
+    threadInfo,
+    threadPermissions.ADD_MEMBERS,
+  );
+
+  const addMembersButton = React.useMemo(() => {
+    if (!canAddMembers) {
+      return null;
+    }
+    return (
+      <div className={css.addNewMembers}>
+        <Button onClick={onClickAddMembers}>Add members</Button>
+      </div>
+    );
+  }, [canAddMembers, onClickAddMembers]);
+
   return (
     <div className={css.modalContentContainer}>
-      <Tabs.Container activeTab={tab} setTab={setTab}>
-        {allUsersTab}
-        {allAdminsTab}
-      </Tabs.Container>
+      <div className={css.membersListTabs}>
+        <Tabs.Container activeTab={tab} setTab={setTab}>
+          {allUsersTab}
+          {allAdminsTab}
+        </Tabs.Container>
+      </div>
+      {addMembersButton}
     </div>
   );
 }

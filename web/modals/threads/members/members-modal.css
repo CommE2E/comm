@@ -1,6 +1,19 @@
 div.modalContentContainer {
   width: 383px;
   height: 617px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  row-gap: 16px;
+}
+
+div.membersListTabs {
+  flex: 1;
+  overflow: hidden;
+}
+
+div.addNewMembers button {
+  width: 100%;
 }
 
 div.membersList {
