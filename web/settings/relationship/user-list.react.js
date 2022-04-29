@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors';
@@ -24,6 +25,12 @@ export function UserList(props: UserListProps): React.Node {
   const { userRowComponent, filterUser, usersComparator, searchText } = props;
   const userInfos = useSelector(state => state.userStore.userInfos);
   const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
+  const [isMenuVisible, setIsMenuVisible] = React.useState(false);
+
+  const onMenuVisibilityChange = React.useCallback(
+    (visible: boolean) => setIsMenuVisible(visible),
+    [],
+  );
 
   const searchResult = React.useMemo(
     () => userStoreSearchIndex.getSearchResults(searchText),
@@ -49,8 +56,22 @@ export function UserList(props: UserListProps): React.Node {
 
   const userRows = React.useMemo(() => {
     const UserRow = userRowComponent;
-    return users.map(user => <UserRow userInfo={user} key={user.id} />);
-  }, [users, userRowComponent]);
+    return users.map(user => (
+      <UserRow
+        userInfo={user}
+        key={user.id}
+        onMenuVisibilityChange={onMenuVisibilityChange}
+      />
+    ));
+  }, [userRowComponent, users, onMenuVisibilityChange]);
 
-  return <div className={css.container}>{userRows}</div>;
+  const containerClasses = React.useMemo(
+    () =>
+      classNames(css.container, {
+        [css.noScroll]: isMenuVisible,
+      }),
+    [isMenuVisible],
+  );
+
+  return <div className={containerClasses}>{userRows}</div>;
 }
