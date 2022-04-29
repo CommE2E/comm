@@ -2,7 +2,16 @@
 
 import * as React from 'react';
 
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  userSearchIndexForPotentialMembers,
+  userInfoSelectorForPotentialMembers,
+} from 'lib/selectors/user-selectors';
+import { getPotentialMemberItems } from 'lib/shared/search-utils';
+import { threadActualMembers } from 'lib/shared/thread-utils';
+
 import Button from '../../../components/button.react';
+import { useSelector } from '../../../redux/redux-utils';
 import SearchModal from '../../search-modal.react';
 import AddMembersList from './add-members-list.react';
 import css from './members-modal.css';
@@ -14,13 +23,48 @@ type ContentProps = {
 };
 
 function AddMembersModalContent(props: ContentProps): React.Node {
-  const { onClose } = props;
+  const { searchText, threadID, onClose } = props;
 
   const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
     $ReadOnlySet<string>,
   >(new Set());
 
-  const userSearchResults = [];
+  const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
+  const { parentThreadID, community } = threadInfo;
+  const parentThreadInfo = useSelector(state =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+  const communityThreadInfo = useSelector(state =>
+    community ? threadInfoSelector(state)[community] : null,
+  );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
+  const excludeUserIDs = React.useMemo(
+    () => threadActualMembers(threadInfo.members),
+    [threadInfo.members],
+  );
+
+  const userSearchResults = React.useMemo(
+    () =>
+      getPotentialMemberItems(
+        searchText,
+        otherUserInfos,
+        userSearchIndex,
+        excludeUserIDs,
+        parentThreadInfo,
+        communityThreadInfo,
+        threadInfo.type,
+      ),
+    [
+      communityThreadInfo,
+      excludeUserIDs,
+      otherUserInfos,
+      parentThreadInfo,
+      searchText,
+      threadInfo.type,
+      userSearchIndex,
+    ],
+  );
 
   const onSwitchUser = React.useCallback(
     userID =>
