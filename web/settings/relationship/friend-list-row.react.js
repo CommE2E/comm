@@ -6,6 +6,8 @@ import * as React from 'react';
 import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 
+import MenuItem from '../../components/menu-item.react';
+import Menu from '../../components/menu.react';
 import SWMansionIcon from '../../SWMansionIcon.react';
 import css from './friend-list-row.css';
 import type { UserRowProps } from './user-list.react';
@@ -41,10 +43,13 @@ function FriendListRow(props: UserRowProps): React.Node {
       </>
     );
   } else if (userInfo.relationshipStatus === userRelationshipStatus.FRIEND) {
+    const editIcon = <SWMansionIcon icon="edit" size={22} />;
     buttons = (
-      <button className={classnames([css.button, css.edit_button])}>
-        <SWMansionIcon icon="edit" size={22} />
-      </button>
+      <div className={css.edit_menu}>
+        <Menu icon={editIcon} variant="member-actions">
+          <MenuItem text="Unfriend" icon="user-cross" onClick={unfriendUser} />
+        </Menu>
+      </div>
     );
   }
 

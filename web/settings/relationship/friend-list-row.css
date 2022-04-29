@@ -34,6 +34,6 @@
   color: var(--btn-bg-danger);
 }
 
-.edit_button {
-  color: var(--relationship-modal-color);
+.edit_menu {
+  position: relative;
 }
