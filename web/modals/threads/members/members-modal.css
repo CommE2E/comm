@@ -50,6 +50,27 @@ div.noUsers {
   text-align: center;
 }
 
+div.addMembersContent {
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  color: var(--fg);
+  row-gap: 16px;
+  width: 383px;
+  height: 617px;
+}
+
+div.addMembersListContainer {
+  overflow: auto;
+  flex: 1;
+}
+
+div.addMembersFooter {
+  display: flex;
+  justify-content: end;
+  column-gap: 16px;
+}
+
 div.addMemberItemsGroupHeader {
   font-size: var(--s-font-14);
   color: var(--add-members-group-header-color);
