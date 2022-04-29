@@ -19,15 +19,3 @@ div.inlineSidebarName {
 div.unread {
   font-weight: bold;
 }
-div.centerContainer {
-  justify-content: center;
-}
-div.nonViewerMessageBoxContainer {
-  justify-content: flex-start;
-}
-div.viewerMessageBoxContainer {
-  justify-content: flex-end;
-}
-svg.inlineSidebarIcon {
-  color: #666666;
-}

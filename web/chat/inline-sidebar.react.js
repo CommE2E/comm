@@ -2,10 +2,6 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
-import {
-  CornerDownRight as CornerDownRightIcon,
-  CornerDownLeft as CornerDownLeftIcon,
-} from 'react-feather';
 
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import { stringForUser } from 'lib/shared/user-utils';
@@ -25,23 +21,7 @@ function InlineSidebar(props: Props): React.Node {
 
   const onClick = useOnClickThread(threadInfo);
 
-  let viewerIcon, nonViewerIcon, alignStyle;
-  if (props.positioning === 'right') {
-    viewerIcon = (
-      <CornerDownLeftIcon className={css.inlineSidebarIcon} size={18} />
-    );
-    alignStyle = css.viewerMessageBoxContainer;
-  } else if (props.positioning === 'left') {
-    nonViewerIcon = (
-      <CornerDownRightIcon className={css.inlineSidebarIcon} size={18} />
-    );
-    alignStyle = css.nonViewerMessageBoxContainer;
-  } else {
-    nonViewerIcon = (
-      <CornerDownRightIcon className={css.inlineSidebarIcon} size={18} />
-    );
-    alignStyle = css.centerContainer;
-  }
+  let nonViewerIcon, alignStyle;
 
   const unreadStyle = threadInfo.currentUser.unread ? css.unread : null;
   const repliesCount = threadInfo.repliesCount || 1;
@@ -67,7 +47,6 @@ function InlineSidebar(props: Props): React.Node {
           {sendersText}
           {repliesText}
         </div>
-        {viewerIcon}
       </div>
     </div>
   );
