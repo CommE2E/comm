@@ -152,4 +152,10 @@
   --arrow-extension-color: var(--shades-black-60);
   --modal-close-color: var(--shades-black-60);
   --modal-close-color-hover: var(--shades-white-100);
+  --add-members-item-color: var(--shades-black-60);
+  --add-members-item-color-hover: var(--shades-white-100);
+  --add-members-item-disabled-color: var(--shades-black-80);
+  --add-members-item-disabled-color-hover: var(--shades-black-60);
+  --add-members-remove-pending-color: var(--error-primary);
+  --add-members-remove-pending-color-hover: var(--error-light-50);
 }
