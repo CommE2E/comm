@@ -10,6 +10,7 @@ import css from './user-list.css';
 
 export type UserRowProps = {
   +userInfo: AccountUserInfo,
+  +onMenuVisibilityChange?: (visible: boolean) => void,
 };
 
 type UserListProps = {
