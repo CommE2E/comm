@@ -152,6 +152,7 @@
   --arrow-extension-color: var(--shades-black-60);
   --modal-close-color: var(--shades-black-60);
   --modal-close-color-hover: var(--shades-white-100);
+  --add-members-group-header-color: var(--shades-black-60);
   --add-members-item-color: var(--shades-black-60);
   --add-members-item-color-hover: var(--shades-white-100);
   --add-members-item-disabled-color: var(--shades-black-80);
