@@ -11,6 +11,7 @@ import {
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions';
+import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   threadInfoSelector,
@@ -219,6 +220,7 @@ type Props = {
   +overlayContext: ?OverlayContextType,
   // withKeyboardState
   +keyboardState: ?KeyboardState,
+  +canPromoteSidebar: boolean,
 };
 type State = {
   +numMembersShowing: number,
@@ -683,19 +685,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     ) => {
       const buttons = [];
 
-      const canChangeThreadType = threadHasPermission(
-        threadInfo,
-        threadPermissions.EDIT_PERMISSIONS,
-      );
-      const canCreateSubchannelsInParent = threadHasPermission(
-        parentThreadInfo,
-        threadPermissions.CREATE_SUBCHANNELS,
-      );
-      const canPromoteSidebar =
-        threadInfo.type === threadTypes.SIDEBAR &&
-        canChangeThreadType &&
-        canCreateSubchannelsInParent;
-      if (canPromoteSidebar) {
+      if (this.props.canPromoteSidebar) {
         buttons.push({
           itemType: 'promoteSidebar',
           key: 'promoteSidebar',
@@ -1138,6 +1128,8 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
     const indicatorStyle = useIndicatorStyle();
     const overlayContext = React.useContext(OverlayContext);
     const keyboardState = React.useContext(KeyboardContext);
+    invariant(threadInfo, 'threadInfo must be defined');
+    const { canPromoteSidebar } = usePromoteSidebar(threadInfo);
     return (
       <ThreadSettings
         {...props}
@@ -1151,6 +1143,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
         indicatorStyle={indicatorStyle}
         overlayContext={overlayContext}
         keyboardState={keyboardState}
+        canPromoteSidebar={canPromoteSidebar}
       />
     );
   },
