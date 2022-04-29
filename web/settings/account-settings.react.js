@@ -11,6 +11,7 @@ import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './account-settings.css';
 import PasswordChangeModal from './password-change-modal';
+import FriendListModal from './relationship/friend-list-modal.react';
 
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useServerCall(logOut);
@@ -19,10 +20,15 @@ function AccountSettings(): React.Node {
     sendLogoutRequest(preRequestUserState);
   }, [sendLogoutRequest, preRequestUserState]);
 
-  const { pushModal } = useModalContext();
+  const { pushModal, popModal } = useModalContext();
   const showPasswordChangeModal = React.useCallback(
     () => pushModal(<PasswordChangeModal />),
     [pushModal],
+  );
+
+  const openFriendList = React.useCallback(
+    () => pushModal(<FriendListModal onClose={popModal} />),
+    [popModal, pushModal],
   );
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
@@ -59,7 +65,9 @@ function AccountSettings(): React.Node {
           </li>
           <li>
             <span>Friend List</span>
-            <button className={css.button}>See List</button>
+            <button className={css.button} onClick={openFriendList}>
+              See List
+            </button>
           </li>
           <li>
             <span>Block List</span>
