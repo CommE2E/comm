@@ -61,6 +61,10 @@ mkShell {
 
   # shell commands to be ran upon entering shell
   shellHook = ''
+    if [[ "$OSTYPE" == 'linux'* ]]; then
+      export MYSQL_UNIX_PORT=''${XDG_RUNTIME_DIR:-/run/user/$UID}/mysql-socket/mysql.sock
+    fi
+
     echo "Welcome to Comm dev environment! :)"
   '';
 }
