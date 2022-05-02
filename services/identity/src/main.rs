@@ -1,10 +1,12 @@
 use clap::{Parser, Subcommand};
 use tonic::transport::Server;
 
+mod config;
 mod keygen;
 mod opaque;
 mod service;
 
+use config::Config;
 use keygen::generate_and_persist_keypair;
 use service::{IdentityServiceServer, MyIdentityService};
 
@@ -40,8 +42,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Commands::Server => {
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
-      let identity_service = MyIdentityService::default();
-
+      let config = Config::load()?;
+      let identity_service = MyIdentityService::new(config);
       Server::builder()
         .add_service(IdentityServiceServer::new(identity_service))
         .serve(addr)
