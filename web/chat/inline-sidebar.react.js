@@ -13,16 +13,13 @@ type Props = {
 };
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;
-  const { sendersText, repliesText } = useInlineSidebarText(threadInfo);
+  const { repliesText } = useInlineSidebarText(threadInfo);
 
   const onClick = useOnClickThread(threadInfo);
 
   return (
     <div onClick={onClick}>
-      <div>
-        {sendersText}
-        {repliesText}
-      </div>
+      <div>{repliesText}</div>
     </div>
   );
 }
