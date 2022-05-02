@@ -6,6 +6,7 @@ import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { useOnClickThread } from '../selectors/nav-selectors';
+import css from './inline-sidebar.css';
 
 type Props = {
   +threadInfo: ThreadInfo,
@@ -18,7 +19,7 @@ function InlineSidebar(props: Props): React.Node {
   const onClick = useOnClickThread(threadInfo);
 
   return (
-    <div onClick={onClick}>
+    <div className={css.container} onClick={onClick}>
       <div>
         {sendersText}
         {repliesText}

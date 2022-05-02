@@ -1,0 +1,6 @@
+div.container {
+  display: flex;
+  background: var(--inline-sidebar-bg);
+  color: var(--fg);
+  padding: 16px;
+}
