@@ -12,6 +12,17 @@ services:
       REDIS_URL: redis://cache
     depends_on:
       - cache
+      - database
+  database:
+    image: mysql:5.7.37-debian
+    restart: always
+    expose:
+      - "3306"
+    # There is no M1 build on Docker Hub, so we force x64
+    # This is what we want in production anyways. M1 devs will have it emulated
+    platform: linux/amd64
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
   cache:
     image: redis:6.2.6-bullseye
     restart: always
