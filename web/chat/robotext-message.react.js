@@ -15,7 +15,7 @@ import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
 import { updateNavInfoActionType } from '../types/nav-types';
-import { InlineSidebar } from './inline-sidebar.react';
+import InlineSidebar from './inline-sidebar.react';
 import MessageActionButtons from './message-action-buttons';
 import type {
   MessagePositionInfo,
