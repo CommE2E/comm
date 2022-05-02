@@ -3,8 +3,6 @@ name = "identity"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 tonic = "0.6"
 prost = "0.9"
@@ -15,6 +13,7 @@ argon2 = "0.3"
 curve25519-dalek = "3"
 sha2 = "0.9"
 digest = "0.9"
+clap = { version = "3.1.12", features = ["derive"] }
 
 [build-dependencies]
 tonic-build = "0.6"

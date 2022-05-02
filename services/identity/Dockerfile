@@ -24,5 +24,6 @@ COPY services/identity .
 RUN rm ./target/release/deps/identity*
 
 RUN cargo build --release
+RUN target/release/identity keygen
 
-CMD ["./target/release/identity"]
+CMD ["./target/release/identity", "server"]
