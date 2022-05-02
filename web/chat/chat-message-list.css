@@ -6,6 +6,12 @@ div.container {
   flex-direction: column;
   box-sizing: border-box;
 }
+div.composedMessageContainer {
+  position: relative;
+}
+div.withInlineSidebar {
+  margin-bottom: 36px;
+}
 div.activeContainer {
   border: 2px solid #5989d6;
   margin-left: 402px;
@@ -76,7 +82,7 @@ div.messageActionLinkIcon:hover {
 }
 
 div.textMessage {
-  padding: 6px 12px;
+  padding: 8px 12px;
   white-space: pre-wrap;
   word-wrap: break-word;
   width: 100%;
@@ -121,6 +127,7 @@ div.viewerContent {
   align-self: flex-end;
   justify-content: flex-end;
   padding-right: 4px;
+  position: relative;
 }
 div.iconContainer {
   margin-right: 1px;
@@ -215,9 +222,6 @@ div.imageGrid > span.multimedia:nth-last-child(n + 4):first-child ~ * {
 div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child,
 div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child ~ * {
   grid-column-end: span 2;
-}
-div.sidebarMarginBottom {
-  margin-bottom: 8px;
 }
 svg.inlineSidebarIcon {
   color: #666666;
