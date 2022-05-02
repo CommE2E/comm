@@ -58,42 +58,42 @@ function ThreadSettingsGeneralTab(
   const onChangeName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
       const target = event.currentTarget;
-      setQueuedChanges(
+      setQueuedChanges(prevQueuedChanges =>
         Object.freeze({
-          ...queuedChanges,
+          ...prevQueuedChanges,
           name: firstLine(
             target.value !== threadInfo.name ? target.value : undefined,
           ),
         }),
       );
     },
-    [queuedChanges, setQueuedChanges, threadInfo.name],
+    [setQueuedChanges, threadInfo.name],
   );
 
   const onChangeDescription = React.useCallback(
     (event: SyntheticEvent<HTMLTextAreaElement>) => {
       const target = event.currentTarget;
-      setQueuedChanges(
+      setQueuedChanges(prevQueuedChanges =>
         Object.freeze({
-          ...queuedChanges,
+          ...prevQueuedChanges,
           description:
             target.value !== threadInfo.description ? target.value : undefined,
         }),
       );
     },
-    [queuedChanges, setQueuedChanges, threadInfo.description],
+    [setQueuedChanges, threadInfo.description],
   );
 
   const onChangeColor = React.useCallback(
     (color: string) => {
-      setQueuedChanges(
+      setQueuedChanges(prevQueuedChanges =>
         Object.freeze({
-          ...queuedChanges,
+          ...prevQueuedChanges,
           color: color !== threadInfo.color ? color : undefined,
         }),
       );
     },
-    [queuedChanges, setQueuedChanges, threadInfo.color],
+    [setQueuedChanges, threadInfo.color],
   );
 
   const changeThreadSettingsAction = React.useCallback(async () => {

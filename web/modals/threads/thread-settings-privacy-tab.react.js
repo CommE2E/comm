@@ -55,14 +55,14 @@ function ThreadSettingsPrivacyTab(
   const onChangeThreadType = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
       const uiValue = assertThreadType(parseInt(event.currentTarget.value, 10));
-      setQueuedChanges(
+      setQueuedChanges(prevQueuedChanges =>
         Object.freeze({
-          ...queuedChanges,
+          ...prevQueuedChanges,
           type: uiValue !== threadInfo.type ? uiValue : undefined,
         }),
       );
     },
-    [queuedChanges, setQueuedChanges, threadInfo.type],
+    [setQueuedChanges, threadInfo.type],
   );
 
   const changeThreadSettingsAction = React.useCallback(async () => {
