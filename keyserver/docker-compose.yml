@@ -14,6 +14,6 @@ services:
   cache:
     image: redis:6.2.6-bullseye
     restart: always
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     command: redis-server --loglevel warning
