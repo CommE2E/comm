@@ -47,7 +47,7 @@ TEST(DeliveryBrokerTest, CheckPushAndPopOnGeneratedValues) {
       "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH);
   const DeliveryBrokerMessage message{
       .messageID = tools::generateUUID(),
-      .deliveryTag = std::time(0),
+      .deliveryTag = static_cast<uint64_t>(std::time(0)),
       .fromDeviceID =
           "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
       .payload = tools::generateRandomString(512)};
