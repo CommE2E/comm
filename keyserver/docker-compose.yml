@@ -5,6 +5,7 @@ services:
       dockerfile: keyserver/Dockerfile
       context: ../
     image: commapp/node-keyserver:1.0
+    restart: always
     ports:
       - "3000:3000"
     environment:
