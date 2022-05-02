@@ -182,7 +182,8 @@ TEST_F(DatabaseManagerTest, TestOperationsOnDeviceSessionItemGenerated) {
 TEST_F(DatabaseManagerTest, TestOperationsOnSessionSignItem) {
   const database::SessionSignItem item(
       "bB3OSLdKlY60KPBpw6VoGKX7Lmw3SA07FmNhnqnclvVeaxXueAQ0dpQSpiQTtlGn",
-      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm";
+      "mobile:"
+      "EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm");
   EXPECT_EQ(
       database::DatabaseManager::getInstance().isTableAvailable(
           item.getTableName()),
