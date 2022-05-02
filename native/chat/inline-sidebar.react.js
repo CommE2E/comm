@@ -18,7 +18,7 @@ type Props = {
 };
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;
-  const { sendersText, repliesText } = useInlineSidebarText(threadInfo);
+  const { repliesText } = useInlineSidebarText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
   const onPress = React.useCallback(() => {
@@ -48,10 +48,7 @@ function InlineSidebar(props: Props): React.Node {
     <View style={[styles.content, alignStyle]}>
       <Button style={styles.sidebar} onPress={onPress}>
         {nonViewerIcon}
-        <Text style={[styles.name, unreadStyle]}>
-          {sendersText}
-          {repliesText}
-        </Text>
+        <Text style={[styles.name, unreadStyle]}>{repliesText}</Text>
         {viewerIcon}
       </Button>
     </View>
