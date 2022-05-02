@@ -1,0 +1,28 @@
+div.container {
+  display: flex;
+  background: var(--inline-sidebar-bg);
+  justify-content: center;
+  align-items: center;
+  color: var(--fg);
+  padding: 8px;
+  border-radius: 28px;
+  font-size: var(--s-font-14);
+  position: absolute;
+  bottom: -23px;
+}
+
+div.container.right {
+  right: 30px;
+}
+
+div.container.left {
+  left: 12px;
+}
+
+div.container svg {
+  padding-right: 2px;
+}
+
+div.unread {
+  font-weight: var(--bold);
+}
