@@ -5,6 +5,12 @@ import * as React from 'react';
 
 import { emptyItemText } from 'lib/shared/thread-utils';
 
+import {
+  assetCacheURLPrefix,
+  backgroundIllustrationFileName,
+  backgroundIllustrationHeight,
+  backgroundIllustrationWidth,
+} from '../assets';
 import Search from '../components/search.react';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import css from './chat-thread-list.css';
@@ -47,7 +53,16 @@ function ChatThreadList(): React.Node {
 }
 
 function EmptyItem() {
-  return <div className={css.emptyItem}>{emptyItemText}</div>;
+  return (
+    <div className={css.emptyItemContainer}>
+      <img
+        src={`${assetCacheURLPrefix}/${backgroundIllustrationFileName}`}
+        height={backgroundIllustrationHeight}
+        width={backgroundIllustrationWidth}
+      />
+      <div className={css.emptyItemText}>{emptyItemText}</div>
+    </div>
+  );
 }
 
 export default ChatThreadList;
