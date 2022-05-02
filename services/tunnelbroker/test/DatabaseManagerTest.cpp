@@ -38,7 +38,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsStaticDataIsSame) {
       "6d37StvXBzfJoZVU79UeOF2bFvb3DNoArEOe",
       "7s6ZUSDoFfZe3eJWQ15ngYhgMw1TsfbECnMVQTYvY6OyqWPBQi5wiftFcluoxor8",
       static_cast<uint64_t>(std::time(0)) + 600);
-  const size_t currentTimestamp = static_cast<size_t>(std::time(0));
+  const size_t currentTimestamp = tools::getCurrentTimestamp();
   EXPECT_EQ(
       database::DatabaseManager::getInstance().isTableAvailable(
           item.getTableName()),
@@ -54,9 +54,9 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsStaticDataIsSame) {
   EXPECT_EQ(item.getBlobHashes(), foundItem->getBlobHashes());
   EXPECT_EQ(item.getExpire(), foundItem->getExpire());
   EXPECT_EQ(
-    foundItem->getCreatedAt() >= currentTimestamp &&
-    foundItem->getCreatedAt() <= static_cast<size_t>(std::time(0), 
-  true);
+      foundItem->getCreatedAt() >= currentTimestamp &&
+          foundItem->getCreatedAt() <= tools::getCurrentTimestamp(),
+      true);
   database::DatabaseManager::getInstance().removeMessageItem(
       item.getMessageID());
 }
