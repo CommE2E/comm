@@ -11,10 +11,6 @@ div.innerRobotextContainer {
   position: relative;
   word-break: break-word;
 }
-div.sidebarMarginTop {
-  margin-top: 4px;
-  margin-bottom: -8px;
-}
 div.messageActionLinks {
   position: absolute;
   display: flex;

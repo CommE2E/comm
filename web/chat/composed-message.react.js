@@ -161,17 +161,19 @@ class ComposedMessage extends React.PureComponent<Props> {
     if (item.threadCreatedFromMessage) {
       const position = isViewer ? 'right' : 'left';
       inlineSidebar = (
-        <div className={css.sidebarMarginBottom}>
-          <InlineSidebar
-            threadInfo={item.threadCreatedFromMessage}
-            position={position}
-          />
-        </div>
+        <InlineSidebar
+          threadInfo={item.threadCreatedFromMessage}
+          position={position}
+        />
       );
     }
 
+    const composedMessageCls = classNames(css.composedMessageContainer, {
+      [css.withInlineSidebar]: item.threadCreatedFromMessage,
+    });
+
     return (
-      <React.Fragment>
+      <div className={composedMessageCls}>
         {authorName}
         <div className={contentClassName}>
           <div
@@ -189,7 +191,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         </div>
         {failedSendInfo}
         {inlineSidebar}
-      </React.Fragment>
+      </div>
     );
   }
 
