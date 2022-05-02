@@ -23,12 +23,10 @@ div.modalContainer {
 
 div.modalContainerSmall {
   width: 330px;
-  max-height: 500px;
 }
 
 div.modalContainerLarge {
   width: 500px;
-  max-height: 500px;
 }
 
 span.modalClose {
