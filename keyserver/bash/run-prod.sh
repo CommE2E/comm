@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # run as: node user
-# run from: server dir
+# run from: keyserver dir
 
 set -e
 
