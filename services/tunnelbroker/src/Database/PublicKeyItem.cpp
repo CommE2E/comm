@@ -6,7 +6,7 @@ namespace comm {
 namespace network {
 namespace database {
 
-const std::string PublicKeyItem::FIELD_DEVICE_ID = "DeviceId";
+const std::string PublicKeyItem::FIELD_DEVICE_ID = "DeviceID";
 const std::string PublicKeyItem::FIELD_PUBLIC_KEY = "PublicKey";
 
 PublicKeyItem::PublicKeyItem(

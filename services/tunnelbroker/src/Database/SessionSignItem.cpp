@@ -8,7 +8,7 @@ namespace database {
 
 const std::string SessionSignItem::FIELD_SESSION_VERIFICATION =
     "VerificationMessage";
-const std::string SessionSignItem::FIELD_DEVICE_ID = "DeviceId";
+const std::string SessionSignItem::FIELD_DEVICE_ID = "DeviceID";
 const std::string SessionSignItem::FIELD_EXPIRE = "Expire";
 
 SessionSignItem::SessionSignItem(

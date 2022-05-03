@@ -8,8 +8,8 @@ namespace comm {
 namespace network {
 namespace database {
 
-const std::string DeviceSessionItem::FIELD_SESSION_ID = "SessionId";
-const std::string DeviceSessionItem::FIELD_DEVICE_ID = "DeviceId";
+const std::string DeviceSessionItem::FIELD_SESSION_ID = "SessionID";
+const std::string DeviceSessionItem::FIELD_DEVICE_ID = "DeviceID";
 const std::string DeviceSessionItem::FIELD_PUBKEY = "PubKey";
 const std::string DeviceSessionItem::FIELD_NOTIFY_TOKEN = "NotifyToken";
 const std::string DeviceSessionItem::FIELD_DEVICE_TYPE = "DeviceType";
