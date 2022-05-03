@@ -16,7 +16,7 @@ import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types'
 import type { VerticalBounds } from '../types/layout-types';
 import { AnimatedView } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
-import { InlineSidebar } from './inline-sidebar.react';
+import InlineSidebar from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { robotextMessageTooltipHeight } from './robotext-message-tooltip-modal.react';
 import { Timestamp } from './timestamp.react';

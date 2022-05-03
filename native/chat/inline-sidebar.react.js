@@ -9,6 +9,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import { useStyles } from '../themes/colors';
+import { inlineSidebarHeight } from './inline-sidebar-constants';
 import { useNavigateToThread } from './message-list-types';
 
 type Props = {
@@ -57,10 +58,6 @@ function InlineSidebar(props: Props): React.Node {
   );
 }
 
-const inlineSidebarHeight = 20;
-const inlineSidebarMarginTop = 5;
-const inlineSidebarMarginBottom = 3;
-
 const unboundStyles = {
   content: {
     flexDirection: 'row',
@@ -99,9 +96,4 @@ const unboundStyles = {
   },
 };
 
-export {
-  InlineSidebar,
-  inlineSidebarHeight,
-  inlineSidebarMarginTop,
-  inlineSidebarMarginBottom,
-};
+export default InlineSidebar;

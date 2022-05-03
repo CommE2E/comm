@@ -16,10 +16,10 @@ import { type AnimatedStyleObj, AnimatedView } from '../types/styles';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
 import {
-  InlineSidebar,
-  inlineSidebarMarginBottom,
   inlineSidebarMarginTop,
-} from './inline-sidebar.react';
+  inlineSidebarMarginBottom,
+} from './inline-sidebar-constants';
+import InlineSidebar from './inline-sidebar.react';
 import { MessageHeader } from './message-header.react';
 import { useNavigateToSidebar } from './sidebar-navigation';
 import SwipeableMessage from './swipeable-message.react';

@@ -13,10 +13,10 @@ import type {
 import { clusterEndHeight } from './composed-message.react';
 import { failedSendHeight } from './failed-send.react';
 import {
-  inlineSidebarHeight,
   inlineSidebarMarginBottom,
   inlineSidebarMarginTop,
-} from './inline-sidebar.react';
+  inlineSidebarHeight,
+} from './inline-sidebar-constants';
 import { authorNameHeight } from './message-header.react';
 
 const spaceBetweenImages = 4;

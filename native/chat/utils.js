@@ -32,7 +32,7 @@ import {
   inlineSidebarHeight,
   inlineSidebarMarginBottom,
   inlineSidebarMarginTop,
-} from './inline-sidebar.react';
+} from './inline-sidebar-constants';
 import { authorNameHeight } from './message-header.react';
 import { multimediaMessageItemHeight } from './multimedia-message-utils';
 import { getSidebarThreadInfo } from './sidebar-navigation';
