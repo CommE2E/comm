@@ -9,7 +9,7 @@ import { useOnClickThread } from '../selectors/nav-selectors';
 
 type Props = {
   +threadInfo: ThreadInfo,
-  +positioning: 'left' | 'center' | 'right',
+  +position: 'left' | 'center' | 'right',
 };
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;
