@@ -251,6 +251,17 @@ const OverlayNavigator = React.memo<Props>(
         const data = updatedSceneData[key];
         invariant(data, `should have sceneData for dismissed key ${key}`);
 
+        if (!visibleOverlayEntryForNewScene(scene)) {
+          // This should only happen if TabNavigator gets dismissed
+          // TabNavigator doesn't normally ever get dismissed, but hot reload
+          // can cause that to happen. We don't need to animate TabNavigator
+          // closed, and in fact we would crash if we tried. So we short-circuit
+          // the logic below
+          delete updatedSceneData[key];
+          sceneDataChanged = true;
+          continue;
+        }
+
         // A route just got dismissed
         // We'll watch the animation to determine when to clear the screen
         const { position } = data.context;
