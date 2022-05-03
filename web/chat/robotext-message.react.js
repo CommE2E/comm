@@ -51,7 +51,7 @@ class RobotextMessage extends React.PureComponent<Props> {
         <div className={css.sidebarMarginTop}>
           <InlineSidebar
             threadInfo={this.props.item.threadCreatedFromMessage}
-            positioning="center"
+            position="center"
           />
         </div>
       );
