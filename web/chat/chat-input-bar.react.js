@@ -213,11 +213,11 @@ class ChatInputBar extends React.PureComponent<Props> {
       ) : null;
 
     let content;
-    // If the thread is created by somebody else while the viewer is attempting to
-    // create it, the threadInfo might be modified in-place and won't list the
-    // viewer as a member, which will end up hiding the input. In this case, we will
-    // assume that our creation action will get translated into a join, and as long
-    // as members are voiced, we can show the input.
+    // If the thread is created by somebody else while the viewer is attempting
+    // to create it, the threadInfo might be modified in-place and won't
+    // list the viewer as a member, which will end up hiding the input. In
+    // this case, we will assume that our creation action will get translated,
+    // into a join and as long as members are voiced, we can show the input.
     const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
       this.props.threadInfo,
     );

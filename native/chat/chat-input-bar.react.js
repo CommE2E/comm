@@ -391,10 +391,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (threadHasPermission(this.props.threadInfo, threadPermissions.VOICED)) {
       return true;
     }
-    // If the thread is created by somebody else while the viewer is attempting to
-    // create it, the threadInfo might be modified in-place and won't list the
-    // viewer as a member, which will end up hiding the input. In this case, we will
-    // assume that our creation action will get translated into a join, and as long
+    // If the thread is created by somebody else while the viewer is attempting
+    // to create it, the threadInfo might be modified in-place
+    // and won't list the viewer as a member,
+    // which will end up hiding the input.
+    // In this case, we will assume that our creation action
+    // will get translated into a join, and as long
     // as members are voiced, we can show the input.
     if (!this.props.threadCreationInProgress) {
       return false;

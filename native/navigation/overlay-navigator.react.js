@@ -361,9 +361,10 @@ const OverlayNavigator = React.memo<Props>(
       pendingAnimationsRef.current = {};
     }, [positions, pendingAnimations]);
 
-    // If sceneData changes, we update scrollBlockingModalStatus based on it, both
-    // in state and within the individual sceneData contexts. If sceneData doesn't
-    // change, it's still possible for scrollBlockingModalStatus to change via the
+    // If sceneData changes, we update scrollBlockingModalStatus based on it,
+    // both in state and within the individual sceneData contexts.
+    // If sceneData doesn't change,
+    // it's still possible for scrollBlockingModalStatus to change via the
     // setScrollBlockingModalStatus callback we expose via context
     let newScrollBlockingModalStatus;
     if (sceneDataChanged || sceneData !== prevSceneData) {
@@ -405,7 +406,8 @@ const OverlayNavigator = React.memo<Props>(
       setSceneData(updatedSceneData);
     }
 
-    // Usually this would be done in an effect, but calling setState from the body
+    // Usually this would be done in an effect,
+    // but calling setState from the body
     // of a hook causes the hook to rerender before triggering effects. To avoid
     // infinite loops we make sure to set our prev values after we finish
     // comparing them

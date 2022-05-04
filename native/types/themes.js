@@ -19,6 +19,7 @@ export const defaultGlobalThemeInfo = {
   // revert to `activeTheme: osCanTheme ? null : 'light'` to re-enable theming
   activeTheme: 'dark',
   systemTheme: null,
-  // revert to `preference: osCanTheme ? 'system' : 'light'` to re-enable theming
+  // revert to `preference: osCanTheme ? 'system' : 'light'`
+  // to re-enable theming
   preference: 'dark',
 };
