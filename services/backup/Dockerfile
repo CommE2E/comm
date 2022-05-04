@@ -13,7 +13,6 @@ ENV COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
 WORKDIR /transferred
 
 COPY native/cpp/CommonCpp/grpc/protos/backup.proto native/cpp/CommonCpp/grpc/protos/blob.proto protos/
-COPY services/backup/docker/ scripts/
 COPY services/lib/ .
 COPY services/backup/ .
 
