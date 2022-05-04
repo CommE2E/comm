@@ -8,6 +8,7 @@ WORKDIR /transferred
 
 COPY native/cpp/CommonCpp/grpc/protos/blob.proto protos/blob.proto
 COPY services/blob/docker/ scripts/
+COPY services/lib/ .
 COPY services/blob/ .
 
 ARG COMM_SERVICES_DEV_MODE
