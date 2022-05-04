@@ -1,8 +1,11 @@
 use clap::{Parser, Subcommand};
+use database::DatabaseClient;
+use rusoto_core::Region;
 use tonic::transport::Server;
 use tracing_subscriber::FmtSubscriber;
 
 mod config;
+mod database;
 mod keygen;
 mod opaque;
 mod service;
@@ -46,7 +49,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Commands::Server => {
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
       let config = Config::load()?;
-      let identity_service = MyIdentityService::new(config);
+      let database_client = DatabaseClient::new(Region::UsEast2);
+      let identity_service = MyIdentityService::new(config, database_client);
       Server::builder()
         .add_service(IdentityServiceServer::new(identity_service))
         .serve(addr)

@@ -3,6 +3,7 @@ use std::pin::Pin;
 use tonic::{Request, Response, Status};
 
 use crate::config::Config;
+use crate::database::DatabaseClient;
 
 pub use proto::identity_service_server::IdentityServiceServer;
 use proto::{
@@ -14,9 +15,10 @@ mod proto {
   tonic::include_proto!("identity");
 }
 
-#[derive(Debug, derive_more::Constructor)]
+#[derive(derive_more::Constructor)]
 pub struct MyIdentityService {
-  pub config: Config,
+  config: Config,
+  client: DatabaseClient,
 }
 
 #[tonic::async_trait]

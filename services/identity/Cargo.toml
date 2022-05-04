@@ -15,6 +15,8 @@ sha2 = "0.9"
 digest = "0.9"
 clap = { version = "3.1.12", features = ["derive"] }
 derive_more = "0.99"
+rusoto_core = "0.47.0"
+rusoto_dynamodb = "0.47.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
 
