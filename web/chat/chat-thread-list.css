@@ -176,7 +176,7 @@ div.sidebarTitle.unread {
   color: var(--fg);
 }
 div.seeMoreButton {
-  padding-left: 66px;
+  padding-left: 54px;
 }
 div.sidebarLastActivity {
   white-space: nowrap;
