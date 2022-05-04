@@ -19,5 +19,5 @@ mkdir _generated
 rm -rf cmake/build
 mkdir -p cmake/build
 
-scripts/generate.sh
-scripts/build.sh
+scripts/proto_codegen.sh
+scripts/build_sources.sh
