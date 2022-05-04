@@ -217,26 +217,26 @@ grpc::Status TunnelBrokerServiceImpl::Get(
       DeliveryBroker::getInstance().erase(clientDeviceID);
     }
     tunnelbroker::GetResponse response;
+    auto respondToWriter =
+        [&writer, &response](std::string fromDeviceID, std::string payload) {
+          response.set_fromdeviceid(fromDeviceID);
+          response.set_payload(payload);
+          if (!writer->Write(response)) {
+            throw std::runtime_error(
+                "gRPC: 'Get' writer error on sending data to the client");
+          }
+          response.Clear();
+        };
     for (auto &messageFromDatabase : messagesFromDatabase) {
-      response.set_fromdeviceid(messageFromDatabase->getFromDeviceID());
-      response.set_payload(messageFromDatabase->getPayload());
-      if (!writer->Write(response)) {
-        throw std::runtime_error(
-            "gRPC: 'Get' writer error on sending data to the client");
-      }
-      response.Clear();
+      respondToWriter(
+          messageFromDatabase->getFromDeviceID(),
+          messageFromDatabase->getPayload());
       database::DatabaseManager::getInstance().removeMessageItem(
           messageFromDatabase->getMessageID());
     }
     while (1) {
       messageToDeliver = DeliveryBroker::getInstance().pop(clientDeviceID);
-      response.set_fromdeviceid(messageToDeliver.fromDeviceID);
-      response.set_payload(messageToDeliver.payload);
-      if (!writer->Write(response)) {
-        throw std::runtime_error(
-            "gRPC: 'Get' writer error on sending data to the client");
-      }
-      response.Clear();
+      respondToWriter(messageToDeliver.fromDeviceID, messageToDeliver.payload);
       comm::network::AmqpManager::getInstance().ack(
           messageToDeliver.deliveryTag);
       database::DatabaseManager::getInstance().removeMessageItem(
