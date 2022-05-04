@@ -7,8 +7,9 @@ use crate::database::DatabaseClient;
 
 pub use proto::identity_service_server::IdentityServiceServer;
 use proto::{
-  identity_service_server::IdentityService, LoginRequest, LoginResponse, RegistrationRequest,
-  RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
+  identity_service_server::IdentityService, LoginRequest, LoginResponse,
+  RegistrationRequest, RegistrationResponse, VerifyUserTokenRequest,
+  VerifyUserTokenResponse,
 };
 
 mod proto {
@@ -23,8 +24,11 @@ pub struct MyIdentityService {
 
 #[tonic::async_trait]
 impl IdentityService for MyIdentityService {
-  type RegisterUserStream =
-    Pin<Box<dyn Stream<Item = Result<RegistrationResponse, Status>> + Send + 'static>>;
+  type RegisterUserStream = Pin<
+    Box<
+      dyn Stream<Item = Result<RegistrationResponse, Status>> + Send + 'static,
+    >,
+  >;
 
   async fn register_user(
     &self,

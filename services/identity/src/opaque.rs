@@ -1,7 +1,8 @@
 use argon2::Argon2;
 use digest::{generic_array::GenericArray, Digest};
 use opaque_ke::{
-  ciphersuite::CipherSuite, errors::InternalPakeError, hash::Hash, slow_hash::SlowHash,
+  ciphersuite::CipherSuite, errors::InternalPakeError, hash::Hash,
+  slow_hash::SlowHash,
 };
 
 pub struct Cipher;
