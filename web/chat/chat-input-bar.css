@@ -82,12 +82,8 @@ a.multimediaUpload > input[type='file'] {
   margin: 0;
   padding: 0;
 }
-
-a.multimediaUpload > svg {
-  color: var(--color-disabled);
-}
 a.multimediaUpload:hover > svg {
-  color: var(--fg);
+  opacity: 0.8;
 }
 
 div.previews {
@@ -106,8 +102,4 @@ div.previews > span.multimedia > span.multimediaImage > img {
 a.sendButton {
   padding: 8px 0 0 10px;
   cursor: pointer;
-}
-
-a.sendButton svg {
-  color: var(--fg);
 }
