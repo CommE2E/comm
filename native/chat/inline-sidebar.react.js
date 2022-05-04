@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
+import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
@@ -17,7 +17,7 @@ type Props = {
 };
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;
-  const { repliesText } = useInlineSidebarText(threadInfo);
+  const { repliesText } = useInlineEngagementText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
   const onPress = React.useCallback(() => {
