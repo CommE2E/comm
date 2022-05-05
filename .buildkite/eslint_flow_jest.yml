@@ -1,0 +1,9 @@
+steps:
+  - command:
+      - '(pkill flow || true)'
+      - 'yarn cleaninstall --frozen-lockfile --skip-optional'
+      - 'yarn eslint --max-warnings=0 & yarn workspace lib flow & yarn workspace web flow & yarn workspace landing flow & yarn workspace native flow'
+      - 'cd keyserver && mkdir secrets && touch secrets/db_config.json && touch secrets/olm_config.json && mkdir facts && touch facts/app_url.json && touch facts/commapp_url.json && touch facts/squadcal_url.json && touch facts/landing_url.json && touch facts/url.json && cd ../ && yarn workspace keyserver flow'
+      - 'cd lib && yarn test'
+    agents:
+      - 'linux=true'
