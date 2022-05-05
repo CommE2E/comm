@@ -111,14 +111,16 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
 
     const tabs = [
       <Tabs.Item id="general" header="General" key="general">
-        <ThreadSettingsGeneralTab
-          inputDisabled={inputDisabled}
-          threadInfo={threadInfo}
-          threadNamePlaceholder={namePlaceholder}
-          queuedChanges={queuedChanges}
-          setQueuedChanges={setQueuedChanges}
-          setErrorMessage={setErrorMessage}
-        />
+        <div className={css.tab_body}>
+          <ThreadSettingsGeneralTab
+            inputDisabled={inputDisabled}
+            threadInfo={threadInfo}
+            threadNamePlaceholder={namePlaceholder}
+            queuedChanges={queuedChanges}
+            setQueuedChanges={setQueuedChanges}
+            setErrorMessage={setErrorMessage}
+          />
+        </div>
       </Tabs.Item>,
     ];
 
@@ -134,13 +136,15 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     if (canSeePrivacyTab) {
       tabs.push(
         <Tabs.Item id="privacy" header="Privacy" key="privacy">
-          <ThreadSettingsPrivacyTab
-            inputDisabled={inputDisabled}
-            threadInfo={threadInfo}
-            queuedChanges={queuedChanges}
-            setQueuedChanges={setQueuedChanges}
-            setErrorMessage={setErrorMessage}
-          />
+          <div className={css.tab_body}>
+            <ThreadSettingsPrivacyTab
+              inputDisabled={inputDisabled}
+              threadInfo={threadInfo}
+              queuedChanges={queuedChanges}
+              setQueuedChanges={setQueuedChanges}
+              setErrorMessage={setErrorMessage}
+            />
+          </div>
         </Tabs.Item>,
       );
     }
@@ -149,11 +153,13 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     if (canDeleteThread) {
       tabs.push(
         <Tabs.Item id="delete" header="Delete" key="delete">
-          <ThreadSettingsDeleteTab
-            inputDisabled={inputDisabled}
-            threadInfo={threadInfo}
-            setErrorMessage={setErrorMessage}
-          />
+          <div className={css.tab_body}>
+            <ThreadSettingsDeleteTab
+              inputDisabled={inputDisabled}
+              threadInfo={threadInfo}
+              setErrorMessage={setErrorMessage}
+            />
+          </div>
         </Tabs.Item>,
       );
     }
