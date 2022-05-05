@@ -100,7 +100,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsGeneratedDataIsSame) {
       item.getMessageID());
 }
 
-TEST_F(DatabaseManagerTest, TestOperationsOnDeviceSessionItem) {
+TEST_F(DatabaseManagerTest, PutAndFoundDeviceSessionItemStaticDataIsSame) {
   const database::DeviceSessionItem item(
       "bc0c1aa2-bf09-11ec-9d64-0242ac120002",
       "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm",
@@ -131,7 +131,7 @@ TEST_F(DatabaseManagerTest, TestOperationsOnDeviceSessionItem) {
       item.getSessionID());
 }
 
-TEST_F(DatabaseManagerTest, TestOperationsOnDeviceSessionItemGenerated) {
+TEST_F(DatabaseManagerTest, PutAndFoundDeviceSessionItemGeneratedDataIsSame) {
   const database::DeviceSessionItem item(
       tools::generateUUID(),
       "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
@@ -177,7 +177,7 @@ TEST_F(DatabaseManagerTest, TestOperationsOnDeviceSessionItemGenerated) {
       item.getSessionID());
 }
 
-TEST_F(DatabaseManagerTest, TestOperationsOnSessionSignItem) {
+TEST_F(DatabaseManagerTest, PutAndFoundSessionSignItemStaticDataIsSame) {
   const database::SessionSignItem item(
       "bB3OSLdKlY60KPBpw6VoGKX7Lmw3SA07FmNhnqnclvVeaxXueAQ0dpQSpiQTtlGn",
       "mobile:"
@@ -196,7 +196,7 @@ TEST_F(DatabaseManagerTest, TestOperationsOnSessionSignItem) {
       item.getDeviceID());
 }
 
-TEST_F(DatabaseManagerTest, TestOperationsOnSessionSignItemGenerated) {
+TEST_F(DatabaseManagerTest, PutAndFoundSessionSignItemGeneratedDataIsSame) {
   const database::SessionSignItem item(
       tools::generateRandomString(SIGNATURE_REQUEST_LENGTH),
       "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH));

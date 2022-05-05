@@ -10,7 +10,7 @@ using namespace comm::network;
 
 class CryptoToolsTest : public testing::Test {};
 
-TEST(CryptoToolsTest, TestOperationsOnRsaVerifyStringSuccess) {
+TEST(CryptoToolsTest, RsaVerifyStringIsTrueOnValidSignature) {
   const std::string publicKeyBase64 =
       "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGC8M8FdRSSEdfAufY/V5iP6cB"
       "crXdeZa19OjpbbNvq9qAT2FobnYrlNI8p3y/2LvJBxlR9VlvS0Nh4HLZLdmf8zOf"
@@ -27,7 +27,7 @@ TEST(CryptoToolsTest, TestOperationsOnRsaVerifyStringSuccess) {
       true);
 }
 
-TEST(CryptoToolsTest, TestOperationsOnRsaVerifyStringFail) {
+TEST(CryptoToolsTest, RsaVerifyStringIsFalseOnInvalidSignature) {
   const std::string publicKeyBase64 =
       "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGC8M8FdRSSEdfAufY/V5iP6cB"
       "crXdeZa19OjpbbNvq9qAT2FobnYrlNI8p3y/2LvJBxlR9VlvS0Nh4HLZLdmf8zOf"
