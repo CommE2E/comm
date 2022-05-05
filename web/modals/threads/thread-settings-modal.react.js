@@ -159,7 +159,11 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     }
 
     return (
-      <Modal name="Thread settings" onClose={modalContext.popModal}>
+      <Modal
+        name="Thread settings"
+        onClose={modalContext.popModal}
+        icon="settings"
+      >
         <div className={css.modal_body}>
           <form method="POST">
             <Tabs.Container
