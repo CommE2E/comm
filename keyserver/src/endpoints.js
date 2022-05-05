@@ -49,7 +49,6 @@ import {
   accountCreationResponder,
   logInResponder,
   oldPasswordUpdateResponder,
-  requestAccessResponder,
   updateUserSettingsResponder,
 } from './responders/user-responders';
 import { codeVerificationResponder } from './responders/verification-responders';
@@ -78,7 +77,6 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   log_in: logInResponder,
   log_out: logOutResponder,
   remove_members: memberRemovalResponder,
-  request_access: requestAccessResponder,
   restore_entry: entryRestorationResponder,
   search_users: userSearchResponder,
   send_password_reset_email: sendPasswordResetEmailResponder,

@@ -13,7 +13,6 @@ import type {
   LogInResponse,
   LogInRequest,
   UpdatePasswordRequest,
-  AccessRequest,
   UpdateUserSettingsRequest,
 } from 'lib/types/account-types';
 import {
@@ -32,7 +31,6 @@ import { promiseAll } from 'lib/utils/promises';
 import {
   tShape,
   tPlatformDetails,
-  tDeviceType,
   tPassword,
   tEmail,
   tOldValidUsername,
@@ -42,7 +40,6 @@ import createAccount from '../creators/account-creator';
 import { dbQuery, SQL } from '../database/database';
 import { deleteAccount } from '../deleters/account-deleters';
 import { deleteCookie } from '../deleters/cookie-deleters';
-import { sendAccessRequestEmailToAshoat } from '../emails/access-request';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -307,21 +304,6 @@ async function oldPasswordUpdateResponder(
   return await updatePassword(viewer, request);
 }
 
-const accessRequestInputValidator = tShape({
-  email: tEmail,
-  platform: tDeviceType,
-});
-
-async function requestAccessResponder(
-  viewer: Viewer,
-  input: any,
-): Promise<void> {
-  const request: AccessRequest = input;
-  await validateInput(viewer, accessRequestInputValidator, request);
-
-  await sendAccessRequestEmailToAshoat(request);
-}
-
 const updateUserSettingsInputValidator = tShape({
   name: t.irreducible(
     userSettingsTypes.DEFAULT_NOTIFICATIONS,
@@ -349,6 +331,5 @@ export {
   accountCreationResponder,
   logInResponder,
   oldPasswordUpdateResponder,
-  requestAccessResponder,
   updateUserSettingsResponder,
 };
