@@ -6,11 +6,6 @@ div.modal_body {
   display: flex;
   flex-direction: column;
 }
-div.modal_body p {
-  padding: 1px 3px 4px 3px;
-  font-size: 14px;
-  text-align: center;
-}
 div.modal_form_error {
   display: flex;
   justify-content: center;
@@ -18,25 +13,4 @@ div.modal_form_error {
   font-size: 16px;
   color: red;
   font-style: italic;
-}
-
-ul.tab_panel {
-  background-color: var(--modal-bg);
-  padding-left: 10px;
-  padding-top: 5px;
-}
-ul.tab_panel > li {
-  display: inline-block;
-  list-style-type: none;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 3px 10px 3px 10px;
-}
-ul.tab_panel > li > a {
-  color: #555555;
-}
-
-.save_button {
-  width: 100%;
 }
