@@ -11,16 +11,13 @@ div.modal_body p {
   font-size: 14px;
   text-align: center;
 }
-div.modal_body div.form_footer {
+div.modal_form_error {
   display: flex;
-  padding-top: 8px;
-}
-div.modal_body div.form_footer div.modal_form_error {
-  font-size: 12px;
+  justify-content: center;
+  padding-top: 16px;
+  font-size: 16px;
   color: red;
   font-style: italic;
-  padding-left: 6px;
-  align-self: center;
 }
 
 ul.tab_panel {

@@ -168,9 +168,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
             >
               {tabs}
             </Tabs.Container>
-            <div className={css.form_footer}>
-              <div className={css.modal_form_error}>{errorMessage}</div>
-            </div>
+            <div className={css.modal_form_error}>{errorMessage}</div>
           </form>
         </div>
       </Modal>
