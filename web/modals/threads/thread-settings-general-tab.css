@@ -1,5 +1,5 @@
 div.form_title {
-  padding: 6px 6px 0 0;
+  padding-top: 6px;
   font-size: 14px;
   font-weight: 600;
   vertical-align: top;
@@ -9,11 +9,8 @@ div.form_content {
   display: flex;
   font-family: var(--font-stack);
   color: var(--fg);
-  margin-top: 4px;
-  margin-bottom: 8px;
-}
-div.form_content input {
-  margin-bottom: 4px;
+  margin-top: 8px;
+  margin-bottom: 12px;
 }
 div.form_content textarea {
   padding: 12px;
@@ -23,6 +20,11 @@ div.form_content textarea {
   font-size: var(--m-font-16);
   border-radius: 4px;
   width: 100%;
+}
+
+div.colorSelectorContainer {
+  margin-top: 8px;
+  margin-bottom: 12px;
 }
 
 .save_button {

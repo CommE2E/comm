@@ -157,10 +157,12 @@ function ThreadSettingsGeneralTab(
       </div>
       <div>
         <div className={css.form_title}>Color</div>
-        <ColorSelector
-          currentColor={queuedChanges.color ?? threadInfo.color}
-          onColorSelection={onChangeColor}
-        />
+        <div className={css.colorSelectorContainer}>
+          <ColorSelector
+            currentColor={queuedChanges.color ?? threadInfo.color}
+            onColorSelection={onChangeColor}
+          />
+        </div>
       </div>
       <Button
         type="submit"
