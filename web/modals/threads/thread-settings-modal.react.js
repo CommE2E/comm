@@ -131,7 +131,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     // sidebar
     const canSeePrivacyTab =
       (queuedChanges['parentThreadID'] ?? threadInfo['parentThreadID']) &&
-      threadInfo.sourceMessageID &&
+      !threadInfo.sourceMessageID &&
       (threadInfo.type === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
         threadInfo.type === threadTypes.COMMUNITY_SECRET_SUBTHREAD);
     if (canSeePrivacyTab) {
