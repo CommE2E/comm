@@ -144,7 +144,7 @@ function ThreadSettingsGeneralTab(
           />
         </div>
       </div>
-      <div className={css.form_textarea_container}>
+      <div>
         <div className={css.form_title}>Description</div>
         <div className={css.form_content}>
           <textarea
@@ -155,8 +155,8 @@ function ThreadSettingsGeneralTab(
           />
         </div>
       </div>
-      <div className={css.edit_thread_color_container}>
-        <div className={`${css.form_title} ${css.color_title}`}>Color</div>
+      <div>
+        <div className={css.form_title}>Color</div>
         <ColorSelector
           currentColor={queuedChanges.color ?? threadInfo.color}
           onColorSelection={onChangeColor}

@@ -25,18 +25,6 @@ div.form_content textarea {
   width: 100%;
 }
 
-div.form_textarea_container {
-  margin-top: 1px;
-}
-
-div.edit_thread_color_container {
-  margin-top: -5px;
-}
-
-div.color_title {
-  margin-top: 4px;
-}
-
 .save_button {
   width: 100%;
 }
