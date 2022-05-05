@@ -51,7 +51,7 @@
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "firebase-admin": "^10.1.0",
-    "geoip-lite": "^1.4.0",
+    "geoip-lite": "^1.4.5",
     "invariant": "^2.2.4",
     "landing": "0.0.1",
     "lib": "0.0.1",
