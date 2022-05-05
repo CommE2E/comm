@@ -1,5 +1,7 @@
 #pragma once
 
+#include "BaseReactor.h"
+
 #include <grpcpp/grpcpp.h>
 
 #include <atomic>
@@ -12,50 +14,56 @@ namespace network {
 namespace reactor {
 
 template <class Request, class Response>
-class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response> {
+class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response>,
+                               public BaseReactor {
+  std::shared_ptr<ReactorUtility> utility;
   Response response;
   bool initialized = false;
-  std::atomic<bool> finished = false;
 
-  void terminate(grpc::Status status);
   void nextWrite();
 
 protected:
   // this is a const ref since it's not meant to be modified
   const Request &request;
-  grpc::Status status;
 
 public:
   ServerWriteReactorBase(const Request *request);
 
   void start();
-  void OnDone() override;
+
+  void validate() override{};
+  void doneCallback() override{};
+  void terminateCallback() override{};
+
+  virtual void initialize(){};
   void OnWriteDone(bool ok) override;
+  void terminate(const grpc::Status &status);
+  void OnDone() override;
+  std::shared_ptr<ReactorUtility> getUtility() override;
 
   virtual std::unique_ptr<grpc::Status> writeResponse(Response *response) = 0;
-  virtual void initialize(){};
-  virtual void validate(){};
-  virtual void doneCallback(){};
-  virtual void terminateCallback(){};
 };
 
 template <class Request, class Response>
-void ServerWriteReactorBase<Request, Response>::terminate(grpc::Status status) {
-  this->status = status;
+void ServerWriteReactorBase<Request, Response>::terminate(
+    const grpc::Status &status) {
+  this->utility->setStatus(status);
   try {
     this->terminateCallback();
     this->validate();
   } catch (std::runtime_error &e) {
-    this->status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+    this->utility->setStatus(
+        grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
-  if (!this->status.ok()) {
-    std::cout << "error: " << this->status.error_message() << std::endl;
+  if (!this->utility->getStatus().ok()) {
+    std::cout << "error: " << this->utility->getStatus().error_message()
+              << std::endl;
   }
-  if (this->finished) {
+  if (this->utility->state != ReactorState::RUNNING) {
     return;
   }
-  this->Finish(this->status);
-  this->finished = true;
+  this->Finish(this->utility->getStatus());
+  this->utility->state = ReactorState::TERMINATED;
 }
 
 template <class Request, class Response>
@@ -91,6 +99,7 @@ void ServerWriteReactorBase<Request, Response>::nextWrite() {
 
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::start() {
+  this->utility->state = ReactorState::RUNNING;
   this->nextWrite();
 }
 
@@ -100,6 +109,12 @@ void ServerWriteReactorBase<Request, Response>::OnDone() {
   // This looks weird but apparently it is okay to do this. More information:
   // https://phabricator.ashoat.com/D3246#87890
   delete this;
+}
+
+template <class Request, class Response>
+std::shared_ptr<ReactorUtility>
+ServerWriteReactorBase<Request, Response>::getUtility() {
+  return this->utility;
 }
 
 template <class Request, class Response>
