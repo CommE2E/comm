@@ -120,6 +120,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
             setQueuedChanges={setQueuedChanges}
             setErrorMessage={setErrorMessage}
           />
+          <div className={css.modal_form_error}>{errorMessage}</div>
         </div>
       </Tabs.Item>,
     ];
@@ -144,6 +145,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
               setQueuedChanges={setQueuedChanges}
               setErrorMessage={setErrorMessage}
             />
+            <div className={css.modal_form_error}>{errorMessage}</div>
           </div>
         </Tabs.Item>,
       );
@@ -159,6 +161,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
               threadInfo={threadInfo}
               setErrorMessage={setErrorMessage}
             />
+            <div className={css.modal_form_error}>{errorMessage}</div>
           </div>
         </Tabs.Item>,
       );
@@ -174,7 +177,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
           <Tabs.Container activeTab={currentTabType} setTab={setCurrentTabType}>
             {tabs}
           </Tabs.Container>
-          <div className={css.modal_form_error}>{errorMessage}</div>
         </div>
       </Modal>
     );
