@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ReactorUtility.h"
+#include "ReactorStatusHolder.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -12,7 +12,7 @@ namespace reactor {
 
 class BaseReactor {
 public:
-  virtual std::shared_ptr<ReactorUtility> getUtility() = 0;
+  virtual std::shared_ptr<ReactorStatusHolder> getUtility() = 0;
   virtual void terminate(const grpc::Status &status) = 0;
   virtual void validate() = 0;
   virtual void doneCallback() = 0;

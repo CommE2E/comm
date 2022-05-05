@@ -11,7 +11,7 @@ namespace reactor {
 template <class Request, class Response>
 class ClientReadReactorBase : public grpc::ClientReadReactor<Response>,
                               public BaseReactor {
-  std::shared_ptr<ReactorUtility> utility;
+  std::shared_ptr<ReactorStatusHolder> utility;
   Response response;
 
 public:
@@ -27,7 +27,7 @@ public:
   void OnReadDone(bool ok) override;
   void terminate(const grpc::Status &status) override;
   void OnDone(const grpc::Status &status) override;
-  std::shared_ptr<ReactorUtility> getUtility() override;
+  std::shared_ptr<ReactorStatusHolder> getUtility() override;
 
   virtual std::unique_ptr<grpc::Status> readResponse(Response &response) = 0;
 };
@@ -97,7 +97,7 @@ void ClientReadReactorBase<Request, Response>::OnDone(
 }
 
 template <class Request, class Response>
-std::shared_ptr<ReactorUtility>
+std::shared_ptr<ReactorStatusHolder>
 ClientReadReactorBase<Request, Response>::getUtility() {
   return this->utility;
 }

@@ -16,7 +16,7 @@ enum class ReactorState {
   DONE = 3,
 };
 
-class ReactorUtility {
+class ReactorStatusHolder {
 private:
   grpc::Status status = grpc::Status::OK;
   std::mutex statusAccessMutex;

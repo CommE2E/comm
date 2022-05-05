@@ -11,7 +11,7 @@ namespace reactor {
 template <class Request, class Response>
 class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request>,
                                public BaseReactor {
-  std::shared_ptr<ReactorUtility> utility;
+  std::shared_ptr<ReactorStatusHolder> utility;
   Request request;
 
   void nextWrite();
@@ -29,7 +29,7 @@ public:
   void OnWriteDone(bool ok) override;
   void terminate(const grpc::Status &status) override;
   void OnDone(const grpc::Status &status) override;
-  std::shared_ptr<ReactorUtility> getUtility() override;
+  std::shared_ptr<ReactorStatusHolder> getUtility() override;
 
   virtual std::unique_ptr<grpc::Status> prepareRequest(Request &request) = 0;
 };
@@ -104,7 +104,7 @@ void ClientWriteReactorBase<Request, Response>::OnDone(
 }
 
 template <class Request, class Response>
-std::shared_ptr<ReactorUtility>
+std::shared_ptr<ReactorStatusHolder>
 ClientWriteReactorBase<Request, Response>::getUtility() {
   return this->utility;
 }

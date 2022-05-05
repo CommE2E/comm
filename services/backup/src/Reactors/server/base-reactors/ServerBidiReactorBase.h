@@ -26,7 +26,7 @@ struct ServerBidiReactorStatus {
 template <class Request, class Response>
 class ServerBidiReactorBase : public grpc::ServerBidiReactor<Request, Response>,
                               public BaseReactor {
-  std::shared_ptr<ReactorUtility> utility;
+  std::shared_ptr<ReactorStatusHolder> utility;
   Request request;
   Response response;
 
@@ -45,7 +45,7 @@ public:
   void OnDone() override;
   void OnReadDone(bool ok) override;
   void OnWriteDone(bool ok) override;
-  std::shared_ptr<ReactorUtility> getUtility() override;
+  std::shared_ptr<ReactorStatusHolder> getUtility() override;
 
   void terminate(ServerBidiReactorStatus status);
   ServerBidiReactorStatus getStatus() const;
@@ -147,7 +147,7 @@ void ServerBidiReactorBase<Request, Response>::OnWriteDone(bool ok) {
 }
 
 template <class Request, class Response>
-std::shared_ptr<ReactorUtility>
+std::shared_ptr<ReactorStatusHolder>
 ServerBidiReactorBase<Request, Response>::getUtility() {
   return this->utility;
 }
