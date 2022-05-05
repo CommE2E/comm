@@ -130,7 +130,7 @@ function ThreadSettingsGeneralTab(
   );
 
   return (
-    <div>
+    <form method="POST">
       <div>
         <div className={css.form_title}>Thread name</div>
         <div className={css.form_content}>
@@ -170,7 +170,7 @@ function ThreadSettingsGeneralTab(
       >
         Save
       </Button>
-    </div>
+    </form>
   );
 }
 

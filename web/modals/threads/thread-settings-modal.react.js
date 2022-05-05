@@ -165,15 +165,10 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         icon="settings"
       >
         <div className={css.modal_body}>
-          <form method="POST">
-            <Tabs.Container
-              activeTab={currentTabType}
-              setTab={setCurrentTabType}
-            >
-              {tabs}
-            </Tabs.Container>
-            <div className={css.modal_form_error}>{errorMessage}</div>
-          </form>
+          <Tabs.Container activeTab={currentTabType} setTab={setCurrentTabType}>
+            {tabs}
+          </Tabs.Container>
+          <div className={css.modal_form_error}>{errorMessage}</div>
         </div>
       </Modal>
     );

@@ -99,65 +99,67 @@ function ThreadSettingsPrivacyTab(
   );
 
   return (
-    <div className={css.edit_thread_privacy_container}>
-      <div className={css['modal-radio-selector']}>
-        <div className={css.form_title}>Thread type</div>
-        <div className={css.form_enum_selector}>
-          <div className={css.form_enum_container}>
-            <input
-              type="radio"
-              name="edit-thread-type"
-              id="edit-thread-open"
-              value={COMMUNITY_OPEN_SUBTHREAD}
-              checked={
-                (queuedChanges.type ?? threadInfo.type) ===
-                COMMUNITY_OPEN_SUBTHREAD
-              }
-              onChange={onChangeThreadType}
-              disabled={inputDisabled}
-            />
-            <div className={css.form_enum_option}>
-              <label htmlFor="edit-thread-open">
-                Open
-                <span className={css.form_enum_description}>
-                  {threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD]}
-                </span>
-              </label>
+    <form method="POST">
+      <div className={css.edit_thread_privacy_container}>
+        <div className={css['modal-radio-selector']}>
+          <div className={css.form_title}>Thread type</div>
+          <div className={css.form_enum_selector}>
+            <div className={css.form_enum_container}>
+              <input
+                type="radio"
+                name="edit-thread-type"
+                id="edit-thread-open"
+                value={COMMUNITY_OPEN_SUBTHREAD}
+                checked={
+                  (queuedChanges.type ?? threadInfo.type) ===
+                  COMMUNITY_OPEN_SUBTHREAD
+                }
+                onChange={onChangeThreadType}
+                disabled={inputDisabled}
+              />
+              <div className={css.form_enum_option}>
+                <label htmlFor="edit-thread-open">
+                  Open
+                  <span className={css.form_enum_description}>
+                    {threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD]}
+                  </span>
+                </label>
+              </div>
             </div>
-          </div>
-          <div className={css.form_enum_container}>
-            <input
-              type="radio"
-              name="edit-thread-type"
-              id="edit-thread-closed"
-              value={COMMUNITY_SECRET_SUBTHREAD}
-              checked={
-                (queuedChanges.type ?? threadInfo.type) ===
-                COMMUNITY_SECRET_SUBTHREAD
-              }
-              onChange={onChangeThreadType}
-              disabled={inputDisabled}
-            />
-            <div className={css.form_enum_option}>
-              <label htmlFor="edit-thread-closed">
-                Secret
-                <span className={css.form_enum_description}>
-                  {threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD]}
-                </span>
-              </label>
+            <div className={css.form_enum_container}>
+              <input
+                type="radio"
+                name="edit-thread-type"
+                id="edit-thread-closed"
+                value={COMMUNITY_SECRET_SUBTHREAD}
+                checked={
+                  (queuedChanges.type ?? threadInfo.type) ===
+                  COMMUNITY_SECRET_SUBTHREAD
+                }
+                onChange={onChangeThreadType}
+                disabled={inputDisabled}
+              />
+              <div className={css.form_enum_option}>
+                <label htmlFor="edit-thread-closed">
+                  Secret
+                  <span className={css.form_enum_description}>
+                    {threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD]}
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
+        <Button
+          type="submit"
+          onClick={onSubmit}
+          disabled={inputDisabled || !changeQueued}
+          className={css.save_button}
+        >
+          Save
+        </Button>
       </div>
-      <Button
-        type="submit"
-        onClick={onSubmit}
-        disabled={inputDisabled || !changeQueued}
-        className={css.save_button}
-      >
-        Save
-      </Button>
-    </div>
+    </form>
   );
 }
 

@@ -76,7 +76,7 @@ function ThreadSettingsDeleteTab(
   );
 
   return (
-    <>
+    <form method="POST">
       <div>
         <p className={css.italic}>
           Your thread will be permanently deleted. There is no way to reverse
@@ -102,7 +102,7 @@ function ThreadSettingsDeleteTab(
       <Button onClick={onDelete} variant="danger" disabled={inputDisabled}>
         Delete
       </Button>
-    </>
+    </form>
   );
 }
 
