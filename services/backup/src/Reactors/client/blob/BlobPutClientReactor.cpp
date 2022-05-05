@@ -53,10 +53,6 @@ void BlobPutClientReactor::doneCallback() {
   this->terminationNotifier->notify_one();
 }
 
-grpc::Status BlobPutClientReactor::getStatus() const {
-  return this->status;
-}
-
 } // namespace reactor
 } // namespace network
 } // namespace comm

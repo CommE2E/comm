@@ -67,8 +67,9 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
       throw std::runtime_error(
           "dangling data discovered after reading compaction");
     }
-    if (!this->getReactor->getStatus().ok()) {
-      throw std::runtime_error(this->getReactor->getStatus().error_message());
+    if (!this->getReactor->getUtility()->getStatus().ok()) {
+      throw std::runtime_error(
+          this->getReactor->getUtility()->getStatus().error_message());
     }
     this->state = State::LOGS;
   }
@@ -116,8 +117,9 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     // get an empty chunk - a sign of "end of chunks"
     std::string dataChunk;
     this->dataChunks->blockingRead(dataChunk);
-    if (!this->getReactor->getStatus().ok()) {
-      throw std::runtime_error(this->getReactor->getStatus().error_message());
+    if (!this->getReactor->getUtility()->getStatus().ok()) {
+      throw std::runtime_error(
+          this->getReactor->getUtility()->getStatus().error_message());
     }
     // if we get an empty chunk, we reset the currentLog so we can read the next
     // one from the logs collection.
@@ -135,8 +137,9 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
 }
 
 void PullBackupReactor::terminateCallback() {
-  if (!this->getReactor->getStatus().ok()) {
-    throw std::runtime_error(this->getReactor->getStatus().error_message());
+  if (!this->getReactor->getUtility()->getStatus().ok()) {
+    throw std::runtime_error(
+        this->getReactor->getUtility()->getStatus().error_message());
   }
 }
 
