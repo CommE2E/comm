@@ -26,7 +26,7 @@ import type {
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
 import type { AnimatedViewStyle } from '../types/styles';
 import { ChatContext, useHeightMeasurer } from './chat-context';
-import { clusterEndHeight } from './composed-message.react';
+import { clusterEndHeight } from './composed-message-constants';
 import { failedSendHeight } from './failed-send.react';
 import {
   inlineSidebarHeight,
