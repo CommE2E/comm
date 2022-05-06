@@ -17,4 +17,6 @@ function Chat(): React.Node {
   );
 }
 
-export default Chat;
+const MemoizedChat: React.ComponentType<{}> = React.memo<{}>(Chat);
+
+export default MemoizedChat;
