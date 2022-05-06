@@ -9,6 +9,7 @@ mod database;
 mod keygen;
 mod opaque;
 mod service;
+mod token;
 
 use config::Config;
 use keygen::generate_and_persist_keypair;

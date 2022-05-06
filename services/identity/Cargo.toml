@@ -19,6 +19,7 @@ rusoto_core = "0.47.0"
 rusoto_dynamodb = "0.47.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
+chrono = "0.4.19"
 
 [build-dependencies]
 tonic-build = "0.6"
