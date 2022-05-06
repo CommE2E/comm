@@ -158,6 +158,64 @@ impl DatabaseClient {
       }
     }
   }
+
+  pub async fn put_token(
+    &self,
+    token: AccessToken,
+  ) -> Result<PutItemOutput, Error> {
+    let input = PutItemInput {
+      table_name: "identity-tokens".to_string(),
+      item: HashMap::from([
+        (
+          "userID".to_string(),
+          AttributeValue {
+            s: Some(token.user_id),
+            ..Default::default()
+          },
+        ),
+        (
+          "deviceID".to_string(),
+          AttributeValue {
+            s: Some(token.device_id),
+            ..Default::default()
+          },
+        ),
+        (
+          "token".to_string(),
+          AttributeValue {
+            s: Some(token.token),
+            ..Default::default()
+          },
+        ),
+        (
+          "created".to_string(),
+          AttributeValue {
+            s: Some(token.created.to_rfc3339()),
+            ..Default::default()
+          },
+        ),
+        (
+          "authType".to_string(),
+          AttributeValue {
+            s: Some(match token.auth_type {
+              AuthType::Password => "password".to_string(),
+              AuthType::Wallet => "wallet".to_string(),
+            }),
+            ..Default::default()
+          },
+        ),
+        (
+          "valid".to_string(),
+          AttributeValue {
+            bool: Some(token.valid),
+            ..Default::default()
+          },
+        ),
+      ]),
+      ..PutItemInput::default()
+    };
+    self.client.put_item(input).await.map_err(Error::RusotoPut)
+  }
 }
 
 #[derive(
