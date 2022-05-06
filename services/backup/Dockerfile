@@ -14,6 +14,7 @@ WORKDIR /transferred
 
 COPY native/cpp/CommonCpp/grpc/protos/backup.proto native/cpp/CommonCpp/grpc/protos/blob.proto protos/
 COPY services/backup/docker/ scripts/
+COPY services/lib/ .
 COPY services/backup/ .
 
 RUN scripts/build_server.sh
