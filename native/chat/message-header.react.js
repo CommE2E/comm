@@ -8,7 +8,7 @@ import { stringForUser } from 'lib/shared/user-utils';
 import { SingleLine } from '../components/single-line.react';
 import { useStyles } from '../themes/colors';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
-import { clusterEndHeight } from './composed-message.react';
+import { clusterEndHeight } from './composed-message-constants';
 import type { DisplayType } from './timestamp.react';
 import { Timestamp, timestampHeight } from './timestamp.react';
 
