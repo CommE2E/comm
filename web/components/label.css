@@ -2,4 +2,14 @@ div.label {
   line-height: 1.5;
   padding: 4px 8px;
   border-radius: 8px;
+  display: flex;
+}
+
+button.close {
+  display: flex;
+  align-items: center;
+  margin-left: 4px;
+  background: transparent;
+  border: none;
+  color: inherit;
 }
