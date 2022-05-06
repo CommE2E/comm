@@ -1,7 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { Button, Text, View, StyleSheet } from 'react-native';
+import tinycolor from 'tinycolor2';
 
 import { selectedThreadColors } from 'lib/shared/thread-utils';
 
@@ -9,10 +10,11 @@ import ColorSelectorButton from './color-selector-button.react';
 
 type ColorSelectorProps = {
   +currentColor: string,
+  +onColorSelected: (hex: string) => void,
 };
-
 function ColorSelector(props: ColorSelectorProps): React.Node {
-  const { currentColor } = props;
+  const { currentColor, onColorSelected } = props;
+  const [pendingColor, setPendingColor] = React.useState(currentColor);
 
   const colorSelectorButtons = React.useMemo(
     () =>
@@ -20,26 +22,44 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
         <ColorSelectorButton
           key={color}
           color={color}
-          currentColor={currentColor}
+          pendingColor={pendingColor}
+          setPendingColor={setPendingColor}
         />
       )),
-    [currentColor],
+    [pendingColor],
   );
+
+  const saveButtonDisabled = tinycolor.equals(currentColor, pendingColor);
+  const saveButtonStyle = React.useMemo(
+    () => [
+      styles.saveButton,
+      { backgroundColor: saveButtonDisabled ? '#404040' : `#${pendingColor}` },
+    ],
+    [saveButtonDisabled, pendingColor],
+  );
+
+  const onColorSplotchSaved = React.useCallback(() => {
+    onColorSelected(`#${pendingColor}`);
+  }, [onColorSelected, pendingColor]);
 
   return (
     <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.text}>Select thread color</Text>
-      </View>
+      <Text style={styles.header}>Select thread color</Text>
       <View style={styles.colorButtons}>{colorSelectorButtons}</View>
+      <View style={saveButtonStyle}>
+        <Button
+          title="Save"
+          color="white"
+          onPress={onColorSplotchSaved}
+          disabled={saveButtonDisabled}
+        />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   colorButtons: {
-    alignItems: 'center',
-    display: 'flex',
     flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -47,19 +67,20 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: 'center',
-    display: 'flex',
     flex: 1,
-    flexDirection: 'column',
-    flexWrap: 'wrap',
     justifyContent: 'center',
   },
-  text: {
+  header: {
     color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
-  },
-  textContainer: {
     margin: 20,
+  },
+  saveButton: {
+    borderRadius: 5,
+    margin: 10,
+    padding: 5,
+    width: 320,
   },
 });
 
