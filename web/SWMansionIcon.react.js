@@ -72,7 +72,11 @@ export type Icon =
   | 'dino-avatar'
   | 'laptop'
   | 'list-filled'
-  | 'reply-chat-bubble';
+  | 'reply-chat-bubble'
+  | 'all-notifs'
+  | 'badge-notifs'
+  | 'muted-notifs'
+  | 'check';
 
 type SWMansionIconProps = {
   +icon: Icon,
