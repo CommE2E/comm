@@ -159,4 +159,6 @@
   --add-members-item-disabled-color-hover: var(--shades-black-60);
   --add-members-remove-pending-color: var(--error-primary);
   --add-members-remove-pending-color-hover: var(--error-light-50);
+  --radio-border: var(--shades-black-70);
+  --radio-color: var(--shades-white-60);
 }
