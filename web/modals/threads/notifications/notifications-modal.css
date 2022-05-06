@@ -1,0 +1,14 @@
+div.optionInfo {
+  display: flex;
+  align-items: center;
+  column-gap: 4px;
+}
+
+div.optionInfoFalse {
+  text-decoration: line-through;
+  color: var(--notification-settings-option-false-color);
+}
+
+div.optionContainerActive div.optionInfoFalse {
+  color: var(--notification-settings-option-false-active-color);
+}
