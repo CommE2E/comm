@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use chrono::{DateTime, ParseError, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
 use rusoto_core::{Region, RusotoError};
 use rusoto_dynamodb::{
@@ -9,6 +10,7 @@ use rusoto_dynamodb::{
 use tracing::{error, info};
 
 use crate::opaque::Cipher;
+use crate::token::{AccessToken, AuthType};
 
 pub struct DatabaseClient {
   client: DynamoDbClient,
@@ -76,6 +78,57 @@ impl DatabaseClient {
       }
     }
   }
+
+  pub async fn get_token(
+    &self,
+    user_id: String,
+    device_id: String,
+  ) -> Result<Option<AccessToken>, Error> {
+    let primary_key = create_composite_primary_key(
+      ("userID".to_string(), user_id.clone()),
+      ("deviceID".to_string(), device_id.clone()),
+    );
+    let get_item_input = GetItemInput {
+      table_name: "identity-tokens".to_string(),
+      key: primary_key,
+      consistent_read: Some(true),
+      ..GetItemInput::default()
+    };
+    let get_item_result = self.client.get_item(get_item_input).await;
+    match get_item_result {
+      Ok(GetItemOutput {
+        item: Some(mut item),
+        ..
+      }) => {
+        let created = parse_created_attribute(item.remove("created"))?;
+        let auth_type = parse_auth_type_attribute(item.remove("authType"))?;
+        let valid = parse_valid_attribute(item.remove("valid"))?;
+        let token = parse_token_attribute(item.remove("token"))?;
+        Ok(Some(AccessToken {
+          user_id: user_id,
+          device_id: device_id,
+          token: token,
+          created: created,
+          auth_type: auth_type,
+          valid: valid,
+        }))
+      }
+      Ok(_) => {
+        info!(
+          "No item found for user {} and device {} in token table",
+          user_id, device_id
+        );
+        Ok(None)
+      }
+      Err(e) => {
+        error!(
+          "DynamoDB client failed to get token for user {} on device {}: {}",
+          user_id, device_id, e
+        );
+        Err(Error::Rusoto(e))
+      }
+    }
+  }
 }
 
 #[derive(
@@ -88,6 +141,10 @@ pub enum Error {
   Pake(ProtocolError),
   #[display(...)]
   MissingAttribute,
+  #[display(...)]
+  InvalidTimestamp(ParseError),
+  #[display(...)]
+  InvalidAuthType,
 }
 
 type AttributeName = String;
@@ -119,6 +176,59 @@ fn create_composite_primary_key(
   primary_key
 }
 
+fn parse_created_attribute(
+  attribute: Option<AttributeValue>,
+) -> Result<DateTime<Utc>, Error> {
+  if let Some(AttributeValue {
+    s: Some(created), ..
+  }) = attribute
+  {
+    created.parse().map_err(|e| Error::InvalidTimestamp(e))
+  } else {
+    Err(Error::MissingAttribute)
+  }
+}
+
+fn parse_auth_type_attribute(
+  attribute: Option<AttributeValue>,
+) -> Result<AuthType, Error> {
+  if let Some(AttributeValue {
+    s: Some(auth_type), ..
+  }) = attribute
+  {
+    match auth_type.as_str() {
+      "password" => Ok(AuthType::Password),
+      "wallet" => Ok(AuthType::Wallet),
+      unsupported => Err(Error::InvalidAuthType),
+    }
+  } else {
+    Err(Error::MissingAttribute)
+  }
+}
+
+fn parse_valid_attribute(
+  attribute: Option<AttributeValue>,
+) -> Result<bool, Error> {
+  if let Some(AttributeValue {
+    bool: Some(valid), ..
+  }) = attribute
+  {
+    Ok(valid)
+  } else {
+    Err(Error::MissingAttribute)
+  }
+}
+
+fn parse_token_attribute(
+  attribute: Option<AttributeValue>,
+) -> Result<String, Error> {
+  if let Some(AttributeValue { s: Some(token), .. }) = attribute {
+    Ok(token)
+  } else {
+    Err(Error::MissingAttribute)
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
@@ -129,9 +239,9 @@ mod tests {
     let partition_key_value = "12345".to_string();
     let partition_key =
       (partition_key_name.clone(), partition_key_value.clone());
-    let primary_key = create_simple_primary_key(partition_key);
+    let mut primary_key = create_simple_primary_key(partition_key);
     assert_eq!(primary_key.len(), 1);
-    let attribute = primary_key.get(&partition_key_name);
+    let attribute = primary_key.remove(&partition_key_name);
     assert!(attribute.is_some());
     assert_eq!(
       attribute,
@@ -139,7 +249,6 @@ mod tests {
         s: Some(partition_key_value),
         ..Default::default()
       })
-      .as_ref()
     );
   }
 
@@ -152,9 +261,9 @@ mod tests {
     let sort_key_name = "deviceID".to_string();
     let sort_key_value = "54321".to_string();
     let sort_key = (sort_key_name.clone(), sort_key_value.clone());
-    let primary_key = create_composite_primary_key(partition_key, sort_key);
+    let mut primary_key = create_composite_primary_key(partition_key, sort_key);
     assert_eq!(primary_key.len(), 2);
-    let partition_key_attribute = primary_key.get(&partition_key_name);
+    let partition_key_attribute = primary_key.remove(&partition_key_name);
     assert!(partition_key_attribute.is_some());
     assert_eq!(
       partition_key_attribute,
@@ -162,9 +271,8 @@ mod tests {
         s: Some(partition_key_value),
         ..Default::default()
       })
-      .as_ref()
     );
-    let sort_key_attribute = primary_key.get(&sort_key_name);
+    let sort_key_attribute = primary_key.remove(&sort_key_name);
     assert!(sort_key_attribute.is_some());
     assert_eq!(
       sort_key_attribute,
@@ -172,7 +280,6 @@ mod tests {
         s: Some(sort_key_value),
         ..Default::default()
       })
-      .as_ref()
     )
   }
 }
