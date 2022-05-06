@@ -13,6 +13,7 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import { type Colors, useColors } from '../themes/colors';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { type AnimatedStyleObj, AnimatedView } from '../types/styles';
+import { clusterEndHeight } from './composed-message-constants';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
 import {
@@ -28,8 +29,6 @@ import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils';
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
 /* eslint-enable import/no-named-as-default-member */
-
-const clusterEndHeight = 7;
 
 type SwipeOptions = 'reply' | 'sidebar' | 'both' | 'none';
 type BaseProps = {
@@ -221,4 +220,5 @@ const ConnectedComposedMessage: React.ComponentType<BaseProps> = React.memo<Base
     );
   },
 );
-export { ConnectedComposedMessage as ComposedMessage, clusterEndHeight };
+
+export default ConnectedComposedMessage;

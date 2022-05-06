@@ -23,7 +23,7 @@ import {
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutCoordinates } from '../types/layout-types';
-import { ComposedMessage } from './composed-message.react';
+import ComposedMessage from './composed-message.react';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react';
 import { multimediaMessageTooltipHeight } from './multimedia-message-tooltip-modal.react';
 import {

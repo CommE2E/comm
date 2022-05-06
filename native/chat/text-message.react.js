@@ -21,7 +21,7 @@ import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
-import { ComposedMessage } from './composed-message.react';
+import ComposedMessage from './composed-message.react';
 import { InnerTextMessage } from './inner-text-message.react';
 import textMessageSendFailed from './text-message-send-failed';
 import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';

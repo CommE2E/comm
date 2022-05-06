@@ -10,7 +10,7 @@ import type {
   ChatMultimediaMessageInfoItem,
   MultimediaContentSizes,
 } from '../types/chat-types';
-import { clusterEndHeight } from './composed-message.react';
+import { clusterEndHeight } from './composed-message-constants';
 import { failedSendHeight } from './failed-send.react';
 import {
   inlineSidebarMarginBottom,
