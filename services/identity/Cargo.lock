@@ -686,6 +686,7 @@ name = "identity"
 version = "0.1.0"
 dependencies = [
  "argon2",
+ "bytes",
  "chrono",
  "clap",
  "curve25519-dalek",

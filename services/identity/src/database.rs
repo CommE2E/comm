@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
+use bytes::Bytes;
 use chrono::{DateTime, ParseError, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
 use rusoto_core::{Region, RusotoError};
 use rusoto_dynamodb::{
   AttributeValue, DynamoDb, DynamoDbClient, GetItemError, GetItemInput,
-  GetItemOutput,
+  GetItemOutput, PutItemError, PutItemInput, PutItemOutput,
 };
 use tracing::{error, info};
 
@@ -77,6 +78,34 @@ impl DatabaseClient {
         Err(Error::Rusoto(e))
       }
     }
+  }
+
+  pub async fn put_pake_registration(
+    &self,
+    user_id: String,
+    registration: ServerRegistration<Cipher>,
+  ) -> Result<PutItemOutput, RusotoError<PutItemError>> {
+    let input = PutItemInput {
+      table_name: "identity-pake-registration".to_string(),
+      item: HashMap::from([
+        (
+          "userID".to_string(),
+          AttributeValue {
+            s: Some(user_id),
+            ..Default::default()
+          },
+        ),
+        (
+          "pakeRegistrationData".to_string(),
+          AttributeValue {
+            b: Some(Bytes::from(registration.serialize())),
+            ..Default::default()
+          },
+        ),
+      ]),
+      ..PutItemInput::default()
+    };
+    self.client.put_item(input).await
   }
 
   pub async fn get_token(
