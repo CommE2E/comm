@@ -1,4 +1,8 @@
 use chrono::{DateTime, Utc};
+use rand::{
+  distributions::{Alphanumeric, DistString},
+  CryptoRng, Rng,
+};
 
 pub enum AuthType {
   Password,
@@ -12,4 +16,22 @@ pub struct AccessToken {
   pub created: DateTime<Utc>,
   pub auth_type: AuthType,
   pub valid: bool,
+}
+
+impl AccessToken {
+  pub fn new(
+    user_id: String,
+    device_id: String,
+    auth_type: AuthType,
+    rng: &mut (impl Rng + CryptoRng),
+  ) -> Self {
+    AccessToken {
+      user_id: user_id,
+      device_id: device_id,
+      token: Alphanumeric.sample_string(rng, 512),
+      created: Utc::now(),
+      auth_type: auth_type,
+      valid: true,
+    }
+  }
 }

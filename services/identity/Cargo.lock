@@ -694,6 +694,7 @@ dependencies = [
  "futures-core",
  "opaque-ke",
  "prost",
+ "rand",
  "rusoto_core",
  "rusoto_dynamodb",
  "sha2",
