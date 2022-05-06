@@ -19,6 +19,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../../../components/button.react';
+import Label from '../../../components/label.react';
 import { useSelector } from '../../../redux/redux-utils';
 import SearchModal from '../../search-modal.react';
 import AddMembersList from './add-members-list.react';
@@ -48,8 +49,11 @@ function AddMembersModalContent(props: ContentProps): React.Node {
   const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
   const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
   const excludeUserIDs = React.useMemo(
-    () => threadActualMembers(threadInfo.members),
-    [threadInfo.members],
+    () =>
+      threadActualMembers(threadInfo.members).concat(
+        Array.from(pendingUsersToAdd),
+      ),
+    [pendingUsersToAdd, threadInfo.members],
   );
 
   const userSearchResults = React.useMemo(
@@ -108,8 +112,32 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     threadID,
   ]);
 
+  const pendingUsersWithNames = React.useMemo(
+    () =>
+      Array.from(pendingUsersToAdd)
+        .map(userID => [userID, otherUserInfos[userID].username])
+        .sort((a, b) => a[1].localeCompare(b[1])),
+    [otherUserInfos, pendingUsersToAdd],
+  );
+
+  const labelItems = React.useMemo(() => {
+    if (!pendingUsersWithNames.length) {
+      return null;
+    }
+    return (
+      <div className={css.addMembersPendingList}>
+        {pendingUsersWithNames.map(([userID, username]) => (
+          <Label key={userID} onClose={() => onSwitchUser(userID)}>
+            {username}
+          </Label>
+        ))}
+      </div>
+    );
+  }, [onSwitchUser, pendingUsersWithNames]);
+
   return (
     <div className={css.addMembersContent}>
+      {labelItems}
       <div className={css.addMembersListContainer}>
         <AddMembersList
           userListItems={userSearchResults}

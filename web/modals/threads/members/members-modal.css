@@ -68,9 +68,16 @@ div.addMembersContent {
   flex-direction: column;
   overflow: auto;
   color: var(--fg);
-  row-gap: 16px;
   width: 383px;
   height: 617px;
+}
+
+div.addMembersPendingList {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
 }
 
 div.addMembersListContainer {
@@ -82,6 +89,7 @@ div.addMembersFooter {
   display: flex;
   justify-content: end;
   column-gap: 16px;
+  margin-top: 16px;
 }
 
 div.addMemberItemsGroupHeader {
