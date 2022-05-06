@@ -161,6 +161,9 @@
   --add-members-remove-pending-color-hover: var(--error-light-50);
   --radio-border: var(--shades-black-70);
   --radio-color: var(--shades-white-60);
+  --notification-settings-option-active-bg: var(--shades-black-80);
+  --notification-settings-option-title-color: var(--shades-white-90);
+  --notification-settings-option-color: var(--shades-white-60);
   --notification-settings-option-false-color: var(--shades-black-80);
   --notification-settings-option-false-active-color: var(--shades-black-60);
 }
