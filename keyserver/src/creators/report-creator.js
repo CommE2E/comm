@@ -27,11 +27,10 @@ import { fetchUsername } from '../fetchers/user-fetchers';
 import { handleAsyncPromise } from '../responders/handlers';
 import { createBotViewer } from '../session/bots';
 import type { Viewer } from '../session/viewer';
-import { getSquadCalURLFacts } from '../utils/urls';
+import { getCommAppURLFacts } from '../utils/urls';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
 
-const { baseDomain, basePath } = getSquadCalURLFacts();
 const { commbot } = bots;
 
 async function createReport(
@@ -145,6 +144,7 @@ function getSquadbotMessage(
   const { platform, codeVersion } = platformDetails;
   const platformString = codeVersion ? `${platform} v${codeVersion}` : platform;
   if (request.type === reportTypes.ERROR) {
+    const { baseDomain, basePath } = getCommAppURLFacts();
     return (
       `${name} got an error :(\n` +
       `using ${platformString}\n` +
