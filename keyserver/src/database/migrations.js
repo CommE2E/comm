@@ -8,10 +8,18 @@ import { getMessageForException } from 'lib/utils/errors';
 import { dbQuery, SQL } from './database';
 
 async function makeSureBaseRoutePathExists(filePath: string): Promise<void> {
-  const readFile = await fs.promises.open(filePath, 'r');
-  const contents = await readFile.readFile('utf8');
-  const json = JSON.parse(contents);
-  await readFile.close();
+  let readFile, json;
+  try {
+    readFile = await fs.promises.open(filePath, 'r');
+    const contents = await readFile.readFile('utf8');
+    json = JSON.parse(contents);
+  } catch {
+    return;
+  } finally {
+    if (readFile) {
+      await readFile.close();
+    }
+  }
   if (json.baseRoutePath) {
     return;
   }
@@ -31,10 +39,18 @@ async function makeSureBaseRoutePathExists(filePath: string): Promise<void> {
 }
 
 async function fixBaseRoutePathForLocalhost(filePath: string): Promise<void> {
-  const readFile = await fs.promises.open(filePath, 'r');
-  const contents = await readFile.readFile('utf8');
-  let json = JSON.parse(contents);
-  await readFile.close();
+  let readFile, json;
+  try {
+    readFile = await fs.promises.open(filePath, 'r');
+    const contents = await readFile.readFile('utf8');
+    json = JSON.parse(contents);
+  } catch {
+    return;
+  } finally {
+    if (readFile) {
+      await readFile.close();
+    }
+  }
   if (json.baseDomain !== 'http://localhost') {
     return;
   }

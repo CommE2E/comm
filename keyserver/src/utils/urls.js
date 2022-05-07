@@ -1,10 +1,8 @@
 // @flow
 
-import { values } from 'lib/utils/objects';
+import invariant from 'invariant';
 
-import commAppURLFacts from '../../facts/commapp_url';
-import landingURLFacts from '../../facts/landing_url';
-import squadCalURLFacts from '../../facts/squadcal_url';
+import { values } from 'lib/utils/objects';
 
 export type AppURLFacts = {
   +baseDomain: string,
@@ -45,22 +43,28 @@ async function prefetchAllURLFacts() {
 }
 
 function getSquadCalURLFacts(): AppURLFacts {
-  return squadCalURLFacts;
+  const urlFacts = cachedURLFacts.get('squadcal');
+  invariant(urlFacts, 'keyserver/facts/squadcal_url.json missing');
+  return urlFacts;
 }
 
 function getCommAppURLFacts(): AppURLFacts {
-  return commAppURLFacts;
+  const urlFacts = cachedURLFacts.get('commapp');
+  invariant(urlFacts, 'keyserver/facts/commapp_url.json missing');
+  return urlFacts;
 }
 
 function getAppURLFactsFromRequestURL(url: string): AppURLFacts {
   const commURLFacts = getCommAppURLFacts();
-  return url.startsWith(commURLFacts.baseRoutePath)
+  return commURLFacts && url.startsWith(commURLFacts.baseRoutePath)
     ? commURLFacts
     : getSquadCalURLFacts();
 }
 
 function getLandingURLFacts(): AppURLFacts {
-  return landingURLFacts;
+  const urlFacts = cachedURLFacts.get('landing');
+  invariant(urlFacts, 'keyserver/facts/landing_url.json missing');
+  return urlFacts;
 }
 
 function clientPathFromRouterPath(
