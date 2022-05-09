@@ -41,8 +41,8 @@ import {
   await prefetchAllURLFacts();
 
   const squadCalBaseRoutePath = getSquadCalURLFacts()?.baseRoutePath;
-  const landingBaseRoutePath = getLandingURLFacts().baseRoutePath;
-  const commAppBaseRoutePath = getCommAppURLFacts().baseRoutePath;
+  const landingBaseRoutePath = getLandingURLFacts()?.baseRoutePath;
+  const commAppBaseRoutePath = getCommAppURLFacts()?.baseRoutePath;
 
   const compiledFolderOptions =
     process.env.NODE_ENV === 'development'
@@ -134,21 +134,25 @@ import {
     // and prevent commAppRouter and landingRouter from working correctly. So we
     // make sure that squadCalRouter goes last
 
-    const landingRouter = express.Router();
-    landingRouter.use('/images', express.static('images'));
-    landingRouter.use('/fonts', express.static('fonts'));
-    landingRouter.use(
-      '/compiled',
-      express.static('landing_compiled', compiledFolderOptions),
-    );
-    landingRouter.use('/', express.static('landing_icons'));
-    landingRouter.post('/subscribe_email', emailSubscriptionResponder);
-    landingRouter.get('*', landingHandler);
-    server.use(landingBaseRoutePath, landingRouter);
+    if (landingBaseRoutePath) {
+      const landingRouter = express.Router();
+      landingRouter.use('/images', express.static('images'));
+      landingRouter.use('/fonts', express.static('fonts'));
+      landingRouter.use(
+        '/compiled',
+        express.static('landing_compiled', compiledFolderOptions),
+      );
+      landingRouter.use('/', express.static('landing_icons'));
+      landingRouter.post('/subscribe_email', emailSubscriptionResponder);
+      landingRouter.get('*', landingHandler);
+      server.use(landingBaseRoutePath, landingRouter);
+    }
 
-    const commAppRouter = express.Router();
-    setupAppRouter(commAppRouter);
-    server.use(commAppBaseRoutePath, commAppRouter);
+    if (commAppBaseRoutePath) {
+      const commAppRouter = express.Router();
+      setupAppRouter(commAppRouter);
+      server.use(commAppBaseRoutePath, commAppRouter);
+    }
 
     if (squadCalBaseRoutePath) {
       const squadCalRouter = express.Router();

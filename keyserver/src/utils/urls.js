@@ -46,8 +46,12 @@ function getSquadCalURLFacts(): ?AppURLFacts {
   return cachedURLFacts.get('squadcal');
 }
 
-function getCommAppURLFacts(): AppURLFacts {
-  const urlFacts = cachedURLFacts.get('commapp');
+function getCommAppURLFacts(): ?AppURLFacts {
+  return cachedURLFacts.get('commapp');
+}
+
+function getAndAssertCommAppURLFacts(): AppURLFacts {
+  const urlFacts = getCommAppURLFacts();
   invariant(urlFacts, 'keyserver/facts/commapp_url.json missing');
   return urlFacts;
 }
@@ -64,8 +68,12 @@ function getAppURLFactsFromRequestURL(url: string): AppURLFacts {
   invariant(false, 'request received but no URL facts are present');
 }
 
-function getLandingURLFacts(): AppURLFacts {
-  const urlFacts = cachedURLFacts.get('landing');
+function getLandingURLFacts(): ?AppURLFacts {
+  return cachedURLFacts.get('landing');
+}
+
+function getAndAssertLandingURLFacts(): AppURLFacts {
+  const urlFacts = getLandingURLFacts();
   invariant(urlFacts, 'keyserver/facts/landing_url.json missing');
   return urlFacts;
 }
@@ -82,7 +90,9 @@ export {
   prefetchAllURLFacts,
   getSquadCalURLFacts,
   getCommAppURLFacts,
+  getAndAssertCommAppURLFacts,
   getLandingURLFacts,
+  getAndAssertLandingURLFacts,
   getAppURLFactsFromRequestURL,
   clientPathFromRouterPath,
 };

@@ -5,7 +5,7 @@ import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
-import { getCommAppURLFacts } from '../utils/urls';
+import { getAndAssertCommAppURLFacts } from '../utils/urls';
 
 type UploadInfo = {
   content: Buffer,
@@ -75,7 +75,7 @@ async function getUploadSize(id: string, secret: string): Promise<number> {
 }
 
 function getUploadURL(id: string, secret: string): string {
-  const { baseDomain, basePath } = getCommAppURLFacts();
+  const { baseDomain, basePath } = getAndAssertCommAppURLFacts();
   return `${baseDomain}${basePath}upload/${id}/${secret}`;
 }
 

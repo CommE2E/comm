@@ -9,7 +9,10 @@ import { promisify } from 'util';
 
 import { type LandingSSRProps } from '../landing/landing-ssr.react';
 import { waitForStream } from '../utils/json-stream';
-import { getLandingURLFacts, clientPathFromRouterPath } from '../utils/urls';
+import {
+  getAndAssertLandingURLFacts,
+  clientPathFromRouterPath,
+} from '../utils/urls';
 import { getMessageForException } from './utils';
 
 async function landingHandler(req: $Request, res: $Response) {
@@ -91,8 +94,6 @@ async function getWebpackCompiledRootComponentForSSR() {
   }
 }
 
-const urlFacts = getLandingURLFacts();
-const { basePath } = urlFacts;
 const { renderToNodeStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
@@ -104,6 +105,9 @@ async function landingResponder(req: $Request, res: $Response) {
   const fontsInclude = fontURLs
     .map(url => `<link rel="stylesheet" type="text/css" href="${url}" />`)
     .join('');
+
+  const urlFacts = getAndAssertLandingURLFacts();
+  const { basePath } = urlFacts;
 
   // prettier-ignore
   res.write(html`
