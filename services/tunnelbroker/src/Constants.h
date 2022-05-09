@@ -8,11 +8,11 @@ namespace comm {
 namespace network {
 
 // AWS DynamoDB
-const std::string DEVICE_SESSIONS_TABLE_NAME = "tunnelbroker-device-session";
+const std::string DEVICE_SESSIONS_TABLE_NAME = "tunnelbroker-device-sessions";
 const std::string DEVICE_SESSIONS_VERIFICATION_MESSAGES_TABLE_NAME =
-    "tunnelbroker-verification-message";
-const std::string DEVICE_PUBLIC_KEY_TABLE_NAME = "tunnelbroker-public-key";
-const std::string MESSAGES_TABLE_NAME = "tunnelbroker-message";
+    "tunnelbroker-verification-messages";
+const std::string DEVICE_PUBLIC_KEY_TABLE_NAME = "tunnelbroker-public-keys";
+const std::string MESSAGES_TABLE_NAME = "tunnelbroker-messages";
 
 // Sessions
 const size_t SIGNATURE_REQUEST_LENGTH = 64;
