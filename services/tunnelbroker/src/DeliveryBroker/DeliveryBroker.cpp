@@ -1,5 +1,7 @@
 #include "DeliveryBroker.h"
 
+#include <glog/logging.h>
+
 namespace comm {
 namespace network {
 
@@ -28,8 +30,8 @@ void DeliveryBroker::push(
             .fromDeviceID = fromDeviceID,
             .payload = payload});
   } catch (const std::exception &e) {
-    std::cout << "DeliveryBroker push: "
-              << "Got an exception " << e.what() << std::endl;
+    LOG(ERROR) << "DeliveryBroker push: "
+               << "Got an exception " << e.what();
   }
 };
 
@@ -54,8 +56,8 @@ DeliveryBrokerMessage DeliveryBroker::pop(const std::string deviceID) {
     this->messagesMap.find(deviceID)->second->blockingRead(receievedMessage);
     return receievedMessage;
   } catch (const std::exception &e) {
-    std::cout << "DeliveryBroker pop: "
-              << "Got an exception " << e.what() << std::endl;
+    LOG(ERROR) << "DeliveryBroker pop: "
+               << "Got an exception " << e.what();
   }
   return {};
 };

@@ -4,6 +4,8 @@
 #include "DeliveryBroker.h"
 #include "Tools.h"
 
+#include <glog/logging.h>
+
 #include <uv.h>
 
 namespace comm {
@@ -23,7 +25,7 @@ void AmqpManager::connectInternal() {
   const std::string fanoutExchangeName =
       config::ConfigManager::getInstance().getParameter(
           config::ConfigManager::OPTION_AMQP_FANOUT_EXCHANGE);
-  std::cout << "AMQP: Connecting to " << amqpUri << std::endl;
+  LOG(INFO) << "AMQP: Connecting to " << amqpUri;
 
   auto *loop = uv_default_loop();
   AMQP::LibUvHandler handler(loop);
@@ -31,8 +33,8 @@ void AmqpManager::connectInternal() {
 
   this->amqpChannel = std::make_unique<AMQP::TcpChannel>(&connection);
   this->amqpChannel->onError([this](const char *message) {
-    std::cout << "AMQP: channel error: " << message << ", will try to reconnect"
-              << std::endl;
+    LOG(ERROR) << "AMQP: channel error: " << message
+               << ", will try to reconnect";
     this->amqpReady = false;
   });
 
@@ -45,12 +47,12 @@ void AmqpManager::connectInternal() {
                      const std::string &name,
                      uint32_t messagecount,
                      uint32_t consumercount) {
-        std::cout << "AMQP: Queue " << name << " created" << std::endl;
+        LOG(INFO) << "AMQP: Queue " << name << " created";
         this->amqpChannel->bindQueue(fanoutExchangeName, tunnelbrokerID, "")
             .onError([this, tunnelbrokerID, fanoutExchangeName](
                          const char *message) {
-              std::cout << "AMQP: Failed to bind queue:  " << tunnelbrokerID
-                        << " to exchange: " << fanoutExchangeName << std::endl;
+              LOG(ERROR) << "AMQP: Failed to bind queue:  " << tunnelbrokerID
+                         << " to exchange: " << fanoutExchangeName;
               this->amqpReady = false;
             });
         this->amqpReady = true;
@@ -65,18 +67,16 @@ void AmqpManager::connectInternal() {
                 const std::string toDeviceID(headers[AMQP_HEADER_TO_DEVICEID]);
                 const std::string fromDeviceID(
                     headers[AMQP_HEADER_FROM_DEVICEID]);
-                std::cout << "AMQP: Message consumed for deviceID: "
-                          << toDeviceID << std::endl;
+                LOG(INFO) << "AMQP: Message consumed for deviceID: "
+                          << toDeviceID;
                 DeliveryBroker::getInstance().push(
                     messageID, deliveryTag, toDeviceID, fromDeviceID, payload);
               } catch (const std::exception &e) {
-                std::cout << "AMQP: Message parsing exception: " << e.what()
-                          << std::endl;
+                LOG(ERROR) << "AMQP: Message parsing exception: " << e.what();
               }
             })
             .onError([](const char *message) {
-              std::cout << "AMQP: Error on message consume:  " << message
-                        << std::endl;
+              LOG(ERROR) << "AMQP: Error on message consume:  " << message;
             });
       })
       .onError([](const char *message) {
@@ -110,7 +110,7 @@ bool AmqpManager::send(
     std::string toDeviceID,
     std::string payload) {
   if (!this->amqpReady) {
-    std::cout << "AMQP: Message send error: channel not ready" << std::endl;
+    LOG(ERROR) << "AMQP: Message send error: channel not ready";
     return false;
   }
   try {
@@ -128,8 +128,7 @@ bool AmqpManager::send(
         "",
         env);
   } catch (std::runtime_error &e) {
-    std::cout << "AMQP: Error while publishing message:  " << e.what()
-              << std::endl;
+    LOG(ERROR) << "AMQP: Error while publishing message:  " << e.what();
     return false;
   }
   return true;
@@ -137,7 +136,7 @@ bool AmqpManager::send(
 
 void AmqpManager::ack(uint64_t deliveryTag) {
   if (!this->amqpReady) {
-    std::cout << "AMQP: Message ACK error: channel not ready" << std::endl;
+    LOG(ERROR) << "AMQP: Message ACK error: channel not ready";
     return;
   }
   this->amqpChannel->ack(deliveryTag);

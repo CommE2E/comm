@@ -2,6 +2,7 @@
 #include "ConfigManager.h"
 #include "Constants.h"
 
+#include <glog/logging.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -45,9 +46,8 @@ bool validateDeviceID(std::string deviceID) {
     }
     return std::regex_match(deviceID, DEVICEID_FORMAT_REGEX);
   } catch (const std::exception &e) {
-    std::cout << "Tools: "
-              << "Got an exception at `validateDeviceID`: " << e.what()
-              << std::endl;
+    LOG(ERROR) << "Tools: "
+               << "Got an exception at `validateDeviceID`: " << e.what();
     return false;
   }
 }
@@ -61,9 +61,8 @@ bool validateSessionID(std::string sessionID) {
   try {
     return std::regex_match(sessionID, SESSION_ID_FORMAT_REGEX);
   } catch (const std::exception &e) {
-    std::cout << "Tools: "
-              << "Got an exception at `validateSessionId`: " << e.what()
-              << std::endl;
+    LOG(ERROR) << "Tools: "
+               << "Got an exception at `validateSessionId`: " << e.what();
     return false;
   }
 }

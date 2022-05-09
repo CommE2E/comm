@@ -6,6 +6,7 @@
 #include <cryptopp/modes.h>
 #include <cryptopp/pssr.h>
 #include <cryptopp/rsa.h>
+#include <glog/logging.h>
 
 #include <iostream>
 
@@ -35,8 +36,8 @@ bool rsaVerifyString(
         reinterpret_cast<const unsigned char *>(decodedSignature.c_str()),
         decodedSignature.length());
   } catch (const std::exception &e) {
-    std::cout << "CryptoTools: "
-              << "Got an exception " << e.what() << std::endl;
+    LOG(ERROR) << "CryptoTools: "
+               << "Got an exception " << e.what();
     return false;
   }
 }

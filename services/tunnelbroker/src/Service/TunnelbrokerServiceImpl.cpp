@@ -1,5 +1,4 @@
 #include "TunnelbrokerServiceImpl.h"
-
 #include "AmqpManager.h"
 #include "AwsTools.h"
 #include "ConfigManager.h"
@@ -7,6 +6,8 @@
 #include "DatabaseManager.h"
 #include "DeliveryBroker.h"
 #include "Tools.h"
+
+#include <glog/logging.h>
 
 namespace comm {
 namespace network {
@@ -42,8 +43,8 @@ grpc::Status TunnelBrokerServiceImpl::SessionSignature(
     tunnelbroker::SessionSignatureResponse *reply) {
   const std::string deviceID = request->deviceid();
   if (!tools::validateDeviceID(deviceID)) {
-    std::cout << "gRPC: "
-              << "Format validation failed for " << deviceID << std::endl;
+    LOG(INFO) << "gRPC: "
+              << "Format validation failed for " << deviceID;
     return grpc::Status(
         grpc::StatusCode::INVALID_ARGUMENT,
         "Format validation failed for deviceID");
@@ -67,8 +68,8 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   std::shared_ptr<database::PublicKeyItem> publicKeyItem;
   const std::string deviceID = request->deviceid();
   if (!tools::validateDeviceID(deviceID)) {
-    std::cout << "gRPC: "
-              << "Format validation failed for " << deviceID << std::endl;
+    LOG(INFO) << "gRPC: "
+              << "Format validation failed for " << deviceID;
     return grpc::Status(
         grpc::StatusCode::INVALID_ARGUMENT,
         "Format validation failed for deviceID");
@@ -80,9 +81,8 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
     sessionSignItem =
         database::DatabaseManager::getInstance().findSessionSignItem(deviceID);
     if (sessionSignItem == nullptr) {
-      std::cout << "gRPC: "
-                << "Session sign request not found for deviceID: " << deviceID
-                << std::endl;
+      LOG(INFO) << "gRPC: "
+                << "Session sign request not found for deviceID: " << deviceID;
       return grpc::Status(
           grpc::StatusCode::NOT_FOUND, "Session sign request not found");
     }
@@ -94,8 +94,8 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
       database::DatabaseManager::getInstance().putPublicKeyItem(
           *newPublicKeyItem);
     } else if (publicKey != publicKeyItem->getPublicKey()) {
-      std::cout << "gRPC: "
-                << "The public key doesn't match for deviceID" << std::endl;
+      LOG(INFO) << "gRPC: "
+                << "The public key doesn't match for deviceID";
       return grpc::Status(
           grpc::StatusCode::PERMISSION_DENIED,
           "The public key doesn't match for deviceID");
@@ -103,9 +103,8 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
     const std::string verificationMessage = sessionSignItem->getSign();
     if (!comm::network::crypto::rsaVerifyString(
             publicKey, verificationMessage, signature)) {
-      std::cout << "gRPC: "
-                << "Signature for the verification message is not valid"
-                << std::endl;
+      LOG(INFO) << "gRPC: "
+                << "Signature for the verification message is not valid";
       return grpc::Status(
           grpc::StatusCode::PERMISSION_DENIED,
           "Signature for the verification message is not valid");
@@ -122,9 +121,8 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
         request->deviceos());
     database::DatabaseManager::getInstance().putSessionItem(*deviceSessionItem);
   } catch (std::runtime_error &e) {
-    std::cout << "gRPC: "
-              << "Error while processing 'NewSession' request: " << e.what()
-              << std::endl;
+    LOG(ERROR) << "gRPC: "
+               << "Error while processing 'NewSession' request: " << e.what();
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
   reply->set_sessionid(newSessionID);
@@ -138,8 +136,8 @@ grpc::Status TunnelBrokerServiceImpl::Send(
   try {
     const std::string sessionID = request->sessionid();
     if (!tools::validateSessionID(sessionID)) {
-      std::cout << "gRPC: "
-                << "Format validation failed for " << sessionID << std::endl;
+      LOG(INFO) << "gRPC: "
+                << "Format validation failed for " << sessionID;
       return grpc::Status(
           grpc::StatusCode::INVALID_ARGUMENT,
           "Format validation failed for sessionID");
@@ -147,8 +145,8 @@ grpc::Status TunnelBrokerServiceImpl::Send(
     std::shared_ptr<database::DeviceSessionItem> sessionItem =
         database::DatabaseManager::getInstance().findSessionItem(sessionID);
     if (sessionItem == nullptr) {
-      std::cout << "gRPC: "
-                << "Session " << sessionID << " not found" << std::endl;
+      LOG(INFO) << "gRPC: "
+                << "Session " << sessionID << " not found";
       return grpc::Status(
           grpc::StatusCode::PERMISSION_DENIED,
           "No such session found. SessionID: " + sessionID);
@@ -160,16 +158,15 @@ grpc::Status TunnelBrokerServiceImpl::Send(
             clientDeviceID,
             request->todeviceid(),
             std::string(request->payload()))) {
-      std::cout << "gRPC: "
-                << "Error while publish the message to AMQP" << std::endl;
+      LOG(ERROR) << "gRPC: "
+                 << "Error while publish the message to AMQP";
       return grpc::Status(
           grpc::StatusCode::INTERNAL,
           "Error while publish the message to AMQP");
     }
   } catch (std::runtime_error &e) {
-    std::cout << "gRPC: "
-              << "Error while processing 'Send' request: " << e.what()
-              << std::endl;
+    LOG(ERROR) << "gRPC: "
+               << "Error while processing 'Send' request: " << e.what();
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
   return grpc::Status::OK;
@@ -182,8 +179,8 @@ grpc::Status TunnelBrokerServiceImpl::Get(
   try {
     const std::string sessionID = request->sessionid();
     if (!tools::validateSessionID(sessionID)) {
-      std::cout << "gRPC: "
-                << "Format validation failed for " << sessionID << std::endl;
+      LOG(INFO) << "gRPC: "
+                << "Format validation failed for " << sessionID;
       return grpc::Status(
           grpc::StatusCode::INVALID_ARGUMENT,
           "Format validation failed for sessionID");
@@ -191,8 +188,8 @@ grpc::Status TunnelBrokerServiceImpl::Get(
     std::shared_ptr<database::DeviceSessionItem> sessionItem =
         database::DatabaseManager::getInstance().findSessionItem(sessionID);
     if (sessionItem == nullptr) {
-      std::cout << "gRPC: "
-                << "Session " << sessionID << " not found" << std::endl;
+      LOG(INFO) << "gRPC: "
+                << "Session " << sessionID << " not found";
       return grpc::Status(
           grpc::StatusCode::PERMISSION_DENIED,
           "No such session found. SessionID: " + sessionID);
@@ -215,9 +212,8 @@ grpc::Status TunnelBrokerServiceImpl::Get(
       }
     }
   } catch (std::runtime_error &e) {
-    std::cout << "gRPC: "
-              << "Error while processing 'Get' request: " << e.what()
-              << std::endl;
+    LOG(ERROR) << "gRPC: "
+               << "Error while processing 'Get' request: " << e.what();
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
   return grpc::Status::OK;
