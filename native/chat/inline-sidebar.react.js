@@ -13,7 +13,7 @@ import { useNavigateToThread } from './message-list-types';
 
 type Props = {
   +threadInfo: ThreadInfo,
-  +positioning: 'left' | 'center' | 'right',
+  +position: 'left' | 'center' | 'right',
 };
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo } = props;

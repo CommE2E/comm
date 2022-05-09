@@ -56,7 +56,7 @@ function RobotextMessage(props: Props): React.Node {
       <View style={styles.sidebar}>
         <InlineSidebar
           threadInfo={item.threadCreatedFromMessage}
-          positioning="center"
+          position="center"
         />
       </View>
     );

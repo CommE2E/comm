@@ -136,7 +136,7 @@ class ComposedMessage extends React.PureComponent<Props> {
         <View style={styles.inlineSidebar}>
           <InlineSidebar
             threadInfo={item.threadCreatedFromMessage}
-            positioning={positioning}
+            position={positioning}
           />
         </View>
       );
