@@ -85,3 +85,79 @@ resource "aws_dynamodb_table" "blob-service-reverse-index" {
     projection_type    = "ALL"
   }
 }
+
+resource "aws_dynamodb_table" "tunnelbroker-device-sessions" {
+  name           = "tunnelbroker-device-sessions"
+  hash_key       = "SessionId"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "SessionId"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "Expire"
+    enabled        = true
+  }
+}
+
+resource "aws_dynamodb_table" "tunnelbroker-verification-messages" {
+  name           = "tunnelbroker-verification-messages"
+  hash_key       = "DeviceId"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "DeviceId"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "Expire"
+    enabled        = true
+  }
+}
+
+resource "aws_dynamodb_table" "tunnelbroker-public-keys" {
+  name           = "tunnelbroker-public-keys"
+  hash_key       = "DeviceId"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "DeviceId"
+    type = "S"
+  }
+}
+
+resource "aws_dynamodb_table" "tunnelbroker-messages" {
+  name           = "tunnelbroker-messages"
+  hash_key       = "MessageID"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "MessageID"
+    type = "S"
+  }
+
+  attribute {
+    name = "ToDeviceID"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name               = "ToDeviceID-index"
+    hash_key           = "ToDeviceID"
+    write_capacity     = 10
+    read_capacity      = 10
+    projection_type    = "ALL"
+  }
+
+  ttl {
+    attribute_name = "Expire"
+    enabled        = true
+  }
+}
