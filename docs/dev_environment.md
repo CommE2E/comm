@@ -495,24 +495,10 @@ The keyserver needs to know some info about paths in order to properly construct
 
 ```
 mkdir -p keyserver/facts
-vim keyserver/facts/url.json
+vim keyserver/facts/commapp_url.json
 ```
 
-Your `url.json` file should look like this:
-
-```json
-{
-  "baseRoutePath": "/"
-}
-```
-
-Next, we’ll create files for constructing URLs for the main app.
-
-```
-vim keyserver/facts/squadcal_url.json
-```
-
-Your `squadcal_url.json` file should look like this:
+Your `commapp_url.json` file should look like this:
 
 ```json
 {
@@ -523,13 +509,7 @@ Your `squadcal_url.json` file should look like this:
 }
 ```
 
-Copy the contents of `squadcal_url.json` to a file called `commapp_url.json`.
-
-```
-cp keyserver/facts/squadcal_url.json keyserver/facts/commapp_url.json
-```
-
-Finally, we’ll create a file for the URLs in the landing page.
+Additionally, we’ll create a file for the URLs in the landing page.
 
 ```
 vim keyserver/facts/landing_url.json
