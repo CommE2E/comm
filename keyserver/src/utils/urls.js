@@ -42,10 +42,8 @@ async function prefetchAllURLFacts() {
   await Promise.all(sites.map(fetchURLFacts));
 }
 
-function getSquadCalURLFacts(): AppURLFacts {
-  const urlFacts = cachedURLFacts.get('squadcal');
-  invariant(urlFacts, 'keyserver/facts/squadcal_url.json missing');
-  return urlFacts;
+function getSquadCalURLFacts(): ?AppURLFacts {
+  return cachedURLFacts.get('squadcal');
 }
 
 function getCommAppURLFacts(): AppURLFacts {
@@ -56,9 +54,14 @@ function getCommAppURLFacts(): AppURLFacts {
 
 function getAppURLFactsFromRequestURL(url: string): AppURLFacts {
   const commURLFacts = getCommAppURLFacts();
-  return commURLFacts && url.startsWith(commURLFacts.baseRoutePath)
-    ? commURLFacts
-    : getSquadCalURLFacts();
+  if (commURLFacts && url.startsWith(commURLFacts.baseRoutePath)) {
+    return commURLFacts;
+  }
+  const squadCalURLFacts = getSquadCalURLFacts();
+  if (squadCalURLFacts) {
+    return squadCalURLFacts;
+  }
+  invariant(false, 'request received but no URL facts are present');
 }
 
 function getLandingURLFacts(): AppURLFacts {

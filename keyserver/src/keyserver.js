@@ -40,7 +40,7 @@ import {
 (async () => {
   await prefetchAllURLFacts();
 
-  const squadCalBaseRoutePath = getSquadCalURLFacts().baseRoutePath;
+  const squadCalBaseRoutePath = getSquadCalURLFacts()?.baseRoutePath;
   const landingBaseRoutePath = getLandingURLFacts().baseRoutePath;
   const commAppBaseRoutePath = getCommAppURLFacts().baseRoutePath;
 
@@ -150,9 +150,11 @@ import {
     setupAppRouter(commAppRouter);
     server.use(commAppBaseRoutePath, commAppRouter);
 
-    const squadCalRouter = express.Router();
-    setupAppRouter(squadCalRouter);
-    server.use(squadCalBaseRoutePath, squadCalRouter);
+    if (squadCalBaseRoutePath) {
+      const squadCalRouter = express.Router();
+      setupAppRouter(squadCalRouter);
+      server.use(squadCalBaseRoutePath, squadCalRouter);
+    }
 
     server.listen(parseInt(process.env.PORT, 10) || 3000, 'localhost');
   }
