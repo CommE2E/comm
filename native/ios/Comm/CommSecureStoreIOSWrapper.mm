@@ -1,10 +1,9 @@
 #import "CommSecureStoreIOSWrapper.h"
 
 #import "CommSecureStoreIOSWrapper.h"
-#import <ExpoModulesCore/EXModuleRegistryProvider.h>
 
 @interface CommSecureStoreIOSWrapper ()
-@property(nonatomic, strong) EXSecureStore *secureStore;
+@property(nonatomic, assign) EXSecureStore *secureStore;
 @property(nonatomic, strong) NSDictionary *options;
 @end
 
@@ -27,14 +26,12 @@
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     shared = [[self alloc] init];
-    EXModuleRegistryProvider *moduleRegistryProvider =
-        [[EXModuleRegistryProvider alloc] init];
-    EXSecureStore *secureStore =
-        (EXSecureStore *)[[moduleRegistryProvider moduleRegistry]
-            getExportedModuleOfClass:EXSecureStore.class];
-    shared.secureStore = secureStore;
   });
   return shared;
+}
+
+- (void)init:(EXSecureStore *)secureStore {
+  _secureStore = secureStore;
 }
 
 - (void)set:(NSString *)key value:(NSString *)value {
