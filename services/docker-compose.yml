@@ -9,6 +9,7 @@ services:
   tunnelbroker-server:
     depends_on:
       - localstack
+      - rabbitmq
     build:
       dockerfile: services/tunnelbroker/Dockerfile
       context: ../
