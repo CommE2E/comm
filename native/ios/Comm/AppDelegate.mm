@@ -19,6 +19,8 @@
 #import "NetworkModule.h"
 #import "SQLiteQueryExecutor.h"
 #import "Tools.h"
+#import <cstdio>
+#import <stdexcept>
 #import <string>
 
 #ifdef FB_SONARKIT_ENABLED
@@ -232,6 +234,23 @@ using Runtime = facebook::jsi::Runtime;
 - (void)attemptDatabaseInitialization {
   std::string sqliteFilePath =
       std::string([[Tools getSQLiteFilePath] UTF8String]);
+
+  // Previous versions of Comm app used to keep SQLite database at location
+  // that was specific to the app. Now that we share SQLite database with
+  // NotificationService extension we need to keep the database in place
+  // defined by App Groups. The code below is a migration fired if user
+  // upgrades from version using app-specific path to newer that uses
+  // App Groups.
+  NSString *appSpecificSQLiteFilePath = [Tools getAppSpecificSQLiteFilePath];
+  if ([NSFileManager.defaultManager
+          fileExistsAtPath:appSpecificSQLiteFilePath] &&
+      std::rename(
+          std::string([appSpecificSQLiteFilePath UTF8String]).c_str(),
+          sqliteFilePath.c_str())) {
+    throw std::runtime_error(
+        "Failed to move SQLite database from app-specific to app group "
+        "location");
+  }
   comm::SQLiteQueryExecutor::initialize(sqliteFilePath);
 }
 
