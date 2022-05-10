@@ -1,4 +1,4 @@
-#include "AwsTools.h"
+#include "S3Tools.h"
 #include "Constants.h"
 #include "Tools.h"
 
@@ -25,16 +25,6 @@ std::vector<std::string> listBuckets() {
     result.push_back(bucket.GetName());
   }
   return result;
-}
-
-std::unique_ptr<Aws::DynamoDB::DynamoDBClient> getDynamoDBClient() {
-  Aws::Client::ClientConfiguration config;
-  config.region = AWS_REGION;
-  if (isDevMode()) {
-    config.endpointOverride = Aws::String("localstack:4566");
-    config.scheme = Aws::Http::Scheme::HTTP;
-  }
-  return std::make_unique<Aws::DynamoDB::DynamoDBClient>(config);
 }
 
 std::unique_ptr<Aws::S3::S3Client> getS3Client() {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "S3Tools.h"
 #include "ServerWriteReactorBase.h"
 
 #include "../_generated/blob.grpc.pb.h"

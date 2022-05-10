@@ -1,6 +1,5 @@
 #include "LogItem.h"
 
-#include "AwsTools.h"
 #include "Constants.h"
 
 #include <stdexcept>

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 #include "AwsS3Bucket.h"
-#include "AwsTools.h"
 #include "MultiPartUploader.h"
+#include "S3Tools.h"
 #include "TestTools.h"
 #include "Tools.h"
 

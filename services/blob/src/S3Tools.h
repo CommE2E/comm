@@ -17,8 +17,6 @@ AwsS3Bucket getBucket(const std::string &bucketName);
 
 std::vector<std::string> listBuckets();
 
-std::unique_ptr<Aws::DynamoDB::DynamoDBClient> getDynamoDBClient();
-
 std::unique_ptr<Aws::S3::S3Client> getS3Client();
 
 } // namespace network

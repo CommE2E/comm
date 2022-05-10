@@ -1,8 +1,5 @@
-#include "AwsTools.h"
+#include "DynamoDBTools.h"
 #include "Constants.h"
-#include "Tools.h"
-
-#include <cstdlib>
 
 namespace comm {
 namespace network {

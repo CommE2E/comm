@@ -1,7 +1,7 @@
 #pragma once
 
-#include "AwsTools.h"
 #include "DatabaseEntitiesTools.h"
+#include "DynamoDBTools.h"
 
 #include <aws/core/Aws.h>
 #include <aws/dynamodb/model/AttributeDefinition.h>

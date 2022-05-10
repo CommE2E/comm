@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "AwsTools.h"
+#include "S3Tools.h"
 #include "TestTools.h"
 
 #include <aws/core/Aws.h>

@@ -1,9 +1,9 @@
 #include "BlobServiceImpl.h"
 
-#include "AwsTools.h"
 #include "Constants.h"
 #include "DatabaseManager.h"
 #include "MultiPartUploader.h"
+#include "S3Tools.h"
 #include "Tools.h"
 
 #include "GetReactor.h"
