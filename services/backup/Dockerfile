@@ -13,9 +13,10 @@ ENV COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
 WORKDIR /transferred
 
 COPY native/cpp/CommonCpp/grpc/protos/backup.proto native/cpp/CommonCpp/grpc/protos/blob.proto protos/
-COPY services/lib/ .
+COPY services/lib/cmake-components cmake-components
 COPY services/lib/docker/ scripts/
 COPY services/backup/ .
+COPY services/lib/src/* src/
 
 RUN scripts/build_service.sh
 
