@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "DatabaseManager.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 #include <iostream>

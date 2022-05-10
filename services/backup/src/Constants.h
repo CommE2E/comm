@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GlobalTools.h"
 #include "Tools.h"
 
 #include <string>

@@ -1,6 +1,7 @@
 #include "CreateNewBackupReactor.h"
 
 #include "DatabaseManager.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 namespace comm {

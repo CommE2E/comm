@@ -1,4 +1,5 @@
 #include "DatabaseManager.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 #include <aws/core/utils/Outcome.h>

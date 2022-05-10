@@ -15,12 +15,6 @@ database::S3Path findS3Path(const std::string &holder);
 
 database::S3Path findS3Path(const database::ReverseIndexItem &reverseIndexItem);
 
-uint64_t getCurrentTimestamp();
-
-std::string decorateTableName(const std::string &baseName);
-
-bool isDevMode();
-
 class invalid_argument_error : public std::runtime_error {
 public:
   invalid_argument_error(std::string errorMessage)
