@@ -845,17 +845,6 @@ If you’re dealing with a stack, `arc land` will make sure to only land the dif
 
 Note that you need commit rights to the repository in order to run `arc land`. If you don’t have commit rights, reach out to @ashoat for assistance.
 
-## Creating a Herald rule
-
-Once you have access to Phabricator, you may want to set up a Herald rule so that you get CC’d on any new diffs. The way to do that in Phabricator is:
-
-1. Go to “More Applications” on the left-hand sidebar.
-2. Select “Herald” from the list.
-3. Press the “Create Herald Rule” button in the upper-right corner of the screen.
-4. Select “Differential Revisions” from the list.
-5. Select “Personal Rule” from the list.
-6. Set up your new rule to match [this one](https://phabricator.ashoat.com/H2).
-
 ## Final notes
 
 When developing, I usually just pop up three terminal windows, one for `yarn dev` in each of keyserver, web, and native.
