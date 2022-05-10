@@ -136,11 +136,12 @@ const styles = StyleSheet.create({
   message: {
     overflow: 'hidden',
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 8,
   },
   text: {
     fontFamily: 'Arial',
-    fontSize: 18,
+    fontSize: 14,
+    lineHeight: 22,
   },
 });
 
