@@ -26,7 +26,7 @@ file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*
 
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 
-file(GLOB SOURCE_CODE "./src/*.cpp" "./src/**/*.cpp")
+file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 
 include_directories(
   ./src
