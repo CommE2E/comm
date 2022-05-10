@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # OpenSSL library building automation script for
 # the Gradle build process integration.
 #
