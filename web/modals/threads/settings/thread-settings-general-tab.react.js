@@ -1,6 +1,7 @@
 // @flow
 
 import * as React from 'react';
+import tinycolor from 'tinycolor2';
 
 import {
   changeThreadSettingsActionTypes,
@@ -88,7 +89,7 @@ function ThreadSettingsGeneralTab(
       setQueuedChanges(prevQueuedChanges =>
         Object.freeze({
           ...prevQueuedChanges,
-          color: color !== threadInfo.color ? color : undefined,
+          color: !tinycolor.equals(color, threadInfo.color) ? color : undefined,
         }),
       );
     },
