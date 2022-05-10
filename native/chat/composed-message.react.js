@@ -73,9 +73,15 @@ class ComposedMessage extends React.PureComponent<Props> {
     const alignStyle = isViewer
       ? styles.rightChatBubble
       : styles.leftChatBubble;
+
+    let containerMarginBottom = 5;
+    if (item.endsCluster) {
+      containerMarginBottom += clusterEndHeight;
+    }
+
     const containerStyle = [
       styles.alignment,
-      { marginBottom: 5 + (item.endsCluster ? clusterEndHeight : 0) },
+      { marginBottom: containerMarginBottom },
     ];
     const messageBoxStyle = { maxWidth: composedMessageMaxWidth };
 
