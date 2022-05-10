@@ -74,6 +74,8 @@ include_directories(
   ../../cpp/CommonCpp/NativeModules/InternalModules
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/ThreadOperationsUtilities
+  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities
+  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
   ../../cpp/CommonCpp/grpc/_generated
