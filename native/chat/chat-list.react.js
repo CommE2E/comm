@@ -12,8 +12,7 @@ import {
   View,
 } from 'react-native';
 
-import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
-import { localIDPrefix, messageKey } from 'lib/shared/message-utils';
+import { localIDPrefix } from 'lib/shared/message-utils';
 
 import {
   type KeyboardState,
@@ -24,18 +23,10 @@ import { useSelector } from '../redux/redux-utils';
 import type { ChatMessageItemWithHeight } from '../types/chat-types';
 import type { ScrollEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
+import { chatMessageItemKey } from './chat-message-constants';
 import type { ChatNavigationProp } from './chat.react';
 import NewMessagesPill from './new-messages-pill.react';
 import { chatMessageItemHeight } from './utils';
-
-function chatMessageItemKey(
-  item: ChatMessageItemWithHeight | ChatMessageItem,
-): string {
-  if (item.itemType === 'loader') {
-    return 'loader';
-  }
-  return messageKey(item.messageInfo);
-}
 
 const animationSpec = {
   duration: 150,
@@ -303,4 +294,4 @@ const ConnectedChatList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   },
 );
 
-export { ConnectedChatList as ChatList, chatMessageItemKey };
+export default ConnectedChatList;

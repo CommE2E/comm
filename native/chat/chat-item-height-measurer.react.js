@@ -10,7 +10,7 @@ import { messageTypes, type MessageType } from 'lib/types/message-types';
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
 import { InputStateContext } from '../input/input-state';
 import type { MeasurementTask } from './chat-context-provider.react';
-import { chatMessageItemKey } from './chat-list.react';
+import { chatMessageItemKey } from './chat-message-constants';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { dummyNodeForRobotextMessageHeightMeasurement } from './inner-robotext-message.react';
 import { dummyNodeForTextMessageHeightMeasurement } from './inner-text-message.react';
