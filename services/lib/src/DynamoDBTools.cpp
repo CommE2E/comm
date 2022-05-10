@@ -1,5 +1,6 @@
 #include "DynamoDBTools.h"
 #include "Constants.h"
+#include "GlobalConstants.h"
 
 namespace comm {
 namespace network {

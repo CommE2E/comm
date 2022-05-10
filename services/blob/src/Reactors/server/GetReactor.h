@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GlobalConstants.h"
 #include "S3Tools.h"
 #include "ServerWriteReactorBase.h"
 

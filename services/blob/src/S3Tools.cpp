@@ -1,5 +1,6 @@
 #include "S3Tools.h"
 #include "Constants.h"
+#include "GlobalConstants.h"
 #include "Tools.h"
 
 #include <aws/s3/model/Bucket.h>

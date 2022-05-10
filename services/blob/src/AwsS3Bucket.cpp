@@ -1,5 +1,6 @@
 #include "AwsS3Bucket.h"
 #include "Constants.h"
+#include "GlobalConstants.h"
 #include "MultiPartUploader.h"
 #include "S3Tools.h"
 #include "Tools.h"

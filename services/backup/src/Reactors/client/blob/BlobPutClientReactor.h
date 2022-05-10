@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Constants.h"
+#include "GlobalConstants.h"
 
 #include "../_generated/blob.grpc.pb.h"
 #include "../_generated/blob.pb.h"

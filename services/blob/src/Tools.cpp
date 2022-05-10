@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "DatabaseEntitiesTools.h"
 #include "DatabaseManager.h"
+#include "GlobalConstants.h"
 #include "S3Tools.h"
 
 #include <openssl/sha.h>
