@@ -72,6 +72,8 @@ include_directories(
   # comm native mutual code
   ../../cpp/CommonCpp/NativeModules
   ../../cpp/CommonCpp/NativeModules/InternalModules
+  ../../cpp/CommonCpp/NativeModules/MessageOperationsUtilities
+  ../../cpp/CommonCpp/NativeModules/MessageOperationsUtilities/MessageSpecs
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
   ../../cpp/CommonCpp/grpc/_generated
@@ -121,7 +123,10 @@ add_library(
   ./build/third-party-ndk/folly/folly/String.cpp
   ./build/third-party-ndk/folly/folly/portability/SysUio.cpp
   ./build/third-party-ndk/folly/folly/net/NetOps.cpp
-
+  ./build/third-party-ndk/folly/folly/dynamic.cpp
+  ./build/third-party-ndk/folly/folly/json.cpp
+  ./build/third-party-ndk/folly/folly/json_pointer.cpp
+  ./build/third-party-ndk/folly/folly/Unicode.cpp
   # double-conversion
   ${DOUBLE_CONVERSION_SOURCES}
 
