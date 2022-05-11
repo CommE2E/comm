@@ -13,6 +13,10 @@ namespace comm {
 namespace network {
 namespace reactor {
 
+// This is how this type of reactor works:
+// - read N requests from the client
+// - write a final response to the client (may be empty)
+// - terminate the connection
 template <class Request, class Response>
 class ServerReadReactorBase : public grpc::ServerReadReactor<Request>,
                               public BaseReactor {
@@ -25,15 +29,22 @@ protected:
 public:
   ServerReadReactorBase(Response *response);
 
+  // these methods come from the BaseReactor(go there for more information)
   void validate() override{};
   void doneCallback() override{};
   void terminateCallback() override{};
+  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
+  // these methods come from gRPC
+  // https://github.com/grpc/grpc/blob/v1.39.x/include/grpcpp/impl/codegen/client_callback.h#L237
   void OnReadDone(bool ok) override;
   void terminate(const grpc::Status &status) override;
   void OnDone() override;
-  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
+  // - argument request - data read from the client in the current cycle
+  // - returns status - if the connection is about to be
+  // continued, nullptr should be returned. Any other returned value will
+  // terminate the connection with a given status
   virtual std::unique_ptr<grpc::Status> readRequest(Request request) = 0;
 };
 

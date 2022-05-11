@@ -8,6 +8,11 @@ namespace comm {
 namespace network {
 namespace reactor {
 
+// This is how this type of reactor works:
+// - repeat:
+//   - write a request to the server
+//   - read a response from the server
+// - terminate the connection
 template <class Request, class Response>
 class ClientBidiReactorBase : public grpc::ClientBidiReactor<Request, Response>,
                               public BaseReactor {
@@ -21,18 +26,28 @@ protected:
 public:
   grpc::ClientContext context;
 
+  // this should be called explicitly right after the reactor is created
   void start();
 
+  // these methods come from the BaseReactor(go there for more information)
   void validate() override{};
   void doneCallback() override{};
   void terminateCallback() override{};
+  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
+  // these methods come from gRPC
+  // https://github.com/grpc/grpc/blob/v1.39.x/include/grpcpp/impl/codegen/client_callback.h#L237
   void OnWriteDone(bool ok) override;
   void OnReadDone(bool ok) override;
   void terminate(const grpc::Status &status) override;
   void OnDone(const grpc::Status &status) override;
-  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
+  // - argument request - request that's about to be prepared for the next cycle
+  // - argument previousResponse - response received during the previous cycle
+  // (may be nullptr)
+  // - returns status - if the connection is about to be
+  // continued, nullptr should be returned. Any other returned value will
+  // terminate the connection with a given status
   virtual std::unique_ptr<grpc::Status> prepareRequest(
       Request &request,
       std::shared_ptr<Response> previousResponse) = 0;

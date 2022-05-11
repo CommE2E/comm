@@ -23,6 +23,11 @@ struct ServerBidiReactorStatus {
   }
 };
 
+// This is how this type of reactor works:
+// - repeat:
+//   - read a request from the client
+//   - write a response to the client
+// - terminate the connection
 template <class Request, class Response>
 class ServerBidiReactorBase : public grpc::ServerBidiReactor<Request, Response>,
                               public BaseReactor {
@@ -37,20 +42,30 @@ protected:
 public:
   ServerBidiReactorBase();
 
+  // these methods come from the BaseReactor(go there for more information)
   void terminate(const grpc::Status &status) override;
   void validate() override{};
   void doneCallback() override{};
   void terminateCallback() override{};
+  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
+  // these methods come from gRPC
+  // https://github.com/grpc/grpc/blob/v1.39.x/include/grpcpp/impl/codegen/client_callback.h#L237
   void OnDone() override;
   void OnReadDone(bool ok) override;
   void OnWriteDone(bool ok) override;
-  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
   void terminate(ServerBidiReactorStatus status);
   ServerBidiReactorStatus getStatus() const;
   void setStatus(const ServerBidiReactorStatus &status);
 
+  // - argument request - request that was sent by the client and received by
+  // the server in the current cycle
+  // - argument response - response that will be sent to the client in the
+  // current cycle
+  // - returns status - if the connection is about to be
+  // continued, nullptr should be returned. Any other returned value will
+  // terminate the connection with a given status
   virtual std::unique_ptr<ServerBidiReactorStatus>
   handleRequest(Request request, Response *response) = 0;
 };

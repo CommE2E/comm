@@ -13,6 +13,10 @@ namespace comm {
 namespace network {
 namespace reactor {
 
+// This is how this type of reactor works:
+// - read a request from the client
+// - write N responses to the client
+// - terminate the connection
 template <class Request, class Response>
 class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response>,
                                public BaseReactor {
@@ -29,18 +33,27 @@ protected:
 public:
   ServerWriteReactorBase(const Request *request);
 
+  // this should be called explicitly right after the reactor is created
   void start();
 
+  // these methods come from the BaseReactor(go there for more information)
   void validate() override{};
   void doneCallback() override{};
   void terminateCallback() override{};
+  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
+  // these methods come from gRPC
+  // https://github.com/grpc/grpc/blob/v1.39.x/include/grpcpp/impl/codegen/client_callback.h#L237
   virtual void initialize(){};
   void OnWriteDone(bool ok) override;
   void terminate(const grpc::Status &status);
   void OnDone() override;
-  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
+  // - argument response - should be filled with data that will be sent to the
+  // client in the current cycle
+  // - returns status - if the connection is about to be
+  // continued, nullptr should be returned. Any other returned value will
+  // terminate the connection with a given status
   virtual std::unique_ptr<grpc::Status> writeResponse(Response *response) = 0;
 };
 
