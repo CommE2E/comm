@@ -41,6 +41,7 @@ function RobotextMessage(props: Props): React.Node {
     verticalBounds,
     ...viewProps
   } = props;
+  const { isViewer } = item.messageInfo.creator;
 
   let timestamp = null;
   if (focused || item.startsConversation) {
@@ -52,9 +53,13 @@ function RobotextMessage(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   let inlineSidebar = null;
   if (item.threadCreatedFromMessage) {
+    const position = isViewer ? 'right' : 'left';
     inlineSidebar = (
       <View style={styles.sidebar}>
-        <InlineSidebar threadInfo={item.threadCreatedFromMessage} />
+        <InlineSidebar
+          threadInfo={item.threadCreatedFromMessage}
+          position={position}
+        />
       </View>
     );
   }
@@ -100,7 +105,6 @@ function RobotextMessage(props: Props): React.Node {
 
       const belowMargin = 20;
       const belowSpace = robotextMessageTooltipHeight + belowMargin;
-      const { isViewer } = item.messageInfo.creator;
       const aboveMargin = isViewer ? 30 : 50;
       const aboveSpace = robotextMessageTooltipHeight + aboveMargin;
 
@@ -128,7 +132,14 @@ function RobotextMessage(props: Props): React.Node {
         key: getMessageTooltipKey(item),
       });
     },
-    [item, props.navigation, props.route.key, verticalBounds, visibleEntryIDs],
+    [
+      item,
+      props.navigation,
+      props.route.key,
+      verticalBounds,
+      visibleEntryIDs,
+      isViewer,
+    ],
   );
 
   const onLongPress = React.useCallback(() => {

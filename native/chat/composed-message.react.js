@@ -78,7 +78,6 @@ class ComposedMessage extends React.PureComponent<Props> {
     if (item.endsCluster) {
       containerMarginBottom += clusterEndHeight;
     }
-
     const containerStyle = [
       styles.alignment,
       { marginBottom: containerMarginBottom },
@@ -137,9 +136,14 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
+      const inlineStyles = [styles.inlineSidebar];
+      const position = isViewer ? 'right' : 'left';
       inlineSidebar = (
-        <View style={styles.inlineSidebar}>
-          <InlineSidebar threadInfo={item.threadCreatedFromMessage} />
+        <View style={inlineStyles}>
+          <InlineSidebar
+            threadInfo={item.threadCreatedFromMessage}
+            position={position}
+          />
         </View>
       );
     }
