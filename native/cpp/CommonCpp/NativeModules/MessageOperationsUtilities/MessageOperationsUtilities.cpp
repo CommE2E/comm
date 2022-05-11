@@ -1,7 +1,10 @@
 #include "MessageOperationsUtilities.h"
+#include "Logger.h"
 #include "MessageSpecs.h"
 
 #include <folly/String.h>
+#include <folly/json.h>
+#include <stdexcept>
 
 namespace comm {
 ClientDBMessageInfo
@@ -70,6 +73,38 @@ Media MessageOperationsUtilities::translateMediaToClientDBMediaInfo(
   }
   std::string extras = folly::toJson(extrasData);
   return Media{id, container, thread, uri, type, extras};
+}
+
+std::vector<ClientDBMessageInfo>
+MessageOperationsUtilities::translateStringToClientDBMessageInfos(
+    std::string &rawMessageInfosString) {
+  std::vector<ClientDBMessageInfo> clientDBMessageInfos;
+  folly::dynamic rawMessageInfos;
+  try {
+    rawMessageInfos =
+        folly::parseJson(folly::trimWhitespace(rawMessageInfosString));
+  } catch (const folly::json::parse_error &e) {
+    Logger::log(
+        "Failed to convert message into JSON object. Details: " +
+        std::string(e.what()));
+    return clientDBMessageInfos;
+  }
+  for (const auto &messageInfo : rawMessageInfos) {
+    try {
+      clientDBMessageInfos.push_back(
+          translateRawMessageInfoToClientDBMessageInfo(messageInfo));
+    } catch (const folly::TypeError &e) {
+      Logger::log(
+          "Invalid type conversion when parsing message. Details: " +
+          std::string(e.what()));
+    } catch (const std::out_of_range &e) {
+      Logger::log(
+          "Non-existing key accessed when parsing message. Details: " +
+          std::string(e.what()));
+    }
+  }
+
+  return clientDBMessageInfos;
 }
 
 } // namespace comm
