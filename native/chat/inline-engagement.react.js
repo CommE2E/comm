@@ -15,7 +15,7 @@ type Props = {
   +threadInfo: ThreadInfo,
   +position: 'left' | 'right',
 };
-function InlineSidebar(props: Props): React.Node {
+function InlineEngagement(props: Props): React.Node {
   const { threadInfo, position } = props;
   const { repliesText } = useInlineEngagementText(threadInfo);
 
@@ -74,4 +74,4 @@ const unboundStyles = {
   },
 };
 
-export default InlineSidebar;
+export default InlineEngagement;

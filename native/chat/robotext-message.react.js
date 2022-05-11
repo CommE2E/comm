@@ -16,7 +16,7 @@ import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types'
 import type { VerticalBounds } from '../types/layout-types';
 import { AnimatedView } from '../types/styles';
 import type { ChatNavigationProp } from './chat.react';
-import InlineSidebar from './inline-sidebar.react';
+import InlineEngagement from './inline-engagement.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { robotextMessageTooltipHeight } from './robotext-message-tooltip-modal.react';
 import { Timestamp } from './timestamp.react';
@@ -56,7 +56,7 @@ function RobotextMessage(props: Props): React.Node {
     const position = isViewer ? 'right' : 'left';
     inlineSidebar = (
       <View style={styles.sidebar}>
-        <InlineSidebar
+        <InlineEngagement
           threadInfo={item.threadCreatedFromMessage}
           position={position}
         />

@@ -20,7 +20,7 @@ import {
 } from './chat-constants';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
-import InlineSidebar from './inline-sidebar.react';
+import InlineEngagement from './inline-engagement.react';
 import { MessageHeader } from './message-header.react';
 import { useNavigateToSidebar } from './sidebar-navigation';
 import SwipeableMessage from './swipeable-message.react';
@@ -140,7 +140,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       const position = isViewer ? 'right' : 'left';
       inlineSidebar = (
         <View style={styles.inlineSidebar}>
-          <InlineSidebar
+          <InlineEngagement
             threadInfo={item.threadCreatedFromMessage}
             position={position}
           />
