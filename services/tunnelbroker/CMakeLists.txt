@@ -23,7 +23,7 @@ find_package(amqpcpp CONFIG REQUIRED)
 pkg_check_modules(CRYPTOPP REQUIRED libcryptopp=8.6)
 
 # Find Libuv installation
-pkg_check_modules(LIBUV REQUIRED libuv=1.43.0)
+pkg_check_modules(LIBUV REQUIRED libuv>=1.43)
 
 set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
 set(WITH_GFLAGS OFF CACHE BOOL "Turn off gflags" FORCE)
