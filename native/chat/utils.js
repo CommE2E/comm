@@ -5,6 +5,7 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
 import { useMessageListData } from 'lib/selectors/chat-selectors';
+import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
 import { messageKey } from 'lib/shared/message-utils';
 import { colorIsDark, viewerIsMember } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -25,14 +26,14 @@ import type {
 } from '../types/chat-types';
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
 import type { AnimatedViewStyle } from '../types/styles';
-import { ChatContext, useHeightMeasurer } from './chat-context';
-import { clusterEndHeight } from './composed-message-constants';
-import { failedSendHeight } from './failed-send.react';
 import {
+  clusterEndHeight,
   inlineSidebarHeight,
   inlineSidebarMarginBottom,
   inlineSidebarMarginTop,
-} from './inline-sidebar-constants';
+} from './chat-constants';
+import { ChatContext, useHeightMeasurer } from './chat-context';
+import { failedSendHeight } from './failed-send.react';
 import { authorNameHeight } from './message-header.react';
 import { multimediaMessageItemHeight } from './multimedia-message-utils';
 import { getSidebarThreadInfo } from './sidebar-navigation';
@@ -401,7 +402,17 @@ function useDeliveryIconOpacity(
   ]);
 }
 
+function chatMessageItemKey(
+  item: ChatMessageItemWithHeight | ChatMessageItem,
+): string {
+  if (item.itemType === 'loader') {
+    return 'loader';
+  }
+  return messageKey(item.messageInfo);
+}
+
 export {
+  chatMessageItemKey,
   chatMessageItemHeight,
   useAnimatedMessageTooltipButton,
   messageItemHeight,

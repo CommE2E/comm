@@ -23,10 +23,9 @@ import { useSelector } from '../redux/redux-utils';
 import type { ChatMessageItemWithHeight } from '../types/chat-types';
 import type { ScrollEvent } from '../types/react-native';
 import type { ViewStyle } from '../types/styles';
-import { chatMessageItemKey } from './chat-message-constants';
 import type { ChatNavigationProp } from './chat.react';
 import NewMessagesPill from './new-messages-pill.react';
-import { chatMessageItemHeight } from './utils';
+import { chatMessageItemHeight, chatMessageItemKey } from './utils';
 
 const animationSpec = {
   duration: 150,

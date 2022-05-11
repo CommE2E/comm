@@ -13,13 +13,13 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import { type Colors, useColors } from '../themes/colors';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { type AnimatedStyleObj, AnimatedView } from '../types/styles';
-import { clusterEndHeight } from './composed-message-constants';
+import {
+  clusterEndHeight,
+  inlineSidebarMarginBottom,
+  inlineSidebarMarginTop,
+} from './chat-constants';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
-import {
-  inlineSidebarMarginTop,
-  inlineSidebarMarginBottom,
-} from './inline-sidebar-constants';
 import InlineSidebar from './inline-sidebar.react';
 import { MessageHeader } from './message-header.react';
 import { useNavigateToSidebar } from './sidebar-navigation';

@@ -10,13 +10,13 @@ import type {
   ChatMultimediaMessageInfoItem,
   MultimediaContentSizes,
 } from '../types/chat-types';
-import { clusterEndHeight } from './composed-message-constants';
-import { failedSendHeight } from './failed-send.react';
 import {
   inlineSidebarMarginBottom,
   inlineSidebarMarginTop,
   inlineSidebarHeight,
-} from './inline-sidebar-constants';
+  clusterEndHeight,
+} from './chat-constants';
+import { failedSendHeight } from './failed-send.react';
 import { authorNameHeight } from './message-header.react';
 
 const spaceBetweenImages = 4;

@@ -9,7 +9,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import { useStyles } from '../themes/colors';
-import { inlineSidebarHeight } from './inline-sidebar-constants';
+import { inlineSidebarHeight } from './chat-constants';
 import { useNavigateToThread } from './message-list-types';
 
 type Props = {
