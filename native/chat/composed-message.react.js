@@ -137,9 +137,13 @@ class ComposedMessage extends React.PureComponent<Props> {
 
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
+      const position = isViewer ? 'right' : 'left';
       inlineSidebar = (
         <View style={styles.inlineSidebar}>
-          <InlineSidebar threadInfo={item.threadCreatedFromMessage} />
+          <InlineSidebar
+            threadInfo={item.threadCreatedFromMessage}
+            position={position}
+          />
         </View>
       );
     }
