@@ -13,9 +13,10 @@ import { useNavigateToThread } from './message-list-types';
 
 type Props = {
   +threadInfo: ThreadInfo,
+  +position: 'left' | 'right',
 };
 function InlineSidebar(props: Props): React.Node {
-  const { threadInfo } = props;
+  const { threadInfo, position } = props;
   const { repliesText } = useInlineEngagementText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
@@ -25,9 +26,10 @@ function InlineSidebar(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   const unreadStyle = threadInfo.currentUser.unread ? styles.unread : null;
+  const contentStyles = [styles.content, styles[position]];
 
   return (
-    <View style={styles.content}>
+    <View style={contentStyles}>
       <Button style={styles.sidebar} onPress={onPress}>
         <Text style={[styles.name, unreadStyle]}>{repliesText}</Text>
       </Button>
@@ -38,8 +40,12 @@ function InlineSidebar(props: Props): React.Node {
 const unboundStyles = {
   content: {
     flexDirection: 'row',
-    flex: 1,
     height: inlineSidebarHeight,
+    backgroundColor: 'listForegroundTertiaryLabel',
+    borderRadius: 28,
+    padding: 8,
+    position: 'absolute',
+    bottom: -29,
   },
   unread: {
     color: 'listForegroundLabel',
@@ -54,11 +60,17 @@ const unboundStyles = {
     color: 'listForegroundTertiaryLabel',
   },
   name: {
+    color: 'listForegroundLabel',
     paddingTop: 1,
-    color: 'listForegroundTertiaryLabel',
-    fontSize: 16,
+    fontSize: 14,
     paddingLeft: 4,
     paddingRight: 2,
+  },
+  left: {
+    left: 0,
+  },
+  right: {
+    right: 20,
   },
 };
 
