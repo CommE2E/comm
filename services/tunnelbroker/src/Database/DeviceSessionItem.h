@@ -31,7 +31,7 @@ public:
   static const std::string FIELD_CHECKPOINT_TIME;
   static const std::string FIELD_EXPIRE;
 
-  PrimaryKey getPrimaryKey() const override;
+  PrimaryKeyDescriptor getPrimaryKeyDescriptor() const override;
   PrimaryKeyValue getPrimaryKeyValue() const override;
   std::string getTableName() const override;
   std::string getSessionID() const;

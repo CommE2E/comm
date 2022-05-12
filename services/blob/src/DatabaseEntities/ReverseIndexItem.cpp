@@ -41,8 +41,8 @@ std::string ReverseIndexItem::getTableName() const {
   return ReverseIndexItem::tableName;
 }
 
-PrimaryKey ReverseIndexItem::getPrimaryKey() const {
-  return PrimaryKey(ReverseIndexItem::FIELD_HOLDER);
+PrimaryKeyDescriptor ReverseIndexItem::getPrimaryKeyDescriptor() const {
+  return PrimaryKeyDescriptor(ReverseIndexItem::FIELD_HOLDER);
 }
 
 PrimaryKeyValue ReverseIndexItem::getPrimaryKeyValue() const {
