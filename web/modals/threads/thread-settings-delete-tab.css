@@ -41,3 +41,7 @@ div.edit_thread_account_password {
   padding-top: 4px;
   margin-top: 2px;
 }
+
+.delete_button {
+  width: 100%;
+}

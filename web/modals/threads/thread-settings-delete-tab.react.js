@@ -15,7 +15,7 @@ import {
 
 import Button from '../../components/button.react.js';
 import { useModalContext } from '../modal-provider.react.js';
-import css from './thread-settings-modal.css';
+import css from './thread-settings-delete-tab.css';
 
 type ThreadSettingsDeleteTabProps = {
   +inputDisabled: boolean,
@@ -99,7 +99,12 @@ function ThreadSettingsDeleteTab(
           />
         </div>
       </div>
-      <Button onClick={onDelete} variant="danger" disabled={inputDisabled}>
+      <Button
+        onClick={onDelete}
+        variant="danger"
+        disabled={inputDisabled}
+        className={css.delete_button}
+      >
         Delete
       </Button>
     </form>
