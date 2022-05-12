@@ -10,13 +10,13 @@ namespace reactor {
 
 std::string
 CreateNewBackupReactor::generateBackupID(const std::string &userID) {
-  return generateUUID() + ID_SEPARATOR +
-      std::to_string(getCurrentTimestamp());
+  return generateUUID() + ID_SEPARATOR + std::to_string(this->created);
 }
 
 std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
     backup::CreateNewBackupRequest request,
     backup::CreateNewBackupResponse *response) {
+  this->created = getCurrentTimestamp();
   // we make sure that the blob client's state is flushed to the main memory
   // as there may be multiple threads from the pool taking over here
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
@@ -93,7 +93,7 @@ void CreateNewBackupReactor::terminateCallback() {
     database::BackupItem backupItem(
         this->userID,
         this->backupID,
-        getCurrentTimestamp(),
+        this->created,
         generateRandomString(),
         this->holder,
         {});

@@ -32,6 +32,7 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::string dataHash;
   std::string holder;
   std::string backupID;
+  uint64_t created;
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
 
   ServiceBlobClient blobClient;
