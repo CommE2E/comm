@@ -22,9 +22,10 @@ WORKDIR /transferred
 
 COPY native/cpp/CommonCpp/grpc/protos/tunnelbroker.proto protos/tunnelbroker.proto
 COPY services/lib/cmake-components cmake-components
-COPY services/tunnelbroker/docker/ scripts/
+COPY services/lib/docker/ scripts/
+COPY services/tunnelbroker/docker/* docker/
 COPY services/tunnelbroker/ .
 
-RUN scripts/build_server.sh
+RUN scripts/build_service.sh
 
-CMD if [ "$COMM_TEST_SERVICES" -eq 1 ]; then scripts/run_tests.sh; else scripts/run_server.sh; fi
+CMD if [ "$COMM_TEST_SERVICES" -eq 1 ]; then scripts/run_service.sh; else scripts/run_service.sh; fi
