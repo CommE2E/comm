@@ -32,6 +32,7 @@ class SendLogReactor : public ServerReadReactorBase<
   State state = State::USER_ID;
   PersistenceMethod persistenceMethod = PersistenceMethod::UNKNOWN;
   std::string userID;
+  std::string logID;
   std::string backupID;
   std::string hash;
   // either the value itself which is a dump of a single operation (if
@@ -47,8 +48,7 @@ class SendLogReactor : public ServerReadReactorBase<
   ServiceBlobClient blobClient;
 
   void storeInDatabase();
-  std::string generateHolder();
-  std::string generateLogID();
+  std::string generateLogID(const std::string &backupID);
   void initializePutReactor();
 
 public:

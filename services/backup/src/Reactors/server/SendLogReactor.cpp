@@ -2,6 +2,7 @@
 
 #include "Constants.h"
 #include "DatabaseManager.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 #include <iostream>
@@ -14,21 +15,15 @@ void SendLogReactor::storeInDatabase() {
   // TODO handle attachment holders
   database::LogItem logItem(
       this->backupID,
-      this->generateLogID(),
+      this->logID,
       (this->persistenceMethod == PersistenceMethod::BLOB),
       this->value,
       {});
   database::DatabaseManager::getInstance().putLogItem(logItem);
 }
 
-std::string SendLogReactor::generateHolder() {
-  // TODO replace mock
-  return generateRandomString();
-}
-
-std::string SendLogReactor::generateLogID() {
-  // TODO replace mock
-  return generateRandomString();
+std::string SendLogReactor::generateLogID(const std::string &backupID) {
+  return backupID + ID_SEPARATOR + std::to_string(getCurrentTimestamp());
 }
 
 void SendLogReactor::initializePutReactor() {
@@ -66,6 +61,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         throw std::runtime_error("backup id expected but not received");
       }
       this->backupID = request.backupid();
+      this->logID = this->generateLogID(this->backupID);
       this->state = State::LOG_HASH;
       return nullptr;
     };
@@ -112,7 +108,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
           this->persistenceMethod = PersistenceMethod::BLOB;
         }
         if (this->value.empty()) {
-          this->value = this->generateHolder();
+          this->value = generateHolder(this->hash, this->backupID, this->logID);
         }
         this->initializePutReactor();
         this->putReactor->scheduleSendingDataChunk(std::move(chunk));
