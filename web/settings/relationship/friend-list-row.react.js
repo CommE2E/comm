@@ -9,7 +9,7 @@ import { userRelationshipStatus } from 'lib/types/relationship-types';
 import MenuItem from '../../components/menu-item.react';
 import Menu from '../../components/menu.react';
 import SWMansionIcon from '../../SWMansionIcon.react';
-import css from './friend-list-row.css';
+import css from './user-list-row.css';
 import type { UserRowProps } from './user-list.react';
 
 function FriendListRow(props: UserRowProps): React.Node {
