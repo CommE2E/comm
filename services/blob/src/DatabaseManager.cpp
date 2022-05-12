@@ -107,14 +107,13 @@ DatabaseManager::findReverseIndexItemsByHash(const std::string &blobHash) {
   return result;
 }
 
-bool DatabaseManager::removeReverseIndexItem(const std::string &holder) {
+void DatabaseManager::removeReverseIndexItem(const std::string &holder) {
   std::shared_ptr<database::ReverseIndexItem> item =
       findReverseIndexItemByHolder(holder);
   if (item == nullptr) {
-    return false;
+    return;
   }
   this->innerRemoveItem(*item);
-  return true;
 }
 
 } // namespace database

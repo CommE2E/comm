@@ -90,6 +90,9 @@ DatabaseManager::findLastBackupItem(const std::string &userID) {
 }
 
 void DatabaseManager::removeBackupItem(std::shared_ptr<BackupItem> item) {
+  if (item == nullptr) {
+    return;
+  }
   this->innerRemoveItem(*item);
 }
 
@@ -146,6 +149,9 @@ DatabaseManager::findLogItemsForBackup(const std::string &backupID) {
 }
 
 void DatabaseManager::removeLogItem(std::shared_ptr<LogItem> item) {
+  if (item == nullptr) {
+    return;
+  }
   this->innerRemoveItem(*item);
 }
 

@@ -79,12 +79,7 @@ grpc::ServerUnaryReactor *BlobServiceImpl::Remove(
     // TODO handle cleanup here properly
     // for now the object's being removed right away
     const std::string blobHash = reverseIndexItem->getBlobHash();
-    if (!database::DatabaseManager::getInstance().removeReverseIndexItem(
-            holder)) {
-      throw std::runtime_error(
-          "could not remove an item for holder " + holder +
-          "(probably does not exist)");
-    }
+    database::DatabaseManager::getInstance().removeReverseIndexItem(holder);
     if (database::DatabaseManager::getInstance()
             .findReverseIndexItemsByHash(reverseIndexItem->getBlobHash())
             .size() == 0) {
