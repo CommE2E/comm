@@ -21,23 +21,7 @@ div.form_content input {
   margin-bottom: 4px;
 }
 
-div.form_content textarea {
-  padding: 12px;
-  background: var(--modal-bg);
-  color: var(--fg);
-  border: 1px solid var(--border-color);
-  font-size: var(--m-font-16);
-  border-radius: 4px;
-  width: 100%;
-}
-
 .italic {
   font-style: italic;
   color: var(--fg);
-}
-
-div.edit_thread_account_password {
-  border-top: 2px solid #efefef;
-  padding-top: 4px;
-  margin-top: 2px;
 }

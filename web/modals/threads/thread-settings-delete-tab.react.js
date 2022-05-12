@@ -83,7 +83,7 @@ function ThreadSettingsDeleteTab(
           this.
         </p>
       </div>
-      <div className={css.edit_thread_account_password}>
+      <div>
         <p className={css.confirm_account_password}>
           Please enter your account password to confirm your identity
         </p>
