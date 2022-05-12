@@ -21,6 +21,7 @@ ENV COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
 WORKDIR /transferred
 
 COPY native/cpp/CommonCpp/grpc/protos/tunnelbroker.proto protos/tunnelbroker.proto
+COPY services/lib/cmake-components cmake-components
 COPY services/tunnelbroker/docker/ scripts/
 COPY services/tunnelbroker/ .
 
