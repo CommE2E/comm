@@ -40,7 +40,7 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;
 
-  std::string generateBackupID();
+  std::string generateBackupID(const std::string &userID);
 
 public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(

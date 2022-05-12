@@ -6,6 +6,8 @@
 namespace comm {
 namespace network {
 
+const std::string ID_SEPARATOR = ":";
+
 uint64_t getCurrentTimestamp();
 
 bool hasEnvFlag(const std::string &flag);
