@@ -18,7 +18,8 @@ public:
   static const std::string FIELD_DEVICE_ID;
   static const std::string FIELD_PUBLIC_KEY;
 
-  std::string getPrimaryKey() const override;
+  PrimaryKey getPrimaryKey() const override;
+  PrimaryKeyValue getPrimaryKeyValue() const override;
   std::string getTableName() const override;
   std::string getDeviceID() const;
   std::string getPublicKey() const;

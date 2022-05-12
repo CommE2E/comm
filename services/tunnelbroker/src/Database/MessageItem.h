@@ -29,7 +29,8 @@ public:
   static const std::string FIELD_CREATED_AT;
   static const std::string INDEX_TO_DEVICE_ID;
 
-  std::string getPrimaryKey() const override;
+  PrimaryKey getPrimaryKey() const override;
+  PrimaryKeyValue getPrimaryKeyValue() const override;
   std::string getTableName() const override;
   std::string getMessageID() const;
   std::string getFromDeviceID() const;

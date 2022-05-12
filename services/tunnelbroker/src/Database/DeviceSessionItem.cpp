@@ -83,8 +83,12 @@ std::string DeviceSessionItem::getTableName() const {
       config::ConfigManager::OPTION_DYNAMODB_SESSIONS_TABLE);
 }
 
-std::string DeviceSessionItem::getPrimaryKey() const {
-  return DeviceSessionItem::FIELD_SESSION_ID;
+PrimaryKey DeviceSessionItem::getPrimaryKey() const {
+  return PrimaryKey(DeviceSessionItem::FIELD_SESSION_ID);
+}
+
+PrimaryKeyValue DeviceSessionItem::getPrimaryKeyValue() const {
+  return PrimaryKeyValue(this->sessionID);
 }
 
 std::string DeviceSessionItem::getSessionID() const {

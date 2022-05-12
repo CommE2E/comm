@@ -43,8 +43,12 @@ std::string PublicKeyItem::getTableName() const {
       config::ConfigManager::OPTION_DYNAMODB_SESSIONS_PUBLIC_KEY_TABLE);
 }
 
-std::string PublicKeyItem::getPrimaryKey() const {
-  return PublicKeyItem::FIELD_DEVICE_ID;
+PrimaryKey PublicKeyItem::getPrimaryKey() const {
+  return PrimaryKey(PublicKeyItem::FIELD_DEVICE_ID);
+}
+
+PrimaryKeyValue PublicKeyItem::getPrimaryKeyValue() const {
+  return PrimaryKeyValue(this->deviceID);
 }
 
 std::string PublicKeyItem::getDeviceID() const {

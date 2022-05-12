@@ -57,7 +57,7 @@ add_custom_command(
   DEPENDS "${proto}"
 )
 
-file(GLOB SOURCE_CODE "./src/*.cpp" "./src/**/*.cpp")
+file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 set(GENERATED_CODE ${proto_srcs} ${proto_hdrs} ${grpc_srcs} ${grpc_hdrs})
 file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
 

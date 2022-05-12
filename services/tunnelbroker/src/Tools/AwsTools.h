@@ -11,7 +11,6 @@ namespace comm {
 namespace network {
 
 Aws::String getAwsRegion();
-std::unique_ptr<Aws::DynamoDB::DynamoDBClient> getDynamoDBClient();
 
 } // namespace network
 } // namespace comm

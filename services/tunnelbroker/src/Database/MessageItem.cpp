@@ -68,8 +68,12 @@ std::string MessageItem::getTableName() const {
       config::ConfigManager::OPTION_DYNAMODB_MESSAGES_TABLE);
 }
 
-std::string MessageItem::getPrimaryKey() const {
-  return MessageItem::FIELD_MESSAGE_ID;
+PrimaryKey MessageItem::getPrimaryKey() const {
+  return PrimaryKey(MessageItem::FIELD_MESSAGE_ID);
+}
+
+PrimaryKeyValue MessageItem::getPrimaryKeyValue() const {
+  return PrimaryKeyValue(this->messageID);
 }
 
 std::string MessageItem::getMessageID() const {

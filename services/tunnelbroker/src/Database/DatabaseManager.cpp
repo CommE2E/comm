@@ -1,4 +1,5 @@
 #include "DatabaseManager.h"
+#include "DynamoDBTools.h"
 
 namespace comm {
 namespace network {
@@ -53,7 +54,8 @@ void DatabaseManager::innerRemoveItem(
   Aws::DynamoDB::Model::DeleteItemRequest request;
   request.SetTableName(item.getTableName());
   request.AddKey(
-      item.getPrimaryKey(), Aws::DynamoDB::Model::AttributeValue(key));
+      item.getPrimaryKey().partitionKey,
+      Aws::DynamoDB::Model::AttributeValue(key));
 
   const Aws::DynamoDB::Model::DeleteItemOutcome &outcome =
       getDynamoDBClient()->DeleteItem(request);

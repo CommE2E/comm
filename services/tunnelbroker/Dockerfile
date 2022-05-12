@@ -25,6 +25,7 @@ COPY services/lib/cmake-components cmake-components
 COPY services/lib/docker/ scripts/
 COPY services/tunnelbroker/docker/* docker/
 COPY services/tunnelbroker/ .
+COPY services/lib/src/* src/
 
 RUN scripts/build_service.sh
 

@@ -1,5 +1,7 @@
 #include "DatabaseManagerBase.h"
 
+#include "Item.h"
+
 #include <aws/core/utils/Outcome.h>
 #include <aws/dynamodb/model/DeleteItemRequest.h>
 
