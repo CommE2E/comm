@@ -20,50 +20,6 @@ bool DatabaseManager::isTableAvailable(const std::string &tableName) {
   return result.IsSuccess();
 }
 
-void DatabaseManager::innerPutItem(
-    std::shared_ptr<Item> item,
-    const Aws::DynamoDB::Model::PutItemRequest &request) {
-  const Aws::DynamoDB::Model::PutItemOutcome outcome =
-      getDynamoDBClient()->PutItem(request);
-  if (!outcome.IsSuccess()) {
-    throw std::runtime_error(outcome.GetError().GetMessage());
-  }
-}
-
-template <typename T>
-std::shared_ptr<T>
-DatabaseManager::innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request) {
-  std::shared_ptr<T> item = createItemByType<T>();
-  request.SetTableName(item->getTableName());
-  const Aws::DynamoDB::Model::GetItemOutcome &outcome =
-      getDynamoDBClient()->GetItem(request);
-  if (!outcome.IsSuccess()) {
-    throw std::runtime_error(outcome.GetError().GetMessage());
-  }
-  const AttributeValues &outcomeItem = outcome.GetResult().GetItem();
-  if (!outcomeItem.size()) {
-    return nullptr;
-  }
-  item->assignItemFromDatabase(outcomeItem);
-  return std::move(item);
-}
-
-void DatabaseManager::innerRemoveItem(
-    const Item &item,
-    const std::string &key) {
-  Aws::DynamoDB::Model::DeleteItemRequest request;
-  request.SetTableName(item.getTableName());
-  request.AddKey(
-      item.getPrimaryKey().partitionKey,
-      Aws::DynamoDB::Model::AttributeValue(key));
-
-  const Aws::DynamoDB::Model::DeleteItemOutcome &outcome =
-      getDynamoDBClient()->DeleteItem(request);
-  if (!outcome.IsSuccess()) {
-    throw std::runtime_error(outcome.GetError().GetMessage());
-  }
-}
-
 void DatabaseManager::putSessionItem(const DeviceSessionItem &item) {
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(item.getTableName());
@@ -109,7 +65,11 @@ DatabaseManager::findSessionItem(const std::string &sessionID) {
 }
 
 void DatabaseManager::removeSessionItem(const std::string &sessionID) {
-  this->innerRemoveItem(*(createItemByType<DeviceSessionItem>()), sessionID);
+  std::shared_ptr<DeviceSessionItem> item = this->findSessionItem(sessionID);
+  if (item == nullptr) {
+    return;
+  }
+  this->innerRemoveItem(*item);
 }
 
 void DatabaseManager::putSessionSignItem(const SessionSignItem &item) {
@@ -138,7 +98,11 @@ DatabaseManager::findSessionSignItem(const std::string &deviceID) {
 }
 
 void DatabaseManager::removeSessionSignItem(const std::string &deviceID) {
-  this->innerRemoveItem(*(createItemByType<SessionSignItem>()), deviceID);
+  std::shared_ptr<SessionSignItem> item = this->findSessionSignItem(deviceID);
+  if (item == nullptr) {
+    return;
+  }
+  this->innerRemoveItem(*item);
 }
 
 void DatabaseManager::putPublicKeyItem(const PublicKeyItem &item) {
@@ -163,7 +127,11 @@ DatabaseManager::findPublicKeyItem(const std::string &deviceID) {
 }
 
 void DatabaseManager::removePublicKeyItem(const std::string &deviceID) {
-  this->innerRemoveItem(*(createItemByType<PublicKeyItem>()), deviceID);
+  std::shared_ptr<PublicKeyItem> item = this->findPublicKeyItem(deviceID);
+  if (item == nullptr) {
+    return;
+  }
+  this->innerRemoveItem(*item);
 }
 
 void DatabaseManager::putMessageItem(const MessageItem &item) {
@@ -233,7 +201,11 @@ DatabaseManager::findMessageItemsByReceiver(const std::string &toDeviceID) {
 }
 
 void DatabaseManager::removeMessageItem(const std::string &messageID) {
-  this->innerRemoveItem(*(createItemByType<MessageItem>()), messageID);
+  std::shared_ptr<MessageItem> item = this->findMessageItem(messageID);
+  if (item == nullptr) {
+    return;
+  }
+  this->innerRemoveItem(*item);
 }
 
 } // namespace database
