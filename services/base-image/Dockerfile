@@ -20,13 +20,13 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 RUN mkdir -p /transferred/scripts
 WORKDIR /transferred/scripts
 
-COPY contents/install_grpc.sh .
+COPY docker/install_grpc.sh .
 RUN ./install_grpc.sh
 
-COPY contents/install_aws_sdk.sh .
+COPY docker/install_aws_sdk.sh .
 RUN ./install_aws_sdk.sh
 
-COPY contents/install_folly.sh .
+COPY docker/install_folly.sh .
 RUN ./install_folly.sh
 
 CMD /bin/bash
