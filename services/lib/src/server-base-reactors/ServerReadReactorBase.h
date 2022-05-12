@@ -16,7 +16,8 @@ namespace reactor {
 template <class Request, class Response>
 class ServerReadReactorBase : public grpc::ServerReadReactor<Request>,
                               public BaseReactor {
-  std::shared_ptr<ReactorStatusHolder> statusHolder;
+  std::shared_ptr<ReactorStatusHolder> statusHolder =
+      std::make_shared<ReactorStatusHolder>();
   Request request;
 
 protected:

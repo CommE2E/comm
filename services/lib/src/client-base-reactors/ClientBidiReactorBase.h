@@ -11,7 +11,8 @@ namespace reactor {
 template <class Request, class Response>
 class ClientBidiReactorBase : public grpc::ClientBidiReactor<Request, Response>,
                               public BaseReactor {
-  std::shared_ptr<ReactorStatusHolder> statusHolder;
+  std::shared_ptr<ReactorStatusHolder> statusHolder =
+      std::make_shared<ReactorStatusHolder>();
   std::shared_ptr<Response> response = nullptr;
   void nextWrite();
 

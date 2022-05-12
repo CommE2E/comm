@@ -26,7 +26,8 @@ struct ServerBidiReactorStatus {
 template <class Request, class Response>
 class ServerBidiReactorBase : public grpc::ServerBidiReactor<Request, Response>,
                               public BaseReactor {
-  std::shared_ptr<ReactorStatusHolder> statusHolder;
+  std::shared_ptr<ReactorStatusHolder> statusHolder =
+      std::make_shared<ReactorStatusHolder>();
   Request request;
   Response response;
 

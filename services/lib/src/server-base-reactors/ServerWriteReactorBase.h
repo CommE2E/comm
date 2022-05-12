@@ -16,7 +16,7 @@ namespace reactor {
 template <class Request, class Response>
 class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response>,
                                public BaseReactor {
-  std::shared_ptr<ReactorStatusHolder> statusHolder;
+  std::shared_ptr<ReactorStatusHolder> statusHolder = std::make_shared<ReactorStatusHolder>();
   Response response;
   bool initialized = false;
 

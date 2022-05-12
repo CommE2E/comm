@@ -11,7 +11,8 @@ namespace reactor {
 template <class Request, class Response>
 class ClientReadReactorBase : public grpc::ClientReadReactor<Response>,
                               public BaseReactor {
-  std::shared_ptr<ReactorStatusHolder> statusHolder;
+  std::shared_ptr<ReactorStatusHolder> statusHolder =
+      std::make_shared<ReactorStatusHolder>();
   Response response;
 
 public:
