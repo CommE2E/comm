@@ -1,4 +1,5 @@
 #include "DeliveryBroker.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 #include <gtest/gtest.h>
@@ -46,7 +47,7 @@ TEST(DeliveryBrokerTest, CheckPushAndPopOnGeneratedValues) {
   const std::string toDeviceID =
       "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH);
   const DeliveryBrokerMessage message{
-      .messageID = tools::generateUUID(),
+      .messageID = generateUUID(),
       .deliveryTag = static_cast<uint64_t>(std::time(0)),
       .fromDeviceID =
           "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),

@@ -6,6 +6,7 @@
 #include "CryptoTools.h"
 #include "DatabaseManager.h"
 #include "DeliveryBroker.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 namespace comm {
@@ -75,7 +76,7 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   }
   const std::string signature = request->signature();
   const std::string publicKey = request->publickey();
-  const std::string newSessionID = tools::generateUUID();
+  const std::string newSessionID = generateUUID();
   try {
     sessionSignItem =
         database::DatabaseManager::getInstance().findSessionSignItem(deviceID);
@@ -154,7 +155,7 @@ grpc::Status TunnelBrokerServiceImpl::Send(
           "No such session found. SessionID: " + sessionID);
     }
     const std::string clientDeviceID = sessionItem->getDeviceID();
-    const std::string messageID = tools::generateUUID();
+    const std::string messageID = generateUUID();
     if (!AmqpManager::getInstance().send(
             messageID,
             clientDeviceID,

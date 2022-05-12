@@ -10,7 +10,6 @@ namespace tools {
 std::string generateRandomString(std::size_t length);
 int64_t getCurrentTimestamp();
 bool validateDeviceID(std::string deviceID);
-std::string generateUUID();
 bool validateSessionID(std::string sessionID);
 void checkIfNotEmpty(std::string fieldName, std::string stringToCheck);
 void checkIfNotZero(std::string fieldName, uint64_t numberToCheck);

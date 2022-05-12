@@ -1,6 +1,7 @@
 #include "DatabaseManager.h"
 #include "ConfigManager.h"
 #include "Constants.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 #include <gtest/gtest.h>
@@ -66,7 +67,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsStaticDataIsSame) {
 
 TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsGeneratedDataIsSame) {
   const database::MessageItem item(
-      tools::generateUUID(),
+      generateUUID(),
       "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
       "web:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
       tools::generateRandomString(256),
