@@ -3,6 +3,7 @@
 #include "AwsTools.h"
 #include "Constants.h"
 #include "DatabaseEntitiesTools.h"
+#include "DatabaseManagerBase.h"
 #include "Tools.h"
 
 #include <aws/core/Aws.h>
@@ -22,16 +23,7 @@ namespace comm {
 namespace network {
 namespace database {
 
-class DatabaseManager {
-
-  void innerPutItem(
-      std::shared_ptr<Item> item,
-      const Aws::DynamoDB::Model::PutItemRequest &request);
-  template <typename T>
-  std::shared_ptr<T>
-  innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request);
-  void innerRemoveItem(const Item &item, const std::string &key);
-
+class DatabaseManager : public DatabaseManagerBase {
 public:
   static DatabaseManager &getInstance();
   bool isTableAvailable(const std::string &tableName);
