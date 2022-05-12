@@ -14,9 +14,10 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react.js';
+import SWMansionIcon from '../../SWMansionIcon.react';
 import Input from '../input.react.js';
 import { useModalContext } from '../modal-provider.react.js';
-import css from './thread-settings-modal.css';
+import css from './thread-settings-delete-tab.css';
 
 type ThreadSettingsDeleteTabProps = {
   +inputDisabled: boolean,
@@ -79,14 +80,15 @@ function ThreadSettingsDeleteTab(
   return (
     <form method="POST">
       <div>
-        <p className={css.italic}>
+        <SWMansionIcon icon="warning-circle" size={22} />
+        <p className={css.deletion_warning}>
           Your thread will be permanently deleted. There is no way to reverse
           this.
         </p>
       </div>
       <div>
         <p className={css.confirm_account_password}>
-          Please enter your account password to confirm your identity
+          Please enter your account password to confirm your identity.
         </p>
         <div className={css.form_title}>Account password</div>
         <div className={css.form_content}>
@@ -100,7 +102,12 @@ function ThreadSettingsDeleteTab(
           />
         </div>
       </div>
-      <Button onClick={onDelete} variant="danger" disabled={inputDisabled}>
+      <Button
+        onClick={onDelete}
+        variant="danger"
+        disabled={inputDisabled}
+        className={css.delete_button}
+      >
         Delete
       </Button>
     </form>

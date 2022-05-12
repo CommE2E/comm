@@ -1,11 +1,12 @@
-div.modal_body p.confirm_account_password {
+p.confirm_account_password {
   margin-bottom: 4px;
   color: var(--fg);
+  font-size: var(--s-font-14);
 }
 
 div.form_title {
-  padding: 6px 6px 0 0;
-  font-size: 14px;
+  padding-top: 6px;
+  font-size: var(--s-font-14);
   font-weight: 600;
   vertical-align: top;
   color: var(--fg);
@@ -14,14 +15,17 @@ div.form_content {
   display: flex;
   font-family: var(--font-stack);
   color: var(--fg);
-  margin-top: 4px;
-  margin-bottom: 8px;
-}
-div.form_content input {
-  margin-bottom: 4px;
+  margin-top: 8px;
+  margin-bottom: 12px;
 }
 
-.italic {
-  font-style: italic;
+.deletion_warning {
+  font-weight: var(--bold);
   color: var(--fg);
+  font-size: var(--s-font-14);
+  margin-bottom: 16px;
+}
+
+.delete_button {
+  width: 100%;
 }
