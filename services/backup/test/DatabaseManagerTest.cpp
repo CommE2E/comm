@@ -24,7 +24,8 @@ protected:
 };
 
 std::string generateName(const std::string prefix = "") {
-  return prefix + "-" + std::to_string(comm::network::getCurrentTimestamp());
+  return prefix + "-" +
+      std::to_string(comm::network::tools::getCurrentTimestamp());
 }
 
 BackupItem
@@ -32,7 +33,7 @@ generateBackupItem(const std::string &userID, const std::string &backupID) {
   return BackupItem(
       userID,
       backupID,
-      comm::network::getCurrentTimestamp(),
+      comm::network::tools::getCurrentTimestamp(),
       "xxx",
       "xxx",
       {""});

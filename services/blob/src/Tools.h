@@ -5,6 +5,7 @@
 
 namespace comm {
 namespace network {
+namespace tools {
 
 database::S3Path
 generateS3Path(const std::string &bucketName, const std::string &blobHash);
@@ -22,5 +23,6 @@ public:
   }
 };
 
+} // namespace tools
 } // namespace network
 } // namespace comm

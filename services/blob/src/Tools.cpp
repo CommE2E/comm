@@ -15,6 +15,7 @@
 
 namespace comm {
 namespace network {
+namespace tools {
 
 database::S3Path
 generateS3Path(const std::string &bucketName, const std::string &blobHash) {
@@ -69,5 +70,6 @@ findS3Path(const database::ReverseIndexItem &reverseIndexItem) {
   return result;
 }
 
+} // namespace tools
 } // namespace network
 } // namespace comm

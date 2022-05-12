@@ -63,7 +63,7 @@ public:
   }
 
   void initialize() override {
-    this->s3Path = findS3Path(this->request.holder());
+    this->s3Path = tools::findS3Path(this->request.holder());
     this->fileSize =
         getBucket(s3Path.getBucketName()).getObjectSize(s3Path.getObjectName());
 

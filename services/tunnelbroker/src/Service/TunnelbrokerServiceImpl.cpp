@@ -77,7 +77,7 @@ grpc::Status TunnelBrokerServiceImpl::NewSession(
   }
   const std::string signature = request->signature();
   const std::string publicKey = request->publickey();
-  const std::string newSessionID = generateUUID();
+  const std::string newSessionID = tools::generateUUID();
   try {
     sessionSignItem =
         database::DatabaseManager::getInstance().findSessionSignItem(deviceID);
@@ -153,7 +153,7 @@ grpc::Status TunnelBrokerServiceImpl::Send(
           "No such session found. SessionID: " + sessionID);
     }
     const std::string clientDeviceID = sessionItem->getDeviceID();
-    const std::string messageID = generateUUID();
+    const std::string messageID = tools::generateUUID();
     if (!AmqpManager::getInstance().send(
             messageID,
             clientDeviceID,

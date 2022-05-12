@@ -28,7 +28,7 @@ void DatabaseManager::putBackupItem(const BackupItem &item) {
   request.AddItem(
       BackupItem::FIELD_CREATED,
       Aws::DynamoDB::Model::AttributeValue(
-          std::to_string(getCurrentTimestamp())));
+          std::to_string(tools::getCurrentTimestamp())));
   request.AddItem(
       BackupItem::FIELD_BACKUP_ID,
       Aws::DynamoDB::Model::AttributeValue(item.getBackupID()));

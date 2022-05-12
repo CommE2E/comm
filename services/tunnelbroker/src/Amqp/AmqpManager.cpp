@@ -2,6 +2,7 @@
 #include "ConfigManager.h"
 #include "Constants.h"
 #include "DeliveryBroker.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 #include <glog/logging.h>

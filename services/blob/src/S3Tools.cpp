@@ -32,7 +32,7 @@ std::vector<std::string> listBuckets() {
 std::unique_ptr<Aws::S3::S3Client> getS3Client() {
   Aws::Client::ClientConfiguration config;
   config.region = AWS_REGION;
-  if (isDevMode()) {
+  if (tools::isDevMode()) {
     config.endpointOverride = Aws::String("localstack:4566");
     config.scheme = Aws::Http::Scheme::HTTP;
     return std::make_unique<Aws::S3::S3Client>(

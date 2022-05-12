@@ -8,6 +8,7 @@
 
 namespace comm {
 namespace network {
+namespace tools {
 
 std::string generateRandomString(std::size_t length) {
   const std::string CHARACTERS =
@@ -26,8 +27,9 @@ std::string generateHolder(
     const std::string &backupID,
     const std::string &resourceID) {
   return backupID + ID_SEPARATOR + resourceID + ID_SEPARATOR + blobHash +
-      ID_SEPARATOR + generateUUID();
+      ID_SEPARATOR + tools::generateUUID();
 }
 
+} // namespace tools
 } // namespace network
 } // namespace comm

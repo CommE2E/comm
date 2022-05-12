@@ -11,6 +11,7 @@
 
 namespace comm {
 namespace network {
+namespace tools {
 
 uint64_t getCurrentTimestamp() {
   using namespace std::chrono;
@@ -42,5 +43,6 @@ std::string generateUUID() {
   return boost::uuids::to_string(random_generator());
 }
 
+} // namespace tools
 } // namespace network
 } // namespace comm

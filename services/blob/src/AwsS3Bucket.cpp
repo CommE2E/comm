@@ -105,7 +105,7 @@ std::string AwsS3Bucket::getObjectData(const std::string &objectName) const {
 
   const size_t size = this->getObjectSize(objectName);
   if (size > GRPC_CHUNK_SIZE_LIMIT) {
-    throw invalid_argument_error(std::string(
+    throw tools::invalid_argument_error(std::string(
         "The file is too big(" + std::to_string(size) + " bytes, max is " +
         std::to_string(GRPC_CHUNK_SIZE_LIMIT) +
         "bytes), please, use getObjectDataChunks"));

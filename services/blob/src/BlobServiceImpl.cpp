@@ -30,7 +30,7 @@ BlobServiceImpl::~BlobServiceImpl() {
 void BlobServiceImpl::verifyBlobHash(
     const std::string &expectedBlobHash,
     const database::S3Path &s3Path) {
-  const std::string computedBlobHash = computeHashForFile(s3Path);
+  const std::string computedBlobHash = tools::computeHashForFile(s3Path);
   if (expectedBlobHash != computedBlobHash) {
     throw std::runtime_error(
         "blob hash mismatch, expected: [" + expectedBlobHash +
@@ -83,7 +83,7 @@ grpc::ServerUnaryReactor *BlobServiceImpl::Remove(
     if (database::DatabaseManager::getInstance()
             .findReverseIndexItemsByHash(reverseIndexItem->getBlobHash())
             .size() == 0) {
-      database::S3Path s3Path = findS3Path(*reverseIndexItem);
+      database::S3Path s3Path = tools::findS3Path(*reverseIndexItem);
       AwsS3Bucket bucket = getBucket(s3Path.getBucketName());
       bucket.removeObject(s3Path.getObjectName());
 
