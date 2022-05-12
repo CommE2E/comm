@@ -69,16 +69,16 @@ void CreateNewBackupReactor::terminateCallback() {
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lock2(this->blobPutDoneCVMutex);
-  if (this->putReactor->getUtility()->state == ReactorState::DONE &&
-      !this->putReactor->getUtility()->getStatus().ok()) {
+  if (this->putReactor->getStatusHolder()->state == ReactorState::DONE &&
+      !this->putReactor->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
-        this->putReactor->getUtility()->getStatus().error_message());
+        this->putReactor->getStatusHolder()->getStatus().error_message());
   }
-  if (this->putReactor->getUtility()->state != ReactorState::DONE) {
+  if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
     this->blobPutDoneCV.wait(lock2);
-  } else if (!this->putReactor->getUtility()->getStatus().ok()) {
+  } else if (!this->putReactor->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
-        this->putReactor->getUtility()->getStatus().error_message());
+        this->putReactor->getStatusHolder()->getStatus().error_message());
   }
   try {
     // TODO add recovery data

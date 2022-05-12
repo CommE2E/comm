@@ -133,11 +133,11 @@ void SendLogReactor::terminateCallback() {
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lockPut(this->blobPutDoneCVMutex);
-  if (this->putReactor->getUtility()->state != ReactorState::DONE) {
+  if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
     this->blobPutDoneCV.wait(lockPut);
-  } else if (!this->putReactor->getUtility()->getStatus().ok()) {
+  } else if (!this->putReactor->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
-        this->putReactor->getUtility()->getStatus().error_message());
+        this->putReactor->getStatusHolder()->getStatus().error_message());
   }
   // store in db only when we successfully upload chunks
   this->storeInDatabase();
@@ -149,8 +149,9 @@ void SendLogReactor::doneCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   // TODO implement
   std::cout << "receive logs done "
-            << this->getUtility()->getStatus().error_code() << "/"
-            << this->getUtility()->getStatus().error_message() << std::endl;
+            << this->getStatusHolder()->getStatus().error_code() << "/"
+            << this->getStatusHolder()->getStatus().error_message()
+            << std::endl;
 }
 
 } // namespace reactor

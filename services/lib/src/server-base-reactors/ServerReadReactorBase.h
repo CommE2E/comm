@@ -16,7 +16,7 @@ namespace reactor {
 template <class Request, class Response>
 class ServerReadReactorBase : public grpc::ServerReadReactor<Request>,
                               public BaseReactor {
-  std::shared_ptr<ReactorStatusHolder> utility;
+  std::shared_ptr<ReactorStatusHolder> statusHolder;
   Request request;
 
 protected:
@@ -32,7 +32,7 @@ public:
   void OnReadDone(bool ok) override;
   void terminate(const grpc::Status &status) override;
   void OnDone() override;
-  std::shared_ptr<ReactorStatusHolder> getUtility() override;
+  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
   virtual std::unique_ptr<grpc::Status> readRequest(Request request) = 0;
 };
@@ -41,7 +41,7 @@ template <class Request, class Response>
 ServerReadReactorBase<Request, Response>::ServerReadReactorBase(
     Response *response)
     : response(response) {
-  this->utility->state = ReactorState::RUNNING;
+  this->statusHolder->state = ReactorState::RUNNING;
   this->StartRead(&this->request);
 }
 
@@ -70,28 +70,28 @@ void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
-  this->utility->setStatus(status);
+  this->statusHolder->setStatus(status);
   try {
     this->terminateCallback();
     this->validate();
   } catch (std::runtime_error &e) {
-    this->utility->setStatus(
+    this->statusHolder->setStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
-  if (!this->utility->getStatus().ok()) {
-    std::cout << "error: " << this->utility->getStatus().error_message()
+  if (!this->statusHolder->getStatus().ok()) {
+    std::cout << "error: " << this->statusHolder->getStatus().error_message()
               << std::endl;
   }
-  if (this->utility->state != ReactorState::RUNNING) {
+  if (this->statusHolder->state != ReactorState::RUNNING) {
     return;
   }
-  this->Finish(this->utility->getStatus());
-  this->utility->state = ReactorState::TERMINATED;
+  this->Finish(this->statusHolder->getStatus());
+  this->statusHolder->state = ReactorState::TERMINATED;
 }
 
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::OnDone() {
-  this->utility->state = ReactorState::DONE;
+  this->statusHolder->state = ReactorState::DONE;
   this->doneCallback();
   // This looks weird but apparently it is okay to do this. More information:
   // https://phabricator.ashoat.com/D3246#87890
@@ -100,8 +100,8 @@ void ServerReadReactorBase<Request, Response>::OnDone() {
 
 template <class Request, class Response>
 std::shared_ptr<ReactorStatusHolder>
-ServerReadReactorBase<Request, Response>::getUtility() {
-  return this->utility;
+ServerReadReactorBase<Request, Response>::getStatusHolder() {
+  return this->statusHolder;
 }
 
 } // namespace reactor

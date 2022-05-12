@@ -26,7 +26,7 @@ struct ServerBidiReactorStatus {
 template <class Request, class Response>
 class ServerBidiReactorBase : public grpc::ServerBidiReactor<Request, Response>,
                               public BaseReactor {
-  std::shared_ptr<ReactorStatusHolder> utility;
+  std::shared_ptr<ReactorStatusHolder> statusHolder;
   Request request;
   Response response;
 
@@ -45,7 +45,7 @@ public:
   void OnDone() override;
   void OnReadDone(bool ok) override;
   void OnWriteDone(bool ok) override;
-  std::shared_ptr<ReactorStatusHolder> getUtility() override;
+  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
   void terminate(ServerBidiReactorStatus status);
   ServerBidiReactorStatus getStatus() const;
@@ -57,7 +57,7 @@ public:
 
 template <class Request, class Response>
 ServerBidiReactorBase<Request, Response>::ServerBidiReactorBase() {
-  this->utility->state = ReactorState::RUNNING;
+  this->statusHolder->state = ReactorState::RUNNING;
   this->StartRead(&this->request);
 }
 
@@ -69,7 +69,7 @@ void ServerBidiReactorBase<Request, Response>::terminate(
 
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::OnDone() {
-  this->utility->state = ReactorState::DONE;
+  this->statusHolder->state = ReactorState::DONE;
   this->doneCallback();
   // This looks weird but apparently it is okay to do this. More information:
   // https://phabricator.ashoat.com/D3246#87890
@@ -87,7 +87,7 @@ void ServerBidiReactorBase<Request, Response>::terminate(
     this->setStatus(ServerBidiReactorStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what())));
   }
-  if (this->utility->state != ReactorState::RUNNING) {
+  if (this->statusHolder->state != ReactorState::RUNNING) {
     return;
   }
   if (this->getStatus().sendLastResponse) {
@@ -96,7 +96,7 @@ void ServerBidiReactorBase<Request, Response>::terminate(
   } else {
     this->Finish(this->getStatus().status);
   }
-  this->utility->state = ReactorState::TERMINATED;
+  this->statusHolder->state = ReactorState::TERMINATED;
 }
 
 template <class Request, class Response>
@@ -148,8 +148,8 @@ void ServerBidiReactorBase<Request, Response>::OnWriteDone(bool ok) {
 
 template <class Request, class Response>
 std::shared_ptr<ReactorStatusHolder>
-ServerBidiReactorBase<Request, Response>::getUtility() {
-  return this->utility;
+ServerBidiReactorBase<Request, Response>::getStatusHolder() {
+  return this->statusHolder;
 }
 
 } // namespace reactor

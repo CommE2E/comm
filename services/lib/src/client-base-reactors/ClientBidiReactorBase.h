@@ -11,7 +11,7 @@ namespace reactor {
 template <class Request, class Response>
 class ClientBidiReactorBase : public grpc::ClientBidiReactor<Request, Response>,
                               public BaseReactor {
-  std::shared_ptr<ReactorStatusHolder> utility;
+  std::shared_ptr<ReactorStatusHolder> statusHolder;
   std::shared_ptr<Response> response = nullptr;
   void nextWrite();
 
@@ -31,7 +31,7 @@ public:
   void OnReadDone(bool ok) override;
   void terminate(const grpc::Status &status) override;
   void OnDone(const grpc::Status &status) override;
-  std::shared_ptr<ReactorStatusHolder> getUtility() override;
+  std::shared_ptr<ReactorStatusHolder> getStatusHolder() override;
 
   virtual std::unique_ptr<grpc::Status> prepareRequest(
       Request &request,
@@ -57,10 +57,10 @@ void ClientBidiReactorBase<Request, Response>::nextWrite() {
 
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::start() {
-  if (this->utility->state != ReactorState::NONE) {
+  if (this->statusHolder->state != ReactorState::NONE) {
     return;
   }
-  this->utility->state = ReactorState::RUNNING;
+  this->statusHolder->state = ReactorState::RUNNING;
   this->nextWrite();
   this->StartCall();
 }
@@ -88,39 +88,39 @@ void ClientBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
-  if (this->utility->getStatus().ok()) {
-    this->utility->setStatus(status);
+  if (this->statusHolder->getStatus().ok()) {
+    this->statusHolder->setStatus(status);
   }
-  if (!this->utility->getStatus().ok()) {
-    std::cout << "error: " << this->utility->getStatus().error_message()
+  if (!this->statusHolder->getStatus().ok()) {
+    std::cout << "error: " << this->statusHolder->getStatus().error_message()
               << std::endl;
   }
-  if (this->utility->state != ReactorState::RUNNING) {
+  if (this->statusHolder->state != ReactorState::RUNNING) {
     return;
   }
   this->terminateCallback();
   try {
     this->validate();
   } catch (std::runtime_error &e) {
-    this->utility->setStatus(
+    this->statusHolder->setStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
   this->StartWritesDone();
-  this->utility->state = ReactorState::TERMINATED;
+  this->statusHolder->state = ReactorState::TERMINATED;
 }
 
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::OnDone(
     const grpc::Status &status) {
-  this->utility->state = ReactorState::DONE;
+  this->statusHolder->state = ReactorState::DONE;
   this->terminate(status);
   this->doneCallback();
 }
 
 template <class Request, class Response>
 std::shared_ptr<ReactorStatusHolder>
-ClientBidiReactorBase<Request, Response>::getUtility() {
-  return this->utility;
+ClientBidiReactorBase<Request, Response>::getStatusHolder() {
+  return this->statusHolder;
 }
 
 } // namespace reactor
