@@ -26,7 +26,7 @@ struct PrimaryKeyBase {
   std::unique_ptr<std::string> sortKey;
 };
 
-struct PrimaryKey : PrimaryKeyBase {
+struct PrimaryKeyDescriptor : PrimaryKeyBase {
   using PrimaryKeyBase::PrimaryKeyBase;
 };
 
@@ -39,7 +39,7 @@ class Item {
 
 public:
   virtual std::string getTableName() const = 0;
-  virtual PrimaryKey getPrimaryKey() const = 0;
+  virtual PrimaryKeyDescriptor getPrimaryKeyDescriptor() const = 0;
   virtual PrimaryKeyValue getPrimaryKeyValue() const = 0;
   virtual void assignItemFromDatabase(const AttributeValues &itemFromDB) = 0;
 };

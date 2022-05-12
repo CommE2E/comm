@@ -24,7 +24,7 @@ void DatabaseManagerBase::innerPutItem(
 void DatabaseManagerBase::innerRemoveItem(const Item &item) {
   Aws::DynamoDB::Model::DeleteItemRequest request;
   request.SetTableName(item.getTableName());
-  PrimaryKey pk = item.getPrimaryKey();
+  PrimaryKeyDescriptor pk = item.getPrimaryKeyDescriptor();
   PrimaryKeyValue primaryKeyValue = item.getPrimaryKeyValue();
   request.AddKey(
       pk.partitionKey,
