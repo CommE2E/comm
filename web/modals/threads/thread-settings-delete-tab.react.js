@@ -14,6 +14,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react.js';
+import Input from '../input.react.js';
 import { useModalContext } from '../modal-provider.react.js';
 import css from './thread-settings-modal.css';
 
@@ -89,9 +90,9 @@ function ThreadSettingsDeleteTab(
         </p>
         <div className={css.form_title}>Account password</div>
         <div className={css.form_content}>
-          <input
+          <Input
             type="password"
-            placeholder="Personal account password"
+            placeholder="Password"
             value={accountPassword}
             onChange={onChangeAccountPassword}
             disabled={inputDisabled}
