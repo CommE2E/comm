@@ -15,7 +15,6 @@ services:
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
     image: commapp/tunnelbroker-server:0.2
-    container_name: tunnelbroker-server
     ports:
       - "${COMM_SERVICES_PORT_TUNNELBROKER}:50051"
     volumes:
@@ -35,7 +34,6 @@ services:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
         - COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
     image: commapp/backup-server:0.1
-    container_name: backup-server
     ports:
       - "${COMM_SERVICES_PORT_BACKUP}:50051"
     volumes:
@@ -53,7 +51,6 @@ services:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
         - COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
     image: commapp/blob-server:0.1
-    container_name: blob-server
     ports:
       - "${COMM_SERVICES_PORT_BLOB}:50051"
     volumes:
@@ -68,13 +65,11 @@ services:
       dockerfile: services/identity/Dockerfile
       context: ../
     image: commapp/identity-server:0.1
-    container_name: identity-server
     ports:
       - "${COMM_SERVICES_PORT_IDENTITY}:50051"
   # localstack
   localstack:
     image: localstack/localstack
-    container_name: localstack
     hostname: localstack
     ports:
       - "4566:4566"
