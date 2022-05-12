@@ -11,6 +11,7 @@ import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './account-settings.css';
 import PasswordChangeModal from './password-change-modal';
+import BlockListModal from './relationship/block-list-modal.react';
 import FriendListModal from './relationship/friend-list-modal.react';
 
 function AccountSettings(): React.Node {
@@ -28,6 +29,11 @@ function AccountSettings(): React.Node {
 
   const openFriendList = React.useCallback(
     () => pushModal(<FriendListModal onClose={popModal} />),
+    [popModal, pushModal],
+  );
+
+  const openBlockList = React.useCallback(
+    () => pushModal(<BlockListModal onClose={popModal} />),
     [popModal, pushModal],
   );
 
@@ -71,7 +77,9 @@ function AccountSettings(): React.Node {
           </li>
           <li>
             <span>Block List</span>
-            <button className={css.button}>See List</button>
+            <button className={css.button} onClick={openBlockList}>
+              See List
+            </button>
           </li>
         </ul>
       </div>
