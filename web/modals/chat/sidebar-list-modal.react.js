@@ -15,6 +15,7 @@ import SidebarItem from '../../chat/sidebar-item.react';
 import { useSelector } from '../../redux/redux-utils';
 import globalCSS from '../../style.css';
 import { MagnifyingGlass } from '../../vectors.react';
+import Input from '../input.react';
 import { useModalContext } from '../modal-provider.react';
 import Modal from '../modal.react';
 
@@ -125,7 +126,7 @@ function SidebarListModal(props: Props): React.Node {
         <div>
           <div className={chatThreadListCSS.search}>
             <MagnifyingGlass className={chatThreadListCSS.searchVector} />
-            <input
+            <Input
               type="text"
               placeholder="Search sidebars"
               value={searchState.text}
