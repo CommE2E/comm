@@ -46,7 +46,7 @@ void sendMessage(ModuleWithKeys &moduleAData, ModuleWithKeys &moduleBData) {
         moduleBData.keys.identityKeys,
         moduleBData.keys.oneTimeKeys);
   }
-  std::string message = Tools::getInstance().generateRandomString(50);
+  std::string message{Tools::generateRandomString(50)};
   EncryptedData encryptedData =
       moduleAData.module->encrypt(moduleBData.module->id, message);
   comm::Logger::log("encrypted: " + message);
@@ -68,7 +68,7 @@ void sendMessage(ModuleWithKeys &moduleAData, ModuleWithKeys &moduleBData) {
 }
 
 void repickle(std::shared_ptr<CryptoModule> module) {
-  std::string pickleKey = Tools::getInstance().generateRandomString(20);
+  std::string pickleKey{Tools::generateRandomString(20)};
   Persist pickled = module->storeAsB64(pickleKey);
   std::string userId = module->id;
   module.reset(new CryptoModule(userId));
@@ -247,8 +247,8 @@ void testMessagesWrapper(
       std::string bOtKeys = moduleB->getOneTimeKeys(50);
       Keys bKeys = CryptoModule::keysFromStrings(bIdKeys, bOtKeys);
 
-      std::string message1 = Tools::getInstance().generateRandomString(50);
-      std::string message2 = Tools::getInstance().generateRandomString(50);
+      std::string message1{Tools::generateRandomString(50)};
+      std::string message2{Tools::generateRandomString(50)};
 
       if (!moduleA->hasSessionFor(moduleB->id)) {
         moduleA->initializeOutboundForSendingSession(
