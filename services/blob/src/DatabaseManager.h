@@ -33,7 +33,7 @@ public:
   findReverseIndexItemByHolder(const std::string &holder);
   std::vector<std::shared_ptr<database::ReverseIndexItem>>
   findReverseIndexItemsByHash(const std::string &blobHash);
-  bool removeReverseIndexItem(const std::string &holder);
+  void removeReverseIndexItem(const std::string &holder);
 };
 
 } // namespace database
