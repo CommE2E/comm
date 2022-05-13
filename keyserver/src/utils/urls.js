@@ -4,6 +4,8 @@ import invariant from 'invariant';
 
 import { values } from 'lib/utils/objects';
 
+import { importJSON } from './import-json';
+
 export type AppURLFacts = {
   +baseDomain: string,
   +basePath: string,
@@ -20,22 +22,13 @@ const sites: $ReadOnlyArray<Site> = values(sitesObj);
 
 const cachedURLFacts = new Map();
 async function fetchURLFacts(site: Site): Promise<?AppURLFacts> {
-  const cached = cachedURLFacts.get(site);
-  if (cached !== undefined) {
-    return cached;
+  const existing = cachedURLFacts.get(site);
+  if (existing !== undefined) {
+    return existing;
   }
-  try {
-    // $FlowFixMe
-    const urlFacts = await import(`../../facts/${site}_url`);
-    if (!cachedURLFacts.has(site)) {
-      cachedURLFacts.set(site, urlFacts.default);
-    }
-  } catch {
-    if (!cachedURLFacts.has(site)) {
-      cachedURLFacts.set(site, null);
-    }
-  }
-  return cachedURLFacts.get(site);
+  const urlFacts: ?AppURLFacts = await importJSON(`facts/${site}_url`);
+  cachedURLFacts.set(site, urlFacts);
+  return urlFacts;
 }
 
 async function prefetchAllURLFacts() {

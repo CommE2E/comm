@@ -10,32 +10,14 @@ import { promisify } from 'util';
 import zlib from 'zlib';
 
 import dbConfig from '../../secrets/db_config';
+import { importJSON } from '../utils/import-json';
 
 const readdir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);
 const unlink = promisify(fs.unlink);
 
-let importedBackupConfig = undefined;
-async function importBackupConfig() {
-  if (importedBackupConfig !== undefined) {
-    return importedBackupConfig;
-  }
-  try {
-    // $FlowFixMe
-    const backupExports = await import('../../facts/backups');
-    if (importedBackupConfig === undefined) {
-      importedBackupConfig = backupExports.default;
-    }
-  } catch {
-    if (importedBackupConfig === undefined) {
-      importedBackupConfig = null;
-    }
-  }
-  return importedBackupConfig;
-}
-
 async function backupDB() {
-  const backupConfig = await importBackupConfig();
+  const backupConfig = await importJSON('facts/backups');
   if (!backupConfig || !backupConfig.enabled) {
     return;
   }
@@ -190,7 +172,7 @@ function trySaveBackup(
 }
 
 async function deleteOldestBackup() {
-  const backupConfig = await importBackupConfig();
+  const backupConfig = await importJSON('facts/backups');
   invariant(backupConfig, 'backupConfig should be non-null');
   const files = await readdir(backupConfig.directory);
   let oldestFile;

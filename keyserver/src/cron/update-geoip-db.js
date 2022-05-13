@@ -5,28 +5,10 @@ import cluster from 'cluster';
 import geoip from 'geoip-lite';
 
 import { handleAsyncPromise } from '../responders/handlers';
-
-let cachedGeoipLicense = undefined;
-async function getGeoipLicense() {
-  if (cachedGeoipLicense !== undefined) {
-    return cachedGeoipLicense;
-  }
-  try {
-    // $FlowFixMe
-    const geoipLicenseImport = await import('../../secrets/geoip_license');
-    if (cachedGeoipLicense === undefined) {
-      cachedGeoipLicense = geoipLicenseImport.default;
-    }
-  } catch {
-    if (cachedGeoipLicense === undefined) {
-      cachedGeoipLicense = null;
-    }
-  }
-  return cachedGeoipLicense;
-}
+import { importJSON } from '../utils/import-json';
 
 async function updateGeoipDB(): Promise<void> {
-  const geoipLicense = await getGeoipLicense();
+  const geoipLicense = await importJSON('secrets/geoip_license');
   if (!geoipLicense) {
     console.log('no keyserver/secrets/geoip_license.json so skipping update');
     return;
