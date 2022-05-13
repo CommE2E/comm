@@ -77,6 +77,8 @@ function mysqldump(
   const mysqlDump = childProcess.spawn(
     'mysqldump',
     [
+      '-h',
+      dbConfig.host,
       '-u',
       dbConfig.user,
       `-p${dbConfig.password}`,
