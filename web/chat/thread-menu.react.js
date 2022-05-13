@@ -30,6 +30,7 @@ import SidebarPromoteModal from '../modals/chat/sidebar-promote-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
 import ThreadMembersModal from '../modals/threads/members/members-modal.react';
+import ThreadNotificationsModal from '../modals/threads/notifications/notifications-modal.react';
 import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.react';
 import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
@@ -220,19 +221,35 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [onClickPromoteSidebarToThread]);
 
-  const menuItems = React.useMemo(() => {
-    const notificationsItem = (
-      <MenuItem key="notifications" text="Notifications" icon="bell" />
+  const onClickNotifications = React.useCallback(() => {
+    pushModal(
+      <ThreadNotificationsModal threadID={threadInfo.id} onClose={popModal} />,
     );
+  }, [popModal, pushModal, threadInfo.id]);
+
+  const notificationsItem = React.useMemo(() => {
+    if (!viewerIsMember(threadInfo)) {
+      return null;
+    }
+    return (
+      <MenuItem
+        key="notifications"
+        text="Notifications"
+        icon="bell"
+        onClick={onClickNotifications}
+      />
+    );
+  }, [onClickNotifications, threadInfo]);
+
+  const menuItems = React.useMemo(() => {
     const separator = <hr key="separator" className={css.separator} />;
 
     // TODO: Enable menu items when the modals are implemented
-    const SHOW_NOTIFICATIONS = false;
     const SHOW_CREATE_SUBCHANNELS = false;
 
     const items = [
       settingsItem,
-      SHOW_NOTIFICATIONS && notificationsItem,
+      notificationsItem,
       membersItem,
       sidebarItem,
       viewSubchannelsItem,
@@ -244,6 +261,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     return items.filter(Boolean);
   }, [
     settingsItem,
+    notificationsItem,
     membersItem,
     sidebarItem,
     viewSubchannelsItem,
