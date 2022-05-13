@@ -1,3 +1,18 @@
+div.container {
+  display: flex;
+  flex-direction: column;
+  color: var(--fg);
+  margin: 24px 32px;
+  row-gap: 40px;
+  min-width: 343px;
+}
+
+div.optionsContainer {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+}
+
 div.optionContainer {
   display: flex;
   padding: 16px 32px 16px 16px;
