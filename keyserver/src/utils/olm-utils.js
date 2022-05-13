@@ -1,13 +1,17 @@
 // @flow
 
-import olmConfig from '../../secrets/olm_config';
+import invariant from 'invariant';
+
+import { importJSON } from './import-json';
 
 type OlmConfig = {
   +picklingKey: string,
   +pickledAccount: string,
 };
 
-function getOlmConfig(): OlmConfig {
+async function getOlmConfig(): Promise<OlmConfig> {
+  const olmConfig = await importJSON('secrets/olm_config');
+  invariant(olmConfig, 'OLM config missing');
   return olmConfig;
 }
 
