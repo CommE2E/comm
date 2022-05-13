@@ -1,11 +1,11 @@
 // @flow
 
-import { getPool } from '../database/database';
+import { endPool } from '../database/database';
 import { endFirebase, endAPNs } from '../push/providers';
 import { publisher } from '../socket/redis';
 
 function endScript() {
-  getPool().end();
+  endPool();
   publisher.end();
   endFirebase();
   endAPNs();

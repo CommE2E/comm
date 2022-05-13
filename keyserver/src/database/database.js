@@ -5,20 +5,21 @@ import mysql from 'mysql2';
 import mysqlPromise from 'mysql2/promise';
 import SQL from 'sql-template-strings';
 
-import dbConfig from '../../secrets/db_config';
 import { getScriptContext } from '../scripts/script-context';
 import { connectionLimit, queryWarnTime } from './consts';
+import { getDBConfig } from './db-config';
 import DatabaseMonitor from './monitor';
 import type { Pool, SQLOrString, SQLStatementType } from './types';
 
 const SQLStatement: SQLStatementType = SQL.SQLStatement;
 
 let pool, databaseMonitor;
-function getPool(): Pool {
+async function loadPool(): Promise<Pool> {
   if (pool) {
     return pool;
   }
   const scriptContext = getScriptContext();
+  const dbConfig = await getDBConfig();
   pool = mysqlPromise.createPool({
     ...dbConfig,
     connectionLimit,
@@ -28,6 +29,10 @@ function getPool(): Pool {
   });
   databaseMonitor = new DatabaseMonitor(pool);
   return pool;
+}
+
+function endPool() {
+  pool?.end();
 }
 
 function appendSQLArray(
@@ -95,7 +100,7 @@ async function dbQuery(
     connection = await getMultipleStatementsConnection();
   }
   if (!connection) {
-    connection = getPool();
+    connection = await loadPool();
   }
 
   const timeoutID = setTimeout(
@@ -136,6 +141,7 @@ function rawSQL(statement: SQLStatementType): string {
 }
 
 async function getMultipleStatementsConnection() {
+  const dbConfig = await getDBConfig();
   return await mysqlPromise.createConnection({
     ...dbConfig,
     multipleStatements: true,
@@ -143,7 +149,7 @@ async function getMultipleStatementsConnection() {
 }
 
 export {
-  getPool,
+  endPool,
   SQL,
   SQLStatement,
   appendSQLArray,

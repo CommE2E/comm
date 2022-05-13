@@ -9,7 +9,7 @@ import { PassThrough } from 'stream';
 import { promisify } from 'util';
 import zlib from 'zlib';
 
-import dbConfig from '../../secrets/db_config';
+import { getDBConfig, type DBConfig } from '../database/db-config';
 import { importJSON } from '../utils/import-json';
 
 const readdir = promisify(fs.readdir);
@@ -17,7 +17,11 @@ const lstat = promisify(fs.lstat);
 const unlink = promisify(fs.unlink);
 
 async function backupDB() {
-  const backupConfig = await importJSON('facts/backups');
+  const [backupConfig, dbConfig] = await Promise.all([
+    importJSON('facts/backups'),
+    getDBConfig(),
+  ]);
+
   if (!backupConfig || !backupConfig.enabled) {
     return;
   }
@@ -29,11 +33,16 @@ async function backupDB() {
   const rawStream = new PassThrough();
   (async () => {
     try {
-      await mysqldump(filename, rawStream, ['--no-data'], { end: false });
+      await mysqldump(dbConfig, filename, rawStream, ['--no-data'], {
+        end: false,
+      });
     } catch {}
     try {
       const ignoreReports = `--ignore-table=${dbConfig.database}.reports`;
-      await mysqldump(filename, rawStream, ['--no-create-info', ignoreReports]);
+      await mysqldump(dbConfig, filename, rawStream, [
+        '--no-create-info',
+        ignoreReports,
+      ]);
     } catch {
       rawStream.end();
     }
@@ -59,6 +68,7 @@ async function backupDB() {
 }
 
 function mysqldump(
+  dbConfig: DBConfig,
   filename: string,
   rawStream: PassThrough,
   extraParams: $ReadOnlyArray<string>,
