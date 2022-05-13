@@ -8,6 +8,7 @@ import {
 } from 'lib/actions/user-actions';
 import baseReducer from 'lib/reducers/master-reducer';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import type { Shape } from 'lib/types/core';
 import type { EnabledApps } from 'lib/types/enabled-apps';
@@ -135,9 +136,10 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
 
 function validateState(oldState: AppState, state: AppState): AppState {
   if (
-    state.navInfo.activeChatThreadID &&
-    !state.navInfo.pendingThread &&
-    !state.threadStore.threadInfos[state.navInfo.activeChatThreadID]
+    (state.navInfo.activeChatThreadID &&
+      !state.navInfo.pendingThread &&
+      !state.threadStore.threadInfos[state.navInfo.activeChatThreadID]) ||
+    (!state.navInfo.activeChatThreadID && isLoggedIn(state))
   ) {
     // Makes sure the active thread always exists
     state = {
