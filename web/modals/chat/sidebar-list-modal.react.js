@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 import * as React from 'react';
 
+import { useSearchSidebars } from 'lib/hooks/search-sidebars';
 import { sidebarInfoSelector } from 'lib/selectors/thread-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { threadSearchText } from 'lib/shared/thread-utils';
@@ -25,25 +26,15 @@ type Props = {
 
 function SidebarListModal(props: Props): React.Node {
   const { threadInfo } = props;
-  const [searchState, setSearchState] = React.useState({
-    text: '',
-    results: new Set<string>(),
-  });
+  const { listData, searchState, setSearchState } = useSearchSidebars(
+    threadInfo,
+  );
   const { popModal } = useModalContext();
 
   const sidebarInfos = useSelector(
     state => sidebarInfoSelector(state)[threadInfo.id] ?? [],
   );
   const userInfos = useSelector(state => state.userStore.userInfos);
-
-  const listData = React.useMemo(() => {
-    if (!searchState.text) {
-      return sidebarInfos;
-    }
-    return sidebarInfos.filter(sidebarInfo =>
-      searchState.results.has(sidebarInfo.threadInfo.id),
-    );
-  }, [sidebarInfos, searchState]);
 
   const sidebars = React.useMemo(
     () =>
@@ -82,7 +73,7 @@ function SidebarListModal(props: Props): React.Node {
       ...curState,
       results: new Set(searchIndex.getSearchResults(curState.text)),
     }));
-  }, [searchIndex]);
+  }, [searchIndex, setSearchState]);
 
   const onChangeSearchText = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
@@ -92,15 +83,15 @@ function SidebarListModal(props: Props): React.Node {
         results: new Set(searchIndex.getSearchResults(searchText)),
       });
     },
-    [searchIndex],
+    [searchIndex, setSearchState],
   );
 
   const clearQuery = React.useCallback(
     (event: SyntheticEvent<HTMLAnchorElement>) => {
       event.preventDefault();
-      setSearchState({ text: '', results: [] });
+      setSearchState({ text: '', results: new Set() });
     },
-    [],
+    [setSearchState],
   );
 
   let clearQueryButton = null;
