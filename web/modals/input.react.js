@@ -9,13 +9,13 @@ type Props = {
   +placeholder: string,
   +value: string,
   +onChange: (value: SyntheticEvent<HTMLInputElement>) => mixed,
-  +disabled: boolean,
+  +disabled?: boolean,
   +label?: string,
   +id?: string,
 };
 
 function Input(props: Props, ref): React.Node {
-  const { label: labelProp, id, ...rest } = props;
+  const { label: labelProp, disabled = false, id, ...rest } = props;
 
   let label;
   if (labelProp) {
@@ -29,7 +29,13 @@ function Input(props: Props, ref): React.Node {
   return (
     <>
       {label}
-      <input className={css.input} id={id} {...rest} ref={ref} />
+      <input
+        className={css.input}
+        id={id}
+        disabled={disabled}
+        {...rest}
+        ref={ref}
+      />
     </>
   );
 }
