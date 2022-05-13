@@ -2,7 +2,15 @@
 
 import * as React from 'react';
 
+import {
+  updateSubscription,
+  updateSubscriptionActionTypes,
+} from 'lib/actions/user-actions';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import {
+  useServerCall,
+  useDispatchActionPromise,
+} from 'lib/utils/action-utils';
 
 import Button from '../../../components/button.react';
 import { useSelector } from '../../../redux/redux-utils';
@@ -115,7 +123,30 @@ function NotificationsModal(props: Props): React.Node {
     );
   }, [isBackgroundSelected, notificationIconStyle]);
 
-  const onClickSave = React.useCallback(() => {}, []);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  const callUpdateSubscription = useServerCall(updateSubscription);
+
+  const onClickSave = React.useCallback(() => {
+    dispatchActionPromise(
+      updateSubscriptionActionTypes,
+      callUpdateSubscription({
+        threadID: threadID,
+        updatedFields: {
+          home: notificationSettings !== 'background',
+          pushNotifs: notificationSettings === 'focused',
+        },
+      }),
+    );
+    onClose();
+  }, [
+    callUpdateSubscription,
+    dispatchActionPromise,
+    notificationSettings,
+    onClose,
+    threadID,
+  ]);
+
   return (
     <Modal name="Channel notifications" size="fit-content" onClose={onClose}>
       <div className={css.container}>
