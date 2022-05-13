@@ -1,3 +1,40 @@
+div.optionContainer {
+  display: flex;
+  padding: 16px 32px 16px 16px;
+  align-items: center;
+  border-radius: 8px;
+}
+
+div.optionContainerSelected {
+  background: var(--notification-settings-option-selected-bg);
+}
+
+div.optionIcon {
+  margin-right: 24px;
+}
+
+div.optionContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  line-height: var(--line-height-text);
+}
+
+div.optionTitle {
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
+  color: var(--notification-settings-option-title-color);
+  margin-bottom: 4px;
+}
+
+div.optionDescription {
+  font-size: var(--xs-font-12);
+  color: var(--notification-settings-option-color);
+  display: flex;
+  flex-direction: column;
+  row-gap: 4px;
+}
+
 div.optionInfo {
   display: flex;
   align-items: center;
