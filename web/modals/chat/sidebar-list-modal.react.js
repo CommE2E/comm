@@ -6,14 +6,10 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useSearchSidebars } from 'lib/hooks/search-sidebars';
-import { sidebarInfoSelector } from 'lib/selectors/thread-selectors';
-import SearchIndex from 'lib/shared/search-index';
-import { threadSearchText } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import chatThreadListCSS from '../../chat/chat-thread-list.css';
 import SidebarItem from '../../chat/sidebar-item.react';
-import { useSelector } from '../../redux/redux-utils';
 import globalCSS from '../../style.css';
 import { MagnifyingGlass } from '../../vectors.react';
 import Input from '../input.react';
@@ -26,15 +22,13 @@ type Props = {
 
 function SidebarListModal(props: Props): React.Node {
   const { threadInfo } = props;
-  const { listData, searchState, setSearchState } = useSearchSidebars(
-    threadInfo,
-  );
+  const {
+    listData,
+    searchState,
+    setSearchState,
+    searchIndex,
+  } = useSearchSidebars(threadInfo);
   const { popModal } = useModalContext();
-
-  const sidebarInfos = useSelector(
-    state => sidebarInfoSelector(state)[threadInfo.id] ?? [],
-  );
-  const userInfos = useSelector(state => state.userStore.userInfos);
 
   const sidebars = React.useMemo(
     () =>
@@ -52,28 +46,6 @@ function SidebarListModal(props: Props): React.Node {
       )),
     [popModal, listData],
   );
-
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const searchIndex = React.useMemo(() => {
-    const index = new SearchIndex();
-    for (const sidebarInfo of sidebarInfos) {
-      const threadInfoFromSidebarInfo = sidebarInfo.threadInfo;
-      index.addEntry(
-        threadInfoFromSidebarInfo.id,
-        threadSearchText(threadInfoFromSidebarInfo, userInfos, viewerID),
-      );
-    }
-    return index;
-  }, [sidebarInfos, userInfos, viewerID]);
-
-  React.useEffect(() => {
-    setSearchState(curState => ({
-      ...curState,
-      results: new Set(searchIndex.getSearchResults(curState.text)),
-    }));
-  }, [searchIndex, setSearchState]);
 
   const onChangeSearchText = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
