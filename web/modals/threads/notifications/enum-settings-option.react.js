@@ -4,8 +4,8 @@ import classnames from 'classnames';
 import * as React from 'react';
 
 import Radio from '../../../components/radio.react';
+import EnumSettingsOptionInfo from './enum-settings-option-info.react';
 import css from './notifications-modal.css';
-import NotificationsOptionInfo from './notifications-option-info.react';
 
 type Props = {
   +selected: boolean,
@@ -15,15 +15,15 @@ type Props = {
   +description: $ReadOnlyArray<[string, boolean]>,
 };
 
-function NotificationsOption(props: Props): React.Node {
+function EnumSettingsOption(props: Props): React.Node {
   const { icon, title, description, selected, onSelect } = props;
 
   const descriptionItems = React.useMemo(
     () =>
       description.map(([text, isValid]) => (
-        <NotificationsOptionInfo key={text} valid={isValid}>
+        <EnumSettingsOptionInfo key={text} valid={isValid}>
           {text}
-        </NotificationsOptionInfo>
+        </EnumSettingsOptionInfo>
       )),
     [description],
   );
@@ -47,4 +47,4 @@ function NotificationsOption(props: Props): React.Node {
   );
 }
 
-export default NotificationsOption;
+export default EnumSettingsOption;

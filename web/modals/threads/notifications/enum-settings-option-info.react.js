@@ -11,7 +11,7 @@ type Props = {
   +children: React.Node,
 };
 
-function NotificationsOptionInfo(props: Props): React.Node {
+function EnumSettingsOptionInfo(props: Props): React.Node {
   const { valid, children } = props;
 
   const optionInfoClasses = React.useMemo(
@@ -34,4 +34,4 @@ function NotificationsOptionInfo(props: Props): React.Node {
   );
 }
 
-export default NotificationsOptionInfo;
+export default EnumSettingsOptionInfo;

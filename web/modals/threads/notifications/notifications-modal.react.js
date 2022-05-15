@@ -16,8 +16,8 @@ import Button from '../../../components/button.react';
 import { useSelector } from '../../../redux/redux-utils';
 import SWMansionIcon from '../../../SWMansionIcon.react';
 import Modal from '../../modal.react';
+import EnumSettingsOption from './enum-settings-option.react';
 import css from './notifications-modal.css';
-import NotificationsOption from './notifications-option.react';
 
 type NotificationSettings = 'focused' | 'badge-only' | 'background';
 
@@ -76,7 +76,7 @@ function NotificationsModal(props: Props): React.Node {
       />
     );
     return (
-      <NotificationsOption
+      <EnumSettingsOption
         selected={isFocusedSelected}
         title="Focused (enabled)"
         description={description}
@@ -101,7 +101,7 @@ function NotificationsModal(props: Props): React.Node {
       />
     );
     return (
-      <NotificationsOption
+      <EnumSettingsOption
         selected={isFocusedBadgeOnlySelected}
         title="Focused (badge only)"
         description={description}
@@ -126,7 +126,7 @@ function NotificationsModal(props: Props): React.Node {
       />
     );
     return (
-      <NotificationsOption
+      <EnumSettingsOption
         selected={isBackgroundSelected}
         title="Background"
         description={description}
