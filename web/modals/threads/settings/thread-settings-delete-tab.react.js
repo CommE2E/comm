@@ -6,17 +6,17 @@ import {
   deleteThreadActionTypes,
   deleteThread,
 } from 'lib/actions/thread-actions';
-import { type SetState } from 'lib/types/hook-types.js';
+import { type SetState } from 'lib/types/hook-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
 
-import Button from '../../components/button.react.js';
-import SWMansionIcon from '../../SWMansionIcon.react';
-import Input from '../input.react.js';
-import { useModalContext } from '../modal-provider.react.js';
+import Button from '../../../components/button.react';
+import SWMansionIcon from '../../../SWMansionIcon.react';
+import Input from '../../input.react';
+import { useModalContext } from '../../modal-provider.react';
 import css from './thread-settings-delete-tab.css';
 
 type ThreadSettingsDeleteTabProps = {

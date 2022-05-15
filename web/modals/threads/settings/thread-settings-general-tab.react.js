@@ -6,7 +6,7 @@ import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
-import { type SetState } from 'lib/types/hook-types.js';
+import { type SetState } from 'lib/types/hook-types';
 import { type ThreadInfo, type ThreadChanges } from 'lib/types/thread-types';
 import {
   useDispatchActionPromise,
@@ -14,10 +14,10 @@ import {
 } from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
-import Button from '../../components/button.react';
-import Input from '../input.react.js';
-import { useModalContext } from '../modal-provider.react.js';
-import ColorSelector from './color-selector.react.js';
+import Button from '../../../components/button.react';
+import Input from '../../input.react';
+import { useModalContext } from '../../modal-provider.react';
+import ColorSelector from '../color-selector.react';
 import css from './thread-settings-general-tab.css';
 
 type ThreadSettingsGeneralTabProps = {

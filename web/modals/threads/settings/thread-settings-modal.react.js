@@ -17,10 +17,10 @@ import {
   type ThreadChanges,
 } from 'lib/types/thread-types';
 
-import Tabs from '../../components/tabs.react';
-import { useModalContext } from '../../modals/modal-provider.react';
-import { useSelector } from '../../redux/redux-utils';
-import Modal from '../modal.react';
+import Tabs from '../../../components/tabs.react';
+import { useSelector } from '../../../redux/redux-utils';
+import { useModalContext } from '../../modal-provider.react';
+import Modal from '../../modal.react';
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react';
 import ThreadSettingsGeneralTab from './thread-settings-general-tab.react';
 import css from './thread-settings-modal.css';

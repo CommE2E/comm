@@ -27,7 +27,7 @@ import {
 import type { Dispatch } from 'lib/types/redux-types';
 
 import { useModalContext } from '../modals/modal-provider.react';
-import ThreadSettingsModal from '../modals/threads/thread-settings-modal.react';
+import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import {
   webFilterThreadInfos,

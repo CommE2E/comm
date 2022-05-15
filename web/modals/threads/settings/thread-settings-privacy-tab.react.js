@@ -5,7 +5,7 @@ import * as React from 'react';
 import {
   changeThreadSettings,
   changeThreadSettingsActionTypes,
-} from 'lib/actions/thread-actions.js';
+} from 'lib/actions/thread-actions';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import { type SetState } from 'lib/types/hook-types';
 import {
@@ -17,10 +17,10 @@ import {
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils.js';
+} from 'lib/utils/action-utils';
 
-import Button from '../../components/button.react.js';
-import { useModalContext } from '../modal-provider.react.js';
+import Button from '../../../components/button.react';
+import { useModalContext } from '../../modal-provider.react';
 import css from './thread-settings-privacy-tab.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
