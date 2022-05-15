@@ -12,20 +12,23 @@ type Props = {
   +onSelect: () => void,
   +icon: React.Node,
   +title: string,
-  +description: $ReadOnlyArray<[string, boolean]>,
+  +statements: $ReadOnlyArray<{
+    +statement: string,
+    +isStatementValid: boolean,
+  }>,
 };
 
 function EnumSettingsOption(props: Props): React.Node {
-  const { icon, title, description, selected, onSelect } = props;
+  const { icon, title, statements, selected, onSelect } = props;
 
   const descriptionItems = React.useMemo(
     () =>
-      description.map(([text, isValid]) => (
-        <EnumSettingsOptionInfo key={text} valid={isValid}>
-          {text}
+      statements.map(({ statement, isStatementValid }) => (
+        <EnumSettingsOptionInfo key={statement} valid={isStatementValid}>
+          {statement}
         </EnumSettingsOptionInfo>
       )),
-    [description],
+    [statements],
   );
 
   const optionContainerClasses = React.useMemo(
