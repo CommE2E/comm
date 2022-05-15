@@ -3,7 +3,7 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import SWMansionIcon from '../../../SWMansionIcon.react';
+import SWMansionIcon from '../SWMansionIcon.react';
 import css from './enum-settings-option-info.css';
 
 type Props = {

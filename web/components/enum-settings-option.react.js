@@ -3,9 +3,9 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import Radio from '../../../components/radio.react';
-import EnumSettingsOptionInfo from './enum-settings-option-info.react';
+import EnumSettingsOptionInfo from './enum-settings-option-info.react.js';
 import css from './enum-settings-option.css';
+import Radio from './radio.react';
 
 type Props = {
   +selected: boolean,
