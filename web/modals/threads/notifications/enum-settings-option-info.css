@@ -1,0 +1,14 @@
+div.optionInfo {
+  display: flex;
+  align-items: center;
+  column-gap: 4px;
+}
+
+div.optionInfoInvalid {
+  text-decoration: line-through;
+  color: var(--notification-settings-option-invalid-color);
+}
+
+div.optionContainerSelected div.optionInfoInvalid {
+  color: var(--notification-settings-option-invalid-selected-color);
+}

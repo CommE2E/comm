@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import Radio from '../../../components/radio.react';
 import EnumSettingsOptionInfo from './enum-settings-option-info.react';
-import css from './notifications-modal.css';
+import css from './enum-settings-option.css';
 
 type Props = {
   +selected: boolean,
