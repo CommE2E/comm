@@ -24,11 +24,15 @@ function EnumSettingsOption(props: Props): React.Node {
   const descriptionItems = React.useMemo(
     () =>
       statements.map(({ statement, isStatementValid }) => (
-        <EnumSettingsOptionInfo key={statement} valid={isStatementValid}>
+        <EnumSettingsOptionInfo
+          key={statement}
+          optionSelected={selected}
+          valid={isStatementValid}
+        >
           {statement}
         </EnumSettingsOptionInfo>
       )),
-    [statements],
+    [selected, statements],
   );
 
   const optionContainerClasses = React.useMemo(

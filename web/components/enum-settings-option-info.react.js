@@ -7,19 +7,22 @@ import SWMansionIcon from '../SWMansionIcon.react';
 import css from './enum-settings-option-info.css';
 
 type Props = {
+  +optionSelected: boolean,
   +valid: boolean,
   +children: React.Node,
 };
 
 function EnumSettingsOptionInfo(props: Props): React.Node {
-  const { valid, children } = props;
+  const { valid, children, optionSelected } = props;
 
   const optionInfoClasses = React.useMemo(
     () =>
-      classnames(css.optionInfo, {
+      classnames({
+        [css.optionInfo]: true,
         [css.optionInfoInvalid]: !valid,
+        [css.optionInfoInvalidSelected]: !valid && optionSelected,
       }),
-    [valid],
+    [valid, optionSelected],
   );
 
   const icon = React.useMemo(

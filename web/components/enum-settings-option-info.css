@@ -9,6 +9,6 @@ div.optionInfoInvalid {
   color: var(--notification-settings-option-invalid-color);
 }
 
-div.optionContainerSelected div.optionInfoInvalid {
+div.optionInfoInvalidSelected {
   color: var(--notification-settings-option-invalid-selected-color);
 }
