@@ -22,12 +22,12 @@ type Props = {
 
 function SidebarListModal(props: Props): React.Node {
   const { threadInfo } = props;
-  const {
-    listData,
-    searchState,
-    onChangeSearchText,
-    clearQuery,
-  } = useSearchSidebars(threadInfo);
+  const [searchText, setSearchText] = React.useState('');
+  const { listData, onChangeSearchText, clearQuery } = useSearchSidebars(
+    threadInfo,
+    searchText,
+    setSearchText,
+  );
   const { popModal } = useModalContext();
 
   const sidebars = React.useMemo(
@@ -48,7 +48,7 @@ function SidebarListModal(props: Props): React.Node {
   );
 
   let clearQueryButton = null;
-  if (searchState.text) {
+  if (searchText) {
     clearQueryButton = (
       <a href="#" onClick={clearQuery}>
         <FontAwesomeIcon
@@ -73,7 +73,7 @@ function SidebarListModal(props: Props): React.Node {
             <Input
               type="text"
               placeholder="Search sidebars"
-              value={searchState.text}
+              value={searchText}
               onChange={onChangeSearchText}
             />
             {clearQueryButton}

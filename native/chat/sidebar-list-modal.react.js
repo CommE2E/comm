@@ -31,12 +31,12 @@ type Props = {
   +route: NavigationRoute<'SidebarListModal'>,
 };
 function SidebarListModal(props: Props): React.Node {
-  const {
-    listData,
-    searchState,
-    setSearchState,
-    onChangeSearchText,
-  } = useSearchSidebars(props.route.params.threadInfo);
+  const [searchText, setSearchText] = React.useState('');
+  const { listData, setSearchState, onChangeSearchText } = useSearchSidebars(
+    props.route.params.threadInfo,
+    searchText,
+    setSearchText,
+  );
 
   const searchTextInputRef = React.useRef();
   const setSearchTextInputRef = React.useCallback(
@@ -56,10 +56,7 @@ function SidebarListModal(props: Props): React.Node {
   const navigateToThread = useNavigateToThread();
   const onPressItem = React.useCallback(
     (threadInfo: ThreadInfo) => {
-      setSearchState({
-        text: '',
-        results: new Set(),
-      });
+      setSearchState(new Set());
       if (searchTextInputRef.current) {
         searchTextInputRef.current.blur();
       }
@@ -85,7 +82,7 @@ function SidebarListModal(props: Props): React.Node {
   return (
     <Modal>
       <Search
-        searchText={searchState.text}
+        searchText={searchText}
         onChangeText={onChangeSearchText}
         containerStyle={styles.search}
         placeholder="Search sidebars"
