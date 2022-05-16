@@ -41,21 +41,10 @@ function NotificationsModal(props: Props): React.Node {
     return 'focused';
   }, [subscription.home, subscription.pushNotifs]);
 
-  const [notificationSettings, setNotificationSettings] =
-    React.useState<NotificationSettings>(initialThreadSetting);
-
-  const onFocusedSelected = React.useCallback(
-    () => setNotificationSettings('focused'),
-    [],
-  );
-  const onBadgeOnlySelected = React.useCallback(
-    () => setNotificationSettings('badge-only'),
-    [],
-  );
-  const onBackgroundSelected = React.useCallback(
-    () => setNotificationSettings('background'),
-    [],
-  );
+  const [
+    notificationSettings,
+    setNotificationSettings,
+  ] = React.useState<NotificationSettings>(initialThreadSetting);
 
   const notificationIconStyle = React.useMemo(() => ({ width: 'auto' }), []);
 
@@ -79,10 +68,10 @@ function NotificationsModal(props: Props): React.Node {
         title="Focused (enabled)"
         description={description}
         icon={icon}
-        onSelect={onFocusedSelected}
+        onSelect={() => setNotificationSettings('focused')}
       />
     );
-  }, [isFocusedSelected, notificationIconStyle, onFocusedSelected]);
+  }, [isFocusedSelected, notificationIconStyle]);
 
   const isFocusedBadgeOnlySelected = notificationSettings === 'badge-only';
   const focusedBadgeOnlyItem = React.useMemo(() => {
@@ -104,10 +93,10 @@ function NotificationsModal(props: Props): React.Node {
         title="Focused (badge only)"
         description={description}
         icon={icon}
-        onSelect={onBadgeOnlySelected}
+        onSelect={() => setNotificationSettings('badge-only')}
       />
     );
-  }, [isFocusedBadgeOnlySelected, notificationIconStyle, onBadgeOnlySelected]);
+  }, [isFocusedBadgeOnlySelected, notificationIconStyle]);
 
   const isBackgroundSelected = notificationSettings === 'background';
   const backgroundItem = React.useMemo(() => {
@@ -129,10 +118,10 @@ function NotificationsModal(props: Props): React.Node {
         title="Background"
         description={description}
         icon={icon}
-        onSelect={onBackgroundSelected}
+        onSelect={() => setNotificationSettings('background')}
       />
     );
-  }, [isBackgroundSelected, notificationIconStyle, onBackgroundSelected]);
+  }, [isBackgroundSelected, notificationIconStyle]);
 
   const dispatchActionPromise = useDispatchActionPromise();
 
