@@ -58,12 +58,11 @@ function ThreadSettingsGeneralTab(
   const onChangeName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
       const target = event.currentTarget;
+      const newName = firstLine(target.value);
       setQueuedChanges(prevQueuedChanges =>
         Object.freeze({
           ...prevQueuedChanges,
-          name: firstLine(
-            target.value !== threadInfo.name ? target.value : undefined,
-          ),
+          name: newName !== threadInfo.name ? newName : undefined,
         }),
       );
     },
