@@ -46,6 +46,19 @@ function NotificationsModal(props: Props): React.Node {
     setNotificationSettings,
   ] = React.useState<NotificationSettings>(initialThreadSetting);
 
+  const onFocusedSelected = React.useCallback(
+    () => setNotificationSettings('focused'),
+    [],
+  );
+  const onBadgeOnlySelected = React.useCallback(
+    () => setNotificationSettings('badge-only'),
+    [],
+  );
+  const onBackgroundSelected = React.useCallback(
+    () => setNotificationSettings('background'),
+    [],
+  );
+
   const notificationIconStyle = React.useMemo(() => ({ width: 'auto' }), []);
 
   const isFocusedSelected = notificationSettings === 'focused';
@@ -68,10 +81,10 @@ function NotificationsModal(props: Props): React.Node {
         title="Focused (enabled)"
         description={description}
         icon={icon}
-        onSelect={() => setNotificationSettings('focused')}
+        onSelect={onFocusedSelected}
       />
     );
-  }, [isFocusedSelected, notificationIconStyle]);
+  }, [isFocusedSelected, notificationIconStyle, onFocusedSelected]);
 
   const isFocusedBadgeOnlySelected = notificationSettings === 'badge-only';
   const focusedBadgeOnlyItem = React.useMemo(() => {
@@ -93,10 +106,10 @@ function NotificationsModal(props: Props): React.Node {
         title="Focused (badge only)"
         description={description}
         icon={icon}
-        onSelect={() => setNotificationSettings('badge-only')}
+        onSelect={onBadgeOnlySelected}
       />
     );
-  }, [isFocusedBadgeOnlySelected, notificationIconStyle]);
+  }, [isFocusedBadgeOnlySelected, notificationIconStyle, onBadgeOnlySelected]);
 
   const isBackgroundSelected = notificationSettings === 'background';
   const backgroundItem = React.useMemo(() => {
@@ -118,10 +131,10 @@ function NotificationsModal(props: Props): React.Node {
         title="Background"
         description={description}
         icon={icon}
-        onSelect={() => setNotificationSettings('background')}
+        onSelect={onBackgroundSelected}
       />
     );
-  }, [isBackgroundSelected, notificationIconStyle]);
+  }, [isBackgroundSelected, notificationIconStyle, onBackgroundSelected]);
 
   const dispatchActionPromise = useDispatchActionPromise();
 
