@@ -1,4 +1,7 @@
 #import "NotificationService.h"
+#import "../Comm/Tools.h"
+#import "Logger.h"
+#import "MessageOperationsUtilities.h"
 
 @interface NotificationService ()
 
@@ -18,7 +21,21 @@
   self.bestAttemptContent = [request.content mutableCopy];
 
   // TODO modify self.bestAttemptContent here
+  NSString *rawMessageInfosString =
+      self.bestAttemptContent.userInfo[@"messageInfos"];
+  NSString *sqliteFilePath = [Tools getSQLiteFilePath];
 
+  if (rawMessageInfosString &&
+      [NSFileManager.defaultManager fileExistsAtPath:sqliteFilePath]) {
+    std::string sqliteFilePathStdStr = [sqliteFilePath UTF8String];
+    std::string rawMessageInfosStdStr = [rawMessageInfosString UTF8String];
+    comm::SQLiteQueryExecutor::initialize(sqliteFilePathStdStr);
+    comm::MessageOperationsUtilities::storeNotification(rawMessageInfosStdStr);
+  } else if (rawMessageInfosString) {
+    comm::Logger::log("Database not existing yet. Skipping notification");
+  } else {
+    comm::Logger::log("Received notification without messageInfos field");
+  }
   self.contentHandler(self.bestAttemptContent);
 }
 
