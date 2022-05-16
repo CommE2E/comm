@@ -1,0 +1,57 @@
+proto < ../../native/cpp/CommonCpp/grpc/protos/backup.proto
+
+GRPC localhost:50052/backup.BackupService/SendLog
+{
+  "userID": "12345"
+}
+
+>> ./output.json // redirecting the output to a file doesn't work for grpc, probably only for HTTP
+
+{{@streaming
+
+  let state = false
+
+  async function writeStream() {
+    await sleep(1000);
+    if (!state) {
+      state = true;
+    } else {
+      return 12;
+    }
+    let x = grpcStream.write({
+      someData: 'xxx'
+    }, undefined, (r) => {
+      console.log('???', r); // undefined
+    });
+    console.log('here 4', x); // true
+  }
+  exports.waitPromise = writeStream();
+}}
+
+/*
+command: httpyac --all test.http && echo "YES" || echo "NO"
+output: 
+---------------------
+
+GRPC localhost:50052/backup.BackupService/SendLog
+
+{
+  "userID": "12345"
+}
+
+GRPC 13  - backup id expected but not received
+
+{
+  "code": 13,
+  "details": "backup id expected but not received",
+  "metadata": {
+    "content-type": [
+      "application/grpc"
+    ]
+  }
+}
+here 4 true
+??? undefined
+YES
+
+*/

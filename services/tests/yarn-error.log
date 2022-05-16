@@ -1,0 +1,46 @@
+Arguments: 
+  /usr/local/Cellar/node/17.3.0/bin/node /usr/local/bin/yarn add httpyack
+
+PATH: 
+  /usr/local/opt/php@7.2/sbin:/usr/local/opt/php@7.2/bin:/usr/local/opt:/usr/local/opt/bison/bin:/usr/local/opt/openssl@1.1/bin:/usr/local/opt/m4/bin:/usr/local/Cellar/bison/3.7.6/bin:/usr/local/opt/flex/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/usr/local/opt/php@7.2/sbin:/usr/local/opt/php@7.2/bin:/usr/local/opt:/usr/local/opt/bison/bin:/usr/local/opt/openssl@1.1/bin:/usr/local/opt/m4/bin:/usr/local/Cellar/bison/3.7.6/bin:/usr/local/opt/flex/bin:/Users/karolbisztyga/.cargo/bin:/Users/karolbisztyga/Library/Android/sdk/emulator:/Users/karolbisztyga/Library/Android/sdk/tools:/Users/karolbisztyga/Library/Android/sdk/tools/bin:/Users/karolbisztyga/Library/Android/sdk/platform-tools:/Users/karolbisztyga/Desktop/workspace/arcanist/bin:./node_modules/.bin:/Users/karolbisztyga/Library/Android/sdk/emulator:/Users/karolbisztyga/Library/Android/sdk/tools:/Users/karolbisztyga/Library/Android/sdk/tools/bin:/Users/karolbisztyga/Library/Android/sdk/platform-tools:/Users/karolbisztyga/Desktop/workspace/arcanist/bin:./node_modules/.bin
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  17.3.0
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/httpyack: Not found
+      at Request.params.callback [as _callback] (/usr/local/lib/node_modules/yarn/lib/cli.js:66988:18)
+      at Request.self.callback (/usr/local/lib/node_modules/yarn/lib/cli.js:140662:22)
+      at Request.emit (node:events:390:28)
+      at Request.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141634:10)
+      at Request.emit (node:events:390:28)
+      at IncomingMessage.<anonymous> (/usr/local/lib/node_modules/yarn/lib/cli.js:141556:12)
+      at Object.onceWrapper (node:events:509:28)
+      at IncomingMessage.emit (node:events:402:35)
+      at endReadableNT (node:internal/streams/readable:1343:12)
+      at processTicksAndRejections (node:internal/process/task_queues:83:21)
+
+npm manifest: 
+  {
+    "name": "tests",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
