@@ -15,7 +15,7 @@ namespace reactor {
 
 class SendLogReactor : public ServerReadReactorBase<
                            backup::SendLogRequest,
-                           google::protobuf::Empty> {
+                           backup::SendLogResponse> {
   enum class State {
     USER_ID = 1,
     BACKUP_ID = 2,
@@ -52,7 +52,7 @@ class SendLogReactor : public ServerReadReactorBase<
   void initializePutReactor();
 
 public:
-  using ServerReadReactorBase<backup::SendLogRequest, google::protobuf::Empty>::
+  using ServerReadReactorBase<backup::SendLogRequest, backup::SendLogResponse>::
       ServerReadReactorBase;
 
   std::unique_ptr<grpc::Status>

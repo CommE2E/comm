@@ -21,7 +21,7 @@ public:
 
   grpc::ServerReadReactor<backup::SendLogRequest> *SendLog(
       grpc::CallbackServerContext *context,
-      google::protobuf::Empty *response) override;
+      backup::SendLogResponse *response) override;
 
   grpc::ServerBidiReactor<
       backup::RecoverBackupKeyRequest,

@@ -27,7 +27,7 @@ BackupServiceImpl::CreateNewBackup(grpc::CallbackServerContext *context) {
 
 grpc::ServerReadReactor<backup::SendLogRequest> *BackupServiceImpl::SendLog(
     grpc::CallbackServerContext *context,
-    google::protobuf::Empty *response) {
+    backup::SendLogResponse *response) {
   return new reactor::SendLogReactor(response);
 }
 

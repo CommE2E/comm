@@ -20,7 +20,7 @@ import "google/protobuf/empty.proto";
 
 service BackupService {
   rpc CreateNewBackup(stream CreateNewBackupRequest) returns (stream CreateNewBackupResponse) {}
-  rpc SendLog(stream SendLogRequest) returns (google.protobuf.Empty) {}
+  rpc SendLog(stream SendLogRequest) returns (SendLogResponse) {}
   rpc RecoverBackupKey(stream RecoverBackupKeyRequest) returns (stream RecoverBackupKeyResponse) {}
   rpc PullBackup(PullBackupRequest) returns (stream PullBackupResponse) {}
 }
@@ -50,6 +50,10 @@ message SendLogRequest {
     bytes logHash = 3;
     bytes logData = 4;
   }
+}
+
+message SendLogResponse {
+  string logID = 1;
 }
 
 // RecoverBackupKey
