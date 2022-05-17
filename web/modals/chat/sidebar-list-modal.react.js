@@ -22,13 +22,13 @@ type SidebarModalContentProps = {
 function SidebarModalContent(props: SidebarModalContentProps): React.Node {
   const { threadInfo, searchText } = props;
   const { popModal } = useModalContext();
-  const { listData } = useSearchSidebars(threadInfo, searchText);
+  const { sidebars } = useSearchSidebars(threadInfo, searchText);
 
   return (
     <ul>
-      {listData.map(item => (
-        <li key={item.threadInfo.id} onClick={popModal}>
-          <SidebarItem sidebarInfo={item} />
+      {sidebars.map(sideBar => (
+        <li key={sideBar.threadInfo.id} onClick={popModal}>
+          <SidebarItem sidebarInfo={sideBar} />
         </li>
       ))}
     </ul>
