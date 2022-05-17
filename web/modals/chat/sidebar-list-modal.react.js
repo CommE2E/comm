@@ -1,12 +1,10 @@
 // @flow
 
-import classNames from 'classnames';
 import * as React from 'react';
 
 import { useSearchSidebars } from 'lib/hooks/search-sidebars';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import chatThreadListCSS from '../../chat/chat-thread-list.css';
 import SidebarItem from '../../chat/sidebar-item.react';
 import { useModalContext } from '../modal-provider.react';
 import SearchModal from '../search-modal.react';
@@ -26,18 +24,15 @@ function SidebarModalContent(props: SidebarModalContentProps): React.Node {
   const { popModal } = useModalContext();
   const { listData } = useSearchSidebars(threadInfo, searchText);
 
-  return listData.map(item => (
-    <div
-      className={classNames(
-        chatThreadListCSS.thread,
-        chatThreadListCSS.sidebar,
-      )}
-      key={item.threadInfo.id}
-      onClick={popModal}
-    >
-      <SidebarItem sidebarInfo={item} />
-    </div>
-  ));
+  return (
+    <ul>
+      {listData.map(item => (
+        <li key={item.threadInfo.id} onClick={popModal}>
+          <SidebarItem sidebarInfo={item} />
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function SidebarListModal(props: Props): React.Node {
