@@ -168,4 +168,5 @@
   --notification-settings-option-invalid-selected-color: var(--shades-black-60);
   --danger-zone-subheading-color: var(--shades-white-60);
   --danger-zone-explanation-color: var(--shades-black-60);
+  --sidebar-modal-color: var(--shades-black-60);
 }

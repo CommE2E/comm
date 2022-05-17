@@ -1,0 +1,33 @@
+div.sidebar {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+div.sidebarName {
+  font-size: var(--l-font-18);
+  color: var(--sidebar-modal-color);
+  padding-left: 36px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.unread {
+  color: var(--fg);
+}
+
+.longArrow {
+  position: absolute;
+  bottom: 100px;
+}
+
+.arrow {
+  position: absolute;
+  bottom: 6px;
+}
+
+ul.sidebarList {
+  padding-top: 16px;
+  padding-left: 16px;
+  list-style: none;
+}

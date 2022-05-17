@@ -5,7 +5,8 @@ import * as React from 'react';
 import { useSearchSidebars } from 'lib/hooks/search-sidebars';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import SidebarItem from '../../chat/sidebar-item.react';
+import css from '../../chat/sidebar-modal-item.css';
+import SideBarModalItem from '../../chat/sidebar-modal-item.react';
 import { useModalContext } from '../modal-provider.react';
 import SearchModal from '../search-modal.react';
 
@@ -25,10 +26,10 @@ function SidebarModalContent(props: SidebarModalContentProps): React.Node {
   const { sidebars } = useSearchSidebars(threadInfo, searchText);
 
   return (
-    <ul>
+    <ul className={css.sidebarList}>
       {sidebars.map(sideBar => (
         <li key={sideBar.threadInfo.id} onClick={popModal}>
-          <SidebarItem sidebarInfo={sideBar} />
+          <SideBarModalItem sidebar={sideBar} />
         </li>
       ))}
     </ul>
