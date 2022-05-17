@@ -47,8 +47,7 @@
     "react-test-renderer": "17.0.2",
     "redux-flipper": "^1.4.2",
     "remote-redux-devtools": "git+https://git@github.com/zalmoxisus/remote-redux-devtools.git",
-    "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git",
-    "sqlite3": "git+https://github.com/mapbox/node-sqlite3#918052b538b0effe6c4a44c74a16b2749c08a0d2"
+    "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git"
   },
   "dependencies": {
     "@commapp/sqlcipher-amalgamation": "^4.4.3-a",
