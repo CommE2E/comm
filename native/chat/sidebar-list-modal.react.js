@@ -32,7 +32,7 @@ type Props = {
 };
 function SidebarListModal(props: Props): React.Node {
   const [searchText, setSearchText] = React.useState('');
-  const { listData, setSearchState, onChangeSearchText } = useSearchSidebars(
+  const { sidebars, setSearchState, onChangeSearchText } = useSearchSidebars(
     props.route.params.threadInfo,
     searchText,
     setSearchText,
@@ -89,7 +89,7 @@ function SidebarListModal(props: Props): React.Node {
         ref={setSearchTextInputRef}
       />
       <FlatList
-        data={listData}
+        data={sidebars}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         getItemLayout={getItemLayout}
