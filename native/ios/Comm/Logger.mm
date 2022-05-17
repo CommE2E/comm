@@ -11,4 +11,4 @@ void Logger::log(const std::string str) {
                          encoding:[NSString defaultCStringEncoding]]);
 };
 
-}
+} // namespace comm

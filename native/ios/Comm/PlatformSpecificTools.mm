@@ -23,4 +23,4 @@ std::string PlatformSpecificTools::getDeviceOS() {
   return std::string{"ios"};
 }
 
-};
+}; // namespace comm

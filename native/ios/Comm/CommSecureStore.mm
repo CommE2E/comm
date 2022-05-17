@@ -28,4 +28,4 @@ folly::Optional<std::string> CommSecureStore::get(const std::string key) const {
       : folly::none;
 }
 
-};
+}; // namespace comm
