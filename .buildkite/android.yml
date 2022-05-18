@@ -1,6 +1,6 @@
 steps:
   - command:
       - 'yarn cleaninstall --frozen-lockfile --skip-optional'
-      - 'cd native/android && ./gradlew bundleRelease'
+      - 'cd native/android && ./gradlew clean && ./gradlew bundleRelease'
     agents:
       - 'android=true'
