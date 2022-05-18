@@ -61,8 +61,8 @@ function Menu(props: MenuProps): React.Node {
   React.useEffect(updatePosition, [updatePosition]);
 
   const closeMenuCallback = React.useCallback(() => {
-    closeMenu(menuActionList);
-  }, [closeMenu, menuActionList]);
+    closeMenu(ourSymbol.current);
+  }, [closeMenu]);
 
   React.useEffect(() => {
     onChange?.(isOurMenuOpen);
@@ -93,7 +93,8 @@ function Menu(props: MenuProps): React.Node {
   }, [isOurMenuOpen, menuActionList, renderMenu]);
 
   React.useEffect(() => {
-    return () => closeMenu(prevActionListRef.current);
+    const ourSymbolValue = ourSymbol.current;
+    return () => closeMenu(ourSymbolValue);
   }, [closeMenu]);
 
   const onClickMenuCallback = React.useCallback(() => {

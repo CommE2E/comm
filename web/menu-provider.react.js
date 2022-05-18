@@ -15,11 +15,11 @@ type Props = {
   +children: React.Node,
 };
 type MenuContextType = {
-  +renderMenu: SetState<React.Node>,
+  +renderMenu: React.Node => void,
   +setMenuPosition: SetState<MenuPosition>,
-  +closeMenu: React.Node => void,
-  +currentOpenMenu: symbol,
-  +setCurrentOpenMenu: SetState<symbol>,
+  +closeMenu: (symbol) => void,
+  +currentOpenMenu: ?symbol,
+  +setCurrentOpenMenu: (symbol) => void,
 };
 
 const MenuContext: React.Context<MenuContextType> = React.createContext<MenuContextType>(
@@ -27,48 +27,70 @@ const MenuContext: React.Context<MenuContextType> = React.createContext<MenuCont
     renderMenu: () => {},
     setMenuPosition: () => {},
     closeMenu: () => {},
-    currentOpenMenu: Symbol(),
+    currentOpenMenu: null,
     setCurrentOpenMenu: () => {},
   },
 );
 
+type Menu = {
+  +node: ?React.Node,
+  +symbol: ?symbol,
+};
+
 function MenuProvider(props: Props): React.Node {
   const { children } = props;
-  const [menu, setMenu] = React.useState(null);
-  const [currentOpenMenu, setCurrentOpenMenu] = React.useState<symbol>(
-    Symbol(),
-  );
+  const [menu, setMenu] = React.useState<Menu>({ node: null, symbol: null });
   const [position, setPosition] = React.useState<MenuPosition>({
     top: 0,
     left: 0,
   });
 
-  const closeMenu = React.useCallback((menuToClose: React.Node) => {
-    setCurrentOpenMenu(Symbol());
-    setMenu(oldMenu => {
-      if (oldMenu === menuToClose) {
-        return null;
-      } else {
-        return oldMenu;
+  const setMenuSymbol = React.useCallback(
+    (newSymbol: symbol) =>
+      setMenu(prevMenu => {
+        if (prevMenu.symbol === newSymbol) {
+          return prevMenu;
+        }
+        return { node: null, symbol: newSymbol };
+      }),
+    [],
+  );
+
+  const setMenuNode = React.useCallback(
+    (newMenuNode: React.Node) =>
+      setMenu(prevMenu => {
+        if (prevMenu.node === newMenuNode) {
+          return prevMenu;
+        }
+        return { ...prevMenu, node: newMenuNode };
+      }),
+    [],
+  );
+
+  const closeMenu = React.useCallback((menuToCloseSymbol: symbol) => {
+    setMenu(currentMenu => {
+      if (currentMenu.symbol === menuToCloseSymbol) {
+        return { node: null, symbol: null };
       }
+      return currentMenu;
     });
   }, []);
 
   const value = React.useMemo(
     () => ({
-      renderMenu: setMenu,
+      renderMenu: setMenuNode,
       setMenuPosition: setPosition,
       closeMenu,
-      setCurrentOpenMenu,
-      currentOpenMenu,
+      setCurrentOpenMenu: setMenuSymbol,
+      currentOpenMenu: menu.symbol,
     }),
-    [closeMenu, currentOpenMenu],
+    [closeMenu, menu.symbol, setMenuNode, setMenuSymbol],
   );
   return (
     <>
       <MenuContext.Provider value={value}>{children}</MenuContext.Provider>
       <div style={position} className={css.container}>
-        {menu}
+        {menu.node}
       </div>
     </>
   );
