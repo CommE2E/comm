@@ -5,6 +5,7 @@ import android.content.Context;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import app.comm.android.fbjni.CommSecureStore;
+import app.comm.android.fbjni.MessageOperationsUtilities;
 import app.comm.android.fbjni.NetworkModule;
 import app.comm.android.fbjni.ThreadOperations;
 import com.google.firebase.messaging.RemoteMessage;
@@ -12,6 +13,8 @@ import expo.modules.securestore.SecureStoreModule;
 import io.invertase.firebase.messaging.RNFirebaseMessagingService;
 import java.io.File;
 import me.leolin.shortcutbadger.ShortcutBadger;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * We're extending RNFirebaseMessagingService here instead of
@@ -46,6 +49,7 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
   private static final String BACKGROUND_NOTIF_TYPE_KEY = "backgroundNotifType";
   private static final String THREAD_ID_KEY = "threadID";
   private static final String SET_UNREAD_STATUS_KEY = "setUnreadStatus";
+  private static final String MESSAGE_INFOS_KEY = "messageInfos";
   private NotificationManager notificationManager;
 
   @Override
@@ -89,6 +93,16 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
     if ("PING".equals(backgroundNotifType)) {
       NetworkModule.sendPong();
       return;
+    }
+
+    String rawMessageInfosString = message.getData().get(MESSAGE_INFOS_KEY);
+    File sqliteFile =
+        this.getApplicationContext().getDatabasePath("comm.sqlite");
+    if (rawMessageInfosString != null && sqliteFile.exists()) {
+      MessageOperationsUtilities.storeMessageInfos(
+          sqliteFile.getPath(), rawMessageInfosString);
+    } else if (rawMessageInfosString != null) {
+      Log.w("COMM", "Database not existing yet. Skipping notification");
     }
 
     super.onMessageReceived(message);
