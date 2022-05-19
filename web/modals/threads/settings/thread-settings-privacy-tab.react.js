@@ -11,7 +11,6 @@ import { type SetState } from 'lib/types/hook-types';
 import {
   type ThreadInfo,
   type ThreadChanges,
-  assertThreadType,
   threadTypes,
 } from 'lib/types/thread-types';
 import {
@@ -20,10 +19,26 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../../../components/button.react';
+import EnumSettingsOption from '../../../components/enum-settings-option.react';
+import SWMansionIcon from '../../../SWMansionIcon.react';
 import { useModalContext } from '../../modal-provider.react';
 import css from './thread-settings-privacy-tab.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
+
+const openStatements = [
+  {
+    statement: threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD],
+    isStatementValid: true,
+  },
+];
+
+const secretStatements = [
+  {
+    statement: threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD],
+    isStatementValid: true,
+  },
+];
 
 type ThreadSettingsPrivacyTabProps = {
   +inputDisabled: boolean,
@@ -50,19 +65,6 @@ function ThreadSettingsPrivacyTab(
   const changeQueued: boolean = React.useMemo(
     () => Object.values(queuedChanges).some(v => v !== null && v !== undefined),
     [queuedChanges],
-  );
-
-  const onChangeThreadType = React.useCallback(
-    (event: SyntheticEvent<HTMLInputElement>) => {
-      const uiValue = assertThreadType(parseInt(event.currentTarget.value, 10));
-      setQueuedChanges(prevQueuedChanges =>
-        Object.freeze({
-          ...prevQueuedChanges,
-          type: uiValue !== threadInfo.type ? uiValue : undefined,
-        }),
-      );
-    },
-    [setQueuedChanges, threadInfo.type],
   );
 
   const changeThreadSettingsAction = React.useCallback(async () => {
@@ -98,51 +100,63 @@ function ThreadSettingsPrivacyTab(
     [changeThreadSettingsAction, dispatchActionPromise],
   );
 
+  const onOpenSelected = React.useCallback(() => {
+    setQueuedChanges(prevQueuedChanges =>
+      Object.freeze({
+        ...prevQueuedChanges,
+        type:
+          COMMUNITY_OPEN_SUBTHREAD !== threadInfo.type
+            ? COMMUNITY_OPEN_SUBTHREAD
+            : undefined,
+      }),
+    );
+  }, [setQueuedChanges, threadInfo.type]);
+
+  const onSecretSelected = React.useCallback(() => {
+    setQueuedChanges(prevQueuedChanges =>
+      Object.freeze({
+        ...prevQueuedChanges,
+        type:
+          COMMUNITY_SECRET_SUBTHREAD !== threadInfo.type
+            ? COMMUNITY_SECRET_SUBTHREAD
+            : undefined,
+      }),
+    );
+  }, [setQueuedChanges, threadInfo.type]);
+
+  const globeIcon = React.useMemo(
+    () => <SWMansionIcon icon="globe" size={24} />,
+    [],
+  );
+
+  const lockIcon = React.useMemo(
+    () => <SWMansionIcon icon="lock-on" size={24} />,
+    [],
+  );
+
   return (
     <form method="POST">
       <div className={css.form_title}>Thread type</div>
-      <div>
-        <input
-          type="radio"
-          name="edit-thread-type"
-          id="edit-thread-open"
-          value={COMMUNITY_OPEN_SUBTHREAD}
-          checked={
+      <div className={css.enum_container}>
+        <EnumSettingsOption
+          selected={
             (queuedChanges.type ?? threadInfo.type) === COMMUNITY_OPEN_SUBTHREAD
           }
-          onChange={onChangeThreadType}
-          disabled={inputDisabled}
+          onSelect={onOpenSelected}
+          icon={globeIcon}
+          title="Open"
+          statements={openStatements}
         />
-        <div>
-          <label htmlFor="edit-thread-open">
-            Open
-            <span className={css.form_enum_description}>
-              {threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD]}
-            </span>
-          </label>
-        </div>
-        <div>
-          <input
-            type="radio"
-            name="edit-thread-type"
-            id="edit-thread-closed"
-            value={COMMUNITY_SECRET_SUBTHREAD}
-            checked={
-              (queuedChanges.type ?? threadInfo.type) ===
-              COMMUNITY_SECRET_SUBTHREAD
-            }
-            onChange={onChangeThreadType}
-            disabled={inputDisabled}
-          />
-          <div>
-            <label htmlFor="edit-thread-closed">
-              Secret
-              <span className={css.form_enum_description}>
-                {threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD]}
-              </span>
-            </label>
-          </div>
-        </div>
+        <EnumSettingsOption
+          selected={
+            (queuedChanges.type ?? threadInfo.type) ===
+            COMMUNITY_SECRET_SUBTHREAD
+          }
+          onSelect={onSecretSelected}
+          icon={lockIcon}
+          title="Secret"
+          statements={secretStatements}
+        />
       </div>
 
       <Button

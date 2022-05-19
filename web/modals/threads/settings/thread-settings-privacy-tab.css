@@ -4,10 +4,8 @@ div.form_title {
   font-weight: 600;
 }
 
-span.form_enum_description {
-  display: flex;
-  font-size: var(--xs-font-12);
-  color: gray;
+div.enum_container {
+  padding: 12px 0;
 }
 
 .save_button {
