@@ -69,13 +69,35 @@ TEST_F(DatabaseManagerTest, TestOperationsOnLogItems) {
 
   std::vector<std::string> logIDs1 = {"log001", "log002", "log003"};
   for (const std::string &logID : logIDs1) {
-    DatabaseManager::getInstance().putLogItem(
-        generateLogItem(backupID1, logID));
+    LogItem generatedItem = generateLogItem(backupID1, logID);
+    DatabaseManager::getInstance().putLogItem(generatedItem);
+    std::shared_ptr<LogItem> foundItem =
+        DatabaseManager::getInstance().findLogItem(backupID1, logID);
+    EXPECT_NE(foundItem, nullptr);
+    EXPECT_EQ(foundItem->getBackupID(), generatedItem.getBackupID());
+    EXPECT_EQ(foundItem->getLogID(), generatedItem.getLogID());
+    EXPECT_EQ(
+        foundItem->getPersistedInBlob(), generatedItem.getPersistedInBlob());
+    EXPECT_EQ(foundItem->getValue(), generatedItem.getValue());
+    EXPECT_EQ(
+        foundItem->getAttachmentHolders(),
+        generatedItem.getAttachmentHolders());
   }
   std::vector<std::string> logIDs2 = {"log021", "log022"};
   for (const std::string &logID : logIDs2) {
-    DatabaseManager::getInstance().putLogItem(
-        generateLogItem(backupID2, logID));
+    LogItem generatedItem = generateLogItem(backupID2, logID);
+    DatabaseManager::getInstance().putLogItem(generatedItem);
+    std::shared_ptr<LogItem> foundItem =
+        DatabaseManager::getInstance().findLogItem(backupID2, logID);
+    EXPECT_NE(foundItem, nullptr);
+    EXPECT_EQ(foundItem->getBackupID(), generatedItem.getBackupID());
+    EXPECT_EQ(foundItem->getLogID(), generatedItem.getLogID());
+    EXPECT_EQ(
+        foundItem->getPersistedInBlob(), generatedItem.getPersistedInBlob());
+    EXPECT_EQ(foundItem->getValue(), generatedItem.getValue());
+    EXPECT_EQ(
+        foundItem->getAttachmentHolders(),
+        generatedItem.getAttachmentHolders());
   }
 
   std::vector<std::shared_ptr<LogItem>> items1 =
@@ -90,6 +112,9 @@ TEST_F(DatabaseManagerTest, TestOperationsOnLogItems) {
   for (size_t i = 0; i < items1.size(); ++i) {
     EXPECT_EQ(logIDs1.at(i), items1.at(i)->getLogID());
     DatabaseManager::getInstance().removeLogItem(items1.at(i));
+    EXPECT_EQ(
+        DatabaseManager::getInstance().findLogItem(backupID1, logIDs1.at(i)),
+        nullptr);
   }
   EXPECT_EQ(
       DatabaseManager::getInstance().findLogItemsForBackup(backupID1).size(),
@@ -98,6 +123,9 @@ TEST_F(DatabaseManagerTest, TestOperationsOnLogItems) {
   for (size_t i = 0; i < items2.size(); ++i) {
     EXPECT_EQ(logIDs2.at(i), items2.at(i)->getLogID());
     DatabaseManager::getInstance().removeLogItem(items2.at(i));
+    EXPECT_EQ(
+        DatabaseManager::getInstance().findLogItem(backupID2, logIDs2.at(i)),
+        nullptr);
   }
   EXPECT_EQ(
       DatabaseManager::getInstance().findLogItemsForBackup(backupID2).size(),
