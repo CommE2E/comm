@@ -4,9 +4,6 @@
 
 #include <glog/logging.h>
 #include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 
 #include <chrono>
 #include <iostream>
@@ -50,11 +47,6 @@ bool validateDeviceID(std::string deviceID) {
                << "Got an exception at `validateDeviceID`: " << e.what();
     return false;
   }
-}
-
-std::string generateUUID() {
-  thread_local boost::uuids::random_generator random_generator;
-  return boost::uuids::to_string(random_generator());
 }
 
 bool validateSessionID(std::string sessionID) {

@@ -1,5 +1,6 @@
 #include "Tools.h"
 #include "Constants.h"
+#include "GlobalTools.h"
 
 #include <gtest/gtest.h>
 
@@ -58,7 +59,7 @@ TEST(ToolsTest, ValidateSessionIDReturnsTrueOnValidStaticSessionID) {
 }
 
 TEST(ToolsTest, ValidateSessionIDReturnsTrueOnValidGeneratedSessionID) {
-  const std::string validSessionID = tools::generateUUID();
+  const std::string validSessionID = generateUUID();
   EXPECT_EQ(tools::validateSessionID(validSessionID), true)
       << "Valid generated sessionID \"" << validSessionID
       << "\" is invalid by the function";

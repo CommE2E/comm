@@ -14,5 +14,7 @@ std::string decorateTableName(const std::string &baseName);
 
 bool isDevMode();
 
+std::string generateUUID();
+
 } // namespace network
 } // namespace comm

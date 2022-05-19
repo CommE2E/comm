@@ -1,6 +1,9 @@
 #include "GlobalTools.h"
 
 #include <openssl/sha.h>
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include <chrono>
 #include <iomanip>
@@ -32,6 +35,11 @@ std::string decorateTableName(const std::string &baseName) {
 
 bool isDevMode() {
   return hasEnvFlag("COMM_SERVICES_DEV_MODE");
+}
+
+std::string generateUUID() {
+  thread_local boost::uuids::random_generator random_generator;
+  return boost::uuids::to_string(random_generator());
 }
 
 } // namespace network

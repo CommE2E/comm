@@ -2,6 +2,7 @@
 #include "ConfigManager.h"
 #include "Constants.h"
 #include "DeliveryBroker.h"
+#include "GlobalTools.h"
 #include "Tools.h"
 
 #include <gtest/gtest.h>
@@ -47,7 +48,7 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnStaticData) {
 }
 
 TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnGeneratedData) {
-  const std::string messageID = tools::generateUUID();
+  const std::string messageID = generateUUID();
   const std::string toDeviceID =
       "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH);
   const std::string fromDeviceID =
