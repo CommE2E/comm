@@ -69,9 +69,13 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
     const hasPermissionForTab = React.useCallback(
       (thread: ThreadInfo, tab: TabType) => {
         if (tab === 'general') {
-          return threadHasPermission(
-            thread,
-            threadPermissions.EDIT_THREAD_NAME,
+          return (
+            threadHasPermission(thread, threadPermissions.EDIT_THREAD_NAME) ||
+            threadHasPermission(thread, threadPermissions.EDIT_THREAD_COLOR) ||
+            threadHasPermission(
+              thread,
+              threadPermissions.EDIT_THREAD_DESCRIPTION,
+            )
           );
         } else if (tab === 'privacy') {
           return threadHasPermission(
