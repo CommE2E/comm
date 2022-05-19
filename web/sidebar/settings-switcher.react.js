@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { navSettingsSectionSelector } from '../selectors/nav-selectors.js';
 import { updateNavInfoActionType } from '../types/nav-types';
 import css from './left-layout-aside.css';
 import NavigationPanel from './navigation-panel.react';
@@ -30,8 +31,8 @@ function SettingsSwitcher(): React.Node {
   );
 
   return (
-    <NavigationPanel.Container>
-      <NavigationPanel.Item tab="settings">
+    <NavigationPanel.Container tabSelector={navSettingsSectionSelector}>
+      <NavigationPanel.Item tab="account">
         {accountSettingsNavigationItem}
       </NavigationPanel.Item>
     </NavigationPanel.Container>

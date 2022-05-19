@@ -19,7 +19,11 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import type { AppState } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
-import { updateNavInfoActionType } from '../types/nav-types';
+import {
+  type NavigationTab,
+  type NavigationSettingsSection,
+  updateNavInfoActionType,
+} from '../types/nav-types';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;
 
@@ -191,6 +195,16 @@ function useOnClickPendingSidebar(
   );
 }
 
+function navTabSelector(state: AppState): NavigationTab {
+  return state.navInfo.tab;
+}
+
+function navSettingsSectionSelector(
+  state: AppState,
+): ?NavigationSettingsSection {
+  return state.navInfo.settingsSection;
+}
+
 export {
   yearExtractor,
   yearAssertingSelector,
@@ -202,4 +216,6 @@ export {
   useOnClickThread,
   useThreadIsActive,
   useOnClickPendingSidebar,
+  navTabSelector,
+  navSettingsSectionSelector,
 };

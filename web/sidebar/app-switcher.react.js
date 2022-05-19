@@ -9,6 +9,7 @@ import {
 } from 'lib/selectors/thread-selectors';
 
 import { useSelector } from '../redux/redux-utils';
+import { navTabSelector } from '../selectors/nav-selectors.js';
 import SWMansionIcon from '../SWMansionIcon.react';
 import { updateNavInfoActionType } from '../types/nav-types';
 import css from './left-layout-aside.css';
@@ -122,7 +123,7 @@ function AppSwitcher(): React.Node {
   );
 
   return (
-    <NavigationPanel.Container>
+    <NavigationPanel.Container tabSelector={navTabSelector}>
       {chatNavigationItem}
       {calendarNavigationItem}
       {appNavigationItem}

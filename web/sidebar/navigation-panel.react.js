@@ -3,12 +3,12 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils';
-import type { NavigationTab } from '../types/nav-types';
 import css from './left-layout-aside.css';
 
 type NavigationPanelItemProps = {
-  +tab: NavigationTab,
+  +tab: string,
   +children: React.Node,
 };
 
@@ -17,15 +17,16 @@ function NavigationPanelItem(props: NavigationPanelItemProps): React.Node {
   return children;
 }
 
-type NavigationPanelContainerProps = {
+type NavigationPanelContainerProps<T> = {
+  +tabSelector: AppState => T,
   +children: React.ChildrenArray<?React.Element<typeof NavigationPanelItem>>,
 };
 
-function NavigationPanelContainer(
-  props: NavigationPanelContainerProps,
+function NavigationPanelContainer<T>(
+  props: NavigationPanelContainerProps<T>,
 ): React.Node {
-  const { children } = props;
-  const navInfo = useSelector(state => state.navInfo);
+  const { children, tabSelector } = props;
+  const currentTab = useSelector(tabSelector);
 
   const items = React.useMemo(
     () =>
@@ -37,14 +38,14 @@ function NavigationPanelContainer(
           <div
             key={child.props.tab}
             className={classNames({
-              [css.current_tab]: navInfo.tab === child.props.tab,
+              [css.current_tab]: currentTab === child.props.tab,
             })}
           >
             {child}
           </div>
         );
       }),
-    [children, navInfo.tab],
+    [children, currentTab],
   );
 
   return <div className={css.navigationPanelContainer}>{items}</div>;
