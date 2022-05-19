@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { TextInput, FlatList, StyleSheet } from 'react-native';
 
+import { useSearchSidebars } from 'lib/hooks/search-sidebars';
 import { sidebarInfoSelector } from 'lib/selectors/thread-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import { threadSearchText } from 'lib/shared/thread-utils';
@@ -35,23 +36,12 @@ type Props = {
 };
 function SidebarListModal(props: Props): React.Node {
   const threadID = props.route.params.threadInfo.id;
+  const { listData, searchState, setSearchState } = useSearchSidebars(
+    props.route.params.threadInfo,
+  );
   const sidebarInfos = useSelector(
     state => sidebarInfoSelector(state)[threadID] ?? [],
   );
-
-  const [searchState, setSearchState] = React.useState({
-    text: '',
-    results: new Set<string>(),
-  });
-
-  const listData = React.useMemo(() => {
-    if (!searchState.text) {
-      return sidebarInfos;
-    }
-    return sidebarInfos.filter(({ threadInfo }) =>
-      searchState.results.has(threadInfo.id),
-    );
-  }, [sidebarInfos, searchState]);
 
   const userInfos = useSelector(state => state.userStore.userInfos);
   const viewerID = useSelector(
@@ -73,7 +63,7 @@ function SidebarListModal(props: Props): React.Node {
       ...curState,
       results: new Set(searchIndex.getSearchResults(curState.text)),
     }));
-  }, [searchIndex]);
+  }, [searchIndex, setSearchState]);
 
   const onChangeSearchText = React.useCallback(
     (searchText: string) =>
@@ -81,7 +71,7 @@ function SidebarListModal(props: Props): React.Node {
         text: searchText,
         results: new Set(searchIndex.getSearchResults(searchText)),
       }),
-    [searchIndex],
+    [searchIndex, setSearchState],
   );
 
   const searchTextInputRef = React.useRef();
@@ -111,7 +101,7 @@ function SidebarListModal(props: Props): React.Node {
       }
       navigateToThread({ threadInfo });
     },
-    [navigateToThread],
+    [navigateToThread, setSearchState],
   );
 
   const renderItem = React.useCallback(
