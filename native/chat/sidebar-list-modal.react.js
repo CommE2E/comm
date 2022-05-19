@@ -4,16 +4,12 @@ import * as React from 'react';
 import { TextInput, FlatList, StyleSheet } from 'react-native';
 
 import { useSearchSidebars } from 'lib/hooks/search-sidebars';
-import { sidebarInfoSelector } from 'lib/selectors/thread-selectors';
-import SearchIndex from 'lib/shared/search-index';
-import { threadSearchText } from 'lib/shared/thread-utils';
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 
 import Modal from '../components/modal.react';
 import Search from '../components/search.react';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
 import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
 import { useIndicatorStyle } from '../themes/colors';
 import { waitForModalInputFocus } from '../utils/timers';
 import { useNavigateToThread } from './message-list-types';
@@ -35,35 +31,12 @@ type Props = {
   +route: NavigationRoute<'SidebarListModal'>,
 };
 function SidebarListModal(props: Props): React.Node {
-  const threadID = props.route.params.threadInfo.id;
-  const { listData, searchState, setSearchState } = useSearchSidebars(
-    props.route.params.threadInfo,
-  );
-  const sidebarInfos = useSelector(
-    state => sidebarInfoSelector(state)[threadID] ?? [],
-  );
-
-  const userInfos = useSelector(state => state.userStore.userInfos);
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
-  const searchIndex = React.useMemo(() => {
-    const index = new SearchIndex();
-    for (const sidebarInfo of sidebarInfos) {
-      const { threadInfo } = sidebarInfo;
-      index.addEntry(
-        threadInfo.id,
-        threadSearchText(threadInfo, userInfos, viewerID),
-      );
-    }
-    return index;
-  }, [sidebarInfos, userInfos, viewerID]);
-  React.useEffect(() => {
-    setSearchState(curState => ({
-      ...curState,
-      results: new Set(searchIndex.getSearchResults(curState.text)),
-    }));
-  }, [searchIndex, setSearchState]);
+  const {
+    listData,
+    searchState,
+    setSearchState,
+    searchIndex,
+  } = useSearchSidebars(props.route.params.threadInfo);
 
   const onChangeSearchText = React.useCallback(
     (searchText: string) =>
