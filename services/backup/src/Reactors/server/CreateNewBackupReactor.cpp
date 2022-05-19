@@ -96,20 +96,17 @@ void CreateNewBackupReactor::terminateCallback() {
     throw std::runtime_error(
         this->putReactor->getStatusHolder()->getStatus().error_message());
   }
-  try {
-    // TODO add recovery data
-    // TODO handle attachments holders
-    database::BackupItem backupItem(
-        this->userID,
-        this->backupID,
-        tools::getCurrentTimestamp(),
-        tools::generateRandomString(),
-        this->holder,
-        {});
-    database::DatabaseManager::getInstance().putBackupItem(backupItem);
-  } catch (std::runtime_error &e) {
-    std::cout << "db operations error: " << e.what() << std::endl;
-  }
+  // TODO add recovery data
+  // TODO handle attachments holders
+  database::BackupItem backupItem(
+      this->userID,
+      this->backupID,
+      tools::getCurrentTimestamp(),
+      tools::generateRandomString(),
+      this->holder,
+      {});
+  database::DatabaseManager::getInstance().putBackupItem(backupItem);
+  std::cout << "done creating backup " << backupItem.getBackupID() << std::endl;
 }
 
 } // namespace reactor
