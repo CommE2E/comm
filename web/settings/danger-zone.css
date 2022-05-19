@@ -1,0 +1,9 @@
+.container {
+  padding: 40px;
+}
+
+.header {
+  color: var(--fg);
+  font-weight: var(--semi-bold);
+  line-height: var(--line-height-display);
+}

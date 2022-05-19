@@ -37,6 +37,7 @@ import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
 import AccountSettings from './settings/account-settings.react';
+import DangerZone from './settings/danger-zone.react';
 import LeftLayoutAside from './sidebar/left-layout-aside.react';
 import Splash from './splash/splash.react';
 import './typography.css';
@@ -149,17 +150,19 @@ class App extends React.PureComponent<Props> {
 
   renderMainContent() {
     let mainContent;
-    if (this.props.navInfo.tab === 'calendar') {
+    const { tab, settingsSection } = this.props.navInfo;
+    if (tab === 'calendar') {
       mainContent = <Calendar url={this.props.location.pathname} />;
-    } else if (this.props.navInfo.tab === 'chat') {
+    } else if (tab === 'chat') {
       mainContent = <Chat />;
-    } else if (this.props.navInfo.tab === 'apps') {
+    } else if (tab === 'apps') {
       mainContent = <AppsDirectory />;
-    } else if (
-      this.props.navInfo.tab === 'settings' &&
-      this.props.navInfo.settingsSection === 'account'
-    ) {
-      mainContent = <AccountSettings />;
+    } else if (tab === 'settings') {
+      if (settingsSection === 'account') {
+        mainContent = <AccountSettings />;
+      } else if (settingsSection === 'danger-zone') {
+        mainContent = <DangerZone />;
+      }
     }
 
     return (
