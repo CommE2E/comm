@@ -5,7 +5,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 export type NavigationTab = 'calendar' | 'chat' | 'apps' | 'settings';
 
-export type NavigationSettingsSection = 'account';
+export type NavigationSettingsSection = 'account' | 'danger-zone';
 
 export type NavInfo = {
   ...$Exact<BaseNavInfo>,
