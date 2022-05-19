@@ -3,7 +3,6 @@
 #include "Item.h"
 
 #include <string>
-#include <vector>
 
 namespace comm {
 namespace network {
@@ -23,7 +22,7 @@ class LogItem : public Item {
   std::string logID;
   bool persistedInBlob;
   std::string value;
-  std::vector<std::string> attachmentHolders;
+  std::string attachmentHolders;
 
   void validate() const override;
 
@@ -42,7 +41,7 @@ public:
       const std::string logID,
       const bool persistedInBlob,
       const std::string value,
-      std::vector<std::string> attachmentHolders);
+      std::string attachmentHolders);
   LogItem(const AttributeValues &itemFromDB);
 
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
@@ -55,7 +54,9 @@ public:
   std::string getLogID() const;
   bool getPersistedInBlob() const;
   std::string getValue() const;
-  std::vector<std::string> getAttachmentHolders() const;
+  std::string getAttachmentHolders() const;
+
+  void appendAttachmentHolder(const std::string &attachmentHolder);
 };
 
 } // namespace database
