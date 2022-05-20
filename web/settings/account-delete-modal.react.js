@@ -1,27 +1,18 @@
 // @flow
 
-import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
 import {
-  deleteAccountActionTypes,
   deleteAccount,
-  changeUserPasswordActionTypes,
-  changeUserPassword,
-  logOut,
-  logOutActionTypes,
+  deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogOutResult } from 'lib/types/account-types';
-import { type PreRequestUserState } from 'lib/types/session-types';
+import type { PreRequestUserState } from 'lib/types/session-types';
+import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
-  type PasswordUpdate,
-  type CurrentUserInfo,
-} from 'lib/types/user-types';
-import {
-  type DispatchActionPromise,
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
@@ -33,34 +24,7 @@ import Modal from '../modals/modal.react';
 import { useSelector } from '../redux/redux-utils';
 import css from './account-delete-modal.css';
 
-type TabType = 'general' | 'delete';
-type TabProps = {
-  +name: string,
-  +tabType: TabType,
-  +selected: boolean,
-  +onClick: (tabType: TabType) => void,
-};
-class Tab extends React.PureComponent<TabProps> {
-  render() {
-    const { selected, name, tabType } = this.props;
-    const classNamesForTab = classNames({
-      [css['current-tab']]: selected,
-      [css['delete-tab']]: selected && tabType === 'delete',
-    });
-    return (
-      <li className={classNamesForTab} onClick={this.onClick}>
-        <a>{name}</a>
-      </li>
-    );
-  }
-
-  onClick = () => {
-    return this.props.onClick(this.props.tabType);
-  };
-}
-
 type Props = {
-  +currentUserInfo: ?CurrentUserInfo,
   +preRequestUserState: PreRequestUserState,
   +inputDisabled: boolean,
   +dispatchActionPromise: DispatchActionPromise,
@@ -68,133 +32,48 @@ type Props = {
     password: string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
-  +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
-  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
   +popModal: () => void,
 };
 type State = {
-  +newPassword: string,
-  +confirmNewPassword: string,
   +currentPassword: string,
   +errorMessage: string,
-  +currentTabType: TabType,
 };
 
 class AccountDeleteModal extends React.PureComponent<Props, State> {
-  newPasswordInput: ?HTMLInputElement;
   currentPasswordInput: ?HTMLInputElement;
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      newPassword: '',
-      confirmNewPassword: '',
       currentPassword: '',
       errorMessage: '',
-      currentTabType: 'general',
     };
   }
 
   componentDidMount() {
-    invariant(this.newPasswordInput, 'newPasswordInput ref unset');
-    this.newPasswordInput.focus();
+    invariant(this.currentPasswordInput, 'newPasswordInput ref unset');
+    this.currentPasswordInput.focus();
   }
-
-  get username() {
-    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
-      ? this.props.currentUserInfo.username
-      : undefined;
-  }
-
-  onLogOut = (event: SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    this.props.dispatchActionPromise(logOutActionTypes, this.logOut());
-  };
-
-  logOut = async () => {
-    await this.props.logOut(this.props.preRequestUserState);
-    this.props.popModal();
-  };
 
   render() {
     const { inputDisabled } = this.props;
-    let mainContent = null;
-    if (this.state.currentTabType === 'general') {
-      mainContent = (
-        <div>
-          <div className={css['form-text']}>
-            <div className={css['form-title']}>Username</div>
-            <div className={css['form-content']}>{this.username}</div>
-          </div>
-          <div>
-            <div className={css['form-title']}>New password</div>
-            <div className={css['form-content']}>
-              <div>
-                <Input
-                  type="password"
-                  placeholder="New password"
-                  value={this.state.newPassword}
-                  onChange={this.onChangeNewPassword}
-                  ref={this.newPasswordInputRef}
-                  disabled={inputDisabled}
-                />
-              </div>
-              <div>
-                <Input
-                  type="password"
-                  placeholder="Confirm new password"
-                  value={this.state.confirmNewPassword}
-                  onChange={this.onChangeConfirmNewPassword}
-                  disabled={inputDisabled}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (this.state.currentTabType === 'delete') {
-      mainContent = (
-        <p className={css['italic']}>
-          Your account will be permanently deleted. There is no way to reverse
-          this.
-        </p>
-      );
-    }
+    const mainContent = (
+      <p className={css['italic']}>
+        Your account will be permanently deleted. There is no way to reverse
+        this.
+      </p>
+    );
 
-    let buttons = null;
-    if (this.state.currentTabType === 'delete') {
-      buttons = (
-        <Button
-          variant="danger"
-          type="submit"
-          onClick={this.onDelete}
-          disabled={inputDisabled}
-        >
-          Delete account
-        </Button>
-      );
-    } else {
-      buttons = (
-        <>
-          <Button
-            type="submit"
-            variant="primary"
-            onClick={this.onSubmit}
-            disabled={inputDisabled}
-          >
-            Update Account
-          </Button>
-          <Button
-            type="submit"
-            variant="secondary"
-            onClick={this.onLogOut}
-            disabled={inputDisabled}
-          >
-            Log out
-          </Button>
-        </>
-      );
-    }
+    const buttons = (
+      <Button
+        variant="danger"
+        type="submit"
+        onClick={this.onDelete}
+        disabled={inputDisabled}
+      >
+        Delete account
+      </Button>
+    );
 
     let errorMsg;
     if (this.state.errorMessage) {
@@ -204,23 +83,7 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
     }
 
     return (
-      <Modal name="Edit account" onClose={this.props.popModal} size="large">
-        <ul className={css['tab-panel']}>
-          <Tab
-            name="General"
-            tabType="general"
-            onClick={this.setTab}
-            selected={this.state.currentTabType === 'general'}
-            key="general"
-          />
-          <Tab
-            name="Delete"
-            tabType="delete"
-            onClick={this.setTab}
-            selected={this.state.currentTabType === 'delete'}
-            key="delete"
-          />
-        </ul>
+      <Modal name="Delete Account" onClose={this.props.popModal} size="large">
         <div className={css['modal-body']}>
           <form method="POST">
             {mainContent}
@@ -250,28 +113,8 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
     );
   }
 
-  newPasswordInputRef = (newPasswordInput: ?HTMLInputElement) => {
-    this.newPasswordInput = newPasswordInput;
-  };
-
   currentPasswordInputRef = (currentPasswordInput: ?HTMLInputElement) => {
     this.currentPasswordInput = currentPasswordInput;
-  };
-
-  setTab = (tabType: TabType) => {
-    this.setState({ currentTabType: tabType });
-  };
-
-  onChangeNewPassword = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, 'target not input');
-    this.setState({ newPassword: target.value });
-  };
-
-  onChangeConfirmNewPassword = (event: SyntheticEvent<HTMLInputElement>) => {
-    const target = event.target;
-    invariant(target instanceof HTMLInputElement, 'target not input');
-    this.setState({ confirmNewPassword: target.value });
   };
 
   onChangeCurrentPassword = (event: SyntheticEvent<HTMLInputElement>) => {
@@ -279,87 +122,6 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
     invariant(target instanceof HTMLInputElement, 'target not input');
     this.setState({ currentPassword: target.value });
   };
-
-  onSubmit = (event: SyntheticEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-
-    if (this.state.newPassword === '') {
-      this.setState(
-        {
-          newPassword: '',
-          confirmNewPassword: '',
-          errorMessage: 'empty password',
-          currentTabType: 'general',
-        },
-        () => {
-          invariant(this.newPasswordInput, 'newPasswordInput ref unset');
-          this.newPasswordInput.focus();
-        },
-      );
-    } else if (this.state.newPassword !== this.state.confirmNewPassword) {
-      this.setState(
-        {
-          newPassword: '',
-          confirmNewPassword: '',
-          errorMessage: "passwords don't match",
-          currentTabType: 'general',
-        },
-        () => {
-          invariant(this.newPasswordInput, 'newPasswordInput ref unset');
-          this.newPasswordInput.focus();
-        },
-      );
-      return;
-    }
-
-    this.props.dispatchActionPromise(
-      changeUserPasswordActionTypes,
-      this.changeUserSettingsAction(),
-    );
-  };
-
-  async changeUserSettingsAction() {
-    try {
-      await this.props.changeUserPassword({
-        updatedFields: {
-          password: this.state.newPassword,
-        },
-        currentPassword: this.state.currentPassword,
-      });
-      this.props.popModal();
-    } catch (e) {
-      if (e.message === 'invalid_credentials') {
-        this.setState(
-          {
-            currentPassword: '',
-            errorMessage: 'wrong current password',
-          },
-          () => {
-            invariant(
-              this.currentPasswordInput,
-              'currentPasswordInput ref unset',
-            );
-            this.currentPasswordInput.focus();
-          },
-        );
-      } else {
-        this.setState(
-          {
-            newPassword: '',
-            confirmNewPassword: '',
-            currentPassword: '',
-            errorMessage: 'unknown error',
-            currentTabType: 'general',
-          },
-          () => {
-            invariant(this.newPasswordInput, 'newPasswordInput ref unset');
-            this.newPasswordInput.focus();
-          },
-        );
-      }
-      throw e;
-    }
-  }
 
   onDelete = (event: SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -403,34 +165,24 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
 const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
   deleteAccountActionTypes,
 );
-const changeUserPasswordLoadingStatusSelector = createLoadingStatusSelector(
-  changeUserPasswordActionTypes,
-);
+
 const ConnectedAccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
   function ConnectedAccountDeleteModal(): React.Node {
-    const currentUserInfo = useSelector(state => state.currentUserInfo);
     const preRequestUserState = useSelector(preRequestUserStateSelector);
     const inputDisabled = useSelector(
-      state =>
-        deleteAccountLoadingStatusSelector(state) === 'loading' ||
-        changeUserPasswordLoadingStatusSelector(state) === 'loading',
+      state => deleteAccountLoadingStatusSelector(state) === 'loading',
     );
     const callDeleteAccount = useServerCall(deleteAccount);
-    const callChangeUserPassword = useServerCall(changeUserPassword);
     const dispatchActionPromise = useDispatchActionPromise();
-    const boundLogOut = useServerCall(logOut);
 
     const modalContext = useModalContext();
 
     return (
       <AccountDeleteModal
-        currentUserInfo={currentUserInfo}
         preRequestUserState={preRequestUserState}
         inputDisabled={inputDisabled}
         deleteAccount={callDeleteAccount}
-        changeUserPassword={callChangeUserPassword}
         dispatchActionPromise={dispatchActionPromise}
-        logOut={boundLogOut}
         popModal={modalContext.popModal}
       />
     );
