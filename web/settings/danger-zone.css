@@ -1,9 +1,28 @@
 .container {
   padding: 40px;
+  width: 343px;
 }
 
 .header {
   color: var(--fg);
   font-weight: var(--semi-bold);
   line-height: var(--line-height-display);
+  padding-bottom: 40px;
+}
+
+.subheading {
+  color: var(--danger-zone-subheading-color);
+  font-size: var(--xl-font-20);
+  font-weight: var(--semi-bold);
+  line-height: var(--line-height-display);
+  padding-bottom: 40px;
+}
+
+.button {
+  width: 100%;
+}
+
+.explanation {
+  padding-top: 8px;
+  color: var(--danger-zone-explanation-color);
 }
