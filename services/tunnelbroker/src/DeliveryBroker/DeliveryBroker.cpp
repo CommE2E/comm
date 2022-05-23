@@ -66,5 +66,11 @@ void DeliveryBroker::erase(const std::string deviceID) {
   this->messagesMap.erase(deviceID);
 };
 
+void DeliveryBroker::deleteQueueIfEmpty(const std::string clientDeviceID) {
+  if (DeliveryBroker::getInstance().isEmpty(clientDeviceID)) {
+    DeliveryBroker::getInstance().erase(clientDeviceID);
+  }
+};
+
 } // namespace network
 } // namespace comm

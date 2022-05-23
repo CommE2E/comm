@@ -27,6 +27,7 @@ public:
   bool isEmpty(const std::string deviceID);
   DeliveryBrokerMessage pop(const std::string deviceID);
   void erase(const std::string deviceID);
+  void deleteQueueIfEmpty(const std::string clientDeviceID);
 };
 
 } // namespace network
