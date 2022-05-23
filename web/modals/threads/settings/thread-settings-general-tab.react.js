@@ -162,6 +162,7 @@ function ThreadSettingsGeneralTab(
             placeholder="Thread description"
             onChange={onChangeDescription}
             disabled={inputDisabled}
+            rows={3}
           />
         </div>
       </div>
