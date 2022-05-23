@@ -30,9 +30,10 @@ service BackupService {
 message CreateNewBackupRequest {
   oneof data {
     string userID = 1;
-    bytes keyEntropy = 2;
-    bytes newCompactionHash = 3;
-    bytes newCompactionChunk = 4;
+    string deviceID = 2;
+    bytes keyEntropy = 3;
+    bytes newCompactionHash = 4;
+    bytes newCompactionChunk = 5;
   }
 }
 
