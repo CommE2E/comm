@@ -14,15 +14,9 @@ import {
 
 import {
   assetCacheURLPrefix,
-  backgroundNotificationsIllustrationFileName,
-  backgroundNotificationsIllustrationHeight,
-  backgroundNotificationsIllustrationWidth,
-  badgeOnlyNotificationsIllustrationFileName,
-  badgeOnlyNotificationsIllustrationHeight,
-  badgeOnlyNotificationsIllustrationWidth,
-  focusedNotificationsIllustrationFileName,
-  focusedNotificationsIllustrationHeight,
-  focusedNotificationsIllustrationWidth,
+  focusedNotificationsIllustrationAsset,
+  badgeOnlyNotificationsIllustrationAsset,
+  backgroundNotificationsIllustrationAsset,
 } from '../../../assets.js';
 import Button from '../../../components/button.react';
 import EnumSettingsOption from '../../../components/enum-settings-option.react';
@@ -79,9 +73,9 @@ function NotificationsModal(props: Props): React.Node {
     ];
     const icon = (
       <img
-        src={`${assetCacheURLPrefix}/${focusedNotificationsIllustrationFileName}`}
-        height={focusedNotificationsIllustrationHeight}
-        width={focusedNotificationsIllustrationWidth}
+        src={`${assetCacheURLPrefix}/${focusedNotificationsIllustrationAsset.fileName}`}
+        height={focusedNotificationsIllustrationAsset.height}
+        width={focusedNotificationsIllustrationAsset.width}
       />
     );
     return (
@@ -104,9 +98,9 @@ function NotificationsModal(props: Props): React.Node {
     ];
     const icon = (
       <img
-        src={`${assetCacheURLPrefix}/${badgeOnlyNotificationsIllustrationFileName}`}
-        height={badgeOnlyNotificationsIllustrationHeight}
-        width={badgeOnlyNotificationsIllustrationWidth}
+        src={`${assetCacheURLPrefix}/${badgeOnlyNotificationsIllustrationAsset.fileName}`}
+        height={badgeOnlyNotificationsIllustrationAsset.height}
+        width={badgeOnlyNotificationsIllustrationAsset.width}
       />
     );
     return (
@@ -129,9 +123,9 @@ function NotificationsModal(props: Props): React.Node {
     ];
     const icon = (
       <img
-        src={`${assetCacheURLPrefix}/${backgroundNotificationsIllustrationFileName}`}
-        height={backgroundNotificationsIllustrationHeight}
-        width={backgroundNotificationsIllustrationWidth}
+        src={`${assetCacheURLPrefix}/${backgroundNotificationsIllustrationAsset.fileName}`}
+        height={backgroundNotificationsIllustrationAsset.height}
+        width={backgroundNotificationsIllustrationAsset.width}
       />
     );
     return (

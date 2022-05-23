@@ -5,12 +5,7 @@ import * as React from 'react';
 
 import { emptyItemText } from 'lib/shared/thread-utils';
 
-import {
-  assetCacheURLPrefix,
-  backgroundIllustrationFileName,
-  backgroundIllustrationHeight,
-  backgroundIllustrationWidth,
-} from '../assets';
+import { assetCacheURLPrefix, backgroundIllustrationAsset } from '../assets';
 import Search from '../components/search.react';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import css from './chat-thread-list.css';
@@ -56,9 +51,9 @@ function EmptyItem() {
   return (
     <div className={css.emptyItemContainer}>
       <img
-        src={`${assetCacheURLPrefix}/${backgroundIllustrationFileName}`}
-        height={backgroundIllustrationHeight}
-        width={backgroundIllustrationWidth}
+        src={`${assetCacheURLPrefix}/${backgroundIllustrationAsset.fileName}`}
+        height={backgroundIllustrationAsset.height}
+        width={backgroundIllustrationAsset.width}
       />
       <div className={css.emptyItemText}>{emptyItemText}</div>
     </div>
