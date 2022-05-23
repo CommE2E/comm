@@ -6,18 +6,21 @@ async function importJSON<T>(path: string): Promise<?T> {
   if (cached !== undefined) {
     return cached;
   }
+  const json = await getJSON(path);
+  if (!cachedJSON.has(path)) {
+    cachedJSON.set(path, json);
+  }
+  return cachedJSON.get(path);
+}
+
+async function getJSON<T>(path: string): Promise<?T> {
   try {
     // $FlowFixMe
     const importedJSON = await import(`../../${path}`);
-    if (!cachedJSON.has(path)) {
-      cachedJSON.set(path, importedJSON.default);
-    }
+    return importedJSON.default;
   } catch {
-    if (!cachedJSON.has(path)) {
-      cachedJSON.set(path, null);
-    }
+    return null;
   }
-  return cachedJSON.get(path);
 }
 
 export { importJSON };
