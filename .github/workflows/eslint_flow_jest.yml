@@ -51,3 +51,7 @@ jobs:
       - name: '[lib] test'
         working-directory: ./lib
         run: yarn test
+
+      - name: '[keyserver] test'
+        working-directory: ./keyserver
+        run: yarn test
