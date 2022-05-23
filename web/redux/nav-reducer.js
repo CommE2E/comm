@@ -1,6 +1,7 @@
 // @flow
 
 import { locallyUniqueToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
+import { threadIsPending } from 'lib/shared/thread-utils';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 
 import type { Action } from '../redux/redux-setup';
@@ -33,6 +34,11 @@ export default function reduceNavInfo(
         activeChatThreadID: realizedThreadID,
       };
     }
+  }
+
+  if (state.pendingThread && !threadIsPending(state.activeChatThreadID)) {
+    const { pendingThread, ...stateWithoutPendingThread } = state;
+    state = stateWithoutPendingThread;
   }
 
   return state;

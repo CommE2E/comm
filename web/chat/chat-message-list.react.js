@@ -23,6 +23,7 @@ import { messageKey } from 'lib/shared/message-utils';
 import {
   useWatchThread,
   useExistingThreadInfoFinder,
+  threadIsPending,
 } from 'lib/shared/thread-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
@@ -426,7 +427,7 @@ const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
         return null;
       }
 
-      if (state.navInfo.pendingThread) {
+      if (threadIsPending(threadInfo?.id)) {
         return true;
       }
 
