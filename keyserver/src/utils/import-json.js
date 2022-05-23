@@ -14,6 +14,14 @@ async function importJSON<T>(path: string): Promise<?T> {
 }
 
 async function getJSON<T>(path: string): Promise<?T> {
+  const fromEnv = process.env[`COMM_JSONCONFIG_${path}`];
+  if (fromEnv) {
+    try {
+      return JSON.parse(fromEnv);
+    } catch (e) {
+      console.log(`failed to parse JSON from env for ${path}`, e);
+    }
+  }
   try {
     // $FlowFixMe
     const importedJSON = await import(`../../${path}`);
