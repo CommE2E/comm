@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { threadIsPending } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import ThreadAncestors from './chat-thread-ancestors.react';
@@ -20,6 +21,11 @@ function ThreadTopBar(props: threadTopBarProps): React.Node {
     [threadInfo.color],
   );
 
+  let threadMenu = null;
+  if (!threadIsPending(threadInfo.id)) {
+    threadMenu = <ThreadMenu threadInfo={threadInfo} />;
+  }
+
   return (
     <div className={css.topBarContainer}>
       <div className={css.topBarThreadInfo}>
@@ -30,7 +36,7 @@ function ThreadTopBar(props: threadTopBarProps): React.Node {
         <p className={css.threadTitle}>{threadInfo.uiName}</p>
         <ThreadAncestors threadInfo={threadInfo} />
       </div>
-      <ThreadMenu threadInfo={threadInfo} />
+      {threadMenu}
     </div>
   );
 }
