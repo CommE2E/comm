@@ -7,13 +7,10 @@ WORKDIR /app
 # Install prereqs first so we don't have to reinstall them if anything changes
 #-------------------------------------------------------------------------------
 
-# We need python2 for a build script that the sqlite3 npm package uses
 # We use rsync in the prod-build yarn script
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  python2 \
   rsync \
   && rm -rf /var/lib/apt/lists/*
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python2 2
 
 # We use nvm to make sure we're running the right Node version
 ENV NVM_DIR /root/.nvm
