@@ -26,11 +26,33 @@ import css from './notifications-modal.css';
 
 type NotificationSettings = 'focused' | 'badge-only' | 'background';
 
+const BANNER_NOTIFS = 'Banner notifs';
+const BADGE_COUNT = 'Badge count';
+const IN_FOCUSED_TAB = 'Lives in Focused tab';
+const IN_BACKGROUND_TAB = 'Lives in Background tab';
+
+const focusedStatements = [
+  { statement: BANNER_NOTIFS, isStatementValid: true },
+  { statement: BADGE_COUNT, isStatementValid: true },
+  { statement: IN_FOCUSED_TAB, isStatementValid: true },
+];
+
+const badgeOnlyStatements = [
+  { statement: BANNER_NOTIFS, isStatementValid: false },
+  { statement: BADGE_COUNT, isStatementValid: true },
+  { statement: IN_FOCUSED_TAB, isStatementValid: true },
+];
+
+const backgroundStatements = [
+  { statement: BANNER_NOTIFS, isStatementValid: false },
+  { statement: BADGE_COUNT, isStatementValid: false },
+  { statement: IN_BACKGROUND_TAB, isStatementValid: true },
+];
+
 type Props = {
   +threadID: string,
   +onClose: () => void,
 };
-
 function NotificationsModal(props: Props): React.Node {
   const { onClose, threadID } = props;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
@@ -66,11 +88,6 @@ function NotificationsModal(props: Props): React.Node {
 
   const isFocusedSelected = notificationSettings === 'focused';
   const focusedItem = React.useMemo(() => {
-    const statements = [
-      { statement: 'Banner notifs', isStatementValid: true },
-      { statement: 'Badge count', isStatementValid: true },
-      { statement: 'Lives in Focused tab', isStatementValid: true },
-    ];
     const icon = (
       <img
         src={`${assetCacheURLPrefix}/${focusedNotificationsIllustrationAsset.fileName}`}
@@ -82,7 +99,7 @@ function NotificationsModal(props: Props): React.Node {
       <EnumSettingsOption
         selected={isFocusedSelected}
         title="Focused (enabled)"
-        statements={statements}
+        statements={focusedStatements}
         icon={icon}
         onSelect={onFocusedSelected}
       />
@@ -91,11 +108,6 @@ function NotificationsModal(props: Props): React.Node {
 
   const isFocusedBadgeOnlySelected = notificationSettings === 'badge-only';
   const focusedBadgeOnlyItem = React.useMemo(() => {
-    const statements = [
-      { statement: 'Banner notifs', isStatementValid: false },
-      { statement: 'Badge count', isStatementValid: true },
-      { statement: 'Lives in Focused tab', isStatementValid: true },
-    ];
     const icon = (
       <img
         src={`${assetCacheURLPrefix}/${badgeOnlyNotificationsIllustrationAsset.fileName}`}
@@ -107,7 +119,7 @@ function NotificationsModal(props: Props): React.Node {
       <EnumSettingsOption
         selected={isFocusedBadgeOnlySelected}
         title="Focused (badge only)"
-        statements={statements}
+        statements={badgeOnlyStatements}
         icon={icon}
         onSelect={onBadgeOnlySelected}
       />
@@ -116,11 +128,6 @@ function NotificationsModal(props: Props): React.Node {
 
   const isBackgroundSelected = notificationSettings === 'background';
   const backgroundItem = React.useMemo(() => {
-    const statements = [
-      { statement: 'Banner notifs', isStatementValid: false },
-      { statement: 'Badge count', isStatementValid: false },
-      { statement: 'Lives in Background tab', isStatementValid: true },
-    ];
     const icon = (
       <img
         src={`${assetCacheURLPrefix}/${backgroundNotificationsIllustrationAsset.fileName}`}
@@ -132,7 +139,7 @@ function NotificationsModal(props: Props): React.Node {
       <EnumSettingsOption
         selected={isBackgroundSelected}
         title="Background"
-        statements={statements}
+        statements={backgroundStatements}
         icon={icon}
         onSelect={onBackgroundSelected}
       />
