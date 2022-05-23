@@ -91,34 +91,52 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
       }
       // decide if keep in DB or upload to blob
       if (chunk->size() <= LOG_DATA_SIZE_DATABASE_LIMIT) {
+        std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 0" << std::endl;
         if (this->persistenceMethod == PersistenceMethod::UNKNOWN) {
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 1" << std::endl;
           this->persistenceMethod = PersistenceMethod::DB;
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 1.1" << std::endl;
           this->value = std::move(*chunk);
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 1.2: " << this->value
+                    << std::endl;
           this->storeInDatabase();
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 1.3" << std::endl;
           return std::make_unique<grpc::Status>(grpc::Status::OK);
         } else if (this->persistenceMethod == PersistenceMethod::BLOB) {
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 2" << std::endl;
           this->initializePutReactor();
           this->putReactor->scheduleSendingDataChunk(std::move(chunk));
         } else {
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 3" << std::endl;
           throw std::runtime_error(
               "error - invalid persistence state for chunk smaller than "
               "database limit");
         }
       } else {
+        std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 4" << std::endl;
         if (this->persistenceMethod != PersistenceMethod::UNKNOWN &&
             this->persistenceMethod != PersistenceMethod::BLOB) {
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 5" << std::endl;
           throw std::runtime_error(
               "error - invalid persistence state, uploading to blob should be "
               "continued but it is not");
         }
+        std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 6" << std::endl;
         if (this->persistenceMethod == PersistenceMethod::UNKNOWN) {
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 7" << std::endl;
           this->persistenceMethod = PersistenceMethod::BLOB;
         }
+        std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 8" << std::endl;
         if (this->value.empty()) {
-          this->value = tools::generateHolder(this->hash, this->backupID, this->logID);
+          std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 9" << std::endl;
+          this->value =
+              tools::generateHolder(this->hash, this->backupID, this->logID);
         }
+        std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 10: " << chunk->size()
+                  << std::endl;
         this->initializePutReactor();
         this->putReactor->scheduleSendingDataChunk(std::move(chunk));
+        std::cout << "here LOG_DATA_SIZE_DATABASE_LIMIT 11" << std::endl;
       }
 
       return nullptr;

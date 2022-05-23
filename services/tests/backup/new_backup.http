@@ -1,0 +1,51 @@
+proto < ../../../native/cpp/CommonCpp/grpc/protos/backup.proto
+
+GRPC localhost:50052/backup.BackupService/CreateNewBackup
+{
+  "userID": "0000"
+}
+
+{{@streaming
+  const timeout = 1000;
+
+  async function writeStream() {
+    // write device id
+    console.log('sending device id');
+    await sleep(timeout);
+    grpcStream.write({
+      deviceID: 'testDevice0000'
+    });
+    // write key entropy
+    console.log('sending key entropy');
+    await sleep(timeout);
+    grpcStream.write({
+      keyEntropy: 'xxx'
+    });
+    // write data hash
+    console.log('sending data hash');
+    await sleep(timeout);
+    grpcStream.write({
+      newCompactionHash: 'testhash'
+    });
+    // write data chunk
+    console.log('sending data chunk');
+    await sleep(timeout);
+    grpcStream.write({
+      newCompactionHash: 'testchunk'
+    });
+
+    console.log('done sending data');
+  }
+  exports.waitPromise = writeStream();
+}}
+
+{{+after
+
+  // if (response.statusCode) {
+	  console.info(`gRPC response is: ${response.body}`);
+  // }
+  test('gRPC status code is 0', () => {
+    equal(response.statusCode, 0);
+  });
+
+}}

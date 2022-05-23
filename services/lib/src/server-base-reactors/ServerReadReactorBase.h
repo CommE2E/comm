@@ -67,12 +67,16 @@ void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
     return;
   }
   try {
+    std::cout << "here 1" << std::endl;
     std::unique_ptr<grpc::Status> status = this->readRequest(this->request);
+    std::cout << "here 2" << std::endl;
     if (status != nullptr) {
       this->terminate(*status);
       return;
     }
+    std::cout << "here 3" << std::endl;
   } catch (std::runtime_error &e) {
+    std::cout << "LOL? [" << e.what() << "]" << std::endl;
     this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
     return;
   }
@@ -91,7 +95,7 @@ void ServerReadReactorBase<Request, Response>::terminate(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
   if (!this->statusHolder->getStatus().ok()) {
-    std::cout << "error: " << this->statusHolder->getStatus().error_message()
+    std::cout << "error1: " << this->statusHolder->getStatus().error_message()
               << std::endl;
   }
   if (this->statusHolder->state != ReactorState::RUNNING) {

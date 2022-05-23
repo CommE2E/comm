@@ -1,0 +1,45 @@
+proto < ../../../native/cpp/CommonCpp/grpc/protos/backup.proto
+
+GRPC localhost:50052/backup.BackupService/SendLog
+{
+  "userID": "0000"
+}
+
+{{@streaming
+  const timeout = 1000;
+
+  async function writeStream() {
+    // write backup id
+    console.log('sending backup id');
+    await sleep(timeout);
+    grpcStream.write({
+      backupID: 'test-backup'
+    });
+    // write log hash
+    console.log('sending log hash');
+    await sleep(timeout);
+    grpcStream.write({
+      logHash: 'test-hash'
+    });
+    // write log chunks
+    console.log('sending log chunks');
+    await sleep(timeout);
+    grpcStream.write({
+      logData: 'test-data'
+    });
+
+    console.log('done sending data');
+  }
+  exports.waitPromise = writeStream();
+}}
+
+{{+after
+
+  // if (response.statusCode) {
+	  console.info(`gRPC response is: ${response.body}`);
+  // }
+  test('gRPC status code is 0', () => {
+    equal(response.statusCode, 0);
+  });
+
+}}
