@@ -20,7 +20,7 @@ import { useModalContext } from '../../modal-provider.react';
 import css from './thread-settings-delete-tab.css';
 
 type ThreadSettingsDeleteTabProps = {
-  +inputDisabled: boolean,
+  +threadSettingsOperationInProgress: boolean,
   +threadInfo: ThreadInfo,
   +setErrorMessage: SetState<string>,
 };
@@ -28,7 +28,11 @@ type ThreadSettingsDeleteTabProps = {
 function ThreadSettingsDeleteTab(
   props: ThreadSettingsDeleteTabProps,
 ): React.Node {
-  const { inputDisabled, threadInfo, setErrorMessage } = props;
+  const {
+    threadSettingsOperationInProgress,
+    threadInfo,
+    setErrorMessage,
+  } = props;
 
   const modalContext = useModalContext();
   const dispatchActionPromise = useDispatchActionPromise();
@@ -97,7 +101,7 @@ function ThreadSettingsDeleteTab(
             placeholder="Password"
             value={accountPassword}
             onChange={onChangeAccountPassword}
-            disabled={inputDisabled}
+            disabled={threadSettingsOperationInProgress}
             ref={accountPasswordInputRef}
           />
         </div>
@@ -105,7 +109,7 @@ function ThreadSettingsDeleteTab(
       <Button
         onClick={onDelete}
         variant="danger"
-        disabled={inputDisabled}
+        disabled={threadSettingsOperationInProgress}
         className={css.delete_button}
       >
         Delete
