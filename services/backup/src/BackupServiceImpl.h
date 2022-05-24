@@ -31,6 +31,10 @@ public:
   grpc::ServerWriteReactor<backup::PullBackupResponse> *PullBackup(
       grpc::CallbackServerContext *context,
       const backup::PullBackupRequest *request) override;
+
+  grpc::ServerReadReactor<backup::AddAttachmentRequest> *AddAttachment(
+      grpc::CallbackServerContext *context,
+      google::protobuf::Empty *response) override;
 };
 
 } // namespace network

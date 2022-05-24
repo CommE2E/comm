@@ -1,5 +1,6 @@
 #include "BackupServiceImpl.h"
 
+#include "AddAttachmentReactor.h"
 #include "CreateNewBackupReactor.h"
 #include "PullBackupReactor.h"
 #include "RecoverBackupKeyReactor.h"
@@ -45,6 +46,13 @@ BackupServiceImpl::PullBackup(
   reactor::PullBackupReactor *reactor = new reactor::PullBackupReactor(request);
   reactor->start();
   return reactor;
+}
+
+grpc::ServerReadReactor<backup::AddAttachmentRequest> *
+BackupServiceImpl::AddAttachment(
+    grpc::CallbackServerContext *context,
+    google::protobuf::Empty *response) {
+  return new reactor::AddAttachmentReactor(response);
 }
 
 } // namespace network
