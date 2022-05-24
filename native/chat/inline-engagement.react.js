@@ -7,6 +7,7 @@ import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { useStyles } from '../themes/colors';
 import { inlineSidebarHeight } from './chat-constants';
 import { useNavigateToThread } from './message-list-types';
@@ -31,6 +32,7 @@ function InlineEngagement(props: Props): React.Node {
   return (
     <View style={contentStyles}>
       <Button style={styles.sidebar} onPress={onPress}>
+        <SWMansionIcon size={14} color="white" name="sidebar-filled" />
         <Text style={[styles.name, unreadStyle]}>{repliesText}</Text>
       </Button>
     </View>
