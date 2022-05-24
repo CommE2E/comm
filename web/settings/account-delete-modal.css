@@ -1,65 +1,33 @@
-div.modal-body {
-  padding: 6px 6px;
-  width: 100%;
-  box-sizing: border-box;
-  background-color: var(--modal-bg);
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-div.modal-body p {
-  padding: 1px 3px 4px 3px;
-  font-size: 14px;
-  text-align: center;
-}
-div.modal-body p.confirm-account-password {
-  margin-bottom: 4px;
+.modal_body {
+  padding: 24px 32px;
   color: var(--fg);
 }
-div.modal-body div.form-footer {
+.modal_body p {
+  font-size: var(--s-font-14);
+}
+
+.deletion_warning {
+  font-weight: var(--bold);
+  margin-bottom: 16px;
+}
+.confirm_password {
+  margin-bottom: 10px;
+}
+
+.form_title {
+  font-weight: var(--bold);
+  margin-bottom: 8px;
+}
+.form_footer {
   display: flex;
   flex-direction: row-reverse;
   justify-content: space-between;
-  padding-top: 8px;
+  padding-top: 24px;
 }
-div.modal-body div.form-footer div.modal-form-error {
-  font-size: 12px;
-  color: red;
+.form_error {
+  font-size: var(--xs-font-12);
+  color: var(--error);
   font-style: italic;
   padding-left: 6px;
   align-self: center;
-}
-div.modal-body div.form-title {
-  display: inline-block;
-  text-align: right;
-  padding-right: 5px;
-  padding-top: 5px;
-  font-size: 14px;
-  font-weight: 600;
-  vertical-align: top;
-  width: 110px;
-  color: var(--fg);
-}
-div.large-modal-container div.modal-body div.form-title {
-  width: 140px;
-}
-div.modal-body div.form-content {
-  display: inline-block;
-  font-family: var(--font-stack);
-  color: var(--fg);
-}
-div.modal-body div.form-content input {
-  margin-bottom: 4px;
-}
-
-.italic {
-  font-style: italic;
-  color: var(--fg);
-}
-
-div.user-settings-current-password {
-  padding-top: 4px;
-  margin-top: 5px;
 }
