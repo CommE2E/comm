@@ -30,6 +30,7 @@ const openStatements = [
   {
     statement: threadTypeDescriptions[COMMUNITY_OPEN_SUBTHREAD],
     isStatementValid: true,
+    styleStatementBasedOnValidity: false,
   },
 ];
 
@@ -37,6 +38,7 @@ const secretStatements = [
   {
     statement: threadTypeDescriptions[COMMUNITY_SECRET_SUBTHREAD],
     isStatementValid: true,
+    styleStatementBasedOnValidity: false,
   },
 ];
 

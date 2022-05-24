@@ -15,6 +15,7 @@ type Props = {
   +statements: $ReadOnlyArray<{
     +statement: string,
     +isStatementValid: boolean,
+    +styleStatementBasedOnValidity: boolean,
   }>,
 };
 
@@ -23,15 +24,18 @@ function EnumSettingsOption(props: Props): React.Node {
 
   const descriptionItems = React.useMemo(
     () =>
-      statements.map(({ statement, isStatementValid }) => (
-        <EnumSettingsOptionInfo
-          key={statement}
-          optionSelected={selected}
-          valid={isStatementValid}
-        >
-          {statement}
-        </EnumSettingsOptionInfo>
-      )),
+      statements.map(
+        ({ statement, isStatementValid, styleStatementBasedOnValidity }) => (
+          <EnumSettingsOptionInfo
+            key={statement}
+            optionSelected={selected}
+            valid={isStatementValid}
+            styleStatementBasedOnValidity={styleStatementBasedOnValidity}
+          >
+            {statement}
+          </EnumSettingsOptionInfo>
+        ),
+      ),
     [selected, statements],
   );
 

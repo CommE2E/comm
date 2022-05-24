@@ -9,26 +9,35 @@ import css from './enum-settings-option-info.css';
 type Props = {
   +optionSelected: boolean,
   +valid: boolean,
+  +styleStatementBasedOnValidity: boolean,
   +children: React.Node,
 };
 
 function EnumSettingsOptionInfo(props: Props): React.Node {
-  const { valid, children, optionSelected } = props;
+  const {
+    optionSelected,
+    valid,
+    styleStatementBasedOnValidity,
+    children,
+  } = props;
 
   const optionInfoClasses = React.useMemo(
     () =>
       classnames({
         [css.optionInfo]: true,
-        [css.optionInfoInvalid]: !valid,
-        [css.optionInfoInvalidSelected]: !valid && optionSelected,
+        [css.optionInfoInvalid]: styleStatementBasedOnValidity && !valid,
+        [css.optionInfoInvalidSelected]:
+          styleStatementBasedOnValidity && !valid && optionSelected,
       }),
-    [valid, optionSelected],
+    [styleStatementBasedOnValidity, valid, optionSelected],
   );
 
-  const icon = React.useMemo(
-    () => <SWMansionIcon icon={valid ? 'check' : 'cross'} size={12} />,
-    [valid],
-  );
+  const icon = React.useMemo(() => {
+    if (!styleStatementBasedOnValidity) {
+      return null;
+    }
+    return <SWMansionIcon icon={valid ? 'check' : 'cross'} size={12} />;
+  }, [styleStatementBasedOnValidity, valid]);
   return (
     <div className={optionInfoClasses}>
       {icon}

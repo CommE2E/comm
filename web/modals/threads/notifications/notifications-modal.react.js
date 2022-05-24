@@ -32,21 +32,57 @@ const IN_FOCUSED_TAB = 'Lives in Focused tab';
 const IN_BACKGROUND_TAB = 'Lives in Background tab';
 
 const focusedStatements = [
-  { statement: BANNER_NOTIFS, isStatementValid: true },
-  { statement: BADGE_COUNT, isStatementValid: true },
-  { statement: IN_FOCUSED_TAB, isStatementValid: true },
+  {
+    statement: BANNER_NOTIFS,
+    isStatementValid: true,
+    styleStatementBasedOnValidity: true,
+  },
+  {
+    statement: BADGE_COUNT,
+    isStatementValid: true,
+    styleStatementBasedOnValidity: true,
+  },
+  {
+    statement: IN_FOCUSED_TAB,
+    isStatementValid: true,
+    styleStatementBasedOnValidity: true,
+  },
 ];
 
 const badgeOnlyStatements = [
-  { statement: BANNER_NOTIFS, isStatementValid: false },
-  { statement: BADGE_COUNT, isStatementValid: true },
-  { statement: IN_FOCUSED_TAB, isStatementValid: true },
+  {
+    statement: BANNER_NOTIFS,
+    isStatementValid: false,
+    styleStatementBasedOnValidity: true,
+  },
+  {
+    statement: BADGE_COUNT,
+    isStatementValid: true,
+    styleStatementBasedOnValidity: true,
+  },
+  {
+    statement: IN_FOCUSED_TAB,
+    isStatementValid: true,
+    styleStatementBasedOnValidity: true,
+  },
 ];
 
 const backgroundStatements = [
-  { statement: BANNER_NOTIFS, isStatementValid: false },
-  { statement: BADGE_COUNT, isStatementValid: false },
-  { statement: IN_BACKGROUND_TAB, isStatementValid: true },
+  {
+    statement: BANNER_NOTIFS,
+    isStatementValid: false,
+    styleStatementBasedOnValidity: true,
+  },
+  {
+    statement: BADGE_COUNT,
+    isStatementValid: false,
+    styleStatementBasedOnValidity: true,
+  },
+  {
+    statement: IN_BACKGROUND_TAB,
+    isStatementValid: true,
+    styleStatementBasedOnValidity: true,
+  },
 ];
 
 type Props = {
