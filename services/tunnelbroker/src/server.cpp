@@ -1,6 +1,7 @@
 #include "AmqpManager.h"
 #include "ConfigManager.h"
 #include "Constants.h"
+#include "GlobalTools.h"
 #include "TunnelbrokerServiceImpl.h"
 
 #include <glog/logging.h>
@@ -39,8 +40,13 @@ void RunAmqpClient() {
 
 int main(int argc, char **argv) {
   google::InitGoogleLogging(argv[0]);
-  comm::network::config::ConfigManager::getInstance().load(
-      comm::network::CONFIG_FILE_PATH);
+  if (comm::network::tools::isDevMode()) {
+    comm::network::config::ConfigManager::getInstance().load(
+        comm::network::DEV_CONFIG_FILE_PATH);
+  } else {
+    comm::network::config::ConfigManager::getInstance().load(
+        comm::network::CONFIG_FILE_PATH);
+  }
   std::thread amqpThread(comm::network::RunAmqpClient);
   std::thread grpcThread(comm::network::RunServer);
   amqpThread.join();
