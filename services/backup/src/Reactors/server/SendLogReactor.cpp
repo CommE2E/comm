@@ -63,6 +63,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
       }
       this->backupID = request.backupid();
       this->logID = this->generateLogID(this->backupID);
+      this->response->set_logcheckpoint(this->logID);
       this->state = State::LOG_HASH;
       return nullptr;
     };
