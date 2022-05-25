@@ -21,13 +21,15 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
                                    backup::CreateNewBackupResponse> {
   enum class State {
     USER_ID = 1,
-    KEY_ENTROPY = 2,
-    DATA_HASH = 3,
-    DATA_CHUNKS = 4,
+    DEVICE_ID = 2,
+    KEY_ENTROPY = 3,
+    DATA_HASH = 4,
+    DATA_CHUNKS = 5,
   };
 
   State state = State::USER_ID;
   std::string userID;
+  std::string deviceID;
   std::string keyEntropy;
   std::string dataHash;
   std::string holder;

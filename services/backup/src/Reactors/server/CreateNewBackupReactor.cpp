@@ -25,6 +25,14 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
         throw std::runtime_error("user id expected but not received");
       }
       this->userID = request.userid();
+      this->state = State::DEVICE_ID;
+      return nullptr;
+    }
+    case State::DEVICE_ID: {
+      if (!request.has_deviceid()) {
+        throw std::runtime_error("device id expected but not received");
+      }
+      this->deviceID = request.deviceid();
       this->state = State::KEY_ENTROPY;
       return nullptr;
     }
