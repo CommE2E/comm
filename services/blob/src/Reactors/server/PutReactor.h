@@ -49,7 +49,7 @@ public:
             grpc::Status::OK, true);
       }
       this->s3Path = std::make_unique<database::S3Path>(
-          generateS3Path(BLOB_BUCKET_NAME, this->blobHash));
+          tools::generateS3Path(BLOB_BUCKET_NAME, this->blobHash));
       this->blobItem =
           std::make_shared<database::BlobItem>(this->blobHash, *s3Path);
       response->set_dataexists(false);

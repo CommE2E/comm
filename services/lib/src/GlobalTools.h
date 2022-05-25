@@ -5,6 +5,7 @@
 
 namespace comm {
 namespace network {
+namespace tools {
 
 const std::string ID_SEPARATOR = ":";
 
@@ -18,5 +19,6 @@ bool isDevMode();
 
 std::string generateUUID();
 
+} // namespace tools
 } // namespace network
 } // namespace comm

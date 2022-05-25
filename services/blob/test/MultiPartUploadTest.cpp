@@ -59,7 +59,8 @@ TEST_F(MultiPartUploadTest, SuccessfulWriteMultipleChunks) {
   mpu.addPart(generateNByes(AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE));
   mpu.addPart("xxx");
   mpu.finishUpload();
-  EXPECT_THROW(bucket->getObjectData(objectName), invalid_argument_error);
+  EXPECT_THROW(
+      bucket->getObjectData(objectName), tools::invalid_argument_error);
   EXPECT_EQ(
       bucket->getObjectSize(objectName),
       AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE + 3);

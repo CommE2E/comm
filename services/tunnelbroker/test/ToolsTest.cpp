@@ -59,7 +59,7 @@ TEST(ToolsTest, ValidateSessionIDReturnsTrueOnValidStaticSessionID) {
 }
 
 TEST(ToolsTest, ValidateSessionIDReturnsTrueOnValidGeneratedSessionID) {
-  const std::string validSessionID = generateUUID();
+  const std::string validSessionID = tools::generateUUID();
   EXPECT_EQ(tools::validateSessionID(validSessionID), true)
       << "Valid generated sessionID \"" << validSessionID
       << "\" is invalid by the function";

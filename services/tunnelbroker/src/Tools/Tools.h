@@ -8,7 +8,6 @@ namespace network {
 namespace tools {
 
 std::string generateRandomString(std::size_t length);
-int64_t getCurrentTimestamp();
 bool validateDeviceID(std::string deviceID);
 bool validateSessionID(std::string sessionID);
 void checkIfNotEmpty(std::string fieldName, std::string stringToCheck);

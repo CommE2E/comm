@@ -30,7 +30,7 @@ void DatabaseManager::putBlobItem(const BlobItem &item) {
   request.AddItem(
       BlobItem::FIELD_CREATED,
       Aws::DynamoDB::Model::AttributeValue(
-          std::to_string(getCurrentTimestamp())));
+          std::to_string(tools::getCurrentTimestamp())));
 
   this->innerPutItem(std::make_shared<BlobItem>(item), request);
 }

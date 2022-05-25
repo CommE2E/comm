@@ -67,7 +67,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsStaticDataIsSame) {
 
 TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsGeneratedDataIsSame) {
   const database::MessageItem item(
-      generateUUID(),
+      tools::generateUUID(),
       "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
       "web:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
       tools::generateRandomString(256),

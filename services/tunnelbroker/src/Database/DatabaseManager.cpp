@@ -1,5 +1,6 @@
 #include "DatabaseManager.h"
 #include "DynamoDBTools.h"
+#include "GlobalTools.h"
 
 namespace comm {
 namespace network {

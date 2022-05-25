@@ -13,7 +13,7 @@ std::string CreateNewBackupReactor::generateBackupID() {
     throw std::runtime_error(
         "trying to generate a backup ID with an empty device ID");
   }
-  return this->deviceID + std::to_string(getCurrentTimestamp());
+  return this->deviceID + std::to_string(tools::getCurrentTimestamp());
 }
 
 std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
@@ -63,7 +63,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
             this->userID + "] already exists, creation aborted");
       }
       response->set_backupid(this->backupID);
-      this->holder = generateHolder(this->dataHash, this->backupID);
+      this->holder = tools::generateHolder(this->dataHash, this->backupID);
       this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
           this->holder, this->dataHash, &this->blobPutDoneCV);
       this->blobClient.put(this->putReactor);
@@ -102,8 +102,8 @@ void CreateNewBackupReactor::terminateCallback() {
     database::BackupItem backupItem(
         this->userID,
         this->backupID,
-        getCurrentTimestamp(),
-        generateRandomString(),
+        tools::getCurrentTimestamp(),
+        tools::generateRandomString(),
         this->holder,
         {});
     database::DatabaseManager::getInstance().putBackupItem(backupItem);

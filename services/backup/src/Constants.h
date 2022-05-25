@@ -8,9 +8,10 @@
 namespace comm {
 namespace network {
 
-const std::string LOG_TABLE_NAME = decorateTableName("backup-service-log");
+const std::string LOG_TABLE_NAME =
+    tools::decorateTableName("backup-service-log");
 const std::string BACKUP_TABLE_NAME =
-    decorateTableName("backup-service-backup");
+    tools::decorateTableName("backup-service-backup");
 
 // This has to be smaller than GRPC_CHUNK_SIZE_LIMIT because we need to
 // recognize if we may receive multiple chunks or just one. If it was larger
