@@ -47,6 +47,8 @@ const std::regex DEVICEID_FORMAT_REGEX(
 // Config
 const std::string CONFIG_FILE_PATH =
     std::string(std::getenv("HOME")) + "/tunnelbroker/tunnelbroker.ini";
+const std::string DEV_CONFIG_FILE_PATH =
+    std::string(std::getenv("HOME")) + "/tunnelbroker/tunnelbroker-dev.ini";
 
 // DeliveryBroker
 const size_t DELIVERY_BROKER_MAX_QUEUE_SIZE = 100;
