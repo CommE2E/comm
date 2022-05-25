@@ -35,17 +35,8 @@ function SidebarListModal(props: Props): React.Node {
     listData,
     searchState,
     setSearchState,
-    searchIndex,
+    onChangeSearchInputText,
   } = useSearchSidebars(props.route.params.threadInfo);
-
-  const onChangeSearchText = React.useCallback(
-    (searchText: string) =>
-      setSearchState({
-        text: searchText,
-        results: new Set(searchIndex.getSearchResults(searchText)),
-      }),
-    [searchIndex, setSearchState],
-  );
 
   const searchTextInputRef = React.useRef();
   const setSearchTextInputRef = React.useCallback(
@@ -95,7 +86,7 @@ function SidebarListModal(props: Props): React.Node {
     <Modal>
       <Search
         searchText={searchState.text}
-        onChangeText={onChangeSearchText}
+        onChangeText={onChangeSearchInputText}
         containerStyle={styles.search}
         placeholder="Search sidebars"
         ref={setSearchTextInputRef}
