@@ -28,6 +28,8 @@ public:
   void removeBackupItem(std::shared_ptr<BackupItem> item);
 
   void putLogItem(const LogItem &item);
+  std::shared_ptr<LogItem>
+  findLogItem(const std::string &backupID, const std::string &logID);
   std::vector<std::shared_ptr<LogItem>>
   findLogItemsForBackup(const std::string &backupID);
   void removeLogItem(std::shared_ptr<LogItem> item);

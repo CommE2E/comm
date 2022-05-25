@@ -7,6 +7,7 @@
 #include <aws/dynamodb/model/DeleteItemRequest.h>
 #include <aws/dynamodb/model/QueryRequest.h>
 #include <aws/dynamodb/model/ScanRequest.h>
+#include <aws/dynamodb/model/UpdateItemRequest.h>
 
 #include <iostream>
 
@@ -57,7 +58,7 @@ std::shared_ptr<BackupItem> DatabaseManager::findBackupItem(
       BackupItem::FIELD_BACKUP_ID,
       Aws::DynamoDB::Model::AttributeValue(backupID));
 
-  return std::move(this->innerFindItem<BackupItem>(request));
+  return this->innerFindItem<BackupItem>(request);
 }
 
 std::shared_ptr<BackupItem>
@@ -119,6 +120,18 @@ void DatabaseManager::putLogItem(const LogItem &item) {
   }
 
   this->innerPutItem(std::make_shared<LogItem>(item), request);
+}
+
+std::shared_ptr<LogItem> DatabaseManager::findLogItem(
+    const std::string &backupID,
+    const std::string &logID) {
+  Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey(
+      LogItem::FIELD_BACKUP_ID, Aws::DynamoDB::Model::AttributeValue(backupID));
+  request.AddKey(
+      LogItem::FIELD_LOG_ID, Aws::DynamoDB::Model::AttributeValue(logID));
+
+  return this->innerFindItem<LogItem>(request);
 }
 
 std::vector<std::shared_ptr<LogItem>>
