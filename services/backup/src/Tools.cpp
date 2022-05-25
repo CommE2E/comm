@@ -1,5 +1,7 @@
 #include "Tools.h"
 
+#include "GlobalTools.h"
+
 #include <chrono>
 #include <cstdlib>
 #include <random>
@@ -17,6 +19,14 @@ std::string generateRandomString(std::size_t length) {
     random_string += CHARACTERS[distribution(generator)];
   }
   return random_string;
+}
+
+std::string generateHolder(
+    const std::string &blobHash,
+    const std::string &backupID,
+    const std::string &resourceID) {
+  return backupID + ID_SEPARATOR + resourceID + ID_SEPARATOR + blobHash +
+      ID_SEPARATOR + generateUUID();
 }
 
 } // namespace network
