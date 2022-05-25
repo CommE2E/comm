@@ -39,7 +39,8 @@ void RunAmqpClient() {
 
 int main(int argc, char **argv) {
   google::InitGoogleLogging(argv[0]);
-  comm::network::config::ConfigManager::getInstance().load();
+  comm::network::config::ConfigManager::getInstance().load(
+      comm::network::CONFIG_FILE_PATH);
   std::thread amqpThread(comm::network::RunAmqpClient);
   std::thread grpcThread(comm::network::RunServer);
   amqpThread.join();

@@ -28,12 +28,12 @@ ConfigManager &ConfigManager::getInstance() {
   return instance;
 }
 
-void ConfigManager::load() {
+void ConfigManager::load(const std::string configFilePath) {
   try {
     std::ifstream fileStream;
-    fileStream.open(CONFIG_FILE_PATH.c_str(), std::ifstream::in);
+    fileStream.open(configFilePath.c_str(), std::ifstream::in);
     if (!fileStream.is_open()) {
-      throw std::runtime_error("Error: can not open file " + CONFIG_FILE_PATH);
+      throw std::runtime_error("Error: can not open file " + configFilePath);
     }
 
     boost::program_options::options_description description{

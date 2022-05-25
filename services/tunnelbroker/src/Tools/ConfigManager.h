@@ -24,7 +24,7 @@ public:
   static const std::string OPTION_DYNAMODB_MESSAGES_TABLE;
 
   static ConfigManager &getInstance();
-  void load();
+  void load(const std::string configFilePath);
   std::string getParameter(std::string param);
 };
 
