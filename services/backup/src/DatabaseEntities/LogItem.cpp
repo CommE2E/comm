@@ -1,6 +1,7 @@
 #include "LogItem.h"
 
 #include "Constants.h"
+#include "GlobalConstants.h"
 
 #include <stdexcept>
 
@@ -21,7 +22,7 @@ LogItem::LogItem(
     const std::string logID,
     const bool persistedInBlob,
     const std::string value,
-    std::vector<std::string> attachmentHolders)
+    std::string attachmentHolders)
     : backupID(backupID),
       logID(logID),
       persistedInBlob(persistedInBlob),
@@ -63,7 +64,7 @@ void LogItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
     auto attachmentsHolders =
         itemFromDB.find(LogItem::FIELD_ATTACHMENT_HOLDERS);
     if (attachmentsHolders != itemFromDB.end()) {
-      this->attachmentHolders = attachmentsHolders->second.GetSS();
+      this->attachmentHolders = attachmentsHolders->second.GetS();
     }
   } catch (std::logic_error &e) {
     throw std::runtime_error(
@@ -100,8 +101,13 @@ std::string LogItem::getValue() const {
   return this->value;
 }
 
-std::vector<std::string> LogItem::getAttachmentHolders() const {
+std::string LogItem::getAttachmentHolders() const {
   return this->attachmentHolders;
+}
+
+void LogItem::appendAttachmentHolder(const std::string &attachmentHolder) {
+  this->attachmentHolders += attachmentHolder;
+  this->attachmentHolders += ATTACHMENT_DELIMITER;
 }
 
 } // namespace database

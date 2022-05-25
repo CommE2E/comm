@@ -3,7 +3,6 @@
 #include "Item.h"
 
 #include <string>
-#include <vector>
 
 namespace comm {
 namespace network {
@@ -37,7 +36,7 @@ class BackupItem : public Item {
   uint64_t created;
   std::string recoveryData;
   std::string compactionHolder;
-  std::vector<std::string> attachmentHolders;
+  std::string attachmentHolders;
 
   void validate() const override;
 
@@ -58,7 +57,7 @@ public:
       uint64_t created,
       std::string recoveryData,
       std::string compactionHolder,
-      std::vector<std::string> attachmentHolders);
+      std::string attachmentHolders);
   BackupItem(const AttributeValues &itemFromDB);
 
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
@@ -72,7 +71,9 @@ public:
   uint64_t getCreated() const;
   std::string getRecoveryData() const;
   std::string getCompactionHolder() const;
-  std::vector<std::string> getAttachmentHolders() const;
+  std::string getAttachmentHolders() const;
+
+  void appendAttachmentHolder(const std::string &attachmentHolder);
 };
 
 } // namespace database

@@ -1,6 +1,7 @@
 #include "BackupItem.h"
 
 #include "Constants.h"
+#include "GlobalConstants.h"
 
 namespace comm {
 namespace network {
@@ -21,7 +22,7 @@ BackupItem::BackupItem(
     uint64_t created,
     std::string recoveryData,
     std::string compactionHolder,
-    std::vector<std::string> attachmentHolders)
+    std::string attachmentHolders)
     : userID(userID),
       backupID(backupID),
       created(created),
@@ -65,7 +66,7 @@ void BackupItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
     auto attachmentsHolders =
         itemFromDB.find(BackupItem::FIELD_ATTACHMENT_HOLDERS);
     if (attachmentsHolders != itemFromDB.end()) {
-      this->attachmentHolders = attachmentsHolders->second.GetSS();
+      this->attachmentHolders = attachmentsHolders->second.GetS();
     }
   } catch (std::logic_error &e) {
     throw std::runtime_error(
@@ -107,8 +108,13 @@ std::string BackupItem::getCompactionHolder() const {
   return this->compactionHolder;
 }
 
-std::vector<std::string> BackupItem::getAttachmentHolders() const {
+std::string BackupItem::getAttachmentHolders() const {
   return this->attachmentHolders;
+}
+
+void BackupItem::appendAttachmentHolder(const std::string &attachmentHolder) {
+  this->attachmentHolders += attachmentHolder;
+  this->attachmentHolders += ATTACHMENT_DELIMITER;
 }
 
 } // namespace database
