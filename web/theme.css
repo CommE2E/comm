@@ -84,6 +84,7 @@
   --calendar-day-bg: var(--shades-black-60);
   --calendar-day-selected-color: var(--violet-dark-80);
   --community-bg: var(--shades-black-90);
+  --community-settings-selected: var(--violet-dark-60);
   --unread-bg: var(--error-primary);
   --settings-btn-bg: var(--violet-dark-100);
   --modal-bg: var(--shades-black-90);

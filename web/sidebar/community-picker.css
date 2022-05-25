@@ -21,3 +21,12 @@
   color: var(--fg);
   padding: 0;
 }
+
+.settingsSelectedContainer {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  border-left: 8px solid var(--community-settings-selected);
+  border-right: 8px solid transparent;
+}
