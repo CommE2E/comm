@@ -62,6 +62,11 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         throw std::runtime_error("backup id expected but not received");
       }
       this->backupID = request.backupid();
+      if (database::DatabaseManager::getInstance().findBackupItem(
+              this->userID, this->backupID) == nullptr) {
+        throw std::runtime_error(
+            "trying to send log for a non-existent backup");
+      }
       this->logID = this->generateLogID(this->backupID);
       this->response->set_logcheckpoint(this->logID);
       this->state = State::LOG_HASH;
