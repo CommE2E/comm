@@ -10,7 +10,7 @@ services:
       - "3000:3000"
     environment:
       - REDIS_URL=redis://cache
-      - COMM_MYSQL_HOST
+      - COMM_MYSQL_HOST=${COMM_MYSQL_HOST:-database}
       - COMM_MYSQL_DATABASE
       - COMM_MYSQL_USER
       - COMM_MYSQL_PASSWORD
