@@ -16,7 +16,10 @@ COPY services/tunnelbroker/docker/install_libuv.sh .
 RUN ./install_libuv.sh
 
 ARG COMM_TEST_SERVICES
+ARG COMM_SERVICES_DEV_MODE
+
 ENV COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
+ENV COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
 
 WORKDIR /transferred
 

@@ -15,6 +15,7 @@ services:
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
+        - COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
     image: commapp/tunnelbroker-server:0.2
     ports:
       - "${COMM_SERVICES_PORT_TUNNELBROKER}:50051"
