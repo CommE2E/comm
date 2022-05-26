@@ -80,6 +80,7 @@ div.main-header > .wordmark {
   line-height: var(--line-height-text);
   font-weight: var(--semi-bold);
   font-size: var(--logo-font-22);
+  margin-right: 40px;
 }
 .wordmark > a {
   color: inherit;

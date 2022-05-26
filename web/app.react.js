@@ -26,6 +26,7 @@ import { registerConfig } from 'lib/utils/config';
 import AppsDirectory from './apps/apps-directory.react';
 import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
+import NavigationArrows from './components/navigation-arrows.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
 import { MenuProvider } from './menu-provider.react';
@@ -165,6 +166,12 @@ class App extends React.PureComponent<Props> {
       }
     }
 
+    const shouldShowNavigationArrows = false;
+    let navigationArrows = null;
+    if (shouldShowNavigationArrows) {
+      navigationArrows = <NavigationArrows />;
+    }
+
     return (
       <div className={css.layout}>
         <DisconnectedBarVisibilityHandler />
@@ -180,6 +187,7 @@ class App extends React.PureComponent<Props> {
                 Comm
               </a>
             </h1>
+            {navigationArrows}
             <div className={css['upper-right']}>
               <LoadingIndicator
                 status={this.props.entriesLoadingStatus}

@@ -1,0 +1,10 @@
+.container {
+  display: flex;
+  column-gap: 12px;
+}
+
+.button {
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+}
