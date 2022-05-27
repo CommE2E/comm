@@ -23,15 +23,27 @@ function CommunityPicker(): React.Node {
     },
     [dispatch],
   );
-
   const isSettingsOpen = useSelector(state => state.navInfo.tab === 'settings');
   const settingsButtonContainerClass = classNames({
     [css.settingsSelectedContainer]: isSettingsOpen,
   });
 
+  const openChat = React.useCallback(
+    (event: SyntheticEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: { tab: 'chat' },
+      });
+    },
+    [dispatch],
+  );
+
   return (
     <div className={css.container}>
-      <SWMansionIcon icon="inbox" size={36} />
+      <a onClick={openChat}>
+        <SWMansionIcon icon="inbox" size={36} />
+      </a>
       <div className={css.spacer} />
       <div className={settingsButtonContainerClass}>
         <Button variant="round" onClick={openAccountSettings}>
