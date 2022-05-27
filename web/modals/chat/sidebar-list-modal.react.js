@@ -25,7 +25,7 @@ function SidebarListModal(props: Props): React.Node {
   const {
     listData,
     searchState,
-    setSearchState,
+    clearQuery,
     onChangeSearchInputText,
   } = useSearchSidebars(threadInfo);
   const { popModal } = useModalContext();
@@ -45,14 +45,6 @@ function SidebarListModal(props: Props): React.Node {
         </div>
       )),
     [popModal, listData],
-  );
-
-  const clearQuery = React.useCallback(
-    (event: SyntheticEvent<HTMLAnchorElement>) => {
-      event.preventDefault();
-      setSearchState({ text: '', results: new Set() });
-    },
-    [setSearchState],
   );
 
   let clearQueryButton = null;
