@@ -22,7 +22,7 @@
   padding: 0;
 }
 
-.settingsSelectedContainer {
+.activeContainer {
   display: flex;
   justify-content: center;
   width: 100%;

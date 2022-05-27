@@ -25,7 +25,7 @@ function CommunityPicker(): React.Node {
   );
   const isSettingsOpen = useSelector(state => state.navInfo.tab === 'settings');
   const settingsButtonContainerClass = classNames({
-    [css.settingsSelectedContainer]: isSettingsOpen,
+    [css.activeContainer]: isSettingsOpen,
   });
 
   const openChat = React.useCallback(
@@ -38,10 +38,19 @@ function CommunityPicker(): React.Node {
     },
     [dispatch],
   );
+  const isInboxOpen = useSelector(
+    state =>
+      state.navInfo.tab === 'chat' ||
+      state.navInfo.tab === 'apps' ||
+      state.navInfo.tab === 'calendar',
+  );
+  const inboxButtonContainerClass = classNames({
+    [css.activeContainer]: isInboxOpen,
+  });
 
   return (
     <div className={css.container}>
-      <a onClick={openChat}>
+      <a className={inboxButtonContainerClass} onClick={openChat}>
         <SWMansionIcon icon="inbox" size={36} />
       </a>
       <div className={css.spacer} />
