@@ -23,6 +23,7 @@ service BackupService {
   rpc SendLog(stream SendLogRequest) returns (SendLogResponse) {}
   rpc RecoverBackupKey(stream RecoverBackupKeyRequest) returns (stream RecoverBackupKeyResponse) {}
   rpc PullBackup(PullBackupRequest) returns (stream PullBackupResponse) {}
+  rpc AddAttachments(AddAttachmentsRequest) returns (google.protobuf.Empty) {}
 }
 
 // CreateNewBackup
@@ -78,4 +79,13 @@ message PullBackupResponse {
     bytes compactionChunk = 1;
     bytes logChunk = 2;
   }
+}
+
+// AddAttachment
+
+message AddAttachmentsRequest {
+  string userID = 1;
+  string backupID = 2;
+  string logID = 3;
+  string holders = 4;
 }

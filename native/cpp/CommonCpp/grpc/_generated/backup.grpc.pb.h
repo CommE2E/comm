@@ -57,13 +57,13 @@ class BackupService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>> PrepareAsyncCreateNewBackup(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>>(PrepareAsyncCreateNewBackupRaw(context, cq));
     }
-    std::unique_ptr< ::grpc::ClientWriterInterface< ::backup::SendLogRequest>> SendLog(::grpc::ClientContext* context, ::google::protobuf::Empty* response) {
+    std::unique_ptr< ::grpc::ClientWriterInterface< ::backup::SendLogRequest>> SendLog(::grpc::ClientContext* context, ::backup::SendLogResponse* response) {
       return std::unique_ptr< ::grpc::ClientWriterInterface< ::backup::SendLogRequest>>(SendLogRaw(context, response));
     }
-    std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>> AsyncSendLog(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq, void* tag) {
+    std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>> AsyncSendLog(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::CompletionQueue* cq, void* tag) {
       return std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>>(AsyncSendLogRaw(context, response, cq, tag));
     }
-    std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>> PrepareAsyncSendLog(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq) {
+    std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>> PrepareAsyncSendLog(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>>(PrepareAsyncSendLogRaw(context, response, cq));
     }
     std::unique_ptr< ::grpc::ClientReaderWriterInterface< ::backup::RecoverBackupKeyRequest, ::backup::RecoverBackupKeyResponse>> RecoverBackupKey(::grpc::ClientContext* context) {
@@ -84,13 +84,22 @@ class BackupService final {
     std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::backup::PullBackupResponse>> PrepareAsyncPullBackup(::grpc::ClientContext* context, const ::backup::PullBackupRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::backup::PullBackupResponse>>(PrepareAsyncPullBackupRaw(context, request, cq));
     }
+    virtual ::grpc::Status AddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::google::protobuf::Empty* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>> AsyncAddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>>(AsyncAddAttachmentsRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>> PrepareAsyncAddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>>(PrepareAsyncAddAttachmentsRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
       virtual void CreateNewBackup(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::backup::CreateNewBackupRequest,::backup::CreateNewBackupResponse>* reactor) = 0;
-      virtual void SendLog(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::ClientWriteReactor< ::backup::SendLogRequest>* reactor) = 0;
+      virtual void SendLog(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::ClientWriteReactor< ::backup::SendLogRequest>* reactor) = 0;
       virtual void RecoverBackupKey(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::backup::RecoverBackupKeyRequest,::backup::RecoverBackupKeyResponse>* reactor) = 0;
       virtual void PullBackup(::grpc::ClientContext* context, const ::backup::PullBackupRequest* request, ::grpc::ClientReadReactor< ::backup::PullBackupResponse>* reactor) = 0;
+      virtual void AddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void AddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -99,15 +108,17 @@ class BackupService final {
     virtual ::grpc::ClientReaderWriterInterface< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>* CreateNewBackupRaw(::grpc::ClientContext* context) = 0;
     virtual ::grpc::ClientAsyncReaderWriterInterface< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>* AsyncCreateNewBackupRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) = 0;
     virtual ::grpc::ClientAsyncReaderWriterInterface< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>* PrepareAsyncCreateNewBackupRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientWriterInterface< ::backup::SendLogRequest>* SendLogRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response) = 0;
-    virtual ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>* AsyncSendLogRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq, void* tag) = 0;
-    virtual ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>* PrepareAsyncSendLogRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientWriterInterface< ::backup::SendLogRequest>* SendLogRaw(::grpc::ClientContext* context, ::backup::SendLogResponse* response) = 0;
+    virtual ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>* AsyncSendLogRaw(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncWriterInterface< ::backup::SendLogRequest>* PrepareAsyncSendLogRaw(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientReaderWriterInterface< ::backup::RecoverBackupKeyRequest, ::backup::RecoverBackupKeyResponse>* RecoverBackupKeyRaw(::grpc::ClientContext* context) = 0;
     virtual ::grpc::ClientAsyncReaderWriterInterface< ::backup::RecoverBackupKeyRequest, ::backup::RecoverBackupKeyResponse>* AsyncRecoverBackupKeyRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) = 0;
     virtual ::grpc::ClientAsyncReaderWriterInterface< ::backup::RecoverBackupKeyRequest, ::backup::RecoverBackupKeyResponse>* PrepareAsyncRecoverBackupKeyRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientReaderInterface< ::backup::PullBackupResponse>* PullBackupRaw(::grpc::ClientContext* context, const ::backup::PullBackupRequest& request) = 0;
     virtual ::grpc::ClientAsyncReaderInterface< ::backup::PullBackupResponse>* AsyncPullBackupRaw(::grpc::ClientContext* context, const ::backup::PullBackupRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
     virtual ::grpc::ClientAsyncReaderInterface< ::backup::PullBackupResponse>* PrepareAsyncPullBackupRaw(::grpc::ClientContext* context, const ::backup::PullBackupRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>* AsyncAddAttachmentsRaw(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::google::protobuf::Empty>* PrepareAsyncAddAttachmentsRaw(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -121,13 +132,13 @@ class BackupService final {
     std::unique_ptr<  ::grpc::ClientAsyncReaderWriter< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>> PrepareAsyncCreateNewBackup(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReaderWriter< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>>(PrepareAsyncCreateNewBackupRaw(context, cq));
     }
-    std::unique_ptr< ::grpc::ClientWriter< ::backup::SendLogRequest>> SendLog(::grpc::ClientContext* context, ::google::protobuf::Empty* response) {
+    std::unique_ptr< ::grpc::ClientWriter< ::backup::SendLogRequest>> SendLog(::grpc::ClientContext* context, ::backup::SendLogResponse* response) {
       return std::unique_ptr< ::grpc::ClientWriter< ::backup::SendLogRequest>>(SendLogRaw(context, response));
     }
-    std::unique_ptr< ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>> AsyncSendLog(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq, void* tag) {
+    std::unique_ptr< ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>> AsyncSendLog(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::CompletionQueue* cq, void* tag) {
       return std::unique_ptr< ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>>(AsyncSendLogRaw(context, response, cq, tag));
     }
-    std::unique_ptr< ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>> PrepareAsyncSendLog(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq) {
+    std::unique_ptr< ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>> PrepareAsyncSendLog(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>>(PrepareAsyncSendLogRaw(context, response, cq));
     }
     std::unique_ptr< ::grpc::ClientReaderWriter< ::backup::RecoverBackupKeyRequest, ::backup::RecoverBackupKeyResponse>> RecoverBackupKey(::grpc::ClientContext* context) {
@@ -148,13 +159,22 @@ class BackupService final {
     std::unique_ptr< ::grpc::ClientAsyncReader< ::backup::PullBackupResponse>> PrepareAsyncPullBackup(::grpc::ClientContext* context, const ::backup::PullBackupRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReader< ::backup::PullBackupResponse>>(PrepareAsyncPullBackupRaw(context, request, cq));
     }
+    ::grpc::Status AddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::google::protobuf::Empty* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>> AsyncAddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>>(AsyncAddAttachmentsRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>> PrepareAsyncAddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>>(PrepareAsyncAddAttachmentsRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
       void CreateNewBackup(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::backup::CreateNewBackupRequest,::backup::CreateNewBackupResponse>* reactor) override;
-      void SendLog(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::ClientWriteReactor< ::backup::SendLogRequest>* reactor) override;
+      void SendLog(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::ClientWriteReactor< ::backup::SendLogRequest>* reactor) override;
       void RecoverBackupKey(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::backup::RecoverBackupKeyRequest,::backup::RecoverBackupKeyResponse>* reactor) override;
       void PullBackup(::grpc::ClientContext* context, const ::backup::PullBackupRequest* request, ::grpc::ClientReadReactor< ::backup::PullBackupResponse>* reactor) override;
+      void AddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)>) override;
+      void AddAttachments(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -169,19 +189,22 @@ class BackupService final {
     ::grpc::ClientReaderWriter< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>* CreateNewBackupRaw(::grpc::ClientContext* context) override;
     ::grpc::ClientAsyncReaderWriter< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>* AsyncCreateNewBackupRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) override;
     ::grpc::ClientAsyncReaderWriter< ::backup::CreateNewBackupRequest, ::backup::CreateNewBackupResponse>* PrepareAsyncCreateNewBackupRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientWriter< ::backup::SendLogRequest>* SendLogRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response) override;
-    ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>* AsyncSendLogRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq, void* tag) override;
-    ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>* PrepareAsyncSendLogRaw(::grpc::ClientContext* context, ::google::protobuf::Empty* response, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientWriter< ::backup::SendLogRequest>* SendLogRaw(::grpc::ClientContext* context, ::backup::SendLogResponse* response) override;
+    ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>* AsyncSendLogRaw(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncWriter< ::backup::SendLogRequest>* PrepareAsyncSendLogRaw(::grpc::ClientContext* context, ::backup::SendLogResponse* response, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientReaderWriter< ::backup::RecoverBackupKeyRequest, ::backup::RecoverBackupKeyResponse>* RecoverBackupKeyRaw(::grpc::ClientContext* context) override;
     ::grpc::ClientAsyncReaderWriter< ::backup::RecoverBackupKeyRequest, ::backup::RecoverBackupKeyResponse>* AsyncRecoverBackupKeyRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) override;
     ::grpc::ClientAsyncReaderWriter< ::backup::RecoverBackupKeyRequest, ::backup::RecoverBackupKeyResponse>* PrepareAsyncRecoverBackupKeyRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientReader< ::backup::PullBackupResponse>* PullBackupRaw(::grpc::ClientContext* context, const ::backup::PullBackupRequest& request) override;
     ::grpc::ClientAsyncReader< ::backup::PullBackupResponse>* AsyncPullBackupRaw(::grpc::ClientContext* context, const ::backup::PullBackupRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
     ::grpc::ClientAsyncReader< ::backup::PullBackupResponse>* PrepareAsyncPullBackupRaw(::grpc::ClientContext* context, const ::backup::PullBackupRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* AsyncAddAttachmentsRaw(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* PrepareAsyncAddAttachmentsRaw(::grpc::ClientContext* context, const ::backup::AddAttachmentsRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_CreateNewBackup_;
     const ::grpc::internal::RpcMethod rpcmethod_SendLog_;
     const ::grpc::internal::RpcMethod rpcmethod_RecoverBackupKey_;
     const ::grpc::internal::RpcMethod rpcmethod_PullBackup_;
+    const ::grpc::internal::RpcMethod rpcmethod_AddAttachments_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -190,9 +213,10 @@ class BackupService final {
     Service();
     virtual ~Service();
     virtual ::grpc::Status CreateNewBackup(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::backup::CreateNewBackupResponse, ::backup::CreateNewBackupRequest>* stream);
-    virtual ::grpc::Status SendLog(::grpc::ServerContext* context, ::grpc::ServerReader< ::backup::SendLogRequest>* reader, ::google::protobuf::Empty* response);
+    virtual ::grpc::Status SendLog(::grpc::ServerContext* context, ::grpc::ServerReader< ::backup::SendLogRequest>* reader, ::backup::SendLogResponse* response);
     virtual ::grpc::Status RecoverBackupKey(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::backup::RecoverBackupKeyResponse, ::backup::RecoverBackupKeyRequest>* stream);
     virtual ::grpc::Status PullBackup(::grpc::ServerContext* context, const ::backup::PullBackupRequest* request, ::grpc::ServerWriter< ::backup::PullBackupResponse>* writer);
+    virtual ::grpc::Status AddAttachments(::grpc::ServerContext* context, const ::backup::AddAttachmentsRequest* request, ::google::protobuf::Empty* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_CreateNewBackup : public BaseClass {
@@ -226,11 +250,11 @@ class BackupService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::google::protobuf::Empty* /*response*/) override {
+    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::backup::SendLogResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestSendLog(::grpc::ServerContext* context, ::grpc::ServerAsyncReader< ::google::protobuf::Empty, ::backup::SendLogRequest>* reader, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestSendLog(::grpc::ServerContext* context, ::grpc::ServerAsyncReader< ::backup::SendLogResponse, ::backup::SendLogRequest>* reader, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncClientStreaming(1, context, reader, new_call_cq, notification_cq, tag);
     }
   };
@@ -274,7 +298,27 @@ class BackupService final {
       ::grpc::Service::RequestAsyncServerStreaming(3, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_CreateNewBackup<WithAsyncMethod_SendLog<WithAsyncMethod_RecoverBackupKey<WithAsyncMethod_PullBackup<Service > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_AddAttachments : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_AddAttachments() {
+      ::grpc::Service::MarkMethodAsync(4);
+    }
+    ~WithAsyncMethod_AddAttachments() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AddAttachments(::grpc::ServerContext* /*context*/, const ::backup::AddAttachmentsRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestAddAttachments(::grpc::ServerContext* context, ::backup::AddAttachmentsRequest* request, ::grpc::ServerAsyncResponseWriter< ::google::protobuf::Empty>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_CreateNewBackup<WithAsyncMethod_SendLog<WithAsyncMethod_RecoverBackupKey<WithAsyncMethod_PullBackup<WithAsyncMethod_AddAttachments<Service > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_CreateNewBackup : public BaseClass {
    private:
@@ -305,20 +349,20 @@ class BackupService final {
    public:
     WithCallbackMethod_SendLog() {
       ::grpc::Service::MarkMethodCallback(1,
-          new ::grpc::internal::CallbackClientStreamingHandler< ::backup::SendLogRequest, ::google::protobuf::Empty>(
+          new ::grpc::internal::CallbackClientStreamingHandler< ::backup::SendLogRequest, ::backup::SendLogResponse>(
             [this](
-                   ::grpc::CallbackServerContext* context, ::google::protobuf::Empty* response) { return this->SendLog(context, response); }));
+                   ::grpc::CallbackServerContext* context, ::backup::SendLogResponse* response) { return this->SendLog(context, response); }));
     }
     ~WithCallbackMethod_SendLog() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::google::protobuf::Empty* /*response*/) override {
+    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::backup::SendLogResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     virtual ::grpc::ServerReadReactor< ::backup::SendLogRequest>* SendLog(
-      ::grpc::CallbackServerContext* /*context*/, ::google::protobuf::Empty* /*response*/)  { return nullptr; }
+      ::grpc::CallbackServerContext* /*context*/, ::backup::SendLogResponse* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
   class WithCallbackMethod_RecoverBackupKey : public BaseClass {
@@ -365,7 +409,34 @@ class BackupService final {
     virtual ::grpc::ServerWriteReactor< ::backup::PullBackupResponse>* PullBackup(
       ::grpc::CallbackServerContext* /*context*/, const ::backup::PullBackupRequest* /*request*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_CreateNewBackup<WithCallbackMethod_SendLog<WithCallbackMethod_RecoverBackupKey<WithCallbackMethod_PullBackup<Service > > > > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_AddAttachments : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_AddAttachments() {
+      ::grpc::Service::MarkMethodCallback(4,
+          new ::grpc::internal::CallbackUnaryHandler< ::backup::AddAttachmentsRequest, ::google::protobuf::Empty>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::backup::AddAttachmentsRequest* request, ::google::protobuf::Empty* response) { return this->AddAttachments(context, request, response); }));}
+    void SetMessageAllocatorFor_AddAttachments(
+        ::grpc::MessageAllocator< ::backup::AddAttachmentsRequest, ::google::protobuf::Empty>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::backup::AddAttachmentsRequest, ::google::protobuf::Empty>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_AddAttachments() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AddAttachments(::grpc::ServerContext* /*context*/, const ::backup::AddAttachmentsRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* AddAttachments(
+      ::grpc::CallbackServerContext* /*context*/, const ::backup::AddAttachmentsRequest* /*request*/, ::google::protobuf::Empty* /*response*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_CreateNewBackup<WithCallbackMethod_SendLog<WithCallbackMethod_RecoverBackupKey<WithCallbackMethod_PullBackup<WithCallbackMethod_AddAttachments<Service > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_CreateNewBackup : public BaseClass {
@@ -396,7 +467,7 @@ class BackupService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::google::protobuf::Empty* /*response*/) override {
+    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::backup::SendLogResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -436,6 +507,23 @@ class BackupService final {
     }
   };
   template <class BaseClass>
+  class WithGenericMethod_AddAttachments : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_AddAttachments() {
+      ::grpc::Service::MarkMethodGeneric(4);
+    }
+    ~WithGenericMethod_AddAttachments() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AddAttachments(::grpc::ServerContext* /*context*/, const ::backup::AddAttachmentsRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
   class WithRawMethod_CreateNewBackup : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
@@ -467,7 +555,7 @@ class BackupService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::google::protobuf::Empty* /*response*/) override {
+    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::backup::SendLogResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -516,6 +604,26 @@ class BackupService final {
     }
   };
   template <class BaseClass>
+  class WithRawMethod_AddAttachments : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_AddAttachments() {
+      ::grpc::Service::MarkMethodRaw(4);
+    }
+    ~WithRawMethod_AddAttachments() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AddAttachments(::grpc::ServerContext* /*context*/, const ::backup::AddAttachmentsRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestAddAttachments(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithRawCallbackMethod_CreateNewBackup : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
@@ -553,7 +661,7 @@ class BackupService final {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::google::protobuf::Empty* /*response*/) override {
+    ::grpc::Status SendLog(::grpc::ServerContext* /*context*/, ::grpc::ServerReader< ::backup::SendLogRequest>* /*reader*/, ::backup::SendLogResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -605,7 +713,56 @@ class BackupService final {
     virtual ::grpc::ServerWriteReactor< ::grpc::ByteBuffer>* PullBackup(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/)  { return nullptr; }
   };
-  typedef Service StreamedUnaryService;
+  template <class BaseClass>
+  class WithRawCallbackMethod_AddAttachments : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_AddAttachments() {
+      ::grpc::Service::MarkMethodRawCallback(4,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->AddAttachments(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_AddAttachments() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status AddAttachments(::grpc::ServerContext* /*context*/, const ::backup::AddAttachmentsRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* AddAttachments(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_AddAttachments : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_AddAttachments() {
+      ::grpc::Service::MarkMethodStreamed(4,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::backup::AddAttachmentsRequest, ::google::protobuf::Empty>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::backup::AddAttachmentsRequest, ::google::protobuf::Empty>* streamer) {
+                       return this->StreamedAddAttachments(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_AddAttachments() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status AddAttachments(::grpc::ServerContext* /*context*/, const ::backup::AddAttachmentsRequest* /*request*/, ::google::protobuf::Empty* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedAddAttachments(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::backup::AddAttachmentsRequest,::google::protobuf::Empty>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_AddAttachments<Service > StreamedUnaryService;
   template <class BaseClass>
   class WithSplitStreamingMethod_PullBackup : public BaseClass {
    private:
@@ -634,7 +791,7 @@ class BackupService final {
     virtual ::grpc::Status StreamedPullBackup(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::backup::PullBackupRequest,::backup::PullBackupResponse>* server_split_streamer) = 0;
   };
   typedef WithSplitStreamingMethod_PullBackup<Service > SplitStreamedService;
-  typedef WithSplitStreamingMethod_PullBackup<Service > StreamedService;
+  typedef WithSplitStreamingMethod_PullBackup<WithStreamedUnaryMethod_AddAttachments<Service > > StreamedService;
 };
 
 }  // namespace backup
