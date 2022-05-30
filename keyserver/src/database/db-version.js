@@ -4,11 +4,13 @@ import type { QueryResults } from 'mysql';
 
 import { dbQuery, SQL } from './database';
 
+const dbVersionMetadataKey = 'db_version';
+
 async function fetchDBVersion(): Promise<number> {
   const versionQuery = SQL`
     SELECT data
     FROM metadata
-    WHERE name = 'db_version';
+    WHERE name = ${dbVersionMetadataKey};
   `;
   const [[versionResult]] = await dbQuery(versionQuery);
   if (!versionResult) {
@@ -20,7 +22,7 @@ async function fetchDBVersion(): Promise<number> {
 async function updateDBVersion(dbVersion: number): Promise<QueryResults> {
   const updateQuery = SQL`
     INSERT INTO metadata (name, data)
-    VALUES ('db_version', ${dbVersion})
+    VALUES (${dbVersionMetadataKey}, ${dbVersion})
     ON DUPLICATE KEY
     UPDATE
       data = ${dbVersion};
