@@ -23,6 +23,8 @@ web/node_modules
 web/dist
 
 keyserver/dist
+keyserver/facts
+keyserver/secrets
 keyserver/node_modules
 
 services/tunnelbroker/Dockerfile
