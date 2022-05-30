@@ -1,10 +1,13 @@
 #include "Tools.h"
 
+#include "GlobalConstants.h"
 #include "GlobalTools.h"
 
 #include <chrono>
 #include <cstdlib>
 #include <random>
+#include <sstream>
+#include <stdexcept>
 
 namespace comm {
 namespace network {
@@ -28,6 +31,25 @@ std::string generateHolder(
     const std::string &resourceID) {
   return backupID + ID_SEPARATOR + resourceID + ID_SEPARATOR + blobHash +
       ID_SEPARATOR + tools::generateUUID();
+}
+
+std::string validateAttachmentHolders(const std::string &holders) {
+  std::stringstream stream(holders);
+  std::string item;
+  std::string result;
+
+  while (std::getline(stream, item, ATTACHMENT_DELIMITER)) {
+    if (item.empty()) {
+      throw std::runtime_error("empty holder detected");
+    }
+    result += item;
+    result += ATTACHMENT_DELIMITER;
+  }
+  if (result.empty()) {
+    throw std::runtime_error("parse attachment holders failed");
+  }
+
+  return result;
 }
 
 } // namespace tools

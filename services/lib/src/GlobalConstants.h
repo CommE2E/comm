@@ -22,7 +22,7 @@ const size_t GRPC_METADATA_SIZE_PER_MESSAGE = 5;
 
 const std::string AWS_REGION = "us-east-2";
 
-const std::string ATTACHMENT_DELIMITER = ";";
+const char ATTACHMENT_DELIMITER = ';';
 
 } // namespace network
 } // namespace comm

@@ -13,6 +13,8 @@ std::string generateHolder(
     const std::string &backupID,
     const std::string &resourceID = "");
 
+std::string validateAttachmentHolders(const std::string &holders);
+
 } // namespace tools
 } // namespace network
 } // namespace comm
