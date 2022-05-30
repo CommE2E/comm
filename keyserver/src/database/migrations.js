@@ -6,6 +6,7 @@ import type { QueryResults } from 'mysql';
 import { getMessageForException } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from './database';
+import { setupDB } from './setup-db';
 
 async function makeSureBaseRoutePathExists(filePath: string): Promise<void> {
   let readFile, json;
@@ -90,7 +91,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
 async function migrate(): Promise<boolean> {
   let dbVersion = null;
   try {
-    dbVersion = await getDBVersion();
+    dbVersion = await setUpDBAndReturnVersion();
     console.log(`(node:${process.pid}) DB version: ${dbVersion}`);
   } catch (e) {
     const dbVersionExceptionMessage = String(getMessageForException(e));
@@ -120,7 +121,19 @@ async function migrate(): Promise<boolean> {
   return true;
 }
 
-async function getDBVersion(): Promise<number> {
+async function setUpDBAndReturnVersion(): Promise<number> {
+  try {
+    return await fetchDBVersion();
+  } catch (e) {
+    if (e.errno !== 1146) {
+      throw e;
+    }
+    await setupDB();
+    return await fetchDBVersion();
+  }
+}
+
+async function fetchDBVersion(): Promise<number> {
   const versionQuery = SQL`
     SELECT data
     FROM metadata
