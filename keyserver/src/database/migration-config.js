@@ -26,6 +26,7 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     },
   ],
 ]);
+const newDatabaseVersion: number = Math.max(...migrations.keys());
 
 async function makeSureBaseRoutePathExists(filePath: string): Promise<void> {
   let readFile, json;
@@ -82,4 +83,4 @@ async function fixBaseRoutePathForLocalhost(filePath: string): Promise<void> {
   await writeFile.close();
 }
 
-export { migrations };
+export { migrations, newDatabaseVersion };

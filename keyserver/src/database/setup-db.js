@@ -10,12 +10,15 @@ import { threadTypes } from 'lib/types/thread-types';
 
 import { createThread } from '../creators/thread-creator';
 import { dbQuery, SQL } from '../database/database';
+import { updateDBVersion } from '../database/db-version';
+import { newDatabaseVersion } from '../database/migration-config';
 import { createScriptViewer } from '../session/scripts';
 
 async function setupDB() {
   await createTables();
   await createUsers();
   await createThreads();
+  await setUpMetadataTable();
 }
 
 async function createTables() {
@@ -395,6 +398,10 @@ async function createThreads() {
     },
     createThreadOptions,
   );
+}
+
+async function setUpMetadataTable() {
+  await updateDBVersion(newDatabaseVersion);
 }
 
 export { setupDB };
