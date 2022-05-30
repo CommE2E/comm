@@ -1,7 +1,7 @@
 #include "LogItem.h"
 
 #include "Constants.h"
-#include "GlobalConstants.h"
+#include "Tools.h"
 
 #include <stdexcept>
 
@@ -105,9 +105,9 @@ std::string LogItem::getAttachmentHolders() const {
   return this->attachmentHolders;
 }
 
-void LogItem::appendAttachmentHolder(const std::string &attachmentHolder) {
-  this->attachmentHolders += attachmentHolder;
-  this->attachmentHolders += ATTACHMENT_DELIMITER;
+void LogItem::addAttachmentHolders(const std::string &attachmentHolders) {
+  this->attachmentHolders +=
+      tools::validateAttachmentHolders(attachmentHolders);
 }
 
 } // namespace database

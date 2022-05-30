@@ -1,7 +1,7 @@
 #include "BackupItem.h"
 
 #include "Constants.h"
-#include "GlobalConstants.h"
+#include "Tools.h"
 
 namespace comm {
 namespace network {
@@ -112,9 +112,9 @@ std::string BackupItem::getAttachmentHolders() const {
   return this->attachmentHolders;
 }
 
-void BackupItem::appendAttachmentHolder(const std::string &attachmentHolder) {
-  this->attachmentHolders += attachmentHolder;
-  this->attachmentHolders += ATTACHMENT_DELIMITER;
+void BackupItem::addAttachmentHolders(const std::string &attachmentHolders) {
+  this->attachmentHolders +=
+      tools::validateAttachmentHolders(attachmentHolders);
 }
 
 } // namespace database

@@ -56,7 +56,7 @@ public:
   std::string getValue() const;
   std::string getAttachmentHolders() const;
 
-  void appendAttachmentHolder(const std::string &attachmentHolder);
+  void addAttachmentHolders(const std::string &attachmentHolders);
 };
 
 } // namespace database
