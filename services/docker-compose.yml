@@ -1,7 +1,4 @@
 version: "3.9"
-networks:
-  services-net:
-    name: services-net
 volumes:
   localstack:
 services:
@@ -28,8 +25,6 @@ services:
   backup-server:
     depends_on:
       - localstack
-    networks:
-      - services-net
     build:
       dockerfile: services/backup/Dockerfile
       context: ../
@@ -45,8 +40,6 @@ services:
   blob-server:
     depends_on:
       - localstack
-    networks:
-      - services-net
     build:
       dockerfile: services/blob/Dockerfile
       context: ../
@@ -62,8 +55,6 @@ services:
   identity-server:
     depends_on:
       - localstack
-    networks:
-      - services-net
     build:
       dockerfile: services/identity/Dockerfile
       context: ../
@@ -82,8 +73,6 @@ services:
       - HOSTNAME_EXTERNAL=localstack
     volumes:
       - localstack:/tmp/localstack
-    networks:
-      - services-net
   # RabbitMQ
   rabbitmq:
     image: rabbitmq:3-management
@@ -95,5 +84,3 @@ services:
     environment:
       - RABBITMQ_DEFAULT_USER=comm
       - RABBITMQ_DEFAULT_PASS=comm
-    networks:
-      - services-net
