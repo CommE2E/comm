@@ -5,6 +5,7 @@ import type { QueryResults } from 'mysql';
 import { getMessageForException } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from './database';
+import { fetchDBVersion, updateDBVersion } from './db-version';
 import { migrations } from './migration-config';
 import { setupDB } from './setup-db';
 
@@ -51,30 +52,6 @@ async function setUpDBAndReturnVersion(): Promise<number> {
     await setupDB();
     return await fetchDBVersion();
   }
-}
-
-async function fetchDBVersion(): Promise<number> {
-  const versionQuery = SQL`
-    SELECT data
-    FROM metadata
-    WHERE name = 'db_version';
-  `;
-  const [[versionResult]] = await dbQuery(versionQuery);
-  if (!versionResult) {
-    return -1;
-  }
-  return versionResult.data;
-}
-
-async function updateDBVersion(dbVersion: number): Promise<QueryResults> {
-  const updateQuery = SQL`
-    INSERT INTO metadata (name, data)
-    VALUES ('db_version', ${dbVersion})
-    ON DUPLICATE KEY
-    UPDATE
-      data = ${dbVersion};
-  `;
-  return dbQuery(updateQuery);
 }
 
 async function startTransaction(): Promise<QueryResults> {
