@@ -310,8 +310,13 @@ createMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
     auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
-    auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
 
+    if (op_type == REMOVE_ALL_OPERATION) {
+      messageStoreOps.push_back(std::make_unique<RemoveAllMessagesOperation>());
+      continue;
+    }
+
+    auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
     if (op_type == REMOVE_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<RemoveMessagesOperation>(rt, payload_obj));
@@ -327,9 +332,6 @@ createMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
     } else if (op_type == REKEY_OPERATION) {
       messageStoreOps.push_back(
           std::make_unique<RekeyMessageOperation>(rt, payload_obj));
-
-    } else if (op_type == REMOVE_ALL_OPERATION) {
-      messageStoreOps.push_back(std::make_unique<RemoveAllMessagesOperation>());
 
     } else {
       throw std::runtime_error("unsupported operation: " + op_type);
