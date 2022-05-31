@@ -8,7 +8,6 @@ import { sqliteLoadFailure } from 'lib/actions/user-actions';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
 
-import { persistConfig } from '../redux/persist';
 import { useSelector } from '../redux/redux-utils';
 import { SQLiteContext } from './sqlite-context';
 
@@ -30,10 +29,6 @@ function SQLiteContextProvider(props: Props): React.Node {
 
   React.useEffect(() => {
     if (threadStoreLoaded || !rehydrateConcluded) {
-      return;
-    }
-    if (persistConfig.version < 30) {
-      setThreadStoreLoaded(true);
       return;
     }
     (async () => {
