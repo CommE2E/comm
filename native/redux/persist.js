@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-community/async-storage';
 import invariant from 'invariant';
 import { Platform } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
-import { createMigrate } from 'redux-persist';
+import { createMigrate, createTransform } from 'redux-persist';
+import type { Transform } from 'redux-persist/es/types';
 
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
@@ -362,6 +363,27 @@ const migrations = {
     return state;
   },
 };
+
+// After migration 31, we'll no longer want to persist `messageStore.messages`
+// via redux-persist. However, we DO want to continue persisting everything in
+// `messageStore` EXCEPT for `messages`. The `blacklist` property in
+// `persistConfig` allows us to specify top-level keys that shouldn't be
+// persisted. However, we aren't able to specify nested keys in `blacklist`.
+// As a result, if we want to prevent nested keys from being persisted we'll
+// need to use `createTransform(...)` to specify an `inbound` function that
+// allows us to modify the `state` object before it's passed through
+// `JSON.stringify(...)` and written to disk. We specify the keys for which
+// this transformation should be executed in the `whitelist` property of the
+// `config` object that's passed to `createTransform(...)`.
+// eslint-disable-next-line no-unused-vars
+const messageStoreMessagesBlocklistTransform: Transform = createTransform(
+  state => {
+    const { messages, ...messageStoreSansMessages } = state;
+    return messageStoreSansMessages;
+  },
+  null,
+  { whitelist: ['messageStore'] },
+);
 
 const persistConfig = {
   key: 'root',
