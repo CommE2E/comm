@@ -42,11 +42,13 @@ async function migrate(): Promise<boolean> {
   return true;
 }
 
+const MYSQL_TABLE_DOESNT_EXIST_ERROR_CODE = 1146;
+
 async function setUpDBAndReturnVersion(): Promise<number> {
   try {
     return await fetchDBVersion();
   } catch (e) {
-    if (e.errno !== 1146) {
+    if (e.errno !== MYSQL_TABLE_DOESNT_EXIST_ERROR_CODE) {
       throw e;
     }
     await setupDB();

@@ -84,6 +84,8 @@ function FakeSQLResult() {
 FakeSQLResult.prototype = Array.prototype;
 const fakeResult: QueryResults = (new FakeSQLResult(): any);
 
+const MYSQL_DEADLOCK_ERROR_CODE = 1213;
+
 type QueryOptions = {
   +triesLeft?: number,
   +multipleStatements?: boolean,
@@ -122,7 +124,7 @@ async function dbQuery(
     }
     return await connection.query(statement);
   } catch (e) {
-    if (e.errno === 1213 && triesLeft > 0) {
+    if (e.errno === MYSQL_DEADLOCK_ERROR_CODE && triesLeft > 0) {
       console.log('deadlock occurred, trying again', e);
       return await dbQuery(statement, { ...options, triesLeft: triesLeft - 1 });
     }

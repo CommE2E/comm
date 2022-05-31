@@ -5,6 +5,8 @@ import { ServerError } from 'lib/utils/errors';
 import { dbQuery, SQL } from '../database/database';
 import createIDs from './id-creator';
 
+const MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE = 1062;
+
 async function fetchOrCreateDayID(
   threadID: string,
   date: string,
@@ -30,7 +32,7 @@ async function fetchOrCreateDayID(
     await dbQuery(insertQuery);
     return id;
   } catch (e) {
-    if (e.errno !== 1062) {
+    if (e.errno !== MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE) {
       throw new ServerError('unknown_error');
     }
     // There's a race condition that can happen if two people start editing
