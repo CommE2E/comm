@@ -9,7 +9,11 @@ function usePersistedStateLoaded(): boolean {
   const rehydrateConcluded = useSelector(state => !!state._persist?.rehydrated);
   const localDatabaseContext = React.useContext(SQLiteContext);
 
-  return rehydrateConcluded && !!localDatabaseContext?.threadStoreLoaded;
+  return (
+    rehydrateConcluded &&
+    !!localDatabaseContext?.threadStoreLoaded &&
+    !!localDatabaseContext?.messageStoreLoaded
+  );
 }
 
 export { usePersistedStateLoaded };

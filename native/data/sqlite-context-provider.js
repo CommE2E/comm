@@ -8,6 +8,7 @@ import { sqliteLoadFailure } from 'lib/actions/user-actions';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
 
+import { persistConfig } from '../redux/persist';
 import { useSelector } from '../redux/redux-utils';
 import { SQLiteContext } from './sqlite-context';
 
@@ -19,6 +20,9 @@ function SQLiteContextProvider(props: Props): React.Node {
   const [threadStoreLoaded, setThreadStoreLoaded] = React.useState<boolean>(
     false,
   );
+  const [messageStoreLoaded, setMessageStoreLoaded] = React.useState<boolean>(
+    false,
+  );
 
   const dispatch = useDispatch();
   const rehydrateConcluded = useSelector(
@@ -28,8 +32,11 @@ function SQLiteContextProvider(props: Props): React.Node {
   const urlPrefix = useSelector(state => state.urlPrefix);
 
   React.useEffect(() => {
-    if (threadStoreLoaded || !rehydrateConcluded) {
+    if ((threadStoreLoaded && messageStoreLoaded) || !rehydrateConcluded) {
       return;
+    }
+    if (persistConfig.version < 31) {
+      setMessageStoreLoaded(true);
     }
     (async () => {
       try {
@@ -52,13 +59,21 @@ function SQLiteContextProvider(props: Props): React.Node {
         setThreadStoreLoaded(true);
       }
     })();
-  }, [threadStoreLoaded, urlPrefix, rehydrateConcluded, cookie, dispatch]);
+  }, [
+    threadStoreLoaded,
+    urlPrefix,
+    rehydrateConcluded,
+    cookie,
+    dispatch,
+    messageStoreLoaded,
+  ]);
 
   const contextValue = React.useMemo(
     () => ({
       threadStoreLoaded,
+      messageStoreLoaded,
     }),
-    [threadStoreLoaded],
+    [threadStoreLoaded, messageStoreLoaded],
   );
 
   return (
