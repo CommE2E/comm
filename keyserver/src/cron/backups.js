@@ -84,6 +84,7 @@ function mysqldump(
       `-p${dbConfig.password}`,
       '--single-transaction',
       '--no-tablespaces',
+      '--default-character-set=utf8mb4',
       ...extraParams,
       dbConfig.database,
     ],
