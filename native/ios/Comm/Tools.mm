@@ -5,16 +5,6 @@
 @implementation Tools
 
 + (NSString *)getSQLiteFilePath {
-  NSURL *groupUrl = [NSFileManager.defaultManager
-      containerURLForSecurityApplicationGroupIdentifier:@"group.app.comm"];
-  if (groupUrl == nil) {
-    throw std::runtime_error(
-        "Failed to resolve database path - could not find groupUrl");
-  }
-  return [groupUrl URLByAppendingPathComponent:@"comm.sqlite"].path;
-}
-
-+ (NSString *)getAppSpecificSQLiteFilePath {
   NSError *err = nil;
   NSURL *documentsUrl =
       [NSFileManager.defaultManager URLForDirectory:NSDocumentDirectory
@@ -30,6 +20,16 @@
   }
 
   return [documentsUrl URLByAppendingPathComponent:@"comm.sqlite"].path;
+}
+
++ (NSString *)getAppGroupSQLiteFilePath {
+  NSURL *groupUrl = [NSFileManager.defaultManager
+      containerURLForSecurityApplicationGroupIdentifier:@"group.app.comm"];
+  if (groupUrl == nil) {
+    throw std::runtime_error(
+        "Failed to resolve database path - could not find groupUrl");
+  }
+  return [groupUrl URLByAppendingPathComponent:@"comm.sqlite"].path;
 }
 
 @end

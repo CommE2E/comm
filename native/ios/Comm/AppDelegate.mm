@@ -234,22 +234,18 @@ using Runtime = facebook::jsi::Runtime;
 - (void)attemptDatabaseInitialization {
   std::string sqliteFilePath =
       std::string([[Tools getSQLiteFilePath] UTF8String]);
-
-  // Previous versions of Comm app used to keep SQLite database at location
-  // that was specific to the app. Now that we share SQLite database with
-  // NotificationService extension we need to keep the database in place
-  // defined by App Groups. The code below is a migration fired if user
-  // upgrades from version using app-specific path to newer that uses
-  // App Groups.
-  NSString *appSpecificSQLiteFilePath = [Tools getAppSpecificSQLiteFilePath];
-  if ([NSFileManager.defaultManager
-          fileExistsAtPath:appSpecificSQLiteFilePath] &&
+  // Previous Comm versions used app group location for SQLite
+  // database, so that NotificationService was able to acces it directly.
+  // Unfortunately it caused errores related to system locks. The code
+  // below re-migrates SQLite from app group to app specific location
+  // on devices where previous Comm version was installed.
+  NSString *appGroupSQLiteFilePath = [Tools getAppGroupSQLiteFilePath];
+  if ([NSFileManager.defaultManager fileExistsAtPath:appGroupSQLiteFilePath] &&
       std::rename(
-          std::string([appSpecificSQLiteFilePath UTF8String]).c_str(),
+          std::string([appGroupSQLiteFilePath UTF8String]).c_str(),
           sqliteFilePath.c_str())) {
     throw std::runtime_error(
-        "Failed to move SQLite database from app-specific to app group "
-        "location");
+        "Failed to move SQLite database from app group to default location");
   }
   comm::SQLiteQueryExecutor::initialize(sqliteFilePath);
 }
