@@ -8,7 +8,10 @@ import { handleAsyncPromise } from '../responders/handlers';
 import { importJSON } from '../utils/import-json';
 
 async function updateGeoipDB(): Promise<void> {
-  const geoipLicense = await importJSON('secrets/geoip_license');
+  const geoipLicense = await importJSON({
+    folder: 'secrets',
+    name: 'geoip_license',
+  });
   if (!geoipLicense) {
     console.log('no keyserver/secrets/geoip_license.json so skipping update');
     return;

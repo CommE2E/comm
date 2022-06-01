@@ -28,7 +28,10 @@ async function getDBConfig(): Promise<DBConfig> {
       database: process.env.COMM_MYSQL_DATABASE,
     };
   } else {
-    const importedDBConfig = await importJSON('secrets/db_config');
+    const importedDBConfig = await importJSON({
+      folder: 'secrets',
+      name: 'db_config',
+    });
     invariant(importedDBConfig, 'DB config missing');
     dbConfig = importedDBConfig;
   }

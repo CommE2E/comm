@@ -25,7 +25,7 @@ async function getAPNProvider(profile: APNPushProfile): Promise<?APNProvider> {
     return provider;
   }
   try {
-    const apnConfig = await importJSON(`secrets/${profile}`);
+    const apnConfig = await importJSON({ folder: 'secrets', name: profile });
     invariant(apnConfig, `APN config missing for ${profile}`);
     if (!cachedAPNProviders.has(profile)) {
       cachedAPNProviders.set(profile, new apn.Provider(apnConfig));
@@ -45,7 +45,7 @@ async function getFCMProvider(profile: FCMPushProfile): Promise<?FirebaseApp> {
     return provider;
   }
   try {
-    const fcmConfig = await importJSON(`secrets/${profile}`);
+    const fcmConfig = await importJSON({ folder: 'secrets', name: profile });
     invariant(fcmConfig, `FCM config missed for ${profile}`);
     if (!cachedFCMProviders.has(profile)) {
       cachedFCMProviders.set(

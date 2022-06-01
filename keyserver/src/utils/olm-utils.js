@@ -10,7 +10,7 @@ type OlmConfig = {
 };
 
 async function getOlmConfig(): Promise<OlmConfig> {
-  const olmConfig = await importJSON('secrets/olm_config');
+  const olmConfig = await importJSON({ folder: 'secrets', name: 'olm_config' });
   invariant(olmConfig, 'OLM config missing');
   return olmConfig;
 }

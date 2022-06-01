@@ -18,7 +18,7 @@ const unlink = promisify(fs.unlink);
 
 async function backupDB() {
   const [backupConfig, dbConfig] = await Promise.all([
-    importJSON('facts/backups'),
+    importJSON({ folder: 'facts', name: 'backups' }),
     getDBConfig(),
   ]);
 
@@ -184,7 +184,7 @@ function trySaveBackup(
 }
 
 async function deleteOldestBackup() {
-  const backupConfig = await importJSON('facts/backups');
+  const backupConfig = await importJSON({ folder: 'facts', name: 'backups' });
   invariant(backupConfig, 'backupConfig should be non-null');
   const files = await readdir(backupConfig.directory);
   let oldestFile;

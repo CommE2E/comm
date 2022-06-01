@@ -1,27 +1,46 @@
 // @flow
 
+type ConfigName = {
+  +folder: 'secrets' | 'facts',
+  +name: string,
+};
+
+function getKeyForConfigName(configName: ConfigName): string {
+  return `${configName.folder}_${configName.name}`;
+}
+
+function getPathForConfigName(configName: ConfigName): string {
+  return `${configName.folder}/${configName.name}.json`;
+}
+
 const cachedJSON = new Map();
-async function importJSON<T>(path: string): Promise<?T> {
-  const cached = cachedJSON.get(path);
+async function importJSON<T>(configName: ConfigName): Promise<?T> {
+  const key = getKeyForConfigName(configName);
+  const cached = cachedJSON.get(key);
   if (cached !== undefined) {
     return cached;
   }
-  const json = await getJSON(path);
-  if (!cachedJSON.has(path)) {
-    cachedJSON.set(path, json);
+  const json = await getJSON(configName);
+  if (!cachedJSON.has(key)) {
+    cachedJSON.set(key, json);
   }
-  return cachedJSON.get(path);
+  return cachedJSON.get(key);
 }
 
-async function getJSON<T>(path: string): Promise<?T> {
-  const fromEnv = process.env[`COMM_JSONCONFIG_${path}`];
+async function getJSON<T>(configName: ConfigName): Promise<?T> {
+  const key = getKeyForConfigName(configName);
+  const fromEnv = process.env[`COMM_JSONCONFIG_${key}`];
   if (fromEnv) {
     try {
       return JSON.parse(fromEnv);
     } catch (e) {
-      console.log(`failed to parse JSON from env for ${path}`, e);
+      console.log(
+        `failed to parse JSON from env for ${JSON.stringify(configName)}`,
+        e,
+      );
     }
   }
+  const path = getPathForConfigName(configName);
   try {
     // $FlowFixMe
     const importedJSON = await import(`../../${path}`);

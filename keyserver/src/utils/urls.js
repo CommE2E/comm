@@ -26,7 +26,10 @@ async function fetchURLFacts(site: Site): Promise<?AppURLFacts> {
   if (existing !== undefined) {
     return existing;
   }
-  const urlFacts: ?AppURLFacts = await importJSON(`facts/${site}_url`);
+  const urlFacts: ?AppURLFacts = await importJSON({
+    folder: 'facts',
+    name: `${site}_url`,
+  });
   cachedURLFacts.set(site, urlFacts);
   return urlFacts;
 }
