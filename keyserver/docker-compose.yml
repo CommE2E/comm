@@ -38,9 +38,13 @@ services:
       - MYSQL_DATABASE=$COMM_MYSQL_DATABASE
       - MYSQL_USER=$COMM_MYSQL_USER
       - MYSQL_PASSWORD=$COMM_MYSQL_PASSWORD
+    volumes:
+      - mysqldata:/var/lib/mysql
   cache:
     image: redis:6.2.6-bullseye
     restart: always
     expose:
       - "6379"
     command: redis-server --loglevel warning
+volumes:
+  mysqldata:
