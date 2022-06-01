@@ -50,6 +50,11 @@ COPY . .
 # We need to populate keyserver/dist, among other things
 #-------------------------------------------------------------------------------
 
+# Webpack builds
+RUN yarn workspace web prod
+RUN yarn workspace landing prod
+
+# Babel transpilation of keyserver src
 WORKDIR /app/keyserver
 RUN yarn prod-build
 
