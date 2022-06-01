@@ -1,7 +1,5 @@
 FROM node:16.13-bullseye
 
-WORKDIR /app
-
 #-------------------------------------------------------------------------------
 # STEP 0: INSTALL PREREQS
 # Install prereqs first so we don't have to reinstall them if anything changes
@@ -12,53 +10,66 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rsync \
   && rm -rf /var/lib/apt/lists/*
 
+#-------------------------------------------------------------------------------
+# STEP 1: DEVOLVE PRIVILEGES
+# Create another user to run the rest of the commands
+#-------------------------------------------------------------------------------
+
+RUN useradd -m comm
+USER comm
+WORKDIR /home/comm/app
+
+#-------------------------------------------------------------------------------
+# STEP 2: INSTALL NVM
 # We use nvm to make sure we're running the right Node version
-ENV NVM_DIR /root/.nvm
+#-------------------------------------------------------------------------------
+
+ENV NVM_DIR /home/comm/.nvm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh \
   | bash
 
 #-------------------------------------------------------------------------------
-# STEP 1: YARN CLEANINSTALL
+# STEP 3: YARN CLEANINSTALL
 # We run yarn cleaninstall before copying most of the files in for build caching
 #-------------------------------------------------------------------------------
 
 # Copy in package.json and yarn.lock files
-COPY package.json yarn.lock .
-COPY keyserver/package.json keyserver/.flowconfig keyserver/
-COPY lib/package.json lib/.flowconfig lib/
-COPY web/package.json web/.flowconfig web/
-COPY native/package.json native/.flowconfig native/
-COPY landing/package.json landing/.flowconfig landing/
+COPY --chown=comm package.json yarn.lock .
+COPY --chown=comm keyserver/package.json keyserver/.flowconfig keyserver/
+COPY --chown=comm lib/package.json lib/.flowconfig lib/
+COPY --chown=comm web/package.json web/.flowconfig web/
+COPY --chown=comm native/package.json native/.flowconfig native/
+COPY --chown=comm landing/package.json landing/.flowconfig landing/
 
 # Copy in files needed for patch-package and pod-patch
-COPY patches patches/
-COPY native/ios/pod-patch native/ios/pod-patch/
-COPY native/ios/Podfile native/ios/
+COPY --chown=comm patches patches/
+COPY --chown=comm native/ios/pod-patch native/ios/pod-patch/
+COPY --chown=comm native/ios/Podfile native/ios/
 
 # Actually run yarn
 RUN yarn cleaninstall
 
 #-------------------------------------------------------------------------------
-# STEP 2: WEBPACK BUILD
+# STEP 4: WEBPACK BUILD
 # We do this first so Docker doesn't rebuild when only keyserver files change
 #-------------------------------------------------------------------------------
 
-COPY lib lib/
-COPY landing landing/
+COPY --chown=comm lib lib/
+COPY --chown=comm landing landing/
 RUN yarn workspace landing prod
 
-COPY web web/
+COPY --chown=comm web web/
 RUN yarn workspace web prod
 
 #-------------------------------------------------------------------------------
-# STEP 3: COPY IN SOURCE FILES
+# STEP 5: COPY IN SOURCE FILES
 # We run this later so the above layers are cached if only source files change
 #-------------------------------------------------------------------------------
 
-COPY . .
+COPY --chown=comm . .
 
 #-------------------------------------------------------------------------------
-# STEP 4: RUN BUILD SCRIPTS
+# STEP 6: RUN BUILD SCRIPTS
 # We need to populate keyserver/dist, among other things
 #-------------------------------------------------------------------------------
 
@@ -66,10 +77,10 @@ COPY . .
 RUN yarn workspace keyserver prod-build
 
 #-------------------------------------------------------------------------------
-# STEP 5: RUN THE SERVER
+# STEP 7: RUN THE SERVER
 # Actually run the Node.js keyserver using nvm
 #-------------------------------------------------------------------------------
 
 EXPOSE 3000
-WORKDIR /app/keyserver
+WORKDIR /home/comm/app/keyserver
 CMD bash/run-prod.sh
