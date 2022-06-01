@@ -39,29 +39,37 @@ COPY native/ios/Podfile native/ios/
 RUN yarn cleaninstall
 
 #-------------------------------------------------------------------------------
-# STEP 2: COPY IN SOURCE FILES
+# STEP 2: WEBPACK BUILD
+# We do this first so Docker doesn't rebuild when only keyserver files change
+#-------------------------------------------------------------------------------
+
+COPY lib lib/
+COPY landing landing/
+RUN yarn workspace landing prod
+
+COPY web web/
+RUN yarn workspace web prod
+
+#-------------------------------------------------------------------------------
+# STEP 3: COPY IN SOURCE FILES
 # We run this later so the above layers are cached if only source files change
 #-------------------------------------------------------------------------------
 
 COPY . .
 
 #-------------------------------------------------------------------------------
-# STEP 3: RUN BUILD SCRIPTS
+# STEP 4: RUN BUILD SCRIPTS
 # We need to populate keyserver/dist, among other things
 #-------------------------------------------------------------------------------
 
-# Webpack builds
-RUN yarn workspace web prod
-RUN yarn workspace landing prod
-
 # Babel transpilation of keyserver src
-WORKDIR /app/keyserver
-RUN yarn prod-build
+RUN yarn workspace keyserver prod-build
 
 #-------------------------------------------------------------------------------
-# STEP 4: RUN THE SERVER
+# STEP 5: RUN THE SERVER
 # Actually run the Node.js keyserver using nvm
 #-------------------------------------------------------------------------------
 
 EXPOSE 3000
+WORKDIR /app/keyserver
 CMD bash/run-prod.sh
