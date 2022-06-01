@@ -8,6 +8,7 @@
 , cryptopp
 , darwin
 , grpc
+, libiconv
 , libuv
 , nodejs-16_x
 , pkg-config
@@ -57,6 +58,7 @@ mkShell {
     CoreFoundation
     CoreServices
     Security
+    libiconv  # identity service
   ]);
 
   # shell commands to be ran upon entering shell
