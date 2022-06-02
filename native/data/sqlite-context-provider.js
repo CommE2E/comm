@@ -3,12 +3,12 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { setMessageStoreMessages } from 'lib/actions/message-actions.js';
 import { setThreadStoreActionType } from 'lib/actions/thread-actions';
 import { sqliteLoadFailure } from 'lib/actions/user-actions';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
 
-import { persistConfig } from '../redux/persist';
 import { useSelector } from '../redux/redux-utils';
 import { SQLiteContext } from './sqlite-context';
 
@@ -35,9 +35,6 @@ function SQLiteContextProvider(props: Props): React.Node {
     if ((threadStoreLoaded && messageStoreLoaded) || !rehydrateConcluded) {
       return;
     }
-    if (persistConfig.version < 31) {
-      setMessageStoreLoaded(true);
-    }
     (async () => {
       try {
         const threads = await global.CommCoreModule.getAllThreads();
@@ -48,6 +45,11 @@ function SQLiteContextProvider(props: Props): React.Node {
           type: setThreadStoreActionType,
           payload: { threadInfos: threadInfosFromDB },
         });
+        const messages = await global.CommCoreModule.getAllMessages();
+        dispatch({
+          type: setMessageStoreMessages,
+          payload: messages,
+        });
       } catch {
         await fetchNewCookieFromNativeCredentials(
           dispatch,
@@ -57,6 +59,7 @@ function SQLiteContextProvider(props: Props): React.Node {
         );
       } finally {
         setThreadStoreLoaded(true);
+        setMessageStoreLoaded(true);
       }
     })();
   }, [

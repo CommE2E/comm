@@ -398,7 +398,8 @@ const persistConfig = {
     'threadStore',
   ],
   debug: __DEV__,
-  version: 30,
+  version: 31,
+  transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
