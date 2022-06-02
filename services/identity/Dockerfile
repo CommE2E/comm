@@ -1,4 +1,4 @@
-FROM rust:1.57
+FROM rust:1.61
 
 # Create a new user comm and use it to run subsequent commands
 RUN useradd -m comm

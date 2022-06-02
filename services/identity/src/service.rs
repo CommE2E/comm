@@ -1,9 +1,13 @@
+use constant_time_eq::constant_time_eq;
 use futures_core::Stream;
+use rusoto_core::RusotoError;
+use rusoto_dynamodb::GetItemError;
 use std::pin::Pin;
 use tonic::{Request, Response, Status};
+use tracing::{error, info, instrument};
 
-use crate::config::Config;
 use crate::database::DatabaseClient;
+use crate::{config::Config, database::Error};
 
 pub use proto::identity_service_server::IdentityServiceServer;
 use proto::{
@@ -49,11 +53,39 @@ impl IdentityService for MyIdentityService {
     unimplemented!()
   }
 
+  #[instrument(skip(self))]
   async fn verify_user_token(
     &self,
     request: Request<VerifyUserTokenRequest>,
   ) -> Result<Response<VerifyUserTokenResponse>, Status> {
-    println!("Got a lookup request: {:?}", request);
-    unimplemented!()
+    info!("Received VerifyUserToken request: {:?}", request);
+    let message = request.into_inner();
+    let token_valid = match self
+      .client
+      .get_token(message.user_id, message.device_id)
+      .await
+    {
+      Ok(Some(access_token)) => constant_time_eq(
+        access_token.token.as_bytes(),
+        message.token.as_bytes(),
+      ),
+      Ok(None) => false,
+      Err(Error::RusotoGet(RusotoError::Service(
+        GetItemError::ResourceNotFound(_),
+      )))
+      | Err(Error::RusotoGet(RusotoError::Credentials(_))) => {
+        return Err(Status::failed_precondition("internal error"))
+      }
+      Err(Error::RusotoGet(_)) => {
+        return Err(Status::unavailable("please retry"))
+      }
+      Err(e) => {
+        error!("Encountered an unexpected error: {}", e);
+        return Err(Status::failed_precondition("unexpected error"));
+      }
+    };
+    let response = Response::new(VerifyUserTokenResponse { token_valid });
+    info!("Sending VerifyUserToken response: {:?}", response);
+    Ok(response)
   }
 }

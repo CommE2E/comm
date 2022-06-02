@@ -288,7 +288,7 @@ fn parse_auth_type_attribute(
     match auth_type.as_str() {
       "password" => Ok(AuthType::Password),
       "wallet" => Ok(AuthType::Wallet),
-      unsupported => Err(Error::InvalidAuthType),
+      _ => Err(Error::InvalidAuthType),
     }
   } else {
     Err(Error::MissingAttribute)
