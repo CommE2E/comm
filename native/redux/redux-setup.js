@@ -15,10 +15,7 @@ import {
   sqliteOpFailure,
 } from 'lib/actions/user-actions';
 import baseReducer from 'lib/reducers/master-reducer';
-import {
-  processThreadStoreOperations,
-  assertThreadStoreThreadsAreEqual,
-} from 'lib/reducers/thread-reducer';
+import { processThreadStoreOperations } from 'lib/reducers/thread-reducer';
 import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
@@ -427,17 +424,6 @@ function fixUnreadActiveThread(
     },
   };
 
-  const updatedState = {
-    ...state,
-    threadStore: {
-      ...state.threadStore,
-      threadInfos: {
-        ...state.threadStore.threadInfos,
-        [activeThread]: updatedActiveThreadInfo,
-      },
-    },
-  };
-
   const threadStoreOperations = [
     {
       type: 'replace',
@@ -448,17 +434,15 @@ function fixUnreadActiveThread(
     },
   ];
 
-  const processedStore = processThreadStoreOperations(
+  const updatedThreadStore = processThreadStoreOperations(
     state.threadStore,
     threadStoreOperations,
   );
 
-  assertThreadStoreThreadsAreEqual(
-    processedStore,
-    updatedState.threadStore,
-    action.type,
-  );
-  return { state: updatedState, threadStoreOperations };
+  return {
+    state: { ...state, threadStore: updatedThreadStore },
+    threadStoreOperations,
+  };
 }
 
 let appLastBecameInactive = 0;
