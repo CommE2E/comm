@@ -11,7 +11,9 @@ export type AppURLFacts = {
   +basePath: string,
   +https: boolean,
   +baseRoutePath: string,
+  +proxy?: 'apache' | 'none', // defaults to apache
 };
+const validProxies = new Set(['apache', 'none']);
 const sitesObj = Object.freeze({
   a: 'landing',
   b: 'commapp',
@@ -26,10 +28,17 @@ async function fetchURLFacts(site: Site): Promise<?AppURLFacts> {
   if (existing !== undefined) {
     return existing;
   }
-  const urlFacts: ?AppURLFacts = await importJSON({
+  let urlFacts: ?AppURLFacts = await importJSON({
     folder: 'facts',
     name: `${site}_url`,
   });
+  if (urlFacts) {
+    const { proxy } = urlFacts;
+    urlFacts = {
+      ...urlFacts,
+      proxy: validProxies.has(proxy) ? proxy : 'apache',
+    };
+  }
   cachedURLFacts.set(site, urlFacts);
   return urlFacts;
 }

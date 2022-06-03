@@ -5,8 +5,14 @@ import type { $Request } from 'express';
 import { getAppURLFactsFromRequestURL } from './urls';
 
 function assertSecureRequest(req: $Request) {
-  const { https } = getAppURLFactsFromRequestURL(req.originalUrl);
-  if (https && req.get('X-Forwarded-SSL') !== 'on') {
+  const { https, proxy } = getAppURLFactsFromRequestURL(req.originalUrl);
+  if (!https) {
+    return;
+  }
+  if (
+    (proxy === 'none' && req.protocol !== 'https') ||
+    (proxy === 'apache' && req.get('X-Forwarded-SSL') !== 'on')
+  ) {
     throw new Error('insecure request');
   }
 }

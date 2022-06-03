@@ -32,7 +32,7 @@ import { handleAsyncPromise } from '../responders/handlers';
 import { clearDeviceToken } from '../updaters/device-token-updaters';
 import { updateThreadMembers } from '../updaters/thread-updaters';
 import { assertSecureRequest } from '../utils/security-utils';
-import { type AppURLFacts } from '../utils/urls';
+import { type AppURLFacts, getAppURLFactsFromRequestURL } from '../utils/urls';
 import { Viewer } from './viewer';
 import type { AnonymousViewerData, UserViewerData } from './viewer';
 
@@ -369,6 +369,18 @@ async function fetchViewerFromRequestBody(
   };
 }
 
+function getRequestIPAddress(req: $Request) {
+  const { proxy } = getAppURLFactsFromRequestURL(req.originalUrl);
+  let ipAddress;
+  if (proxy === 'none') {
+    ipAddress = req.socket.remoteAddress;
+  } else if (proxy === 'apache') {
+    ipAddress = req.get('X-Forwarded-For');
+  }
+  invariant(ipAddress, 'could not determine requesting IP address');
+  return ipAddress;
+}
+
 function getSessionParameterInfoFromRequestBody(
   req: $Request,
 ): SessionParameterInfo {
@@ -384,13 +396,11 @@ function getSessionParameterInfoFromRequestBody(
     req.method === 'GET' || sessionID !== undefined
       ? sessionIdentifierTypes.BODY_SESSION_ID
       : sessionIdentifierTypes.COOKIE_ID;
-  const ipAddress = req.get('X-Forwarded-For');
-  invariant(ipAddress, 'X-Forwarded-For header missing');
   return {
     isSocket: false,
     sessionID,
     sessionIdentifierType,
-    ipAddress,
+    ipAddress: getRequestIPAddress(req),
     userAgent: req.get('User-Agent'),
   };
 }
@@ -423,8 +433,6 @@ async function fetchViewerForSocket(
   assertSecureRequest(req);
   const { sessionIdentification } = clientMessage.payload;
   const { sessionID } = sessionIdentification;
-  const ipAddress = req.get('X-Forwarded-For');
-  invariant(ipAddress, 'X-Forwarded-For header missing');
   const sessionParameterInfo = {
     isSocket: true,
     sessionID,
@@ -432,7 +440,7 @@ async function fetchViewerForSocket(
       sessionID !== undefined
         ? sessionIdentifierTypes.BODY_SESSION_ID
         : sessionIdentifierTypes.COOKIE_ID,
-    ipAddress,
+    ipAddress: getRequestIPAddress(req),
     userAgent: req.get('User-Agent'),
   };
 
