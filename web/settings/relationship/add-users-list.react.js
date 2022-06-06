@@ -81,16 +81,59 @@ function AddUsersList(props: Props): React.Node {
     [excludedStatuses, mergedUserInfos],
   );
 
+  const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
+    $ReadOnlyArray<GlobalAccountUserInfo>,
+  >([]);
+  const selectUser = React.useCallback(
+    (userID: string) => {
+      setPendingUsersToAdd(pendingUsers => {
+        const username = mergedUserInfos[userID]?.username;
+        if (!username || pendingUsers.some(user => user.id === userID)) {
+          return pendingUsers;
+        }
+
+        const newPendingUser = {
+          id: userID,
+          username,
+        };
+        let targetIndex = 0;
+        while (
+          targetIndex < pendingUsers.length &&
+          newPendingUser.username.localeCompare(
+            pendingUsers[targetIndex].username,
+          ) > 0
+        ) {
+          targetIndex++;
+        }
+        return [
+          ...pendingUsers.slice(0, targetIndex),
+          newPendingUser,
+          ...pendingUsers.slice(targetIndex),
+        ];
+      });
+    },
+    [mergedUserInfos],
+  );
+  const pendingUserIDs = React.useMemo(
+    () => new Set(pendingUsersToAdd.map(userInfo => userInfo.id)),
+    [pendingUsersToAdd],
+  );
+
+  const filteredUsers = React.useMemo(
+    () => sortedUsers.filter(userInfo => !pendingUserIDs.has(userInfo.id)),
+    [pendingUserIDs, sortedUsers],
+  );
+
   const userRows = React.useMemo(
     () =>
-      sortedUsers.map(userInfo => (
+      filteredUsers.map(userInfo => (
         <AddUsersListItem
           userInfo={userInfo}
           key={userInfo.id}
-          selectUser={() => {}}
+          selectUser={selectUser}
         />
       )),
-    [sortedUsers],
+    [filteredUsers, selectUser],
   );
   return <div className={css.container}>{userRows}</div>;
 }
