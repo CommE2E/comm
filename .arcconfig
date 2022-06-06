@@ -1,5 +1,5 @@
 {
-  "phabricator.uri": "https://phabricator.ashoat.com/",
+  "phabricator.uri": "https://phab.comm.dev/",
   "repository.callsign": "COMM",
   "arc.land.onto": ["master"],
   "base": "git:HEAD^"
