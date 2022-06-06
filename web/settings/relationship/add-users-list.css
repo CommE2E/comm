@@ -1,3 +1,10 @@
+.container {
+  overflow: auto;
+  height: 580px;
+  display: flex;
+  flex-direction: column;
+}
+
 .addUserButton {
   display: flex;
   flex-direction: row;
