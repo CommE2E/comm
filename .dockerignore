@@ -23,9 +23,11 @@ web/node_modules
 web/dist
 
 keyserver/dist
+keyserver/node_modules
 keyserver/facts
 keyserver/secrets
-keyserver/node_modules
+keyserver/*.env
+keyserver/*.env.*
 
 services/tunnelbroker/Dockerfile
 services/identity/target
