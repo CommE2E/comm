@@ -43,7 +43,6 @@ function AddUsersList(props: Props): React.Node {
 
   const searchTextPresent = searchText.length > 0;
   const userInfos = useSelector(state => state.userStore.userInfos);
-  // eslint-disable-next-line no-unused-vars
   const mergedUserInfos = React.useMemo(() => {
     const mergedInfos = {};
 
@@ -68,6 +67,15 @@ function AddUsersList(props: Props): React.Node {
     userInfos,
     userStoreSearchResults,
   ]);
+
+  // eslint-disable-next-line no-unused-vars
+  const sortedUsers = React.useMemo(
+    () =>
+      Object.keys(mergedUserInfos)
+        .map(userID => mergedUserInfos[userID])
+        .sort((user1, user2) => user1.username.localeCompare(user2.username)),
+    [mergedUserInfos],
+  );
 
   return null;
 }
