@@ -4,6 +4,9 @@ services:
     build:
       dockerfile: keyserver/Dockerfile
       context: ../
+      args:
+        - HOST_UID=${HOST_UID}
+        - HOST_GID=${HOST_GID}
     image: commapp/node-keyserver:1.0
     restart: always
     ports:

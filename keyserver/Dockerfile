@@ -1,7 +1,42 @@
 FROM node:16.13-bullseye
 
 #-------------------------------------------------------------------------------
-# STEP 0: INSTALL PREREQS
+# STEP 0: SET UP USER
+# Set up Linux user and group for the container
+#-------------------------------------------------------------------------------
+
+# We use bind mounts for our backups folder, which means Docker on Linux will
+# blindly match the UID/GID for the backups folder on the container with the
+# host. In order to make sure the container is able to create backups with the
+# right UID/GID, we need to do two things:
+# 1. Make sure that the user that runs the Docker container on the host has
+#    permissions to write to the backups folder on the host. We rely on the host
+#    to configure this properly
+# 2. Make sure we're running this container with the same UID/GID that the host
+#    is using, so the UID/GID show up correctly on both sides of the bind mount
+# To handle 2 correctly, we have the host pass the UID/GID with which they're
+# running the container. Our approach is based on this one:
+# https://github.com/mhart/alpine-node/issues/48#issuecomment-430902787
+
+ARG HOST_UID
+ARG HOST_GID
+
+USER root
+RUN \
+  if [ -z "`getent group $HOST_GID`" ]; then \
+    addgroup --system --gid $HOST_GID comm; \
+  else \
+    groupmod --new-name comm `getent group $HOST_GID | cut -d: -f1`; \
+  fi && \
+  if [ -z "`getent passwd $HOST_UID`" ]; then \
+    adduser --system --uid $HOST_UID --ingroup comm --shell /bin/bash comm; \
+  else \
+    usermod --login comm --gid $HOST_GID --home /home/comm --move-home \
+      `getent passwd $HOST_UID | cut -d: -f1`; \
+  fi
+
+#-------------------------------------------------------------------------------
+# STEP 1: INSTALL PREREQS
 # Install prereqs first so we don't have to reinstall them if anything changes
 #-------------------------------------------------------------------------------
 
@@ -17,16 +52,15 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   && rm -rf /var/lib/apt/lists/*
 
 #-------------------------------------------------------------------------------
-# STEP 1: DEVOLVE PRIVILEGES
+# STEP 2: DEVOLVE PRIVILEGES
 # Create another user to run the rest of the commands
 #-------------------------------------------------------------------------------
 
-RUN useradd -m comm
 USER comm
 WORKDIR /home/comm/app
 
 #-------------------------------------------------------------------------------
-# STEP 2: SET UP MYSQL BACKUPS
+# STEP 3: SET UP MYSQL BACKUPS
 # Prepare the system to properly handle mysqldump backups
 #-------------------------------------------------------------------------------
 
@@ -39,7 +73,7 @@ RUN mkdir /home/comm/backups
 RUN echo "[mysqldump]\ncolumn-statistics=0" > /home/comm/.my.cnf
 
 #-------------------------------------------------------------------------------
-# STEP 3: INSTALL NVM
+# STEP 4: INSTALL NVM
 # We use nvm to make sure we're running the right Node version
 #-------------------------------------------------------------------------------
 
@@ -48,7 +82,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh \
   | bash
 
 #-------------------------------------------------------------------------------
-# STEP 4: YARN CLEANINSTALL
+# STEP 5: YARN CLEANINSTALL
 # We run yarn cleaninstall before copying most of the files in for build caching
 #-------------------------------------------------------------------------------
 
@@ -69,7 +103,7 @@ COPY --chown=comm native/ios/Podfile native/ios/
 RUN yarn cleaninstall
 
 #-------------------------------------------------------------------------------
-# STEP 5: WEBPACK BUILD
+# STEP 6: WEBPACK BUILD
 # We do this first so Docker doesn't rebuild when only keyserver files change
 #-------------------------------------------------------------------------------
 
@@ -81,14 +115,14 @@ COPY --chown=comm web web/
 RUN yarn workspace web prod
 
 #-------------------------------------------------------------------------------
-# STEP 6: COPY IN SOURCE FILES
+# STEP 7: COPY IN SOURCE FILES
 # We run this later so the above layers are cached if only source files change
 #-------------------------------------------------------------------------------
 
 COPY --chown=comm . .
 
 #-------------------------------------------------------------------------------
-# STEP 7: RUN BUILD SCRIPTS
+# STEP 8: RUN BUILD SCRIPTS
 # We need to populate keyserver/dist, among other things
 #-------------------------------------------------------------------------------
 
@@ -96,7 +130,7 @@ COPY --chown=comm . .
 RUN yarn workspace keyserver prod-build
 
 #-------------------------------------------------------------------------------
-# STEP 8: RUN THE SERVER
+# STEP 9: RUN THE SERVER
 # Actually run the Node.js keyserver using nvm
 #-------------------------------------------------------------------------------
 
