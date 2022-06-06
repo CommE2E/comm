@@ -73,13 +73,20 @@ RUN mkdir /home/comm/backups
 RUN echo "[mysqldump]\ncolumn-statistics=0" > /home/comm/.my.cnf
 
 #-------------------------------------------------------------------------------
-# STEP 4: INSTALL NVM
+# STEP 4: SET UP NVM
 # We use nvm to make sure we're running the right Node version
 #-------------------------------------------------------------------------------
 
+# First we install nvm
 ENV NVM_DIR /home/comm/.nvm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh \
   | bash
+
+# Then we use nvm to install the right version of Node. We call this early so
+# Docker build caching saves us from re-downloading Node when any file changes
+COPY --chown=comm keyserver/.nvmrc keyserver/
+COPY --chown=comm keyserver/bash/source-nvm.sh keyserver/bash/
+RUN cd keyserver && . bash/source-nvm.sh
 
 #-------------------------------------------------------------------------------
 # STEP 5: YARN CLEANINSTALL
