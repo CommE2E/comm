@@ -1,0 +1,5 @@
+steps:
+  - command:
+      - 'cd keyserver && touch .env && bash/dc.sh build --no-cache'
+    agents:
+      - 'docker=true'
