@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { searchUsers } from 'lib/actions/user-actions.js';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
+import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 import { useServerCall } from 'lib/utils/action-utils.js';
 
@@ -11,10 +12,11 @@ import { useSelector } from '../../redux/redux-utils.js';
 
 type Props = {
   +searchText: string,
+  +excludedStatuses?: $ReadOnlySet<UserRelationshipStatus>,
 };
 
 function AddUsersList(props: Props): React.Node {
-  const { searchText } = props;
+  const { searchText, excludedStatuses = new Set() } = props;
 
   const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
   const [userStoreSearchResults, setUserStoreSearchResults] = React.useState<
@@ -73,8 +75,9 @@ function AddUsersList(props: Props): React.Node {
     () =>
       Object.keys(mergedUserInfos)
         .map(userID => mergedUserInfos[userID])
+        .filter(user => !excludedStatuses.has(user.relationshipStatus))
         .sort((user1, user2) => user1.username.localeCompare(user2.username)),
-    [mergedUserInfos],
+    [excludedStatuses, mergedUserInfos],
   );
 
   return null;
