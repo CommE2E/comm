@@ -173,7 +173,7 @@ function prepareIOSNotification(
   notification.badge = unreadCount;
   notification.topic = getAPNsNotificationTopic(codeVersion);
   notification.payload =
-    codeVersion && codeVersion > 1000
+    codeVersion && codeVersion > 135
       ? {
           backgroundNotifType: 'CLEAR',
           notificationId: iosID,
