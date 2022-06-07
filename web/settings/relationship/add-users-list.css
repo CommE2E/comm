@@ -1,8 +1,20 @@
 .container {
-  overflow: auto;
   height: 580px;
   display: flex;
   flex-direction: column;
+}
+
+.userTagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.userRowsContainer {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .addUserButton {
