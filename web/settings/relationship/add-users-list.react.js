@@ -2,24 +2,53 @@
 
 import * as React from 'react';
 
+import {
+  updateRelationships,
+  updateRelationshipsActionTypes,
+} from 'lib/actions/relationship-actions.js';
 import { searchUsers } from 'lib/actions/user-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
-import type { UserRelationshipStatus } from 'lib/types/relationship-types.js';
+import type {
+  UserRelationshipStatus,
+  RelationshipAction,
+} from 'lib/types/relationship-types.js';
 import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
-import { useServerCall } from 'lib/utils/action-utils.js';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils.js';
 
+import Button from '../../components/button.react.js';
+import type { ButtonVariant } from '../../components/button.react.js';
 import Label from '../../components/label.react.js';
+import LoadingIndicator from '../../loading-indicator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import AddUsersListItem from './add-users-list-item.react.js';
 import css from './add-users-list.css';
 
+const loadingStatusSelector = createLoadingStatusSelector(
+  updateRelationshipsActionTypes,
+);
+
 type Props = {
   +searchText: string,
   +excludedStatuses?: $ReadOnlySet<UserRelationshipStatus>,
+  +closeModal: () => void,
+  +confirmButtonContent: React.Node,
+  +confirmButtonVariant: ButtonVariant,
+  +relationshipAction: RelationshipAction,
 };
 
 function AddUsersList(props: Props): React.Node {
-  const { searchText, excludedStatuses = new Set() } = props;
+  const {
+    searchText,
+    excludedStatuses = new Set(),
+    closeModal,
+    confirmButtonContent,
+    confirmButtonVariant,
+    relationshipAction,
+  } = props;
 
   const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
   const [userStoreSearchResults, setUserStoreSearchResults] = React.useState<
@@ -155,10 +184,52 @@ function AddUsersList(props: Props): React.Node {
       )),
     [filteredUsers, selectUser],
   );
+
+  const callUpdateRelationships = useServerCall(updateRelationships);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const confirmSelection = React.useCallback(async () => {
+    await dispatchActionPromise(
+      updateRelationshipsActionTypes,
+      callUpdateRelationships({
+        action: relationshipAction,
+        userIDs: Array.from(pendingUserIDs),
+      }),
+    );
+    closeModal();
+  }, [
+    callUpdateRelationships,
+    dispatchActionPromise,
+    closeModal,
+    pendingUserIDs,
+    relationshipAction,
+  ]);
+  const loadingStatus = useSelector(loadingStatusSelector);
+  let buttonContent = confirmButtonContent;
+  if (loadingStatus === 'loading') {
+    buttonContent = (
+      <>
+        <div className={css.hidden}>{confirmButtonContent}</div>
+        <LoadingIndicator status="loading" />
+      </>
+    );
+  }
+
   return (
     <div className={css.container}>
       {userTags}
       <div className={css.userRowsContainer}>{userRows}</div>
+      <div className={css.buttons}>
+        <Button variant="secondary" onClick={closeModal}>
+          Cancel
+        </Button>
+        <Button
+          onClick={confirmSelection}
+          disabled={pendingUserIDs.size === 0 || loadingStatus === 'loading'}
+          variant={confirmButtonVariant}
+        >
+          <div className={css.confirmButtonContainer}>{buttonContent}</div>
+        </Button>
+      </div>
     </div>
   );
 }

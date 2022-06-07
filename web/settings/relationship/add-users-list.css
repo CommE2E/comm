@@ -1,5 +1,5 @@
 .container {
-  height: 580px;
+  height: 625px;
   display: flex;
   flex-direction: column;
 }
@@ -8,6 +8,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  margin: 8px;
 }
 
 .userRowsContainer {
@@ -15,6 +16,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  margin-bottom: 8px;
 }
 
 .addUserButton {
@@ -33,4 +35,20 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.confirmButtonContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hidden {
+  visibility: hidden;
+  height: 0;
 }
