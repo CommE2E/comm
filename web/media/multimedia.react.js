@@ -97,7 +97,8 @@ class Multimedia extends React.PureComponent<Props> {
     );
   }
 
-  remove: () => void = () => {
+  remove: (event: SyntheticEvent<HTMLElement>) => void = event => {
+    event.stopPropagation();
     const { remove, pendingUpload } = this.props;
     invariant(
       remove && pendingUpload,
