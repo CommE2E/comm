@@ -3,6 +3,7 @@ div.label {
   padding: 4px 8px;
   border-radius: 8px;
   display: flex;
+  word-break: break-all;
 }
 
 button.close {
