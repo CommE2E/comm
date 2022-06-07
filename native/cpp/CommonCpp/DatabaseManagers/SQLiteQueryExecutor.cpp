@@ -546,6 +546,11 @@ std::string SQLiteQueryExecutor::getDraft(std::string key) const {
   return (draft == nullptr) ? "" : draft->text;
 }
 
+std::unique_ptr<Thread>
+SQLiteQueryExecutor::getThread(std::string threadID) const {
+  return SQLiteQueryExecutor::getStorage().get_pointer<Thread>(threadID);
+}
+
 void SQLiteQueryExecutor::updateDraft(std::string key, std::string text) const {
   Draft draft = {key, text};
   SQLiteQueryExecutor::getStorage().replace(draft);

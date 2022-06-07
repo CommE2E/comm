@@ -23,6 +23,7 @@ public:
 
   SQLiteQueryExecutor();
   static void initialize(std::string &databasePath);
+  std::unique_ptr<Thread> getThread(std::string threadID) const override;
   std::string getDraft(std::string key) const override;
   void updateDraft(std::string key, std::string text) const override;
   bool moveDraft(std::string oldKey, std::string newKey) const override;
