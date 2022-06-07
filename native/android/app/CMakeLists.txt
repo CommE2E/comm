@@ -72,6 +72,8 @@ include_directories(
   # comm native mutual code
   ../../cpp/CommonCpp/NativeModules
   ../../cpp/CommonCpp/NativeModules/InternalModules
+  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities
+  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/ThreadOperationsUtilities
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
   ../../cpp/CommonCpp/grpc/_generated
@@ -80,8 +82,7 @@ include_directories(
 
 # search for all cpp files in this directory
 file(GLOB SQLCIPHER "../../node_modules/@commapp/sqlcipher-amalgamation/src/*.c")
-file(GLOB COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
-file(GLOB COMMON_NATIVE_INTERNAL "../../cpp/CommonCpp/**/**/*.cpp")
+file(GLOB_RECURSE COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
 file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES "./build/third-party-ndk/double-conversion/double-conversion/*.cc")
 file(GLOB GRPC_CODE "../../cpp/CommonCpp/grpc/_generated/*.cc")
@@ -121,6 +122,10 @@ add_library(
   ./build/third-party-ndk/folly/folly/String.cpp
   ./build/third-party-ndk/folly/folly/portability/SysUio.cpp
   ./build/third-party-ndk/folly/folly/net/NetOps.cpp
+  ./build/third-party-ndk/folly/folly/dynamic.cpp
+  ./build/third-party-ndk/folly/folly/json.cpp
+  ./build/third-party-ndk/folly/folly/json_pointer.cpp
+  ./build/third-party-ndk/folly/folly/Unicode.cpp
 
   # double-conversion
   ${DOUBLE_CONVERSION_SOURCES}
@@ -130,7 +135,6 @@ add_library(
   # comm code
   ${ANDROID_NATIVE_CODE}
   ${COMMON_NATIVE_CODE}
-  ${COMMON_NATIVE_INTERNAL}
 )
 
 add_definitions(
