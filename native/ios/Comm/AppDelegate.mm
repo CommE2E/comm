@@ -16,8 +16,10 @@
 
 #import "CommCoreModule.h"
 #import "GlobalNetworkSingleton.h"
+#import "Logger.h"
 #import "NetworkModule.h"
 #import "SQLiteQueryExecutor.h"
+#import "ThreadOperations.h"
 #import "Tools.h"
 #import <cstdio>
 #import <stdexcept>
@@ -52,6 +54,7 @@ static void InitializeFlipper(UIApplication *application) {
 #import <UserNotifications/UserNotifications.h>
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
+NSString *const setUnreadStatusKey = @"setUnreadStatus";
 
 @interface AppDelegate () <
     RCTCxxBridgeDelegate,
@@ -157,6 +160,14 @@ NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
     return YES;
   } else if ([notification[backgroundNotificationTypeKey]
                  isEqualToString:@"CLEAR"]) {
+    if (notification[setUnreadStatusKey] && notification[@"threadID"]) {
+      std::string threadID =
+          std::string([notification[@"threadID"] UTF8String]);
+      // this callback may be called from inactive state so we need
+      // to initialize the database
+      [self attemptDatabaseInitialization];
+      comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+    }
     [[UNUserNotificationCenter currentNotificationCenter]
         getDeliveredNotificationsWithCompletionHandler:^(
             NSArray<UNNotification *> *notifications) {
