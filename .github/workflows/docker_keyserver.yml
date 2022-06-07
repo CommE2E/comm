@@ -1,0 +1,20 @@
+name: Docker keyserver CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'native/**'
+      - 'docs/**'
+      - 'services/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Docker
+        working-directory: ./keyserver
+        run: touch .env && bash/dc.sh build --no-cache
