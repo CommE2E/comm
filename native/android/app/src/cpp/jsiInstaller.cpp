@@ -1,6 +1,7 @@
 #include "CommCoreModule.h"
 #include "GlobalNetworkSingletonJNIHelper.h"
 #include "SQLiteQueryExecutor.h"
+#include "ThreadOperationsJNIHelper.h"
 #include "jniHelpers.h"
 #include <CallInvokerHolder.h>
 #include <fbjni/fbjni.h>
@@ -52,5 +53,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
   return jni::initialize(vm, [] {
     CommHybrid::registerNatives();
     comm::GlobalNetworkSingletonJNIHelper::registerNatives();
+    comm::ThreadOperationsJNIHelper::registerNatives();
   });
 }
