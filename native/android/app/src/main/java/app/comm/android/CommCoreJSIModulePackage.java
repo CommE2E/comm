@@ -13,6 +13,7 @@ import expo.modules.securestore.SecureStoreModule;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class CommCoreJSIModulePackage extends ReanimatedJSIModulePackage {
 
@@ -20,25 +21,9 @@ public class CommCoreJSIModulePackage extends ReanimatedJSIModulePackage {
   public List<JSIModuleSpec> getJSIModules(
       ReactApplicationContext reactApplicationContext,
       JavaScriptContextHolder jsContext) {
-    ModuleRegistry moduleRegistry;
-    try {
-      Field moduleRegistryField =
-          NativeModulesProxy.class.getDeclaredField("mModuleRegistry");
-      moduleRegistryField.setAccessible(true);
-      NativeModulesProxy proxy =
-          (NativeModulesProxy)reactApplicationContext.getCatalystInstance()
-              .getNativeModule("NativeUnimoduleProxy");
-      moduleRegistry = (ModuleRegistry)moduleRegistryField.get(proxy);
-    } catch (Exception e) {
-      throw new RuntimeException(
-          "Accessing expo modules registry resulted in an error: " +
-          Log.getStackTraceString(e) +
-          "This might be due to changes in expo's internal implementation.");
-    }
-    SecureStoreModule secureStoreModule =
-        (SecureStoreModule)moduleRegistry.getExportedModuleOfClass(
-            SecureStoreModule.class);
-    CommSecureStore.getInstance().initialize(secureStoreModule);
+    Supplier<SecureStoreModule> secureStoreModuleSupplier =
+        () -> new SecureStoreModule(reactApplicationContext);
+    CommSecureStore.getInstance().initialize(secureStoreModuleSupplier);
     CommHybrid.initHybrid(reactApplicationContext);
     super.getJSIModules(reactApplicationContext, jsContext);
     return Collections.emptyList();

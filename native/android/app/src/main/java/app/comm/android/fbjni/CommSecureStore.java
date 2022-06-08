@@ -4,6 +4,7 @@ import expo.modules.core.Promise;
 import expo.modules.core.arguments.MapArguments;
 import expo.modules.core.arguments.ReadableArguments;
 import expo.modules.securestore.SecureStoreModule;
+import java.util.function.Supplier;
 
 public class CommSecureStore {
 
@@ -19,8 +20,15 @@ public class CommSecureStore {
     return CommSecureStore.instance;
   }
 
-  public void initialize(SecureStoreModule secureStoreModule) {
-    this.secureStoreModule = secureStoreModule;
+  public void
+  initialize(Supplier<SecureStoreModule> secureStoreModuleSupplier) {
+    if (this.secureStoreModule == null) {
+      synchronized (this) {
+        if (this.secureStoreModule == null) {
+          this.secureStoreModule = secureStoreModuleSupplier.get();
+        }
+      }
+    }
   }
 
   private void checkModule() {
