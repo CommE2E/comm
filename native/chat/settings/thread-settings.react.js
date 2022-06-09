@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, FlatList, Platform } from 'react-native';
 import { createSelector } from 'reselect';
+import tinycolor from 'tinycolor2';
 
 import {
   changeThreadSettingsActionTypes,
@@ -318,8 +319,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       }
     }
     if (
-      newNavThreadInfo.color !== oldNavThreadInfo.color &&
-      this.state.colorEditValue === oldNavThreadInfo.color
+      !tinycolor.equals(newNavThreadInfo.color, oldNavThreadInfo.color) &&
+      tinycolor.equals(this.state.colorEditValue, oldNavThreadInfo.color)
     ) {
       this.setState({ colorEditValue: newNavThreadInfo.color });
     }

@@ -2,6 +2,7 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
+import tinycolor from 'tinycolor2';
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 
@@ -29,7 +30,8 @@ export default function LoadingIndicator(props: Props): React.Node {
         hasRendered && size === 'medium',
       [css['loading-indicator-loading-small']]: hasRendered && size === 'small',
       [css['loading-indicator-loading-large']]: hasRendered && size === 'large',
-      [css['loading-indicator-black']]: hasRendered && color === 'black',
+      [css['loading-indicator-black']]:
+        hasRendered && tinycolor.equals(color, 'black'),
     };
     if (props.loadingClassName) {
       classNameInput[props.loadingClassName] = true;
@@ -38,7 +40,7 @@ export default function LoadingIndicator(props: Props): React.Node {
   } else if (props.status === 'error') {
     const classNameInput = {
       [css['loading-indicator-error']]: true,
-      [css['loading-indicator-error-black']]: color === 'black',
+      [css['loading-indicator-error-black']]: tinycolor.equals(color, 'black'),
     };
     if (props.errorClassName) {
       classNameInput[props.errorClassName] = true;

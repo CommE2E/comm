@@ -195,7 +195,7 @@ class Entry extends React.PureComponent<Props, State> {
       [css.darkEntry]: darkColor,
       [css.focusedEntry]: this.state.focused,
     });
-    const style = { backgroundColor: '#' + this.props.threadInfo.color };
+    const style = { backgroundColor: `#${this.props.threadInfo.color}` };
     const loadingIndicatorColor = darkColor ? 'white' : 'black';
     const canEditEntry = threadHasPermission(
       this.props.threadInfo,
