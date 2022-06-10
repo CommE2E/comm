@@ -28,8 +28,9 @@ services:
     restart: always
     expose:
       - "3306"
-    # There is no M1 build on Docker Hub, so we force x64
-    # This is what we want in production anyways. M1 devs will have it emulated
+    # There is no ARM-based Mac build on Docker Hub, so we force x64
+    # This is what we want in production anyways. ARM-based Mac devs will have
+    # it emulated
     platform: linux/amd64
     command: >
       --max-allowed-packet=64M

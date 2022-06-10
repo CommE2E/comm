@@ -8,15 +8,16 @@
 
   outputs = { self, nixpkgs, utils, ... }:
     let
-      # Overlays allow for extending a package set, in this case, we are extending nixpkgs
-      # with our devShell
+      # Overlays allow for extending a package set, in this case, we are
+      # extending nixpkgs with our devShell
       localOverlay = import ./nix/overlay.nix;
       overlays = [
         localOverlay
       ];
 
-      # Since we build for many systems (e.g. m1 mac, x86_64-linux), we create
-      # a helper function to help facilitate instantiation of the related package set
+      # Since we build for many systems (e.g. aarch64, x86_64-linux), we
+      # create a helper function to help facilitate instantiation of the related
+      # package set
       pkgsForSystem = system: import nixpkgs {
         inherit overlays system;
       };
@@ -28,8 +29,9 @@
       legacyPackages = pkgsForSystem system;
       inherit (legacyPackages) devShell;
     }) // {
-      # these outputs will lack the system suffix (e.g. devShell.aarch64-darwin), thus should
-      # be system agnostic such as overlays or utility functions.
+      # these outputs will lack the system suffix (e.g.
+      # devShell.aarch64-darwin), thus should be system agnostic such as
+      # overlays or utility functions.
       overlays = { inherit localOverlay; };
       overlay = localOverlay;
     };
