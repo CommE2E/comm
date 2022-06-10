@@ -85,14 +85,13 @@ void CreateNewBackupReactor::terminateCallback() {
   }
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lock2(this->blobPutDoneCVMutex);
-  if (this->putReactor->getStatusHolder()->state == ReactorState::DONE &&
-      !this->putReactor->getStatusHolder()->getStatus().ok()) {
-    throw std::runtime_error(
-        this->putReactor->getStatusHolder()->getStatus().error_message());
-  }
   if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
     this->blobPutDoneCV.wait(lock2);
-  } else if (!this->putReactor->getStatusHolder()->getStatus().ok()) {
+  }
+  if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
+    throw std::runtime_error("put reactor has not been terminated properly");
+  }
+  if (!this->putReactor->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
         this->putReactor->getStatusHolder()->getStatus().error_message());
   }
