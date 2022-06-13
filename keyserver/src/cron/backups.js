@@ -16,9 +16,18 @@ const readdir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);
 const unlink = promisify(fs.unlink);
 
+type BackupConfig = {
+  +enabled: boolean,
+  +directory: string,
+};
+
+function getBackupConfig(): Promise<?BackupConfig> {
+  return importJSON({ folder: 'facts', name: 'backups' });
+}
+
 async function backupDB() {
   const [backupConfig, dbConfig] = await Promise.all([
-    importJSON({ folder: 'facts', name: 'backups' }),
+    getBackupConfig(),
     getDBConfig(),
   ]);
 
@@ -185,7 +194,7 @@ function trySaveBackup(
 }
 
 async function deleteOldestBackup() {
-  const backupConfig = await importJSON({ folder: 'facts', name: 'backups' });
+  const backupConfig = await getBackupConfig();
   invariant(backupConfig, 'backupConfig should be non-null');
   const files = await readdir(backupConfig.directory);
   let oldestFile;
