@@ -194,33 +194,57 @@ function trySaveBackup(
 }
 
 async function deleteOldestBackup() {
-  const backupConfig = await getBackupConfig();
+  const [backupConfig, backupInfos] = await Promise.all([
+    getBackupConfig(),
+    getSortedBackupInfos(),
+  ]);
+
   invariant(backupConfig, 'backupConfig should be non-null');
-  const files = await readdir(backupConfig.directory);
-  let oldestFile;
-  for (const file of files) {
-    if (!file.endsWith('.sql.gz') || !file.startsWith('comm.')) {
-      continue;
-    }
-    const stat = await lstat(`${backupConfig.directory}/${file}`);
-    if (stat.isDirectory()) {
-      continue;
-    }
-    if (!oldestFile || stat.mtime < oldestFile.mtime) {
-      oldestFile = { file, mtime: stat.mtime };
-    }
-  }
-  if (!oldestFile) {
+  if (backupInfos.length === 0) {
     throw new Error('no_backups_left');
   }
+
+  const oldestFilename = backupInfos[0].filename;
   try {
-    await unlink(`${backupConfig.directory}/${oldestFile.file}`);
+    await unlink(`${backupConfig.directory}/${oldestFilename}`);
   } catch (e) {
     // Check if it's already been deleted
     if (e.code !== 'ENOENT') {
       throw e;
     }
   }
+}
+
+type BackupInfo = {
+  +filename: string,
+  +lastModifiedTime: number,
+  +bytes: number,
+};
+async function getSortedBackupInfos(): Promise<BackupInfo[]> {
+  const backupConfig = await getBackupConfig();
+  invariant(backupConfig, 'backupConfig should be non-null');
+
+  const filenames = await readdir(backupConfig.directory);
+  const backups = await Promise.all(
+    filenames.map(async filename => {
+      if (!filename.startsWith('comm.') || !filename.endsWith('.sql.gz')) {
+        return null;
+      }
+      const stats = await lstat(`${backupConfig.directory}/${filename}`);
+      if (stats.isDirectory()) {
+        return null;
+      }
+      return {
+        filename,
+        lastModifiedTime: stats.mtime,
+        bytes: stats.size,
+      };
+    }),
+  );
+
+  const filteredBackups = backups.filter(Boolean);
+  filteredBackups.sort((a, b) => a.lastModifiedTime - b.lastModifiedTime);
+  return filteredBackups;
 }
 
 export { backupDB };
