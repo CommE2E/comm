@@ -5,7 +5,9 @@ import * as React from 'react';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 
+import { useModalContext } from '../../modals/modal-provider.react.js';
 import BlockListRow from './block-list-row.react';
+import BlockUsersModal from './block-users-modal.react';
 import UserListModal from './user-list-modal.react';
 
 function filterUser(userInfo: AccountUserInfo) {
@@ -25,6 +27,13 @@ type Props = {
 
 function BlockListModal(props: Props): React.Node {
   const { onClose } = props;
+
+  const { pushModal } = useModalContext();
+  const openBlockUsersModal = React.useCallback(
+    () => pushModal(<BlockUsersModal onClose={onClose} />),
+    [onClose, pushModal],
+  );
+
   return (
     <UserListModal
       onClose={onClose}
@@ -32,6 +41,8 @@ function BlockListModal(props: Props): React.Node {
       userRowComponent={BlockListRow}
       filterUser={filterUser}
       usersComparator={usersComparator}
+      buttonLabel="Block Users"
+      onAddUsersClick={openBlockUsersModal}
     />
   );
 }
