@@ -6,7 +6,7 @@ import * as React from 'react';
 import css from './button.css';
 
 type Props = {
-  +onClick: (event: SyntheticEvent<HTMLButtonElement>) => void,
+  +onClick: (event: SyntheticEvent<HTMLButtonElement>) => mixed,
   +children: React.Node,
   +variant?: 'primary' | 'secondary' | 'danger' | 'round',
   +type?: string,
