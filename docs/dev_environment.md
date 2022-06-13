@@ -560,7 +560,7 @@ This script will create the `keyserver/secrets/olm_config.json` config file.
 
 ## Phabricator
 
-The last configuration step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phabricator.ashoat.com) using your GitHub account.
+The last configuration step is to set up an account on Phabricator, where we handle code review. Start by [logging in to Phabricator](https://phab.comm.dev) using your GitHub account.
 
 Next, make sure you’re inside the directory containing the Comm Git repository, and run the following command:
 
@@ -739,7 +739,7 @@ Finally, we need to direct the mobile app to use your local keyserver instance. 
 
 - If you’re deploying a release build, the above strategy won’t work. Your best bet to override the server URL is to get to the secret “Developer tools” menu option in the app.
 
-  1.  You may need to use a real production account for this, since the server address will default to the production server if this is the first build you've deployed to the target device.
+  1.  You may need to use a real production account for this, since the server address will default to the production server if this is the first build you’ve deployed to the target device.
   2.  Next, in order for the “Developer tools” menu option to appear, you’ll need to add your user ID to [the list of user IDs in `staff.json`](https://github.com/CommE2E/comm/blob/master/lib/facts/staff.json). A good way to figure out your user ID is to use the Chrome Redux debugger to inspect the `currentUserInfo` property when logged into the web app.
   3.  Finally, you should be able to navigate to Profile → Developer tools in the app and set the address of the local server. It should look something like this:
 
@@ -811,27 +811,29 @@ yarn codegen-grpc
 
 ## Creating a new diff
 
-The biggest difference between GitHub’s PR workflow and Phabricator’s “diff” workflow is that Phabricator lets you create a diff from any commit, or set of commits. In contrast, GitHub can only create PRs from branches.
+The biggest difference between GitHub PRs and Phabricator diffs is that a PR corresponds to a branch, whereas a diff corresponds to a commit.
 
-When you have a commit ready and want to submit a diff for code review, just run `arc diff` from within the Comm Git repo. Arcanist will attempt to determine the “base” for your diff automatically, but by default it will take the single most recent commit. You can see what base Arcanist thinks it should use by running `arc which`. You can also explicitly specify a base by using `arc diff --base`. For instance, `arc diff --base HEAD^` will create a diff from the most recent commit, which should be the default behavior.
-
-Keep in mind that `arc diff` always diffs the base against your current working copy. Though this nominally includes any unstashed changes you might have, `arc diff`’s interactive prompts will help you exclude unrelated changes in your working copy.
-
-It’s generally easiest to keep a 1:1 correspondence between diffs and commits. If you’re working with a stack of commits, you can use Git’s interactive rebase feature (`git rebase -i`) to run `arc diff` on each commit individually.
+When you have a commit ready and want to submit it for code review, just run `arc diff` from within the Comm Git repo. `arc diff` will look at the most recent commit in `git log` and create a new diff for it.
 
 ## Updating a diff
 
-Whereas with GitHub PRs, updates are usually created by adding on more commits, in Phabricator the easiest way to update a diff is by amending the existing commit.
+With GitHub PRs, updates are usually performed by adding on more commits. In contrast, in Phabricator a diff is updated by simply amending the existing commit and running `arc diff` again.
 
-When you run `arc diff` on a commit for the first time, it amends the commit message to include a link to the Phabricator diff. If and when you want to update that diff, just run `arc diff` again.
+When you run `arc diff`, it looks for a `Differential Revision: ` line in the commit text of the most recent commit. If Arcanist finds that line, it will assume you want to update the existing diff rather than create a new one. Other Arcanist commands such as `arc amend` (which amends commit text to match a diff on Phabricator) also look for the `Differential Revision: ` line.
 
-If you’re working with a stack of diffs, and want to update an earlier diff, you can use Git’s interactive rebase feature (`git rebase -i`) to open the stack to a particular point. Then you can amend that commit and run `arc diff` before continuing the rebase.
+## Working with a stack
+
+One of the advantages of Phabricator’s approach is that larger, multi-part changes can be split up into smaller pieces for review. These multi-part changes are usually referred to as a “stack” of diffs.
+
+When creating a diff that depends on another, you should make sure to create a dependency relationship between those two diffs, so that your reviewers can see the stack on Phabricator. The easiest way to do that is to include `Depends on D123` in the commit text of the child commit, but the dependency relationship can also be specified using the Phabricator web UI.
+
+You’ll find that mastering Git’s interactive rebase feature (`git rebase -i`) will help you a lot when working with stacks. Interactive rebases make it easy to “diff up” multiple commits at once, or to amend a specific commit in the middle of a stack in response to a review.
 
 ## Committing a diff
 
 After your diff has been accepted, you should be able to land it. To land a diff just run `arc land` from within the repository.
 
-If you’re dealing with a stack, `arc land` will make sure to only land the diffs that have been accepted, and shouldn’t land any diffs that depend on other diffs that haven’t been accepted yet.
+If you have a stack of unlanded commits in your Git branch, `arc land` will attempt to land all of those diffs. If some of the diffs in your stack haven’t been accepted yet, you’ll need to create a new, separate branch that contains just the commits you want to land before running `arc land`.
 
 Note that you need commit rights to the repository in order to run `arc land`. If you don’t have commit rights, reach out to @ashoat for assistance.
 
