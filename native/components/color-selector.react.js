@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Button, Text, View, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import tinycolor from 'tinycolor2';
 
 import { selectedThreadColors } from 'lib/shared/thread-utils';
@@ -10,6 +10,7 @@ import ColorSelectorButton from './color-selector-button.react';
 
 type ColorSelectorProps = {
   +currentColor: string,
+  +windowWidth: number,
   +onColorSelected: (hex: string) => void,
 };
 function ColorSelector(props: ColorSelectorProps): React.Node {
@@ -29,13 +30,26 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
     [pendingColor],
   );
 
+  const firstRow = React.useMemo(
+    () => colorSelectorButtons.slice(0, colorSelectorButtons.length / 2),
+    [colorSelectorButtons],
+  );
+
+  const secondRow = React.useMemo(
+    () => colorSelectorButtons.slice(colorSelectorButtons.length / 2),
+    [colorSelectorButtons],
+  );
+
   const saveButtonDisabled = tinycolor.equals(currentColor, pendingColor);
   const saveButtonStyle = React.useMemo(
     () => [
       styles.saveButton,
-      { backgroundColor: saveButtonDisabled ? '#404040' : `#${pendingColor}` },
+      {
+        backgroundColor: saveButtonDisabled ? '#404040' : `#${pendingColor}`,
+        width: 0.75 * props.windowWidth,
+      },
     ],
-    [saveButtonDisabled, pendingColor],
+    [saveButtonDisabled, pendingColor, props.windowWidth],
   );
 
   const onColorSplotchSaved = React.useCallback(() => {
@@ -45,14 +59,16 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Select thread color</Text>
-      <View style={styles.colorButtons}>{colorSelectorButtons}</View>
+      <View style={styles.colorButtons}>{firstRow}</View>
+      <View style={styles.colorButtons}>{secondRow}</View>
       <View style={saveButtonStyle}>
-        <Button
-          title="Save"
-          color="white"
+        <TouchableOpacity
+          style={styles.saveButton}
           onPress={onColorSplotchSaved}
           disabled={saveButtonDisabled}
-        />
+        >
+          <Text style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -60,27 +76,28 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
 
 const styles = StyleSheet.create({
   colorButtons: {
-    flex: 1,
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
   },
   container: {
     alignItems: 'center',
     flex: 1,
-    justifyContent: 'center',
   },
   header: {
     color: 'white',
     fontSize: 24,
     fontWeight: 'bold',
-    margin: 20,
+    marginBottom: 10,
+    marginTop: 20,
   },
   saveButton: {
+    alignItems: 'center',
     borderRadius: 5,
     margin: 10,
-    padding: 5,
-    width: 320,
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 
