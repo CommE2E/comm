@@ -225,7 +225,7 @@ Make sure you check the boxes for the following:
 
 ### Android SDK
 
-Android Studio installs the latest Android SDK by default, but since React Native uses the Android 11 SDK specifically, we’ll need to install it using Android Studio’s SDK Manager. You can access the SDK Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → SDK Manager.
+Android Studio installs the latest Android SDK by default, but since React Native uses the Android 11 SDK specifically, we’ll need to install it using Android Studio’s SDK Manager. You can access the SDK Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, from More Actions → SDK Manager. If you already have a project open, you can access it from Tools → SDK Manager.
 
 Once you have the SDK Manager open, select the “SDK Platforms” tab, and then check the box for “Show Package Details”. Now expand the “Android 11 (R)” section, and make sure the following subsections are checked:
 
@@ -454,13 +454,13 @@ Choose MySQL from the database options that appear. You’ll be prompted for:
 
 ## Android Emulator
 
-In order to test the Android app on your computer you’ll need to set up an Android Emulator. To do this we’ll need to open up the AVD Manager in Android Studio. AVD stands for “Android Virtual Device”. You can access the AVD Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, under “Configure”. If you already have a project open, you can access it from Tools → AVD Manager.
+In order to test the Android app on your computer you’ll need to set up an Android Emulator. To do this we’ll need to open up the Virtual Device Manager in Android Studio. You can access the Virtual Device Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, from More Actions → Virtual Device Manager. If you already have a project open, you can access it from Tools → Virtual Device Manager.
 
-With the AVD Manager open, select “Create Virtual Device” on the bottom row. Feel free to select any “device definition” that includes Play Store support.
+With the Virtual Device Manager open, select “Create device” on the top left. Feel free to select any “device definition” that includes Play Store support.
 
 On the next screen you’ll be asked to select a system image. Go for the latest version of Android that’s been released.
 
-From there you can just hit Next and then Finish. You should then be able to start your new AVD from the AVD Manager.
+From there you can just hit Next and then Finish. You should then be able to start your new Android Virtual Device from the Virtual Device Manager.
 
 # Git repo
 
