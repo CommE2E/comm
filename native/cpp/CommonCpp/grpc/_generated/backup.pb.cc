@@ -104,7 +104,8 @@ struct PullBackupRequestDefaultTypeInternal {
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PullBackupRequestDefaultTypeInternal _PullBackupRequest_default_instance_;
 constexpr PullBackupResponse::PullBackupResponse(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : _oneof_case_{}{}
+  : chunkcounter_(0)
+  , _oneof_case_{}{}
 struct PullBackupResponseDefaultTypeInternal {
   constexpr PullBackupResponseDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -194,6 +195,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_backup_2eproto::offsets[] PROT
   ~0u,  // no _weak_field_map_
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
+  PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse, chunkcounter_),
   PROTOBUF_FIELD_OFFSET(::backup::PullBackupResponse, data_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::backup::AddAttachmentsRequest, _internal_metadata_),
@@ -214,7 +216,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 39, -1, sizeof(::backup::RecoverBackupKeyResponse)},
   { 45, -1, sizeof(::backup::PullBackupRequest)},
   { 52, -1, sizeof(::backup::PullBackupResponse)},
-  { 60, -1, sizeof(::backup::AddAttachmentsRequest)},
+  { 61, -1, sizeof(::backup::AddAttachmentsRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -243,29 +245,29 @@ const char descriptor_table_protodef_backup_2eproto[] PROTOBUF_SECTION_VARIABLE(
   "coverBackupKeyRequest\022\016\n\006userID\030\001 \001(\t\",\n"
   "\030RecoverBackupKeyResponse\022\020\n\010backupID\030\004 "
   "\001(\t\"5\n\021PullBackupRequest\022\016\n\006userID\030\001 \001(\t"
-  "\022\020\n\010backupID\030\002 \001(\t\"K\n\022PullBackupResponse"
+  "\022\020\n\010backupID\030\002 \001(\t\"a\n\022PullBackupResponse"
   "\022\031\n\017compactionChunk\030\001 \001(\014H\000\022\022\n\010logChunk\030"
-  "\002 \001(\014H\000B\006\n\004data\"Y\n\025AddAttachmentsRequest"
-  "\022\016\n\006userID\030\001 \001(\t\022\020\n\010backupID\030\002 \001(\t\022\r\n\005lo"
-  "gID\030\003 \001(\t\022\017\n\007holders\030\004 \001(\t2\232\003\n\rBackupSer"
-  "vice\022X\n\017CreateNewBackup\022\036.backup.CreateN"
-  "ewBackupRequest\032\037.backup.CreateNewBackup"
-  "Response\"\000(\0010\001\022>\n\007SendLog\022\026.backup.SendL"
-  "ogRequest\032\027.backup.SendLogResponse\"\000(\001\022["
-  "\n\020RecoverBackupKey\022\037.backup.RecoverBacku"
-  "pKeyRequest\032 .backup.RecoverBackupKeyRes"
-  "ponse\"\000(\0010\001\022G\n\nPullBackup\022\031.backup.PullB"
-  "ackupRequest\032\032.backup.PullBackupResponse"
-  "\"\0000\001\022I\n\016AddAttachments\022\035.backup.AddAttac"
-  "hmentsRequest\032\026.google.protobuf.Empty\"\000b"
-  "\006proto3"
+  "\002 \001(\014H\000\022\024\n\014chunkCounter\030\003 \001(\005B\006\n\004data\"Y\n"
+  "\025AddAttachmentsRequest\022\016\n\006userID\030\001 \001(\t\022\020"
+  "\n\010backupID\030\002 \001(\t\022\r\n\005logID\030\003 \001(\t\022\017\n\007holde"
+  "rs\030\004 \001(\t2\232\003\n\rBackupService\022X\n\017CreateNewB"
+  "ackup\022\036.backup.CreateNewBackupRequest\032\037."
+  "backup.CreateNewBackupResponse\"\000(\0010\001\022>\n\007"
+  "SendLog\022\026.backup.SendLogRequest\032\027.backup"
+  ".SendLogResponse\"\000(\001\022[\n\020RecoverBackupKey"
+  "\022\037.backup.RecoverBackupKeyRequest\032 .back"
+  "up.RecoverBackupKeyResponse\"\000(\0010\001\022G\n\nPul"
+  "lBackup\022\031.backup.PullBackupRequest\032\032.bac"
+  "kup.PullBackupResponse\"\0000\001\022I\n\016AddAttachm"
+  "ents\022\035.backup.AddAttachmentsRequest\032\026.go"
+  "ogle.protobuf.Empty\"\000b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_backup_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_backup_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_backup_2eproto = {
-  false, false, 1127, descriptor_table_protodef_backup_2eproto, "backup.proto", 
+  false, false, 1149, descriptor_table_protodef_backup_2eproto, "backup.proto", 
   &descriptor_table_backup_2eproto_once, descriptor_table_backup_2eproto_deps, 1, 9,
   schemas, file_default_instances, TableStruct_backup_2eproto::offsets,
   file_level_metadata_backup_2eproto, file_level_enum_descriptors_backup_2eproto, file_level_service_descriptors_backup_2eproto,
@@ -2042,6 +2044,7 @@ PullBackupResponse::PullBackupResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
 PullBackupResponse::PullBackupResponse(const PullBackupResponse& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  chunkcounter_ = from.chunkcounter_;
   clear_has_data();
   switch (from.data_case()) {
     case kCompactionChunk: {
@@ -2060,6 +2063,7 @@ PullBackupResponse::PullBackupResponse(const PullBackupResponse& from)
 }
 
 void PullBackupResponse::SharedCtor() {
+chunkcounter_ = 0;
 clear_has_data();
 }
 
@@ -2111,6 +2115,7 @@ void PullBackupResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  chunkcounter_ = 0;
   clear_data();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2135,6 +2140,13 @@ const char* PullBackupResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
           auto str = _internal_mutable_logchunk();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // int32 chunkCounter = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
+          chunkcounter_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2178,6 +2190,12 @@ failure:
         2, this->_internal_logchunk(), target);
   }
 
+  // int32 chunkCounter = 3;
+  if (this->chunkcounter() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_chunkcounter(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -2193,6 +2211,13 @@ size_t PullBackupResponse::ByteSizeLong() const {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // int32 chunkCounter = 3;
+  if (this->chunkcounter() != 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(
+        this->_internal_chunkcounter());
+  }
 
   switch (data_case()) {
     // bytes compactionChunk = 1;
@@ -2244,6 +2269,9 @@ void PullBackupResponse::MergeFrom(const PullBackupResponse& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.chunkcounter() != 0) {
+    _internal_set_chunkcounter(from._internal_chunkcounter());
+  }
   switch (from.data_case()) {
     case kCompactionChunk: {
       _internal_set_compactionchunk(from._internal_compactionchunk());
@@ -2280,6 +2308,7 @@ bool PullBackupResponse::IsInitialized() const {
 void PullBackupResponse::InternalSwap(PullBackupResponse* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  swap(chunkcounter_, other->chunkcounter_);
   swap(data_, other->data_);
   swap(_oneof_case_[0], other->_oneof_case_[0]);
 }
