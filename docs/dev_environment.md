@@ -314,7 +314,7 @@ If you find yourself needing to modify the Protobuf schema files, you’ll need 
 - `./configure`
 - `make`
 - `make check`
-- `make install`
+- `sudo make install`
 
 After installing, you should be able to check the version of Protobuf like this: `protoc --version`
 
