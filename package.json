@@ -14,6 +14,7 @@
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",
     "clang-format-all": "eval `node scripts/get_clang_paths_cli.js` | xargs clang-format -i",
+    "format-rust": "./scripts/format_rust.sh",
     "prepare": "husky install"
   },
   "devDependencies": {
