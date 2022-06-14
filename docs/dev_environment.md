@@ -281,7 +281,7 @@ Also, enable the option for “React Native keyboard shortcuts” below.
 
 Flipper has a plugin system that allows teams to integrate additional debugging tools into Flipper. We currently only use one plugin, which is for monitoring Redux state.
 
-To install it, open Flipper and go to View → Manage Plugins. Type in “redux-debugger“ and install the Flipper plugin with that name.
+To install it, open Flipper and click on the Plugin Manager on the top left sidebar. Type in “redux-debugger“ in the Install Plugins search bar and install the Flipper plugin with that name.
 
 ## idb
 
