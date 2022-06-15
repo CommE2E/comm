@@ -82,6 +82,17 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
                 <span className={css['username-label']}>{'Logged in as '}</span>
                 <span className={css['username']}>{this.username}</span>
               </p>
+              <div className={css['form-content']}>
+                <Input
+                  type="password"
+                  placeholder="Current password"
+                  value={this.state.currentPassword}
+                  onChange={this.onChangeCurrentPassword}
+                  disabled={inputDisabled}
+                  ref={this.currentPasswordInputRef}
+                  label="Current password"
+                />
+              </div>
               <Input
                 type="password"
                 placeholder="New password"
@@ -97,17 +108,6 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
                 value={this.state.confirmNewPassword}
                 onChange={this.onChangeConfirmNewPassword}
                 disabled={inputDisabled}
-              />
-            </div>
-            <div className={css['form-content']}>
-              <Input
-                type="password"
-                placeholder="Current password"
-                value={this.state.currentPassword}
-                onChange={this.onChangeCurrentPassword}
-                disabled={inputDisabled}
-                ref={this.currentPasswordInputRef}
-                label="Current password"
               />
             </div>
             <div className={css['form-footer']}>
