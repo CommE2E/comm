@@ -16,11 +16,14 @@
 
 .content li {
   color: var(--account-settings-label);
-  border-bottom: 1px solid var(--border-color);
   padding: 24px 16px 16px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+.content li:not(:last-child) {
+  border-bottom: 1px solid var(--border-color);
 }
 
 .logoutContainer {
