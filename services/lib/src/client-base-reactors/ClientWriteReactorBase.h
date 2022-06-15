@@ -17,6 +17,7 @@ class ClientWriteReactorBase : public grpc::ClientWriteReactor<Request>,
   std::shared_ptr<ReactorStatusHolder> statusHolder =
       std::make_shared<ReactorStatusHolder>();
   Request request;
+  bool initialized = false;
 
   void nextWrite();
 
@@ -68,7 +69,7 @@ void ClientWriteReactorBase<Request, Response>::nextWrite() {
 
 template <class Request, class Response>
 void ClientWriteReactorBase<Request, Response>::start() {
-  if (this->start != ReactorState::NONE) {
+  if (this->statusHolder->state != ReactorState::NONE) {
     return;
   }
   this->statusHolder->state = ReactorState::RUNNING;
