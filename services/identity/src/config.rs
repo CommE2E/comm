@@ -31,5 +31,5 @@ pub enum Error {
 
 fn get_key_from_file<P: AsRef<Path>>(path: P) -> Result<Key, Error> {
   let bytes = fs::read(path)?;
-  Key::from_bytes(&bytes).map_err(|e| Error::Pake(e))
+  Key::from_bytes(&bytes).map_err(Error::Pake)
 }

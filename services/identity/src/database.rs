@@ -134,12 +134,12 @@ impl DatabaseClient {
         let valid = parse_valid_attribute(item.remove("valid"))?;
         let token = parse_token_attribute(item.remove("token"))?;
         Ok(Some(AccessToken {
-          user_id: user_id,
-          device_id: device_id,
-          token: token,
-          created: created,
-          auth_type: auth_type,
-          valid: valid,
+          user_id,
+          device_id,
+          token,
+          created,
+          auth_type,
+          valid,
         }))
       }
       Ok(_) => {
@@ -272,7 +272,7 @@ fn parse_created_attribute(
     s: Some(created), ..
   }) = attribute
   {
-    created.parse().map_err(|e| Error::InvalidTimestamp(e))
+    created.parse().map_err(Error::InvalidTimestamp)
   } else {
     Err(Error::MissingAttribute)
   }

@@ -26,11 +26,11 @@ impl AccessToken {
     rng: &mut (impl Rng + CryptoRng),
   ) -> Self {
     AccessToken {
-      user_id: user_id,
-      device_id: device_id,
+      user_id,
+      device_id,
       token: Alphanumeric.sample_string(rng, 512),
       created: Utc::now(),
-      auth_type: auth_type,
+      auth_type,
       valid: true,
     }
   }
