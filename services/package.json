@@ -18,6 +18,7 @@
     "run-unit-tests": "./scripts/run_unit_tests.sh",
     "run-integration-tests": "./scripts/run_integration_tests.sh",
     "run-all-services-dev-mode": "COMM_SERVICES_DEV_MODE=1 ./scripts/run_all_services.sh",
-    "run-local-cloud": "./scripts/run_local_cloud.sh"
+    "run-local-cloud": "./scripts/run_local_cloud.sh",
+    "tear-down-local-cloud": "docker-compose down -v"
   }
 }
