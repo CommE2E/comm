@@ -1,6 +1,7 @@
 #include "ThreadOperations.h"
-#include "../../../DatabaseManagers/DatabaseManager.h"
-#include "Logger.h"
+#include <DatabaseManagers/DatabaseManager.h>
+#include <Tools/Logger.h>
+
 #include <folly/String.h>
 #include <folly/json.h>
 #include <stdexcept>
