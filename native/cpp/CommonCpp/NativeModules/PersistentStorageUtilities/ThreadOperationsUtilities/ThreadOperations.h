@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../DatabaseManagers/entities/Thread.h"
+#include <DatabaseManagers/entities/Thread.h>
 
 #include <string>
 
