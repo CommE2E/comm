@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../CryptoTools/Tools.h"
+#include <comm/CryptoTools/Tools.h>
 
 namespace comm {
 
