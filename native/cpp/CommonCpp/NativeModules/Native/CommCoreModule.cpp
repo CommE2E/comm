@@ -1,15 +1,14 @@
-#include "CommCoreModule.h"
-#include "DatabaseManager.h"
-#include "GRPCStreamHostObject.h"
-#include "InternalModules/GlobalNetworkSingleton.h"
-#include "InternalModules/NetworkModule.h"
-#include "Logger.h"
-#include "MessageStoreOperations.h"
-#include "ThreadStoreOperations.h"
+#include <DatabaseManagers/DatabaseManager.h>
+#include <DatabaseManagers/entities/Media.h>
+#include <Internal/GlobalNetworkSingleton.h>
+#include <Internal/NetworkModule.h>
+#include <Native/CommCoreModule.h>
+#include <Native/MessageStoreOperations.h>
+#include <Native/ThreadStoreOperations.h>
+#include <Tools/Logger.h>
+#include <grpc/GRPCStreamHostObject.h>
 
 #include <folly/Optional.h>
-
-#include "../DatabaseManagers/entities/Media.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <future>

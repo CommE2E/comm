@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../DatabaseManagers/entities/Media.h"
-#include "../DatabaseManagers/entities/Thread.h"
-#include "DatabaseManager.h"
+#include <DatabaseManagers/DatabaseManager.h>
+#include <DatabaseManagers/entities/Media.h>
+#include <DatabaseManagers/entities/Thread.h>
 #include <vector>
 
 namespace comm {
