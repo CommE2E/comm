@@ -19,6 +19,7 @@ const unlink = promisify(fs.unlink);
 type BackupConfig = {
   +enabled: boolean,
   +directory: string,
+  +maxDirSizeMiB?: ?number,
 };
 
 function getBackupConfig(): Promise<?BackupConfig> {
@@ -74,6 +75,8 @@ async function backupDB() {
     console.warn(`saveBackup threw for ${filename}`, e);
     await unlink(filePath);
   }
+
+  await deleteOldBackupsIfSpaceExceeded();
 }
 
 function mysqldump(
@@ -245,6 +248,29 @@ async function getSortedBackupInfos(): Promise<BackupInfo[]> {
   const filteredBackups = backups.filter(Boolean);
   filteredBackups.sort((a, b) => a.lastModifiedTime - b.lastModifiedTime);
   return filteredBackups;
+}
+
+async function deleteOldBackupsIfSpaceExceeded() {
+  const backupConfig = await getBackupConfig();
+  invariant(backupConfig, 'backupConfig should be non-null');
+  const { maxDirSizeMiB } = backupConfig;
+  if (!maxDirSizeMiB) {
+    return;
+  }
+
+  const sortedBackupInfos = await getSortedBackupInfos();
+  const mostRecentBackup = sortedBackupInfos.pop();
+  let bytesLeft = maxDirSizeMiB * 1024 * 1024 - mostRecentBackup.bytes;
+
+  const deleteBackupPromises = [];
+  for (let i = sortedBackupInfos.length - 1; i >= 0; i--) {
+    const backupInfo = sortedBackupInfos[i];
+    bytesLeft -= backupInfo.bytes;
+    if (bytesLeft <= 0) {
+      deleteBackupPromises.push(deleteBackup(backupInfo.filename));
+    }
+  }
+  await Promise.all(deleteBackupPromises);
 }
 
 export { backupDB };
