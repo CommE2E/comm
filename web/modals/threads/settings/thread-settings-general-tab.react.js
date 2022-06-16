@@ -21,6 +21,7 @@ import {
 import { firstLine } from 'lib/utils/string-utils';
 
 import Button from '../../../components/button.react';
+import LoadingIndicator from '../../../loading-indicator.react';
 import Input from '../../input.react';
 import { useModalContext } from '../../modal-provider.react';
 import ColorSelector from '../color-selector.react';
@@ -139,6 +140,13 @@ function ThreadSettingsGeneralTab(
     threadPermissions.EDIT_THREAD_NAME,
   );
 
+  let loginButtonContent;
+  if (threadSettingsOperationInProgress) {
+    loginButtonContent = <LoadingIndicator status="loading" />;
+  } else {
+    loginButtonContent = 'Save';
+  }
+
   return (
     <form method="POST">
       <div>
@@ -183,7 +191,7 @@ function ThreadSettingsGeneralTab(
         disabled={threadSettingsOperationInProgress || !changeQueued}
         className={css.save_button}
       >
-        Save
+        {loginButtonContent}
       </Button>
     </form>
   );

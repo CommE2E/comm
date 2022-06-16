@@ -29,4 +29,5 @@ div.colorSelectorContainer {
 
 .save_button {
   width: 100%;
+  min-height: 46px;
 }
