@@ -1,5 +1,5 @@
-#include "WorkerThread.h"
-#include "Logger.h"
+#include <Tools/Logger.h>
+#include <Tools/WorkerThread.h>
 #include <sstream>
 
 namespace comm {
