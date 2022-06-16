@@ -25,4 +25,11 @@ prev:
     # php8.1 will cause warnings to throw as exceptions around calling strlen() with null
     php = prev.php80;
   });
+
+  olm = prev.olm.overrideAttrs(oldAttrs: {
+    # *.hh files aren't meant to be used externally, so we patch installation to add it
+    postInstall = ''
+      cp $NIX_BUILD_TOP/${oldAttrs.src.name}/include/olm/*.h* ''${!outputDev}/include/olm
+    '';
+  });
 }

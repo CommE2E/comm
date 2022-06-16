@@ -3,18 +3,24 @@
 , lib
 , amqp-cpp
 , arcanist
+, boost
 , cargo
 , cmake
 , cryptopp
 , darwin
+, folly
+, fmt
 , grpc
 , libiconv
 , libuv
 , nodejs-16_x
+, olm
+, openssl
 , pkg-config
 , protobuf_3_15_cmake
 , python2
 , python3
+, sqlite
 , watchman
 , rustfmt
 , yarn
@@ -54,6 +60,13 @@ mkShell {
   # include any libraries buildInputs
   buildInputs = [
     protobuf_3_15_cmake # exposes both a library and a command, thus should appear in both inputs
+    folly # cpp tools
+    fmt # needed for folly
+    boost # needed for folly
+    olm # needed for CryptoTools
+    sqlite # needed for sqlite_orm
+  ] ++ lib.optionals stdenv.isLinux [
+    openssl
   ] ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
     CoreFoundation
     CoreServices
