@@ -114,6 +114,7 @@ target_link_libraries(comm-client
 target_include_directories(comm-client
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   # HACK: add complete cmake support to react-native?
   PRIVATE
