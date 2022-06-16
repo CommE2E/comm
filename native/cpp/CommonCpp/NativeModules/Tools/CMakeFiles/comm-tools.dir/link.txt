@@ -1,0 +1,2 @@
+/nix/store/cz52w8xf3i1d3xvzpzd9abf7rvpl9017-binutils-2.38/bin/ar qc libcomm-tools.a CMakeFiles/comm-tools.dir/src/WorkerThread.cpp.o
+/nix/store/cz52w8xf3i1d3xvzpzd9abf7rvpl9017-binutils-2.38/bin/ranlib libcomm-tools.a

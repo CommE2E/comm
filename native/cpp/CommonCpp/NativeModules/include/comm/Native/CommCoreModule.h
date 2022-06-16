@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../CryptoTools/CryptoModule.h"
-#include "../Tools/CommSecureStore.h"
-#include "../Tools/WorkerThread.h"
-#include "../_generated/NativeModules.h"
-#include "../grpc/Client.h"
+#include <comm/CryptoTools/CryptoModule.h>
+#include <comm/Tools/CommSecureStore.h>
+#include <comm/Tools/WorkerThread.h>
+#include <comm/generated/NativeModules.h>
+#include <comm/grpc/Client.h>
 #include <jsi/jsi.h>
 #include <memory>
 
