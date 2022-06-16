@@ -58,7 +58,6 @@ div.title {
   flex-direction: column;
 }
 .threadButtonSidebar {
-  flex: 1;
   cursor: pointer;
   overflow: hidden;
   display: flex;
