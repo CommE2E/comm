@@ -1,5 +1,5 @@
-#include "NetworkModule.h"
-#include "Logger.h"
+#include <Internal/NetworkModule.h>
+#include <Tools/Logger.h>
 
 namespace comm {
 void NetworkModule::initializeNetworkModule(

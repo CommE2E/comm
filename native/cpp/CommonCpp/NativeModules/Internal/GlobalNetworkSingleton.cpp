@@ -1,4 +1,4 @@
-#include "GlobalNetworkSingleton.h"
+#include <Internal/GlobalNetworkSingleton.h>
 
 namespace comm {
 GlobalNetworkSingleton GlobalNetworkSingleton::instance;
