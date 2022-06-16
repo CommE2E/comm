@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Tools/WorkerThread.h"
-#include "NetworkModule.h"
+#include <Internal/NetworkModule.h>
+#include <Tools/WorkerThread.h>
 #include <functional>
 #include <memory>
 
