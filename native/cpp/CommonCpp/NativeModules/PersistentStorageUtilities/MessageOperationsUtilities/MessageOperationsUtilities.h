@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../../DatabaseManagers/DatabaseManager.h"
-#include "../../../DatabaseManagers/entities/Media.h"
-#include "../../../DatabaseManagers/entities/Message.h"
+#include <DatabaseManagers/DatabaseManager.h>
+#include <DatabaseManagers/entities/Media.h>
+#include <DatabaseManagers/entities/Message.h>
 
 #include <folly/dynamic.h>
 #include <string>

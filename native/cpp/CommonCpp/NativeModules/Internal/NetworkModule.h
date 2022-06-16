@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../grpc/Client.h"
-#include "SocketStatus.h"
+#include <Internal/SocketStatus.h>
+#include <grpc/Client.h>
 #include <memory>
 #include <string>
 
