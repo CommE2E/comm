@@ -1,6 +1,5 @@
 // @flow
 
-import { isEqual } from 'lodash/lang';
 import { AppState as NativeAppState, Platform, Alert } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import Orientation from 'react-native-orientation-locker';
@@ -33,10 +32,7 @@ import type { ThreadStoreOperation } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
-import {
-  convertMessageStoreOperationsToClientDBOperations,
-  translateClientDBMessageInfosToRawMessageInfos,
-} from 'lib/utils/message-ops-utils';
+import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
 
 import { defaultNavInfo } from '../navigation/default-state';
@@ -317,27 +313,6 @@ function reducer(state: AppState = defaultState, action: Action) {
   const convertedMessageStoreOperations = convertMessageStoreOperationsToClientDBOperations(
     messageStoreOperations,
   );
-
-  if (convertedMessageStoreOperations.length > 0) {
-    global.CommCoreModule.processMessageStoreOperationsSync(
-      convertedMessageStoreOperations,
-    );
-  }
-
-  const messages = global.CommCoreModule.getAllMessagesSync();
-  const rawMsgsFromSQLite = translateClientDBMessageInfosToRawMessageInfos(
-    messages,
-  );
-
-  const ignoreList = ['@@INIT', 'persist/REHYDRATE', 'persist/PERSIST'];
-  if (
-    !isEqual(rawMsgsFromSQLite, state.messageStore.messages) &&
-    !ignoreList.includes(action.type) &&
-    !action.type.includes('@@redux/INIT')
-  ) {
-    Alert.alert(`${action.type}: NOT EQUAL`);
-  }
-
   (async () => {
     try {
       const promises = [];
@@ -345,6 +320,13 @@ function reducer(state: AppState = defaultState, action: Action) {
         promises.push(
           global.CommCoreModule.processThreadStoreOperations(
             convertedThreadStoreOperations,
+          ),
+        );
+      }
+      if (convertedMessageStoreOperations.length > 0) {
+        promises.push(
+          global.CommCoreModule.processMessageStoreOperations(
+            convertedMessageStoreOperations,
           ),
         );
       }
