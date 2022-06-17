@@ -1,19 +1,24 @@
 use constant_time_eq::constant_time_eq;
 use futures_core::Stream;
+use rand::{CryptoRng, Rng};
 use rusoto_core::RusotoError;
-use rusoto_dynamodb::GetItemError;
+use rusoto_dynamodb::{GetItemError, PutItemError};
 use std::pin::Pin;
 use tonic::{Request, Response, Status};
 use tracing::{error, info, instrument};
 
 use crate::database::DatabaseClient;
+use crate::token::{AccessToken, AuthType};
 use crate::{config::Config, database::Error};
 
 pub use proto::identity_service_server::IdentityServiceServer;
 use proto::{
-  identity_service_server::IdentityService, LoginRequest, LoginResponse,
+  identity_service_server::IdentityService,
+  login_response::Data::PakeLoginResponse,
+  login_response::Data::WalletLoginResponse, pake_login_response::Data::Token,
+  LoginRequest, LoginResponse, PakeLoginResponse as PakeLoginResponseStruct,
   RegistrationRequest, RegistrationResponse, VerifyUserTokenRequest,
-  VerifyUserTokenResponse,
+  VerifyUserTokenResponse, WalletLoginResponse as WalletLoginResponseStruct,
 };
 
 mod proto {
@@ -87,5 +92,40 @@ impl IdentityService for MyIdentityService {
     let response = Response::new(VerifyUserTokenResponse { token_valid });
     info!("Sending VerifyUserToken response: {:?}", response);
     Ok(response)
+  }
+}
+
+async fn put_token_helper(
+  client: DatabaseClient,
+  auth_type: AuthType,
+  user_id: String,
+  device_id: String,
+  rng: &mut (impl Rng + CryptoRng),
+) -> Result<LoginResponse, Status> {
+  let token = AccessToken::new(user_id, device_id, auth_type.clone(), rng);
+  match client.put_token(token.clone()).await {
+    Ok(_) => match auth_type {
+      AuthType::Wallet => Ok(LoginResponse {
+        data: Some(WalletLoginResponse(WalletLoginResponseStruct {
+          token: token.token,
+        })),
+      }),
+      AuthType::Password => Ok(LoginResponse {
+        data: Some(PakeLoginResponse(PakeLoginResponseStruct {
+          data: Some(Token(token.token)),
+        })),
+      }),
+    },
+    Err(Error::RusotoPut(RusotoError::Service(
+      PutItemError::ResourceNotFound(_),
+    )))
+    | Err(Error::RusotoPut(RusotoError::Credentials(_))) => {
+      Err(Status::failed_precondition("internal error"))
+    }
+    Err(Error::RusotoPut(_)) => Err(Status::unavailable("please retry")),
+    Err(e) => {
+      error!("Encountered an unexpected error: {}", e);
+      Err(Status::failed_precondition("unexpected error"))
+    }
   }
 }
