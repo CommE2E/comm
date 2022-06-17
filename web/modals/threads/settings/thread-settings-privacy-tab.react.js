@@ -43,7 +43,7 @@ const secretStatements = [
 ];
 
 type ThreadSettingsPrivacyTabProps = {
-  +threadSettingsOperationInProgress: boolean,
+  +inputDisabled: boolean,
   +threadInfo: ThreadInfo,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
@@ -53,7 +53,7 @@ function ThreadSettingsPrivacyTab(
   props: ThreadSettingsPrivacyTabProps,
 ): React.Node {
   const {
-    threadSettingsOperationInProgress,
+    inputDisabled,
     threadInfo,
     queuedChanges,
     setQueuedChanges,
@@ -164,7 +164,7 @@ function ThreadSettingsPrivacyTab(
       <Button
         type="submit"
         onClick={onSubmit}
-        disabled={threadSettingsOperationInProgress || !changeQueued}
+        disabled={inputDisabled || !changeQueued}
         className={css.save_button}
       >
         Save

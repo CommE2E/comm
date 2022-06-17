@@ -27,7 +27,7 @@ import ColorSelector from '../color-selector.react';
 import css from './thread-settings-general-tab.css';
 
 type ThreadSettingsGeneralTabProps = {
-  +threadSettingsOperationInProgress: boolean,
+  +inputDisabled: boolean,
   +threadInfo: ThreadInfo,
   +threadNamePlaceholder: string,
   +queuedChanges: ThreadChanges,
@@ -38,7 +38,7 @@ function ThreadSettingsGeneralTab(
   props: ThreadSettingsGeneralTabProps,
 ): React.Node {
   const {
-    threadSettingsOperationInProgress,
+    inputDisabled,
     threadInfo,
     threadNamePlaceholder,
     queuedChanges,
@@ -54,7 +54,7 @@ function ThreadSettingsGeneralTab(
 
   React.useEffect(() => {
     nameInputRef.current?.focus();
-  }, [threadSettingsOperationInProgress]);
+  }, [inputDisabled]);
 
   const changeQueued: boolean = React.useMemo(
     () => Object.values(queuedChanges).some(v => v !== null && v !== undefined),
@@ -149,9 +149,7 @@ function ThreadSettingsGeneralTab(
             value={firstLine(queuedChanges.name ?? threadInfo.name)}
             placeholder={threadNamePlaceholder}
             onChange={onChangeName}
-            disabled={
-              threadSettingsOperationInProgress || threadNameInputDisabled
-            }
+            disabled={inputDisabled || threadNameInputDisabled}
             ref={nameInputRef}
           />
         </div>
@@ -163,7 +161,7 @@ function ThreadSettingsGeneralTab(
             value={queuedChanges.description ?? threadInfo.description ?? ''}
             placeholder="Thread description"
             onChange={onChangeDescription}
-            disabled={threadSettingsOperationInProgress}
+            disabled={inputDisabled}
             rows={3}
           />
         </div>
@@ -180,7 +178,7 @@ function ThreadSettingsGeneralTab(
       <Button
         type="submit"
         onClick={onSubmit}
-        disabled={threadSettingsOperationInProgress || !changeQueued}
+        disabled={inputDisabled || !changeQueued}
         className={css.save_button}
       >
         Save
