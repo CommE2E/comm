@@ -110,14 +110,11 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       );
     }
 
-    const inputDisabled =
-      changeInProgress || !hasPermissionForTab(threadInfo, currentTabType);
-
     const tabs = [
       <Tabs.Item id="general" header="General" key="general">
         <div className={css.tab_body}>
           <ThreadSettingsGeneralTab
-            inputDisabled={inputDisabled}
+            threadSettingsOperationInProgress={changeInProgress}
             threadInfo={threadInfo}
             threadNamePlaceholder={namePlaceholder}
             queuedChanges={queuedChanges}
@@ -143,7 +140,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         <Tabs.Item id="privacy" header="Privacy" key="privacy">
           <div className={css.tab_body}>
             <ThreadSettingsPrivacyTab
-              inputDisabled={inputDisabled}
+              threadSettingsOperationInProgress={changeInProgress}
               threadInfo={threadInfo}
               queuedChanges={queuedChanges}
               setQueuedChanges={setQueuedChanges}
@@ -161,7 +158,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         <Tabs.Item id="delete" header="Delete" key="delete">
           <div className={css.tab_body}>
             <ThreadSettingsDeleteTab
-              inputDisabled={inputDisabled}
+              threadSettingsOperationInProgress={changeInProgress}
               threadInfo={threadInfo}
               setErrorMessage={setErrorMessage}
             />
