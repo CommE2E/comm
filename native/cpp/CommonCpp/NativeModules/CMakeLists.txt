@@ -20,8 +20,6 @@ add_library(comm-modules-internal
   ${INTERNAL_SRCS}
 )
 
-set_target_properties(comm-modules-internal PROPERTIES LINKER_LANGUAGE CXX)
-
 target_link_libraries(comm-modules-internal
   comm-tools
   )
@@ -32,7 +30,7 @@ set(NATIVE_HDRS
   "include/comm/Native/ThreadStoreOperations.h"
   )
 
-set(INTERNAL_SRCS
+set(NATIVE_SRCS
   "src/Native/CommCoreModule.cpp"
   )
 
@@ -54,15 +52,20 @@ target_include_directories(comm-modules-native
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE
+  # HACK
+  "../../../node_modules/react-native/ReactCommon/jsi"
+  "../../../node_modules/react-native/ReactCommon/react/nativemodule/core"
+  "../../../node_modules/react-native/ReactCommon/callinvoker"
 )
 
 set(_components internal native)
 foreach(_component ${_components})
 
   install(TARGETS comm-modules-${_component} EXPORT comm-modules-export
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-tools
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-tools
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-tools
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-modules
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
   )
 
 endforeach()
@@ -72,7 +75,7 @@ install(FILES ${NATIVE_HDRS} DESTINATION include/comm/Native)
 
 # For development purposes, can point cmake to this directory if doing development
 export(TARGETS comm-modules-internal comm-modules-native
-  NAMESPACE comm-tools::
+  NAMESPACE comm-modules::
   FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm-modules/comm-modules-targets.cmake
 )
 

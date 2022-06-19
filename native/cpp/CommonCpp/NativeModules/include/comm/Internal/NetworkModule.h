@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SocketStatus.h"
+#include <comm/Internal/SocketStatus.h>
 #include <comm/grpc/Client.h>
 #include <memory>
 #include <string>
