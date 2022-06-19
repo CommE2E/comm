@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../CryptoTools/Persist.h"
-#include "entities/Draft.h"
-#include "entities/Media.h"
-#include "entities/Message.h"
-#include "entities/OlmPersistAccount.h"
-#include "entities/OlmPersistSession.h"
-#include "entities/Thread.h"
+#include <comm/CryptoTools/Persist.h>
+#include <comm/DatabaseManagers/entities/Draft.h>
+#include <comm/DatabaseManagers/entities/Media.h>
+#include <comm/DatabaseManagers/entities/Message.h>
+#include <comm/DatabaseManagers/entities/OlmPersistAccount.h>
+#include <comm/DatabaseManagers/entities/OlmPersistSession.h>
+#include <comm/DatabaseManagers/entities/Thread.h>
 
 #include <folly/Optional.h>
 

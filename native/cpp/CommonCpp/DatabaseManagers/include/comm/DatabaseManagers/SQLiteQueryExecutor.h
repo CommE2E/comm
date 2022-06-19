@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../CryptoTools/Persist.h"
-#include "DatabaseQueryExecutor.h"
-#include "entities/Draft.h"
+#include <comm/CryptoTools/Persist.h>
+#include <comm/DatabaseManagers/DatabaseQueryExecutor.h>
+#include <comm/DatabaseManagers/entities/Draft.h>
 
 #include <mutex>
 #include <string>

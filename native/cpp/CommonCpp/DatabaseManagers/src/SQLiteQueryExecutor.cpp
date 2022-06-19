@@ -1,10 +1,10 @@
-#include "SQLiteQueryExecutor.h"
-#include "CommSecureStore.h"
-#include "Logger.h"
-#include "sqlite_orm.h"
+#include <comm/DatabaseManagers/SQLiteQueryExecutor.h>
+#include <comm/Tools/CommSecureStore.h>
+#include <comm/Tools/Logger.h>
+#include <sqlite_orm.h>
 
-#include "entities/Media.h"
-#include "entities/Metadata.h"
+#include <comm/DatabaseManagers/entities/Media.h>
+#include <comm/DatabaseManagers/entities/Metadata.h>
 #include <sqlite3.h>
 #include <cerrno>
 #include <cstdio>
