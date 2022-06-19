@@ -33,3 +33,6 @@ target_link_libraries(comm-cryptotools
   comm-tools
   )
 
+target_link_libraries(comm-databasemanagers
+  comm-cryptotools
+  )
