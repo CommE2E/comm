@@ -29,4 +29,7 @@ target_link_libraries(comm-modules-internal
   comm-client
   )
 
+target_link_libraries(comm-cryptotools
+  comm-tools
+  )
 
