@@ -28,3 +28,7 @@ target_link_libraries(comm-modules-internal
   comm-grpc
   comm-client
 )
+
+target_link_libraries(comm-cryptotools
+  comm-tools
+)
