@@ -1,5 +1,7 @@
-#include "Session.h"
-#include "PlatformSpecificTools.h"
+#include <comm/CryptoTools/Session.h>
+#include <comm/Tools/PlatformSpecificTools.h>
+
+#include <stdexcept>
 
 namespace comm {
 namespace crypto {
