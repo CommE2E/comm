@@ -58,19 +58,19 @@ set(CLIENT_SRCS
   "src/GRPCStreamHostObject.cpp"
   )
 
-add_library(client
+add_library(comm-client
   ${CLIENT_HDRS}
   ${CLIENT_SRCS}
 )
 
-target_link_libraries(client
+target_link_libraries(comm-client
   gRPC::grpc++
   protobuf::libprotobuf
   tunnelbroker
 )
 
 # reference local directory when building, use installation path when installing
-target_include_directories(client
+target_include_directories(comm-client
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -80,16 +80,16 @@ target_include_directories(client
   "../../../node_modules/react-native/ReactCommon/jsi"
 )
 
-install(TARGETS client EXPORT comm-export
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT client
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT client
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT client
+install(TARGETS comm-client EXPORT comm-export
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-client
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
 )
 
 install(FILES ${CLIENT_HDRS} DESTINATION include/comm/grpc)
 
 # For development purposes, can point cmake to this directory if doing development
-export(TARGETS ${_components} client
+export(TARGETS ${_components} comm-client
   NAMESPACE comm-grpc::
   FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm-grpc/comm-grpc-targets.cmake
 )
