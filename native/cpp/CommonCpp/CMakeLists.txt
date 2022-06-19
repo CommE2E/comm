@@ -7,6 +7,7 @@ include(GNUInstallDirs)
 
 add_subdirectory(Tools)
 add_subdirectory(grpc)
+add_subdirectory(CryptoTools)
 add_subdirectory(NativeModules)
 
 target_link_libraries(comm-client
@@ -25,4 +26,8 @@ target_link_libraries(comm-modules-internal
   comm-tunnelbroker-grpc
   comm-grpc
   comm-client
+)
+
+target_link_libraries(comm-cryptotools
+  comm-tools
 )
