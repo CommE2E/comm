@@ -18,27 +18,41 @@ protected:
   CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker);
 
 public:
-virtual jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) = 0;
-virtual jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
-virtual jsi::Value moveDraft(jsi::Runtime &rt, const jsi::String &oldKey, const jsi::String &newKey) = 0;
-virtual jsi::Value getAllDrafts(jsi::Runtime &rt) = 0;
-virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
-virtual jsi::Value getAllMessages(jsi::Runtime &rt) = 0;
-virtual jsi::Array getAllMessagesSync(jsi::Runtime &rt) = 0;
-virtual jsi::Value processMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) = 0;
-virtual bool processMessageStoreOperationsSync(jsi::Runtime &rt, const jsi::Array &operations) = 0;
-virtual jsi::Value getAllThreads(jsi::Runtime &rt) = 0;
-virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
-virtual jsi::Value processThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) = 0;
-virtual bool processThreadStoreOperationsSync(jsi::Runtime &rt, const jsi::Array &operations) = 0;
-virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) = 0;
-virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
-virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) = 0;
-virtual jsi::Object openSocket(jsi::Runtime &rt, const jsi::String &endpoint) = 0;
-virtual double getCodeVersion(jsi::Runtime &rt) = 0;
-virtual jsi::Value setNotifyToken(jsi::Runtime &rt, const jsi::String &token) = 0;
-virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;
-
+  virtual jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) = 0;
+  virtual jsi::Value
+  updateDraft(jsi::Runtime &rt, const jsi::Object &draft) = 0;
+  virtual jsi::Value moveDraft(
+      jsi::Runtime &rt,
+      const jsi::String &oldKey,
+      const jsi::String &newKey) = 0;
+  virtual jsi::Value getAllDrafts(jsi::Runtime &rt) = 0;
+  virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
+  virtual jsi::Value getAllMessages(jsi::Runtime &rt) = 0;
+  virtual jsi::Array getAllMessagesSync(jsi::Runtime &rt) = 0;
+  virtual jsi::Value processMessageStoreOperations(
+      jsi::Runtime &rt,
+      const jsi::Array &operations) = 0;
+  virtual bool processMessageStoreOperationsSync(
+      jsi::Runtime &rt,
+      const jsi::Array &operations) = 0;
+  virtual jsi::Value getAllThreads(jsi::Runtime &rt) = 0;
+  virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
+  virtual jsi::Value processThreadStoreOperations(
+      jsi::Runtime &rt,
+      const jsi::Array &operations) = 0;
+  virtual bool processThreadStoreOperationsSync(
+      jsi::Runtime &rt,
+      const jsi::Array &operations) = 0;
+  virtual jsi::Value
+  initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) = 0;
+  virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
+  virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) = 0;
+  virtual jsi::Object
+  openSocket(jsi::Runtime &rt, const jsi::String &endpoint) = 0;
+  virtual double getCodeVersion(jsi::Runtime &rt) = 0;
+  virtual jsi::Value
+  setNotifyToken(jsi::Runtime &rt, const jsi::String &token) = 0;
+  virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;
 };
 
 } // namespace react
