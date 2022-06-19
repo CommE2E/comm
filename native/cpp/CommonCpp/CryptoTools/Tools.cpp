@@ -1,5 +1,5 @@
-#include "Tools.h"
-#include "PlatformSpecificTools.h"
+#include <CryptoTools/Tools.h>
+#include <Tools/PlatformSpecificTools.h>
 
 #include <string>
 
