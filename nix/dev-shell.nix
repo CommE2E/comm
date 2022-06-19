@@ -8,6 +8,7 @@
 , cmake
 , cryptopp
 , darwin
+, fbjni
 , folly
 , fmt
 , grpc
@@ -59,6 +60,7 @@ mkShell {
 
   # include any libraries buildInputs
   buildInputs = [
+    fbjni # android builds
     protobuf_3_15_cmake # exposes both a library and a command, thus should appear in both inputs
     folly # cpp tools
     fmt # needed for folly

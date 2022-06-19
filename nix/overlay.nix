@@ -38,4 +38,6 @@ prev:
         ''${!outputDev}/include/olm
     '';
   });
+
+  fbjni = prev.callPackage ./fbjni.nix { };
 }
