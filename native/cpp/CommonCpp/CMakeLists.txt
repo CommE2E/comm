@@ -10,8 +10,6 @@ add_subdirectory(grpc)
 add_subdirectory(NativeModules)
 add_subdirectory(CryptoTools)
 add_subdirectory(DatabaseManagers)
-add_subdirectory(CryptoTools)
-add_subdirectory(DatabaseManagers)
 
 target_link_libraries(comm-client
   comm-modules-internal
@@ -35,3 +33,6 @@ target_link_libraries(comm-cryptotools
   comm-tools
   )
 
+target_link_libraries(comm-databasemanagers
+  comm-cryptotools
+  )
