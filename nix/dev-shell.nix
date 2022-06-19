@@ -15,6 +15,7 @@
 , cryptopp
 , darwin
 , double-conversion
+, fbjni
 , folly
 , fmt
 , glog
@@ -96,6 +97,7 @@ mkShell {
     double-conversion # tunnelbroker
     glog # tunnelbroker
     gtest # testing services
+    fbjni # android builds
     folly # cpp tools
     fmt # needed for folly
     boost # needed for folly

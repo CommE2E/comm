@@ -58,6 +58,11 @@ prev:
 
   localstack-up = prev.callPackage ./localstack-up.nix { };
 
+  # Ensure our version of openjdk is used
+  fbjni = prev.callPackage ./fbjni.nix {
+    openjdk = prev.openjdk8;
+  };
+
   # Make our version of mariadb the default everywhere
   mariadb = prev.mariadb_108;
 
