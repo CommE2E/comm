@@ -1,6 +1,8 @@
-#include "CryptoModule.h"
-#include "PlatformSpecificTools.h"
-#include "olm/session.hh"
+#include <comm/CryptoTools/CryptoModule.h>
+#include <comm/Tools/PlatformSpecificTools.h>
+#include <olm/session.hh>
+
+#include <stdexcept>
 
 namespace comm {
 namespace crypto {
