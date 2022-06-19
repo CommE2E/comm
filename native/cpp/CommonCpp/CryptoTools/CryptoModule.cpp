@@ -2,6 +2,8 @@
 #include "PlatformSpecificTools.h"
 #include "olm/session.hh"
 
+#include <stdexcept>
+
 namespace comm {
 namespace crypto {
 
