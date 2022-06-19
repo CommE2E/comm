@@ -20,4 +20,9 @@ prev:
   mysql-down = prev.callPackage ./mysql-down-linux.nix { };
 
   mysql-up = prev.callPackage ./mysql-up-linux.nix { };
+
+  arcanist = prev.arcanist.override(_: {
+    # php8.1 will cause warnings to throw as exceptions around calling strlen() with null
+    php = prev.php80;
+  });
 }
