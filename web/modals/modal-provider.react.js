@@ -30,7 +30,7 @@ function ModalProvider(props: Props): React.Node {
     $ReadOnlyArray<[React.Node, string]>,
   >([]);
   const popModal = React.useCallback(
-    () => setModals(oldModals => oldModals.slice(0, oldModals.length - 1)),
+    () => setModals(oldModals => oldModals.slice(0, -1)),
     [],
   );
   const pushModal = React.useCallback(newModal => {
