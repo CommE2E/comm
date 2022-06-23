@@ -38,12 +38,10 @@ button.menuAction {
   background-color: transparent;
   padding: 12px 16px;
   line-height: 1.5;
-  background-color: transparent;
   border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
-  color: inherit;
   font-size: inherit;
 }
 
