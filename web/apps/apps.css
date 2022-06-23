@@ -6,7 +6,7 @@ div.appsDirectoryContainer {
 
 h4.appsHeader {
   color: var(--fg);
-  padding: 20px 0px 40px 40px;
+  padding: 20px 0 40px 40px;
   font-weight: var(--semi-bold);
 }
 

@@ -237,7 +237,7 @@ button.menuContent:hover {
 }
 
 ul.list {
-  margin: 5px 3px 10px 0px;
+  margin: 5px 3px 10px 0;
   overflow: auto;
 }
 
