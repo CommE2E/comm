@@ -42,7 +42,7 @@ message PakeLoginResponse {
     // Answer sent to the user upon reception of the PAKE login attempt,
     // containing a sealed envelope with the user's private key (step 2)
     bytes pakeCredentialResponse = 1;
-    string token = 2;
+    string accessToken = 2;
   }
 }
 
@@ -58,12 +58,12 @@ message PakeRegistrationUploadAndCredentialRequest {
 message WalletLoginRequest {
   string userID = 1;
   string deviceID = 2;
-  string walletAddress = 3;
-  bytes signedMessage = 4;
+  string siweMessage = 3;
+  bytes siweSignature = 4;
 }
 
 message WalletLoginResponse {
-  bytes token = 1;
+  string accessToken = 1;
 }
 
 // RegisterUser
@@ -110,7 +110,7 @@ message LoginResponse {
 message VerifyUserTokenRequest {
   string userID = 1;
   string deviceID = 2;
-  string token = 3;
+  string accessToken = 3;
 }
 
 message VerifyUserTokenResponse {
