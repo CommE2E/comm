@@ -62,12 +62,12 @@ impl IdentityService for MyIdentityService {
     let message = request.into_inner();
     let token_valid = match self
       .client
-      .get_access_token_data(message.user_id, message.device_id)
+      .get_token(message.user_id, message.device_id)
       .await
     {
-      Ok(Some(access_token_data)) => constant_time_eq(
-        access_token_data.access_token.as_bytes(),
-        message.access_token.as_bytes(),
+      Ok(Some(access_token)) => constant_time_eq(
+        access_token.token.as_bytes(),
+        message.token.as_bytes(),
       ),
       Ok(None) => false,
       Err(Error::RusotoGet(RusotoError::Service(

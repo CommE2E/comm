@@ -11,7 +11,7 @@ use rusoto_dynamodb::{
 use tracing::{error, info};
 
 use crate::opaque::Cipher;
-use crate::token::{AccessTokenData, AuthType};
+use crate::token::{AccessToken, AuthType};
 
 pub struct DatabaseClient {
   client: DynamoDbClient,
@@ -108,11 +108,11 @@ impl DatabaseClient {
     self.client.put_item(input).await
   }
 
-  pub async fn get_access_token_data(
+  pub async fn get_token(
     &self,
     user_id: String,
     device_id: String,
-  ) -> Result<Option<AccessTokenData>, Error> {
+  ) -> Result<Option<AccessToken>, Error> {
     let primary_key = create_composite_primary_key(
       ("userID".to_string(), user_id.clone()),
       ("deviceID".to_string(), device_id.clone()),
@@ -132,11 +132,11 @@ impl DatabaseClient {
         let created = parse_created_attribute(item.remove("created"))?;
         let auth_type = parse_auth_type_attribute(item.remove("authType"))?;
         let valid = parse_valid_attribute(item.remove("valid"))?;
-        let access_token = parse_token_attribute(item.remove("token"))?;
-        Ok(Some(AccessTokenData {
+        let token = parse_token_attribute(item.remove("token"))?;
+        Ok(Some(AccessToken {
           user_id,
           device_id,
-          access_token,
+          token,
           created,
           auth_type,
           valid,
@@ -159,9 +159,9 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn put_access_token_data(
+  pub async fn put_token(
     &self,
-    access_token_data: AccessTokenData,
+    token: AccessToken,
   ) -> Result<PutItemOutput, Error> {
     let input = PutItemInput {
       table_name: "identity-tokens".to_string(),
@@ -169,35 +169,35 @@ impl DatabaseClient {
         (
           "userID".to_string(),
           AttributeValue {
-            s: Some(access_token_data.user_id),
+            s: Some(token.user_id),
             ..Default::default()
           },
         ),
         (
           "deviceID".to_string(),
           AttributeValue {
-            s: Some(access_token_data.device_id),
+            s: Some(token.device_id),
             ..Default::default()
           },
         ),
         (
           "token".to_string(),
           AttributeValue {
-            s: Some(access_token_data.access_token),
+            s: Some(token.token),
             ..Default::default()
           },
         ),
         (
           "created".to_string(),
           AttributeValue {
-            s: Some(access_token_data.created.to_rfc3339()),
+            s: Some(token.created.to_rfc3339()),
             ..Default::default()
           },
         ),
         (
           "authType".to_string(),
           AttributeValue {
-            s: Some(match access_token_data.auth_type {
+            s: Some(match token.auth_type {
               AuthType::Password => "password".to_string(),
               AuthType::Wallet => "wallet".to_string(),
             }),
@@ -207,7 +207,7 @@ impl DatabaseClient {
         (
           "valid".to_string(),
           AttributeValue {
-            bool: Some(access_token_data.valid),
+            bool: Some(token.valid),
             ..Default::default()
           },
         ),

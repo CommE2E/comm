@@ -9,26 +9,26 @@ pub enum AuthType {
   Wallet,
 }
 
-pub struct AccessTokenData {
+pub struct AccessToken {
   pub user_id: String,
   pub device_id: String,
-  pub access_token: String,
+  pub token: String,
   pub created: DateTime<Utc>,
   pub auth_type: AuthType,
   pub valid: bool,
 }
 
-impl AccessTokenData {
+impl AccessToken {
   pub fn new(
     user_id: String,
     device_id: String,
     auth_type: AuthType,
     rng: &mut (impl Rng + CryptoRng),
   ) -> Self {
-    AccessTokenData {
+    AccessToken {
       user_id,
       device_id,
-      access_token: Alphanumeric.sample_string(rng, 512),
+      token: Alphanumeric.sample_string(rng, 512),
       created: Utc::now(),
       auth_type,
       valid: true,
