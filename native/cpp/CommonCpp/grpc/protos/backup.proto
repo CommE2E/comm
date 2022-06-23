@@ -29,10 +29,10 @@ service BackupService {
 // CreateNewBackup
 
 message CreateNewBackupRequest {
+  string userID = 1;
+  string deviceID = 2;
+  bytes keyEntropy = 3;
   oneof data {
-    string userID = 1;
-    string deviceID = 2;
-    bytes keyEntropy = 3;
     bytes newCompactionHash = 4;
     bytes newCompactionChunk = 5;
   }
@@ -45,11 +45,15 @@ message CreateNewBackupResponse {
 // SendLog
 
 message SendLogRequest {
-  oneof data {
+  message LogInfo {
     string userID = 1;
     string backupID = 2;
     bytes logHash = 3;
-    bytes logData = 4;
+  }
+  
+  oneof data {
+    LogInfo logInfo = 1;
+    bytes logData = 2;
   }
 }
 

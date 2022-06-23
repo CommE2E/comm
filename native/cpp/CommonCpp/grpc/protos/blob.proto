@@ -13,10 +13,14 @@ service BlobService {
 // Put
 
 message PutRequest {
-  oneof data {
+  message BlobInfo {
     string holder = 1;
     string blobHash = 2;
-    bytes dataChunk = 3;
+  }
+  
+  oneof data {
+    BlobInfo blobInfo = 1;
+    bytes dataChunk = 2;
   }
 }
 
