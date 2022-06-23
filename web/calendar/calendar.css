@@ -137,7 +137,6 @@ span.rightActionLinks {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
-  display: inline-block;
   overflow: hidden;
 }
 div.actionLinks svg {
