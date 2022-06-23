@@ -4,11 +4,13 @@ use rand::{
   CryptoRng, Rng,
 };
 
+#[derive(Clone)]
 pub enum AuthType {
   Password,
   Wallet,
 }
 
+#[derive(Clone)]
 pub struct AccessTokenData {
   pub user_id: String,
   pub device_id: String,
