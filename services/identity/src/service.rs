@@ -44,6 +44,7 @@ mod proto {
   tonic::include_proto!("identity");
 }
 
+#[derive(Debug)]
 enum PakeWorkflow {
   Registration,
   Login,
@@ -354,6 +355,59 @@ async fn pake_login_start(
     Err(e) => {
       error!(
         "Encountered a PAKE protocol error when starting login: {}",
+        e
+      );
+      Err(Status::aborted("server error"))
+    }
+  }
+}
+
+async fn pake_login_finish(
+  user_id: &str,
+  device_id: &str,
+  client: DatabaseClient,
+  server_login: Option<ServerLogin<Cipher>>,
+  pake_credential_finalization: &[u8],
+  rng: &mut (impl Rng + CryptoRng),
+  num_messages_received: u8,
+  pake_workflow: PakeWorkflow,
+) -> Result<PakeLoginResponseStruct, Status> {
+  if (num_messages_received != 1
+    && matches!(pake_workflow, PakeWorkflow::Login))
+    || (num_messages_received != 2
+      && matches!(pake_workflow, PakeWorkflow::Registration))
+  {
+    error!("Too many messages received in stream, aborting");
+    return Err(Status::aborted("please retry"));
+  }
+  if user_id.is_empty() || device_id.is_empty() {
+    error!(
+      "Incomplete data: user ID {}, device ID {}",
+      user_id, device_id
+    );
+    return Err(Status::aborted("user not found"));
+  }
+  match server_login
+    .ok_or_else(|| {
+      error!("Server login missing in {:?} PAKE workflow", pake_workflow);
+      Status::aborted("login failed")
+    })?
+    .finish(
+      CredentialFinalization::deserialize(pake_credential_finalization)
+        .map_err(|e| {
+          error!("Failed to deserialize credential finalization bytes: {}", e);
+          Status::aborted("login failed")
+        })?,
+    ) {
+    Ok(_) => Ok(PakeLoginResponseStruct {
+      data: Some(AccessToken(
+        put_token_helper(client, AuthType::Password, user_id, device_id, rng)
+          .await?,
+      )),
+    }),
+    Err(e) => {
+      error!(
+        "Encountered a PAKE protocol error when finishing login: {}",
         e
       );
       Err(Status::aborted("server error"))
