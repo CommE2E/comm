@@ -26,7 +26,7 @@ nav.wrapper {
   font-size: 24px;
   font-weight: 500;
   color: #808080;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--sans-serif);
   transition: 150ms;
   transition-property: color;
 }

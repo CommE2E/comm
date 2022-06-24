@@ -8,12 +8,13 @@
   --btn-color: var(--white1);
   --logo-color: var(--white);
   --sub-heading-color: var(--purple);
+  --sans-serif: 'IBM Plex Sans', sans-serif;
 }
 
 /* ===== GENERAL PAGE STYLES ===== */
 html {
   background: radial-gradient(ellipse at bottom, #1f252e, #111827) fixed;
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--sans-serif);
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   color: white;
