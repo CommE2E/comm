@@ -34,6 +34,7 @@ use proto::{
   pake_login_response::Data::PakeCredentialResponse, LoginRequest,
   LoginResponse,
   PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
+  PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
   RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
   WalletLoginRequest as WalletLoginRequestStruct,
@@ -82,46 +83,103 @@ impl IdentityService for MyIdentityService {
   ) -> Result<Response<Self::LoginUserStream>, Status> {
     let mut in_stream = request.into_inner();
     let (tx, rx) = mpsc::channel(1);
+    let config = self.config.clone();
     let client = self.client.clone();
     tokio::spawn(async move {
+      let mut user_id: String = String::new();
+      let mut device_id: String = String::new();
+      let mut server_login: Option<ServerLogin<Cipher>> = None;
       let mut num_messages_received = 0;
       while let Some(message) = in_stream.next().await {
         match message {
-          Ok(login_request) => {
-            if let Some(data) = login_request.data {
-              match data {
-                WalletLoginRequest(req) => {
-                  if let Err(e) = tx
-                    .send(
-                      wallet_login_helper(
-                        client,
-                        req,
-                        &mut OsRng,
-                        num_messages_received,
-                      )
-                      .await,
-                    )
-                    .await
-                  {
-                    error!("Response was dropped: {}", e);
-                  }
-                  break;
-                }
-                PakeLoginRequest(_) => unimplemented!(),
-              }
-            } else {
-              error!("Received empty login request");
-              if let Err(e) = tx
-                .send(Err(Status::invalid_argument("invalid message")))
+          Ok(LoginRequest {
+            data: Some(WalletLoginRequest(req)),
+          }) => {
+            if let Err(e) = tx
+              .send(
+                wallet_login_helper(
+                  client,
+                  req,
+                  &mut OsRng,
+                  num_messages_received,
+                )
+                .await,
+              )
+              .await
+            {
+              error!("Response was dropped: {}", e);
+            }
+            break;
+          }
+          Ok(LoginRequest {
+            data:
+              Some(PakeLoginRequest(PakeLoginRequestStruct {
+                data:
+                  Some(PakeCredentialRequestAndUserId(
+                    pake_credential_request_and_user_id,
+                  )),
+              })),
+          }) => {
+            if let Err(e) = tx
+              .send(
+                pake_login_start(
+                  config.clone(),
+                  client.clone(),
+                  &pake_credential_request_and_user_id.user_id,
+                  &pake_credential_request_and_user_id.pake_credential_request,
+                  num_messages_received,
+                  PakeWorkflow::Login,
+                )
                 .await
-              {
-                error!("Response was dropped: {}", e);
-              }
+                .map(|pake_login_response_and_server_login| {
+                  server_login = Some(pake_login_response_and_server_login.1);
+                  LoginResponse {
+                    data: Some(PakeLoginResponse(
+                      pake_login_response_and_server_login.0,
+                    )),
+                  }
+                }),
+              )
+              .await
+            {
+              error!("Response was dropped: {}", e);
               break;
             }
+            user_id = pake_credential_request_and_user_id.user_id;
+            device_id = pake_credential_request_and_user_id.device_id;
           }
-          Err(e) => {
-            error!("Received an unexpected error: {}", e);
+          Ok(LoginRequest {
+            data:
+              Some(PakeLoginRequest(PakeLoginRequestStruct {
+                data:
+                  Some(PakeCredentialFinalization(pake_credential_finalization)),
+              })),
+          }) => {
+            if let Err(e) = tx
+              .send(
+                pake_login_finish(
+                  &user_id,
+                  &device_id,
+                  client,
+                  server_login,
+                  &pake_credential_finalization,
+                  &mut OsRng,
+                  num_messages_received,
+                  PakeWorkflow::Login,
+                )
+                .await
+                .map(|pake_login_response| LoginResponse {
+                  data: Some(PakeLoginResponse(pake_login_response)),
+                }),
+              )
+              .await
+            {
+              error!("Response was dropped: {}", e);
+            }
+            break;
+          }
+          unexpected => {
+            error!("Received an unexpected Result: {:?}", unexpected);
             if let Err(e) = tx.send(Err(Status::unknown("unknown error"))).await
             {
               error!("Response was dropped: {}", e);
