@@ -5,4 +5,4 @@
 
 set -e
 
-HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose ${@:1}
+HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose "$@"
