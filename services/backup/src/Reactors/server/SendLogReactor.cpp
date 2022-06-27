@@ -95,7 +95,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
           this->persistenceMethod = PersistenceMethod::DB;
           this->value = std::move(*chunk);
           this->storeInDatabase();
-          return std::make_unique<grpc::Status>(grpc::Status::OK);
+          return nullptr;
         } else if (this->persistenceMethod == PersistenceMethod::BLOB) {
           this->initializePutReactor();
           this->putReactor->scheduleSendingDataChunk(std::move(chunk));
