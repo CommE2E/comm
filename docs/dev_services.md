@@ -85,17 +85,17 @@ This will start the LocalStack Docker image and initialize required resources, i
 To start a certain service in the sandbox you can run the following command:
 
 ```
-yarn run-[service-name]-service-dev-mode
+yarn run-[service-name]-service-in-sandbox
 ```
 
 For example, for Tunnelbroker the command will look like this: 
 
 ```
-yarn run-tunnelbroker-service-dev-mode
+yarn run-tunnelbroker-service-in-sandbox
 ```
 
 You can also run all services at once in the sandbox using the command below: 
 
 ```
-yarn run-all-services-dev-mode
+yarn run-all-services-in-sandbox
 ```

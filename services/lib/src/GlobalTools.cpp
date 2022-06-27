@@ -34,8 +34,8 @@ std::string decorateTableName(const std::string &baseName) {
   return baseName + suffix;
 }
 
-bool isDevMode() {
-  return hasEnvFlag("COMM_SERVICES_DEV_MODE");
+bool isSandbox() {
+  return hasEnvFlag("COMM_SERVICES_SANDBOX");
 }
 
 std::string generateUUID() {

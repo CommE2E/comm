@@ -15,7 +15,7 @@ bool hasEnvFlag(const std::string &flag);
 
 std::string decorateTableName(const std::string &baseName);
 
-bool isDevMode();
+bool isSandbox();
 
 std::string generateUUID();
 

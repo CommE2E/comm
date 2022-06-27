@@ -12,7 +12,7 @@ services:
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
-        - COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
+        - COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
     image: commapp/tunnelbroker-server:0.2
     ports:
       - "${COMM_SERVICES_PORT_TUNNELBROKER}:50051"
@@ -30,7 +30,7 @@ services:
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
-        - COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
+        - COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
     image: commapp/backup-server:0.1
     ports:
       - "${COMM_SERVICES_PORT_BACKUP}:50051"
@@ -45,7 +45,7 @@ services:
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
-        - COMM_SERVICES_DEV_MODE=${COMM_SERVICES_DEV_MODE}
+        - COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
     image: commapp/blob-server:0.1
     ports:
       - "${COMM_SERVICES_PORT_BLOB}:50051"

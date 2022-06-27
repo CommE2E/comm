@@ -38,7 +38,7 @@ void RunAmqpClient() {
 void InitLogging(const char *programName) {
   FLAGS_logtostderr = true;
   FLAGS_colorlogtostderr = true;
-  if (comm::network::tools::isDevMode()) {
+  if (comm::network::tools::isSandbox()) {
     // Log levels INFO, WARNING, ERROR, FATAL are 0, 1, 2, 3, respectively
     FLAGS_minloglevel = 0;
   } else {
@@ -52,7 +52,7 @@ void InitLogging(const char *programName) {
 
 int main(int argc, char **argv) {
   comm::network::InitLogging(argv[0]);
-  if (comm::network::tools::isDevMode()) {
+  if (comm::network::tools::isSandbox()) {
     comm::network::config::ConfigManager::getInstance().load(
         comm::network::DEV_CONFIG_FILE_PATH);
   } else {
