@@ -1,12 +1,12 @@
 use chrono::Utc;
 use constant_time_eq::constant_time_eq;
 use futures_core::Stream;
-use opaque_ke::ServerRegistration;
 use opaque_ke::{
   CredentialFinalization, CredentialRequest,
   RegistrationRequest as PakeRegistrationRequest, ServerLogin,
   ServerLoginStartParameters,
 };
+use opaque_ke::{RegistrationUpload, ServerRegistration};
 use rand::rngs::OsRng;
 use rand::{CryptoRng, Rng};
 use rusoto_core::RusotoError;
@@ -574,5 +574,54 @@ async fn pake_registration_start(
       );
       Err(Status::aborted("server error"))
     }
+  }
+}
+
+async fn pake_registration_finish(
+  user_id: &str,
+  client: DatabaseClient,
+  registration_upload_bytes: &[u8],
+  server_registration: Option<ServerRegistration<Cipher>>,
+  num_messages_received: u8,
+) -> Result<(), Status> {
+  if num_messages_received != 1 {
+    error!("Too many messages received in stream, aborting");
+    return Err(Status::aborted("please retry"));
+  }
+  if user_id.is_empty() {
+    error!("Incomplete data: user ID not provided");
+    return Err(Status::aborted("user not found"));
+  }
+  let server_registration_finish_result = server_registration
+    .ok_or_else(|| Status::aborted("registration failed"))?
+    .finish(
+      RegistrationUpload::deserialize(registration_upload_bytes).map_err(
+        |e| {
+          error!("Failed to deserialize registration upload bytes: {}", e);
+          Status::aborted("registration failed")
+        },
+      )?,
+    )
+    .map_err(|e| {
+      error!(
+        "Encountered a PAKE protocol error when finishing registration: {}",
+        e
+      );
+      Status::aborted("server error")
+    })?;
+
+  match client
+    .put_pake_registration(
+      user_id.to_string(),
+      server_registration_finish_result,
+    )
+    .await
+  {
+    Ok(_) => Ok(()),
+    Err(RusotoError::Service(PutItemError::ResourceNotFound(_)))
+    | Err(RusotoError::Credentials(_)) => {
+      Err(Status::failed_precondition("internal error"))
+    }
+    Err(_) => Err(Status::unavailable("please retry")),
   }
 }
