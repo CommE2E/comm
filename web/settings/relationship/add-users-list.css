@@ -52,3 +52,12 @@
   visibility: hidden;
   height: 0;
 }
+
+.error {
+  padding-bottom: 8px;
+  font-size: var(--s-font-14);
+  line-height: var(--line-height-display);
+  color: var(--error);
+  padding-left: 6px;
+  font-style: italic;
+}

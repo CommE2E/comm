@@ -185,15 +185,22 @@ function AddUsersList(props: Props): React.Node {
     [filteredUsers, selectUser],
   );
 
+  const [errorMessage, setErrorMessage] = React.useState('');
   const callUpdateRelationships = useServerCall(updateRelationships);
   const dispatchActionPromise = useDispatchActionPromise();
   const updateRelationshipsPromiseCreator = React.useCallback(async () => {
-    const result = await callUpdateRelationships({
-      action: relationshipAction,
-      userIDs: Array.from(pendingUserIDs),
-    });
-    closeModal();
-    return result;
+    try {
+      setErrorMessage('');
+      const result = await callUpdateRelationships({
+        action: relationshipAction,
+        userIDs: Array.from(pendingUserIDs),
+      });
+      closeModal();
+      return result;
+    } catch (e) {
+      setErrorMessage('unknown error');
+      throw e;
+    }
   }, [callUpdateRelationships, closeModal, pendingUserIDs, relationshipAction]);
   const confirmSelection = React.useCallback(
     () =>
@@ -214,10 +221,16 @@ function AddUsersList(props: Props): React.Node {
     );
   }
 
+  let errors;
+  if (errorMessage) {
+    errors = <div className={css.error}>{errorMessage}</div>;
+  }
+
   return (
     <div className={css.container}>
       {userTags}
       <div className={css.userRowsContainer}>{userRows}</div>
+      {errors}
       <div className={css.buttons}>
         <Button variant="secondary" onClick={closeModal}>
           Cancel
