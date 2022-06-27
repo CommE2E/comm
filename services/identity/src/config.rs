@@ -1,9 +1,10 @@
-use opaque_ke::{errors::PakeError, keypair::Key};
+use curve25519_dalek::ristretto::RistrettoPoint;
+use opaque_ke::{errors::PakeError, keypair::KeyPair};
 use std::{env, fs, io, path::Path};
 
-#[derive(Default, Debug)]
+#[derive(Debug, Clone)]
 pub struct Config {
-  server_secret_key: Option<Key>,
+  pub server_keypair: KeyPair<RistrettoPoint>,
 }
 
 impl Config {
@@ -12,9 +13,9 @@ impl Config {
     path.push("secrets");
     path.push("secret_key");
     path.set_extension("txt");
-    let key = get_key_from_file(path)?;
+    let keypair = get_keypair_from_file(path)?;
     Ok(Self {
-      server_secret_key: Some(key),
+      server_keypair: keypair,
     })
   }
 }
@@ -29,7 +30,10 @@ pub enum Error {
   IO(io::Error),
 }
 
-fn get_key_from_file<P: AsRef<Path>>(path: P) -> Result<Key, Error> {
+fn get_keypair_from_file<P: AsRef<Path>>(
+  path: P,
+) -> Result<KeyPair<RistrettoPoint>, Error> {
   let bytes = fs::read(path)?;
-  Key::from_bytes(&bytes).map_err(Error::Pake)
+  KeyPair::from_private_key_slice(&bytes)
+    .map_err(|e| Error::Pake(PakeError::CryptoError(e)))
 }
