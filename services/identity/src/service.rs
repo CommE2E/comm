@@ -104,28 +104,28 @@ impl IdentityService for MyIdentityService {
 async fn put_token_helper(
   client: DatabaseClient,
   auth_type: AuthType,
-  user_id: String,
-  device_id: String,
+  user_id: &str,
+  device_id: &str,
   rng: &mut (impl Rng + CryptoRng),
-) -> Result<LoginResponse, Status> {
-  let access_token_data =
-    AccessTokenData::new(user_id, device_id, auth_type.clone(), rng);
+) -> Result<String, Status> {
+  if user_id.is_empty() || device_id.is_empty() {
+    error!(
+      "Incomplete data: user ID \"{}\", device ID \"{}\"",
+      user_id, device_id
+    );
+    return Err(Status::aborted("user not found"));
+  }
+  let access_token_data = AccessTokenData::new(
+    user_id.to_string(),
+    device_id.to_string(),
+    auth_type.clone(),
+    rng,
+  );
   match client
     .put_access_token_data(access_token_data.clone())
     .await
   {
-    Ok(_) => match auth_type {
-      AuthType::Wallet => Ok(LoginResponse {
-        data: Some(WalletLoginResponse(WalletLoginResponseStruct {
-          access_token: access_token_data.access_token,
-        })),
-      }),
-      AuthType::Password => Ok(LoginResponse {
-        data: Some(PakeLoginResponse(PakeLoginResponseStruct {
-          data: Some(AccessToken(access_token_data.access_token)),
-        })),
-      }),
-    },
+    Ok(_) => Ok(access_token_data.access_token),
     Err(Error::RusotoPut(RusotoError::Service(
       PutItemError::ResourceNotFound(_),
     )))
