@@ -37,10 +37,9 @@ use proto::{
   registration_request::Data::PakeCredentialFinalization as PakeRegistrationCredentialFinalization,
   registration_request::Data::PakeRegistrationRequestAndUserId,
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
+  registration_response::Data::PakeLoginResponse as PakeRegistrationLoginResponse,
   registration_response::Data::PakeRegistrationResponse, LoginRequest,
-  LoginResponse,
-  PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
-  PakeLoginRequest as PakeLoginRequestStruct,
+  LoginResponse, PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
   RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
   WalletLoginRequest as WalletLoginRequestStruct,
@@ -125,15 +124,91 @@ impl IdentityService for MyIdentityService {
               Some(PakeRegistrationUploadAndCredentialRequest(
                 pake_registration_upload_and_credential_request,
               )),
-          }) => unimplemented!(),
+          }) => {
+            if let Err(e) = tx
+              .send(
+                match pake_registration_finish(
+                  &user_id,
+                  client.clone(),
+                  &pake_registration_upload_and_credential_request
+                    .pake_registration_upload,
+                  server_registration,
+                  num_messages_received,
+                )
+                .await
+                {
+                  Ok(_) => pake_login_start(
+                    config.clone(),
+                    client.clone(),
+                    &user_id.clone(),
+                    &pake_registration_upload_and_credential_request
+                      .pake_credential_request,
+                    num_messages_received,
+                    PakeWorkflow::Registration,
+                  )
+                  .await
+                  .map(
+                    |pake_login_response_and_server_login| {
+                      server_login =
+                        Some(pake_login_response_and_server_login.1);
+                      RegistrationResponse {
+                        data: Some(PakeRegistrationLoginResponse(
+                          pake_login_response_and_server_login.0,
+                        )),
+                      }
+                    },
+                  ),
+                  Err(e) => Err(e),
+                },
+              )
+              .await
+            {
+              error!("Response was dropped: {}", e);
+              break;
+            }
+            server_registration = None;
+          }
           Ok(RegistrationRequest {
             data:
               Some(PakeRegistrationCredentialFinalization(
                 pake_credential_finalization,
               )),
-          }) => unimplemented!(),
-
-          unexpected => unimplemented!(),
+          }) => {
+            if let Err(e) = tx
+              .send(
+                pake_login_finish(
+                  &user_id,
+                  &device_id,
+                  client,
+                  server_login,
+                  &pake_credential_finalization,
+                  &mut OsRng,
+                  num_messages_received,
+                  PakeWorkflow::Registration,
+                )
+                .await
+                .map(|pake_login_response| {
+                  RegistrationResponse {
+                    data: Some(PakeRegistrationLoginResponse(
+                      pake_login_response,
+                    )),
+                  }
+                }),
+              )
+              .await
+            {
+              error!("Response was dropped: {}", e);
+            }
+            break;
+          }
+          unexpected => {
+            error!("Received an unexpected Result: {:?}", unexpected);
+            if let Err(e) = tx.send(Err(Status::unknown("unknown error"))).await
+            {
+              error!("Response was dropped: {}", e);
+            }
+            break;
+          }
         }
         num_messages_received += 1;
       }
