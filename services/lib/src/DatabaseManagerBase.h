@@ -25,6 +25,12 @@ protected:
   innerFindItem(Aws::DynamoDB::Model::GetItemRequest &request);
 
   void innerRemoveItem(const Item &item);
+  void innerBatchWriteItem(
+      const std::string &tableName,
+      const size_t &chunkSize,
+      const size_t &backoffFirstRetryDelay,
+      const size_t &maxBackoffTime,
+      std::vector<Aws::DynamoDB::Model::WriteRequest> &writeRequests);
 };
 
 template <typename T>
