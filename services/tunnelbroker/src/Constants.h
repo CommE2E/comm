@@ -8,6 +8,8 @@ namespace comm {
 namespace network {
 
 // AWS DynamoDB
+const size_t DYNAMODB_MAX_BATCH_ITEMS = 25;
+
 const std::string DEVICE_SESSIONS_TABLE_NAME = "tunnelbroker-device-sessions";
 const std::string DEVICE_SESSIONS_VERIFICATION_MESSAGES_TABLE_NAME =
     "tunnelbroker-verification-messages";
