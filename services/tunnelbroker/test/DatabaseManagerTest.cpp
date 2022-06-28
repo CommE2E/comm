@@ -101,10 +101,41 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsGeneratedDataIsSame) {
       item.getMessageID());
 }
 
+TEST_F(DatabaseManagerTest, BatchPutAndFoundMessagesItemsCountIsSame) {
+  const std::string receiverID =
+      "web:JouLWf84zqRIsjBdHLOcHS9M4eSCz7VF84wT1uOD83u1qxDAqmqI4swmxNINjuhd";
+  const size_t itemsSize = 29;
+  std::vector<database::MessageItem> messageItems;
+
+  for (size_t i = 1; i <= itemsSize; ++i) {
+    database::MessageItem item{
+        tools::generateUUID(),
+        "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
+        receiverID,
+        tools::generateRandomString(256),
+        tools::generateRandomString(256)};
+    messageItems.push_back(item);
+  }
+  EXPECT_EQ(
+      database::DatabaseManager::getInstance().isTableAvailable(
+          MESSAGES_TABLE_NAME),
+      true);
+  database::DatabaseManager::getInstance().putMessageItemsByBatch(messageItems);
+  std::vector<std::shared_ptr<database::MessageItem>> foundItems =
+      database::DatabaseManager::getInstance().findMessageItemsByReceiver(
+          receiverID);
+  EXPECT_EQ(foundItems.size(), itemsSize);
+  for (std::shared_ptr<database::MessageItem> messageItem : foundItems) {
+    database::DatabaseManager::getInstance().removeMessageItem(
+        messageItem->getMessageID());
+  }
+}
+
 TEST_F(DatabaseManagerTest, PutAndFoundDeviceSessionItemStaticDataIsSame) {
   const database::DeviceSessionItem item(
       "bc0c1aa2-bf09-11ec-9d64-0242ac120002",
-      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm",
+      "mobile:"
+      "EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm",
       "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9Q9wodsQdZNynbTnC35hA4mFW"
       "mwZf9BhbI93aGAwPF9au0eYsawRz0jtYi4lSFXC9KleyQDg+6J+UW1kiWvE3ZRYG"
       "ECqgx4zqajPTzVt7EAOGaIh/dPyQ6x2Ul1GlkkSYXUhhixEzExGp9g84eCyVkbCB"
@@ -221,7 +252,8 @@ TEST_F(DatabaseManagerTest, PutAndFoundSessionSignItemGeneratedDataIsSame) {
 
 TEST_F(DatabaseManagerTest, PutAndFoundPublicKeyItemsStaticDataIsSame) {
   const database::PublicKeyItem item(
-      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm",
+      "mobile:"
+      "EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm",
       "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9Q9wodsQdZNynbTnC35hA4mFW"
       "mwZf9BhbI93aGAwPF9au0eYsawRz0jtYi4lSFXC9KleyQDg+6J+UW1kiWvE3ZRYG"
       "ECqgx4zqajPTzVt7EAOGaIh/dPyQ6x2Ul1GlkkSYXUhhixEzExGp9g84eCyVkbCB"
@@ -263,10 +295,12 @@ TEST_F(DatabaseManagerTest, PutAndFoundPublicKeyItemsGeneratedDataIsSame) {
 
 TEST_F(DatabaseManagerTest, PutAndFoundByReceiverMessageItemsDataIsSame) {
   const std::string receiverID =
-      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm";
+      "mobile:"
+      "EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm";
   const database::MessageItem item(
       "bc0c1aa2-bf09-11ec-9d64-0242ac120002",
-      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm",
+      "mobile:"
+      "EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm",
       receiverID,
       "lYlNcO6RR4i9UW3G1DGjdJTRRGbqtPya2aj94ZRjIGZWoHwT5MB9ciAgnQf2VafYb9Tl"
       "8SZkX37tg4yZ9pOb4lqslY4g4h58OmWjumghVRvrPUZDalUuK8OLs1Qoengpu9wccxAk"
