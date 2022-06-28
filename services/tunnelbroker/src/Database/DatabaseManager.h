@@ -24,6 +24,10 @@ namespace network {
 namespace database {
 
 class DatabaseManager : public DatabaseManagerBase {
+private:
+  template <class T>
+  T populatePutRequestFromMessageItem(T &putRequest, const MessageItem &item);
+
 public:
   static DatabaseManager &getInstance();
   bool isTableAvailable(const std::string &tableName);
@@ -43,6 +47,7 @@ public:
   void removePublicKeyItem(const std::string &deviceID);
 
   void putMessageItem(const MessageItem &item);
+  void putMessageItemsByBatch(std::vector<MessageItem> &messageItems);
   std::shared_ptr<MessageItem> findMessageItem(const std::string &messageID);
   std::vector<std::shared_ptr<MessageItem>>
   findMessageItemsByReceiver(const std::string &toDeviceID);

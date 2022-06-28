@@ -135,33 +135,60 @@ void DatabaseManager::removePublicKeyItem(const std::string &deviceID) {
   this->innerRemoveItem(*item);
 }
 
-void DatabaseManager::putMessageItem(const MessageItem &item) {
-  Aws::DynamoDB::Model::PutItemRequest request;
-  request.SetTableName(item.getTableName());
-  request.AddItem(
+template <class T>
+T DatabaseManager::populatePutRequestFromMessageItem(
+    T &putRequest,
+    const MessageItem &item) {
+  putRequest.AddItem(
       MessageItem::FIELD_MESSAGE_ID,
       Aws::DynamoDB::Model::AttributeValue(item.getMessageID()));
-  request.AddItem(
+  putRequest.AddItem(
       MessageItem::FIELD_FROM_DEVICE_ID,
       Aws::DynamoDB::Model::AttributeValue(item.getFromDeviceID()));
-  request.AddItem(
+  putRequest.AddItem(
       MessageItem::FIELD_TO_DEVICE_ID,
       Aws::DynamoDB::Model::AttributeValue(item.getToDeviceID()));
-  request.AddItem(
+  putRequest.AddItem(
       MessageItem::FIELD_PAYLOAD,
       Aws::DynamoDB::Model::AttributeValue(item.getPayload()));
-  request.AddItem(
+  putRequest.AddItem(
       MessageItem::FIELD_BLOB_HASHES,
       Aws::DynamoDB::Model::AttributeValue(item.getBlobHashes()));
-  request.AddItem(
+  putRequest.AddItem(
       MessageItem::FIELD_EXPIRE,
       Aws::DynamoDB::Model::AttributeValue(std::to_string(
           static_cast<size_t>(std::time(0) + MESSAGE_RECORD_TTL))));
-  request.AddItem(
+  putRequest.AddItem(
       MessageItem::FIELD_CREATED_AT,
       Aws::DynamoDB::Model::AttributeValue(
           std::to_string(tools::getCurrentTimestamp())));
+  return putRequest;
+}
+
+void DatabaseManager::putMessageItem(const MessageItem &item) {
+  Aws::DynamoDB::Model::PutItemRequest request;
+  request = this->populatePutRequestFromMessageItem(request, item);
+  request.SetTableName(item.getTableName());
   this->innerPutItem(std::make_shared<MessageItem>(item), request);
+}
+
+void DatabaseManager::putMessageItemsByBatch(
+    std::vector<MessageItem> &messageItems) {
+  std::vector<Aws::DynamoDB::Model::WriteRequest> writeRequests;
+  for (MessageItem &messageItem : messageItems) {
+    Aws::DynamoDB::Model::PutRequest putRequest;
+    putRequest =
+        this->populatePutRequestFromMessageItem(putRequest, messageItem);
+    Aws::DynamoDB::Model::WriteRequest writeRequest;
+    writeRequest.SetPutRequest(putRequest);
+    writeRequests.push_back(writeRequest);
+  }
+  this->innerBatchWriteItem(
+      MESSAGES_TABLE_NAME,
+      DYNAMODB_MAX_BATCH_ITEMS,
+      DYNAMODB_BACKOFF_FIRST_RETRY_DELAY,
+      DYNAMODB_MAX_BACKOFF_TIME,
+      writeRequests);
 }
 
 std::shared_ptr<MessageItem>
