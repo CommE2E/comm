@@ -50,7 +50,7 @@ uri = amqp://guest:guest@0.0.0.0/vhost
 
 # Building and running
 
-`services/package.json` provides useful scripts to build and run services. The `run` scripts will automatically build the services if necessary and run them. The `dev-mode` scripts allow you to use local instances of S3 and DynamoDB instead of the production ones.
+`services/package.json` provides useful scripts to build and run services. The `run` scripts will automatically build the services if necessary and run them.
 
 You can find the full list of scripts [here](https://github.com/CommE2E/comm/blob/master/services/package.json) in the `scripts` section.
 
@@ -59,3 +59,43 @@ You can find the full list of scripts [here](https://github.com/CommE2E/comm/blo
 ## Visual Studio Code
 
 If you are using Visual Studio Code as your code editor you can [attach to a Docker container](https://code.visualstudio.com/docs/remote/attach-container) and develop inside it.
+
+## Sandbox environment for services
+
+You can run the Comm services locally in a sandbox environment for development and testing purposes. The sandbox uses a [local cloud stack](https://localstack.cloud/) that includes DynamoDB and S3 running locally in Docker containers.
+
+The sandbox also includes a [RabbitMQ](https://www.rabbitmq.com/) Docker container, which is required by Tunnelbroker.
+
+### Configuration changes in the sandbox
+
+In your sandbox, services will connect to a local cloud stack, ignoring the `~/.aws` connection settings. The `-test` suffix is applied for all DynamoDB table names in this mode. Tunnelbroker will use the `services/tunnelbroker/tunnelbroker-dev.ini` configuration file and connect to a local instance of the RabbitMQ server.
+
+The log level in this mode is increased from ERROR to INFO.
+
+### Running services in the sandbox
+
+First, you need to initialize the local cloud using the following command from the the `services` directory:
+
+```
+yarn init-local-cloud
+```
+
+This will start the LocalStack Docker image and initialize required resources, including DynamoDB tables and S3 buckets, using [Terraform](https://www.terraform.io/) scripts located in `services/terraform`.
+
+To start a certain service in the sandbox you can run the following command:
+
+```
+yarn run-[service-name]-service-dev-mode
+```
+
+For example, for Tunnelbroker the command will look like this: 
+
+```
+yarn run-tunnelbroker-service-dev-mode
+```
+
+You can also run all services at once in the sandbox using the command below: 
+
+```
+yarn run-all-services-dev-mode
+```
