@@ -12,6 +12,63 @@
 @end
 
 @implementation EncryptedFileUtils
++ (void)writeData:(NSString *)data
+     toFileAtPath:(NSString *)path
+            error:(NSError **)err {
+  NSData *binary = [EncryptedFileUtils _encryptData:data error:err];
+  if (!binary) {
+    return;
+  }
+  [binary writeToFile:path atomically:YES];
+}
+
++ (void)appendData:(NSString *)data
+      toFileAtPath:(NSString *)path
+             error:(NSError **)err {
+  NSData *binary = [EncryptedFileUtils _encryptData:data error:err];
+  if (!binary) {
+    return;
+  }
+  NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath:path];
+  @try {
+    [fileHandle seekToEndOfFile];
+    [fileHandle writeData:[encryptedDataSeparator
+                              dataUsingEncoding:NSUTF8StringEncoding]];
+    [fileHandle writeData:binary];
+    [fileHandle closeFile];
+  } @catch (NSException *ex) {
+    *err = [NSError errorWithDomain:@"app.comm"
+                               code:NSFileWriteUnknownError
+                           userInfo:@{
+                             NSLocalizedDescriptionKey : ex.reason,
+                           }];
+  }
+}
+
++ (NSArray<NSString *> *)readFromFileAtPath:(NSString *)path
+                                      error:(NSError **)err {
+  NSString *fileContent =
+      [NSString stringWithContentsOfFile:path
+                                encoding:NSUTF8StringEncoding
+                                   error:err];
+  if (!fileContent) {
+    return nil;
+  }
+  NSMutableArray<NSString *> *decryptedDataItems =
+      [[NSMutableArray alloc] init];
+  NSMutableArray<NSString *> *encryptedDataItems = [[fileContent
+      componentsSeparatedByString:encryptedDataSeparator] mutableCopy];
+  [encryptedDataItems removeObject:@""];
+  for (NSString *encryptedDataItem in encryptedDataItems) {
+    NSString *decryptedDataItem =
+        [EncryptedFileUtils _decryptData:encryptedDataItem error:nil];
+    if (decryptedDataItem) {
+      [decryptedDataItems addObject:decryptedDataItem];
+    }
+  }
+  return decryptedDataItems;
+}
+
 + (NSData *)_encryptData:(NSString *)data error:(NSError **)error {
   NSData *encryptedData = [EncryptedFileUtils
       _runCryptor:[data dataUsingEncoding:NSUTF8StringEncoding]
