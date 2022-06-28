@@ -2,6 +2,10 @@ use curve25519_dalek::ristretto::RistrettoPoint;
 use opaque_ke::{errors::PakeError, keypair::KeyPair};
 use std::{env, fs, io, path::Path};
 
+use crate::constants::{
+  SECRETS_DIRECTORY, SECRETS_FILE_EXTENSION, SECRETS_FILE_NAME,
+};
+
 #[derive(Debug, Clone)]
 pub struct Config {
   pub server_keypair: KeyPair<RistrettoPoint>,
@@ -10,9 +14,9 @@ pub struct Config {
 impl Config {
   pub fn load() -> Result<Self, Error> {
     let mut path = env::current_dir()?;
-    path.push("secrets");
-    path.push("secret_key");
-    path.set_extension("txt");
+    path.push(SECRETS_DIRECTORY);
+    path.push(SECRETS_FILE_NAME);
+    path.set_extension(SECRETS_FILE_EXTENSION);
     let keypair = get_keypair_from_file(path)?;
     Ok(Self {
       server_keypair: keypair,

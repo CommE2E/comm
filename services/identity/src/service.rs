@@ -18,6 +18,7 @@ use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tonic::{Request, Response, Status};
 use tracing::{error, info, instrument};
 
+use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 use crate::database::DatabaseClient;
 use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
@@ -76,7 +77,7 @@ impl IdentityService for MyIdentityService {
     request: Request<tonic::Streaming<RegistrationRequest>>,
   ) -> Result<Response<Self::RegisterUserStream>, Status> {
     let mut in_stream = request.into_inner();
-    let (tx, rx) = mpsc::channel(1);
+    let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let config = self.config.clone();
     let client = self.client.clone();
     tokio::spawn(async move {
@@ -228,7 +229,7 @@ impl IdentityService for MyIdentityService {
     request: Request<tonic::Streaming<LoginRequest>>,
   ) -> Result<Response<Self::LoginUserStream>, Status> {
     let mut in_stream = request.into_inner();
-    let (tx, rx) = mpsc::channel(1);
+    let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let config = self.config.clone();
     let client = self.client.clone();
     tokio::spawn(async move {

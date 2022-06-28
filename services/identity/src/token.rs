@@ -4,6 +4,8 @@ use rand::{
   CryptoRng, Rng,
 };
 
+use crate::constants::ACCESS_TOKEN_LENGTH;
+
 #[derive(Clone)]
 pub enum AuthType {
   Password,
@@ -30,7 +32,7 @@ impl AccessTokenData {
     AccessTokenData {
       user_id,
       device_id,
-      access_token: Alphanumeric.sample_string(rng, 512),
+      access_token: Alphanumeric.sample_string(rng, ACCESS_TOKEN_LENGTH),
       created: Utc::now(),
       auth_type,
       valid: true,

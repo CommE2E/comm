@@ -5,6 +5,7 @@ use tonic::transport::Server;
 use tracing_subscriber::FmtSubscriber;
 
 mod config;
+mod constants;
 mod database;
 mod keygen;
 mod opaque;
@@ -12,11 +13,9 @@ mod service;
 mod token;
 
 use config::Config;
+use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
 use keygen::generate_and_persist_keypair;
 use service::{IdentityServiceServer, MyIdentityService};
-
-const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::]:50051";
-const DEFAULT_SECRETS_DIRECTORY: &str = "secrets";
 
 #[derive(Parser)]
 #[clap(author, version, about, long_about = None)]
@@ -33,7 +32,7 @@ enum Commands {
   /// Generates and persists a keypair to use for PAKE registration and login
   Keygen {
     #[clap(short, long)]
-    #[clap(default_value_t = String::from(DEFAULT_SECRETS_DIRECTORY))]
+    #[clap(default_value_t = String::from(SECRETS_DIRECTORY))]
     dir: String,
   },
 }
