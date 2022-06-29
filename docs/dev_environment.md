@@ -320,7 +320,7 @@ After installing, you should be able to check the version of Protobuf like this:
 
 After installing Protobuf, you will also need to install gRPC using `brew install grpc`. This will install the `grpc_cpp_plugin` for `protoc` (the Protobuf compiler), which is necessary for compiling gRPC schemas.
 
-Please note that the order is crucial here - you have to first install Protobuf and only then gRPC. This is because otherwise gRPC will install Protobuf automatically from its dependency list, but the version of Protobuf will be incorrect.
+Please note that the order is crucial here - you have to first install Protobuf and only then gRPC. This is because otherwise gRPC will install Protobuf automatically from its dependency list, but the version of Protobuf will be incorrect. In the event that Protobuf installs anyway, run `brew unlink protobuf` and `protoc --version` to ensure it matches the version above.
 
 ## Arcanist
 
@@ -819,7 +819,7 @@ When you have a commit ready and want to submit it for code review, just run `ar
 
 With GitHub PRs, updates are usually performed by adding on more commits. In contrast, in Phabricator a diff is updated by simply amending the existing commit and running `arc diff` again.
 
-When you run `arc diff`, it looks for a `Differential Revision: ` line in the commit text of the most recent commit. If Arcanist finds that line, it will assume you want to update the existing diff rather than create a new one. Other Arcanist commands such as `arc amend` (which amends commit text to match a diff on Phabricator) also look for the `Differential Revision: ` line.
+When you run `arc diff`, it looks for a `Differential Revision:` line in the commit text of the most recent commit. If Arcanist finds that line, it will assume you want to update the existing diff rather than create a new one. Other Arcanist commands such as `arc amend` (which amends commit text to match a diff on Phabricator) also look for the `Differential Revision:` line.
 
 ## Working with a stack
 
