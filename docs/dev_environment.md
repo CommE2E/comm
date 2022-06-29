@@ -591,6 +591,21 @@ cd lib
 flow
 ```
 
+## Running keyserver
+
+Open a new terminal and run:
+
+```
+cd keyserver
+yarn dev
+```
+
+You should now be able to load the web app in your web browser at http://localhost/comm/, and the landing page at http://localhost/commlanding/.
+
+This command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `generate-olm-config.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
+
+Note that if you run `yarn dev` in `keyserver` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
+
 ## Running web app
 
 Open a new terminal and run:
@@ -612,21 +627,6 @@ yarn dev
 ```
 
 This runs the same two processes as the web app, but for the landing page. Note that the `landing.build.cjs` file (similar to the web app’s `app.build.cjs` file) is consumed by the Node server.
-
-## Running keyserver
-
-Open a new terminal and run:
-
-```
-cd keyserver
-yarn dev
-```
-
-You should now be able to load the web app in your web browser at http://localhost/comm/, and the landing page at http://localhost/commlanding/.
-
-This command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `generate-olm-config.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
-
-Note that if you run `yarn dev` in `keyserver` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
 
 ## Running mobile app on iOS Simulator
 
