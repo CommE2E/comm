@@ -539,20 +539,16 @@ The DB config file should look like this:
 
 Make sure to replace the password with the one you set up for your `comm` MySQL user earlier.
 
-New let’s run a script to setup the database. Before we can run the script, we’ll have to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in `src` into a new directory called `dist`. We also use `rsync` to copy over files that don’t need transpilation.
-
-```
-yarn babel-build
-yarn rsync
-yarn script dist/scripts/create-db.js
-```
-
 ## Olm
 
 The second config file contains some details that the keyserver needs in order to launch Olm sessions to provide E2E encryption.
 
+We have a script that can generate this file for you. However, before we can run the script we’ll need to use Babel to transpile our source files into something Node can interpret. Babel will transpile the files in `src` into a new directory called `dist`. We’ll also use `rsync` to copy over files that don’t need transpilation.
+
 ```
 cd keyserver
+yarn babel-build
+yarn rsync
 yarn script dist/scripts/generate-olm-config.js
 ```
 
@@ -628,7 +624,7 @@ yarn dev
 
 You should now be able to load the web app in your web browser at http://localhost/comm/, and the landing page at http://localhost/commlanding/.
 
-This command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `create-db.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
+This command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `generate-olm-config.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
 
 Note that if you run `yarn dev` in `keyserver` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
 
