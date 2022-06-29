@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 import { NavigationContainer } from '@react-navigation/native';
 import type { PossiblyStaleNavigationState } from '@react-navigation/native';
+import WalletConnectProvider from '@walletconnect/react-native-dapp';
 import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
 import * as React from 'react';
@@ -242,27 +243,43 @@ function Root() {
       <CoreDataProvider>
         <NavContext.Provider value={navContext}>
           <RootContext.Provider value={rootContext}>
-            <InputStateContainer>
-              <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                <ChatContextProvider>
-                  <SQLiteContextProvider>
-                    <ConnectedStatusBar />
-                    <ReduxPersistGate persistor={getPersistor()}>
-                      {gated}
-                    </ReduxPersistGate>
-                    <PersistedStateGate>
-                      <Socket
-                        detectUnsupervisedBackgroundRef={
-                          detectUnsupervisedBackgroundRef
-                        }
-                      />
-                    </PersistedStateGate>
-                    {navigation}
-                    <NavigationHandler />
-                  </SQLiteContextProvider>
-                </ChatContextProvider>
-              </SafeAreaProvider>
-            </InputStateContainer>
+            <WalletConnectProvider
+              bridge="https://bridge.walletconnect.org"
+              clientMeta={{
+                description: 'Connect with WalletConnect',
+                url: 'https://walletconnect.org',
+                icons: ['https://walletconnect.org/walletconnect-logo.png'],
+                name: 'Comm',
+              }}
+              redirectUrl={
+                Platform.OS === 'web' ? window.location.origin : 'comm://'
+              }
+              storageOptions={{
+                asyncStorage: AsyncStorage,
+              }}
+            >
+              <InputStateContainer>
+                <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                  <ChatContextProvider>
+                    <SQLiteContextProvider>
+                      <ConnectedStatusBar />
+                      <ReduxPersistGate persistor={getPersistor()}>
+                        {gated}
+                      </ReduxPersistGate>
+                      <PersistedStateGate>
+                        <Socket
+                          detectUnsupervisedBackgroundRef={
+                            detectUnsupervisedBackgroundRef
+                          }
+                        />
+                      </PersistedStateGate>
+                      {navigation}
+                      <NavigationHandler />
+                    </SQLiteContextProvider>
+                  </ChatContextProvider>
+                </SafeAreaProvider>
+              </InputStateContainer>
+            </WalletConnectProvider>
           </RootContext.Provider>
         </NavContext.Provider>
       </CoreDataProvider>

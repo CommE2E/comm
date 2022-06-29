@@ -12,6 +12,8 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; };
 		2DDA0AE067906E18B83A455C /* ClientGetReadReactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */; };
+		65D780CC286CCC4500B43A4A /* identity.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 65D780C8286CCC4500B43A4A /* identity.grpc.pb.cc */; };
+		65D780CD286CCC4500B43A4A /* identity.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 65D780CB286CCC4500B43A4A /* identity.pb.cc */; };
 		71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */; };
 		71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */; };
 		71009A7B26FDCD72002C8453 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7926FDCD71002C8453 /* Client.cpp */; };
@@ -110,6 +112,10 @@
 		2DDA0A22FECC9DAA5C19C35D /* Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Metadata.h; sourceTree = "<group>"; };
 		3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		65D780C8286CCC4500B43A4A /* identity.grpc.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = identity.grpc.pb.cc; sourceTree = "<group>"; };
+		65D780C9286CCC4500B43A4A /* identity.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = identity.pb.h; sourceTree = "<group>"; };
+		65D780CA286CCC4500B43A4A /* identity.grpc.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = identity.grpc.pb.h; sourceTree = "<group>"; };
+		65D780CB286CCC4500B43A4A /* identity.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = identity.pb.cc; sourceTree = "<group>"; };
 		71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.pb.cc; sourceTree = "<group>"; };
 		71009A7426FDCA67002C8453 /* tunnelbroker.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.pb.h; sourceTree = "<group>"; };
 		71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.grpc.pb.cc; sourceTree = "<group>"; };
@@ -307,6 +313,10 @@
 		718A3C0626F22D0A00F04A8D /* _generated */ = {
 			isa = PBXGroup;
 			children = (
+				65D780C8286CCC4500B43A4A /* identity.grpc.pb.cc */,
+				65D780CA286CCC4500B43A4A /* identity.grpc.pb.h */,
+				65D780CB286CCC4500B43A4A /* identity.pb.cc */,
+				65D780C9286CCC4500B43A4A /* identity.pb.h */,
 				71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */,
 				71009A7626FDCA67002C8453 /* tunnelbroker.grpc.pb.h */,
 				71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */,
@@ -914,6 +924,7 @@
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				71009A7B26FDCD72002C8453 /* Client.cpp in Sources */,
 				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,
+				65D780CC286CCC4500B43A4A /* identity.grpc.pb.cc in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
 				71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */,
 				726E5D752731A4790032361D /* NetworkModule.cpp in Sources */,
@@ -931,6 +942,7 @@
 				726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
+				65D780CD286CCC4500B43A4A /* identity.pb.cc in Sources */,
 				2DDA0AE067906E18B83A455C /* ClientGetReadReactor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

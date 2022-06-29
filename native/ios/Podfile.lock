@@ -761,8 +761,12 @@ PODS:
     - React
   - react-native-orientation-locker (1.1.6):
     - React
+  - react-native-randombytes (3.6.1):
+    - React-Core
   - react-native-safe-area-context (3.1.9):
     - React-Core
+  - react-native-udp (2.7.0):
+    - React
   - react-native-video/Video (5.1.1):
     - React-Core
   - react-native-video/VideoCaching (5.1.1):
@@ -864,6 +868,8 @@ PODS:
     - React-Core
   - RNKeychain (8.0.0):
     - React-Core
+  - RNOS (1.2.6):
+    - React
   - RNReanimated (2.4.1):
     - DoubleConversion
     - FBLazyVector
@@ -914,6 +920,8 @@ PODS:
   - SQLCipher-Amalgamation/standard (4.4.3):
     - OpenSSL-Universal
     - SQLCipher-Amalgamation/common
+  - TcpSockets (3.3.2):
+    - React
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -990,7 +998,9 @@ DEPENDENCIES:
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
   - react-native-notifications (from `../../node_modules/react-native-notifications`)
   - react-native-orientation-locker (from `../../node_modules/react-native-orientation-locker`)
+  - react-native-randombytes (from `../../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../../node_modules/react-native-safe-area-context`)
+  - react-native-udp (from `../../node_modules/react-native-udp`)
   - react-native-video/VideoCaching (from `../../node_modules/react-native-video/react-native-video.podspec`)
   - React-perflogger (from `../../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -1017,11 +1027,13 @@ DEPENDENCIES:
   - RNFS (from `../../node_modules/react-native-fs`)
   - RNGestureHandler (from `../../node_modules/react-native-gesture-handler`)
   - RNKeychain (from `../../node_modules/react-native-keychain`)
+  - RNOS (from `../../node_modules/react-native-os`)
   - RNReanimated (from `../../node_modules/react-native-reanimated`)
   - RNScreens (from `../../node_modules/react-native-screens`)
   - RNSVG (from `../../node_modules/react-native-svg`)
   - RNVectorIcons (from `../../node_modules/react-native-vector-icons`)
   - "SQLCipher-Amalgamation (from `../../node_modules/@commapp/sqlcipher-amalgamation`)"
+  - TcpSockets (from `../../node_modules/react-native-tcp`)
   - Yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -1139,8 +1151,12 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-notifications"
   react-native-orientation-locker:
     :path: "../../node_modules/react-native-orientation-locker"
+  react-native-randombytes:
+    :path: "../../node_modules/react-native-randombytes"
   react-native-safe-area-context:
     :path: "../../node_modules/react-native-safe-area-context"
+  react-native-udp:
+    :path: "../../node_modules/react-native-udp"
   react-native-video:
     :podspec: "../../node_modules/react-native-video/react-native-video.podspec"
   React-perflogger:
@@ -1193,6 +1209,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-gesture-handler"
   RNKeychain:
     :path: "../../node_modules/react-native-keychain"
+  RNOS:
+    :path: "../../node_modules/react-native-os"
   RNReanimated:
     :path: "../../node_modules/react-native-reanimated"
   RNScreens:
@@ -1203,6 +1221,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-vector-icons"
   SQLCipher-Amalgamation:
     :path: "../../node_modules/@commapp/sqlcipher-amalgamation"
+  TcpSockets:
+    :path: "../../node_modules/react-native-tcp"
   Yoga:
     :path: "../../node_modules/react-native/ReactCommon/yoga"
 
@@ -1270,7 +1290,9 @@ SPEC CHECKSUMS:
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
+  react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
+  react-native-udp: ff9d13e523f2b58e6bc5d4d32321ac60671b5dc9
   react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
   React-perflogger: 93075d8931c32cd1fce8a98c15d2d5ccc4d891bd
   React-RCTActionSheet: 7d3041e6761b4f3044a37079ddcb156575fb6d89
@@ -1297,6 +1319,7 @@ SPEC CHECKSUMS:
   RNFS: 54da03c2b7d862c42ea3ca8c7f86f892760a535a
   RNGestureHandler: a479ebd5ed4221a810967000735517df0d2db211
   RNKeychain: 4f63aada75ebafd26f4bc2c670199461eab85d94
+  RNOS: 6f2f9a70895bbbfbdad7196abd952e7b01d45027
   RNReanimated: e8afbe2a9e08e9e778ea72ddb1a8533445812621
   RNScreens: 6e1ea5787989f92b0671049b808aef64fa1ef98c
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
@@ -1305,6 +1328,7 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: d0dac55073088d24b2ac1b191a71a8f8d0adac21
   SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
   SQLCipher-Amalgamation: cbd36045fe7b458b8a442958a01aefdbc44c20f8
+  TcpSockets: 14306fb79f9750ea7d2ddd02d8bed182abb01797
   Yoga: e7dc4e71caba6472ff48ad7d234389b91dadc280
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

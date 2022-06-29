@@ -1,0 +1,13 @@
+diff --git a/node_modules/@walletconnect/crypto/dist/cjs/lib/node.js b/node_modules/@walletconnect/crypto/dist/cjs/lib/node.js
+index 6d56425..65165dd 100644
+--- a/node_modules/@walletconnect/crypto/dist/cjs/lib/node.js
++++ b/node_modules/@walletconnect/crypto/dist/cjs/lib/node.js
+@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.nodeRipemd160 = exports.nodeSha512 = exports.nodeSha256 = exports.nodeHmacSha512Sign = exports.nodeHmacSha256Sign = exports.nodeAesDecrypt = exports.nodeAesEncrypt = void 0;
+-const crypto_1 = __importDefault(require("crypto"));
++const crypto_1 = __importDefault(require("react-native-crypto"));
+ const encoding_1 = require("@walletconnect/encoding");
+ const constants_1 = require("../constants");
+ function nodeAesEncrypt(iv, key, data) {

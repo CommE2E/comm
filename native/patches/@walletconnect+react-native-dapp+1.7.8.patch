@@ -1,0 +1,13 @@
+diff --git a/node_modules/@walletconnect/react-native-dapp/package.json b/node_modules/@walletconnect/react-native-dapp/package.json
+index 86596e9..87e2e2e 100644
+--- a/node_modules/@walletconnect/react-native-dapp/package.json
++++ b/node_modules/@walletconnect/react-native-dapp/package.json
+@@ -43,7 +43,7 @@
+     "@walletconnect/utils": "^1.7.8",
+     "keyvaluestorage": "0.7.1",
+     "react-native-qrcode-svg": "6.0.6",
+-    "react-native-svg": "9.6.4",
++    "react-native-svg": "12.3.0",
+     "use-deep-compare-effect": "1.6.1"
+   },
+   "devDependencies": {
