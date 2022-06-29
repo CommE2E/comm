@@ -50,6 +50,8 @@
 		CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47B287718A200171182 /* NonBlockingLock.mm */; };
 		CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47D2877194100171182 /* EncryptedFileUtils.mm */; };
 		CB38B48528771CB800171182 /* EncryptedFileUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47D2877194100171182 /* EncryptedFileUtils.mm */; };
+		CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47F28771A3B00171182 /* TemporaryMessageStorage.mm */; };
+		CB38B48728771CE500171182 /* TemporaryMessageStorage.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47F28771A3B00171182 /* TemporaryMessageStorage.mm */; };
 		CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */; };
 		CB38F2C0286C6CDF0010535C /* MessageOperationsUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */; };
 		CB3C621127CE4A320054F24C /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
@@ -197,6 +199,7 @@
 		CB38B47C2877190100171182 /* EncryptedFileUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = EncryptedFileUtils.h; path = Comm/TemporaryMessageStorage/EncryptedFileUtils.h; sourceTree = "<group>"; };
 		CB38B47D2877194100171182 /* EncryptedFileUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = EncryptedFileUtils.mm; path = Comm/TemporaryMessageStorage/EncryptedFileUtils.mm; sourceTree = "<group>"; };
 		CB38B47E287719C500171182 /* TemporaryMessageStorage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TemporaryMessageStorage.h; path = Comm/TemporaryMessageStorage/TemporaryMessageStorage.h; sourceTree = "<group>"; };
+		CB38B47F28771A3B00171182 /* TemporaryMessageStorage.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = TemporaryMessageStorage.mm; path = Comm/TemporaryMessageStorage/TemporaryMessageStorage.mm; sourceTree = "<group>"; };
 		CB38F2AE286C6C870010535C /* MessageSpecs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MessageSpecs.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs.h; sourceTree = "<group>"; };
 		CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MessageOperationsUtilities.cpp; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilities.cpp; sourceTree = "<group>"; };
 		CB38F2B0286C6C870010535C /* MessageOperationsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MessageOperationsUtilities.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilities.h; sourceTree = "<group>"; };
@@ -527,6 +530,7 @@
 		CB38B4782877177B00171182 /* TemporaryMessageStorage */ = {
 			isa = PBXGroup;
 			children = (
+				CB38B47F28771A3B00171182 /* TemporaryMessageStorage.mm */,
 				CB38B47E287719C500171182 /* TemporaryMessageStorage.h */,
 				CB38B47D2877194100171182 /* EncryptedFileUtils.mm */,
 				CB38B47C2877190100171182 /* EncryptedFileUtils.h */,
@@ -930,6 +934,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */,
 				CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */,
 				71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */,
@@ -971,6 +976,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB38B48728771CE500171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48528771CB800171182 /* EncryptedFileUtils.mm in Sources */,
 				CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */,
 				CB38F2C0286C6CDF0010535C /* MessageOperationsUtilities.cpp in Sources */,
