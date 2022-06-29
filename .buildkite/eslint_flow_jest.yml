@@ -4,5 +4,10 @@ steps:
       - 'yarn cleaninstall --frozen-lockfile --skip-optional'
       - 'yarn eslint --max-warnings=0 & yarn workspace lib flow & yarn workspace web flow & yarn workspace landing flow & yarn workspace native flow & yarn workspace keyserver flow'
       - 'yarn workspace lib test && yarn workspace keyserver test'
+    plugins:
+      - docker#v3.13.0:
+          image: 'node:16.13-bullseye'
+          always-pull: true
+          workdir: /comm
     agents:
-      - 'linux=true'
+      - 'autoscaling=true'
