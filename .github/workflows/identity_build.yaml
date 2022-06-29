@@ -1,0 +1,21 @@
+name: Identity Build (Docker)
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'landing/**'
+      - 'web/**'
+      - 'docs/**'
+      - 'keyserver/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: docker-compose build --no-cache identity-server
+        working-directory: ./services
+        run: docker-compose build --no-cache identity-server
