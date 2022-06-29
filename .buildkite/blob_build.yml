@@ -1,0 +1,4 @@
+steps:
+  - command: 'cd services && docker-compose build --no-cache blob-server'
+    agents:
+      - 'autoscaling=true'
