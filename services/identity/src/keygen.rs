@@ -1,9 +1,8 @@
-use crate::opaque::Cipher;
 use opaque_ke::{ciphersuite::CipherSuite, rand::rngs::OsRng};
 use std::{env, fs, io};
 
-const SECRETS_FILE_NAME: &str = "secret_key";
-const SECRETS_FILE_EXTENSION: &str = "txt";
+use crate::constants::{SECRETS_FILE_EXTENSION, SECRETS_FILE_NAME};
+use crate::opaque::Cipher;
 
 pub fn generate_and_persist_keypair(dir: &str) -> Result<(), io::Error> {
   let mut rng = OsRng;

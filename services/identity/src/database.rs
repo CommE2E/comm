@@ -10,9 +10,18 @@ use rusoto_dynamodb::{
 };
 use tracing::{error, info};
 
+use crate::constants::{
+  ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
+  ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
+  ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
+  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, PAKE_REGISTRATION_TABLE,
+  PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+  PAKE_REGISTRATION_TABLE_PARTITION_KEY,
+};
 use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
 
+#[derive(Clone)]
 pub struct DatabaseClient {
   client: DynamoDbClient,
 }
@@ -28,10 +37,12 @@ impl DatabaseClient {
     &self,
     user_id: String,
   ) -> Result<Option<ServerRegistration<Cipher>>, Error> {
-    let primary_key =
-      create_simple_primary_key(("userID".to_string(), user_id.clone()));
+    let primary_key = create_simple_primary_key((
+      PAKE_REGISTRATION_TABLE_PARTITION_KEY.to_string(),
+      user_id.clone(),
+    ));
     let get_item_input = GetItemInput {
-      table_name: "identity-pake-registration".to_string(),
+      table_name: PAKE_REGISTRATION_TABLE.to_string(),
       key: primary_key,
       consistent_read: Some(true),
       ..GetItemInput::default()
@@ -44,7 +55,7 @@ impl DatabaseClient {
         if let Some(AttributeValue {
           b: Some(server_registration_bytes),
           ..
-        }) = item.get("pakeRegistrationData")
+        }) = item.get(PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE)
         {
           match ServerRegistration::<Cipher>::deserialize(
             server_registration_bytes,
@@ -86,17 +97,17 @@ impl DatabaseClient {
     registration: ServerRegistration<Cipher>,
   ) -> Result<PutItemOutput, RusotoError<PutItemError>> {
     let input = PutItemInput {
-      table_name: "identity-pake-registration".to_string(),
+      table_name: PAKE_REGISTRATION_TABLE.to_string(),
       item: HashMap::from([
         (
-          "userID".to_string(),
+          PAKE_REGISTRATION_TABLE_PARTITION_KEY.to_string(),
           AttributeValue {
             s: Some(user_id),
             ..Default::default()
           },
         ),
         (
-          "pakeRegistrationData".to_string(),
+          PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE.to_string(),
           AttributeValue {
             b: Some(Bytes::from(registration.serialize())),
             ..Default::default()
@@ -114,11 +125,14 @@ impl DatabaseClient {
     device_id: String,
   ) -> Result<Option<AccessTokenData>, Error> {
     let primary_key = create_composite_primary_key(
-      ("userID".to_string(), user_id.clone()),
-      ("deviceID".to_string(), device_id.clone()),
+      (
+        ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
+        user_id.clone(),
+      ),
+      (ACCESS_TOKEN_SORT_KEY.to_string(), device_id.clone()),
     );
     let get_item_input = GetItemInput {
-      table_name: "identity-tokens".to_string(),
+      table_name: ACCESS_TOKEN_TABLE.to_string(),
       key: primary_key,
       consistent_read: Some(true),
       ..GetItemInput::default()
@@ -129,10 +143,18 @@ impl DatabaseClient {
         item: Some(mut item),
         ..
       }) => {
-        let created = parse_created_attribute(item.remove("created"))?;
-        let auth_type = parse_auth_type_attribute(item.remove("authType"))?;
-        let valid = parse_valid_attribute(item.remove("valid"))?;
-        let access_token = parse_token_attribute(item.remove("token"))?;
+        let created = parse_created_attribute(
+          item.remove(ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE),
+        )?;
+        let auth_type = parse_auth_type_attribute(
+          item.remove(ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE),
+        )?;
+        let valid = parse_valid_attribute(
+          item.remove(ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE),
+        )?;
+        let access_token = parse_token_attribute(
+          item.remove(ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE),
+        )?;
         Ok(Some(AccessTokenData {
           user_id,
           device_id,
@@ -164,38 +186,38 @@ impl DatabaseClient {
     access_token_data: AccessTokenData,
   ) -> Result<PutItemOutput, Error> {
     let input = PutItemInput {
-      table_name: "identity-tokens".to_string(),
+      table_name: ACCESS_TOKEN_TABLE.to_string(),
       item: HashMap::from([
         (
-          "userID".to_string(),
+          ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
           AttributeValue {
             s: Some(access_token_data.user_id),
             ..Default::default()
           },
         ),
         (
-          "deviceID".to_string(),
+          ACCESS_TOKEN_SORT_KEY.to_string(),
           AttributeValue {
             s: Some(access_token_data.device_id),
             ..Default::default()
           },
         ),
         (
-          "token".to_string(),
+          ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
           AttributeValue {
             s: Some(access_token_data.access_token),
             ..Default::default()
           },
         ),
         (
-          "created".to_string(),
+          ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.to_string(),
           AttributeValue {
             s: Some(access_token_data.created.to_rfc3339()),
             ..Default::default()
           },
         ),
         (
-          "authType".to_string(),
+          ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
           AttributeValue {
             s: Some(match access_token_data.auth_type {
               AuthType::Password => "password".to_string(),
@@ -205,7 +227,7 @@ impl DatabaseClient {
           },
         ),
         (
-          "valid".to_string(),
+          ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
           AttributeValue {
             bool: Some(access_token_data.valid),
             ..Default::default()

@@ -47,7 +47,6 @@ div.sidebar:hover .menu {
   width: max-content;
   overflow: hidden;
   border-radius: 4px;
-
   background-color: var(--chat-thread-list-menu-bg);
 }
 .menuContentVisible {

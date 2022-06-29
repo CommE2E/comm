@@ -62,7 +62,7 @@ footer.wrapper {
 }
 
 a.logo {
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--sans-serif);
   font-weight: 500;
   color: var(--logo-color);
   font-size: 28px;

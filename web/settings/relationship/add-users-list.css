@@ -1,3 +1,24 @@
+.container {
+  height: 625px;
+  display: flex;
+  flex-direction: column;
+}
+
+.userTagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px;
+}
+
+.userRowsContainer {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin-bottom: 8px;
+}
+
 .addUserButton {
   display: flex;
   flex-direction: row;
@@ -14,4 +35,20 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+.confirmButtonContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hidden {
+  visibility: hidden;
+  height: 0;
 }

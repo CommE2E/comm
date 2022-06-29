@@ -1,8 +1,15 @@
 .container {
   overflow: auto;
-  height: 625px;
+  flex: 1;
 }
 
 .noScroll {
   overflow: hidden;
+}
+
+.searchModalContent {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+  height: 625px;
 }

@@ -18,7 +18,9 @@ const std::string BACKUP_TABLE_NAME =
 // than the chunk limit, once we get the amount of data of size equal to the
 // limit, we wouldn't know if we should put this in the database right away or
 // wait for more data.
-const size_t LOG_DATA_SIZE_DATABASE_LIMIT = 1 * 1024 * 1024;
+// 400KB limit (KB, not KiB, that's why it's 1000 not 1024) -
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ServiceQuotas.html
+const size_t LOG_DATA_SIZE_DATABASE_LIMIT = 400 * 1000;
 
 } // namespace network
 } // namespace comm

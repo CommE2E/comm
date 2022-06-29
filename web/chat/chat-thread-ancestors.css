@@ -26,7 +26,7 @@ div.ancestorKeyserver {
 }
 
 div.ancestorKeyserverName {
-  border-radius: 0px 2px 2px 0px;
+  border-radius: 0 2px 2px 0;
 }
 
 svg.ancestorSeparator {
@@ -36,10 +36,10 @@ svg.ancestorSeparator {
 div.ancestorKeyserverOperator {
   display: flex;
   column-gap: 5px;
-  padding: 0px 5px;
+  padding: 0 5px;
   align-items: center;
   border: 1px solid var(--thread-ancestor-keyserver-border);
-  border-radius: 2px 0px 0px 2px;
+  border-radius: 2px 0 0 2px;
   height: 22px;
   box-sizing: border-box;
 }

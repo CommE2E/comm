@@ -1,0 +1,11 @@
+[package]
+name = "commtest"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bytesize = "1.1.0"
+
+[build-dependencies]
+tonic-build = "0.6"
+derive_more = "0.99.16"

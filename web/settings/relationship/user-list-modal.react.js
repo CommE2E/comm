@@ -4,7 +4,9 @@ import * as React from 'react';
 
 import type { AccountUserInfo } from 'lib/types/user-types';
 
+import Button from '../../components/button.react.js';
 import SearchModal from '../../modals/search-modal.react';
+import css from './user-list.css';
 import { UserList, type UserRowProps } from './user-list.react';
 
 type Props = {
@@ -13,6 +15,8 @@ type Props = {
   +userRowComponent: React.ComponentType<UserRowProps>,
   +filterUser: (userInfo: AccountUserInfo) => boolean,
   +usersComparator: (user1: AccountUserInfo, user2: AccountUserInfo) => number,
+  +buttonLabel: string,
+  +onAddUsersClick: () => void,
 };
 
 function UserListModal(props: Props): React.Node {
@@ -22,17 +26,29 @@ function UserListModal(props: Props): React.Node {
     userRowComponent,
     filterUser,
     usersComparator,
+    buttonLabel,
+    onAddUsersClick,
   } = props;
+
   const searchModalChildGenerator = React.useCallback(
     (searchText: string) => (
-      <UserList
-        userRowComponent={userRowComponent}
-        filterUser={filterUser}
-        usersComparator={usersComparator}
-        searchText={searchText}
-      />
+      <div className={css.searchModalContent}>
+        <UserList
+          userRowComponent={userRowComponent}
+          filterUser={filterUser}
+          usersComparator={usersComparator}
+          searchText={searchText}
+        />
+        <Button onClick={onAddUsersClick}>{buttonLabel}</Button>
+      </div>
     ),
-    [filterUser, userRowComponent, usersComparator],
+    [
+      buttonLabel,
+      filterUser,
+      onAddUsersClick,
+      userRowComponent,
+      usersComparator,
+    ],
   );
 
   return (

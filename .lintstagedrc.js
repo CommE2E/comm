@@ -30,7 +30,7 @@ module.exports = {
     return 'yarn workspace landing flow --quiet';
   },
   '{native,services}/**/*.{h,cpp,java,mm}': function clangFormat(files) {
-    files = files.filter((path) => {
+    files = files.filter(path => {
       if (path.indexOf('generated') !== -1) {
         return false;
       }
@@ -42,5 +42,8 @@ module.exports = {
       return false;
     });
     return 'clang-format -i ' + files.join(' ');
+  },
+  'services/commtest/**/*.rs': function rustFormat(files) {
+    return 'yarn rust-pre-commit';
   },
 };

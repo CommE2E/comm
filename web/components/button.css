@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   background: var(--settings-btn-bg);
-  border-color: transparent;
+  border: 1px solid transparent;
   font-size: var(--m-font-16);
   padding: 12px 24px;
   border-radius: 4px;
@@ -36,7 +36,7 @@
 .secondary {
   background: var(--btn-bg-secondary);
   color: var(--fg);
-  border: 1px solid var(--btn-secondary-border);
+  border-color: var(--btn-secondary-border);
 }
 
 .secondary:hover {

@@ -5,6 +5,8 @@ import * as React from 'react';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 
+import { useModalContext } from '../../modals/modal-provider.react.js';
+import AddFriendsModal from './add-friends-modal.react';
 import FriendListRow from './friend-list-row.react';
 import UserListModal from './user-list-modal.react';
 
@@ -34,6 +36,13 @@ type Props = {
 
 function FriendListModal(props: Props): React.Node {
   const { onClose } = props;
+
+  const { pushModal } = useModalContext();
+  const openNewFriendsModal = React.useCallback(
+    () => pushModal(<AddFriendsModal onClose={onClose} />),
+    [onClose, pushModal],
+  );
+
   return (
     <UserListModal
       onClose={onClose}
@@ -41,6 +50,8 @@ function FriendListModal(props: Props): React.Node {
       userRowComponent={FriendListRow}
       filterUser={filterUser}
       usersComparator={usersComparator}
+      buttonLabel="Add New Friends"
+      onAddUsersClick={openNewFriendsModal}
     />
   );
 }

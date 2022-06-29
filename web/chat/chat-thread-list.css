@@ -58,7 +58,6 @@ div.title {
   flex-direction: column;
 }
 .threadButtonSidebar {
-  flex: 1;
   cursor: pointer;
   overflow: hidden;
   display: flex;
@@ -237,7 +236,7 @@ button.menuContent:hover {
 }
 
 ul.list {
-  margin: 5px 3px 10px 0px;
+  margin: 5px 3px 10px 0;
   overflow: auto;
 }
 

@@ -5,10 +5,12 @@ import * as React from 'react';
 
 import css from './button.css';
 
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'round';
+
 type Props = {
   +onClick: (event: SyntheticEvent<HTMLButtonElement>) => mixed,
   +children: React.Node,
-  +variant?: 'primary' | 'secondary' | 'danger' | 'round',
+  +variant?: ButtonVariant,
   +type?: string,
   +disabled?: boolean,
   +className?: string,
