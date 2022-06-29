@@ -51,6 +51,7 @@ function ThreadSettingsDeleteTab(
 
   const deleteThreadAction = React.useCallback(async () => {
     try {
+      setErrorMessage('');
       const response = await callDeleteThread(threadInfo.id, accountPassword);
       modalContext.popModal();
       return response;
