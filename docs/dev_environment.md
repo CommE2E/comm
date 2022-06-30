@@ -723,7 +723,7 @@ Next, you’ll want to ensure that the Comm project is configured with a valid T
 
 ### Building and deploying the app
 
-When you plug your iOS device into your machine for the first time, you’ll be prompted to enter your device passcode to enable debugging and deployment. Click the ”Register” button in the dialog that Xcode displays if your device needs to be added to your Provisioning Profile.
+When you plug your iOS device into your machine for the first time, you’ll be prompted to enter your device passcode to enable debugging and deployment. Click the “Register” button in the dialog that Xcode displays if your device needs to be added to your Provisioning Profile.
 
 Make sure to pull the latest changes and clean the build folder before trying to deploy a build to your device. In Xcode, run Product → Clean Build Folder.
 
@@ -734,7 +734,7 @@ cd native
 yarn dev
 ```
 
-This command runs the Metro bundler and `remotedev-server` for Redux (see the “Running mobile app on iOS simulator” section for more details).
+This command runs the Metro bundler and `remotedev-server` for Redux (see the “Running mobile app on iOS Simulator” section for more details).
 
 You should finally be ready to build and deploy the app in Xcode! Select your physical device from ”run destinations” in the Workspace Toolbar. Then hit the Run button to build and run the project.
 
@@ -789,6 +789,10 @@ yarn dev
 ```
 
 Then, from the `keyserver` directory, run `yarn script dist/scripts/name.js`, where `name.js` is the file containing the script.
+
+## Creating a new user
+
+To create a new user, [run the keyserver](#running-keyserver) and the [mobile app on iOS Simulator](#running-mobile-app-on-ios-simulator), and then select “Sign Up” in the app. When you sign up, a new user will be created on your local MySQL instance. You can then log in on any device connected to your local keyserver.
 
 ## Codegen
 
