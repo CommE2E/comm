@@ -19,4 +19,4 @@ pub enum Error {
 }
 
 #[allow(dead_code)]
-pub const ATTACHMENT_DELIMITER: char = ';';
+pub const ATTACHMENT_DELIMITER: &str = ";";
