@@ -22,6 +22,8 @@ async fn backup_test() -> Result<(), Error> {
   let mut client =
     BackupServiceClient::connect("http://localhost:50052").await?;
 
+  let attachments_fill_size: u64 = 500;
+
   let mut backup_data = BackupData {
     user_id: "user0000".to_string(),
     device_id: "device0000".to_string(),
@@ -42,7 +44,7 @@ async fn backup_test() -> Result<(), Error> {
         String::new(),
         vec![
           tools::get_dynamo_db_item_size_limit()
-            - ByteSize::b(100).as_u64() as usize,
+            - ByteSize::b(attachments_fill_size / 2).as_u64() as usize,
         ],
         vec!["holder0".to_string(), "holder1".to_string()],
       ),
@@ -118,23 +120,13 @@ async fn backup_test() -> Result<(), Error> {
       i, expected, from_result
     );
   }
-  // check logs attachments
-  for i in 0..backup_data.log_items.len() {
-    let expected: usize = backup_data.log_items[i].attachments_holders.len();
-    let from_result: usize = result.log_items[i].attachments_holders.len();
-    assert_eq!(
-      from_result, expected,
-      "log {}: number of attachments holders do not match, expected {}, got {}",
-      i, expected, from_result
-    );
-  }
 
   // push so many attachments that the log item's data will have to be moved
   // from the db to the s3
   let mut attachments_size = 0;
   let mut i = backup_data.log_items[0].attachments_holders.len();
-  let mut new_attachments: Vec<String> = vec![];
-  while attachments_size < 500 {
+  let mut new_attachments: Vec<String> = Vec::new();
+  while attachments_size < (attachments_fill_size as usize) {
     let att = format!("holder{}", i);
     attachments_size += att.len();
     new_attachments.push(att);
@@ -154,8 +146,7 @@ async fn backup_test() -> Result<(), Error> {
     let expected: usize = backup_data.log_items[i].attachments_holders.len();
     let from_result: usize = result.log_items[i].attachments_holders.len();
     assert_eq!(
-      from_result,
-      expected,
+      from_result, expected,
       "after attachment add: log {}: number of attachments holders do not match,
       expected {}, got {}",
       i,
