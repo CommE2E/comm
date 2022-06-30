@@ -1454,9 +1454,19 @@ class PullBackupResponse PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kChunkCounterFieldNumber = 3,
     kCompactionChunkFieldNumber = 1,
     kLogChunkFieldNumber = 2,
   };
+  // int32 chunkCounter = 3;
+  void clear_chunkcounter();
+  ::PROTOBUF_NAMESPACE_ID::int32 chunkcounter() const;
+  void set_chunkcounter(::PROTOBUF_NAMESPACE_ID::int32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::int32 _internal_chunkcounter() const;
+  void _internal_set_chunkcounter(::PROTOBUF_NAMESPACE_ID::int32 value);
+  public:
+
   // bytes compactionChunk = 1;
   bool has_compactionchunk() const;
   private:
@@ -1511,6 +1521,7 @@ class PullBackupResponse PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::int32 chunkcounter_;
   union DataUnion {
     constexpr DataUnion() : _constinit_{} {}
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
@@ -3351,6 +3362,26 @@ inline void PullBackupResponse::set_allocated_logchunk(std::string* logchunk) {
     }
   }
   // @@protoc_insertion_point(field_set_allocated:backup.PullBackupResponse.logChunk)
+}
+
+// int32 chunkCounter = 3;
+inline void PullBackupResponse::clear_chunkcounter() {
+  chunkcounter_ = 0;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 PullBackupResponse::_internal_chunkcounter() const {
+  return chunkcounter_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::int32 PullBackupResponse::chunkcounter() const {
+  // @@protoc_insertion_point(field_get:backup.PullBackupResponse.chunkCounter)
+  return _internal_chunkcounter();
+}
+inline void PullBackupResponse::_internal_set_chunkcounter(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  
+  chunkcounter_ = value;
+}
+inline void PullBackupResponse::set_chunkcounter(::PROTOBUF_NAMESPACE_ID::int32 value) {
+  _internal_set_chunkcounter(value);
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.chunkCounter)
 }
 
 inline bool PullBackupResponse::has_data() const {

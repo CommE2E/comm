@@ -75,9 +75,14 @@ message PullBackupRequest {
 }
 
 message PullBackupResponse {
+  oneof id {
+    string backupID = 4;
+    string logID = 5;
+  }
   oneof data {
     bytes compactionChunk = 1;
     bytes logChunk = 2;
+    string attachmentHolders = 3;
   }
 }
 
