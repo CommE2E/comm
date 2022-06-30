@@ -18,5 +18,12 @@ pub enum Error {
   TonicStatus(tonic::Status),
 }
 
+pub const GRPC_METADATA_SIZE_BYTES: usize = 5;
+
+#[allow(dead_code)]
+pub fn get_grpc_chunk_size_limit() -> usize {
+  (ByteSize::mib(4).as_u64() as usize) - GRPC_METADATA_SIZE_BYTES
+}
+
 #[allow(dead_code)]
 pub const ATTACHMENT_DELIMITER: &str = ";";
