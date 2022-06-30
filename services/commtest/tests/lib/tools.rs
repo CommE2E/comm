@@ -1,7 +1,10 @@
 use bytesize::ByteSize;
 
 #[allow(dead_code)]
-pub fn generate_nbytes(number_of_bytes: usize, predefined_byte_value: Option<u8>) -> Vec<u8> {
+pub fn generate_nbytes(
+  number_of_bytes: usize,
+  predefined_byte_value: Option<u8>,
+) -> Vec<u8> {
   let byte_value = predefined_byte_value.unwrap_or(b'A');
   return vec![byte_value; number_of_bytes];
 }
@@ -16,6 +19,11 @@ pub enum Error {
   Tonic(tonic::transport::Error),
   #[display(...)]
   TonicStatus(tonic::Status),
+}
+
+#[allow(dead_code)]
+pub fn get_dynamo_db_item_size_limit() -> usize {
+  ByteSize::kib(400).as_u64() as usize
 }
 
 pub const GRPC_METADATA_SIZE_BYTES: usize = 5;
