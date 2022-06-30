@@ -784,7 +784,7 @@ Finally, we need to direct the mobile app to use your local keyserver instance. 
 To run one of the scripts in `keyserver/src/scripts`, you should start by making sure that the Node server is running. If you haven’t already, open a new terminal and run:
 
 ```
-cd native
+cd keyserver
 yarn dev
 ```
 
