@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LogItem.h"
 #include "ServerReadReactorBase.h"
 #include "ServiceBlobClient.h"
 
@@ -35,9 +36,7 @@ class SendLogReactor : public ServerReadReactorBase<
   std::string logID;
   std::string backupID;
   std::string hash;
-  // either the value itself which is a dump of a single operation (if
-  // `persistedInBlob` is false) or the holder to blob (if `persistedInBlob` is
-  // true)
+  std::string blobHolder;
   std::string value;
   std::mutex reactorStateMutex;
 
