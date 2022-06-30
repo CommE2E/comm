@@ -20,6 +20,13 @@ void SendLogReactor::storeInDatabase() {
       storedInBlob ? this->blobHolder : this->value,
       {},
       this->hash);
+  if (database::LogItem::getItemSize(&logItem) > LOG_DATA_SIZE_DATABASE_LIMIT) {
+    throw std::runtime_error(
+        "trying to put into the database an item with size " +
+        std::to_string(database::LogItem::getItemSize(&logItem)) +
+        " that exceeds the limit " +
+        std::to_string(LOG_DATA_SIZE_DATABASE_LIMIT));
+  }
   database::DatabaseManager::getInstance().putLogItem(logItem);
 }
 
