@@ -15,12 +15,16 @@ use backup_utils::{BackupData, Item};
 use bytesize::ByteSize;
 use tools::Error;
 
+use std::env;
+
 use backup_utils::BackupServiceClient;
 
 #[tokio::test]
 async fn backup_test() -> Result<(), Error> {
+  let port = env::var("COMM_SERVICES_PORT_BACKUP")
+    .expect("port env var expected but not received");
   let mut client =
-    BackupServiceClient::connect("http://localhost:50052").await?;
+    BackupServiceClient::connect(format!("http://localhost:{}", port)).await?;
 
   let attachments_fill_size: u64 = 500;
 

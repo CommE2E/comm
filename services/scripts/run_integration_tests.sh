@@ -40,4 +40,8 @@ if [[ "$SERVICE" != "$1" ]]; then
   exit 1;
 fi;
 
+set -o allexport
+source .env
+set +o allexport
+
 run_integration_test "$SERVICE"
