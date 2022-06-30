@@ -71,7 +71,7 @@ public:
     return nullptr;
   }
 
-  void doneCallback() override {
+  void terminateCallback() override {
     if (!this->status.status.ok()) {
       return;
     }
