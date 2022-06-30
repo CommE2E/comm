@@ -7,8 +7,11 @@ namespace reactor {
 
 BlobGetClientReactor::BlobGetClientReactor(
     const std::string &holder,
-    std::shared_ptr<folly::MPMCQueue<std::string>> dataChunks)
-    : holder(holder), dataChunks(dataChunks) {
+    std::shared_ptr<folly::MPMCQueue<std::string>> dataChunks,
+    std::condition_variable *terminationNotifier)
+    : holder(holder),
+      dataChunks(dataChunks),
+      terminationNotifier(terminationNotifier) {
 }
 
 std::unique_ptr<grpc::Status>
@@ -21,6 +24,7 @@ BlobGetClientReactor::readResponse(blob::GetResponse &response) {
 
 void BlobGetClientReactor::doneCallback() {
   this->dataChunks->write("");
+  this->terminationNotifier->notify_one();
 }
 
 } // namespace reactor

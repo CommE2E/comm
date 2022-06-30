@@ -20,8 +20,8 @@ void PullBackupReactor::initializeGetReactor(const std::string &holder) {
     throw std::runtime_error(
         "get reactor cannot be initialized when backup item is missing");
   }
-  this->getReactor.reset(
-      new reactor::BlobGetClientReactor(holder, this->dataChunks));
+  this->getReactor.reset(new reactor::BlobGetClientReactor(
+      holder, this->dataChunks, &this->blobGetDoneCV));
   this->getReactor->request.set_holder(holder);
   this->blobClient.get(this->getReactor);
 }
@@ -178,9 +178,21 @@ void PullBackupReactor::nextLog() {
 }
 
 void PullBackupReactor::terminateCallback() {
+  const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
+  std::unique_lock<std::mutex> lockGet(this->blobGetDoneCVMutex);
+  if (this->getReactor->getStatusHolder()->state != ReactorState::DONE) {
+    this->blobGetDoneCV.wait(lockGet);
+  }
+  if (this->getReactor->getStatusHolder()->state != ReactorState::DONE) {
+    throw std::runtime_error("get reactor has not been terminated properly");
+  }
   if (!this->getReactor->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
         this->getReactor->getStatusHolder()->getStatus().error_message());
+  }
+  if (!this->getStatusHolder()->getStatus().ok()) {
+    throw std::runtime_error(
+        this->getStatusHolder()->getStatus().error_message());
   }
 }
 

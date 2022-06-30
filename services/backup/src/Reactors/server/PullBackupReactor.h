@@ -40,6 +40,9 @@ class PullBackupReactor : public ServerWriteReactorBase<
   size_t currentLogIndex = 0;
   std::shared_ptr<database::LogItem> currentLog;
 
+  std::condition_variable blobGetDoneCV;
+  std::mutex blobGetDoneCVMutex;
+
   void initializeGetReactor(const std::string &holder);
   void nextLog();
 

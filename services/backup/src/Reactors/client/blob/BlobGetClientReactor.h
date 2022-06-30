@@ -8,6 +8,7 @@
 #include <folly/MPMCQueue.h>
 #include <grpcpp/grpcpp.h>
 
+#include <condition_variable>
 #include <memory>
 #include <string>
 
@@ -19,11 +20,13 @@ class BlobGetClientReactor
     : public ClientReadReactorBase<blob::GetRequest, blob::GetResponse> {
   std::string holder;
   std::shared_ptr<folly::MPMCQueue<std::string>> dataChunks;
+  std::condition_variable *terminationNotifier;
 
 public:
   BlobGetClientReactor(
       const std::string &holder,
-      std::shared_ptr<folly::MPMCQueue<std::string>> dataChunks);
+      std::shared_ptr<folly::MPMCQueue<std::string>> dataChunks,
+      std::condition_variable *terminationNotifier);
 
   std::unique_ptr<grpc::Status>
   readResponse(blob::GetResponse &response) override;
