@@ -23,6 +23,7 @@ class LogItem : public Item {
   bool persistedInBlob;
   std::string value;
   std::string attachmentHolders;
+  std::string dataHash;
 
   void validate() const override;
 
@@ -33,6 +34,7 @@ public:
   static const std::string FIELD_PERSISTED_IN_BLOB;
   static const std::string FIELD_VALUE;
   static const std::string FIELD_ATTACHMENT_HOLDERS;
+  static const std::string FIELD_DATA_HASH;
 
   LogItem() {
   }
@@ -41,7 +43,8 @@ public:
       const std::string logID,
       const bool persistedInBlob,
       const std::string value,
-      std::string attachmentHolders);
+      std::string attachmentHolders,
+      const std::string dataHash);
   LogItem(const AttributeValues &itemFromDB);
 
   void assignItemFromDatabase(const AttributeValues &itemFromDB) override;
@@ -55,8 +58,11 @@ public:
   bool getPersistedInBlob() const;
   std::string getValue() const;
   std::string getAttachmentHolders() const;
+  std::string getDataHash() const;
 
   void addAttachmentHolders(const std::string &attachmentHolders);
+
+  static size_t getItemSize(const LogItem *item);
 };
 
 } // namespace database

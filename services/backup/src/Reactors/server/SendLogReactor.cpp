@@ -18,7 +18,8 @@ void SendLogReactor::storeInDatabase() {
       this->logID,
       (this->persistenceMethod == PersistenceMethod::BLOB),
       this->value,
-      {});
+      {},
+      this->hash);
   database::DatabaseManager::getInstance().putLogItem(logItem);
 }
 

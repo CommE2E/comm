@@ -14,6 +14,7 @@ const std::string LogItem::FIELD_LOG_ID = "logID";
 const std::string LogItem::FIELD_PERSISTED_IN_BLOB = "persistedInBlob";
 const std::string LogItem::FIELD_VALUE = "value";
 const std::string LogItem::FIELD_ATTACHMENT_HOLDERS = "attachmentHolders";
+const std::string LogItem::FIELD_DATA_HASH = "dataHash";
 
 std::string LogItem::tableName = LOG_TABLE_NAME;
 
@@ -22,12 +23,14 @@ LogItem::LogItem(
     const std::string logID,
     const bool persistedInBlob,
     const std::string value,
-    std::string attachmentHolders)
+    std::string attachmentHolders,
+    const std::string dataHash)
     : backupID(backupID),
       logID(logID),
       persistedInBlob(persistedInBlob),
       value(value),
-      attachmentHolders(attachmentHolders) {
+      attachmentHolders(attachmentHolders),
+      dataHash(dataHash) {
   this->validate();
 }
 
@@ -45,11 +48,16 @@ void LogItem::validate() const {
   if (!this->value.size()) {
     throw std::runtime_error("value empty");
   }
-  if (!this->persistedInBlob &&
-      this->value.size() > LOG_DATA_SIZE_DATABASE_LIMIT) {
+  const size_t itemSize = LogItem::getItemSize(this);
+  if (!this->persistedInBlob && itemSize > LOG_DATA_SIZE_DATABASE_LIMIT) {
     throw std::runtime_error(
         "the value of this log is too big to be stored in the database, it "
-        "should be stored in the blob instead");
+        "should be stored in the blob instead (" +
+        std::to_string(itemSize) + "/" +
+        std::to_string(LOG_DATA_SIZE_DATABASE_LIMIT) + ")");
+  }
+  if (!this->dataHash.size()) {
+    throw std::runtime_error("data hash empty");
   }
 }
 
@@ -66,6 +74,7 @@ void LogItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
     if (attachmentsHolders != itemFromDB.end()) {
       this->attachmentHolders = attachmentsHolders->second.GetS();
     }
+    this->dataHash = itemFromDB.at(LogItem::FIELD_DATA_HASH).GetS();
   } catch (std::logic_error &e) {
     throw std::runtime_error(
         "invalid log item provided, " + std::string(e.what()));
@@ -105,9 +114,33 @@ std::string LogItem::getAttachmentHolders() const {
   return this->attachmentHolders;
 }
 
+std::string LogItem::getDataHash() const {
+  return this->dataHash;
+}
+
 void LogItem::addAttachmentHolders(const std::string &attachmentHolders) {
   this->attachmentHolders +=
       tools::validateAttachmentHolders(attachmentHolders);
+}
+
+size_t LogItem::getItemSize(const LogItem *item) {
+  size_t size = 0;
+
+  size += LogItem::FIELD_BACKUP_ID.size();
+  size += LogItem::FIELD_LOG_ID.size();
+  size += LogItem::FIELD_PERSISTED_IN_BLOB.size();
+  size += LogItem::FIELD_VALUE.size();
+  size += LogItem::FIELD_ATTACHMENT_HOLDERS.size();
+  size += LogItem::FIELD_DATA_HASH.size();
+
+  size += item->getBackupID().size();
+  size += item->getLogID().size();
+  size += std::to_string(item->getPersistedInBlob()).size();
+  size += item->getValue().size();
+  size += item->getAttachmentHolders().size();
+  size += item->getDataHash().size();
+
+  return size;
 }
 
 } // namespace database
