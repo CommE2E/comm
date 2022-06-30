@@ -11,7 +11,7 @@ cargo > /dev/null
 for PATH in $PATHS; do
   pushd $PATH
   echo "formatting $PATH..."
-  cargo fmt
+  cargo fmt --all -- --check
   echo "checking $PATH..."
   cargo check
   popd # $PATH
