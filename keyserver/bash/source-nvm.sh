@@ -4,6 +4,10 @@
 # source from: package.json (via npm/yarn scripts)
 
 unset PREFIX
+
+# Nix controls the version of node within the development shell
+[ -n "$IN_NIX_SHELL" ] && exit 0
+
 # Intel Mac
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
 # ARM-based Mac
