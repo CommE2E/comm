@@ -10,7 +10,7 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 
 import ColorSplotch from '../../components/color-splotch.react';
 import EditSettingButton from '../../components/edit-setting-button.react';
-import { ColorPickerModalRouteName } from '../../navigation/route-names';
+import { ColorSelectorModalRouteName } from '../../navigation/route-names';
 import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../../themes/colors';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
@@ -66,7 +66,7 @@ class ThreadSettingsColor extends React.PureComponent<Props> {
 
   onPressEditColor = () => {
     this.props.navigate({
-      name: ColorPickerModalRouteName,
+      name: ColorSelectorModalRouteName,
       params: {
         presentedFrom: this.props.threadSettingsRouteKey,
         color: this.props.colorEditValue,

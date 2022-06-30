@@ -9,7 +9,7 @@ import type { MessageListParams } from '../chat/message-list-types';
 import type { MultimediaMessageTooltipModalParams } from '../chat/multimedia-message-tooltip-modal.react';
 import type { RobotextMessageTooltipModalParams } from '../chat/robotext-message-tooltip-modal.react';
 import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react';
-import type { ColorPickerModalParams } from '../chat/settings/color-picker-modal.react';
+import type { ColorSelectorModalParams } from '../chat/settings/color-selector-modal.react';
 import type { ComposeSubchannelModalParams } from '../chat/settings/compose-subchannel-modal.react';
 import type { DeleteThreadParams } from '../chat/settings/delete-thread.react';
 import type { ThreadSettingsMemberTooltipModalParams } from '../chat/settings/thread-settings-member-tooltip-modal.react';
@@ -35,7 +35,7 @@ export const CalendarRouteName = 'Calendar';
 export const CameraModalRouteName = 'CameraModal';
 export const ChatRouteName = 'Chat';
 export const ChatThreadListRouteName = 'ChatThreadList';
-export const ColorPickerModalRouteName = 'ColorPickerModal';
+export const ColorSelectorModalRouteName = 'ColorSelectorModal';
 export const ComposeSubchannelModalRouteName = 'ComposeSubchannelModal';
 export const ComposeSubchannelRouteName = 'ComposeSubchannel';
 export const CustomServerModalRouteName = 'CustomServerModal';
@@ -74,7 +74,7 @@ export type RootParamList = {
   +ThreadPickerModal: ThreadPickerModalParams,
   +AddUsersModal: AddUsersModalParams,
   +CustomServerModal: CustomServerModalParams,
-  +ColorPickerModal: ColorPickerModalParams,
+  +ColorSelectorModal: ColorSelectorModalParams,
   +ComposeSubchannelModal: ComposeSubchannelModalParams,
   +SidebarListModal: SidebarListModalParams,
   +ImagePasteModal: ImagePasteModalParams,
@@ -163,7 +163,7 @@ export const scrollBlockingModals = [
 
 export const chatRootModals = [
   AddUsersModalRouteName,
-  ColorPickerModalRouteName,
+  ColorSelectorModalRouteName,
   ComposeSubchannelModalRouteName,
 ];
 

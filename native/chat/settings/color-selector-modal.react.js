@@ -19,14 +19,14 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
-import ColorPicker from '../../components/color-picker.react';
+import ColorSelector from '../../components/color-selector.react';
 import Modal from '../../components/modal.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
 import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 
-export type ColorPickerModalParams = {
+export type ColorSelectorModalParams = {
   presentedFrom: string,
   color: string,
   threadInfo: ThreadInfo,
@@ -34,8 +34,8 @@ export type ColorPickerModalParams = {
 };
 
 type BaseProps = {
-  +navigation: RootNavigationProp<'ColorPickerModal'>,
-  +route: NavigationRoute<'ColorPickerModal'>,
+  +navigation: RootNavigationProp<'ColorSelectorModal'>,
+  +route: NavigationRoute<'ColorSelectorModal'>,
 };
 type Props = {
   ...BaseProps,
@@ -50,19 +50,20 @@ type Props = {
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
 };
-class ColorPickerModal extends React.PureComponent<Props> {
+class ColorSelectorModal extends React.PureComponent<Props> {
   render() {
-    const { color, threadInfo } = this.props.route.params;
+    const { color } = this.props.route.params;
     // Based on the assumption we are always in portrait,
     // and consequently width is the lowest dimensions
-    const modalStyle = { height: this.props.windowWidth - 5 };
+    const modalStyle = { height: 0.75 * this.props.windowWidth };
     return (
-      <Modal modalStyle={[this.props.styles.colorPickerContainer, modalStyle]}>
-        <ColorPicker
-          defaultColor={color}
-          oldColor={threadInfo.color}
+      <Modal
+        modalStyle={[this.props.styles.colorSelectorContainer, modalStyle]}
+      >
+        <ColorSelector
+          currentColor={color}
+          windowWidth={this.props.windowWidth}
           onColorSelected={this.onColorSelected}
-          style={this.props.styles.colorPicker}
         />
         <TouchableHighlight
           onPress={this.close}
@@ -132,14 +133,14 @@ const unboundStyles = {
     left: 3,
     position: 'absolute',
   },
-  colorPicker: {
+  colorSelector: {
     bottom: 10,
     left: 10,
     position: 'absolute',
     right: 10,
     top: 10,
   },
-  colorPickerContainer: {
+  colorSelectorContainer: {
     backgroundColor: 'modalBackground',
     borderColor: 'modalForegroundBorder',
     borderRadius: 5,
@@ -150,8 +151,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedColorPickerModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedColorPickerModal(props: BaseProps) {
+const ConnectedColorSelectorModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedColorSelectorModal(props: BaseProps) {
     const styles = useStyles(unboundStyles);
     const colors = useColors();
     const windowWidth = useSelector(state => state.dimensions.width);
@@ -160,7 +161,7 @@ const ConnectedColorPickerModal: React.ComponentType<BaseProps> = React.memo<Bas
     const callChangeThreadSettings = useServerCall(changeThreadSettings);
 
     return (
-      <ColorPickerModal
+      <ColorSelectorModal
         {...props}
         styles={styles}
         colors={colors}
@@ -172,4 +173,4 @@ const ConnectedColorPickerModal: React.ComponentType<BaseProps> = React.memo<Bas
   },
 );
 
-export default ConnectedColorPickerModal;
+export default ConnectedColorSelectorModal;

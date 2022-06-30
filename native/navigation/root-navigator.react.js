@@ -18,7 +18,7 @@ import LoggedOutModal from '../account/logged-out-modal.react';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import ImagePasteModal from '../chat/image-paste-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
-import ColorPickerModal from '../chat/settings/color-picker-modal.react';
+import ColorSelectorModal from '../chat/settings/color-selector-modal.react';
 import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.react';
 import SidebarListModal from '../chat/sidebar-list-modal.react';
 import CustomServerModal from '../profile/custom-server-modal.react';
@@ -33,7 +33,7 @@ import {
   ImagePasteModalRouteName,
   AddUsersModalRouteName,
   CustomServerModalRouteName,
-  ColorPickerModalRouteName,
+  ColorSelectorModalRouteName,
   ComposeSubchannelModalRouteName,
   SidebarListModalRouteName,
   type ScreenParamList,
@@ -164,8 +164,8 @@ function RootComponent(): React.Node {
         options={modalOverlayScreenOptions}
       />
       <Root.Screen
-        name={ColorPickerModalRouteName}
-        component={ColorPickerModal}
+        name={ColorSelectorModalRouteName}
+        component={ColorSelectorModal}
         options={modalOverlayScreenOptions}
       />
       <Root.Screen
