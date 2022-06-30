@@ -24,13 +24,13 @@ pub async fn run(
       let log_id = backup_data.log_items[index].id.clone();
       println!("add attachments for log {}/{}", index, log_id);
       log_id
-    },
+    }
     None => {
       println!("add attachments for backup");
       String::new()
-    },
+    }
   };
-  
+
   let holders: String = match log_index {
     Some(log_index) => backup_data.log_items[log_index]
       .attachments_holders

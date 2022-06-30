@@ -51,18 +51,15 @@ pub async fn run(
     let mut backup_id: Option<String> = None;
     let mut log_id: Option<String> = None;
     match id {
-      Some(BackupId(id)) => {
-        backup_id = Some(id)
-      },
-      Some(LogId(id)) => {
-        log_id = Some(id)
-      },
-      None => {},
+      Some(BackupId(id)) => backup_id = Some(id),
+      Some(LogId(id)) => log_id = Some(id),
+      None => {}
     };
     match response_data {
       Some(CompactionChunk(chunk)) => {
         assert_eq!(
-          state, State::Compaction,
+          state,
+          State::Compaction,
           "invalid state, expected compaction, got {:?}",
           state
         );
@@ -81,9 +78,11 @@ pub async fn run(
         assert_eq!(state, State::Log, "invalid state, expected compaction");
         let log_id = log_id.ok_or(IOError::new(ErrorKind::Other, "log id expected but not received"))?;
         if log_id != current_id {
-          result
-            .log_items
-            .push(Item::new(log_id.clone(), Vec::new(), Vec::new()));
+          result.log_items.push(Item::new(
+            log_id.clone(),
+            Vec::new(),
+            Vec::new(),
+          ));
           current_id = log_id;
         }
         let log_items_size = result.log_items.len() - 1;
@@ -120,7 +119,7 @@ pub async fn run(
           }
         }
       }
-      None => {},
+      None => {}
     }
   }
   Ok(result)

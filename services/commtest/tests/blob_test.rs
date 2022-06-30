@@ -17,8 +17,10 @@ use tools::Error;
 
 #[tokio::test]
 async fn blob_test() -> Result<(), Error> {
-  let port = env::var("COMM_SERVICES_PORT_BLOB").expect("port env var expected but not received");
-  let mut client = BlobServiceClient::connect(format!("http://localhost:{}", port)).await?;
+  let port = env::var("COMM_SERVICES_PORT_BLOB")
+    .expect("port env var expected but not received");
+  let mut client =
+    BlobServiceClient::connect(format!("http://localhost:{}", port)).await?;
 
   let blob_data = vec![
     BlobData {
