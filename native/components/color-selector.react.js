@@ -61,15 +61,13 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
       <Text style={styles.header}>Select thread color</Text>
       <View style={styles.colorButtons}>{firstRow}</View>
       <View style={styles.colorButtons}>{secondRow}</View>
-      <View style={saveButtonStyle}>
-        <TouchableOpacity
-          style={styles.saveButton}
-          onPress={onColorSplotchSaved}
-          disabled={saveButtonDisabled}
-        >
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        style={saveButtonStyle}
+        onPress={onColorSplotchSaved}
+        disabled={saveButtonDisabled}
+      >
+        <Text style={styles.saveButtonText}>Save</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -94,6 +92,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 5,
     margin: 10,
+    padding: 10,
   },
   saveButtonText: {
     color: 'white',
