@@ -36,8 +36,8 @@ async fn blob_test() -> Result<(), Error> {
       holder: "test_holder002".to_string(),
       hash: "test_hash002".to_string(),
       chunks_sizes: vec![
-        tools::get_grpc_chunk_size_limit(),
-        tools::get_grpc_chunk_size_limit(),
+        *tools::GRPC_CHUNK_SIZE_LIMIT,
+        *tools::GRPC_CHUNK_SIZE_LIMIT,
         ByteSize::b(10).as_u64() as usize,
       ],
     },
@@ -45,9 +45,9 @@ async fn blob_test() -> Result<(), Error> {
       holder: "test_holder003".to_string(),
       hash: "test_hash003".to_string(),
       chunks_sizes: vec![
-        tools::get_grpc_chunk_size_limit(),
+        *tools::GRPC_CHUNK_SIZE_LIMIT,
         ByteSize::b(100).as_u64() as usize,
-        tools::get_grpc_chunk_size_limit(),
+        *tools::GRPC_CHUNK_SIZE_LIMIT,
       ],
     },
   ];

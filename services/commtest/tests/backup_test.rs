@@ -47,7 +47,7 @@ async fn backup_test() -> Result<(), Error> {
       Item::new(
         String::new(),
         vec![
-          tools::get_dynamo_db_item_size_limit()
+          *tools::DYNAMO_DB_ITEM_SIZE_LIMIT
             - ByteSize::b(attachments_fill_size / 2).as_u64() as usize,
         ],
         vec!["holder0".to_string(), "holder1".to_string()],
@@ -62,8 +62,8 @@ async fn backup_test() -> Result<(), Error> {
       Item::new(
         String::new(),
         vec![
-          tools::get_grpc_chunk_size_limit(),
-          tools::get_grpc_chunk_size_limit(),
+          *tools::GRPC_CHUNK_SIZE_LIMIT,
+          *tools::GRPC_CHUNK_SIZE_LIMIT,
         ],
         vec![
           "holder0".to_string(),

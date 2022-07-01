@@ -93,6 +93,7 @@ dependencies = [
  "bytesize",
  "derive_more",
  "futures",
+ "lazy_static",
  "prost",
  "tokio",
  "tonic",

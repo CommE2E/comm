@@ -11,6 +11,7 @@ futures = "0.1"
 async-stream = "0.3.2"
 derive_more = "0.99.16"
 bytesize = "1.1.0"
+lazy_static = "1.4.0"
 
 [build-dependencies]
 tonic-build = "0.6"

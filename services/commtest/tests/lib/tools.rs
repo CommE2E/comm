@@ -1,4 +1,5 @@
 use bytesize::ByteSize;
+use lazy_static::lazy_static;
 
 #[allow(dead_code)]
 pub fn generate_nbytes(
@@ -21,16 +22,11 @@ pub enum Error {
   TonicStatus(tonic::Status),
 }
 
-#[allow(dead_code)]
-pub fn get_dynamo_db_item_size_limit() -> usize {
-  ByteSize::kib(400).as_u64() as usize
-}
-
 pub const GRPC_METADATA_SIZE_BYTES: usize = 5;
 
-#[allow(dead_code)]
-pub fn get_grpc_chunk_size_limit() -> usize {
-  (ByteSize::mib(4).as_u64() as usize) - GRPC_METADATA_SIZE_BYTES
+lazy_static! {
+  pub static ref DYNAMO_DB_ITEM_SIZE_LIMIT: usize = ByteSize::kib(400).as_u64() as usize;
+  pub static ref GRPC_CHUNK_SIZE_LIMIT: usize = (ByteSize::mib(4).as_u64() as usize) - GRPC_METADATA_SIZE_BYTES;
 }
 
 #[allow(dead_code)]
