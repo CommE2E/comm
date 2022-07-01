@@ -52,7 +52,7 @@ div.conversationHeader:last-child {
   padding-top: 6px;
 }
 
-div.messageActionActiveArea {
+div.messageTooltipActiveArea {
   position: absolute;
   display: flex;
   top: 0;
@@ -61,17 +61,17 @@ div.messageActionActiveArea {
   padding: 0 12px;
 }
 
-div.viewerMessageActionActiveArea {
+div.viewerMessageTooltipActiveArea {
   right: 100%;
 }
 div.nonViewerMessageActiveArea {
   left: 100%;
 }
-div.messageActionActiveArea > div + div {
+div.messageTooltipActiveArea > div + div {
   margin-left: 4px;
 }
 
-div.messageActionLinkIcon:hover {
+div.messageTooltipLinkIcon:hover {
   cursor: pointer;
 }
 

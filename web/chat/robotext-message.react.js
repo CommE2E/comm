@@ -16,7 +16,7 @@ import { linkRules } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
 import { updateNavInfoActionType } from '../types/nav-types';
 import { InlineSidebar } from './inline-sidebar.react';
-import MessageActionButtons from './message-action-buttons';
+import MessageTooltip from './message-tooltip.react';
 import type {
   MessagePositionInfo,
   OnMessagePositionWithContainerInfo,
@@ -59,14 +59,14 @@ class RobotextMessage extends React.PureComponent<Props> {
 
     const { item, threadInfo, sidebarExistsOrCanBeCreated } = this.props;
     const { id } = item.messageInfo;
-    let messageActionTooltip;
+    let messageTooltip;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
       sidebarExistsOrCanBeCreated
     ) {
-      messageActionTooltip = (
-        <MessageActionButtons
+      messageTooltip = (
+        <MessageTooltip
           threadInfo={threadInfo}
           item={item}
           mouseOverMessagePosition={this.props.mouseOverMessagePosition}
@@ -75,16 +75,16 @@ class RobotextMessage extends React.PureComponent<Props> {
       );
     }
 
-    let messageActionLinks;
-    if (messageActionTooltip) {
-      messageActionLinks = (
+    let messageTooltipLinks;
+    if (messageTooltip) {
+      messageTooltipLinks = (
         <div
           className={classNames(
-            css.messageActionLinks,
-            css.nonViewerMessageActionLinks,
+            css.messageTooltipLinks,
+            css.nonViewerMessageTooltipLinks,
           )}
         >
-          {messageActionTooltip}
+          {messageTooltip}
         </div>
       );
     }
@@ -97,7 +97,7 @@ class RobotextMessage extends React.PureComponent<Props> {
           onMouseLeave={this.onMouseLeave}
         >
           <span>{this.linkedRobotext()}</span>
-          {messageActionLinks}
+          {messageTooltipLinks}
         </div>
         {inlineSidebar}
       </div>

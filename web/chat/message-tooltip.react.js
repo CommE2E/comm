@@ -16,8 +16,8 @@ import {
   useOnClickPendingSidebar,
 } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
-import css from './message-action-buttons.css';
 import MessageReplyButton from './message-reply-button.react';
+import css from './message-tooltip.css';
 import type {
   ItemAndContainerPositionInfo,
   MessagePositionInfo,
@@ -38,7 +38,7 @@ const createSidebarText = 'Create sidebar';
 
 type TooltipType = 'sidebar' | 'reply';
 
-type MessageActionButtonsProps = {
+type MessageTooltipProps = {
   +threadInfo: ThreadInfo,
   +item: ChatMessageInfoItem,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
@@ -49,7 +49,7 @@ type MessageActionButtonsProps = {
   +canReply?: boolean,
   +inputState?: ?InputState,
 };
-function MessageActionButtons(props: MessageActionButtonsProps): React.Node {
+function MessageTooltip(props: MessageTooltipProps): React.Node {
   const {
     threadInfo,
     item,
@@ -272,4 +272,4 @@ function getMessageActionTooltipStyle(
   return { className };
 }
 
-export default MessageActionButtons;
+export default MessageTooltip;

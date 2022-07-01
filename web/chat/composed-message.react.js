@@ -18,7 +18,7 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import { InlineSidebar } from './inline-sidebar.react';
-import MessageActionButtons from './message-action-buttons';
+import MessageTooltip from './message-tooltip.react';
 import {
   type OnMessagePositionWithContainerInfo,
   type MessagePositionInfo,
@@ -118,7 +118,7 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let messageActionButtons;
+    let messageTooltip;
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
@@ -128,8 +128,8 @@ class ComposedMessage extends React.PureComponent<Props> {
         ? availableTooltipPositionsForViewerMessage
         : availableTooltipPositionsForNonViewerMessage;
 
-      messageActionButtons = (
-        <MessageActionButtons
+      messageTooltip = (
+        <MessageTooltip
           threadInfo={threadInfo}
           item={item}
           availableTooltipPositions={availableTooltipPositions}
@@ -141,21 +141,21 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let messageActionLinks;
-    if (messageActionButtons) {
-      const actionLinksClassName = classNames({
-        [css.messageActionActiveArea]: true,
-        [css.viewerMessageActionActiveArea]: isViewer,
+    let messageTooltipLinks;
+    if (messageTooltip) {
+      const tooltipLinksClassName = classNames({
+        [css.messageTooltipActiveArea]: true,
+        [css.viewerMessageTooltipActiveArea]: isViewer,
         [css.nonViewerMessageActiveArea]: !isViewer,
       });
 
-      messageActionLinks = (
-        <div className={actionLinksClassName}>{messageActionButtons}</div>
+      messageTooltipLinks = (
+        <div className={tooltipLinksClassName}>{messageTooltip}</div>
       );
     }
 
-    const viewerActionLinks = isViewer ? messageActionLinks : null;
-    const nonViewerActionLinks = !isViewer ? messageActionLinks : null;
+    const viewerTooltipLinks = isViewer ? messageTooltipLinks : null;
+    const nonViewerTooltipLinks = !isViewer ? messageTooltipLinks : null;
 
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
@@ -179,11 +179,11 @@ class ComposedMessage extends React.PureComponent<Props> {
             onMouseEnter={this.onMouseEnter}
             onMouseLeave={this.onMouseLeave}
           >
-            {viewerActionLinks}
+            {viewerTooltipLinks}
             <div className={messageBoxClassName} style={messageBoxStyle}>
               {this.props.children}
             </div>
-            {nonViewerActionLinks}
+            {nonViewerTooltipLinks}
           </div>
           {deliveryIcon}
         </div>

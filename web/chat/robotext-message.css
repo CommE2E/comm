@@ -15,7 +15,7 @@ div.sidebarMarginTop {
   margin-top: 4px;
   margin-bottom: -8px;
 }
-div.messageActionLinks {
+div.messageTooltipLinks {
   position: absolute;
   display: flex;
   top: 0;
@@ -24,12 +24,12 @@ div.messageActionLinks {
   color: gray;
   padding: 0 6px;
 }
-div.viewerMessageActionLinks {
+div.viewerMessageTooltipLinks {
   right: 100%;
 }
-div.nonViewerMessageActionLinks {
+div.nonViewerMessageTooltipLinks {
   left: 100%;
 }
-div.messageActionLinks > div + div {
+div.messageTooltipLinks > div + div {
   margin-left: 4px;
 }
