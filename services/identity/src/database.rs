@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use bytes::Bytes;
 use chrono::{DateTime, ParseError, Utc};
@@ -256,6 +257,45 @@ pub enum Error {
   InvalidTimestamp(ParseError),
   #[display(...)]
   InvalidAuthType,
+}
+
+#[derive(Debug, derive_more::Error, derive_more::Constructor)]
+pub struct DBItemError {
+  attribute_name: &'static str,
+  attribute_value: Option<AttributeValue>,
+  attribute_error: DBItemAttributeError,
+}
+
+impl Display for DBItemError {
+  fn fmt(&self, f: &mut Formatter) -> FmtResult {
+    match &self.attribute_error {
+      DBItemAttributeError::Missing => {
+        write!(f, "Attribute {} is missing", self.attribute_name)
+      }
+      DBItemAttributeError::IncorrectType => write!(
+        f,
+        "Value for attribute {} has incorrect type: {:?}",
+        self.attribute_name, self.attribute_value
+      ),
+      error => write!(
+        f,
+        "Error regarding attribute {} with value {:?}: {}",
+        self.attribute_name, self.attribute_value, error
+      ),
+    }
+  }
+}
+
+#[derive(Debug, derive_more::Display, derive_more::Error)]
+pub enum DBItemAttributeError {
+  #[display(...)]
+  Missing,
+  #[display(...)]
+  IncorrectType,
+  #[display(...)]
+  InvalidTimestamp(chrono::ParseError),
+  #[display(...)]
+  Pake(ProtocolError),
 }
 
 type AttributeName = String;
