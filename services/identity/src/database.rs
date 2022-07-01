@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 use bytes::Bytes;
-use chrono::{DateTime, ParseError, Utc};
+use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
 use rusoto_core::{Region, RusotoError};
 use rusoto_dynamodb::{
@@ -51,30 +51,13 @@ impl DatabaseClient {
     let get_item_result = self.client.get_item(get_item_input).await;
     match get_item_result {
       Ok(GetItemOutput {
-        item: Some(item), ..
-      }) => {
-        if let Some(AttributeValue {
-          b: Some(server_registration_bytes),
-          ..
-        }) = item.get(PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE)
-        {
-          match ServerRegistration::<Cipher>::deserialize(
-            server_registration_bytes,
-          ) {
-            Ok(server_registration) => Ok(Some(server_registration)),
-            Err(e) => {
-              error!(
-                "Failed to deserialize ServerRegistration struct for user {}: {}",
-                user_id, e
-              );
-              Err(Error::Pake(e))
-            }
-          }
-        } else {
-          error!("No registration data found for registered user {}", user_id);
-          Err(Error::MissingAttribute)
-        }
-      }
+        item: Some(mut item),
+        ..
+      }) => parse_registration_data_attribute(
+        item.remove(PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE),
+      )
+      .map(Some)
+      .map_err(Error::Attribute),
       Ok(_) => {
         info!(
           "No item found for user {} in PAKE registration table",
@@ -250,13 +233,7 @@ pub enum Error {
   #[display(...)]
   RusotoPut(RusotoError<PutItemError>),
   #[display(...)]
-  Pake(ProtocolError),
-  #[display(...)]
-  MissingAttribute,
-  #[display(...)]
-  InvalidTimestamp(ParseError),
-  #[display(...)]
-  InvalidAuthType,
+  Attribute(DBItemError),
 }
 
 #[derive(Debug, derive_more::Error, derive_more::Constructor)]
@@ -329,54 +306,118 @@ fn create_composite_primary_key(
 
 fn parse_created_attribute(
   attribute: Option<AttributeValue>,
-) -> Result<DateTime<Utc>, Error> {
+) -> Result<DateTime<Utc>, DBItemError> {
   if let Some(AttributeValue {
     s: Some(created), ..
-  }) = attribute
+  }) = &attribute
   {
-    created.parse().map_err(Error::InvalidTimestamp)
+    created.parse().map_err(|e| {
+      DBItemError::new(
+        ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
+        attribute,
+        DBItemAttributeError::InvalidTimestamp(e),
+      )
+    })
   } else {
-    Err(Error::MissingAttribute)
+    Err(DBItemError::new(
+      ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
+      attribute,
+      DBItemAttributeError::Missing,
+    ))
   }
 }
 
 fn parse_auth_type_attribute(
   attribute: Option<AttributeValue>,
-) -> Result<AuthType, Error> {
+) -> Result<AuthType, DBItemError> {
   if let Some(AttributeValue {
     s: Some(auth_type), ..
-  }) = attribute
+  }) = &attribute
   {
     match auth_type.as_str() {
       "password" => Ok(AuthType::Password),
       "wallet" => Ok(AuthType::Wallet),
-      _ => Err(Error::InvalidAuthType),
+      _ => Err(DBItemError::new(
+        ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE,
+        attribute,
+        DBItemAttributeError::IncorrectType,
+      )),
     }
   } else {
-    Err(Error::MissingAttribute)
+    Err(DBItemError::new(
+      ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE,
+      attribute,
+      DBItemAttributeError::Missing,
+    ))
   }
 }
 
 fn parse_valid_attribute(
   attribute: Option<AttributeValue>,
-) -> Result<bool, Error> {
-  if let Some(AttributeValue {
-    bool: Some(valid), ..
-  }) = attribute
-  {
-    Ok(valid)
-  } else {
-    Err(Error::MissingAttribute)
+) -> Result<bool, DBItemError> {
+  match attribute {
+    Some(AttributeValue {
+      bool: Some(valid), ..
+    }) => Ok(valid),
+    Some(_) => Err(DBItemError::new(
+      ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE,
+      attribute,
+      DBItemAttributeError::IncorrectType,
+    )),
+    None => Err(DBItemError::new(
+      ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE,
+      attribute,
+      DBItemAttributeError::Missing,
+    )),
   }
 }
 
 fn parse_token_attribute(
   attribute: Option<AttributeValue>,
-) -> Result<String, Error> {
-  if let Some(AttributeValue { s: Some(token), .. }) = attribute {
-    Ok(token)
-  } else {
-    Err(Error::MissingAttribute)
+) -> Result<String, DBItemError> {
+  match attribute {
+    Some(AttributeValue { s: Some(token), .. }) => Ok(token),
+    Some(_) => Err(DBItemError::new(
+      ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
+      attribute,
+      DBItemAttributeError::IncorrectType,
+    )),
+    None => Err(DBItemError::new(
+      ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
+      attribute,
+      DBItemAttributeError::Missing,
+    )),
+  }
+}
+
+fn parse_registration_data_attribute(
+  attribute: Option<AttributeValue>,
+) -> Result<ServerRegistration<Cipher>, DBItemError> {
+  match &attribute {
+    Some(AttributeValue {
+      b: Some(server_registration_bytes),
+      ..
+    }) => {
+      match ServerRegistration::<Cipher>::deserialize(server_registration_bytes)
+      {
+        Ok(server_registration) => Ok(server_registration),
+        Err(e) => Err(DBItemError::new(
+          PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+          attribute,
+          DBItemAttributeError::Pake(e),
+        )),
+      }
+    }
+    Some(_) => Err(DBItemError::new(
+      PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+      attribute,
+      DBItemAttributeError::IncorrectType,
+    )),
+    None => Err(DBItemError::new(
+      PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+      attribute,
+      DBItemAttributeError::Missing,
+    )),
   }
 }
 
