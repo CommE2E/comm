@@ -86,7 +86,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh \
 # Docker build caching saves us from re-downloading Node when any file changes
 COPY --chown=comm keyserver/.nvmrc keyserver/
 COPY --chown=comm keyserver/bash/source-nvm.sh keyserver/bash/
-RUN cd keyserver && . bash/source-nvm.sh
+RUN cd keyserver/bash && ./source-nvm.sh
 
 #-------------------------------------------------------------------------------
 # STEP 5: YARN CLEANINSTALL
@@ -94,7 +94,7 @@ RUN cd keyserver && . bash/source-nvm.sh
 #-------------------------------------------------------------------------------
 
 # Copy in package.json and yarn.lock files
-COPY --chown=comm package.json yarn.lock .
+COPY --chown=comm package.json yarn.lock ./
 COPY --chown=comm keyserver/package.json keyserver/.flowconfig keyserver/
 COPY --chown=comm lib/package.json lib/.flowconfig lib/
 COPY --chown=comm web/package.json web/.flowconfig web/
