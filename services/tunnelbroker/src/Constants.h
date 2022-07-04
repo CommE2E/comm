@@ -9,6 +9,8 @@ namespace network {
 
 // AWS DynamoDB
 const size_t DYNAMODB_MAX_BATCH_ITEMS = 25;
+const size_t DYNAMODB_BACKOFF_FIRST_RETRY_DELAY = 50;
+const size_t DYNAMODB_MAX_BACKOFF_TIME = 10000; // 10 seconds
 
 const std::string DEVICE_SESSIONS_TABLE_NAME = "tunnelbroker-device-sessions";
 const std::string DEVICE_SESSIONS_VERIFICATION_MESSAGES_TABLE_NAME =
