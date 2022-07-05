@@ -1,4 +1,4 @@
-#include "CommSecureStore.h"
+#include <Tools/CommSecureStore.h>
 #include <fbjni/fbjni.h>
 
 using namespace facebook::jni;
