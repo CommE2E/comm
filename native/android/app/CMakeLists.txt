@@ -1,6 +1,6 @@
 # For more information about using CMake with Android Studio, read the
 # documentation: https://d.android.com/studio/projects/add-native-code.html
-project(comm)
+project(comm CXX C)
 
 set (CMAKE_CXX_STANDARD 14)
 
@@ -70,16 +70,9 @@ include_directories(
   ./src/cpp
 
   # comm native mutual code
-  ../../cpp/CommonCpp/NativeModules
-  ../../cpp/CommonCpp/NativeModules/InternalModules
-  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities
-  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/ThreadOperationsUtilities
-  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities
-  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs
-  ../../cpp/CommonCpp/DatabaseManagers
-  ../../cpp/CommonCpp/Tools
-  ../../cpp/CommonCpp/grpc/_generated
-  ../../cpp/CommonCpp/grpc
+  ../../cpp/CommonCpp/
+  ../../cpp/CommonCpp/NativeModules/
+  ../../cpp/CommonCpp/grpc/_generated/
 )
 
 # search for all cpp files in this directory
@@ -102,7 +95,7 @@ add_library(
   ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
   ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/LongLivedObject.cpp
   ../../node_modules/react-native/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleUtils.cpp
-  
+
   # SQLCipher
   ${SQLCIPHER}
 
