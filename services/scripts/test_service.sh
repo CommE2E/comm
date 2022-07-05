@@ -5,7 +5,7 @@ set -e
 SERVICES=$(./scripts/list_services.sh)
 SERVICE=$(grep "$1" <<< echo "$SERVICES") || echo "No such service: $1"
 
-if [ "$SERVICE" != "$1" ]; then
+if [[ "$SERVICE" != "$1" ]]; then
   echo "Expected one of these:"
   echo "$SERVICES"
   exit 1;
