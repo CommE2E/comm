@@ -17,8 +17,10 @@
 #import "CommCoreModule.h"
 #import "GlobalNetworkSingleton.h"
 #import "Logger.h"
+#import "MessageOperationsUtilities.h"
 #import "NetworkModule.h"
 #import "SQLiteQueryExecutor.h"
+#import "TemporaryMessageStorage.h"
 #import "ThreadOperations.h"
 #import "Tools.h"
 #import <cstdio>
@@ -75,7 +77,7 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 #ifdef FB_SONARKIT_ENABLED
   InitializeFlipper(application);
 #endif
-
+  [self moveMessagesToDatabase];
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self
                                             launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
@@ -261,6 +263,16 @@ using Runtime = facebook::jsi::Runtime;
         "Failed to move SQLite database from app group to default location");
   }
   comm::SQLiteQueryExecutor::initialize(sqliteFilePath);
+}
+
+- (void)moveMessagesToDatabase {
+  TemporaryMessageStorage *temporaryStorage =
+      [[TemporaryMessageStorage alloc] init];
+  NSArray<NSString *> *messages = [temporaryStorage readAndClearMessages];
+  for (NSString *message in messages) {
+    std::string messageInfos = std::string([message UTF8String]);
+    comm::MessageOperationsUtilities::storeMessageInfos(messageInfos);
+  }
 }
 
 // Copied from
