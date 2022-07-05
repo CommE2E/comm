@@ -1,6 +1,6 @@
-#import "CommSecureStore.h"
 #import <EXSecureStore/EXSecureStore.h>
 #import <Foundation/Foundation.h>
+#import <Tools/CommSecureStore.h>
 #import <stdexcept>
 
 #import "CommSecureStoreIOSWrapper.h"
