@@ -1,6 +1,6 @@
 # For more information about using CMake with Android Studio, read the
 # documentation: https://d.android.com/studio/projects/add-native-code.html
-project(comm)
+project(comm CXX C)
 
 set (CMAKE_CXX_STANDARD 14)
 
@@ -87,6 +87,7 @@ include_directories(
   ./src/cpp
 
   # comm native mutual code
+  ../../cpp/CommonCpp/
   ../../cpp/CommonCpp/NativeModules
   ../../cpp/CommonCpp/NativeModules/InternalModules
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities
