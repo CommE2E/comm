@@ -1,6 +1,5 @@
 #import "CommSecureStoreIOSWrapper.h"
 
-#import "CommSecureStoreIOSWrapper.h"
 #import <ExpoModulesCore/EXModuleRegistryProvider.h>
 
 @interface CommSecureStoreIOSWrapper ()
