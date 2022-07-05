@@ -1,6 +1,11 @@
 // @flow
 
+import invariant from 'invariant';
 import nodemailer from 'nodemailer';
+
+import { isDev } from 'lib/utils/dev-utils';
+
+import { importJSON } from '../utils/import-json.js';
 
 type MailInfo = {
   +from: string,
@@ -14,6 +19,37 @@ type Transport = {
   ...
 };
 
-const sendmail: Transport = nodemailer.createTransport({ sendmail: true });
+type PostmarkConfig = {
+  +apiToken: string,
+};
 
-export default sendmail;
+let cachedTransport: ?Transport;
+async function getSendmail(): Promise<Transport> {
+  if (cachedTransport) {
+    return cachedTransport;
+  }
+  const postmark: ?PostmarkConfig = await importJSON({
+    folder: 'facts',
+    name: 'postmark',
+  });
+
+  if (isDev && !postmark) {
+    cachedTransport = nodemailer.createTransport({ sendmail: true });
+    return cachedTransport;
+  }
+
+  invariant(postmark, 'Postmark config missing');
+  cachedTransport = nodemailer.createTransport({
+    host: 'smtp.postmarkapp.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: postmark.apiToken,
+      pass: postmark.apiToken,
+    },
+    requireTLS: true,
+  });
+  return cachedTransport;
+}
+
+export default getSendmail;
