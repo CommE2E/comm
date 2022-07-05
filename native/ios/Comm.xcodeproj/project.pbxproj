@@ -10,30 +10,30 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; };
-		2DDA0AE067906E18B83A455C /* ClientGetReadReactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */; };
-		71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */; };
-		71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */; };
-		71009A7B26FDCD72002C8453 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7926FDCD71002C8453 /* Client.cpp */; };
-		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
+		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		2DDA0AE067906E18B83A455C /* ClientGetReadReactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71009A7726FDCA67002C8453 /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7326FDCA67002C8453 /* tunnelbroker.pb.cc */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71009A7826FDCA67002C8453 /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7526FDCA67002C8453 /* tunnelbroker.grpc.pb.cc */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71009A7B26FDCD72002C8453 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7926FDCD71002C8453 /* Client.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		713EE41126C66B80003D7C48 /* CryptoTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 713EE41026C66B80003D7C48 /* CryptoTest.mm */; };
-		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
-		718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; };
-		71BE84492636A944002849D2 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843B2636A944002849D2 /* NativeModules.cpp */; };
-		71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843C2636A944002849D2 /* CommCoreModule.cpp */; };
-		71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
-		71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6F26B3FF0900EDE27D /* Session.cpp */; };
-		71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7326B401D300EDE27D /* Tools.cpp */; };
-		71BF5B7F26BBDD7400EDE27D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
-		71CA4A64262DA8E500835C89 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
-		71CA4AEC262F236100835C89 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
-		71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
+		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71BE84492636A944002849D2 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843B2636A944002849D2 /* NativeModules.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843C2636A944002849D2 /* CommCoreModule.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6F26B3FF0900EDE27D /* Session.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7326B401D300EDE27D /* Tools.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71BF5B7F26BBDD7400EDE27D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71CA4A64262DA8E500835C89 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71CA4AEC262F236100835C89 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
 		724995D527B4103A00323FCE /* NotificationService.mm in Sources */ = {isa = PBXBuildFile; fileRef = 724995D427B4103A00323FCE /* NotificationService.mm */; };
 		724995D927B4103A00323FCE /* NotificationService.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 724995D127B4103A00323FCE /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724995FA27BA9E8C00323FCE /* UserNotifications.framework */; };
-		726E5D752731A4790032361D /* NetworkModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D732731A4790032361D /* NetworkModule.cpp */; };
-		726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
+		726E5D752731A4790032361D /* NetworkModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D732731A4790032361D /* NetworkModule.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
 		7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F788C2B248AA2130098F071 /* SplashScreen.storyboard */; };
 		7F8D602126535E060053CB29 /* OpenSans-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D601E26535E060053CB29 /* OpenSans-Semibold.ttf */; };
@@ -43,11 +43,11 @@
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		B723460726979250009A0709 /* swmansion.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B723460626979250009A0709 /* swmansion.ttf */; };
-		B7BEE749279B3FB6009CCA35 /* GRPCStreamHostObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */; };
+		B7BEE749279B3FB6009CCA35 /* GRPCStreamHostObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
 		CB1648AD27CFBBBB00394D9D /* ClientGetReadReactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */; };
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
-		CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */; };
-		CB38F2C0286C6CDF0010535C /* MessageOperationsUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */; };
+		CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
+		CB38F2C0286C6CDF0010535C /* MessageOperationsUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
 		CB3C621127CE4A320054F24C /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
 		CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		CB4821A527CF9F38001AB7E1 /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
@@ -62,7 +62,7 @@
 		CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
 		CB4821B127CFB1FA001AB7E1 /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
 		CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
-		CB64AA76284F4DC900460699 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB64AA74284F4DC900460699 /* ThreadOperations.cpp */; };
+		CB64AA76284F4DC900460699 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB64AA74284F4DC900460699 /* ThreadOperations.cpp */; settings = {COMPILER_FLAGS = "-I../cpp/CommonCpp -I../cpp/CommonCpp/NativeModules -I../cpp/CommonCpp/grpc/_generated"; }; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
 		F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */; };
 /* End PBXBuildFile section */
@@ -1012,6 +1012,9 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
+					"$(PROJECT_DIR)/../cpp/CommonCpp",
+					"$(PROJECT_DIR)/../cpp/CommonCpp/NativeModules",
+					"$(PROJECT_DIR)/../cpp/CommonCpp/grpc/_generated",
 				);
 				INFOPLIST_FILE = Comm/Info.debug.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1061,6 +1064,9 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
+					"$(PROJECT_DIR)/../cpp/CommonCpp",
+					"$(PROJECT_DIR)/../cpp/CommonCpp/NativeModules",
+					"$(PROJECT_DIR)/../cpp/CommonCpp/grpc/_generated",
 				);
 				INFOPLIST_FILE = Comm/Info.release.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
