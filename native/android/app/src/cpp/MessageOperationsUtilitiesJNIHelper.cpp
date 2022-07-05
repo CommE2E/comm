@@ -1,6 +1,6 @@
-#include "MessageOperationsUtilitiesJNIHelper.h"
-#include "MessageOperationsUtilities.h"
-#include "SQLiteQueryExecutor.h"
+#include <DatabaseManagers/SQLiteQueryExecutor.h>
+#include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilities.h>
+#include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilitiesJNIHelper.h>
 
 namespace comm {
 void MessageOperationsUtilitiesJNIHelper::storeMessageInfos(
