@@ -11,3 +11,6 @@ target_link_libraries(comm-databasemanagers
   comm-sqlite-orm
   )
 
+target_link_libraries(comm-modules-persistentstorage
+  comm-sqlite-orm
+  )
