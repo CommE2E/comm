@@ -1012,6 +1012,9 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
+					"$(SRCROOT)/../cpp/CommonCpp",
+					"$(SRCROOT)/../cpp/CommonCpp/NativeModules",
+					"$(SRCROOT)/../cpp/CommonCpp/grpc/_generated",
 				);
 				INFOPLIST_FILE = Comm/Info.debug.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1061,6 +1064,9 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
+					"$(SRCROOT)/../cpp/CommonCpp",
+					"$(SRCROOT)/../cpp/CommonCpp/NativeModules",
+					"$(SRCROOT)/../cpp/CommonCpp/grpc/_generated",
 				);
 				INFOPLIST_FILE = Comm/Info.release.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
