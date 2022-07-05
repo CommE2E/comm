@@ -1,5 +1,5 @@
-#include "GlobalNetworkSingletonJNIHelper.h"
-#include "GlobalNetworkSingleton.h"
+#include <Internal/GlobalNetworkSingleton.h>
+#include <Internal/GlobalNetworkSingletonJNIHelper.h>
 
 namespace comm {
 void GlobalNetworkSingletonJNIHelper::sendPong(

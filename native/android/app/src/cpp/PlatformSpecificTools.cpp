@@ -1,5 +1,5 @@
-#include "PlatformSpecificTools.h"
-#include "Logger.h"
+#include <Tools/Logger.h>
+#include <Tools/PlatformSpecificTools.h>
 #include <fbjni/fbjni.h>
 
 using namespace facebook::jni;
