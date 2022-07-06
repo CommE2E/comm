@@ -29,7 +29,7 @@ async function getSendmail(): Promise<Transport> {
     return cachedTransport;
   }
   const postmark: ?PostmarkConfig = await importJSON({
-    folder: 'facts',
+    folder: 'secrets',
     name: 'postmark',
   });
 
