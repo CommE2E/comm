@@ -1,3 +1,4 @@
+use aws_sdk_dynamodb::Error as DynamoDBError;
 use chrono::Utc;
 use constant_time_eq::constant_time_eq;
 use futures_core::Stream;
@@ -9,8 +10,6 @@ use opaque_ke::{
 use opaque_ke::{RegistrationUpload, ServerRegistration};
 use rand::rngs::OsRng;
 use rand::{CryptoRng, Rng};
-use rusoto_core::RusotoError;
-use rusoto_dynamodb::{GetItemError, PutItemError};
 use siwe::Message;
 use std::pin::Pin;
 use tokio::sync::mpsc;
@@ -327,13 +326,11 @@ impl IdentityService for MyIdentityService {
         message.access_token.as_bytes(),
       ),
       Ok(None) => false,
-      Err(Error::RusotoGet(RusotoError::Service(
-        GetItemError::ResourceNotFound(_),
-      )))
-      | Err(Error::RusotoGet(RusotoError::Credentials(_))) => {
-        return Err(Status::failed_precondition("internal error"))
-      }
-      Err(Error::RusotoGet(_)) => {
+      Err(Error::AwsSdk(DynamoDBError::InternalServerError(_)))
+      | Err(Error::AwsSdk(
+        DynamoDBError::ProvisionedThroughputExceededException(_),
+      ))
+      | Err(Error::AwsSdk(DynamoDBError::RequestLimitExceeded(_))) => {
         return Err(Status::unavailable("please retry"))
       }
       Err(e) => {
@@ -372,13 +369,13 @@ async fn put_token_helper(
     .await
   {
     Ok(_) => Ok(access_token_data.access_token),
-    Err(Error::RusotoPut(RusotoError::Service(
-      PutItemError::ResourceNotFound(_),
-    )))
-    | Err(Error::RusotoPut(RusotoError::Credentials(_))) => {
-      Err(Status::failed_precondition("internal error"))
+    Err(Error::AwsSdk(DynamoDBError::InternalServerError(_)))
+    | Err(Error::AwsSdk(
+      DynamoDBError::ProvisionedThroughputExceededException(_),
+    ))
+    | Err(Error::AwsSdk(DynamoDBError::RequestLimitExceeded(_))) => {
+      Err(Status::unavailable("please retry"))
     }
-    Err(Error::RusotoPut(_)) => Err(Status::unavailable("please retry")),
     Err(e) => {
       error!("Encountered an unexpected error: {}", e);
       Err(Status::failed_precondition("unexpected error"))
@@ -487,21 +484,17 @@ async fn pake_login_start(
       Ok(None) => {
         return Err(Status::not_found("user not found"));
       }
-      Err(e) => match e {
-        Error::RusotoGet(RusotoError::Service(
-          GetItemError::ResourceNotFound(_),
-        ))
-        | Error::RusotoGet(RusotoError::Credentials(_)) => {
-          return Err(Status::failed_precondition("internal error"));
-        }
-        Error::RusotoGet(_) => {
-          return Err(Status::unavailable("please retry"));
-        }
-        e => {
-          error!("Encountered an unexpected error: {}", e);
-          return Err(Status::failed_precondition("unexpected error"));
-        }
-      },
+      Err(Error::AwsSdk(DynamoDBError::InternalServerError(_)))
+      | Err(Error::AwsSdk(
+        DynamoDBError::ProvisionedThroughputExceededException(_),
+      ))
+      | Err(Error::AwsSdk(DynamoDBError::RequestLimitExceeded(_))) => {
+        return Err(Status::unavailable("please retry"))
+      }
+      Err(e) => {
+        error!("Encountered an unexpected error: {}", e);
+        return Err(Status::failed_precondition("unexpected error"));
+      }
     };
   let credential_request =
     CredentialRequest::deserialize(pake_credential_request).map_err(|e| {
@@ -663,10 +656,13 @@ async fn pake_registration_finish(
     .await
   {
     Ok(_) => Ok(()),
-    Err(RusotoError::Service(PutItemError::ResourceNotFound(_)))
-    | Err(RusotoError::Credentials(_)) => {
-      Err(Status::failed_precondition("internal error"))
+    Err(Error::AwsSdk(DynamoDBError::InternalServerError(_)))
+    | Err(Error::AwsSdk(
+      DynamoDBError::ProvisionedThroughputExceededException(_),
+    ))
+    | Err(Error::AwsSdk(DynamoDBError::RequestLimitExceeded(_))) => {
+      Err(Status::unavailable("please retry"))
     }
-    Err(_) => Err(Status::unavailable("please retry")),
+    Err(_) => Err(Status::failed_precondition("internal error")),
   }
 }

@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
 use database::DatabaseClient;
-use rusoto_core::Region;
 use tonic::transport::Server;
 use tracing_subscriber::FmtSubscriber;
 
@@ -49,7 +48,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Commands::Server => {
       let addr = IDENTITY_SERVICE_SOCKET_ADDR.parse()?;
       let config = Config::load()?;
-      let database_client = DatabaseClient::new(Region::UsEast2);
+      let aws_config = aws_config::from_env().region("us-east-2").load().await;
+      let database_client = DatabaseClient::new(&aws_config);
       let identity_service = MyIdentityService::new(config, database_client);
       Server::builder()
         .add_service(IdentityServiceServer::new(identity_service))

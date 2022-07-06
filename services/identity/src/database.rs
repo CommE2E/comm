@@ -1,14 +1,13 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-use bytes::Bytes;
+use aws_sdk_dynamodb::model::AttributeValue;
+use aws_sdk_dynamodb::output::{GetItemOutput, PutItemOutput};
+use aws_sdk_dynamodb::types::Blob;
+use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
+use aws_types::sdk_config::SdkConfig;
 use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
-use rusoto_core::{Region, RusotoError};
-use rusoto_dynamodb::{
-  AttributeValue, DynamoDb, DynamoDbClient, GetItemError, GetItemInput,
-  GetItemOutput, PutItemError, PutItemInput, PutItemOutput,
-};
 use tracing::{error, info};
 
 use crate::constants::{
@@ -24,13 +23,13 @@ use crate::token::{AccessTokenData, AuthType};
 
 #[derive(Clone)]
 pub struct DatabaseClient {
-  client: DynamoDbClient,
+  client: Client,
 }
 
 impl DatabaseClient {
-  pub fn new(region: Region) -> Self {
+  pub fn new(aws_config: &SdkConfig) -> Self {
     DatabaseClient {
-      client: DynamoDbClient::new(region),
+      client: Client::new(aws_config),
     }
   }
 
@@ -42,13 +41,14 @@ impl DatabaseClient {
       PAKE_REGISTRATION_TABLE_PARTITION_KEY.to_string(),
       user_id.clone(),
     ));
-    let get_item_input = GetItemInput {
-      table_name: PAKE_REGISTRATION_TABLE.to_string(),
-      key: primary_key,
-      consistent_read: Some(true),
-      ..GetItemInput::default()
-    };
-    let get_item_result = self.client.get_item(get_item_input).await;
+    let get_item_result = self
+      .client
+      .get_item()
+      .table_name(PAKE_REGISTRATION_TABLE)
+      .set_key(Some(primary_key))
+      .consistent_read(true)
+      .send()
+      .await;
     match get_item_result {
       Ok(GetItemOutput {
         item: Some(mut item),
@@ -70,7 +70,7 @@ impl DatabaseClient {
           "DynamoDB client failed to get registration data for user {}: {}",
           user_id, e
         );
-        Err(Error::RusotoGet(e))
+        Err(Error::AwsSdk(e.into()))
       }
     }
   }
@@ -79,28 +79,22 @@ impl DatabaseClient {
     &self,
     user_id: String,
     registration: ServerRegistration<Cipher>,
-  ) -> Result<PutItemOutput, RusotoError<PutItemError>> {
-    let input = PutItemInput {
-      table_name: PAKE_REGISTRATION_TABLE.to_string(),
-      item: HashMap::from([
-        (
-          PAKE_REGISTRATION_TABLE_PARTITION_KEY.to_string(),
-          AttributeValue {
-            s: Some(user_id),
-            ..Default::default()
-          },
-        ),
-        (
-          PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE.to_string(),
-          AttributeValue {
-            b: Some(Bytes::from(registration.serialize())),
-            ..Default::default()
-          },
-        ),
-      ]),
-      ..PutItemInput::default()
-    };
-    self.client.put_item(input).await
+  ) -> Result<PutItemOutput, Error> {
+    self
+      .client
+      .put_item()
+      .table_name(PAKE_REGISTRATION_TABLE)
+      .item(
+        PAKE_REGISTRATION_TABLE_PARTITION_KEY,
+        AttributeValue::S(user_id),
+      )
+      .item(
+        PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+        AttributeValue::B(Blob::new(registration.serialize())),
+      )
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))
   }
 
   pub async fn get_access_token_data(
@@ -115,13 +109,14 @@ impl DatabaseClient {
       ),
       (ACCESS_TOKEN_SORT_KEY.to_string(), device_id.clone()),
     );
-    let get_item_input = GetItemInput {
-      table_name: ACCESS_TOKEN_TABLE.to_string(),
-      key: primary_key,
-      consistent_read: Some(true),
-      ..GetItemInput::default()
-    };
-    let get_item_result = self.client.get_item(get_item_input).await;
+    let get_item_result = self
+      .client
+      .get_item()
+      .table_name(ACCESS_TOKEN_TABLE)
+      .set_key(Some(primary_key))
+      .consistent_read(true)
+      .send()
+      .await;
     match get_item_result {
       Ok(GetItemOutput {
         item: Some(mut item),
@@ -160,7 +155,7 @@ impl DatabaseClient {
           "DynamoDB client failed to get token for user {} on device {}: {}",
           user_id, device_id, e
         );
-        Err(Error::RusotoGet(e))
+        Err(Error::AwsSdk(e.into()))
       }
     }
   }
@@ -169,58 +164,43 @@ impl DatabaseClient {
     &self,
     access_token_data: AccessTokenData,
   ) -> Result<PutItemOutput, Error> {
-    let input = PutItemInput {
-      table_name: ACCESS_TOKEN_TABLE.to_string(),
-      item: HashMap::from([
-        (
-          ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
-          AttributeValue {
-            s: Some(access_token_data.user_id),
-            ..Default::default()
-          },
-        ),
-        (
-          ACCESS_TOKEN_SORT_KEY.to_string(),
-          AttributeValue {
-            s: Some(access_token_data.device_id),
-            ..Default::default()
-          },
-        ),
-        (
-          ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
-          AttributeValue {
-            s: Some(access_token_data.access_token),
-            ..Default::default()
-          },
-        ),
-        (
-          ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.to_string(),
-          AttributeValue {
-            s: Some(access_token_data.created.to_rfc3339()),
-            ..Default::default()
-          },
-        ),
-        (
-          ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
-          AttributeValue {
-            s: Some(match access_token_data.auth_type {
-              AuthType::Password => "password".to_string(),
-              AuthType::Wallet => "wallet".to_string(),
-            }),
-            ..Default::default()
-          },
-        ),
-        (
-          ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
-          AttributeValue {
-            bool: Some(access_token_data.valid),
-            ..Default::default()
-          },
-        ),
-      ]),
-      ..PutItemInput::default()
-    };
-    self.client.put_item(input).await.map_err(Error::RusotoPut)
+    let item = HashMap::from([
+      (
+        ACCESS_TOKEN_TABLE_PARTITION_KEY.into(),
+        AttributeValue::S(access_token_data.user_id),
+      ),
+      (
+        ACCESS_TOKEN_SORT_KEY.into(),
+        AttributeValue::S(access_token_data.device_id),
+      ),
+      (
+        ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.into(),
+        AttributeValue::S(access_token_data.access_token),
+      ),
+      (
+        ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.into(),
+        AttributeValue::S(access_token_data.created.to_rfc3339()),
+      ),
+      (
+        ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.into(),
+        AttributeValue::S(match access_token_data.auth_type {
+          AuthType::Password => "password".to_string(),
+          AuthType::Wallet => "wallet".to_string(),
+        }),
+      ),
+      (
+        ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.into(),
+        AttributeValue::Bool(access_token_data.valid),
+      ),
+    ]);
+    self
+      .client
+      .put_item()
+      .table_name(ACCESS_TOKEN_TABLE)
+      .set_item(Some(item))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))
   }
 }
 
@@ -229,9 +209,7 @@ impl DatabaseClient {
 )]
 pub enum Error {
   #[display(...)]
-  RusotoGet(RusotoError<GetItemError>),
-  #[display(...)]
-  RusotoPut(RusotoError<PutItemError>),
+  AwsSdk(DynamoDBError),
   #[display(...)]
   Attribute(DBItemError),
 }
@@ -280,13 +258,7 @@ type AttributeName = String;
 fn create_simple_primary_key(
   partition_key: (AttributeName, String),
 ) -> HashMap<AttributeName, AttributeValue> {
-  HashMap::from([(
-    partition_key.0,
-    AttributeValue {
-      s: Some(partition_key.1),
-      ..Default::default()
-    },
-  )])
+  HashMap::from([(partition_key.0, AttributeValue::S(partition_key.1))])
 }
 
 fn create_composite_primary_key(
@@ -294,23 +266,14 @@ fn create_composite_primary_key(
   sort_key: (AttributeName, String),
 ) -> HashMap<AttributeName, AttributeValue> {
   let mut primary_key = create_simple_primary_key(partition_key);
-  primary_key.insert(
-    sort_key.0,
-    AttributeValue {
-      s: Some(sort_key.1),
-      ..Default::default()
-    },
-  );
+  primary_key.insert(sort_key.0, AttributeValue::S(sort_key.1));
   primary_key
 }
 
 fn parse_created_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<DateTime<Utc>, DBItemError> {
-  if let Some(AttributeValue {
-    s: Some(created), ..
-  }) = &attribute
-  {
+  if let Some(AttributeValue::S(created)) = &attribute {
     created.parse().map_err(|e| {
       DBItemError::new(
         ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
@@ -330,10 +293,7 @@ fn parse_created_attribute(
 fn parse_auth_type_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<AuthType, DBItemError> {
-  if let Some(AttributeValue {
-    s: Some(auth_type), ..
-  }) = &attribute
-  {
+  if let Some(AttributeValue::S(auth_type)) = &attribute {
     match auth_type.as_str() {
       "password" => Ok(AuthType::Password),
       "wallet" => Ok(AuthType::Wallet),
@@ -356,9 +316,7 @@ fn parse_valid_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<bool, DBItemError> {
   match attribute {
-    Some(AttributeValue {
-      bool: Some(valid), ..
-    }) => Ok(valid),
+    Some(AttributeValue::Bool(valid)) => Ok(valid),
     Some(_) => Err(DBItemError::new(
       ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE,
       attribute,
@@ -376,7 +334,7 @@ fn parse_token_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<String, DBItemError> {
   match attribute {
-    Some(AttributeValue { s: Some(token), .. }) => Ok(token),
+    Some(AttributeValue::S(token)) => Ok(token),
     Some(_) => Err(DBItemError::new(
       ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
       attribute,
@@ -394,12 +352,10 @@ fn parse_registration_data_attribute(
   attribute: Option<AttributeValue>,
 ) -> Result<ServerRegistration<Cipher>, DBItemError> {
   match &attribute {
-    Some(AttributeValue {
-      b: Some(server_registration_bytes),
-      ..
-    }) => {
-      match ServerRegistration::<Cipher>::deserialize(server_registration_bytes)
-      {
+    Some(AttributeValue::B(server_registration_bytes)) => {
+      match ServerRegistration::<Cipher>::deserialize(
+        server_registration_bytes.as_ref(),
+      ) {
         Ok(server_registration) => Ok(server_registration),
         Err(e) => Err(DBItemError::new(
           PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
@@ -435,13 +391,7 @@ mod tests {
     assert_eq!(primary_key.len(), 1);
     let attribute = primary_key.remove(&partition_key_name);
     assert!(attribute.is_some());
-    assert_eq!(
-      attribute,
-      Some(AttributeValue {
-        s: Some(partition_key_value),
-        ..Default::default()
-      })
-    );
+    assert_eq!(attribute, Some(AttributeValue::S(partition_key_value)));
   }
 
   #[test]
@@ -459,19 +409,10 @@ mod tests {
     assert!(partition_key_attribute.is_some());
     assert_eq!(
       partition_key_attribute,
-      Some(AttributeValue {
-        s: Some(partition_key_value),
-        ..Default::default()
-      })
+      Some(AttributeValue::S(partition_key_value))
     );
     let sort_key_attribute = primary_key.remove(&sort_key_name);
     assert!(sort_key_attribute.is_some());
-    assert_eq!(
-      sort_key_attribute,
-      Some(AttributeValue {
-        s: Some(sort_key_value),
-        ..Default::default()
-      })
-    )
+    assert_eq!(sort_key_attribute, Some(AttributeValue::S(sort_key_value)))
   }
 }
