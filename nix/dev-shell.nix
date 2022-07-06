@@ -18,7 +18,6 @@
 , openssl
 , pkg-config
 , protobuf_3_15_cmake
-, python2
 , python3
 , sqlite
 , watchman
@@ -37,7 +36,6 @@ mkShell {
     nodejs-16_x
     yarn
     watchman # react native
-    python2
     python3
 
     # native dependencies
