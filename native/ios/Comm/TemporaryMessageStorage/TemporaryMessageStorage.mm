@@ -101,6 +101,64 @@
   }
 }
 
+- (NSArray<NSString *> *)readAndClearMessages {
+  NSMutableArray<NSString *> *allMessages = [NSMutableArray array];
+  NSArray<NSString *> *storageContents =
+      [NSFileManager.defaultManager contentsOfDirectoryAtPath:self.directoryPath
+                                                        error:nil];
+  if (!storageContents) {
+    comm::Logger::log("Temporary storage directory not existing");
+    return allMessages;
+  }
+
+  NSString *previousFileName =
+      [storageContents sortedArrayUsingSelector:@selector(compare:)].lastObject;
+  NSString *previousStoragePath = [self _getPath:previousFileName];
+
+  NSString *newStorageName = [self _createNewStorage];
+
+  for (NSString *fileName in storageContents) {
+    NSString *path = [self _getPath:fileName];
+    NSError *fileReadErr = nil;
+    NSArray<NSString *> *fileMessages = nil;
+
+    if ([path isEqualToString:previousStoragePath]) {
+      NSError *lockErr = nil;
+      NSString *lockName = [self _getLockName:previousFileName];
+      NonBlockingLock *lock = [[NonBlockingLock alloc] initWithName:lockName];
+      @try {
+        BOOL lockAcquired = [lock tryAcquireLock:&lockErr];
+        fileMessages = [EncryptedFileUtils readFromFileAtPath:path
+                                                        error:&fileReadErr];
+        if (newStorageName && lockAcquired) {
+          [NSFileManager.defaultManager removeItemAtPath:path error:nil];
+        } else if (lockErr) {
+          comm::Logger::log(
+              "Failed to acquire lock. Details: " +
+              std::string([lockErr.localizedDescription UTF8String]));
+        }
+      } @finally {
+        [lock releaseLock:&lockErr];
+        [lock destroyLock:&lockErr];
+      }
+    } else {
+      fileMessages = [EncryptedFileUtils readFromFileAtPath:path
+                                                      error:&fileReadErr];
+      [NSFileManager.defaultManager removeItemAtPath:path error:nil];
+    }
+
+    if (!fileMessages) {
+      comm::Logger::log(
+          "Failed to read file at path: " + std::string([path UTF8String]) +
+          "Details: " +
+          std::string([fileReadErr.localizedDescription UTF8String]));
+    } else {
+      [allMessages addObjectsFromArray:fileMessages];
+    }
+  }
+  return allMessages;
+}
+
 - (NSString *)_createNewStorage {
   int64_t timestamp = (int64_t)[NSDate date].timeIntervalSince1970;
   NSString *newStorageName = [NSString stringWithFormat:@"msg_%lld", timestamp];
