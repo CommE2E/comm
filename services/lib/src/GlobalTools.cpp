@@ -1,5 +1,6 @@
 #include "GlobalTools.h"
 
+#include <glog/logging.h>
 #include <openssl/sha.h>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -7,6 +8,7 @@
 
 #include <chrono>
 #include <iomanip>
+#include <regex>
 #include <string>
 
 namespace comm {
@@ -41,6 +43,18 @@ bool isSandbox() {
 std::string generateUUID() {
   thread_local boost::uuids::random_generator random_generator;
   return boost::uuids::to_string(random_generator());
+}
+
+bool validateUUIDv4(const std::string &uuid) {
+  const std::regex uuidV4RegexFormat(
+      "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$");
+  try {
+    return std::regex_match(uuid, uuidV4RegexFormat);
+  } catch (const std::exception &e) {
+    LOG(ERROR) << "Tools: "
+               << "Got an exception at `validateUUID`: " << e.what();
+    return false;
+  }
 }
 
 } // namespace tools

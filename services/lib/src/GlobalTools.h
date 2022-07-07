@@ -19,6 +19,8 @@ bool isSandbox();
 
 std::string generateUUID();
 
+bool validateUUIDv4(const std::string &uuid);
+
 } // namespace tools
 } // namespace network
 } // namespace comm
