@@ -1,12 +1,9 @@
 #pragma once
 
-#include "DeviceSessionItem.h"
 #include "Item.h"
-#include "MessageItem.h"
-#include "PublicKeyItem.h"
-#include "SessionSignItem.h"
 
 #include <memory>
+#include <type_traits>
 
 namespace comm {
 namespace network {
