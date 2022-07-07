@@ -209,6 +209,30 @@ void DatabaseManager::removeMessageItem(const std::string &messageID) {
   this->innerRemoveItem(*item);
 }
 
+void DatabaseManager::removeMessageItemsByIDsForDeviceID(
+    std::vector<std::string> &messageIDs,
+    const std::string &toDeviceID) {
+  std::vector<Aws::DynamoDB::Model::WriteRequest> writeRequests;
+  for (std::string &messageID : messageIDs) {
+    Aws::DynamoDB::Model::DeleteRequest deleteRequest;
+    deleteRequest.AddKey(
+        MessageItem::FIELD_TO_DEVICE_ID,
+        Aws::DynamoDB::Model::AttributeValue(toDeviceID));
+    deleteRequest.AddKey(
+        MessageItem::FIELD_MESSAGE_ID,
+        Aws::DynamoDB::Model::AttributeValue(messageID));
+    Aws::DynamoDB::Model::WriteRequest currentWriteRequest;
+    currentWriteRequest.SetDeleteRequest(deleteRequest);
+    writeRequests.push_back(currentWriteRequest);
+  }
+  this->innerBatchWriteItem(
+      MESSAGES_TABLE_NAME,
+      DYNAMODB_MAX_BATCH_ITEMS,
+      DYNAMODB_BACKOFF_FIRST_RETRY_DELAY,
+      DYNAMODB_MAX_BACKOFF_TIME,
+      writeRequests);
+}
+
 } // namespace database
 } // namespace network
 } // namespace comm
