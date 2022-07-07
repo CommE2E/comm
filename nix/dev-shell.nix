@@ -17,6 +17,7 @@
 , libuv
 , nodejs-16_x
 , olm
+, openjdk8
 , openssl
 , pkg-config
 , protobuf_3_15_cmake
@@ -77,12 +78,15 @@ mkShell {
     libiconv  # identity service
   ]);
 
+  JAVA_HOME = openjdk8.passthru.home;
+
   # shell commands to be ran upon entering shell
   shellHook = let
     socket = "mysql-socket/mysql.sock";
   in ''
     if [[ "$OSTYPE" == 'linux'* ]]; then
       export MYSQL_UNIX_PORT=''${XDG_RUNTIME_DIR:-/run/user/$UID}/${socket}
+      export ANDROID_SDK_ROOT=''${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}
     fi
 
     if [[ "$OSTYPE" == 'darwin'* ]]; then
