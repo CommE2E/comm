@@ -34,6 +34,31 @@ TEST(ToolsTest, ValidateDeviceIDReturnsTrueOnGeneratedValidDeviceID) {
       << "\" is invalid by the function";
 }
 
+TEST(ToolsTest, ValidateUUIDv4ReturnsTrueOnStaticValidUUID) {
+  const std::string validUUID = "9bfdd6ea-25de-418f-aa2e-869c78073d81";
+  EXPECT_EQ(tools::validateUUIDv4(validUUID), true)
+      << "Valid UUID \"" << validUUID << "\" is invalid by the function";
+}
+
+TEST(ToolsTest, ValidateUUIDv4ReturnsTrueOnGeneratedValidUUID) {
+  const std::string validUUID = tools::generateUUID();
+  EXPECT_EQ(tools::validateUUIDv4(validUUID), true)
+      << "Valid generated UUID \"" << validUUID
+      << "\" is invalid by the function";
+}
+
+TEST(ToolsTest, ValidateUUIDv4ReturnsFalseOnStaticInvalidUUID) {
+  const std::string invalidFormatUUID = "58g8141b-8e5b-48f4-b3a1-e5e495c65f93";
+  EXPECT_EQ(tools::validateUUIDv4(invalidFormatUUID), false)
+      << "Invalid formatted UUID \"" << invalidFormatUUID
+      << "\" is valid by the function";
+  const std::string uppercaseUUID = "58F8141B-8E5B-48F4-B3A1-E5E495C65F93";
+  EXPECT_EQ(tools::validateUUIDv4(uppercaseUUID), false)
+      << "Uppercase UUID \"" << uppercaseUUID
+      << "\" must be invalid because we are using the lowercase UUID format "
+         "convention";
+}
+
 TEST(ToolsTest, ValidateDeviceIDReturnsFalseOnInvalidDeviceIDPrefix) {
   const std::string invalidDeviceIDPrefix =
       "invalid-"
