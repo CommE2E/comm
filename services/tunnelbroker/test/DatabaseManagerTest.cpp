@@ -332,3 +332,57 @@ TEST_F(DatabaseManagerTest, PutAndFoundByReceiverMessageItemsDataIsSame) {
   database::DatabaseManager::getInstance().removeMessageItem(
       item.getMessageID());
 }
+
+TEST_F(DatabaseManagerTest, RemoveMessageItemsInBatch) {
+  const size_t randomStringSize = 256;
+  const std::string receiverID =
+      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm";
+  const database::MessageItem messageFirstToRemove(
+      tools::generateUUID(),
+      "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
+      receiverID,
+      tools::generateRandomString(randomStringSize),
+      tools::generateRandomString(randomStringSize));
+  const database::MessageItem messageSecondToRemove(
+      tools::generateUUID(),
+      "web:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
+      receiverID,
+      tools::generateRandomString(randomStringSize),
+      tools::generateRandomString(randomStringSize));
+  const database::MessageItem messageThirdToNotRemove(
+      tools::generateUUID(),
+      "web:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
+      receiverID,
+      tools::generateRandomString(randomStringSize),
+      tools::generateRandomString(randomStringSize));
+
+  EXPECT_EQ(
+      database::DatabaseManager::getInstance().isTableAvailable(
+          messageFirstToRemove.getTableName()),
+      true);
+  database::DatabaseManager::getInstance().putMessageItem(messageFirstToRemove);
+  database::DatabaseManager::getInstance().putMessageItem(
+      messageSecondToRemove);
+  database::DatabaseManager::getInstance().putMessageItem(
+      messageThirdToNotRemove);
+  std::vector<std::shared_ptr<database::MessageItem>> foundItems =
+      database::DatabaseManager::getInstance().findMessageItemsByReceiver(
+          receiverID);
+  EXPECT_EQ(foundItems.size(), 3)
+      << "Items count found by receiverID after insert is not equal to 3";
+  std::vector<std::string> messageIDs = {
+      messageFirstToRemove.getMessageID(),
+      messageSecondToRemove.getMessageID()};
+  database::DatabaseManager::getInstance().removeMessageItemsByIDsForDeviceID(
+      messageIDs, receiverID);
+  foundItems =
+      database::DatabaseManager::getInstance().findMessageItemsByReceiver(
+          receiverID);
+  // `messageThirdToNotRemove` must not be removed and must be persisted
+  EXPECT_EQ(foundItems.size(), 1)
+      << "Items found by receiverID is not equal to 1 after calling "
+         "`removeMessageItemsByIDsForDeviceID`. The one message must be "
+         "persisted.";
+  database::DatabaseManager::getInstance().removeMessageItem(
+      messageThirdToNotRemove.getMessageID());
+}
