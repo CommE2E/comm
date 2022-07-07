@@ -32,6 +32,7 @@ import { useTextMessageRulesFunc } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
 import css from './chat-message-list.css';
 import { MessageListContext } from './message-list-types';
+import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import Message from './message.react';
 import type {
   OnMessagePositionWithContainerInfo,
@@ -237,6 +238,17 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     invariant(inputState, 'InputState should be set');
     const messages = messageListData.map(this.renderItem);
 
+    let tooltip;
+    if (this.state.mouseOverMessagePosition) {
+      const messagePositionInfo = this.state.mouseOverMessagePosition;
+      tooltip = (
+        <MessageTimestampTooltip
+          messagePositionInfo={messagePositionInfo}
+          timeZone={this.props.timeZone}
+        />
+      );
+    }
+
     let relationshipPrompt;
     if (threadInfo) {
       relationshipPrompt = <RelationshipPrompt threadInfo={threadInfo} />;
@@ -246,11 +258,15 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       [css.messageContainer]: true,
       [css.mirroredMessageContainer]: !this.props.supportsReverseFlex,
     });
-    return (
-      <div className={css.outerMessageContainer}>
-        {relationshipPrompt}
-        <div className={messageContainerStyle} ref={this.messageContainerRef}>
-          {messages}
+    return connectDropTarget(
+      <div className={containerStyle} ref={this.containerRef}>
+        <ThreadTopBar threadInfo={threadInfo} />
+        <div className={css.outerMessageContainer}>
+          {relationshipPrompt}
+          <div className={messageContainerStyle} ref={this.messageContainerRef}>
+            {messages}
+          </div>
+          {tooltip}
         </div>
       </div>
     );
