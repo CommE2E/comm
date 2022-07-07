@@ -69,11 +69,12 @@ std::string MessageItem::getTableName() const {
 }
 
 PrimaryKeyDescriptor MessageItem::getPrimaryKeyDescriptor() const {
-  return PrimaryKeyDescriptor(MessageItem::FIELD_MESSAGE_ID);
+  return PrimaryKeyDescriptor(
+      MessageItem::FIELD_TO_DEVICE_ID, MessageItem::FIELD_MESSAGE_ID);
 }
 
 PrimaryKeyValue MessageItem::getPrimaryKeyValue() const {
-  return PrimaryKeyValue(this->messageID);
+  return PrimaryKeyValue(this->toDeviceID, this->messageID);
 }
 
 std::string MessageItem::getMessageID() const {
