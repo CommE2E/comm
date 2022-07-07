@@ -46,6 +46,61 @@
   return self;
 }
 
+- (void)writeMessage:(NSString *)message {
+  NSArray<NSString *> *storageContent =
+      [NSFileManager.defaultManager contentsOfDirectoryAtPath:self.directoryPath
+                                                        error:nil];
+  if (!storageContent) {
+    comm::Logger::log("Storage not existing yet. Skipping notification");
+    return;
+  }
+
+  NSString *currentFileName = nil;
+  if (storageContent.count) {
+    currentFileName =
+        [storageContent sortedArrayUsingSelector:@selector(compare:)]
+            .lastObject;
+  } else if (!(currentFileName = [self _createNewStorage])) {
+    comm::Logger::log(
+        "Failed to create new storage file. Details: " +
+        std::string(strerror(errno)));
+  }
+
+  NSString *currentFilePath = [self _getPath:currentFileName];
+  NSString *lockName = [self _getLockName:currentFileName];
+  NonBlockingLock *lock = [[NonBlockingLock alloc] initWithName:lockName];
+
+  NSError *lockError = nil;
+  NSError *writeError = nil;
+
+  @try {
+    if (![lock tryAcquireLock:&lockError]) {
+      NSString *randomPath =
+          [self.directoryURL
+              URLByAppendingPathComponent:[NSUUID UUID].UUIDString]
+              .path;
+      [EncryptedFileUtils writeData:message toFileAtPath:randomPath error:nil];
+      comm::Logger::log(
+          "Failed to acquire lock. Details: " +
+          std::string([lockError.localizedDescription UTF8String]) +
+          " Persisting notification at path: " +
+          std::string([randomPath UTF8String]));
+      return;
+    }
+    [EncryptedFileUtils appendData:message
+                      toFileAtPath:currentFilePath
+                             error:&writeError];
+  } @finally {
+    [lock releaseLock:&lockError];
+  }
+
+  if (writeError) {
+    comm::Logger::log(
+        "Failed to append message to storage. Details: " +
+        std::string([writeError.localizedDescription UTF8String]));
+  }
+}
+
 - (NSString *)_createNewStorage {
   int64_t timestamp = (int64_t)[NSDate date].timeIntervalSince1970;
   NSString *newStorageName = [NSString stringWithFormat:@"msg_%lld", timestamp];
