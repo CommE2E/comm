@@ -4,6 +4,12 @@
 #import "NonBlockingLock.h"
 #import <string>
 
+@interface TemporaryMessageStorage ()
+- (NSString *)_createNewStorage;
+- (NSString *)_getLockName:(NSString *)fileName;
+- (NSString *)_getPath:(NSString *)fileName;
+@end
+
 @implementation TemporaryMessageStorage
 
 - (instancetype)init {
@@ -38,6 +44,32 @@
   _directoryURL = directoryURL;
   _directoryPath = directoryPath;
   return self;
+}
+
+- (NSString *)_createNewStorage {
+  int64_t timestamp = (int64_t)[NSDate date].timeIntervalSince1970;
+  NSString *newStorageName = [NSString stringWithFormat:@"msg_%lld", timestamp];
+  NSString *newStoragePath =
+      [self.directoryURL URLByAppendingPathComponent:newStorageName].path;
+  const char *newStoragePathCstr =
+      [newStoragePath cStringUsingEncoding:NSUTF8StringEncoding];
+  FILE *newStorage = fopen(newStoragePathCstr, "a");
+  if (!newStorage) {
+    return nil;
+  }
+  fclose(newStorage);
+  return newStorageName;
+}
+
+- (NSString *)_getLockName:(NSString *)fileName {
+  return [NSString stringWithFormat:@"group.app.comm/%@", fileName];
+}
+
+- (NSString *)_getPath:(NSString *)fileName {
+  if (!fileName) {
+    return nil;
+  }
+  return [self.directoryURL URLByAppendingPathComponent:fileName].path;
 }
 
 @end
