@@ -6,6 +6,7 @@
 , boost
 , cargo
 , cmake
+, cocoapods
 , cryptopp
 , darwin
 , folly
@@ -52,7 +53,8 @@ mkShell {
     pkg-config
     protobuf_3_15_cmake
     grpc
-
+  ] ++ lib.optionals stdenv.isDarwin [
+    cocoapods # needed for ios
   ];
 
   # include any libraries buildInputs
@@ -75,6 +77,11 @@ mkShell {
   shellHook = ''
     if [[ "$OSTYPE" == 'linux'* ]]; then
       export MYSQL_UNIX_PORT=''${XDG_RUNTIME_DIR:-/run/user/$UID}/mysql-socket/mysql.sock
+    fi
+
+    if [[ "$OSTYPE" == 'darwin'* ]]; then
+      # Many commands for cocoapods expect the native BSD versions of commands
+      export PATH=/usr/bin:$PATH
     fi
 
     echo "Welcome to Comm dev environment! :)"
