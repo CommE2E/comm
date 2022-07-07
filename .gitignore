@@ -26,5 +26,10 @@ services/tunnelbroker/rust-notifications/target
 .vscode
 !.vscode/extensions.json
 
+# CMake
+native/cpp/**/build
+services/*/build
+services/build
+
 # Nix
 result*
