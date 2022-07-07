@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Constants.h"
-
 #include <aws/core/Aws.h>
 #include <aws/dynamodb/DynamoDBClient.h>
 
