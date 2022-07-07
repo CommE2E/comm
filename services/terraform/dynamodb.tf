@@ -134,7 +134,8 @@ resource "aws_dynamodb_table" "tunnelbroker-public-keys" {
 
 resource "aws_dynamodb_table" "tunnelbroker-messages" {
   name           = "tunnelbroker-messages"
-  hash_key       = "MessageID"
+  hash_key       = "ToDeviceID"
+  range_key      = "MessageID"
   write_capacity = 10
   read_capacity  = 10
 
