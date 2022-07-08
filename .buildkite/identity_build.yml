@@ -1,4 +1,5 @@
 steps:
-  - command: 'cd services && docker-compose build --no-cache identity-server'
+  - label: ":docker: Identity Build (Docker)"
+    command: 'cd services && docker-compose build --no-cache identity-server'
     agents:
       - 'autoscaling=true'

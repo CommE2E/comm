@@ -1,5 +1,6 @@
 steps:
-  - command:
+  - label: ":eslint: :jest: ESLint & Flow & Jest"
+    command:
       - '(pkill flow || true)'
       - 'yarn cleaninstall --frozen-lockfile --skip-optional'
       - 'yarn eslint --max-warnings=0 & yarn workspace lib flow & yarn workspace web flow & yarn workspace landing flow & yarn workspace native flow & yarn workspace keyserver flow'

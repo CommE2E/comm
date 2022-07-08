@@ -1,4 +1,5 @@
 steps:
-  - command: 'cd services && docker-compose build --no-cache backup-server'
+  - label: ":docker: Backup Build (Docker)"
+    command: 'cd services && docker-compose build --no-cache backup-server'
     agents:
       - 'autoscaling=true'

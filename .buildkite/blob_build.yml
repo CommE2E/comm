@@ -1,4 +1,5 @@
 steps:
-  - command: 'cd services && docker-compose build --no-cache blob-server'
+  - label: ":docker: Blob Build (Docker)"
+    command: 'cd services && docker-compose build --no-cache blob-server'
     agents:
       - 'autoscaling=true'
