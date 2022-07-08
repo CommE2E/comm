@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
+use std::sync::Arc;
 
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_dynamodb::output::{GetItemOutput, PutItemOutput};
@@ -23,13 +24,13 @@ use crate::token::{AccessTokenData, AuthType};
 
 #[derive(Clone)]
 pub struct DatabaseClient {
-  client: Client,
+  client: Arc<Client>,
 }
 
 impl DatabaseClient {
   pub fn new(aws_config: &SdkConfig) -> Self {
     DatabaseClient {
-      client: Client::new(aws_config),
+      client: Arc::new(Client::new(aws_config)),
     }
   }
 
