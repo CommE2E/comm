@@ -2,8 +2,8 @@
 
 #include "S3Path.h"
 
-#include "../_generated/blob.grpc.pb.h"
-#include "../_generated/blob.pb.h"
+#include <blob.grpc.pb.h>
+#include <blob.pb.h>
 
 #include <aws/core/Aws.h>
 

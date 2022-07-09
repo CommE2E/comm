@@ -1,8 +1,10 @@
 #pragma once
 
+#include "BlobItem.h"
 #include "DatabaseEntitiesTools.h"
 #include "DatabaseManagerBase.h"
 #include "DynamoDBTools.h"
+#include "ReverseIndexItem.h"
 
 #include <aws/core/Aws.h>
 #include <aws/dynamodb/model/AttributeDefinition.h>

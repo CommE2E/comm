@@ -1,4 +1,4 @@
-FROM commapp/services-base:1.2
+FROM commapp/services-base:1.3
 
 RUN apt-get update && \
   apt-get install -y uuid-dev && \
@@ -12,12 +12,16 @@ ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
 
 WORKDIR /transferred
 
-COPY native/cpp/CommonCpp/grpc/protos/blob.proto protos/blob.proto
-COPY services/lib/cmake-components cmake-components
 COPY services/lib/docker/ scripts/
-COPY services/blob/ .
-COPY services/lib/src/* src/
+COPY services/blob/ blob
+COPY services/lib/src lib/src/
 
-RUN scripts/build_service.sh
+WORKDIR /transferred/blob
+
+ADD native/cpp/CommonCpp/grpc grpc
+
+RUN ../scripts/build_service.sh
+
+WORKDIR /transferred
 
 CMD if [ "$COMM_TEST_SERVICES" -eq 1 ]; then scripts/run_tests.sh; else scripts/run_service.sh; fi

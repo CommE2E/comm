@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DatabaseEntitiesTools.h"
+#include "ReverseIndexItem.h"
 #include "S3Path.h"
 
 namespace comm {
