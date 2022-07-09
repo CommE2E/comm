@@ -45,12 +45,19 @@ prev:
 
   protobuf_3_15_cmake = prev.callPackage ./protobuf_3_15.nix { };
 
+  comm-grpc = final.callPackage ./comm-grpc.nix { };
+
+  comm-tunnelbroker = final.callPackage ./tunnelbroker.nix { };
+
   devShell = final.callPackage ./dev-shell.nix { };
 
   # Make our version of mariadb the default everywhere
   mariadb = prev.mariadb_108;
 
   mariadb-up = prev.callPackage ./mariadb-up-mac.nix { };
+
+  # use folly's version of fmt as the default
+  fmt = prev.fmt_8;
 
   mysql-down = prev.callPackage ./mysql-down-linux.nix { };
 
