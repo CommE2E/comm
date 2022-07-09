@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../_generated/backup.grpc.pb.h"
-#include "../_generated/backup.pb.h"
+#include <backup.grpc.pb.h>
+#include <backup.pb.h>
 
 #include <grpcpp/grpcpp.h>
 
