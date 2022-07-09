@@ -1,11 +1,13 @@
 #pragma once
 
+#include "BackupItem.h"
 #include "BlobGetClientReactor.h"
 #include "DatabaseEntitiesTools.h"
+#include "LogItem.h"
 #include "ServiceBlobClient.h"
 
-#include "../_generated/backup.grpc.pb.h"
-#include "../_generated/backup.pb.h"
+#include <backup.grpc.pb.h>
+#include <backup.pb.h>
 
 #include "ServerWriteReactorBase.h"
 

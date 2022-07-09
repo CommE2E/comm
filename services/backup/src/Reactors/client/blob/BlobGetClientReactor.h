@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../_generated/blob.grpc.pb.h"
-#include "../_generated/blob.pb.h"
+#include <blob.grpc.pb.h>
+#include <blob.pb.h>
 
-#include "ClientReadReactorBase.h"
+#include <ClientReadReactorBase.h>
 
 #include <folly/MPMCQueue.h>
 #include <grpcpp/grpcpp.h>

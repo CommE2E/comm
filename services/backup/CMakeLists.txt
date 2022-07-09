@@ -1,4 +1,4 @@
-PROJECT(backup C CXX)
+PROJECT(backup CXX)
 
 cmake_minimum_required(VERSION 3.16)
 
@@ -9,53 +9,67 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 set(CMAKE_CXX_STANDARD 17)
+# For C++17 on MacOS, we must set minimum target to 10.14+
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
 set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
 set(WITH_GTEST "Use Google Test" OFF)
 
-# FIND LIBS
-include(./cmake-components/grpc.cmake)
-include(./cmake-components/folly.cmake)
-add_subdirectory(./lib/glog)
+find_package(glog REQUIRED)
+find_package(protobuf REQUIRED)
+find_package(gRPC REQUIRED)
+find_package(Folly REQUIRED)
 find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
-find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
-
-# FIND FILES
-file(GLOB DOUBLE_CONVERSION_SOURCES
-  "./lib/double-conversion/double-conversion/*.cc"
+find_package(Boost 1.40
+  COMPONENTS program_options context filesystem regex system thread
+  REQUIRED
 )
 
-file(GLOB GENERATED_CODE "./_generated/*.cc")
+if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "^\/transferred.*")
+  # Inside the docker build contex
+  set(_proto_path "grpc")
+else()
+  # Inside repo
+  set(_proto_path "../../native/cpp/CommonCpp/grpc")
+endif()
+
+# Shared Comm protos
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${_proto_path}
+  ${CMAKE_CURRENT_BINARY_DIR}/protos
+  EXCLUDE_FROM_ALL
+)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
+  ${CMAKE_CURRENT_BINARY_DIR}/lib/src
+  EXCLUDE_FROM_ALL
+)
 
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
-
-include_directories(
-  ./src
-  ./src/client-base-reactors
-  ./src/server-base-reactors
-  ./src/grpc-client
-  ./src/DatabaseEntities
-  ./src/Reactors
-  ./src/Reactors/server
-  ./src/Reactors/server/base-reactors
-  ./src/Reactors/client
-  ./src/Reactors/client/blob
-  ./src/Reactors/client/base-reactors
-  ./_generated
-  ${FOLLY_INCLUDES}
-  ./lib/double-conversion
-  ${Boost_INCLUDE_DIR}
-)
 
 # SERVER
 add_executable(
   backup
 
   ${GENERATED_CODE}
-  ${DOUBLE_CONVERSION_SOURCES}
   ${FOLLY_SOURCES}
 
   ${SOURCE_CODE}
+)
+
+target_include_directories(
+  backup
+  PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/grpc-client
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/DatabaseEntities
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/server
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/server/base-reactors
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/client
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/client/blob
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/client/base-reactors
+
+  ${Boost_INCLUDE_DIR}
 )
 
 set(
@@ -65,6 +79,14 @@ set(
   ${AWSSDK_LINK_LIBRARIES}
   ${Boost_LIBRARIES}
   glog::glog
+  Folly::folly
+  gRPC::grpc++
+
+  comm-blob-grpc
+  comm-backup-grpc
+  comm-services-common
+  comm-client-base-reactors
+  comm-server-base-reactors
 )
 
 target_link_libraries(
@@ -94,7 +116,6 @@ if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
     runTests
 
     ${GENERATED_CODE}
-    ${DOUBLE_CONVERSION_SOURCES}
     ${FOLLY_SOURCES}
     ${SOURCE_CODE}
     ${TEST_CODE}
