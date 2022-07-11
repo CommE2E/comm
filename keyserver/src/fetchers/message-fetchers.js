@@ -292,8 +292,17 @@ async function fetchMessageInfos(
         WHERE JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
   query.append(selectionClause);
+  // - We specify a ridiculously high LIMIT here to force MariaDB to maintain
+  //   the ORDER BY. Otherwise the query optimizer will assume that the order
+  //   doesn't matter because the outer query doesn't have an ORDER BY.
+  // - Setting an ORDER BY on the outer query won't work because our quirky
+  //   counting logic in the SELECT would be executed before the ORDER, on the
+  //   unsorted results from the inner query.
+  // - More details available here:
+  //   https://mariadb.com/kb/en/why-is-order-by-in-a-from-subquery-ignored/
   query.append(SQL`
         ORDER BY m.thread, m.time DESC
+        LIMIT 18446744073709551615
       ) x
     ) y
     WHERE y.number <= ${numberPerThread}
