@@ -31,6 +31,7 @@ set(WITH_GFLAGS OFF CACHE BOOL "Turn off gflags" FORCE)
 find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
 find_package(Boost 1.40 COMPONENTS program_options thread system REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(Corrosion REQUIRED)
 
 add_subdirectory(./lib/glog)
 
