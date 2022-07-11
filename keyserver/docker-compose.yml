@@ -20,28 +20,25 @@ services:
       - COMM_DATABASE_DATABASE
       - COMM_DATABASE_USER
       - COMM_DATABASE_PASSWORD
+      - COMM_DATABASE_TYPE=mariadb10.8
     depends_on:
       - cache
       - database
   database:
-    image: mysql:5.7.37-debian
+    image: mariadb:10.8.3-jammy
     restart: always
     expose:
       - "3306"
-    # There is no ARM-based Mac build on Docker Hub, so we force x64
-    # This is what we want in production anyways. ARM-based Mac devs will have
-    # it emulated
-    platform: linux/amd64
     command: >
       --max-allowed-packet=64M
       --local-infile=0
       --sql-mode=STRICT_ALL_TABLES
       --innodb-buffer-pool-size=1600M
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=$COMM_DATABASE_DATABASE
-      - MYSQL_USER=$COMM_DATABASE_USER
-      - MYSQL_PASSWORD=$COMM_DATABASE_PASSWORD
+      - MARIADB_RANDOM_ROOT_PASSWORD=yes
+      - MARIADB_DATABASE=$COMM_DATABASE_DATABASE
+      - MARIADB_USER=$COMM_DATABASE_USER
+      - MARIADB_PASSWORD=$COMM_DATABASE_PASSWORD
     volumes:
       - mysqldata:/var/lib/mysql
   cache:
