@@ -5,6 +5,9 @@ ENV MAKEFLAGS="-j${MAKE_JOBS}"
 
 WORKDIR /transferred/scripts
 
+# Install Curl
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl
+
 # Install SDKs
 COPY services/tunnelbroker/docker/install_amqp_cpp.sh .
 RUN ./install_amqp_cpp.sh
@@ -14,6 +17,11 @@ RUN ./install_cryptopp.sh
 
 COPY services/tunnelbroker/docker/install_libuv.sh .
 RUN ./install_libuv.sh
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+COPY services/tunnelbroker/docker/install_corrosion.sh .
+RUN ./install_corrosion.sh
 
 ARG COMM_TEST_SERVICES
 ARG COMM_SERVICES_SANDBOX
