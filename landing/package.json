@@ -47,7 +47,9 @@
     "@fortawesome/react-fontawesome": "0.1.5",
     "@lottiefiles/lottie-interactivity": "^0.1.4",
     "@lottiefiles/lottie-player": "^1.0.3",
+    "@rainbow-me/rainbowkit": "^0.3.4",
     "core-js": "^3.6.5",
+    "ethers": "^5.6.9",
     "invariant": "^2.2.4",
     "isomorphic-fetch": "^3.0.0",
     "lib": "0.0.1",
@@ -56,6 +58,8 @@
     "react-hot-loader": "^4.12.14",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
-    "react-text-loop": "^2.3.0"
+    "react-text-loop": "^2.3.0",
+    "siwe": "^1.1.6",
+    "wagmi": "^0.4.12"
   }
 }
