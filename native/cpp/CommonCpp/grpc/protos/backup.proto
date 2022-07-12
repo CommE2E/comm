@@ -76,14 +76,14 @@ message PullBackupRequest {
 
 message PullBackupResponse {
   oneof id {
-    string backupID = 4;
-    string logID = 5;
+    string backupID = 1;
+    string logID = 2;
   }
   oneof data {
-    bytes compactionChunk = 1;
-    bytes logChunk = 2;
-    string attachmentHolders = 3;
+    bytes compactionChunk = 3;
+    bytes logChunk = 4;
   }
+  optional string attachmentHolders = 5;
 }
 
 // AddAttachment
