@@ -59,7 +59,9 @@ mkShell {
 
   # include any libraries buildInputs
   buildInputs = [
-    protobuf_3_15_cmake # exposes both a library and a command, thus should appear in both inputs
+    # protobuf exposes both a library and a command
+    # thus should appear in both inputs
+    protobuf_3_15_cmake
     folly # cpp tools
     fmt # needed for folly
     boost # needed for folly
@@ -74,9 +76,11 @@ mkShell {
   ]);
 
   # shell commands to be ran upon entering shell
-  shellHook = ''
+  shellHook = let
+    socket = "mysql-socket/mysql.sock";
+  in ''
     if [[ "$OSTYPE" == 'linux'* ]]; then
-      export MYSQL_UNIX_PORT=''${XDG_RUNTIME_DIR:-/run/user/$UID}/mysql-socket/mysql.sock
+      export MYSQL_UNIX_PORT=''${XDG_RUNTIME_DIR:-/run/user/$UID}/${socket}
     fi
 
     if [[ "$OSTYPE" == 'darwin'* ]]; then
