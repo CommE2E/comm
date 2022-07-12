@@ -495,25 +495,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     for (const selection of selections) {
       const localMediaID = getNextLocalUploadID();
       let ids;
-      if (selection.step === 'photo_library') {
-        media.push({
-          id: localMediaID,
-          uri: selection.uri,
-          type: 'photo',
-          dimensions: selection.dimensions,
-          localMediaSelection: selection,
-        });
-        ids = { type: 'photo', localMediaID };
-      } else if (selection.step === 'photo_capture') {
-        media.push({
-          id: localMediaID,
-          uri: selection.uri,
-          type: 'photo',
-          dimensions: selection.dimensions,
-          localMediaSelection: selection,
-        });
-        ids = { type: 'photo', localMediaID };
-      } else if (selection.step === 'photo_paste') {
+      if (
+        selection.step === 'photo_library' ||
+        selection.step === 'photo_capture' ||
+        selection.step === 'photo_paste'
+      ) {
         media.push({
           id: localMediaID,
           uri: selection.uri,
