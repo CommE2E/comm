@@ -20,6 +20,10 @@ Some of our services access AWS resources via the AWS C++ SDK. To access these r
 
 We recommend running `aws configure`, which will prompt you for the necessary configuration values.
 
+## Terraform
+
+We use [Terraform](https://www.terraform.io/) to create and manage our AWS resources. Installation instructions can be found [here](https://www.terraform.io/downloads).
+
 ## RabbitMQ (Tunnelbroker only)
 
 [RabbitMQ](https://www.rabbitmq.com/) is an open-source message broker service. We use RabbitMQ in Tunnelbroker to facilitate communication between devices and keyservers. We use the secure AMQPS protocol to connect to RabbitMQ instances hosted on AWS.
@@ -80,7 +84,7 @@ First, you need to initialize the local cloud using the following command from t
 yarn init-local-cloud
 ```
 
-This will start the LocalStack Docker image and initialize required resources, including DynamoDB tables and S3 buckets, using [Terraform](https://www.terraform.io/) scripts located in `services/terraform`.
+This will start the LocalStack Docker image and initialize required resources, including DynamoDB tables and S3 buckets, using the Terraform scripts located in `services/terraform`.
 
 To start a certain service in the sandbox you can run the following command:
 
@@ -88,13 +92,13 @@ To start a certain service in the sandbox you can run the following command:
 yarn run-[service-name]-service-in-sandbox
 ```
 
-For example, for Tunnelbroker the command will look like this: 
+For example, for Tunnelbroker the command will look like this:
 
 ```
 yarn run-tunnelbroker-service-in-sandbox
 ```
 
-You can also run all services at once in the sandbox using the command below: 
+You can also run all services at once in the sandbox using the command below:
 
 ```
 yarn run-all-services-in-sandbox
