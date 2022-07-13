@@ -955,12 +955,16 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
   // column and this is an INSERT, but we don't want to require people to have
   // to know the current `subscription` when they're just using this function to
   // update the permissions of an existing membership row.
+  const dbType = await getDBType();
   while (insertRows.length > 0) {
     const batch = insertRows.splice(0, membershipInsertBatchSize);
     const query = SQL`
       INSERT INTO memberships (user, thread, role, creation_time, subscription,
         permissions, permissions_for_children, last_message, last_read_message)
       VALUES ${batch}
+    `;
+    if (dbType === 'mysql5.7') {
+      query.append(SQL`
       ON DUPLICATE KEY UPDATE
         subscription = IF(
           (role <= 0 AND VALUES(role) > 0)
@@ -971,7 +975,21 @@ async function saveMemberships(toSave: $ReadOnlyArray<MembershipRowToSave>) {
         role = VALUES(role),
         permissions = VALUES(permissions),
         permissions_for_children = VALUES(permissions_for_children)
-    `;
+      `);
+    } else {
+      query.append(SQL`
+      ON DUPLICATE KEY UPDATE
+        subscription = IF(
+          (role <= 0 AND VALUE(role) > 0)
+            OR (role > 0 AND VALUE(role) <= 0),
+          VALUE(subscription),
+          subscription
+        ),
+        role = VALUE(role),
+        permissions = VALUE(permissions),
+        permissions_for_children = VALUE(permissions_for_children)
+      `);
+    }
     await dbQuery(query);
   }
 }

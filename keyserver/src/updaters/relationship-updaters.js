@@ -22,6 +22,7 @@ import createMessages from '../creators/message-creator';
 import { createThread } from '../creators/thread-creator';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL, mergeOrConditions } from '../database/database';
+import { getDBType } from '../database/db-config';
 import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
@@ -37,7 +38,10 @@ async function updateRelationships(
   }
 
   const uniqueUserIDs = [...new Set(request.userIDs)];
-  const users = await fetchUserInfos(uniqueUserIDs);
+  const [users, dbType] = await Promise.all([
+    fetchUserInfos(uniqueUserIDs),
+    getDBType(),
+  ]);
 
   let errors = {};
   const userIDs: string[] = [];
@@ -121,8 +125,16 @@ async function updateRelationships(
       const directedInsertQuery = SQL`
         INSERT INTO relationships_directed (user1, user2, status)
         VALUES ${directedInsertRows}
-        ON DUPLICATE KEY UPDATE status = VALUES(status)
       `;
+      if (dbType === 'mysql5.7') {
+        directedInsertQuery.append(SQL`
+        ON DUPLICATE KEY UPDATE status = VALUES(status)
+        `);
+      } else {
+        directedInsertQuery.append(SQL`
+        ON DUPLICATE KEY UPDATE status = VALUE(status)
+        `);
+      }
       promises.push(dbQuery(directedInsertQuery));
     }
     if (directedDeleteIDs.length) {
@@ -174,8 +186,16 @@ async function updateRelationships(
     const directedInsertQuery = SQL`
       INSERT INTO relationships_directed (user1, user2, status)
       VALUES ${directedRows}
-      ON DUPLICATE KEY UPDATE status = VALUES(status)
     `;
+    if (dbType === 'mysql5.7') {
+      directedInsertQuery.append(SQL`
+      ON DUPLICATE KEY UPDATE status = VALUES(status)
+      `);
+    } else {
+      directedInsertQuery.append(SQL`
+      ON DUPLICATE KEY UPDATE status = VALUE(status)
+      `);
+    }
     const directedDeleteQuery = SQL`
       DELETE FROM relationships_directed
       WHERE status = ${directedStatus.PENDING_FRIEND} AND 
@@ -242,12 +262,24 @@ async function updateUndirectedRelationships(
     INSERT INTO relationships_undirected (user1, user2, status)
     VALUES ${rows}
   `;
+
+  const dbType = await getDBType();
   if (greatest) {
-    query.append(
-      SQL`ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))`,
-    );
+    if (dbType === 'mysql5.7') {
+      query.append(
+        SQL`ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))`,
+      );
+    } else {
+      query.append(
+        SQL`ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUE(status))`,
+      );
+    }
   } else {
-    query.append(SQL`ON DUPLICATE KEY UPDATE status = VALUES(status)`);
+    if (dbType === 'mysql5.7') {
+      query.append(SQL`ON DUPLICATE KEY UPDATE status = VALUES(status)`);
+    } else {
+      query.append(SQL`ON DUPLICATE KEY UPDATE status = VALUE(status)`);
+    }
   }
   await dbQuery(query);
 }
@@ -278,7 +310,10 @@ async function updateChangedUndirectedRelationships(
   }
   selectQuery.append(mergeOrConditions(conditions));
 
-  const [result] = await dbQuery(selectQuery);
+  const [[result], dbType] = await Promise.all([
+    dbQuery(selectQuery),
+    getDBType(),
+  ]);
   const existingStatuses = new Map();
   for (const row of result) {
     existingStatuses.set(`${row.user1}|${row.user2}`, row.status);
@@ -297,8 +332,16 @@ async function updateChangedUndirectedRelationships(
   const insertQuery = SQL`
     INSERT INTO relationships_undirected (user1, user2, status)
     VALUES ${insertRows}
-    ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))
   `;
+  if (dbType === 'mysql5.7') {
+    insertQuery.append(SQL`
+    ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUES(status))
+    `);
+  } else {
+    insertQuery.append(SQL`
+    ON DUPLICATE KEY UPDATE status = GREATEST(status, VALUE(status))
+    `);
+  }
   await dbQuery(insertQuery);
 
   return updateDatasForUserPairs(
