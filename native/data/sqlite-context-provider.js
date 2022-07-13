@@ -17,12 +17,7 @@ type Props = {
 };
 
 function SQLiteContextProvider(props: Props): React.Node {
-  const [threadStoreLoaded, setThreadStoreLoaded] = React.useState<boolean>(
-    false,
-  );
-  const [messageStoreLoaded, setMessageStoreLoaded] = React.useState<boolean>(
-    false,
-  );
+  const [storeLoaded, setStoreLoaded] = React.useState<boolean>(false);
 
   const dispatch = useDispatch();
   const rehydrateConcluded = useSelector(
@@ -32,7 +27,7 @@ function SQLiteContextProvider(props: Props): React.Node {
   const urlPrefix = useSelector(state => state.urlPrefix);
 
   React.useEffect(() => {
-    if ((threadStoreLoaded && messageStoreLoaded) || !rehydrateConcluded) {
+    if (storeLoaded || !rehydrateConcluded) {
       return;
     }
     (async () => {
@@ -58,25 +53,16 @@ function SQLiteContextProvider(props: Props): React.Node {
           sqliteLoadFailure,
         );
       } finally {
-        setThreadStoreLoaded(true);
-        setMessageStoreLoaded(true);
+        setStoreLoaded(true);
       }
     })();
-  }, [
-    threadStoreLoaded,
-    urlPrefix,
-    rehydrateConcluded,
-    cookie,
-    dispatch,
-    messageStoreLoaded,
-  ]);
+  }, [storeLoaded, urlPrefix, rehydrateConcluded, cookie, dispatch]);
 
   const contextValue = React.useMemo(
     () => ({
-      threadStoreLoaded,
-      messageStoreLoaded,
+      storeLoaded,
     }),
-    [threadStoreLoaded, messageStoreLoaded],
+    [storeLoaded],
   );
 
   return (

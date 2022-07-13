@@ -165,9 +165,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
   const localDatabaseContext: ?SQLiteContextType = React.useContext(
     SQLiteContext,
   );
-  const storeLoadedFromLocalDatabase =
-    localDatabaseContext?.threadStoreLoaded &&
-    localDatabaseContext?.messageStoreLoaded;
+  const storeLoadedFromLocalDatabase = localDatabaseContext?.storeLoaded;
   const setNavStateInitialized =
     rootContext && rootContext.setNavStateInitialized;
   React.useEffect(() => {
