@@ -4,12 +4,13 @@ import invariant from 'invariant';
 
 import { importJSON } from '../utils/import-json';
 
+type DBType = 'mysql5.7' | 'mariadb10.8';
 export type DBConfig = {
   +host: string,
   +user: string,
   +password: string,
   +database: string,
-  +dbType: 'mysql5.7' | 'mariadb10.8',
+  +dbType: DBType,
 };
 
 let dbConfig;
@@ -47,4 +48,9 @@ async function getDBConfig(): Promise<DBConfig> {
   return dbConfig;
 }
 
-export { getDBConfig };
+async function getDBType(): Promise<DBType> {
+  const config = await getDBConfig();
+  return config.dbType;
+}
+
+export { getDBConfig, getDBType };
