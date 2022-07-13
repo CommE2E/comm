@@ -86,7 +86,7 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh \
 # Docker build caching saves us from re-downloading Node when any file changes
 COPY --chown=comm keyserver/.nvmrc keyserver/
 COPY --chown=comm keyserver/bash/source-nvm.sh keyserver/bash/
-RUN cd keyserver/bash && ./source-nvm.sh
+RUN cd keyserver && . bash/source-nvm.sh
 
 #-------------------------------------------------------------------------------
 # STEP 5: YARN CLEANINSTALL
