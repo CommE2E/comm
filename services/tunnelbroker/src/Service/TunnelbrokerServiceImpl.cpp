@@ -162,11 +162,7 @@ grpc::Status TunnelBrokerServiceImpl::Send(
         request->payload(),
         "");
     database::DatabaseManager::getInstance().putMessageItem(message);
-    if (!AmqpManager::getInstance().send(
-            messageID,
-            clientDeviceID,
-            request->todeviceid(),
-            std::string(request->payload()))) {
+    if (!AmqpManager::getInstance().send(&message)) {
       LOG(ERROR) << "gRPC: "
                  << "Error while publish the message to AMQP";
       return grpc::Status(

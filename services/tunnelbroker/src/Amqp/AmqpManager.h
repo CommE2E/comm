@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DatabaseManager.h"
+
 #include <amqpcpp.h>
 #include <amqpcpp/libuv.h>
 
@@ -21,11 +23,7 @@ class AmqpManager {
 public:
   static AmqpManager &getInstance();
   void connect();
-  bool send(
-      std::string messageID,
-      std::string fromDeviceID,
-      std::string toDeviceID,
-      std::string payload);
+  bool send(const database::MessageItem *message);
   void ack(uint64_t deliveryTag);
 
   AmqpManager(AmqpManager const &) = delete;

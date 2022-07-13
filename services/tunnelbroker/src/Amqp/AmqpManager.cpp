@@ -105,21 +105,18 @@ void AmqpManager::connect() {
   }
 }
 
-bool AmqpManager::send(
-    std::string messageID,
-    std::string fromDeviceID,
-    std::string toDeviceID,
-    std::string payload) {
+bool AmqpManager::send(const database::MessageItem *message) {
   if (!this->amqpReady) {
     LOG(ERROR) << "AMQP: Message send error: channel not ready";
     return false;
   }
   try {
-    AMQP::Envelope env(payload.c_str(), payload.size());
+    AMQP::Envelope env(
+        message->getPayload().c_str(), message->getPayload().size());
     AMQP::Table headers;
-    headers[AMQP_HEADER_MESSAGEID] = messageID;
-    headers[AMQP_HEADER_FROM_DEVICEID] = fromDeviceID;
-    headers[AMQP_HEADER_TO_DEVICEID] = toDeviceID;
+    headers[AMQP_HEADER_MESSAGEID] = message->getMessageID();
+    headers[AMQP_HEADER_FROM_DEVICEID] = message->getFromDeviceID();
+    headers[AMQP_HEADER_TO_DEVICEID] = message->getToDeviceID();
     // Set delivery mode to: Durable (2)
     env.setDeliveryMode(2);
     env.setHeaders(std::move(headers));
