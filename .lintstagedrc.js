@@ -46,4 +46,7 @@ module.exports = {
   'services/commtest/**/*.rs': function rustFormat(files) {
     return 'yarn rust-pre-commit';
   },
+  'services/terraform/*.tf': function checkTerraform(files) {
+    return 'yarn terraform-pre-commit';
+  },
 };
