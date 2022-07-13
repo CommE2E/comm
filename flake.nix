@@ -10,7 +10,7 @@
     let
       # Overlays allow for extending a package set, in this case, we are
       # extending nixpkgs with our devShell
-      localOverlay = import ./nix/overlay.nix;
+      localOverlay = import ./nix/overlay.nix self;
       overlays = [
         localOverlay
       ];
@@ -22,10 +22,12 @@
         inherit overlays system;
       };
 
+      platforms = [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ];
+
     # utils.lib.eachSystem helps create a result set of expected flake outputs
     # of the form <output>.<system>
     # https://github.com/numtide/flake-utils#usage for more examples
-    in utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ] (system: rec {
+    in utils.lib.eachSystem platforms  (system: rec {
       legacyPackages = pkgsForSystem system;
       inherit (legacyPackages) devShell;
     }) // {

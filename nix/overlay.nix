@@ -1,5 +1,10 @@
 # An overlay allows for a package set to be extended with new or modified packages
 
+# Take a reference to the flake itself.
+# A flake will have a copy of the git repo in the nix store,
+# which allows for re-use of the same source between all Comm builds.
+flake:
+
 # `final` refers to the package set with all overlays applied.
 # This allows for added or modified packages to be referenced with
 # all relevant changes
@@ -35,6 +40,9 @@ prev:
     # avoid rebuildilng all 300+ apis
     apis = [ "core" "s3" "dynamodb" ];
   };
+
+  # expose flake source to final.callPackage
+  comm-src = flake.outPath;
 
   # add packages meant for just this repository
   amqp-cpp = prev.callPackage ./amqp-cpp.nix { };
