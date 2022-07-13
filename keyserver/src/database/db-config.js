@@ -17,15 +17,15 @@ async function getDBConfig(): Promise<DBConfig> {
     return dbConfig;
   }
   if (
-    process.env.COMM_MYSQL_DATABASE &&
-    process.env.COMM_MYSQL_USER &&
-    process.env.COMM_MYSQL_PASSWORD
+    process.env.COMM_DATABASE_DATABASE &&
+    process.env.COMM_DATABASE_USER &&
+    process.env.COMM_DATABASE_PASSWORD
   ) {
     dbConfig = {
-      host: process.env.COMM_MYSQL_HOST || 'localhost',
-      user: process.env.COMM_MYSQL_USER,
-      password: process.env.COMM_MYSQL_PASSWORD,
-      database: process.env.COMM_MYSQL_DATABASE,
+      host: process.env.COMM_DATABASE_HOST || 'localhost',
+      user: process.env.COMM_DATABASE_USER,
+      password: process.env.COMM_DATABASE_PASSWORD,
+      database: process.env.COMM_DATABASE_DATABASE,
     };
   } else {
     const importedDBConfig = await importJSON({

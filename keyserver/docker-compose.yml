@@ -16,10 +16,10 @@ services:
     environment:
       - REDIS_URL=redis://cache
       - COMM_LISTEN_ADDR=0.0.0.0
-      - COMM_MYSQL_HOST=${COMM_MYSQL_HOST:-database}
-      - COMM_MYSQL_DATABASE
-      - COMM_MYSQL_USER
-      - COMM_MYSQL_PASSWORD
+      - COMM_DATABASE_HOST=${COMM_DATABASE_HOST:-database}
+      - COMM_DATABASE_DATABASE
+      - COMM_DATABASE_USER
+      - COMM_DATABASE_PASSWORD
     depends_on:
       - cache
       - database
@@ -39,9 +39,9 @@ services:
       --innodb-buffer-pool-size=1600M
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=yes
-      - MYSQL_DATABASE=$COMM_MYSQL_DATABASE
-      - MYSQL_USER=$COMM_MYSQL_USER
-      - MYSQL_PASSWORD=$COMM_MYSQL_PASSWORD
+      - MYSQL_DATABASE=$COMM_DATABASE_DATABASE
+      - MYSQL_USER=$COMM_DATABASE_USER
+      - MYSQL_PASSWORD=$COMM_DATABASE_PASSWORD
     volumes:
       - mysqldata:/var/lib/mysql
   cache:
