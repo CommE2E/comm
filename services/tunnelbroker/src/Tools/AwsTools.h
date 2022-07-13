@@ -10,7 +10,7 @@
 namespace comm {
 namespace network {
 
-Aws::String getAwsRegion();
+Aws::String getAwsRegionFromCredentials();
 
 } // namespace network
 } // namespace comm
