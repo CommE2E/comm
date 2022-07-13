@@ -4,6 +4,7 @@ import type { Media } from 'lib/types/media-types';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
+import { getDBType } from '../database/db-config';
 import type { Viewer } from '../session/viewer';
 import { getAndAssertCommAppURLFacts } from '../utils/urls';
 
@@ -80,8 +81,12 @@ function getUploadURL(id: string, secret: string): string {
 }
 
 async function mediaFromRow(row: Object): Promise<Media> {
+  const dbType = await getDBType();
+  const uploadExtra =
+    dbType === 'mysql5.7' ? row.uploadExtra : JSON.parse(row.uploadExtra);
+  const { width, height, loop } = uploadExtra;
+
   const { uploadType: type, uploadSecret: secret } = row;
-  const { width, height, loop } = row.uploadExtra;
   const id = row.uploadID.toString();
   const dimensions = { width, height };
   const uri = getUploadURL(id, secret);

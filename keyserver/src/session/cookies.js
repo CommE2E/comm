@@ -27,6 +27,7 @@ import { promiseAll } from 'lib/utils/promises';
 import createIDs from '../creators/id-creator';
 import { createSession } from '../creators/session-creator';
 import { dbQuery, SQL } from '../database/database';
+import { getDBType } from '../database/db-config';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { handleAsyncPromise } from '../responders/handlers';
 import { clearDeviceToken } from '../updaters/device-token-updaters';
@@ -89,8 +90,9 @@ async function fetchUserViewer(
     FROM cookies
     WHERE id = ${cookieID} AND user IS NOT NULL
   `;
-  const [[result], allSessionInfo] = await Promise.all([
+  const [[result], dbType, allSessionInfo] = await Promise.all([
     dbQuery(query),
+    getDBType(),
     fetchSessionInfo(sessionParameterInfo, cookieID),
   ]);
   if (result.length === 0) {
@@ -111,10 +113,14 @@ async function fetchUserViewer(
   const cookieRow = result[0];
   let platformDetails = null;
   if (cookieRow.versions) {
+    const versions =
+      dbType === 'mysql5.7'
+        ? cookieRow.versions
+        : JSON.parse(cookieRow.versions);
     platformDetails = {
       platform: cookieRow.platform,
-      codeVersion: cookieRow.versions.codeVersion,
-      stateVersion: cookieRow.versions.stateVersion,
+      codeVersion: versions.codeVersion,
+      stateVersion: versions.stateVersion,
     };
   } else {
     platformDetails = { platform: cookieRow.platform };
@@ -176,8 +182,9 @@ async function fetchAnonymousViewer(
     FROM cookies
     WHERE id = ${cookieID} AND user IS NULL
   `;
-  const [[result], allSessionInfo] = await Promise.all([
+  const [[result], dbType, allSessionInfo] = await Promise.all([
     dbQuery(query),
+    getDBType(),
     fetchSessionInfo(sessionParameterInfo, cookieID),
   ]);
   if (result.length === 0) {
@@ -198,10 +205,14 @@ async function fetchAnonymousViewer(
   const cookieRow = result[0];
   let platformDetails = null;
   if (cookieRow.platform && cookieRow.versions) {
+    const versions =
+      dbType === 'mysql5.7'
+        ? cookieRow.versions
+        : JSON.parse(cookieRow.versions);
     platformDetails = {
       platform: cookieRow.platform,
-      codeVersion: cookieRow.versions.codeVersion,
-      stateVersion: cookieRow.versions.stateVersion,
+      codeVersion: versions.codeVersion,
+      stateVersion: versions.stateVersion,
     };
   } else if (cookieRow.platform) {
     platformDetails = { platform: cookieRow.platform };
@@ -261,7 +272,7 @@ async function fetchSessionInfo(
     FROM sessions
     WHERE id = ${session} AND cookie = ${cookieID}
   `;
-  const [result] = await dbQuery(query);
+  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
   if (result.length === 0) {
     return null;
   }
@@ -269,7 +280,8 @@ async function fetchSessionInfo(
     sessionID,
     lastValidated: result[0].last_validated,
     lastUpdate: result[0].last_update,
-    calendarQuery: result[0].query,
+    calendarQuery:
+      dbType === 'mysql5.7' ? result[0].query : JSON.parse(result[0].query),
   };
 }
 

@@ -26,6 +26,7 @@ import {
   appendSQLArray,
   mergeOrConditions,
 } from '../database/database';
+import { getDBType } from '../database/db-config';
 import { fetchMessageInfoForLocalID } from '../fetchers/message-fetchers';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
@@ -300,13 +301,15 @@ async function postMessageSend(
   `);
 
   const perUserInfo = new Map<string, UserThreadInfo>();
-  const [result] = await dbQuery(query);
+  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
   for (const row of result) {
     const userID = row.user.toString();
     const threadID = row.thread.toString();
     const deviceToken = row.device_token;
     const focusedUser = !!row.focused_user;
-    const { platform, versions } = row;
+    const { platform } = row;
+    const versions =
+      dbType === 'mysql5.7' ? row.versions : JSON.parse(row.versions);
     let thisUserInfo = perUserInfo.get(userID);
     if (!thisUserInfo) {
       thisUserInfo = {
@@ -321,9 +324,14 @@ async function postMessageSend(
       // it once
       for (const subthread of subthreadPermissionsToCheck) {
         const isSubthreadMember = row[`subthread${subthread}_role`] > 0;
-        const permissions = row[`subthread${subthread}_permissions`];
+        const rawSubthreadPermissions =
+          row[`subthread${subthread}_permissions`];
+        const subthreadPermissions =
+          dbType === 'mysql5.7'
+            ? rawSubthreadPermissions
+            : JSON.parse(rawSubthreadPermissions);
         const canSeeSubthread = permissionLookup(
-          permissions,
+          subthreadPermissions,
           threadPermissions.KNOW_OF,
         );
         if (!canSeeSubthread) {
@@ -334,7 +342,7 @@ async function postMessageSend(
         // notification from the subthread
         if (
           !isSubthreadMember ||
-          !permissionLookup(permissions, threadPermissions.VISIBLE)
+          !permissionLookup(subthreadPermissions, threadPermissions.VISIBLE)
         ) {
           thisUserInfo.subthreadsCanNotify.add(subthread);
         }

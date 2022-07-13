@@ -30,6 +30,7 @@ import {
   type UpdatesForCurrentSession,
 } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
+import { getDBType } from '../database/db-config';
 import {
   fetchServerThreadInfos,
   rawThreadInfosFromServerThreadInfos,
@@ -116,11 +117,13 @@ async function changeRole(
     WHERE t.id = ${threadID} AND cm.user IN (${userIDs})
   `;
   const [
+    dbType,
     [membershipResults],
     [parentMembershipResults],
     containingMembershipResults,
     roleThreadResult,
   ] = await Promise.all([
+    getDBType(),
     dbQuery(membershipQuery),
     dbQuery(parentMembershipQuery),
     (async () => {
@@ -148,8 +151,12 @@ async function changeRole(
     const userID = row.user.toString();
     existingMembershipInfo.set(userID, {
       oldRole: row.role.toString(),
-      oldPermissions: row.permissions,
-      oldPermissionsForChildren: row.permissions_for_children,
+      oldPermissions:
+        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions),
+      oldPermissionsForChildren:
+        dbType === 'mysql5.7'
+          ? row.permissions_for_children
+          : JSON.parse(row.permissions_for_children),
     });
   }
 
@@ -160,7 +167,10 @@ async function changeRole(
       continue;
     }
     ancestorMembershipInfo.set(userID, {
-      permissionsFromParent: row.permissions_from_parent,
+      permissionsFromParent:
+        dbType === 'mysql5.7'
+          ? row.permissions_from_parent
+          : JSON.parse(row.permissions_from_parent),
     });
   }
   for (const row of containingMembershipResults) {
@@ -352,7 +362,7 @@ async function changeRoleThreadQuery(
       INNER JOIN roles r ON r.thread = t.id AND r.id = ${role}
       WHERE t.id = ${threadID}
     `;
-    const [result] = await dbQuery(query);
+    const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
     if (result.length === 0) {
       throw new ServerError('internal_error');
     }
@@ -365,7 +375,8 @@ async function changeRoleThreadQuery(
         ? row.parent_thread_id.toString()
         : null,
       hasContainingThreadID: row.containing_thread_id !== null,
-      rolePermissions: row.permissions,
+      rolePermissions:
+        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions),
     };
   } else {
     const query = SQL`
@@ -375,7 +386,7 @@ async function changeRoleThreadQuery(
       INNER JOIN roles r ON r.thread = t.id AND r.id = t.default_role
       WHERE t.id = ${threadID}
     `;
-    const [result] = await dbQuery(query);
+    const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
     if (result.length === 0) {
       throw new ServerError('internal_error');
     }
@@ -388,7 +399,8 @@ async function changeRoleThreadQuery(
         ? row.parent_thread_id.toString()
         : null,
       hasContainingThreadID: row.containing_thread_id !== null,
-      rolePermissions: row.permissions,
+      rolePermissions:
+        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions),
     };
   }
 }
@@ -573,27 +585,30 @@ async function fetchDescendantsForUpdate(
   const threadIDs = ancestors.map(ancestor => ancestor.threadID);
 
   const rows = [];
-  while (threadIDs.length > 0) {
-    const batch = threadIDs.splice(0, fetchDescendantsBatchSize);
-    const query = SQL`
-      SELECT t.id, m.user, t.type, t.depth, t.parent_thread_id,
-        t.containing_thread_id, r.permissions AS role_permissions, m.permissions,
-        m.permissions_for_children, m.role,
-        pm.permissions_for_children AS permissions_from_parent,
-        cm.role AS containing_role
-      FROM threads t
-      INNER JOIN memberships m ON m.thread = t.id
-      LEFT JOIN memberships pm
-        ON pm.thread = t.parent_thread_id AND pm.user = m.user
-      LEFT JOIN memberships cm
-        ON cm.thread = t.containing_thread_id AND cm.user = m.user
-      LEFT JOIN roles r ON r.id = m.role
-      WHERE t.parent_thread_id IN (${batch})
-        OR t.containing_thread_id IN (${batch})
-    `;
-    const [results] = await dbQuery(query);
-    pushAll(rows, results);
-  }
+  const queriesPromise = (async () => {
+    while (threadIDs.length > 0) {
+      const batch = threadIDs.splice(0, fetchDescendantsBatchSize);
+      const query = SQL`
+        SELECT t.id, m.user, t.type, t.depth, t.parent_thread_id,
+          t.containing_thread_id, r.permissions AS role_permissions, m.permissions,
+          m.permissions_for_children, m.role,
+          pm.permissions_for_children AS permissions_from_parent,
+          cm.role AS containing_role
+        FROM threads t
+        INNER JOIN memberships m ON m.thread = t.id
+        LEFT JOIN memberships pm
+          ON pm.thread = t.parent_thread_id AND pm.user = m.user
+        LEFT JOIN memberships cm
+          ON cm.thread = t.containing_thread_id AND cm.user = m.user
+        LEFT JOIN roles r ON r.id = m.role
+        WHERE t.parent_thread_id IN (${batch})
+          OR t.containing_thread_id IN (${batch})
+      `;
+      const [results] = await dbQuery(query);
+      pushAll(rows, results);
+    }
+  })();
+  const [dbType] = await Promise.all([getDBType(), queriesPromise]);
 
   const descendantThreadInfos: Map<string, DescendantInfo> = new Map();
   for (const row of rows) {
@@ -616,10 +631,20 @@ async function fetchDescendantsForUpdate(
     const userID = row.user.toString();
     descendantThreadInfo.users.set(userID, {
       curRole: row.role.toString(),
-      curRolePermissions: row.role_permissions,
-      curPermissions: row.permissions,
-      curPermissionsForChildren: row.permissions_for_children,
-      curPermissionsFromParent: row.permissions_from_parent,
+      curRolePermissions:
+        dbType === 'mysql5.7'
+          ? row.role_permissions
+          : JSON.parse(row.role_permissions),
+      curPermissions:
+        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions),
+      curPermissionsForChildren:
+        dbType === 'mysql5.7'
+          ? row.permissions_for_children
+          : JSON.parse(row.permissions_for_children),
+      curPermissionsFromParent:
+        dbType === 'mysql5.7'
+          ? row.permissions_from_parent
+          : JSON.parse(row.permissions_from_parent),
       curMemberOfContainingThread: row.containing_role > 0,
     });
   }
@@ -724,10 +749,12 @@ async function recalculateThreadPermissions(
     WHERE t.id = ${threadID}
   `;
   const [
+    dbType,
     [threadResults],
     [membershipResults],
     [parentMembershipResults],
   ] = await Promise.all([
+    getDBType(),
     dbQuery(threadQuery),
     dbQuery(membershipQuery),
     dbQuery(parentMembershipQuery),
@@ -750,9 +777,16 @@ async function recalculateThreadPermissions(
     const userID = row.user.toString();
     membershipInfo.set(userID, {
       role: row.role.toString(),
-      permissions: row.permissions,
-      permissionsForChildren: row.permissions_for_children,
-      rolePermissions: row.role_permissions,
+      permissions:
+        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions),
+      permissionsForChildren:
+        dbType === 'mysql5.7'
+          ? row.permissions_for_children
+          : JSON.parse(row.permissions_for_children),
+      rolePermissions:
+        dbType === 'mysql5.7'
+          ? row.role_permissions
+          : JSON.parse(row.role_permissions),
       memberOfContainingThread: !!(
         row.containing_role && row.containing_role > 0
       ),
@@ -760,12 +794,16 @@ async function recalculateThreadPermissions(
   }
   for (const row of parentMembershipResults) {
     const userID = row.user.toString();
+    const permissionsFromParent =
+      dbType === 'mysql5.7'
+        ? row.permissions_from_parent
+        : JSON.parse(row.permissions_from_parent);
     const membership = membershipInfo.get(userID);
     if (membership) {
-      membership.permissionsFromParent = row.permissions_from_parent;
+      membership.permissionsFromParent = permissionsFromParent;
     } else {
       membershipInfo.set(userID, {
-        permissionsFromParent: row.permissions_from_parent,
+        permissionsFromParent: permissionsFromParent,
       });
     }
   }

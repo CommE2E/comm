@@ -19,6 +19,7 @@ import type {
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
+import { getDBType } from '../database/db-config';
 import type { Viewer } from '../session/viewer';
 import { fetchThreadInfos } from './thread-fetchers';
 import { fetchKnownUserInfos } from './user-fetchers';
@@ -38,13 +39,13 @@ async function fetchThreadPermissionsBlob(
     FROM memberships
     WHERE thread = ${threadID} AND user = ${viewerID}
   `;
-  const [result] = await dbQuery(query);
+  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
 
   if (result.length === 0) {
     return null;
   }
   const row = result[0];
-  return row.permissions;
+  return dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions);
 }
 
 function checkThreadPermission(
@@ -119,13 +120,19 @@ async function getValidThreads(
     }
   }
 
-  const [[result], disabledThreadIDs] = await Promise.all([
+  const [[result], dbType, disabledThreadIDs] = await Promise.all([
     dbQuery(query),
+    getDBType(),
     checkThreadsFrozen(viewer, permissionsToCheck, threadIDs),
   ]);
 
   return result
-    .map(row => ({ ...row, threadID: row.threadID.toString() }))
+    .map(row => ({
+      ...row,
+      threadID: row.threadID.toString(),
+      permissions:
+        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions),
+    }))
     .filter(
       row =>
         isThreadValid(row.permissions, row.role, checks) &&
@@ -236,9 +243,13 @@ async function validateCandidateMembers(
       FROM memberships
       WHERE thread = ${params.parentThreadID} AND user IN (${allCandidates})
     `;
-    const [result] = await dbQuery(parentPermissionsQuery);
+    const [[result], dbType] = await Promise.all([
+      dbQuery(parentPermissionsQuery),
+      getDBType(),
+    ]);
     for (const row of result) {
-      parentPermissions[row.user.toString()] = row.permissions;
+      parentPermissions[row.user.toString()] =
+        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions);
     }
     return parentPermissions;
   })();

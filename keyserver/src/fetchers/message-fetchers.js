@@ -31,6 +31,7 @@ import {
   mergeOrConditions,
   mergeAndConditions,
 } from '../database/database';
+import { getDBType } from '../database/db-config';
 import type { SQLStatementType } from '../database/types';
 import type { PushInfo } from '../push/send';
 import type { Viewer } from '../session/viewer';
@@ -216,13 +217,22 @@ function mostRecentRowType(rows: $ReadOnlyArray<Object>): MessageType {
 }
 
 async function rawMessageInfoFromRows(
-  rows: $ReadOnlyArray<Object>,
+  rawRows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
   derivedMessages: $ReadOnlyMap<
     string,
     RawComposableMessageInfo | RawRobotextMessageInfo,
   >,
 ): Promise<?RawMessageInfo> {
+  let rows = rawRows;
+  const dbType = await getDBType();
+  if (dbType !== 'mysql5.7') {
+    rows = rawRows.map(row => ({
+      ...row,
+      subthread_permissions: JSON.parse(row.subthread_permissions),
+    }));
+  }
+
   const type = mostRecentRowType(rows);
   const messageSpec = messageSpecs[type];
 
