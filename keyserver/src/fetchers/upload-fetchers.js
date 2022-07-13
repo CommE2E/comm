@@ -79,7 +79,7 @@ function getUploadURL(id: string, secret: string): string {
   return `${baseDomain}${basePath}upload/${id}/${secret}`;
 }
 
-function mediaFromRow(row: Object): Media {
+async function mediaFromRow(row: Object): Promise<Media> {
   const { uploadType: type, uploadSecret: secret } = row;
   const { width, height, loop } = row.uploadExtra;
   const id = row.uploadID.toString();
@@ -107,7 +107,7 @@ async function fetchMedia(
     WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} AND container IS NULL
   `;
   const [result] = await dbQuery(query);
-  return result.map(mediaFromRow);
+  return await Promise.all(result.map(mediaFromRow));
 }
 
 export {

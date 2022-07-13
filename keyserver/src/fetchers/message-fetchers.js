@@ -227,7 +227,9 @@ async function rawMessageInfoFromRows(
   const messageSpec = messageSpecs[type];
 
   if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
-    const media = rows.filter(row => row.uploadID).map(mediaFromRow);
+    const media = await Promise.all(
+      rows.filter(row => row.uploadID).map(mediaFromRow),
+    );
     const [row] = rows;
     const localID = localIDFromCreationString(viewer, row.creation);
     invariant(
