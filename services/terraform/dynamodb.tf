@@ -161,3 +161,33 @@ resource "aws_dynamodb_table" "tunnelbroker-messages" {
     enabled        = true
   }
 }
+
+resource "aws_dynamodb_table" "identity-users" {
+  name           = "identity-users"
+  hash_key       = "userID"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "userID"
+    type = "S"
+  }
+}
+
+resource "aws_dynamodb_table" "identity-tokens" {
+  name           = "identity-tokens"
+  hash_key       = "userID"
+  range_key      = "deviceID"
+  write_capacity = 10
+  read_capacity  = 10
+
+  attribute {
+    name = "userID"
+    type = "S"
+  }
+
+  attribute {
+    name = "deviceID"
+    type = "S"
+  }
+}
