@@ -9,6 +9,7 @@ export type DBConfig = {
   +user: string,
   +password: string,
   +database: string,
+  +dbType: 'mysql5.7' | 'mariadb10.8',
 };
 
 let dbConfig;
@@ -26,6 +27,10 @@ async function getDBConfig(): Promise<DBConfig> {
       user: process.env.COMM_DATABASE_USER,
       password: process.env.COMM_DATABASE_PASSWORD,
       database: process.env.COMM_DATABASE_DATABASE,
+      dbType:
+        process.env.COMM_DATABASE_TYPE === 'mariadb10.8'
+          ? 'mariadb10.8'
+          : 'mysql5.7',
     };
   } else {
     const importedDBConfig = await importJSON({
@@ -33,7 +38,11 @@ async function getDBConfig(): Promise<DBConfig> {
       name: 'db_config',
     });
     invariant(importedDBConfig, 'DB config missing');
-    dbConfig = importedDBConfig;
+    dbConfig = {
+      ...importedDBConfig,
+      dbType:
+        importedDBConfig.dbType === 'mariadb10.8' ? 'mariadb10.8' : 'mysql5.7',
+    };
   }
   return dbConfig;
 }

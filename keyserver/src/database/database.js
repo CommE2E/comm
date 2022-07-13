@@ -29,7 +29,7 @@ async function loadPool(): Promise<Pool> {
     return pool;
   }
   const scriptContext = getScriptContext();
-  const dbConfig = await getDBConfig();
+  const { dbType, ...dbConfig } = await getDBConfig();
   const options: PoolOptions = {
     ...dbConfig,
     connectionLimit,
@@ -175,7 +175,7 @@ function rawSQL(statement: SQLStatementType): string {
 }
 
 async function getMultipleStatementsConnection() {
-  const dbConfig = await getDBConfig();
+  const { dbType, ...dbConfig } = await getDBConfig();
   const options: ConnectionOptions = {
     ...dbConfig,
     multipleStatements: true,
