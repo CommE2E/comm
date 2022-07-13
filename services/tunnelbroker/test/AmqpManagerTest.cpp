@@ -35,10 +35,9 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnStaticData) {
       "iGhpnX7Hp4xpBL3h2IkvGviDRQ98UvW0ugwUuPxm1NOQpjLG5dPoqQ0jrMst0Bl5rgPw"
       "ajjNGsUWmp9r0ST0wRQXrQcY30PoSoqKSlCEgFMLzHWLrPQ86QFyCICismGSe7iBIqdD"
       "6d37StvXBzfJoZVU79UeOF2bFvb3DNoArEOe";
-  EXPECT_EQ(
-      AmqpManager::getInstance().send(
-          messageID, toDeviceID, fromDeviceID, payload),
-      true);
+  const database::MessageItem messageItem{
+      messageID, toDeviceID, fromDeviceID, payload, ""};
+  EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
   DeliveryBrokerMessage receivedMessage =
       DeliveryBroker::getInstance().pop(toDeviceID);
   EXPECT_EQ(messageID, receivedMessage.messageID);
@@ -54,10 +53,9 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnGeneratedData) {
   const std::string fromDeviceID =
       "web:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH);
   const std::string payload = tools::generateRandomString(512);
-  EXPECT_EQ(
-      AmqpManager::getInstance().send(
-          messageID, toDeviceID, fromDeviceID, payload),
-      true);
+  const database::MessageItem messageItem{
+      messageID, toDeviceID, fromDeviceID, payload, ""};
+  EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
   DeliveryBrokerMessage receivedMessage =
       DeliveryBroker::getInstance().pop(toDeviceID);
   EXPECT_EQ(messageID, receivedMessage.messageID)
