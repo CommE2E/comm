@@ -131,8 +131,13 @@ async function fetchCollapsableNotifs(
   }
 
   const derivedMessages = await fetchDerivedMessages(collapseResult);
-  for (const userRows of rowsByUser.values()) {
-    const messages = parseMessageSQLResult(userRows, derivedMessages);
+
+  const parsePromises = [...rowsByUser.values()].map(userRows =>
+    parseMessageSQLResult(userRows, derivedMessages),
+  );
+  const parsedMessages = await Promise.all(parsePromises);
+
+  for (const messages of parsedMessages) {
     for (const message of messages) {
       const { rawMessageInfo, rows } = message;
       const [row] = rows;
@@ -160,14 +165,14 @@ type MessageSQLResult = $ReadOnlyArray<{
   rawMessageInfo: RawMessageInfo,
   rows: $ReadOnlyArray<Object>,
 }>;
-function parseMessageSQLResult(
+async function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
   derivedMessages: $ReadOnlyMap<
     string,
     RawComposableMessageInfo | RawRobotextMessageInfo,
   >,
   viewer?: Viewer,
-): MessageSQLResult {
+): Promise<MessageSQLResult> {
   const rowsByID = new Map();
   for (const row of rows) {
     const id = row.id.toString();
@@ -179,19 +184,16 @@ function parseMessageSQLResult(
     }
   }
 
-  const messages = [];
-  for (const messageRows of rowsByID.values()) {
-    const rawMessageInfo = rawMessageInfoFromRows(
+  const messagePromises = [...rowsByID.values()].map(async messageRows => {
+    const rawMessageInfo = await rawMessageInfoFromRows(
       messageRows,
       viewer,
       derivedMessages,
     );
-    if (rawMessageInfo) {
-      messages.push({ rawMessageInfo, rows: messageRows });
-    }
-  }
-
-  return messages;
+    return rawMessageInfo ? { rawMessageInfo, rows: messageRows } : null;
+  });
+  const messages = await Promise.all(messagePromises);
+  return messages.filter(Boolean);
 }
 
 function assertSingleRow(rows: $ReadOnlyArray<Object>): Object {
@@ -213,14 +215,14 @@ function mostRecentRowType(rows: $ReadOnlyArray<Object>): MessageType {
   return assertMessageType(rows[0].type);
 }
 
-function rawMessageInfoFromRows(
+async function rawMessageInfoFromRows(
   rows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
   derivedMessages: $ReadOnlyMap<
     string,
     RawComposableMessageInfo | RawRobotextMessageInfo,
   >,
-): ?RawMessageInfo {
+): Promise<?RawMessageInfo> {
   const type = mostRecentRowType(rows);
   const messageSpec = messageSpecs[type];
 
@@ -309,7 +311,7 @@ async function fetchMessageInfos(
   `);
   const [result] = await dbQuery(query);
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  const messages = parseMessageSQLResult(result, derivedMessages, viewer);
+  const messages = await parseMessageSQLResult(result, derivedMessages, viewer);
 
   const rawMessageInfos = [];
   const threadToMessageCount = new Map();
@@ -526,7 +528,7 @@ async function fetchMessageInfosSince(
   `);
   const [result] = await dbQuery(query);
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  const messages = parseMessageSQLResult(result, derivedMessages, viewer);
+  const messages = await parseMessageSQLResult(result, derivedMessages, viewer);
 
   const rawMessageInfos = [];
   let currentThreadID = null;
@@ -611,7 +613,7 @@ async function fetchMessageInfoForLocalID(
     return null;
   }
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  return rawMessageInfoFromRows(result, viewer, derivedMessages);
+  return await rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
 const entryIDExtractString = '$.entryID';
@@ -642,7 +644,7 @@ async function fetchMessageInfoForEntryAction(
     return null;
   }
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  return rawMessageInfoFromRows(result, viewer, derivedMessages);
+  return await rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
 async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
@@ -686,7 +688,7 @@ async function fetchDerivedMessages(
   }
 
   const result = await fetchMessageRowsByIDs([...requiredIDs]);
-  const messages = parseMessageSQLResult(result, new Map(), viewer);
+  const messages = await parseMessageSQLResult(result, new Map(), viewer);
 
   for (const message of messages) {
     const { rawMessageInfo } = message;
@@ -710,7 +712,7 @@ async function fetchMessageInfoByID(
     return null;
   }
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  return rawMessageInfoFromRows(result, viewer, derivedMessages);
+  return await rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
 export {
