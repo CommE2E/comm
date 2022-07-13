@@ -1,6 +1,6 @@
 // @flow
 
-import type { QueryResults } from 'mysql';
+import type { ConnectionOptions, QueryResults, PoolOptions } from 'mysql';
 import mysql from 'mysql2';
 import mysqlPromise from 'mysql2/promise';
 import SQL from 'sql-template-strings';
@@ -30,13 +30,14 @@ async function loadPool(): Promise<Pool> {
   }
   const scriptContext = getScriptContext();
   const dbConfig = await getDBConfig();
-  pool = mysqlPromise.createPool({
+  const options: PoolOptions = {
     ...dbConfig,
     connectionLimit,
     multipleStatements: !!(
       scriptContext && scriptContext.allowMultiStatementSQLQueries
     ),
-  });
+  };
+  pool = mysqlPromise.createPool(options);
   databaseMonitor = new DatabaseMonitor(pool);
   return pool;
 }
@@ -175,10 +176,11 @@ function rawSQL(statement: SQLStatementType): string {
 
 async function getMultipleStatementsConnection() {
   const dbConfig = await getDBConfig();
-  return await mysqlPromise.createConnection({
+  const options: ConnectionOptions = {
     ...dbConfig,
     multipleStatements: true,
-  });
+  };
+  return await mysqlPromise.createConnection(options);
 }
 
 export {

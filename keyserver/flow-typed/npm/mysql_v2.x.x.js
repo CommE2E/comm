@@ -42,7 +42,6 @@ declare module "mysql" {
     multipleStatements?: boolean,
     flags?: string,
     ssl?: string | {...},
-    ...
   };
 
   declare type QueryOptions = {
@@ -134,12 +133,12 @@ declare module "mysql" {
     escape(val: mixed, stringifyObjects?: boolean, timeZone?: string): string;
   }
 
-  declare type PoolOptions = ConnectionOptions & {
+  declare type PoolOptions = {
+    ...ConnectionOptions,
     acquireTimeout?: number,
     connectionLimit?: number,
     waitForConnections?: boolean,
     queueLimit?: number,
-    ...
   };
 
   declare type PoolClusterSelector = "RR" | "ORDER" | "RANDOM";
