@@ -7,6 +7,10 @@ license = "BSD-3-Clause"
 edition = "2021"
 
 [dependencies]
+tracing = "0.1"
+tokio = { version = "1.14", features = ["rt-multi-thread"]}
+lazy_static = "1.4"
+a2 = "0.6"
 
 [lib]
 crate-type=["staticlib"]
