@@ -1,0 +1,12 @@
+[package]
+name = "rust-notifications"
+description = "Library to send iOS and Android push notifications"
+homepage = "https://comm.app"
+version = "0.0.1"
+license = "MIT"
+edition = "2021"
+
+[dependencies]
+
+[lib]
+crate-type=["staticlib"]
