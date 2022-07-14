@@ -2,7 +2,9 @@
 
 import type { QueryResults } from 'mysql';
 
+import { isDev } from 'lib/utils/dev-utils';
 import { getMessageForException } from 'lib/utils/errors';
+import sleep from 'lib/utils/sleep';
 
 import { dbQuery, SQL } from './database';
 import { fetchDBVersion, updateDBVersion } from './db-version';
@@ -10,6 +12,10 @@ import { migrations } from './migration-config';
 import { setupDB } from './setup-db';
 
 async function migrate(): Promise<boolean> {
+  if (isDev) {
+    await sleep(5000);
+  }
+
   let dbVersion = null;
   try {
     dbVersion = await setUpDBAndReturnVersion();
