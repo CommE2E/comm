@@ -36,4 +36,21 @@ prev:
         ''${!outputDev}/include/olm
     '';
   });
+
+  # 16.14 now requires explicit awaits on all imports, pin to 16.13
+  # https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V16.md
+  nodejs-16_x = prev.nodejs-16_x.overrideAttrs (oldAttrs: rec {
+    version = "16.13.0";
+    name = "nodejs-${version}";
+
+    src = prev.fetchurl {
+      url = "https://nodejs.org/dist/v${version}/node-v${version}.tar.xz";
+      sha256 = "sha256-MhFLPcOUXtD5X4vDO0LGjg7xjECMtWEiVyoWPZB+y8w=";
+    };
+  });
+
+  # Ensure that yarn is using the pinned version
+  yarn = prev.yarn.override (_: {
+    nodejs = final.nodejs-16_x;
+  });
 }
