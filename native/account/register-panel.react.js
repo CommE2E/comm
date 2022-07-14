@@ -271,7 +271,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
       this.props.registerState.state.confirmPasswordInputText
     ) {
       Alert.alert(
-        "Passwords don't match",
+        'Passwords don’t match',
         'Password fields must contain the same password',
         [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
         { cancelable: false },
@@ -364,7 +364,7 @@ class RegisterPanel extends React.PureComponent<Props, State> {
         });
         Alert.alert(
           'App out of date',
-          "Your app version is pretty old, and the server doesn't know how " +
+          'Your app version is pretty old, and the server doesn’t know how ' +
             `to speak to it anymore. Please use the ${app} app to update!`,
           [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
           { cancelable: false },

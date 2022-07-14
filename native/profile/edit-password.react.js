@@ -212,7 +212,7 @@ class EditPassword extends React.PureComponent<Props, State> {
       );
     } else if (this.state.newPassword !== this.state.confirmPassword) {
       Alert.alert(
-        "Passwords don't match",
+        'Passwords don’t match',
         'New password fields must contain the same password',
         [{ text: 'OK', onPress: this.onNewPasswordAlertAcknowledged }],
         { cancelable: false },

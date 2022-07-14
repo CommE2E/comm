@@ -202,7 +202,7 @@ class LogInPanel extends React.PureComponent<Props> {
     this.props.setActiveAlert(true);
     if (this.usernameInputText.search(validEmailRegex) > -1) {
       Alert.alert(
-        "Can't log in with email",
+        'Can’t log in with email',
         'You need to log in with your username now',
         [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
         { cancelable: false },
@@ -263,7 +263,7 @@ class LogInPanel extends React.PureComponent<Props> {
       if (e.message === 'invalid_parameters') {
         Alert.alert(
           'Invalid username',
-          "User doesn't exist",
+          'User doesn’t exist',
           [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
           { cancelable: false },
         );
@@ -281,7 +281,7 @@ class LogInPanel extends React.PureComponent<Props> {
         });
         Alert.alert(
           'App out of date',
-          "Your app version is pretty old, and the server doesn't know how " +
+          'Your app version is pretty old, and the server doesn’t know how ' +
             `to speak to it anymore. Please use the ${app} app to update!`,
           [{ text: 'OK', onPress: this.onAppOutOfDateAlertAcknowledged }],
           { cancelable: false },

@@ -66,7 +66,7 @@ async function intentionalSaveMedia(
     });
     message = `saving media is unsupported on ${os}`;
   } else if (result.reason === 'missing_permission') {
-    message = "don't have permission :(";
+    message = 'don’t have permission :(';
   } else if (
     result.reason === 'resolve_failed' ||
     result.reason === 'data_uri_failed'

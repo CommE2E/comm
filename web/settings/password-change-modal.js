@@ -173,7 +173,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
         {
           newPassword: '',
           confirmNewPassword: '',
-          errorMessage: "passwords don't match",
+          errorMessage: 'passwords don’t match',
         },
         () => {
           invariant(this.newPasswordInput, 'newPasswordInput ref unset');

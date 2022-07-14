@@ -676,7 +676,7 @@ class CameraModal extends React.PureComponent<Props, State> {
       return (
         <View style={styles.authorizationDeniedContainer}>
           <Text style={styles.authorizationDeniedText}>
-            {"don't have permission :("}
+            {'don’t have permission :('}
           </Text>
         </View>
       );
