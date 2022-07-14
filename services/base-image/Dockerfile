@@ -11,6 +11,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 	pkg-config \
 	libboost-all-dev \
 	libfmt-dev \
+	libgflags-dev \
 	libgtest-dev \
   libcurl4-openssl-dev \
   libssl-dev \
@@ -28,6 +29,9 @@ RUN ./install_aws_sdk.sh
 
 COPY docker/install_glog.sh .
 RUN ./install_glog.sh
+
+COPY docker/install_double.sh .
+RUN ./install_double.sh
 
 COPY docker/install_folly.sh .
 RUN ./install_folly.sh
