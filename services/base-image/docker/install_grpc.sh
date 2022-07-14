@@ -29,8 +29,7 @@ cmake \
 	-DgRPC_BUILD_GRPC_PYTHON_PLUGIN=OFF \
 	-DgRPC_BUILD_GRPC_RUBY_PLUGIN=OFF \
 	../..
-make
-make install
+make install -j "$(nproc)" -l "$(nproc)"
 popd # cmake/build
 
 # Explicitly install abseil-cpp because of https://github.com/grpc/grpc/issues/25949
@@ -41,10 +40,22 @@ pushd cmake/build
 cmake \
 		-DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
 		../..
-make
-make install
+make install -j "$(nproc)" -l "$(nproc)"
 popd # cmake/build
 popd # third_party/abseil-cpp/
+
+# Explicitly install a more up-to-date version of `protobuf`, which
+# installs `protobuf-config.cmake`. The `libprotobuf-dev` Ubuntu package
+# only exports the `pkg-config` `protobuf.pc`. This is important because
+# the gRPC CMake configuration will attempt to find the `protobuf` CMake
+# configuration.
+pushd third_party/protobuf/
+mkdir -p _build
+pushd _build
+cmake ../cmake -Dprotobuf_BUILD_SHARED_LIBS=ON -Dprotobuf_ABSL_PROVIDER=package
+make install -j "$(nproc)" -l "$(nproc)"
+popd # _build
+popd # third_party/protobuf/
 
 popd # grpc
 

@@ -4,7 +4,14 @@ set -e
 
 pushd /usr/lib
 
-git clone https://github.com/facebook/folly.git --branch v2020.01.13.00 --single-branch
-git clone https://github.com/google/double-conversion.git --branch  v3.1.5 --single-branch
+git clone https://github.com/facebook/folly.git \
+  --branch v2020.01.13.00 \
+  --single-branch
+
+pushd folly
+cmake .
+make install -l "$(nproc)" -j "$(nproc)"
+popd # folly
+rm -r folly
 
 popd # /usr/lib
