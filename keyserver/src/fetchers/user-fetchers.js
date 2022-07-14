@@ -85,9 +85,10 @@ async function fetchKnownUserInfos(
     `);
   }
   query.append(SQL`
-    UNION SELECT id AS user1, NULL AS user2, NULL AS undirected_status,
-      NULL AS user1_directed_status, NULL AS user2_directed_status,
-      username
+    UNION SELECT id AS user1, NULL AS user2, username,
+      CAST(NULL AS UNSIGNED) AS undirected_status,
+      CAST(NULL AS UNSIGNED) AS user1_directed_status,
+      CAST(NULL AS UNSIGNED) AS user2_directed_status
     FROM users
     WHERE id = ${viewer.userID}
   `);
