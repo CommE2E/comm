@@ -6,7 +6,7 @@ import { isDev } from 'lib/utils/dev-utils';
 import { getMessageForException } from 'lib/utils/errors';
 import sleep from 'lib/utils/sleep';
 
-import { dbQuery, SQL } from './database';
+import { dbQuery, SQL, setConnectionContext } from './database';
 import { fetchDBVersion, updateDBVersion } from './db-version';
 import { migrations } from './migration-config';
 import { setupDB } from './setup-db';
@@ -26,6 +26,7 @@ async function migrate(): Promise<boolean> {
     return false;
   }
 
+  setConnectionContext({ migrationsActive: true });
   for (const [idx, migration] of migrations.entries()) {
     if (idx <= dbVersion) {
       continue;
@@ -45,6 +46,7 @@ async function migrate(): Promise<boolean> {
       return false;
     }
   }
+  setConnectionContext({ migrationsActive: false });
   return true;
 }
 
