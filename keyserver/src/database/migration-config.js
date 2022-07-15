@@ -2,6 +2,8 @@
 
 import fs from 'fs';
 
+import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters';
+
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   [
     0,
@@ -25,6 +27,8 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       await fixBaseRoutePathForLocalhost('facts/squadcal_url.json');
     },
   ],
+
+  [3, updateRolesAndPermissionsForAllThreads],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 

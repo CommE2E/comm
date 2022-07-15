@@ -38,6 +38,7 @@ import {
 import { rescindPushNotifs } from '../push/rescind';
 import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
+import { updateRoles } from '../updaters/role-updaters';
 import DepthQueue from '../utils/depth-queue';
 import RelationshipChangeset from '../utils/relationship-changeset';
 import { updateChangedUndirectedRelationships } from './relationship-updaters';
@@ -1238,6 +1239,51 @@ async function recalculateAllThreadPermissions() {
   }
 }
 
+async function updateRolesAndPermissionsForAllThreads() {
+  const batchSize = 10;
+  const fetchThreads = SQL`SELECT id, type, depth FROM threads`;
+  const [result] = await dbQuery(fetchThreads);
+  const allThreads = result.map(row => {
+    return {
+      id: row.id.toString(),
+      type: assertThreadType(row.type),
+      depth: row.depth,
+    };
+  });
+
+  const viewer = createScriptViewer(bots.commbot.userID);
+
+  const maxDepth = Math.max(...allThreads.map(row => row.depth));
+
+  for (let depth = 0; depth <= maxDepth; depth++) {
+    const threads = allThreads.filter(row => row.depth === depth);
+    console.log(`recalculating permissions for threads with depth ${depth}`);
+    while (threads.length > 0) {
+      const batch = threads.splice(0, batchSize);
+      const membershipRows = [];
+      const relationshipChangeset = new RelationshipChangeset();
+      await Promise.all(
+        batch.map(async thread => {
+          console.log(`updating roles for ${thread.id}`);
+          await updateRoles(viewer, thread.id, thread.type);
+          console.log(`recalculating permissions for ${thread.id}`);
+          const {
+            membershipRows: threadMembershipRows,
+            relationshipChangeset: threadRelationshipChangeset,
+          } = await recalculateThreadPermissions(thread.id);
+          membershipRows.push(...threadMembershipRows);
+          relationshipChangeset.addAll(threadRelationshipChangeset);
+        }),
+      );
+      console.log(`committing batch ${JSON.stringify(batch)}`);
+      await commitMembershipChangeset(viewer, {
+        membershipRows,
+        relationshipChangeset,
+      });
+    }
+  }
+}
+
 export {
   changeRole,
   recalculateThreadPermissions,
@@ -1245,4 +1291,5 @@ export {
   saveMemberships,
   commitMembershipChangeset,
   recalculateAllThreadPermissions,
+  updateRolesAndPermissionsForAllThreads,
 };
