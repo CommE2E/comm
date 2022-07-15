@@ -2,6 +2,8 @@
 
 import fs from 'fs';
 
+import { SQL, dbQuery } from './database';
+
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   [
     0,
@@ -23,6 +25,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     async () => {
       await fixBaseRoutePathForLocalhost('facts/commapp_url.json');
       await fixBaseRoutePathForLocalhost('facts/squadcal_url.json');
+    },
+  ],
+  [
+    3,
+    async () => {
+      await addUUIDColumnToIdsTable();
+      await setUUIDsInIdsTable();
+      await addTriggerBeforeIdInsert();
     },
   ],
 ]);
@@ -81,6 +91,48 @@ async function fixBaseRoutePathForLocalhost(filePath: string): Promise<void> {
   const writeFile = await fs.promises.open(filePath, 'w');
   await writeFile.writeFile(JSON.stringify(json, null, '  '), 'utf8');
   await writeFile.close();
+}
+
+async function addUUIDColumnToIdsTable(): Promise<void> {
+  const show_query = SQL`
+    SHOW COLUMNS FROM ids
+    LIKE 'uuid_id'
+  `;
+  const [result] = await dbQuery(show_query);
+  if (result !== undefined && result.length > 0) {
+    return;
+  }
+  const alter_query = SQL`
+    ALTER TABLE ids
+    ADD COLUMN uuid_id CHAR(36)
+  `;
+  await dbQuery(alter_query);
+}
+
+async function setUUIDsInIdsTable(): Promise<void> {
+  const update_query = SQL`
+    UPDATE ids
+    SET uuid_id = UUID()
+    WHERE uuid_id IS NULL
+  `;
+  await dbQuery(update_query);
+}
+
+async function addTriggerBeforeIdInsert(): Promise<void> {
+  const show_query = SQL`
+    SHOW TRIGGERS LIKE 'ids'
+  `;
+  const [result] = await dbQuery(show_query);
+  if (result !== undefined && result.length > 0) {
+    return;
+  }
+  const trigger = SQL`
+    CREATE TRIGGER ids_before_insert
+    BEFORE INSERT ON ids
+    FOR EACH ROW
+    SET new.uuid_id = UUID()
+  `;
+  await dbQuery(trigger);
 }
 
 export { migrations, newDatabaseVersion };

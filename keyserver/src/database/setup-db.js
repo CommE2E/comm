@@ -62,7 +62,8 @@ async function createTables() {
 
       CREATE TABLE ids (
         id bigint(20) NOT NULL,
-        table_name varchar(255) NOT NULL
+        table_name varchar(255) NOT NULL,
+        uuid_id CHAR(36)
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
       CREATE TABLE memberships (
@@ -340,6 +341,11 @@ async function createTables() {
 
       ALTER TABLE metadata
         ADD PRIMARY KEY (name);
+
+      CREATE TRIGGER ids_before_insert
+        BEFORE INSERT ON ids
+        FOR EACH ROW
+        SET new.uuid_id = UUID();
     `,
     { multipleStatements: true },
   );
