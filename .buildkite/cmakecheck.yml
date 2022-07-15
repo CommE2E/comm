@@ -1,0 +1,12 @@
+steps:
+  - label: 'cmake-lint'
+    command:
+      - 'pip install cmakelang'
+      - 'shopt -s globstar'
+      - 'cmake-lint **/CMakeLists.txt **/*.cmake'
+    plugins:
+      - docker#v3.13.0:
+          image: 'python:bullseye'
+          shell: ['/bin/bash', '-e', '-c']
+    agents:
+      - 'autoscaling=true'
