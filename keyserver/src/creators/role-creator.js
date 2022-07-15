@@ -251,33 +251,10 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
     };
   }
 
-  const openSubthreadBasePermissions = {
-    [threadPermissions.CREATE_SIDEBARS]: true,
-    [threadPermissions.LEAVE_THREAD]: true,
-    [openChildJoinThread]: true,
-  };
-
-  if (threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD) {
-    const memberPermissions = {
-      [threadPermissions.REMOVE_MEMBERS]: true,
-      [threadPermissions.EDIT_PERMISSIONS]: true,
-      ...openSubthreadBasePermissions,
-      ...voicedPermissions,
-    };
-    return {
-      Members: memberPermissions,
-    };
-  }
-
-  if (threadType === threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD) {
-    return {
-      Members: openSubthreadBasePermissions,
-    };
-  }
-
   const openTopLevelDescendantJoinThread =
     OPEN_TOP_LEVEL_DESCENDANT + threadPermissions.JOIN_THREAD;
-  const secretSubthreadBasePermissions = {
+
+  const subthreadBasePermissions = {
     [threadPermissions.KNOW_OF]: true,
     [threadPermissions.VISIBLE]: true,
     [threadPermissions.CREATE_SIDEBARS]: true,
@@ -288,11 +265,14 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
     [openChildJoinThread]: true,
   };
 
-  if (threadType === threadTypes.COMMUNITY_SECRET_SUBTHREAD) {
+  if (
+    threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
+    threadType === threadTypes.COMMUNITY_SECRET_SUBTHREAD
+  ) {
     const memberPermissions = {
       [threadPermissions.REMOVE_MEMBERS]: true,
       [threadPermissions.EDIT_PERMISSIONS]: true,
-      ...secretSubthreadBasePermissions,
+      ...subthreadBasePermissions,
       ...voicedPermissions,
     };
     return {
@@ -300,9 +280,12 @@ function getRolePermissionBlobs(threadType: ThreadType): RolePermissionBlobs {
     };
   }
 
-  if (threadType === threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD) {
+  if (
+    threadType === threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD ||
+    threadType === threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD
+  ) {
     return {
-      Members: secretSubthreadBasePermissions,
+      Members: subthreadBasePermissions,
     };
   }
 
