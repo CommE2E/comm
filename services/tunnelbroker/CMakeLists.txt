@@ -48,12 +48,12 @@ set(GENERATED_BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}/gen")
 set(GENERATED_CODE_DIR "${GENERATED_BASE_DIR}/_generated")
 file(MAKE_DIRECTORY ${GENERATED_CODE_DIR})
 
-set(proto_srcs "${GENERATED_CODE_DIR}/tunnelbroker.pb.cc")
-set(proto_hdrs "${GENERATED_CODE_DIR}/tunnelbroker.pb.h")
-set(grpc_srcs "${GENERATED_CODE_DIR}/tunnelbroker.grpc.pb.cc")
-set(grpc_hdrs "${GENERATED_CODE_DIR}/tunnelbroker.grpc.pb.h")
+set(_proto_srcs "${GENERATED_CODE_DIR}/tunnelbroker.pb.cc")
+set(_proto_hdrs "${GENERATED_CODE_DIR}/tunnelbroker.pb.h")
+set(_grpc_srcs "${GENERATED_CODE_DIR}/tunnelbroker.grpc.pb.cc")
+set(_grpc_hdrs "${GENERATED_CODE_DIR}/tunnelbroker.grpc.pb.h")
 add_custom_command(
-  OUTPUT "${proto_srcs}" "${proto_hdrs}" "${grpc_srcs}" "${grpc_hdrs}"
+  OUTPUT "${_proto_srcs}" "${_proto_hdrs}" "${_grpc_srcs}" "${_grpc_hdrs}"
   COMMAND ${_PROTOBUF_PROTOC}
   ARGS --grpc_out "${GENERATED_CODE_DIR}"
   --cpp_out "${GENERATED_CODE_DIR}"
@@ -61,11 +61,14 @@ add_custom_command(
   --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
   "${proto}"
   DEPENDS "${proto}"
+  COMMENT "Generate protobuf files"
 )
 
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
-set(GENERATED_CODE ${proto_srcs} ${proto_hdrs} ${grpc_srcs} ${grpc_hdrs})
-file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
+set(GENERATED_CODE ${_proto_srcs} ${_proto_hdrs} ${_grpc_srcs} ${_grpc_hdrs})
+file(GLOB DOUBLE_CONVERSION_SOURCES
+  "./lib/double-conversion/double-conversion/*.cc"
+)
 
 include_directories(
   ./src
