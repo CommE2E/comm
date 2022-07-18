@@ -63,9 +63,8 @@ async function fetchKnownUserInfos(
   }
 
   const query = SQL`
-    SELECT ru.user1, ru.user2, ru.status AS undirected_status,
-      rd1.status AS user1_directed_status, rd2.status AS user2_directed_status,
-      u.username
+    SELECT ru.user1, ru.user2, u.username, ru.status AS undirected_status,
+      rd1.status AS user1_directed_status, rd2.status AS user2_directed_status
     FROM relationships_undirected ru
     LEFT JOIN relationships_directed rd1
       ON rd1.user1 = ru.user1 AND rd1.user2 = ru.user2
