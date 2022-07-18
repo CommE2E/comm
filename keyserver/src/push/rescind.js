@@ -179,6 +179,8 @@ function prepareIOSNotification(
   notification.contentAvailable = true;
   notification.badge = unreadCount;
   notification.topic = getAPNsNotificationTopic(codeVersion);
+  notification.priority = 5;
+  notification.pushType = 'background';
   notification.payload =
     codeVersion && codeVersion > 135
       ? {
