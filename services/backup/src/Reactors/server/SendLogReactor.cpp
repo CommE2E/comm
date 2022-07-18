@@ -97,6 +97,12 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
       if (chunk->size() == 0) {
         return std::make_unique<grpc::Status>(grpc::Status::OK);
       }
+      if (this->persistenceMethod == PersistenceMethod::DB) {
+        throw std::runtime_error(
+            "please do not send multiple tiny chunks (less than " +
+            std::to_string(LOG_DATA_SIZE_DATABASE_LIMIT) +
+            "), merge them into bigger parts instead");
+      }
       if (this->persistenceMethod == PersistenceMethod::BLOB) {
         if (this->putReactor == nullptr) {
           throw std::runtime_error(
@@ -117,6 +123,8 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         this->putReactor->scheduleSendingDataChunk(
             std::make_unique<std::string>(this->value));
         this->value = "";
+      } else {
+        this->persistenceMethod = PersistenceMethod::DB;
       }
       return nullptr;
     };
