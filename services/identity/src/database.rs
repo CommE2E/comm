@@ -15,9 +15,8 @@ use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
-  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, PAKE_REGISTRATION_TABLE,
-  PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
-  PAKE_REGISTRATION_TABLE_PARTITION_KEY,
+  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, PAKE_USERS_TABLE,
+  PAKE_USERS_TABLE_PARTITION_KEY, PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
 };
 use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
@@ -39,13 +38,13 @@ impl DatabaseClient {
     user_id: String,
   ) -> Result<Option<ServerRegistration<Cipher>>, Error> {
     let primary_key = create_simple_primary_key((
-      PAKE_REGISTRATION_TABLE_PARTITION_KEY.to_string(),
+      PAKE_USERS_TABLE_PARTITION_KEY.to_string(),
       user_id.clone(),
     ));
     let get_item_result = self
       .client
       .get_item()
-      .table_name(PAKE_REGISTRATION_TABLE)
+      .table_name(PAKE_USERS_TABLE)
       .set_key(Some(primary_key))
       .consistent_read(true)
       .send()
@@ -55,7 +54,7 @@ impl DatabaseClient {
         item: Some(mut item),
         ..
       }) => parse_registration_data_attribute(
-        item.remove(PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE),
+        item.remove(PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE),
       )
       .map(Some)
       .map_err(Error::Attribute),
@@ -84,13 +83,10 @@ impl DatabaseClient {
     self
       .client
       .put_item()
-      .table_name(PAKE_REGISTRATION_TABLE)
+      .table_name(PAKE_USERS_TABLE)
+      .item(PAKE_USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
       .item(
-        PAKE_REGISTRATION_TABLE_PARTITION_KEY,
-        AttributeValue::S(user_id),
-      )
-      .item(
-        PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+        PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
         AttributeValue::B(Blob::new(registration.serialize())),
       )
       .send()
@@ -359,19 +355,19 @@ fn parse_registration_data_attribute(
       ) {
         Ok(server_registration) => Ok(server_registration),
         Err(e) => Err(DBItemError::new(
-          PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+          PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
           attribute,
           DBItemAttributeError::Pake(e),
         )),
       }
     }
     Some(_) => Err(DBItemError::new(
-      PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+      PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
       attribute,
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      PAKE_REGISTRATION_TABLE_DATA_ATTRIBUTE,
+      PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
       attribute,
       DBItemAttributeError::Missing,
     )),
