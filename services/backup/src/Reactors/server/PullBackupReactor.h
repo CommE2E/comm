@@ -41,6 +41,7 @@ class PullBackupReactor : public ServerWriteReactorBase<
   std::shared_ptr<database::LogItem> currentLog;
   std::string internalBuffer;
   std::string previousLogID;
+  bool endOfQueue = false;
 
   std::condition_variable blobGetDoneCV;
   std::mutex blobGetDoneCVMutex;
