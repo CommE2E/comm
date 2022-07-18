@@ -19,6 +19,7 @@ use crate::constants::{
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, PAKE_USERS_TABLE,
   PAKE_USERS_TABLE_PARTITION_KEY, PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
+  PAKE_USERS_TABLE_USERNAME_ATTRIBUTE,
 };
 use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
@@ -90,6 +91,20 @@ impl DatabaseClient {
           ":r".into(),
           AttributeValue::B(Blob::new(registration.serialize())),
         )]),
+      )
+      .await
+  }
+
+  pub async fn put_username(
+    &self,
+    user_id: String,
+    username: String,
+  ) -> Result<UpdateItemOutput, Error> {
+    self
+      .update_users_table(
+        user_id,
+        format!("SET {} :u", PAKE_USERS_TABLE_USERNAME_ATTRIBUTE),
+        HashMap::from([(":u".into(), AttributeValue::S(username))]),
       )
       .await
   }
