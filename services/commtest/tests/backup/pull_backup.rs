@@ -68,7 +68,7 @@ pub async fn run(
           "backup id expected but not received",
         ))?;
         println!(
-          "compaction (id {}), pushing chunk (size: {})",
+          "compaction (id {}), pulling chunk (size: {})",
           current_id,
           chunk.len()
         );
@@ -78,7 +78,12 @@ pub async fn run(
         if state == State::Compaction {
           state = State::Log;
         }
-        assert_eq!(state, State::Log, "invalid state, expected compaction");
+        assert_eq!(
+          state,
+          State::Log,
+          "invalid state, expected log, got {:?}",
+          state
+        );
         let log_id = log_id.ok_or(IOError::new(
           ErrorKind::Other,
           "log id expected but not received",
@@ -98,34 +103,34 @@ pub async fn run(
 
         println!("log (id {}) chunk size {}", current_id, chunk.len());
       }
-      Some(AttachmentHolders(holders)) => {
-        let holders_split: Vec<&str> =
-          holders.split(ATTACHMENT_DELIMITER).collect();
-        if state == State::Compaction {
+      None => {}
+    }
+    if let Some(holders) = response.attachment_holders {
+      let holders_split: Vec<&str> =
+        holders.split(ATTACHMENT_DELIMITER).collect();
+      if state == State::Compaction {
+        for holder in holders_split {
+          if holder.len() == 0 {
+            continue;
+          }
           println!("attachments for the backup: {}", holders);
-          for holder in holders_split {
-            if holder.len() == 0 {
-              continue;
-            }
-            result
-              .backup_item
-              .attachments_holders
-              .push(holder.to_string());
+          result
+            .backup_item
+            .attachments_holders
+            .push(holder.to_string());
+        }
+      } else if state == State::Log {
+        for holder in holders_split {
+          if holder.len() == 0 {
+            continue;
           }
-        } else if state == State::Log {
           println!("attachments for the log: {}", holders);
-          for holder in holders_split {
-            if holder.len() == 0 {
-              continue;
-            }
-            let log_items_size = result.log_items.len() - 1;
-            result.log_items[log_items_size]
-              .attachments_holders
-              .push(holder.to_string())
-          }
+          let log_items_size = result.log_items.len() - 1;
+          result.log_items[log_items_size]
+            .attachments_holders
+            .push(holder.to_string())
         }
       }
-      None => {}
     }
   }
   Ok(result)
