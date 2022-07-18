@@ -1,3 +1,6 @@
+# Disable naming conventions, as the variable names are determined by upstream
+# cmake-lint: disable=C0103
+
 # protobuf
 set(protobuf_MODULE_COMPATIBLE TRUE)
 find_package(Protobuf CONFIG REQUIRED)
