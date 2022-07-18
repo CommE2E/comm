@@ -6,6 +6,7 @@
 , boost
 , cargo
 , cmake
+, cmake-format
 , cocoapods
 , cryptopp
 , darwin
@@ -49,6 +50,7 @@ mkShell {
     amqp-cpp
     cryptopp
     cmake
+    cmake-format # linting
     libuv
     pkg-config
     protobuf_3_15_cmake
