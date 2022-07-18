@@ -199,6 +199,24 @@ impl DatabaseClient {
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
   }
+
+  async fn update_users_table(
+    &self,
+    user_id: String,
+    update_expression: impl Into<String>,
+    expression_attribute_values: HashMap<String, AttributeValue>,
+  ) -> Result<UpdateItemOutput, Error> {
+    self
+      .client
+      .update_item()
+      .table_name(PAKE_USERS_TABLE)
+      .key(PAKE_USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))
+  }
 }
 
 #[derive(
