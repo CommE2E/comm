@@ -3,7 +3,9 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::sync::Arc;
 
 use aws_sdk_dynamodb::model::AttributeValue;
-use aws_sdk_dynamodb::output::{GetItemOutput, PutItemOutput};
+use aws_sdk_dynamodb::output::{
+  GetItemOutput, PutItemOutput, UpdateItemOutput,
+};
 use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use aws_types::sdk_config::SdkConfig;
@@ -79,19 +81,17 @@ impl DatabaseClient {
     &self,
     user_id: String,
     registration: ServerRegistration<Cipher>,
-  ) -> Result<PutItemOutput, Error> {
+  ) -> Result<UpdateItemOutput, Error> {
     self
-      .client
-      .put_item()
-      .table_name(PAKE_USERS_TABLE)
-      .item(PAKE_USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
-      .item(
-        PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
-        AttributeValue::B(Blob::new(registration.serialize())),
+      .update_users_table(
+        user_id,
+        format!("SET {} :r", PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE),
+        HashMap::from([(
+          ":r".into(),
+          AttributeValue::B(Blob::new(registration.serialize())),
+        )]),
       )
-      .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))
   }
 
   pub async fn get_access_token_data(
