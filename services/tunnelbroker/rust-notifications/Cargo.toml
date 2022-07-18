@@ -3,7 +3,7 @@ name = "rust-notifications"
 description = "Library for sending iOS and Android push notifications"
 homepage = "https://comm.app"
 version = "0.1.0"
-license = "MIT"
+license = "BSD-3-Clause"
 edition = "2021"
 
 [dependencies]
