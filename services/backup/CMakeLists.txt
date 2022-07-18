@@ -21,7 +21,9 @@ find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
 
 # FIND FILES
-file(GLOB DOUBLE_CONVERSION_SOURCES "./lib/double-conversion/double-conversion/*.cc")
+file(GLOB DOUBLE_CONVERSION_SOURCES
+  "./lib/double-conversion/double-conversion/*.cc"
+)
 
 file(GLOB GENERATED_CODE "./_generated/*.cc")
 
@@ -48,11 +50,11 @@ include_directories(
 # SERVER
 add_executable(
   backup
-  
+
   ${GENERATED_CODE}
   ${DOUBLE_CONVERSION_SOURCES}
   ${FOLLY_SOURCES}
-  
+
   ${SOURCE_CODE}
 )
 
