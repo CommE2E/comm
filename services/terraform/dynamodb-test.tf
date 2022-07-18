@@ -78,11 +78,11 @@ resource "aws_dynamodb_table" "blob-service-reverse-index-test" {
   }
 
   global_secondary_index {
-    name               = "blobHash-index"
-    hash_key           = "blobHash"
-    write_capacity     = 10
-    read_capacity      = 10
-    projection_type    = "ALL"
+    name            = "blobHash-index"
+    hash_key        = "blobHash"
+    write_capacity  = 10
+    read_capacity   = 10
+    projection_type = "ALL"
   }
 }
 
@@ -149,11 +149,11 @@ resource "aws_dynamodb_table" "tunnelbroker-messages-test" {
   }
 
   global_secondary_index {
-    name               = "ToDeviceID-index"
-    hash_key           = "ToDeviceID"
-    write_capacity     = 10
-    read_capacity      = 10
-    projection_type    = "ALL"
+    name            = "ToDeviceID-index"
+    hash_key        = "ToDeviceID"
+    write_capacity  = 10
+    read_capacity   = 10
+    projection_type = "ALL"
   }
 
   ttl {

@@ -1,5 +1,5 @@
 variable "HOST" {
-  type = string
+  type    = string
   default = "http://localhost:4566"
 }
 
@@ -15,6 +15,6 @@ provider "aws" {
 
   endpoints {
     dynamodb = var.HOST
-    s3 = var.HOST
+    s3       = var.HOST
   }
 }
