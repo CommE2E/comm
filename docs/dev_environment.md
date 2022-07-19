@@ -107,31 +107,25 @@ Now either close and reopen your terminal window or re-source your shell configu
 source ~/.bash_profile
 ```
 
-## MySQL
+## MariaDB
 
-For now we’re using MySQL 5.7 as the primary server-side database. Hopefully we’ll change this soon, but for now, install MySQL 5.7 using Homebrew.
+For the keyserver database we use MariaDB, which is a community-driven fork of MySQL. In this step we’ll install MariaDB using Homebrew.
 
 ```
-brew install mysql@5.7 && brew upgrade mysql@5.7
+brew install mariadb && brew upgrade mariadb
 ```
 
-Next we’ll configure MySQL to start when your computer boots using `brew services`:
+Next we’ll configure MariaDB to start when your computer boots using `brew services`:
 
 ```
 brew tap homebrew/services
-brew services start mysql@5.7
+brew services start mariadb
 ```
 
-We’ll also want to link MySQL so that you can run CLI commands:
+Finally, you should set up a root password for your local MariaDB instance. To do this we’ll use the `mysqladmin` command. Note that many of MariaDB’s commands still use the "mysql" name for compatibility.
 
 ```
-brew link mysql@5.7 --force
-```
-
-Finally, you should set up a root password for your local MySQL instance:
-
-```
-mysqladmin -u root password
+sudo mysqladmin -u root password
 ```
 
 ## Redis
@@ -408,15 +402,15 @@ sudo apachectl restart
 
 If you end up installing a macOS update you should go through the Apache configuration section again, as your Apache config in `httpd.conf` may have been restored to the default.
 
-## MySQL
+## MariaDB
 
-Next we’ll set up a MySQL user and a fresh database. We’ll start by opening up a MySQL console.
+Next we’ll set up a MariaDB user and a fresh database. We’ll start by opening up a console using the `mysql` command.
 
 ```
 mysql -u root -p
 ```
 
-Type in the MySQL root password you set up previously when prompted. Then, we’ll go ahead and create an empty database.
+Type in the MariaDB root password you set up previously when prompted. Then, we’ll go ahead and create an empty database.
 
 ```
 CREATE DATABASE comm;
@@ -434,23 +428,23 @@ Finally, we will give permissions to this user to access this database.
 GRANT ALL ON comm.* TO comm@localhost;
 ```
 
-You can now exit the MySQL console using Ctrl+D.
+You can now exit the MariaDB console using Ctrl+D.
 
 ## TablePlus
 
-Feel free to use a MySQL administration platform that you’re comfortable with. PHP was deprecated in macOS 12 (Monterey), leading many of us to switch to [TablePlus](https://tableplus.com/).
+Feel free to use any MariaDB administration platform that you’re comfortable with. PHP was deprecated in macOS 12 (Monterey), leading many of us to switch to [TablePlus](https://tableplus.com/).
 
 After installing TablePlus, you need to open a new connection. After opening TablePlus, click the “Create a new connection” text at the bottom of the window that appears.
 
 - Alternatively, you can navigate through Connection → New... in the menu at the top of the display.
 
-Choose MySQL from the database options that appear. You’ll be prompted for:
+Choose MariaDB from the database options that appear. You’ll be prompted for:
 
 - Name (Comm)
 - Host (localhost)
 - Port (3306 by default)
 - User (comm)
-- Password (the one you made when initializing the MySQL server in the previous step)
+- Password (the one you made when initializing the MariaDB server in the previous step)
 
 ## Android Emulator
 
@@ -516,9 +510,9 @@ Your `landing_url.json` file should look like this:
 }
 ```
 
-## MySQL
+## MariaDB
 
-The keyserver side needs to see some config files before things can work. The first is a config file with MySQL details.
+The keyserver side needs to see some config files before things can work. The first is a config file with MariaDB details.
 
 ```
 cd keyserver
@@ -533,11 +527,12 @@ The DB config file should look like this:
   "host": "localhost",
   "user": "comm",
   "password": "password",
-  "database": "comm"
+  "database": "comm",
+  "dbType": "mariadb10.8"
 }
 ```
 
-Make sure to replace the password with the one you set up for your `comm` MySQL user earlier.
+Make sure to replace the password with the one you set up for your `comm` MariaDB user earlier.
 
 ## Olm
 
@@ -792,7 +787,7 @@ Then, from the `keyserver` directory, run `yarn script dist/scripts/name.js`, wh
 
 ## Creating a new user
 
-To create a new user, [run the keyserver](#running-keyserver) and the [mobile app on iOS Simulator](#running-mobile-app-on-ios-simulator), and then select “Sign Up” in the app. When you sign up, a new user will be created on your local MySQL instance. You can then log in on any device connected to your local keyserver.
+To create a new user, [run the keyserver](#running-keyserver) and the [mobile app on iOS Simulator](#running-mobile-app-on-ios-simulator), and then select “Sign Up” in the app. When you sign up, a new user will be created on your local MariaDB instance. You can then log in on any device connected to your local keyserver.
 
 ## Codegen
 
