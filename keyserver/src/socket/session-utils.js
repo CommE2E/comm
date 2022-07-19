@@ -279,6 +279,13 @@ async function initializeSession(
     return { sessionContinued: false };
   }
 
+  if (!viewer.hasSessionInfo) {
+    // If the viewer has no session info but is logged in, that is indicative
+    // of an expired / invalidated session and we should generate a new one
+    await setNewSession(viewer, calendarQuery, oldLastUpdate);
+    return { sessionContinued: false };
+  }
+
   if (oldLastUpdate < viewer.sessionLastUpdated) {
     // If the client has an older last_update than the server is tracking for
     // that client, then the client either had some issue persisting its store,
