@@ -180,8 +180,8 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
                   removeDeliveredNotificationsWithIdentifiers:identifiers];
             }
           }
-          completionHandler(UIBackgroundFetchResultNewData);
         }];
+    completionHandler(UIBackgroundFetchResultNewData);
     return YES;
   }
   return NO;
