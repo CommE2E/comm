@@ -39,12 +39,19 @@ class PullBackupReactor : public ServerWriteReactorBase<
   std::vector<std::shared_ptr<database::LogItem>> logs;
   size_t currentLogIndex = 0;
   std::shared_ptr<database::LogItem> currentLog;
+  std::string internalBuffer;
+  std::string previousLogID;
 
   std::condition_variable blobGetDoneCV;
   std::mutex blobGetDoneCVMutex;
 
+  const size_t chunkLimit =
+      GRPC_CHUNK_SIZE_LIMIT - GRPC_METADATA_SIZE_PER_MESSAGE;
+
   void initializeGetReactor(const std::string &holder);
   void nextLog();
+  std::string
+  prepareDataChunkWithPadding(const std::string &dataChunk, size_t padding);
 
 public:
   PullBackupReactor(const backup::PullBackupRequest *request);

@@ -173,8 +173,30 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
 
 void PullBackupReactor::nextLog() {
   ++this->currentLogIndex;
+  this->previousLogID = this->currentLog->getLogID();
   this->currentLog = nullptr;
-  this->state = State::LOGS;
+}
+
+std::string PullBackupReactor::prepareDataChunkWithPadding(
+    const std::string &dataChunk,
+    size_t padding) {
+  if (dataChunk.size() > this->chunkLimit) {
+    throw std::runtime_error("received data chunk bigger than the chunk limit");
+  }
+
+  std::string chunk = std::move(this->internalBuffer) + dataChunk;
+  const size_t realSize = chunk.size() + padding;
+  if (realSize <= this->chunkLimit) {
+    return chunk;
+  }
+  const size_t bytesToStash = realSize - this->chunkLimit;
+  this->internalBuffer = std::string(chunk.end() - bytesToStash, chunk.end());
+  chunk.resize(chunk.size() - bytesToStash);
+  if (chunk.size() > this->chunkLimit) {
+    throw std::runtime_error("new data chunk incorrectly calculated");
+  }
+
+  return chunk;
 }
 
 void PullBackupReactor::terminateCallback() {
