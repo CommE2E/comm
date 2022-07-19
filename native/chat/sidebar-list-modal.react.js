@@ -88,7 +88,7 @@ function SidebarListModal(props: Props): React.Node {
         searchText={searchState.text}
         onChangeText={onChangeSearchInputText}
         containerStyle={styles.search}
-        placeholder="Search sidebars"
+        placeholder="Search threads"
         ref={setSearchTextInputRef}
       />
       <FlatList

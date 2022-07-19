@@ -105,7 +105,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     return (
       <MenuItem
         key="sidebars"
-        text="Sidebars"
+        text="Threads"
         icon="arrow-right-small"
         onClick={onClickSidebars}
       />

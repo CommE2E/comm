@@ -68,7 +68,7 @@ function SidebarListModal(props: Props): React.Node {
   );
 
   return (
-    <Modal name="Sidebars" onClose={popModal}>
+    <Modal name="Threads" onClose={popModal}>
       <div
         className={classNames(
           globalCSS['modal-body'],
@@ -80,7 +80,7 @@ function SidebarListModal(props: Props): React.Node {
             <MagnifyingGlass className={chatThreadListCSS.searchVector} />
             <Input
               type="text"
-              placeholder="Search sidebars"
+              placeholder="Search threads"
               value={searchState.text}
               onChange={handleOnChangeSearchText}
             />

@@ -26,7 +26,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   const colors = useColors();
   const styles = useStyles(unboundStyles);
   const unreadStyle = unread ? styles.unread : null;
-  const buttonText = showingSidebarsInline ? 'See more...' : 'See sidebars...';
+  const buttonText = showingSidebarsInline ? 'See more...' : 'See threads...';
   return (
     <Button
       iosFormat="highlight"

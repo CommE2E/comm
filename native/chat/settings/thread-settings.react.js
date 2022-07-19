@@ -558,7 +558,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       listData.push({
         itemType: 'header',
         key: 'sidebarHeader',
-        title: 'Sidebars',
+        title: 'Threads',
         categoryType: 'unpadded',
       });
 

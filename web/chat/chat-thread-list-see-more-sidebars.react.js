@@ -22,7 +22,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
     () => pushModal(<SidebarListModal threadInfo={threadInfo} />),
     [pushModal, threadInfo],
   );
-  const buttonText = showingSidebarsInline ? 'See more...' : 'See sidebars...';
+  const buttonText = showingSidebarsInline ? 'See more...' : 'See threads...';
   return (
     <div className={classNames(css.thread, css.sidebar)} onClick={onClick}>
       <a className={css.threadButton}>

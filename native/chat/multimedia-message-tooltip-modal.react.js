@@ -24,12 +24,12 @@ const spec = {
   entries: [
     {
       id: 'create_sidebar',
-      text: 'Create sidebar',
+      text: 'Create thread',
       onPress: navigateToSidebar,
     },
     {
       id: 'open_sidebar',
-      text: 'Go to sidebar',
+      text: 'Go to thread',
       onPress: navigateToSidebar,
     },
     {

@@ -30,12 +30,12 @@ function SidebarItem(props: Props): React.Node {
       <img
         className={css.longArrow}
         src="images/long_arrow.svg"
-        alt="sidebar arrow"
+        alt="thread arrow"
       />
     );
   } else {
     arrow = (
-      <img src="images/arrow.svg" className={css.arrow} alt="sidebar arrow" />
+      <img src="images/arrow.svg" className={css.arrow} alt="thread arrow" />
     );
   }
 

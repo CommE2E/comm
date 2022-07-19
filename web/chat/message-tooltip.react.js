@@ -33,8 +33,8 @@ import {
 
 const messageActionIconExcessVerticalWhitespace = 10;
 
-const openSidebarText = 'Go to sidebar';
-const createSidebarText = 'Create sidebar';
+const openSidebarText = 'Go to thread';
+const createSidebarText = 'Create thread';
 
 type TooltipType = 'sidebar' | 'reply';
 
