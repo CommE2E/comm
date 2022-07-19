@@ -168,7 +168,6 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
       [self attemptDatabaseInitialization];
       comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
     }
-    dispatch_semaphore_t rescind_complete_sem = dispatch_semaphore_create(0);
     [[UNUserNotificationCenter currentNotificationCenter]
         getDeliveredNotificationsWithCompletionHandler:^(
             NSArray<UNNotification *> *notifications) {
@@ -181,10 +180,10 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
                   removeDeliveredNotificationsWithIdentifiers:identifiers];
             }
           }
-          dispatch_semaphore_signal(rescind_complete_sem);
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completionHandler(UIBackgroundFetchResultNewData);
+          });
         }];
-    dispatch_semaphore_wait(rescind_complete_sem, DISPATCH_TIME_FOREVER);
-    completionHandler(UIBackgroundFetchResultNewData);
     return YES;
   }
   return NO;
