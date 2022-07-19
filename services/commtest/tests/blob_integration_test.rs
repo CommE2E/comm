@@ -16,7 +16,7 @@ use blob_utils::{BlobData, BlobServiceClient};
 use tools::Error;
 
 #[tokio::test]
-async fn blob_test() -> Result<(), Error> {
+async fn blob_integration_test() -> Result<(), Error> {
   let port = env::var("COMM_SERVICES_PORT_BLOB")
     .expect("port env var expected but not received");
   let mut client =

@@ -20,7 +20,7 @@ use std::env;
 use backup_utils::BackupServiceClient;
 
 #[tokio::test]
-async fn backup_test() -> Result<(), Error> {
+async fn backup_integration_test() -> Result<(), Error> {
   let port = env::var("COMM_SERVICES_PORT_BACKUP")
     .expect("port env var expected but not received");
   let mut client =
@@ -70,6 +70,7 @@ async fn backup_test() -> Result<(), Error> {
       ),
     ],
   };
+
   backup_data.backup_item.id =
     create_new_backup::run(&mut client, &backup_data).await?;
   println!("backup id in main: {}", backup_data.backup_item.id);
