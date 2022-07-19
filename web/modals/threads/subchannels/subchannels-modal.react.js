@@ -113,7 +113,7 @@ function SubchannelsModalContent(props: ContentProps): React.Node {
     if (!filteredSubchannelsChatList.length) {
       return (
         <div className={css.noSubchannels}>
-          No matching subchannels were found in the thread!
+          No matching subchannels were found in the channel!
         </div>
       );
     }

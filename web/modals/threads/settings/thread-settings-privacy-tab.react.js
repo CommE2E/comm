@@ -139,7 +139,7 @@ function ThreadSettingsPrivacyTab(
 
   return (
     <form method="POST">
-      <div className={css.form_title}>Thread type</div>
+      <div className={css.form_title}>Chat type</div>
       <div className={css.enum_container}>
         <EnumSettingsOption
           selected={

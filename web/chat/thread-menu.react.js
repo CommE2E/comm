@@ -190,7 +190,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     return (
       <MenuItem
         key="leave"
-        text="Leave Thread"
+        text="Leave Chat"
         icon="logout"
         dangerous
         onClick={onClickLeaveThread}
@@ -214,7 +214,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     return (
       <MenuItem
         key="promote"
-        text="Promote Thread"
+        text="Promote to channel"
         icon="message-square-lines"
         onClick={onClickPromoteSidebarToThread}
       />

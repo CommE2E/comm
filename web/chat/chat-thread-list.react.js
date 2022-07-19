@@ -40,7 +40,7 @@ function ChatThreadList(): React.Node {
       <Search
         onChangeText={setSearchText}
         searchText={searchText}
-        placeholder="Search threads"
+        placeholder="Search chats"
       />
       <div>{threadComponents}</div>
     </div>

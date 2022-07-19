@@ -87,7 +87,7 @@ function ThreadSettingsDeleteTab(
       <div>
         <SWMansionIcon icon="warning-circle" size={22} />
         <p className={css.deletion_warning}>
-          Your thread will be permanently deleted. There is no way to reverse
+          Your chat will be permanently deleted. There is no way to reverse
           this.
         </p>
       </div>

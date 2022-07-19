@@ -63,7 +63,7 @@ function ThreadMembersList(props: Props): React.Node {
   if (!hasMembers) {
     content = (
       <div className={css.noUsers}>
-        No matching users were found in the thread!
+        No matching users were found in the chat!
       </div>
     );
   }

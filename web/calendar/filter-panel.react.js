@@ -326,9 +326,7 @@ class Category extends React.PureComponent<CategoryProps> {
     }
     const icon = this.props.collapsed ? faChevronUp : faChevronDown;
     const details =
-      this.props.numThreads === 1
-        ? '1 thread'
-        : `${this.props.numThreads} threads`;
+      this.props.numThreads === 1 ? '1 chat' : `${this.props.numThreads} chats`;
     return (
       <div className={css.category}>
         <div className={css.optionThread}>
@@ -339,7 +337,7 @@ class Category extends React.PureComponent<CategoryProps> {
           />
           <label>
             <div className={css.optionCheckbox} style={beforeCheckStyles} />
-            Your threads
+            Your chats
             {afterCheck}
           </label>
           <a onClick={this.onCollapse} className={css.collapse}>

@@ -147,7 +147,7 @@ function ThreadSettingsGeneralTab(
   return (
     <form method="POST">
       <div>
-        <div className={css.form_title}>Thread name</div>
+        <div className={css.form_title}>Chat name</div>
         <div className={css.form_content}>
           <Input
             type="text"
@@ -166,7 +166,7 @@ function ThreadSettingsGeneralTab(
         <div className={css.form_content}>
           <textarea
             value={queuedChanges.description ?? threadInfo.description ?? ''}
-            placeholder="Thread description"
+            placeholder="Chat description"
             onChange={onChangeDescription}
             disabled={threadSettingsOperationInProgress}
             rows={3}

@@ -36,7 +36,7 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
             Cancel
           </Button>
           <Button variant="danger" onClick={onConfirm} type="submit">
-            Yes, leave Thread
+            Yes, leave chat
           </Button>
         </div>
       </div>

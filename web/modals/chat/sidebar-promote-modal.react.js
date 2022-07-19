@@ -26,19 +26,19 @@ function SidebarPromoteModal(props: Props): React.Node {
   return (
     <Modal
       size="large"
-      name="Promote Thread"
+      name="Promote to channel"
       icon="warning-circle"
       onClose={onClose}
     >
       <div className={css.modal_body}>
         <p>{`Are you sure you want to promote "${uiName}"?`}</p>
-        <p>Promoting a sidebar to a full thread cannot be undone.</p>
+        <p>Promoting a sidebar to a channel cannot be undone.</p>
         <div className={css.buttonContainer}>
           <Button onClick={onClose} type="submit" variant="secondary">
             Cancel
           </Button>
           <Button onClick={handleConfirm} type="submit" variant="danger">
-            Promote to Full Thread
+            Promote to channel
           </Button>
         </div>
       </div>

@@ -102,9 +102,9 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
 
     if (!threadInfo) {
       return (
-        <Modal onClose={modalContext.popModal} name="Invalid thread">
+        <Modal onClose={modalContext.popModal} name="Invalid chat">
           <div className={css.modal_body}>
-            <p>You no longer have permission to view this thread</p>
+            <p>You no longer have permission to view this chat</p>
           </div>
         </Modal>
       );
@@ -170,7 +170,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
 
     return (
       <Modal
-        name="Thread settings"
+        name="Chat settings"
         onClose={modalContext.popModal}
         icon="settings"
       >

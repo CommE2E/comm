@@ -84,7 +84,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
       threadTypeSection = (
         <div className={css['new-thread-privacy-container']}>
           <div className={css['modal-radio-selector']}>
-            <div className={css['form-title']}>Thread type</div>
+            <div className={css['form-title']}>Chat type</div>
             <div className={css['form-enum-selector']}>
               <div className={css['form-enum-container']}>
                 <input
@@ -131,16 +131,16 @@ class NewThreadModal extends React.PureComponent<Props, State> {
       );
     }
     return (
-      <Modal name="New thread" onClose={this.props.onClose} size="large">
+      <Modal name="New chat" onClose={this.props.onClose} size="large">
         <div className={css['modal-body']}>
           <form method="POST">
             <div>
-              <div className={css['form-title']}>Thread name</div>
+              <div className={css['form-title']}>Chat name</div>
               <div className={css['form-content']}>
                 <input
                   type="text"
                   value={firstLine(this.state.name)}
-                  placeholder="Thread name"
+                  placeholder="Chat name"
                   onChange={this.onChangeName}
                   disabled={this.props.inputDisabled}
                   ref={this.nameInputRef}
@@ -152,7 +152,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
               <div className={css['form-content']}>
                 <textarea
                   value={this.state.description}
-                  placeholder="Thread description"
+                  placeholder="Chat description"
                   onChange={this.onChangeDescription}
                   disabled={this.props.inputDisabled}
                 />
@@ -233,7 +233,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
     if (threadType === undefined) {
       this.setState(
         {
-          errorMessage: 'thread type unspecified',
+          errorMessage: 'chat type unspecified',
         },
         () => {
           invariant(this.openPrivacyInput, 'openPrivacyInput ref unset');
@@ -257,7 +257,7 @@ class NewThreadModal extends React.PureComponent<Props, State> {
           threadType === 4 ||
           threadType === 6 ||
           threadType === 7,
-        "Sidebars and communities can't be created from the thread composer",
+        "Sidebars and communities can't be created from the chat composer",
       );
       const query = this.props.calendarQuery();
       const response = await this.props.newThread({
@@ -296,10 +296,7 @@ const ConnectedNewThreadModal: React.ComponentType<BaseProps> = React.memo<BaseP
     const parentThreadInfo: ?ThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
-    invariant(
-      !parentThreadID || parentThreadInfo,
-      'parent thread should exist',
-    );
+    invariant(!parentThreadID || parentThreadInfo, 'parent chat should exist');
     const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const callNewThread = useServerCall(newThread);
