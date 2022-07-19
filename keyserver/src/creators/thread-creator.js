@@ -52,7 +52,7 @@ import type { UpdatesForCurrentSession } from './update-creator';
 const { commbot } = bots;
 
 const privateThreadDescription: string =
-  'This is your private thread, ' +
+  'This is your private chat, ' +
   'where you can set reminders and jot notes in private!';
 
 type CreateThreadOptions = Shape<{
