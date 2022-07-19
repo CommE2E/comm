@@ -38,7 +38,7 @@ function ThreadSettingsDeleteThread(props: Props): React.Node {
         iosFormat="highlight"
         iosHighlightUnderlayColor={panelIosHighlightUnderlay}
       >
-        <Text style={styles.text}>Delete thread...</Text>
+        <Text style={styles.text}>Delete chat...</Text>
       </Button>
     </View>
   );

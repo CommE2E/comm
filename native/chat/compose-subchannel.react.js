@@ -218,7 +218,7 @@ class ComposeSubchannel extends React.PureComponent<Props, State> {
         <View style={this.props.styles.existingThreads}>
           <View style={this.props.styles.existingThreadsRow}>
             <Text style={this.props.styles.existingThreadsLabel}>
-              Existing threads
+              Existing channels
             </Text>
           </View>
           <View style={this.props.styles.existingThreadList}>
@@ -305,7 +305,7 @@ class ComposeSubchannel extends React.PureComponent<Props, State> {
     if (this.state.userInfoInputArray.length === 0) {
       Alert.alert(
         'Chatting to yourself?',
-        'Are you sure you want to create a thread containing only yourself?',
+        'Are you sure you want to create a channel containing only yourself?',
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Confirm', onPress: this.dispatchNewChatThreadAction },

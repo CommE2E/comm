@@ -65,8 +65,8 @@ const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}>(
       }
       if (activeThreadID && pruneThreadIDs.includes(activeThreadID)) {
         Alert.alert(
-          'Thread invalidated',
-          'You no longer have permission to view this thread :(',
+          'Chat invalidated',
+          'You no longer have permission to view this chat :(',
           [{ text: 'OK' }],
           { cancelable: true },
         );

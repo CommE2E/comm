@@ -58,7 +58,7 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Select thread color</Text>
+      <Text style={styles.header}>Select chat color</Text>
       <View style={styles.colorButtons}>{firstRow}</View>
       <View style={styles.colorButtons}>{secondRow}</View>
       <TouchableOpacity

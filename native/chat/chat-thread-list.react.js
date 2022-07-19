@@ -298,7 +298,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
             onChangeText={this.onChangeSearchText}
             containerStyle={this.props.styles.search}
             onBlur={this.onSearchBlur}
-            placeholder="Search threads"
+            placeholder="Search chats"
             ref={this.searchInputRef}
             {...additionalProps}
           />

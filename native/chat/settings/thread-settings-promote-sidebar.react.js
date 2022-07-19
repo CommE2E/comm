@@ -26,7 +26,7 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
   onClick = () => {
     Alert.alert(
       'Are you sure?',
-      'Promoting a sidebar to a full thread cannot be undone.',
+      'Promoting a sidebar to a channel cannot be undone.',
       [
         {
           text: 'Cancel',
@@ -58,7 +58,7 @@ class ThreadSettingsPromoteSidebar extends React.PureComponent<Props> {
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
-          <Text style={this.props.styles.text}>Promote to full thread</Text>
+          <Text style={this.props.styles.text}>Promote to channel</Text>
           {loadingIndicator}
         </Button>
       </View>

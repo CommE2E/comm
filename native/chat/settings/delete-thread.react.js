@@ -110,7 +110,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
       this.props.loadingStatus === 'loading' ? (
         <ActivityIndicator size="small" color="white" />
       ) : (
-        <Text style={this.props.styles.deleteText}>Delete thread</Text>
+        <Text style={this.props.styles.deleteText}>Delete chat</Text>
       );
     const threadInfo = DeleteThread.getThreadInfo(this.props);
     const { panelForegroundTertiaryLabel } = this.props.colors;
@@ -121,7 +121,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
       >
         <View>
           <Text style={this.props.styles.warningText}>
-            {`The thread "${threadInfo.uiName}" will be permanently deleted. `}
+            {`The chat "${threadInfo.uiName}" will be permanently deleted. `}
             There is no way to reverse this.
           </Text>
         </View>

@@ -47,7 +47,7 @@ function onRemoveUser(
   const userText = stringForUser(memberInfo);
   Alert.alert(
     'Confirm removal',
-    `Are you sure you want to remove ${userText} from this thread?`,
+    `Are you sure you want to remove ${userText} from this chat?`,
     [
       { text: 'Cancel', style: 'cancel' },
       { text: 'OK', onPress: onConfirmRemoveUser },
@@ -79,7 +79,7 @@ function onToggleAdmin(
     : `make ${userText} an admin`;
   Alert.alert(
     'Confirm action',
-    `Are you sure you want to ${actionClause} of this thread?`,
+    `Are you sure you want to ${actionClause} of this chat?`,
     [
       { text: 'Cancel', style: 'cancel' },
       { text: 'OK', onPress: onConfirmMakeAdmin },

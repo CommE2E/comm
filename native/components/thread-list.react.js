@@ -73,7 +73,7 @@ class ThreadList extends React.PureComponent<Props, State> {
           searchText={this.state.searchText}
           onChangeText={this.onChangeSearchText}
           containerStyle={this.props.styles.search}
-          placeholder="Search threads"
+          placeholder="Search chats"
           ref={this.searchRef}
         />
       );

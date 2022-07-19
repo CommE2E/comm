@@ -220,7 +220,7 @@ const messageListOptions = ({ navigation, route }) => ({
   headerBackTitleVisible: false,
 });
 const composeThreadOptions = {
-  headerTitle: 'Compose thread',
+  headerTitle: 'Compose chat',
   headerBackTitleVisible: false,
 };
 const threadSettingsOptions = ({ route }) => ({
@@ -228,7 +228,7 @@ const threadSettingsOptions = ({ route }) => ({
   headerBackTitleVisible: false,
 });
 const deleteThreadOptions = {
-  headerTitle: 'Delete thread',
+  headerTitle: 'Delete chat',
   headerBackTitleVisible: false,
 };
 

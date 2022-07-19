@@ -103,12 +103,12 @@ class ThreadSettingsPushNotifs extends React.PureComponent<Props, State> {
     let alertMessage;
     if (Platform.OS === 'ios' && this.state.currentValue) {
       alertMessage =
-        'Notifs for this thread are enabled, but cannot be delivered ' +
+        'Notifs for this chat are enabled, but cannot be delivered ' +
         'to this device because you haven’t granted notif permissions to Comm. ' +
         'Please enable them in Settings App → Notifications → Comm';
     } else if (Platform.OS === 'ios') {
       alertMessage =
-        'In order to enable push notifs for this thread, ' +
+        'In order to enable push notifs for this chat, ' +
         'you need to first grant notif permissions to Comm. ' +
         'Please enable them in Settings App → Notifications → Comm';
     } else {

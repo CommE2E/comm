@@ -65,7 +65,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
           iosFormat="highlight"
           iosHighlightUnderlayColor={panelIosHighlightUnderlay}
         >
-          <Text style={this.props.styles.text}>Leave thread...</Text>
+          <Text style={this.props.styles.text}>Leave chat...</Text>
           {loadingIndicator}
         </Button>
       </View>
@@ -85,7 +85,7 @@ class ThreadSettingsLeaveThread extends React.PureComponent<Props> {
 
     Alert.alert(
       'Confirm action',
-      'Are you sure you want to leave this thread?',
+      'Are you sure you want to leave this chat?',
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'OK', onPress: this.onConfirmLeaveThread },

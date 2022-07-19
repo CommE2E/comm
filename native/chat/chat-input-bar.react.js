@@ -428,7 +428,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               name="plus"
               style={this.props.styles.joinButtonText}
             />
-            <Text style={this.props.styles.joinButtonText}>Join Thread</Text>
+            <Text style={this.props.styles.joinButtonText}>Join Chat</Text>
           </View>
         );
       }

@@ -33,7 +33,7 @@ class ComposeSubchannelModal extends React.PureComponent<Props> {
   render() {
     return (
       <Modal modalStyle={this.props.styles.modal}>
-        <Text style={this.props.styles.visibility}>Thread type</Text>
+        <Text style={this.props.styles.visibility}>Chat type</Text>
         <Button style={this.props.styles.option} onPress={this.onPressOpen}>
           <SWMansionIcon
             name="globe-1"
