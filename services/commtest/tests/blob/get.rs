@@ -13,7 +13,7 @@ pub async fn run(
   blob_data: &BlobData,
 ) -> Result<Vec<usize>, Error> {
   let cloned_holder = blob_data.holder.clone();
-  println!("get {}", cloned_holder);
+  println!("[{}] get", cloned_holder);
 
   let response = client
     .get(Request::new(GetRequest {

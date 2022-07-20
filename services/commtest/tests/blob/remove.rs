@@ -13,7 +13,7 @@ pub async fn run(
   blob_data: &BlobData,
 ) -> Result<(), Error> {
   let cloned_holder = blob_data.holder.clone();
-  println!("remove {}", cloned_holder);
+  println!("[{}] remove", cloned_holder);
 
   client
     .remove(Request::new(RemoveRequest {

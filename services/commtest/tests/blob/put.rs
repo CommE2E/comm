@@ -18,21 +18,21 @@ pub async fn run(
   let cloned_holder = blob_data.holder.clone();
   let cloned_hash = blob_data.hash.clone();
   let cloned_chunks_sizes = blob_data.chunks_sizes.clone();
-  println!("put {}", cloned_holder);
+  println!("[{}] put", cloned_holder);
 
   let outbound = async_stream::stream! {
-    println!(" - sending holder");
+    println!("[{}] - sending holder", cloned_holder);
     let request = PutRequest {
       data: Some(Holder(cloned_holder.to_string())),
     };
     yield request;
-    println!(" - sending hash");
+    println!("[{}] - sending hash", cloned_holder);
     let request = PutRequest {
       data: Some(BlobHash(cloned_hash.to_string())),
     };
     yield request;
     for chunk_size in cloned_chunks_sizes {
-      println!(" - sending data chunk {}", chunk_size);
+      println!("[{}] - sending data chunk {}", cloned_holder, chunk_size);
       let request = PutRequest {
         data: Some(DataChunk(generate_nbytes(chunk_size, None))),
       };
