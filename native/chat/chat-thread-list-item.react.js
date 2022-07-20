@@ -73,7 +73,6 @@ function ChatThreadListItem({
         <ChatThreadListSeeMoreSidebars
           threadInfo={data.threadInfo}
           unread={sidebarItem.unread}
-          showingSidebarsInline={sidebarItem.showingSidebarsInline}
           onPress={onPressSeeMoreSidebars}
           key="seeMore"
         />

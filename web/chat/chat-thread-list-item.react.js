@@ -104,7 +104,6 @@ function ChatThreadListItem(props: Props): React.Node {
         <ChatThreadListSeeMoreSidebars
           threadInfo={item.threadInfo}
           unread={sidebarItem.unread}
-          showingSidebarsInline={sidebarItem.showingSidebarsInline}
           key="seeMore"
         />
       );

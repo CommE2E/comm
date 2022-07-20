@@ -13,11 +13,10 @@ import { sidebarHeight } from './sidebar-item.react';
 type Props = {
   +threadInfo: ThreadInfo,
   +unread: boolean,
-  +showingSidebarsInline: boolean,
   +onPress: (threadInfo: ThreadInfo) => void,
 };
 function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
-  const { onPress, threadInfo, unread, showingSidebarsInline } = props;
+  const { onPress, threadInfo, unread } = props;
   const onPressButton = React.useCallback(() => onPress(threadInfo), [
     onPress,
     threadInfo,
@@ -26,7 +25,6 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   const colors = useColors();
   const styles = useStyles(unboundStyles);
   const unreadStyle = unread ? styles.unread : null;
-  const buttonText = showingSidebarsInline ? 'See more...' : 'See threads...';
   return (
     <Button
       iosFormat="highlight"
@@ -36,7 +34,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
       onPress={onPressButton}
     >
       <Icon name="ios-more" size={28} style={styles.icon} />
-      <Text style={[styles.text, unreadStyle]}>{buttonText}</Text>
+      <Text style={[styles.text, unreadStyle]}>See more...</Text>
     </Button>
   );
 }

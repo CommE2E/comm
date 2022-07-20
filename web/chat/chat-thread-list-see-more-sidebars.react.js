@@ -12,17 +12,15 @@ import css from './chat-thread-list.css';
 type Props = {
   +threadInfo: ThreadInfo,
   +unread: boolean,
-  +showingSidebarsInline: boolean,
 };
 function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
-  const { unread, showingSidebarsInline, threadInfo } = props;
+  const { unread, threadInfo } = props;
   const { pushModal } = useModalContext();
 
   const onClick = React.useCallback(
     () => pushModal(<SidebarListModal threadInfo={threadInfo} />),
     [pushModal, threadInfo],
   );
-  const buttonText = showingSidebarsInline ? 'See more...' : 'See threads...';
   return (
     <div className={classNames(css.thread, css.sidebar)} onClick={onClick}>
       <a className={css.threadButton}>
@@ -34,7 +32,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
               [css.unread]: unread,
             })}
           >
-            {buttonText}
+            See more...
           </div>
         </div>
       </a>
