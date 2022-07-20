@@ -4,6 +4,8 @@ mod blob_utils;
 mod get;
 #[path = "./blob/put.rs"]
 mod put;
+#[path = "./blob/remove.rs"]
+mod remove;
 #[path = "./lib/tools.rs"]
 mod tools;
 
@@ -95,6 +97,23 @@ async fn blob_performance_test() -> Result<(), Error> {
     // REMOVE
     rt.block_on(async {
       println!("performing REMOVE operations");
+      let mut handlers = vec![];
+
+      for item in &blob_data {
+        let item_cloned = item.clone();
+        let mut client_cloned = client.clone();
+        handlers.push(tokio::spawn(async move {
+          remove::run(&mut client_cloned, &item_cloned).await.unwrap();
+          assert!(
+            get::run(&mut client_cloned, &item_cloned).await.is_err(),
+            "item should no longer be available"
+          );
+        }));
+      }
+
+      for handler in handlers {
+        handler.await.unwrap();
+      }
     });
   })
   .await
