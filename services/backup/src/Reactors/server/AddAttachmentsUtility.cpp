@@ -56,18 +56,19 @@ grpc::Status AddAttachmentsUtility::processRequest(
   return status;
 }
 
-std::shared_ptr<database::LogItem> AddAttachmentsUtility::moveToS3(
-    std::shared_ptr<database::LogItem> logItem) {
+std::shared_ptr<database::LogItem>
+AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
   std::string holder = tools::generateHolder(
       logItem->getDataHash(), logItem->getBackupID(), logItem->getLogID());
   std::string data = std::move(logItem->getValue());
-  std::shared_ptr<database::LogItem> newLogItem = std::make_shared<database::LogItem>(
-      logItem->getBackupID(),
-      logItem->getLogID(),
-      true,
-      holder,
-      logItem->getAttachmentHolders(),
-      logItem->getDataHash());
+  std::shared_ptr<database::LogItem> newLogItem =
+      std::make_shared<database::LogItem>(
+          logItem->getBackupID(),
+          logItem->getLogID(),
+          true,
+          holder,
+          logItem->getAttachmentHolders(),
+          logItem->getDataHash());
   // put into S3
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;

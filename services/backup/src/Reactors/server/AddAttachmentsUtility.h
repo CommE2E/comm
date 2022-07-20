@@ -13,7 +13,9 @@ namespace network {
 namespace reactor {
 
 class AddAttachmentsUtility {
-  std::shared_ptr<database::LogItem> moveToS3(std::shared_ptr<database::LogItem> logItem);
+  std::shared_ptr<database::LogItem>
+  moveToS3(std::shared_ptr<database::LogItem> logItem);
+
 public:
   grpc::Status processRequest(const backup::AddAttachmentsRequest *request);
 };
