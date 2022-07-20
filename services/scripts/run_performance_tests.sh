@@ -10,17 +10,24 @@ run_performance_test () {
   cargo test "$1"_performance_test --test '*' --manifest-path=commtest/Cargo.toml #-- --nocapture
 }
 
-list_expected () {
-  echo "Expected one of these:";
+help () {
+  echo "Usage:";
+  echo "There are two arguments you can specify";
+  echo "First is a target service:";
   echo "$SERVICES";
   echo "all";
+  echo "Second is a number of threads that you'd like to spawn.";
+  echo "It is optional, if not specified, it will fall back to a default value";
+  echo "The default value is the number of CPUs";
 }
 
 if [[ -z "$1" ]]; then
   echo "No service specified" >&2
-  list_expected;
+  help;
   exit 1
 fi
+
+export COMM_NUMBER_OF_THREADS="$2"
 
 if [[ "$1" == "all" ]]; then
   for SERVICE in "$SERVICES"; do
@@ -33,7 +40,7 @@ SERVICE=$(grep "$1" <<< "$SERVICES")
 
 if [[ "$SERVICE" != "$1" ]]; then
   echo "No such service: $1";
-  list_expected;
+  help;
   exit 1;
 fi;
 

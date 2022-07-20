@@ -1,5 +1,7 @@
 use bytesize::ByteSize;
 use lazy_static::lazy_static;
+use num_cpus;
+use std::env;
 
 #[allow(dead_code)]
 pub fn generate_nbytes(
@@ -33,3 +35,13 @@ lazy_static! {
 
 #[allow(dead_code)]
 pub const ATTACHMENT_DELIMITER: &str = ";";
+
+#[allow(dead_code)]
+pub fn obtain_number_of_threads() -> usize {
+  let number_of_threads_str: String =
+    env::var("COMM_NUMBER_OF_THREADS").unwrap();
+  if number_of_threads_str.is_empty() {
+    return num_cpus::get();
+  }
+  return number_of_threads_str.parse::<usize>().unwrap();
+}
