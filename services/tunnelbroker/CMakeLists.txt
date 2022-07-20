@@ -31,7 +31,12 @@ set(WITH_GFLAGS OFF CACHE BOOL "Turn off gflags" FORCE)
 find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
 find_package(Boost 1.40 COMPONENTS program_options thread system REQUIRED)
 find_package(OpenSSL REQUIRED)
+
+# Corrosion Rust integration
 find_package(Corrosion REQUIRED)
+corrosion_import_crate(MANIFEST_PATH "rust-notifications/Cargo.toml")
+set(RUST_HEADERS_INCLUDE_DIR "rust-notifications/extern")
+set(RUST_LIBS "rust-notifications")
 
 add_subdirectory(./lib/glog)
 
@@ -75,6 +80,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
   ${CRYPTOPP_INCLUDE_DIRS}
   ${LIBUV_INCLUDE_DIRS}
+  ${RUST_HEADERS_INCLUDE_DIR}
 )
 
 set(
@@ -95,12 +101,13 @@ set(
   ${CRYPTOPP_LIBRARIES}
   ${LIBUV_LIBRARIES}
   ${Boost_LIBRARIES}
+  ${RUST_LIBS}
   amqpcpp
   OpenSSL::SSL
   glog::glog
 )
 
-#SERVER
+# SERVER
 add_executable(
   tunnelbroker
 
@@ -121,7 +128,7 @@ install(
 )
 
 # TEST
-if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
+if($ENV{COMM_TEST_SERVICES} MATCHES 1)
   file(GLOB TEST_CODE "./test/*.cpp")
   list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
   enable_testing()
