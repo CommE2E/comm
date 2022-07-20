@@ -1,5 +1,7 @@
 #[path = "./blob/blob_utils.rs"]
 mod blob_utils;
+#[path = "./blob/get.rs"]
+mod get;
 #[path = "./blob/put.rs"]
 mod put;
 #[path = "./lib/tools.rs"]
@@ -66,6 +68,28 @@ async fn blob_performance_test() -> Result<(), Error> {
     // GET
     rt.block_on(async {
       println!("performing GET operations");
+      let mut handlers = vec![];
+
+      for (i, item) in blob_data.iter().enumerate() {
+        let item_cloned = item.clone();
+        let mut client_cloned = client.clone();
+        handlers.push(tokio::spawn(async move {
+          let received_sizes =
+            get::run(&mut client_cloned, &item_cloned).await.unwrap();
+          let expected_data_size =
+            item_cloned.chunks_sizes.iter().sum::<usize>();
+          let received_data_size = received_sizes.iter().sum::<usize>();
+          assert_eq!(
+            expected_data_size, received_data_size,
+            "invalid size of data for index {}, expected {}, got {}",
+            i, expected_data_size, received_data_size
+          );
+        }));
+      }
+
+      for handler in handlers {
+        handler.await.unwrap();
+      }
     });
 
     // REMOVE
