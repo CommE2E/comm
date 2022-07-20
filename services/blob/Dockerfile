@@ -1,4 +1,4 @@
-FROM commapp/services-base:1.1
+FROM commapp/services-base:1.2
 
 RUN apt-get update && \
   apt-get install -y uuid-dev && \

@@ -103,3 +103,7 @@ You can also run all services at once in the sandbox using the command below:
 ```
 yarn run-all-services-in-sandbox
 ```
+
+### Rebuilding the base image
+
+If you ever wish to rebuild the base image, you should get a tool named [buildx](https://github.com/docker/buildx). It should be attached with the Docker desktop app on the macOS, but if you use Linux, you will probably need to install it manually. For the installation instructions, please go [here](https://github.com/docker/buildx#installing).
