@@ -1,17 +1,25 @@
 #[path = "./blob/blob_utils.rs"]
 mod blob_utils;
+#[path = "./blob/put.rs"]
+mod put;
 #[path = "./lib/tools.rs"]
 mod tools;
 
 use bytesize::ByteSize;
+use std::env;
 
 use tokio::runtime::Runtime;
 use tools::{obtain_number_of_threads, Error};
 
-use blob_utils::BlobData;
+use blob_utils::{BlobData, BlobServiceClient};
 
 #[tokio::test]
 async fn blob_performance_test() -> Result<(), Error> {
+  let port = env::var("COMM_SERVICES_PORT_BLOB")
+    .expect("port env var expected but not received");
+  let client =
+    BlobServiceClient::connect(format!("http://localhost:{}", port)).await?;
+
   let number_of_threads = obtain_number_of_threads();
 
   println!(
@@ -39,6 +47,20 @@ async fn blob_performance_test() -> Result<(), Error> {
     // PUT
     rt.block_on(async {
       println!("performing PUT operations");
+      let mut handlers = vec![];
+      for item in &blob_data {
+        let item_cloned = item.clone();
+        let mut client_cloned = client.clone();
+        handlers.push(tokio::spawn(async move {
+          let data_exists: bool =
+            put::run(&mut client_cloned, &item_cloned).await.unwrap();
+          assert!(!data_exists, "test data should not exist");
+        }));
+      }
+
+      for handler in handlers {
+        handler.await.unwrap();
+      }
     });
 
     // GET
