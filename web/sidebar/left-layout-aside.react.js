@@ -24,4 +24,8 @@ function LeftLayoutAside(): React.Node {
   );
 }
 
-export default LeftLayoutAside;
+const MemoizedLeftLayoutAside: React.ComponentType<{}> = React.memo<{}>(
+  LeftLayoutAside,
+);
+
+export default MemoizedLeftLayoutAside;
