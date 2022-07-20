@@ -1,8 +1,5 @@
 div.container {
-  position: absolute;
   width: 400px;
-  top: 0;
-  bottom: 0;
   background-color: var(--bg);
   border-right: 1px solid var(--border-color);
   display: flex;

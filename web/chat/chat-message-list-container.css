@@ -1,12 +1,9 @@
 div.container {
-  margin-left: 400px;
-  height: 100%;
+  flex: 1;
   background-color: var(--bg);
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
 }
 div.activeContainer {
-  border: 2px solid #5989d6;
-  margin-left: 402px;
+  border: 2px solid var(--chat-message-list-active-border);
 }

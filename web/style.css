@@ -89,9 +89,11 @@ div.main-header > .wordmark {
 div.main-content-container {
   position: relative;
   grid-area: app;
+  display: flex;
 }
 div.main-content {
-  height: 100%;
+  display: flex;
+  flex: 1;
 }
 
 div.upper-right {

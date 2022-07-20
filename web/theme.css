@@ -173,4 +173,5 @@
   --thread-creation-close-search-color: var(--shades-black-60);
   --thread-creation-search-item-bg-hover: var(--shades-black-80);
   --thread-creation-search-item-info-color: var(--shades-black-60);
+  --chat-message-list-active-border: #5989d6;
 }
