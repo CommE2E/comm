@@ -8,7 +8,7 @@ import AddMembersItem from './add-members-item.react';
 import css from './members-modal.css';
 
 type AddMemberItemGroupProps = {
-  +header: string,
+  +header: ?string,
   +userInfos: $ReadOnlyArray<UserListItem>,
   +onUserClick: (userID: string) => void,
   +usersAdded: $ReadOnlySet<string>,
@@ -32,10 +32,13 @@ function AddMembersItemGroup(props: AddMemberItemGroupProps): React.Node {
       )),
     [onUserClick, sortedUserInfos, usersAdded],
   );
+  const headerComponent = header ? (
+    <div className={css.addMemberItemsGroupHeader}>{header}:</div>
+  ) : null;
 
   return (
     <>
-      <div className={css.addMemberItemsGroupHeader}>{header}:</div>
+      {headerComponent}
       {userInfosComponents}
     </>
   );

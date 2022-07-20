@@ -12,10 +12,16 @@ type Props = {
   +userListItems: $ReadOnlyArray<UserListItem>,
   +pendingUsersToAdd: $ReadOnlySet<string>,
   +switchUser: string => void,
+  +hasParentThread: boolean,
 };
 
 function AddMembersList(props: Props): React.Node {
-  const { userListItems, pendingUsersToAdd, switchUser } = props;
+  const {
+    userListItems,
+    pendingUsersToAdd,
+    switchUser,
+    hasParentThread,
+  } = props;
 
   const usersAvailableToAdd = React.useMemo(
     () => userListItems.filter(user => !user.alertText),
@@ -27,13 +33,13 @@ function AddMembersList(props: Props): React.Node {
     [usersAvailableToAdd],
   );
 
-  const membersInParentThread = React.useMemo(
-    () =>
-      groupedAvailableUsersList['undefined']
-        ? ['Users in parent channel', groupedAvailableUsersList['undefined']]
-        : undefined,
-    [groupedAvailableUsersList],
-  );
+  const membersInParentThread = React.useMemo(() => {
+    if (!groupedAvailableUsersList['undefined']) {
+      return;
+    }
+    const label = hasParentThread ? 'Users in parent channel' : null;
+    return [label, groupedAvailableUsersList['undefined']];
+  }, [groupedAvailableUsersList, hasParentThread]);
 
   const membersNotInParentThread = React.useMemo(
     () =>

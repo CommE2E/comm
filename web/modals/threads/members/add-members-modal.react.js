@@ -143,6 +143,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
           userListItems={userSearchResults}
           switchUser={onSwitchUser}
           pendingUsersToAdd={pendingUsersToAdd}
+          hasParentThread={!!threadInfo.parentThreadID}
         />
       </div>
       <div className={css.addMembersFooter}>
