@@ -6,7 +6,6 @@
 #include <glog/logging.h>
 
 #include <atomic>
-#include <iostream>
 #include <memory>
 #include <string>
 

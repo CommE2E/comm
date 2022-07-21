@@ -5,7 +5,6 @@
 #include <grpcpp/grpcpp.h>
 
 #include <atomic>
-#include <iostream>
 #include <memory>
 #include <string>
 
