@@ -1,5 +1,8 @@
 #include "BlobServiceImpl.h"
 
+#include "GlobalTools.h"
+
+#include <glog/logging.h>
 #include <grpcpp/grpcpp.h>
 
 #include <iostream>
@@ -18,7 +21,7 @@ void RunServer() {
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   builder.RegisterService(&blobService);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  std::cout << "Server listening" << std::endl;
+  LOG(INFO) << "Server listening";
 
   server->Wait();
 }
@@ -27,6 +30,7 @@ void RunServer() {
 } // namespace comm
 
 int main(int argc, char **argv) {
+  comm::network::tools::InitLogging("blob");
   comm::network::RunServer();
 
   return 0;

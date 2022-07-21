@@ -9,6 +9,8 @@
 #include "GetReactor.h"
 #include "PutReactor.h"
 
+#include <glog/logging.h>
+
 #include <iostream>
 #include <memory>
 
@@ -90,7 +92,7 @@ grpc::ServerUnaryReactor *BlobServiceImpl::Remove(
       database::DatabaseManager::getInstance().removeBlobItem(blobHash);
     }
   } catch (std::runtime_error &e) {
-    std::cout << "error: " << e.what() << std::endl;
+    LOG(ERROR) << e.what();
     status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
   auto *reactor = context->DefaultReactor();
