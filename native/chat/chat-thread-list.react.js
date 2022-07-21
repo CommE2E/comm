@@ -36,13 +36,13 @@ import { useServerCall } from 'lib/utils/action-utils';
 
 import Button from '../components/button.react';
 import Search from '../components/search.react';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import {
   SidebarListModalRouteName,
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
   type NavigationRoute,
 } from '../navigation/route-names';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react';
 import { useSelector } from '../redux/redux-utils';
 import {
   type IndicatorStyle,

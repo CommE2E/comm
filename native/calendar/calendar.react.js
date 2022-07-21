@@ -53,7 +53,6 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import DisconnectedBar from '../navigation/disconnected-bar.react';
 import {
   createIsForegroundSelector,
@@ -65,6 +64,7 @@ import {
   ThreadPickerModalRouteName,
 } from '../navigation/route-names';
 import type { NavigationRoute } from '../navigation/route-names';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react';
 import { useSelector } from '../redux/redux-utils';
 import { calendarListData } from '../selectors/calendar-selectors';
 import type {

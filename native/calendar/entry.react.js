@@ -63,13 +63,13 @@ import { SingleLine } from '../components/single-line.react';
 import TextInput from '../components/text-input.react';
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
 import {
   createIsForegroundSelector,
   nonThreadCalendarQuery,
 } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import { ThreadPickerModalRouteName } from '../navigation/route-names';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react';
 import { useSelector } from '../redux/redux-utils';
 import { colors, useStyles } from '../themes/colors';
 import type { LayoutEvent } from '../types/react-native';

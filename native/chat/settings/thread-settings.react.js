@@ -41,7 +41,6 @@ import {
   type KeyboardState,
   KeyboardContext,
 } from '../../keyboard/keyboard-state';
-import type { TabNavigationProp } from '../../navigation/app-navigator.react';
 import { defaultStackScreenOptions } from '../../navigation/options';
 import {
   OverlayContext,
@@ -52,6 +51,7 @@ import {
   AddUsersModalRouteName,
   ComposeSubchannelModalRouteName,
 } from '../../navigation/route-names';
+import type { TabNavigationProp } from '../../navigation/tab-navigator.react';
 import { useSelector } from '../../redux/redux-utils';
 import type { AppState } from '../../redux/state-types';
 import {
