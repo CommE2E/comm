@@ -5,7 +5,6 @@
 
 #include <folly/concurrency/ConcurrentHashMap.h>
 
-#include <iostream>
 #include <string>
 
 namespace comm {

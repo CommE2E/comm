@@ -7,7 +7,6 @@
 #include <glog/logging.h>
 #include <grpcpp/grpcpp.h>
 
-#include <iostream>
 #include <string>
 #include <thread>
 

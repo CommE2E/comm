@@ -8,8 +8,6 @@
 #include <cryptopp/rsa.h>
 #include <glog/logging.h>
 
-#include <iostream>
-
 namespace comm {
 namespace network {
 namespace crypto {

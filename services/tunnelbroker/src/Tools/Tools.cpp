@@ -6,7 +6,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include <chrono>
-#include <iostream>
 #include <random>
 #include <regex>
 

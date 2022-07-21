@@ -5,7 +5,6 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include <iostream>
 #include <string>
 
 namespace comm {
