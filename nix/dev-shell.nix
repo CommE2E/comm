@@ -38,6 +38,7 @@
 , watchman
 , rustfmt
 , yarn
+, zlib
 }:
 
 mkShell {
@@ -121,6 +122,11 @@ mkShell {
 
     # Provide decent bash prompt
     source "${better-prompt}/bin/better-prompt"
+
+    if [[ -f /etc/NIXOS ]]; then
+      # allow for impurely downloaded Android NDK tools to be used on NixOS
+      export LD_LIBRARY_PATH=${lib.makeLibraryPath [ stdenv.cc.cc.lib zlib ]}
+    fi
 
     echo "Welcome to Comm dev environment! :)"
   '';
