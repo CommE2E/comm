@@ -33,6 +33,7 @@
 , watchman
 , rustfmt
 , yarn
+, zlib
 }:
 
 mkShell {
@@ -109,6 +110,11 @@ mkShell {
       MARIADB_DIR=''${XDG_DATA_HOME:-$HOME/.local/share}/MariaDB
       export MYSQL_UNIX_PORT="$MARIADB_DIR"/${socket}
       export ANDROID_SDK_ROOT=''${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}
+    fi
+
+    if [[ -f /etc/NIXOS ]]; then
+      # allow for impurely downloaded Android NDK tools to be used on NixOS
+      export LD_LIBRARY_PATH=${lib.makeLibraryPath [ stdenv.cc.cc.lib zlib ]}
     fi
 
     echo "Welcome to Comm dev environment! :)"
