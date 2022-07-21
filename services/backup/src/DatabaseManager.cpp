@@ -9,8 +9,6 @@
 #include <aws/dynamodb/model/ScanRequest.h>
 #include <aws/dynamodb/model/UpdateItemRequest.h>
 
-#include <iostream>
-
 namespace comm {
 namespace network {
 namespace database {

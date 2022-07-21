@@ -2,8 +2,6 @@
 
 #include "DatabaseManager.h"
 
-#include <iostream>
-
 namespace comm {
 namespace network {
 namespace reactor {
