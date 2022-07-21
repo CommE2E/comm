@@ -12,9 +12,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(PkgConfig REQUIRED)
 
-# FIND LIBS
-include(./cmake-components/grpc.cmake)
-include(./cmake-components/folly.cmake)
+find_package(double-conversion REQUIRED)
+find_package(Folly REQUIRED)
+find_package(gRPC REQUIRED)
 
 # Find AMQP-CPP installation
 find_package(amqpcpp CONFIG REQUIRED)
@@ -38,7 +38,7 @@ corrosion_import_crate(MANIFEST_PATH "rust-notifications/Cargo.toml")
 set(RUST_HEADERS_INCLUDE_DIR "rust-notifications/extern")
 set(RUST_LIBS "rust-notifications")
 
-add_subdirectory(./lib/glog)
+find_package(glog)
 
 # Generated sources
 get_filename_component(proto "protos/tunnelbroker.proto" ABSOLUTE)
@@ -78,8 +78,6 @@ include_directories(
   ./src/Tools
   ./src/Amqp
   ${GENERATED_BASE_DIR}
-  ${FOLLY_INCLUDES}
-  ./lib/double-conversion
   ${Boost_INCLUDE_DIR}
   ${CRYPTOPP_INCLUDE_DIRS}
   ${LIBUV_INCLUDE_DIRS}
@@ -97,9 +95,8 @@ set(
 set(
   LIBS
 
-  ${GRPC_LIBS}
-  ${_PROTOBUF_LIBPROTOBUF}
-  ${_REFLECTION}
+  gRPC::grpc++_reflection
+  gRPC::grpc++
   ${AWSSDK_LINK_LIBRARIES}
   ${CRYPTOPP_LIBRARIES}
   ${LIBUV_LIBRARIES}
@@ -108,6 +105,8 @@ set(
   amqpcpp
   OpenSSL::SSL
   glog::glog
+  double-conversion::double-conversion
+  Folly::folly
 )
 
 # SERVER
