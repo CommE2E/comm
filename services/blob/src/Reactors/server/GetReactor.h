@@ -9,7 +9,6 @@
 
 #include <aws/s3/model/GetObjectRequest.h>
 
-#include <iostream>
 #include <memory>
 #include <string>
 

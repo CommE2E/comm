@@ -11,7 +11,6 @@
 
 #include <glog/logging.h>
 
-#include <iostream>
 #include <memory>
 
 namespace comm {

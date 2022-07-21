@@ -3,8 +3,6 @@
 #include "DatabaseManager.h"
 #include "S3Path.h"
 
-#include <iostream>
-
 #include <algorithm>
 #include <chrono>
 #include <memory>

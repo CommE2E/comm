@@ -7,7 +7,6 @@
 #include <aws/core/Aws.h>
 
 #include <chrono>
-#include <iostream>
 #include <memory>
 #include <string>
 

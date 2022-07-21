@@ -5,7 +5,6 @@
 #include <glog/logging.h>
 #include <grpcpp/grpcpp.h>
 
-#include <iostream>
 #include <memory>
 #include <string>
 

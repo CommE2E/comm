@@ -6,7 +6,6 @@
 #include <aws/dynamodb/model/QueryRequest.h>
 #include <aws/dynamodb/model/ScanRequest.h>
 
-#include <iostream>
 #include <vector>
 
 namespace comm {
