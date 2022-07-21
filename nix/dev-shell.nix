@@ -100,6 +100,7 @@ mkShell {
     if [[ "$OSTYPE" == 'darwin'* ]]; then
       # Many commands for cocoapods expect the native BSD versions of commands
       export PATH=/usr/bin:$PATH
+      export ANDROID_SDK_ROOT=''${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}
     fi
 
     echo "Welcome to Comm dev environment! :)"
