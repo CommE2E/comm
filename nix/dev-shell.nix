@@ -102,6 +102,11 @@ mkShell {
       export PATH=/usr/bin:$PATH
     fi
 
+    if [[ -f /etc/NIXOS ]]; then
+      # allow for impurely downloaded Android NDK tools to be used on NixOS
+      export LD_LIBRARY_PATH=${lib.makeLibraryPath [ stdenv.cc.cc.lib zlib ]}
+    fi
+
     # TODO: Fix aws sdk cmake installation path logic upstream
     export AWSSDK_ROOT_DIR=${lib.getDev aws-sdk-cpp}
     export AWSSDK_CORE_HEADER_FILE=${lib.getDev aws-sdk-cpp}/include/aws/core/Aws.h
