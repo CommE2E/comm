@@ -35,23 +35,11 @@ void RunAmqpClient() {
   AmqpManager::getInstance().connect();
 }
 
-void InitLogging(const char *programName) {
-  FLAGS_logtostderr = true;
-  FLAGS_colorlogtostderr = true;
-  if (comm::network::tools::isSandbox()) {
-    // Log levels INFO, WARNING, ERROR, FATAL are 0, 1, 2, 3, respectively
-    FLAGS_minloglevel = 0;
-  } else {
-    FLAGS_minloglevel = 1;
-  }
-  google::InitGoogleLogging(programName);
-}
-
 } // namespace network
 } // namespace comm
 
 int main(int argc, char **argv) {
-  comm::network::InitLogging(argv[0]);
+  comm::network::tools::InitLogging("tunnelbroker");
   if (comm::network::tools::isSandbox()) {
     comm::network::config::ConfigManager::getInstance().load(
         comm::network::DEV_CONFIG_FILE_PATH);

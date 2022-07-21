@@ -57,6 +57,18 @@ bool validateUUIDv4(const std::string &uuid) {
   }
 }
 
+void InitLogging(const std::string &programName) {
+  FLAGS_logtostderr = true;
+  FLAGS_colorlogtostderr = true;
+  if (comm::network::tools::isSandbox()) {
+    // Log levels INFO, WARNING, ERROR, FATAL are 0, 1, 2, 3, respectively
+    FLAGS_minloglevel = 0;
+  } else {
+    FLAGS_minloglevel = 1;
+  }
+  google::InitGoogleLogging(programName.c_str());
+}
+
 } // namespace tools
 } // namespace network
 } // namespace comm
