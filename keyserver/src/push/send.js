@@ -3,6 +3,7 @@
 import apn from '@parse/node-apn';
 import type { ResponseFailure } from '@parse/node-apn';
 import invariant from 'invariant';
+import _cloneDeep from 'lodash/fp/cloneDeep';
 import _flow from 'lodash/fp/flow';
 import _mapValues from 'lodash/fp/mapValues';
 import _pickBy from 'lodash/fp/pickBy';
@@ -40,7 +41,12 @@ import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
 import { getAPNsNotificationTopic } from './providers';
-import { apnPush, fcmPush, getUnreadCounts } from './utils';
+import {
+  apnPush,
+  fcmPush,
+  getUnreadCounts,
+  apnMaxNotificationPayloadByteSize,
+} from './utils';
 
 type Device = {
   +deviceType: DeviceType,
@@ -492,12 +498,20 @@ function prepareIOSNotification(
   notification.pushType = 'alert';
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadInfo.id;
-  notification.payload.messageInfos = JSON.stringify(newRawMessageInfos);
   if (codeVersion > 137) {
     notification.mutableContent = true;
   }
   if (collapseKey) {
     notification.collapseId = collapseKey;
+  }
+  const messageInfos = JSON.stringify(newRawMessageInfos);
+  const copyWithMessageInfos = _cloneDeep(notification);
+  copyWithMessageInfos.payload = {
+    ...copyWithMessageInfos.payload,
+    messageInfos,
+  };
+  if (copyWithMessageInfos.length() <= apnMaxNotificationPayloadByteSize) {
+    notification.payload.messageInfos = messageInfos;
   }
   return notification;
 }
