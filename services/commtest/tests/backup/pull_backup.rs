@@ -3,8 +3,8 @@ mod backup_utils;
 #[path = "../lib/tools.rs"]
 mod tools;
 
-use tonic::Request;
 use std::io::{Error as IOError, ErrorKind};
+use tonic::Request;
 
 use crate::backup_utils::{
   proto::pull_backup_response::Data, proto::pull_backup_response::Data::*,
@@ -63,7 +63,10 @@ pub async fn run(
           "invalid state, expected compaction, got {:?}",
           state
         );
-        current_id = backup_id.ok_or(IOError::new(ErrorKind::Other, "backup id expected but not received"))?;
+        current_id = backup_id.ok_or(IOError::new(
+          ErrorKind::Other,
+          "backup id expected but not received",
+        ))?;
         println!(
           "compaction (id {}), pushing chunk (size: {})",
           current_id,
@@ -76,7 +79,10 @@ pub async fn run(
           state = State::Log;
         }
         assert_eq!(state, State::Log, "invalid state, expected compaction");
-        let log_id = log_id.ok_or(IOError::new(ErrorKind::Other, "log id expected but not received"))?;
+        let log_id = log_id.ok_or(IOError::new(
+          ErrorKind::Other,
+          "log id expected but not received",
+        ))?;
         if log_id != current_id {
           result.log_items.push(Item::new(
             log_id.clone(),

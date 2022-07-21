@@ -61,10 +61,7 @@ async fn backup_test() -> Result<(), Error> {
       // a big item that should be placed in the S3 right away
       Item::new(
         String::new(),
-        vec![
-          *tools::GRPC_CHUNK_SIZE_LIMIT,
-          *tools::GRPC_CHUNK_SIZE_LIMIT,
-        ],
+        vec![*tools::GRPC_CHUNK_SIZE_LIMIT, *tools::GRPC_CHUNK_SIZE_LIMIT],
         vec![
           "holder0".to_string(),
           "holder1".to_string(),
