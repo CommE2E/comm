@@ -20,9 +20,11 @@ const fcmTokenInvalidationErrors = new Set([
   'messaging/registration-token-not-registered',
   'messaging/invalid-registration-token',
 ]);
+const fcmMaxNotificationPayloadByteSize = 4000;
 const apnTokenInvalidationErrorCode = 410;
 const apnBadRequestErrorCode = 400;
 const apnBadTokenErrorString = 'BadDeviceToken';
+const apnMaxNotificationPayloadByteSize = 4096;
 
 type APNPushResult =
   | { +success: true }
@@ -196,4 +198,10 @@ async function getUnreadCounts(
   return usersToUnreadCounts;
 }
 
-export { apnPush, fcmPush, getUnreadCounts };
+export {
+  apnPush,
+  fcmPush,
+  getUnreadCounts,
+  apnMaxNotificationPayloadByteSize,
+  fcmMaxNotificationPayloadByteSize,
+};
