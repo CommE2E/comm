@@ -105,7 +105,6 @@ void CreateNewBackupReactor::terminateCallback() {
       this->holder,
       {});
   database::DatabaseManager::getInstance().putBackupItem(backupItem);
-  std::cout << "done creating backup " << backupItem.getBackupID() << std::endl;
 }
 
 } // namespace reactor

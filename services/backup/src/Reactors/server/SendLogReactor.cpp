@@ -5,8 +5,6 @@
 #include "GlobalTools.h"
 #include "Tools.h"
 
-#include <iostream>
-
 namespace comm {
 namespace network {
 namespace reactor {
@@ -168,10 +166,6 @@ void SendLogReactor::doneCallback() {
   // as there may be multiple threads from the pool taking over here
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
   // TODO implement
-  std::cout << "receive logs done "
-            << this->getStatusHolder()->getStatus().error_code() << "/"
-            << this->getStatusHolder()->getStatus().error_message()
-            << std::endl;
 }
 
 } // namespace reactor

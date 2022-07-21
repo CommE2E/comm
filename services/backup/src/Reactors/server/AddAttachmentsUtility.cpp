@@ -1,5 +1,7 @@
 #include "AddAttachmentsUtility.h"
 
+#include <glog/logging.h>
+
 #include "BackupItem.h"
 #include "BlobPutClientReactor.h"
 #include "Constants.h"
@@ -50,7 +52,7 @@ grpc::Status AddAttachmentsUtility::processRequest(
       database::DatabaseManager::getInstance().putLogItem(*logItem);
     }
   } catch (std::runtime_error &e) {
-    std::cout << "error: " << e.what() << std::endl;
+    LOG(ERROR) << e.what();
     status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
   return status;
