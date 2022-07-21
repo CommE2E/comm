@@ -3,6 +3,7 @@
 #include "BaseReactor.h"
 
 #include <grpcpp/grpcpp.h>
+#include <glog/logging.h>
 
 #include <atomic>
 #include <iostream>
@@ -69,8 +70,7 @@ void ServerWriteReactorBase<Request, Response>::terminate(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
   if (!this->statusHolder->getStatus().ok()) {
-    std::cout << "error: " << this->statusHolder->getStatus().error_message()
-              << std::endl;
+    LOG(ERROR) << this->statusHolder->getStatus().error_message();
   }
   if (this->statusHolder->state != ReactorState::RUNNING) {
     return;
@@ -105,7 +105,7 @@ void ServerWriteReactorBase<Request, Response>::nextWrite() {
     }
     this->StartWrite(&this->response);
   } catch (std::runtime_error &e) {
-    std::cout << "error: " << e.what() << std::endl;
+    LOG(ERROR) << "error: " << e.what();
     this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
 }

@@ -3,6 +3,7 @@
 #include "BaseReactor.h"
 
 #include <grpcpp/grpcpp.h>
+#include <glog/logging.h>
 
 namespace comm {
 namespace network {
@@ -86,8 +87,7 @@ void ClientReadReactorBase<Request, Response>::terminate(
     this->statusHolder->setStatus(status);
   }
   if (!this->statusHolder->getStatus().ok()) {
-    std::cout << "error: " << this->statusHolder->getStatus().error_message()
-              << std::endl;
+    LOG(ERROR) << this->statusHolder->getStatus().error_message();
   }
   if (this->statusHolder->state != ReactorState::RUNNING) {
     return;
