@@ -6,6 +6,7 @@ pub use proto::backup_service_client::BackupServiceClient;
 
 // stands for both, backup and log items
 #[allow(dead_code)]
+#[derive(Clone)]
 pub struct Item {
   pub id: String,
   pub chunks_sizes: Vec<usize>,
@@ -28,6 +29,7 @@ impl Item {
 }
 
 #[allow(dead_code)]
+#[derive(Clone)]
 pub struct BackupData {
   pub user_id: String,
   pub device_id: String,
