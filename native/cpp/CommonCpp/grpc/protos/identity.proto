@@ -20,6 +20,8 @@ message PakeRegistrationRequestAndUserID {
   string deviceID = 2;
   // Message sent to initiate PAKE registration (step 1)
   bytes pakeRegistrationRequest = 3;
+  string username = 4;
+  string userPublicKey = 5;
 }
 
 message PakeCredentialRequestAndUserID {
@@ -60,6 +62,7 @@ message WalletLoginRequest {
   string deviceID = 2;
   string siweMessage = 3;
   bytes siweSignature = 4;
+  string userPublicKey = 5;
 }
 
 message WalletLoginResponse {
