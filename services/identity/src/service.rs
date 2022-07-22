@@ -38,8 +38,9 @@ use proto::{
   registration_request::Data::PakeRegistrationRequestAndUserId,
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse as PakeRegistrationLoginResponse,
-  registration_response::Data::PakeRegistrationResponse, LoginRequest,
-  LoginResponse, PakeLoginRequest as PakeLoginRequestStruct,
+  registration_response::Data::PakeRegistrationResponse, GetUserIdRequest,
+  GetUserIdResponse, LoginRequest, LoginResponse,
+  PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
   RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
   WalletLoginRequest as WalletLoginRequestStruct,
@@ -341,6 +342,14 @@ impl IdentityService for MyIdentityService {
     let response = Response::new(VerifyUserTokenResponse { token_valid });
     info!("Sending VerifyUserToken response: {:?}", response);
     Ok(response)
+  }
+
+  #[instrument(skip(self))]
+  async fn get_user_id(
+    &self,
+    request: Request<GetUserIdRequest>,
+  ) -> Result<Response<GetUserIdResponse>, Status> {
+    unimplemented!();
   }
 }
 

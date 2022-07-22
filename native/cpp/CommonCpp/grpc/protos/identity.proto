@@ -11,6 +11,9 @@ service IdentityService {
   // Called by other services to verify a user's token
   rpc VerifyUserToken(VerifyUserTokenRequest) returns (VerifyUserTokenResponse)
     {}
+  // Called by users and keyservers to get userID corresponding to a wallet
+  // address or username
+  rpc GetUserID(GetUserIDRequest) returns (GetUserIDResponse) {}
 }
 
 // Helper types
@@ -118,4 +121,19 @@ message VerifyUserTokenRequest {
 
 message VerifyUserTokenResponse {
   bool tokenValid = 1;
+}
+
+// GetUserID
+
+message GetUserIDRequest {
+  enum AuthType {
+    PASSWORD = 0;
+    WALLET = 1;
+  }
+  AuthType authType = 1;
+  string userInfo = 2;
+}
+
+message GetUserIDResponse {
+  string userID = 1;
 }
