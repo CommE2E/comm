@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import ChatMessageList from './chat-message-list.react';
+import ChatMessageListContainer from './chat-message-list-container.react';
 import ChatTabs from './chat-tabs.react';
 import { ThreadListProvider } from './thread-list-provider';
 
@@ -12,7 +12,7 @@ function Chat(): React.Node {
       <ThreadListProvider>
         <ChatTabs />
       </ThreadListProvider>
-      <ChatMessageList />
+      <ChatMessageListContainer />
     </>
   );
 }

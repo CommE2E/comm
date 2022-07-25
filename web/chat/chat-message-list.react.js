@@ -4,8 +4,6 @@ import classNames from 'classnames';
 import { detect as detectBrowser } from 'detect-browser';
 import invariant from 'invariant';
 import * as React from 'react';
-import { useDrop } from 'react-dnd';
-import { NativeTypes } from 'react-dnd-html5-backend';
 
 import {
   fetchMessagesBeforeCursorActionTypes,
@@ -18,13 +16,8 @@ import {
   type ChatMessageItem,
   useMessageListData,
 } from 'lib/selectors/chat-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { messageKey } from 'lib/shared/message-utils';
-import {
-  useWatchThread,
-  useExistingThreadInfoFinder,
-  threadIsPending,
-} from 'lib/shared/thread-utils';
+import { threadIsPending } from 'lib/shared/thread-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import {
@@ -37,7 +30,6 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import LoadingIndicator from '../loading-indicator.react';
 import { useTextMessageRulesFunc } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
-import ChatInputBar from './chat-input-bar.react';
 import css from './chat-message-list.css';
 import { MessageListContext } from './message-list-types';
 import Message from './message.react';
@@ -46,12 +38,15 @@ import type {
   MessagePositionInfo,
 } from './position-types';
 import RelationshipPrompt from './relationship-prompt/relationship-prompt';
-import ThreadTopBar from './thread-top-bar.react';
 
-type PassedProps = {
+type BaseProps = {
+  +threadInfo: ThreadInfo,
+};
+
+type Props = {
+  ...BaseProps,
   // Redux state
   +activeChatThreadID: ?string,
-  +threadInfo: ?ThreadInfo,
   +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   +startReached: boolean,
   +timeZone: ?string,
@@ -68,14 +63,6 @@ type PassedProps = {
   ) => Promise<FetchMessageInfosPayload>,
   // withInputState
   +inputState: ?InputState,
-};
-type ReactDnDProps = {
-  +isActive: boolean,
-  +connectDropTarget: (node: React.Node) => React.Node,
-};
-type Props = {
-  ...PassedProps,
-  ...ReactDnDProps,
 };
 type State = {
   +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
@@ -243,72 +230,31 @@ class ChatMessageList extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const {
-      messageListData,
-      threadInfo,
-      inputState,
-      connectDropTarget,
-      isActive,
-    } = this.props;
+    const { messageListData, threadInfo, inputState } = this.props;
     if (!messageListData) {
       return <div className={css.container} />;
     }
-    invariant(threadInfo, 'ThreadInfo should be set if messageListData is');
     invariant(inputState, 'InputState should be set');
     const messages = messageListData.map(this.renderItem);
-    const containerStyle = classNames({
-      [css.container]: true,
-      [css.activeContainer]: isActive,
-    });
 
     let relationshipPrompt;
-    if (this.props.threadInfo) {
-      relationshipPrompt = (
-        <RelationshipPrompt threadInfo={this.props.threadInfo} />
-      );
+    if (threadInfo) {
+      relationshipPrompt = <RelationshipPrompt threadInfo={threadInfo} />;
     }
 
     const messageContainerStyle = classNames({
       [css.messageContainer]: true,
       [css.mirroredMessageContainer]: !this.props.supportsReverseFlex,
     });
-    return connectDropTarget(
-      <div className={containerStyle} ref={this.containerRef}>
-        <ThreadTopBar threadInfo={threadInfo} />
-        <div className={css.outerMessageContainer}>
-          {relationshipPrompt}
-          <div className={messageContainerStyle} ref={this.messageContainerRef}>
-            {messages}
-          </div>
+    return (
+      <div className={css.outerMessageContainer}>
+        {relationshipPrompt}
+        <div className={messageContainerStyle} ref={this.messageContainerRef}>
+          {messages}
         </div>
-        <ChatInputBar threadInfo={threadInfo} inputState={inputState} />
-      </div>,
+      </div>
     );
   }
-
-  containerRef = (container: ?HTMLDivElement) => {
-    if (container) {
-      container.addEventListener('paste', this.onPaste);
-    }
-    this.container = container;
-  };
-
-  onPaste = (e: ClipboardEvent) => {
-    const { inputState } = this.props;
-    if (!inputState) {
-      return;
-    }
-    const { clipboardData } = e;
-    if (!clipboardData) {
-      return;
-    }
-    const { files } = clipboardData;
-    if (files.length === 0) {
-      return;
-    }
-    e.preventDefault();
-    inputState.appendFiles([...files]);
-  };
 
   messageContainerRef = (messageContainer: ?HTMLDivElement) => {
     this.messageContainer = messageContainer;
@@ -379,8 +325,9 @@ class ChatMessageList extends React.PureComponent<Props, State> {
 
 registerFetchKey(fetchMessagesBeforeCursorActionTypes);
 registerFetchKey(fetchMostRecentMessagesActionTypes);
-const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
-  function ConnectedChatMessageList(): React.Node {
+const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
+  function ConnectedChatMessageList(props: BaseProps): React.Node {
+    const { threadInfo } = props;
     const userAgent = useSelector(state => state.userAgent);
     const supportsReverseFlex = React.useMemo(() => {
       const browser = detectBrowser(userAgent);
@@ -393,41 +340,19 @@ const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
 
     const timeZone = useSelector(state => state.timeZone);
 
-    const activeChatThreadID = useSelector(
-      state => state.navInfo.activeChatThreadID,
-    );
-    const baseThreadInfo = useSelector(state => {
-      const activeID = state.navInfo.activeChatThreadID;
-      if (!activeID) {
-        return null;
-      }
-      return threadInfoSelector(state)[activeID] ?? state.navInfo.pendingThread;
-    });
-    const existingThreadInfoFinder = useExistingThreadInfoFinder(
-      baseThreadInfo,
-    );
-    const threadInfo = React.useMemo(
-      () =>
-        existingThreadInfoFinder({
-          searching: false,
-          userInfoInputArray: [],
-        }),
-      [existingThreadInfoFinder],
-    );
-
     const messageListData = useMessageListData({
       threadInfo,
       searching: false,
       userInfoInputArray: [],
     });
 
-    const startReached = useSelector(state => {
-      const activeID = state.navInfo.activeChatThreadID;
+    const startReached = !!useSelector(state => {
+      const activeID = threadInfo.id;
       if (!activeID) {
         return null;
       }
 
-      if (threadIsPending(threadInfo?.id)) {
+      if (threadIsPending(activeID)) {
         return true;
       }
 
@@ -445,20 +370,8 @@ const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
     const callFetchMostRecentMessages = useServerCall(fetchMostRecentMessages);
 
     const inputState = React.useContext(InputStateContext);
-    const [dndProps, connectDropTarget] = useDrop({
-      accept: NativeTypes.FILE,
-      drop: item => {
-        const { files } = item;
-        if (inputState && files.length > 0) {
-          inputState.appendFiles(files);
-        }
-      },
-      collect: monitor => ({
-        isActive: monitor.isOver() && monitor.canDrop(),
-      }),
-    });
 
-    const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo?.id);
+    const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo.id);
     const messageListContext = React.useMemo(() => {
       if (!getTextMessageMarkdownRules) {
         return undefined;
@@ -466,12 +379,10 @@ const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
       return { getTextMessageMarkdownRules };
     }, [getTextMessageMarkdownRules]);
 
-    useWatchThread(threadInfo);
-
     return (
       <MessageListContext.Provider value={messageListContext}>
         <ChatMessageList
-          activeChatThreadID={activeChatThreadID}
+          activeChatThreadID={threadInfo.id}
           threadInfo={threadInfo}
           messageListData={messageListData}
           startReached={startReached}
@@ -481,8 +392,6 @@ const ConnectedChatMessageList: React.ComponentType<{}> = React.memo<{}>(
           dispatchActionPromise={dispatchActionPromise}
           fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
           fetchMostRecentMessages={callFetchMostRecentMessages}
-          {...dndProps}
-          connectDropTarget={connectDropTarget}
         />
       </MessageListContext.Provider>
     );
