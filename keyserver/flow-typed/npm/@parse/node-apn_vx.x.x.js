@@ -17,6 +17,7 @@ declare module '@parse/node-apn' {
   declare type NotificationPushType = 'background' | 'alert' | 'voip';
   declare export class Notification {
     constructor(): this;
+    length(): number;
     body: string;
     topic: string;
     id: string;
