@@ -4,6 +4,8 @@ mod add_attachments;
 mod backup_utils;
 #[path = "./backup/create_new_backup.rs"]
 mod create_new_backup;
+#[path = "./backup/pull_backup.rs"]
+mod pull_backup;
 #[path = "./backup/send_log.rs"]
 mod send_log;
 #[path = "./lib/tools.rs"]
@@ -214,6 +216,24 @@ async fn backup_performance_test() -> Result<(), Error> {
     });
 
     // PULL BACKUP
+    rt.block_on(async {
+      println!("performing PULL BACKUP operations");
+      let mut handlers = vec![];
+      for item in backup_data {
+        let item_cloned = item.clone();
+        let mut client_cloned = client.clone();
+        handlers.push(tokio::spawn(async move {
+          let result = pull_backup::run(&mut client_cloned, &item_cloned)
+            .await
+            .unwrap();
+          backup_utils::compare_backups(&item_cloned, &result);
+        }));
+      }
+
+      for handler in handlers {
+        handler.await.unwrap();
+      }
+    });
   })
   .await
   .expect("Task panicked");
