@@ -107,7 +107,7 @@ async fn backup_performance_test() -> Result<(), Error> {
     rt.block_on(async {
       println!("performing ADD ATTACHMENTS - BACKUPS operations");
       let mut handlers = vec![];
-      for item in backup_data {
+      for item in &backup_data {
         let item_cloned = item.clone();
         let mut client_cloned = client.clone();
         handlers.push(tokio::spawn(async move {
@@ -181,7 +181,38 @@ async fn backup_performance_test() -> Result<(), Error> {
       }
     }
 
-    // ADD ATTACHMENTS
+    // ADD ATTACHMENTS - LOGS
+    rt.block_on(async {
+      println!("performing ADD ATTACHMENTS - LOGS operations");
+      let mut handlers = vec![];
+      for backup_item in &backup_data {
+        let backup_item_cloned = backup_item.clone();
+        for log_index in 0..backup_item_cloned.log_items.len() {
+          let backup_item_recloned = backup_item_cloned.clone();
+          let mut client_cloned = client.clone();
+          handlers.push(tokio::spawn(async move {
+            if !backup_item_recloned
+              .backup_item
+              .attachments_holders
+              .is_empty()
+            {
+              add_attachments::run(
+                &mut client_cloned,
+                &backup_item_recloned,
+                Some(log_index),
+              )
+              .await
+              .unwrap();
+            }
+          }));
+        }
+      }
+
+      for handler in handlers {
+        handler.await.unwrap();
+      }
+    });
+
     // PULL BACKUP
   })
   .await
