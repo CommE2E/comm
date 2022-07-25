@@ -1,3 +1,5 @@
+#[path = "./backup/add_attachments.rs"]
+mod add_attachments;
 #[path = "./backup/backup_utils.rs"]
 mod backup_utils;
 #[path = "./backup/create_new_backup.rs"]
@@ -93,6 +95,27 @@ async fn backup_performance_test() -> Result<(), Error> {
         i
       );
     }
+
+    // ADD ATTACHMENTS - BACKUPS
+    rt.block_on(async {
+      println!("performing ADD ATTACHMENTS - BACKUPS operations");
+      let mut handlers = vec![];
+      for item in backup_data {
+        let item_cloned = item.clone();
+        let mut client_cloned = client.clone();
+        handlers.push(tokio::spawn(async move {
+          if !item_cloned.backup_item.attachments_holders.is_empty() {
+            add_attachments::run(&mut client_cloned, &item_cloned, None)
+              .await
+              .unwrap();
+          }
+        }));
+      }
+
+      for handler in handlers {
+        handler.await.unwrap();
+      }
+    });
 
     // SEND LOG
     // ADD ATTACHMENTS
