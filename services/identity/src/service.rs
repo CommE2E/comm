@@ -85,6 +85,8 @@ impl IdentityService for MyIdentityService {
       let mut device_id: String = String::new();
       let mut server_registration: Option<ServerRegistration<Cipher>> = None;
       let mut server_login: Option<ServerLogin<Cipher>> = None;
+      let mut username: String = String::new();
+      let mut user_public_key: String = String::new();
       let mut num_messages_received = 0;
       while let Some(message) = in_stream.next().await {
         match message {
@@ -112,6 +114,9 @@ impl IdentityService for MyIdentityService {
             }
             user_id = pake_registration_request_and_user_id.user_id;
             device_id = pake_registration_request_and_user_id.device_id;
+            username = pake_registration_request_and_user_id.username;
+            user_public_key =
+              pake_registration_request_and_user_id.user_public_key;
           }
           Ok(RegistrationRequest {
             data:
@@ -126,6 +131,8 @@ impl IdentityService for MyIdentityService {
                 &pake_registration_upload_and_credential_request
                   .pake_registration_upload,
                 server_registration,
+                &username,
+                &user_public_key,
                 num_messages_received,
               )
               .await
@@ -629,6 +636,8 @@ async fn pake_registration_finish(
   client: DatabaseClient,
   registration_upload_bytes: &[u8],
   server_registration: Option<ServerRegistration<Cipher>>,
+  username: &str,
+  user_public_key: &str,
   num_messages_received: u8,
 ) -> Result<(), Status> {
   if num_messages_received != 1 {
@@ -661,8 +670,8 @@ async fn pake_registration_finish(
     .update_users_table(
       user_id.to_string(),
       Some(server_registration_finish_result),
-      None,
-      None,
+      Some(username.to_string()),
+      Some(user_public_key.to_string()),
     )
     .await
   {
