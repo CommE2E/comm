@@ -15,13 +15,18 @@ import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
-import { threadHasPermission, threadIsPending } from 'lib/shared/thread-utils';
+import {
+  threadHasPermission,
+  threadIsPending,
+  parseLocallyUniqueThreadID,
+  createPendingThread,
+} from 'lib/shared/thread-utils';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import { defaultEnabledReports } from 'lib/types/report-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
-import { threadPermissions } from 'lib/types/thread-types';
+import { threadPermissions, threadTypes } from 'lib/types/thread-types';
 import type { CurrentUserInfo } from 'lib/types/user-types';
 import { currentDateInTimeZone } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
@@ -188,9 +193,16 @@ async function websiteResponder(
   })();
 
   const navInfoPromise = (async () => {
-    const [{ threadInfos }, messageStore] = await Promise.all([
+    const [
+      { threadInfos },
+      messageStore,
+      currentUserInfo,
+      userStore,
+    ] = await Promise.all([
       threadInfoPromise,
       messageStorePromise,
+      currentUserInfoPromise,
+      userStorePromise,
     ]);
     const finalNavInfo = initialNavInfo;
 
@@ -213,6 +225,33 @@ async function websiteResponder(
       );
       if (mostRecentThread) {
         finalNavInfo.activeChatThreadID = mostRecentThread;
+      }
+    }
+
+    if (
+      finalNavInfo.activeChatThreadID &&
+      threadIsPending(finalNavInfo.activeChatThreadID) &&
+      finalNavInfo.pendingThread?.id !== finalNavInfo.activeChatThreadID
+    ) {
+      const pendingThreadData = parseLocallyUniqueThreadID(
+        finalNavInfo.activeChatThreadID,
+      );
+      if (
+        pendingThreadData &&
+        pendingThreadData.threadType !== threadTypes.SIDEBAR &&
+        currentUserInfo.id
+      ) {
+        const { userInfos } = userStore;
+        const members = pendingThreadData.memberIDs
+          .map(id => userInfos[id])
+          .filter(Boolean);
+        const newPendingThread = createPendingThread({
+          viewerID: currentUserInfo.id,
+          threadType: pendingThreadData.threadType,
+          members,
+        });
+        finalNavInfo.activeChatThreadID = newPendingThread.id;
+        finalNavInfo.pendingThread = newPendingThread;
       }
     }
 
