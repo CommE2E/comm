@@ -15,7 +15,7 @@ import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
-import { threadHasPermission } from 'lib/shared/thread-utils';
+import { threadHasPermission, threadIsPending } from 'lib/shared/thread-utils';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
@@ -197,6 +197,7 @@ async function websiteResponder(
     const requestedActiveChatThreadID = finalNavInfo.activeChatThreadID;
     if (
       requestedActiveChatThreadID &&
+      !threadIsPending(requestedActiveChatThreadID) &&
       !threadHasPermission(
         threadInfos[requestedActiveChatThreadID],
         threadPermissions.VISIBLE,
