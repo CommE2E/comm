@@ -17,6 +17,9 @@ module.exports = {
   'lib/**/*.js': function libFlow(files) {
     return 'yarn workspace lib flow --quiet';
   },
+  'lib/**/*.js': function libTest(files) {
+    return 'yarn workspace lib test';
+  },
   '{web,lib}/**/*.js': function webFlow(files) {
     return 'yarn workspace web flow --quiet';
   },
@@ -25,6 +28,9 @@ module.exports = {
   },
   '{keyserver,web,lib}/**/*.js': function keyServerFlow(files) {
     return 'yarn workspace keyserver flow --quiet';
+  },
+  '{keyserver,web,lib}/**/*.js': function keyServerTest(files) {
+    return 'yarn workspace keyserver test';
   },
   '{landing,lib}/**/*.js': function landingFlow(files) {
     return 'yarn workspace landing flow --quiet';
