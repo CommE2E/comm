@@ -6,11 +6,11 @@ pub const SECRETS_FILE_EXTENSION: &str = "txt";
 
 // DynamoDB
 
-pub const PAKE_USERS_TABLE: &str = "identity-users";
-pub const PAKE_USERS_TABLE_PARTITION_KEY: &str = "userID";
-pub const PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE: &str =
-  "pakeRegistrationData";
-pub const PAKE_USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
+pub const USERS_TABLE: &str = "identity-users";
+pub const USERS_TABLE_PARTITION_KEY: &str = "userID";
+pub const USERS_TABLE_REGISTRATION_ATTRIBUTE: &str = "pakeRegistrationData";
+pub const USERS_TABLE_USERNAME_ATTRIBUTE: &str = "username";
+pub const USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE: &str = "userPublicKey";
 
 pub const ACCESS_TOKEN_TABLE: &str = "identity-tokens";
 pub const ACCESS_TOKEN_TABLE_PARTITION_KEY: &str = "userID";

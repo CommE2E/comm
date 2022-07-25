@@ -17,9 +17,9 @@ use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
   ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE, ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
-  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, PAKE_USERS_TABLE,
-  PAKE_USERS_TABLE_PARTITION_KEY, PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
-  PAKE_USERS_TABLE_USERNAME_ATTRIBUTE,
+  ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, USERS_TABLE, USERS_TABLE_PARTITION_KEY,
+  USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_USERNAME_ATTRIBUTE,
+  USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
 };
 use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
@@ -41,13 +41,13 @@ impl DatabaseClient {
     user_id: String,
   ) -> Result<Option<ServerRegistration<Cipher>>, Error> {
     let primary_key = create_simple_primary_key((
-      PAKE_USERS_TABLE_PARTITION_KEY.to_string(),
+      USERS_TABLE_PARTITION_KEY.to_string(),
       user_id.clone(),
     ));
     let get_item_result = self
       .client
       .get_item()
-      .table_name(PAKE_USERS_TABLE)
+      .table_name(USERS_TABLE)
       .set_key(Some(primary_key))
       .consistent_read(true)
       .send()
@@ -57,7 +57,7 @@ impl DatabaseClient {
         item: Some(mut item),
         ..
       }) => parse_registration_data_attribute(
-        item.remove(PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE),
+        item.remove(USERS_TABLE_REGISTRATION_ATTRIBUTE),
       )
       .map(Some)
       .map_err(Error::Attribute),
@@ -78,35 +78,46 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn put_pake_registration(
+  pub async fn update_users_table(
     &self,
     user_id: String,
-    registration: ServerRegistration<Cipher>,
+    registration: Option<ServerRegistration<Cipher>>,
+    username: Option<String>,
+    user_public_key: Option<String>,
   ) -> Result<UpdateItemOutput, Error> {
-    self
-      .update_users_table(
-        user_id,
-        format!("SET {} :r", PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE),
-        HashMap::from([(
-          ":r".into(),
-          AttributeValue::B(Blob::new(registration.serialize())),
-        )]),
-      )
-      .await
-  }
+    let mut update_expression = String::new();
+    let mut expression_attribute_values = HashMap::new();
+    if let Some(reg) = registration {
+      update_expression
+        .push_str(&format!("SET {} :r ", USERS_TABLE_REGISTRATION_ATTRIBUTE));
+      expression_attribute_values
+        .insert(":r".into(), AttributeValue::B(Blob::new(reg.serialize())));
+    };
+    if let Some(username) = username {
+      update_expression
+        .push_str(&format!("SET {} = :u ", USERS_TABLE_USERNAME_ATTRIBUTE));
+      expression_attribute_values
+        .insert(":u".into(), AttributeValue::S(username));
+    };
+    if let Some(public_key) = user_public_key {
+      update_expression.push_str(&format!(
+        "SET {} = :k ",
+        USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE
+      ));
+      expression_attribute_values
+        .insert(":k".into(), AttributeValue::S(public_key));
+    };
 
-  pub async fn put_username(
-    &self,
-    user_id: String,
-    username: String,
-  ) -> Result<UpdateItemOutput, Error> {
     self
-      .update_users_table(
-        user_id,
-        format!("SET {} :u", PAKE_USERS_TABLE_USERNAME_ATTRIBUTE),
-        HashMap::from([(":u".into(), AttributeValue::S(username))]),
-      )
+      .client
+      .update_item()
+      .table_name(USERS_TABLE)
+      .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
+      .update_expression(update_expression)
+      .set_expression_attribute_values(Some(expression_attribute_values))
+      .send()
       .await
+      .map_err(|e| Error::AwsSdk(e.into()))
   }
 
   pub async fn get_access_token_data(
@@ -210,24 +221,6 @@ impl DatabaseClient {
       .put_item()
       .table_name(ACCESS_TOKEN_TABLE)
       .set_item(Some(item))
-      .send()
-      .await
-      .map_err(|e| Error::AwsSdk(e.into()))
-  }
-
-  async fn update_users_table(
-    &self,
-    user_id: String,
-    update_expression: impl Into<String>,
-    expression_attribute_values: HashMap<String, AttributeValue>,
-  ) -> Result<UpdateItemOutput, Error> {
-    self
-      .client
-      .update_item()
-      .table_name(PAKE_USERS_TABLE)
-      .key(PAKE_USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
-      .update_expression(update_expression)
-      .set_expression_attribute_values(Some(expression_attribute_values))
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
@@ -388,19 +381,19 @@ fn parse_registration_data_attribute(
       ) {
         Ok(server_registration) => Ok(server_registration),
         Err(e) => Err(DBItemError::new(
-          PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
+          USERS_TABLE_REGISTRATION_ATTRIBUTE,
           attribute,
           DBItemAttributeError::Pake(e),
         )),
       }
     }
     Some(_) => Err(DBItemError::new(
-      PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
+      USERS_TABLE_REGISTRATION_ATTRIBUTE,
       attribute,
       DBItemAttributeError::IncorrectType,
     )),
     None => Err(DBItemError::new(
-      PAKE_USERS_TABLE_REGISTRATION_ATTRIBUTE,
+      USERS_TABLE_REGISTRATION_ATTRIBUTE,
       attribute,
       DBItemAttributeError::Missing,
     )),

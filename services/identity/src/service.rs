@@ -658,9 +658,11 @@ async fn pake_registration_finish(
     })?;
 
   match client
-    .put_pake_registration(
+    .update_users_table(
       user_id.to_string(),
-      server_registration_finish_result,
+      Some(server_registration_finish_result),
+      None,
+      None,
     )
     .await
   {
