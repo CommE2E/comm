@@ -1,3 +1,14 @@
+div.sidebarList {
+  overflow: auto;
+  color: var(--sidebars-modal-color);
+}
+
+div.noSidebars {
+  padding: 16px;
+  text-align: center;
+  color: var(--sidebars-modal-color);
+}
+
 button.sidebarContainer {
   cursor: pointer;
   display: flex;
