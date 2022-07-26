@@ -1,5 +1,6 @@
 #include "ConfigManager.h"
 #include "Constants.h"
+#include "GlobalTools.h"
 
 #include <fstream>
 
@@ -28,7 +29,15 @@ ConfigManager &ConfigManager::getInstance() {
   return instance;
 }
 
-void ConfigManager::load(const std::string configFilePath) {
+void ConfigManager::load() {
+  if (comm::network::tools::isSandbox()) {
+    loadConfigFile(comm::network::DEV_CONFIG_FILE_PATH);
+  } else {
+    loadConfigFile(comm::network::CONFIG_FILE_PATH);
+  }
+}
+
+void ConfigManager::loadConfigFile(const std::string configFilePath) {
   try {
     std::ifstream fileStream;
     fileStream.open(configFilePath.c_str(), std::ifstream::in);

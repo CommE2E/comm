@@ -41,13 +41,7 @@ void RunAmqpClient() {
 
 int main(int argc, char **argv) {
   comm::network::tools::InitLogging("tunnelbroker");
-  if (comm::network::tools::isSandbox()) {
-    comm::network::config::ConfigManager::getInstance().load(
-        comm::network::DEV_CONFIG_FILE_PATH);
-  } else {
-    comm::network::config::ConfigManager::getInstance().load(
-        comm::network::CONFIG_FILE_PATH);
-  }
+  comm::network::config::ConfigManager::getInstance().load();
   std::thread amqpThread(comm::network::RunAmqpClient);
   std::thread grpcThread(comm::network::RunServer);
   amqpThread.join();

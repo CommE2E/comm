@@ -11,6 +11,7 @@ namespace config {
 class ConfigManager {
 private:
   boost::program_options::variables_map variablesMap;
+  void loadConfigFile(const std::string configFilePath);
 
 public:
   static const std::string OPTION_TUNNELBROKER_ID;
@@ -23,7 +24,7 @@ public:
   static const std::string OPTION_DYNAMODB_MESSAGES_TABLE;
 
   static ConfigManager &getInstance();
-  void load(const std::string configFilePath);
+  void load();
   std::string getParameter(std::string param);
 };
 
