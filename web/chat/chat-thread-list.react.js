@@ -6,7 +6,10 @@ import * as React from 'react';
 import { emptyItemText } from 'lib/shared/thread-utils';
 
 import { assetCacheURLPrefix, backgroundIllustrationAsset } from '../assets';
+import Button from '../components/button.react';
 import Search from '../components/search.react';
+import { useSelector } from '../redux/redux-utils';
+import { useOnClickNewThread } from '../selectors/nav-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import css from './chat-thread-list.css';
 import { ThreadListContext } from './thread-list-provider';
@@ -23,6 +26,13 @@ function ChatThreadList(): React.Node {
     setSearchText,
     searchText,
   } = threadListContext;
+
+  const onClickNewThread = useOnClickNewThread();
+
+  const isThreadCreation = useSelector(
+    state => state.navInfo.chatMode === 'create',
+  );
+
   const isBackground = activeTab === 'Background';
 
   const threadComponents: React.Node[] = React.useMemo(() => {
@@ -36,14 +46,21 @@ function ChatThreadList(): React.Node {
   }, [threadList, isBackground]);
 
   return (
-    <div className={css.threadListContainer}>
-      <Search
-        onChangeText={setSearchText}
-        searchText={searchText}
-        placeholder="Search chats"
-      />
-      <div>{threadComponents}</div>
-    </div>
+    <>
+      <div className={css.threadListContainer}>
+        <Search
+          onChangeText={setSearchText}
+          searchText={searchText}
+          placeholder="Search chats"
+        />
+        <div>{threadComponents}</div>
+      </div>
+      <div className={css.createNewThread}>
+        <Button disabled={isThreadCreation} onClick={onClickNewThread}>
+          Create new chat
+        </Button>
+      </div>
+    </>
   );
 }
 

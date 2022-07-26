@@ -6,7 +6,6 @@ div.container {
   background-color: var(--bg);
   border-right: 1px solid var(--border-color);
   display: flex;
-  flex-direction: column;
 }
 
 div.tabItem {
@@ -21,4 +20,7 @@ div.tabItem svg {
 div.threadList {
   flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }

@@ -301,6 +301,14 @@ div.emptyItemText {
 div.threadListContainer {
   display: flex;
   flex-direction: column;
+  overflow: auto;
+}
+
+div.createNewThread {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 8px;
 }
 img.longArrow {
   height: 40px;
