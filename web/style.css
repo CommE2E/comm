@@ -164,49 +164,11 @@ span.loading-indicator-error-black {
   line-height: 0;
 }
 
-div.form-enum-selector {
-  display: inline-block;
-  padding-bottom: 4px;
-}
-div.form-enum-selector > div.form-enum-container {
-  padding-top: 5px;
-}
-div.form-enum-selector > div.form-enum-container > input {
-  vertical-align: top;
-  margin-top: 4px;
-}
-div.form-enum-selector div.form-enum-option {
-  display: inline-block;
-  font-size: 15px;
-  font-weight: 600;
-  padding-left: 3px;
-}
-div.form-enum-selector span.form-enum-description {
-  display: block;
-  font-family: var(--font-stack);
-  font-weight: normal;
-  font-size: 13px;
-  max-width: 260px;
-  color: gray;
-}
-div.color-title {
-  margin-top: 4px;
-}
-
 .hidden {
   display: none;
 }
 .italic {
   font-style: italic;
-}
-
-div.form-textarea-container {
-  margin-top: 1px;
-}
-
-div.new-thread-privacy-container {
-  margin-bottom: 3px;
-  margin-top: -6px;
 }
 
 span.page-loading {
