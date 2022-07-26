@@ -1,26 +1,26 @@
 #include "BlobServiceImpl.h"
 
+#include "GlobalConstants.h"
 #include "GlobalTools.h"
 
 #include <glog/logging.h>
 #include <grpcpp/grpcpp.h>
 
 #include <memory>
-#include <string>
 
 namespace comm {
 namespace network {
 
 void RunServer() {
-  std::string server_address = "0.0.0.0:50051";
   BlobServiceImpl blobService;
 
   grpc::EnableDefaultHealthCheckService(true);
   grpc::ServerBuilder builder;
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.AddListeningPort(
+      SERVER_LISTEN_ADDRESS, grpc::InsecureServerCredentials());
   builder.RegisterService(&blobService);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  LOG(INFO) << "Server listening";
+  LOG(INFO) << "server listening at :" << SERVER_LISTEN_ADDRESS;
 
   server->Wait();
 }

@@ -24,5 +24,8 @@ const std::string AWS_REGION = "us-east-2";
 
 const char ATTACHMENT_DELIMITER = ';';
 
+// gRPC Server
+const std::string SERVER_LISTEN_ADDRESS = "0.0.0.0:50051";
+
 } // namespace network
 } // namespace comm

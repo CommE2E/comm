@@ -26,9 +26,6 @@ const size_t SESSION_SIGN_RECORD_TTL = 24 * 3600; // 24 hours
 const std::regex SESSION_ID_FORMAT_REGEX(
     "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
 
-// gRPC Server
-const std::string SERVER_LISTEN_ADDRESS = "0.0.0.0:50051";
-
 // AMQP (RabbitMQ)
 const std::string AMQP_FANOUT_EXCHANGE_NAME = "allBrokers";
 // Message broker queue message TTL
