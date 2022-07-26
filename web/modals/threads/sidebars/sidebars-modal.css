@@ -1,3 +1,11 @@
+div.sidebarListContainer {
+  display: flex;
+  flex-direction: column;
+  line-height: var(--line-height-text);
+  width: 383px;
+  height: 458px;
+}
+
 div.sidebarList {
   overflow: auto;
   color: var(--sidebars-modal-color);
