@@ -48,6 +48,7 @@ export interface Spec extends TurboModule {
   +getCodeVersion: () => number;
   +setNotifyToken: (token: string) => Promise<void>;
   +clearNotifyToken: () => Promise<void>;
+  +generateDeviceID: (jsType: string) => string;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(
