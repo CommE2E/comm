@@ -43,6 +43,8 @@ prev:
 
   protobuf_3_15_cmake = prev.callPackage ./protobuf_3_15.nix { };
 
+  comm-grpc = final.callPackage ./comm-grpc.nix { };
+
   devShell = final.callPackage ./dev-shell.nix { };
 
   mysql-down = prev.callPackage ./mysql-down-linux.nix { };
