@@ -23,7 +23,7 @@ type Props = {
 };
 
 function ChatThreadComposer(props: Props): React.Node {
-  const { userInfoInputArray, otherUserInfos, threadID } = props;
+  const { userInfoInputArray, otherUserInfos, threadID, inputState } = props;
 
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
@@ -128,6 +128,14 @@ function ChatThreadComposer(props: Props): React.Node {
     });
     return <div className={css.userSelectedTags}>{labels}</div>;
   }, [userInfoInputArray, onRemoveUserFromSelected]);
+
+  React.useEffect(() => {
+    if (!inputState) {
+      return;
+    }
+    inputState.registerSendCallback(hideSearch);
+    return () => inputState.unregisterSendCallback(hideSearch);
+  }, [hideSearch, inputState]);
 
   const threadSearchContainerStyles = React.useMemo(
     () =>
