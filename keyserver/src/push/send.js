@@ -47,6 +47,7 @@ import {
   fcmPush,
   getUnreadCounts,
   apnMaxNotificationPayloadByteSize,
+  fcmMaxNotificationPayloadByteSize,
 } from './utils';
 
 type Device = {
@@ -530,24 +531,22 @@ function prepareAndroidNotification(
     allMessageInfos,
     threadInfo,
   );
-  const messageInfos = JSON.stringify(newRawMessageInfos);
-
+  const notification = {};
   if (badgeOnly && codeVersion < 69) {
     // Older Android clients don't look at badgeOnly, so if we sent them the
     // full payload they would treat it as a normal notif. Instead we will
     // send them this payload that is missing an ID, which will prevent the
     // system notif from being generated, but still allow for in-app notifs
     // and badge updating.
-    return {
+    Object.assign(notification, {
       data: {
         badge: unreadCount.toString(),
         ...rest,
         threadID: threadInfo.id,
-        messageInfos,
       },
-    };
+    });
   } else if (codeVersion < 31) {
-    return {
+    Object.assign(notification, {
       data: {
         badge: unreadCount.toString(),
         custom_notification: JSON.stringify({
@@ -559,23 +558,46 @@ function prepareAndroidNotification(
           sound: 'default',
           icon: 'notif_icon',
           threadID: threadInfo.id,
-          messageInfos,
           click_action: 'fcm.ACTION.HELLO',
         }),
       },
+    });
+  } else {
+    Object.assign(notification, {
+      data: {
+        badge: unreadCount.toString(),
+        ...rest,
+        id: notifID,
+        threadID: threadInfo.id,
+        badgeOnly: badgeOnly ? '1' : '0',
+      },
+    });
+  }
+  const messageInfos = JSON.stringify(newRawMessageInfos);
+  const notificationWithMessageInfos = _cloneDeep(notification);
+
+  if (notificationWithMessageInfos.data.custom_notification) {
+    notificationWithMessageInfos.data = {
+      ...notificationWithMessageInfos.data,
+      custom_notification: JSON.stringify({
+        ...JSON.parse(notificationWithMessageInfos.data.custom_notification),
+        messageInfos,
+      }),
+    };
+  } else {
+    notificationWithMessageInfos.data = {
+      ...notificationWithMessageInfos.data,
+      messageInfos,
     };
   }
 
-  return {
-    data: {
-      badge: unreadCount.toString(),
-      ...rest,
-      id: notifID,
-      threadID: threadInfo.id,
-      messageInfos,
-      badgeOnly: badgeOnly ? '1' : '0',
-    },
-  };
+  if (
+    Buffer.byteLength(JSON.stringify(notificationWithMessageInfos)) <=
+    fcmMaxNotificationPayloadByteSize
+  ) {
+    return notificationWithMessageInfos;
+  }
+  return notification;
 }
 
 type NotificationInfo =
