@@ -97,6 +97,7 @@ function mysqldump(
       '--single-transaction',
       '--no-tablespaces',
       '--default-character-set=utf8mb4',
+      '--net-buffer-length=523264',
       ...extraParams,
       dbConfig.database,
     ],
