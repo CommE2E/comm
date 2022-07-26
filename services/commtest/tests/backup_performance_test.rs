@@ -1,16 +1,26 @@
 #[path = "./backup/backup_utils.rs"]
 mod backup_utils;
+#[path = "./backup/create_new_backup.rs"]
+mod create_new_backup;
 #[path = "./lib/tools.rs"]
 mod tools;
 
 use bytesize::ByteSize;
+use std::env;
+use std::sync::mpsc::channel;
 
+use tokio::runtime::Runtime;
 use tools::{obtain_number_of_threads, Error};
 
-use backup_utils::{BackupData, Item};
+use backup_utils::{BackupData, BackupServiceClient, Item};
 
 #[tokio::test]
 async fn backup_performance_test() -> Result<(), Error> {
+  let port = env::var("COMM_SERVICES_PORT_BACKUP")
+    .expect("port env var expected but not received");
+  let client =
+    BackupServiceClient::connect(format!("http://localhost:{}", port)).await?;
+
   let number_of_threads = obtain_number_of_threads();
 
   println!(
@@ -41,8 +51,49 @@ async fn backup_performance_test() -> Result<(), Error> {
     });
   }
 
+  let rt = Runtime::new().unwrap();
   tokio::task::spawn_blocking(move || {
     // CREATE NEW BACKUP
+    rt.block_on(async {
+      println!("performing CREATE NEW BACKUP operations");
+      let mut handlers = vec![];
+      let (sender, receiver) = channel::<(usize, String)>();
+      for (i, item) in backup_data.iter().enumerate() {
+        let item_cloned = item.clone();
+        let mut client_cloned = client.clone();
+        let sender_cloned = sender.clone();
+        handlers.push(tokio::spawn(async move {
+          let id = create_new_backup::run(&mut client_cloned, &item_cloned)
+            .await
+            .unwrap();
+          assert!(
+            !id.is_empty(),
+            "backup id should not be empty after creating a new backup"
+          );
+          sender_cloned.send((i, id)).unwrap();
+        }));
+      }
+      drop(sender);
+
+      for handler in handlers {
+        handler.await.unwrap();
+      }
+      for data in receiver {
+        println!("received: {:?}", data);
+        let (index, id) = data;
+        backup_data[index].backup_item.id = id;
+      }
+    });
+
+    // check if backup IDs are properly set
+    for (i, item) in backup_data.iter().enumerate() {
+      assert!(
+        !item.backup_item.id.is_empty(),
+        "missing backup id for index {}",
+        i
+      );
+    }
+
     // SEND LOG
     // ADD ATTACHMENTS
     // PULL BACKUP
