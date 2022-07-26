@@ -40,15 +40,17 @@ RUN \
 # Install prereqs first so we don't have to reinstall them if anything changes
 #-------------------------------------------------------------------------------
 
-# We add Debian's unstable repo since it's the only way to get mysqldump
-RUN echo "deb http://deb.debian.org/debian unstable main non-free contrib" \
-  >> /etc/apt/sources.list
+# We need to add the MariaDB repo to apt in order to install mariadb-client
+RUN wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup \
+  && chmod +x mariadb_repo_setup \
+  && ./mariadb_repo_setup \
+  && rm mariadb_repo_setup
 
 # We need rsync in the prod-build yarn script
-# We need mysql-client so we can use mysqldump for backups
+# We need mariadb-client so we can use mysqldump for backups
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rsync \
-  mysql-client \
+  mariadb-client \
   && rm -rf /var/lib/apt/lists/*
 
 #-------------------------------------------------------------------------------
@@ -66,11 +68,6 @@ WORKDIR /home/comm/app
 
 # Prepare the directory that will hold the backups
 RUN mkdir /home/comm/backups
-
-# We install mysql-client 8.0 above but use it with MySQL 5.7. Unfortunately,
-# we haven't been able to figure out a way to install mysql-client 5.7 on
-# Debian bullseye. Instead, we configure mysqldump 8.0 to work with MySQL 5.7
-RUN echo "[mysqldump]\ncolumn-statistics=0" > /home/comm/.my.cnf
 
 #-------------------------------------------------------------------------------
 # STEP 4: SET UP NVM
