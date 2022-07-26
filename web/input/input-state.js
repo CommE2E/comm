@@ -57,6 +57,8 @@ export type InputState = {
   addReply: (text: string) => void,
   addReplyListener: ((message: string) => void) => void,
   removeReplyListener: ((message: string) => void) => void,
+  registerSendCallback: (() => mixed) => void,
+  unregisterSendCallback: (() => mixed) => void,
 };
 
 const InputStateContext: React.Context<?InputState> = React.createContext<?InputState>(
