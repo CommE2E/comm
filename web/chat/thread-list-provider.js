@@ -218,15 +218,30 @@ function ThreadListProvider(props: ThreadListProviderProps): React.Node {
     makeSureActivePendingThreadIsIncluded,
     makeSureActiveSidebarIsIncluded,
   ]);
+
+  const isChatCreationMode = useSelector(
+    state => state.navInfo.chatMode === 'create',
+  );
+
+  const orderedThreadList = React.useMemo(() => {
+    if (!isChatCreationMode) {
+      return threadList;
+    }
+    return [
+      ...threadList.filter(thread => thread.threadInfo.id === activeThreadID),
+      ...threadList.filter(thread => thread.threadInfo.id !== activeThreadID),
+    ];
+  }, [activeThreadID, isChatCreationMode, threadList]);
+
   const threadListContext = React.useMemo(
     () => ({
       activeTab,
-      threadList,
+      threadList: orderedThreadList,
       setActiveTab,
       searchText,
       setSearchText,
     }),
-    [activeTab, threadList, searchText],
+    [activeTab, orderedThreadList, searchText],
   );
   return (
     <ThreadListContext.Provider value={threadListContext}>
