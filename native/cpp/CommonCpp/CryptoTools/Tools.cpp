@@ -29,5 +29,11 @@ std::string Tools::generateRandomHexString(size_t size) {
   return Tools::generateRandomString(size, hexSigns);
 }
 
+std::string Tools::generateRandomAlphanumericString(size_t size) {
+  static std::string alphanumericSigns =
+      "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  return Tools::generateRandomString(size, alphanumericSigns);
+}
+
 } // namespace crypto
 } // namespace comm

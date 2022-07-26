@@ -58,6 +58,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   jsi::Value
   setNotifyToken(jsi::Runtime &rt, const jsi::String &token) override;
   jsi::Value clearNotifyToken(jsi::Runtime &rt) override;
+  jsi::String
+  generateDeviceID(jsi::Runtime &rt, const jsi::String &type) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
