@@ -164,13 +164,19 @@ jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
   std::promise<std::vector<std::pair<Message, std::vector<Media>>>>
       messagesResult;
   auto messagesResultFuture = messagesResult.get_future();
-
-  this->databaseThread->scheduleTask([&messagesResult]() {
-    messagesResult.set_value(
-        DatabaseManager::getQueryExecutor().getAllMessages());
-  });
-
-  auto messagesVector = messagesResultFuture.get();
+  std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
+  try {
+    this->databaseThread->scheduleTask([&messagesResult]() {
+      messagesResult.set_value(
+          DatabaseManager::getQueryExecutor().getAllMessages());
+    });
+    messagesVector = messagesResultFuture.get();
+  } catch (std::exception &e) {
+    std::string error_msg =
+        "Exception occurred when getting all messages. Details: " +
+        std::string(e.what());
+    throw jsi::JSError(rt, error_msg);
+  }
   size_t numMessages{messagesVector.size()};
   jsi::Array jsiMessages = jsi::Array(rt, numMessages);
 
