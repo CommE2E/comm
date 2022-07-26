@@ -14,6 +14,7 @@ import {
   useWatchThread,
   useExistingThreadInfoFinder,
   createPendingThread,
+  threadIsPending,
 } from 'lib/shared/thread-utils';
 import { threadTypes } from 'lib/types/thread-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
@@ -112,6 +113,24 @@ function ChatMessageListContainer(): React.Node {
     selectedUserIDs,
     userInfoInputArray,
   ]);
+
+  React.useEffect(() => {
+    if (isChatCreation && activeChatThreadID !== threadInfo?.id) {
+      let payload = {
+        activeChatThreadID: threadInfo?.id,
+      };
+      if (threadIsPending(threadInfo?.id)) {
+        payload = {
+          ...payload,
+          pendingThread: threadInfo,
+        };
+      }
+      dispatch({
+        type: updateNavInfoActionType,
+        payload,
+      });
+    }
+  }, [activeChatThreadID, dispatch, isChatCreation, threadInfo]);
 
   const inputState = React.useContext(InputStateContext);
   invariant(inputState, 'InputState should be set');
