@@ -240,46 +240,6 @@ ul.list {
   overflow: auto;
 }
 
-div.search {
-  display: flex;
-  background-color: #dddddd;
-  border-radius: 5px;
-  padding: 3px 5px;
-  align-items: center;
-}
-svg.searchVector {
-  fill: #aaaaaa;
-  height: 22px;
-  width: 22px;
-  padding: 0 3px;
-  margin-left: 8px;
-}
-div.search > input {
-  color: black;
-  padding: 0;
-  border: none;
-  background-color: #dddddd;
-  font-weight: 600;
-  font-size: 15px;
-  flex-grow: 1;
-  margin-left: 3px;
-}
-div.search > input:focus {
-  outline: none;
-}
-svg.clearQuery {
-  font-size: 15px;
-  padding-bottom: 1px;
-  padding-right: 2px;
-  color: #aaaaaa;
-}
-svg.clearQuery:hover {
-  font-size: 15px;
-  padding-bottom: 1px;
-  padding-right: 2px;
-  color: white;
-}
-
 div.spacer {
   height: 6px;
 }
