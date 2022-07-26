@@ -195,6 +195,23 @@ function useOnClickPendingSidebar(
   );
 }
 
+function useOnClickNewThread(): (event: SyntheticEvent<HTMLElement>) => void {
+  const dispatch = useDispatch();
+  return React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.preventDefault();
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          chatMode: 'create',
+          selectedUserList: [],
+        },
+      });
+    },
+    [dispatch],
+  );
+}
+
 function navTabSelector(state: AppState): NavigationTab {
   return state.navInfo.tab;
 }
@@ -216,6 +233,7 @@ export {
   useOnClickThread,
   useThreadIsActive,
   useOnClickPendingSidebar,
+  useOnClickNewThread,
   navTabSelector,
   navSettingsSectionSelector,
 };
