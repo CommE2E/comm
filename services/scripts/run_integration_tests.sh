@@ -3,7 +3,7 @@
 set -e
 
 export COMM_TEST_SERVICES=1
-export COMM_SERVICES_DEV_MODE=1
+export COMM_SERVICES_SANDBOX=1
 
 SERVICES=$(./scripts/list_services.sh)
 
