@@ -54,9 +54,15 @@ function canonicalURLFromReduxState(
         newURL += `month/${month}/`;
       }
     } else if (navInfo.tab === 'chat') {
-      const activeChatThreadID = navInfo.activeChatThreadID;
-      if (activeChatThreadID) {
-        newURL += `thread/${activeChatThreadID}/`;
+      if (navInfo.chatMode === 'create') {
+        const users = navInfo.selectedUserList?.join('+') ?? '';
+        const potentiallyTrailingSlash = users.length > 0 ? '/' : '';
+        newURL += `thread/new/${users}${potentiallyTrailingSlash}`;
+      } else {
+        const activeChatThreadID = navInfo.activeChatThreadID;
+        if (activeChatThreadID) {
+          newURL += `thread/${activeChatThreadID}/`;
+        }
       }
     } else if (navInfo.tab === 'settings' && navInfo.settingsSection) {
       newURL += `${navInfo.settingsSection}/`;
@@ -108,21 +114,25 @@ function navInfoFromURL(
     tab = 'settings';
   }
 
-  const newNavInfo = {
+  const chatMode = urlInfo.threadCreation ? 'create' : 'view';
+
+  const newNavInfo: NavInfo = {
     tab,
     startDate: startDateForYearAndMonth(year, month),
     endDate: endDateForYearAndMonth(year, month),
     activeChatThreadID,
+    chatMode,
   };
 
-  if (!urlInfo.settings) {
-    return newNavInfo;
+  if (urlInfo.selectedUserList) {
+    newNavInfo.selectedUserList = urlInfo.selectedUserList;
   }
 
-  return {
-    ...newNavInfo,
-    settingsSection: urlInfo.settings,
-  };
+  if (urlInfo.settings) {
+    newNavInfo.settingsSection = urlInfo.settings;
+  }
+
+  return newNavInfo;
 }
 
 export { canonicalURLFromReduxState, navInfoFromURL };
