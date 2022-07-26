@@ -14,6 +14,8 @@
 #include <ReactCommon/TurboModuleUtils.h>
 #include <future>
 
+#include "../CryptoTools/Tools.h"
+
 namespace comm {
 
 using namespace facebook::react;
@@ -954,5 +956,26 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
         });
       });
 };
+
+jsi::String
+CommCoreModule::generateDeviceID(jsi::Runtime &rt, const jsi::String &jsType) {
+  std::string id = "";
+  std::string type = jsType.utf8(rt);
+  if (type == "KEYSERVER") {
+    id = "ks:";
+  } else if (type == "WEB") {
+    id = "web:";
+  } else if (type == "MOBILE") {
+    id = "mobile:";
+  } else {
+    throw jsi::JSError(
+        rt,
+        "generateDeviceID: incorrect function argument. Must be one of: "
+        "KEYSERVER, WEB, "
+        "MOBILE.");
+  }
+  id += crypto::Tools::generateRandomAlphanumericString(64);
+  return jsi::String::createFromUtf8(rt, id);
+}
 
 } // namespace comm
