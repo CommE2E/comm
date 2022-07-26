@@ -34,12 +34,12 @@ generateBackupItem(const std::string &userID, const std::string &backupID) {
       comm::network::tools::getCurrentTimestamp(),
       "xxx",
       "xxx",
-      {""});
+      "");
 }
 
 LogItem generateLogItem(const std::string &backupID, const std::string &logID) {
   return LogItem(
-      backupID, logID, false, "xxx", {""}, "1655e920c4eda97e0be1acae74a5ab51");
+      backupID, logID, false, "xxx", "", "1655e920c4eda97e0be1acae74a5ab51");
 }
 
 TEST_F(DatabaseManagerTest, TestOperationsOnBackupItems) {
