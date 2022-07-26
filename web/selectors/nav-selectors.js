@@ -144,6 +144,7 @@ function useOnClickThread(
         dispatch({
           type: updateNavInfoActionType,
           payload: {
+            chatMode: 'view',
             activeChatThreadID: threadID,
             pendingThread: thread,
           },
@@ -152,6 +153,7 @@ function useOnClickThread(
         dispatch({
           type: updateNavInfoActionType,
           payload: {
+            chatMode: 'view',
             activeChatThreadID: threadID,
           },
         });
