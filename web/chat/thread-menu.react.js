@@ -25,13 +25,13 @@ import {
 
 import MenuItem from '../components/menu-item.react';
 import Menu from '../components/menu.react';
-import SidebarListModal from '../modals/chat/sidebar-list-modal.react';
 import SidebarPromoteModal from '../modals/chat/sidebar-promote-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
 import ThreadMembersModal from '../modals/threads/members/members-modal.react';
 import ThreadNotificationsModal from '../modals/threads/notifications/notifications-modal.react';
 import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react';
+import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react';
 import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -94,8 +94,9 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   }, [childThreads]);
 
   const onClickSidebars = React.useCallback(
-    () => pushModal(<SidebarListModal threadInfo={threadInfo} />),
-    [pushModal, threadInfo],
+    () =>
+      pushModal(<SidebarsModal threadID={threadInfo.id} onClose={popModal} />),
+    [popModal, pushModal, threadInfo.id],
   );
 
   const sidebarItem = React.useMemo(() => {
