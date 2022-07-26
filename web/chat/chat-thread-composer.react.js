@@ -1,6 +1,7 @@
 // @flow
 import classNames from 'classnames';
 import * as React from 'react';
+import { useDispatch } from 'react-redux';
 
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
@@ -11,6 +12,7 @@ import Search from '../components/search.react';
 import type { InputState } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
+import { updateNavInfoActionType } from '../types/nav-types';
 import css from './chat-thread-composer.css';
 
 type Props = {
@@ -21,10 +23,11 @@ type Props = {
 };
 
 function ChatThreadComposer(props: Props): React.Node {
-  const { userInfoInputArray, otherUserInfos } = props;
+  const { userInfoInputArray, otherUserInfos, threadID } = props;
 
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
+  const dispatch = useDispatch();
   const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
 
   const userInfoInputIDs = React.useMemo(
@@ -43,10 +46,35 @@ function ChatThreadComposer(props: Props): React.Node {
     [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputIDs],
   );
 
-  // eslint-disable-next-line no-unused-vars
-  const onSelectUserFromSearch = React.useCallback((id: string) => {}, []);
-  // eslint-disable-next-line no-unused-vars
-  const onRemoveUserFromSelected = React.useCallback((id: string) => {}, []);
+  const onSelectUserFromSearch = React.useCallback(
+    (id: string) => {
+      const selectedUserIDs = userInfoInputArray.map(user => user.id);
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          selectedUserList: [...selectedUserIDs, id],
+        },
+      });
+      setUsernameInputText('');
+    },
+    [dispatch, userInfoInputArray],
+  );
+
+  const onRemoveUserFromSelected = React.useCallback(
+    (id: string) => {
+      const selectedUserIDs = userInfoInputArray.map(user => user.id);
+      if (!selectedUserIDs.includes(id)) {
+        return;
+      }
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          selectedUserList: selectedUserIDs.filter(userID => userID !== id),
+        },
+      });
+    },
+    [dispatch, userInfoInputArray],
+  );
 
   const userSearchResultList = React.useMemo(() => {
     if (
@@ -77,7 +105,15 @@ function ChatThreadComposer(props: Props): React.Node {
     usernameInputText,
   ]);
 
-  const hideSearch = React.useCallback(() => {}, []);
+  const hideSearch = React.useCallback(() => {
+    dispatch({
+      type: updateNavInfoActionType,
+      payload: {
+        chatMode: 'view',
+        activeChatThreadID: threadID,
+      },
+    });
+  }, [dispatch, threadID]);
 
   const tagsList = React.useMemo(() => {
     if (!userInfoInputArray?.length) {
