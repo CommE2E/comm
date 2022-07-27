@@ -1,5 +1,7 @@
 #include "S3Path.h"
 
+#include <glog/logging.h>
+
 #include <algorithm>
 #include <memory>
 #include <stdexcept>
@@ -53,6 +55,7 @@ std::string S3Path::getFullPath() const {
 }
 
 void S3Path::validate() const {
+  LOG(INFO) << "[S3Path::MultiPartUploader] validate";
   if (!this->bucketName.size()) {
     throw std::runtime_error("referencing S3 path with an empty object name");
   }

@@ -6,6 +6,8 @@
 
 #include <aws/s3/model/Bucket.h>
 
+#include <glog/logging.h>
+
 #include <cstdlib>
 
 namespace comm {

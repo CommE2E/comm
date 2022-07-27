@@ -31,15 +31,19 @@ public:
 
   std::unique_ptr<grpc::Status>
   writeResponse(blob::GetResponse *response) override {
+    LOG(INFO) << "[GetReactor::writeResponse] offset " << this->offset;
+    LOG(INFO) << "[GetReactor::writeResponse] fileSize " << this->fileSize;
     if (this->offset >= this->fileSize) {
       return std::make_unique<grpc::Status>(grpc::Status::OK);
     }
 
     const size_t nextSize =
         std::min(this->chunkSize, this->fileSize - this->offset);
+    LOG(INFO) << "[GetReactor::writeResponse] nextSize " << nextSize;
 
     std::string range = "bytes=" + std::to_string(this->offset) + "-" +
         std::to_string(this->offset + nextSize - 1);
+    LOG(INFO) << "[GetReactor::writeResponse] range " << range;
     this->getRequest.SetRange(range);
 
     Aws::S3::Model::GetObjectOutcome getOutcome =
@@ -56,15 +60,20 @@ public:
     buffer << retrievedFile.rdbuf();
     std::string result(buffer.str());
     response->set_datachunk(result);
+    LOG(INFO) << "[GetReactor::writeResponse] data chunk size "
+              << result.size();
 
     this->offset += nextSize;
+    LOG(INFO) << "[GetReactor::writeResponse] new offset " << this->offset;
     return nullptr;
   }
 
   void initialize() override {
+    LOG(INFO) << "[GetReactor::initialize]";
     this->s3Path = tools::findS3Path(this->request.holder());
     this->fileSize =
         getBucket(s3Path.getBucketName()).getObjectSize(s3Path.getObjectName());
+    LOG(INFO) << "[GetReactor::initialize] file size " << this->fileSize;
 
     this->getRequest.SetBucket(this->s3Path.getBucketName());
     this->getRequest.SetKey(this->s3Path.getObjectName());

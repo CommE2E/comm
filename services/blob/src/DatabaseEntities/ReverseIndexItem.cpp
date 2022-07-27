@@ -2,6 +2,8 @@
 
 #include "Constants.h"
 
+#include <glog/logging.h>
+
 namespace comm {
 namespace network {
 namespace database {
@@ -22,6 +24,7 @@ ReverseIndexItem::ReverseIndexItem(const AttributeValues &itemFromDB) {
 }
 
 void ReverseIndexItem::validate() const {
+  LOG(INFO) << "[ReverseIndexItem::validate]";
   if (!this->holder.size()) {
     throw std::runtime_error("reverse index empty");
   }
@@ -32,8 +35,13 @@ void ReverseIndexItem::validate() const {
 
 void ReverseIndexItem::assignItemFromDatabase(
     const AttributeValues &itemFromDB) {
+  LOG(INFO) << "[ReverseIndexItem::assignItemFromDatabase]";
   this->holder = itemFromDB.at(ReverseIndexItem::FIELD_HOLDER).GetS();
+  LOG(INFO) << "[ReverseIndexItem::assignItemFromDatabase] holder "
+            << this->holder;
   this->blobHash = itemFromDB.at(ReverseIndexItem::FIELD_BLOB_HASH).GetS();
+  LOG(INFO) << "[ReverseIndexItem::assignItemFromDatabase] blob hash "
+            << this->blobHash;
   this->validate();
 }
 
