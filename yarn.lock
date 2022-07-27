@@ -5936,6 +5936,13 @@ crypto-random-string@^2.0.0:
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-2.0.0.tgz#ef2a7a966ec11083388369baa02ebead229b30d5"
   integrity sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==
 
+crypto-random-string@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-5.0.0.tgz#12b4ca8ba936c36d757b65b71a7d85a69a02c18a"
+  integrity sha512-KWjTXWwxFd6a94m5CdRGW/t82Tr8DoBc9dNnPCAbFI1EBweN6v1tv8y4Y1m7ndkp/nkIBRxUxAzpaBnR2k3bcQ==
+  dependencies:
+    type-fest "^2.12.2"
+
 css-color-keywords@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/css-color-keywords/-/css-color-keywords-1.0.0.tgz#fea2616dc676b2962686b3af8dbdbe180b244e05"
@@ -17190,6 +17197,11 @@ type-fest@^0.8.1:
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.8.1.tgz#09e249ebde851d3b1e48d27c105444667f17b83d"
   integrity sha512-4dbzIzqvjtgiM5rw1k5rEHtBANKmdudhGyBEajN01fEyhaAIhsoKNy6y7+IN93IfpFtwY9iqi7kD+xwKhQsNJA==
+
+type-fest@^2.12.2:
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.17.0.tgz#c677030ce61e5be0c90c077d52571eb73c506ea9"
+  integrity sha512-U+g3/JVXnOki1kLSc+xZGPRll3Ah9u2VIG6Sn9iH9YX6UkPERmt6O/0fIyTgsd2/whV0+gAaHAg8fz6sG1QzMA==
 
 type-is@^1.6.4, type-is@~1.6.17, type-is@~1.6.18:
   version "1.6.18"

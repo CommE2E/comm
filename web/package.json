@@ -47,6 +47,7 @@
     "basscss": "8.0.2",
     "classnames": "^2.2.5",
     "core-js": "^3.6.5",
+    "crypto-random-string": "^5.0.0",
     "dateformat": "^3.0.3",
     "detect-browser": "^4.0.4",
     "exif-js": "^2.3.0",
