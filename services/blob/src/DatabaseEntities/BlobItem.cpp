@@ -2,6 +2,8 @@
 
 #include "Constants.h"
 
+#include <glog/logging.h>
+
 namespace comm {
 namespace network {
 namespace database {
@@ -25,6 +27,7 @@ BlobItem::BlobItem(const AttributeValues &itemFromDB) {
 }
 
 void BlobItem::validate() const {
+  LOG(INFO) << "[BlobItem::validate]";
   if (!this->blobHash.size()) {
     throw std::runtime_error("blobHash empty");
   }
@@ -32,8 +35,11 @@ void BlobItem::validate() const {
 }
 
 void BlobItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
+  LOG(INFO) << "[BlobItem::assignItemFromDatabase]";
   try {
     this->blobHash = itemFromDB.at(BlobItem::FIELD_BLOB_HASH).GetS();
+    LOG(INFO) << "[BlobItem::assignItemFromDatabase] blob hash "
+              << this->blobHash;
     this->s3Path = S3Path(itemFromDB.at(BlobItem::FIELD_S3_PATH).GetS());
     this->created = std::stoll(
         std::string(itemFromDB.at(BlobItem::FIELD_CREATED).GetS()).c_str());

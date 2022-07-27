@@ -6,6 +6,7 @@
 #include "GlobalConstants.h"
 #include "S3Tools.h"
 
+#include <glog/logging.h>
 #include <openssl/sha.h>
 
 #include <chrono>
@@ -23,6 +24,8 @@ generateS3Path(const std::string &bucketName, const std::string &blobHash) {
 }
 
 std::string computeHashForFile(const database::S3Path &s3Path) {
+  LOG(INFO) << "[computeHashForFile] bucket name " << s3Path.getBucketName();
+  LOG(INFO) << "[computeHashForFile] object name " << s3Path.getObjectName();
   SHA512_CTX ctx;
   SHA512_Init(&ctx);
   const std::function<void(const std::string &)> callback =
@@ -47,6 +50,7 @@ std::string computeHashForFile(const database::S3Path &s3Path) {
 }
 
 database::S3Path findS3Path(const std::string &holder) {
+  LOG(INFO) << "[findS3Path] holder " << holder;
   std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
       database::DatabaseManager::getInstance().findReverseIndexItemByHolder(
           holder);
@@ -59,6 +63,7 @@ database::S3Path findS3Path(const std::string &holder) {
 
 database::S3Path
 findS3Path(const database::ReverseIndexItem &reverseIndexItem) {
+  LOG(INFO) << "[findS3Path] hash " << reverseIndexItem.getBlobHash();
   std::shared_ptr<database::BlobItem> blobItem =
       database::DatabaseManager::getInstance().findBlobItem(
           reverseIndexItem.getBlobHash());
