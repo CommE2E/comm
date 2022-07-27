@@ -88,12 +88,12 @@ resource "aws_dynamodb_table" "blob-service-reverse-index-test" {
 
 resource "aws_dynamodb_table" "tunnelbroker-device-sessions-test" {
   name           = "tunnelbroker-device-sessions-test"
-  hash_key       = "SessionId"
+  hash_key       = "SessionID"
   write_capacity = 10
   read_capacity  = 10
 
   attribute {
-    name = "SessionId"
+    name = "SessionID"
     type = "S"
   }
 
@@ -105,12 +105,12 @@ resource "aws_dynamodb_table" "tunnelbroker-device-sessions-test" {
 
 resource "aws_dynamodb_table" "tunnelbroker-verification-messages-test" {
   name           = "tunnelbroker-verification-messages-test"
-  hash_key       = "DeviceId"
+  hash_key       = "DeviceID"
   write_capacity = 10
   read_capacity  = 10
 
   attribute {
-    name = "DeviceId"
+    name = "DeviceID"
     type = "S"
   }
 
@@ -122,12 +122,12 @@ resource "aws_dynamodb_table" "tunnelbroker-verification-messages-test" {
 
 resource "aws_dynamodb_table" "tunnelbroker-public-keys-test" {
   name           = "tunnelbroker-public-keys-test"
-  hash_key       = "DeviceId"
+  hash_key       = "DeviceID"
   write_capacity = 10
   read_capacity  = 10
 
   attribute {
-    name = "DeviceId"
+    name = "DeviceID"
     type = "S"
   }
 }
