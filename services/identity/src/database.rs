@@ -400,6 +400,25 @@ fn parse_registration_data_attribute(
   }
 }
 
+fn parse_string_attribute(
+  attribute_name: &'static str,
+  attribute_value: Option<AttributeValue>,
+) -> Result<String, DBItemError> {
+  match attribute_value {
+    Some(AttributeValue::S(user_id)) => Ok(user_id),
+    Some(_) => Err(DBItemError::new(
+      attribute_name,
+      attribute_value,
+      DBItemAttributeError::IncorrectType,
+    )),
+    None => Err(DBItemError::new(
+      attribute_name,
+      attribute_value,
+      DBItemAttributeError::Missing,
+    )),
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
