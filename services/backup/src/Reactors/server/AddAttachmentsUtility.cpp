@@ -20,6 +20,9 @@ grpc::Status AddAttachmentsUtility::processRequest(
   std::string backupID = request->backupid();
   std::string logID = request->logid();
   const std::string holders = request->holders();
+  LOG(INFO) << "[AddAttachmentsUtility::processRequest] user id/backup id/log "
+               "id/holders "
+            << userID << "/" << backupID << "/" << logID << "/" << holders;
   try {
     if (userID.empty()) {
       throw std::runtime_error("user id required but not provided");
@@ -33,6 +36,8 @@ grpc::Status AddAttachmentsUtility::processRequest(
 
     if (logID.empty()) {
       // add these attachments to backup
+      LOG(INFO) << "[AddAttachmentsUtility::processRequest] adding attachments "
+                   "to backup";
       std::shared_ptr<database::BackupItem> backupItem =
           database::DatabaseManager::getInstance().findBackupItem(
               userID, backupID);
@@ -40,6 +45,8 @@ grpc::Status AddAttachmentsUtility::processRequest(
       database::DatabaseManager::getInstance().putBackupItem(*backupItem);
     } else {
       // add these attachments to log
+      LOG(INFO) << "[AddAttachmentsUtility::processRequest] adding attachments "
+                   "to log";
       std::shared_ptr<database::LogItem> logItem =
           database::DatabaseManager::getInstance().findLogItem(backupID, logID);
       logItem->addAttachmentHolders(holders);
@@ -49,6 +56,7 @@ grpc::Status AddAttachmentsUtility::processRequest(
         bool old = logItem->getPersistedInBlob();
         logItem = this->moveToS3(logItem);
       }
+      LOG(INFO) << "[AddAttachmentsUtility::processRequest] update log item";
       database::DatabaseManager::getInstance().putLogItem(*logItem);
     }
   } catch (std::runtime_error &e) {
@@ -60,9 +68,13 @@ grpc::Status AddAttachmentsUtility::processRequest(
 
 std::shared_ptr<database::LogItem>
 AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
+  LOG(INFO) << "[AddAttachmentsUtility::moveToS3] backup id/log id "
+            << logItem->getBackupID() << "/" << logItem->getLogID();
   std::string holder = tools::generateHolder(
       logItem->getDataHash(), logItem->getBackupID(), logItem->getLogID());
   std::string data = std::move(logItem->getValue());
+  LOG(INFO) << "[AddAttachmentsUtility::moveToS3] holder/data size " << holder
+            << "/" << data.size();
   std::shared_ptr<database::LogItem> newLogItem =
       std::make_shared<database::LogItem>(
           logItem->getBackupID(),
@@ -81,6 +93,7 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
   std::unique_lock<std::mutex> lockPut(blobPutDoneCVMutex);
   putReactor->scheduleSendingDataChunk(
       std::make_unique<std::string>(std::move(data)));
+  LOG(INFO) << "[AddAttachmentsUtility::moveToS3] schedule empty chunk";
   putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   if (putReactor->getStatusHolder()->state != reactor::ReactorState::DONE) {
     blobPutDoneCV.wait(lockPut);
@@ -89,6 +102,7 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
     throw std::runtime_error(
         putReactor->getStatusHolder()->getStatus().error_message());
   }
+  LOG(INFO) << "[AddAttachmentsUtility::moveToS3] terminating";
   return newLogItem;
 }
 

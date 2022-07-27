@@ -16,6 +16,8 @@ BlobGetClientReactor::BlobGetClientReactor(
 
 std::unique_ptr<grpc::Status>
 BlobGetClientReactor::readResponse(blob::GetResponse &response) {
+  LOG(INFO) << "[BlobGetClientReactor::readResponse] data chunk size "
+            << response.datachunk().size();
   if (!this->dataChunks->write(std::move(*response.mutable_datachunk()))) {
     throw std::runtime_error("error reading data from the blob service");
   }
@@ -23,6 +25,7 @@ BlobGetClientReactor::readResponse(blob::GetResponse &response) {
 }
 
 void BlobGetClientReactor::doneCallback() {
+  LOG(INFO) << "[BlobGetClientReactor::doneCallback]";
   this->dataChunks->write("");
   this->terminationNotifier->notify_one();
 }

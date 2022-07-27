@@ -3,6 +3,8 @@
 #include "Constants.h"
 #include "Tools.h"
 
+#include <glog/logging.h>
+
 namespace comm {
 namespace network {
 namespace database {
@@ -37,6 +39,7 @@ BackupItem::BackupItem(const AttributeValues &itemFromDB) {
 }
 
 void BackupItem::validate() const {
+  LOG(INFO) << "[BackupItem::validate]";
   if (!this->userID.size()) {
     throw std::runtime_error("userID empty");
   }
@@ -52,9 +55,14 @@ void BackupItem::validate() const {
 }
 
 void BackupItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
+  LOG(INFO) << "[BackupItem::assignItemFromDatabase]";
   try {
     this->userID = itemFromDB.at(BackupItem::FIELD_USER_ID).GetS();
+    LOG(INFO) << "[BackupItem::assignItemFromDatabase] user id "
+              << this->userID;
     this->backupID = itemFromDB.at(BackupItem::FIELD_BACKUP_ID).GetS();
+    LOG(INFO) << "[BackupItem::assignItemFromDatabase] backup id "
+              << this->backupID;
     this->created = std::stoll(
         std::string(itemFromDB.at(BackupItem::FIELD_CREATED).GetS()).c_str());
     this->recoveryData = itemFromDB.at(BackupItem::FIELD_RECOVERY_DATA).GetS();
@@ -113,6 +121,8 @@ std::string BackupItem::getAttachmentHolders() const {
 }
 
 void BackupItem::addAttachmentHolders(const std::string &attachmentHolders) {
+  LOG(INFO) << "[BackupItem::addAttachmentHolders] attachment holders "
+            << attachmentHolders;
   this->attachmentHolders +=
       tools::validateAttachmentHolders(attachmentHolders);
 }

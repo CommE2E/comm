@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include "Tools.h"
 
+#include <glog/logging.h>
 #include <stdexcept>
 
 namespace comm {
@@ -39,6 +40,7 @@ LogItem::LogItem(const AttributeValues &itemFromDB) {
 }
 
 void LogItem::validate() const {
+  LOG(INFO) << "[LogItem::validate]";
   if (!this->backupID.size()) {
     throw std::runtime_error("backupID empty");
   }
@@ -62,9 +64,13 @@ void LogItem::validate() const {
 }
 
 void LogItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
+  LOG(INFO) << "[LogItem::assignItemFromDatabase]";
   try {
     this->backupID = itemFromDB.at(LogItem::FIELD_BACKUP_ID).GetS();
+    LOG(INFO) << "[LogItem::assignItemFromDatabase] backup id "
+              << this->backupID;
     this->logID = itemFromDB.at(LogItem::FIELD_LOG_ID).GetS();
+    LOG(INFO) << "[LogItem::assignItemFromDatabase] log id " << this->logID;
     this->persistedInBlob = std::stoi(
         std::string(itemFromDB.at(LogItem::FIELD_PERSISTED_IN_BLOB).GetS())
             .c_str());
@@ -119,11 +125,14 @@ std::string LogItem::getDataHash() const {
 }
 
 void LogItem::addAttachmentHolders(const std::string &attachmentHolders) {
+  LOG(INFO) << "[LogItem::addAttachmentHolders] attachment holders "
+            << attachmentHolders;
   this->attachmentHolders +=
       tools::validateAttachmentHolders(attachmentHolders);
 }
 
 size_t LogItem::getItemSize(const LogItem *item) {
+  LOG(INFO) << "[LogItem::getItemSize]";
   size_t size = 0;
 
   size += LogItem::FIELD_BACKUP_ID.size();
@@ -140,6 +149,7 @@ size_t LogItem::getItemSize(const LogItem *item) {
   size += item->getAttachmentHolders().size();
   size += item->getDataHash().size();
 
+  LOG(INFO) << "[LogItem::getItemSize] size " << size;
   return size;
 }
 
