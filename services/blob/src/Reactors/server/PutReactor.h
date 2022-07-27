@@ -26,17 +26,20 @@ public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
       blob::PutRequest request,
       blob::PutResponse *response) override {
+    LOG(INFO) << "[PutReactor::handleRequest]";
     if (this->holder.empty()) {
       if (request.holder().empty()) {
         throw std::runtime_error("holder has not been provided");
       }
       this->holder = request.holder();
+      LOG(INFO) << "[PutReactor::handleRequest] holder " << this->holder;
       return nullptr;
     }
     if (this->blobHash.empty()) {
       if (request.blobhash().empty()) {
         throw std::runtime_error("blob hash has not been provided");
       }
+      LOG(INFO) << "[PutReactor::handleRequest] blob hash " << this->blobHash;
       this->blobHash = request.blobhash();
       this->blobItem =
           database::DatabaseManager::getInstance().findBlobItem(this->blobHash);
@@ -45,6 +48,7 @@ public:
             std::make_unique<database::S3Path>(this->blobItem->getS3Path());
         response->set_dataexists(true);
         this->dataExists = true;
+        LOG(INFO) << "[PutReactor::handleRequest] data exists";
         return std::make_unique<ServerBidiReactorStatus>(
             grpc::Status::OK, true);
       }
@@ -53,6 +57,7 @@ public:
       this->blobItem =
           std::make_shared<database::BlobItem>(this->blobHash, *s3Path);
       response->set_dataexists(false);
+      LOG(INFO) << "[PutReactor::handleRequest] data does not exist";
       return nullptr;
     }
     if (request.datachunk().empty()) {
@@ -60,6 +65,7 @@ public:
           grpc::StatusCode::INVALID_ARGUMENT, "data chunk expected"));
     }
     if (this->uploader == nullptr) {
+      LOG(INFO) << "[PutReactor::handleRequest] initialize MPU";
       this->uploader = std::make_unique<MultiPartUploader>(
           getS3Client(), BLOB_BUCKET_NAME, s3Path->getObjectName());
     }
@@ -72,6 +78,7 @@ public:
   }
 
   void terminateCallback() override {
+    LOG(INFO) << "[PutReactor::terminateCallback]";
     if (!this->status.status.ok()) {
       return;
     }

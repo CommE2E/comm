@@ -16,6 +16,8 @@
 
 #include <boost/interprocess/streams/bufferstream.hpp>
 
+#include <glog/logging.h>
+
 namespace comm {
 namespace network {
 
@@ -23,6 +25,7 @@ AwsS3Bucket::AwsS3Bucket(const std::string name) : name(name) {
 }
 
 std::vector<std::string> AwsS3Bucket::listObjects() const {
+  LOG(INFO) << "[AwsS3Bucket::listObjects]";
   Aws::S3::Model::ListObjectsRequest request;
   request.SetBucket(this->name);
   std::vector<std::string> result;
@@ -41,6 +44,7 @@ std::vector<std::string> AwsS3Bucket::listObjects() const {
 }
 
 bool AwsS3Bucket::isAvailable() const {
+  LOG(INFO) << "[AwsS3Bucket::isAvailable]";
   Aws::S3::Model::HeadBucketRequest headRequest;
   headRequest.SetBucket(this->name);
   Aws::S3::Model::HeadBucketOutcome outcome =
@@ -49,6 +53,7 @@ bool AwsS3Bucket::isAvailable() const {
 }
 
 size_t AwsS3Bucket::getObjectSize(const std::string &objectName) const {
+  LOG(INFO) << "[AwsS3Bucket::getObjectSize] object name " << objectName;
   Aws::S3::Model::HeadObjectRequest headRequest;
   headRequest.SetBucket(this->name);
   headRequest.SetKey(objectName);
@@ -63,6 +68,8 @@ size_t AwsS3Bucket::getObjectSize(const std::string &objectName) const {
 void AwsS3Bucket::renameObject(
     const std::string &currentName,
     const std::string &newName) {
+  LOG(INFO) << "[AwsS3Bucket::renameObject] current name " << currentName;
+  LOG(INFO) << "[AwsS3Bucket::renameObject] new name " << newName;
   Aws::S3::Model::CopyObjectRequest copyRequest;
   copyRequest.SetCopySource(this->name + "/" + currentName);
   copyRequest.SetKey(newName);
@@ -80,6 +87,7 @@ void AwsS3Bucket::renameObject(
 void AwsS3Bucket::writeObject(
     const std::string &objectName,
     const std::string &data) {
+  LOG(INFO) << "[AwsS3Bucket::writeObject] object name " << objectName;
   // we don't have to handle multiple write here because the GRPC limit is 4MB
   // and minimum size of data to perform multipart upload is 5MB
   Aws::S3::Model::PutObjectRequest request;
@@ -99,6 +107,7 @@ void AwsS3Bucket::writeObject(
 }
 
 std::string AwsS3Bucket::getObjectData(const std::string &objectName) const {
+  LOG(INFO) << "[AwsS3Bucket::getObjectData] object name " << objectName;
   Aws::S3::Model::GetObjectRequest request;
   request.SetBucket(this->name);
   request.SetKey(objectName);
@@ -130,6 +139,8 @@ void AwsS3Bucket::getObjectDataChunks(
     const std::string &objectName,
     const std::function<void(const std::string &)> &callback,
     const size_t chunkSize) const {
+  LOG(INFO) << "[AwsS3Bucket::getObjectDataChunks] object name " << objectName;
+  LOG(INFO) << "[AwsS3Bucket::getObjectDataChunks] chunk size " << chunkSize;
   const size_t fileSize = this->getObjectSize(objectName);
 
   if (fileSize == 0) {
@@ -166,6 +177,7 @@ void AwsS3Bucket::getObjectDataChunks(
 void AwsS3Bucket::appendToObject(
     const std::string &objectName,
     const std::string &data) {
+  LOG(INFO) << "[AwsS3Bucket::appendToObject] object name " << objectName;
   const size_t objectSize = this->getObjectSize(objectName);
   if (objectSize < AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {
     std::string currentData = this->getObjectData(objectName);
@@ -205,10 +217,12 @@ void AwsS3Bucket::appendToObject(
 }
 
 void AwsS3Bucket::clearObject(const std::string &objectName) {
+  LOG(INFO) << "[AwsS3Bucket::clearObject] object name " << objectName;
   this->writeObject(objectName, "");
 }
 
 void AwsS3Bucket::removeObject(const std::string &objectName) {
+  LOG(INFO) << "[AwsS3Bucket::removeObject] object name " << objectName;
   Aws::S3::Model::DeleteObjectRequest deleteRequest;
   deleteRequest.SetBucket(this->name);
   deleteRequest.SetKey(objectName);
