@@ -21,6 +21,7 @@ import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
+import { isStaff } from 'lib/shared/user-utils';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types';
@@ -323,26 +324,33 @@ function reducer(state: AppState = defaultState, action: Action) {
       convertedMessageStoreOperations,
     );
   }
+  const crashReportsEnabled = state.reportStore.enabledReports['crashReports'];
+  const viewerID = state.currentUserInfo && state.currentUserInfo.id;
+  try {
+    const messages = global.CommCoreModule.getAllMessagesSync();
+    const rawMsgsFromSQLite = translateClientDBMessageInfosToRawMessageInfos(
+      messages,
+    );
 
-  const messages = global.CommCoreModule.getAllMessagesSync();
-  const rawMsgsFromSQLite = translateClientDBMessageInfosToRawMessageInfos(
-    messages,
-  );
-
-  const ignoreList = [
-    '@@INIT',
-    'persist/REHYDRATE',
-    'persist/PERSIST',
-    'SET_THREAD_STORE',
-  ];
-  if (
-    !isEqual(rawMsgsFromSQLite, state.messageStore.messages) &&
-    !ignoreList.includes(action.type) &&
-    !action.type.includes('@@redux/INIT')
-  ) {
-    Alert.alert(`${action.type}: NOT EQUAL`);
+    const ignoreList = [
+      '@@INIT',
+      'persist/REHYDRATE',
+      'persist/PERSIST',
+      'SET_THREAD_STORE',
+    ];
+    if (
+      !isEqual(rawMsgsFromSQLite, state.messageStore.messages) &&
+      !ignoreList.includes(action.type) &&
+      !action.type.includes('@@redux/INIT')
+    ) {
+      Alert.alert(`${action.type}: NOT EQUAL`);
+    }
+  } catch (e) {
+    if ((__DEV__ || (viewerID && isStaff(viewerID))) && crashReportsEnabled) {
+      throw e;
+    }
+    console.log(e.message);
   }
-
   (async () => {
     try {
       const promises = [];
