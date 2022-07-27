@@ -4,14 +4,14 @@ use std::sync::Arc;
 
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_dynamodb::output::{
-  GetItemOutput, PutItemOutput, UpdateItemOutput,
+  GetItemOutput, PutItemOutput, QueryOutput, UpdateItemOutput,
 };
 use aws_sdk_dynamodb::types::Blob;
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use aws_types::sdk_config::SdkConfig;
 use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
-use tracing::{error, info};
+use tracing::{error, info, warn};
 
 use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
@@ -19,7 +19,8 @@ use crate::constants::{
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, USERS_TABLE, USERS_TABLE_PARTITION_KEY,
   USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_USERNAME_ATTRIBUTE,
-  USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
+  USERS_TABLE_USERNAME_INDEX, USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
+  USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
 use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
@@ -224,6 +225,68 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
+  pub async fn get_user_id_from_user_info(
+    &self,
+    user_info: String,
+    auth_type: AuthType,
+  ) -> Result<Option<String>, Error> {
+    let (index, attribute_name) = match auth_type {
+      AuthType::Password => {
+        (USERS_TABLE_USERNAME_INDEX, USERS_TABLE_USERNAME_ATTRIBUTE)
+      }
+      AuthType::Wallet => (
+        USERS_TABLE_WALLET_ADDRESS_INDEX,
+        USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
+      ),
+    };
+    match self
+      .client
+      .query()
+      .table_name(USERS_TABLE)
+      .index_name(index)
+      .key_condition_expression(format!("{} = :u", attribute_name))
+      .expression_attribute_values(":u", AttributeValue::S(user_info.clone()))
+      .send()
+      .await
+    {
+      Ok(QueryOutput {
+        items: Some(mut items),
+        ..
+      }) => {
+        let num_items = items.len();
+        if num_items == 0 {
+          return Ok(None);
+        }
+        if num_items > 1 {
+          warn!(
+            "{} user IDs associated with {} {}: {:?}",
+            num_items, attribute_name, user_info, items
+          );
+        }
+        parse_string_attribute(
+          USERS_TABLE_PARTITION_KEY,
+          items[0].remove(USERS_TABLE_PARTITION_KEY),
+        )
+        .map(Some)
+        .map_err(Error::Attribute)
+      }
+      Ok(_) => {
+        info!(
+          "No item found for {} {} in users table",
+          attribute_name, user_info
+        );
+        Ok(None)
+      }
+      Err(e) => {
+        error!(
+          "DynamoDB client failed to get user ID from {} {}: {}",
+          attribute_name, user_info, e
+        );
+        Err(Error::AwsSdk(e.into()))
+      }
+    }
   }
 }
 
