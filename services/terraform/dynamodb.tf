@@ -173,6 +173,32 @@ resource "aws_dynamodb_table" "identity-users" {
     name = "userID"
     type = "S"
   }
+
+  attribute {
+    name = "username"
+    type = "S"
+  }
+
+  attribute {
+    name = "walletAddress"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "username-index"
+    hash_key        = "username"
+    write_capacity  = 10
+    read_capacity   = 10
+    projection_type = "KEYS_ONLY"
+  }
+
+  global_secondary_index {
+    name            = "walletAddress-index"
+    hash_key        = "walletAddress"
+    write_capacity  = 10
+    read_capacity   = 10
+    projection_type = "KEYS_ONLY"
+  }
 }
 
 resource "aws_dynamodb_table" "identity-tokens" {
