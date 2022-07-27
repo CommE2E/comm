@@ -21,10 +21,11 @@ use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 use crate::database::DatabaseClient;
 use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
-use crate::{config::Config, database::Error};
+use crate::{config::Config, database::Error as DBError};
 
 pub use proto::identity_service_server::IdentityServiceServer;
 use proto::{
+  get_user_id_request::AuthType as ProtoAuthType,
   identity_service_server::IdentityService,
   login_request::Data::PakeLoginRequest,
   login_request::Data::WalletLoginRequest,
@@ -334,17 +335,7 @@ impl IdentityService for MyIdentityService {
         message.access_token.as_bytes(),
       ),
       Ok(None) => false,
-      Err(Error::AwsSdk(DynamoDBError::InternalServerError(_)))
-      | Err(Error::AwsSdk(
-        DynamoDBError::ProvisionedThroughputExceededException(_),
-      ))
-      | Err(Error::AwsSdk(DynamoDBError::RequestLimitExceeded(_))) => {
-        return Err(Status::unavailable("please retry"))
-      }
-      Err(e) => {
-        error!("Encountered an unexpected error: {}", e);
-        return Err(Status::failed_precondition("unexpected error"));
-      }
+      Err(e) => return Err(handle_db_error(e)),
     };
     let response = Response::new(VerifyUserTokenResponse { token_valid });
     info!("Sending VerifyUserToken response: {:?}", response);
@@ -356,7 +347,29 @@ impl IdentityService for MyIdentityService {
     &self,
     request: Request<GetUserIdRequest>,
   ) -> Result<Response<GetUserIdResponse>, Status> {
-    unimplemented!();
+    let message = request.into_inner();
+    let auth_type = match ProtoAuthType::from_i32(message.auth_type) {
+      Some(ProtoAuthType::Password) => AuthType::Password,
+      Some(ProtoAuthType::Wallet) => AuthType::Wallet,
+      None => {
+        error!(
+          "Unable to parse AuthType from message: {}",
+          message.auth_type
+        );
+        return Err(Status::invalid_argument("invalid message"));
+      }
+    };
+    let user_id = match self
+      .client
+      .get_user_id_from_user_info(message.user_info, auth_type)
+      .await
+    {
+      Ok(Some(user_id)) => user_id,
+      Ok(None) => return Err(Status::not_found("no user ID found")),
+      Err(e) => return Err(handle_db_error(e)),
+    };
+    let response = Response::new(GetUserIdResponse { user_id });
+    Ok(response)
   }
 }
 
@@ -385,17 +398,7 @@ async fn put_token_helper(
     .await
   {
     Ok(_) => Ok(access_token_data.access_token),
-    Err(Error::AwsSdk(DynamoDBError::InternalServerError(_)))
-    | Err(Error::AwsSdk(
-      DynamoDBError::ProvisionedThroughputExceededException(_),
-    ))
-    | Err(Error::AwsSdk(DynamoDBError::RequestLimitExceeded(_))) => {
-      Err(Status::unavailable("please retry"))
-    }
-    Err(e) => {
-      error!("Encountered an unexpected error: {}", e);
-      Err(Status::failed_precondition("unexpected error"))
-    }
+    Err(e) => Err(handle_db_error(e)),
   }
 }
 
@@ -500,17 +503,7 @@ async fn pake_login_start(
       Ok(None) => {
         return Err(Status::not_found("user not found"));
       }
-      Err(Error::AwsSdk(DynamoDBError::InternalServerError(_)))
-      | Err(Error::AwsSdk(
-        DynamoDBError::ProvisionedThroughputExceededException(_),
-      ))
-      | Err(Error::AwsSdk(DynamoDBError::RequestLimitExceeded(_))) => {
-        return Err(Status::unavailable("please retry"))
-      }
-      Err(e) => {
-        error!("Encountered an unexpected error: {}", e);
-        return Err(Status::failed_precondition("unexpected error"));
-      }
+      Err(e) => return Err(handle_db_error(e)),
     };
   let credential_request =
     CredentialRequest::deserialize(pake_credential_request).map_err(|e| {
@@ -676,13 +669,22 @@ async fn pake_registration_finish(
     .await
   {
     Ok(_) => Ok(()),
-    Err(Error::AwsSdk(DynamoDBError::InternalServerError(_)))
-    | Err(Error::AwsSdk(
-      DynamoDBError::ProvisionedThroughputExceededException(_),
+    Err(e) => Err(handle_db_error(e)),
+  }
+}
+
+fn handle_db_error(db_error: DBError) -> Status {
+  match db_error {
+    DBError::AwsSdk(DynamoDBError::InternalServerError(_))
+    | DBError::AwsSdk(DynamoDBError::ProvisionedThroughputExceededException(
+      _,
     ))
-    | Err(Error::AwsSdk(DynamoDBError::RequestLimitExceeded(_))) => {
-      Err(Status::unavailable("please retry"))
+    | DBError::AwsSdk(DynamoDBError::RequestLimitExceeded(_)) => {
+      Status::unavailable("please retry")
     }
-    Err(_) => Err(Status::failed_precondition("internal error")),
+    e => {
+      error!("Encountered an unexpected error: {}", e);
+      Status::failed_precondition("unexpected error")
+    }
   }
 }
