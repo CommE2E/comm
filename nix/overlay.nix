@@ -47,6 +47,23 @@ prev:
       url = "https://nodejs.org/dist/v${version}/node-v${version}.tar.xz";
       sha256 = "sha256-MhFLPcOUXtD5X4vDO0LGjg7xjECMtWEiVyoWPZB+y8w=";
     };
+
+    # Nixpkgs applies two patches for 16.15. One patch is for finding headers
+    # needed for v8 on darwin using apple_sdk 11; the other patch fixes crashes
+    # related cache dir defaulting to using `$HOME` without asserting that
+    # it exists.
+    #
+    # However, 16.13 doesn't need the second patch, as the regression which
+    # caused it was introduced after 16.13. This ends up being a no-op. But
+    # nix will still try to apply the patch and fail with "this patch has
+    # already been applied".
+    #
+    # For more context, see (https://github.com/npm/cli/pull/5197)
+    #
+    # lib.head will select the first element in an array
+    patches = [
+      (prev.lib.head oldAttrs.patches)
+    ];
   });
 
   # Ensure that yarn is using the pinned version
