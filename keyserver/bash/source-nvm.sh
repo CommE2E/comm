@@ -6,7 +6,7 @@
 unset PREFIX
 
 # Nix controls the version of node within the development shell
-[ -n "$IN_NIX_SHELL" ] && exit 0
+[ -n "$IN_NIX_SHELL" ] && return 0
 
 # Intel Mac
 [ -s "/usr/local/opt/nvm/nvm.sh" ] && . "/usr/local/opt/nvm/nvm.sh"
