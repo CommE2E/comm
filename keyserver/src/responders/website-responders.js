@@ -18,7 +18,7 @@ import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import {
   threadHasPermission,
   threadIsPending,
-  parseLocallyUniqueThreadID,
+  parsePendingThreadID,
   createPendingThread,
 } from 'lib/shared/thread-utils';
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps';
@@ -233,7 +233,7 @@ async function websiteResponder(
       threadIsPending(finalNavInfo.activeChatThreadID) &&
       finalNavInfo.pendingThread?.id !== finalNavInfo.activeChatThreadID
     ) {
-      const pendingThreadData = parseLocallyUniqueThreadID(
+      const pendingThreadData = parsePendingThreadID(
         finalNavInfo.activeChatThreadID,
       );
       if (
