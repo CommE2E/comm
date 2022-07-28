@@ -9,7 +9,7 @@ use crate::blob_utils::{
 
 use tonic::Request;
 
-use crate::tools::{generate_nbytes, Error};
+use crate::tools::{generate_stable_nbytes, Error};
 
 pub async fn run(
   client: &mut BlobServiceClient<tonic::transport::Channel>,
@@ -34,7 +34,7 @@ pub async fn run(
     for chunk_size in cloned_chunks_sizes {
       println!("[{}] - sending data chunk {}", cloned_holder, chunk_size);
       let request = PutRequest {
-        data: Some(DataChunk(generate_nbytes(chunk_size, None))),
+        data: Some(DataChunk(generate_stable_nbytes(chunk_size, None))),
       };
       yield request;
     }

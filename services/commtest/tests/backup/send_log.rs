@@ -10,8 +10,7 @@ use crate::backup_utils::{
 use tonic::Request;
 
 use crate::backup_utils::BackupData;
-use crate::tools::generate_nbytes;
-use crate::tools::Error;
+use crate::tools::{generate_stable_nbytes, DataHasher, Error};
 
 pub async fn run(
   client: &mut BackupServiceClient<tonic::transport::Channel>,
@@ -22,6 +21,7 @@ pub async fn run(
   let cloned_user_id = backup_data.user_id.clone();
   let cloned_backup_id = backup_data.backup_item.id.clone();
   let cloned_log_sizes = backup_data.log_items[log_index].chunks_sizes.clone();
+  let predefined_byte_value = None;
   let outbound = async_stream::stream! {
     println!(" - sending user id");
     let request = SendLogRequest {
@@ -34,15 +34,20 @@ pub async fn run(
     };
     yield request;
     println!(" - sending log hash");
+    let mut hasher = DataHasher::new();
+    for chunk_size in &cloned_log_sizes {
+      DataHasher::update(&mut hasher, generate_stable_nbytes(*chunk_size, predefined_byte_value));
+    }
+
     let request = SendLogRequest {
-      data: Some(LogHash(vec![65,66,67,66+(log_index as u8)])),
+      data: Some(LogHash(hasher.get_hash().as_bytes().to_vec())),
     };
     yield request;
     println!(" - sending log data");
-    for log_size in cloned_log_sizes {
-      println!("  - sending log data {}", log_size);
+    for log_size in &cloned_log_sizes {
+      println!("  - sending log data {}", *log_size);
       let request = SendLogRequest {
-        data: Some(LogData(generate_nbytes(log_size, None))),
+        data: Some(LogData(generate_stable_nbytes(*log_size, predefined_byte_value))),
       };
       yield request;
     }

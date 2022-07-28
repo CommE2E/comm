@@ -3,8 +3,11 @@ use lazy_static::lazy_static;
 use num_cpus;
 use std::env;
 
+use hex::ToHex;
+use sha2::{Digest, Sha512};
+
 #[allow(dead_code)]
-pub fn generate_nbytes(
+pub fn generate_stable_nbytes(
   number_of_bytes: usize,
   predefined_byte_value: Option<u8>,
 ) -> Vec<u8> {
@@ -44,4 +47,26 @@ pub fn obtain_number_of_threads() -> usize {
     return num_cpus::get();
   }
   return number_of_threads_str.parse::<usize>().unwrap();
+}
+
+#[allow(dead_code)]
+pub struct DataHasher {
+  hasher: Sha512,
+}
+
+#[allow(dead_code)]
+impl DataHasher {
+  pub fn new() -> DataHasher {
+    return DataHasher {
+      hasher: Sha512::new(),
+    };
+  }
+
+  pub fn update(data_hasher: &mut DataHasher, bytes: Vec<u8>) {
+    data_hasher.hasher.update(bytes);
+  }
+  pub fn get_hash(self) -> String {
+    let hash = self.hasher.finalize();
+    return hash.encode_hex::<String>();
+  }
 }
