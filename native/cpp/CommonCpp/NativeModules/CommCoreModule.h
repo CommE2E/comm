@@ -13,7 +13,7 @@ namespace comm {
 namespace jsi = facebook::jsi;
 
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
-  const int codeVersion{137};
+  const int codeVersion{138};
 
   std::unique_ptr<WorkerThread> databaseThread;
   std::unique_ptr<WorkerThread> cryptoThread;
