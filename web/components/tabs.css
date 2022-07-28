@@ -4,6 +4,7 @@ div.tabsContainer {
   flex-direction: column;
   overflow: hidden;
   max-height: 100%;
+  flex: 1;
 }
 div.tabsHeaderContainer {
   display: flex;
