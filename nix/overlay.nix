@@ -37,7 +37,7 @@ prev:
     '';
   });
 
-  # 16.14 now requires explicit awaits on all imports, pin to 16.13
+  # 16.14 now requires experimental import assertions syntax, pin to 16.13
   # https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V16.md
   nodejs-16_x = prev.nodejs-16_x.overrideAttrs (oldAttrs: rec {
     version = "16.13.0";
