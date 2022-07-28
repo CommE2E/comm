@@ -493,7 +493,7 @@ function prepareIOSNotification(
   notification.payload.id = uniqueID;
   notification.payload.threadID = threadInfo.id;
   notification.payload.messageInfos = JSON.stringify(newRawMessageInfos);
-  if (codeVersion > 137) {
+  if (codeVersion > 1000) {
     notification.mutableContent = true;
   }
   if (collapseKey) {
