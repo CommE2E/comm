@@ -41,7 +41,7 @@ div.sidebar:hover .menu {
 .menuContent {
   display: none;
   position: absolute;
-  top: calc(100% + 1px);
+  top: 100%;
   right: 11px;
   z-index: 1;
   width: max-content;
