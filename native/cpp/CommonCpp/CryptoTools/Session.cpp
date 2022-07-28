@@ -34,7 +34,7 @@ std::unique_ptr<Session> Session::createSessionAsInitializer(
     throw std::runtime_error(
         "error createOutbound => ::olm_create_outbound_session");
   }
-  return std::move(session);
+  return session;
 }
 
 std::unique_ptr<Session> Session::createSessionAsResponder(
@@ -56,7 +56,7 @@ std::unique_ptr<Session> Session::createSessionAsResponder(
     throw std::runtime_error(
         "error createInbound => ::olm_create_inbound_session");
   }
-  return std::move(session);
+  return session;
 }
 
 OlmBuffer Session::storeAsB64(const std::string &secretKey) {
