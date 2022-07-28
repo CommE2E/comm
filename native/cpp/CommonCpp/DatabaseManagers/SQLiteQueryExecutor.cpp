@@ -551,7 +551,7 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
     folly::Optional<std::string> maybeEncryptionKey =
         commSecureStore.get(SQLiteQueryExecutor::secureStoreEncryptionKeyID);
 
-    if (maybeEncryptionKey) {
+    if (file_exists(databasePath) && maybeEncryptionKey) {
       SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
       return;
     }
