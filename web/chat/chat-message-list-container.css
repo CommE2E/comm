@@ -1,5 +1,6 @@
 div.container {
   flex: 1;
+  overflow: hidden;
   background-color: var(--bg);
   display: flex;
   flex-direction: column;

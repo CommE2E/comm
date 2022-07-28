@@ -90,10 +90,12 @@ div.main-content-container {
   position: relative;
   grid-area: app;
   display: flex;
+  overflow: hidden;
 }
 div.main-content {
   display: flex;
   flex: 1;
+  overflow: hidden;
 }
 
 div.upper-right {
