@@ -10,8 +10,7 @@ use crate::backup_utils::{
 
 use tonic::Request;
 
-use crate::tools::generate_nbytes;
-use crate::tools::Error;
+use crate::tools::{generate_nbytes, DataHasher, Error};
 
 pub async fn run(
   client: &mut BackupServiceClient<tonic::transport::Channel>,
@@ -21,6 +20,7 @@ pub async fn run(
   let cloned_user_id = backup_data.user_id.clone();
   let cloned_device_id = backup_data.device_id.clone();
   let cloned_backup_chunk_sizes = backup_data.backup_item.chunks_sizes.clone();
+  let predefined_byte_value = None;
   let outbound = async_stream::stream! {
     println!(" - sending user id");
     let request = CreateNewBackupRequest {
@@ -38,15 +38,19 @@ pub async fn run(
     };
     yield request;
     println!(" - sending data hash");
-    // todo calculate the real hash, this is a mocked value
+    let mut hasher = DataHasher::new();
+    for chunk_size in &cloned_backup_chunk_sizes {
+      DataHasher::update(&mut hasher, generate_nbytes(*chunk_size, predefined_byte_value));
+    }
+
     let request = CreateNewBackupRequest {
-      data: Some(NewCompactionHash(vec![68,67,66,65,66])),
+      data: Some(NewCompactionHash(hasher.get_hash().as_bytes().to_vec())),
     };
     yield request;
-    for chunk_size in cloned_backup_chunk_sizes {
+    for chunk_size in &cloned_backup_chunk_sizes {
       println!(" - sending data chunk {}", chunk_size);
       let request = CreateNewBackupRequest {
-        data: Some(NewCompactionChunk(generate_nbytes(chunk_size, None))),
+        data: Some(NewCompactionChunk(generate_nbytes(*chunk_size, predefined_byte_value))),
       };
       yield request;
     }

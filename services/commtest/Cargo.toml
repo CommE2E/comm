@@ -14,6 +14,8 @@ derive_more = "0.99.16"
 bytesize = "1.1.0"
 lazy_static = "1.4.0"
 num_cpus = "1.13.1"
+sha2 = "0.10.2"
+hex = "0.4.3"
 
 [build-dependencies]
 tonic-build = "0.6"
