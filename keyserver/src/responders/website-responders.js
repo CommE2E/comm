@@ -330,6 +330,7 @@ async function websiteResponder(
     deviceToken: undefined,
     dataLoaded: viewer.loggedIn,
     windowActive: true,
+    _persist: null,
   };
 
   const [stateResult, App] = await Promise.all([

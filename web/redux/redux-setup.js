@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import type { PersistState } from 'redux-persist/src/types';
 
 import {
   logOutActionTypes,
@@ -57,6 +58,7 @@ export type AppState = {
   userAgent: ?string,
   dataLoaded: boolean,
   windowActive: boolean,
+  _persist: ?PersistState,
 };
 
 export const updateWindowDimensions = 'UPDATE_WINDOW_DIMENSIONS';
