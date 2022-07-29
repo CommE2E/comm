@@ -4,6 +4,10 @@
 #include "Constants.h"
 #include "DatabaseEntitiesTools.h"
 #include "DatabaseManagerBase.h"
+#include "DeviceSessionItem.h"
+#include "MessageItem.h"
+#include "PublicKeyItem.h"
+#include "SessionSignItem.h"
 #include "Tools.h"
 
 #include <aws/core/Aws.h>
