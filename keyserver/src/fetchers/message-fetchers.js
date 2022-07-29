@@ -106,27 +106,14 @@ async function fetchCollapsableNotifs(
       up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM notifications n
     LEFT JOIN messages m ON m.id = n.message
-    LEFT JOIN uploads up
-      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
-  `;
-  const dbType = await getDBType();
-  if (dbType === 'mysql5.7') {
-    collapseQuery.append(SQL`
-        AND JSON_CONTAINS(m.content, CAST(up.id AS JSON), '$')
-    `);
-  } else {
-    collapseQuery.append(SQL`
-        AND JSON_CONTAINS(m.content, up.id, '$')
-    `);
-  }
-  collapseQuery.append(SQL`
+    LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = n.user
     LEFT JOIN memberships stm
       ON m.type = ${messageTypes.CREATE_SUB_THREAD}
         AND stm.thread = m.content AND stm.user = n.user
     WHERE n.rescinded = 0 AND
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
-  `);
+  `;
   collapseQuery.append(mergeOrConditions(sqlTuples));
   collapseQuery.append(SQL`ORDER BY m.time DESC`);
   const [collapseResult] = await dbQuery(collapseQuery);
@@ -307,26 +294,13 @@ async function fetchMessageInfos(
           up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
           up.extra AS uploadExtra
         FROM messages m
-        LEFT JOIN uploads up
-          ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
-  `;
-  const dbType = await getDBType();
-  if (dbType === 'mysql5.7') {
-    query.append(SQL`
-            AND JSON_CONTAINS(m.content, CAST(up.id AS JSON), '$')
-    `);
-  } else {
-    query.append(SQL`
-            AND JSON_CONTAINS(m.content, up.id, '$')
-    `);
-  }
-  query.append(SQL`
+        LEFT JOIN uploads up ON up.container = m.id
         LEFT JOIN memberships mm
           ON mm.thread = m.thread AND mm.user = ${viewerID}
         LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
           AND stm.thread = m.content AND stm.user = ${viewerID}
         WHERE JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
-  `);
+  `;
   query.append(selectionClause);
   // - We specify a ridiculously high LIMIT here to force MariaDB to maintain
   //   the ORDER BY. Otherwise the query optimizer will assume that the order
@@ -548,25 +522,12 @@ async function fetchMessageInfosSince(
       up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
       up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up
-      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
-  `;
-  const dbType = await getDBType();
-  if (dbType === 'mysql5.7') {
-    query.append(SQL`
-        AND JSON_CONTAINS(m.content, CAST(up.id AS JSON), '$')
-    `);
-  } else {
-    query.append(SQL`
-        AND JSON_CONTAINS(m.content, up.id, '$')
-    `);
-  }
-  query.append(SQL`
+    LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
     WHERE JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
-  `);
+  `;
   query.append(selectionClause);
   query.append(SQL`
     ORDER BY m.thread, m.time DESC
@@ -643,26 +604,13 @@ async function fetchMessageInfoForLocalID(
       up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
       up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up
-      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
-  `;
-  const dbType = await getDBType();
-  if (dbType === 'mysql5.7') {
-    query.append(SQL`
-        AND JSON_CONTAINS(m.content, CAST(up.id AS JSON), '$')
-    `);
-  } else {
-    query.append(SQL`
-        AND JSON_CONTAINS(m.content, up.id, '$')
-    `);
-  }
-  query.append(SQL`
+    LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = ${viewerID}
     WHERE m.user = ${viewerID} AND m.creation = ${creation} AND
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
-  `);
+  `;
 
   const [result] = await dbQuery(query);
   if (result.length === 0) {
@@ -685,26 +633,13 @@ async function fetchMessageInfoForEntryAction(
       m.user AS creatorID, up.id AS uploadID, up.type AS uploadType,
       up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up
-      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
-  `;
-  const dbType = await getDBType();
-  if (dbType === 'mysql5.7') {
-    query.append(SQL`
-        AND JSON_CONTAINS(m.content, CAST(up.id AS JSON), '$')
-    `);
-  } else {
-    query.append(SQL`
-        AND JSON_CONTAINS(m.content, up.id, '$')
-    `);
-  }
-  query.append(SQL`
+    LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
     WHERE m.user = ${viewerID} AND m.thread = ${threadID} AND
       m.type = ${messageType} AND
       JSON_EXTRACT(m.content, ${entryIDExtractString}) = ${entryID} AND
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
-  `);
+  `;
 
   const [result] = await dbQuery(query);
   if (result.length === 0) {
@@ -721,24 +656,11 @@ async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
       up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret, 
       up.extra AS uploadExtra
     FROM messages m
-    LEFT JOIN uploads up
-      ON m.type IN (${[messageTypes.IMAGES, messageTypes.MULTIMEDIA]})
-  `;
-  const dbType = await getDBType();
-  if (dbType === 'mysql5.7') {
-    query.append(SQL`
-        AND JSON_CONTAINS(m.content, CAST(up.id AS JSON), '$')
-    `);
-  } else {
-    query.append(SQL`
-        AND JSON_CONTAINS(m.content, up.id, '$')
-    `);
-  }
-  query.append(SQL`
+    LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
       AND stm.thread = m.content AND stm.user = m.user
     WHERE m.id IN (${messageIDs})
-  `);
+  `;
   const [result] = await dbQuery(query);
   return result;
 }
