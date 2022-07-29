@@ -41,7 +41,7 @@ stdenv.mkDerivation {
     # Create a bin/arc which points to the real script, but provides
     # assumptions such as the PATH including python3 and which
     makeWrapper $out/libexec/arcanist/bin/arc $out/bin/arc \
-      --prefix PATH : ${lib.makeBinPath [ which python3 ]}
+      --prefix PATH : ${lib.makeBinPath [ which python3 php80 ]}
 
     # Add shell completion for bash
     $out/bin/arc shell-complete --generate --
