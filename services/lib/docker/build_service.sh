@@ -19,5 +19,7 @@ mkdir _generated
 rm -rf cmake/build
 mkdir -p cmake/build
 
-scripts/proto_codegen.sh
-scripts/build_sources.sh
+# Allow scripts to be called from anywhere
+SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd -P)
+${SCRIPT_DIR}/proto_codegen.sh
+${SCRIPT_DIR}/build_sources.sh
