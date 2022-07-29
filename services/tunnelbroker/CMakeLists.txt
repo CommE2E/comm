@@ -12,9 +12,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(PkgConfig REQUIRED)
 
-# FIND LIBS
-include(./cmake-components/grpc.cmake)
-include(./cmake-components/folly.cmake)
+find_package(double-conversion REQUIRED)
+find_package(Folly REQUIRED)
+find_package(protobuf REQUIRED)
+find_package(gRPC REQUIRED)
 
 # Find AMQP-CPP installation
 find_package(amqpcpp CONFIG REQUIRED)
@@ -25,12 +26,30 @@ pkg_check_modules(CRYPTOPP REQUIRED libcryptopp=8.6)
 # Find Libuv installation
 pkg_check_modules(LIBUV REQUIRED libuv>=1.43)
 
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL "/transferred")
+  # Inside the docker build contex
+  set(_proto_path "grpc")
+else()
+  # Inside repo
+  set(_proto_path "../../native/cpp/CommonCpp/grpc")
+endif()
+
+# Shared Comm protos
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${_proto_path}
+  ${CMAKE_CURRENT_BINARY_DIR}/protos
+  EXCLUDE_FROM_ALL
+)
+
 set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
 set(WITH_GFLAGS OFF CACHE BOOL "Turn off gflags" FORCE)
 
 find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
-find_package(Boost 1.40 COMPONENTS program_options thread system REQUIRED)
+find_package(Boost 1.40
+  COMPONENTS program_options thread system context filesystem regex
+  REQUIRED
+)
 find_package(OpenSSL REQUIRED)
+find_package(glog)
 
 # Corrosion Rust integration
 find_package(Corrosion REQUIRED)
@@ -38,53 +57,8 @@ corrosion_import_crate(MANIFEST_PATH "rust-notifications/Cargo.toml")
 set(RUST_HEADERS_INCLUDE_DIR "rust-notifications/extern")
 set(RUST_LIBS "rust-notifications")
 
-add_subdirectory(./lib/glog)
-
-# Generated sources
-get_filename_component(proto "protos/tunnelbroker.proto" ABSOLUTE)
-get_filename_component(proto_path "${proto}" PATH)
-
-set(GENERATED_BASE_DIR "${CMAKE_CURRENT_BINARY_DIR}/gen")
-set(GENERATED_CODE_DIR "${GENERATED_BASE_DIR}/_generated")
-file(MAKE_DIRECTORY ${GENERATED_CODE_DIR})
-
-set(_proto_srcs "${GENERATED_CODE_DIR}/tunnelbroker.pb.cc")
-set(_proto_hdrs "${GENERATED_CODE_DIR}/tunnelbroker.pb.h")
-set(_grpc_srcs "${GENERATED_CODE_DIR}/tunnelbroker.grpc.pb.cc")
-set(_grpc_hdrs "${GENERATED_CODE_DIR}/tunnelbroker.grpc.pb.h")
-add_custom_command(
-  OUTPUT "${_proto_srcs}" "${_proto_hdrs}" "${_grpc_srcs}" "${_grpc_hdrs}"
-  COMMAND ${_PROTOBUF_PROTOC}
-  ARGS --grpc_out "${GENERATED_CODE_DIR}"
-  --cpp_out "${GENERATED_CODE_DIR}"
-  -I "${proto_path}"
-  --plugin=protoc-gen-grpc="${_GRPC_CPP_PLUGIN_EXECUTABLE}"
-  "${proto}"
-  DEPENDS "${proto}"
-  COMMENT "Generate protobuf files"
-)
-
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
-set(GENERATED_CODE ${_proto_srcs} ${_proto_hdrs} ${_grpc_srcs} ${_grpc_hdrs})
-file(GLOB DOUBLE_CONVERSION_SOURCES
-  "./lib/double-conversion/double-conversion/*.cc"
-)
-
-include_directories(
-  ./src
-  ./src/Database
-  ./src/DeliveryBroker
-  ./src/Service
-  ./src/Tools
-  ./src/Amqp
-  ${GENERATED_BASE_DIR}
-  ${FOLLY_INCLUDES}
-  ./lib/double-conversion
-  ${Boost_INCLUDE_DIR}
-  ${CRYPTOPP_INCLUDE_DIRS}
-  ${LIBUV_INCLUDE_DIRS}
-  ${RUST_HEADERS_INCLUDE_DIR}
-)
+file(GLOB COMMON_CODE "${CMAKE_CURRENT_SOURCE_DIR}/../lib/src/*.cpp")
 
 set(
   SOURCE_CODE
@@ -92,14 +66,15 @@ set(
   ${DOUBLE_CONVERSION_SOURCES}
   ${GENERATED_CODE}
   ${SOURCE_CODE}
+  ${COMMON_CODE}
 )
 
 set(
   LIBS
 
-  ${GRPC_LIBS}
-  ${_PROTOBUF_LIBPROTOBUF}
-  ${_REFLECTION}
+  comm-tunnelbroker-grpc
+  gRPC::grpc++_reflection
+  gRPC::grpc++
   ${AWSSDK_LINK_LIBRARIES}
   ${CRYPTOPP_LIBRARIES}
   ${LIBUV_LIBRARIES}
@@ -108,6 +83,8 @@ set(
   amqpcpp
   OpenSSL::SSL
   glog::glog
+  double-conversion::double-conversion
+  Folly::folly
 )
 
 # SERVER
@@ -117,6 +94,18 @@ add_executable(
   ${FOLLY_SOURCES}
   ${GENERATED_CODE}
   ${SOURCE_CODE}
+)
+
+target_include_directories(tunnelbroker
+  PUBLIC
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Database
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/DeliveryBroker
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Service
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Tools
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/Amqp
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
 )
 
 target_link_libraries(

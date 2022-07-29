@@ -1,7 +1,7 @@
 #pragma once
 
-#include <_generated/tunnelbroker.grpc.pb.h>
-#include <_generated/tunnelbroker.pb.h>
+#include <tunnelbroker.grpc.pb.h>
+#include <tunnelbroker.pb.h>
 
 #include <grpcpp/grpcpp.h>
 
