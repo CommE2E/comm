@@ -93,14 +93,14 @@ class TunnelbrokerService final {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::tunnelbroker::GetResponse>>(PrepareAsyncGetRaw(context, request, cq));
     }
     // Replacing Send and Get with a single bidirectional streaming RPC
-    std::unique_ptr< ::grpc::ClientReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>> OpenStream(::grpc::ClientContext* context) {
-      return std::unique_ptr< ::grpc::ClientReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>>(OpenStreamRaw(context));
+    std::unique_ptr< ::grpc::ClientReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>> MessagesStream(::grpc::ClientContext* context) {
+      return std::unique_ptr< ::grpc::ClientReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>>(MessagesStreamRaw(context));
     }
-    std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>> AsyncOpenStream(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) {
-      return std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>>(AsyncOpenStreamRaw(context, cq, tag));
+    std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>> AsyncMessagesStream(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>>(AsyncMessagesStreamRaw(context, cq, tag));
     }
-    std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>> PrepareAsyncOpenStream(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>>(PrepareAsyncOpenStreamRaw(context, cq));
+    std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>> PrepareAsyncMessagesStream(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>>(PrepareAsyncMessagesStreamRaw(context, cq));
     }
     class async_interface {
      public:
@@ -125,7 +125,7 @@ class TunnelbrokerService final {
       virtual void Send(::grpc::ClientContext* context, const ::tunnelbroker::SendRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void Get(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest* request, ::grpc::ClientReadReactor< ::tunnelbroker::GetResponse>* reactor) = 0;
       // Replacing Send and Get with a single bidirectional streaming RPC
-      virtual void OpenStream(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::tunnelbroker::OutboundMessage,::tunnelbroker::InboundMessage>* reactor) = 0;
+      virtual void MessagesStream(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::tunnelbroker::MessageToTunnelbroker,::tunnelbroker::MessageToClient>* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -146,9 +146,9 @@ class TunnelbrokerService final {
     virtual ::grpc::ClientReaderInterface< ::tunnelbroker::GetResponse>* GetRaw(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest& request) = 0;
     virtual ::grpc::ClientAsyncReaderInterface< ::tunnelbroker::GetResponse>* AsyncGetRaw(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
     virtual ::grpc::ClientAsyncReaderInterface< ::tunnelbroker::GetResponse>* PrepareAsyncGetRaw(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* OpenStreamRaw(::grpc::ClientContext* context) = 0;
-    virtual ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* AsyncOpenStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) = 0;
-    virtual ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* PrepareAsyncOpenStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>* MessagesStreamRaw(::grpc::ClientContext* context) = 0;
+    virtual ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>* AsyncMessagesStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) = 0;
+    virtual ::grpc::ClientAsyncReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>* PrepareAsyncMessagesStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -204,14 +204,14 @@ class TunnelbrokerService final {
     std::unique_ptr< ::grpc::ClientAsyncReader< ::tunnelbroker::GetResponse>> PrepareAsyncGet(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncReader< ::tunnelbroker::GetResponse>>(PrepareAsyncGetRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>> OpenStream(::grpc::ClientContext* context) {
-      return std::unique_ptr< ::grpc::ClientReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>>(OpenStreamRaw(context));
+    std::unique_ptr< ::grpc::ClientReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>> MessagesStream(::grpc::ClientContext* context) {
+      return std::unique_ptr< ::grpc::ClientReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>>(MessagesStreamRaw(context));
     }
-    std::unique_ptr<  ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>> AsyncOpenStream(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) {
-      return std::unique_ptr< ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>>(AsyncOpenStreamRaw(context, cq, tag));
+    std::unique_ptr<  ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>> AsyncMessagesStream(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>>(AsyncMessagesStreamRaw(context, cq, tag));
     }
-    std::unique_ptr<  ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>> PrepareAsyncOpenStream(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>>(PrepareAsyncOpenStreamRaw(context, cq));
+    std::unique_ptr<  ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>> PrepareAsyncMessagesStream(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>>(PrepareAsyncMessagesStreamRaw(context, cq));
     }
     class async final :
       public StubInterface::async_interface {
@@ -229,7 +229,7 @@ class TunnelbrokerService final {
       void Send(::grpc::ClientContext* context, const ::tunnelbroker::SendRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)>) override;
       void Send(::grpc::ClientContext* context, const ::tunnelbroker::SendRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) override;
       void Get(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest* request, ::grpc::ClientReadReactor< ::tunnelbroker::GetResponse>* reactor) override;
-      void OpenStream(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::tunnelbroker::OutboundMessage,::tunnelbroker::InboundMessage>* reactor) override;
+      void MessagesStream(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::tunnelbroker::MessageToTunnelbroker,::tunnelbroker::MessageToClient>* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -256,9 +256,9 @@ class TunnelbrokerService final {
     ::grpc::ClientReader< ::tunnelbroker::GetResponse>* GetRaw(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest& request) override;
     ::grpc::ClientAsyncReader< ::tunnelbroker::GetResponse>* AsyncGetRaw(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest& request, ::grpc::CompletionQueue* cq, void* tag) override;
     ::grpc::ClientAsyncReader< ::tunnelbroker::GetResponse>* PrepareAsyncGetRaw(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* OpenStreamRaw(::grpc::ClientContext* context) override;
-    ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* AsyncOpenStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) override;
-    ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* PrepareAsyncOpenStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>* MessagesStreamRaw(::grpc::ClientContext* context) override;
+    ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>* AsyncMessagesStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) override;
+    ::grpc::ClientAsyncReaderWriter< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>* PrepareAsyncMessagesStreamRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_CheckIfPrimaryDeviceOnline_;
     const ::grpc::internal::RpcMethod rpcmethod_BecomeNewPrimaryDevice_;
     const ::grpc::internal::RpcMethod rpcmethod_SendPong_;
@@ -266,7 +266,7 @@ class TunnelbrokerService final {
     const ::grpc::internal::RpcMethod rpcmethod_NewSession_;
     const ::grpc::internal::RpcMethod rpcmethod_Send_;
     const ::grpc::internal::RpcMethod rpcmethod_Get_;
-    const ::grpc::internal::RpcMethod rpcmethod_OpenStream_;
+    const ::grpc::internal::RpcMethod rpcmethod_MessagesStream_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -288,7 +288,7 @@ class TunnelbrokerService final {
     virtual ::grpc::Status Send(::grpc::ServerContext* context, const ::tunnelbroker::SendRequest* request, ::google::protobuf::Empty* response);
     virtual ::grpc::Status Get(::grpc::ServerContext* context, const ::tunnelbroker::GetRequest* request, ::grpc::ServerWriter< ::tunnelbroker::GetResponse>* writer);
     // Replacing Send and Get with a single bidirectional streaming RPC
-    virtual ::grpc::Status OpenStream(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::tunnelbroker::InboundMessage, ::tunnelbroker::OutboundMessage>* stream);
+    virtual ::grpc::Status MessagesStream(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::tunnelbroker::MessageToClient, ::tunnelbroker::MessageToTunnelbroker>* stream);
   };
   template <class BaseClass>
   class WithAsyncMethod_CheckIfPrimaryDeviceOnline : public BaseClass {
@@ -431,26 +431,26 @@ class TunnelbrokerService final {
     }
   };
   template <class BaseClass>
-  class WithAsyncMethod_OpenStream : public BaseClass {
+  class WithAsyncMethod_MessagesStream : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithAsyncMethod_OpenStream() {
+    WithAsyncMethod_MessagesStream() {
       ::grpc::Service::MarkMethodAsync(7);
     }
-    ~WithAsyncMethod_OpenStream() override {
+    ~WithAsyncMethod_MessagesStream() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status OpenStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::InboundMessage, ::tunnelbroker::OutboundMessage>* /*stream*/)  override {
+    ::grpc::Status MessagesStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::MessageToClient, ::tunnelbroker::MessageToTunnelbroker>* /*stream*/)  override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestOpenStream(::grpc::ServerContext* context, ::grpc::ServerAsyncReaderWriter< ::tunnelbroker::InboundMessage, ::tunnelbroker::OutboundMessage>* stream, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestMessagesStream(::grpc::ServerContext* context, ::grpc::ServerAsyncReaderWriter< ::tunnelbroker::MessageToClient, ::tunnelbroker::MessageToTunnelbroker>* stream, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncBidiStreaming(7, context, stream, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_CheckIfPrimaryDeviceOnline<WithAsyncMethod_BecomeNewPrimaryDevice<WithAsyncMethod_SendPong<WithAsyncMethod_SessionSignature<WithAsyncMethod_NewSession<WithAsyncMethod_Send<WithAsyncMethod_Get<WithAsyncMethod_OpenStream<Service > > > > > > > > AsyncService;
+  typedef WithAsyncMethod_CheckIfPrimaryDeviceOnline<WithAsyncMethod_BecomeNewPrimaryDevice<WithAsyncMethod_SendPong<WithAsyncMethod_SessionSignature<WithAsyncMethod_NewSession<WithAsyncMethod_Send<WithAsyncMethod_Get<WithAsyncMethod_MessagesStream<Service > > > > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_CheckIfPrimaryDeviceOnline : public BaseClass {
    private:
@@ -636,29 +636,29 @@ class TunnelbrokerService final {
       ::grpc::CallbackServerContext* /*context*/, const ::tunnelbroker::GetRequest* /*request*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithCallbackMethod_OpenStream : public BaseClass {
+  class WithCallbackMethod_MessagesStream : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithCallbackMethod_OpenStream() {
+    WithCallbackMethod_MessagesStream() {
       ::grpc::Service::MarkMethodCallback(7,
-          new ::grpc::internal::CallbackBidiHandler< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>(
+          new ::grpc::internal::CallbackBidiHandler< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>(
             [this](
-                   ::grpc::CallbackServerContext* context) { return this->OpenStream(context); }));
+                   ::grpc::CallbackServerContext* context) { return this->MessagesStream(context); }));
     }
-    ~WithCallbackMethod_OpenStream() override {
+    ~WithCallbackMethod_MessagesStream() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status OpenStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::InboundMessage, ::tunnelbroker::OutboundMessage>* /*stream*/)  override {
+    ::grpc::Status MessagesStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::MessageToClient, ::tunnelbroker::MessageToTunnelbroker>* /*stream*/)  override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerBidiReactor< ::tunnelbroker::OutboundMessage, ::tunnelbroker::InboundMessage>* OpenStream(
+    virtual ::grpc::ServerBidiReactor< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>* MessagesStream(
       ::grpc::CallbackServerContext* /*context*/)
       { return nullptr; }
   };
-  typedef WithCallbackMethod_CheckIfPrimaryDeviceOnline<WithCallbackMethod_BecomeNewPrimaryDevice<WithCallbackMethod_SendPong<WithCallbackMethod_SessionSignature<WithCallbackMethod_NewSession<WithCallbackMethod_Send<WithCallbackMethod_Get<WithCallbackMethod_OpenStream<Service > > > > > > > > CallbackService;
+  typedef WithCallbackMethod_CheckIfPrimaryDeviceOnline<WithCallbackMethod_BecomeNewPrimaryDevice<WithCallbackMethod_SendPong<WithCallbackMethod_SessionSignature<WithCallbackMethod_NewSession<WithCallbackMethod_Send<WithCallbackMethod_Get<WithCallbackMethod_MessagesStream<Service > > > > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_CheckIfPrimaryDeviceOnline : public BaseClass {
@@ -780,18 +780,18 @@ class TunnelbrokerService final {
     }
   };
   template <class BaseClass>
-  class WithGenericMethod_OpenStream : public BaseClass {
+  class WithGenericMethod_MessagesStream : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithGenericMethod_OpenStream() {
+    WithGenericMethod_MessagesStream() {
       ::grpc::Service::MarkMethodGeneric(7);
     }
-    ~WithGenericMethod_OpenStream() override {
+    ~WithGenericMethod_MessagesStream() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status OpenStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::InboundMessage, ::tunnelbroker::OutboundMessage>* /*stream*/)  override {
+    ::grpc::Status MessagesStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::MessageToClient, ::tunnelbroker::MessageToTunnelbroker>* /*stream*/)  override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -937,22 +937,22 @@ class TunnelbrokerService final {
     }
   };
   template <class BaseClass>
-  class WithRawMethod_OpenStream : public BaseClass {
+  class WithRawMethod_MessagesStream : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawMethod_OpenStream() {
+    WithRawMethod_MessagesStream() {
       ::grpc::Service::MarkMethodRaw(7);
     }
-    ~WithRawMethod_OpenStream() override {
+    ~WithRawMethod_MessagesStream() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status OpenStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::InboundMessage, ::tunnelbroker::OutboundMessage>* /*stream*/)  override {
+    ::grpc::Status MessagesStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::MessageToClient, ::tunnelbroker::MessageToTunnelbroker>* /*stream*/)  override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestOpenStream(::grpc::ServerContext* context, ::grpc::ServerAsyncReaderWriter< ::grpc::ByteBuffer, ::grpc::ByteBuffer>* stream, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestMessagesStream(::grpc::ServerContext* context, ::grpc::ServerAsyncReaderWriter< ::grpc::ByteBuffer, ::grpc::ByteBuffer>* stream, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncBidiStreaming(7, context, stream, new_call_cq, notification_cq, tag);
     }
   };
@@ -1111,25 +1111,25 @@ class TunnelbrokerService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/)  { return nullptr; }
   };
   template <class BaseClass>
-  class WithRawCallbackMethod_OpenStream : public BaseClass {
+  class WithRawCallbackMethod_MessagesStream : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawCallbackMethod_OpenStream() {
+    WithRawCallbackMethod_MessagesStream() {
       ::grpc::Service::MarkMethodRawCallback(7,
           new ::grpc::internal::CallbackBidiHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
             [this](
-                   ::grpc::CallbackServerContext* context) { return this->OpenStream(context); }));
+                   ::grpc::CallbackServerContext* context) { return this->MessagesStream(context); }));
     }
-    ~WithRawCallbackMethod_OpenStream() override {
+    ~WithRawCallbackMethod_MessagesStream() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status OpenStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::InboundMessage, ::tunnelbroker::OutboundMessage>* /*stream*/)  override {
+    ::grpc::Status MessagesStream(::grpc::ServerContext* /*context*/, ::grpc::ServerReaderWriter< ::tunnelbroker::MessageToClient, ::tunnelbroker::MessageToTunnelbroker>* /*stream*/)  override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    virtual ::grpc::ServerBidiReactor< ::grpc::ByteBuffer, ::grpc::ByteBuffer>* OpenStream(
+    virtual ::grpc::ServerBidiReactor< ::grpc::ByteBuffer, ::grpc::ByteBuffer>* MessagesStream(
       ::grpc::CallbackServerContext* /*context*/)
       { return nullptr; }
   };
