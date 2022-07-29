@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 
+import { dbQuery, SQL } from '../database/database';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters';
 
 const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
@@ -29,6 +30,12 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
   ],
 
   [3, updateRolesAndPermissionsForAllThreads],
+  [
+    4,
+    async () => {
+      await dbQuery(SQL`ALTER TABLE uploads ADD INDEX container (container)`);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 

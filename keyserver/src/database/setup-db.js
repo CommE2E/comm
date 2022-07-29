@@ -304,7 +304,8 @@ async function createTables() {
         ADD INDEX user_key_time (user, \`key\`, time);
 
       ALTER TABLE uploads
-        ADD PRIMARY KEY (id);
+        ADD PRIMARY KEY (id),
+        ADD INDEX container (container);
 
       ALTER TABLE users
         ADD PRIMARY KEY (id),
