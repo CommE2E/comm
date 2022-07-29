@@ -6,7 +6,11 @@ echo "installing grpc..."
 
 cd /tmp
 
-git clone --recurse-submodules -b v1.39.1 https://github.com/grpc/grpc
+git clone \
+  --recurse-submodules \
+  --single-branch \
+  -b v1.39.1 \
+  https://github.com/grpc/grpc
 
 pushd grpc
 mkdir -p cmake/build
