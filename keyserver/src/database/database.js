@@ -18,8 +18,9 @@ async function getMigrationConnection() {
   if (migrationConnection) {
     return migrationConnection;
   }
-  const dbConfig = await getDBConfig();
-  migrationConnection = await mysqlPromise.createConnection(dbConfig);
+  const { dbType, ...dbConfig } = await getDBConfig();
+  const options: ConnectionOptions = dbConfig;
+  migrationConnection = await mysqlPromise.createConnection(options);
   return migrationConnection;
 }
 
