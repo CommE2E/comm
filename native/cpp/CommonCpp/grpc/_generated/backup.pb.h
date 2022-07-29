@@ -1373,9 +1373,15 @@ class PullBackupResponse PROTOBUF_FINAL :
   static const PullBackupResponse& default_instance() {
     return *internal_default_instance();
   }
+  enum IdCase {
+    kBackupID = 1,
+    kLogID = 2,
+    ID_NOT_SET = 0,
+  };
+
   enum DataCase {
-    kCompactionChunk = 1,
-    kLogChunk = 2,
+    kCompactionChunk = 3,
+    kLogChunk = 4,
     DATA_NOT_SET = 0,
   };
 
@@ -1454,20 +1460,73 @@ class PullBackupResponse PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kChunkCounterFieldNumber = 3,
-    kCompactionChunkFieldNumber = 1,
-    kLogChunkFieldNumber = 2,
+    kAttachmentHoldersFieldNumber = 5,
+    kBackupIDFieldNumber = 1,
+    kLogIDFieldNumber = 2,
+    kCompactionChunkFieldNumber = 3,
+    kLogChunkFieldNumber = 4,
   };
-  // int32 chunkCounter = 3;
-  void clear_chunkcounter();
-  ::PROTOBUF_NAMESPACE_ID::int32 chunkcounter() const;
-  void set_chunkcounter(::PROTOBUF_NAMESPACE_ID::int32 value);
+  // string attachmentHolders = 5;
+  bool has_attachmentholders() const;
   private:
-  ::PROTOBUF_NAMESPACE_ID::int32 _internal_chunkcounter() const;
-  void _internal_set_chunkcounter(::PROTOBUF_NAMESPACE_ID::int32 value);
+  bool _internal_has_attachmentholders() const;
+  public:
+  void clear_attachmentholders();
+  const std::string& attachmentholders() const;
+  void set_attachmentholders(const std::string& value);
+  void set_attachmentholders(std::string&& value);
+  void set_attachmentholders(const char* value);
+  void set_attachmentholders(const char* value, size_t size);
+  std::string* mutable_attachmentholders();
+  std::string* release_attachmentholders();
+  void set_allocated_attachmentholders(std::string* attachmentholders);
+  private:
+  const std::string& _internal_attachmentholders() const;
+  void _internal_set_attachmentholders(const std::string& value);
+  std::string* _internal_mutable_attachmentholders();
   public:
 
-  // bytes compactionChunk = 1;
+  // string backupID = 1;
+  bool has_backupid() const;
+  private:
+  bool _internal_has_backupid() const;
+  public:
+  void clear_backupid();
+  const std::string& backupid() const;
+  void set_backupid(const std::string& value);
+  void set_backupid(std::string&& value);
+  void set_backupid(const char* value);
+  void set_backupid(const char* value, size_t size);
+  std::string* mutable_backupid();
+  std::string* release_backupid();
+  void set_allocated_backupid(std::string* backupid);
+  private:
+  const std::string& _internal_backupid() const;
+  void _internal_set_backupid(const std::string& value);
+  std::string* _internal_mutable_backupid();
+  public:
+
+  // string logID = 2;
+  bool has_logid() const;
+  private:
+  bool _internal_has_logid() const;
+  public:
+  void clear_logid();
+  const std::string& logid() const;
+  void set_logid(const std::string& value);
+  void set_logid(std::string&& value);
+  void set_logid(const char* value);
+  void set_logid(const char* value, size_t size);
+  std::string* mutable_logid();
+  std::string* release_logid();
+  void set_allocated_logid(std::string* logid);
+  private:
+  const std::string& _internal_logid() const;
+  void _internal_set_logid(const std::string& value);
+  std::string* _internal_mutable_logid();
+  public:
+
+  // bytes compactionChunk = 3;
   bool has_compactionchunk() const;
   private:
   bool _internal_has_compactionchunk() const;
@@ -1487,7 +1546,7 @@ class PullBackupResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_compactionchunk();
   public:
 
-  // bytes logChunk = 2;
+  // bytes logChunk = 4;
   bool has_logchunk() const;
   private:
   bool _internal_has_logchunk() const;
@@ -1507,13 +1566,20 @@ class PullBackupResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_logchunk();
   public:
 
+  void clear_id();
+  IdCase id_case() const;
   void clear_data();
   DataCase data_case() const;
   // @@protoc_insertion_point(class_scope:backup.PullBackupResponse)
  private:
   class _Internal;
+  void set_has_backupid();
+  void set_has_logid();
   void set_has_compactionchunk();
   void set_has_logchunk();
+
+  inline bool has_id() const;
+  inline void clear_has_id();
 
   inline bool has_data() const;
   inline void clear_has_data();
@@ -1521,15 +1587,22 @@ class PullBackupResponse PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::int32 chunkcounter_;
+  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr attachmentholders_;
+  union IdUnion {
+    constexpr IdUnion() : _constinit_{} {}
+      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr backupid_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr logid_;
+  } id_;
   union DataUnion {
     constexpr DataUnion() : _constinit_{} {}
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr compactionchunk_;
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr logchunk_;
   } data_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
-  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[2];
 
   friend struct ::TableStruct_backup_2eproto;
 };
@@ -3144,7 +3217,227 @@ inline void PullBackupRequest::set_allocated_backupid(std::string* backupid) {
 
 // PullBackupResponse
 
-// bytes compactionChunk = 1;
+// string backupID = 1;
+inline bool PullBackupResponse::_internal_has_backupid() const {
+  return id_case() == kBackupID;
+}
+inline bool PullBackupResponse::has_backupid() const {
+  return _internal_has_backupid();
+}
+inline void PullBackupResponse::set_has_backupid() {
+  _oneof_case_[0] = kBackupID;
+}
+inline void PullBackupResponse::clear_backupid() {
+  if (_internal_has_backupid()) {
+    id_.backupid_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_id();
+  }
+}
+inline const std::string& PullBackupResponse::backupid() const {
+  // @@protoc_insertion_point(field_get:backup.PullBackupResponse.backupID)
+  return _internal_backupid();
+}
+inline void PullBackupResponse::set_backupid(const std::string& value) {
+  _internal_set_backupid(value);
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.backupID)
+}
+inline std::string* PullBackupResponse::mutable_backupid() {
+  // @@protoc_insertion_point(field_mutable:backup.PullBackupResponse.backupID)
+  return _internal_mutable_backupid();
+}
+inline const std::string& PullBackupResponse::_internal_backupid() const {
+  if (_internal_has_backupid()) {
+    return id_.backupid_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void PullBackupResponse::_internal_set_backupid(const std::string& value) {
+  if (!_internal_has_backupid()) {
+    clear_id();
+    set_has_backupid();
+    id_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  id_.backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void PullBackupResponse::set_backupid(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.backupID)
+  if (!_internal_has_backupid()) {
+    clear_id();
+    set_has_backupid();
+    id_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  id_.backupid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupResponse.backupID)
+}
+inline void PullBackupResponse::set_backupid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_backupid()) {
+    clear_id();
+    set_has_backupid();
+    id_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  id_.backupid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.PullBackupResponse.backupID)
+}
+inline void PullBackupResponse::set_backupid(const char* value,
+                             size_t size) {
+  if (!_internal_has_backupid()) {
+    clear_id();
+    set_has_backupid();
+    id_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  id_.backupid_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupResponse.backupID)
+}
+inline std::string* PullBackupResponse::_internal_mutable_backupid() {
+  if (!_internal_has_backupid()) {
+    clear_id();
+    set_has_backupid();
+    id_.backupid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return id_.backupid_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* PullBackupResponse::release_backupid() {
+  // @@protoc_insertion_point(field_release:backup.PullBackupResponse.backupID)
+  if (_internal_has_backupid()) {
+    clear_has_id();
+    return id_.backupid_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void PullBackupResponse::set_allocated_backupid(std::string* backupid) {
+  if (has_id()) {
+    clear_id();
+  }
+  if (backupid != nullptr) {
+    set_has_backupid();
+    id_.backupid_.UnsafeSetDefault(backupid);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(backupid);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupResponse.backupID)
+}
+
+// string logID = 2;
+inline bool PullBackupResponse::_internal_has_logid() const {
+  return id_case() == kLogID;
+}
+inline bool PullBackupResponse::has_logid() const {
+  return _internal_has_logid();
+}
+inline void PullBackupResponse::set_has_logid() {
+  _oneof_case_[0] = kLogID;
+}
+inline void PullBackupResponse::clear_logid() {
+  if (_internal_has_logid()) {
+    id_.logid_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_id();
+  }
+}
+inline const std::string& PullBackupResponse::logid() const {
+  // @@protoc_insertion_point(field_get:backup.PullBackupResponse.logID)
+  return _internal_logid();
+}
+inline void PullBackupResponse::set_logid(const std::string& value) {
+  _internal_set_logid(value);
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.logID)
+}
+inline std::string* PullBackupResponse::mutable_logid() {
+  // @@protoc_insertion_point(field_mutable:backup.PullBackupResponse.logID)
+  return _internal_mutable_logid();
+}
+inline const std::string& PullBackupResponse::_internal_logid() const {
+  if (_internal_has_logid()) {
+    return id_.logid_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void PullBackupResponse::_internal_set_logid(const std::string& value) {
+  if (!_internal_has_logid()) {
+    clear_id();
+    set_has_logid();
+    id_.logid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  id_.logid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void PullBackupResponse::set_logid(std::string&& value) {
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.logID)
+  if (!_internal_has_logid()) {
+    clear_id();
+    set_has_logid();
+    id_.logid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  id_.logid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupResponse.logID)
+}
+inline void PullBackupResponse::set_logid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_logid()) {
+    clear_id();
+    set_has_logid();
+    id_.logid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  id_.logid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.PullBackupResponse.logID)
+}
+inline void PullBackupResponse::set_logid(const char* value,
+                             size_t size) {
+  if (!_internal_has_logid()) {
+    clear_id();
+    set_has_logid();
+    id_.logid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  id_.logid_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupResponse.logID)
+}
+inline std::string* PullBackupResponse::_internal_mutable_logid() {
+  if (!_internal_has_logid()) {
+    clear_id();
+    set_has_logid();
+    id_.logid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return id_.logid_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* PullBackupResponse::release_logid() {
+  // @@protoc_insertion_point(field_release:backup.PullBackupResponse.logID)
+  if (_internal_has_logid()) {
+    clear_has_id();
+    return id_.logid_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void PullBackupResponse::set_allocated_logid(std::string* logid) {
+  if (has_id()) {
+    clear_id();
+  }
+  if (logid != nullptr) {
+    set_has_logid();
+    id_.logid_.UnsafeSetDefault(logid);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(logid);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupResponse.logID)
+}
+
+// bytes compactionChunk = 3;
 inline bool PullBackupResponse::_internal_has_compactionchunk() const {
   return data_case() == kCompactionChunk;
 }
@@ -3152,7 +3445,7 @@ inline bool PullBackupResponse::has_compactionchunk() const {
   return _internal_has_compactionchunk();
 }
 inline void PullBackupResponse::set_has_compactionchunk() {
-  _oneof_case_[0] = kCompactionChunk;
+  _oneof_case_[1] = kCompactionChunk;
 }
 inline void PullBackupResponse::clear_compactionchunk() {
   if (_internal_has_compactionchunk()) {
@@ -3254,7 +3547,7 @@ inline void PullBackupResponse::set_allocated_compactionchunk(std::string* compa
   // @@protoc_insertion_point(field_set_allocated:backup.PullBackupResponse.compactionChunk)
 }
 
-// bytes logChunk = 2;
+// bytes logChunk = 4;
 inline bool PullBackupResponse::_internal_has_logchunk() const {
   return data_case() == kLogChunk;
 }
@@ -3262,7 +3555,7 @@ inline bool PullBackupResponse::has_logchunk() const {
   return _internal_has_logchunk();
 }
 inline void PullBackupResponse::set_has_logchunk() {
-  _oneof_case_[0] = kLogChunk;
+  _oneof_case_[1] = kLogChunk;
 }
 inline void PullBackupResponse::clear_logchunk() {
   if (_internal_has_logchunk()) {
@@ -3364,34 +3657,96 @@ inline void PullBackupResponse::set_allocated_logchunk(std::string* logchunk) {
   // @@protoc_insertion_point(field_set_allocated:backup.PullBackupResponse.logChunk)
 }
 
-// int32 chunkCounter = 3;
-inline void PullBackupResponse::clear_chunkcounter() {
-  chunkcounter_ = 0;
+// string attachmentHolders = 5;
+inline bool PullBackupResponse::_internal_has_attachmentholders() const {
+  bool value = (_has_bits_[0] & 0x00000001u) != 0;
+  return value;
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 PullBackupResponse::_internal_chunkcounter() const {
-  return chunkcounter_;
+inline bool PullBackupResponse::has_attachmentholders() const {
+  return _internal_has_attachmentholders();
 }
-inline ::PROTOBUF_NAMESPACE_ID::int32 PullBackupResponse::chunkcounter() const {
-  // @@protoc_insertion_point(field_get:backup.PullBackupResponse.chunkCounter)
-  return _internal_chunkcounter();
+inline void PullBackupResponse::clear_attachmentholders() {
+  attachmentholders_.ClearToEmpty();
+  _has_bits_[0] &= ~0x00000001u;
 }
-inline void PullBackupResponse::_internal_set_chunkcounter(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  
-  chunkcounter_ = value;
+inline const std::string& PullBackupResponse::attachmentholders() const {
+  // @@protoc_insertion_point(field_get:backup.PullBackupResponse.attachmentHolders)
+  return _internal_attachmentholders();
 }
-inline void PullBackupResponse::set_chunkcounter(::PROTOBUF_NAMESPACE_ID::int32 value) {
-  _internal_set_chunkcounter(value);
-  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.chunkCounter)
+inline void PullBackupResponse::set_attachmentholders(const std::string& value) {
+  _internal_set_attachmentholders(value);
+  // @@protoc_insertion_point(field_set:backup.PullBackupResponse.attachmentHolders)
+}
+inline std::string* PullBackupResponse::mutable_attachmentholders() {
+  // @@protoc_insertion_point(field_mutable:backup.PullBackupResponse.attachmentHolders)
+  return _internal_mutable_attachmentholders();
+}
+inline const std::string& PullBackupResponse::_internal_attachmentholders() const {
+  return attachmentholders_.Get();
+}
+inline void PullBackupResponse::_internal_set_attachmentholders(const std::string& value) {
+  _has_bits_[0] |= 0x00000001u;
+  attachmentholders_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void PullBackupResponse::set_attachmentholders(std::string&& value) {
+  _has_bits_[0] |= 0x00000001u;
+  attachmentholders_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:backup.PullBackupResponse.attachmentHolders)
+}
+inline void PullBackupResponse::set_attachmentholders(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000001u;
+  attachmentholders_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:backup.PullBackupResponse.attachmentHolders)
+}
+inline void PullBackupResponse::set_attachmentholders(const char* value,
+    size_t size) {
+  _has_bits_[0] |= 0x00000001u;
+  attachmentholders_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:backup.PullBackupResponse.attachmentHolders)
+}
+inline std::string* PullBackupResponse::_internal_mutable_attachmentholders() {
+  _has_bits_[0] |= 0x00000001u;
+  return attachmentholders_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* PullBackupResponse::release_attachmentholders() {
+  // @@protoc_insertion_point(field_release:backup.PullBackupResponse.attachmentHolders)
+  if (!_internal_has_attachmentholders()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000001u;
+  return attachmentholders_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void PullBackupResponse::set_allocated_attachmentholders(std::string* attachmentholders) {
+  if (attachmentholders != nullptr) {
+    _has_bits_[0] |= 0x00000001u;
+  } else {
+    _has_bits_[0] &= ~0x00000001u;
+  }
+  attachmentholders_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), attachmentholders,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:backup.PullBackupResponse.attachmentHolders)
 }
 
+inline bool PullBackupResponse::has_id() const {
+  return id_case() != ID_NOT_SET;
+}
+inline void PullBackupResponse::clear_has_id() {
+  _oneof_case_[0] = ID_NOT_SET;
+}
 inline bool PullBackupResponse::has_data() const {
   return data_case() != DATA_NOT_SET;
 }
 inline void PullBackupResponse::clear_has_data() {
-  _oneof_case_[0] = DATA_NOT_SET;
+  _oneof_case_[1] = DATA_NOT_SET;
+}
+inline PullBackupResponse::IdCase PullBackupResponse::id_case() const {
+  return PullBackupResponse::IdCase(_oneof_case_[0]);
 }
 inline PullBackupResponse::DataCase PullBackupResponse::data_case() const {
-  return PullBackupResponse::DataCase(_oneof_case_[0]);
+  return PullBackupResponse::DataCase(_oneof_case_[1]);
 }
 // -------------------------------------------------------------------
 
