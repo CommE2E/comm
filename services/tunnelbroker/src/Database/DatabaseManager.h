@@ -48,10 +48,13 @@ public:
 
   void putMessageItem(const MessageItem &item);
   void putMessageItemsByBatch(std::vector<MessageItem> &messageItems);
-  std::shared_ptr<MessageItem> findMessageItem(const std::string &messageID);
+  std::shared_ptr<MessageItem>
+  findMessageItem(const std::string &toDeviceID, const std::string &messageID);
   std::vector<std::shared_ptr<MessageItem>>
   findMessageItemsByReceiver(const std::string &toDeviceID);
-  void removeMessageItem(const std::string &messageID);
+  void removeMessageItem(
+      const std::string &toDeviceID,
+      const std::string &messageID);
   void removeMessageItemsByIDsForDeviceID(
       std::vector<std::string> &messageIDs,
       const std::string &toDeviceID);

@@ -228,7 +228,7 @@ grpc::Status TunnelBrokerServiceImpl::Get(
           messageFromDatabase->getFromDeviceID(),
           messageFromDatabase->getPayload());
       database::DatabaseManager::getInstance().removeMessageItem(
-          messageFromDatabase->getMessageID());
+          clientDeviceID, messageFromDatabase->getMessageID());
     }
     while (1) {
       messageToDeliver = DeliveryBroker::getInstance().pop(clientDeviceID);
@@ -236,7 +236,7 @@ grpc::Status TunnelBrokerServiceImpl::Get(
       comm::network::AmqpManager::getInstance().ack(
           messageToDeliver.deliveryTag);
       database::DatabaseManager::getInstance().removeMessageItem(
-          messageToDeliver.messageID);
+          clientDeviceID, messageToDeliver.messageID);
       // If messages queue for `clientDeviceID` is empty we don't need to store
       // `folly::MPMCQueue` for it and need to free memory to fix possible
       // 'ghost' queues in DeliveryBroker.

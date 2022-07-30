@@ -191,9 +191,13 @@ void DatabaseManager::putMessageItemsByBatch(
       writeRequests);
 }
 
-std::shared_ptr<MessageItem>
-DatabaseManager::findMessageItem(const std::string &messageID) {
+std::shared_ptr<MessageItem> DatabaseManager::findMessageItem(
+    const std::string &toDeviceID,
+    const std::string &messageID) {
   Aws::DynamoDB::Model::GetItemRequest request;
+  request.AddKey(
+      MessageItem::FIELD_TO_DEVICE_ID,
+      Aws::DynamoDB::Model::AttributeValue(toDeviceID));
   request.AddKey(
       MessageItem::FIELD_MESSAGE_ID,
       Aws::DynamoDB::Model::AttributeValue(messageID));
@@ -228,8 +232,11 @@ DatabaseManager::findMessageItemsByReceiver(const std::string &toDeviceID) {
   return result;
 }
 
-void DatabaseManager::removeMessageItem(const std::string &messageID) {
-  std::shared_ptr<MessageItem> item = this->findMessageItem(messageID);
+void DatabaseManager::removeMessageItem(
+    const std::string &toDeviceID,
+    const std::string &messageID) {
+  std::shared_ptr<MessageItem> item =
+      this->findMessageItem(toDeviceID, messageID);
   if (item == nullptr) {
     return;
   }

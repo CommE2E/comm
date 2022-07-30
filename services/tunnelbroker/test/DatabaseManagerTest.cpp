@@ -46,7 +46,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsStaticDataIsSame) {
   database::DatabaseManager::getInstance().putMessageItem(item);
   std::shared_ptr<database::MessageItem> foundItem =
       database::DatabaseManager::getInstance().findMessageItem(
-          item.getMessageID());
+          item.getToDeviceID(), item.getMessageID());
   EXPECT_NE(foundItem, nullptr);
   EXPECT_EQ(item.getFromDeviceID(), foundItem->getFromDeviceID());
   EXPECT_EQ(item.getToDeviceID(), foundItem->getToDeviceID());
@@ -62,7 +62,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsStaticDataIsSame) {
           foundItem->getCreatedAt() <= tools::getCurrentTimestamp(),
       true);
   database::DatabaseManager::getInstance().removeMessageItem(
-      item.getMessageID());
+      item.getToDeviceID(), item.getMessageID());
 }
 
 TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsGeneratedDataIsSame) {
@@ -79,7 +79,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsGeneratedDataIsSame) {
   database::DatabaseManager::getInstance().putMessageItem(item);
   std::shared_ptr<database::MessageItem> foundItem =
       database::DatabaseManager::getInstance().findMessageItem(
-          item.getMessageID());
+          item.getToDeviceID(), item.getMessageID());
   EXPECT_NE(foundItem, nullptr);
   EXPECT_EQ(item.getFromDeviceID(), foundItem->getFromDeviceID())
       << "Generated FromDeviceID \"" << item.getFromDeviceID()
@@ -98,7 +98,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundMessageItemsGeneratedDataIsSame) {
       << "\" differs from what is found in the database "
       << foundItem->getBlobHashes();
   database::DatabaseManager::getInstance().removeMessageItem(
-      item.getMessageID());
+      item.getToDeviceID(), item.getMessageID());
 }
 
 TEST_F(DatabaseManagerTest, BatchPutAndFoundMessagesItemsCountIsSame) {
@@ -127,7 +127,7 @@ TEST_F(DatabaseManagerTest, BatchPutAndFoundMessagesItemsCountIsSame) {
   EXPECT_EQ(foundItems.size(), itemsSize);
   for (std::shared_ptr<database::MessageItem> messageItem : foundItems) {
     database::DatabaseManager::getInstance().removeMessageItem(
-        messageItem->getMessageID());
+        messageItem->getToDeviceID(), messageItem->getMessageID());
   }
 }
 
@@ -330,7 +330,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundByReceiverMessageItemsDataIsSame) {
            static_cast<size_t>(std::time(0) + MESSAGE_RECORD_TTL)),
       true);
   database::DatabaseManager::getInstance().removeMessageItem(
-      item.getMessageID());
+      item.getToDeviceID(), item.getMessageID());
 }
 
 TEST_F(DatabaseManagerTest, RemoveMessageItemsInBatch) {
