@@ -184,7 +184,7 @@ void DatabaseManager::putMessageItemsByBatch(
     writeRequests.push_back(writeRequest);
   }
   this->innerBatchWriteItem(
-      MESSAGES_TABLE_NAME,
+      messageItems[0].getTableName(),
       DYNAMODB_MAX_BATCH_ITEMS,
       DYNAMODB_BACKOFF_FIRST_RETRY_DELAY,
       DYNAMODB_MAX_BACKOFF_TIME,
@@ -258,7 +258,7 @@ void DatabaseManager::removeMessageItemsByIDsForDeviceID(
     writeRequests.push_back(currentWriteRequest);
   }
   this->innerBatchWriteItem(
-      MESSAGES_TABLE_NAME,
+      MessageItem().getTableName(),
       DYNAMODB_MAX_BATCH_ITEMS,
       DYNAMODB_BACKOFF_FIRST_RETRY_DELAY,
       DYNAMODB_MAX_BACKOFF_TIME,

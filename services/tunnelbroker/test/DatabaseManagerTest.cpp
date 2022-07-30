@@ -118,7 +118,7 @@ TEST_F(DatabaseManagerTest, BatchPutAndFoundMessagesItemsCountIsSame) {
   }
   EXPECT_EQ(
       database::DatabaseManager::getInstance().isTableAvailable(
-          MESSAGES_TABLE_NAME),
+          messageItems[0].getTableName()),
       true);
   database::DatabaseManager::getInstance().putMessageItemsByBatch(messageItems);
   std::vector<std::shared_ptr<database::MessageItem>> foundItems =
