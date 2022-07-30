@@ -149,14 +149,6 @@ resource "aws_dynamodb_table" "tunnelbroker-messages" {
     type = "S"
   }
 
-  global_secondary_index {
-    name            = "ToDeviceID-index"
-    hash_key        = "ToDeviceID"
-    write_capacity  = 10
-    read_capacity   = 10
-    projection_type = "ALL"
-  }
-
   ttl {
     attribute_name = "Expire"
     enabled        = true

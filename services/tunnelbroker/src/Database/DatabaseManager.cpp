@@ -217,8 +217,6 @@ DatabaseManager::findMessageItemsByReceiver(const std::string &toDeviceID) {
   attributeValues.emplace(":valueToMatch", toDeviceID);
 
   req.SetExpressionAttributeValues(attributeValues);
-  req.SetIndexName(MessageItem::INDEX_TO_DEVICE_ID);
-
   const Aws::DynamoDB::Model::QueryOutcome &outcome =
       getDynamoDBClient()->Query(req);
   if (!outcome.IsSuccess()) {
