@@ -22,10 +22,10 @@ protected:
 
 TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnStaticData) {
   const std::string messageID = "bc0c1aa2-bf09-11ec-9d64-0242ac120002";
-  const std::string toDeviceID =
-      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm";
   const std::string fromDeviceID =
       "web:JouLWf84zqRIsjBdHLOcHS9M4eSCz7VF84wT1uOD83u1qxDAqmqI4swmxNINjuhd";
+  const std::string toDeviceID =
+      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm";
   const std::string payload =
       "lYlNcO6RR4i9UW3G1DGjdJTRRGbqtPya2aj94ZRjIGZWoHwT5MB9ciAgnQf2VafYb9Tl"
       "8SZkX37tg4yZ9pOb4lqslY4g4h58OmWjumghVRvrPUZDalUuK8OLs1Qoengpu9wccxAk"
@@ -36,7 +36,7 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnStaticData) {
       "ajjNGsUWmp9r0ST0wRQXrQcY30PoSoqKSlCEgFMLzHWLrPQ86QFyCICismGSe7iBIqdD"
       "6d37StvXBzfJoZVU79UeOF2bFvb3DNoArEOe";
   const database::MessageItem messageItem{
-      messageID, toDeviceID, fromDeviceID, payload, ""};
+      messageID, fromDeviceID, toDeviceID, payload, ""};
   EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
   DeliveryBrokerMessage receivedMessage =
       DeliveryBroker::getInstance().pop(toDeviceID);
@@ -48,13 +48,13 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnStaticData) {
 
 TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnGeneratedData) {
   const std::string messageID = tools::generateUUID();
-  const std::string toDeviceID =
-      "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH);
   const std::string fromDeviceID =
       "web:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH);
+  const std::string toDeviceID =
+      "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH);
   const std::string payload = tools::generateRandomString(512);
   const database::MessageItem messageItem{
-      messageID, toDeviceID, fromDeviceID, payload, ""};
+      messageID, fromDeviceID, toDeviceID, payload, ""};
   EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
   DeliveryBrokerMessage receivedMessage =
       DeliveryBroker::getInstance().pop(toDeviceID);
