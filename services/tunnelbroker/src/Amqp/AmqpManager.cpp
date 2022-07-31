@@ -63,7 +63,7 @@ void AmqpManager::connectInternal() {
                            bool redelivered) {
               try {
                 AMQP::Table headers = message.headers();
-                const std::string payload(message.body());
+                const std::string payload(message.body(), message.bodySize());
                 const std::string messageID(headers[AMQP_HEADER_MESSAGEID]);
                 const std::string toDeviceID(headers[AMQP_HEADER_TO_DEVICEID]);
                 const std::string fromDeviceID(
@@ -111,8 +111,8 @@ bool AmqpManager::send(const database::MessageItem *message) {
     return false;
   }
   try {
-    AMQP::Envelope env(
-        message->getPayload().c_str(), message->getPayload().size());
+    const std::string messagePayload = message->getPayload();
+    AMQP::Envelope env(messagePayload.c_str(), messagePayload.size());
     AMQP::Table headers;
     headers[AMQP_HEADER_MESSAGEID] = message->getMessageID();
     headers[AMQP_HEADER_FROM_DEVICEID] = message->getFromDeviceID();
