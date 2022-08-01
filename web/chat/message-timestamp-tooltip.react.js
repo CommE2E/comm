@@ -19,11 +19,9 @@ import {
   TooltipTextItem,
 } from './tooltip.react';
 
-const availablePositionsForComposedViewerMessage = [
-  tooltipPositions.BOTTOM_RIGHT,
-];
+const availablePositionsForComposedViewerMessage = [tooltipPositions.LEFT];
 const availablePositionsForNonComposedOrNonViewerMessage = [
-  tooltipPositions.LEFT,
+  tooltipPositions.BOTTOM_RIGHT,
 ];
 
 type Props = {
@@ -87,8 +85,8 @@ function getTimestampTooltipStyle(
       0,
     );
     style = {
-      right: containerWidth - messagePosition.left + sizeOfTooltipArrow,
-      top: tooltipPointing,
+      right: containerWidth - messagePosition.left + sizeOfTooltipArrow + 2,
+      bottom: containerHeight - tooltipPointing - 5 * sizeOfTooltipArrow,
     };
     className = css.messageLeftTooltip;
   } else if (tooltipPosition === tooltipPositions.RIGHT) {
@@ -130,13 +128,16 @@ function getTimestampTooltipStyle(
     };
     className = css.messageBottomLeftTooltip;
   } else if (tooltipPosition === tooltipPositions.BOTTOM_RIGHT) {
-    const tooltipPointing = Math.min(messagePosition.bottom, containerHeight);
+    const centerOfMessage = messagePosition.top + messagePosition.height / 2;
+    const tooltipPointing = Math.max(
+      Math.min(centerOfMessage, containerHeight),
+      0,
+    );
     style = {
-      right: containerWidth - messagePosition.right,
-      top: tooltipPointing + sizeOfTooltipArrow,
+      left: messagePosition.right + sizeOfTooltipArrow + 2,
+      bottom: containerHeight - tooltipPointing - 5 * sizeOfTooltipArrow,
     };
     className = css.messageBottomRightTooltip;
-    console.log(`container height:${containerHeight}`);
   }
   invariant(
     className && style,
