@@ -1,5 +1,6 @@
 // @flow
 
+const { execSync } = require('child_process');
 const fs = require('fs');
 const { request } = require('gaxios');
 
@@ -31,13 +32,18 @@ const getRevisionsToBeRemoved = differentialData => {
   return revisionsToBeRemoved;
 };
 
-const getGitTagsToBeRemoved = revisionsToBeRemoved => {
+const getRemoteGitTags = () => {
+  const remoteGitTags = execSync('git tag');
+  return new Set(remoteGitTags.toString().split('\n'));
+};
+
+const getGitTagsToBeRemoved = (remoteGitTags, revisionsToBeRemoved) => {
   const gitTagsToBeRemoved = [];
   for (const revisionID of revisionsToBeRemoved) {
     gitTagsToBeRemoved.push(`phabricator/base/${revisionID}`);
     gitTagsToBeRemoved.push(`phabricator/diff/${revisionID}`);
   }
-  return gitTagsToBeRemoved;
+  return gitTagsToBeRemoved.filter(tag => remoteGitTags.has(tag));
 };
 
 const getGitCommandsToBeRun = gitTagsToBeRemoved => {
@@ -50,8 +56,12 @@ const writeGitCommandsScriptToDisk = gitCommandsToBeRun => {
 
 async function main() {
   const differentialData = await getDifferentialDataFromPhabricator();
+  const remoteGitTags = getRemoteGitTags();
   const revisionsToBeRemoved = getRevisionsToBeRemoved(differentialData);
-  const gitTagsToBeRemoved = getGitTagsToBeRemoved(revisionsToBeRemoved);
+  const gitTagsToBeRemoved = getGitTagsToBeRemoved(
+    remoteGitTags,
+    revisionsToBeRemoved,
+  );
   const gitCommandsToBeRun = getGitCommandsToBeRun(gitTagsToBeRemoved);
   writeGitCommandsScriptToDisk(gitCommandsToBeRun);
   process.exit(0);
