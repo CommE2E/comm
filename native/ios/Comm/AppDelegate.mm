@@ -162,6 +162,14 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
     return YES;
   } else if ([notification[backgroundNotificationTypeKey]
                  isEqualToString:@"CLEAR"]) {
+    if (notification[setUnreadStatusKey] && notification[@"threadID"]) {
+      std::string threadID =
+          std::string([notification[@"threadID"] UTF8String]);
+      // this callback may be called from inactive state so we need
+      // to initialize the database
+      [self attemptDatabaseInitialization];
+      comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+    }
     [[UNUserNotificationCenter currentNotificationCenter]
         getDeliveredNotificationsWithCompletionHandler:^(
             NSArray<UNNotification *> *notifications) {
