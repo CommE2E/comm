@@ -14,7 +14,7 @@ SCP_DEST_FOLDER=$2
 
 SCP_SOURCE_SERVER=$(cut -d: -f1 <<< "$SCP_SOURCE")
 SCP_SOURCE_FOLDER=$(cut -d: -f2 <<< "$SCP_SOURCE")
-NEWEST_BACKUP=$(ssh "$SCP_SOURCE_SERVER" 'find "'$SCP_SOURCE_FOLDER'" -maxdepth 1 -name "comm.*.sql.gz" -type f -printf "%T+ %p\n" | sort | tail -n 1 | cut -d " " -f2')
+NEWEST_BACKUP=$(ssh "$SCP_SOURCE_SERVER" 'find "'"$SCP_SOURCE_FOLDER"'" -maxdepth 1 -name "comm.*.sql.gz" -type f -printf "%T+ %p\n" | sort | tail -n 1 | cut -d " " -f2')
 
 function remove_oldest_backup {
   OLDEST_BACKUP=$(find "$SCP_DEST_FOLDER" -maxdepth 1 -name 'comm.*.sql.gz' -type f -printf "%T+ %p\n" | sort | head -n 1 | cut -d ' ' -f2- | cut -d '' -f1)
