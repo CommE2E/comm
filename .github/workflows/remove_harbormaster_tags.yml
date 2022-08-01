@@ -1,0 +1,28 @@
+name: Remove extraneous Harbormaster git tags
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: npm install -g yarn
+        run: npm install -g yarn
+
+      - name: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile
+
+      - name: Generate tag removal script
+        working-directory: ./scripts
+        env:
+          PHABRICATOR_API_TOKEN: ${{secrets.PHABRICATOR_API_TOKEN}}
+        run: node generate-phab-tag-removal-script.js
+
+      - name: Run tag removal script
+        working-directory: ./scripts
+        run: chmod +x tag_removal_script.sh && ./tag_removal_script.sh
