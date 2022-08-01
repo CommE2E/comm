@@ -34,3 +34,15 @@ div.messageLeftTooltip {
 div.messageRightTooltip {
   transform: translate(0%, -50%);
 }
+
+div.messageTimestampTooltip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  background-color: var(--message-action-tooltip-bg);
+  border-radius: 8px;
+  overflow: auto;
+  min-width: 72px;
+}

@@ -60,7 +60,12 @@ function TooltipMenu(props: TooltipMenuProps): React.Node {
   ]);
 
   const className = React.useMemo(
-    () => classNames(css.messageTooltipMenu, tooltipStyle.className),
+    () =>
+      classNames(
+        css.messageTooltipMenu,
+        tooltipStyle.className,
+        css.messageTimestampTooltip,
+      ),
     [tooltipStyle],
   );
 
