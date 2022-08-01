@@ -252,6 +252,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         <div className={messageContainerStyle} ref={this.messageContainerRef}>
           {messages}
         </div>
+        {tooltip}
       </div>
     );
   }
