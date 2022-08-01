@@ -258,16 +258,13 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       [css.messageContainer]: true,
       [css.mirroredMessageContainer]: !this.props.supportsReverseFlex,
     });
-    return connectDropTarget(
-      <div className={containerStyle} ref={this.containerRef}>
-        <ThreadTopBar threadInfo={threadInfo} />
-        <div className={css.outerMessageContainer}>
-          {relationshipPrompt}
-          <div className={messageContainerStyle} ref={this.messageContainerRef}>
-            {messages}
-          </div>
-          {tooltip}
+    return (
+      <div className={css.outerMessageContainer}>
+        {relationshipPrompt}
+        <div className={messageContainerStyle} ref={this.messageContainerRef}>
+          {messages}
         </div>
+        {tooltip}
       </div>
     );
   }
