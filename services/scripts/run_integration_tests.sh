@@ -26,7 +26,7 @@ if [[ -z "$1" ]]; then
 fi
 
 if [[ "$1" == "all" ]]; then
-  for SERVICE in "$SERVICES"; do
+  for SERVICE in $SERVICES; do
     run_integration_test "$SERVICE"
   done
   exit 0;
@@ -41,6 +41,7 @@ if [[ "$SERVICE" != "$1" ]]; then
 fi;
 
 set -o allexport
+# shellcheck source=/dev/null
 source .env
 set +o allexport
 
