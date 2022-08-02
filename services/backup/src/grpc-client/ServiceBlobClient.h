@@ -17,7 +17,6 @@ namespace network {
 class ServiceBlobClient {
   std::unique_ptr<blob::BlobService::Stub> stub;
 
-public:
   ServiceBlobClient() {
     // todo handle different types of connection(e.g. load balancer)
     std::string targetStr = "blob-server:50051";
@@ -26,7 +25,16 @@ public:
     this->stub = blob::BlobService::NewStub(channel);
   }
 
+public:
+  static ServiceBlobClient &getInstance() {
+    static ServiceBlobClient instance;
+    return instance;
+  }
+
   void put(std::shared_ptr<reactor::BlobPutClientReactor> putReactor) {
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[ServiceBlobClient::put] " << this;
     if (putReactor == nullptr) {
       throw std::runtime_error(
           "put reactor is being used but has not been initialized");
@@ -36,6 +44,9 @@ public:
   }
 
   void get(std::shared_ptr<reactor::BlobGetClientReactor> getReactor) {
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[ServiceBlobClient::get] " << this;
     if (getReactor == nullptr) {
       throw std::runtime_error(
           "get reactor is being used but has not been initialized");

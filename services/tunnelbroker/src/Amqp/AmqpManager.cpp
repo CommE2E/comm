@@ -26,7 +26,9 @@ void AmqpManager::connectInternal() {
   const std::string fanoutExchangeName =
       config::ConfigManager::getInstance().getParameter(
           config::ConfigManager::OPTION_AMQP_FANOUT_EXCHANGE);
-  LOG(INFO) << "AMQP: Connecting to " << amqpUri;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "AMQP: Connecting to " << amqpUri;
 
   auto *loop = uv_default_loop();
   AMQP::LibUvHandler handler(loop);
@@ -48,7 +50,10 @@ void AmqpManager::connectInternal() {
                      const std::string &name,
                      uint32_t messagecount,
                      uint32_t consumercount) {
-        LOG(INFO) << "AMQP: Queue " << name << " created";
+        LOG(INFO) << "["
+                  << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                  << "]"
+                  << "AMQP: Queue " << name << " created";
         this->amqpChannel->bindQueue(fanoutExchangeName, tunnelbrokerID, "")
             .onError([this, tunnelbrokerID, fanoutExchangeName](
                          const char *message) {
@@ -68,7 +73,11 @@ void AmqpManager::connectInternal() {
                 const std::string toDeviceID(headers[AMQP_HEADER_TO_DEVICEID]);
                 const std::string fromDeviceID(
                     headers[AMQP_HEADER_FROM_DEVICEID]);
-                LOG(INFO) << "AMQP: Message consumed for deviceID: "
+                LOG(INFO) << "["
+                          << std::hash<std::thread::id>{}(
+                                 std::this_thread::get_id())
+                          << "]"
+                          << "AMQP: Message consumed for deviceID: "
                           << toDeviceID;
                 DeliveryBroker::getInstance().push(
                     messageID, deliveryTag, toDeviceID, fromDeviceID, payload);

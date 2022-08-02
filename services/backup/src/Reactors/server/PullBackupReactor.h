@@ -34,7 +34,7 @@ class PullBackupReactor : public ServerWriteReactorBase<
   std::shared_ptr<reactor::BlobGetClientReactor> getReactor;
   std::mutex reactorStateMutex;
   std::shared_ptr<folly::MPMCQueue<std::string>> dataChunks;
-  ServiceBlobClient blobClient;
+  // ServiceBlobClient blobClient;
   State state = State::COMPACTION;
   std::vector<std::shared_ptr<database::LogItem>> logs;
   size_t currentLogIndex = 0;

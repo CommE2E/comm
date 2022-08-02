@@ -40,7 +40,9 @@ LogItem::LogItem(const AttributeValues &itemFromDB) {
 }
 
 void LogItem::validate() const {
-  LOG(INFO) << "[LogItem::validate]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[LogItem::validate]";
   if (!this->backupID.size()) {
     throw std::runtime_error("backupID empty");
   }
@@ -64,13 +66,19 @@ void LogItem::validate() const {
 }
 
 void LogItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
-  LOG(INFO) << "[LogItem::assignItemFromDatabase]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[LogItem::assignItemFromDatabase]";
   try {
     this->backupID = itemFromDB.at(LogItem::FIELD_BACKUP_ID).GetS();
-    LOG(INFO) << "[LogItem::assignItemFromDatabase] backup id "
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[LogItem::assignItemFromDatabase] backup id "
               << this->backupID;
     this->logID = itemFromDB.at(LogItem::FIELD_LOG_ID).GetS();
-    LOG(INFO) << "[LogItem::assignItemFromDatabase] log id " << this->logID;
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[LogItem::assignItemFromDatabase] log id " << this->logID;
     this->persistedInBlob = std::stoi(
         std::string(itemFromDB.at(LogItem::FIELD_PERSISTED_IN_BLOB).GetS())
             .c_str());
@@ -125,14 +133,18 @@ std::string LogItem::getDataHash() const {
 }
 
 void LogItem::addAttachmentHolders(const std::string &attachmentHolders) {
-  LOG(INFO) << "[LogItem::addAttachmentHolders] attachment holders "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[LogItem::addAttachmentHolders] attachment holders "
             << attachmentHolders;
   this->attachmentHolders +=
       tools::validateAttachmentHolders(attachmentHolders);
 }
 
 size_t LogItem::getItemSize(const LogItem *item) {
-  LOG(INFO) << "[LogItem::getItemSize]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[LogItem::getItemSize]";
   size_t size = 0;
 
   size += LogItem::FIELD_BACKUP_ID.size();
@@ -149,7 +161,9 @@ size_t LogItem::getItemSize(const LogItem *item) {
   size += item->getAttachmentHolders().size();
   size += item->getDataHash().size();
 
-  LOG(INFO) << "[LogItem::getItemSize] size " << size;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[LogItem::getItemSize] size " << size;
   return size;
 }
 

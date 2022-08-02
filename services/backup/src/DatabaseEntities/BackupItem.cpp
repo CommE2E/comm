@@ -39,7 +39,9 @@ BackupItem::BackupItem(const AttributeValues &itemFromDB) {
 }
 
 void BackupItem::validate() const {
-  LOG(INFO) << "[BackupItem::validate]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BackupItem::validate]";
   if (!this->userID.size()) {
     throw std::runtime_error("userID empty");
   }
@@ -55,13 +57,19 @@ void BackupItem::validate() const {
 }
 
 void BackupItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
-  LOG(INFO) << "[BackupItem::assignItemFromDatabase]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BackupItem::assignItemFromDatabase]";
   try {
     this->userID = itemFromDB.at(BackupItem::FIELD_USER_ID).GetS();
-    LOG(INFO) << "[BackupItem::assignItemFromDatabase] user id "
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[BackupItem::assignItemFromDatabase] user id "
               << this->userID;
     this->backupID = itemFromDB.at(BackupItem::FIELD_BACKUP_ID).GetS();
-    LOG(INFO) << "[BackupItem::assignItemFromDatabase] backup id "
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[BackupItem::assignItemFromDatabase] backup id "
               << this->backupID;
     this->created = std::stoll(
         std::string(itemFromDB.at(BackupItem::FIELD_CREATED).GetS()).c_str());
@@ -121,7 +129,9 @@ std::string BackupItem::getAttachmentHolders() const {
 }
 
 void BackupItem::addAttachmentHolders(const std::string &attachmentHolders) {
-  LOG(INFO) << "[BackupItem::addAttachmentHolders] attachment holders "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BackupItem::addAttachmentHolders] attachment holders "
             << attachmentHolders;
   this->attachmentHolders +=
       tools::validateAttachmentHolders(attachmentHolders);

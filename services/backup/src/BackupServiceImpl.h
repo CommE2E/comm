@@ -1,14 +1,20 @@
 #pragma once
 
+// #include "ServiceBlobClient.h"
+
 #include "../_generated/backup.grpc.pb.h"
 #include "../_generated/backup.pb.h"
 
 #include <grpcpp/grpcpp.h>
 
+#include <memory>
+
 namespace comm {
 namespace network {
 
 class BackupServiceImpl final : public backup::BackupService::CallbackService {
+  //   std::shared_ptr<ServiceBlobClient> blobClient =
+  //   std::make_shared<ServiceBlobClient>();
 
 public:
   BackupServiceImpl();

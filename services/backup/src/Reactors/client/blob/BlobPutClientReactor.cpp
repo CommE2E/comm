@@ -20,13 +20,16 @@ void BlobPutClientReactor::scheduleSendingDataChunk(
     std::unique_ptr<std::string> dataChunk) {
   const size_t size = dataChunk->size();
   LOG(INFO)
+      << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id()) << "]"
       << "[BlobPutClientReactor::scheduleSendingDataChunk] data chunk size "
       << size;
   if (!this->dataChunks.write(std::move(*dataChunk))) {
     throw std::runtime_error(
         "Error scheduling sending a data chunk to send to the blob service");
   }
-  LOG(INFO) << "[BlobPutClientReactor::scheduleSendingDataChunk] scheduled "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobPutClientReactor::scheduleSendingDataChunk] scheduled "
                "data chunk size "
             << size;
 }
@@ -36,32 +39,49 @@ void BlobPutClientReactor::scheduleSendingDataChunk(
 std::unique_ptr<grpc::Status> BlobPutClientReactor::prepareRequest(
     blob::PutRequest &request,
     std::shared_ptr<blob::PutResponse> previousResponse) {
-  LOG(INFO) << "[BlobPutClientReactor::prepareRequest] obj address/thread id: "
-            << this << "/"
-            << std::hash<std::thread::id>{}(std::this_thread::get_id());
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobPutClientReactor::prepareRequest] enter";
   if (this->state == State::SEND_HOLDER) {
     this->request.set_holder(this->holder);
-    LOG(INFO) << "[BlobPutClientReactor::prepareRequest] holder "
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[BlobPutClientReactor::prepareRequest] holder "
               << this->holder;
     this->state = State::SEND_HASH;
-    // only sends holder, doesn't go further
+    // only sends holder, doesn't go further - now it does, maybe sometimes?
     return nullptr;
   }
   if (this->state == State::SEND_HASH) {
     request.set_blobhash(this->hash);
-    LOG(INFO) << "[BlobPutClientReactor::prepareRequest] hash " << this->hash;
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[BlobPutClientReactor::prepareRequest] hash " << this->hash;
     this->state = State::SEND_CHUNKS;
     return nullptr;
   }
-  LOG(INFO) << "[BlobPutClientReactor::prepareRequest] data exists "
+  // not even called ever
+  if (this->state != State::SEND_CHUNKS) {
+    throw std::runtime_error(
+        "invalid state " + std::to_string(int(this->state)) + " expected " +
+        std::to_string(int(State::SEND_CHUNKS)));
+  }
+  // this is not even in logs anywhere :/ why?
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobPutClientReactor::prepareRequest] data exists "
             << previousResponse->dataexists();
   if (previousResponse->dataexists()) {
     return std::make_unique<grpc::Status>(grpc::Status::OK);
   }
   std::string dataChunk;
-  LOG(INFO) << "[BlobPutClientReactor::prepareRequest] reading data chunk";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobPutClientReactor::prepareRequest] reading data chunk";
   this->dataChunks.blockingRead(dataChunk);
-  LOG(INFO) << "[BlobPutClientReactor::prepareRequest] read data chunk "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobPutClientReactor::prepareRequest] read data chunk "
             << dataChunk.size();
   if (dataChunk.empty()) {
     return std::make_unique<grpc::Status>(grpc::Status::OK);
@@ -72,7 +92,9 @@ std::unique_ptr<grpc::Status> BlobPutClientReactor::prepareRequest(
 
 void BlobPutClientReactor::doneCallback() {
   // this never gets called
-  LOG(INFO) << "[BlobPutClientReactor::doneCallback]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobPutClientReactor::doneCallback]";
   this->terminationNotifier->notify_one();
 }
 

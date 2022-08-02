@@ -85,7 +85,7 @@ void DatabaseManagerBase::innerBatchWriteItem(
       delayMs = std::min(
           size_t(backoffFirstRetryDelay * std::pow(2, delayRetry) + jitterMs),
           maxBackoffTime);
-      LOG(INFO) << "Waiting for a backoff " << delayMs
+      LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id()) << "]" << "Waiting for a backoff " << delayMs
                 << "ms delay before putting unprocessed items from batch write "
                    "to DynamoDB";
       std::this_thread::sleep_for(std::chrono::milliseconds(delayMs));

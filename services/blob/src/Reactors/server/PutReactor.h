@@ -27,15 +27,18 @@ public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
       blob::PutRequest request,
       blob::PutResponse *response) override {
-    LOG(INFO) << "[PutReactor::handleRequest] obj address/thread id: "
-            << this << "/"
-            << std::hash<std::thread::id>{}(std::this_thread::get_id());
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[PutReactor::handleRequest] enter";
     if (this->holder.empty()) {
       if (request.holder().empty()) {
         throw std::runtime_error("holder has not been provided");
       }
       this->holder = request.holder();
-      LOG(INFO) << "[PutReactor::handleRequest] holder " << this->holder;
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[PutReactor::handleRequest] holder " << this->holder;
       return nullptr;
     }
     // this never gets called in some cases
@@ -45,7 +48,10 @@ public:
         throw std::runtime_error("blob hash has not been provided");
       }
       this->blobHash = request.blobhash();
-      LOG(INFO) << "[PutReactor::handleRequest] blob hash " << this->blobHash;
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[PutReactor::handleRequest] blob hash " << this->blobHash;
       this->blobItem =
           database::DatabaseManager::getInstance().findBlobItem(this->blobHash);
       if (this->blobItem != nullptr) {
@@ -53,7 +59,10 @@ public:
             std::make_unique<database::S3Path>(this->blobItem->getS3Path());
         response->set_dataexists(true);
         this->dataExists = true;
-        LOG(INFO) << "[PutReactor::handleRequest] data exists";
+        LOG(INFO) << "["
+                  << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                  << "]"
+                  << "[PutReactor::handleRequest] data exists";
         return std::make_unique<ServerBidiReactorStatus>(
             grpc::Status::OK, true);
       }
@@ -62,21 +71,40 @@ public:
       this->blobItem =
           std::make_shared<database::BlobItem>(this->blobHash, *s3Path);
       response->set_dataexists(false);
-      LOG(INFO) << "[PutReactor::handleRequest] data does not exist";
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[PutReactor::handleRequest] data does not exist";
       return nullptr;
     }
     // never gets called
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[PutReactor::handleRequest] data chunk size: "
+              << request.datachunk().size();
     if (request.datachunk().empty()) {
       return std::make_unique<ServerBidiReactorStatus>(grpc::Status(
           grpc::StatusCode::INVALID_ARGUMENT, "data chunk expected"));
     }
     if (this->uploader == nullptr) {
-      LOG(INFO) << "[PutReactor::handleRequest] initialize MPU";
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[PutReactor::handleRequest] initialize MPU";
       this->uploader = std::make_unique<MultiPartUploader>(
           getS3Client(), BLOB_BUCKET_NAME, s3Path->getObjectName());
     }
     this->currentChunk += request.datachunk();
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[PutReactor::handleRequest] appending data chunk "
+              << request.datachunk().size() << "/" << this->currentChunk.size()
+              << "/" << AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE;
     if (this->currentChunk.size() > AWS_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE) {
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[PutReactor::handleRequest] adding chunk";
       this->uploader->addPart(this->currentChunk);
       this->currentChunk.clear();
     }
@@ -84,7 +112,9 @@ public:
   }
 
   void terminateCallback() override {
-    LOG(INFO) << "[PutReactor::terminateCallback]";
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[PutReactor::terminateCallback]";
     if (!this->status.status.ok()) {
       return;
     }

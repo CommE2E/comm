@@ -20,7 +20,9 @@ void RunServer() {
       SERVER_LISTEN_ADDRESS, grpc::InsecureServerCredentials());
   builder.RegisterService(&blobService);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  LOG(INFO) << "server listening at :" << SERVER_LISTEN_ADDRESS;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "server listening at :" << SERVER_LISTEN_ADDRESS;
 
   server->Wait();
 }

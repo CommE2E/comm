@@ -55,7 +55,9 @@ std::string S3Path::getFullPath() const {
 }
 
 void S3Path::validate() const {
-  LOG(INFO) << "[S3Path::validate]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[S3Path::validate]";
   if (!this->bucketName.size()) {
     throw std::runtime_error("referencing S3 path with an empty object name");
   }

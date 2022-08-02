@@ -26,7 +26,9 @@ void RunServer() {
   // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  LOG(INFO) << "server listening at :" << SERVER_LISTEN_ADDRESS;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "server listening at :" << SERVER_LISTEN_ADDRESS;
   // Wait for the server to shutdown. Note that some other thread must be
   // responsible for shutting down the server for this call to ever return.
   server->Wait();

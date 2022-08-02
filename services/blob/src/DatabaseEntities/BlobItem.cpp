@@ -27,7 +27,9 @@ BlobItem::BlobItem(const AttributeValues &itemFromDB) {
 }
 
 void BlobItem::validate() const {
-  LOG(INFO) << "[BlobItem::validate]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobItem::validate]";
   if (!this->blobHash.size()) {
     throw std::runtime_error("blobHash empty");
   }
@@ -35,10 +37,14 @@ void BlobItem::validate() const {
 }
 
 void BlobItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
-  LOG(INFO) << "[BlobItem::assignItemFromDatabase]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobItem::assignItemFromDatabase]";
   try {
     this->blobHash = itemFromDB.at(BlobItem::FIELD_BLOB_HASH).GetS();
-    LOG(INFO) << "[BlobItem::assignItemFromDatabase] blob hash "
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[BlobItem::assignItemFromDatabase] blob hash "
               << this->blobHash;
     this->s3Path = S3Path(itemFromDB.at(BlobItem::FIELD_S3_PATH).GetS());
     this->created = std::stoll(

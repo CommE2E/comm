@@ -7,6 +7,7 @@
 #include <grpcpp/grpcpp.h>
 
 #include <memory>
+#include <thread>
 
 namespace comm {
 namespace network {
@@ -24,7 +25,9 @@ void RunServer() {
   builder.RegisterService(&backupService);
   // Finally assemble the server.
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  LOG(INFO) << "server listening at :" << SERVER_LISTEN_ADDRESS;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "server listening at :" << SERVER_LISTEN_ADDRESS;
 
   // Wait for the server to shutdown. Note that some other thread must be
   // responsible for shutting down the server for this call to ever return.

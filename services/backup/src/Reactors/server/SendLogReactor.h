@@ -44,7 +44,7 @@ class SendLogReactor : public ServerReadReactorBase<
   std::mutex blobPutDoneCVMutex;
 
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
-  ServiceBlobClient blobClient;
+  // ServiceBlobClient blobClient;
 
   void storeInDatabase();
   std::string generateLogID(const std::string &backupID);

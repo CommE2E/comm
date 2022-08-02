@@ -70,7 +70,9 @@ grpc::ServerUnaryReactor *BlobServiceImpl::Remove(
     google::protobuf::Empty *response) {
   grpc::Status status = grpc::Status::OK;
   const std::string holder = request->holder();
-  LOG(INFO) << "[BlobServiceImpl::Remove] holder " << holder;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[BlobServiceImpl::Remove] holder " << holder;
   try {
     std::shared_ptr<database::ReverseIndexItem> reverseIndexItem =
         database::DatabaseManager::getInstance().findReverseIndexItemByHolder(
@@ -81,7 +83,9 @@ grpc::ServerUnaryReactor *BlobServiceImpl::Remove(
     // TODO handle cleanup here properly
     // for now the object's being removed right away
     const std::string blobHash = reverseIndexItem->getBlobHash();
-    LOG(INFO) << "[BlobServiceImpl::Remove] blob hash " << blobHash;
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[BlobServiceImpl::Remove] blob hash " << blobHash;
     database::DatabaseManager::getInstance().removeReverseIndexItem(holder);
     if (database::DatabaseManager::getInstance()
             .findReverseIndexItemsByHash(reverseIndexItem->getBlobHash())

@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <string>
+#include <thread>
 
 namespace comm {
 namespace network {

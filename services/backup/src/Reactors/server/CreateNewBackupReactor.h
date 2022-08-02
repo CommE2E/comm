@@ -36,7 +36,7 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::string backupID;
   std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
 
-  ServiceBlobClient blobClient;
+  // ServiceBlobClient blobClient;
   std::mutex reactorStateMutex;
 
   std::condition_variable blobPutDoneCV;
@@ -44,7 +44,11 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
 
   std::string generateBackupID();
 
+  // std::shared_ptr<ServiceBlobClient> blobClient;
+
 public:
+  // CreateNewBackupReactor(std::shared_ptr<ServiceBlobClient> blobClient) :
+  // blobClient(blobClient) {}
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
       backup::CreateNewBackupRequest request,
       backup::CreateNewBackupResponse *response) override;

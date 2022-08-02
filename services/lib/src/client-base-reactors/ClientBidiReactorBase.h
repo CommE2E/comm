@@ -65,11 +65,11 @@ void ClientBidiReactorBase<Request, Response>::nextWrite() {
       this->terminate(*status);
       return;
     }
+    this->StartWrite(&this->request);
   } catch (std::runtime_error &e) {
     this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
     return;
   }
-  this->StartWrite(&this->request);
 }
 
 template <class Request, class Response>

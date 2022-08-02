@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <thread>
 
 namespace comm {
 namespace network {

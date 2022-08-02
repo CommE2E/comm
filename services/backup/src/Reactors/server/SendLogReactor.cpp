@@ -10,7 +10,9 @@ namespace network {
 namespace reactor {
 
 void SendLogReactor::storeInDatabase() {
-  LOG(INFO) << "[SendLogReactor::storeInDatabase]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[SendLogReactor::storeInDatabase]";
   bool storedInBlob = this->persistenceMethod == PersistenceMethod::BLOB;
   database::LogItem logItem(
       this->backupID,
@@ -30,13 +32,17 @@ void SendLogReactor::storeInDatabase() {
 }
 
 std::string SendLogReactor::generateLogID(const std::string &backupID) {
-  LOG(INFO) << "[SendLogReactor::generateLogID] backup id " << backupID;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[SendLogReactor::generateLogID] backup id " << backupID;
   return backupID + tools::ID_SEPARATOR +
       std::to_string(tools::getCurrentTimestamp());
 }
 
 void SendLogReactor::initializePutReactor() {
-  LOG(INFO) << "[SendLogReactor::initializePutReactor]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[SendLogReactor::initializePutReactor]";
   if (this->blobHolder.empty()) {
     throw std::runtime_error(
         "put reactor cannot be initialized with empty blob holder");
@@ -48,13 +54,15 @@ void SendLogReactor::initializePutReactor() {
   if (this->putReactor == nullptr) {
     this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
         this->blobHolder, this->hash, &this->blobPutDoneCV);
-    this->blobClient.put(this->putReactor);
+    ServiceBlobClient::getInstance().put(this->putReactor);
   }
 }
 
 std::unique_ptr<grpc::Status>
 SendLogReactor::readRequest(backup::SendLogRequest request) {
-  LOG(INFO) << "[SendLogReactor::readRequest] persistence method "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[SendLogReactor::readRequest] persistence method "
             << (int)this->persistenceMethod;
   // we make sure that the blob client's state is flushed to the main memory
   // as there may be multiple threads from the pool taking over here
@@ -65,7 +73,10 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         throw std::runtime_error("user id expected but not received");
       }
       this->userID = request.userid();
-      LOG(INFO) << "[SendLogReactor::readRequest] user id " << this->userID;
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[SendLogReactor::readRequest] user id " << this->userID;
       this->state = State::BACKUP_ID;
       return nullptr;
     };
@@ -74,14 +85,20 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         throw std::runtime_error("backup id expected but not received");
       }
       this->backupID = request.backupid();
-      LOG(INFO) << "[SendLogReactor::readRequest] backup id " << this->backupID;
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[SendLogReactor::readRequest] backup id " << this->backupID;
       if (database::DatabaseManager::getInstance().findBackupItem(
               this->userID, this->backupID) == nullptr) {
         throw std::runtime_error(
             "trying to send log for a non-existent backup");
       }
       this->logID = this->generateLogID(this->backupID);
-      LOG(INFO) << "[SendLogReactor::readRequest] log id " << this->logID;
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[SendLogReactor::readRequest] log id " << this->logID;
       this->response->set_logcheckpoint(this->logID);
       this->state = State::LOG_HASH;
       return nullptr;
@@ -91,7 +108,10 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         throw std::runtime_error("log hash expected but not received");
       }
       this->hash = request.loghash();
-      LOG(INFO) << "[SendLogReactor::readRequest] log hash " << this->hash;
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[SendLogReactor::readRequest] log hash " << this->hash;
       this->state = State::LOG_CHUNK;
       return nullptr;
     };
@@ -101,7 +121,10 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
       }
       std::unique_ptr<std::string> chunk =
           std::make_unique<std::string>(std::move(*request.mutable_logdata()));
-      LOG(INFO) << "[SendLogReactor::readRequest] log chunk size "
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[SendLogReactor::readRequest] log chunk size "
                 << chunk->size();
       if (chunk->size() == 0) {
         return std::make_unique<grpc::Status>(grpc::Status::OK);
@@ -121,11 +144,17 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         return nullptr;
       }
       this->value += std::move(*chunk);
-      LOG(INFO) << "[SendLogReactor::readRequest] new value size "
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[SendLogReactor::readRequest] new value size "
                 << this->value.size();
       database::LogItem logItem = database::LogItem(
           this->backupID, this->logID, true, this->value, "", this->hash);
-      LOG(INFO) << "[SendLogReactor::readRequest] log item size "
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[SendLogReactor::readRequest] log item size "
                 << database::LogItem::getItemSize(&logItem) << "/"
                 << LOG_DATA_SIZE_DATABASE_LIMIT;
       if (database::LogItem::getItemSize(&logItem) >
@@ -133,7 +162,10 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         this->persistenceMethod = PersistenceMethod::BLOB;
         this->blobHolder =
             tools::generateHolder(this->hash, this->backupID, this->logID);
-        LOG(INFO) << "[SendLogReactor::readRequest] new holder "
+        LOG(INFO) << "["
+                  << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                  << "]"
+                  << "[SendLogReactor::readRequest] new holder "
                   << this->blobHolder;
         this->initializePutReactor();
         this->putReactor->scheduleSendingDataChunk(
@@ -149,7 +181,9 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
 }
 
 void SendLogReactor::terminateCallback() {
-  LOG(INFO) << "[SendLogReactor::terminateCallback]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[SendLogReactor::terminateCallback]";
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
 
   if (!this->getStatusHolder()->getStatus().ok()) {
@@ -167,11 +201,15 @@ void SendLogReactor::terminateCallback() {
     this->storeInDatabase();
     return;
   }
-  LOG(INFO) << "[SendLogReactor::terminateCallback] schedule empty chunk";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[SendLogReactor::terminateCallback] schedule empty chunk";
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lockPut(this->blobPutDoneCVMutex);
   if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
     LOG(INFO)
+        << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+        << "]"
         << "[SendLogReactor::terminateCallback] waiting for the put reactor";
     this->blobPutDoneCV.wait(lockPut);
   }
@@ -179,13 +217,17 @@ void SendLogReactor::terminateCallback() {
     throw std::runtime_error(
         this->putReactor->getStatusHolder()->getStatus().error_message());
   }
-  LOG(INFO) << "[SendLogReactor::terminateCallback] finalizing";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[SendLogReactor::terminateCallback] finalizing";
   // store in db only when we successfully upload chunks
   this->storeInDatabase();
 }
 
 void SendLogReactor::doneCallback() {
-  LOG(INFO) << "[SendLogReactor::terminateCallback] doneCallback";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[SendLogReactor::terminateCallback] doneCallback";
   // we make sure that the blob client's state is flushed to the main memory
   // as there may be multiple threads from the pool taking over here
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);

@@ -21,8 +21,12 @@ DatabaseManager &DatabaseManager::getInstance() {
 }
 
 void DatabaseManager::putBackupItem(const BackupItem &item) {
-  LOG(INFO) << "[DatabaseManager::putBackupItem] user id " << item.getUserID();
-  LOG(INFO) << "[DatabaseManager::putBackupItem] backup id "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::putBackupItem] user id " << item.getUserID();
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::putBackupItem] backup id "
             << item.getBackupID();
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(BackupItem::tableName);
@@ -54,8 +58,12 @@ void DatabaseManager::putBackupItem(const BackupItem &item) {
 std::shared_ptr<BackupItem> DatabaseManager::findBackupItem(
     const std::string &userID,
     const std::string &backupID) {
-  LOG(INFO) << "[DatabaseManager::findBackupItem] user id " << userID;
-  LOG(INFO) << "[DatabaseManager::findBackupItem] backup id " << backupID;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::findBackupItem] user id " << userID;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::findBackupItem] backup id " << backupID;
   Aws::DynamoDB::Model::GetItemRequest request;
   request.AddKey(
       BackupItem::FIELD_USER_ID, Aws::DynamoDB::Model::AttributeValue(userID));
@@ -68,7 +76,9 @@ std::shared_ptr<BackupItem> DatabaseManager::findBackupItem(
 
 std::shared_ptr<BackupItem>
 DatabaseManager::findLastBackupItem(const std::string &userID) {
-  LOG(INFO) << "[DatabaseManager::findLastBackupItem] user id " << userID;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::findLastBackupItem] user id " << userID;
   std::shared_ptr<BackupItem> item = createItemByType<BackupItem>();
 
   Aws::DynamoDB::Model::QueryRequest req;
@@ -91,10 +101,14 @@ DatabaseManager::findLastBackupItem(const std::string &userID) {
   }
   const Aws::Vector<AttributeValues> &items = outcome.GetResult().GetItems();
   if (items.empty()) {
-    LOG(INFO) << "[DatabaseManager::findLastBackupItem] not found";
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[DatabaseManager::findLastBackupItem] not found";
     return nullptr;
   }
-  LOG(INFO) << "[DatabaseManager::findLastBackupItem] found";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::findLastBackupItem] found";
   return std::make_shared<database::BackupItem>(items[0]);
 }
 
@@ -102,13 +116,19 @@ void DatabaseManager::removeBackupItem(std::shared_ptr<BackupItem> item) {
   if (item == nullptr) {
     return;
   }
-  LOG(INFO) << "[DatabaseManager::removeBackupItem]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::removeBackupItem]";
   this->innerRemoveItem(*item);
 }
 
 void DatabaseManager::putLogItem(const LogItem &item) {
-  LOG(INFO) << "[DatabaseManager::putLogItem] backup id " << item.getBackupID();
-  LOG(INFO) << "[DatabaseManager::putLogItem] log id " << item.getLogID();
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::putLogItem] backup id " << item.getBackupID();
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::putLogItem] log id " << item.getLogID();
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(LogItem::tableName);
   request.AddItem(
@@ -138,8 +158,12 @@ void DatabaseManager::putLogItem(const LogItem &item) {
 std::shared_ptr<LogItem> DatabaseManager::findLogItem(
     const std::string &backupID,
     const std::string &logID) {
-  LOG(INFO) << "[DatabaseManager::findLogItem] backup id " << backupID;
-  LOG(INFO) << "[DatabaseManager::findLogItem] log id " << logID;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::findLogItem] backup id " << backupID;
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::findLogItem] log id " << logID;
   Aws::DynamoDB::Model::GetItemRequest request;
   request.AddKey(
       LogItem::FIELD_BACKUP_ID, Aws::DynamoDB::Model::AttributeValue(backupID));
@@ -151,7 +175,9 @@ std::shared_ptr<LogItem> DatabaseManager::findLogItem(
 
 std::vector<std::shared_ptr<LogItem>>
 DatabaseManager::findLogItemsForBackup(const std::string &backupID) {
-  LOG(INFO) << "[DatabaseManager::findLogItemsForBackup] backup id "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::findLogItemsForBackup] backup id "
             << backupID;
   std::vector<std::shared_ptr<database::LogItem>> result;
   std::shared_ptr<LogItem> item = createItemByType<LogItem>();
@@ -175,7 +201,9 @@ DatabaseManager::findLogItemsForBackup(const std::string &backupID) {
     result.push_back(std::make_shared<database::LogItem>(item));
   }
 
-  LOG(INFO) << "[DatabaseManager::findLogItemsForBackup] result size "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::findLogItemsForBackup] result size "
             << result.size();
   return result;
 }
@@ -184,7 +212,9 @@ void DatabaseManager::removeLogItem(std::shared_ptr<LogItem> item) {
   if (item == nullptr) {
     return;
   }
-  LOG(INFO) << "[DatabaseManager::removeLogItem]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[DatabaseManager::removeLogItem]";
   this->innerRemoveItem(*item);
 }
 

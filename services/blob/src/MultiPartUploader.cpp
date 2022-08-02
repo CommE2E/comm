@@ -19,9 +19,13 @@ MultiPartUploader::MultiPartUploader(
     const std::string bucketName,
     const std::string objectName)
     : client(client), bucketName(bucketName), objectName(objectName) {
-  LOG(INFO) << "[MultiPartUploader::MultiPartUploader] bucket name "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[MultiPartUploader::MultiPartUploader] bucket name "
             << bucketName;
-  LOG(INFO) << "[MultiPartUploader::MultiPartUploader] object name "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[MultiPartUploader::MultiPartUploader] object name "
             << objectName;
   this->completeMultipartUploadRequest.SetBucket(this->bucketName);
   this->completeMultipartUploadRequest.SetKey(this->objectName);
@@ -42,7 +46,9 @@ MultiPartUploader::MultiPartUploader(
 }
 
 void MultiPartUploader::addPart(const std::string &part) {
-  LOG(INFO) << "[MultiPartUploader::addPart] part size " << part.size();
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[MultiPartUploader::addPart] part size " << part.size();
   Aws::S3::Model::UploadPartRequest uploadRequest;
   uploadRequest.SetBucket(this->bucketName);
   uploadRequest.SetKey(this->objectName);
@@ -73,7 +79,9 @@ void MultiPartUploader::addPart(const std::string &part) {
 }
 
 void MultiPartUploader::finishUpload() {
-  LOG(INFO) << "[MultiPartUploader::finishUpload]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[MultiPartUploader::finishUpload]";
   if (!this->completedMultipartUpload.PartsHasBeenSet()) {
     return;
   }

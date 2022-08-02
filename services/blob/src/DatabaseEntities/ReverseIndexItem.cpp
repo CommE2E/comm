@@ -24,7 +24,9 @@ ReverseIndexItem::ReverseIndexItem(const AttributeValues &itemFromDB) {
 }
 
 void ReverseIndexItem::validate() const {
-  LOG(INFO) << "[ReverseIndexItem::validate]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[ReverseIndexItem::validate]";
   if (!this->holder.size()) {
     throw std::runtime_error("reverse index empty");
   }
@@ -35,12 +37,18 @@ void ReverseIndexItem::validate() const {
 
 void ReverseIndexItem::assignItemFromDatabase(
     const AttributeValues &itemFromDB) {
-  LOG(INFO) << "[ReverseIndexItem::assignItemFromDatabase]";
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[ReverseIndexItem::assignItemFromDatabase]";
   this->holder = itemFromDB.at(ReverseIndexItem::FIELD_HOLDER).GetS();
-  LOG(INFO) << "[ReverseIndexItem::assignItemFromDatabase] holder "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[ReverseIndexItem::assignItemFromDatabase] holder "
             << this->holder;
   this->blobHash = itemFromDB.at(ReverseIndexItem::FIELD_BLOB_HASH).GetS();
-  LOG(INFO) << "[ReverseIndexItem::assignItemFromDatabase] blob hash "
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[ReverseIndexItem::assignItemFromDatabase] blob hash "
             << this->blobHash;
   this->validate();
 }
