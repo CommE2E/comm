@@ -8,9 +8,9 @@ sed -i 's/#if __has_include(<demangle.h>)/#if __has_include(<Demangle.h>)/g' /us
 rm -rf lib
 mkdir lib
 pushd lib
-ln -s /usr/lib/folly
-ln -s /usr/lib/glog
-ln -s /usr/lib/double-conversion
+ln -s /usr/lib/folly .
+ln -s /usr/lib/glog .
+ln -s /usr/lib/double-conversion .
 popd # lib
 
 rm -rf _generated
