@@ -45,7 +45,7 @@ async fn backup_performance_test() -> Result<(), Error> {
         vec![ByteSize::mib(1).as_u64() as usize; 3 + (i % 5)],
         (0..(i % 5)).map(|x| format!("holder{}", x)).collect(),
       ),
-      log_items: (0..(i % 4))
+      log_items: (0..((i % 4) + 2))
         .map(|x| {
           Item::new(
             String::new(),
