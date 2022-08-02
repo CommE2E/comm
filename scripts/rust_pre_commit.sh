@@ -2,14 +2,15 @@
 
 set -e
 
-source $HOME/.cargo/env 
+# shellcheck source=/dev/null
+source "$HOME"/.cargo/env 
 
 PATHS="services/commtest"
 
 cargo > /dev/null
 
 for PATH in $PATHS; do
-  pushd $PATH
+  pushd "$PATH"
   echo "formatting $PATH..."
   cargo fmt --all -- --check
   echo "checking $PATH..."
