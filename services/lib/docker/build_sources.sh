@@ -13,7 +13,7 @@ echo "building the server (nproc=$NPROC)..."
 
 pushd cmake/build
 cmake ../..
-make -j $NPROC
+make -j "$NPROC"
 
 popd
 
