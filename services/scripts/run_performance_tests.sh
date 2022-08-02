@@ -30,7 +30,7 @@ fi
 export COMM_NUMBER_OF_THREADS="$2"
 
 if [[ "$1" == "all" ]]; then
-  for SERVICE in "$SERVICES"; do
+  for SERVICE in $SERVICES; do
     run_performance_test "$SERVICE"
   done
   exit 0;
@@ -47,6 +47,7 @@ fi;
 SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd -P)
 
 set -o allexport
+# shellcheck source=/dev/null
 source "$SCRIPT_DIR/../.env"
 set +o allexport
 
