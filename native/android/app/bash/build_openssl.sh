@@ -44,7 +44,7 @@ CONFIGURE_AND_BUILD() {
   readonly BUILD_PREFIX=$3
 
   echo "Building OpenSSL library for ${BUILD_PREFIX} (${TARGET_ARCH})"
-  cd $OPENSSL_SUBMODULE_PATH
+  cd "$OPENSSL_SUBMODULE_PATH"
 
   # Compilation flags:
   export CFLAGS="-Os -ffunction-sections -fdata-sections -fno-unwind-tables -fno-asynchronous-unwind-tables"
@@ -53,13 +53,13 @@ CONFIGURE_AND_BUILD() {
   export TARGET_HOST=${TARGET_ARCH}
   PATH=$TOOLCHAIN/bin:$PATH
 
-  ./config no-asm -Wl,--enable-new-dtags,-rpath,'$(LIBRPATH)'
-  ./Configure ${BUILD_ARCH} no-shared \
-    -D__ANDROID_API__=$MIN_SDK_VERSION \
-    --prefix=$OPENSSL_SUBMODULE_PATH/build/${BUILD_PREFIX}
+  ./config no-asm -Wl,--enable-new-dtags,-rpath,"$(LIBRPATH)"
+  ./Configure "${BUILD_ARCH}" no-shared \
+    -D__ANDROID_API__="$MIN_SDK_VERSION" \
+    --prefix="$OPENSSL_SUBMODULE_PATH"/build/"${BUILD_PREFIX}"
   make -j"$THREADS"
   make install_sw
   make clean
 }
 
-CONFIGURE_AND_BUILD $TARGET_ARCH $BUILD_ARCH $ANDROID_ARCH_ABI
+CONFIGURE_AND_BUILD "$TARGET_ARCH" $BUILD_ARCH "$ANDROID_ARCH_ABI"
