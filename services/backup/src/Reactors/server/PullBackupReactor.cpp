@@ -164,10 +164,7 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     //  If there's data inside, we write it to the client and proceed.
     if (dataChunk.empty()) {
       this->nextLog();
-      return nullptr;
     } else {
-      dataChunk =
-          this->prepareDataChunkWithPadding(dataChunk, extraBytesNeeded);
       response->set_logchunk(dataChunk);
     }
     return nullptr;
