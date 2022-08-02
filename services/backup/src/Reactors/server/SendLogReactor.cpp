@@ -167,6 +167,7 @@ void SendLogReactor::terminateCallback() {
     this->storeInDatabase();
     return;
   }
+  LOG(INFO) << "[SendLogReactor::terminateCallback] schedule empty chunk";
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lockPut(this->blobPutDoneCVMutex);
   if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {

@@ -101,14 +101,17 @@ void CreateNewBackupReactor::terminateCallback() {
   if (this->putReactor == nullptr) {
     return;
   }
-  LOG(INFO) << "[CreateNewBackupReactor::terminateCallback] scheduling empty "
-               "data chunk";
+  LOG(INFO)
+      << "[CreateNewBackupReactor::terminateCallback] schedule empty chunk";
   this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
   std::unique_lock<std::mutex> lock2(this->blobPutDoneCVMutex);
   if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
     LOG(INFO) << "[CreateNewBackupReactor::terminateCallback] waiting for put "
                  "reactor";
+    // hangs here
     this->blobPutDoneCV.wait(lock2);
+    LOG(INFO) << "[CreateNewBackupReactor::terminateCallback] waitied for put "
+                 "reactor";
   }
   if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
     throw std::runtime_error("put reactor has not been terminated properly");

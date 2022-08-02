@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <string>
+#include <thread>
 
 namespace comm {
 namespace network {
@@ -26,7 +27,9 @@ public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
       blob::PutRequest request,
       blob::PutResponse *response) override {
-    LOG(INFO) << "[PutReactor::handleRequest]";
+    LOG(INFO) << "[PutReactor::handleRequest] obj address/thread id: "
+            << this << "/"
+            << std::hash<std::thread::id>{}(std::this_thread::get_id());
     if (this->holder.empty()) {
       if (request.holder().empty()) {
         throw std::runtime_error("holder has not been provided");
@@ -35,12 +38,14 @@ public:
       LOG(INFO) << "[PutReactor::handleRequest] holder " << this->holder;
       return nullptr;
     }
+    // this never gets called in some cases
+    // the blob receives only the holder
     if (this->blobHash.empty()) {
       if (request.blobhash().empty()) {
         throw std::runtime_error("blob hash has not been provided");
       }
-      LOG(INFO) << "[PutReactor::handleRequest] blob hash " << this->blobHash;
       this->blobHash = request.blobhash();
+      LOG(INFO) << "[PutReactor::handleRequest] blob hash " << this->blobHash;
       this->blobItem =
           database::DatabaseManager::getInstance().findBlobItem(this->blobHash);
       if (this->blobItem != nullptr) {
@@ -60,6 +65,7 @@ public:
       LOG(INFO) << "[PutReactor::handleRequest] data does not exist";
       return nullptr;
     }
+    // never gets called
     if (request.datachunk().empty()) {
       return std::make_unique<ServerBidiReactorStatus>(grpc::Status(
           grpc::StatusCode::INVALID_ARGUMENT, "data chunk expected"));

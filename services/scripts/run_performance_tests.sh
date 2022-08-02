@@ -7,7 +7,7 @@ SERVICES=$(./scripts/list_services.sh)
 run_performance_test () {
   echo "performance tests tests will be run for the $1 service"
   # add  -- --nocapture in the end to enable logs
-  cargo test "$1"_performance_test --test '*' --manifest-path=commtest/Cargo.toml #-- --nocapture
+  cargo test "$1"_performance_test --test '*' --manifest-path=commtest/Cargo.toml -- --nocapture
 }
 
 help () {

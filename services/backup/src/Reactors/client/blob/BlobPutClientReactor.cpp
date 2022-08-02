@@ -1,5 +1,7 @@
 #include "BlobPutClientReactor.h"
 
+#include <thread>
+
 namespace comm {
 namespace network {
 namespace reactor {
@@ -16,24 +18,33 @@ BlobPutClientReactor::BlobPutClientReactor(
 
 void BlobPutClientReactor::scheduleSendingDataChunk(
     std::unique_ptr<std::string> dataChunk) {
+  const size_t size = dataChunk->size();
   LOG(INFO)
       << "[BlobPutClientReactor::scheduleSendingDataChunk] data chunk size "
-      << dataChunk->size();
+      << size;
   if (!this->dataChunks.write(std::move(*dataChunk))) {
     throw std::runtime_error(
         "Error scheduling sending a data chunk to send to the blob service");
   }
+  LOG(INFO) << "[BlobPutClientReactor::scheduleSendingDataChunk] scheduled "
+               "data chunk size "
+            << size;
 }
 
+// for some reason the whole data is being sent to the blob but on the blob side
+// only the holder is being read
 std::unique_ptr<grpc::Status> BlobPutClientReactor::prepareRequest(
     blob::PutRequest &request,
     std::shared_ptr<blob::PutResponse> previousResponse) {
-  LOG(INFO) << "[BlobPutClientReactor::prepareRequest]";
+  LOG(INFO) << "[BlobPutClientReactor::prepareRequest] obj address/thread id: "
+            << this << "/"
+            << std::hash<std::thread::id>{}(std::this_thread::get_id());
   if (this->state == State::SEND_HOLDER) {
     this->request.set_holder(this->holder);
     LOG(INFO) << "[BlobPutClientReactor::prepareRequest] holder "
               << this->holder;
     this->state = State::SEND_HASH;
+    // only sends holder, doesn't go further
     return nullptr;
   }
   if (this->state == State::SEND_HASH) {
@@ -60,6 +71,7 @@ std::unique_ptr<grpc::Status> BlobPutClientReactor::prepareRequest(
 }
 
 void BlobPutClientReactor::doneCallback() {
+  // this never gets called
   LOG(INFO) << "[BlobPutClientReactor::doneCallback]";
   this->terminationNotifier->notify_one();
 }
