@@ -63,21 +63,20 @@ public:
 
   void initialize() override {
     this->s3Path = tools::findS3Path(this->request.holder());
-    this->fileSize =
-        getBucket(s3Path.getBucketName()).getObjectSize(s3Path.getObjectName());
-
-    this->getRequest.SetBucket(this->s3Path.getBucketName());
-    this->getRequest.SetKey(this->s3Path.getObjectName());
 
     AwsS3Bucket bucket = getBucket(this->s3Path.getBucketName());
     if (!bucket.isAvailable()) {
       throw std::runtime_error(
           "bucket [" + this->s3Path.getBucketName() + "] not available");
     }
-    const size_t fileSize = bucket.getObjectSize(this->s3Path.getObjectName());
+
+    this->fileSize = bucket.getObjectSize(this->s3Path.getObjectName());
     if (this->fileSize == 0) {
       throw std::runtime_error("object empty");
     }
+
+    this->getRequest.SetBucket(this->s3Path.getBucketName());
+    this->getRequest.SetKey(this->s3Path.getObjectName());
   };
 
   void doneCallback() override{};
