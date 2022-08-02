@@ -115,7 +115,7 @@ async function fetchCollapsableNotifs(
       JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
   collapseQuery.append(mergeOrConditions(sqlTuples));
-  collapseQuery.append(SQL`ORDER BY m.time DESC`);
+  collapseQuery.append(SQL`ORDER BY m.time DESC, m.id DESC`);
   const [collapseResult] = await dbQuery(collapseQuery);
 
   const rowsByUser = new Map();
@@ -315,7 +315,7 @@ async function fetchMessageInfos(
     // - More details available here:
     //   https://mariadb.com/kb/en/why-is-order-by-in-a-from-subquery-ignored/
     query.append(SQL`
-          ORDER BY m.thread, m.time DESC
+          ORDER BY m.thread, m.time DESC, m.id DESC
           LIMIT 18446744073709551615
         ) x
       ) y
@@ -328,7 +328,9 @@ async function fetchMessageInfos(
           m.time, m.type, m.creation, stm.permissions AS subthread_permissions,
           up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
           up.extra AS uploadExtra,
-          ROW_NUMBER() OVER (PARTITION BY threadID ORDER BY time DESC) n
+          ROW_NUMBER() OVER (
+            PARTITION BY threadID ORDER BY m.time DESC, m.id DESC
+          ) n
         FROM messages m
         LEFT JOIN uploads up ON up.container = m.id
         LEFT JOIN memberships mm
@@ -557,7 +559,7 @@ async function fetchMessageInfosSince(
   `;
   query.append(selectionClause);
   query.append(SQL`
-    ORDER BY m.thread, m.time DESC
+    ORDER BY m.thread, m.time DESC, m.id DESC
   `);
   const [result] = await dbQuery(query);
   const derivedMessages = await fetchDerivedMessages(result, viewer);
