@@ -28,10 +28,12 @@ import ChatMessageList from './chat-message-list.react';
 import ChatThreadComposer from './chat-thread-composer.react';
 import ThreadTopBar from './thread-top-bar.react';
 
-function ChatMessageListContainer(): React.Node {
-  const activeChatThreadID = useSelector(
-    state => state.navInfo.activeChatThreadID,
-  );
+type Props = {
+  +activeChatThreadID: string,
+};
+
+function ChatMessageListContainer(props: Props): React.Node {
+  const { activeChatThreadID } = props;
   const isChatCreation =
     useSelector(state => state.navInfo.chatMode) === 'create';
 
