@@ -15,14 +15,15 @@ namespace comm {
 namespace network {
 
 class ServiceBlobClient {
-  std::unique_ptr<blob::BlobService::Stub> stub;
+  // std::unique_ptr<blob::BlobService::Stub> stub;
+  std::shared_ptr<grpc::Channel> channel;
 
   ServiceBlobClient() {
     // todo handle different types of connection(e.g. load balancer)
     std::string targetStr = "blob-server:50051";
-    std::shared_ptr<grpc::Channel> channel =
+    this->channel =
         grpc::CreateChannel(targetStr, grpc::InsecureChannelCredentials());
-    this->stub = blob::BlobService::NewStub(channel);
+    // this->stub = blob::BlobService::NewStub(channel);
   }
 
 public:
@@ -39,7 +40,9 @@ public:
       throw std::runtime_error(
           "put reactor is being used but has not been initialized");
     }
-    this->stub->async()->Put(&putReactor->context, &(*putReactor));
+    blob::BlobService::NewStub(this->channel)
+        ->async()
+        ->Put(&putReactor->context, &(*putReactor));
     putReactor->start();
   }
 
@@ -51,8 +54,9 @@ public:
       throw std::runtime_error(
           "get reactor is being used but has not been initialized");
     }
-    this->stub->async()->Get(
-        &getReactor->context, &getReactor->request, &(*getReactor));
+    blob::BlobService::NewStub(this->channel)
+        ->async()
+        ->Get(&getReactor->context, &getReactor->request, &(*getReactor));
     getReactor->start();
   }
   // void remove(const std::string &holder);
