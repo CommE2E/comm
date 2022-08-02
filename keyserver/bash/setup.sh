@@ -5,6 +5,7 @@
 
 set -e
 
+# shellcheck source=/dev/null
 . ~/.nvm/nvm.sh
 
 chmod -R u=rwX,g=rX,o=rX .
