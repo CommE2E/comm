@@ -58,6 +58,7 @@ public:
   virtual void storeOlmPersistData(crypto::Persist persist) const = 0;
   virtual void setNotifyToken(std::string token) const = 0;
   virtual void clearNotifyToken() const = 0;
+  virtual void clearSensitiveData() const = 0;
 };
 
 } // namespace comm

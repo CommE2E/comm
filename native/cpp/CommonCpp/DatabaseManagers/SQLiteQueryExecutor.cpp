@@ -422,7 +422,7 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {22, {enable_write_ahead_logging_mode, false}},
      {23, {create_metadata_table, true}}}};
 
-void SQLiteQueryExecutor::migrate() {
+void SQLiteQueryExecutor::migrate() const {
   validate_encryption();
 
   sqlite3 *db;
@@ -479,6 +479,15 @@ void SQLiteQueryExecutor::migrate() {
   }
 
   sqlite3_close(db);
+}
+
+void SQLiteQueryExecutor::assign_encryption_key() {
+  CommSecureStore commSecureStore{};
+  std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
+  commSecureStore.set(
+      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
+  SQLiteQueryExecutor::encryptionKey = encryptionKey;
 }
 
 auto &SQLiteQueryExecutor::getStorage() {
@@ -541,7 +550,7 @@ auto &SQLiteQueryExecutor::getStorage() {
 void SQLiteQueryExecutor::initialize(std::string &databasePath) {
   std::call_once(SQLiteQueryExecutor::initialized, [&databasePath]() {
     SQLiteQueryExecutor::sqliteFilePath = databasePath;
-    CommSecureStore commSecureStore;
+    CommSecureStore commSecureStore{};
     folly::Optional<std::string> maybeEncryptionKey =
         commSecureStore.get(SQLiteQueryExecutor::secureStoreEncryptionKeyID);
 
@@ -549,11 +558,7 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
       SQLiteQueryExecutor::encryptionKey = maybeEncryptionKey.value();
       return;
     }
-    std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
-        SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
-    commSecureStore.set(
-        SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
-    SQLiteQueryExecutor::encryptionKey = encryptionKey;
+    SQLiteQueryExecutor::assign_encryption_key();
   });
 }
 
@@ -794,6 +799,18 @@ void SQLiteQueryExecutor::setNotifyToken(std::string token) const {
 
 void SQLiteQueryExecutor::clearNotifyToken() const {
   SQLiteQueryExecutor::getStorage().remove<Metadata>("notify_token");
+}
+
+void SQLiteQueryExecutor::clearSensitiveData() const {
+  if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
+      std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
+    std::ostringstream errorStream;
+    errorStream << "Failed to delete database file. Details: "
+                << strerror(errno);
+    throw std::system_error(errno, std::generic_category(), errorStream.str());
+  }
+  SQLiteQueryExecutor::assign_encryption_key();
+  this->migrate();
 }
 
 } // namespace comm
