@@ -955,4 +955,25 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
       });
 };
 
+jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        this->databaseThread->scheduleTask([this, promise]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().clearSensitiveData();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        });
+      });
+}
+
 } // namespace comm
