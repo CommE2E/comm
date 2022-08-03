@@ -22,6 +22,7 @@ import ChatContextProvider from './chat/chat-context-provider.react';
 import PersistedStateGate from './components/persisted-state-gate';
 import ConnectedStatusBar from './connected-status-bar.react';
 import CoreDataProvider from './data/core-data-provider.react';
+import { SensitiveDataCleaner } from './data/sensitive-data-cleaner.react';
 import { SQLiteContextProvider } from './data/sqlite-context-provider';
 import ErrorBoundary from './error-boundary.react';
 import InputStateContainer from './input/input-state-container.react';
@@ -222,6 +223,7 @@ function Root() {
       <ConnectivityUpdater />
       <ThemeHandler />
       <OrientationHandler />
+      <SensitiveDataCleaner />
     </>
   );
   let navigation;
