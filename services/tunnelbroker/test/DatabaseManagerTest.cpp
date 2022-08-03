@@ -384,5 +384,6 @@ TEST_F(DatabaseManagerTest, RemoveMessageItemsInBatch) {
          "`removeMessageItemsByIDsForDeviceID`. The one message must be "
          "persisted.";
   database::DatabaseManager::getInstance().removeMessageItem(
+      messageThirdToNotRemove.getToDeviceID(),
       messageThirdToNotRemove.getMessageID());
 }
