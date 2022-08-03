@@ -955,4 +955,17 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
       });
 };
 
+void CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
+  std::promise<void> clearSensitiveDataResult;
+  auto clearSensitiveDataResultFuture = clearSensitiveDataResult.get_future();
+  try {
+    DatabaseManager::getQueryExecutor().clearSensitiveData();
+    clearSensitiveDataResult.set_value();
+  } catch (const std::exception &e) {
+    clearSensitiveDataResult.set_exception(
+        std::make_exception_ptr(jsi::JSError(rt, e.what())));
+  }
+  clearSensitiveDataResultFuture.get();
+}
+
 } // namespace comm
