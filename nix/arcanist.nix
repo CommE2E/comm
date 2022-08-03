@@ -28,20 +28,25 @@ stdenv.mkDerivation {
 
   installPhase = ''
     # Copy arcanist contents
-    mkdir -p $out/libexec
+    mkdir -p $out/libexec $out/bin
     cp -R . $out/libexec/arcanist
 
     # provide a recent up-to-date certificate bundle for ssl
     ln -sf ${cacert}/etc/ssl/certs/ca-bundle.crt \
       $out/libexec/arcanist/resources/ssl/default.pem
 
-    # convert `#!/usr/bin/env php` into calling nixpkgs php interpreter
-    patchShebangs $out/libexec/arcanist/bin/arc
+    # The canonical way to handle shebangs with nix is to use `patchShebangs`
+    # which will resolve to the absolute path of the interpreter.
+    # However, darwin will fail to interpret a shebang of 80 characters or
+    # longer for the first argument. Nix store paths hover around this limit.
+    # See https://github.com/NixOS/nixpkgs/issues/93609 for related issue.
+    cat << WRAPPER > $out/bin/arc
+    #!$shell -e
+    export PATH=${lib.makeBinPath [ python3 php80 which]}''${PATH:+':'}\$PATH
+    exec ${php80}/bin/php $out/libexec/arcanist/bin/arc "\$@"
+    WRAPPER
 
-    # Create a bin/arc which points to the real script, but provides
-    # assumptions such as the PATH including python3 and which
-    makeWrapper $out/libexec/arcanist/bin/arc $out/bin/arc \
-      --prefix PATH : ${lib.makeBinPath [ which python3 php80 ]}
+    chmod +x $out/bin/arc
 
     # Add shell completion for bash
     $out/bin/arc shell-complete --generate --
