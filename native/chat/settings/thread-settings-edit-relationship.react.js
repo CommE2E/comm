@@ -8,12 +8,12 @@ import {
   updateRelationships as serverUpdateRelationships,
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions';
+import { getRelationshipDispatchAction } from 'lib/shared/relationship-utils';
 import { getSingleOtherUser } from 'lib/shared/thread-utils';
 import {
   type RelationshipAction,
   type RelationshipButton,
   relationshipButtons,
-  relationshipActions,
 } from 'lib/types/relationship-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import {
@@ -63,25 +63,10 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo<Pr
     );
 
     const { relationshipButton } = props;
-    const relationshipAction = React.useMemo(() => {
-      if (relationshipButton === relationshipButtons.BLOCK) {
-        return relationshipActions.BLOCK;
-      } else if (
-        relationshipButton === relationshipButtons.FRIEND ||
-        relationshipButton === relationshipButtons.ACCEPT
-      ) {
-        return relationshipActions.FRIEND;
-      } else if (
-        relationshipButton === relationshipButtons.UNFRIEND ||
-        relationshipButton === relationshipButtons.REJECT ||
-        relationshipButton === relationshipButtons.WITHDRAW
-      ) {
-        return relationshipActions.UNFRIEND;
-      } else if (relationshipButton === relationshipButtons.UNBLOCK) {
-        return relationshipActions.UNBLOCK;
-      }
-      invariant(false, 'relationshipButton conditions should be exhaustive');
-    }, [relationshipButton]);
+    const relationshipAction = React.useMemo(
+      () => getRelationshipDispatchAction(relationshipButton),
+      [relationshipButton],
+    );
 
     const dispatchActionPromise = useDispatchActionPromise();
     const onButtonPress = React.useCallback(() => {
