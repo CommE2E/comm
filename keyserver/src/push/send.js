@@ -546,26 +546,7 @@ function prepareAndroidNotification(
         messageInfos,
       },
     };
-  } else if (codeVersion < 31) {
-    return {
-      data: {
-        badge: unreadCount.toString(),
-        custom_notification: JSON.stringify({
-          channel: 'default',
-          body: merged,
-          badgeCount: unreadCount,
-          id: notifID,
-          priority: 'high',
-          sound: 'default',
-          icon: 'notif_icon',
-          threadID: threadInfo.id,
-          messageInfos,
-          click_action: 'fcm.ACTION.HELLO',
-        }),
-      },
-    };
   }
-
   return {
     data: {
       badge: unreadCount.toString(),
