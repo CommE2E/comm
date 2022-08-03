@@ -72,7 +72,6 @@ async function rescindPushNotifs(
           row.collapse_key ? row.collapse_key : id,
           row.unread_count,
           threadID,
-          null,
         );
         deliveryPromises[id] = fcmPush({
           notification,
@@ -102,7 +101,6 @@ async function rescindPushNotifs(
           row.collapse_key ? row.collapse_key : id,
           row.unread_count,
           threadID,
-          codeVersion,
         );
         deliveryPromises[id] = fcmPush({
           notification,
@@ -197,19 +195,7 @@ function prepareAndroidNotification(
   notifID: string,
   unreadCount: number,
   threadID: string,
-  codeVersion: ?number,
 ): Object {
-  if (!codeVersion || codeVersion < 31) {
-    return {
-      data: {
-        badge: unreadCount.toString(),
-        custom_notification: JSON.stringify({
-          rescind: 'true',
-          notifID,
-        }),
-      },
-    };
-  }
   return {
     data: {
       badge: unreadCount.toString(),
