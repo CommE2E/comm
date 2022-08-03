@@ -13,6 +13,7 @@ For how Nix package management works, please refer to the official [how Nix work
 | Workflow                      | Supported on macOS |
 | ----------------------------- | ------------------- 
 | keyserver (Node.js)           | ❌                 |
+| web (Webpack)                 | ❌                 |
 | native iOS (React Native)     | ❌                 |
 | native Android (React Native) | ❌                 |
 | C++ services                  | ❌                 |
