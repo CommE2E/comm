@@ -955,4 +955,12 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
       });
 };
 
+void CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
+  try {
+    DatabaseManager::getQueryExecutor().clearSensitiveData();
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
+}
+
 } // namespace comm
