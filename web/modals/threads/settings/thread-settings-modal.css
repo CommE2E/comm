@@ -1,9 +1,13 @@
 div.modal_body {
   display: flex;
   flex-direction: column;
+  width: 383px;
+  height: 539px;
+  overflow: hidden;
 }
 div.tab_body {
   padding: 20px;
+  overflow: auto;
 }
 div.modal_form_error {
   display: flex;

@@ -9,7 +9,12 @@ import {
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { threadHasPermission, robotextName } from 'lib/shared/thread-utils';
+import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils';
+import {
+  threadHasPermission,
+  robotextName,
+  getSingleOtherUser,
+} from 'lib/shared/thread-utils';
 import {
   type ThreadInfo,
   threadTypes,
@@ -25,8 +30,9 @@ import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react';
 import ThreadSettingsGeneralTab from './thread-settings-general-tab.react';
 import css from './thread-settings-modal.css';
 import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react';
+import ThreadSettingsRelationshipTab from './thread-settings-relationship-tab.react';
 
-type TabType = 'general' | 'privacy' | 'delete';
+type TabType = 'general' | 'privacy' | 'delete' | 'relationship';
 type BaseProps = {
   +threadID: string,
 };
@@ -66,6 +72,22 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       return robotextName(threadInfo, viewerID, userInfos);
     }, [threadInfo, userInfos, viewerID]);
 
+    const otherMemberID = React.useMemo(() => {
+      if (!threadInfo) {
+        return null;
+      }
+      return getSingleOtherUser(threadInfo, viewerID);
+    }, [threadInfo, viewerID]);
+
+    const otherUserInfo = otherMemberID ? userInfos[otherMemberID] : null;
+
+    const availableRelationshipActions = React.useMemo(() => {
+      if (!otherUserInfo) {
+        return [];
+      }
+      return getAvailableRelationshipButtons(otherUserInfo);
+    }, [otherUserInfo]);
+
     const hasPermissionForTab = React.useCallback(
       (thread: ThreadInfo, tab: TabType) => {
         if (tab === 'general') {
@@ -84,6 +106,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
           );
         } else if (tab === 'delete') {
           return threadHasPermission(thread, threadPermissions.DELETE_THREAD);
+        } else if (tab === 'relationship') {
+          return true;
         }
         invariant(false, `invalid tab: ${tab}`);
       },
@@ -152,6 +176,21 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       );
     }
 
+    if (availableRelationshipActions.length > 0 && otherUserInfo) {
+      tabs.push(
+        <Tabs.Item id="relationship" header="Relationship" key="relationship">
+          <div className={css.tab_body}>
+            <ThreadSettingsRelationshipTab
+              setErrorMessage={setErrorMessage}
+              relationshipButtons={availableRelationshipActions}
+              otherUserInfo={otherUserInfo}
+            />
+            <div className={css.modal_form_error}>{errorMessage}</div>
+          </div>
+        </Tabs.Item>,
+      );
+    }
+
     const canDeleteThread = hasPermissionForTab(threadInfo, 'delete');
     if (canDeleteThread) {
       tabs.push(
@@ -173,6 +212,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         name="Chat settings"
         onClose={modalContext.popModal}
         icon="settings"
+        size="fit-content"
       >
         <div className={css.modal_body}>
           <Tabs.Container activeTab={currentTabType} setTab={setCurrentTabType}>
