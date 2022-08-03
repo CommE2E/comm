@@ -8,12 +8,14 @@ import {
   updateRelationships as serverUpdateRelationships,
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions';
-import { getRelationshipDispatchAction } from 'lib/shared/relationship-utils';
+import {
+  getRelationshipActionText,
+  getRelationshipDispatchAction,
+} from 'lib/shared/relationship-utils';
 import { getSingleOtherUser } from 'lib/shared/thread-utils';
 import {
   type RelationshipAction,
   type RelationshipButton,
-  relationshipButtons,
 } from 'lib/types/relationship-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import {
@@ -83,22 +85,11 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo<Pr
     const otherUserInfoUsername = otherUserInfo.username;
     invariant(otherUserInfoUsername, 'Other user username should be specified');
 
-    let relationshipButtonText;
-    if (relationshipButton === relationshipButtons.BLOCK) {
-      relationshipButtonText = `Block ${otherUserInfoUsername}`;
-    } else if (relationshipButton === relationshipButtons.FRIEND) {
-      relationshipButtonText = `Add ${otherUserInfoUsername} to friends`;
-    } else if (relationshipButton === relationshipButtons.UNFRIEND) {
-      relationshipButtonText = `Unfriend ${otherUserInfoUsername}`;
-    } else if (relationshipButton === relationshipButtons.UNBLOCK) {
-      relationshipButtonText = `Unblock ${otherUserInfoUsername}`;
-    } else if (relationshipButton === relationshipButtons.ACCEPT) {
-      relationshipButtonText = `Accept friend request from ${otherUserInfoUsername}`;
-    } else if (relationshipButton === relationshipButtons.REJECT) {
-      relationshipButtonText = `Reject friend request from ${otherUserInfoUsername}`;
-    } else if (relationshipButton === relationshipButtons.WITHDRAW) {
-      relationshipButtonText = `Withdraw request to friend ${otherUserInfoUsername}`;
-    }
+    const relationshipButtonText = React.useMemo(
+      () =>
+        getRelationshipActionText(relationshipButton, otherUserInfoUsername),
+      [otherUserInfoUsername, relationshipButton],
+    );
 
     return (
       <View style={styles.container}>
