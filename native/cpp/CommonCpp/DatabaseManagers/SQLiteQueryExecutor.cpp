@@ -401,7 +401,7 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {22, {enable_write_ahead_logging_mode, false}},
      {23, {create_metadata_table, true}}}};
 
-void SQLiteQueryExecutor::migrate() {
+void SQLiteQueryExecutor::migrate() const {
   validate_encryption();
 
   sqlite3 *db;
@@ -773,6 +773,22 @@ void SQLiteQueryExecutor::setNotifyToken(std::string token) const {
 
 void SQLiteQueryExecutor::clearNotifyToken() const {
   SQLiteQueryExecutor::getStorage().remove<Metadata>("notify_token");
+}
+
+void SQLiteQueryExecutor::clearSensitiveData() const {
+  if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
+      std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
+    std::string error_message = "Failed to delete database file. Details: " +
+        std::string(strerror(errno));
+    throw std::system_error(errno, std::generic_category(), error_message);
+  }
+  CommSecureStore commSecureStore;
+  std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
+  commSecureStore.set(
+      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
+  SQLiteQueryExecutor::encryptionKey = encryptionKey;
+  this->migrate();
 }
 
 } // namespace comm
