@@ -10,7 +10,7 @@
 namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
-  void migrate();
+  void migrate() const;
   static auto &getStorage();
 
   static std::once_flag initialized;
@@ -57,6 +57,7 @@ public:
   void storeOlmPersistData(crypto::Persist persist) const override;
   void setNotifyToken(std::string token) const override;
   void clearNotifyToken() const override;
+  void clearSensitiveData() const override;
 };
 
 } // namespace comm
