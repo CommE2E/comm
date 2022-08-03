@@ -66,20 +66,6 @@ async function rescindPushNotifs(
           codeVersion: null,
         });
         receivingDeviceTokens.push(...delivery.iosDeviceTokens);
-      } else if (delivery.androidID) {
-        // Old Android
-        const notification = prepareAndroidNotification(
-          row.collapse_key ? row.collapse_key : id,
-          row.unread_count,
-          threadID,
-          null,
-        );
-        deliveryPromises[id] = fcmPush({
-          notification,
-          deviceTokens: delivery.androidDeviceTokens,
-          codeVersion: null,
-        });
-        receivingDeviceTokens.push(...delivery.androidDeviceTokens);
       } else if (delivery.deviceType === 'ios') {
         // New iOS
         const { iosID, deviceTokens, codeVersion } = delivery;
@@ -102,7 +88,6 @@ async function rescindPushNotifs(
           row.collapse_key ? row.collapse_key : id,
           row.unread_count,
           threadID,
-          codeVersion,
         );
         deliveryPromises[id] = fcmPush({
           notification,
@@ -197,19 +182,7 @@ function prepareAndroidNotification(
   notifID: string,
   unreadCount: number,
   threadID: string,
-  codeVersion: ?number,
 ): Object {
-  if (!codeVersion || codeVersion < 31) {
-    return {
-      data: {
-        badge: unreadCount.toString(),
-        custom_notification: JSON.stringify({
-          rescind: 'true',
-          notifID,
-        }),
-      },
-    };
-  }
   return {
     data: {
       badge: unreadCount.toString(),
