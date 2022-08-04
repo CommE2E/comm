@@ -37,7 +37,11 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnStaticData) {
       "6d37StvXBzfJoZVU79UeOF2bFvb3DNoArEOe";
   const database::MessageItem messageItem{
       messageID, fromDeviceID, toDeviceID, payload, ""};
-  EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
+  // To properly test multi-thread delivery we should send in another thread
+  std::thread sendThread([messageItem]() {
+    EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
+  });
+  sendThread.join();
   DeliveryBrokerMessage receivedMessage =
       DeliveryBroker::getInstance().pop(toDeviceID);
   EXPECT_EQ(messageID, receivedMessage.messageID);
@@ -55,7 +59,11 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnGeneratedData) {
   const std::string payload = tools::generateRandomString(512);
   const database::MessageItem messageItem{
       messageID, fromDeviceID, toDeviceID, payload, ""};
-  EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
+  // To properly test multi-thread delivery we should send in another thread
+  std::thread sendThread([messageItem]() {
+    EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
+  });
+  sendThread.join();
   DeliveryBrokerMessage receivedMessage =
       DeliveryBroker::getInstance().pop(toDeviceID);
   EXPECT_EQ(messageID, receivedMessage.messageID)
