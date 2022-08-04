@@ -6,7 +6,7 @@ use tonic::{transport::Channel, Response, Status};
 use identity::{
   get_user_id_request::AuthType,
   identity_service_client::IdentityServiceClient, GetUserIdRequest,
-  GetUserIdResponse,
+  GetUserIdResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
 };
 pub mod identity {
   tonic::include_proto!("identity");
@@ -50,6 +50,22 @@ impl Client {
       .get_user_id(GetUserIdRequest {
         auth_type: auth_type.into(),
         user_info,
+      })
+      .await
+  }
+
+  async fn verify_user_token(
+    &mut self,
+    user_id: String,
+    device_id: String,
+    access_token: String,
+  ) -> Result<Response<VerifyUserTokenResponse>, Status> {
+    self
+      .identity_client
+      .verify_user_token(VerifyUserTokenRequest {
+        user_id,
+        device_id,
+        access_token,
       })
       .await
   }
