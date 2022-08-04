@@ -37,7 +37,8 @@ const std::string AMQP_HEADER_FROM_DEVICEID = "fromDeviceID";
 const std::string AMQP_HEADER_TO_DEVICEID = "toDeviceID";
 const std::string AMQP_HEADER_MESSAGEID = "messageID";
 
-const int64_t AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL = 1000 * 60; // 1 min
+const size_t AMQP_RECONNECT_ATTEMPT_INTERVAL = 3000; // 3 seconds
+const size_t AMQP_RECONNECT_MAX_ATTEMPTS = 10;
 
 // DeviceID
 const size_t DEVICEID_CHAR_LENGTH = 64;
