@@ -122,7 +122,7 @@ brew tap homebrew/services
 brew services start mariadb
 ```
 
-Finally, you should set up a root password for your local MariaDB instance. To do this we’ll use the `mysqladmin` command. Note that many of MariaDB’s commands still use the "mysql" name for compatibility.
+Finally, you should set up a root password for your local MariaDB instance. To do this we’ll use the `mysqladmin` command. Note that many of MariaDB’s commands still use the “mysql” name for compatibility.
 
 ```
 sudo mysqladmin -u root password
