@@ -2,8 +2,8 @@
 
 #include "BaseReactor.h"
 
-#include <grpcpp/grpcpp.h>
 #include <glog/logging.h>
+#include <grpcpp/grpcpp.h>
 
 namespace comm {
 namespace network {
@@ -57,19 +57,26 @@ public:
 
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::nextWrite() {
+  std::cout << "=== nextWrite 0 | " << std::endl;
   this->request = Request();
   try {
+    std::cout << "=== nextWrite 1 | " << std::endl;
     std::unique_ptr<grpc::Status> status =
         this->prepareRequest(this->request, this->response);
+    std::cout << "=== nextWrite 2 | " << std::endl;
     if (status != nullptr) {
+      std::cout << "=== nextWrite 2.1 | " << std::endl;
       this->terminate(*status);
       return;
     }
+    std::cout << "=== nextWrite 3 | " << std::endl;
     this->StartWrite(&this->request);
   } catch (std::runtime_error &e) {
+    std::cout << "=== nextWrite 3.1 | " << std::endl;
     this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
     return;
   }
+  std::cout << "=== nextWrite 4 | " << std::endl;
 }
 
 template <class Request, class Response>
@@ -78,27 +85,37 @@ void ClientBidiReactorBase<Request, Response>::start() {
     return;
   }
   this->statusHolder->state = ReactorState::RUNNING;
+  std::cout << "=== start 0 | " << std::endl;
   this->nextWrite();
+  std::cout << "=== start 1 | " << std::endl;
   this->StartCall();
+  std::cout << "=== start 2 | " << std::endl;
 }
 
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::OnWriteDone(bool ok) {
+  std::cout << "=== OnWriteDone 0 | " << std::endl;
   if (this->response == nullptr) {
+  std::cout << "=== OnWriteDone 0.1 | " << std::endl;
     this->response = std::make_shared<Response>();
   }
+  std::cout << "=== OnWriteDone 1 | " << std::endl;
   this->StartRead(&(*this->response));
+  std::cout << "=== OnWriteDone 2 | " << std::endl;
 }
 
 template <class Request, class Response>
 void ClientBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
+  std::cout << "=== OnReadDone 0 | " << std::endl;
   if (!ok) {
+  std::cout << "=== OnReadDone 0.1 | " << std::endl;
     // Ending a connection on the other side results in the `ok` flag being set
     // to false. It makes it impossible to detect a failure based just on the
     // flag. We should manually check if the data we received is valid
     this->terminate(grpc::Status::OK);
     return;
   }
+  std::cout << "=== OnReadDone 1 | " << std::endl;
   this->nextWrite();
 }
 

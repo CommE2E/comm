@@ -29,12 +29,14 @@ std::unique_ptr<grpc::Status> TalkBetweenServicesReactor::prepareRequest(
   std::string msg;
   LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
-            << "[TalkBetweenServicesReactor::prepareRequest] read block";
+            << "[TalkBetweenServicesReactor::prepareRequest] read block "
+            << this->messages.size();
   this->messages.blockingRead(msg);
   LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
             << "[TalkBetweenServicesReactor::prepareRequest] read unblock "
-            << msg.size();
+            << this->messages.size() << "/" << msg.size();
+  // flow is lost after this place
   if (msg.empty()) {
     return std::make_unique<grpc::Status>(grpc::Status::OK);
   }
