@@ -23,4 +23,4 @@ do
   fi
 done
 
-echo "$ABIS"
+echo "${ABIS[@]}"
