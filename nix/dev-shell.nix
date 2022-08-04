@@ -19,6 +19,7 @@
 , grpc
 , libiconv
 , libuv
+, mariadb
 , nodejs-16_x
 , olm
 , openjdk8
@@ -42,6 +43,7 @@ mkShell {
     shellcheck
 
     # node development
+    mariadb
     nodejs-16_x
     yarn
     watchman # react native
@@ -92,7 +94,7 @@ mkShell {
 
   # shell commands to be ran upon entering shell
   shellHook = let
-    socket = "mysql-socket/mysql.sock";
+    socket = "mysql.sock";
   in ''
     if [[ "$OSTYPE" == 'linux'* ]]; then
       export MYSQL_UNIX_PORT=''${XDG_RUNTIME_DIR:-/run/user/$UID}/${socket}
@@ -102,6 +104,8 @@ mkShell {
     if [[ "$OSTYPE" == 'darwin'* ]]; then
       # Many commands for cocoapods expect the native BSD versions of commands
       export PATH=/usr/bin:$PATH
+      MARIADB_DIR=''${XDG_DATA_HOME:-$HOME/.local/share}/MariaDB
+      export MYSQL_UNIX_PORT="$MARIADB_DIR"/${socket}
       export ANDROID_SDK_ROOT=''${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}
     fi
 
