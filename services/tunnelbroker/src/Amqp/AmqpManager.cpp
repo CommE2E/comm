@@ -38,12 +38,10 @@ void AmqpManager::connectInternal() {
       config::ConfigManager::getInstance().getParameter(
           config::ConfigManager::OPTION_AMQP_FANOUT_EXCHANGE);
   LOG(INFO) << "AMQP: Connecting to " << amqpUri;
-
-  auto *loop = uv_default_loop();
-  AMQP::LibUvHandler handler(loop);
-  AMQP::TcpConnection connection(&handler, AMQP::Address(amqpUri));
-
-  this->amqpChannel = std::make_unique<AMQP::TcpChannel>(&connection);
+  uv_loop_t *localUvLoop = uv_default_loop();
+  AMQP::LibUvHandler uvHandler(localUvLoop);
+  AMQP::TcpConnection tcpConnection(&uvHandler, AMQP::Address(amqpUri));
+  this->amqpChannel = std::make_unique<AMQP::TcpChannel>(&tcpConnection);
   this->amqpChannel->onReady([this]() {
     LOG(INFO) << "AMQP: Channel is ready";
     this->amqpReady = true;
@@ -95,7 +93,7 @@ void AmqpManager::connectInternal() {
         throw std::runtime_error(
             "AMQP: Queue creation error: " + std::string(message));
       });
-  uv_run(loop, UV_RUN_DEFAULT);
+  uv_run(localUvLoop, UV_RUN_DEFAULT);
 };
 
 void AmqpManager::connect() {
