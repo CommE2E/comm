@@ -45,6 +45,8 @@ prev:
 
   devShell = final.callPackage ./dev-shell.nix { };
 
+  mariadb-up = prev.callPackage ./mariadb-up-mac.nix { };
+
   mysql-down = prev.callPackage ./mysql-down-linux.nix { };
 
   mysql-up = prev.callPackage ./mysql-up-linux.nix { };
