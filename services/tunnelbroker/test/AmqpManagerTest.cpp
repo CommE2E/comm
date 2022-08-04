@@ -16,7 +16,7 @@ class AmqpManagerTest : public testing::Test {
 protected:
   virtual void SetUp() {
     config::ConfigManager::getInstance().load();
-    std::thread amqpThread([]() { AmqpManager::getInstance().connect(); });
+    AmqpManager::getInstance().init();
   }
 };
 
