@@ -9,10 +9,18 @@ namespace reactor {
 void TalkBetweenServicesReactor::scheduleMessage(
     std::unique_ptr<std::string> msg) {
   const size_t size = msg->size();
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[TalkBetweenServicesReactor::scheduleMessage] schedulING "
+            << size;
   if (!this->messages.write(std::move(*msg))) {
     throw std::runtime_error(
         "Error scheduling sending a msg to send to the blob service");
   }
+  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+            << "]"
+            << "[TalkBetweenServicesReactor::scheduleMessage] schedulED "
+            << size;
 }
 
 std::unique_ptr<grpc::Status> TalkBetweenServicesReactor::prepareRequest(

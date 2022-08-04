@@ -9,6 +9,7 @@
 
 #include <memory>
 #include <string>
+#include <thread>
 
 namespace comm {
 namespace network {
@@ -28,17 +29,30 @@ public:
     return instance;
   }
 
-  void talk(std::shared_ptr<reactor::TalkBetweenServicesReactor> talkReactor) {
-    if (talkReactor == nullptr) {
+  std::thread talk(reactor::TalkBetweenServicesReactor &talkReactor) {
+    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+              << "]"
+              << "[ServiceBlobClient::talk] etner";
+    if (!talkReactor.initialized) {
       throw std::runtime_error(
           "talk reactor is being used but has not been initialized");
     }
-    blob::BlobService::NewStub(this->channel)
-        ->async()
-        ->TalkBetweenServices(&talkReactor->context, &(*talkReactor));
-    talkReactor->start();
+    std::thread th([this, &talkReactor]() {
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[ServiceBlobClient::talk::lambda] startING";
+      blob::BlobService::NewStub(this->channel)
+          ->async() // this runs on the same thread, why??
+          ->TalkBetweenServices(&talkReactor.context, &talkReactor);
+      talkReactor.start();
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[ServiceBlobClient::talk::lambda] startED";
+    });
+    return th;
   }
 };
-
 } // namespace network
 } // namespace comm

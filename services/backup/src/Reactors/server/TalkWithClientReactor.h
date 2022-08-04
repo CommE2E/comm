@@ -19,10 +19,10 @@ namespace reactor {
 class TalkWithClientReactor : public reactor::ServerBidiReactorBase<
                                   backup::TalkWithClientRequest,
                                   backup::TalkWithClientResponse> {
-  std::shared_ptr<reactor::TalkBetweenServicesReactor> talkReactor;
+  reactor::TalkBetweenServicesReactor talkReactor;
 
   std::mutex reactorStateMutex;
-  // std::thread clientThread;
+  std::thread clientThread;
 
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;
@@ -43,14 +43,19 @@ public:
     LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
               << "]"
               << "[TalkWithClientReactor::handleRequest] msg " << msg.size();
-    if (this->talkReactor == nullptr) {
+    if (!this->talkReactor.initialized) {
       LOG(INFO)
           << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
           << "]"
           << "[TalkWithClientReactor::handleRequest] initializING talk reactor";
-      this->talkReactor = std::make_shared<reactor::TalkBetweenServicesReactor>(
-          &this->blobPutDoneCV);
-      // this->clientThread =
+      this->talkReactor =
+          reactor::TalkBetweenServicesReactor(&this->blobPutDoneCV);
+      LOG(INFO) << "["
+                << std::hash<std::thread::id>{}(std::this_thread::get_id())
+                << "]"
+                << "[TalkWithClientReactor::handleRequest] initializING talk "
+                   "reactor2";
+      this->clientThread =
           ServiceBlobClient::getInstance().talk(this->talkReactor);
       LOG(INFO)
           << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
@@ -61,7 +66,7 @@ public:
               << "]"
               << "[TalkWithClientReactor::handleRequest] schedulING msg "
               << msg.size();
-    this->talkReactor->scheduleMessage(std::make_unique<std::string>(msg));
+    this->talkReactor.scheduleMessage(std::make_unique<std::string>(msg));
     LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
               << "]"
               << "[TalkWithClientReactor::handleRequest] schedulED msg "
@@ -74,10 +79,10 @@ public:
               << "]"
               << "[TalkWithClientReactor::terminateCallback]";
     const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-    if (this->talkReactor == nullptr) {
+    if (!this->talkReactor.initialized) {
       return;
     }
-    this->talkReactor->scheduleMessage(std::make_unique<std::string>(""));
+    this->talkReactor.scheduleMessage(std::make_unique<std::string>(""));
     std::unique_lock<std::mutex> lock2(this->blobPutDoneCVMutex);
     LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
               << "]"
@@ -86,11 +91,11 @@ public:
     LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
               << "]"
               << "[TalkWithClientReactor::terminateCallback] waitED";
-    if (!this->talkReactor->getStatusHolder()->getStatus().ok()) {
+    if (!this->talkReactor.getStatusHolder()->getStatus().ok()) {
       throw std::runtime_error(
-          this->talkReactor->getStatusHolder()->getStatus().error_message());
+          this->talkReactor.getStatusHolder()->getStatus().error_message());
     }
-    // this->clientThread.join();
+    this->clientThread.join();
   }
 };
 
