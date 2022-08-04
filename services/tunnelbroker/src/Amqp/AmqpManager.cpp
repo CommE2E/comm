@@ -7,6 +7,8 @@
 #include <glog/logging.h>
 
 #include <uv.h>
+#include <chrono>
+#include <thread>
 
 namespace comm {
 namespace network {
@@ -110,10 +112,7 @@ void AmqpManager::connect() {
 }
 
 bool AmqpManager::send(const database::MessageItem *message) {
-  if (!this->amqpReady) {
-    LOG(ERROR) << "AMQP: Message send error: channel not ready";
-    return false;
-  }
+  waitUntilReady();
   try {
     const std::string messagePayload = message->getPayload();
     AMQP::Envelope env(messagePayload.c_str(), messagePayload.size());
@@ -137,11 +136,19 @@ bool AmqpManager::send(const database::MessageItem *message) {
 };
 
 void AmqpManager::ack(uint64_t deliveryTag) {
-  if (!this->amqpReady) {
-    LOG(ERROR) << "AMQP: Message ACK error: channel not ready";
+  waitUntilReady();
+  this->amqpChannel->ack(deliveryTag);
+}
+
+void AmqpManager::waitUntilReady() {
+  if (this->amqpReady) {
     return;
   }
-  this->amqpChannel->ack(deliveryTag);
+  while (!this->amqpReady) {
+    LOG(INFO) << "AMQP: Connection is not ready, waiting";
+    std::this_thread::sleep_for(
+        std::chrono::milliseconds(AMQP_SHORTEST_RECONNECTION_ATTEMPT_INTERVAL));
+  }
 }
 
 } // namespace network

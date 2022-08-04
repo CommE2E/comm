@@ -21,6 +21,7 @@ class AmqpManager {
   std::atomic<int64_t> lastConnectionTimestamp;
   void connectInternal();
   void connect();
+  void waitUntilReady();
 
 public:
   static AmqpManager &getInstance();
