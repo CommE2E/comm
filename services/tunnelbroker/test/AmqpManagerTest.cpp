@@ -7,6 +7,7 @@
 
 #include <gtest/gtest.h>
 
+#include <future>
 #include <string>
 #include <thread>
 
@@ -14,6 +15,7 @@ using namespace comm::network;
 
 class AmqpManagerTest : public testing::Test {
 protected:
+  const size_t MESSSAGE_MAX_WAIT_TIME = 10000; // 10 seconds
   virtual void SetUp() {
     config::ConfigManager::getInstance().load();
     AmqpManager::getInstance().init();
@@ -25,7 +27,8 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnStaticData) {
   const std::string fromDeviceID =
       "web:JouLWf84zqRIsjBdHLOcHS9M4eSCz7VF84wT1uOD83u1qxDAqmqI4swmxNINjuhd";
   const std::string toDeviceID =
-      "mobile:EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm";
+      "mobile:"
+      "EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm";
   const std::string payload =
       "lYlNcO6RR4i9UW3G1DGjdJTRRGbqtPya2aj94ZRjIGZWoHwT5MB9ciAgnQf2VafYb9Tl"
       "8SZkX37tg4yZ9pOb4lqslY4g4h58OmWjumghVRvrPUZDalUuK8OLs1Qoengpu9wccxAk"
@@ -39,11 +42,28 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnStaticData) {
       messageID, fromDeviceID, toDeviceID, payload, ""};
   // To properly test multi-thread delivery we should send in another thread
   std::thread sendThread([messageItem]() {
-    EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
+    EXPECT_TRUE(AmqpManager::getInstance().send(&messageItem));
   });
   sendThread.join();
-  DeliveryBrokerMessage receivedMessage =
-      DeliveryBroker::getInstance().pop(toDeviceID);
+
+  std::promise<DeliveryBrokerMessage> promiseFinished;
+  std::future<DeliveryBrokerMessage> futureResult =
+      promiseFinished.get_future();
+  std::thread(
+      [](std::promise<DeliveryBrokerMessage> &promise,
+         const std::string &toDeviceID) {
+        promise.set_value(DeliveryBroker::getInstance().pop(toDeviceID));
+      },
+      std::ref(promiseFinished),
+      std::ref(toDeviceID))
+      .detach();
+  if (futureResult.wait_for(std::chrono::milliseconds(
+          MESSSAGE_MAX_WAIT_TIME)) == std::future_status::timeout) {
+    FAIL() << "Waiting timeout of " << MESSSAGE_MAX_WAIT_TIME
+           << "ms for a pop message from AMQP client is reached";
+  };
+  DeliveryBrokerMessage receivedMessage = futureResult.get();
+
   EXPECT_EQ(messageID, receivedMessage.messageID);
   EXPECT_EQ(fromDeviceID, receivedMessage.fromDeviceID);
   EXPECT_EQ(payload, receivedMessage.payload);
@@ -64,8 +84,25 @@ TEST_F(AmqpManagerTest, SentAndPopedMessagesAreSameOnGeneratedData) {
     EXPECT_EQ(AmqpManager::getInstance().send(&messageItem), true);
   });
   sendThread.join();
-  DeliveryBrokerMessage receivedMessage =
-      DeliveryBroker::getInstance().pop(toDeviceID);
+
+  std::promise<DeliveryBrokerMessage> promiseFinished;
+  std::future<DeliveryBrokerMessage> futureResult =
+      promiseFinished.get_future();
+  std::thread(
+      [](std::promise<DeliveryBrokerMessage> &promise,
+         const std::string &toDeviceID) {
+        promise.set_value(DeliveryBroker::getInstance().pop(toDeviceID));
+      },
+      std::ref(promiseFinished),
+      std::ref(toDeviceID))
+      .detach();
+  if (futureResult.wait_for(std::chrono::milliseconds(
+          MESSSAGE_MAX_WAIT_TIME)) == std::future_status::timeout) {
+    FAIL() << "Waiting timeout of " << MESSSAGE_MAX_WAIT_TIME
+           << "ms for a pop message from AMQP client is reached";
+  };
+  DeliveryBrokerMessage receivedMessage = futureResult.get();
+
   EXPECT_EQ(messageID, receivedMessage.messageID)
       << "Generated messageID \"" << messageID
       << "\" differs from what was got from amqp message "
