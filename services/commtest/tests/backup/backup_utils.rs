@@ -10,6 +10,7 @@ pub use proto::backup_service_client::BackupServiceClient;
 pub struct Item {
   pub id: String,
   pub chunks_sizes: Vec<usize>,
+
   pub attachments_holders: Vec<String>,
 }
 
