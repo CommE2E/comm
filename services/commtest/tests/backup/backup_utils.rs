@@ -1,8 +1,8 @@
 pub mod proto {
-  tonic::include_proto!("backup");
+  tonic::include_proto!("outer");
 }
 
-pub use proto::backup_service_client::BackupServiceClient;
+pub use proto::outer_service_client::OuterServiceClient;
 
 // stands for both, backup and log items
 #[allow(dead_code)]

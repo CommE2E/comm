@@ -24,8 +24,8 @@ void TalkBetweenServicesReactor::scheduleMessage(
 }
 
 std::unique_ptr<grpc::Status> TalkBetweenServicesReactor::prepareRequest(
-    blob::TalkBetweenServicesRequest &request,
-    std::shared_ptr<blob::TalkBetweenServicesResponse> previousResponse) {
+    inner::TalkBetweenServicesRequest &request,
+    std::shared_ptr<inner::TalkBetweenServicesResponse> previousResponse) {
   std::string msg;
   LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"

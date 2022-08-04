@@ -10,14 +10,14 @@ use std::env;
 use tokio::runtime::Runtime;
 use tools::{obtain_number_of_threads, Error};
 
-use backup_utils::BackupServiceClient;
+use backup_utils::OuterServiceClient;
 
 #[tokio::test]
 async fn backup_performance_test() -> Result<(), Error> {
   let port = env::var("COMM_SERVICES_PORT_BACKUP")
     .expect("port env var expected but not received");
   let client =
-    BackupServiceClient::connect(format!("http://localhost:{}", port)).await?;
+    OuterServiceClient::connect(format!("http://localhost:{}", port)).await?;
 
   let number_of_threads = obtain_number_of_threads();
 

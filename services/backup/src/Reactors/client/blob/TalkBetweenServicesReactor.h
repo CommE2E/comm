@@ -1,9 +1,7 @@
 #pragma once
 
-#include "GlobalConstants.h"
-
-#include "../_generated/blob.grpc.pb.h"
-#include "../_generated/blob.pb.h"
+#include "../_generated/inner.grpc.pb.h"
+#include "../_generated/inner.pb.h"
 
 #include "ClientBidiReactorBase.h"
 
@@ -20,8 +18,8 @@ namespace network {
 namespace reactor {
 
 class TalkBetweenServicesReactor : public ClientBidiReactorBase<
-                                       blob::TalkBetweenServicesRequest,
-                                       blob::TalkBetweenServicesResponse> {
+                                       inner::TalkBetweenServicesRequest,
+                                       inner::TalkBetweenServicesResponse> {
   folly::MPMCQueue<std::string> messages;
 
 public:
@@ -55,8 +53,8 @@ public:
 
   void scheduleMessage(std::unique_ptr<std::string> msg);
   std::unique_ptr<grpc::Status> prepareRequest(
-      blob::TalkBetweenServicesRequest &request,
-      std::shared_ptr<blob::TalkBetweenServicesResponse> previousResponse)
+      inner::TalkBetweenServicesRequest &request,
+      std::shared_ptr<inner::TalkBetweenServicesResponse> previousResponse)
       override;
   void doneCallback() override;
 };

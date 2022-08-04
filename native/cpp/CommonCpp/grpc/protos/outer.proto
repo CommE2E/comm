@@ -1,10 +1,8 @@
 syntax = "proto3";
 
-package backup;
+package outer;
 
-import "google/protobuf/empty.proto";
-
-service BackupService {
+service OuterService {
   rpc TalkWithClient(stream TalkWithClientRequest) returns (stream TalkWithClientResponse) {}
 }
 

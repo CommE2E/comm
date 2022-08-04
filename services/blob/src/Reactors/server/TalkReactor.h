@@ -2,8 +2,8 @@
 
 #include "ServerBidiReactorBase.h"
 
-#include "../_generated/blob.grpc.pb.h"
-#include "../_generated/blob.pb.h"
+#include "../_generated/inner.grpc.pb.h"
+#include "../_generated/inner.pb.h"
 
 #include <glog/logging.h>
 
@@ -17,12 +17,12 @@ namespace network {
 namespace reactor {
 
 class TalkReactor : public ServerBidiReactorBase<
-                        blob::TalkBetweenServicesRequest,
-                        blob::TalkBetweenServicesResponse> {
+                        inner::TalkBetweenServicesRequest,
+                        inner::TalkBetweenServicesResponse> {
 public:
   std::unique_ptr<ServerBidiReactorStatus> handleRequest(
-      blob::TalkBetweenServicesRequest request,
-      blob::TalkBetweenServicesResponse *response) override {
+      inner::TalkBetweenServicesRequest request,
+      inner::TalkBetweenServicesResponse *response) override {
     std::string msg = request.msg();
     LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
               << "]"

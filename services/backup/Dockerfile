@@ -12,7 +12,7 @@ ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
 
 WORKDIR /transferred
 
-COPY native/cpp/CommonCpp/grpc/protos/backup.proto native/cpp/CommonCpp/grpc/protos/blob.proto protos/
+COPY native/cpp/CommonCpp/grpc/protos/outer.proto native/cpp/CommonCpp/grpc/protos/inner.proto protos/
 COPY services/lib/cmake-components cmake-components
 COPY services/lib/docker/ scripts/
 COPY services/backup/ .

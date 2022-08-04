@@ -129,7 +129,6 @@ void ServerBidiReactorBase<Request, Response>::setStatus(
 
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
-  std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> on read done 0" << std::endl;
   if (!ok) {
     this->readingAborted = true;
     // Ending a connection on the other side results in the `ok` flag being set
@@ -146,7 +145,6 @@ void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
       this->terminate(*status);
       return;
     }
-    std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> pre write " << std::endl;
     // if (this->response != nullptr) {
       // std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> start write" << std::endl;
     this->StartWrite(&this->response);
@@ -154,13 +152,10 @@ void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
       // std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> start read" << std::endl;
       // this->StartRead(&this->request);
     // }
-    std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> post write" << std::endl;
   } catch (std::runtime_error &e) {
-      std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> error" << std::endl;
     this->terminate(ServerBidiReactorStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what())));
   }
-  std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> finish" << std::endl;
 }
 
 template <class Request, class Response>

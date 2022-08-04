@@ -3,19 +3,19 @@ mod backup_utils;
 #[path = "../lib/tools.rs"]
 mod tools;
 
-use crate::backup_utils::{proto::TalkWithClientRequest, BackupServiceClient};
+use crate::backup_utils::{proto::TalkWithClientRequest, OuterServiceClient};
 
 use tonic::Request;
 
 use crate::tools::{generate_nbytes, Error};
 
 pub async fn run(
-  client: &mut BackupServiceClient<tonic::transport::Channel>,
-  backup_data: usize,
+  client: &mut OuterServiceClient<tonic::transport::Channel>,
+  number_of_messages: usize,
 ) -> Result<(), Error> {
   println!("talk...");
   let outbound = async_stream::stream! {
-    for i in 0..backup_data {
+    for i in 0..number_of_messages {
       let size = i*100+100;
       println!(" - sending user msg index {}, size: {}", i, size);
       let req = TalkWithClientRequest {

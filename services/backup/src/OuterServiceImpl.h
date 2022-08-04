@@ -1,32 +1,32 @@
 #pragma once
 
 #include "ServerBidiReactorBase.h"
+#include "ServiceBlobClient.h"
 #include "TalkBetweenServicesReactor.h"
 #include "TalkWithClientReactor.h"
-#include "ServiceBlobClient.h"
 
-#include "../_generated/backup.grpc.pb.h"
-#include "../_generated/backup.pb.h"
+#include "../_generated/outer.grpc.pb.h"
+#include "../_generated/outer.pb.h"
 
 #include <grpcpp/grpcpp.h>
 
-#include <memory>
 #include <condition_variable>
+#include <memory>
 #include <mutex>
 #include <string>
 
 namespace comm {
 namespace network {
 
-class BackupServiceImpl final : public backup::BackupService::CallbackService {
+class OuterServiceImpl final : public outer::OuterService::CallbackService {
 
 public:
-  BackupServiceImpl();
-  virtual ~BackupServiceImpl();
+  OuterServiceImpl();
+  virtual ~OuterServiceImpl();
 
   grpc::ServerBidiReactor<
-      backup::TalkWithClientRequest,
-      backup::TalkWithClientResponse> *
+      outer::TalkWithClientRequest,
+      outer::TalkWithClientResponse> *
   TalkWithClient(grpc::CallbackServerContext *context) override;
 };
 

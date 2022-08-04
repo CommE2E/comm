@@ -1,4 +1,4 @@
-#include "BlobServiceImpl.h"
+#include "InnerServiceImpl.h"
 
 #include "GlobalConstants.h"
 #include "GlobalTools.h"
@@ -12,13 +12,13 @@ namespace comm {
 namespace network {
 
 void RunServer() {
-  BlobServiceImpl blobService;
+  InnerServiceImpl innerService;
 
   grpc::EnableDefaultHealthCheckService(true);
   grpc::ServerBuilder builder;
   builder.AddListeningPort(
       SERVER_LISTEN_ADDRESS, grpc::InsecureServerCredentials());
-  builder.RegisterService(&blobService);
+  builder.RegisterService(&innerService);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"

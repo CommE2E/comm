@@ -2,8 +2,8 @@
 
 #include "TalkBetweenServicesReactor.h"
 
-#include "../_generated/blob.grpc.pb.h"
-#include "../_generated/blob.pb.h"
+#include "../_generated/inner.grpc.pb.h"
+#include "../_generated/inner.pb.h"
 
 #include <grpcpp/grpcpp.h>
 
@@ -42,7 +42,7 @@ public:
                 << std::hash<std::thread::id>{}(std::this_thread::get_id())
                 << "]"
                 << "[ServiceBlobClient::talk::lambda] startING";
-      blob::BlobService::NewStub(this->channel)
+      inner::InnerService::NewStub(this->channel)
           ->async() // this runs on the same thread, why??
           ->TalkBetweenServices(&talkReactor.context, &talkReactor);
       talkReactor.start();

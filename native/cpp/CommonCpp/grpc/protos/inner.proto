@@ -1,10 +1,8 @@
 syntax = "proto3";
 
-package blob;
+package inner;
 
-import "google/protobuf/empty.proto";
-
-service BlobService {
+service InnerService {
   rpc TalkBetweenServices(stream TalkBetweenServicesRequest) returns (stream TalkBetweenServicesResponse) {}
 }
 

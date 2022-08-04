@@ -2,8 +2,8 @@
 
 #include "ServiceBlobClient.h"
 
-#include "../_generated/backup.grpc.pb.h"
-#include "../_generated/backup.pb.h"
+#include "../_generated/outer.grpc.pb.h"
+#include "../_generated/outer.pb.h"
 
 #include "ServerBidiReactorBase.h"
 
@@ -17,8 +17,8 @@ namespace network {
 namespace reactor {
 
 class TalkWithClientReactor : public reactor::ServerBidiReactorBase<
-                                  backup::TalkWithClientRequest,
-                                  backup::TalkWithClientResponse> {
+                                  outer::TalkWithClientRequest,
+                                  outer::TalkWithClientResponse> {
   reactor::TalkBetweenServicesReactor talkReactor;
 
   std::mutex reactorStateMutex;
@@ -31,8 +31,8 @@ class TalkWithClientReactor : public reactor::ServerBidiReactorBase<
 
 public:
   std::unique_ptr<reactor::ServerBidiReactorStatus> handleRequest(
-      backup::TalkWithClientRequest request,
-      backup::TalkWithClientResponse *response) override {
+      outer::TalkWithClientRequest request,
+      outer::TalkWithClientResponse *response) override {
     LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
               << "]"
               << "[TalkWithClientReactor::handleRequest]";
