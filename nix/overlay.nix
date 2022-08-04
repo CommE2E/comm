@@ -45,6 +45,11 @@ prev:
 
   devShell = final.callPackage ./dev-shell.nix { };
 
+  # Make our version of mariadb the default everywhere
+  mariadb = prev.mariadb_108;
+
+  mariadb-up = prev.callPackage ./mariadb-up-mac.nix { };
+
   mysql-down = prev.callPackage ./mysql-down-linux.nix { };
 
   mysql-up = prev.callPackage ./mysql-up-linux.nix { };
