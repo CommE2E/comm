@@ -32,19 +32,14 @@ void RunServer() {
   server->Wait();
 }
 
-void RunAmqpClient() {
-  AmqpManager::getInstance().connect();
-}
-
 } // namespace network
 } // namespace comm
 
 int main(int argc, char **argv) {
   comm::network::tools::InitLogging("tunnelbroker");
   comm::network::config::ConfigManager::getInstance().load();
-  std::thread amqpThread(comm::network::RunAmqpClient);
+  comm::network::AmqpManager::getInstance().init();
   std::thread grpcThread(comm::network::RunServer);
-  amqpThread.join();
   grpcThread.join();
   return 0;
 }
