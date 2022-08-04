@@ -16,6 +16,16 @@ AmqpManager &AmqpManager::getInstance() {
   return instance;
 }
 
+void AmqpManager::init() {
+  if (this->amqpChannel != nullptr) {
+    LOG(INFO) << "Skipping AMQP initialization because the channel is already "
+                 "initialized";
+    return;
+  }
+  std::thread amqpClientThread([&]() { connect(); });
+  amqpClientThread.detach();
+}
+
 void AmqpManager::connectInternal() {
   const std::string amqpUri = config::ConfigManager::getInstance().getParameter(
       config::ConfigManager::OPTION_AMQP_URI);
