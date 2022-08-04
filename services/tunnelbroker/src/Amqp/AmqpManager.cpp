@@ -17,6 +17,13 @@ AmqpManager &AmqpManager::getInstance() {
   return instance;
 }
 
+void AmqpManager::init() {
+  std::call_once(initOnceFlag, [&]() {
+    std::thread amqpClientThread([&]() { this->connect(); });
+    amqpClientThread.detach();
+  });
+}
+
 void AmqpManager::connectInternal() {
   const std::string amqpUri = config::ConfigManager::getInstance().getParameter(
       config::ConfigManager::OPTION_AMQP_URI);

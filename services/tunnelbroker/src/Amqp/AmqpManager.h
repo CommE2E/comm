@@ -15,14 +15,16 @@ namespace network {
 class AmqpManager {
   AmqpManager(){};
 
+  std::once_flag initOnceFlag;
   std::unique_ptr<AMQP::TcpChannel> amqpChannel;
   std::atomic<bool> amqpReady;
   std::atomic<int64_t> lastConnectionTimestamp;
   void connectInternal();
+  void connect();
 
 public:
   static AmqpManager &getInstance();
-  void connect();
+  void init();
   bool send(const database::MessageItem *message);
   void ack(uint64_t deliveryTag);
 
