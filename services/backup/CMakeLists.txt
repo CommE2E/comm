@@ -1,4 +1,4 @@
-PROJECT(backup C CXX)
+PROJECT(backup CXX)
 
 cmake_minimum_required(VERSION 3.16)
 
@@ -9,6 +9,8 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 set(CMAKE_CXX_STANDARD 17)
+# For C++17 on MacOS, we must set minimum target to 10.14+
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
 set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
 set(WITH_GTEST "Use Google Test" OFF)
