@@ -30,6 +30,7 @@ services/tunnelbroker/rust-notifications/target
 native/cpp/**/build
 services/*/build
 services/build
+services/lib/src/build
 
 # Nix
 result*
