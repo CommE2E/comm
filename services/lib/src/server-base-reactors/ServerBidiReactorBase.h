@@ -145,13 +145,7 @@ void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
       this->terminate(*status);
       return;
     }
-    // if (this->response != nullptr) {
-      // std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> start write" << std::endl;
     this->StartWrite(&this->response);
-    // } else {
-      // std::cout << "["<< std::hash<std::thread::id>{}(std::this_thread::get_id()) <<"]>>>>>>>>>> start read" << std::endl;
-      // this->StartRead(&this->request);
-    // }
   } catch (std::runtime_error &e) {
     this->terminate(ServerBidiReactorStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what())));

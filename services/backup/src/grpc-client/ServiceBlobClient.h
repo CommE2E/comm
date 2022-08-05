@@ -7,6 +7,7 @@
 
 #include <grpcpp/grpcpp.h>
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <thread>
@@ -30,26 +31,26 @@ public:
   }
 
   std::thread talk(reactor::TalkBetweenServicesReactor &talkReactor) {
-    LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+    std::cout << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
               << "]"
-              << "[ServiceBlobClient::talk] etner";
+              << "[ServiceBlobClient::talk] etner" << std::endl;
     if (!talkReactor.initialized) {
       throw std::runtime_error(
           "talk reactor is being used but has not been initialized");
     }
     std::thread th([this, &talkReactor]() {
-      LOG(INFO) << "["
+      std::cout << "["
                 << std::hash<std::thread::id>{}(std::this_thread::get_id())
                 << "]"
-                << "[ServiceBlobClient::talk::lambda] startING";
+                << "[ServiceBlobClient::talk::lambda] startING" << std::endl;
       inner::InnerService::NewStub(this->channel)
           ->async() // this runs on the same thread, why??
           ->TalkBetweenServices(&talkReactor.context, &talkReactor);
       talkReactor.start();
-      LOG(INFO) << "["
+      std::cout << "["
                 << std::hash<std::thread::id>{}(std::this_thread::get_id())
                 << "]"
-                << "[ServiceBlobClient::talk::lambda] startED";
+                << "[ServiceBlobClient::talk::lambda] startED" << std::endl;
     });
     return th;
   }

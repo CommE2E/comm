@@ -2,8 +2,6 @@
 
 #include "TalkReactor.h"
 
-#include <glog/logging.h>
-
 #include <memory>
 
 namespace comm {

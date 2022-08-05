@@ -3,9 +3,9 @@
 #include "GlobalConstants.h"
 #include "GlobalTools.h"
 
-#include <glog/logging.h>
 #include <grpcpp/grpcpp.h>
 
+#include <iostream>
 #include <memory>
 #include <thread>
 
@@ -25,9 +25,9 @@ void RunServer() {
   builder.RegisterService(&outerService);
   // Finally assemble the server.
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+  std::cout << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
-            << "server listening at :" << SERVER_LISTEN_ADDRESS;
+            << "server listening at :" << SERVER_LISTEN_ADDRESS << std::endl;
 
   // Wait for the server to shutdown. Note that some other thread must be
   // responsible for shutting down the server for this call to ever return.
@@ -38,7 +38,6 @@ void RunServer() {
 } // namespace comm
 
 int main(int argc, char **argv) {
-  comm::network::tools::InitLogging("backup");
   comm::network::RunServer();
 
   return 0;

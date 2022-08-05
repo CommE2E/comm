@@ -1,5 +1,6 @@
 #include "TalkBetweenServicesReactor.h"
 
+#include <iostream>
 #include <thread>
 
 namespace comm {
@@ -9,30 +10,30 @@ namespace reactor {
 void TalkBetweenServicesReactor::scheduleMessage(
     std::unique_ptr<std::string> msg) {
   const size_t size = msg->size();
-  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+  std::cout << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
             << "[TalkBetweenServicesReactor::scheduleMessage] schedulING "
-            << size;
+            << size << std::endl;
   this->messages.enqueue(std::move(*msg));
-  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+  std::cout << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
             << "[TalkBetweenServicesReactor::scheduleMessage] schedulED "
-            << size;
+            << size << std::endl;
 }
 
 std::unique_ptr<grpc::Status> TalkBetweenServicesReactor::prepareRequest(
     inner::TalkBetweenServicesRequest &request,
     std::shared_ptr<inner::TalkBetweenServicesResponse> previousResponse) {
   std::string msg;
-  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+  std::cout << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
             << "[TalkBetweenServicesReactor::prepareRequest] read block "
-            << this->messages.size();
+            << this->messages.size() << std::endl;
   msg = this->messages.dequeue();
-  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+  std::cout << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
             << "[TalkBetweenServicesReactor::prepareRequest] read unblock "
-            << this->messages.size() << "/" << msg.size();
+            << this->messages.size() << "/" << msg.size() << std::endl;
   // flow is lost after this place
   if (msg.empty()) {
     return std::make_unique<grpc::Status>(grpc::Status::OK);

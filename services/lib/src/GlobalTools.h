@@ -21,8 +21,6 @@ std::string generateUUID();
 
 bool validateUUIDv4(const std::string &uuid);
 
-void InitLogging(const std::string &programName);
-
 } // namespace tools
 } // namespace network
 } // namespace comm

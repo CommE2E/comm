@@ -3,9 +3,9 @@
 #include "GlobalConstants.h"
 #include "GlobalTools.h"
 
-#include <glog/logging.h>
 #include <grpcpp/grpcpp.h>
 
+#include <iostream>
 #include <memory>
 
 namespace comm {
@@ -20,9 +20,9 @@ void RunServer() {
       SERVER_LISTEN_ADDRESS, grpc::InsecureServerCredentials());
   builder.RegisterService(&innerService);
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
+  std::cout << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
-            << "server listening at :" << SERVER_LISTEN_ADDRESS;
+            << "server listening at :" << SERVER_LISTEN_ADDRESS << std::endl;
 
   server->Wait();
 }
@@ -31,7 +31,6 @@ void RunServer() {
 } // namespace comm
 
 int main(int argc, char **argv) {
-  comm::network::tools::InitLogging("blob");
   comm::network::RunServer();
 
   return 0;
