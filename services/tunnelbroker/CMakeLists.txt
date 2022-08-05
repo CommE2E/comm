@@ -26,7 +26,7 @@ pkg_check_modules(CRYPTOPP REQUIRED libcryptopp=8.6)
 # Find Libuv installation
 pkg_check_modules(LIBUV REQUIRED libuv>=1.43)
 
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL "/transferred")
+if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL "/transferred/tunnelbroker")
   # Inside the docker build contex
   set(_proto_path "grpc")
 else()
@@ -37,6 +37,12 @@ endif()
 # Shared Comm protos
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${_proto_path}
   ${CMAKE_CURRENT_BINARY_DIR}/protos
+  EXCLUDE_FROM_ALL
+)
+
+# Shared services code
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
+  ${CMAKE_CURRENT_BINARY_DIR}/common
   EXCLUDE_FROM_ALL
 )
 
@@ -58,7 +64,6 @@ set(RUST_HEADERS_INCLUDE_DIR "rust-notifications/extern")
 set(RUST_LIBS "rust-notifications")
 
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
-file(GLOB COMMON_CODE "${CMAKE_CURRENT_SOURCE_DIR}/../lib/src/*.cpp")
 
 set(
   SOURCE_CODE
@@ -66,13 +71,14 @@ set(
   ${DOUBLE_CONVERSION_SOURCES}
   ${GENERATED_CODE}
   ${SOURCE_CODE}
-  ${COMMON_CODE}
 )
 
 set(
   LIBS
 
+  comm-services-common
   comm-tunnelbroker-grpc
+
   gRPC::grpc++_reflection
   gRPC::grpc++
   ${AWSSDK_LINK_LIBRARIES}
@@ -104,8 +110,6 @@ target_include_directories(tunnelbroker
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Service
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Tools
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Amqp
-
-  ${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
 )
 
 target_link_libraries(
