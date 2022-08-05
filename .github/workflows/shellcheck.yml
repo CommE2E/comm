@@ -11,11 +11,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install ShellCheck
-      run: sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y shellcheck
-
     - name: Set globstar
       run: shopt -s globstar
-    
+
     - name: Run ShellCheck
       run: shellcheck -x -P SCRIPTDIR **/*.sh
