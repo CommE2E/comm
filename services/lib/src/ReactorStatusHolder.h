@@ -22,7 +22,7 @@ private:
   std::mutex statusAccessMutex;
 
 public:
-  std::atomic<ReactorState> state = ReactorState::NONE;
+  std::atomic<ReactorState> state = {ReactorState::NONE};
 
   grpc::Status getStatus() {
     const std::unique_lock<std::mutex> lock(this->statusAccessMutex);

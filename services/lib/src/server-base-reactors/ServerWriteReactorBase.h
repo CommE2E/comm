@@ -46,7 +46,7 @@ public:
   // https://github.com/grpc/grpc/blob/v1.39.x/include/grpcpp/impl/codegen/client_callback.h#L237
   virtual void initialize(){};
   void OnWriteDone(bool ok) override;
-  void terminate(const grpc::Status &status);
+  void terminate(const grpc::Status &status) override;
   void OnDone() override;
 
   // - argument response - should be filled with data that will be sent to the
