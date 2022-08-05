@@ -4,8 +4,8 @@
 #include "../_generated/inner.pb.h"
 
 #include "ClientBidiReactorBase.h"
+#include "ThreadSafeQueue.h"
 
-#include <folly/MPMCQueue.h>
 #include <grpcpp/grpcpp.h>
 
 #include <condition_variable>
@@ -20,7 +20,7 @@ namespace reactor {
 class TalkBetweenServicesReactor : public ClientBidiReactorBase<
                                        inner::TalkBetweenServicesRequest,
                                        inner::TalkBetweenServicesResponse> {
-  folly::MPMCQueue<std::string> messages;
+  ThreadSafeQueue<std::string> messages;
 
 public:
   std::condition_variable *terminationNotifier;
@@ -30,9 +30,7 @@ public:
   }
 
   TalkBetweenServicesReactor(std::condition_variable *terminationNotifier)
-      : messages(folly::MPMCQueue<std::string>(100)),
-        terminationNotifier(terminationNotifier),
-        initialized(true) {
+      : terminationNotifier(terminationNotifier), initialized(true) {
   }
 
   TalkBetweenServicesReactor
@@ -42,13 +40,11 @@ public:
     }
     this->terminationNotifier = other.terminationNotifier;
     this->initialized = true;
-    this->messages = folly::MPMCQueue<std::string>(100);
     return *this;
   }
   TalkBetweenServicesReactor(const TalkBetweenServicesReactor &other) {
     this->terminationNotifier = other.terminationNotifier;
     this->initialized = true;
-    this->messages = folly::MPMCQueue<std::string>(100);
   }
 
   void scheduleMessage(std::unique_ptr<std::string> msg);

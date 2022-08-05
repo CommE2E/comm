@@ -13,10 +13,7 @@ void TalkBetweenServicesReactor::scheduleMessage(
             << "]"
             << "[TalkBetweenServicesReactor::scheduleMessage] schedulING "
             << size;
-  if (!this->messages.write(std::move(*msg))) {
-    throw std::runtime_error(
-        "Error scheduling sending a msg to send to the blob service");
-  }
+  this->messages.enqueue(std::move(*msg));
   LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
             << "[TalkBetweenServicesReactor::scheduleMessage] schedulED "
@@ -31,7 +28,7 @@ std::unique_ptr<grpc::Status> TalkBetweenServicesReactor::prepareRequest(
             << "]"
             << "[TalkBetweenServicesReactor::prepareRequest] read block "
             << this->messages.size();
-  this->messages.blockingRead(msg);
+  msg = this->messages.dequeue();
   LOG(INFO) << "[" << std::hash<std::thread::id>{}(std::this_thread::get_id())
             << "]"
             << "[TalkBetweenServicesReactor::prepareRequest] read unblock "
