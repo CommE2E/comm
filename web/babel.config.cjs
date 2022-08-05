@@ -7,4 +7,18 @@ module.exports = {
     '@babel/plugin-proposal-nullish-coalescing-operator',
     ['@babel/plugin-transform-runtime', { useESModules: true }],
   ],
+  env: {
+    test: {
+      presets: [
+        [
+          '@babel/preset-env',
+          {
+            targets: {
+              node: 'current',
+            },
+          },
+        ],
+      ],
+    },
+  },
 };
