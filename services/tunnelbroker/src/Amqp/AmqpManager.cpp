@@ -40,8 +40,8 @@ void AmqpManager::connectInternal() {
   });
 
   AMQP::Table arguments;
-  arguments["x-message-ttl"] = AMQP_MESSAGE_TTL;
-  arguments["x-expires"] = AMQP_QUEUE_TTL;
+  arguments["x-message-ttl"] = (uint64_t)AMQP_MESSAGE_TTL;
+  arguments["x-expires"] = (uint64_t)AMQP_QUEUE_TTL;
   this->amqpChannel->declareExchange(fanoutExchangeName, AMQP::fanout);
   this->amqpChannel->declareQueue(tunnelbrokerID, AMQP::durable, arguments)
       .onSuccess([this, tunnelbrokerID, fanoutExchangeName](
