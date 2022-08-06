@@ -21,14 +21,13 @@ stdenv.mkDerivation rec {
     cmake
   ];
 
-  buildInputs = lib.optionals stdenv.isLinux [
-    # needed for linux's tcp extension
+  buildInputs = [
     openssl
   ];
 
-  cmakeFlags = lib.optionals (stdenv.isLinux || stdenv.isDarwin) [
+  cmakeFlags = [
     "-DAMQP-CPP_BUILD_SHARED=ON"
-  ] ++ lib.optionals stdenv.isLinux [
+    # Darwin is untested, which is why upstream uses linux in flag name
     "-DAMQP-CPP_LINUX_TCP=ON"
   ];
 }
