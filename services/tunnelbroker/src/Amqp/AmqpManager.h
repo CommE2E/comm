@@ -15,6 +15,7 @@ namespace network {
 class AmqpManager {
   AmqpManager(){};
 
+  std::mutex channelMutex;
   std::unique_ptr<AMQP::TcpChannel> amqpChannel;
   std::atomic<bool> amqpReady;
   std::atomic<int64_t> lastConnectionTimestamp;
