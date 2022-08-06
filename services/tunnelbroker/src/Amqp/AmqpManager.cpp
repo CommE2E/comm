@@ -125,6 +125,8 @@ bool AmqpManager::send(const database::MessageItem *message) {
     // Set delivery mode to: Durable (2)
     env.setDeliveryMode(2);
     env.setHeaders(std::move(headers));
+
+    std::scoped_lock lock{this->channelMutex};
     this->amqpChannel->publish(
         config::ConfigManager::getInstance().getParameter(
             config::ConfigManager::OPTION_AMQP_FANOUT_EXCHANGE),
@@ -139,6 +141,7 @@ bool AmqpManager::send(const database::MessageItem *message) {
 
 void AmqpManager::ack(uint64_t deliveryTag) {
   waitUntilReady();
+  std::scoped_lock lock{this->channelMutex};
   this->amqpChannel->ack(deliveryTag);
 }
 
