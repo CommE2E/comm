@@ -9,6 +9,8 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 set(CMAKE_CXX_STANDARD 17)
+# For C++17 on MacOS, we must set minimum target to 10.14+
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
 find_package(PkgConfig REQUIRED)
 
@@ -21,10 +23,18 @@ find_package(gRPC REQUIRED)
 find_package(amqpcpp CONFIG REQUIRED)
 
 # Find Cryptopp installation
-pkg_check_modules(CRYPTOPP REQUIRED libcryptopp=8.6)
+pkg_check_modules(CRYPTOPP
+  REQUIRED
+  IMPORTED_TARGET
+  libcryptopp=8.6
+)
 
 # Find Libuv installation
-pkg_check_modules(LIBUV REQUIRED libuv>=1.43)
+pkg_check_modules(LIBUV
+  REQUIRED
+  IMPORTED_TARGET
+  libuv>=1.43
+)
 
 if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL "/transferred/tunnelbroker")
   # Inside the docker build contex
@@ -82,8 +92,8 @@ set(
   gRPC::grpc++_reflection
   gRPC::grpc++
   ${AWSSDK_LINK_LIBRARIES}
-  ${CRYPTOPP_LIBRARIES}
-  ${LIBUV_LIBRARIES}
+  PkgConfig::CRYPTOPP
+  PkgConfig::LIBUV
   ${Boost_LIBRARIES}
   ${RUST_LIBS}
   amqpcpp
