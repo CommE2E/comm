@@ -67,8 +67,6 @@ void AmqpManager::connectInternal() {
                 const std::string toDeviceID(headers[AMQP_HEADER_TO_DEVICEID]);
                 const std::string fromDeviceID(
                     headers[AMQP_HEADER_FROM_DEVICEID]);
-                LOG(INFO) << "AMQP: Message consumed for deviceID: "
-                          << toDeviceID;
                 DeliveryBroker::getInstance().push(
                     messageID, deliveryTag, toDeviceID, fromDeviceID, payload);
               } catch (const std::exception &e) {
