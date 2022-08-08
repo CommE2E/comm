@@ -14,6 +14,9 @@ module.exports = {
   '*.{css,html,md,json}': function prettier(files) {
     return 'prettier --write ' + files.join(' ');
   },
+  '*.sh': function shellCheck(files) {
+    return 'shellcheck -x -P SCRIPTDIR ' + files.join(' ');
+  },
   'lib/**/*.js': function libFlow(files) {
     return 'yarn workspace lib flow --quiet';
   },
