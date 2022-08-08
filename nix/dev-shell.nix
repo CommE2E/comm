@@ -26,6 +26,7 @@
 , pkg-config
 , protobuf_3_15_cmake
 , python3
+, shellcheck
 , sqlite
 , watchman
 , rustfmt
@@ -38,6 +39,7 @@ mkShell {
   nativeBuildInputs = [
     # generic development
     arcanist
+    shellcheck
 
     # node development
     nodejs-16_x
