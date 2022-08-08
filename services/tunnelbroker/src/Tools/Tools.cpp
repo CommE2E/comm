@@ -3,7 +3,6 @@
 #include "Constants.h"
 
 #include <glog/logging.h>
-#include <boost/lexical_cast.hpp>
 
 #include <chrono>
 #include <random>

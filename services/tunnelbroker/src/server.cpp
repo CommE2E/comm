@@ -1,6 +1,5 @@
 #include "AmqpManager.h"
 #include "ConfigManager.h"
-#include "Constants.h"
 #include "GlobalTools.h"
 #include "TunnelbrokerServiceImpl.h"
 
