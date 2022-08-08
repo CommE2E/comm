@@ -334,6 +334,14 @@ export PATH=$PATH:~/src/arcanist/bin
 
 Make sure to replace the `~/src` portion of the above with the location of the directory you installed Arcanist in.
 
+## ShellCheck
+
+[ShellCheck](https://www.shellcheck.net/) is a static analysis tool that provides warnings and suggestions for shell scripts. We’ll install ShellCheck using Homebrew.
+
+```
+brew install shellcheck && brew upgrade shellcheck
+```
+
 # Configuration
 
 ## Apache
