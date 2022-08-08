@@ -8,6 +8,7 @@ landing/dist
 lib/node_modules
 
 native/cpp/CommonCpp/CryptoTools/opaque-ke-cxx/target
+native/cpp/CommonCpp/CryptoTools/rust-utils/target
 
 web/node_modules
 web/dist
