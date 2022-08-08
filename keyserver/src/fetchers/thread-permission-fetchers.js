@@ -254,14 +254,16 @@ async function validateCandidateMembers(
     return parentPermissions;
   })();
 
-  const memberOfContainingThreadPromise = (async () => {
-    const results = {};
+  const memberOfContainingThreadPromise: Promise<
+    Map<string, 'member' | 'non-member' | 'no-containing-thread'>,
+  > = (async () => {
+    const results = new Map();
     if (allCandidates.length === 0) {
       return results;
     }
     if (!params.containingThreadID) {
       for (const userID of allCandidates) {
-        results[userID] = true;
+        results.set(userID, 'no-containing-thread');
       }
       return results;
     }
@@ -272,7 +274,10 @@ async function validateCandidateMembers(
     `;
     const [result] = await dbQuery(memberOfContainingThreadQuery);
     for (const row of result) {
-      results[row.user.toString()] = row.containing_role > 0;
+      results.set(
+        row.user.toString(),
+        row.containing_role > 0 ? 'member' : 'non-member',
+      );
     }
     return results;
   })();
@@ -304,15 +309,15 @@ async function validateCandidateMembers(
       continue;
     }
     const permissionsFromParent = parentPermissions[memberID];
-    if (
-      relationshipStatus !== userRelationshipStatus.FRIEND &&
-      !permissionsFromParent &&
-      requireRelationship
-    ) {
+    if (memberOfContainingThread.get(memberID) === 'non-member') {
       ignoreMembers.add(memberID);
       continue;
     }
-    if (!memberOfContainingThread[memberID]) {
+    if (
+      memberOfContainingThread.get(memberID) === 'no-containing-thread' &&
+      relationshipStatus !== userRelationshipStatus.FRIEND &&
+      requireRelationship
+    ) {
       ignoreMembers.add(memberID);
       continue;
     }
