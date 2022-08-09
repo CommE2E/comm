@@ -54,6 +54,7 @@ add_subdirectory(${_third_party_dir}/grpc/grpc-${GRPC_VERSION}/
 )
 add_subdirectory(${_third_party_dir}/glog/glog-${GLOG_VERSION}/)
 add_subdirectory(../../node_modules/olm ./build)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../CommonCpp/grpc grpc)
 
 set(_node_modules_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../node_modules)
 set(_react_native_dir ${_node_modules_dir}/react-native)
@@ -96,8 +97,6 @@ include_directories(
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
-  ../../cpp/CommonCpp/grpc/_generated
-  ../../cpp/CommonCpp/grpc
 )
 
 # search for all cpp files in this directory
@@ -109,7 +108,6 @@ file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES
   "${_third_party_dir}/double-conversion/double-conversion/*.cc"
 )
-file(GLOB GRPC_CODE "../../cpp/CommonCpp/grpc/_generated/*.cc")
 
 add_library(
   # Sets the name of the library.
@@ -217,6 +215,8 @@ target_link_libraries(
   openssl-ssl
   grpc++
   libprotobuf
+
+  comm-blob-grpc
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java
