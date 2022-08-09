@@ -23,7 +23,6 @@ const persistConfig = {
 };
 
 declare var preloadedState: AppState;
-// $FlowFixMe
 const persistedReducer: Reducer<AppState, Action> = persistReducer(
   persistConfig,
   reducer,
