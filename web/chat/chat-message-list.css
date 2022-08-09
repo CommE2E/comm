@@ -33,6 +33,7 @@ div.loading {
 div.conversationHeader {
   color: var(--chat-timestamp-color);
   font-size: var(--xs-font-12);
+  padding: 6px 0;
   line-height: var(--line-height-text);
   text-align: center;
 }
