@@ -2,13 +2,6 @@
 
 export const assetCacheURLPrefix = 'https://dh9fld3hutpxf.cloudfront.net';
 
-// Background Illustration
-export const backgroundIllustrationAsset = {
-  fileName: 'background-illustration.svg',
-  height: '100px',
-  width: '133px',
-};
-
 // Notifications Modal Illustration: "Focused"
 export const focusedNotificationsIllustrationAsset = {
   fileName: 'all-notifs.svg',

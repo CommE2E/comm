@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { emptyItemText } from 'lib/shared/thread-utils';
 
-import { assetCacheURLPrefix, backgroundIllustrationAsset } from '../assets';
+import BackgroundIllustration from '../assets/background-illustration.react';
 import Button from '../components/button.react';
 import Search from '../components/search.react';
 import { useSelector } from '../redux/redux-utils';
@@ -67,11 +67,7 @@ function ChatThreadList(): React.Node {
 function EmptyItem() {
   return (
     <div className={css.emptyItemContainer}>
-      <img
-        src={`${assetCacheURLPrefix}/${backgroundIllustrationAsset.fileName}`}
-        height={backgroundIllustrationAsset.height}
-        width={backgroundIllustrationAsset.width}
-      />
+      <BackgroundIllustration />
       <div className={css.emptyItemText}>{emptyItemText}</div>
     </div>
   );
