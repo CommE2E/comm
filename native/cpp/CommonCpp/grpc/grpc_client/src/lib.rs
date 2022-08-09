@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tonic::{transport::Channel, Response, Status};
 
-use identity::{
+use crate::identity::{
   get_user_id_request::AuthType,
   identity_service_client::IdentityServiceClient, GetUserIdRequest,
   GetUserIdResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
