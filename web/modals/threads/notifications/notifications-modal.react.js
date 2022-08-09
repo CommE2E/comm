@@ -12,12 +12,9 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
-import {
-  assetCacheURLPrefix,
-  backgroundNotificationsIllustrationAsset,
-} from '../../../assets.js';
 import AllNotifsIllustration from '../../../assets/all-notifs.react.js';
 import BadgeNotifsIllustration from '../../../assets/badge-notifs.react.js';
+import MutedNotifsIllustration from '../../../assets/muted-notifs.react.js';
 import Button from '../../../components/button.react';
 import EnumSettingsOption from '../../../components/enum-settings-option.react';
 import { useSelector } from '../../../redux/redux-utils';
@@ -152,13 +149,7 @@ function NotificationsModal(props: Props): React.Node {
 
   const isBackgroundSelected = notificationSettings === 'background';
   const backgroundItem = React.useMemo(() => {
-    const icon = (
-      <img
-        src={`${assetCacheURLPrefix}/${backgroundNotificationsIllustrationAsset.fileName}`}
-        height={backgroundNotificationsIllustrationAsset.height}
-        width={backgroundNotificationsIllustrationAsset.width}
-      />
-    );
+    const icon = <MutedNotifsIllustration />;
     return (
       <EnumSettingsOption
         selected={isBackgroundSelected}
