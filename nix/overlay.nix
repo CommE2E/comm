@@ -41,6 +41,8 @@ prev:
 
   arcanist = prev.callPackage ./arcanist.nix { };
 
+  better-prompt = prev.callPackage ./better-prompt.nix { };
+
   protobuf_3_15_cmake = prev.callPackage ./protobuf_3_15.nix { };
 
   devShell = final.callPackage ./dev-shell.nix { };
