@@ -14,10 +14,10 @@ import {
 
 import {
   assetCacheURLPrefix,
-  focusedNotificationsIllustrationAsset,
   badgeOnlyNotificationsIllustrationAsset,
   backgroundNotificationsIllustrationAsset,
 } from '../../../assets.js';
+import AllNotifsIllustration from '../../../assets/all-notifs.react.js';
 import Button from '../../../components/button.react';
 import EnumSettingsOption from '../../../components/enum-settings-option.react';
 import { useSelector } from '../../../redux/redux-utils';
@@ -124,13 +124,7 @@ function NotificationsModal(props: Props): React.Node {
 
   const isFocusedSelected = notificationSettings === 'focused';
   const focusedItem = React.useMemo(() => {
-    const icon = (
-      <img
-        src={`${assetCacheURLPrefix}/${focusedNotificationsIllustrationAsset.fileName}`}
-        height={focusedNotificationsIllustrationAsset.height}
-        width={focusedNotificationsIllustrationAsset.width}
-      />
-    );
+    const icon = <AllNotifsIllustration />;
     return (
       <EnumSettingsOption
         selected={isFocusedSelected}
