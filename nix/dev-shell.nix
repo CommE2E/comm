@@ -4,6 +4,7 @@
 , amqp-cpp
 , arcanist
 , aws-sdk-cpp
+, better-prompt
 , boost
 , cargo
 , cmake
@@ -110,6 +111,9 @@ mkShell {
       export MYSQL_UNIX_PORT="$MARIADB_DIR"/${socket}
       export ANDROID_SDK_ROOT=''${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}
     fi
+
+    # Provide decent bash prompt
+    source "${better-prompt}/bin/better-prompt"
 
     echo "Welcome to Comm dev environment! :)"
   '';
