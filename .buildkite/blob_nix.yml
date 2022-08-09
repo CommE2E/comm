@@ -1,0 +1,9 @@
+steps:
+  - label: ":nix: Blob (Darwin)"
+    command: >
+      nix develop -c cd services/blob
+      && mkdir build
+      && cd build cmake ..
+      && make -j
+    agents:
+      - 'nixdarwin=true'
