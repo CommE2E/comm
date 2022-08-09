@@ -38,6 +38,9 @@ module.exports = {
   '{landing,lib}/**/*.js': function landingFlow(files) {
     return 'yarn workspace landing flow --quiet';
   },
+  '{native,services}/**/{CMakeLists.txt,*cmake}': function cmakeLint(files) {
+    return 'cmake-lint ' + files.join(' ');
+  },
   '{native,services}/**/*.{h,cpp,java,mm}': function clangFormat(files) {
     files = files.filter(path => {
       if (path.indexOf('generated') !== -1) {
