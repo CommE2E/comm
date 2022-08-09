@@ -17,6 +17,7 @@
 , fmt
 , glog
 , grpc
+, gtest
 , libiconv
 , libuv
 , mariadb
@@ -77,6 +78,7 @@ mkShell {
     corrosion # tunnelbroker
     double-conversion # tunnelbroker
     glog # tunnelbroker
+    gtest # testing services
     folly # cpp tools
     fmt # needed for folly
     boost # needed for folly
