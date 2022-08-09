@@ -107,7 +107,6 @@ set(
 add_executable(
   tunnelbroker
 
-  ${FOLLY_SOURCES}
   ${GENERATED_CODE}
   ${SOURCE_CODE}
 )
@@ -140,12 +139,10 @@ if($ENV{COMM_TEST_SERVICES} MATCHES 1)
   enable_testing()
 
   find_package(GTest REQUIRED)
-  include_directories(${GTEST_INCLUDE_DIR})
 
   add_executable(
     runTests
 
-    ${FOLLY_SOURCES}
     ${SOURCE_CODE}
     ${TEST_CODE}
   )
@@ -153,12 +150,19 @@ if($ENV{COMM_TEST_SERVICES} MATCHES 1)
     runTests
 
     ${LIBS}
-    gtest
-    gtest_main
+    GTest::gtest_main
   )
 
-  add_test(
-    NAME runTests
-    COMMAND runTests
+  target_include_directories(runTests
+    PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Database
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DeliveryBroker
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Service
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Tools
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Amqp
   )
+
+  include(GoogleTest)
+  gtest_discover_tests(runTests)
 endif()
