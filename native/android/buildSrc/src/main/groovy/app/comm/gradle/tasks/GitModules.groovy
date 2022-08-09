@@ -15,9 +15,9 @@ import org.gradle.api.tasks.TaskAction
  * GitModules - custom task class
  * @param gitmodulesFile - The .gitmodules file location
  * @param outputDir - Directory where to clone modules
- * @param [skipModules=[]] - Submodules paths to skip while cloning
- * @param [moduleBranch=[:]] - Overwrite module branch
- * @param [runAfter=[]] - Run shell commands after cloning
+ * @param [skipModules =[]] - Submodules paths to skip while cloning
+ * @param [moduleBranch =[:]] - Overwrite module branch
+ * @param [runAfter =[]] - Run shell commands after cloning
  */
 class GitModules extends DefaultTask {
 
@@ -79,6 +79,8 @@ class GitModules extends DefaultTask {
             )
             println("Overwrite the branch for ${module} to ${branch}")
         }
+
+        def gitCloneTasks = []
         // Iterating the modules map
         modulesList.each { path, props ->
             // Paths and flags
@@ -98,20 +100,31 @@ class GitModules extends DefaultTask {
             cloneDir.deleteDir()
             cloneDir.mkdirs()
 
-            def command = "git clone ${branchFlag} " +
-                "--recurse-submodules ${moduleURL} ${cloneDir.getPath()}"
-            def proc = command.execute()
-            proc.waitFor()
-            // Throw an error if 'git clone' was unsuccessfull
-            if (proc.exitValue() != 0) {
-                throw new GradleException(
-                    "Error while pulling ${path} submodule: ${proc.err.text}"
-                )
-            }
-            // Remove the .git folder from submodule directory
-            def gitDir = new File("${cloneDir.getPath()}/.git")
-            gitDir.deleteDir()
+
+            def gitCloneTask = new Thread({
+
+                def command = "git clone ${branchFlag} " +
+                        "--recurse-submodules ${moduleURL} ${cloneDir.getPath()}"
+                def proc = command.execute()
+                proc.waitFor()
+                // Throw an error if 'git clone' was unsuccessfull
+                if (proc.exitValue() != 0) {
+                    throw new GradleException(
+                            "Error while pulling ${path} submodule: ${proc.err.text}"
+                    )
+                }
+                // Remove the .git folder from submodule directory
+                def gitDir = new File("${cloneDir.getPath()}/.git")
+                gitDir.deleteDir()
+
+
+            })
+            gitCloneTasks << gitCloneTask
+
         }
+
+        gitCloneTasks.each { task.start() }
+        gitCloneTasks.each { task.join() }
     }
 
     // Run commands after the cloning process if needed
