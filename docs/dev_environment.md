@@ -59,6 +59,14 @@ We use a Rust [implementation](https://github.com/novifinancial/opaque-ke) of th
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
+## ShellCheck
+
+[ShellCheck](https://www.shellcheck.net/) is a static analysis tool that provides warnings and suggestions for shell scripts. We’ll install ShellCheck using Homebrew.
+
+```
+brew install shellcheck && brew upgrade shellcheck
+```
+
 ## Yarn
 
 We use the [Yarn](https://yarnpkg.com/) package manager for JavaScript in our repo.
@@ -333,14 +341,6 @@ export PATH=$PATH:~/src/arcanist/bin
 ```
 
 Make sure to replace the `~/src` portion of the above with the location of the directory you installed Arcanist in.
-
-## ShellCheck
-
-[ShellCheck](https://www.shellcheck.net/) is a static analysis tool that provides warnings and suggestions for shell scripts. We’ll install ShellCheck using Homebrew.
-
-```
-brew install shellcheck && brew upgrade shellcheck
-```
 
 # Configuration
 
