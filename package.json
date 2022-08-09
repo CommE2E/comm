@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
-    "clang-format": "^1.8.0",
     "core-js": "^3.6.5",
     "eslint": "^7.22.0",
     "eslint-config-prettier": "^8.1.0",
