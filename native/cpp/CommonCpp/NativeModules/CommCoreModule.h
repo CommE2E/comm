@@ -15,7 +15,7 @@ namespace jsi = facebook::jsi;
 class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   const int codeVersion{144};
 
-  std::unique_ptr<WorkerThread> databaseThread;
+  std::shared_ptr<WorkerThread> databaseThread;
   std::unique_ptr<WorkerThread> cryptoThread;
 
   CommSecureStore secureStore;
@@ -24,6 +24,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   std::unique_ptr<network::Client> networkClient;
 
+  template <class T>
+  T runSyncOrThrowJSError(jsi::Runtime &rt, std::function<T()> task);
   jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) override;
   jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
   jsi::Value moveDraft(
@@ -65,6 +67,9 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
+  CommCoreModule(
+      std::shared_ptr<facebook::react::CallInvoker> jsInvoker,
+      std::shared_ptr<WorkerThread> databaseThread);
 
   void initializeNetworkModule(
       const std::string &userId,

@@ -33,7 +33,8 @@ void ThreadOperations::updateSQLiteUnreadStatus(
         std::string(e.what()));
     return;
   }
-
-  DatabaseManager::getQueryExecutor().replaceThread(*thread);
+  // Line below is temporarily blocked to establish
+  // whether it is a reason for the crash
+  // DatabaseManager::getQueryExecutor().replaceThread(*thread);
 }
 } // namespace comm
