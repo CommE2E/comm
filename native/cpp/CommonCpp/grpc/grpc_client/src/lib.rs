@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tonic::{transport::Channel, Response, Status};
+use tracing::instrument;
 
 use crate::identity::{
   get_user_id_request::AuthType,
@@ -12,7 +13,7 @@ pub mod identity {
   tonic::include_proto!("identity");
 }
 
-const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::1]:50051";
+const IDENTITY_SERVICE_SOCKET_ADDR: &str = "https://[::1]:50051";
 
 lazy_static! {
   pub static ref RUNTIME: Arc<Runtime> = Arc::new(
@@ -40,6 +41,7 @@ impl Client {
     }
   }
 
+  #[instrument(skip(self))]
   async fn get_user_id(
     &mut self,
     auth_type: AuthType,
@@ -54,6 +56,7 @@ impl Client {
       .await
   }
 
+  #[instrument(skip(self))]
   async fn verify_user_token(
     &mut self,
     user_id: String,
