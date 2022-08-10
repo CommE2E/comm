@@ -121,3 +121,28 @@ fn pake_registration_finish(
     })
     .map(|res| res.message)
 }
+
+fn pake_login_finish(
+  credential_response_bytes: &[u8],
+  client_login: Option<ClientLogin<Cipher>>,
+) -> Result<CredentialFinalization<Cipher>, Status> {
+  client_login
+    .ok_or_else(|| {
+      error!("PAKE client_login not found");
+      Status::aborted("Login not found")
+    })?
+    .finish(
+      CredentialResponse::deserialize(credential_response_bytes).map_err(
+        |e| {
+          error!("Could not deserialize credential response bytes: {}", e);
+          Status::aborted("Invalid response bytes")
+        },
+      )?,
+      ClientLoginFinishParameters::default(),
+    )
+    .map_err(|e| {
+      error!("Failed to finish PAKE login: {}", e);
+      Status::aborted("PAKE failure")
+    })
+    .map(|res| res.message)
+}
