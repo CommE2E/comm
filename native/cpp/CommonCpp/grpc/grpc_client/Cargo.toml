@@ -13,6 +13,9 @@ tokio-stream = "0.1"
 tonic = "0.8"
 prost = "0.11"
 lazy_static = "1.4"
+rand = "0.8"
+opaque-ke = "1.2"
+tracing = "0.1"
 identity = {path = "../../../../../services/identity" }
 
 [build-dependencies]
