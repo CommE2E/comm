@@ -94,6 +94,69 @@ impl Client {
       })
       .await
   }
+
+  #[instrument(skip(self))]
+  async fn register_user(
+    &mut self,
+    user_id: String,
+    device_id: String,
+    username: String,
+    password: String,
+    user_public_key: String,
+  ) -> Result<String, Status> {
+    // Create a RegistrationRequest channel and use ReceiverStream to turn the
+    // MPSC receiver into a Stream for outbound messages
+    let (tx, rx) = mpsc::channel(1);
+    let stream = ReceiverStream::new(rx);
+    let request = Request::new(stream);
+
+    // `response` is the Stream for inbound messages
+    let mut response = self
+      .identity_client
+      .register_user(request)
+      .await?
+      .into_inner();
+
+    // Start PAKE registration on client and send initial registration request
+    // to Identity service
+    let mut client_rng = OsRng;
+    let (registration_request, client_registration) = pake_registration_start(
+      &mut client_rng,
+      user_id,
+      &password,
+      device_id,
+      username,
+      user_public_key,
+    )?;
+    if let Err(e) = tx.send(registration_request).await {
+      error!("Response was dropped: {}", e);
+      return Err(Status::aborted("Dropped response"));
+    }
+
+    // Handle responses from Identity service sequentially, making sure we get
+    // messages in the correct order
+
+    // Finish PAKE registration and begin PAKE login; send the final
+    // registration request and initial login request together to reduce the
+    // number of trips
+    let message = response.message().await?;
+    let client_login = handle_registration_response(
+      message,
+      &mut client_rng,
+      client_registration,
+      &password,
+      tx.clone(),
+    )
+    .await?;
+
+    // Finish PAKE login; send final login request to Identity service
+    let message = response.message().await?;
+    handle_credential_response(message, client_login, tx).await?;
+
+    // Return access token
+    let message = response.message().await?;
+    handle_token_response(message)
+  }
 }
 
 fn pake_registration_start(
@@ -103,7 +166,7 @@ fn pake_registration_start(
   device_id: String,
   username: String,
   user_public_key: String,
-) -> Result<(RegistrationRequest, Option<ClientRegistration<Cipher>>), Status> {
+) -> Result<(RegistrationRequest, ClientRegistration<Cipher>), Status> {
   let client_registration_start_result =
     ClientRegistration::<Cipher>::start(rng, password.as_bytes()).map_err(
       |e| {
@@ -125,7 +188,7 @@ fn pake_registration_start(
         },
       )),
     },
-    Some(client_registration_start_result.state),
+    client_registration_start_result.state,
   ))
 }
 
