@@ -93,6 +93,132 @@ impl Client {
       })
       .await
   }
+
+  #[instrument(skip(self))]
+  async fn register_user(
+    &mut self,
+    user_id: String,
+    device_id: String,
+    username: String,
+    password: String,
+    user_public_key: String,
+  ) -> Result<String, Status> {
+    let (tx, rx) = mpsc::channel(1);
+    let stream = ReceiverStream::new(rx);
+    let request = Request::new(stream);
+    let mut response = self
+      .identity_client
+      .register_user(request)
+      .await?
+      .into_inner();
+    let mut client_rng = OsRng;
+    let client_registration_start_result =
+      ClientRegistration::<Cipher>::start(&mut client_rng, password.as_bytes())
+        .map_err(|e| {
+          error!("Failed to start PAKE registration: {}", e);
+          Status::failed_precondition("PAKE failure")
+        })?;
+    let pake_registration_request =
+      client_registration_start_result.message.serialize();
+    let registration_request = RegistrationRequest {
+      data: Some(PakeRegistrationRequestAndUserId(
+        PakeRegistrationRequestAndUserIdStruct {
+          user_id,
+          device_id,
+          pake_registration_request,
+          username,
+          user_public_key,
+        },
+      )),
+    };
+    if let Err(e) = tx.send(registration_request).await {
+      error!("Response was dropped: {}", e);
+      return Err(Status::aborted("Dropped response"));
+    }
+    let mut client_registration: Option<ClientRegistration<Cipher>> =
+      Some(client_registration_start_result.state);
+    let mut client_login: Option<ClientLogin<Cipher>> = None;
+    let mut num_messages_received = 0;
+    while let Some(message) = response.message().await? {
+      match message.data {
+        Some(PakeRegistrationResponse(registration_response_bytes)) => {
+          if num_messages_received != 0 {
+            error!("Too many messages received in stream, aborting");
+            return Err(Status::aborted("please retry"));
+          }
+          let client_login_start_result = ClientLogin::<Cipher>::start(
+            &mut client_rng,
+            password.as_bytes(),
+            ClientLoginStartParameters::default(),
+          )
+          .map_err(|e| {
+            error!("Failed to start PAKE login: {}", e);
+            Status::failed_precondition("PAKE failure")
+          })?;
+          let registration_request = RegistrationRequest {
+            data: Some(PakeRegistrationUploadAndCredentialRequest(
+              PakeRegistrationUploadAndCredentialRequestStruct {
+                pake_registration_upload: pake_registration_finish(
+                  &mut client_rng,
+                  &registration_response_bytes,
+                  client_registration,
+                )?
+                .serialize(),
+                pake_credential_request: client_login_start_result
+                  .message
+                  .serialize()
+                  .map_err(|e| {
+                    error!("Could not serialize credential request: {}", e);
+                    Status::failed_precondition("PAKE failure")
+                  })?,
+              },
+            )),
+          };
+          if let Err(e) = tx.send(registration_request).await {
+            error!("Response was dropped: {}", e);
+            return Err(Status::aborted("Dropped response"));
+          }
+          client_registration = None;
+          client_login = Some(client_login_start_result.state);
+        }
+        Some(PakeLoginResponse(PakeLoginResponseStruct {
+          data: Some(PakeCredentialResponse(credential_response_bytes)),
+        })) => {
+          if num_messages_received != 1 {
+            error!("Wrong number of messages received in stream, aborting");
+            return Err(Status::aborted("please retry"));
+          }
+          let registration_request = RegistrationRequest {
+            data: Some(PakeCredentialFinalization(
+              pake_login_finish(&credential_response_bytes, client_login)?
+                .serialize()
+                .map_err(|e| {
+                  error!("Could not serialize credential request: {}", e);
+                  Status::failed_precondition("PAKE failure")
+                })?,
+            )),
+          };
+          if let Err(e) = tx.send(registration_request).await {
+            error!("Response was dropped: {}", e);
+            return Err(Status::aborted("Dropped response"));
+          }
+          client_login = None;
+        }
+        Some(PakeLoginResponse(PakeLoginResponseStruct {
+          data: Some(AccessToken(access_token)),
+        })) => {
+          if num_messages_received != 2 {
+            error!("Wrong number of messages received in stream, aborting");
+            return Err(Status::aborted("please retry"));
+          }
+          return Ok(access_token);
+        }
+        _ => return Err(Status::invalid_argument("Invalid response data")),
+      }
+      num_messages_received += 1;
+    }
+    Err(Status::unknown("Unexpected error"))
+  }
 }
 
 fn pake_registration_finish(
