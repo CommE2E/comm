@@ -15,7 +15,6 @@
 #import <reacthermes/HermesExecutorFactory.h>
 
 #import "CommCoreModule.h"
-#import "CommSecureStoreIOSWrapper.h"
 #import "GlobalNetworkSingleton.h"
 #import "Logger.h"
 #import "MessageOperationsUtilities.h"
@@ -69,12 +68,6 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 
 - (BOOL)application:(UIApplication *)application
     willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  NSString *secureStoreEncryptionKeyID = [NSString
-      stringWithUTF8String:
-          (comm::SQLiteQueryExecutor::secureStoreEncryptionKeyID.c_str())];
-  [[CommSecureStoreIOSWrapper sharedInstance]
-      migrateOptionsForKey:secureStoreEncryptionKeyID
-               withVersion:@"0"];
   [self attemptDatabaseInitialization];
   return YES;
 }
@@ -175,9 +168,7 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
       // this callback may be called from inactive state so we need
       // to initialize the database
       [self attemptDatabaseInitialization];
-      // Line that updates `unread` in SQLite will remain disabled until
-      // we confirm the line above is not the reason for the crash
-      // comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+      comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
     }
     [[UNUserNotificationCenter currentNotificationCenter]
         getDeliveredNotificationsWithCompletionHandler:^(
