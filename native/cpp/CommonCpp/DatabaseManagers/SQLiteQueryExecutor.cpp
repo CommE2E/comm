@@ -780,6 +780,21 @@ void SQLiteQueryExecutor::clearNotifyToken() const {
   SQLiteQueryExecutor::getStorage().remove<Metadata>("notify_token");
 }
 
+void SQLiteQueryExecutor::setCurrentUserID(std::string userID) const {
+  Metadata entry{
+      "current_user_id",
+      userID,
+  };
+  SQLiteQueryExecutor::getStorage().replace(entry);
+}
+
+std::string SQLiteQueryExecutor::getCurrentUserID() const {
+  std::unique_ptr<Metadata> currentUserID =
+      SQLiteQueryExecutor::getStorage().get_pointer<Metadata>(
+          "current_user_id");
+  return (currentUserID == nullptr) ? "" : currentUserID->data;
+}
+
 void SQLiteQueryExecutor::clearSensitiveData() const {
   if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
