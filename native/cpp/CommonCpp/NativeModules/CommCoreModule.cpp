@@ -955,6 +955,41 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
       });
 };
 
+void CommCoreModule::setCurrentUserID(
+    jsi::Runtime &rt,
+    const jsi::String &userID) {
+  std::promise<void> setCurrentUserIDResult;
+  auto setCurrentUserIDResultFuture = setCurrentUserIDResult.get_future();
+  this->databaseThread->scheduleTask([&rt, &setCurrentUserIDResult, &userID]() {
+    try {
+      auto currentUserID{userID.utf8(rt)};
+      DatabaseManager::getQueryExecutor().setCurrentUserID(currentUserID);
+      setCurrentUserIDResult.set_value();
+    } catch (const std::exception &e) {
+      setCurrentUserIDResult.set_exception(
+          std::make_exception_ptr(jsi::JSError(rt, e.what())));
+    }
+  });
+  setCurrentUserIDResultFuture.get();
+}
+
+jsi::String CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
+  std::promise<jsi::String> getCurrentUserIDResult;
+  auto getCurrentUserIDResultFuture = getCurrentUserIDResult.get_future();
+  this->databaseThread->scheduleTask([&rt, &getCurrentUserIDResult]() {
+    try {
+      std::string currentUserID =
+          DatabaseManager::getQueryExecutor().getCurrentUserID();
+      getCurrentUserIDResult.set_value(
+          jsi::String::createFromUtf8(rt, currentUserID));
+    } catch (const std::exception &e) {
+      getCurrentUserIDResult.set_exception(
+          std::make_exception_ptr(jsi::JSError(rt, e.what())));
+    }
+  });
+  return getCurrentUserIDResultFuture.get();
+}
+
 void CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
   try {
     DatabaseManager::getQueryExecutor().clearSensitiveData();
