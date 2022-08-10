@@ -86,25 +86,23 @@ impl DatabaseClient {
     username: Option<String>,
     user_public_key: Option<String>,
   ) -> Result<UpdateItemOutput, Error> {
-    let mut update_expression = String::new();
+    let mut update_expression_parts = Vec::new();
     let mut expression_attribute_values = HashMap::new();
     if let Some(reg) = registration {
-      update_expression
-        .push_str(&format!("SET {} :r ", USERS_TABLE_REGISTRATION_ATTRIBUTE));
+      update_expression_parts
+        .push(format!("{} = :r", USERS_TABLE_REGISTRATION_ATTRIBUTE));
       expression_attribute_values
         .insert(":r".into(), AttributeValue::B(Blob::new(reg.serialize())));
     };
     if let Some(username) = username {
-      update_expression
-        .push_str(&format!("SET {} = :u ", USERS_TABLE_USERNAME_ATTRIBUTE));
+      update_expression_parts
+        .push(format!("{} = :u", USERS_TABLE_USERNAME_ATTRIBUTE));
       expression_attribute_values
         .insert(":u".into(), AttributeValue::S(username));
     };
     if let Some(public_key) = user_public_key {
-      update_expression.push_str(&format!(
-        "SET {} = :k ",
-        USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE
-      ));
+      update_expression_parts
+        .push(format!("{} = :k", USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE));
       expression_attribute_values
         .insert(":k".into(), AttributeValue::S(public_key));
     };
@@ -114,7 +112,7 @@ impl DatabaseClient {
       .update_item()
       .table_name(USERS_TABLE)
       .key(USERS_TABLE_PARTITION_KEY, AttributeValue::S(user_id))
-      .update_expression(update_expression)
+      .update_expression(format!("SET {}", update_expression_parts.join(",")))
       .set_expression_attribute_values(Some(expression_attribute_values))
       .send()
       .await
