@@ -1,13 +1,34 @@
 use lazy_static::lazy_static;
+use opaque_ke::{
+  ClientLogin, ClientLoginFinishParameters, ClientLoginStartParameters,
+  ClientRegistration, ClientRegistrationFinishParameters,
+  CredentialFinalization, CredentialResponse, RegistrationResponse,
+  RegistrationUpload,
+};
+use rand::{rngs::OsRng, CryptoRng, Rng};
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
-use tonic::{transport::Channel, Response, Status};
-use tracing::instrument;
+use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
+use tonic::{transport::Channel, Request, Response, Status};
+use tracing::{error, instrument};
+
+use ::identity::Cipher;
 
 use crate::identity::{
   get_user_id_request::AuthType,
-  identity_service_client::IdentityServiceClient, GetUserIdRequest,
-  GetUserIdResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
+  identity_service_client::IdentityServiceClient,
+  pake_login_response::Data::AccessToken,
+  pake_login_response::Data::PakeCredentialResponse,
+  registration_request::Data::PakeCredentialFinalization,
+  registration_request::Data::PakeRegistrationRequestAndUserId,
+  registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
+  registration_response::Data::PakeLoginResponse,
+  registration_response::Data::PakeRegistrationResponse, GetUserIdRequest,
+  GetUserIdResponse, PakeLoginResponse as PakeLoginResponseStruct,
+  PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
+  PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
+  RegistrationRequest, VerifyUserTokenRequest, VerifyUserTokenResponse,
 };
 pub mod identity {
   tonic::include_proto!("identity");
@@ -72,4 +93,31 @@ impl Client {
       })
       .await
   }
+}
+
+fn pake_registration_finish(
+  rng: &mut (impl Rng + CryptoRng),
+  registration_response_bytes: &[u8],
+  client_registration: Option<ClientRegistration<Cipher>>,
+) -> Result<RegistrationUpload<Cipher>, Status> {
+  client_registration
+    .ok_or_else(|| {
+      error!("PAKE client_registration not found");
+      Status::aborted("Registration not found")
+    })?
+    .finish(
+      rng,
+      RegistrationResponse::deserialize(registration_response_bytes).map_err(
+        |e| {
+          error!("Could not deserialize registration response bytes: {}", e);
+          Status::aborted("Invalid response bytes")
+        },
+      )?,
+      ClientRegistrationFinishParameters::default(),
+    )
+    .map_err(|e| {
+      error!("Failed to finish PAKE registration: {}", e);
+      Status::aborted("PAKE failure")
+    })
+    .map(|res| res.message)
 }
