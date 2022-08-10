@@ -48,6 +48,8 @@ export interface Spec extends TurboModule {
   +getCodeVersion: () => number;
   +setNotifyToken: (token: string) => Promise<void>;
   +clearNotifyToken: () => Promise<void>;
+  +setCurrentUserID: (userID: string) => Promise<void>;
+  +getCurrentUserID: () => Promise<string>;
   +clearSensitiveData: () => Promise<void>;
 }
 

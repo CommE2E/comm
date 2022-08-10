@@ -38,6 +38,8 @@ virtual jsi::Object openSocket(jsi::Runtime &rt, const jsi::String &endpoint) = 
 virtual double getCodeVersion(jsi::Runtime &rt) = 0;
 virtual jsi::Value setNotifyToken(jsi::Runtime &rt, const jsi::String &token) = 0;
 virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;
+virtual jsi::Value setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) = 0;
+virtual jsi::Value getCurrentUserID(jsi::Runtime &rt) = 0;
 virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
 
 };

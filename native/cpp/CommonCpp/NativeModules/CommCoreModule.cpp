@@ -955,6 +955,53 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
       });
 };
 
+jsi::Value
+CommCoreModule::setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) {
+  auto currentUserID{userID.utf8(rt)};
+  return createPromiseAsJSIValue(
+      rt,
+      [this,
+       currentUserID](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        this->databaseThread->scheduleTask([this, promise, currentUserID]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().setCurrentUserID(currentUserID);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        });
+      });
+}
+
+jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        this->databaseThread->scheduleTask([this, &innerRt, promise]() {
+          std::string error;
+          std::string result;
+          try {
+            result = DatabaseManager::getQueryExecutor().getCurrentUserID();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([&innerRt, error, result, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::String::createFromUtf8(innerRt, result));
+            }
+          });
+        });
+      });
+}
+
 jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
