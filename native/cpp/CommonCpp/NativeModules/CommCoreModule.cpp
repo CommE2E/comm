@@ -164,12 +164,15 @@ jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
   std::promise<std::vector<std::pair<Message, std::vector<Media>>>>
       messagesResult;
   auto messagesResultFuture = messagesResult.get_future();
-
-  this->databaseThread->scheduleTask([&messagesResult]() {
-    messagesResult.set_value(
-        DatabaseManager::getQueryExecutor().getAllMessages());
+  this->databaseThread->scheduleTask([&messagesResult, &rt]() {
+    try {
+      messagesResult.set_value(
+          DatabaseManager::getQueryExecutor().getAllMessages());
+    } catch (const std::exception &e) {
+      messagesResult.set_exception(
+          std::make_exception_ptr(jsi::JSError(rt, e.what())));
+    }
   });
-
   auto messagesVector = messagesResultFuture.get();
   size_t numMessages{messagesVector.size()};
   jsi::Array jsiMessages = jsi::Array(rt, numMessages);
@@ -513,9 +516,14 @@ jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
   std::promise<std::vector<Thread>> threadsResult;
   auto threadsResultFuture = threadsResult.get_future();
 
-  this->databaseThread->scheduleTask([&threadsResult]() {
-    threadsResult.set_value(
-        DatabaseManager::getQueryExecutor().getAllThreads());
+  this->databaseThread->scheduleTask([&threadsResult, &rt]() {
+    try {
+      threadsResult.set_value(
+          DatabaseManager::getQueryExecutor().getAllThreads());
+    } catch (const std::exception &e) {
+      threadsResult.set_exception(
+          std::make_exception_ptr(jsi::JSError(rt, e.what())));
+    }
   });
 
   auto threadsVector = threadsResultFuture.get();
