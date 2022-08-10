@@ -58,6 +58,8 @@ public:
   void storeOlmPersistData(crypto::Persist persist) const override;
   void setNotifyToken(std::string token) const override;
   void clearNotifyToken() const override;
+  void setCurrentUserID(std::string userID) const override;
+  std::string getCurrentUserID() const override;
   void clearSensitiveData() const override;
 };
 
