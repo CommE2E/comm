@@ -955,6 +955,27 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
       });
 };
 
+void CommCoreModule::setCurrentUserID(
+    jsi::Runtime &rt,
+    const jsi::String &userID) {
+  try {
+    auto currentUserID{userID.utf8(rt)};
+    DatabaseManager::getQueryExecutor().setCurrentUserID(currentUserID);
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
+}
+
+jsi::String CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
+  try {
+    std::string currentUserID =
+        DatabaseManager::getQueryExecutor().getCurrentUserID();
+    return jsi::String::createFromUtf8(rt, currentUserID);
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
+}
+
 void CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
   try {
     DatabaseManager::getQueryExecutor().clearSensitiveData();

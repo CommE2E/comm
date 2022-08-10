@@ -58,6 +58,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   jsi::Value
   setNotifyToken(jsi::Runtime &rt, const jsi::String &token) override;
   jsi::Value clearNotifyToken(jsi::Runtime &rt) override;
+  void setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) override;
+  jsi::String getCurrentUserID(jsi::Runtime &rt) override;
   void clearSensitiveData(jsi::Runtime &rt) override;
 
 public:
