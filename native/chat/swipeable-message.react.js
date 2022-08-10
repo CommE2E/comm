@@ -247,7 +247,11 @@ function SwipeableMessage(props: Props): React.Node {
   const waitFor = reactNavGestureHandlerRef ?? undefined;
 
   if (!triggerReply && !triggerSidebar) {
-    return <View style={messageBoxStyle}>{children}</View>;
+    return (
+      <PanGestureHandler enabled={false}>
+        <Animated.View style={messageBoxStyle}>{children}</Animated.View>
+      </PanGestureHandler>
+    );
   }
 
   const threadColor = `#${props.threadColor}`;
