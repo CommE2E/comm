@@ -1,0 +1,125 @@
+# Detects cargo target architecture based on the Rustc compiler version
+function(detect_cargo_target_architecture)
+  find_program(RUST_compiler rustc)
+  find_program(Sed_PATH sed)
+
+  if(NOT RUST_compiler)
+    message(
+      FATAL "The rustc executable was not found")
+  endif()
+
+  if(NOT Sed_PATH)
+    message(
+      FATAL "The sed executable was not found")
+  endif()
+
+  execute_process(
+    COMMAND ${RUST_compiler} --version --verbose
+    COMMAND ${Sed_PATH} -n "s|host: ||p"
+    OUTPUT_VARIABLE DETECTED_CARGO_TARGET
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  if("${DETECTED_CARGO_TARGET}" STREQUAL "")
+    message(FATAL_ERROR "Cannot detect target architecture for cargo build")
+  endif()
+
+  message("Cargo target architecture detected as: ${DETECTED_CARGO_TARGET}")
+  set(RUST_cargo_target ${DETECTED_CARGO_TARGET} PARENT_SCOPE)
+endfunction(detect_cargo_target_architecture)
+
+# Creates a target including rust lib and cxxbridge which is
+# named as ${NAMESPACE}::${_LIB_PATH_STEM}
+# <_LIB_PATH_STEM> must match the crate name:
+# "path/to/myrustcrate" -> "libmyrustcrate.a"
+function(add_library_rust)
+  detect_cargo_target_architecture()
+  set(value_keywords PATH NAMESPACE CXX_BRIDGE_SOURCE_FILE)
+  cmake_parse_arguments(
+    rust_lib
+    "${OPTIONS}"
+    "${value_keywords}"
+    "${MULTI_value_KEYWORDS}"
+    ${ARGN}
+  )
+
+  if("${rust_lib_PATH}" STREQUAL "")
+    message(
+      FATAL_ERROR
+      "add_library_rust called without a given path to root of a rust crate")
+  endif()
+
+  if("${rust_lib_NAMESPACE}" STREQUAL "")
+    message(
+      FATAL_ERROR
+      "Must supply a namespace given by keyvalue NAMESPACE <value>")
+  endif()
+
+  if("${rust_lib_CXX_BRIDGE_SOURCE_FILE}" STREQUAL "")
+    set(rust_lib_CXX_BRIDGE_SOURCE_FILE "src/lib.rs")
+  endif()
+
+  if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${rust_lib_PATH}/Cargo.toml")
+    message(
+      FATAL_ERROR
+      "${CMAKE_CURRENT_LIST_DIR}/${rust_lib_PATH} doesn't contain a Cargo.toml")
+  endif()
+
+  set(lib_path ${rust_lib_PATH})
+  set(namespace ${rust_lib_NAMESPACE})
+  set(cxx_bridge_source_file ${rust_lib_CXX_BRIDGE_SOURCE_FILE})
+
+  corrosion_import_crate(MANIFEST_PATH "${lib_path}/Cargo.toml")
+
+  # Set cxxbridge values
+  get_filename_component(_LIB_PATH_STEM ${lib_path} NAME)
+  message(STATUS "Library stem path: ${_LIB_PATH_STEM}")
+  set(
+    cxx_bridge_binary_folder
+    ${CMAKE_BINARY_DIR}/cargo/build/${RUST_cargo_target}/cxxbridge)
+  set(
+    common_header
+    ${cxx_bridge_binary_folder}/rust/cxx.h)
+  set(
+    binding_header
+    ${cxx_bridge_binary_folder}/${_LIB_PATH_STEM}/${cxx_bridge_source_file}.h)
+  set(
+    binding_source
+    ${cxx_bridge_binary_folder}/${_LIB_PATH_STEM}/${cxx_bridge_source_file}.cc)
+  set(
+    cxx_binding_include_dir
+    ${cxx_bridge_binary_folder})
+
+  # Create cxxbridge target
+  add_custom_command(
+    OUTPUT
+    ${common_header}
+    ${binding_header}
+    ${binding_source}
+    COMMAND
+    DEPENDS ${_LIB_PATH_STEM}-static
+    COMMENT "Fixing cmake to find source files"
+  )
+
+  add_library(${_LIB_PATH_STEM}_cxxbridge)
+  target_sources(${_LIB_PATH_STEM}_cxxbridge
+    PUBLIC
+    ${common_header}
+    ${binding_header}
+    ${binding_source}
+  )
+  target_include_directories(${_LIB_PATH_STEM}_cxxbridge
+    PUBLIC ${cxx_binding_include_dir}
+  )
+
+  # Create total target with alias with given namespace
+  add_library(${_LIB_PATH_STEM}-total INTERFACE)
+  target_link_libraries(${_LIB_PATH_STEM}-total
+    INTERFACE
+    ${_LIB_PATH_STEM}_cxxbridge
+    ${_LIB_PATH_STEM}
+  )
+
+  # for end-user to link into project
+  add_library(${namespace}::${_LIB_PATH_STEM} ALIAS ${_LIB_PATH_STEM}-total)
+endfunction(add_library_rust)
