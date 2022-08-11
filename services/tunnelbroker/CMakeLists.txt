@@ -9,6 +9,7 @@ if(COMMAND cmake_policy)
 endif(COMMAND cmake_policy)
 
 set(CMAKE_CXX_STANDARD 17)
+
 # For C++17 on MacOS, we must set minimum target to 10.14+
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
@@ -39,9 +40,11 @@ pkg_check_modules(LIBUV
 if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL "/transferred/tunnelbroker")
   # Inside the docker build contex
   set(_proto_path "grpc")
+  set(_cmake_components_path "./cmake-components")
 else()
   # Inside repo
   set(_proto_path "../../native/cpp/CommonCpp/grpc")
+  set(_cmake_components_path "../lib/cmake-components")
 endif()
 
 # Shared Comm protos
@@ -67,11 +70,10 @@ find_package(Boost 1.40
 find_package(OpenSSL REQUIRED)
 find_package(glog)
 
-# Corrosion Rust integration
+# Corrosion and CXX Rust integration
 find_package(Corrosion REQUIRED)
-corrosion_import_crate(MANIFEST_PATH "rust-notifications/Cargo.toml")
-set(RUST_HEADERS_INCLUDE_DIR "rust-notifications/extern")
-set(RUST_LIBS "rust-notifications")
+include(${_cmake_components_path}/corrosion-cxx.cmake)
+add_library_rust(PATH rust-notifications NAMESPACE rustlib)
 
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 
@@ -101,6 +103,7 @@ set(
   glog::glog
   double-conversion::double-conversion
   Folly::folly
+  rustlib::rust-notifications
 )
 
 # SERVER
