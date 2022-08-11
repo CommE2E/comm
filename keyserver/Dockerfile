@@ -70,23 +70,7 @@ WORKDIR /home/comm/app
 RUN mkdir /home/comm/backups
 
 #-------------------------------------------------------------------------------
-# STEP 4: SET UP NVM
-# We use nvm to make sure we're running the right Node version
-#-------------------------------------------------------------------------------
-
-# First we install nvm
-ENV NVM_DIR /home/comm/.nvm
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh \
-  | bash
-
-# Then we use nvm to install the right version of Node. We call this early so
-# Docker build caching saves us from re-downloading Node when any file changes
-COPY --chown=comm keyserver/.nvmrc keyserver/
-COPY --chown=comm keyserver/bash/source-nvm.sh keyserver/bash/
-RUN cd keyserver && . bash/source-nvm.sh
-
-#-------------------------------------------------------------------------------
-# STEP 5: YARN CLEANINSTALL
+# STEP 4: YARN CLEANINSTALL
 # We run yarn cleaninstall before copying most of the files in for build caching
 #-------------------------------------------------------------------------------
 
@@ -107,7 +91,7 @@ COPY --chown=comm native/ios/Podfile native/ios/
 RUN yarn cleaninstall
 
 #-------------------------------------------------------------------------------
-# STEP 6: WEBPACK BUILD
+# STEP 5: WEBPACK BUILD
 # We do this first so Docker doesn't rebuild when only keyserver files change
 #-------------------------------------------------------------------------------
 
@@ -119,14 +103,14 @@ COPY --chown=comm web web/
 RUN yarn workspace web prod
 
 #-------------------------------------------------------------------------------
-# STEP 7: COPY IN SOURCE FILES
+# STEP 6: COPY IN SOURCE FILES
 # We run this later so the above layers are cached if only source files change
 #-------------------------------------------------------------------------------
 
 COPY --chown=comm . .
 
 #-------------------------------------------------------------------------------
-# STEP 8: RUN BUILD SCRIPTS
+# STEP 7: RUN BUILD SCRIPTS
 # We need to populate keyserver/dist, among other things
 #-------------------------------------------------------------------------------
 
@@ -134,7 +118,7 @@ COPY --chown=comm . .
 RUN yarn workspace keyserver prod-build
 
 #-------------------------------------------------------------------------------
-# STEP 9: RUN THE SERVER
+# STEP 8: RUN THE SERVER
 # Actually run the Node.js keyserver using nvm
 #-------------------------------------------------------------------------------
 
