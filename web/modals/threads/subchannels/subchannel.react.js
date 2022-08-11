@@ -65,7 +65,7 @@ function Subchannel(props: Props): React.Node {
     <div className={css.subchannelContainer} onClick={onClickThread}>
       <SWMansionIcon icon="message-square" size={22} />
       <div className={css.subchannelInfo}>
-        <div className={css.longTextEllipsis}>{threadInfo.name}</div>
+        <div className={css.longTextEllipsis}>{threadInfo.uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>
       </div>
     </div>

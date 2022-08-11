@@ -69,7 +69,7 @@ function Sidebar(props: Props): React.Node {
         alt="sidebar arrow"
       />
       <div className={css.sidebarInfo}>
-        <div className={css.longTextEllipsis}>{threadInfo.name}</div>
+        <div className={css.longTextEllipsis}>{threadInfo.uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>
       </div>
     </button>
