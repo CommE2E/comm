@@ -11,7 +11,7 @@ For how Nix package management works, please refer to the official [how Nix work
 # Supported workflows
 
 | Workflow                      | Supported on macOS |
-| ----------------------------- | ------------------- 
+| ----------------------------- | ------------------ |
 | keyserver (Node.js)           | ❌                 |
 | web (Webpack)                 | ❌                 |
 | native iOS (React Native)     | ❌                 |
@@ -49,6 +49,12 @@ Add the following line to the file:
 
 ```
 experimental-features = nix-command flakes
+```
+
+For use of comm's binary caches, please add yourself as a trusted user. This should reflect what `echo $USER` prints.
+
+```
+trusted-users = <user>
 ```
 
 # Development Environment
