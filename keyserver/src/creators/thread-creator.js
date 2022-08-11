@@ -452,7 +452,9 @@ async function createThread(
   if (
     parentThreadID &&
     threadType !== threadTypes.SIDEBAR &&
-    parentThreadID !== genesis.id
+    (parentThreadID !== genesis.id ||
+      threadType === threadTypes.COMMUNITY_OPEN_SUBTHREAD ||
+      threadType === threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD)
   ) {
     messageDatas.push({
       type: messageTypes.CREATE_SUB_THREAD,
