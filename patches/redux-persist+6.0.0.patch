@@ -1,0 +1,24 @@
+diff --git a/node_modules/redux-persist/lib/persistReducer.js.flow b/node_modules/redux-persist/lib/persistReducer.js.flow
+index cf8d980..b8535dc 100644
+--- a/node_modules/redux-persist/lib/persistReducer.js.flow
++++ b/node_modules/redux-persist/lib/persistReducer.js.flow
+@@ -20,7 +20,7 @@ import createPersistoid from './createPersistoid'
+ import defaultGetStoredState from './getStoredState'
+ import purgeStoredState from './purgeStoredState'
+ 
+-type PersistPartial = { _persist: PersistState }
++type PersistPartial = { _persist: ?PersistState }
+ const DEFAULT_TIMEOUT = 5000
+ /*
+   @TODO add validation / handling for:
+@@ -29,8 +29,8 @@ const DEFAULT_TIMEOUT = 5000
+ */
+ export default function persistReducer<State: Object, Action: Object>(
+   config: PersistConfig,
+-  baseReducer: (State, Action) => State
+-): (State, Action) => State & PersistPartial {
++  baseReducer: (State | void, Action) => State
++): (State | void, Action) => { ...State, ...PersistPartial } {
+   if (process.env.NODE_ENV !== 'production') {
+     if (!config) throw new Error('config is required for persistReducer')
+     if (!config.key) throw new Error('key is required in persistor config')
