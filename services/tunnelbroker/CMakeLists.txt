@@ -40,9 +40,11 @@ pkg_check_modules(LIBUV
 if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL "/transferred/tunnelbroker")
   # Inside the docker build contex
   set(_proto_path "grpc")
+  set(_shared_path "../shared")
 else()
   # Inside repo
   set(_proto_path "../../native/cpp/CommonCpp/grpc")
+  set(_shared_path "../../shared")
 endif()
 
 # Shared Comm protos
@@ -67,6 +69,11 @@ find_package(Boost 1.40
 )
 find_package(OpenSSL REQUIRED)
 find_package(glog)
+
+# Corrosion and CXX Rust integration
+find_package(Corrosion REQUIRED)
+include(${_shared_path}/cmake/corrosion-cxx.cmake)
+add_library_rust(PATH rust-notifications NAMESPACE rustlib)
 
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 
@@ -96,6 +103,7 @@ set(
   glog::glog
   double-conversion::double-conversion
   Folly::folly
+  rustlib::rust-notifications
 )
 
 # SERVER
