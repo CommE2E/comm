@@ -2,8 +2,8 @@ use lazy_static::lazy_static;
 use opaque_ke::{
   ClientLogin, ClientLoginFinishParameters, ClientLoginStartParameters,
   ClientRegistration, ClientRegistrationFinishParameters,
-  CredentialFinalization, CredentialResponse, RegistrationResponse,
-  RegistrationUpload,
+  CredentialFinalization, CredentialRequest, CredentialResponse,
+  RegistrationResponse, RegistrationUpload,
 };
 use rand::{rngs::OsRng, CryptoRng, Rng};
 use std::sync::Arc;
@@ -120,6 +120,25 @@ fn pake_registration_finish(
       Status::aborted("PAKE failure")
     })
     .map(|res| res.message)
+}
+
+fn pake_login_start(
+  rng: &mut (impl Rng + CryptoRng),
+  password: &str,
+) -> Result<(CredentialRequest<Cipher>, Option<ClientLogin<Cipher>>), Status> {
+  let client_login_start_result = ClientLogin::<Cipher>::start(
+    rng,
+    password.as_bytes(),
+    ClientLoginStartParameters::default(),
+  )
+  .map_err(|e| {
+    error!("Failed to start PAKE login: {}", e);
+    Status::failed_precondition("PAKE failure")
+  })?;
+  Ok((
+    client_login_start_result.message,
+    Some(client_login_start_result.state),
+  ))
 }
 
 fn pake_login_finish(
