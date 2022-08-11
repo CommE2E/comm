@@ -69,17 +69,18 @@ target_include_directories(comm-modules-native
   "../../../node_modules/react-native/ReactCommon/callinvoker"
 )
 
+set(_message_path ./PersistentStorageUtilities/MessageOperationsUtilities)
 set(MESSAGE_HDRS
-  ./PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilities.h
-  ./PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs.h
+  ${_message_path}/MessageOperationsUtilities.h
+  ${_message_path}/MessageSpecs.h
 )
 
 set(MESSAGE_SRCS
-  ./PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilities.h
+  ${_message_path}/MessageOperationsUtilities.cpp
 )
 
 file(GLOB MESSAGE_SPEC_HDRS
-  ./PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/*.h
+  ${_message_path}/MessageSpecs/*.h
 )
 
 file(GLOB THREAD_OP_HDRS
@@ -109,9 +110,9 @@ target_include_directories(comm-modules-persistentstorage
 )
 
 set(_components internal native persistentstorage)
-foreach(_component ${_components})
+foreach(component ${_components})
 
-  install(TARGETS comm-modules-${_component} EXPORT comm-modules-export
+  install(TARGETS comm-modules-${component} EXPORT comm-modules-export
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-modules
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
@@ -122,10 +123,11 @@ endforeach()
 install(FILES ${INTERNAL_HDRS} DESTINATION include/InternalModules)
 install(FILES ${NATIVE_HDRS} DESTINATION include/NativeModules)
 install(FILES ${MESSAGE_HDRS} DESTINATION include/PersistentStorageUtilities)
-install(FILES ${MESSAGE_SPEC_HDRS} DESTINATION include/PersistentStorageUtilities/MessageSpecs)
+install(FILES ${MESSAGE_SPEC_HDRS}
+  DESTINATION include/PersistentStorageUtilities/MessageSpecs
+)
 install(FILES ${THREAD_OP_HDRS} DESTINATION include/ThreadOperationsUtilities)
 
-# For development purposes, can point cmake to this directory if doing development
 export(TARGETS comm-modules-internal comm-modules-native
   NAMESPACE comm-modules::
   FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm-modules/comm-modules-targets.cmake
