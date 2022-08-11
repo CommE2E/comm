@@ -183,8 +183,8 @@ function RobotextMessage(props: Props): React.Node {
             onLongPress={onLongPress}
           />
         </AnimatedView>
-        {inlineSidebar}
       </View>
+      {inlineSidebar}
     </View>
   );
 }
