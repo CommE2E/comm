@@ -12,6 +12,7 @@ tokio = { version = "1.14", features = ["rt-multi-thread"]}
 lazy_static = "1.4"
 a2 = "0.6"
 cxx = "1.0"
+log = "0.4"
 
 [build-dependencies]
 cxx-build = "1.0"
