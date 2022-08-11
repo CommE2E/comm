@@ -63,7 +63,6 @@ impl Client {
     }
   }
 
-  #[instrument(skip(self))]
   async fn get_user_id(
     &mut self,
     auth_type: AuthType,
@@ -76,6 +75,15 @@ impl Client {
         user_info,
       })
       .await
+  }
+
+  #[instrument(skip(self))]
+  fn get_user_id_blocking(
+    &mut self,
+    auth_type: AuthType,
+    user_info: String,
+  ) -> Result<Response<GetUserIdResponse>, Status> {
+    RUNTIME.block_on(self.get_user_id(auth_type, user_info))
   }
 
   #[instrument(skip(self))]
