@@ -95,6 +95,39 @@ impl Client {
   }
 }
 
+fn pake_registration_start(
+  rng: &mut (impl Rng + CryptoRng),
+  user_id: String,
+  password: &str,
+  device_id: String,
+  username: String,
+  user_public_key: String,
+) -> Result<(RegistrationRequest, Option<ClientRegistration<Cipher>>), Status> {
+  let client_registration_start_result =
+    ClientRegistration::<Cipher>::start(rng, password.as_bytes()).map_err(
+      |e| {
+        error!("Failed to start PAKE registration: {}", e);
+        Status::failed_precondition("PAKE failure")
+      },
+    )?;
+  let pake_registration_request =
+    client_registration_start_result.message.serialize();
+  Ok((
+    RegistrationRequest {
+      data: Some(PakeRegistrationRequestAndUserId(
+        PakeRegistrationRequestAndUserIdStruct {
+          user_id,
+          device_id,
+          pake_registration_request,
+          username,
+          user_public_key,
+        },
+      )),
+    },
+    Some(client_registration_start_result.state),
+  ))
+}
+
 fn pake_registration_finish(
   rng: &mut (impl Rng + CryptoRng),
   registration_response_bytes: &[u8],
