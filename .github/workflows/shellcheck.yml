@@ -7,12 +7,12 @@ on:
 jobs:
   shellcheck:
     name: ShellCheck
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Set globstar
-      run: shopt -s globstar
+      - name: Set globstar
+        run: shopt -s globstar
 
-    - name: Run ShellCheck
-      run: shellcheck -x -P SCRIPTDIR **/*.sh
+      - name: Run ShellCheck
+        run: shellcheck -x -P SCRIPTDIR **/*.sh
