@@ -15,8 +15,13 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { type AnimatedStyleObj, AnimatedView } from '../types/styles';
 import {
   clusterEndHeight,
+  inlineSidebarLeftTopOffset,
   inlineSidebarMarginBottom,
   inlineSidebarMarginTop,
+  inlineSidebarRightTopOffset,
+  inlineSidebarRightRightMargin,
+  composedMessageMarginLeft,
+  composedMessageMarginRight,
 } from './chat-constants';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
@@ -138,12 +143,13 @@ class ComposedMessage extends React.PureComponent<Props> {
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
       const positioning = isViewer ? 'right' : 'left';
+      const inlineSidebarPositionStyle =
+        positioning === 'left'
+          ? styles.leftInlineSidebar
+          : styles.rightInlineSidebar;
       inlineSidebar = (
-        <View style={styles.inlineSidebar}>
-          <InlineSidebar
-            threadInfo={item.threadCreatedFromMessage}
-            positioning={positioning}
-          />
+        <View style={[styles.inlineSidebar, inlineSidebarPositionStyle]}>
+          <InlineSidebar threadInfo={item.threadCreatedFromMessage} />
         </View>
       );
     }
@@ -175,8 +181,8 @@ class ComposedMessage extends React.PureComponent<Props> {
 
 const styles = StyleSheet.create({
   alignment: {
-    marginLeft: 12,
-    marginRight: 7,
+    marginLeft: composedMessageMarginLeft,
+    marginRight: composedMessageMarginRight,
   },
   content: {
     alignItems: 'center',
@@ -197,11 +203,22 @@ const styles = StyleSheet.create({
   leftChatBubble: {
     justifyContent: 'flex-end',
   },
+  leftInlineSidebar: {
+    justifyContent: 'flex-start',
+    position: 'relative',
+    top: inlineSidebarLeftTopOffset,
+  },
   messageBox: {
     marginRight: 5,
   },
   rightChatBubble: {
     justifyContent: 'flex-start',
+  },
+  rightInlineSidebar: {
+    alignSelf: 'flex-end',
+    position: 'relative',
+    right: inlineSidebarRightRightMargin,
+    top: inlineSidebarRightTopOffset,
   },
 });
 
