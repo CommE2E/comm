@@ -2,7 +2,7 @@
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 project(comm CXX C)
 
-set (CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
 
 # C0103 is a naming convention, but the variable names which need to be set
 # are determined by the upstream project
@@ -11,13 +11,12 @@ set (CMAKE_CXX_STANDARD 14)
 # cmake-lint: disable=C0301
 
 # Sets the minimum version of CMake required to build the native library.
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.18)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
-
 set(PACKAGE_NAME "comm_jni_module")
 
 find_package(fbjni REQUIRED CONFIG)
@@ -37,11 +36,24 @@ set(protobuf_BUILD_TESTS OFF)
 # gRPC building parameters
 set(gRPC_BUILD_CSHARP_EXT OFF)
 set(gRPC_SSL_PROVIDER "package" CACHE STRING "SSL library provider")
+
+# gRPC client
+include(FetchContent)
+
+FetchContent_Declare(
+    Corrosion
+    GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
+    GIT_TAG v0.2.1
+)
+
+FetchContent_MakeAvailable(Corrosion)
+
 # Disable unused plugins
 set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF)
 set(gRPC_BUILD_GRPC_RUBY_PLUGIN OFF)
 set(gRPC_BUILD_GRPC_PYTHON_PLUGIN OFF)
 set(gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF)
+
 # We're updating parameters below for Cmake's find_OpenSSL() function
 set(OPENSSL_ROOT_DIR
   "${_third_party_dir}/openssl/openssl-${OPENSSL_VERSION}/${_android_build_dir}"
@@ -162,14 +174,14 @@ add_library(
 )
 
 add_definitions(
-  ## Folly
+  # Folly
   -DFOLLY_NO_CONFIG=1
   -DFOLLY_HAVE_CLOCK_GETTIME=1
   -DFOLLY_HAVE_MEMRCHR=1
   -DFOLLY_USE_LIBCPP=1
   -DFOLLY_MOBILE=1
 
-  ## SQLCipher
+  # SQLCipher
   -DSQLITE_THREADSAFE=0
   -DSQLITE_HAS_CODEC
   -DSQLITE_TEMP_STORE=2
