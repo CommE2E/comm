@@ -91,6 +91,7 @@ export type BaseTooltipProps<RouteName> = {
 type ButtonProps<Base> = {
   ...Base,
   +progress: Node,
+  +isOpeningSidebar: boolean,
 };
 type TooltipProps<Base> = {
   ...Base,
@@ -363,10 +364,12 @@ function createTooltip<
 
       invariant(overlayContext, 'Tooltip should have OverlayContext');
       const { position } = overlayContext;
+      const isOpeningSidebar = !!chatContext?.currentTransitionSidebarSourceID;
 
       const buttonProps: ButtonProps<BaseTooltipPropsType> = {
         ...navAndRouteForFlow,
         progress: position,
+        isOpeningSidebar,
       };
 
       return (

@@ -2,6 +2,10 @@
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
+import Animated, {
+  Extrapolate,
+  interpolateNode,
+} from 'react-native-reanimated';
 
 import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -9,7 +13,16 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { useStyles } from '../themes/colors';
-import { inlineSidebarHeight } from './chat-constants';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
+import {
+  composedMessageMarginLeft,
+  composedMessageMarginRight,
+  inlineSidebarCenterTopOffset,
+  inlineSidebarHeight,
+  inlineSidebarMarginTop,
+  inlineSidebarRightRightMargin,
+  inlineSidebarRightTopOffset,
+} from './chat-constants';
 import { useNavigateToThread } from './message-list-types';
 
 type Props = {
@@ -125,4 +138,80 @@ const unboundStyles = {
   },
 };
 
-export default InlineSidebar;
+type TooltipInlineSidebarProps = {
+  +item: ChatMessageInfoItemWithHeight,
+  +isOpeningSidebar: boolean,
+  +progress: Animated.Node,
+  +windowWidth: number,
+  +positioning: 'left' | 'right' | 'center',
+  +initialCoordinates: {
+    +x: number,
+    +y: number,
+    +width: number,
+    +height: number,
+  },
+};
+
+function TooltipInlineSidebar(props: TooltipInlineSidebarProps): React.Node {
+  const {
+    item,
+    isOpeningSidebar,
+    progress,
+    windowWidth,
+    initialCoordinates,
+    positioning,
+  } = props;
+  const inlineSidebarStyle = React.useMemo(() => {
+    switch (positioning) {
+      case 'left':
+        return {
+          position: 'absolute',
+          top: inlineSidebarMarginTop + inlineSidebarRightTopOffset,
+          left: composedMessageMarginLeft,
+        };
+      case 'right':
+        return {
+          position: 'absolute',
+          right: inlineSidebarRightRightMargin + composedMessageMarginRight,
+          top: inlineSidebarMarginTop + inlineSidebarRightTopOffset,
+        };
+      case 'center':
+        return {
+          alignSelf: 'center',
+          top: inlineSidebarCenterTopOffset,
+        };
+    }
+  }, [positioning]);
+  const inlineSidebarContainer = React.useMemo(() => {
+    const opacity = Animated.multiply(
+      isOpeningSidebar ? 0 : 1,
+      interpolateNode(progress, {
+        inputRange: [0, 1],
+        outputRange: [1, 0],
+        extrapolate: Extrapolate.CLAMP,
+      }),
+    );
+    return {
+      position: 'absolute',
+      width: windowWidth,
+      top: initialCoordinates.height,
+      left: -initialCoordinates.x,
+      opacity,
+    };
+  }, [
+    initialCoordinates.height,
+    initialCoordinates.x,
+    isOpeningSidebar,
+    progress,
+    windowWidth,
+  ]);
+  return (
+    <Animated.View style={inlineSidebarContainer}>
+      <Animated.View style={inlineSidebarStyle}>
+        <InlineSidebar threadInfo={item.threadCreatedFromMessage} disabled />
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
+export { InlineSidebar, TooltipInlineSidebar };

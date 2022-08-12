@@ -25,7 +25,7 @@ import {
 } from './chat-constants';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
-import InlineSidebar from './inline-sidebar.react';
+import { InlineSidebar } from './inline-sidebar.react';
 import { MessageHeader } from './message-header.react';
 import { useNavigateToSidebar } from './sidebar-navigation';
 import SwipeableMessage from './swipeable-message.react';
