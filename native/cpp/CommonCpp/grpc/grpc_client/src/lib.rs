@@ -48,7 +48,15 @@ lazy_static! {
 }
 
 #[cxx::bridge(namespace = "identity")]
-mod ffi {}
+mod ffi {
+  extern "Rust" {
+    fn int_from_rust() -> i32;
+  }
+}
+
+fn int_from_rust() -> i32 {
+  42
+}
 
 pub struct Client {
   identity_client: IdentityServiceClient<Channel>,
