@@ -59,7 +59,7 @@ Select font with 'for Powerline' in the name" >&2
 Select font with 'for Powerline' in the name" >&2
     fi
 
-  elif which fc-cache >/dev/null 2>&1 ; then
+  elif command -v fc-cache ; then
       # Reset font cache on Linux
       echo "Resetting font cache, this may take a moment..." >&2
       fc-cache -f "$font_dir"
