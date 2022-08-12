@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-# Check if shell is using a default BSD or GNU prompt
+# Check if shell is using a default BSD, MacOS or GNU prompt
 if [[ ${PS1} != '\s-\v\$'* ]] && \
+    [[ ${PS1} != '\h:\W \u\$'* ]] && \
     [[ ${PS1} != '%n@%m %1~ %#'* ]]; then
   # User already has an opinionated PS1, just leave
   return 0
