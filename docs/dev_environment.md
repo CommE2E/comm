@@ -245,7 +245,7 @@ Next, select the “SDK Tools” tab, and check the box for “Show Package Deta
 
 - Android SDK Build-Tools
 - NDK
-- CMake version 3.10.2
+- CMake version 3.18.1
 
 To finish the SDK Manager step, click “Apply” to download and install everything you’ve selected.
 
