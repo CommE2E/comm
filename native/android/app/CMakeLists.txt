@@ -2,7 +2,7 @@
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 project(comm CXX C)
 
-set (CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 14)
 
 # C0103 is a naming convention, but the variable names which need to be set
 # are determined by the upstream project
@@ -11,13 +11,12 @@ set (CMAKE_CXX_STANDARD 14)
 # cmake-lint: disable=C0301
 
 # Sets the minimum version of CMake required to build the native library.
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.15)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
-
 set(PACKAGE_NAME "comm_jni_module")
 
 find_package(fbjni REQUIRED CONFIG)
@@ -37,11 +36,16 @@ set(protobuf_BUILD_TESTS OFF)
 # gRPC building parameters
 set(gRPC_BUILD_CSHARP_EXT OFF)
 set(gRPC_SSL_PROVIDER "package" CACHE STRING "SSL library provider")
+
+# gRPC client
+find_package(Corrosion REQUIRED CMAKE_FIND_ROOT_PATH_BOTH)
+
 # Disable unused plugins
 set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF)
 set(gRPC_BUILD_GRPC_RUBY_PLUGIN OFF)
 set(gRPC_BUILD_GRPC_PYTHON_PLUGIN OFF)
 set(gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF)
+
 # We're updating parameters below for Cmake's find_OpenSSL() function
 set(OPENSSL_ROOT_DIR
   "${_third_party_dir}/openssl/openssl-${OPENSSL_VERSION}/${_android_build_dir}"
@@ -112,6 +116,7 @@ file(GLOB DOUBLE_CONVERSION_SOURCES
 file(GLOB GRPC_CODE "../../cpp/CommonCpp/grpc/_generated/*.cc")
 
 add_library(
+
   # Sets the name of the library.
   ${PACKAGE_NAME}
 
@@ -162,14 +167,15 @@ add_library(
 )
 
 add_definitions(
-  ## Folly
+
+  # Folly
   -DFOLLY_NO_CONFIG=1
   -DFOLLY_HAVE_CLOCK_GETTIME=1
   -DFOLLY_HAVE_MEMRCHR=1
   -DFOLLY_USE_LIBCPP=1
   -DFOLLY_MOBILE=1
 
-  ## SQLCipher
+  # SQLCipher
   -DSQLITE_THREADSAFE=0
   -DSQLITE_HAS_CODEC
   -DSQLITE_TEMP_STORE=2
@@ -179,6 +185,7 @@ add_definitions(
 find_library(log-lib log)
 
 add_library(
+
   # OpenSSL Crypto lib
   openssl-crypto
   STATIC
@@ -186,6 +193,7 @@ add_library(
 )
 
 set_target_properties(
+
   # OpenSSL Crypto lib
   openssl-crypto
   PROPERTIES IMPORTED_LOCATION
@@ -193,6 +201,7 @@ set_target_properties(
 )
 
 add_library(
+
   # OpenSSL SSL lib
   openssl-ssl
   STATIC
@@ -200,6 +209,7 @@ add_library(
 )
 
 set_target_properties(
+
   # OpenSSL SSL lib
   openssl-ssl
   PROPERTIES IMPORTED_LOCATION
@@ -222,8 +232,10 @@ target_link_libraries(
 # add a dummy library which is required by CallInvokerHolderImpl.java
 add_library(
   turbomodulejsijni
+
   # Sets the library as a shared library.
   SHARED
+
   # Provides a relative path to your source file(s).
   ./src/cpp/dummy.cpp
 )
