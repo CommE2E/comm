@@ -274,6 +274,33 @@ void set_encryption_key(sqlite3 *db) {
   }
 }
 
+void trace_queries(sqlite3 *db) {
+  int error_code = sqlite3_trace_v2(
+      db,
+      SQLITE_TRACE_PROFILE,
+      [](unsigned, void *, void *preparedStatement, void *) {
+        sqlite3_stmt *statement = (sqlite3_stmt *)preparedStatement;
+        char *sql = sqlite3_expanded_sql(statement);
+        if (sql != nullptr) {
+          std::string sqlStr(sql);
+          std::cout << "sql query detected: " << sqlStr << std::endl;
+        }
+        return 0;
+      },
+      NULL);
+  if (error_code != SQLITE_OK) {
+    std::ostringstream error_message;
+    error_message << "Failed to set trace callback, error code: " << error_code;
+    throw std::system_error(
+        ECANCELED, std::generic_category(), error_message.str());
+  }
+}
+
+void open_callback(sqlite3 *db) {
+  set_encryption_key(db);
+  trace_queries(db);
+}
+
 bool file_exists(const std::string &file_path) {
   std::ifstream file(file_path.c_str());
   return file.good();
@@ -330,7 +357,7 @@ void validate_encryption() {
   sqlite3 *db;
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
 
-  set_encryption_key(db);
+  open_callback(db);
   char *key_validation_error;
   // According to SQLCipher documentation running some SELECT is the only way to
   // check for key validity
@@ -406,7 +433,7 @@ void SQLiteQueryExecutor::migrate() {
 
   sqlite3 *db;
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
-  set_encryption_key(db);
+  open_callback(db);
 
   std::stringstream db_path;
   db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
@@ -513,7 +540,7 @@ auto &SQLiteQueryExecutor::getStorage() {
           "metadata",
           make_column("name", &Metadata::name, unique(), primary_key()),
           make_column("data", &Metadata::data)));
-  storage.on_open = set_encryption_key;
+  storage.on_open = open_callback;
   return storage;
 }
 
