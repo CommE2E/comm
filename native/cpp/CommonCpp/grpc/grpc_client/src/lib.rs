@@ -48,6 +48,9 @@ lazy_static! {
   );
 }
 
+#[cxx::bridge(namespace = "identity")]
+mod ffi {}
+
 pub struct Client {
   identity_client: IdentityServiceClient<Channel>,
 }
