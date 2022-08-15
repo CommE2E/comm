@@ -48,10 +48,12 @@ const std::regex DEVICEID_FORMAT_REGEX(
     "}$");
 
 // Config
-const std::string CONFIG_FILE_PATH =
-    std::string(std::getenv("HOME")) + "/tunnelbroker/tunnelbroker.ini";
-const std::string DEV_CONFIG_FILE_PATH =
-    std::string(std::getenv("HOME")) + "/tunnelbroker/tunnelbroker-dev.ini";
+const std::string CONFIG_FILE_DIRECTORY_ENV_VARIABLE =
+    "TUNNELBROKER_CONFIG_FILE_DIRECTORY";
+const std::string DEFAULT_CONFIG_FILE_DIRECTORY =
+    std::string(std::getenv("HOME")) + "/tunnelbroker";
+const std::string CONFIG_FILE_NAME = "tunnelbroker.ini";
+const std::string SANDBOX_CONFIG_FILE_NAME = "tunnelbroker-sandbox.ini";
 
 // DeliveryBroker
 const size_t DELIVERY_BROKER_MAX_QUEUE_SIZE = 100;

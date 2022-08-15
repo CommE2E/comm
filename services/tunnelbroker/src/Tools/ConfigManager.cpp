@@ -30,10 +30,17 @@ ConfigManager &ConfigManager::getInstance() {
 }
 
 void ConfigManager::load() {
+  char const *configFileDirectoryFromEnvironment =
+      std::getenv(CONFIG_FILE_DIRECTORY_ENV_VARIABLE.c_str());
+  std::string configFilePath = DEFAULT_CONFIG_FILE_DIRECTORY;
+
+  if (configFileDirectoryFromEnvironment != nullptr) {
+    configFilePath = std::string{configFileDirectoryFromEnvironment};
+  }
   if (comm::network::tools::isSandbox()) {
-    loadConfigFile(comm::network::DEV_CONFIG_FILE_PATH);
+    loadConfigFile(configFilePath + "/" + SANDBOX_CONFIG_FILE_NAME);
   } else {
-    loadConfigFile(comm::network::CONFIG_FILE_PATH);
+    loadConfigFile(configFilePath + "/" + CONFIG_FILE_NAME);
   }
 }
 
