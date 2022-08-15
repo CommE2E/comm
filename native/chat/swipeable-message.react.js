@@ -19,6 +19,7 @@ import Animated, {
 import type { IconProps } from 'react-native-vector-icons';
 import tinycolor from 'tinycolor2';
 
+import CommIcon from '../components/comm-icon.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { colors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
@@ -54,14 +55,17 @@ function interpolateOpacityForViewerPrimarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [-20, -5], [1, 0], Extrapolate.CLAMP);
 }
+
 function interpolateOpacityForNonViewerPrimarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [5, 20], [0, 1], Extrapolate.CLAMP);
 }
+
 function interpolateTranslateXForViewerSecondarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [-130, -120, -60, 0], [-130, -120, -5, 20]);
 }
+
 function interpolateTranslateXForNonViewerSecondarySnake(translateX) {
   'worklet';
   return interpolate(translateX, [0, 80, 120, 130], [0, 30, 120, 130]);
@@ -75,6 +79,7 @@ type SwipeSnakeProps<IconGlyphs: string> = {
   +opacityInterpolator?: number => number, // must be worklet
   +translateXInterpolator?: number => number, // must be worklet
 };
+
 function SwipeSnake<IconGlyphs: string>(
   props: SwipeSnakeProps<IconGlyphs>,
 ): React.Node {
@@ -154,6 +159,7 @@ type Props = {
   +threadColor: string,
   +children: React.Node,
 };
+
 function SwipeableMessage(props: Props): React.Node {
   const { isViewer, triggerReply, triggerSidebar } = props;
   const secondaryActionExists = triggerReply && triggerSidebar;
@@ -285,7 +291,7 @@ function SwipeableMessage(props: Props): React.Node {
         translateXInterpolator={sidebarSnakeTranslateXInterpolator}
         key="sidebar"
       >
-        <SWMansionIcon name="sidebar-filled" size={20} />
+        <CommIcon name="sidebar-filled" size={16} />
       </SwipeSnake>,
     );
   } else if (triggerSidebar) {
@@ -300,7 +306,7 @@ function SwipeableMessage(props: Props): React.Node {
         opacityInterpolator={sidebarSnakeOpacityInterpolator}
         key="sidebar"
       >
-        <SWMansionIcon name="sidebar-filled" size={20} />
+        <CommIcon name="sidebar-filled" size={16} />
       </SwipeSnake>,
     );
   }
