@@ -18,7 +18,7 @@ RUN ./install_cryptopp.sh
 COPY services/tunnelbroker/docker/install_libuv.sh .
 RUN ./install_libuv.sh
 
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain 1.63.0 -y
 
 COPY services/tunnelbroker/docker/install_corrosion.sh .
 RUN ./install_corrosion.sh
