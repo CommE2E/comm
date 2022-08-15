@@ -4,7 +4,7 @@ import invariant from 'invariant';
 
 import { importJSON } from '../utils/import-json';
 
-type DBType = 'mysql5.7' | 'mariadb10.8';
+type DBType = 'mariadb10.8';
 export type DBConfig = {
   +host: string,
   +user: string,
@@ -14,13 +14,20 @@ export type DBConfig = {
 };
 
 function assertValidDBType(dbType: ?string): DBType {
-  if (!dbType) {
-    return 'mysql5.7';
-  }
   invariant(
-    dbType === 'mysql5.7' || dbType === 'mariadb10.8',
-    `${dbType} is not a valid dbType`,
+    dbType,
+    'dbType not specified in DB config. Following the MySQL deprecation this ' +
+      'is a required parameter. Please follow this Gist to migrate to ' +
+      'MariaDB: ' +
+      'https://gist.github.com/Ashoat/3a5ded2549db082c5516606f3c3c5da5',
   );
+  invariant(
+    dbType !== 'mysql5.7',
+    'We no longer support MySQL. Please follow this Gist to migrate to ' +
+      'MariaDB: ' +
+      'https://gist.github.com/Ashoat/3a5ded2549db082c5516606f3c3c5da5',
+  );
+  invariant(dbType === 'mariadb10.8', `${dbType} is not a valid dbType`);
   return dbType;
 }
 
