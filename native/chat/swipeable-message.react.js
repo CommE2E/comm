@@ -286,7 +286,7 @@ function SwipeableMessage(props: Props): React.Node {
         translateXInterpolator={sidebarSnakeTranslateXInterpolator}
         key="sidebar"
       >
-        <SWMansionIcon name="sidebar-filled" size={20} />
+        <CommIcon name="sidebar-filled" size={16} />
       </SwipeSnake>,
     );
   } else if (triggerSidebar) {
@@ -301,7 +301,7 @@ function SwipeableMessage(props: Props): React.Node {
         opacityInterpolator={sidebarSnakeOpacityInterpolator}
         key="sidebar"
       >
-        <SWMansionIcon name="sidebar-filled" size={20} />
+        <CommIcon name="sidebar-filled" size={16} />
       </SwipeSnake>,
     );
   }
