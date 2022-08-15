@@ -31,7 +31,6 @@ import {
   mergeOrConditions,
   mergeAndConditions,
 } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { SQLStatementType } from '../database/types';
 import type { PushInfo } from '../push/send';
 import type { Viewer } from '../session/viewer';
@@ -130,13 +129,8 @@ async function fetchCollapsableNotifs(
   }
 
   const derivedMessages = await fetchDerivedMessages(collapseResult);
-
-  const parsePromises = [...rowsByUser.values()].map(userRows =>
-    parseMessageSQLResult(userRows, derivedMessages),
-  );
-  const parsedMessages = await Promise.all(parsePromises);
-
-  for (const messages of parsedMessages) {
+  for (const userRows of rowsByUser.values()) {
+    const messages = parseMessageSQLResult(userRows, derivedMessages);
     for (const message of messages) {
       const { rawMessageInfo, rows } = message;
       const [row] = rows;
@@ -164,14 +158,14 @@ type MessageSQLResult = $ReadOnlyArray<{
   rawMessageInfo: RawMessageInfo,
   rows: $ReadOnlyArray<Object>,
 }>;
-async function parseMessageSQLResult(
+function parseMessageSQLResult(
   rows: $ReadOnlyArray<Object>,
   derivedMessages: $ReadOnlyMap<
     string,
     RawComposableMessageInfo | RawRobotextMessageInfo,
   >,
   viewer?: Viewer,
-): Promise<MessageSQLResult> {
+): MessageSQLResult {
   const rowsByID = new Map();
   for (const row of rows) {
     const id = row.id.toString();
@@ -183,16 +177,19 @@ async function parseMessageSQLResult(
     }
   }
 
-  const messagePromises = [...rowsByID.values()].map(async messageRows => {
-    const rawMessageInfo = await rawMessageInfoFromRows(
+  const messages = [];
+  for (const messageRows of rowsByID.values()) {
+    const rawMessageInfo = rawMessageInfoFromRows(
       messageRows,
       viewer,
       derivedMessages,
     );
-    return rawMessageInfo ? { rawMessageInfo, rows: messageRows } : null;
-  });
-  const messages = await Promise.all(messagePromises);
-  return messages.filter(Boolean);
+    if (rawMessageInfo) {
+      messages.push({ rawMessageInfo, rows: messageRows });
+    }
+  }
+
+  return messages;
 }
 
 function assertSingleRow(rows: $ReadOnlyArray<Object>): Object {
@@ -214,30 +211,24 @@ function mostRecentRowType(rows: $ReadOnlyArray<Object>): MessageType {
   return assertMessageType(rows[0].type);
 }
 
-async function rawMessageInfoFromRows(
+function rawMessageInfoFromRows(
   rawRows: $ReadOnlyArray<Object>,
   viewer?: Viewer,
   derivedMessages: $ReadOnlyMap<
     string,
     RawComposableMessageInfo | RawRobotextMessageInfo,
   >,
-): Promise<?RawMessageInfo> {
-  let rows = rawRows;
-  const dbType = await getDBType();
-  if (dbType !== 'mysql5.7') {
-    rows = rawRows.map(row => ({
-      ...row,
-      subthread_permissions: JSON.parse(row.subthread_permissions),
-    }));
-  }
+): ?RawMessageInfo {
+  const rows = rawRows.map(row => ({
+    ...row,
+    subthread_permissions: JSON.parse(row.subthread_permissions),
+  }));
 
   const type = mostRecentRowType(rows);
   const messageSpec = messageSpecs[type];
 
   if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
-    const media = await Promise.all(
-      rows.filter(row => row.uploadID).map(mediaFromRow),
-    );
+    const media = rows.filter(row => row.uploadID).map(mediaFromRow);
     const [row] = rows;
     const localID = localIDFromCreationString(viewer, row.creation);
     invariant(
@@ -618,7 +609,7 @@ async function fetchMessageInfoForLocalID(
     return null;
   }
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  return await rawMessageInfoFromRows(result, viewer, derivedMessages);
+  return rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
 const entryIDExtractString = '$.entryID';
@@ -647,7 +638,7 @@ async function fetchMessageInfoForEntryAction(
     return null;
   }
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  return await rawMessageInfoFromRows(result, viewer, derivedMessages);
+  return rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
 async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
@@ -713,7 +704,7 @@ async function fetchMessageInfoByID(
     return null;
   }
   const derivedMessages = await fetchDerivedMessages(result, viewer);
-  return await rawMessageInfoFromRows(result, viewer, derivedMessages);
+  return rawMessageInfoFromRows(result, viewer, derivedMessages);
 }
 
 export {
