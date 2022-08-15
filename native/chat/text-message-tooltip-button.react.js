@@ -6,6 +6,7 @@ import Animated from 'react-native-reanimated';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
+import { TooltipInlineSidebar } from './inline-sidebar.react';
 import { InnerTextMessage } from './inner-text-message.react';
 import { MessageHeader } from './message-header.react';
 import { MessageListContextProvider } from './message-list-types';
@@ -20,6 +21,7 @@ type Props = {
   +navigation: AppNavigationProp<'TextMessageTooltipModal'>,
   +route: TooltipRoute<'TextMessageTooltipModal'>,
   +progress: Node,
+  +isOpeningSidebar: boolean,
 };
 function TextMessageTooltipButton(props: Props): React.Node {
   const { progress } = props;
@@ -63,7 +65,23 @@ function TextMessageTooltipButton(props: Props): React.Node {
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
   const threadID = item.threadInfo.id;
-  const { navigation } = props;
+  const { navigation, isOpeningSidebar } = props;
+
+  const inlineSidebar = React.useMemo(() => {
+    if (!item.threadCreatedFromMessage) {
+      return null;
+    }
+    return (
+      <TooltipInlineSidebar
+        item={item}
+        positioning={item.messageInfo.creator.isViewer ? 'right' : 'left'}
+        isOpeningSidebar={isOpeningSidebar}
+        progress={progress}
+        windowWidth={windowWidth}
+        initialCoordinates={initialCoordinates}
+      />
+    );
+  }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
   return (
     <MessageListContextProvider threadID={threadID}>
       <SidebarInputBarHeightMeasurer
@@ -80,6 +98,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
           threadColorOverride={threadColorOverride}
           isThreadColorDarkOverride={isThreadColorDarkOverride}
         />
+        {inlineSidebar}
       </Animated.View>
     </MessageListContextProvider>
   );
