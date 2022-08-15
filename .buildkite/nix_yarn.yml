@@ -1,0 +1,5 @@
+steps:
+  - label: 'nix develop'
+    command: 'nix develop -c yarn cleaninstall'
+    agents:
+      - 'nixdarwin=true'
