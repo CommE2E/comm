@@ -26,7 +26,6 @@ import {
   appendSQLArray,
   mergeOrConditions,
 } from '../database/database';
-import { getDBType } from '../database/db-config';
 import { fetchMessageInfoForLocalID } from '../fetchers/message-fetchers';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
@@ -301,15 +300,14 @@ async function postMessageSend(
   `);
 
   const perUserInfo = new Map<string, UserThreadInfo>();
-  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
+  const [result] = await dbQuery(query);
   for (const row of result) {
     const userID = row.user.toString();
     const threadID = row.thread.toString();
     const deviceToken = row.device_token;
     const focusedUser = !!row.focused_user;
     const { platform } = row;
-    const versions =
-      dbType === 'mysql5.7' ? row.versions : JSON.parse(row.versions);
+    const versions = JSON.parse(row.versions);
     let thisUserInfo = perUserInfo.get(userID);
     if (!thisUserInfo) {
       thisUserInfo = {
@@ -326,10 +324,7 @@ async function postMessageSend(
         const isSubthreadMember = row[`subthread${subthread}_role`] > 0;
         const rawSubthreadPermissions =
           row[`subthread${subthread}_permissions`];
-        const subthreadPermissions =
-          dbType === 'mysql5.7'
-            ? rawSubthreadPermissions
-            : JSON.parse(rawSubthreadPermissions);
+        const subthreadPermissions = JSON.parse(rawSubthreadPermissions);
         const canSeeSubthread = permissionLookup(
           subthreadPermissions,
           threadPermissions.KNOW_OF,

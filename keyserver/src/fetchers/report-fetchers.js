@@ -11,7 +11,6 @@ import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 
 import { dbQuery, SQL } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { Viewer } from '../session/viewer';
 
 async function fetchErrorReportInfos(
@@ -31,13 +30,13 @@ async function fetchErrorReportInfos(
     query.append(SQL`WHERE r.id < ${request.cursor} `);
   }
   query.append(SQL`ORDER BY r.id DESC`);
-  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
+  const [result] = await dbQuery(query);
 
   const reports = [];
   const userInfos = {};
   for (const row of result) {
     const viewerID = row.user.toString();
-    const report = dbType === 'mysql5.7' ? row.report : JSON.parse(row.report);
+    const report = JSON.parse(row.report);
     let { platformDetails } = report;
     if (!platformDetails) {
       platformDetails = {
@@ -76,13 +75,13 @@ async function fetchReduxToolsImport(
     FROM reports
     WHERE id = ${id} AND type = ${reportTypes.ERROR}
   `;
-  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
+  const [result] = await dbQuery(query);
   if (result.length === 0) {
     throw new ServerError('invalid_parameters');
   }
   const row = result[0];
 
-  const report = dbType === 'mysql5.7' ? row.report : JSON.parse(row.report);
+  const report = JSON.parse(row.report);
   const _persist = report.preloadedState._persist
     ? report.preloadedState._persist
     : {};

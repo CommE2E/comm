@@ -31,7 +31,6 @@ import createMessages from '../creators/message-creator';
 import { getRolePermissionBlobs } from '../creators/role-creator';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
-import { getDBType } from '../database/db-config';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import {
@@ -532,15 +531,9 @@ async function updateThread(
           LEFT JOIN roles r ON r.id = t.default_role
           WHERE t.id = ${request.threadID}
         `;
-        const [[result], dbType] = await Promise.all([
-          dbQuery(rolePermissionsQuery),
-          getDBType(),
-        ]);
+        const [result] = await dbQuery(rolePermissionsQuery);
         if (result.length > 0) {
-          rolePermissions =
-            dbType === 'mysql5.7'
-              ? result[0].permissions
-              : JSON.parse(result[0].permissions);
+          rolePermissions = JSON.parse(result[0].permissions);
         }
       }
       if (!rolePermissions) {

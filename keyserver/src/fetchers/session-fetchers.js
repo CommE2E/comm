@@ -3,7 +3,6 @@
 import type { CalendarQuery } from 'lib/types/entry-types';
 
 import { dbQuery, SQL } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { Viewer } from '../session/viewer';
 
 type CalendarSessionResult = {
@@ -21,13 +20,13 @@ async function fetchActiveSessionsForThread(
     WHERE m.thread = ${threadID} AND m.role > 0
       AND s.query IS NOT NULL
   `;
-  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
+  const [result] = await dbQuery(query);
   const filters = [];
   for (const row of result) {
     filters.push({
       userID: row.user.toString(),
       session: row.id.toString(),
-      calendarQuery: dbType === 'mysql5.7' ? row.query : JSON.parse(row.query),
+      calendarQuery: JSON.parse(row.query),
     });
   }
   return filters;
