@@ -34,7 +34,6 @@ import { promiseAll } from 'lib/utils/promises';
 import createIDs from '../creators/id-creator';
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { CollapsableNotifInfo } from '../fetchers/message-fetchers';
 import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
@@ -770,26 +769,17 @@ async function updateBadgeCount(
       SQL`AND device_token NOT IN (${excludeDeviceTokens}) `,
     );
   }
-  const [
-    unreadCounts,
-    [deviceTokenResult],
-    [dbID],
-    dbType,
-  ] = await Promise.all([
+  const [unreadCounts, [deviceTokenResult], [dbID]] = await Promise.all([
     getUnreadCounts([userID]),
     dbQuery(deviceTokenQuery),
     createIDs('notifications', 1),
-    getDBType(),
   ]);
   const unreadCount = unreadCounts[userID];
 
   const devices = deviceTokenResult.map(row => ({
     deviceType: row.platform,
     deviceToken: row.device_token,
-    codeVersion:
-      dbType === 'mysql5.7'
-        ? row.versions?.codeVersion
-        : JSON.parse(row.versions)?.codeVersion,
+    codeVersion: JSON.parse(row.versions)?.codeVersion,
   }));
   const byDeviceType = getDevicesByDeviceType(devices);
 

@@ -19,7 +19,6 @@ import type {
 } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { Viewer } from '../session/viewer';
 import { fetchThreadInfos } from './thread-fetchers';
 import { fetchKnownUserInfos } from './user-fetchers';
@@ -39,13 +38,13 @@ async function fetchThreadPermissionsBlob(
     FROM memberships
     WHERE thread = ${threadID} AND user = ${viewerID}
   `;
-  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
+  const [result] = await dbQuery(query);
 
   if (result.length === 0) {
     return null;
   }
   const row = result[0];
-  return dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions);
+  return JSON.parse(row.permissions);
 }
 
 function checkThreadPermission(
@@ -120,9 +119,8 @@ async function getValidThreads(
     }
   }
 
-  const [[result], dbType, disabledThreadIDs] = await Promise.all([
+  const [[result], disabledThreadIDs] = await Promise.all([
     dbQuery(query),
-    getDBType(),
     checkThreadsFrozen(viewer, permissionsToCheck, threadIDs),
   ]);
 
@@ -130,8 +128,7 @@ async function getValidThreads(
     .map(row => ({
       ...row,
       threadID: row.threadID.toString(),
-      permissions:
-        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions),
+      permissions: JSON.parse(row.permissions),
     }))
     .filter(
       row =>
@@ -243,13 +240,9 @@ async function validateCandidateMembers(
       FROM memberships
       WHERE thread = ${params.parentThreadID} AND user IN (${allCandidates})
     `;
-    const [[result], dbType] = await Promise.all([
-      dbQuery(parentPermissionsQuery),
-      getDBType(),
-    ]);
+    const [result] = await dbQuery(parentPermissionsQuery);
     for (const row of result) {
-      parentPermissions[row.user.toString()] =
-        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions);
+      parentPermissions[row.user.toString()] = JSON.parse(row.permissions);
     }
     return parentPermissions;
   })();

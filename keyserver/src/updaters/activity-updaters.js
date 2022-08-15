@@ -18,7 +18,6 @@ import { ServerError } from 'lib/utils/errors';
 
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { SQLStatementType } from '../database/types';
 import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
 import {
@@ -272,17 +271,8 @@ async function updateFocusedRows(
     const query = SQL`
       INSERT INTO focused (user, session, thread, time)
       VALUES ${focusedInsertRows}
-    `;
-    const dbType = await getDBType();
-    if (dbType === 'mysql5.7') {
-      query.append(SQL`
-      ON DUPLICATE KEY UPDATE time = VALUES(time)
-      `);
-    } else {
-      query.append(SQL`
       ON DUPLICATE KEY UPDATE time = VALUE(time)
-      `);
-    }
+    `;
     await dbQuery(query);
   }
 

@@ -9,7 +9,6 @@ import { promiseAll } from 'lib/utils/promises';
 
 import createIDs from '../creators/id-creator';
 import { dbQuery, SQL } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { SQLStatementType } from '../database/types';
 import { getAPNsNotificationTopic } from './providers';
 import { apnPush, fcmPush } from './utils';
@@ -37,18 +36,14 @@ async function rescindPushNotifs(
   `);
   fetchQuery.append(notifCondition);
   fetchQuery.append(SQL` GROUP BY n.id, m.user`);
-  const [[fetchResult], dbType] = await Promise.all([
-    dbQuery(fetchQuery),
-    getDBType(),
-  ]);
+  const [fetchResult] = await dbQuery(fetchQuery);
 
   const deliveryPromises = {};
   const notifInfo = {};
   const rescindedIDs = [];
   const receivingDeviceTokens = [];
   for (const row of fetchResult) {
-    const rawDelivery =
-      dbType === 'mysql5.7' ? row.delivery : JSON.parse(row.delivery);
+    const rawDelivery = JSON.parse(row.delivery);
     const deliveries = Array.isArray(rawDelivery) ? rawDelivery : [rawDelivery];
     const id = row.id.toString();
     const threadID = row.thread.toString();

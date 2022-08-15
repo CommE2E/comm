@@ -29,7 +29,6 @@ import {
   mergeAndConditions,
   mergeOrConditions,
 } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { SQLStatementType } from '../database/types';
 import type { Viewer } from '../session/viewer';
 import { creationString } from '../utils/idempotent';
@@ -155,7 +154,7 @@ async function checkThreadPermissionForEntry(
     LEFT JOIN memberships m ON m.thread = t.id AND m.user = ${viewerID}
     WHERE e.id = ${entryID}
   `;
-  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
+  const [result] = await dbQuery(query);
 
   if (result.length === 0) {
     return false;
@@ -173,8 +172,7 @@ async function checkThreadPermissionForEntry(
     return false;
   }
 
-  const permissions =
-    dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions);
+  const permissions = JSON.parse(row.permissions);
   return permissionLookup(permissions, permission);
 }
 

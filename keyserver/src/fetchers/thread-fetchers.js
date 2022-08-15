@@ -16,7 +16,6 @@ import {
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { SQLStatementType } from '../database/types';
 import type { Viewer } from '../session/viewer';
 
@@ -48,7 +47,7 @@ async function fetchServerThreadInfos(
   `
     .append(whereClause)
     .append(SQL` ORDER BY m.user ASC`);
-  const [[result], dbType] = await Promise.all([dbQuery(query), getDBType()]);
+  const [result] = await dbQuery(query);
 
   const threadInfos = {};
   for (const row of result) {
@@ -83,27 +82,21 @@ async function fetchServerThreadInfos(
       threadInfos[threadID].roles[role] = {
         id: role,
         name: row.role_name,
-        permissions:
-          dbType === 'mysql5.7'
-            ? row.role_permissions
-            : JSON.parse(row.role_permissions),
+        permissions: JSON.parse(row.role_permissions),
         isDefault: role === row.default_role.toString(),
       };
     }
     if (row.user) {
       const userID = row.user.toString();
       const allPermissions = getAllThreadPermissions(
-        dbType === 'mysql5.7' ? row.permissions : JSON.parse(row.permissions),
+        JSON.parse(row.permissions),
         threadID,
       );
       threadInfos[threadID].members.push({
         id: userID,
         permissions: allPermissions,
         role: row.role ? role : null,
-        subscription:
-          dbType === 'mysql5.7'
-            ? row.subscription
-            : JSON.parse(row.subscription),
+        subscription: JSON.parse(row.subscription),
         unread: row.role ? !!row.unread : null,
         isSender: !!row.sender,
       });

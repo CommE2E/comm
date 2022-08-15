@@ -14,7 +14,6 @@ import { ServerError } from 'lib/utils/errors';
 
 import { createUpdates } from '../creators/update-creator';
 import { dbQuery, SQL } from '../database/database';
-import { getDBType } from '../database/db-config';
 import type { Viewer } from '../session/viewer';
 
 async function accountUpdater(
@@ -98,18 +97,8 @@ async function updateUserSettings(
   const createOrUpdateSettingsQuery = SQL`
     INSERT INTO settings (user, name, data)
     VALUES ${[[viewer.id, request.name, request.data]]}
-  `;
-  const dbType = await getDBType();
-  if (dbType === 'mysql5.7') {
-    createOrUpdateSettingsQuery.append(SQL`
-    ON DUPLICATE KEY UPDATE data = VALUES(data)
-    `);
-  } else {
-    createOrUpdateSettingsQuery.append(SQL`
     ON DUPLICATE KEY UPDATE data = VALUE(data)
-    `);
-  }
-
+  `;
   await dbQuery(createOrUpdateSettingsQuery);
 }
 
