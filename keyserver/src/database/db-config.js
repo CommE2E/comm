@@ -13,6 +13,17 @@ export type DBConfig = {
   +dbType: DBType,
 };
 
+function assertValidDBType(dbType: ?string): DBType {
+  if (!dbType) {
+    return 'mysql5.7';
+  }
+  invariant(
+    dbType === 'mysql5.7' || dbType === 'mariadb10.8',
+    `${dbType} is not a valid dbType`,
+  );
+  return dbType;
+}
+
 let dbConfig;
 async function getDBConfig(): Promise<DBConfig> {
   if (dbConfig !== undefined) {
@@ -28,10 +39,7 @@ async function getDBConfig(): Promise<DBConfig> {
       user: process.env.COMM_DATABASE_USER,
       password: process.env.COMM_DATABASE_PASSWORD,
       database: process.env.COMM_DATABASE_DATABASE,
-      dbType:
-        process.env.COMM_DATABASE_TYPE === 'mariadb10.8'
-          ? 'mariadb10.8'
-          : 'mysql5.7',
+      dbType: assertValidDBType(process.env.COMM_DATABASE_TYPE),
     };
   } else {
     const importedDBConfig = await importJSON({
@@ -41,8 +49,7 @@ async function getDBConfig(): Promise<DBConfig> {
     invariant(importedDBConfig, 'DB config missing');
     dbConfig = {
       ...importedDBConfig,
-      dbType:
-        importedDBConfig.dbType === 'mariadb10.8' ? 'mariadb10.8' : 'mysql5.7',
+      dbType: assertValidDBType(importedDBConfig.dbType),
     };
   }
   return dbConfig;
