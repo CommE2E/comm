@@ -42,7 +42,7 @@
 		7F8D602826535F240053CB29 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */; };
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
-		B723460726979250009A0709 /* swmansion.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B723460626979250009A0709 /* swmansion.ttf */; };
+		B723460726979250009A0709 /* SWMansion.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B723460626979250009A0709 /* SWMansion.ttf */; };
 		B7BEE749279B3FB6009CCA35 /* GRPCStreamHostObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */; };
 		CB1648AD27CFBBBB00394D9D /* ClientGetReadReactor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */; };
 		CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */; };
@@ -182,7 +182,7 @@
 		B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageStoreOperations.h; sourceTree = "<group>"; };
 		B70FBC1226B047050040F480 /* Message.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Medium.ttf"; path = "Resources/IBMPlexSans-Medium.ttf"; sourceTree = "<group>"; };
-		B723460626979250009A0709 /* swmansion.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = swmansion.ttf; path = Resources/swmansion.ttf; sourceTree = "<group>"; };
+		B723460626979250009A0709 /* SWMansion.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SWMansion.ttf; path = Resources/SWMansion.ttf; sourceTree = "<group>"; };
 		B72879B827A865EF008A04CC /* ClientGetReadReactor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ClientGetReadReactor.h; sourceTree = "<group>"; };
 		B7906F692720905A009BBBF5 /* ThreadStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreadStoreOperations.h; sourceTree = "<group>"; };
 		B7906F6A27209091009BBBF5 /* OlmPersistAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OlmPersistAccount.h; sourceTree = "<group>"; };
@@ -282,7 +282,7 @@
 		6534411766BE4CA4B0AB0A78 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B723460626979250009A0709 /* swmansion.ttf */,
+				B723460626979250009A0709 /* SWMansion.ttf */,
 				7F8D601F26535E060053CB29 /* Anaheim-Regular.ttf */,
 				7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */,
 				B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */,
@@ -749,7 +749,7 @@
 				7F8D602126535E060053CB29 /* OpenSans-Semibold.ttf in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */,
-				B723460726979250009A0709 /* swmansion.ttf in Resources */,
+				B723460726979250009A0709 /* SWMansion.ttf in Resources */,
 				7F8D602226535E060053CB29 /* Anaheim-Regular.ttf in Resources */,
 				B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */,
 				7F8D602326535E060053CB29 /* OpenSans-Regular.ttf in Resources */,

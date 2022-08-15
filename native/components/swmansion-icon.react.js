@@ -7,7 +7,7 @@ import icoMoonConfig from 'lib/shared/swmansion-icon-config.json';
 const SWMansionIcon: Class<Icon<string>> = createIconSetFromIcoMoon(
   icoMoonConfig,
   'swmansion',
-  'swmansion.ttf',
+  'SWMansion.ttf',
 );
 
 export default SWMansionIcon;
