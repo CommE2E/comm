@@ -19,6 +19,7 @@ import Animated, {
 import type { IconProps } from 'react-native-vector-icons';
 import tinycolor from 'tinycolor2';
 
+import CommIcon from '../components/comm-icon.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { colors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
@@ -285,7 +286,7 @@ function SwipeableMessage(props: Props): React.Node {
         translateXInterpolator={sidebarSnakeTranslateXInterpolator}
         key="sidebar"
       >
-        <SWMansionIcon name="sidebar-filled" size={20} />
+        <CommIcon name="sidebar-filled" size={16} />
       </SwipeSnake>,
     );
   } else if (triggerSidebar) {
@@ -300,7 +301,7 @@ function SwipeableMessage(props: Props): React.Node {
         opacityInterpolator={sidebarSnakeOpacityInterpolator}
         key="sidebar"
       >
-        <SWMansionIcon name="sidebar-filled" size={20} />
+        <CommIcon name="sidebar-filled" size={16} />
       </SwipeSnake>,
     );
   }
