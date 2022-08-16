@@ -16,6 +16,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   libcurl4-openssl-dev \
   libssl-dev \
   zlib1g-dev \
+	curl \
   && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /transferred/scripts

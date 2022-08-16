@@ -1,4 +1,4 @@
-FROM commapp/services-base:1.3.1
+FROM commapp/services-base:1.3.2
 
 ARG MAKE_JOBS=4
 ENV MAKEFLAGS="-j${MAKE_JOBS}"
