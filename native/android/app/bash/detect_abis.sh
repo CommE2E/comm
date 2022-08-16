@@ -8,13 +8,16 @@ ABIS=()
 for ID in ${IDS}
 do
   ABI=$(adb -s "$ID" shell getprop ro.product.cpu.abi)
-  # check if we already have this ABI
-  # shellcheck disable=SC2076
-  if [[ " ${ABIS[*]} " =~ " ${ABI} " ]]; then
-    continue
+  # Check if this ABI is already in ABIS
+  found=false
+  for e in "${ABIS[@]}"; do
+    if [[ "${e}" == "${ABI}" ]]; then
+      found=true
+      break
+    fi
+  done
+  if [[ "$found" = "false" ]]; then
+    ABIS+=("${ABI}")
   fi
-  # shellcheck disable=SC2179
-	ABIS+="${ABI} "
 done
-# shellcheck disable=SC2128
-echo "$ABIS"
+echo "${ABIS[@]}"
