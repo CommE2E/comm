@@ -1,27 +1,32 @@
 #!/usr/bin/env bash
 
-# Check if shell is using a default BSD or GNU prompt
-if [[ ${PS1} != '\s-\v\$'* ]] && \
-    [[ ${PS1} != '%n@%m %1~ %#'* ]]; then
-  # User already has an opinionated PS1, just leave
-  return 0
-fi
-
 if test "$(uname)" = "Darwin" ; then
   COMM_CACHE="${XDG_CACHE_HOME:-$HOME/Library/Caches}/app.comm"
 else
   COMM_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/comm"
 fi
 
-COMM_EMITTED_WARNING="$COMM_CACHE/powerline_warning"
+mkdir -p "$COMM_CACHE"
+COMM_POWERLINE="$COMM_CACHE/enable-powerline"
+
 # Only emit this the first time, as it's suprising to the user for the prompt
 # to be replaced, but avoid emitting the warning on subsequent invocations
-if [[ ! -f "$COMM_EMITTED_WARNING" ]]; then
-  echo "Default prompt found, attempting to enable powerline" >&2
+if [[ ! -e "${COMM_POWERLINE}" ]]; then
+  read -r \
+    -p "Would you like to enable Powerline as the default bash prompt? [y/N] " \
+    response
+  case "$response" in
+    [yY][eE][sS]|[yY])
+      echo "1" > "${COMM_POWERLINE}"
+      ;;
+    *)
+      touch "${COMM_POWERLINE}"
+      ;;
+  esac
+fi
 
-  # Create file to ensure it exists for next time this is run
-  mkdir -p "$COMM_CACHE"
-  touch "$COMM_EMITTED_WARNING"
+if [[ -z "$(cat "${COMM_POWERLINE}")" ]]; then
+  return 0
 fi
 
 # Check if the powerline fonts are installed
@@ -42,7 +47,7 @@ if [[ ! -f "$font_dir/Droid Sans Mono for Powerline.otf" ]]; then
     return 1
   fi
 
-  echo "Installing powerline fonts" >&2
+  echo "Installing Powerline fonts" >&2
   find "$powerline_fonts" \
     \( -name "*.[ot]tf" -or -name "*.pcf.gz" \) -type f -print0 \
     | xargs -0 -n1 -I % cp "%" "$font_dir/"
