@@ -7,6 +7,7 @@ import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { memberHasAdminPowers, colorIsDark } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import CommIcon from '../CommIcon.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-ancestors.css';
@@ -51,7 +52,7 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
     () => (
       <div className={css.ancestorKeyserver}>
         <div className={css.ancestorKeyserverOperator}>
-          <SWMansionIcon icon="cloud" size={12} />
+          <CommIcon icon="cloud-filled" size={12} />
           <span>{keyserverOwnerUsername}</span>
         </div>
         <div
