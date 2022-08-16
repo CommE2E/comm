@@ -19,6 +19,7 @@ import Animated, {
 import type { IconProps } from 'react-native-vector-icons';
 import tinycolor from 'tinycolor2';
 
+import CommIcon from '../components/comm-icon.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { colors } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
@@ -266,7 +267,7 @@ function SwipeableMessage(props: Props): React.Node {
         opacityInterpolator={replySnakeOpacityInterpolator}
         key="reply"
       >
-        <SWMansionIcon name="reply-filled" size={20} />
+        <CommIcon name="reply-filled" size={14} />
       </SwipeSnake>,
     );
   }
