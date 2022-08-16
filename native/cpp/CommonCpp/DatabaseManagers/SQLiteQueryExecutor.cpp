@@ -323,6 +323,20 @@ void attempt_rename_file(
   }
 }
 
+bool is_database_queryable(sqlite3 *db, bool use_encryption_key) {
+  char *err_msg;
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+  // According to SQLCipher documentation running some SELECT is the only way to
+  // check for key validity
+  if (use_encryption_key) {
+    set_encryption_key(db);
+  }
+  sqlite3_exec(
+      db, "SELECT COUNT(*) FROM sqlite_master;", nullptr, nullptr, &err_msg);
+  sqlite3_close(db);
+  return !err_msg;
+}
+
 void validate_encryption() {
   std::string temp_encrypted_db_path =
       SQLiteQueryExecutor::sqliteFilePath + "_temp_encrypted";
@@ -355,28 +369,25 @@ void validate_encryption() {
   }
 
   sqlite3 *db;
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
-  on_database_open(db);
-
-  char *key_validation_error;
-  // According to SQLCipher documentation running some SELECT is the only way to
-  // check for key validity
-  sqlite3_exec(
-      db,
-      "SELECT COUNT(*) FROM sqlite_master;",
-      nullptr,
-      nullptr,
-      &key_validation_error);
-  sqlite3_close(db);
-
-  if (!key_validation_error) {
+  if (is_database_queryable(db, true)) {
     Logger::log(
         "Database exists under default path and it is correctly encrypted.");
     return;
   }
 
-  Logger::log(
-      "Validation of encryption key failed. Attempting encryption process.");
+  if (!is_database_queryable(db, false)) {
+    Logger::log(
+        "Database exists but it is encrypted with key that was lost. "
+        "Attempting database deletion. New encrypted one will be created.");
+    attempt_delete_file(
+        SQLiteQueryExecutor::sqliteFilePath.c_str(),
+        "Failed to delete database encrypted with lost key.");
+    return;
+  } else {
+    Logger::log(
+        "Database exists but it is not encrypted. Attempting encryption "
+        "process.");
+  }
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
 
   std::string createEncryptedCopySQL = "ATTACH DATABASE '" +
