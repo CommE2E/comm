@@ -329,7 +329,18 @@ void validate_encryption() {
 
   sqlite3 *db;
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+  char *unencrypted_assertion_error;
+  // If database is encrypted with encryption key that was
+  // lost this SQL statement will fail. Otherwise it will succeed
+  sqlite3_exec(
+      db,
+      "SELECT COUNT(*) FROM sqlite_master;",
+      nullptr,
+      nullptr,
+      &unencrypted_assertion_error);
+  sqlite3_close(db);
 
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
   set_encryption_key(db);
   char *key_validation_error;
   // According to SQLCipher documentation running some SELECT is the only way to
@@ -348,8 +359,18 @@ void validate_encryption() {
     return;
   }
 
+  if (unencrypted_assertion_error) {
+    Logger::log(
+        "Database exists but it is encrypted with key that was lost. "
+        "Attempting database deletion.");
+    attempt_delete_file(
+        SQLiteQueryExecutor::sqliteFilePath.c_str(),
+        "Failed to delete database encrypted with lost key.");
+  }
+
   Logger::log(
-      "Validation of encryption key failed. Attempting encryption process.");
+      "Database exists but it is not encrypted. Attempting encryption "
+      "process.");
   sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
 
   std::string createEncryptedCopySQL = "ATTACH DATABASE '" +
