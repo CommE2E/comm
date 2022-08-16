@@ -2,9 +2,12 @@
 
 import * as React from 'react';
 
-import { logOut } from 'lib/actions/user-actions';
+import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import { useServerCall } from 'lib/utils/action-utils';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 
 import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
@@ -17,9 +20,15 @@ import FriendListModal from './relationship/friend-list-modal.react';
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useServerCall(logOut);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
-  const logOutUser = React.useCallback(() => {
-    sendLogoutRequest(preRequestUserState);
-  }, [sendLogoutRequest, preRequestUserState]);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const logOutUser = React.useCallback(
+    () =>
+      dispatchActionPromise(
+        logOutActionTypes,
+        sendLogoutRequest(preRequestUserState),
+      ),
+    [dispatchActionPromise, preRequestUserState, sendLogoutRequest],
+  );
 
   const { pushModal, popModal } = useModalContext();
   const showPasswordChangeModal = React.useCallback(
