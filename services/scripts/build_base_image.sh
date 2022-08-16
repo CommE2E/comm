@@ -8,7 +8,7 @@ if [[ "$#" -gt 1 ]]; then
 fi
 
 
-tag=${1:-"1.2"}
+tag=${1:-"1.3.1"}
 
 BUILDER_NAME="COMM_BUILDER"
 
