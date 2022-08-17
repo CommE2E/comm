@@ -16,7 +16,7 @@ do
       break
     fi
   done
-  if [[ "$found" = "false" ]]; then
+  if [[ "$found" == "false" ]]; then
     ABIS+=("${ABI}")
   fi
 done
