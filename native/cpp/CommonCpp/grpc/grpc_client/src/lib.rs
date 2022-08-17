@@ -169,13 +169,9 @@ fn pake_login_start(
 
 fn pake_login_finish(
   credential_response_bytes: &[u8],
-  client_login: Option<ClientLogin<Cipher>>,
+  client_login: ClientLogin<Cipher>,
 ) -> Result<CredentialFinalization<Cipher>, Status> {
   client_login
-    .ok_or_else(|| {
-      error!("PAKE client_login not found");
-      Status::aborted("Login not found")
-    })?
     .finish(
       CredentialResponse::deserialize(credential_response_bytes).map_err(
         |e| {
@@ -237,6 +233,38 @@ async fn handle_registration_response(
       return Err(Status::aborted("Dropped response"));
     }
     Ok(client_login_start_result.state)
+  } else {
+    Err(handle_unexpected_registration_response(message))
+  }
+}
+
+async fn handle_credential_response(
+  message: Option<RegistrationResponseMessage>,
+  client_login: ClientLogin<Cipher>,
+  tx: mpsc::Sender<RegistrationRequest>,
+) -> Result<(), Status> {
+  if let Some(RegistrationResponseMessage {
+    data:
+      Some(PakeLoginResponse(PakeLoginResponseStruct {
+        data: Some(PakeCredentialResponse(credential_response_bytes)),
+      })),
+  }) = message
+  {
+    let registration_request = RegistrationRequest {
+      data: Some(PakeCredentialFinalization(
+        pake_login_finish(&credential_response_bytes, client_login)?
+          .serialize()
+          .map_err(|e| {
+            error!("Could not serialize credential request: {}", e);
+            Status::failed_precondition("PAKE failure")
+          })?,
+      )),
+    };
+    if let Err(e) = tx.send(registration_request).await {
+      error!("Response was dropped: {}", e);
+      return Err(Status::aborted("Dropped response"));
+    }
+    Ok(())
   } else {
     Err(handle_unexpected_registration_response(message))
   }
