@@ -25,6 +25,10 @@ find_package(Boost 1.40
   REQUIRED
 )
 
+# Rust integration
+include(cmake-components/corrosion_cxx.cmake)
+find_package(Corrosion REQUIRED)
+
 if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "^\/transferred.*")
   # Inside the docker build contex
   set(_proto_path "grpc")
@@ -55,6 +59,8 @@ add_executable(
 
   ${SOURCE_CODE}
 )
+
+add_library_rust(PATH rust_lib NAMESPACE backup)
 
 target_include_directories(
   backup
@@ -87,6 +93,7 @@ set(
   comm-services-common
   comm-client-base-reactors
   comm-server-base-reactors
+  backup::rust_lib
 )
 
 target_link_libraries(
