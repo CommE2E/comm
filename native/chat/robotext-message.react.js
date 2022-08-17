@@ -15,6 +15,7 @@ import { useStyles } from '../themes/colors';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import { AnimatedView } from '../types/styles';
+import { inlineSidebarCenterStyle } from './chat-constants';
 import type { ChatNavigationProp } from './chat.react';
 import InlineSidebar from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
@@ -54,10 +55,7 @@ function RobotextMessage(props: Props): React.Node {
   if (item.threadCreatedFromMessage) {
     inlineSidebar = (
       <View style={styles.sidebar}>
-        <InlineSidebar
-          threadInfo={item.threadCreatedFromMessage}
-          positioning="center"
-        />
+        <InlineSidebar threadInfo={item.threadCreatedFromMessage} />
       </View>
     );
   }
@@ -191,8 +189,9 @@ function RobotextMessage(props: Props): React.Node {
 
 const unboundStyles = {
   sidebar: {
-    marginTop: -5,
-    marginBottom: 5,
+    marginTop: inlineSidebarCenterStyle.topOffset,
+    marginBottom: -inlineSidebarCenterStyle.topOffset,
+    alignSelf: 'center',
   },
 };
 
