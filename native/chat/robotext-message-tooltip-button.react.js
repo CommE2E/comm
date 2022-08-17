@@ -6,6 +6,7 @@ import Animated from 'react-native-reanimated';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
+import { TooltipInlineSidebar } from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react';
 import { Timestamp } from './timestamp.react';
@@ -19,6 +20,7 @@ type Props = {
   +navigation: AppNavigationProp<'RobotextMessageTooltipModal'>,
   +route: TooltipRoute<'RobotextMessageTooltipModal'>,
   +progress: Node,
+  +isOpeningSidebar: boolean,
 };
 function RobotextMessageTooltipButton(props: Props): React.Node {
   const { progress } = props;
@@ -57,7 +59,24 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     };
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
-  const { navigation } = props;
+  const { navigation, isOpeningSidebar } = props;
+
+  const inlineSidebar = React.useMemo(() => {
+    if (!item.threadCreatedFromMessage) {
+      return null;
+    }
+    return (
+      <TooltipInlineSidebar
+        item={item}
+        positioning="center"
+        isOpeningSidebar={isOpeningSidebar}
+        progress={progress}
+        windowWidth={windowWidth}
+        initialCoordinates={initialCoordinates}
+      />
+    );
+  }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
+
   return (
     <Animated.View style={messageContainerStyle}>
       <SidebarInputBarHeightMeasurer
@@ -68,6 +87,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
         <Timestamp time={item.messageInfo.time} display="modal" />
       </Animated.View>
       <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
+      {inlineSidebar}
     </Animated.View>
   );
 }

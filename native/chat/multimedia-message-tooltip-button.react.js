@@ -6,6 +6,7 @@ import Animated from 'react-native-reanimated';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
+import { TooltipInlineSidebar } from './inline-sidebar.react';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react';
 import { MessageHeader } from './message-header.react';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react';
@@ -21,6 +22,7 @@ type Props = {
   +navigation: AppNavigationProp<'MultimediaMessageTooltipModal'>,
   +route: TooltipRoute<'MultimediaMessageTooltipModal'>,
   +progress: Node,
+  +isOpeningSidebar: boolean,
 };
 function MultimediaMessageTooltipButton(props: Props): React.Node {
   const windowWidth = useSelector(state => state.dimensions.width);
@@ -59,7 +61,24 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     };
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
-  const { navigation } = props;
+  const { navigation, isOpeningSidebar } = props;
+
+  const inlineSidebar = React.useMemo(() => {
+    if (!item.threadCreatedFromMessage) {
+      return null;
+    }
+    return (
+      <TooltipInlineSidebar
+        item={item}
+        positioning={item.messageInfo.creator.isViewer ? 'right' : 'left'}
+        isOpeningSidebar={isOpeningSidebar}
+        progress={progress}
+        windowWidth={windowWidth}
+        initialCoordinates={initialCoordinates}
+      />
+    );
+  }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
+
   return (
     <Animated.View style={messageContainerStyle}>
       <SidebarInputBarHeightMeasurer
@@ -77,6 +96,7 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
         onPress={navigation.goBackOnce}
         onLongPress={navigation.goBackOnce}
       />
+      {inlineSidebar}
     </Animated.View>
   );
 }
