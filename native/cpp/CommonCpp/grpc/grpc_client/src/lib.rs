@@ -272,3 +272,19 @@ async fn handle_credential_response(
     Err(handle_unexpected_registration_response(message))
   }
 }
+
+fn handle_token_response(
+  message: Option<RegistrationResponseMessage>,
+) -> Result<String, Status> {
+  if let Some(RegistrationResponseMessage {
+    data:
+      Some(PakeLoginResponse(PakeLoginResponseStruct {
+        data: Some(AccessToken(access_token)),
+      })),
+  }) = message
+  {
+    Ok(access_token)
+  } else {
+    Err(handle_unexpected_registration_response(message))
+  }
+}
