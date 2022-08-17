@@ -1,9 +1,9 @@
 use lazy_static::lazy_static;
 use opaque_ke::{
   ClientLogin, ClientLoginFinishParameters, ClientLoginStartParameters,
-  ClientRegistration, ClientRegistrationFinishParameters,
-  CredentialFinalization, CredentialRequest, CredentialResponse,
-  RegistrationResponse, RegistrationUpload,
+  ClientLoginStartResult, ClientRegistration,
+  ClientRegistrationFinishParameters, CredentialFinalization,
+  CredentialResponse, RegistrationResponse, RegistrationUpload,
 };
 use rand::{rngs::OsRng, CryptoRng, Rng};
 use std::sync::Arc;
@@ -132,13 +132,9 @@ fn pake_registration_start(
 fn pake_registration_finish(
   rng: &mut (impl Rng + CryptoRng),
   registration_response_bytes: &[u8],
-  client_registration: Option<ClientRegistration<Cipher>>,
+  client_registration: ClientRegistration<Cipher>,
 ) -> Result<RegistrationUpload<Cipher>, Status> {
   client_registration
-    .ok_or_else(|| {
-      error!("PAKE client_registration not found");
-      Status::aborted("Registration not found")
-    })?
     .finish(
       rng,
       RegistrationResponse::deserialize(registration_response_bytes).map_err(
@@ -159,8 +155,8 @@ fn pake_registration_finish(
 fn pake_login_start(
   rng: &mut (impl Rng + CryptoRng),
   password: &str,
-) -> Result<(CredentialRequest<Cipher>, Option<ClientLogin<Cipher>>), Status> {
-  let client_login_start_result = ClientLogin::<Cipher>::start(
+) -> Result<ClientLoginStartResult<Cipher>, Status> {
+  ClientLogin::<Cipher>::start(
     rng,
     password.as_bytes(),
     ClientLoginStartParameters::default(),
@@ -168,11 +164,7 @@ fn pake_login_start(
   .map_err(|e| {
     error!("Failed to start PAKE login: {}", e);
     Status::failed_precondition("PAKE failure")
-  })?;
-  Ok((
-    client_login_start_result.message,
-    Some(client_login_start_result.state),
-  ))
+  })
 }
 
 fn pake_login_finish(
@@ -205,4 +197,48 @@ fn handle_unexpected_registration_response(
 ) -> Status {
   error!("Received an unexpected message: {:?}", message);
   Status::invalid_argument("Invalid response data")
+}
+
+async fn handle_registration_response(
+  message: Option<RegistrationResponseMessage>,
+  client_rng: &mut (impl Rng + CryptoRng),
+  client_registration: ClientRegistration<Cipher>,
+  password: &str,
+  tx: mpsc::Sender<RegistrationRequest>,
+) -> Result<ClientLogin<Cipher>, Status> {
+  if let Some(RegistrationResponseMessage {
+    data: Some(PakeRegistrationResponse(registration_response_bytes)),
+    ..
+  }) = message
+  {
+    let pake_registration_upload = pake_registration_finish(
+      client_rng,
+      &registration_response_bytes,
+      client_registration,
+    )?
+    .serialize();
+    let client_registration_start_result =
+      pake_login_start(client_rng, password)?;
+    let registration_request = RegistrationRequest {
+      data: Some(PakeRegistrationUploadAndCredentialRequest(
+        PakeRegistrationUploadAndCredentialRequestStruct {
+          pake_registration_upload,
+          pake_credential_request: client_registration_start_result
+            .message
+            .serialize()
+            .map_err(|e| {
+              error!("Could not serialize credential request: {}", e);
+              Status::failed_precondition("PAKE failure")
+            })?,
+        },
+      )),
+    };
+    if let Err(e) = tx.send(registration_request).await {
+      error!("Response was dropped: {}", e);
+      return Err(Status::aborted("Dropped response"));
+    }
+    Ok(client_registration_start_result.state)
+  } else {
+    Err(handle_unexpected_registration_response(message))
+  }
 }
