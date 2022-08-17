@@ -21,11 +21,14 @@ type CommIconProps = {
   +className?: string,
   +disableFill?: boolean,
   +removeInlineStyle?: boolean,
-  +style?: $Shape<CSSStyleDeclaration>,
+};
+
+const iconStyle = {
+  stroke: 'none',
 };
 
 function CommIcon(props: CommIconProps): React.Node {
-  return <IcomoonReact {...props} iconSet={iconSet} />;
+  return <IcomoonReact {...props} style={iconStyle} iconSet={iconSet} />;
 }
 
 export default CommIcon;
