@@ -28,7 +28,8 @@ use crate::identity::{
   GetUserIdResponse, PakeLoginResponse as PakeLoginResponseStruct,
   PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
-  RegistrationRequest, VerifyUserTokenRequest, VerifyUserTokenResponse,
+  RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
+  VerifyUserTokenRequest, VerifyUserTokenResponse,
 };
 pub mod identity {
   tonic::include_proto!("identity");
@@ -197,4 +198,11 @@ fn pake_login_finish(
       Status::aborted("PAKE failure")
     })
     .map(|res| res.message)
+}
+
+fn handle_unexpected_registration_response(
+  message: Option<RegistrationResponseMessage>,
+) -> Status {
+  error!("Received an unexpected message: {:?}", message);
+  Status::invalid_argument("Invalid response data")
 }
