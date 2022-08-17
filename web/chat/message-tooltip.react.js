@@ -8,12 +8,12 @@ import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import CommIcon from '../CommIcon.react.js';
 import type { InputState } from '../input/input-state';
 import {
   useOnClickThread,
   useOnClickPendingSidebar,
 } from '../selectors/nav-selectors';
-import SWMansionIcon from '../SWMansionIcon.react';
 import MessageReplyButton from './message-reply-button.react';
 import css from './message-tooltip.css';
 import type {
@@ -182,7 +182,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
         onMouseLeave={hideTooltip}
         onClick={onSidebarButtonClick}
       >
-        <SWMansionIcon icon="message-circle-lines" size={18} />
+        <CommIcon icon="sidebar-filled" size={16} />
         {activeTooltip === 'sidebar' ? tooltipMenu : null}
       </div>
     );
