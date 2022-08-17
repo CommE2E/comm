@@ -16,7 +16,7 @@ For how Nix package management works, please refer to the official [how Nix work
 | web (Webpack)                 | ❌                 |
 | native iOS (React Native)     | ❌                 |
 | native Android (React Native) | ❌                 |
-| C++ services                  | ❌                 |
+| C++ services                  | ✅                 |
 | Rust services                 | ✅                 |
 
 # Requirements
