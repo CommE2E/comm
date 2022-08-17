@@ -21,14 +21,6 @@ elif [[ "$OSTYPE" == 'linux'* ]]; then
   ADMIN_GROUP="@wheel @sudo"
 fi
 
-# Ask user if they would like to use Powerline for bash prompt
-SCRIPT_DIR=$(cd "$(dirname "$0")" || true; pwd -P)
-# Build the nixified script which is aware of Powerline and dependencies
-nix build "$SCRIPT_DIR"/..#better-prompt
-# Source file to apply Powerline bootstrap logic
-# shellcheck source=/dev/null
-. "$(nix eval --raw "$SCRIPT_DIR"'/..#better-prompt.outPath')/bin/better-prompt"
-
 # Jobs = The number of different nix packages able to be built at the same time
 # Cores = How many cores an individual job may use. This value is
 #   assigned to $NIX_BUILD_CORES within a nix build environment.
@@ -56,3 +48,11 @@ add_if_missing_in_nix_conf \
   "experimental-features" "flakes nix-command"
 add_if_missing_in_nix_conf "cores" "${cores}"
 add_if_missing_in_nix_conf "max-jobs" "${jobs}"
+
+# Ask user if they would like to use Powerline for bash prompt
+SCRIPT_DIR=$(cd "$(dirname "$0")" || true; pwd -P)
+# Build the nixified script which is aware of Powerline and dependencies
+nix build "$SCRIPT_DIR"'/..#better-prompt'
+# Source file to apply Powerline bootstrap logic
+# shellcheck source=/dev/null
+. "$(nix eval --raw "$SCRIPT_DIR"'/..#better-prompt.outPath')/bin/better-prompt"
