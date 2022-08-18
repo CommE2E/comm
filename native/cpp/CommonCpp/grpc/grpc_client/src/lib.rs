@@ -373,3 +373,8 @@ struct LoginResponseAndSender {
   response: Option<LoginResponse>,
   sender: mpsc::Sender<LoginRequest>,
 }
+
+enum ResponseAndSender {
+  Registration(RegistrationResponseAndSender),
+  Login(LoginResponseAndSender),
+}
