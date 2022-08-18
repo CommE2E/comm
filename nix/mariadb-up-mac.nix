@@ -13,6 +13,10 @@ let
     text = ''
       MARIADB_DIR=''${XDG_DATA_HOME:-$HOME/.local/share}/MariaDB
       # 'exec' allows for us to replace bash process with MariaDB
+
+      echo "View MariaDB Logs: tail -f $MARIADB_DIR/logs" >&2
+      echo "Kill MariaDB server: pkill mariadbd" >&2
+
       exec ${mariadb}/bin/mariadbd \
         --socket "$MARIADB_DIR"/mysql.sock \
         --datadir "$MARIADB_DIR" \
@@ -66,8 +70,10 @@ in writeShellApplication {
       "${mariadb-entrypoint}/bin/mariadb-init" \
       "$MARIADB_PIDFILE"
 
-    echo "Waiting for MariaDB to come up"
-    while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do sleep 1; done
+    if [[ ! -S "$MYSQL_UNIX_PORT" ]]; then
+      echo "Waiting for MariaDB to come up"
+      while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do sleep 1; done
+    fi
 
     # Initialize comm user, database, and secrets file for MariaDB
     # Connecting through socket doesn't require a password
@@ -97,9 +103,6 @@ in writeShellApplication {
       chmod +w "$KEYSERVER_DB_CONFIG" # Nix files are read-only
       "${gnused}/bin/sed" -i -e "s|PASS|$PASS|g" "$KEYSERVER_DB_CONFIG"
     fi
-
-    echo "View MariaDB Logs: tail -f $MARIADB_DATA_HOME/logs" >&2
-    echo "Kill MariaDB server: pkill mariadbd" >&2
 
     # Explicitly exit this script so the parent shell can determine
     # when it's safe to return control of terminal to user

@@ -11,6 +11,10 @@ let
     text = ''
       REDIS_CACHE_DIR=''${XDG_CACHE_HOME:-$HOME/Library/Caches}/Redis
       mkdir -p "$REDIS_CACHE_DIR"
+
+      echo "View Redis Logs: tail -f $REDIS_CACHE_DIR/logs" >&2
+      echo "Kill Redis server: pkill redis" >&2
+
       # 'exec' allows for us to replace bash process with MariaDB
       exec ${redis}/bin/redis-server \
         &> "$REDIS_CACHE_DIR"/logs
@@ -33,9 +37,6 @@ in writeShellApplication {
       Redis \
       "${redis-entrypoint}/bin/redis-init" \
       "$REDIS_PIDFILE"
-
-    echo "View Redis Logs: tail -f $REDIS_CACHE_DIR/logs" >&2
-    echo "Kill Redis server: pkill redis" >&2
 
     # Explicitly exit this script so the parent shell can determine
     # when it's safe to return control of terminal to user
