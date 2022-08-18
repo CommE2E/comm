@@ -22,6 +22,7 @@
 , libiconv
 , libuv
 , mariadb
+, mariadb-up
 , nodejs-16_x
 , olm
 , openjdk8
@@ -113,6 +114,16 @@ mkShell {
       export MYSQL_UNIX_PORT="$MARIADB_DIR"/${socket}
       export ANDROID_SDK_ROOT=''${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}
     fi
+
+  ''
+  # Darwin condition can be removed once linux services are supported
+  + lib.optionalString stdenv.isDarwin ''
+    # Start development services
+    "${mariadb-up}"/bin/mariadb-up &
+    mariadb_pid=$!
+
+    wait "$mariadb_pid"
+  '' + ''
 
     # Provide decent bash prompt
     source "${better-prompt}/bin/better-prompt"
