@@ -65,6 +65,7 @@ type Props = {
   // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
 };
+
 class ChatInputBar extends React.PureComponent<Props> {
   textarea: ?HTMLTextAreaElement;
   multimediaInput: ?HTMLInputElement;
@@ -229,7 +230,7 @@ class ChatInputBar extends React.PureComponent<Props> {
           <SWMansionIcon
             icon="send-2"
             size={22}
-            style={{ color: `#${this.props.threadInfo.color}` }}
+            color={`#${this.props.threadInfo.color}`}
           />
         </a>
       );
@@ -252,7 +253,7 @@ class ChatInputBar extends React.PureComponent<Props> {
             <SWMansionIcon
               icon="image-1"
               size={22}
-              style={{ color: `#${this.props.threadInfo.color}` }}
+              color={`#${this.props.threadInfo.color}`}
               disableFill
             />
           </a>
