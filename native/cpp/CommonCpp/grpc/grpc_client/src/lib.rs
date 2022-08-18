@@ -25,7 +25,8 @@ use crate::identity::{
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse,
   registration_response::Data::PakeRegistrationResponse, GetUserIdRequest,
-  GetUserIdResponse, PakeLoginResponse as PakeLoginResponseStruct,
+  GetUserIdResponse, LoginRequest, LoginResponse,
+  PakeLoginResponse as PakeLoginResponseStruct,
   PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
   RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
@@ -361,4 +362,14 @@ fn handle_token_response(
   } else {
     Err(handle_unexpected_registration_response(message))
   }
+}
+
+struct RegistrationResponseAndSender {
+  response: Option<RegistrationResponseMessage>,
+  sender: mpsc::Sender<RegistrationRequest>,
+}
+
+struct LoginResponseAndSender {
+  response: Option<LoginResponse>,
+  sender: mpsc::Sender<LoginRequest>,
 }
