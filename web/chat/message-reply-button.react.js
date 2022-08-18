@@ -5,8 +5,8 @@ import * as React from 'react';
 
 import { createMessageReply } from 'lib/shared/message-utils';
 
+import CommIcon from '../CommIcon.react.js';
 import type { InputState } from '../input/input-state';
-import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-message-list.css';
 import type { OnMessagePositionWithContainerInfo } from './position-types';
 
@@ -28,7 +28,7 @@ function MessageReplyButton(props: Props): React.Node {
 
   return (
     <div className={css.messageActionLinkIcon} onClick={replyClicked}>
-      <SWMansionIcon icon="reply-arrow" size={18} />
+      <CommIcon icon="reply-filled" size={18} />
     </div>
   );
 }
