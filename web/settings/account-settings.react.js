@@ -74,7 +74,7 @@ function AccountSettings(): React.Node {
                 className={css.editPasswordLink}
                 onClick={showPasswordChangeModal}
               >
-                <SWMansionIcon icon="edit" size={22} />
+                <SWMansionIcon icon="edit-1" size={22} />
               </a>
             </span>
           </li>

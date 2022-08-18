@@ -128,7 +128,7 @@ function ThreadSettingsPrivacyTab(
   }, [setQueuedChanges, threadInfo.type]);
 
   const globeIcon = React.useMemo(
-    () => <SWMansionIcon icon="globe" size={24} />,
+    () => <SWMansionIcon icon="globe-1" size={24} />,
     [],
   );
 

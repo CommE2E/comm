@@ -45,7 +45,7 @@ function FriendListRow(props: UserRowProps): React.Node {
       );
     }
     if (userInfo.relationshipStatus === userRelationshipStatus.FRIEND) {
-      const editIcon = <SWMansionIcon icon="edit" size={22} />;
+      const editIcon = <SWMansionIcon icon="edit-1" size={22} />;
       return (
         <div className={css.edit_menu}>
           <Menu
