@@ -1,0 +1,1 @@
+pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
