@@ -84,5 +84,22 @@ pub extern "C" fn rust_process(data: *const c_char) -> () {
 
 #[no_mangle]
 pub extern "C" fn rust_terminate() -> () {
-  unimplemented!();
+  println!("[RUST] rust_terminating");
+  let rt = CLIENT.lock().expect("access client").rt.take().unwrap();
+  let handle = CLIENT.lock().expect("access client").handle.take().unwrap();
+
+  drop(CLIENT.lock().expect("access client").tx.take().unwrap());
+  rt.block_on(async {
+    handle.await.unwrap();
+  });
+
+  assert!(
+    CLIENT.lock().expect("access client").rt.is_none(),
+    "client handler released properly"
+  );
+  assert!(
+    CLIENT.lock().expect("access client").tx.is_none(),
+    "client transmitter released properly"
+  );
+  println!("[RUST] rust_terminated");
 }
