@@ -302,11 +302,14 @@ type SWMansionIconProps = {
   +className?: string,
   +disableFill?: boolean,
   +removeInlineStyle?: boolean,
-  +style?: $Shape<CSSStyleDeclaration>,
+};
+
+const iconStyle = {
+  stroke: 'none',
 };
 
 function SWMansionIcon(props: SWMansionIconProps): React.Node {
-  return <IcomoonReact {...props} iconSet={iconSet} />;
+  return <IcomoonReact {...props} style={iconStyle} iconSet={iconSet} />;
 }
 
 export default SWMansionIcon;
