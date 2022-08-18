@@ -227,7 +227,7 @@ class ChatInputBar extends React.PureComponent<Props> {
       sendButton = (
         <a onClick={this.onSend} className={css.sendButton}>
           <SWMansionIcon
-            icon="send"
+            icon="send-2"
             size={22}
             style={{ color: `#${this.props.threadInfo.color}` }}
           />
@@ -250,7 +250,7 @@ class ChatInputBar extends React.PureComponent<Props> {
               multiple
             />
             <SWMansionIcon
-              icon="image"
+              icon="image-1"
               size={22}
               style={{ color: `#${this.props.threadInfo.color}` }}
               disableFill

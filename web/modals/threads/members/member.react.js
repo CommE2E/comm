@@ -128,7 +128,7 @@ function ThreadMember(props: Props): React.Node {
   );
 
   const userSettingsIcon = React.useMemo(
-    () => <SWMansionIcon icon="edit" size={17} />,
+    () => <SWMansionIcon icon="edit-1" size={17} />,
     [],
   );
 

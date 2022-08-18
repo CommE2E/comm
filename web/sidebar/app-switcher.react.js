@@ -114,7 +114,7 @@ function AppSwitcher(): React.Node {
     () => (
       <NavigationPanel.Item tab="apps">
         <div className={css.navigationPanelTab} onClick={onClickApps}>
-          <SWMansionIcon icon="wrench" size={24} />
+          <SWMansionIcon icon="globe-1" size={24} />
           <p>Apps</p>
         </div>
       </NavigationPanel.Item>

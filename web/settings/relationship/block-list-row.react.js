@@ -13,7 +13,7 @@ import type { UserRowProps } from './user-list.react';
 function BlockListRow(props: UserRowProps): React.Node {
   const { userInfo, onMenuVisibilityChange } = props;
   const { unblockUser } = useRelationshipCallbacks(userInfo.id);
-  const editIcon = <SWMansionIcon icon="edit" size={22} />;
+  const editIcon = <SWMansionIcon icon="edit-1" size={22} />;
 
   return (
     <div className={css.container}>
