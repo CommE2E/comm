@@ -3,14 +3,14 @@
 import * as React from 'react';
 import IcomoonReact from 'react-icomoon';
 
-import iconSet from './icons/selection.json';
+import iconSet from 'lib/shared/swmansion-icon-config.json';
 /*
 
  To see all of the icons the application uses and what their names are:
 
  - Go to: https://icomoon.io/app/#/select
- - Click the import project button, upload the web/icons/AppIcons.json file
- 	 and click the load button.
+ - Click the import project button, upload the 
+   lib/shared/swmansion-icon-config.json file and click the load button.
  - All of the icons in the selected icons section are used in the app
  - To see the icon image mapped to the name go to
    https://icomoon.io/app/#/select/image after going through the steps above
