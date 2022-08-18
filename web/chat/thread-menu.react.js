@@ -56,7 +56,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       <MenuItem
         key="settings"
         text="Settings"
-        icon="wrench"
+        icon="settings"
         onClick={onClickSettings}
       />
     );
@@ -107,7 +107,7 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
       <MenuItem
         key="sidebars"
         text="Threads"
-        icon="arrow-right-small"
+        icon="arrow-right"
         onClick={onClickSidebars}
       />
     );

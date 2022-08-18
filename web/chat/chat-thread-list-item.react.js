@@ -116,7 +116,7 @@ function ChatThreadListItem(props: Props): React.Node {
     const isNotLast = idx !== ancestorThreads.length - 1;
     const chevron = isNotLast && (
       <span className={css.breadCrumb}>
-        <SWMansionIcon icon="chevron-right-small" size={16} />
+        <SWMansionIcon icon="chevron-right" size={10} />
       </span>
     );
 

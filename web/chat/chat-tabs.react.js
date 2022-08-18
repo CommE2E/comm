@@ -45,7 +45,7 @@ function ChatTabs(): React.Node {
     () => (
       <Tabs.Item
         id="Focus"
-        header={<ChatThreadTab title="Focus" icon="message-filled-round" />}
+        header={<ChatThreadTab title="Focus" icon="home-1" />}
       >
         {chatThreadList}
       </Tabs.Item>

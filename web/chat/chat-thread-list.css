@@ -80,6 +80,10 @@ span.breadCrumb {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+span.breadCrumb svg {
+  margin-left: 4px;
+  margin-right: 4px;
+}
 
 div.colorContainer {
   display: flex;
