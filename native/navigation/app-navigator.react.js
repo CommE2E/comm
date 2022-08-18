@@ -74,7 +74,7 @@ const profileTabOptions = {
   tabBarLabel: 'Profile',
   // eslint-disable-next-line react/display-name
   tabBarIcon: ({ color }) => (
-    <SWMansionIcon name="user-circle" style={[styles.icon, { color }]} />
+    <SWMansionIcon name="user-2" style={[styles.icon, { color }]} />
   ),
 };
 const appsTabOptions = {
