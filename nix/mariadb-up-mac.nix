@@ -60,40 +60,14 @@ in writeShellApplication {
         --auth-root-authentication-method=socket
     fi
 
-    # Check if MariaDB server was already started
-    set +e # allow for pgrep to not find matches
-    # BSD pgrep doesn't have a "count" feature, use wc then trim whitespace
-    mariadb_count=$(pgrep mariadbd | wc -l | xargs echo)
-    set -e
+    "${../scripts/start_comm_daemon.sh}" \
+      mariadbd \
+      MariaDB \
+      "${mariadb-entrypoint}/bin/mariadb-init" \
+      "$MARIADB_PIDFILE"
 
-    if [[ "$mariadb_count" -eq "0" ]]; then
-      echo "Starting MariaDB server"
-      # No MariaDB present, start our own
-      # Launch in subshell so if the original terminal is closed, the process
-      # will be inherited instead of also being forced closed
-      ("${mariadb-entrypoint}/bin/mariadb-init" &
-        echo "$!" > "$MARIADB_PIDFILE")
-
-      echo "Waiting for MariaDB to come up"
-      while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do sleep 1; done
-
-    elif [[ "$mariadb_count" -eq "1" ]]; then
-
-      # Check if it was started by this script
-      running_pid="$(pgrep mariadbd)"
-      if [[ ! -f "$MARIADB_PIDFILE" ]] || \
-          [[ "$(cat "$MARIADB_PIDFILE")" != "$running_pid" ]]; then
-        echo "Existing MariaDB instance found outside of nix environment" >&2
-        echo "Please stop existing services and attempt 'mariadb-up' again" >&2
-        exit 1
-      fi
-
-    else
-      echo "Many MariaDB instances found outside of nix environment" >&2
-      echo "Please stop existing services and attempt 'mariadb-up' again" >&2
-      exit 1
-
-    fi
+    echo "Waiting for MariaDB to come up"
+    while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do sleep 1; done
 
     # Initialize comm user, database, and secrets file for MariaDB
     # Connecting through socket doesn't require a password
