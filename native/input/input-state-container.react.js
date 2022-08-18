@@ -1020,10 +1020,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     localMessageID: string,
     threadInfo: ThreadInfo,
   ) => {
-    let pendingUploads = this.state.pendingUploads[localMessageID];
-    if (!pendingUploads) {
-      pendingUploads = {};
-    }
+    const pendingUploads = this.state.pendingUploads[localMessageID] ?? {};
 
     const now = Date.now();
 
@@ -1111,13 +1108,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             ...updatedMedia,
             localMediaSelection: selection,
           };
-        } else {
-          return {
-            type: 'video',
-            ...updatedMedia,
-            localMediaSelection: selection,
-          };
         }
+        return {
+          type: 'video',
+          ...updatedMedia,
+          localMediaSelection: selection,
+        };
       });
 
     let newRawMessageInfo;
