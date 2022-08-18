@@ -126,5 +126,9 @@ in writeShellApplication {
 
     echo "View MariaDB Logs: tail -f $MARIADB_DATA_HOME/logs" >&2
     echo "Kill MariaDB server: pkill mariadbd" >&2
+
+    # Explicitly exit this script so the parent shell can determine
+    # when it's safe to return control of terminal to user
+    exit 0
   '';
 }
