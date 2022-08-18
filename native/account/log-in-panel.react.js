@@ -100,7 +100,7 @@ class LogInPanel extends React.PureComponent<Props> {
       <Panel opacityValue={this.props.opacityValue}>
         <View style={styles.row}>
           <SWMansionIcon
-            name="user"
+            name="user-1"
             size={22}
             color="#555"
             style={styles.icon}
