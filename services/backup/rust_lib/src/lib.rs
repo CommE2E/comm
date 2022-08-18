@@ -14,6 +14,7 @@ extern crate lazy_static;
 use std::sync::Mutex;
 extern crate libc;
 use libc::c_char;
+use std::ffi::CStr;
 pub struct Client {
   tx: Option<mpsc::Sender<String>>,
   rt: Option<Runtime>,
@@ -58,8 +59,27 @@ pub extern "C" fn rust_initialize() -> () {
 }
 
 #[no_mangle]
-pub extern "C" fn rust_process(_data: *const c_char) -> () {
-  unimplemented!();
+pub extern "C" fn rust_process(data: *const c_char) -> () {
+  println!("[RUST] [rust_process] begin");
+  let c_str: &CStr = unsafe { CStr::from_ptr(data) };
+  let str: String = c_str.to_str().unwrap().to_owned();
+  println!("[RUST] [rust_process] data string: {}", str);
+
+  // this works
+  let rt = CLIENT.lock().expect("access client").rt.take().unwrap();
+  rt.block_on(async {
+    CLIENT
+      .lock()
+      .expect("access client")
+      .tx
+      .as_ref()
+      .expect("access client's transmitter")
+      .send(str)
+      .await
+      .expect("send data to receiver");
+  });
+  CLIENT.lock().expect("access client").rt = Some(rt);
+  println!("[RUST] [rust_process] end");
 }
 
 #[no_mangle]
