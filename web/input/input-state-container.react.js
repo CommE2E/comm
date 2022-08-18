@@ -249,9 +249,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           // web side currently, but if we ever change that (for instance if we
           // want to render a properly sized loading overlay like we do on
           // native), 0,0 is probably a good default.
-          const shimmedDimensions = dimensions
-            ? dimensions
-            : { height: 0, width: 0 };
+          const shimmedDimensions = dimensions ?? { height: 0, width: 0 };
           invariant(
             mediaType === 'photo',
             "web InputStateContainer can't handle video",
