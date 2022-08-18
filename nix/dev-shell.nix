@@ -29,6 +29,7 @@
 , pkg-config
 , protobuf_3_15_cmake
 , python3
+, rustc
 , shellcheck
 , sqlite
 , watchman
@@ -55,6 +56,7 @@ mkShell {
     # C/CXX toolchains are already brought in with mkShell
     # Identity Service
     cargo # includes rustc
+    rustc # allow for direct invocation of rustc
     rustfmt
 
     # Tunnelbroker + CMake
