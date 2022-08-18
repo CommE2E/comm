@@ -30,6 +30,8 @@
 , pkg-config
 , protobuf_3_15_cmake
 , python3
+, redis
+, redis-up
 , rustc
 , shellcheck
 , sqlite
@@ -52,6 +54,7 @@ mkShell {
     yarn
     watchman # react native
     python3
+    redis
 
     # native dependencies
     # C/CXX toolchains are already brought in with mkShell
@@ -110,7 +113,10 @@ mkShell {
     "${mariadb-up}"/bin/mariadb-up &
     mariadb_pid=$!
 
-    wait "$mariadb_pid"
+    "${redis-up}"/bin/redis-up &
+    redis_pid=$!
+
+    wait "$mariadb_pid" "$redis_pid"
   '' + ''
 
     # Provide decent bash prompt

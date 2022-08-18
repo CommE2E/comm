@@ -56,6 +56,8 @@ prev:
 
   mysql-up = prev.callPackage ./mysql-up-linux.nix { };
 
+  redis-up = prev.callPackage ./redis-up-mac.nix { };
+
   olm = prev.olm.overrideAttrs(oldAttrs: {
     # *.hh files aren't meant to be used externally
     # so we patch installation to add it
