@@ -22,6 +22,7 @@
 , libiconv
 , libuv
 , mariadb
+, mariadb-up
 , nodejs-16_x
 , olm
 , openjdk8
@@ -101,6 +102,16 @@ mkShell {
   shellHook = ''
     # Set development environment variable defaults
     source "${../scripts/source_development_defaults.sh}"
+
+  ''
+  # Darwin condition can be removed once linux services are supported
+  + lib.optionalString stdenv.isDarwin ''
+    # Start MariaDB development services
+    "${mariadb-up}"/bin/mariadb-up &
+    mariadb_pid=$!
+
+    wait "$mariadb_pid"
+  '' + ''
 
     # Provide decent bash prompt
     source "${better-prompt}/bin/better-prompt"
