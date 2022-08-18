@@ -5,6 +5,10 @@ edition = "2021"
 
 [dependencies]
 cxx = "1.0"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tokio-stream = "0.1.9"
+lazy_static = "1.4.0"
+libc = "0.2.132"
 
 [build-dependencies]
 cxx-build = "1.0"

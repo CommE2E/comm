@@ -34,3 +34,4 @@ services/lib/src/build
 
 # Nix
 result*
+services/backup/rust_lib/target/
