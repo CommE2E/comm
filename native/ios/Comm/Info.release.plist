@@ -64,7 +64,7 @@
 		<string>IBMPlexSans-Regular.ttf</string>
 		<string>IBMPlexSans-Medium.ttf</string>
 		<string>IBMPlexSans-Bold.ttf</string>
-		<string>swmansion.ttf</string>
+		<string>SWMansionIcons.ttf</string>
     <string>CommIcons.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
