@@ -36,9 +36,18 @@ add_if_missing_in_nix_conf() {
   local key="$1"
   local value="$2"
 
-  if ! grep "$key" /etc/nix/nix.conf &> /dev/null && \
-    sudo test -w /etc/nix/nix.conf; then
-    echo "${key} = ${value}" | sudo tee -a /etc/nix/nix.conf &> /dev/null
+  if ! grep "$key" /etc/nix/nix.conf &> /dev/null; then
+    echo "/etc/nix/nix.conf is missing a value for ${key}. " \
+      "Appending '${key} = ${value}' to /etc/nix/nix.conf"
+
+    # make sure that user can write to file
+    if sudo test -w /etc/nix/nix.conf; then
+      echo "${key} = ${value}" | sudo tee -a /etc/nix/nix.conf &> /dev/null
+    else
+      # nix.conf is read only, which is true for NixOS
+      echo "Unable to write '${key} = ${value}' to nix.conf, " \
+        "please add the value to your nix.conf"
+    fi
   fi
 }
 
