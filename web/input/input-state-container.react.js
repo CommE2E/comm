@@ -616,7 +616,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           localID: getNextLocalUploadID(),
           serverID: null,
           messageID: null,
-          failed: null,
+          failed: false,
           file: fixedFile,
           mediaType,
           dimensions,
@@ -855,7 +855,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         // The upload has been cancelled or completed before it failed
         return {};
       }
-      const failed = e instanceof Error && e.message ? e.message : 'failed';
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
@@ -863,7 +862,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             ...uploads,
             [localUploadID]: {
               ...upload,
-              failed,
+              failed: true,
+              failureMessage:
+                e instanceof Error && e.message ? e.message : 'failed',
               progressPercent: 0,
               abort: null,
             },
@@ -1173,7 +1174,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         if (uploadIDsToRetry.has(localID) && !pendingUpload.serverID) {
           newPendingUploads[localID] = {
             ...pendingUpload,
-            failed: null,
+            failed: false,
             progressPercent: 0,
             abort: null,
           };
