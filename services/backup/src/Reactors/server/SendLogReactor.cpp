@@ -42,11 +42,7 @@ void SendLogReactor::initializePutReactor() {
     throw std::runtime_error(
         "put reactor cannot be initialized with empty hash");
   }
-  if (this->putReactor == nullptr) {
-    this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
-        this->blobHolder, this->hash, &this->blobPutDoneCV);
-    this->blobClient.put(this->putReactor);
-  }
+  // todo:blob perform put:initialize
 }
 
 std::unique_ptr<grpc::Status>
@@ -102,11 +98,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
             "), merge them into bigger parts instead");
       }
       if (this->persistenceMethod == PersistenceMethod::BLOB) {
-        if (this->putReactor == nullptr) {
-          throw std::runtime_error(
-              "put reactor is being used but has not been initialized");
-        }
-        this->putReactor->scheduleSendingDataChunk(std::move(chunk));
+        // todo:blob perform put:add chunk (std::move(chunk))
         return nullptr;
       }
       this->value += std::move(*chunk);
@@ -118,8 +110,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         this->blobHolder =
             tools::generateHolder(this->hash, this->backupID, this->logID);
         this->initializePutReactor();
-        this->putReactor->scheduleSendingDataChunk(
-            std::make_unique<std::string>(this->value));
+        // todo:blob perform put:add chunk (this->value)
         this->value = "";
       } else {
         this->persistenceMethod = PersistenceMethod::DB;
@@ -143,20 +134,12 @@ void SendLogReactor::terminateCallback() {
     throw std::runtime_error("Invalid persistence method detected");
   }
 
-  if (this->persistenceMethod == PersistenceMethod::DB ||
-      this->putReactor == nullptr) {
+  if (this->persistenceMethod == PersistenceMethod::DB) {
     this->storeInDatabase();
     return;
   }
-  this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
-  std::unique_lock<std::mutex> lockPut(this->blobPutDoneCVMutex);
-  if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
-    this->blobPutDoneCV.wait(lockPut);
-  }
-  if (!this->putReactor->getStatusHolder()->getStatus().ok()) {
-    throw std::runtime_error(
-        this->putReactor->getStatusHolder()->getStatus().error_message());
-  }
+  // todo:blob perform put:add chunk ("")
+  // todo:blob perform put:wait for completion
   // store in db only when we successfully upload chunks
   this->storeInDatabase();
 }

@@ -1,10 +1,9 @@
 #pragma once
 
 #include "BackupItem.h"
-#include "BlobGetClientReactor.h"
 #include "DatabaseEntitiesTools.h"
+#include "GlobalConstants.h"
 #include "LogItem.h"
-#include "ServiceBlobClient.h"
 
 #include <backup.grpc.pb.h>
 #include <backup.pb.h>
@@ -33,10 +32,7 @@ class PullBackupReactor : public ServerWriteReactorBase<
   };
 
   std::shared_ptr<database::BackupItem> backupItem;
-  std::shared_ptr<reactor::BlobGetClientReactor> getReactor;
   std::mutex reactorStateMutex;
-  std::shared_ptr<folly::MPMCQueue<std::string>> dataChunks;
-  ServiceBlobClient blobClient;
   State state = State::COMPACTION;
   std::vector<std::shared_ptr<database::LogItem>> logs;
   size_t currentLogIndex = 0;
@@ -44,9 +40,7 @@ class PullBackupReactor : public ServerWriteReactorBase<
   std::string internalBuffer;
   std::string previousLogID;
   bool endOfQueue = false;
-
-  std::condition_variable blobGetDoneCV;
-  std::mutex blobGetDoneCVMutex;
+  bool clientInitialized = false;
 
   const size_t chunkLimit =
       GRPC_CHUNK_SIZE_LIMIT - GRPC_METADATA_SIZE_PER_MESSAGE;

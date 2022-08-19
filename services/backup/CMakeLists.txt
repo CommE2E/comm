@@ -66,14 +66,10 @@ target_include_directories(
   backup
   PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/src
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/grpc-client
   ${CMAKE_CURRENT_SOURCE_DIR}/src/DatabaseEntities
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/server
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/server/base-reactors
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/client
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/client/blob
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/client/base-reactors
 
   ${Boost_INCLUDE_DIR}
 )
@@ -91,7 +87,6 @@ set(
   comm-blob-grpc
   comm-backup-grpc
   comm-services-common
-  comm-client-base-reactors
   comm-server-base-reactors
   backup::rust_lib
 )
