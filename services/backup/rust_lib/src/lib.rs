@@ -8,13 +8,16 @@ mod ffi {
   }
 }
 
-use lazy_static::lazy_static;
-use libc;
-use libc::c_char;
-use std::sync::{Arc, Mutex};
+mod constants;
+
+use constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
+use lazy_static::lazy_static;
+use std::sync::{Arc, Mutex};
+use libc;
+use libc::c_char;
 
 pub struct Client {
   tx: Option<mpsc::Sender<String>>,
@@ -40,7 +43,20 @@ pub fn rust_is_initialized_cxx() -> bool {
 }
 
 pub fn rust_initialize_cxx() -> () {
-  unimplemented!();
+  println!("[RUST] initializing");
+  assert!(!rust_is_initialized_cxx(), "client cannot be initialized twice");
+  let (tx, mut rx): (mpsc::Sender<String>, mpsc::Receiver<String>) =
+    mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
+  let handle = RUNTIME.spawn(async move {
+    println!("[RUST] [receiver] begin");
+    while let Some(data) = rx.recv().await {
+      println!("[RUST] [receiver] data: {}", data);
+    }
+    println!("[RUST] [receiver] done");
+  });
+  CLIENT.lock().expect("access client").handle = Some(handle);
+  CLIENT.lock().expect("access client").tx = Some(tx);
+  println!("[RUST] initialized");
 }
 
 pub fn rust_process_cxx(_: *const c_char) -> () {
