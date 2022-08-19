@@ -1,39 +1,27 @@
-#[cxx::bridge]
-mod ffi {
-  extern "Rust" {
-    fn rust_is_initialized_cxx() -> bool;
-    fn rust_initialize_cxx() -> ();
-    unsafe fn rust_process_cxx(data: *const c_char) -> ();
-    fn rust_terminate_cxx() -> ();
-  }
-}
-
-mod constants;
-
-use constants::MPSC_CHANNEL_BUFFER_CAPACITY;
+use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
+use lazy_static::lazy_static;
+use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
-use lazy_static::lazy_static;
-use std::sync::{Arc, Mutex};
 extern crate libc;
 use libc::c_char;
 use std::ffi::CStr;
 
-pub struct Client {
+struct Client {
   tx: Option<mpsc::Sender<String>>,
   handle: Option<JoinHandle<()>>,
 }
 
 lazy_static! {
-  pub static ref CLIENT: Arc<Mutex<Client>> = Arc::new(Mutex::new(Client {
+  static ref CLIENT: Arc<Mutex<Client>> = Arc::new(Mutex::new(Client {
     tx: None,
     handle: None
   }));
-  pub static ref RUNTIME: Runtime = Runtime::new().unwrap();
+  static ref RUNTIME: Runtime = Runtime::new().unwrap();
 }
 
-pub fn rust_is_initialized_cxx() -> bool {
+fn is_initialized() -> bool {
   if CLIENT.lock().expect("access client").tx.is_none() {
     return false;
   }
@@ -43,15 +31,16 @@ pub fn rust_is_initialized_cxx() -> bool {
   return true;
 }
 
-pub fn rust_initialize_cxx() -> () {
+pub fn put_client_initialize_cxx() -> () {
   println!("[RUST] initializing");
-  assert!(!rust_is_initialized_cxx(), "client cannot be initialized twice");
+  assert!(!is_initialized(), "client cannot be initialized twice");
   let (tx, mut rx): (mpsc::Sender<String>, mpsc::Receiver<String>) =
     mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
   let handle = RUNTIME.spawn(async move {
     println!("[RUST] [receiver] begin");
     while let Some(data) = rx.recv().await {
       println!("[RUST] [receiver] data: {}", data);
+      // todo: send throug grpc here
     }
     println!("[RUST] [receiver] done");
   });
@@ -60,11 +49,11 @@ pub fn rust_initialize_cxx() -> () {
   println!("[RUST] initialized");
 }
 
-pub fn rust_process_cxx(data: *const c_char) -> () {
-  println!("[RUST] [rust_process] begin");
+pub fn put_client_send_cxx(data: *const c_char) -> () {
+  println!("[RUST] [put_client_process] begin");
   let c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let str: String = c_str.to_str().unwrap().to_owned();
-  println!("[RUST] [rust_process] data string: {}", str);
+  println!("[RUST] [put_client_process] data string: {}", str);
 
   // this works
   RUNTIME.block_on(async {
@@ -78,11 +67,11 @@ pub fn rust_process_cxx(data: *const c_char) -> () {
       .await
       .expect("send data to receiver");
   });
-  println!("[RUST] [rust_process] end");
+  println!("[RUST] [put_client_process] end");
 }
 
-pub fn rust_terminate_cxx() -> () {
-  println!("[RUST] rust_terminating");
+pub fn put_client_terminate_cxx() -> () {
+  println!("[RUST] put_client_terminating");
   let handle = CLIENT.lock().expect("access client").handle.take().unwrap();
 
   drop(CLIENT.lock().expect("access client").tx.take().unwrap());
@@ -90,6 +79,6 @@ pub fn rust_terminate_cxx() -> () {
     handle.await.unwrap();
   });
 
-  assert!(!rust_is_initialized_cxx(), "client handler released properly");
-  println!("[RUST] rust_terminated");
+  assert!(!is_initialized(), "client handler released properly");
+  println!("[RUST] put_client_terminated");
 }
