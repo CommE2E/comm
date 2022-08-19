@@ -616,7 +616,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           localID: getNextLocalUploadID(),
           serverID: null,
           messageID: null,
-          failed: null,
+          failed: false,
           file: fixedFile,
           mediaType,
           dimensions,
@@ -682,7 +682,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
-      this.handleUploadFailure(threadID, localID, e);
+      this.handleUploadFailure(threadID, localID);
     }
     userTime = Date.now() - selectTime;
     steps.push({
@@ -846,7 +846,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
-  handleUploadFailure(threadID: string, localUploadID: string, e: any) {
+  handleUploadFailure(threadID: string, localUploadID: string) {
     this.setState(prevState => {
       const newThreadID = this.getRealizedOrPendingThreadID(threadID);
       const uploads = prevState.pendingUploads[newThreadID];
@@ -855,7 +855,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         // The upload has been cancelled or completed before it failed
         return {};
       }
-      const failed = e instanceof Error && e.message ? e.message : 'failed';
       return {
         pendingUploads: {
           ...prevState.pendingUploads,
@@ -863,7 +862,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             ...uploads,
             [localUploadID]: {
               ...upload,
-              failed,
+              failed: true,
               progressPercent: 0,
               abort: null,
             },
@@ -1173,7 +1172,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         if (uploadIDsToRetry.has(localID) && !pendingUpload.serverID) {
           newPendingUploads[localID] = {
             ...pendingUpload,
-            failed: null,
+            failed: false,
             progressPercent: 0,
             abort: null,
           };

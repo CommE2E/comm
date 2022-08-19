@@ -16,8 +16,8 @@ export type PendingMultimediaUpload = {
   serverID: ?string,
   // Pending uploads are assigned a messageID once they are sent
   messageID: ?string,
-  // This is set to truthy if the upload fails for whatever reason
-  failed: ?string,
+  // This is set to true if the upload fails for whatever reason
+  failed: boolean,
   file: File,
   mediaType: MediaType,
   dimensions: ?Dimensions,
