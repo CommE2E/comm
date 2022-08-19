@@ -9,9 +9,10 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 export type MultimediaProcessingStep = 'transcoding' | 'uploading';
 
 export type PendingMultimediaUpload = {
-  +failed: ?string,
+  +failed: boolean,
   +progressPercent: number,
   +processingStep: ?MultimediaProcessingStep,
+  +failureMessage?: ?string,
 };
 
 export type MessagePendingUploads = {
