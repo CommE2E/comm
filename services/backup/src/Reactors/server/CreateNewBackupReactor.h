@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ServiceBlobClient.h"
-
 #include "backup.grpc.pb.h"
 #include "backup.pb.h"
 
@@ -34,9 +32,7 @@ class CreateNewBackupReactor : public ServerBidiReactorBase<
   std::string dataHash;
   std::string holder;
   std::string backupID;
-  std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
 
-  ServiceBlobClient blobClient;
   std::mutex reactorStateMutex;
 
   std::condition_variable blobPutDoneCV;
