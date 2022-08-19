@@ -531,14 +531,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     for (const uploadFileInput of uploadFileInputs) {
       const { localMediaID } = uploadFileInput.ids;
       pendingUploads[localMediaID] = {
-        failed: null,
+        failed: false,
         progressPercent: 0,
         processingStep: null,
       };
       if (uploadFileInput.ids.type === 'video') {
         const { localThumbnailID } = uploadFileInput.ids;
         pendingUploads[localThumbnailID] = {
-          failed: null,
+          failed: false,
           progressPercent: 0,
           processingStep: null,
         };
@@ -944,7 +944,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
             ...uploads,
             [localUploadID]: {
               ...upload,
-              failed: message,
+              failed: true,
+              failureMessage: message,
               progressPercent: 0,
             },
           },
@@ -979,13 +980,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (!pendingUploads) {
       return false;
     }
-    for (const localUploadID in pendingUploads) {
-      const { failed } = pendingUploads[localUploadID];
-      if (failed) {
-        return true;
-      }
-    }
-    return false;
+    return Object.keys(pendingUploads).some(
+      localUploadID => pendingUploads[localUploadID].failed,
+    );
   };
 
   addReply = (message: string) => {
@@ -1170,7 +1167,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     // which makes the UI show pending status instead of error messages
     for (const singleMedia of retryMedia) {
       pendingUploads[singleMedia.id] = {
-        failed: null,
+        failed: false,
         progressPercent: 0,
         processingStep: null,
       };
@@ -1178,7 +1175,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         const { thumbnailID } = singleMedia;
         invariant(thumbnailID, 'thumbnailID not null or undefined');
         pendingUploads[thumbnailID] = {
-          failed: null,
+          failed: false,
           progressPercent: 0,
           processingStep: null,
         };
