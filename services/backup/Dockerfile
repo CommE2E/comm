@@ -24,6 +24,12 @@ COPY services/lib/cmake-components cmake-components/
 COPY services/backup/ /transferred/backup/
 COPY services/lib/src/ /transferred/lib/src/
 
-RUN scripts/build_service.sh
+# ENTRYPOINT ~/.cargo/bin/cargo build --manifest-path=blob_client/Cargo.toml
 
-CMD if [ "$COMM_TEST_SERVICES" -eq 1 ]; then scripts/run_tests.sh; else scripts/run_service.sh; fi
+RUN bash scripts/build_service.sh
+
+# CMD ls -l && echo "---" && ls -l grpc && pwd && ls grpc/protos && echo "---" && ls -l blob_client && ls -l /transferred/backup/blob_client/protos/blob.proto
+
+# CMD if [ "$COMM_TEST_SERVICES" -eq 1 ]; then scripts/run_tests.sh; else scripts/run_service.sh; fi
+
+CMD /bin/bash

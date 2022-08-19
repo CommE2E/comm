@@ -21,12 +21,16 @@ fn list_dir(path: &str) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-  // let _build = cxx_build::bridge("src/lib.rs");
+  let _build = cxx_build::bridge("src/lib.rs");
   // println!("cargo:rerun-if-changed=src/lib.rs");
   list_dir(".")?;
   list_dir("..")?;
   list_dir("../grpc")?;
   list_dir("../grpc/protos")?; // file exists ../grpc/protos/blob.proto
+  // if let Err(e) = tonic_build::compile_protos("../grpc/protos/blob.proto") {
+  //   println!("---- PROBLEM {:?}", e);
+  // }
   tonic_build::compile_protos("../grpc/protos/blob.proto")?;
-  panic!();
+  // panic!();
+  Ok(())
 }

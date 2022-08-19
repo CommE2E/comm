@@ -4,12 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tonic = "0.6"
+tonic = "0.8"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1.9"
 derive_more = "0.99"
 futures-core = "0.3"
-prost = "0.9"
+prost = "0.11"
 futures = { version = "0.3", default-features = false, features = ["alloc"] }
 h2 = "0.3"
 async-stream = "0.3.2"
@@ -17,7 +17,7 @@ rand = "0.8"
 cxx = "1.0"
 
 [build-dependencies]
-tonic-build = "0.6"
+tonic-build = "0.8"
 cxx-build = "1.0"
 
 [lib]
