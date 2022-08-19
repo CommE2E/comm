@@ -82,5 +82,14 @@ pub fn rust_process_cxx(data: *const c_char) -> () {
 }
 
 pub fn rust_terminate_cxx() -> () {
-  unimplemented!();
+  println!("[RUST] rust_terminating");
+  let handle = CLIENT.lock().expect("access client").handle.take().unwrap();
+
+  drop(CLIENT.lock().expect("access client").tx.take().unwrap());
+  RUNTIME.block_on(async {
+    handle.await.unwrap();
+  });
+
+  assert!(!rust_is_initialized_cxx(), "client handler released properly");
+  println!("[RUST] rust_terminated");
 }
