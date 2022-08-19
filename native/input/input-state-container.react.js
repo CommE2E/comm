@@ -372,11 +372,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     for (const localMessageID in this.state.pendingUploads) {
       const messagePendingUploads = this.state.pendingUploads[localMessageID];
-      for (const localUploadID in messagePendingUploads) {
-        const { failed } = messagePendingUploads[localUploadID];
-        if (!failed) {
-          return true;
-        }
+      if (
+        Object.keys(messagePendingUploads).some(
+          localUploadID => !messagePendingUploads[localUploadID].failed,
+        )
+      ) {
+        return true;
       }
     }
     return false;
