@@ -64,14 +64,12 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       }
       response->set_backupid(this->backupID);
       this->holder = tools::generateHolder(this->dataHash, this->backupID);
-      this->putReactor = std::make_shared<reactor::BlobPutClientReactor>(
-          this->holder, this->dataHash, &this->blobPutDoneCV);
-      this->blobClient.put(this->putReactor);
+      // todo:blob perform put:initialize
       return nullptr;
     }
     case State::DATA_CHUNKS: {
-      this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(
-          std::move(*request.mutable_newcompactionchunk())));
+      // todo:blob perform put:add chunk
+      // (std::move(*request.mutable_newcompactionchunk())
       return nullptr;
     }
   }
@@ -80,21 +78,9 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 
 void CreateNewBackupReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-  if (this->putReactor == nullptr) {
-    return;
-  }
-  this->putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
-  std::unique_lock<std::mutex> lock2(this->blobPutDoneCVMutex);
-  if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
-    this->blobPutDoneCV.wait(lock2);
-  }
-  if (this->putReactor->getStatusHolder()->state != ReactorState::DONE) {
-    throw std::runtime_error("put reactor has not been terminated properly");
-  }
-  if (!this->putReactor->getStatusHolder()->getStatus().ok()) {
-    throw std::runtime_error(
-        this->putReactor->getStatusHolder()->getStatus().error_message());
-  }
+  // todo:blob perform put:add chunk ("")
+  // todo:blob perform put:wait for completion
+
   // TODO add recovery data
   // TODO handle attachments holders
   database::BackupItem backupItem(
