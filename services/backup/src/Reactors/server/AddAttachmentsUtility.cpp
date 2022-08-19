@@ -3,10 +3,8 @@
 #include <glog/logging.h>
 
 #include "BackupItem.h"
-#include "BlobPutClientReactor.h"
 #include "Constants.h"
 #include "DatabaseManager.h"
-#include "ServiceBlobClient.h"
 #include "Tools.h"
 
 namespace comm {
@@ -74,21 +72,10 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
   // put into S3
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;
-  std::shared_ptr<reactor::BlobPutClientReactor> putReactor =
-      std::make_shared<reactor::BlobPutClientReactor>(
-          holder, newLogItem->getDataHash(), &blobPutDoneCV);
-  ServiceBlobClient().put(putReactor);
-  std::unique_lock<std::mutex> lockPut(blobPutDoneCVMutex);
-  putReactor->scheduleSendingDataChunk(
-      std::make_unique<std::string>(std::move(data)));
-  putReactor->scheduleSendingDataChunk(std::make_unique<std::string>(""));
-  if (putReactor->getStatusHolder()->state != reactor::ReactorState::DONE) {
-    blobPutDoneCV.wait(lockPut);
-  }
-  if (!putReactor->getStatusHolder()->getStatus().ok()) {
-    throw std::runtime_error(
-        putReactor->getStatusHolder()->getStatus().error_message());
-  }
+  // todo:blob perform put
+  // todo:blob perform put:add chunk (std::move(data))
+  // todo:blob perform put:add chunk ("")
+  // todo:blob perform put:wait for completion
   return newLogItem;
 }
 

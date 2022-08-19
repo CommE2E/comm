@@ -2,7 +2,6 @@
 
 #include "LogItem.h"
 #include "ServerReadReactorBase.h"
-#include "ServiceBlobClient.h"
 
 #include "backup.grpc.pb.h"
 #include "backup.pb.h"
@@ -42,9 +41,6 @@ class SendLogReactor : public ServerReadReactorBase<
 
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;
-
-  std::shared_ptr<reactor::BlobPutClientReactor> putReactor;
-  ServiceBlobClient blobClient;
 
   void storeInDatabase();
   std::string generateLogID(const std::string &backupID);
