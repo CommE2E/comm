@@ -18,7 +18,7 @@ import type { AppState, Action } from './redux/redux-setup';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['enabledApps'],
+  whitelist: ['enabledApps', 'deviceID'],
   version: 0,
 };
 
