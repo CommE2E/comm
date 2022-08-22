@@ -50,73 +50,82 @@ type Props = {
     request: UpdateThreadRequest,
   ) => Promise<ChangeThreadSettingsPayload>,
 };
-class ColorSelectorModal extends React.PureComponent<Props> {
-  render() {
-    const { color } = this.props.route.params;
-    // Based on the assumption we are always in portrait,
-    // and consequently width is the lowest dimensions
-    const modalStyle = { height: 0.75 * this.props.windowWidth };
-    return (
-      <Modal
-        modalStyle={[this.props.styles.colorSelectorContainer, modalStyle]}
-      >
-        <ColorSelector
-          currentColor={color}
-          windowWidth={this.props.windowWidth}
-          onColorSelected={this.onColorSelected}
-        />
-        <TouchableHighlight
-          onPress={this.close}
-          style={this.props.styles.closeButton}
-          underlayColor={this.props.colors.modalIosHighlightUnderlay}
-        >
-          <Icon
-            name="close"
-            size={16}
-            style={this.props.styles.closeButtonIcon}
-          />
-        </TouchableHighlight>
-      </Modal>
-    );
-  }
+function ColorSelectorModal(props: Props): React.Node {
+  const {
+    changeThreadSettings: updateThreadSettings,
+    dispatchActionPromise,
+    windowWidth,
+  } = props;
+  const { threadInfo, setColor } = props.route.params;
 
-  close = () => {
-    this.props.navigation.goBackOnce();
-  };
+  const close = props.navigation.goBackOnce;
 
-  onColorSelected = (color: string) => {
-    const colorEditValue = color.substr(1);
-    this.props.route.params.setColor(colorEditValue);
-    this.close();
-    this.props.dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      this.editColor(colorEditValue),
-      { customKeyName: `${changeThreadSettingsActionTypes.started}:color` },
-    );
-  };
-
-  async editColor(newColor: string) {
-    const threadID = this.props.route.params.threadInfo.id;
-    try {
-      return await this.props.changeThreadSettings({
-        threadID,
-        changes: { color: newColor },
-      });
-    } catch (e) {
-      Alert.alert(
-        'Unknown error',
-        'Uhh... try again?',
-        [{ text: 'OK', onPress: this.onErrorAcknowledged }],
-        { cancelable: false },
-      );
-      throw e;
-    }
-  }
-
-  onErrorAcknowledged = () => {
-    const { threadInfo, setColor } = this.props.route.params;
+  const onErrorAcknowledged = React.useCallback(() => {
     setColor(threadInfo.color);
-  };
+  }, [setColor, threadInfo.color]);
+
+  const editColor = React.useCallback(
+    async (newColor: string) => {
+      const threadID = threadInfo.id;
+      try {
+        return await updateThreadSettings({
+          threadID,
+          changes: { color: newColor },
+        });
+      } catch (e) {
+        Alert.alert(
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: onErrorAcknowledged }],
+          { cancelable: false },
+        );
+        throw e;
+      }
+    },
+    [onErrorAcknowledged, threadInfo.id, updateThreadSettings],
+  );
+
+  const onColorSelected = React.useCallback(
+    (color: string) => {
+      const colorEditValue = color.substr(1);
+      setColor(colorEditValue);
+      close();
+
+      dispatchActionPromise(
+        changeThreadSettingsActionTypes,
+        editColor(colorEditValue),
+        { customKeyName: `${changeThreadSettingsActionTypes.started}:color` },
+      );
+    },
+    [setColor, close, dispatchActionPromise, editColor],
+  );
+
+  const { colorSelectorContainer, closeButton, closeButtonIcon } = props.styles;
+  // Based on the assumption we are always in portrait,
+  // and consequently width is the lowest dimensions
+  const modalStyle = React.useMemo(
+    () => [colorSelectorContainer, { height: 0.75 * windowWidth }],
+    [colorSelectorContainer, windowWidth],
+  );
+
+  const { modalIosHighlightUnderlay } = props.colors;
+  const { color } = props.route.params;
+  return (
+    <Modal modalStyle={modalStyle}>
+      <ColorSelector
+        currentColor={color}
+        windowWidth={windowWidth}
+        onColorSelected={onColorSelected}
+      />
+      <TouchableHighlight
+        onPress={close}
+        style={closeButton}
+        underlayColor={modalIosHighlightUnderlay}
+      >
+        <Icon name="close" size={16} style={closeButtonIcon} />
+      </TouchableHighlight>
+    </Modal>
+  );
 }
 
 const unboundStyles = {
