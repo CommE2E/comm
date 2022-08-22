@@ -41,6 +41,10 @@ void AmqpManager::connectInternal() {
   AMQP::TcpConnection connection(&handler, AMQP::Address(amqpUri));
 
   this->amqpChannel = std::make_unique<AMQP::TcpChannel>(&connection);
+  this->amqpChannel->onReady([this]() {
+    LOG(INFO) << "AMQP: Channel is ready";
+    this->amqpReady = true;
+  });
   this->amqpChannel->onError([this](const char *message) {
     LOG(ERROR) << "AMQP: channel error: " << message
                << ", will try to reconnect";
@@ -62,9 +66,7 @@ void AmqpManager::connectInternal() {
                          const char *message) {
               LOG(ERROR) << "AMQP: Failed to bind queue:  " << tunnelbrokerID
                          << " to exchange: " << fanoutExchangeName;
-              this->amqpReady = false;
             });
-        this->amqpReady = true;
         this->amqpChannel->consume(tunnelbrokerID)
             .onReceived([](const AMQP::Message &message,
                            uint64_t deliveryTag,
