@@ -601,7 +601,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let errorMessage;
     let reportPromise;
 
-    const finish = async (result: MediaMissionResult) => {
+    const onUploadFinished = async (result: MediaMissionResult) => {
       if (!this.props.mediaReportsEnabled) {
         return errorMessage;
       }
@@ -617,7 +617,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
       return errorMessage;
     };
-    const fail = (mediaID: string, message: string) => {
+    const onUploadFailed = (mediaID: string, message: string) => {
       errorMessage = message;
       this.handleUploadFailure(localMessageID, mediaID, message);
       userTime = Date.now() - start;
@@ -637,13 +637,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           processResult.reason === 'video_too_long'
             ? `can't do vids longer than ${videoDurationLimit}min`
             : 'processing failed';
-        fail(localMediaID, message);
-        return await finish(processResult);
+        onUploadFailed(localMediaID, message);
+        return await onUploadFinished(processResult);
       }
       processedMedia = processResult;
     } catch (e) {
-      fail(localMediaID, 'processing failed');
-      return await finish({
+      onUploadFailed(localMediaID, 'processing failed');
+      return await onUploadFinished({
         success: false,
         reason: 'processing_exception',
         time: Date.now() - processingStart,
@@ -677,7 +677,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
-      fail(localMediaID, 'upload failed');
+      onUploadFailed(localMediaID, 'upload failed');
       mediaMissionResult = {
         success: false,
         reason: 'http_upload_failed',
@@ -780,7 +780,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     await Promise.all(promises);
 
-    return await finish(mediaMissionResult);
+    return await onUploadFinished(mediaMissionResult);
   }
 
   mediaProcessConfig(localMessageID: string, localID: string) {
