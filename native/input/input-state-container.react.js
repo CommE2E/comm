@@ -594,12 +594,23 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   ): Promise<?string> {
     const { ids, selection } = uploadFileInput;
     const { localMediaID } = ids;
-    const start = selection.sendTime;
+    const mediaSelectedTimestamp = selection.sendTime;
     const steps = [selection];
     let serverID;
-    let userTime;
     let errorMessage;
     let reportPromise;
+
+    // Time elapsed from initial media selection until `uploadFile` returns
+    let totalTime;
+
+    // Time elapsed from initial media selection until
+    // 1. an error
+    // 2. `updateMultimediaMessageMediaActionType` is dispatched
+    //
+    // Notably it exludes time spent
+    // 1. `await`ing `reportPromise`
+    // 2. disposing temporary files
+    let userTime;
 
     const onUploadFinished = async (result: MediaMissionResult) => {
       if (!this.props.mediaReportsEnabled) {
@@ -609,7 +620,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         const finalSteps = await reportPromise;
         steps.push(...finalSteps);
       }
-      const totalTime = Date.now() - start;
+      totalTime = Date.now() - mediaSelectedTimestamp;
       userTime = userTime ? userTime : totalTime;
       this.queueMediaMissionReport(
         { localID: localMediaID, localMessageID, serverID },
@@ -620,11 +631,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const onUploadFailed = (mediaID: string, message: string) => {
       errorMessage = message;
       this.handleUploadFailure(localMessageID, mediaID, message);
-      userTime = Date.now() - start;
+      userTime = Date.now() - mediaSelectedTimestamp;
     };
 
     let processedMedia;
-    const processingStart = Date.now();
+    const mediaProcessingStartedTimestamp = Date.now();
     try {
       const processMediaReturn = processMedia(
         selection,
@@ -646,7 +657,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return await onUploadFinished({
         success: false,
         reason: 'processing_exception',
-        time: Date.now() - processingStart,
+        time: Date.now() - mediaProcessingStartedTimestamp,
         exceptionMessage: getMessageForException(e),
       });
     }
@@ -655,7 +666,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
     const { hasWiFi } = this.props;
 
-    const uploadStart = Date.now();
+    const uploadStartedTimestamp = Date.now();
     let uploadExceptionMessage, uploadResult, mediaMissionResult;
     try {
       const loop =
@@ -707,7 +718,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           },
         },
       });
-      userTime = Date.now() - start;
+      userTime = Date.now() - mediaSelectedTimestamp;
     }
 
     const processSteps = await reportPromise;
@@ -717,7 +728,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       step: 'upload',
       success: !!uploadResult,
       exceptionMessage: uploadExceptionMessage,
-      time: Date.now() - uploadStart,
+      time: Date.now() - uploadStartedTimestamp,
       inputFilename: filename,
       outputMediaType: uploadResult && uploadResult.mediaType,
       outputURI: uploadResult && uploadResult.uri,
