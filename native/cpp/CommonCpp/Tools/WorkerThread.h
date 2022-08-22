@@ -1,6 +1,7 @@
 #pragma once
 
 #include <folly/MPMCQueue.h>
+#include <future>
 #include <memory>
 #include <string>
 #include <thread>
@@ -17,6 +18,7 @@ class WorkerThread {
 public:
   WorkerThread(const std::string name);
   void scheduleTask(const taskType task);
+  std::shared_ptr<std::promise<void>> flushAndBlock();
   ~WorkerThread();
 };
 
