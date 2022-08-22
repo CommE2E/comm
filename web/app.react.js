@@ -31,6 +31,7 @@ import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
 import { MenuProvider } from './menu-provider.react';
 import { ModalProvider, useModalContext } from './modals/modal-provider.react';
+import DeviceIDUpdater from './redux/device-id-updater';
 import DisconnectedBar from './redux/disconnected-bar';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
 import FocusHandler from './redux/focus-handler.react';
@@ -142,6 +143,7 @@ class App extends React.PureComponent<Props> {
         <MenuProvider>
           <FocusHandler />
           <VisibilityHandler />
+          <DeviceIDUpdater />
           {content}
           {this.props.modals}
         </MenuProvider>
