@@ -191,7 +191,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         after,
         // Include `MediaLibrary.MediaType.video` in `mediaType` array
         // when working on video messages so videos show up in media gallery.
-        mediaType: [MediaLibrary.MediaType.photo],
+        mediaType: [MediaLibrary.MediaType.photo, MediaLibrary.MediaType.video],
       });
 
       let firstRemoved = false,
