@@ -2,6 +2,7 @@ use anyhow::Result;
 use lazy_static::lazy_static;
 use tokio::runtime::Runtime;
 pub mod apns;
+pub mod fcm;
 
 #[cxx::bridge]
 mod ffi {
@@ -14,6 +15,14 @@ mod ffi {
       message: &str,
       sandbox: bool,
     ) -> Result<u16>;
+
+    #[cxx_name = "sendNotifToFCM"]
+    fn send_notif_to_fcm(
+      fcm_api_key: &str,
+      device_registration_id: &str,
+      message_title: &str,
+      message_body: &str,
+    ) -> Result<u64>;
   }
 }
 
@@ -35,5 +44,19 @@ pub fn send_notif_to_apns(
     device_token,
     message,
     sandbox,
+  ))
+}
+
+pub fn send_notif_to_fcm(
+  fcm_api_key: &str,
+  device_registration_id: &str,
+  message_title: &str,
+  message_body: &str,
+) -> Result<u64> {
+  RUNTIME.block_on(fcm::send_by_fcm_client(
+    fcm_api_key,
+    device_registration_id,
+    message_title,
+    message_body,
   ))
 }
