@@ -27,13 +27,18 @@ import { setNewSessionActionType } from 'lib/utils/action-utils';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
 import { type NavInfo, updateNavInfoActionType } from '../types/nav-types';
-import { updateWindowActiveActionType } from './action-types';
+import {
+  updateWindowActiveActionType,
+  setDeviceIDActionType,
+} from './action-types';
+import { reduceDeviceID } from './device-id-reducer';
 import reduceNavInfo from './nav-reducer';
 import { getVisibility } from './visibility';
 
 export type WindowDimensions = { width: number, height: number };
 export type AppState = {
   navInfo: NavInfo,
+  deviceID: ?string,
   currentUserInfo: ?CurrentUserInfo,
   sessionID: ?string,
   entryStore: EntryStore,
@@ -73,6 +78,10 @@ export type Action =
   | {
       type: 'UPDATE_WINDOW_ACTIVE',
       payload: boolean,
+    }
+  | {
+      type: 'SET_DEVICE_ID',
+      payload: string,
     };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
@@ -120,7 +129,10 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
     return oldState;
   }
 
-  if (action.type !== updateNavInfoActionType) {
+  if (
+    action.type !== updateNavInfoActionType &&
+    action.type !== setDeviceIDActionType
+  ) {
     state = baseReducer(state, action).state;
   }
 
@@ -131,6 +143,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       action,
       state.threadStore.threadInfos,
     ),
+    deviceID: reduceDeviceID(state.deviceID, action),
   };
 
   return validateState(oldState, state);
