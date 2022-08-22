@@ -144,9 +144,6 @@ void AmqpManager::ack(uint64_t deliveryTag) {
 }
 
 void AmqpManager::waitUntilReady() {
-  if (this->amqpReady) {
-    return;
-  }
   while (!this->amqpReady) {
     LOG(INFO) << "AMQP: Connection is not ready, waiting";
     std::this_thread::sleep_for(
