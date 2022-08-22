@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# Check if in an interactive shell
+# `test -t` tests if a file descriptor is open, 0 being stdin
+# Normally, a non-interactive shell will not have 0 FD bound
+# However, Buildkite still has 0 FD bound, so check if PS1 is empty
+if [[ ! -t 0 ]] || [[ -z "$PS1" ]]; then
+  return 0
+fi
+
 if test "$(uname)" = "Darwin" ; then
   COMM_CACHE="${XDG_CACHE_HOME:-$HOME/Library/Caches}/app.comm"
 else
