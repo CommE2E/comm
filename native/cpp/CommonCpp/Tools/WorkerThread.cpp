@@ -26,6 +26,18 @@ void WorkerThread::scheduleTask(const taskType task) {
   }
 }
 
+std::shared_ptr<std::promise<void>> WorkerThread::flushAndBlock() {
+  std::shared_ptr<std::promise<void>> queueBlockade =
+      std::make_shared<std::promise<void>>(std::promise<void>());
+  std::promise<void> taskStarted;
+  this->tasks.write(std::make_unique<taskType>([queueBlockade, &taskStarted]() {
+    taskStarted.set_value();
+    queueBlockade->get_future().get();
+  }));
+  taskStarted.get_future().get();
+  return queueBlockade;
+}
+
 WorkerThread::~WorkerThread() {
   this->tasks.blockingWrite(nullptr);
   try {
