@@ -37,11 +37,13 @@ async function createUploads(
     const secret = crypto.randomBytes(8).toString('hex');
     const { dimensions, mediaType, loop } = uploadInfo;
     return {
-      id,
-      secret,
-      dimensions,
-      mediaType,
-      loop,
+      uploadResult: {
+        id,
+        uri: shimUploadURI(getUploadURL(id, secret), viewer.platformDetails),
+        dimensions,
+        mediaType,
+        loop,
+      },
       insert: [
         id,
         viewer.userID,
@@ -63,16 +65,7 @@ async function createUploads(
   `;
   await dbQuery(insertQuery);
 
-  return uploadRows.map(row => ({
-    id: row.id,
-    uri: shimUploadURI(
-      getUploadURL(row.id, row.secret),
-      viewer.platformDetails,
-    ),
-    dimensions: row.dimensions,
-    mediaType: row.mediaType,
-    loop: row.loop,
-  }));
+  return uploadRows.map(({ uploadResult }) => uploadResult);
 }
 
 export default createUploads;
