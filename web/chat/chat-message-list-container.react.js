@@ -52,6 +52,20 @@ function ChatMessageListContainer(props: Props): React.Node {
       threadType: threadTypes.PRIVATE,
     }),
   );
+
+  const newThreadID = 'pending/new_thread';
+  const pendingNewThread = React.useMemo(
+    () => ({
+      ...createPendingThread({
+        viewerID,
+        threadType: threadTypes.PRIVATE,
+        name: 'New thread',
+      }),
+      id: newThreadID,
+    }),
+    [viewerID],
+  );
+
   const existingThreadInfoFinderForCreatingThread = useExistingThreadInfoFinder(
     pendingPrivateThread.current,
   );
@@ -68,6 +82,10 @@ function ChatMessageListContainer(props: Props): React.Node {
   const existingThreadInfoFinder = useExistingThreadInfoFinder(baseThreadInfo);
   const threadInfo = React.useMemo(() => {
     if (isChatCreation) {
+      if (userInfoInputArray.length === 0) {
+        return pendingNewThread;
+      }
+
       return existingThreadInfoFinderForCreatingThread({
         searching: true,
         userInfoInputArray,
@@ -83,6 +101,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     existingThreadInfoFinderForCreatingThread,
     isChatCreation,
     userInfoInputArray,
+    pendingNewThread,
   ]);
   invariant(threadInfo, 'ThreadInfo should be set');
 
