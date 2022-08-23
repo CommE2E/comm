@@ -14,10 +14,10 @@ let
       MARIADB_DIR=''${XDG_DATA_HOME:-$HOME/.local/share}/MariaDB
       # 'exec' allows for us to replace bash process with MariaDB
 
-      echo "View MariaDB Logs: tail -f $MARIADB_DIR/logs" >&2
+      echo "View MariaDB logs: tail -f $MARIADB_DIR/logs" >&2
       echo "Kill MariaDB server: pkill mariadbd" >&2
 
-      exec ${mariadb}/bin/mariadbd \
+      exec "${mariadb}/bin/mariadbd" \
         --socket "$MARIADB_DIR"/mysql.sock \
         --datadir "$MARIADB_DIR" \
         &> "$MARIADB_DIR"/logs
