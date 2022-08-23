@@ -14,11 +14,12 @@ import { stringForUser } from 'lib/shared/user-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
-import { type InputState, InputStateContext } from '../input/input-state';
+import { InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import { InlineSidebar } from './inline-sidebar.react';
 import MessageTooltip from './message-tooltip.react';
+import type { MessageReplyProps } from './message-tooltip.react';
 import {
   type OnMessagePositionWithContainerInfo,
   type MessagePositionInfo,
@@ -42,18 +43,15 @@ type BaseProps = {
     messagePositionInfo: MessagePositionInfo,
   ) => void,
   +mouseOverMessagePosition?: ?OnMessagePositionWithContainerInfo,
-  +canReply: boolean,
   +children: React.Node,
   +fixedWidth?: boolean,
   +borderRadius: number,
 };
-type BaseConfig = React.Config<BaseProps, typeof ComposedMessage.defaultProps>;
 type Props = {
   ...BaseProps,
   // Redux state
   +sidebarExistsOrCanBeCreated: boolean,
-  // withInputState
-  +inputState: ?InputState,
+  +messageReplyProps: MessageReplyProps,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   static defaultProps: { +borderRadius: number } = {
@@ -122,21 +120,19 @@ class ComposedMessage extends React.PureComponent<Props> {
     if (
       this.props.mouseOverMessagePosition &&
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
-      (this.props.sidebarExistsOrCanBeCreated || this.props.canReply)
+      (this.props.sidebarExistsOrCanBeCreated ||
+        this.props.messageReplyProps.canReply)
     ) {
       const availableTooltipPositions = isViewer
         ? availableTooltipPositionsForViewerMessage
         : availableTooltipPositionsForNonViewerMessage;
-
       messageTooltip = (
         <MessageTooltip
           threadInfo={threadInfo}
           item={item}
           availableTooltipPositions={availableTooltipPositions}
-          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
           mouseOverMessagePosition={this.props.mouseOverMessagePosition}
-          canReply={this.props.canReply}
-          inputState={this.props.inputState}
+          messageReplyProps={this.props.messageReplyProps}
         />
       );
     }
@@ -211,22 +207,35 @@ class ComposedMessage extends React.PureComponent<Props> {
   };
 }
 
+type ConnectedComponentProps = { ...BaseProps, +canReply: boolean };
 type ConnectedConfig = React.Config<
-  BaseProps,
+  ConnectedComponentProps,
   typeof ComposedMessage.defaultProps,
 >;
-const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.memo<BaseConfig>(
+const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.memo<ConnectedConfig>(
   function ConnectedComposedMessage(props) {
+    const { canReply, ...composedMessageProps } = props;
     const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
       props.threadInfo,
       props.item,
     );
     const inputState = React.useContext(InputStateContext);
+    const messageReplyProps = React.useMemo(() => {
+      if (canReply) {
+        return {
+          canReply,
+          inputState,
+          setMouseOverMessagePosition: props.setMouseOverMessagePosition,
+        };
+      }
+      return { canReply };
+    }, [inputState, canReply, props.setMouseOverMessagePosition]);
+
     return (
       <ComposedMessage
-        {...props}
+        {...composedMessageProps}
         sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
-        inputState={inputState}
+        messageReplyProps={messageReplyProps}
       />
     );
   },
