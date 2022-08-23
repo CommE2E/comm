@@ -109,8 +109,9 @@ function ThreadSettingsGeneralTab(
       });
     } catch (e) {
       setErrorMessage('unknown_error');
-      setQueuedChanges(Object.freeze({}));
       throw e;
+    } finally {
+      setQueuedChanges(Object.freeze({}));
     }
   }, [
     callChangeThreadSettings,
