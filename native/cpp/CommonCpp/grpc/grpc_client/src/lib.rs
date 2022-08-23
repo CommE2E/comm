@@ -19,7 +19,9 @@ use crate::identity::{
   get_user_id_request::AuthType,
   identity_service_client::IdentityServiceClient,
   login_request::Data::PakeLoginRequest,
+  login_request::Data::WalletLoginRequest,
   login_response::Data::PakeLoginResponse as LoginPakeLoginResponse,
+  login_response::Data::WalletLoginResponse,
   pake_login_request::Data::PakeCredentialFinalization as LoginPakeCredentialFinalization,
   pake_login_request::Data::PakeCredentialRequestAndUserId,
   pake_login_response::Data::AccessToken,
@@ -37,6 +39,8 @@ use crate::identity::{
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
   RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
   VerifyUserTokenRequest, VerifyUserTokenResponse,
+  WalletLoginRequest as WalletLoginRequestStruct,
+  WalletLoginResponse as WalletLoginResponseStruct,
 };
 pub mod identity {
   tonic::include_proto!("identity");
@@ -235,6 +239,46 @@ impl Client {
     // Return access token
     let message = response.message().await?;
     handle_login_token_response(message)
+  }
+
+  #[instrument(skip(self))]
+  async fn login_user_wallet(
+    &mut self,
+    user_id: String,
+    device_id: String,
+    siwe_message: String,
+    siwe_signature: Vec<u8>,
+    user_public_key: String,
+  ) -> Result<String, Status> {
+    // Create a LoginRequest channel and use ReceiverStream to turn the
+    // MPSC receiver into a Stream for outbound messages
+    let (tx, rx) = mpsc::channel(1);
+    let stream = ReceiverStream::new(rx);
+    let request = Request::new(stream);
+
+    // `response` is the Stream for inbound messages
+    let mut response =
+      self.identity_client.login_user(request).await?.into_inner();
+
+    // Start wallet login on client and send initial login request to Identity
+    // service
+    let login_request = LoginRequest {
+      data: Some(WalletLoginRequest(WalletLoginRequestStruct {
+        user_id,
+        device_id,
+        siwe_message,
+        siwe_signature,
+        user_public_key,
+      })),
+    };
+    if let Err(e) = tx.send(login_request).await {
+      error!("Response was dropped: {}", e);
+      return Err(Status::aborted("Dropped response"));
+    }
+
+    // Return access token
+    let message = response.message().await?;
+    handle_wallet_login_response(message)
   }
 }
 
@@ -465,6 +509,19 @@ fn handle_login_token_response(
       Some(LoginPakeLoginResponse(PakeLoginResponseStruct {
         data: Some(AccessToken(access_token)),
       })),
+  }) = message
+  {
+    Ok(access_token)
+  } else {
+    Err(handle_unexpected_response(message))
+  }
+}
+
+fn handle_wallet_login_response(
+  message: Option<LoginResponse>,
+) -> Result<String, Status> {
+  if let Some(LoginResponse {
+    data: Some(WalletLoginResponse(WalletLoginResponseStruct { access_token })),
   }) = message
   {
     Ok(access_token)
