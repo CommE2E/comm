@@ -29,6 +29,7 @@ const availableTooltipPositionsForRobotext = [
   tooltipPositions.RIGHT,
   tooltipPositions.LEFT,
 ];
+const cannotReply = { canReply: false };
 
 type BaseProps = {
   +item: RobotextChatMessageInfoItem,
@@ -71,6 +72,7 @@ class RobotextMessage extends React.PureComponent<Props> {
           item={item}
           mouseOverMessagePosition={this.props.mouseOverMessagePosition}
           availableTooltipPositions={availableTooltipPositionsForRobotext}
+          messageReplyProps={cannotReply}
         />
       );
     }
