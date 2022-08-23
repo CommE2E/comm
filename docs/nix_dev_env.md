@@ -8,16 +8,21 @@ We use Nix to package all of the dependencies for our dev environment. It does s
 
 For how Nix package management works, please refer to the official [how Nix works guide](https://nixos.org/guides/how-nix-works.html).
 
-# Supported workflows
+# Nix Supported workflow progress
 
-| Workflow                      | Supported on macOS |
-| ----------------------------- | ------------------ |
-| keyserver (Node.js)           | ❌                 |
-| web (Webpack)                 | ❌                 |
-| native iOS (React Native)     | ❌                 |
-| native Android (React Native) | ❌                 |
-| C++ services                  | ❌                 |
-| Rust services                 | ✅                 |
+| Workflows                     | Tooling Support | Build Support | Services Support\* | Runs outside of Docker | E2E workflow |
+| ----------------------------- | --------------- | ------------- | ------------------ | ---------------------- | ------------ |
+| keyserver (Node.js)           | ✅              | ✅            | ✅                 | ✅                     | ✅           |
+| web (Webpack)                 | ✅              | ✅            | ✅                 | ✅                     | ✅           |
+| native iOS (React Native)     | Mixed†          | ✅†           | ✅                 | ✅                     | Untested     |
+| native Android (React Native) | Mixed†          | ✅†           | ✅                 | ✅                     | Untested     |
+| C++ services                  | ✅              | ✅            | ✅                 | ❌                     | ❌           |
+| Rust services                 | ✅              | ✅            | ✅                 | ✅                     | ✅           |
+
+\*: Development Services are services which are required to be running in order to achieve the desired workflow. These can services such as MariaDB or Redis.
+
+†: Workflow is supported after some initial developer setup (installing XCode,
+Android Studio, or installing Android NDK).
 
 # Requirements
 
