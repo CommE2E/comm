@@ -113,12 +113,12 @@ function LoginForm(): React.Node {
     [dispatchActionPromise, logInAction, loginExtraInfo, username],
   );
 
-  let loginButtonContent;
-  if (inputDisabled) {
-    loginButtonContent = <LoadingIndicator status="loading" />;
-  } else {
-    loginButtonContent = 'Log in';
-  }
+  const loginButtonContent = React.useMemo(() => {
+    if (inputDisabled) {
+      return <LoadingIndicator status="loading" />;
+    }
+    return 'Log in';
+  }, [inputDisabled]);
 
   return (
     <div className={css['modal-body']}>

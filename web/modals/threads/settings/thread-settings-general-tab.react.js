@@ -137,12 +137,12 @@ function ThreadSettingsGeneralTab(
     threadPermissions.EDIT_THREAD_NAME,
   );
 
-  let loginButtonContent;
-  if (threadSettingsOperationInProgress) {
-    loginButtonContent = <LoadingIndicator status="loading" />;
-  } else {
-    loginButtonContent = 'Save';
-  }
+  const saveButtonContent = React.useMemo(() => {
+    if (threadSettingsOperationInProgress) {
+      return <LoadingIndicator status="loading" />;
+    }
+    return 'Save';
+  }, [threadSettingsOperationInProgress]);
 
   return (
     <form method="POST">
@@ -188,7 +188,7 @@ function ThreadSettingsGeneralTab(
         disabled={threadSettingsOperationInProgress || !changeQueued}
         className={css.save_button}
       >
-        {loginButtonContent}
+        {saveButtonContent}
       </Button>
     </form>
   );
