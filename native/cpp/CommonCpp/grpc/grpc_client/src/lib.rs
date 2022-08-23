@@ -21,6 +21,7 @@ use crate::identity::{
   login_request::Data::PakeLoginRequest,
   login_response::Data::PakeLoginResponse as LoginPakeLoginResponse,
   pake_login_request::Data::PakeCredentialFinalization as LoginPakeCredentialFinalization,
+  pake_login_request::Data::PakeCredentialRequestAndUserId,
   pake_login_response::Data::AccessToken,
   pake_login_response::Data::PakeCredentialResponse,
   registration_request::Data::PakeCredentialFinalization as RegistrationPakeCredentialFinalization,
@@ -29,6 +30,7 @@ use crate::identity::{
   registration_response::Data::PakeLoginResponse as RegistrationPakeLoginResponse,
   registration_response::Data::PakeRegistrationResponse, GetUserIdRequest,
   GetUserIdResponse, LoginRequest, LoginResponse,
+  PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
   PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct,
   PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
@@ -172,6 +174,67 @@ impl Client {
     // Return access token
     let message = response.message().await?;
     handle_registration_token_response(message)
+  }
+
+  #[instrument(skip(self))]
+  async fn login_user_pake(
+    &mut self,
+    user_id: String,
+    device_id: String,
+    password: String,
+  ) -> Result<String, Status> {
+    // Create a LoginRequest channel and use ReceiverStream to turn the
+    // MPSC receiver into a Stream for outbound messages
+    let (tx, rx) = mpsc::channel(1);
+    let stream = ReceiverStream::new(rx);
+    let request = Request::new(stream);
+
+    // `response` is the Stream for inbound messages
+    let mut response =
+      self.identity_client.login_user(request).await?.into_inner();
+
+    // Start PAKE login on client and send initial login request to Identity
+    // service
+    let mut client_rng = OsRng;
+    let client_login_start_result =
+      pake_login_start(&mut client_rng, &password)?;
+    let login_request = LoginRequest {
+      data: Some(PakeLoginRequest(PakeLoginRequestStruct {
+        data: Some(PakeCredentialRequestAndUserId(
+          PakeCredentialRequestAndUserIdStruct {
+            user_id,
+            device_id,
+            pake_credential_request: client_login_start_result
+              .message
+              .serialize()
+              .map_err(|e| {
+                error!("Could not serialize credential request: {}", e);
+                Status::failed_precondition("PAKE failure")
+              })?,
+          },
+        )),
+      })),
+    };
+    if let Err(e) = tx.send(login_request).await {
+      error!("Response was dropped: {}", e);
+      return Err(Status::aborted("Dropped response"));
+    }
+
+    // Handle responses from Identity service sequentially, making sure we get
+    // messages in the correct order
+
+    // Finish PAKE login; send final login request to Identity service
+    let message = response.message().await?;
+    handle_login_credential_response(
+      message,
+      client_login_start_result.state,
+      tx,
+    )
+    .await?;
+
+    // Return access token
+    let message = response.message().await?;
+    handle_login_token_response(message)
   }
 }
 
