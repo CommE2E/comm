@@ -103,11 +103,10 @@ function ThreadSettingsGeneralTab(
   const changeThreadSettingsAction = React.useCallback(async () => {
     try {
       setErrorMessage('');
-      const response = await callChangeThreadSettings({
+      return await callChangeThreadSettings({
         threadID: threadInfo.id,
         changes: queuedChanges,
       });
-      return response;
     } catch (e) {
       setErrorMessage('unknown_error');
       setQueuedChanges(Object.freeze({}));
