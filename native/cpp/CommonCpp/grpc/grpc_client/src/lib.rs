@@ -263,8 +263,8 @@ fn pake_login_finish(
     .map(|res| res.message)
 }
 
-fn handle_unexpected_registration_response(
-  message: Option<RegistrationResponseMessage>,
+fn handle_unexpected_response<T: std::fmt::Debug>(
+  message: Option<T>,
 ) -> Status {
   error!("Received an unexpected message: {:?}", message);
   Status::invalid_argument("Invalid response data")
@@ -312,7 +312,7 @@ async fn handle_registration_response(
     }
     Ok(client_login_start_result.state)
   } else {
-    Err(handle_unexpected_registration_response(message))
+    Err(handle_unexpected_response(message))
   }
 }
 
@@ -340,7 +340,7 @@ async fn handle_credential_response(
     };
     send_to_mpsc(tx, registration_request).await
   } else {
-    Err(handle_unexpected_registration_response(message))
+    Err(handle_unexpected_response(message))
   }
 }
 
@@ -356,7 +356,7 @@ fn handle_token_response(
   {
     Ok(access_token)
   } else {
-    Err(handle_unexpected_registration_response(message))
+    Err(handle_unexpected_response(message))
   }
 }
 
