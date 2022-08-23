@@ -128,15 +128,21 @@ class ComposedMessage extends React.PureComponent<Props> {
         ? availableTooltipPositionsForViewerMessage
         : availableTooltipPositionsForNonViewerMessage;
 
+      const messageState = !this.props.canReply
+        ? { canReply: false }
+        : {
+            canReply: true,
+            inputState: this.props.inputState,
+            setMouseOverMessagePosition: this.props.setMouseOverMessagePosition,
+          };
+
       messageTooltip = (
         <MessageTooltip
           threadInfo={threadInfo}
           item={item}
           availableTooltipPositions={availableTooltipPositions}
-          setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
           mouseOverMessagePosition={this.props.mouseOverMessagePosition}
-          canReply={this.props.canReply}
-          inputState={this.props.inputState}
+          messageState={messageState}
         />
       );
     }

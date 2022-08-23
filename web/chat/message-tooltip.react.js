@@ -36,26 +36,31 @@ const createSidebarText = 'Create thread';
 
 type TooltipType = 'sidebar' | 'reply';
 
+type MessageStateType =
+  | { +canReply: false }
+  | {
+      +canReply: true,
+      +inputState: ?InputState,
+      +setMouseOverMessagePosition: (
+        messagePositionInfo: MessagePositionInfo,
+      ) => void,
+    };
+
 type MessageTooltipProps = {
   +threadInfo: ThreadInfo,
   +item: ChatMessageInfoItem,
   +availableTooltipPositions: $ReadOnlyArray<TooltipPosition>,
-  +setMouseOverMessagePosition?: (
-    messagePositionInfo: MessagePositionInfo,
-  ) => void,
+  +messageState: MessageStateType,
   +mouseOverMessagePosition: OnMessagePositionWithContainerInfo,
-  +canReply?: boolean,
-  +inputState?: ?InputState,
 };
+
 function MessageTooltip(props: MessageTooltipProps): React.Node {
   const {
     threadInfo,
     item,
     availableTooltipPositions,
-    setMouseOverMessagePosition,
     mouseOverMessagePosition,
-    canReply,
-    inputState,
+    messageState,
   } = props;
 
   const { containerPosition } = mouseOverMessagePosition;
@@ -115,12 +120,10 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   );
 
   const onReplyButtonClick = React.useCallback(() => {
-    invariant(
-      setMouseOverMessagePosition,
-      'setMouseOverMessagePosition should be set if replyButton exists',
-    );
-    setMouseOverMessagePosition({ type: 'off', item: item });
-  }, [item, setMouseOverMessagePosition]);
+    if (messageState.canReply) {
+      messageState.setMouseOverMessagePosition({ type: 'off', item: item });
+    }
+  }, [item, messageState]);
 
   let tooltipText = '';
   if (activeTooltip === 'reply') {
@@ -146,12 +149,12 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   }
 
   let replyButton;
-  if (canReply) {
-    invariant(inputState, 'inputState must be set if replyButton exists');
+  if (messageState.canReply) {
     invariant(
-      mouseOverMessagePosition,
-      'mouseOverMessagePosition must be set if replyButton exists',
+      messageState.inputState,
+      'inputState must be set if replyButton exists',
     );
+
     replyButton = (
       <div
         className={css.messageActionLinkIcon}
@@ -161,7 +164,7 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
         <MessageReplyButton
           messagePositionInfo={mouseOverMessagePosition}
           onReplyClick={onReplyButtonClick}
-          inputState={inputState}
+          inputState={messageState.inputState}
         />
         {activeTooltip === 'reply' ? tooltipMenu : null}
       </div>
