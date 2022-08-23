@@ -10,14 +10,18 @@ For how Nix package management works, please refer to the official [how Nix work
 
 # Supported workflows
 
-| Workflow                      | Supported on macOS |
-| ----------------------------- | ------------------ |
-| keyserver (Node.js)           | ❌                 |
-| web (Webpack)                 | ❌                 |
-| native iOS (React Native)     | ❌                 |
-| native Android (React Native) | ❌                 |
-| C++ services                  | ❌                 |
-| Rust services                 | ✅                 |
+| Workflow                        | macOS supported |
+| ------------------------------- | --------------- |
+| `keyserver` (Node.js)           | ✅              |
+| `web` (Webpack)                 | ✅              |
+| `native` iOS (React Native)     | ❌ **†**        |
+| `native` Android (React Native) | ❌ **†**        |
+| C++ services                    | ❌ **\***       |
+| Rust services                   | ✅              |
+
+**†** Workflow requires additional undocumented steps after Nix installation (e.g. installing XCode, XCode profile, Android Studio, or Android NDK).
+
+**\*** Workflow requires RabbitMQ and AWS/Localstack to be available.
 
 # Requirements
 
