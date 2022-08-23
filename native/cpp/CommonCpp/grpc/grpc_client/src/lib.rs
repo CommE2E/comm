@@ -338,11 +338,7 @@ async fn handle_credential_response(
           })?,
       )),
     };
-    if let Err(e) = tx.send(registration_request).await {
-      error!("Response was dropped: {}", e);
-      return Err(Status::aborted("Dropped response"));
-    }
-    Ok(())
+    send_to_mpsc(tx, registration_request).await
   } else {
     Err(handle_unexpected_registration_response(message))
   }
@@ -377,4 +373,15 @@ struct LoginResponseAndSender {
 enum ResponseAndSender {
   Registration(RegistrationResponseAndSender),
   Login(LoginResponseAndSender),
+}
+
+async fn send_to_mpsc<T>(
+  tx: mpsc::Sender<T>,
+  request: T,
+) -> Result<(), Status> {
+  if let Err(e) = tx.send(request).await {
+    error!("Response was dropped: {}", e);
+    return Err(Status::aborted("Dropped response"));
+  }
+  Ok(())
 }
