@@ -18,14 +18,18 @@ use ::identity::Cipher;
 use crate::identity::{
   get_user_id_request::AuthType,
   identity_service_client::IdentityServiceClient,
+  login_request::Data::PakeLoginRequest,
+  login_response::Data::PakeLoginResponse as LoginPakeLoginResponse,
+  pake_login_request::Data::PakeCredentialFinalization as LoginPakeCredentialFinalization,
   pake_login_response::Data::AccessToken,
   pake_login_response::Data::PakeCredentialResponse,
-  registration_request::Data::PakeCredentialFinalization,
+  registration_request::Data::PakeCredentialFinalization as RegistrationPakeCredentialFinalization,
   registration_request::Data::PakeRegistrationRequestAndUserId,
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
-  registration_response::Data::PakeLoginResponse,
+  registration_response::Data::PakeLoginResponse as RegistrationPakeLoginResponse,
   registration_response::Data::PakeRegistrationResponse, GetUserIdRequest,
   GetUserIdResponse, LoginRequest, LoginResponse,
+  PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct,
   PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
@@ -163,11 +167,11 @@ impl Client {
 
     // Finish PAKE login; send final login request to Identity service
     let message = response.message().await?;
-    handle_credential_response(message, client_login, tx).await?;
+    handle_registration_credential_response(message, client_login, tx).await?;
 
     // Return access token
     let message = response.message().await?;
-    handle_token_response(message)
+    handle_registration_token_response(message)
   }
 }
 
@@ -316,20 +320,20 @@ async fn handle_registration_response(
   }
 }
 
-async fn handle_credential_response(
+async fn handle_registration_credential_response(
   message: Option<RegistrationResponseMessage>,
   client_login: ClientLogin<Cipher>,
   tx: mpsc::Sender<RegistrationRequest>,
 ) -> Result<(), Status> {
   if let Some(RegistrationResponseMessage {
     data:
-      Some(PakeLoginResponse(PakeLoginResponseStruct {
+      Some(RegistrationPakeLoginResponse(PakeLoginResponseStruct {
         data: Some(PakeCredentialResponse(credential_response_bytes)),
       })),
   }) = message
   {
     let registration_request = RegistrationRequest {
-      data: Some(PakeCredentialFinalization(
+      data: Some(RegistrationPakeCredentialFinalization(
         pake_login_finish(&credential_response_bytes, client_login)?
           .serialize()
           .map_err(|e| {
@@ -344,12 +348,58 @@ async fn handle_credential_response(
   }
 }
 
-fn handle_token_response(
+async fn handle_login_credential_response(
+  message: Option<LoginResponse>,
+  client_login: ClientLogin<Cipher>,
+  tx: mpsc::Sender<LoginRequest>,
+) -> Result<(), Status> {
+  if let Some(LoginResponse {
+    data:
+      Some(LoginPakeLoginResponse(PakeLoginResponseStruct {
+        data: Some(PakeCredentialResponse(credential_response_bytes)),
+      })),
+  }) = message
+  {
+    let login_request = LoginRequest {
+      data: Some(PakeLoginRequest(PakeLoginRequestStruct {
+        data: Some(LoginPakeCredentialFinalization(
+          pake_login_finish(&credential_response_bytes, client_login)?
+            .serialize()
+            .map_err(|e| {
+              error!("Could not serialize credential request: {}", e);
+              Status::failed_precondition("PAKE failure")
+            })?,
+        )),
+      })),
+    };
+    send_to_mpsc(tx, login_request).await
+  } else {
+    Err(handle_unexpected_response(message))
+  }
+}
+
+fn handle_registration_token_response(
   message: Option<RegistrationResponseMessage>,
 ) -> Result<String, Status> {
   if let Some(RegistrationResponseMessage {
     data:
-      Some(PakeLoginResponse(PakeLoginResponseStruct {
+      Some(RegistrationPakeLoginResponse(PakeLoginResponseStruct {
+        data: Some(AccessToken(access_token)),
+      })),
+  }) = message
+  {
+    Ok(access_token)
+  } else {
+    Err(handle_unexpected_response(message))
+  }
+}
+
+fn handle_login_token_response(
+  message: Option<LoginResponse>,
+) -> Result<String, Status> {
+  if let Some(LoginResponse {
+    data:
+      Some(LoginPakeLoginResponse(PakeLoginResponseStruct {
         data: Some(AccessToken(access_token)),
       })),
   }) = message
