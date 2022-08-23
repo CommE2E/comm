@@ -98,21 +98,9 @@ mkShell {
   JAVA_HOME = openjdk8.passthru.home;
 
   # shell commands to be ran upon entering shell
-  shellHook = let
-    socket = "mysql.sock";
-  in ''
-    if [[ "$OSTYPE" == 'linux'* ]]; then
-      export MYSQL_UNIX_PORT=''${XDG_RUNTIME_DIR:-/run/user/$UID}/${socket}
-      export ANDROID_SDK_ROOT=''${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}
-    fi
-
-    if [[ "$OSTYPE" == 'darwin'* ]]; then
-      # Many commands for cocoapods expect the native BSD versions of commands
-      export PATH=/usr/bin:$PATH
-      MARIADB_DIR=''${XDG_DATA_HOME:-$HOME/.local/share}/MariaDB
-      export MYSQL_UNIX_PORT="$MARIADB_DIR"/${socket}
-      export ANDROID_SDK_ROOT=''${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}
-    fi
+  shellHook = ''
+    # Set development environment variable defaults
+    source "${../scripts/source_development_defaults.sh}"
 
     # Provide decent bash prompt
     source "${better-prompt}/bin/better-prompt"
