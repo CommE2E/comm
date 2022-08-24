@@ -16,7 +16,6 @@ use tracing::{error, instrument};
 use ::identity::Cipher;
 
 use crate::identity::{
-  get_user_id_request::AuthType,
   identity_service_client::IdentityServiceClient,
   login_request::Data::PakeLoginRequest,
   login_request::Data::WalletLoginRequest,
@@ -31,7 +30,7 @@ use crate::identity::{
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse as RegistrationPakeLoginResponse,
   registration_response::Data::PakeRegistrationResponse, GetUserIdRequest,
-  GetUserIdResponse, LoginRequest, LoginResponse,
+  LoginRequest, LoginResponse,
   PakeCredentialRequestAndUserId as PakeCredentialRequestAndUserIdStruct,
   PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct,
@@ -79,24 +78,28 @@ impl Client {
 
   async fn get_user_id(
     &mut self,
-    auth_type: AuthType,
+    auth_type: i32,
     user_info: String,
-  ) -> Result<Response<GetUserIdResponse>, Status> {
-    self
-      .identity_client
-      .get_user_id(GetUserIdRequest {
-        auth_type: auth_type.into(),
-        user_info,
-      })
-      .await
+  ) -> Result<String, Status> {
+    Ok(
+      self
+        .identity_client
+        .get_user_id(GetUserIdRequest {
+          auth_type,
+          user_info,
+        })
+        .await?
+        .into_inner()
+        .user_id,
+    )
   }
 
   #[instrument(skip(self))]
   fn get_user_id_blocking(
     &mut self,
-    auth_type: AuthType,
+    auth_type: i32,
     user_info: String,
-  ) -> Result<Response<GetUserIdResponse>, Status> {
+  ) -> Result<String, Status> {
     RUNTIME.block_on(self.get_user_id(auth_type, user_info))
   }
 
