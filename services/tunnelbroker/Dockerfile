@@ -20,7 +20,7 @@ RUN ./install_libuv.sh
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
-COPY services/tunnelbroker/docker/install_corrosion.sh .
+COPY services/lib/docker/install_corrosion.sh .
 RUN ./install_corrosion.sh
 
 ARG COMM_TEST_SERVICES
