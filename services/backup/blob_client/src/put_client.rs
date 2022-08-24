@@ -59,7 +59,7 @@ fn check_error() -> Result<(), String> {
   }
 }
 
-pub fn put_client_initialize_cxx() -> () {
+pub fn put_client_initialize_cxx() -> Result<(), String> {
   println!("[RUST] initializing");
   assert!(!is_initialized(), "client cannot be initialized twice");
   // spawn transmitter thread
@@ -92,9 +92,12 @@ pub fn put_client_initialize_cxx() -> () {
   CLIENT.lock().expect("access client").rx_handle = Some(rx_handle);
   CLIENT.lock().expect("access client").rx = Some(receiver_thread_rx);
   println!("[RUST] initialized");
+  Ok(())
 }
 
-pub fn put_client_blocking_read_cxx() -> () {
+pub fn put_client_blocking_read_cxx() -> Result<String, String> {
+  let mut response: Option<String> = None;
+  check_error()?;
   RUNTIME.block_on(async {
     let mut rx: mpsc::Receiver<String> = CLIENT
       .lock()
@@ -104,13 +107,22 @@ pub fn put_client_blocking_read_cxx() -> () {
       .expect("access client's receiver");
     if let Some(data) = rx.recv().await {
       println!("received data {}", data);
+      response = Some(data);
     }
     CLIENT.lock().expect("access client").rx = Some(rx);
   });
+  if response.is_none() {
+    return Err("response not received properly".to_string());
+  }
+  Ok(response.unwrap())
 }
 
-pub fn put_client_write_cxx(data: *const c_char) -> () {
+pub fn put_client_write_cxx(
+  field_index: usize,
+  data: *const c_char,
+) -> Result<(), String> {
   println!("[RUST] [put_client_process] begin");
+  check_error()?;
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_str: String = data_c_str.to_str().unwrap().to_owned();
   println!("[RUST] [put_client_process] data string: {}", data_str);
@@ -127,9 +139,11 @@ pub fn put_client_write_cxx(data: *const c_char) -> () {
       .expect("send data to receiver");
   });
   println!("[RUST] [put_client_process] end");
+  Ok(())
 }
 
-pub fn put_client_terminate_cxx() -> () {
+pub fn put_client_terminate_cxx() -> Result<(), String> {
+  check_error()?;
   println!("[RUST] put_client_terminating");
   let tx_handle = CLIENT
     .lock()
@@ -155,4 +169,6 @@ pub fn put_client_terminate_cxx() -> () {
     "client transmitter handler released properly"
   );
   println!("[RUST] put_client_terminated");
+  check_error()?;
+  Ok(())
 }
