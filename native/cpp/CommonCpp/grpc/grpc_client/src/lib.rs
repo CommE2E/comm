@@ -58,7 +58,51 @@ lazy_static! {
 }
 
 #[cxx::bridge(namespace = "identity")]
-mod ffi {}
+mod ffi {
+  extern "Rust" {
+    type Client;
+    fn initialize_client() -> Box<Client>;
+    fn get_user_id_blocking(
+      client: Box<Client>,
+      auth_type: i32,
+      user_info: String,
+    ) -> Result<String>;
+    fn verify_user_token_blocking(
+      client: Box<Client>,
+      user_id: String,
+      device_id: String,
+      access_token: String,
+    ) -> Result<bool>;
+    fn register_user_blocking(
+      client: Box<Client>,
+      user_id: String,
+      device_id: String,
+      username: String,
+      password: String,
+      user_public_key: String,
+    ) -> Result<String>;
+    fn login_user_pake_blocking(
+      client: Box<Client>,
+      user_id: String,
+      device_id: String,
+      password: String,
+    ) -> Result<String>;
+    fn login_user_wallet_blocking(
+      client: Box<Client>,
+      user_id: String,
+      device_id: String,
+      siwe_message: String,
+      siwe_signature: Vec<u8>,
+      user_public_key: String,
+    ) -> Result<String>;
+  }
+}
+
+#[derive(Debug)]
+enum AuthType {
+  Password = 0,
+  Wallet = 1,
+}
 
 #[derive(Debug)]
 struct Client {
