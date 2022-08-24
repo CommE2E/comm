@@ -20,7 +20,7 @@ class AmqpManager {
   std::once_flag initOnceFlag;
   std::unique_ptr<AMQP::TcpChannel> amqpChannel;
   std::atomic<bool> amqpReady;
-  std::atomic<int64_t> lastConnectionTimestamp;
+  std::atomic<std::size_t> reconnectAttempt;
   void connectInternal();
   void connect();
   void waitUntilReady();
