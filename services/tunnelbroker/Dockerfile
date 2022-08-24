@@ -32,6 +32,7 @@ ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
 WORKDIR /transferred
 
 COPY services/lib/src/ lib/src/
+COPY shared/ shared/
 
 WORKDIR /transferred/tunnelbroker
 
