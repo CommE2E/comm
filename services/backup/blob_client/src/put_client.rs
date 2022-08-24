@@ -25,6 +25,8 @@ lazy_static! {
       rx_handle: None,
     }));
   static ref RUNTIME: Runtime = Runtime::new().unwrap();
+  static ref ERROR_MESSAGES: Arc<Mutex<Vec<String>>> =
+    Arc::new(Mutex::new(Vec::new()));
 }
 
 fn is_initialized() -> bool {
@@ -40,6 +42,21 @@ fn is_initialized() -> bool {
     return false;
   }
   return true;
+}
+
+fn report_error(message: String) {
+  ERROR_MESSAGES
+    .lock()
+    .expect("access error messages")
+    .push(message);
+}
+
+fn check_error() -> Result<(), String> {
+  let errors = ERROR_MESSAGES.lock().expect("access error messages");
+  match errors.is_empty() {
+    true => Ok(()),
+    false => Err(errors.join("\n"),
+  }
 }
 
 pub fn put_client_initialize_cxx() -> () {
