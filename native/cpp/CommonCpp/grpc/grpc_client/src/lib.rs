@@ -120,6 +120,16 @@ async fn verify_user_token(
   )
 }
 
+#[instrument]
+fn verify_user_token_blocking(
+  client: Box<Client>,
+  user_id: String,
+  device_id: String,
+  access_token: String,
+) -> Result<bool, Status> {
+  RUNTIME.block_on(verify_user_token(client, user_id, device_id, access_token))
+}
+
 async fn register_user(
   mut client: Box<Client>,
   user_id: String,
@@ -180,6 +190,25 @@ async fn register_user(
   // Return access token
   let message = response.message().await?;
   handle_registration_token_response(message)
+}
+
+#[instrument]
+fn register_user_blocking(
+  client: Box<Client>,
+  user_id: String,
+  device_id: String,
+  username: String,
+  password: String,
+  user_public_key: String,
+) -> Result<String, Status> {
+  RUNTIME.block_on(register_user(
+    client,
+    user_id,
+    device_id,
+    username,
+    password,
+    user_public_key,
+  ))
 }
 
 async fn login_user_pake(
@@ -244,6 +273,16 @@ async fn login_user_pake(
   handle_login_token_response(message)
 }
 
+#[instrument]
+fn login_user_pake_blocking(
+  client: Box<Client>,
+  user_id: String,
+  device_id: String,
+  password: String,
+) -> Result<String, Status> {
+  RUNTIME.block_on(login_user_pake(client, user_id, device_id, password))
+}
+
 async fn login_user_wallet(
   mut client: Box<Client>,
   user_id: String,
@@ -284,6 +323,25 @@ async fn login_user_wallet(
   // Return access token
   let message = response.message().await?;
   handle_wallet_login_response(message)
+}
+
+#[instrument]
+fn login_user_wallet_blocking(
+  client: Box<Client>,
+  user_id: String,
+  device_id: String,
+  siwe_message: String,
+  siwe_signature: Vec<u8>,
+  user_public_key: String,
+) -> Result<String, Status> {
+  RUNTIME.block_on(login_user_wallet(
+    client,
+    user_id,
+    device_id,
+    siwe_message,
+    siwe_signature,
+    user_public_key,
+  ))
 }
 
 fn pake_registration_start(
