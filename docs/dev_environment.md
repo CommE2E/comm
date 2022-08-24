@@ -15,6 +15,22 @@ It’s primarily because Apple only supports iOS development using macOS. It’s
 
 Unfortunately the dev environment is overall pretty heavy. You’ll ideally want a machine with at least 32 GiB of RAM, although 16 GiB should suffice.
 
+- [Prerequisites](#prerequisites)
+  - [Xcode](#xcode)
+  - [Homebrew](#homebrew)
+  - [Node](#node)
+  - [PHP](#php)
+  - [ShellCheck](#shellcheck)
+  - [Yarn](#yarn)
+  - [Watchman](#watchman)
+  - [Node Version Manager](#node-version-manager)
+  - [MariaDB](#mariadb)
+  - [Redis](#redis)
+  - [Cocoapods](#cocoapods)
+  - [Reactotron](#reactotron)
+- [Configuration](#configuration)
+- [Development](#development)
+
 # Prerequisites
 
 ## Xcode
