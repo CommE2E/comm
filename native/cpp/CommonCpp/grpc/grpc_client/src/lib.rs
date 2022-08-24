@@ -10,7 +10,7 @@ use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::{transport::Channel, Request, Response, Status};
+use tonic::{transport::Channel, Request, Status};
 use tracing::{error, instrument};
 
 use ::identity::Cipher;
@@ -37,8 +37,7 @@ use crate::identity::{
   PakeRegistrationRequestAndUserId as PakeRegistrationRequestAndUserIdStruct,
   PakeRegistrationUploadAndCredentialRequest as PakeRegistrationUploadAndCredentialRequestStruct,
   RegistrationRequest, RegistrationResponse as RegistrationResponseMessage,
-  VerifyUserTokenRequest, VerifyUserTokenResponse,
-  WalletLoginRequest as WalletLoginRequestStruct,
+  VerifyUserTokenRequest, WalletLoginRequest as WalletLoginRequestStruct,
   WalletLoginResponse as WalletLoginResponseStruct,
 };
 pub mod identity {
@@ -61,228 +60,230 @@ lazy_static! {
 #[cxx::bridge(namespace = "identity")]
 mod ffi {}
 
-pub struct Client {
+#[derive(Debug)]
+struct Client {
   identity_client: IdentityServiceClient<Channel>,
 }
 
-impl Client {
-  async fn new() -> Self {
-    Self {
-      identity_client: IdentityServiceClient::connect(
-        IDENTITY_SERVICE_SOCKET_ADDR,
-      )
-      .await
+fn initialize_client() -> Box<Client> {
+  Box::new(Client {
+    identity_client: RUNTIME
+      .block_on(IdentityServiceClient::connect(IDENTITY_SERVICE_SOCKET_ADDR))
       .unwrap(),
-    }
-  }
+  })
+}
 
-  async fn get_user_id(
-    &mut self,
-    auth_type: i32,
-    user_info: String,
-  ) -> Result<String, Status> {
-    Ok(
-      self
-        .identity_client
-        .get_user_id(GetUserIdRequest {
-          auth_type,
-          user_info,
-        })
-        .await?
-        .into_inner()
-        .user_id,
-    )
-  }
+async fn get_user_id(
+  mut client: Box<Client>,
+  auth_type: i32,
+  user_info: String,
+) -> Result<String, Status> {
+  Ok(
+    client
+      .identity_client
+      .get_user_id(GetUserIdRequest {
+        auth_type,
+        user_info,
+      })
+      .await?
+      .into_inner()
+      .user_id,
+  )
+}
 
-  #[instrument(skip(self))]
-  fn get_user_id_blocking(
-    &mut self,
-    auth_type: i32,
-    user_info: String,
-  ) -> Result<String, Status> {
-    RUNTIME.block_on(self.get_user_id(auth_type, user_info))
-  }
+#[instrument]
+fn get_user_id_blocking(
+  client: Box<Client>,
+  auth_type: i32,
+  user_info: String,
+) -> Result<String, Status> {
+  RUNTIME.block_on(get_user_id(client, auth_type, user_info))
+}
 
-  #[instrument(skip(self))]
-  async fn verify_user_token(
-    &mut self,
-    user_id: String,
-    device_id: String,
-    access_token: String,
-  ) -> Result<Response<VerifyUserTokenResponse>, Status> {
-    self
+async fn verify_user_token(
+  mut client: Box<Client>,
+  user_id: String,
+  device_id: String,
+  access_token: String,
+) -> Result<bool, Status> {
+  Ok(
+    client
       .identity_client
       .verify_user_token(VerifyUserTokenRequest {
         user_id,
         device_id,
         access_token,
       })
-      .await
-  }
-
-  #[instrument(skip(self))]
-  async fn register_user(
-    &mut self,
-    user_id: String,
-    device_id: String,
-    username: String,
-    password: String,
-    user_public_key: String,
-  ) -> Result<String, Status> {
-    // Create a RegistrationRequest channel and use ReceiverStream to turn the
-    // MPSC receiver into a Stream for outbound messages
-    let (tx, rx) = mpsc::channel(1);
-    let stream = ReceiverStream::new(rx);
-    let request = Request::new(stream);
-
-    // `response` is the Stream for inbound messages
-    let mut response = self
-      .identity_client
-      .register_user(request)
       .await?
-      .into_inner();
+      .into_inner()
+      .token_valid,
+  )
+}
 
-    // Start PAKE registration on client and send initial registration request
-    // to Identity service
-    let mut client_rng = OsRng;
-    let (registration_request, client_registration) = pake_registration_start(
-      &mut client_rng,
+async fn register_user(
+  mut client: Box<Client>,
+  user_id: String,
+  device_id: String,
+  username: String,
+  password: String,
+  user_public_key: String,
+) -> Result<String, Status> {
+  // Create a RegistrationRequest channel and use ReceiverStream to turn the
+  // MPSC receiver into a Stream for outbound messages
+  let (tx, rx) = mpsc::channel(1);
+  let stream = ReceiverStream::new(rx);
+  let request = Request::new(stream);
+
+  // `response` is the Stream for inbound messages
+  let mut response = client
+    .identity_client
+    .register_user(request)
+    .await?
+    .into_inner();
+
+  // Start PAKE registration on client and send initial registration request
+  // to Identity service
+  let mut client_rng = OsRng;
+  let (registration_request, client_registration) = pake_registration_start(
+    &mut client_rng,
+    user_id,
+    &password,
+    device_id,
+    username,
+    user_public_key,
+  )?;
+  if let Err(e) = tx.send(registration_request).await {
+    error!("Response was dropped: {}", e);
+    return Err(Status::aborted("Dropped response"));
+  }
+
+  // Handle responses from Identity service sequentially, making sure we get
+  // messages in the correct order
+
+  // Finish PAKE registration and begin PAKE login; send the final
+  // registration request and initial login request together to reduce the
+  // number of trips
+  let message = response.message().await?;
+  let client_login = handle_registration_response(
+    message,
+    &mut client_rng,
+    client_registration,
+    &password,
+    tx.clone(),
+  )
+  .await?;
+
+  // Finish PAKE login; send final login request to Identity service
+  let message = response.message().await?;
+  handle_registration_credential_response(message, client_login, tx).await?;
+
+  // Return access token
+  let message = response.message().await?;
+  handle_registration_token_response(message)
+}
+
+async fn login_user_pake(
+  mut client: Box<Client>,
+  user_id: String,
+  device_id: String,
+  password: String,
+) -> Result<String, Status> {
+  // Create a LoginRequest channel and use ReceiverStream to turn the
+  // MPSC receiver into a Stream for outbound messages
+  let (tx, rx) = mpsc::channel(1);
+  let stream = ReceiverStream::new(rx);
+  let request = Request::new(stream);
+
+  // `response` is the Stream for inbound messages
+  let mut response = client
+    .identity_client
+    .login_user(request)
+    .await?
+    .into_inner();
+
+  // Start PAKE login on client and send initial login request to Identity
+  // service
+  let mut client_rng = OsRng;
+  let client_login_start_result = pake_login_start(&mut client_rng, &password)?;
+  let login_request = LoginRequest {
+    data: Some(PakeLoginRequest(PakeLoginRequestStruct {
+      data: Some(PakeCredentialRequestAndUserId(
+        PakeCredentialRequestAndUserIdStruct {
+          user_id,
+          device_id,
+          pake_credential_request: client_login_start_result
+            .message
+            .serialize()
+            .map_err(|e| {
+              error!("Could not serialize credential request: {}", e);
+              Status::failed_precondition("PAKE failure")
+            })?,
+        },
+      )),
+    })),
+  };
+  if let Err(e) = tx.send(login_request).await {
+    error!("Response was dropped: {}", e);
+    return Err(Status::aborted("Dropped response"));
+  }
+
+  // Handle responses from Identity service sequentially, making sure we get
+  // messages in the correct order
+
+  // Finish PAKE login; send final login request to Identity service
+  let message = response.message().await?;
+  handle_login_credential_response(
+    message,
+    client_login_start_result.state,
+    tx,
+  )
+  .await?;
+
+  // Return access token
+  let message = response.message().await?;
+  handle_login_token_response(message)
+}
+
+async fn login_user_wallet(
+  mut client: Box<Client>,
+  user_id: String,
+  device_id: String,
+  siwe_message: String,
+  siwe_signature: Vec<u8>,
+  user_public_key: String,
+) -> Result<String, Status> {
+  // Create a LoginRequest channel and use ReceiverStream to turn the
+  // MPSC receiver into a Stream for outbound messages
+  let (tx, rx) = mpsc::channel(1);
+  let stream = ReceiverStream::new(rx);
+  let request = Request::new(stream);
+
+  // `response` is the Stream for inbound messages
+  let mut response = client
+    .identity_client
+    .login_user(request)
+    .await?
+    .into_inner();
+
+  // Start wallet login on client and send initial login request to Identity
+  // service
+  let login_request = LoginRequest {
+    data: Some(WalletLoginRequest(WalletLoginRequestStruct {
       user_id,
-      &password,
       device_id,
-      username,
+      siwe_message,
+      siwe_signature,
       user_public_key,
-    )?;
-    if let Err(e) = tx.send(registration_request).await {
-      error!("Response was dropped: {}", e);
-      return Err(Status::aborted("Dropped response"));
-    }
-
-    // Handle responses from Identity service sequentially, making sure we get
-    // messages in the correct order
-
-    // Finish PAKE registration and begin PAKE login; send the final
-    // registration request and initial login request together to reduce the
-    // number of trips
-    let message = response.message().await?;
-    let client_login = handle_registration_response(
-      message,
-      &mut client_rng,
-      client_registration,
-      &password,
-      tx.clone(),
-    )
-    .await?;
-
-    // Finish PAKE login; send final login request to Identity service
-    let message = response.message().await?;
-    handle_registration_credential_response(message, client_login, tx).await?;
-
-    // Return access token
-    let message = response.message().await?;
-    handle_registration_token_response(message)
+    })),
+  };
+  if let Err(e) = tx.send(login_request).await {
+    error!("Response was dropped: {}", e);
+    return Err(Status::aborted("Dropped response"));
   }
 
-  #[instrument(skip(self))]
-  async fn login_user_pake(
-    &mut self,
-    user_id: String,
-    device_id: String,
-    password: String,
-  ) -> Result<String, Status> {
-    // Create a LoginRequest channel and use ReceiverStream to turn the
-    // MPSC receiver into a Stream for outbound messages
-    let (tx, rx) = mpsc::channel(1);
-    let stream = ReceiverStream::new(rx);
-    let request = Request::new(stream);
-
-    // `response` is the Stream for inbound messages
-    let mut response =
-      self.identity_client.login_user(request).await?.into_inner();
-
-    // Start PAKE login on client and send initial login request to Identity
-    // service
-    let mut client_rng = OsRng;
-    let client_login_start_result =
-      pake_login_start(&mut client_rng, &password)?;
-    let login_request = LoginRequest {
-      data: Some(PakeLoginRequest(PakeLoginRequestStruct {
-        data: Some(PakeCredentialRequestAndUserId(
-          PakeCredentialRequestAndUserIdStruct {
-            user_id,
-            device_id,
-            pake_credential_request: client_login_start_result
-              .message
-              .serialize()
-              .map_err(|e| {
-                error!("Could not serialize credential request: {}", e);
-                Status::failed_precondition("PAKE failure")
-              })?,
-          },
-        )),
-      })),
-    };
-    if let Err(e) = tx.send(login_request).await {
-      error!("Response was dropped: {}", e);
-      return Err(Status::aborted("Dropped response"));
-    }
-
-    // Handle responses from Identity service sequentially, making sure we get
-    // messages in the correct order
-
-    // Finish PAKE login; send final login request to Identity service
-    let message = response.message().await?;
-    handle_login_credential_response(
-      message,
-      client_login_start_result.state,
-      tx,
-    )
-    .await?;
-
-    // Return access token
-    let message = response.message().await?;
-    handle_login_token_response(message)
-  }
-
-  #[instrument(skip(self))]
-  async fn login_user_wallet(
-    &mut self,
-    user_id: String,
-    device_id: String,
-    siwe_message: String,
-    siwe_signature: Vec<u8>,
-    user_public_key: String,
-  ) -> Result<String, Status> {
-    // Create a LoginRequest channel and use ReceiverStream to turn the
-    // MPSC receiver into a Stream for outbound messages
-    let (tx, rx) = mpsc::channel(1);
-    let stream = ReceiverStream::new(rx);
-    let request = Request::new(stream);
-
-    // `response` is the Stream for inbound messages
-    let mut response =
-      self.identity_client.login_user(request).await?.into_inner();
-
-    // Start wallet login on client and send initial login request to Identity
-    // service
-    let login_request = LoginRequest {
-      data: Some(WalletLoginRequest(WalletLoginRequestStruct {
-        user_id,
-        device_id,
-        siwe_message,
-        siwe_signature,
-        user_public_key,
-      })),
-    };
-    if let Err(e) = tx.send(login_request).await {
-      error!("Response was dropped: {}", e);
-      return Err(Status::aborted("Dropped response"));
-    }
-
-    // Return access token
-    let message = response.message().await?;
-    handle_wallet_login_response(message)
-  }
+  // Return access token
+  let message = response.message().await?;
+  handle_wallet_login_response(message)
 }
 
 fn pake_registration_start(
