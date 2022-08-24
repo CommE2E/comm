@@ -22,6 +22,7 @@ void AmqpManager::init() {
   std::call_once(initOnceFlag, [&]() {
     std::thread amqpClientThread([&]() { this->connect(); });
     amqpClientThread.detach();
+    waitUntilReady();
   });
 }
 
