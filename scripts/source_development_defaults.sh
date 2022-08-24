@@ -11,6 +11,18 @@ if [[ "$OSTYPE" == 'darwin'* ]]; then
   export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 fi
 
+# User defaults of
+# https://www.rabbitmq.com/configure.html#supported-environment-variables
+export RABBITMQ_NODENAME=comm
+export RABBITMQ_DEFAULT_PASS=comm
+export RABBITMQ_DEFAULT_USER=comm
+export RABBITMQ_HOME=${XDG_DATA_HOME:-$HOME/.local/share}/RabbitMQ
+export RABBITMQ_MNESIA_BASE=${RABBITMQ_HOME}/mnesia
+export RABBITMQ_LOG_BASE=${RABBITMQ_HOME}/logs
+export RABBITMQ_LOGS=${RABBITMQ_LOG_BASE}/comm.log
+export RABBITMQ_PLUGINS_EXPAND_DIR=${RABBITMQ_HOME}/plugins_expand
+export RABBITMQ_PID_FILE=${RABBITMQ_HOME}/rabbitmq.pid
+
 export PATH="$PATH":"$ANDROID_HOME"/emulator:"$ANDROID_HOME"/tools
 export PATH="$PATH":"$ANDROID_HOME"/tools/bin:"$ANDROID_HOME"/platform-tools
 
