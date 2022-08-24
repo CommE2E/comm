@@ -22,6 +22,4 @@ ADD native/cpp/CommonCpp/grpc grpc
 
 RUN ../scripts/build_service.sh
 
-WORKDIR /transferred
-
-CMD if [ "$COMM_TEST_SERVICES" -eq 1 ]; then scripts/run_tests.sh; else scripts/run_service.sh; fi
+CMD if [ "$COMM_TEST_SERVICES" -eq 1 ]; then ../scripts/run_tests.sh; else ../scripts/run_service.sh; fi
