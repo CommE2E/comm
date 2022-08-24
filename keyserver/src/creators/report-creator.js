@@ -78,21 +78,21 @@ async function createReport(
     VALUES ${[row]}
   `;
   await dbQuery(query);
-  handleAsyncPromise(sendSquadbotMessage(viewer, request, id));
+  handleAsyncPromise(sendCommbotMessage(viewer, request, id));
   return { id };
 }
 
-async function sendSquadbotMessage(
+async function sendCommbotMessage(
   viewer: Viewer,
   request: ReportCreationRequest,
   reportID: string,
 ): Promise<void> {
-  const canGenerateMessage = getSquadbotMessage(request, reportID, null);
+  const canGenerateMessage = getCommbotMessage(request, reportID, null);
   if (!canGenerateMessage) {
     return;
   }
   const username = await fetchUsername(viewer.id);
-  const message = getSquadbotMessage(request, reportID, username);
+  const message = getCommbotMessage(request, reportID, username);
   if (!message) {
     return;
   }
@@ -134,7 +134,7 @@ async function ignoreReport(
   return result.length !== 0;
 }
 
-function getSquadbotMessage(
+function getCommbotMessage(
   request: ReportCreationRequest,
   reportID: string,
   username: ?string,
