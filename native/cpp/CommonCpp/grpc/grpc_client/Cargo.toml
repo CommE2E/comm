@@ -21,3 +21,6 @@ identity = {path = "../../../../../services/identity" }
 [build-dependencies]
 cxx-build = "1.0"
 tonic-build = "0.8"
+
+[lib]
+crate-type = ["staticlib"]
