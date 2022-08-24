@@ -8,7 +8,7 @@ if [[ "$#" -gt 1 ]]; then
 fi
 
 
-tag=${1:-"1.2"}
+tag=${1:-"1.3.1"}
 
 BUILDER_NAME="COMM_BUILDER"
 
@@ -26,5 +26,5 @@ docker buildx build \
   --tag commapp/services-base:"${tag}" \
   -o type=image \
   --platform=linux/arm64,linux/amd64 \
-  # --push \
-  base-image/.
+  --push \
+  base-image/Dockerfile
