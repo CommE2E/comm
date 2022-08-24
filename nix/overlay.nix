@@ -89,6 +89,8 @@ prev:
     ];
   });
 
+  rabbitmq-up = prev.callPackage ./rabbitmq-up-mac.nix { };
+
   # Ensure that yarn is using the pinned version
   yarn = prev.yarn.override (_: {
     nodejs = final.nodejs-16_x-openssl_1_1;

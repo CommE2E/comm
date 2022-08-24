@@ -32,6 +32,7 @@
 , pkg-config
 , protobuf_3_15_cmake
 , python3
+, rabbitmq-server
 , redis
 , redis-up
 , rustup
@@ -82,6 +83,7 @@ mkShell {
     pkg-config
     protobuf_3_15_cmake
     grpc
+    rabbitmq-server # runtime service
   ] ++ lib.optionals stdenv.isDarwin [
     cocoapods # needed for ios
     bundler
