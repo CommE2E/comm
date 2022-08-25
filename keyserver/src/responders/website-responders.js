@@ -299,6 +299,7 @@ async function websiteResponder(
 
   const statePromises = {
     navInfo: navInfoPromise,
+    deviceID: null,
     currentUserInfo: ((currentUserInfoPromise: any): Promise<CurrentUserInfo>),
     sessionID: sessionIDPromise,
     entryStore: entryStorePromise,
