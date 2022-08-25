@@ -15,8 +15,10 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { type AnimatedStyleObj, AnimatedView } from '../types/styles';
 import {
   clusterEndHeight,
-  inlineSidebarMarginBottom,
-  inlineSidebarMarginTop,
+  inlineSidebarStyle,
+  inlineSidebarLeftStyle,
+  inlineSidebarRightStyle,
+  composedMessageStyle,
 } from './chat-constants';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
@@ -138,12 +140,13 @@ class ComposedMessage extends React.PureComponent<Props> {
     let inlineSidebar = null;
     if (item.threadCreatedFromMessage) {
       const positioning = isViewer ? 'right' : 'left';
+      const inlineSidebarPositionStyle =
+        positioning === 'left'
+          ? styles.leftInlineSidebar
+          : styles.rightInlineSidebar;
       inlineSidebar = (
-        <View style={styles.inlineSidebar}>
-          <InlineSidebar
-            threadInfo={item.threadCreatedFromMessage}
-            positioning={positioning}
-          />
+        <View style={[styles.inlineSidebar, inlineSidebarPositionStyle]}>
+          <InlineSidebar threadInfo={item.threadCreatedFromMessage} />
         </View>
       );
     }
@@ -175,8 +178,8 @@ class ComposedMessage extends React.PureComponent<Props> {
 
 const styles = StyleSheet.create({
   alignment: {
-    marginLeft: 12,
-    marginRight: 7,
+    marginLeft: composedMessageStyle.marginLeft,
+    marginRight: composedMessageStyle.marginRight,
   },
   content: {
     alignItems: 'center',
@@ -191,17 +194,28 @@ const styles = StyleSheet.create({
     width: 16,
   },
   inlineSidebar: {
-    marginBottom: inlineSidebarMarginBottom,
-    marginTop: inlineSidebarMarginTop,
+    marginBottom: inlineSidebarStyle.marginBottom,
+    marginTop: inlineSidebarStyle.marginTop,
   },
   leftChatBubble: {
     justifyContent: 'flex-end',
+  },
+  leftInlineSidebar: {
+    justifyContent: 'flex-start',
+    position: 'relative',
+    top: inlineSidebarLeftStyle.topOffset,
   },
   messageBox: {
     marginRight: 5,
   },
   rightChatBubble: {
     justifyContent: 'flex-start',
+  },
+  rightInlineSidebar: {
+    alignSelf: 'flex-end',
+    position: 'relative',
+    right: inlineSidebarRightStyle.marginRight,
+    top: inlineSidebarRightStyle.topOffset,
   },
 });
 
