@@ -46,7 +46,7 @@ pub mod identity {
   tonic::include_proto!("identity");
 }
 
-const IDENTITY_SERVICE_SOCKET_ADDR: &str = "https://[::1]:50051";
+const IDENTITY_SERVICE_SOCKET_ADDR: &str = "https://[::1]:50053";
 
 lazy_static! {
   pub static ref RUNTIME: Arc<Runtime> = Arc::new(
