@@ -370,17 +370,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (this.props.ongoingMessageCreation) {
       return true;
     }
-    for (const localMessageID in this.state.pendingUploads) {
-      const messagePendingUploads = this.state.pendingUploads[localMessageID];
-      if (
-        Object.keys(messagePendingUploads).some(
-          localUploadID => !messagePendingUploads[localUploadID].failed,
-        )
-      ) {
-        return true;
-      }
-    }
-    return false;
+    const { pendingUploads } = this.state;
+    return Object.keys(pendingUploads).some(localMessageID => {
+      const messagePendingUploads = pendingUploads[localMessageID];
+      return Object.keys(messagePendingUploads).some(
+        localUploadID => !messagePendingUploads[localUploadID].failed,
+      );
+    });
   };
 
   sendTextMessage = async (
