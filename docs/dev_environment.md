@@ -53,10 +53,18 @@ brew install php@7.4 && brew upgrade php@7.4
 
 ## Rust
 
-We use a Rust [implementation](https://github.com/novifinancial/opaque-ke) of the OPAQUE password-authenticated key exchange protocol, so you will need to install Rust to compile the static library. The easiest way to do this is with `rustup`.
+You will need to install Rust to compile parts of the native application. The easiest way to do this is with `rustup`.
 
 ```
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+### Cargo lipo
+
+We use `cargo lipo` to create universal libraries for iOS. Once you’ve installed Rust, you can run the following command to install `cargo lipo`:
+
+```
+cargo install cargo-lipo
 ```
 
 ## ShellCheck
