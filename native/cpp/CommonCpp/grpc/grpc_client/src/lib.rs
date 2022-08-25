@@ -99,12 +99,6 @@ mod ffi {
 }
 
 #[derive(Debug)]
-enum AuthType {
-  Password = 0,
-  Wallet = 1,
-}
-
-#[derive(Debug)]
 struct Client {
   identity_client: IdentityServiceClient<Channel>,
 }
@@ -634,21 +628,6 @@ fn handle_wallet_login_response(
   } else {
     Err(handle_unexpected_response(message))
   }
-}
-
-struct RegistrationResponseAndSender {
-  response: Option<RegistrationResponseMessage>,
-  sender: mpsc::Sender<RegistrationRequest>,
-}
-
-struct LoginResponseAndSender {
-  response: Option<LoginResponse>,
-  sender: mpsc::Sender<LoginRequest>,
-}
-
-enum ResponseAndSender {
-  Registration(RegistrationResponseAndSender),
-  Login(LoginResponseAndSender),
 }
 
 async fn send_to_mpsc<T>(
