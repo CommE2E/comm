@@ -44,6 +44,8 @@ const size_t AMQP_RECONNECT_MAX_ATTEMPTS = 10;
 // DEVICEID_CHAR_LENGTH has to be kept in sync with deviceIDCharLength
 // which is defined in web/utils/device-id.js
 const size_t DEVICEID_CHAR_LENGTH = 64;
+// DEVICEID_FORMAT_REGEX has to be kept in sync with deviceIDFormatRegex
+// which is defined in web/utils/device-id.js
 const std::regex DEVICEID_FORMAT_REGEX(
     "^(ks|mobile|web):[a-zA-Z0-9]{" + std::to_string(DEVICEID_CHAR_LENGTH) +
     "}$");

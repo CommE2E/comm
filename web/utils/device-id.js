@@ -16,6 +16,11 @@ const alphanumeric =
 // deviceIDCharLength has to be kept in sync with DEVICEID_CHAR_LENGTH
 // which is defined in services/tunnelbroker/src/Constants.h
 const deviceIDCharLength = 64;
+// deviceIDFormatRegex has to be kept in sync with DEVICEID_FORMAT_REGEX
+// which is defined in services/tunnelbroker/src/Constants.h
+const deviceIDFormatRegex: RegExp = new RegExp(
+  `^(ks|mobile|web):[a-zA-Z0-9]{${deviceIDCharLength.toString()}}$`,
+);
 
 function generateDeviceID(type: DeviceIDType): string {
   const suffix = generateRandomString(deviceIDCharLength, alphanumeric);
@@ -30,4 +35,9 @@ function generateDeviceID(type: DeviceIDType): string {
   invariant(false, `Unhandled device type ${type}`);
 }
 
-export { generateDeviceID, deviceIDCharLength, deviceIDTypes };
+export {
+  generateDeviceID,
+  deviceIDCharLength,
+  deviceIDTypes,
+  deviceIDFormatRegex,
+};

@@ -4,17 +4,17 @@ import {
   generateDeviceID,
   deviceIDCharLength,
   deviceIDTypes,
+  deviceIDFormatRegex,
 } from './device-id';
 
 describe('generateDeviceID', () => {
-  const baseRegExp = new RegExp(
-    `^(ks|mobile|web):[a-zA-Z0-9]{${deviceIDCharLength.toString()}}$`,
-  );
   it(
     'passed deviceIDTypes.KEYSERVER retruns a randomly generated string, ' +
       'subject to ^(ks|mobile|web):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceIDTypes.KEYSERVER)).toMatch(baseRegExp);
+      expect(generateDeviceID(deviceIDTypes.KEYSERVER)).toMatch(
+        deviceIDFormatRegex,
+      );
     },
   );
 
@@ -22,7 +22,7 @@ describe('generateDeviceID', () => {
     'passed deviceIDTypes.WEB retruns a randomly generated string, ' +
       'subject to ^(ks|mobile|web):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceIDTypes.WEB)).toMatch(baseRegExp);
+      expect(generateDeviceID(deviceIDTypes.WEB)).toMatch(deviceIDFormatRegex);
     },
   );
 
@@ -30,7 +30,9 @@ describe('generateDeviceID', () => {
     'passed deviceIDTypes.MOBILE retruns a randomly generated string, ' +
       'subject to ^(ks|mobile|web):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceIDTypes.MOBILE)).toMatch(baseRegExp);
+      expect(generateDeviceID(deviceIDTypes.MOBILE)).toMatch(
+        deviceIDFormatRegex,
+      );
     },
   );
 
