@@ -21,6 +21,12 @@ use libc;
 use libc::c_char;
 use std::ffi::CStr;
 
+#[derive(Debug)]
+struct PutRequestData {
+  field_index: usize,
+  data: Vec<u8>,
+}
+
 struct BidiClient {
   tx: Option<mpsc::Sender<PutRequestData>>,
 
@@ -95,11 +101,11 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
   let outbound = async_stream::stream! {
     while let Some(data) = request_thread_rx.recv().await {
       println!("[RUST] [transmitter_thread] field index: {}", data.field_index);
-      println!("[RUST] [transmitter_thread] data: {}", data.data);
+      println!("[RUST] [transmitter_thread] data: {:?}", data.data);
       let request_data: put_request::Data = match data.field_index {
-        0 => Holder(data.data),
-        1 => BlobHash(data.data),
-        2 => DataChunk(data.data.into_bytes()),
+        0 => Holder(String::from_utf8(data.data).expect("Found invalid UTF-8")),
+        1 => BlobHash(String::from_utf8(data.data).expect("Found invalid UTF-8")),
+        2 => DataChunk(data.data),
         _ => panic!("invalid field index value {}", data.field_index)
       };
       let request = PutRequest {
@@ -194,9 +200,9 @@ pub fn put_client_write_cxx(
   println!("[RUST] [put_client_process] begin");
   check_error()?;
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
-  let data_str: String = data_c_str.to_str().unwrap().to_owned();
+  let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
   println!("[RUST] [put_client_process] field index: {}", field_index);
-  println!("[RUST] [put_client_process] data string: {}", data_str);
+  println!("[RUST] [put_client_process] data string: {:?}", data_bytes);
 
   RUNTIME.block_on(async {
     CLIENT
@@ -205,7 +211,7 @@ pub fn put_client_write_cxx(
       .tx
       .as_ref()
       .expect("access client's transmitter")
-      .send(PutRequestData{field_index, data: data_str})
+      .send(PutRequestData{field_index, data: data_bytes})
       .await
       .expect("send data to receiver");
   });
