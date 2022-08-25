@@ -17,9 +17,7 @@ use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
-use libc;
-use libc::c_char;
-use std::ffi::CStr;
+use tracing::error;
 
 #[derive(Debug)]
 struct PutRequestData {
@@ -65,6 +63,7 @@ fn is_initialized() -> bool {
 }
 
 fn report_error(message: String) {
+  error!("[RUST] Error: {}", message);
   ERROR_MESSAGES
     .lock()
     .expect("access error messages")
@@ -122,7 +121,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
   ) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
   let rx_handle = RUNTIME.spawn(async move {
     println!("[RUST] [receiver_thread] begin");
-    let response: Option<
+    let maybe_response: Option<
       tonic::Response<tonic::codec::Streaming<PutResponse>>,
     > = match grpc_client
       .expect("access grpc client")
@@ -132,35 +131,49 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
       Ok(res) => Some(res),
       Err(err) => {
         report_error(err.to_string());
-        println!("ERROR!! {}", err.to_string());
         None
       }
     };
-    if response.is_none() {
+    if maybe_response.is_none() {
       return;
     }
-    let mut inbound = response.unwrap().into_inner();
-    loop {
-      let response: Option<PutResponse> = match inbound.message().await {
-        Ok(res) => res,
-        Err(err) => {
-          report_error(err.to_string());
-          println!("ERROR!! {}", err.to_string());
-          None
+    match maybe_response {
+      Some(response) => {
+        let mut inner_response = response.into_inner();
+        let mut response_present = true;
+        while response_present {
+          response_present = match inner_response.message().await {
+            Ok(maybe_response_message) => {
+              let mut result = false;
+              if let Some(response_message) = maybe_response_message {
+                println!(
+                  "[RUST] got response: {}",
+                  response_message.data_exists
+                );
+                // warning: this will hang if there's more unread responses than
+                // MPSC_CHANNEL_BUFFER_CAPACITY
+                // you should then use put_client_blocking_read_cxx in order to dequeue
+                // the responses in c++ and make room for more
+                if let Ok(_) = response_thread_tx
+                  .send((response_message.data_exists as i32).to_string())
+                  .await
+                {
+                  result = true;
+                }
+              }
+              result
+            }
+            Err(err) => {
+              report_error(err.to_string());
+              false
+            }
+          };
         }
-      };
-      if response.is_none() {
-        break;
       }
-      let response: PutResponse = response.unwrap();
-      println!("[RUST] got response: {}", response.data_exists);
-      // warning: this will hang if there's more unread responses than MPSC_CHANNEL_BUFFER_CAPACITY
-      // you should then use put_client_blocking_read_cxx in order to dequeue the responses in c++ and make room for more
-      response_thread_tx
-        .send((response.data_exists as i32).to_string())
-        .await
-        .unwrap();
-    }
+      unexpected => {
+        report_error(format!("unexpected result received: {:?}", unexpected));
+      }
+    };
     println!("[RUST] [receiver_thread] done");
   });
 
@@ -187,10 +200,7 @@ pub fn put_client_blocking_read_cxx() -> Result<String, String> {
     }
     CLIENT.lock().expect("access client").rx = Some(rx);
   });
-  if response.is_none() {
-    return Err("response not received properly".to_string());
-  }
-  Ok(response.unwrap())
+  response.ok_or("response not received properly".to_string())
 }
 
 pub fn put_client_write_cxx(
@@ -211,7 +221,10 @@ pub fn put_client_write_cxx(
       .tx
       .as_ref()
       .expect("access client's transmitter")
-      .send(PutRequestData{field_index, data: data_bytes})
+      .send(PutRequestData {
+        field_index,
+        data: data_bytes,
+      })
       .await
       .expect("send data to receiver");
   });
@@ -225,16 +238,18 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
   check_error()?;
   println!("[RUST] put_client_terminating");
   check_error()?;
-  let rx_handle = CLIENT
-    .lock()
-    .expect("access client")
-    .rx_handle
-    .take()
-    .unwrap();
-  drop(CLIENT.lock().expect("access client").tx.take().unwrap());
-  RUNTIME.block_on(async {
-    rx_handle.await.unwrap();
-  });
+  if let Some(rx_handle) =
+    CLIENT.lock().expect("access client").rx_handle.take()
+  {
+    if let Some(tx) = CLIENT.lock().expect("access client").tx.take() {
+      drop(tx);
+    }
+    RUNTIME.block_on(async {
+      if rx_handle.await.is_err() {
+        report_error("wait for receiver handle failed".to_string());
+      }
+    });
+  }
 
   assert!(
     !is_initialized(),
