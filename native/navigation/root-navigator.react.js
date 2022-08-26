@@ -38,7 +38,9 @@ import {
   SidebarListModalRouteName,
   type ScreenParamList,
   type RootParamList,
-} from './route-names';
+  SIWEModalRouteName,
+} from "./route-names";
+import {SIWEModal} from "../account/siwe-modal.react";
 
 enableScreens();
 
@@ -139,9 +141,15 @@ function RootComponent(): React.Node {
     >
       <Root.Screen
         name={LoggedOutModalRouteName}
-        component={LoggedOutModal}
+        component={SIWEModal}
         options={disableGesturesScreenOptions}
       />
+      <Root.Screen
+        name={SIWEModalRouteName}
+        component={SIWEModal}
+        options={modalOverlayScreenOptions}
+      />
+
       <Root.Screen name={AppRouteName} component={AppNavigator} />
       <Root.Screen
         name={ThreadPickerModalRouteName}
