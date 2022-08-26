@@ -77,6 +77,7 @@ import type {
   FetchJSONOptions,
   FetchJSONServerResponse,
 } from 'lib/utils/fetch-json';
+import { values } from 'lib/utils/objects';
 import { useIsReportEnabled } from 'lib/utils/report-utils';
 
 import { disposeTempFile } from '../media/file-utils';
@@ -371,12 +372,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       return true;
     }
     const { pendingUploads } = this.state;
-    return Object.keys(pendingUploads).some(localMessageID => {
-      const messagePendingUploads = pendingUploads[localMessageID];
-      return Object.keys(messagePendingUploads).some(
-        localUploadID => !messagePendingUploads[localUploadID].failed,
-      );
-    });
+    return values(pendingUploads).some(messagePendingUploads =>
+      values(messagePendingUploads).some(upload => !upload.failed),
+    );
   };
 
   sendTextMessage = async (
@@ -972,9 +970,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     if (!pendingUploads) {
       return false;
     }
-    return Object.keys(pendingUploads).some(
-      localUploadID => pendingUploads[localUploadID].failed,
-    );
+    return values(pendingUploads).some(upload => upload.failed);
   };
 
   addReply = (message: string) => {
