@@ -1,5 +1,18 @@
 # Shared workflows
 
+## Inspect database with TablePlus
+
+Feel free to use any MariaDB administration platform that you’re comfortable with. PHP was deprecated in macOS 12 (Monterey), leading many of us to switch to [TablePlus](https://tableplus.com/).
+
+After running `nix develop` which will create a MariaDB instance, you need to open a new connection. After opening TablePlus, click the “Create a new connection” text at the bottom of the window that appears.
+
+- Alternatively, you can navigate through Connection → New... in the menu at the top of the display.
+
+Choose MariaDB from the database options that appear. You’ll be prompted for:
+
+- Name (Comm)
+- Check “Use socket”. Enter socket path: (`/Users/<user>/.local/share/MariaDB/mysql.sock`, substituting `<user>` for your user. `<user>` can be found by running `echo $USER` in a terminal)
+
 ## Codegen
 
 We use a couple of tools that automatically generate code. There is always a source of truth – usually some file(s) with schemas.
