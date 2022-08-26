@@ -69,7 +69,7 @@ Run `nix develop` to create a dev environment. Nix will handle installation of a
 
 ## How Nix introduces dependencies to a development environment
 
-Nix installs packages in the Nix store at package-specific paths (e.g. `/nix/store-x7kdiasp...-clang/bin/clang`). When you run `nix develop`, Nix sets environment variables such as `PATH` to expose the binary dependencies to your shell. This model can be extended through shell hooks to support other build toolchains such as `pkg-config`, `cmake`, and many other language specific package managers by simply adding the repective toolchain to `nativeBuildInputs`.
+Nix installs packages in the Nix store at package-specific paths (e.g. `/nix/store/x7kdiasp...-clang/bin/clang`). When you run `nix develop`, Nix sets environment variables such as `PATH` to expose the binary dependencies to your shell. This model can be extended through shell hooks to support other build toolchains such as `pkg-config`, `cmake`, and many other language specific package managers by simply adding the repective toolchain to `nativeBuildInputs`.
 
 # Supported workflows
 
