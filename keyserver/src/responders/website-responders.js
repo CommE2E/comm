@@ -376,7 +376,7 @@ async function websiteResponder(
     ;
           var baseURL = "${baseURL}";
         </script>
-        <script src="192.168.86.26:8082/dev.build.js"></script>
+        <script src="${jsURL}"></script>
       </body>
     </html>
   `);
