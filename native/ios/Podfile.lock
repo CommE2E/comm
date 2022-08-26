@@ -770,6 +770,8 @@ PODS:
     - React-Core
     - react-native-video/Video
     - SPTPersistentCache (~> 1.1.0)
+  - react-native-webview (11.23.0):
+    - React-Core
   - React-perflogger (0.66.4)
   - React-RCTActionSheet (0.66.4):
     - React-Core/RCTActionSheetHeaders (= 0.66.4)
@@ -992,6 +994,7 @@ DEPENDENCIES:
   - react-native-orientation-locker (from `../../node_modules/react-native-orientation-locker`)
   - react-native-safe-area-context (from `../../node_modules/react-native-safe-area-context`)
   - react-native-video/VideoCaching (from `../../node_modules/react-native-video/react-native-video.podspec`)
+  - react-native-webview (from `../../node_modules/react-native-webview`)
   - React-perflogger (from `../../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../../node_modules/react-native/Libraries/NativeAnimation`)
@@ -1143,6 +1146,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-safe-area-context"
   react-native-video:
     :podspec: "../../node_modules/react-native-video/react-native-video.podspec"
+  react-native-webview:
+    :path: "../../node_modules/react-native-webview"
   React-perflogger:
     :path: "../../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -1272,6 +1277,7 @@ SPEC CHECKSUMS:
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
   react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
   react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
+  react-native-webview: e771bc375f789ebfa02a26939a57dbc6fa897336
   React-perflogger: 93075d8931c32cd1fce8a98c15d2d5ccc4d891bd
   React-RCTActionSheet: 7d3041e6761b4f3044a37079ddcb156575fb6d89
   React-RCTAnimation: 743e88b55ac62511ae5c2e22803d4f503f2a3a13
