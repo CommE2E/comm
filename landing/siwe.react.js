@@ -6,10 +6,9 @@ import './siwe.css';
 import { SiweMessage } from 'siwe';
 import { useAccount, useSigner } from 'wagmi';
 
-const domain = window.location.host;
-const origin = window.location.origin;
-
 function createSiweMessage(address, statement) {
+  const domain = window.location.host;
+  const origin = window.location.origin;
   const message = new SiweMessage({
     domain,
     address,
