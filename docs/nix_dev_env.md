@@ -73,6 +73,7 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
   - [Running mobile app on Android Emulator](./nix_mobile_workflows.md#running-mobile-app-on-android-emulator)
   - [Running mobile app on physical iOS devices](./nix_mobile_workflows.md#running-mobile-app-on-physical-ios-devices)
 - [Shared workflows](./nix_shared_workflows.md#shared-workflows)
+  - [Inspect database with TablePlus](./nix_shared_workflows.md#inspect-database-with-tableplus)
   - [Codegen](./nix_shared_workflows.md#codegen)
     - [Codegen for JSI](./nix_shared_workflows.md#codegen-for-jsi)
     - [Codegen for gRPC](./nix_shared_workflows.md#codegen-for-grpc)
