@@ -324,6 +324,8 @@ After installing Protobuf, you will also need to install gRPC using `brew instal
 
 Please note that the order is crucial here - you have to first install Protobuf and only then gRPC. This is because otherwise gRPC will install Protobuf automatically from its dependency list, but the version of Protobuf will be incorrect.
 
+In the event that Homebrew installs Protobuf installs anyway, run `brew unlink protobuf` and `protoc --version` to ensure it matches the version above.
+
 ## Arcanist
 
 We use Phabricator for code review. To upload a “diff” to Phabricator, you’ll need to use a tool called Arcanist.
