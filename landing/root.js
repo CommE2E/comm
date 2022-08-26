@@ -30,13 +30,13 @@ declare var routerBasename: string;
 
 function RootComponent() {
   return (
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains}>
-        <BrowserRouter basename={routerBasename}>
-          <Landing />
-        </BrowserRouter>
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <BrowserRouter basename={routerBasename}>
+      <WagmiConfig client={wagmiClient}>
+        <RainbowKitProvider chains={chains}>
+            <Landing />
+        </RainbowKitProvider>
+      </WagmiConfig>
+    </BrowserRouter>
   );
 }
 
