@@ -17,7 +17,6 @@ use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
-use tracing::error;
 
 #[derive(Debug)]
 struct PutRequestData {
@@ -59,17 +58,17 @@ fn is_initialized() -> bool {
 }
 
 fn report_error(message: String) {
-  error!("[RUST] Error: {}", message);
+  println!("[RUST] Error: {}", message);
   if let Ok(mut error_messages) = ERROR_MESSAGES.lock() {
     error_messages.push(message);
   }
-  error!("could not access error messages")
+  panic!("could not access error messages")
 }
 
 fn check_error() -> Result<(), String> {
   if let Ok(error_messages) = ERROR_MESSAGES.lock() {
     if !error_messages.is_empty() {
-      return Err(error_messages.join("\n"));
+      return Err(error_messages.join("/"));
     }
     return Ok(());
   } else {
@@ -96,7 +95,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
     let outbound = async_stream::stream! {
       while let Some(data) = request_thread_rx.recv().await {
         println!("[RUST] [transmitter_thread] field index: {}", data.field_index);
-        println!("[RUST] [transmitter_thread] data: {:?}", data.data);
+        println!("[RUST] [transmitter_thread] data size: {}", data.data.len());
         let request_data: Option<put_request::Data> = match data.field_index {
           0 => {
             match String::from_utf8(data.data).ok() {
@@ -152,9 +151,6 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
           None
         }
       };
-      if maybe_response.is_none() {
-        return;
-      }
       match maybe_response {
         Some(response) => {
           let mut inner_response = response.into_inner();
@@ -187,6 +183,9 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
               }
             };
           }
+        }
+        None => {
+          return;
         }
         unexpected => {
           report_error(format!("unexpected result received: {:?}", unexpected));
@@ -229,6 +228,7 @@ pub fn put_client_blocking_read_cxx() -> Result<String, String> {
       report_error("couldn't access client".to_string());
     }
   });
+  check_error()?;
   response.ok_or("response not received properly".to_string())
 }
 
@@ -241,7 +241,7 @@ pub fn put_client_write_cxx(
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
   println!("[RUST] [put_client_process] field index: {}", field_index);
-  println!("[RUST] [put_client_process] data string: {:?}", data_bytes);
+  println!("[RUST] [put_client_process] data string size: {}", data_bytes.len());
 
   RUNTIME.block_on(async {
     if let Ok(mut client) = CLIENT.lock() {
@@ -256,6 +256,7 @@ pub fn put_client_write_cxx(
         } else {
           report_error("send data to receiver failed".to_string());
         }
+        client.tx = Some(tx);
       } else {
         report_error("couldn't access client's transmitter".to_string());
       }
@@ -270,14 +271,14 @@ pub fn put_client_write_cxx(
 // returns vector of error messages
 // empty vector indicates that there were no errors
 pub fn put_client_terminate_cxx() -> Result<(), String> {
-  println!("[RUST] put_client_terminating");
+  println!("[RUST] put_client_terminate_cxx begin");
   check_error()?;
 
   if let Ok(mut client) = CLIENT.lock() {
+    if let Some(tx) = client.tx.take() {
+      drop(tx);
+    }
     if let Some(receiver_handle) = client.receiver_handle.take() {
-      if let Some(tx) = client.tx.take() {
-        drop(tx);
-      }
       RUNTIME.block_on(async {
         if receiver_handle.await.is_err() {
           report_error("wait for receiver handle failed".to_string());
@@ -292,6 +293,7 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
     !is_initialized(),
     "client transmitter handler released properly"
   );
+  check_error()?;
   println!("[RUST] put_client_terminated");
   Ok(())
 }
