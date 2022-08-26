@@ -8,21 +8,6 @@ We use Nix to package all of the dependencies for our dev environment. It does s
 
 For how Nix package management works, please refer to the official [how Nix works guide](https://nixos.org/guides/how-nix-works.html).
 
-# Supported workflows
-
-| Workflow                        | macOS supported |
-| ------------------------------- | --------------- |
-| `keyserver` (Node.js)           | ✅              |
-| `web` (Webpack)                 | ✅              |
-| `native` iOS (React Native)     | ❌ **†**        |
-| `native` Android (React Native) | ❌ **†**        |
-| C++ services                    | ❌ **\***       |
-| Rust services                   | ✅              |
-
-**†** Workflow requires additional undocumented steps after Nix installation (e.g. installing XCode, XCode profile, Android Studio, or Android NDK).
-
-**\*** Workflow requires RabbitMQ and AWS/Localstack to be available.
-
 # Requirements
 
 To set up a dev environment using Nix, you will need a macOS or Linux machine.
@@ -85,3 +70,18 @@ Run `nix develop` to create a dev environment. Nix will handle installation of a
 ## How Nix introduces dependencies to a development environment
 
 Nix installs packages in the Nix store at package-specific paths (e.g. `/nix/store-x7kdiasp...-clang/bin/clang`). When you run `nix develop`, Nix sets environment variables such as `PATH` to expose the binary dependencies to your shell. This model can be extended through shell hooks to support other build toolchains such as `pkg-config`, `cmake`, and many other language specific package managers by simply adding the repective toolchain to `nativeBuildInputs`.
+
+# Supported workflows
+
+| Workflow                        | macOS supported |
+| ------------------------------- | --------------- |
+| `keyserver` (Node.js)           | ✅ **†**        |
+| `web` (Webpack)                 | ✅ **†**        |
+| `native` iOS (React Native)     | ✅ **†**        |
+| `native` Android (React Native) | ✅ **†**        |
+| C++ services                    | ❌ **\***       |
+| Rust services                   | ✅              |
+
+**†** Workflow requires additional steps after Nix installation (e.g. installing XCode, XCode profile, flipper, `idb`, `reactotron`, Android Studio, or Android NDK).
+
+**\*** Workflow requires documentation; and it requires the RabbitMQ and AWS/Localstack services to be available.
