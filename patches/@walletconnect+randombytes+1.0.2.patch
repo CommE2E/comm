@@ -1,0 +1,23 @@
+diff --git a/node_modules/@walletconnect/randombytes/dist/cjs/node/index.js b/node_modules/@walletconnect/randombytes/dist/cjs/node/index.js
+index cdf2b06..3f8c077 100644
+--- a/node_modules/@walletconnect/randombytes/dist/cjs/node/index.js
++++ b/node_modules/@walletconnect/randombytes/dist/cjs/node/index.js
+@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.randomBytes = void 0;
+-const crypto_1 = __importDefault(require("crypto"));
++const crypto_1 = __importDefault(require("react-native-crypto"));
+ const encoding_1 = require("@walletconnect/encoding");
+ function randomBytes(length) {
+     const buf = crypto_1.default.randomBytes(length);
+diff --git a/node_modules/@walletconnect/randombytes/dist/esm/node/index.js b/node_modules/@walletconnect/randombytes/dist/esm/node/index.js
+index e46de33..43a3191 100644
+--- a/node_modules/@walletconnect/randombytes/dist/esm/node/index.js
++++ b/node_modules/@walletconnect/randombytes/dist/esm/node/index.js
+@@ -1,4 +1,4 @@
+-import crypto from "crypto";
++import crypto from "react-native-crypto";
+ import { bufferToArray } from "@walletconnect/encoding";
+ export function randomBytes(length) {
+     const buf = crypto.randomBytes(length);

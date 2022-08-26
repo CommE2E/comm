@@ -60,6 +60,7 @@ import LogInPanel from './log-in-panel.react';
 import type { LogInState } from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
 import type { RegisterState } from './register-panel.react';
+import SIWEButton from './siwe-button.react';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
@@ -472,6 +473,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       const opacityStyle = { opacity: this.buttonOpacity };
       buttons = (
         <Animated.View style={[styles.buttonContainer, opacityStyle]}>
+          <SIWEButton />
           <TouchableOpacity
             onPress={this.onPressLogIn}
             style={styles.button}

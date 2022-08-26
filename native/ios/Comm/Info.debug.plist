@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -22,8 +20,23 @@
 	<string>1.0.136</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>app.comm</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>comm</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
-	<string>136</string>
+	<string>135</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>org-appextension-feature-password-management</string>
@@ -43,16 +56,16 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to access the camera so you can capture and send photos.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to use your location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access your location</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access your photo library so you can send images.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to save images to your photo library.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Allow $(PRODUCT_NAME) to access the camera so you can capture and send photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to access your photo library so you can send images.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>OpenSans-Semibold.ttf</string>
