@@ -1,0 +1,11 @@
+div {
+  justify-content: center;
+  align-content: center;
+  padding-top: 20px;
+  padding-bottom: 50px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
