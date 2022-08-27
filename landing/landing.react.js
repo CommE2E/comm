@@ -9,7 +9,6 @@ import Header from './header.react';
 import Keyservers from './keyservers.react';
 import Privacy from './privacy.react';
 import QR from './qr.react';
-import SIWE from './siwe.react';
 import Support from './support.react';
 import Team from './team.react';
 import Terms from './terms.react';
@@ -25,7 +24,6 @@ function Landing(): React.Node {
   const onKeyservers = useRouteMatch({ path: '/keyservers' });
   const onQR = useRouteMatch({ path: '/qr' });
   const onTeam = useRouteMatch({ path: '/team' });
-  const onSIWE = useRouteMatch({ path: '/siwe' });
 
   const activePage = React.useMemo(() => {
     if (onPrivacy) {
@@ -40,12 +38,10 @@ function Landing(): React.Node {
       return <QR />;
     } else if (onTeam) {
       return <Team />;
-    } else if (onSIWE) {
-      return <SIWE />;
     } else {
       return <AppLanding />;
     }
-  }, [onKeyservers, onPrivacy, onSupport, onTerms, onTeam, onQR, onSIWE]);
+  }, [onKeyservers, onPrivacy, onSupport, onTerms, onTeam, onQR]);
 
   let header;
   if (!onQR) {
