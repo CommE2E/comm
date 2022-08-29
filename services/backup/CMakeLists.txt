@@ -60,7 +60,7 @@ add_executable(
   ${SOURCE_CODE}
 )
 
-add_library_rust(PATH rust_lib NAMESPACE backup)
+add_library_rust(PATH blob_client NAMESPACE backup)
 
 target_include_directories(
   backup
@@ -88,7 +88,7 @@ set(
   comm-backup-grpc
   comm-services-common
   comm-server-base-reactors
-  backup::rust_lib
+  backup::blob_client
 )
 
 target_link_libraries(
