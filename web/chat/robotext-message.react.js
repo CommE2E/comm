@@ -71,6 +71,7 @@ class RobotextMessage extends React.PureComponent<Props> {
           item={item}
           mouseOverMessagePosition={this.props.mouseOverMessagePosition}
           availableTooltipPositions={availableTooltipPositionsForRobotext}
+          canReply={false}
         />
       );
     }
