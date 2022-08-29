@@ -164,13 +164,23 @@ jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
   std::promise<std::vector<std::pair<Message, std::vector<Media>>>>
       messagesResult;
   auto messagesResultFuture = messagesResult.get_future();
-
   this->databaseThread->scheduleTask([&messagesResult]() {
-    messagesResult.set_value(
-        DatabaseManager::getQueryExecutor().getAllMessages());
+    try {
+      messagesResult.set_value(
+          DatabaseManager::getQueryExecutor().getAllMessages());
+    } catch (const std::exception &e) {
+      messagesResult.set_exception(std::make_exception_ptr(e));
+    }
   });
-
-  auto messagesVector = messagesResultFuture.get();
+  // We cannot instantiate JSError on database thread, so we re-throw
+  // C++ error on the main thread, catch it and transform
+  // to informative JSError on the main thread
+  std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
+  try {
+    messagesVector = messagesResultFuture.get();
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
   size_t numMessages{messagesVector.size()};
   jsi::Array jsiMessages = jsi::Array(rt, numMessages);
 
@@ -513,12 +523,21 @@ jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
   std::promise<std::vector<Thread>> threadsResult;
   auto threadsResultFuture = threadsResult.get_future();
 
-  this->databaseThread->scheduleTask([&threadsResult]() {
-    threadsResult.set_value(
-        DatabaseManager::getQueryExecutor().getAllThreads());
+  this->databaseThread->scheduleTask([&threadsResult, &rt]() {
+    try {
+      threadsResult.set_value(
+          DatabaseManager::getQueryExecutor().getAllThreads());
+    } catch (const std::exception &e) {
+      threadsResult.set_exception(std::make_exception_ptr(e));
+    }
   });
 
-  auto threadsVector = threadsResultFuture.get();
+  std::vector<Thread> threadsVector;
+  try {
+    threadsVector = threadsResultFuture.get();
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
   size_t numThreads{threadsVector.size()};
   jsi::Array jsiThreads = jsi::Array(rt, numThreads);
 
