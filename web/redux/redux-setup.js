@@ -26,10 +26,12 @@ import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
-import { type NavInfo, updateNavInfoActionType } from '../types/nav-types';
+import { type NavInfo } from '../types/nav-types';
 import {
   updateWindowActiveActionType,
   setDeviceIDActionType,
+  updateNavInfoActionType,
+  updateWindowDimensionsActionType,
 } from './action-types';
 import { reduceDeviceID } from './device-id-reducer';
 import reduceNavInfo from './nav-reducer';
@@ -66,8 +68,6 @@ export type AppState = {
   _persist: ?PersistState,
 };
 
-export const updateWindowDimensions = 'UPDATE_WINDOW_DIMENSIONS';
-
 export type Action =
   | BaseAction
   | { type: 'UPDATE_NAV_INFO', payload: Shape<NavInfo> }
@@ -88,7 +88,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
   let state = oldState;
 
-  if (action.type === updateWindowDimensions) {
+  if (action.type === updateWindowDimensionsActionType) {
     return validateState(oldState, {
       ...state,
       windowDimensions: action.payload,

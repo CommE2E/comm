@@ -8,10 +8,10 @@ import {
   unreadCount,
 } from 'lib/selectors/thread-selectors';
 
+import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { navTabSelector } from '../selectors/nav-selectors.js';
 import SWMansionIcon from '../SWMansionIcon.react';
-import { updateNavInfoActionType } from '../types/nav-types';
 import css from './left-layout-aside.css';
 import NavigationPanel from './navigation-panel.react';
 

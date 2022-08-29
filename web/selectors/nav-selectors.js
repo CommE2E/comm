@@ -17,12 +17,12 @@ import type {
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
+import { updateNavInfoActionType } from '../redux/action-types';
 import type { AppState } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
 import {
   type NavigationTab,
   type NavigationSettingsSection,
-  updateNavInfoActionType,
 } from '../types/nav-types';
 
 const dateExtractionRegex = /^([0-9]{4})-([0-9]{2})-[0-9]{2}$/;

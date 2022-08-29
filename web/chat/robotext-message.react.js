@@ -13,8 +13,8 @@ import { type ThreadInfo } from 'lib/types/thread-types';
 
 import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
+import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
-import { updateNavInfoActionType } from '../types/nav-types';
 import { InlineSidebar } from './inline-sidebar.react';
 import MessageTooltip from './message-tooltip.react';
 import type {

@@ -10,9 +10,9 @@ import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 import Label from '../components/label.react';
 import Search from '../components/search.react';
 import type { InputState } from '../input/input-state';
+import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
-import { updateNavInfoActionType } from '../types/nav-types';
 import css from './chat-thread-composer.css';
 
 type Props = {

@@ -20,8 +20,8 @@ import { threadTypes } from 'lib/types/thread-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 
 import { InputStateContext } from '../input/input-state';
+import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
-import { updateNavInfoActionType } from '../types/nav-types';
 import ChatInputBar from './chat-input-bar.react';
 import css from './chat-message-list-container.css';
 import ChatMessageList from './chat-message-list.react';

@@ -18,5 +18,3 @@ export type NavInfo = {
   +selectedUserList?: $ReadOnlyArray<string>,
   +chatMode?: NavigationChatMode,
 };
-
-export const updateNavInfoActionType = 'UPDATE_NAV_INFO';

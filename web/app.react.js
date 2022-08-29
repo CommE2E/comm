@@ -31,6 +31,7 @@ import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
 import { MenuProvider } from './menu-provider.react';
 import { ModalProvider, useModalContext } from './modals/modal-provider.react';
+import { updateNavInfoActionType } from './redux/action-types';
 import DeviceIDUpdater from './redux/device-id-updater';
 import DisconnectedBar from './redux/disconnected-bar';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
@@ -45,7 +46,7 @@ import Splash from './splash/splash.react';
 import './typography.css';
 import css from './style.css';
 import getTitle from './title/getTitle';
-import { type NavInfo, updateNavInfoActionType } from './types/nav-types';
+import { type NavInfo } from './types/nav-types';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,

@@ -4,8 +4,9 @@ import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selecto
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { RawThreadInfo } from 'lib/types/thread-types';
 
+import { updateNavInfoActionType } from '../redux/action-types';
 import type { Action } from '../redux/redux-setup';
-import { type NavInfo, updateNavInfoActionType } from '../types/nav-types';
+import { type NavInfo } from '../types/nav-types';
 
 export default function reduceNavInfo(
   oldState: NavInfo,
