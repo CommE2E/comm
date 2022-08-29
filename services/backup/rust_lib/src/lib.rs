@@ -3,7 +3,7 @@ mod ffi {
   extern "Rust" {
     fn rust_is_initialized_cxx() -> bool;
     fn rust_initialize_cxx() -> ();
-    unsafe fn rust_process_cxx(_: *const c_char) -> ();
+    unsafe fn rust_process_cxx(data: *const c_char) -> ();
     fn rust_terminate_cxx() -> ();
   }
 }
@@ -18,6 +18,7 @@ use lazy_static::lazy_static;
 use std::sync::{Arc, Mutex};
 use libc;
 use libc::c_char;
+use std::ffi::CStr;
 
 pub struct Client {
   tx: Option<mpsc::Sender<String>>,
@@ -59,8 +60,24 @@ pub fn rust_initialize_cxx() -> () {
   println!("[RUST] initialized");
 }
 
-pub fn rust_process_cxx(_: *const c_char) -> () {
-  unimplemented!();
+pub fn rust_process_cxx(data: *const c_char) -> () {
+  println!("[RUST] [rust_process] begin");
+  let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
+  let data_str: String = data_c_str.to_str().unwrap().to_owned();
+  println!("[RUST] [rust_process] data string: {}", data_str);
+
+  RUNTIME.block_on(async {
+    CLIENT
+      .lock()
+      .expect("access client")
+      .tx
+      .as_ref()
+      .expect("access client's transmitter")
+      .send(data_str)
+      .await
+      .expect("send data to receiver");
+  });
+  println!("[RUST] [rust_process] end");
 }
 
 pub fn rust_terminate_cxx() -> () {
