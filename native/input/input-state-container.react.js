@@ -721,14 +721,14 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       hasWiFi,
     });
 
-    const promises = [];
+    const cleanupPromises = [];
 
     if (shouldDisposePath) {
       // If processMedia needed to do any transcoding before upload, we dispose
       // of the resultant temporary file here. Since the transcoded temporary
       // file is only used for upload, we can dispose of it after processMedia
       // (reportPromise) and the upload are complete
-      promises.push(
+      cleanupPromises.push(
         (async () => {
           const disposeStep = await disposeTempFile(shouldDisposePath);
           steps.push(disposeStep);
@@ -740,7 +740,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     // instead of in media-utils, will be changed in later diffs
     if (processedMedia.mediaType === 'video') {
       const { uploadThumbnailURI } = processedMedia;
-      promises.push(
+      cleanupPromises.push(
         (async () => {
           const disposeStep = await disposeTempFile(uploadThumbnailURI);
           steps.push(disposeStep);
@@ -757,7 +757,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       // be replaced with the remote URI before we can dispose. Check out the
       // Multimedia component to see how the URIs get switched out.
       const captureURI = selection.uri;
-      promises.push(
+      cleanupPromises.push(
         (async () => {
           const {
             steps: clearSteps,
@@ -773,7 +773,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       );
     }
 
-    await Promise.all(promises);
+    await Promise.all(cleanupPromises);
 
     return await onUploadFinished(mediaMissionResult);
   }
