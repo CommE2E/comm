@@ -9,8 +9,7 @@ namespace reactor {
 PullBackupReactor::PullBackupReactor(const backup::PullBackupRequest *request)
     : ServerWriteReactorBase<
           backup::PullBackupRequest,
-          backup::PullBackupResponse>(request),
-      dataChunks(std::make_shared<folly::MPMCQueue<std::string>>(100)) {
+          backup::PullBackupResponse>(request) {
 }
 
 void PullBackupReactor::initializeGetReactor(const std::string &holder) {
@@ -18,10 +17,8 @@ void PullBackupReactor::initializeGetReactor(const std::string &holder) {
     throw std::runtime_error(
         "get reactor cannot be initialized when backup item is missing");
   }
-  this->getReactor.reset(new reactor::BlobGetClientReactor(
-      holder, this->dataChunks, &this->blobGetDoneCV));
-  this->getReactor->request.set_holder(holder);
-  this->blobClient.get(this->getReactor);
+  // todo:blob perform get initialize
+  this->clientInitialized = true;
 }
 
 void PullBackupReactor::initialize() {
@@ -59,7 +56,7 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     extraBytesNeeded += database::BackupItem::FIELD_BACKUP_ID.size();
     extraBytesNeeded += this->backupItem->getBackupID().size();
 
-    if (this->getReactor == nullptr) {
+    if (!this->clientInitialized) {
       extraBytesNeeded += database::BackupItem::FIELD_ATTACHMENT_HOLDERS.size();
       extraBytesNeeded += this->backupItem->getAttachmentHolders().size();
       response->set_attachmentholders(this->backupItem->getAttachmentHolders());
@@ -67,7 +64,7 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     }
     std::string dataChunk;
     if (this->internalBuffer.size() < this->chunkLimit) {
-      this->dataChunks->blockingRead(dataChunk);
+      // todo:blob perform blocking read
     }
     if (!dataChunk.empty() ||
         this->internalBuffer.size() + extraBytesNeeded >= this->chunkLimit) {
@@ -75,14 +72,6 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
           this->prepareDataChunkWithPadding(dataChunk, extraBytesNeeded);
       response->set_compactionchunk(dataChunk);
       return nullptr;
-    }
-    if (!this->dataChunks->isEmpty()) {
-      throw std::runtime_error(
-          "dangling data discovered after reading compaction");
-    }
-    if (!this->getReactor->getStatusHolder()->getStatus().ok()) {
-      throw std::runtime_error(
-          this->getReactor->getStatusHolder()->getStatus().error_message());
     }
     this->state = State::LOGS;
     if (!this->internalBuffer.empty()) {
@@ -98,12 +87,6 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
       return std::make_unique<grpc::Status>(grpc::Status::OK);
     }
     if (this->currentLogIndex == this->logs.size()) {
-      // we reached the end of the logs collection so we just want to
-      // terminate either we terminate with an error if we have some dangling
-      // data or with success if we don't
-      if (!this->dataChunks->isEmpty()) {
-        throw std::runtime_error("dangling data discovered after reading logs");
-      }
       if (!this->internalBuffer.empty()) {
         response->set_logid(this->previousLogID);
         response->set_logchunk(std::move(this->internalBuffer));
@@ -151,14 +134,10 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     // we get an empty chunk - a sign of "end of chunks"
     std::string dataChunk;
     if (this->internalBuffer.size() < this->chunkLimit && !this->endOfQueue) {
-      this->dataChunks->blockingRead(dataChunk);
+      // todo:blob perform blocking read
     }
     this->endOfQueue = this->endOfQueue || (dataChunk.size() == 0);
     dataChunk = this->prepareDataChunkWithPadding(dataChunk, extraBytesNeeded);
-    if (!this->getReactor->getStatusHolder()->getStatus().ok()) {
-      throw std::runtime_error(
-          this->getReactor->getStatusHolder()->getStatus().error_message());
-    }
     // if we get an empty chunk, we reset the currentLog so we can read the
     // next one from the logs collection.
     //  If there's data inside, we write it to the client and proceed.
@@ -204,19 +183,8 @@ std::string PullBackupReactor::prepareDataChunkWithPadding(
 
 void PullBackupReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-  std::unique_lock<std::mutex> lockGet(this->blobGetDoneCVMutex);
-  if (this->getReactor != nullptr) {
-    if (this->getReactor->getStatusHolder()->state != ReactorState::DONE) {
-      this->blobGetDoneCV.wait(lockGet);
-    }
-    if (this->getReactor->getStatusHolder()->state != ReactorState::DONE) {
-      throw std::runtime_error("get reactor has not been terminated properly");
-    }
-    if (!this->getReactor->getStatusHolder()->getStatus().ok()) {
-      throw std::runtime_error(
-          this->getReactor->getStatusHolder()->getStatus().error_message());
-    }
-  }
+  // todo:blob perform put:add chunk ("")
+  // todo:blob perform put:wait for completion
   if (!this->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
         this->getStatusHolder()->getStatus().error_message());
