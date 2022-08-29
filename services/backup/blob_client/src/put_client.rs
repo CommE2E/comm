@@ -251,15 +251,15 @@ pub fn put_client_write_cxx(
   RUNTIME.block_on(async {
     if let Ok(mut client) = CLIENT.lock() {
       if let Some(tx) = client.tx.take() {
-        if let Ok(_) = tx
+        match tx
           .send(PutRequestData {
             field_index,
             data: data_bytes,
           })
           .await
         {
-        } else {
-          report_error("send data to receiver failed".to_string());
+          Ok(_) => (),
+          Err(err) => report_error(format!("send data to receiver failed: {}", err)), // channel closed here
         }
         client.tx = Some(tx);
       } else {
@@ -277,7 +277,10 @@ pub fn put_client_write_cxx(
 // empty vector indicates that there were no errors
 pub fn put_client_terminate_cxx() -> Result<(), String> {
   check_error()?;
-  println!("[RUST] put_client_terminating");
+  if !is_initialized() {
+    return Ok(());
+  }
+  println!("[RUST] put_client_terminate_cxx begin");
   check_error()?;
 
   if let Ok(mut client) = CLIENT.lock() {

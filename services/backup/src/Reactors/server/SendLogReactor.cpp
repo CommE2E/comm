@@ -152,6 +152,13 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
 
 void SendLogReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
+  try {
+    put_client_terminate_cxx();
+  } catch (std::exception &e) {
+    throw std::runtime_error(
+        e.what()); // todo in base reactors we can just handle std exception
+                   // instead of keep rethrowing here
+  }
 
   if (!this->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
@@ -167,7 +174,6 @@ void SendLogReactor::terminateCallback() {
     this->storeInDatabase();
     return;
   }
-  put_client_terminate_cxx();
   // store in db only when we successfully upload chunks
   this->storeInDatabase();
 }

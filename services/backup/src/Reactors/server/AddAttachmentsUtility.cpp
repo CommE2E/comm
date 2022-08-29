@@ -1,5 +1,7 @@
 #include "AddAttachmentsUtility.h"
 
+#include "blob_client/src/lib.rs.h"
+
 #include <glog/logging.h>
 
 #include "BackupItem.h"
@@ -41,6 +43,10 @@ grpc::Status AddAttachmentsUtility::processRequest(
       std::shared_ptr<database::LogItem> logItem =
           database::DatabaseManager::getInstance().findLogItem(backupID, logID);
       logItem->addAttachmentHolders(holders);
+      std::cout << "========================= moveable to s3? "
+                << logItem->getPersistedInBlob() << "/"
+                << database::LogItem::getItemSize(logItem.get()) << "/"
+                << LOG_DATA_SIZE_DATABASE_LIMIT << std::endl;
       if (!logItem->getPersistedInBlob() &&
           database::LogItem::getItemSize(logItem.get()) >
               LOG_DATA_SIZE_DATABASE_LIMIT) {
@@ -49,7 +55,7 @@ grpc::Status AddAttachmentsUtility::processRequest(
       }
       database::DatabaseManager::getInstance().putLogItem(*logItem);
     }
-  } catch (std::runtime_error &e) {
+  } catch (std::exception &e) {
     LOG(ERROR) << e.what();
     status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
@@ -58,6 +64,7 @@ grpc::Status AddAttachmentsUtility::processRequest(
 
 std::shared_ptr<database::LogItem>
 AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
+  std::cout << "========================= move to s3" << std::endl;
   std::string holder = tools::generateHolder(
       logItem->getDataHash(), logItem->getBackupID(), logItem->getLogID());
   std::string data = std::move(logItem->getValue());
@@ -72,10 +79,26 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
   // put into S3
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;
-  // todo:blob perform put
-  // todo:blob perform put:add chunk (std::move(data))
-  // todo:blob perform put:add chunk ("")
-  // todo:blob perform put:wait for completion
+  put_client_initialize_cxx();
+  put_client_write_cxx(0, holder.c_str());
+  put_client_blocking_read_cxx(); // todo this should be avoided
+                                  // (blocking); we should be able to
+                                  // ignore responses; we probably want to
+                                  // delegate performing ops to separate
+                                  // threads in the base reactors
+  put_client_write_cxx(1, newLogItem->getDataHash().c_str());
+  put_client_blocking_read_cxx(); // todo this should be avoided
+                                  // (blocking); we should be able to
+                                  // ignore responses; we probably want to
+                                  // delegate performing ops to separate
+                                  // threads in the base reactors
+  put_client_write_cxx(2, std::move(data).c_str());
+  put_client_blocking_read_cxx(); // todo this should be avoided
+                                  // (blocking); we should be able to
+                                  // ignore responses; we probably want to
+                                  // delegate performing ops to separate
+                                  // threads in the base reactors
+  put_client_terminate_cxx();
   return newLogItem;
 }
 

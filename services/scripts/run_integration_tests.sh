@@ -10,7 +10,7 @@ SERVICES=$(./scripts/list_services.sh)
 run_integration_test () {
   echo "integration tests tests will be run for the $1 service"
   # add  -- --nocapture in the end to enable logs
-  cargo test "$1"_integration_test --test '*' --manifest-path=commtest/Cargo.toml #-- --nocapture
+  cargo test "$1"_integration_test --test '*' --manifest-path=commtest/Cargo.toml -- --nocapture
 }
 
 list_expected () {
