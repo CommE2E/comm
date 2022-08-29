@@ -22,7 +22,7 @@ import {
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
-import { pathFromURI } from 'lib/media/file-utils';
+import { pathFromURI, replaceExtension } from 'lib/media/file-utils';
 import { isLocalUploadID, getNextLocalUploadID } from 'lib/media/media-utils';
 import { videoDurationLimit } from 'lib/media/video-utils';
 import {
@@ -653,22 +653,49 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const uploadStart = Date.now();
     let uploadExceptionMessage, uploadResult, mediaMissionResult;
     try {
-      const loop =
-        processedMedia.mediaType === 'video' ? processedMedia.loop : undefined;
-      uploadResult = await this.props.uploadMultimedia(
-        { uri: uploadURI, name: filename, type: mime },
-        { ...processedMedia.dimensions, loop },
-        {
-          onProgress: (percent: number) =>
-            this.setProgress(
-              localMessageID,
-              localMediaID,
-              'uploading',
-              percent,
-            ),
-          uploadBlob: this.uploadBlob,
-        },
+      const uploadPromises = [];
+      uploadPromises.push(
+        this.props.uploadMultimedia(
+          { uri: uploadURI, name: filename, type: mime },
+          {
+            ...processedMedia.dimensions,
+            loop:
+              processedMedia.mediaType === 'video'
+                ? processedMedia.loop
+                : undefined,
+          },
+          {
+            onProgress: (percent: number) =>
+              this.setProgress(
+                localMessageID,
+                localMediaID,
+                'uploading',
+                percent,
+              ),
+            uploadBlob: this.uploadBlob,
+          },
+        ),
       );
+
+      if (processedMedia.mediaType === 'video') {
+        uploadPromises.push(
+          this.props.uploadMultimedia(
+            {
+              uri: processedMedia.uploadThumbnailURI,
+              name: replaceExtension(`thumb${filename}`, 'jpg'),
+              type: 'image/jpeg',
+            },
+            {
+              ...processedMedia.dimensions,
+              loop: false,
+            },
+            {
+              uploadBlob: this.uploadBlob,
+            },
+          ),
+        );
+      }
+      [uploadResult] = await Promise.all(uploadPromises);
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
