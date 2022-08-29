@@ -651,7 +651,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     const { hasWiFi } = this.props;
 
     const uploadStart = Date.now();
-    let uploadExceptionMessage, uploadResult, mediaMissionResult;
+    let uploadExceptionMessage,
+      uploadResult,
+      uploadThumbnailResult,
+      mediaMissionResult;
     try {
       const uploadPromises = [];
       uploadPromises.push(
@@ -695,7 +698,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           ),
         );
       }
-      [uploadResult] = await Promise.all(uploadPromises);
+      [uploadResult, uploadThumbnailResult] = await Promise.all(uploadPromises);
       mediaMissionResult = { success: true };
     } catch (e) {
       uploadExceptionMessage = getMessageForException(e);
@@ -707,27 +710,47 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     }
 
-    if (uploadResult) {
+    if (
+      (processedMedia.mediaType === 'photo' && uploadResult) ||
+      (processedMedia.mediaType === 'video' &&
+        uploadResult &&
+        uploadThumbnailResult)
+    ) {
       const { id, uri, dimensions, loop } = uploadResult;
       serverID = id;
+
+      let updateMediaPayload = {
+        messageID: localMessageID,
+        currentMediaID: localMediaID,
+        mediaUpdate: {
+          id,
+          type: uploadResult.mediaType,
+          uri,
+          dimensions,
+          localMediaSelection: undefined,
+          loop: uploadResult.mediaType === 'video' ? loop : undefined,
+        },
+      };
+
+      if (processedMedia.mediaType === 'video') {
+        invariant(uploadThumbnailResult, 'uploadThumbnailResult exists');
+        const { uri: thumbnailURI } = uploadThumbnailResult;
+        updateMediaPayload = {
+          ...updateMediaPayload,
+          mediaUpdate: {
+            ...updateMediaPayload.mediaUpdate,
+            thumbnailURI,
+          },
+        };
+      }
+
       // When we dispatch this action, it updates Redux and triggers the
       // componentDidUpdate in this class. componentDidUpdate will handle
       // calling dispatchMultimediaMessageAction once all the uploads are
       // complete, and does not wait until this function concludes.
       this.props.dispatch({
         type: updateMultimediaMessageMediaActionType,
-        payload: {
-          messageID: localMessageID,
-          currentMediaID: localMediaID,
-          mediaUpdate: {
-            id,
-            type: uploadResult.mediaType,
-            uri,
-            dimensions,
-            localMediaSelection: undefined,
-            loop: uploadResult.mediaType === 'video' ? loop : undefined,
-          },
-        },
+        payload: updateMediaPayload,
       });
       userTime = Date.now() - start;
     }
