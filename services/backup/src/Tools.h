@@ -15,6 +15,8 @@ std::string generateHolder(
 
 std::string validateAttachmentHolders(const std::string &holders);
 
+int charPtrToInt(const char *str);
+
 } // namespace tools
 } // namespace network
 } // namespace comm

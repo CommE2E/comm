@@ -86,22 +86,15 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
                                             // want to delegate performing ops
                                             // to separate threads in the base
                                             // reactors
-        const char *value = responseStr.c_str();
-        unsigned int intValue;
-        std::stringstream strValue;
-
-        strValue << value;
-        strValue >> intValue;
-
-        dataExists = (bool)intValue;
+        // data exists?
+        if ((bool)tools::charPtrToInt(responseStr.c_str())) {
+          return std::make_unique<ServerBidiReactorStatus>(
+              grpc::Status::OK, true);
+        }
       } catch (std::exception &e) {
         throw std::runtime_error(
             e.what()); // todo in base reactors we can just handle std exception
                        // instead of keep rethrowing here
-      }
-      if (dataExists) {
-        return std::make_unique<ServerBidiReactorStatus>(
-            grpc::Status::OK, true);
       }
       return nullptr;
     }

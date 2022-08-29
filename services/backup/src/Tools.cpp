@@ -52,6 +52,16 @@ std::string validateAttachmentHolders(const std::string &holders) {
   return result;
 }
 
+int charPtrToInt(const char *str) {
+  unsigned int intValue;
+  std::stringstream strValue;
+
+  strValue << str;
+  strValue >> intValue;
+
+  return intValue;
+}
+
 } // namespace tools
 } // namespace network
 } // namespace comm
