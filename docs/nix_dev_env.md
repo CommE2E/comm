@@ -37,9 +37,51 @@ To install and configure the [Nix package manager](https://nixos.org), please ru
 ./scripts/install_nix.sh
 ```
 
+## Workflow prerequisites
+
+On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for all workflows.
+
+- [Web prerequisites](./nix_web_setup.md#nix-web-requisities)
+  - [React Dev Tools Chrome extension](./nix_web_setup.md#react-dev-tools-chrome-extension)
+  - [Redux Dev Tools Chrome extension](./nix_web_setup.md#redux-dev-tools-chrome-extension)
+  - [Flipper (React Native Debugger)](./nix_mobile_setup.md#flipper)
+- [Mobile prerequisites](./nix_mobile_setup.md#nix-mobile-prerequisites)
+  - [Xcode](./nix_mobile_setup.md#xcode)
+    - [Xcode settings](./nix_mobile_setup.md#xcode-settings)
+  - [Android Studio](./nix_mobile_setup.md#android-studio)
+    - [Android SDK](./nix_mobile_setup.md#android-sdk)
+    - [Android Emulator](./nix_mobile_setup.md#android-emulator)
+  - [Flipper (React Native Debugger)](./nix_mobile_setup.md#flipper)
+
 # Development environment
 
-Run `nix develop` to create a dev environment.
+Run `nix develop` to create a dev environment. Nix will handle the installation of all remaining dependencies not mentioned in [Workflow prerequisites](#workflow-prerequisites).
+
+## Development workflows
+
+- [Web workflows](./nix_web_workflows.md#development)
+  - [Flow typechecker](./nix_web_workflows.md#flow-typechecker)
+  - [Running keysever](./nix_web_workflows.md#running-keyserver)
+  - [Running web app](./nix_web_workflows.md#running-web-app)
+  - [Running landing page](./nix_web_workflows.md#running-landing-page)
+  - [Debugging](./nix_web_workflows.md#debugging)
+    - [React Developer Tools](./nix_web_workflows.md#react-developer-tools)
+    - [Redux Developer Tools](./nix_web_workflows.md#redux-developer-tools)
+    - [Debugging JavaScript](./nix_web_workflows.md#debugging-javascript)
+- [Mobile workflows](./nix_mobile_workflows.md#mobile-workflows)
+  - [Running mobile app on iOS Simulator](./nix_mobile_workflows.md#running-mobile-app-on-ios-simulator)
+  - [Running mobile app on Android Emulator](./nix_mobile_workflows.md#running-mobile-app-on-android-emulator)
+  - [Running mobile app on physical iOS devices](./nix_mobile_workflows.md#running-mobile-app-on-physical-ios-devices)
+- [Shared workflows](./nix_shared_workflows.md#shared-workflows)
+  - [Codegen](./nix_shared_workflows.md#codegen)
+    - [Codegen for JSI](./nix_shared_workflows.md#codegen-for-jsi)
+    - [Codegen for gRPC](./nix_shared_workflows.md#codegen-for-grpc)
+  - [Working with Phabricator](./nix_shared_workflows.md#working-with-phabricator)
+    - [Creating a new diff](./nix_shared_workflows.md#creating-a-new-diff)
+    - [Updating a diff](./nix_shared_workflows.md#updating-a-diff)
+    - [Working with a stack](./nix_shared_workflows.md#working-with-a-stack)
+    - [Committing a diff](./nix_shared_workflows.md#committing-a-diff)
+  - [Final notes](./nix_shared_workflows.md#final-notes)
 
 ## How Nix introduces dependencies to a development environment
 
