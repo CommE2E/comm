@@ -821,7 +821,7 @@ The input Flow schemas are located in `native/schema`.
 In order to generate the codegen files for gRPC, you should run the following command:
 
 ```
-cd native
+cd shared
 yarn codegen-grpc
 ```
 
