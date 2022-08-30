@@ -29,6 +29,7 @@ add_library(comm-databasemanagers
 
 target_include_directories(comm-databasemanagers
   PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Tools>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

@@ -3,11 +3,6 @@ cmake_minimum_required(VERSION 3.4)
 
 include(GNUInstallDirs)
 
-# TODO: Remove once we can link between CommonCpp projects
-find_package(gRPC REQUIRED)
-find_package(Olm REQUIRED)
-find_package(Folly REQUIRED)
-
 set(INTERNAL_HDRS
   "InternalModules/GlobalNetworkSingleton.h"
   "InternalModules/GlobalNetworkSingletonJNIHelper.h"
@@ -28,14 +23,7 @@ add_library(comm-modules-internal
 target_include_directories(comm-modules-internal
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Tools>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../DatabaseManagers>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-target_link_libraries(comm-modules-internal
-  Folly::folly
-  gRPC::grpc++
 )
 
 set(NATIVE_HDRS
@@ -59,21 +47,12 @@ set_target_properties(comm-modules-native PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(comm-modules-native
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Tools>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../grpc>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../DatabaseManagers>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   # HACK
   PRIVATE
   "../../../../node_modules/react-native/ReactCommon/jsi"
   "../../../../node_modules/react-native/ReactCommon/react/nativemodule/core"
   "../../../../node_modules/react-native/ReactCommon/callinvoker"
-)
-
-target_link_libraries(comm-modules-native
-  Olm::Olm
-  Folly::folly
-  gRPC::grpc++
 )
 
 set(_message_path ./PersistentStorageUtilities/MessageOperationsUtilities)
@@ -114,11 +93,6 @@ target_include_directories(comm-modules-persistentstorage
   PRIVATE
   # HACK
   "../../../node_modules/react-native/ReactCommon/jsi"
-)
-
-target_link_libraries(comm-modules-persistentstorage
-  Olm::Olm
-  Folly::folly
 )
 
 set(_components internal native persistentstorage)

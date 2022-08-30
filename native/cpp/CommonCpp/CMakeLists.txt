@@ -19,3 +19,20 @@ target_link_libraries(comm-cryptotools
   comm-tools
   comm-databasemanagers
 )
+
+target_link_libraries(comm-modules-internal
+  comm-tools
+  comm-client
+)
+
+target_link_libraries(comm-modules-native
+  comm-client
+  comm-cryptotools
+  comm-databasemanagers
+  comm-tools
+)
+
+target_link_libraries(comm-modules-persistentstorage
+  comm-databasemanagers
+  comm-client
+)
