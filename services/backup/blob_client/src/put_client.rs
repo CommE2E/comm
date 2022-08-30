@@ -17,6 +17,7 @@ use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
+use tracing::error;
 
 #[derive(Debug)]
 struct PutRequestData {
@@ -62,17 +63,17 @@ fn report_error(message: String) {
   if let Ok(mut error_messages) = ERROR_MESSAGES.lock() {
     error_messages.push(message);
   }
-  panic!("could not access error messages")
+  error!("could not access error messages");
 }
 
 fn check_error() -> Result<(), String> {
-  if let Ok(ERROR_MESSAGES.lock()) = errors {
+  if let Ok(errors) = ERROR_MESSAGES.lock() {
     return match errors.is_empty() {
       true => Ok(()),
-      false => Err(errors.join("\n"),
+      false => Err(errors.join("\n")),
     }
   }
-  error!("could not access error messages")
+  Err("could not access error messages".to_string())
 }
 
 pub fn put_client_initialize_cxx() -> Result<(), String> {
@@ -85,6 +86,10 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
   RUNTIME.block_on(async {
     maybe_grpc_client = BlobServiceClient::connect(BLOB_ADDRESS).await.ok();
   });
+  if maybe_grpc_client.is_none() {
+    return Err("could not successfully connect to the blob server".to_string());
+  }
+  let mut grpc_client = maybe_grpc_client.unwrap();
 
   let (request_thread_tx, mut request_thread_rx): (
     mpsc::Sender<PutRequestData>,
@@ -184,10 +189,8 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
           }
         }
         None => {
+          report_error(format!("unexpected result received"));
           return;
-        }
-        unexpected => {
-          report_error(format!("unexpected result received: {:?}", unexpected));
         }
       };
       println!("[RUST] [receiver_thread] done");
@@ -201,8 +204,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
       return Ok(());
     }
     return Err("could not access client".to_string());
-  }
-  Err("could not successfully connect to the blob server".to_string())
+  
 }
 
 pub fn put_client_blocking_read_cxx() -> Result<String, String> {
