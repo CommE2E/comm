@@ -46,9 +46,7 @@ lazy_static! {
 
 fn is_initialized() -> bool {
   if let Ok(client) = CLIENT.lock() {
-    if client.tx.is_none()
-      || client.rx.is_none()
-      || client.rx_handle.is_none()
+    if client.tx.is_none() || client.rx.is_none() || client.rx_handle.is_none()
     {
       return false;
     }
@@ -71,7 +69,7 @@ fn check_error() -> Result<(), String> {
     return match errors.is_empty() {
       true => Ok(()),
       false => Err(errors.join("\n")),
-    }
+    };
   }
   Err("could not access error messages".to_string())
 }
@@ -80,21 +78,13 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
   println!("[RUST] initializing");
   assert!(!is_initialized(), "client cannot be initialized twice");
   // grpc
-  let mut maybe_grpc_client: Option<
-    BlobServiceClient<tonic::transport::Channel>,
-  > = None;
-  RUNTIME.block_on(async {
-    maybe_grpc_client = BlobServiceClient::connect(BLOB_ADDRESS).await.ok();
-  });
-  if maybe_grpc_client.is_none() {
-    return Err("could not successfully connect to the blob server".to_string());
-  }
-  let mut grpc_client = maybe_grpc_client.unwrap();
-
-  let (request_thread_tx, mut request_thread_rx): (
-    mpsc::Sender<PutRequestData>,
-    mpsc::Receiver<PutRequestData>,
-  ) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
+  if let Ok(mut grpc_client) =
+    RUNTIME.block_on(async { BlobServiceClient::connect(BLOB_ADDRESS).await })
+  {
+    let (request_thread_tx, mut request_thread_rx): (
+      mpsc::Sender<PutRequestData>,
+      mpsc::Receiver<PutRequestData>,
+    ) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
 
     let outbound = async_stream::stream! {
       while let Some(data) = request_thread_rx.recv().await {
@@ -204,7 +194,8 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
       return Ok(());
     }
     return Err("could not access client".to_string());
-  
+  }
+  Err("could not successfully connect to the blob server".to_string())
 }
 
 pub fn put_client_blocking_read_cxx() -> Result<String, String> {
@@ -248,7 +239,10 @@ pub fn put_client_write_cxx(
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
   println!("[RUST] [put_client_process] field index: {}", field_index);
-  println!("[RUST] [put_client_process] data string size: {}", data_bytes.len());
+  println!(
+    "[RUST] [put_client_process] data string size: {}",
+    data_bytes.len()
+  );
 
   RUNTIME.block_on(async {
     if let Ok(mut client) = CLIENT.lock() {
@@ -261,7 +255,9 @@ pub fn put_client_write_cxx(
           .await
         {
           Ok(_) => (),
-          Err(err) => report_error(format!("send data to receiver failed: {}", err)), // channel closed here
+          Err(err) => {
+            report_error(format!("send data to receiver failed: {}", err))
+          } // channel closed here
         }
         client.tx = Some(tx);
       } else {
