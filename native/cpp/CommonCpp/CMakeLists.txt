@@ -10,3 +10,8 @@ add_subdirectory(CryptoTools)
 add_subdirectory(DatabaseManagers)
 add_subdirectory(NativeModules)
 add_subdirectory(Tools)
+
+target_link_libraries(comm-cryptotools
+  comm-tools
+  comm-databasemanagers
+)

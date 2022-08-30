@@ -33,7 +33,6 @@ target_link_libraries(comm-cryptotools
 target_include_directories(comm-cryptotools
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Tools>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
