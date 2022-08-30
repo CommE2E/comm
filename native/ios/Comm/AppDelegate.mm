@@ -23,7 +23,9 @@
 #import "TemporaryMessageStorage.h"
 #import "ThreadOperations.h"
 #import "Tools.h"
+#import "WorkerThread.h"
 #import <cstdio>
+#import <memory>
 #import <stdexcept>
 #import <string>
 
@@ -62,6 +64,8 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
     RCTCxxBridgeDelegate,
     RCTTurboModuleManagerDelegate> {
 }
+@property(nonatomic, assign) std::shared_ptr<comm::WorkerThread>
+    globalDatabaseThread;
 @end
 
 @implementation AppDelegate
@@ -69,6 +73,7 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 - (BOOL)application:(UIApplication *)application
     willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [self attemptDatabaseInitialization];
+  [self attemptDatabaseThreadInitialization];
   return YES;
 }
 
@@ -163,12 +168,15 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
   } else if ([notification[backgroundNotificationTypeKey]
                  isEqualToString:@"CLEAR"]) {
     if (notification[setUnreadStatusKey] && notification[@"threadID"]) {
-      std::string threadID =
-          std::string([notification[@"threadID"] UTF8String]);
+      std::shared_ptr<std::string> threadID = std::make_shared<std::string>(
+          std::string([notification[@"threadID"] UTF8String]));
       // this callback may be called from inactive state so we need
       // to initialize the database
       [self attemptDatabaseInitialization];
-      comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+      [self attemptDatabaseThreadInitialization];
+      self.globalDatabaseThread->scheduleTask([threadID]() {
+        comm::ThreadOperations::updateSQLiteUnreadStatus(*threadID, false);
+      });
     }
     [[UNUserNotificationCenter currentNotificationCenter]
         getDeliveredNotificationsWithCompletionHandler:^(
@@ -229,7 +237,8 @@ using Runtime = facebook::jsi::Runtime;
     __typeof(self) strongSelf = weakSelf;
     if (strongSelf) {
       std::shared_ptr<comm::CommCoreModule> nativeModule =
-          std::make_shared<comm::CommCoreModule>(bridge.jsCallInvoker);
+          std::make_shared<comm::CommCoreModule>(
+              bridge.jsCallInvoker, strongSelf.globalDatabaseThread);
 
       rt.global().setProperty(
           rt,
@@ -265,13 +274,23 @@ using Runtime = facebook::jsi::Runtime;
   comm::SQLiteQueryExecutor::initialize(sqliteFilePath);
 }
 
+- (void)attemptDatabaseThreadInitialization {
+  if (self.globalDatabaseThread) {
+    return;
+  }
+  self.globalDatabaseThread = std::make_shared<comm::WorkerThread>("database");
+}
+
 - (void)moveMessagesToDatabase {
   TemporaryMessageStorage *temporaryStorage =
       [[TemporaryMessageStorage alloc] init];
   NSArray<NSString *> *messages = [temporaryStorage readAndClearMessages];
   for (NSString *message in messages) {
-    std::string messageInfos = std::string([message UTF8String]);
-    comm::MessageOperationsUtilities::storeMessageInfos(messageInfos);
+    std::shared_ptr<std::string> messageInfos =
+        std::make_shared<std::string>(std::string([message UTF8String]));
+    self.globalDatabaseThread->scheduleTask([messageInfos]() {
+      comm::MessageOperationsUtilities::storeMessageInfos(*messageInfos);
+    });
   }
 }
 

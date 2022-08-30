@@ -923,6 +923,15 @@ CommCoreModule::CommCoreModule(
   GlobalNetworkSingleton::instance.enableMultithreading();
 }
 
+CommCoreModule::CommCoreModule(
+    std::shared_ptr<facebook::react::CallInvoker> jsInvoker,
+    std::shared_ptr<WorkerThread> databaseThread)
+    : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
+      databaseThread(databaseThread),
+      cryptoThread(std::make_unique<WorkerThread>("crypto")) {
+  GlobalNetworkSingleton::instance.enableMultithreading();
+}
+
 double CommCoreModule::getCodeVersion(jsi::Runtime &rt) {
   return this->codeVersion;
 }
