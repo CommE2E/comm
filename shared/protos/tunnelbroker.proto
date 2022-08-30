@@ -1,0 +1,156 @@
+syntax = "proto3";
+
+package tunnelbroker;
+
+import "google/protobuf/empty.proto";
+
+service TunnelbrokerService {
+
+  // The old API service methods
+  // to support the native client build
+  // until we switch to the new one
+  
+  rpc CheckIfPrimaryDeviceOnline(CheckRequest) returns (CheckResponse) {}
+  rpc BecomeNewPrimaryDevice(NewPrimaryRequest) returns (NewPrimaryResponse) {}
+  rpc SendPong (PongRequest) returns (google.protobuf.Empty) {}
+
+  // New API service methods
+
+  rpc SessionSignature(SessionSignatureRequest) returns (SessionSignatureResponse) {}
+  rpc NewSession(NewSessionRequest) returns (NewSessionResponse) {}
+  rpc Send(SendRequest) returns (google.protobuf.Empty) {}
+  rpc Get(GetRequest) returns (stream GetResponse) {}
+
+  // Replacing Send and Get with a single bidirectional streaming RPC
+  rpc MessagesStream(stream MessageToTunnelbroker) returns (stream MessageToClient) {}
+}
+
+// Session
+
+message SessionSignatureRequest {
+  string deviceID = 1;
+}
+
+message SessionSignatureResponse {
+  string toSign = 1;
+}
+
+message NewSessionRequest {
+  string deviceID = 1;
+  string publicKey = 2;
+  string signature = 3;
+  optional string notifyToken = 4;
+  DeviceTypes deviceType = 5;
+  string deviceAppVersion = 6;
+  string deviceOS = 7;
+  // Nested enum devices type
+  enum DeviceTypes {
+    MOBILE = 0;
+    WEB = 1;
+    KEYSERVER = 2;
+  }
+}
+
+message NewSessionResponse {
+  string sessionID = 1;
+}
+
+// Send payload to device
+
+message SendRequest {
+  string sessionID = 1;
+  string toDeviceID = 2;
+  bytes payload = 3;
+  repeated string blobHashes = 4;
+}
+
+// Get messages from devices
+
+message GetRequest {
+  string sessionID = 1;
+}
+
+message GetResponse {
+  string fromDeviceID = 1;
+  bytes payload = 2;
+  repeated string blobHashes = 3;
+}
+
+// Common messages structures for the MessagesStream
+
+message ProcessedMessages {
+  repeated string messageID = 1;
+}
+
+// The messages from the Client to the Tunnelbroker
+
+message MessageToTunnelbrokerStruct {
+  string messageID = 1;
+  string toDeviceID = 2;
+  string payload = 3;
+  repeated string blobHashes = 4;
+}
+
+message MessagesToSend {
+  repeated MessageToTunnelbrokerStruct messages = 1;
+}
+
+message MessageToTunnelbroker {
+  string sessionID = 1;
+  oneof data {
+    MessagesToSend messagesToSend = 2;
+    ProcessedMessages processedMessages = 3;
+  }
+}
+
+// The messages from the Tunnelbroker to the Client
+
+message MessageToClientStruct {
+  string messageID = 1;
+  string fromDeviceID = 2;
+  string payload = 3;
+  repeated string blobHashes = 4;
+}
+
+message MessagesToDeliver {
+  repeated MessageToClientStruct messages = 1;
+}
+
+message MessageToClient {
+  oneof data {
+    MessagesToDeliver messagesToDeliver = 1;
+    ProcessedMessages processedMessages = 2;
+  }
+}
+
+// Old API structures
+
+enum CheckResponseType {
+  PRIMARY_DOESNT_EXIST = 0;
+  PRIMARY_ONLINE = 1;
+  PRIMARY_OFFLINE = 2;
+  CURRENT_IS_PRIMARY = 3;
+}
+
+message CheckRequest {
+  string userId = 1;
+  string deviceToken = 2;
+}
+
+message CheckResponse {
+  CheckResponseType checkResponseType = 1;
+}
+
+message NewPrimaryRequest {
+  string userId = 1;
+  string deviceToken = 2;
+}
+
+message NewPrimaryResponse {
+  bool success = 1;
+}
+
+message PongRequest {
+  string userId = 1;
+  string deviceToken = 2;
+}

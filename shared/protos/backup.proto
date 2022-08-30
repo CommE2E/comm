@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package backup;
+
+import "google/protobuf/empty.proto";
+
+/**
+ * API - description
+ *  CreateNewBackup - This method is called when we want to create a new backup.
+ *    We send a new backup key encrypted with the user's password and also the
+ *    new compaction. New logs that will be sent from now on will be assigned to
+ *    this backup.
+ *  SendLog - User sends a new log to the backup service. The log is being
+ *    assigned to the latest(or desired) backup's compaction item.
+ *  RecoverBackupKey - Pulls data necessary for regenerating the backup key
+ *    on the client-side for the latest(or desired) backup
+ *  PullBackup - Fetches compaction + all logs assigned to it for the
+ *    specified backup(default is the last backup)
+ */
+
+service BackupService {
+  rpc CreateNewBackup(stream CreateNewBackupRequest) returns (stream CreateNewBackupResponse) {}
+  rpc SendLog(stream SendLogRequest) returns (SendLogResponse) {}
+  rpc RecoverBackupKey(stream RecoverBackupKeyRequest) returns (stream RecoverBackupKeyResponse) {}
+  rpc PullBackup(PullBackupRequest) returns (stream PullBackupResponse) {}
+  rpc AddAttachments(AddAttachmentsRequest) returns (google.protobuf.Empty) {}
+}
+
+// CreateNewBackup
+
+message CreateNewBackupRequest {
+  oneof data {
+    string userID = 1;
+    string deviceID = 2;
+    bytes keyEntropy = 3;
+    bytes newCompactionHash = 4;
+    bytes newCompactionChunk = 5;
+  }
+}
+
+message CreateNewBackupResponse {
+  string backupID = 1;
+}
+
+// SendLog
+
+message SendLogRequest {
+  oneof data {
+    string userID = 1;
+    string backupID = 2;
+    bytes logHash = 3;
+    bytes logData = 4;
+  }
+}
+
+message SendLogResponse {
+  string logCheckpoint = 1;
+}
+
+// RecoverBackupKey
+
+message RecoverBackupKeyRequest {
+  string userID = 1;
+}
+
+message RecoverBackupKeyResponse {
+  string backupID = 4;
+}
+
+// PullBackup
+
+message PullBackupRequest {
+  string userID = 1;
+  string backupID = 2;
+}
+
+message PullBackupResponse {
+  oneof id {
+    string backupID = 1;
+    string logID = 2;
+  }
+  oneof data {
+    bytes compactionChunk = 3;
+    bytes logChunk = 4;
+  }
+  optional string attachmentHolders = 5;
+}
+
+// AddAttachment
+
+message AddAttachmentsRequest {
+  string userID = 1;
+  string backupID = 2;
+  string logID = 3;
+  string holders = 4;
+}
