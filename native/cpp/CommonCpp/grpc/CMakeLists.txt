@@ -4,9 +4,6 @@ cmake_minimum_required(VERSION 3.4)
 include(GNUInstallDirs)
 find_package(protobuf REQUIRED)
 find_package(gRPC REQUIRED)
-# TODO: remove once native modules can be
-# imported in CommonCpp/CMakeLists.txt
-find_package(Folly REQUIRED)
 
 set(CMAKE_CXX_STANDARD 14)
 # Allow for tools on PATH to be found
@@ -106,9 +103,6 @@ target_link_libraries(comm-client
   gRPC::grpc++
   protobuf::libprotobuf
   comm-tunnelbroker-grpc
-  # TODO: remove once native modules can be
-  # imported in CommonCpp/CMakeLists.txt
-  Folly::folly
 )
 
 target_include_directories(comm-client
