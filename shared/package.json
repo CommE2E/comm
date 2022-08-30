@@ -1,0 +1,9 @@
+{
+  "name": "shared",
+  "version": "0.0.1",
+  "private": true,
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "codegen-grpc": "protoc -I=protos --cpp_out=protos/_generated --grpc_out=protos/_generated --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` protos/*.proto && ./scripts/mark-generated.sh"
+  }
+}
