@@ -271,8 +271,6 @@ pub fn put_client_write_cxx(
   Ok(())
 }
 
-// returns vector of error messages
-// empty vector indicates that there were no errors
 pub fn put_client_terminate_cxx() -> Result<(), String> {
   check_error()?;
   if !is_initialized() {
