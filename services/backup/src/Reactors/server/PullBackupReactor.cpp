@@ -1,5 +1,7 @@
 #include "PullBackupReactor.h"
 
+#include "blob_client/src/lib.rs.h"
+
 #include "DatabaseManager.h"
 
 namespace comm {
@@ -13,11 +15,14 @@ PullBackupReactor::PullBackupReactor(const backup::PullBackupRequest *request)
 }
 
 void PullBackupReactor::initializeGetReactor(const std::string &holder) {
+  if (this->clientInitialized) {
+    throw std::runtime_error("client already initialized");
+  }
   if (this->backupItem == nullptr) {
     throw std::runtime_error(
         "get reactor cannot be initialized when backup item is missing");
   }
-  // todo:blob perform get initialize
+  get_client_initialize_cxx(holder.c_str());
   this->clientInitialized = true;
 }
 
@@ -64,7 +69,8 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     }
     std::string dataChunk;
     if (this->internalBuffer.size() < this->chunkLimit) {
-      // todo:blob perform blocking read
+      rust::Vec<unsigned char> responseVec = get_client_blocking_read_cxx();
+      dataChunk = std::string(reinterpret_cast<char *>(responseVec.data()));
     }
     if (!dataChunk.empty() ||
         this->internalBuffer.size() + extraBytesNeeded >= this->chunkLimit) {
@@ -134,7 +140,8 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
     // we get an empty chunk - a sign of "end of chunks"
     std::string dataChunk;
     if (this->internalBuffer.size() < this->chunkLimit && !this->endOfQueue) {
-      // todo:blob perform blocking read
+      rust::Vec<unsigned char> responseVec = get_client_blocking_read_cxx();
+      dataChunk = std::string(reinterpret_cast<char *>(responseVec.data()));
     }
     this->endOfQueue = this->endOfQueue || (dataChunk.size() == 0);
     dataChunk = this->prepareDataChunkWithPadding(dataChunk, extraBytesNeeded);
@@ -183,8 +190,7 @@ std::string PullBackupReactor::prepareDataChunkWithPadding(
 
 void PullBackupReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-  // todo:blob perform put:add chunk ("")
-  // todo:blob perform put:wait for completion
+  get_client_terminate_cxx();
   if (!this->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
         this->getStatusHolder()->getStatus().error_message());

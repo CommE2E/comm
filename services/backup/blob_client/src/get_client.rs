@@ -4,13 +4,11 @@ mod proto {
 
 use proto::blob_service_client::BlobServiceClient;
 use proto::GetRequest;
-use proto::GetResponse;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
 use lazy_static::lazy_static;
 use libc;
 use libc::c_char;
-use tokio_stream::wrappers::ReceiverStream;
 use std::ffi::CStr;
 use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
@@ -18,9 +16,8 @@ use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
 use tracing::error;
 
-
 struct ReadClient {
-  rx: Option<mpsc::Receiver<String>>,
+  rx: Option<mpsc::Receiver<Vec<u8>>>,
   rx_handle: Option<JoinHandle<()>>,
 }
 
@@ -37,8 +34,7 @@ lazy_static! {
 
 fn is_initialized() -> bool {
   if let Ok(client) = CLIENT.lock() {
-    if client.rx.is_none() || client.rx_handle.is_none()
-    {
+    if client.rx.is_none() || client.rx_handle.is_none() {
       return false;
     }
   } else {
@@ -65,7 +61,9 @@ fn check_error() -> Result<(), String> {
   Err("could not access error messages".to_string())
 }
 
-pub fn get_client_initialize_cxx(holder_char: *const c_char) -> Result<(), String> {
+pub fn get_client_initialize_cxx(
+  holder_char: *const c_char,
+) -> Result<(), String> {
   println!("[RUST] initializing");
   assert!(!is_initialized(), "client cannot be initialized twice");
 
@@ -78,24 +76,27 @@ pub fn get_client_initialize_cxx(holder_char: *const c_char) -> Result<(), Strin
   {
     // spawn receiver thread
     let (response_thread_tx, response_thread_rx): (
-      mpsc::Sender<String>,
-      mpsc::Receiver<String>,
+      mpsc::Sender<Vec<u8>>,
+      mpsc::Receiver<Vec<u8>>,
     ) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let rx_handle = RUNTIME.spawn(async move {
-      println!("[RUST] [receiver_thread] begin");
+      println!("[RUST] [receiver_thread] begin: {}", holder);
 
-      if let Ok(response) = grpc_client
-        .get(GetRequest {
-          holder
-        })
-        .await {
-          let mut inner_response = response.into_inner();
-          while let Ok(data) = inner_response.message().await {
-            println!("data received = {:?}", data);
+      if let Ok(response) = grpc_client.get(GetRequest { holder }).await {
+        let mut inner_response = response.into_inner();
+        while let Ok(maybe_data) = inner_response.message().await {
+          if let Some(data) = maybe_data {
+            let data: Vec<u8> = data.data_chunk;
+            println!("data received, size = {}", data.len());
+            if let Ok(_) = response_thread_tx.send(data).await {
+            } else {
+              report_error("failed to pass the response".to_string());
+            }
           }
-        } else {
-          report_error("couldn't perform grpc get operation".to_string());
         }
+      } else {
+        report_error("couldn't perform grpc get operation".to_string());
+      }
 
       println!("[RUST] [receiver_thread] done");
     });
@@ -111,14 +112,14 @@ pub fn get_client_initialize_cxx(holder_char: *const c_char) -> Result<(), Strin
   Err("could not successfully connect to the blob server".to_string())
 }
 
-pub fn get_client_blocking_read_cxx() -> Result<String, String> {
-  let mut response: Option<String> = None;
+pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
+  let mut response: Option<Vec<u8>> = None;
   check_error()?;
   RUNTIME.block_on(async {
     if let Ok(mut client) = CLIENT.lock() {
       if let Some(mut rx) = client.rx.take() {
         if let Some(data) = rx.recv().await {
-          println!("received data {}", data);
+          println!("received data of size {}", data.len());
           response = Some(data);
         } else {
           report_error(
