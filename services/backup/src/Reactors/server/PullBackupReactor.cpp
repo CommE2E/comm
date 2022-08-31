@@ -171,7 +171,10 @@ std::string PullBackupReactor::prepareDataChunkWithPadding(
     const std::string &dataChunk,
     size_t padding) {
   if (dataChunk.size() > this->chunkLimit) {
-    throw std::runtime_error("received data chunk bigger than the chunk limit");
+    throw std::runtime_error(std::string(
+        "received data chunk bigger than the chunk limit: " +
+        std::to_string(dataChunk.size()) + "/" +
+        std::to_string(this->chunkLimit)));
   }
 
   std::string chunk = std::move(this->internalBuffer) + dataChunk;

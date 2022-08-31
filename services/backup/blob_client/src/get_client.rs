@@ -71,7 +71,7 @@ pub fn get_client_reinitialize_cxx(
   );
   if initialized {
     println!("[RUST] [get] already initialized, terminating");
-    get_client_terminate_cxx();
+    get_client_terminate_cxx()?;
     println!("[RUST] [get] already initialized, terminated");
   }
 

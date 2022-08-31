@@ -43,10 +43,6 @@ grpc::Status AddAttachmentsUtility::processRequest(
       std::shared_ptr<database::LogItem> logItem =
           database::DatabaseManager::getInstance().findLogItem(backupID, logID);
       logItem->addAttachmentHolders(holders);
-      std::cout << "========================= moveable to s3? "
-                << logItem->getPersistedInBlob() << "/"
-                << database::LogItem::getItemSize(logItem.get()) << "/"
-                << LOG_DATA_SIZE_DATABASE_LIMIT << std::endl;
       if (!logItem->getPersistedInBlob() &&
           database::LogItem::getItemSize(logItem.get()) >
               LOG_DATA_SIZE_DATABASE_LIMIT) {
@@ -64,7 +60,6 @@ grpc::Status AddAttachmentsUtility::processRequest(
 
 std::shared_ptr<database::LogItem>
 AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
-  std::cout << "========================= move to s3" << std::endl;
   std::string holder = tools::generateHolder(
       logItem->getDataHash(), logItem->getBackupID(), logItem->getLogID());
   std::string data = std::move(logItem->getValue());
@@ -87,17 +82,21 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
                                   // delegate performing ops to separate
                                   // threads in the base reactors
   put_client_write_cxx(1, newLogItem->getDataHash().c_str());
-  put_client_blocking_read_cxx(); // todo this should be avoided
-                                  // (blocking); we should be able to
-                                  // ignore responses; we probably want to
-                                  // delegate performing ops to separate
-                                  // threads in the base reactors
-  put_client_write_cxx(2, std::move(data).c_str());
-  put_client_blocking_read_cxx(); // todo this should be avoided
-                                  // (blocking); we should be able to
-                                  // ignore responses; we probably want to
-                                  // delegate performing ops to separate
-                                  // threads in the base reactors
+  rust::String responseStr =
+      put_client_blocking_read_cxx(); // todo this should be avoided
+                                      // (blocking); we should be able to
+                                      // ignore responses; we probably want to
+                                      // delegate performing ops to separate
+                                      // threads in the base reactors
+  // data exists?
+  if (!(bool)tools::charPtrToInt(responseStr.c_str())) {
+    put_client_write_cxx(2, std::move(data).c_str());
+    put_client_blocking_read_cxx(); // todo this should be avoided
+                                    // (blocking); we should be able to
+                                    // ignore responses; we probably want to
+                                    // delegate performing ops to separate
+                                    // threads in the base reactors
+  }
   put_client_terminate_cxx();
   return newLogItem;
 }

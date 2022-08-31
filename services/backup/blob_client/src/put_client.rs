@@ -76,6 +76,11 @@ fn check_error() -> Result<(), String> {
 
 pub fn put_client_initialize_cxx() -> Result<(), String> {
   println!("[RUST] [put] initializing");
+  if is_initialized() {
+    println!("[RUST] [put] already initialized - terminating");
+    put_client_terminate_cxx()?;
+    println!("[RUST] [put] already initialized - terminated");
+  }
   assert!(!is_initialized(), "client cannot be initialized twice");
   // grpc
   if let Ok(mut grpc_client) =
@@ -260,7 +265,7 @@ pub fn put_client_write_cxx(
           Ok(_) => (),
           Err(err) => {
             report_error(format!("send data to receiver failed: {}", err))
-          } // channel closed here
+          }
         }
         client.tx = Some(tx);
       } else {
@@ -275,22 +280,27 @@ pub fn put_client_write_cxx(
 }
 
 pub fn put_client_terminate_cxx() -> Result<(), String> {
+  println!("[RUST] [put] put_client_terminate_cxx begin");
   check_error()?;
+  println!("[RUST] [put] put_client_terminate_cxx checked err");
   if !is_initialized() {
     return Ok(());
   }
-  println!("[RUST] [put] put_client_terminate_cxx begin");
-  check_error()?;
+  println!("[RUST] [put] put_client_terminate_cxx checked initialized");
 
   if let Ok(mut client) = CLIENT.lock() {
     if let Some(tx) = client.tx.take() {
+      println!("[RUST] [put] put_client_terminate_cxx drop x");
       drop(tx);
+      println!("[RUST] [put] put_client_terminate_cxx dropped x");
     }
     if let Some(rx_handle) = client.rx_handle.take() {
       RUNTIME.block_on(async {
+        println!("[RUST] [put] put_client_terminate_cxx awaiting handle");
         if rx_handle.await.is_err() {
           report_error("wait for receiver handle failed".to_string());
         }
+        println!("[RUST] [put] put_client_terminate_cxx awaited handle");
       });
     }
   } else {
@@ -301,7 +311,6 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
     !is_initialized(),
     "client transmitter handler released properly"
   );
-  check_error()?;
   println!("[RUST] [put] put_client_terminated");
   check_error()?;
   Ok(())
