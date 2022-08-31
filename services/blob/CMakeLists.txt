@@ -32,7 +32,7 @@ if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "^\/transferred.*")
   set(_proto_path "grpc")
 else()
   # Inside repo
-  set(_proto_path "../../native/cpp/CommonCpp/grpc")
+  set(_proto_path "../../shared/protos")
 endif()
 
 # Shared Comm protos
