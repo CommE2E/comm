@@ -108,7 +108,7 @@ include_directories(
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
-  ../../cpp/CommonCpp/grpc/_generated
+  ../../../shared/protos/_generated
   ../../cpp/CommonCpp/grpc
 )
 
@@ -121,7 +121,7 @@ file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES
   "${_third_party_dir}/double-conversion/double-conversion/*.cc"
 )
-file(GLOB GRPC_CODE "../../cpp/CommonCpp/grpc/_generated/*.cc")
+file(GLOB GRPC_CODE "../../../shared/protos/_generated/*.cc")
 
 add_library(
   # Sets the name of the library.
