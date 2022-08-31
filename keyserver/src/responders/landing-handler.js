@@ -157,7 +157,6 @@ async function landingResponder(req: $Request, res: $Response) {
   );
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);
-
   // prettier-ignore
   res.end(html`</div>
         <script>var routerBasename = "${routerBasename}";</script>
