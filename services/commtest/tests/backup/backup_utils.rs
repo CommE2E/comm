@@ -42,6 +42,7 @@ pub fn compare_backups(backup_data: &BackupData, result: &BackupData) {
   // check backup size
   let expected: usize = backup_data.backup_item.chunks_sizes.iter().sum();
   let from_result: usize = result.backup_item.chunks_sizes.iter().sum();
+
   assert_eq!(
     from_result, expected,
     "backup sizes do not match, expected {}, got {}",

@@ -173,7 +173,14 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
     }
   });
   check_error()?;
-  response.ok_or("response not received properly".to_string())
+  let response: Vec<u8> = response.unwrap();
+  println!(
+    "[RUST] [get] HERE ==========> sending response to c++ of size {}",
+    response.len()
+  );
+  Ok(response)
+  // response.ok_or("response not received properly".to_string())
+  // HERE we send 4194299 bytes but in c++ we receive 4194315, maybe cxx adds some bytes? TODO CHECK THIS
 }
 
 pub fn get_client_terminate_cxx() -> Result<(), String> {

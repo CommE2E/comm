@@ -3,10 +3,23 @@
 #include "blob_client/src/lib.rs.h"
 
 #include "DatabaseManager.h"
+#include <iomanip>
+#include <sstream>
+#include <string>
 
 namespace comm {
 namespace network {
 namespace reactor {
+
+std::string hexStr(const char *data, int len) {
+  std::stringstream ss;
+  ss << std::hex;
+
+  for (int i(0); i < len; ++i)
+    ss << std::setw(2) << std::setfill('0') << (int)data[i];
+
+  return ss.str();
+}
 
 PullBackupReactor::PullBackupReactor(const backup::PullBackupRequest *request)
     : ServerWriteReactorBase<
@@ -70,6 +83,7 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
       dataChunk = (responseVec.empty())
           ? ""
           : std::string(reinterpret_cast<char *>(responseVec.data()));
+      dataChunk.resize(responseVec.size());
     }
     if (!dataChunk.empty() ||
         this->internalBuffer.size() + extraBytesNeeded >= this->chunkLimit) {
@@ -143,6 +157,7 @@ PullBackupReactor::writeResponse(backup::PullBackupResponse *response) {
       dataChunk = (responseVec.empty())
           ? ""
           : std::string(reinterpret_cast<char *>(responseVec.data()));
+      dataChunk.resize(responseVec.size());
     }
     this->endOfQueue = this->endOfQueue || (dataChunk.size() == 0);
     dataChunk = this->prepareDataChunkWithPadding(dataChunk, extraBytesNeeded);
@@ -171,10 +186,13 @@ std::string PullBackupReactor::prepareDataChunkWithPadding(
     const std::string &dataChunk,
     size_t padding) {
   if (dataChunk.size() > this->chunkLimit) {
+    size_t printBytes = 30;
+    const char *pt = dataChunk.data() + (dataChunk.size() - printBytes);
     throw std::runtime_error(std::string(
         "received data chunk bigger than the chunk limit: " +
         std::to_string(dataChunk.size()) + "/" +
-        std::to_string(this->chunkLimit)));
+        std::to_string(this->chunkLimit) + "/[" + hexStr(pt, printBytes) +
+        "]"));
   }
 
   std::string chunk = std::move(this->internalBuffer) + dataChunk;
