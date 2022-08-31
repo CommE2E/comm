@@ -113,7 +113,7 @@ pub async fn run(
           if holder.len() == 0 {
             continue;
           }
-          println!("attachments for the backup: {}", holders);
+          println!("attachments for the backup: {}", holder);
           result
             .backup_item
             .attachments_holders

@@ -57,7 +57,7 @@ fn is_initialized() -> bool {
 }
 
 fn report_error(message: String) {
-  println!("[RUST] Error: {}", message);
+  println!("[RUST] [put] Error: {}", message);
   if let Ok(mut error_messages) = ERROR_MESSAGES.lock() {
     error_messages.push(message);
   }
@@ -75,7 +75,7 @@ fn check_error() -> Result<(), String> {
 }
 
 pub fn put_client_initialize_cxx() -> Result<(), String> {
-  println!("[RUST] initializing");
+  println!("[RUST] [put] initializing");
   assert!(!is_initialized(), "client cannot be initialized twice");
   // grpc
   if let Ok(mut grpc_client) =
@@ -88,8 +88,8 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
 
     let outbound = async_stream::stream! {
       while let Some(data) = request_thread_rx.recv().await {
-        println!("[RUST] [transmitter_thread] field index: {}", data.field_index);
-        println!("[RUST] [transmitter_thread] data size: {}", data.data.len());
+        println!("[RUST] [put] [transmitter_thread] field index: {}", data.field_index);
+        println!("[RUST] [put] [transmitter_thread] data size: {}", data.data.len());
         let request_data: Option<put_request::Data> = match data.field_index {
           0 => {
             match String::from_utf8(data.data).ok() {
@@ -135,7 +135,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
       mpsc::Receiver<String>,
     ) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let rx_handle = RUNTIME.spawn(async move {
-      println!("[RUST] [receiver_thread] begin");
+      println!("[RUST] [put] [receiver_thread] begin");
       let maybe_response: Option<
         tonic::Response<tonic::codec::Streaming<PutResponse>>,
       > = match grpc_client.put(tonic::Request::new(outbound)).await {
@@ -155,7 +155,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
                 let mut result = false;
                 if let Some(response_message) = maybe_response_message {
                   println!(
-                    "[RUST] got response: {}",
+                    "[RUST] [put] got response: {}",
                     response_message.data_exists
                   );
                   // warning: this will hang if there's more unread responses than
@@ -183,14 +183,14 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
           return;
         }
       };
-      println!("[RUST] [receiver_thread] done");
+      println!("[RUST] [put] [receiver_thread] done");
     });
 
     if let Ok(mut client) = CLIENT.lock() {
       client.tx = Some(request_thread_tx);
       client.rx_handle = Some(rx_handle);
       client.rx = Some(response_thread_rx);
-      println!("[RUST] initialized");
+      println!("[RUST] [put] initialized");
       return Ok(());
     }
     return Err("could not access client".to_string());
@@ -234,13 +234,16 @@ pub fn put_client_write_cxx(
   field_index: usize,
   data: *const c_char,
 ) -> Result<(), String> {
-  println!("[RUST] [put_client_process] begin");
+  println!("[RUST] [put] [put_client_process] begin");
   check_error()?;
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
-  println!("[RUST] [put_client_process] field index: {}", field_index);
   println!(
-    "[RUST] [put_client_process] data string size: {}",
+    "[RUST] [put] [put_client_process] field index: {}",
+    field_index
+  );
+  println!(
+    "[RUST] [put] [put_client_process] data string size: {}",
     data_bytes.len()
   );
 
@@ -267,7 +270,7 @@ pub fn put_client_write_cxx(
       report_error("couldn't access client".to_string());
     }
   });
-  println!("[RUST] [put_client_process] end");
+  println!("[RUST] [put] [put_client_process] end");
   Ok(())
 }
 
@@ -276,7 +279,7 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
   if !is_initialized() {
     return Ok(());
   }
-  println!("[RUST] put_client_terminate_cxx begin");
+  println!("[RUST] [put] put_client_terminate_cxx begin");
   check_error()?;
 
   if let Ok(mut client) = CLIENT.lock() {
@@ -299,7 +302,7 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
     "client transmitter handler released properly"
   );
   check_error()?;
-  println!("[RUST] put_client_terminated");
+  println!("[RUST] [put] put_client_terminated");
   check_error()?;
   Ok(())
 }

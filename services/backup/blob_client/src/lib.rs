@@ -8,7 +8,7 @@ use put_client::{
 };
 
 use get_client::{
-  get_client_blocking_read_cxx, get_client_initialize_cxx,
+  get_client_blocking_read_cxx, get_client_reinitialize_cxx,
   get_client_terminate_cxx,
 };
 #[cxx::bridge]
@@ -23,7 +23,7 @@ mod ffi {
     fn put_client_blocking_read_cxx() -> Result<String>;
     fn put_client_terminate_cxx() -> Result<()>;
     // get
-    unsafe fn get_client_initialize_cxx(
+    unsafe fn get_client_reinitialize_cxx(
       holder_char: *const c_char,
     ) -> Result<()>;
     fn get_client_blocking_read_cxx() -> Result<Vec<u8>>;

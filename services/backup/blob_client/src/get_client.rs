@@ -44,7 +44,7 @@ fn is_initialized() -> bool {
 }
 
 fn report_error(message: String) {
-  println!("[RUST] Error: {}", message);
+  println!("[RUST] [get] Error: {}", message);
   if let Ok(mut error_messages) = ERROR_MESSAGES.lock() {
     error_messages.push(message);
   }
@@ -61,10 +61,20 @@ fn check_error() -> Result<(), String> {
   Err("could not access error messages".to_string())
 }
 
-pub fn get_client_initialize_cxx(
+pub fn get_client_reinitialize_cxx(
   holder_char: *const c_char,
 ) -> Result<(), String> {
-  println!("[RUST] initializing");
+  let initialized = is_initialized();
+  println!(
+    "[RUST] [get] initializing, is already initialized: {}",
+    initialized
+  );
+  if initialized {
+    println!("[RUST] [get] already initialized, terminating");
+    get_client_terminate_cxx();
+    println!("[RUST] [get] already initialized, terminated");
+  }
+
   assert!(!is_initialized(), "client cannot be initialized twice");
 
   let holder_cstr: &CStr = unsafe { CStr::from_ptr(holder_char) };
@@ -80,31 +90,58 @@ pub fn get_client_initialize_cxx(
       mpsc::Receiver<Vec<u8>>,
     ) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let rx_handle = RUNTIME.spawn(async move {
-      println!("[RUST] [receiver_thread] begin: {}", holder);
+      println!("[RUST] [get] [receiver_thread] begin: {}", holder);
 
       if let Ok(response) = grpc_client.get(GetRequest { holder }).await {
         let mut inner_response = response.into_inner();
-        while let Ok(maybe_data) = inner_response.message().await {
-          if let Some(data) = maybe_data {
-            let data: Vec<u8> = data.data_chunk;
-            println!("data received, size = {}", data.len());
-            if let Ok(_) = response_thread_tx.send(data).await {
-            } else {
-              report_error("failed to pass the response".to_string());
+        let mut response_present = true;
+        while response_present {
+          response_present = match inner_response.message().await {
+            Ok(maybe_data) => {
+              let mut result = false;
+              if let Some(data) = maybe_data {
+                let data: Vec<u8> = data.data_chunk;
+                println!(
+                  "[RUST] [get] data received from server, size = {}",
+                  data.len()
+                );
+                result = match response_thread_tx.send(data).await {
+                  Ok(_) => {
+                    println!(
+                      "[RUST] [get] successfully sent data through the channel"
+                    );
+                    true
+                  }
+                  Err(err) => {
+                    report_error(err.to_string());
+                    false
+                  }
+                }
+              }
+              result
             }
-          }
+            Err(err) => {
+              report_error(err.to_string());
+              false
+            }
+          };
+          println!(
+            "[RUST] [get] waiting for more data, response present: {}",
+            response_present
+          );
         }
+        println!("[RUST] [get] failed waiting for data");
       } else {
         report_error("couldn't perform grpc get operation".to_string());
       }
 
-      println!("[RUST] [receiver_thread] done");
+      println!("[RUST] [get] [receiver_thread] done");
     });
 
     if let Ok(mut client) = CLIENT.lock() {
       client.rx_handle = Some(rx_handle);
       client.rx = Some(response_thread_rx);
-      println!("[RUST] initialized");
+      println!("[RUST] [get] initialized");
       return Ok(());
     }
     return Err("could not access client".to_string());
@@ -119,12 +156,13 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
     if let Ok(mut client) = CLIENT.lock() {
       if let Some(mut rx) = client.rx.take() {
         if let Some(data) = rx.recv().await {
-          println!("received data of size {}", data.len());
+          println!(
+            "[RUST] [get] data received from client channel, size: {}",
+            data.len()
+          );
           response = Some(data);
         } else {
-          report_error(
-            "couldn't receive data via client's receiver".to_string(),
-          );
+          return response = Some(vec![]);
         }
         client.rx = Some(rx);
       } else {
@@ -143,7 +181,7 @@ pub fn get_client_terminate_cxx() -> Result<(), String> {
   if !is_initialized() {
     return Ok(());
   }
-  println!("[RUST] get_client_terminate_cxx begin");
+  println!("[RUST] [get] get_client_terminate_cxx begin");
 
   if let Ok(mut client) = CLIENT.lock() {
     if let Some(rx_handle) = client.rx_handle.take() {
@@ -161,8 +199,7 @@ pub fn get_client_terminate_cxx() -> Result<(), String> {
     !is_initialized(),
     "client transmitter handler released properly"
   );
-  check_error()?;
-  println!("[RUST] get_client_terminate_cxx end");
+  println!("[RUST] [get] get_client_terminate_cxx end");
   check_error()?;
   Ok(())
 }
