@@ -18,7 +18,7 @@ COPY services/lib/docker/ scripts/
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN scripts/install_corrosion.sh
 
-COPY native/cpp/CommonCpp/grpc grpc/
+ADD shared/protos grpc
 COPY shared/cmake cmake-components/
 
 COPY services/backup/ /transferred/backup/

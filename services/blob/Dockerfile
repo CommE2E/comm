@@ -18,7 +18,7 @@ COPY services/lib/src lib/src/
 
 WORKDIR /transferred/blob
 
-ADD native/cpp/CommonCpp/grpc grpc
+ADD shared/protos grpc
 
 RUN ../scripts/build_service.sh
 

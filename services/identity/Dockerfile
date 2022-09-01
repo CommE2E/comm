@@ -18,7 +18,7 @@ RUN cargo build --release
 RUN rm src/*.rs
 
 COPY services/identity .
-COPY native/cpp/CommonCpp/grpc/protos/identity.proto protos/
+COPY shared/protos/identity.proto protos/
 
 # Remove the previously-built binary so that only the application itself is
 # rebuilt

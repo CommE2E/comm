@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
       .into_string()
       .unwrap(),
   ) {
-    "../grpc/protos"
+    "../grpc"
   } else {
     "../../../native/cpp/CommonCpp/grpc/protos"
   };

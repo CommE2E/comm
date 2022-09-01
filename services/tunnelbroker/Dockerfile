@@ -36,7 +36,7 @@ COPY shared/ shared/
 
 WORKDIR /transferred/tunnelbroker
 
-ADD native/cpp/CommonCpp/grpc grpc
+ADD shared/protos grpc
 COPY services/lib/cmake-components cmake-components
 COPY services/lib/docker/ scripts/
 COPY services/tunnelbroker/docker/* docker/
