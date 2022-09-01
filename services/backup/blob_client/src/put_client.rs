@@ -71,11 +71,8 @@ fn check_error() -> Result<(), String> {
 }
 
 pub fn put_client_initialize_cxx() -> Result<(), String> {
-  println!("[RUST] [put] initializing");
   if is_initialized() {
-    println!("[RUST] [put] already initialized - terminating");
     put_client_terminate_cxx()?;
-    println!("[RUST] [put] already initialized - terminated");
   }
   assert!(!is_initialized(), "client cannot be initialized twice");
   // grpc
@@ -89,8 +86,6 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
 
     let outbound = async_stream::stream! {
       while let Some(data) = request_thread_rx.recv().await {
-        println!("[RUST] [put] [transmitter_thread] field index: {}", data.field_index);
-        println!("[RUST] [put] [transmitter_thread] data size: {}", data.data.len());
         let request_data: Option<put_request::Data> = match data.field_index {
           0 => {
             match String::from_utf8(data.data).ok() {
@@ -136,7 +131,6 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
       mpsc::Receiver<String>,
     ) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let rx_handle = RUNTIME.spawn(async move {
-      println!("[RUST] [put] [receiver_thread] begin");
       let maybe_response: Option<
         tonic::Response<tonic::codec::Streaming<PutResponse>>,
       > = match grpc_client.put(tonic::Request::new(outbound)).await {
@@ -155,10 +149,6 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
               Ok(maybe_response_message) => {
                 let mut result = false;
                 if let Some(response_message) = maybe_response_message {
-                  println!(
-                    "[RUST] [put] got response: {}",
-                    response_message.data_exists
-                  );
                   // warning: this will produce an error if there's more unread responses than
                   // MPSC_CHANNEL_BUFFER_CAPACITY
                   // you should then use put_client_blocking_read_cxx in order to dequeue
@@ -185,7 +175,6 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
           return;
         }
       };
-      println!("[RUST] [put] [receiver_thread] done");
     });
 
     if let Ok(mut client) = CLIENT.lock() {
@@ -194,7 +183,6 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
         rx: response_thread_rx,
         rx_handle,
       });
-      println!("[RUST] [put] initialized");
       return Ok(());
     }
     return Err("could not access client".to_string());
@@ -209,7 +197,6 @@ pub fn put_client_blocking_read_cxx() -> Result<String, String> {
     if let Ok(mut maybe_client) = CLIENT.lock() {
       if let Some(mut client) = (*maybe_client).take() {
         if let Some(data) = client.rx.recv().await {
-          println!("received data {}", data);
           response = Some(data);
         } else {
           report_error(
@@ -238,18 +225,9 @@ pub fn put_client_write_cxx(
   field_index: usize,
   data: *const c_char,
 ) -> Result<(), String> {
-  println!("[RUST] [put] [put_client_process] begin");
   check_error()?;
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
-  println!(
-    "[RUST] [put] [put_client_process] field index: {}",
-    field_index
-  );
-  println!(
-    "[RUST] [put] [put_client_process] data string size: {}",
-    data_bytes.len()
-  );
 
   RUNTIME.block_on(async {
     if let Ok(mut maybe_client) = CLIENT.lock() {
@@ -275,18 +253,14 @@ pub fn put_client_write_cxx(
       report_error("couldn't access client".to_string());
     }
   });
-  println!("[RUST] [put] [put_client_process] end");
   Ok(())
 }
 
 pub fn put_client_terminate_cxx() -> Result<(), String> {
-  println!("[RUST] [put] put_client_terminate_cxx begin");
   check_error()?;
-  println!("[RUST] [put] put_client_terminate_cxx checked err");
   if !is_initialized() {
     return Ok(());
   }
-  println!("[RUST] [put] put_client_terminate_cxx checked initialized");
 
   if let Ok(mut maybe_client) = CLIENT.lock() {
     if let Some(client) = (*maybe_client).take() {
@@ -307,7 +281,6 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
     !is_initialized(),
     "client transmitter handler released properly"
   );
-  println!("[RUST] [put] put_client_terminated");
   check_error()?;
   Ok(())
 }

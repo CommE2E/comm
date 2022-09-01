@@ -62,14 +62,8 @@ pub fn get_client_initialize_cxx(
   holder_char: *const c_char,
 ) -> Result<(), String> {
   let initialized = is_initialized();
-  println!(
-    "[RUST] [get] initializing, is already initialized: {}",
-    initialized
-  );
   if initialized {
-    println!("[RUST] [get] already initialized, terminating");
     get_client_terminate_cxx()?;
-    println!("[RUST] [get] already initialized, terminated");
   }
 
   assert!(!is_initialized(), "client cannot be initialized twice");
@@ -87,8 +81,6 @@ pub fn get_client_initialize_cxx(
       mpsc::Receiver<Vec<u8>>,
     ) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let rx_handle = RUNTIME.spawn(async move {
-      println!("[RUST] [get] [receiver_thread] begin: {}", holder);
-
       if let Ok(response) = grpc_client.get(GetRequest { holder }).await {
         let mut inner_response = response.into_inner();
         let mut response_present = true;
@@ -98,17 +90,8 @@ pub fn get_client_initialize_cxx(
               let mut result = false;
               if let Some(data) = maybe_data {
                 let data: Vec<u8> = data.data_chunk;
-                println!(
-                  "[RUST] [get] data received from server, size = {}",
-                  data.len()
-                );
                 result = match response_thread_tx.send(data).await {
-                  Ok(_) => {
-                    println!(
-                      "[RUST] [get] successfully sent data through the channel"
-                    );
-                    true
-                  }
+                  Ok(_) => true,
                   Err(err) => {
                     report_error(err.to_string());
                     false
@@ -122,17 +105,10 @@ pub fn get_client_initialize_cxx(
               false
             }
           };
-          println!(
-            "[RUST] [get] waiting for more data, response present: {}",
-            response_present
-          );
         }
-        println!("[RUST] [get] failed waiting for data");
       } else {
         report_error("couldn't perform grpc get operation".to_string());
       }
-
-      println!("[RUST] [get] [receiver_thread] done");
     });
 
     if let Ok(mut client) = CLIENT.lock() {
@@ -154,10 +130,6 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
     if let Ok(mut maybe_client) = CLIENT.lock() {
       if let Some(mut client) = (*maybe_client).take() {
         if let Some(data) = client.rx.recv().await {
-          println!(
-            "[RUST] [get] data received from client channel, size: {}",
-            data.len()
-          );
           response = Some(data);
         } else {
           response = Some(vec![]);
@@ -172,10 +144,6 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
   });
   check_error()?;
   let response: Vec<u8> = response.unwrap();
-  println!(
-    "[RUST] [get] HERE ==========> sending response to c++ of size {}",
-    response.len()
-  );
   Ok(response)
 }
 
@@ -184,8 +152,6 @@ pub fn get_client_terminate_cxx() -> Result<(), String> {
   if !is_initialized() {
     return Ok(());
   }
-  println!("[RUST] [get] get_client_terminate_cxx begin");
-
   if let Ok(mut maybe_client) = CLIENT.lock() {
     if let Some(client) = (*maybe_client).take() {
       RUNTIME.block_on(async {
@@ -204,7 +170,6 @@ pub fn get_client_terminate_cxx() -> Result<(), String> {
     !is_initialized(),
     "client transmitter handler released properly"
   );
-  println!("[RUST] [get] get_client_terminate_cxx end");
   check_error()?;
   Ok(())
 }
