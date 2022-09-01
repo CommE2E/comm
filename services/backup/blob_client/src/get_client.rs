@@ -148,5 +148,28 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
 }
 
 pub fn get_client_terminate_cxx() -> Result<(), String> {
-  unimplemented!();
+  check_error()?;
+  if !is_initialized() {
+    return Ok(());
+  }
+  if let Ok(mut maybe_client) = CLIENT.lock() {
+    if let Some(client) = (*maybe_client).take() {
+      RUNTIME.block_on(async {
+        if client.rx_handle.await.is_err() {
+          report_error("wait for receiver handle failed".to_string());
+        }
+      });
+    } else {
+      report_error("no client detected".to_string());
+    }
+  } else {
+    report_error("couldn't access client".to_string());
+  }
+
+  assert!(
+    !is_initialized(),
+    "client transmitter handler released properly"
+  );
+  check_error()?;
+  Ok(())
 }
