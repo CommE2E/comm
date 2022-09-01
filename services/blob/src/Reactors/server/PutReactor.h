@@ -72,6 +72,12 @@ public:
   }
 
   void terminateCallback() override {
+    if (this->holder.empty()) {
+      throw std::runtime_error("holder has not been provided");
+    }
+    if (this->blobHash.empty()) {
+      throw std::runtime_error("blob hash has not been provided");
+    }
     if (!this->status.status.ok()) {
       return;
     }
