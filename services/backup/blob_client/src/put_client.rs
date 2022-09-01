@@ -9,7 +9,7 @@ use proto::PutRequest;
 use proto::PutResponse;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
-use crate::tools::report_error;
+use crate::tools::{report_error, check_error};
 use lazy_static::lazy_static;
 use libc;
 use libc::c_char;
@@ -50,16 +50,6 @@ fn is_initialized() -> bool {
     report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
   }
   false
-}
-
-fn check_error() -> Result<(), String> {
-  if let Ok(errors) = ERROR_MESSAGES.lock() {
-    return match errors.is_empty() {
-      true => Ok(()),
-      false => Err(errors.join("\n")),
-    };
-  }
-  Err("could not access error messages".to_string())
 }
 
 pub fn put_client_initialize_cxx() -> Result<(), String> {
@@ -192,7 +182,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
 
 pub fn put_client_blocking_read_cxx() -> Result<String, String> {
   let mut response: Option<String> = None;
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   RUNTIME.block_on(async {
     if let Ok(mut maybe_client) = CLIENT.lock() {
       if let Some(mut client) = (*maybe_client).take() {
@@ -213,7 +203,7 @@ pub fn put_client_blocking_read_cxx() -> Result<String, String> {
       report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
     }
   });
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   response.ok_or("response not received properly".to_string())
 }
 
@@ -227,7 +217,7 @@ pub fn put_client_write_cxx(
   field_index: usize,
   data: *const c_char,
 ) -> Result<(), String> {
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
 
@@ -261,9 +251,9 @@ pub fn put_client_write_cxx(
 }
 
 pub fn put_client_terminate_cxx() -> Result<(), String> {
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   if !is_initialized() {
-    check_error()?;
+    check_error(&ERROR_MESSAGES)?;
     return Ok(());
   }
 
@@ -290,6 +280,6 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
     !is_initialized(),
     "client transmitter handler released properly"
   );
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   Ok(())
 }
