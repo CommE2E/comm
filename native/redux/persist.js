@@ -13,8 +13,13 @@ import { getContainingThreadID, getCommunity } from 'lib/shared/thread-utils';
 import { unshimMessageStore } from 'lib/shared/unshim-utils';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
-import { messageTypes } from 'lib/types/message-types';
-import type { ClientDBMessageStoreOperation } from 'lib/types/message-types';
+import {
+  type LocalMessageInfo,
+  type MessageStore,
+  messageTypes,
+  type ClientDBMessageStoreOperation,
+  type RawMessageInfo,
+} from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { translateRawMessageInfoToClientDBMessageInfo } from 'lib/utils/message-ops-utils';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
@@ -376,12 +381,41 @@ const migrations = {
 // this transformation should be executed in the `whitelist` property of the
 // `config` object that's passed to `createTransform(...)`.
 // eslint-disable-next-line no-unused-vars
+type PersistedThreadMessageInfo = {
+  +startReached: boolean,
+  +lastNavigatedTo: number,
+  +lastPruned: number,
+};
+type PersistedMessageStore = {
+  +local: { +[id: string]: LocalMessageInfo },
+  +currentAsOf: number,
+  +threads: { +[threadID: string]: PersistedThreadMessageInfo },
+};
+type RehydratedMessageStore = $Diff<
+  MessageStore,
+  { +messages: { +[id: string]: RawMessageInfo } },
+>;
 const messageStoreMessagesBlocklistTransform: Transform = createTransform(
-  state => {
-    const { messages, ...messageStoreSansMessages } = state;
-    return messageStoreSansMessages;
+  (state: MessageStore): PersistedMessageStore => {
+    const { messages, threads, ...messageStoreSansMessages } = state;
+    // We also do not want to persist `messageStore.threads[ID].messageIDs`
+    // because they can be deterministically computed based on messages we have
+    // from SQLite
+    const threadsToPersist = {};
+    for (const threadID in threads) {
+      const { messageIDs, ...threadsData } = threads[threadID];
+      threadsToPersist[threadID] = threadsData;
+    }
+    return { ...messageStoreSansMessages, threads: threadsToPersist };
   },
-  null,
+  (state: PersistedMessageStore): RehydratedMessageStore => {
+    const { threads: persistedThreads, ...messageStore } = state;
+    const threads = {};
+    for (const threadID in persistedThreads) {
+      threads[threadID] = { ...persistedThreads[threadID], messageIDs: [] };
+    }
+    return { ...messageStore, threads };
+  },
   { whitelist: ['messageStore'] },
 );
 
