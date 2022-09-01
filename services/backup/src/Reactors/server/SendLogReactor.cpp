@@ -160,13 +160,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
 
 void SendLogReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-  try {
-    put_client_terminate_cxx();
-  } catch (std::exception &e) {
-    throw std::runtime_error(
-        e.what()); // todo in base reactors we can just handle std exception
-                   // instead of keep rethrowing here
-  }
+  put_client_terminate_cxx();
 
   if (!this->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(
