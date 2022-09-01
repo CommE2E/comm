@@ -20,40 +20,35 @@ grpc::Status AddAttachmentsUtility::processRequest(
   std::string backupID = request->backupid();
   std::string logID = request->logid();
   const std::string holders = request->holders();
-  try {
-    if (userID.empty()) {
-      throw std::runtime_error("user id required but not provided");
-    }
-    if (backupID.empty()) {
-      throw std::runtime_error("backup id required but not provided");
-    }
-    if (holders.empty()) {
-      throw std::runtime_error("holders required but not provided");
-    }
+  if (userID.empty()) {
+    throw std::runtime_error("user id required but not provided");
+  }
+  if (backupID.empty()) {
+    throw std::runtime_error("backup id required but not provided");
+  }
+  if (holders.empty()) {
+    throw std::runtime_error("holders required but not provided");
+  }
 
-    if (logID.empty()) {
-      // add these attachments to backup
-      std::shared_ptr<database::BackupItem> backupItem =
-          database::DatabaseManager::getInstance().findBackupItem(
-              userID, backupID);
-      backupItem->addAttachmentHolders(holders);
-      database::DatabaseManager::getInstance().putBackupItem(*backupItem);
-    } else {
-      // add these attachments to log
-      std::shared_ptr<database::LogItem> logItem =
-          database::DatabaseManager::getInstance().findLogItem(backupID, logID);
-      logItem->addAttachmentHolders(holders);
-      if (!logItem->getPersistedInBlob() &&
-          database::LogItem::getItemSize(logItem.get()) >
-              LOG_DATA_SIZE_DATABASE_LIMIT) {
-        bool old = logItem->getPersistedInBlob();
-        logItem = this->moveToS3(logItem);
-      }
-      database::DatabaseManager::getInstance().putLogItem(*logItem);
+  if (logID.empty()) {
+    // add these attachments to backup
+    std::shared_ptr<database::BackupItem> backupItem =
+        database::DatabaseManager::getInstance().findBackupItem(
+            userID, backupID);
+    backupItem->addAttachmentHolders(holders);
+    database::DatabaseManager::getInstance().putBackupItem(*backupItem);
+  } else {
+    // add these attachments to log
+    std::shared_ptr<database::LogItem> logItem =
+        database::DatabaseManager::getInstance().findLogItem(backupID, logID);
+    logItem->addAttachmentHolders(holders);
+    if (!logItem->getPersistedInBlob() &&
+        database::LogItem::getItemSize(logItem.get()) >
+            LOG_DATA_SIZE_DATABASE_LIMIT) {
+      bool old = logItem->getPersistedInBlob();
+      logItem = this->moveToS3(logItem);
     }
-  } catch (std::exception &e) {
-    LOG(ERROR) << e.what();
-    status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
+    database::DatabaseManager::getInstance().putLogItem(*logItem);
   }
   return status;
 }
