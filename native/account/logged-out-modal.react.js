@@ -60,6 +60,7 @@ import LogInPanel from './log-in-panel.react';
 import type { LogInState } from './log-in-panel.react';
 import RegisterPanel from './register-panel.react';
 import type { RegisterState } from './register-panel.react';
+import SIWEPanel from './siwe-panel.react';
 
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
@@ -88,12 +89,13 @@ const {
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register';
+type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register' | 'siwe';
 const modeNumbers: { [LoggedOutMode]: number } = {
   'loading': 0,
   'prompt': 1,
   'log-in': 2,
   'register': 3,
+  'siwe': 4,
 };
 function isPastPrompt(modeValue: Node) {
   return and(
@@ -452,7 +454,26 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   render() {
     let panel = null;
     let buttons = null;
-    if (this.state.mode === 'log-in') {
+    let siweButton = null;
+    if (__DEV__) {
+      siweButton = (
+        <TouchableOpacity
+          onPress={this.onPressSIWE}
+          style={styles.button}
+          activeOpacity={0.6}
+        >
+          <Text style={styles.buttonText}>SIWE</Text>
+        </TouchableOpacity>
+      );
+    }
+    if (this.state.mode === 'siwe') {
+      panel = (
+        <SIWEPanel
+          setActiveAlert={this.setActiveAlert}
+          opacityValue={this.panelOpacityValue}
+        />
+      );
+    } else if (this.state.mode === 'log-in') {
       panel = (
         <LogInPanel
           setActiveAlert={this.setActiveAlert}
@@ -472,6 +493,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       const opacityStyle = { opacity: this.buttonOpacity };
       buttons = (
         <Animated.View style={[styles.buttonContainer, opacityStyle]}>
+          {siweButton}
           <TouchableOpacity
             onPress={this.onPressLogIn}
             style={styles.button}
@@ -536,6 +558,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       </React.Fragment>
     );
   }
+
+  onPressSIWE = () => {
+    this.setMode('siwe');
+  };
 
   onPressLogIn = () => {
     if (Platform.OS !== 'ios') {
