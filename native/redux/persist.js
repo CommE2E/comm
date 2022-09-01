@@ -378,10 +378,24 @@ const migrations = {
 // eslint-disable-next-line no-unused-vars
 const messageStoreMessagesBlocklistTransform: Transform = createTransform(
   state => {
-    const { messages, ...messageStoreSansMessages } = state;
-    return messageStoreSansMessages;
+    const { messages, threads, ...messageStoreSansMessages } = state;
+    // We also do not want to persist `messageStore.threads[ID].messageIDs`
+    // because they can be deterministically computed based on messages we have
+    // from SQLite
+    const threadsToPersist = {};
+    for (const threadID in threads) {
+      const { messageIDs, ...threadsData } = threads[threadID];
+      threadsToPersist[threadID] = threadsData;
+    }
+    return { ...messageStoreSansMessages, threads: threadsToPersist };
   },
-  null,
+  state => {
+    const { threads, ...messageStore } = state;
+    for (const threadID in threads) {
+      threads[threadID].messageIDs = [];
+    }
+    return { ...messageStore, threads };
+  },
   { whitelist: ['messageStore'] },
 );
 
