@@ -98,7 +98,9 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
             "), merge them into bigger parts instead");
       }
       if (this->persistenceMethod == PersistenceMethod::BLOB) {
-        put_client_write_cxx(2, request.mutable_logdata()->c_str());
+        put_client_write_cxx(
+            tools::getBlobPutField(tools::BlobPutField::DATA_CHUNK),
+            request.mutable_logdata()->c_str());
         put_client_blocking_read_cxx(); // todo this should be avoided
                                         // (blocking); we should be able to
                                         // ignore responses; we probably want to
@@ -116,13 +118,17 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         this->blobHolder =
             tools::generateHolder(this->hash, this->backupID, this->logID);
         this->initializePutClient();
-        put_client_write_cxx(0, this->blobHolder.c_str());
+        put_client_write_cxx(
+            tools::getBlobPutField(tools::BlobPutField::HOLDER),
+            this->blobHolder.c_str());
         put_client_blocking_read_cxx(); // todo this should be avoided
                                         // (blocking); we should be able to
                                         // ignore responses; we probably want to
                                         // delegate performing ops to separate
                                         // threads in the base reactors
-        put_client_write_cxx(1, this->hash.c_str());
+        put_client_write_cxx(
+            tools::getBlobPutField(tools::BlobPutField::HASH),
+            this->hash.c_str());
         rust::String responseStr =
             put_client_blocking_read_cxx(); // todo this should be avoided
                                             // (blocking); we should be able to
@@ -134,7 +140,9 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
         if ((bool)tools::charPtrToInt(responseStr.c_str())) {
           return std::make_unique<grpc::Status>(grpc::Status::OK);
         }
-        put_client_write_cxx(2, std::move(this->value).c_str());
+        put_client_write_cxx(
+            tools::getBlobPutField(tools::BlobPutField::DATA_CHUNK),
+            std::move(this->value).c_str());
         put_client_blocking_read_cxx(); // todo this should be avoided
                                         // (blocking); we should be able to
                                         // ignore responses; we probably want to

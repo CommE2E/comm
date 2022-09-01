@@ -62,6 +62,10 @@ int charPtrToInt(const char *str) {
   return intValue;
 }
 
+size_t getBlobPutField(BlobPutField field) {
+  return static_cast<size_t>(field);
+}
+
 } // namespace tools
 } // namespace network
 } // namespace comm

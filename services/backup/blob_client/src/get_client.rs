@@ -57,8 +57,8 @@ fn check_error() -> Result<(), String> {
   }
   Err("could not access error messages".to_string())
 }
-//...
-pub fn get_client_reinitialize_cxx(
+
+pub fn get_client_initialize_cxx(
   holder_char: *const c_char,
 ) -> Result<(), String> {
   let initialized = is_initialized();
@@ -138,7 +138,7 @@ pub fn get_client_reinitialize_cxx(
     if let Ok(mut client) = CLIENT.lock() {
       *client = Some(ReadClient {
         rx_handle,
-        rx: response_thread_rx
+        rx: response_thread_rx,
       });
       return Ok(());
     }

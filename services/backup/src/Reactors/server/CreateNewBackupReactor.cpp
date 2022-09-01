@@ -71,13 +71,17 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       bool dataExists = false;
       try {
         put_client_initialize_cxx();
-        put_client_write_cxx(0, this->holder.c_str());
+        put_client_write_cxx(
+            tools::getBlobPutField(tools::BlobPutField::HOLDER),
+            this->holder.c_str());
         put_client_blocking_read_cxx(); // todo this should be avoided
                                         // (blocking); we should be able to
                                         // ignore responses; we probably want to
                                         // delegate performing ops to separate
                                         // threads in the base reactors
-        put_client_write_cxx(1, this->dataHash.c_str());
+        put_client_write_cxx(
+            tools::getBlobPutField(tools::BlobPutField::HASH),
+            this->dataHash.c_str());
 
         rust::String responseStr =
             put_client_blocking_read_cxx(); // todo this should be avoided
@@ -104,7 +108,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       }
       try {
         put_client_write_cxx(
-            2,
+            tools::getBlobPutField(tools::BlobPutField::DATA_CHUNK),
             std::string(std::move(*request.mutable_newcompactionchunk()))
                 .c_str());
         put_client_blocking_read_cxx(); // todo this should be avoided

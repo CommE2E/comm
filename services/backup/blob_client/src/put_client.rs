@@ -55,6 +55,7 @@ fn report_error(message: String) {
   println!("[RUST] [put] Error: {}", message);
   if let Ok(mut error_messages) = ERROR_MESSAGES.lock() {
     error_messages.push(message);
+    return;
   }
   error!("could not access error messages");
 }
@@ -158,15 +159,16 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
                     "[RUST] [put] got response: {}",
                     response_message.data_exists
                   );
-                  // warning: this will hang if there's more unread responses than
+                  // warning: this will produce an error if there's more unread responses than
                   // MPSC_CHANNEL_BUFFER_CAPACITY
                   // you should then use put_client_blocking_read_cxx in order to dequeue
                   // the responses in c++ and make room for more
                   if let Ok(_) = response_thread_tx
-                    .send((response_message.data_exists as i32).to_string())
-                    .await
+                    .try_send((response_message.data_exists as i32).to_string())
                   {
                     result = true;
+                  } else {
+                    report_error("response queue full".to_string());
                   }
                 }
                 result
@@ -252,7 +254,8 @@ pub fn put_client_write_cxx(
   RUNTIME.block_on(async {
     if let Ok(mut maybe_client) = CLIENT.lock() {
       if let Some(client) = (*maybe_client).take() {
-        match client.tx
+        match client
+          .tx
           .send(PutRequestData {
             field_index,
             data: data_bytes,

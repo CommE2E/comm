@@ -75,13 +75,16 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;
   put_client_initialize_cxx();
-  put_client_write_cxx(0, holder.c_str());
+  put_client_write_cxx(
+      tools::getBlobPutField(tools::BlobPutField::HOLDER), holder.c_str());
   put_client_blocking_read_cxx(); // todo this should be avoided
                                   // (blocking); we should be able to
                                   // ignore responses; we probably want to
                                   // delegate performing ops to separate
                                   // threads in the base reactors
-  put_client_write_cxx(1, newLogItem->getDataHash().c_str());
+  put_client_write_cxx(
+      tools::getBlobPutField(tools::BlobPutField::HASH),
+      newLogItem->getDataHash().c_str());
   rust::String responseStr =
       put_client_blocking_read_cxx(); // todo this should be avoided
                                       // (blocking); we should be able to
@@ -90,7 +93,9 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
                                       // threads in the base reactors
   // data exists?
   if (!(bool)tools::charPtrToInt(responseStr.c_str())) {
-    put_client_write_cxx(2, std::move(data).c_str());
+    put_client_write_cxx(
+        tools::getBlobPutField(tools::BlobPutField::DATA_CHUNK),
+        std::move(data).c_str());
     put_client_blocking_read_cxx(); // todo this should be avoided
                                     // (blocking); we should be able to
                                     // ignore responses; we probably want to
