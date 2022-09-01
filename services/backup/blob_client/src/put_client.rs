@@ -32,6 +32,36 @@ lazy_static! {
     Arc::new(Mutex::new(Vec::new()));
 }
 
+fn is_initialized() -> bool {
+  if let Ok(client) = CLIENT.lock() {
+    if client.is_some() {
+      return true;
+    }
+  } else {
+    report_error("couldn't access client".to_string());
+  }
+  false
+}
+
+fn report_error(message: String) {
+  println!("[RUST] [put] Error: {}", message);
+  if let Ok(mut error_messages) = ERROR_MESSAGES.lock() {
+    error_messages.push(message);
+    return;
+  }
+  error!("could not access error messages");
+}
+
+fn check_error() -> Result<(), String> {
+  if let Ok(errors) = ERROR_MESSAGES.lock() {
+    return match errors.is_empty() {
+      true => Ok(()),
+      false => Err(errors.join("\n")),
+    };
+  }
+  Err("could not access error messages".to_string())
+}
+
 pub fn put_client_initialize_cxx() -> Result<(), String> {
   unimplemented!();
 }
