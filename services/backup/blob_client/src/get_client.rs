@@ -6,6 +6,7 @@ use proto::blob_service_client::BlobServiceClient;
 use proto::GetRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
+use crate::tools::{report_error};
 use lazy_static::lazy_static;
 use libc;
 use libc::c_char;
@@ -14,7 +15,6 @@ use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
-use tracing::error;
 
 struct ReadClient {
   rx: mpsc::Receiver<Vec<u8>>,
@@ -35,17 +35,9 @@ fn is_initialized() -> bool {
       return true;
     }
   } else {
-    report_error("couldn't access client".to_string());
+    report_error(&ERROR_MESSAGES, "couldn't access client", Some("get"));
   }
   false
-}
-
-fn report_error(message: String) {
-  println!("[RUST] [get] Error: {}", message);
-  if let Ok(mut error_messages) = ERROR_MESSAGES.lock() {
-    error_messages.push(message);
-  }
-  error!("could not access error messages");
 }
 
 fn check_error() -> Result<(), String> {
@@ -93,7 +85,11 @@ pub fn get_client_initialize_cxx(
                 result = match response_thread_tx.send(data).await {
                   Ok(_) => true,
                   Err(err) => {
-                    report_error(err.to_string());
+                    report_error(
+                      &ERROR_MESSAGES,
+                      &err.to_string(),
+                      Some("get"),
+                    );
                     false
                   }
                 }
@@ -101,13 +97,17 @@ pub fn get_client_initialize_cxx(
               result
             }
             Err(err) => {
-              report_error(err.to_string());
+              report_error(&ERROR_MESSAGES, &err.to_string(), Some("get"));
               false
             }
           };
         }
       } else {
-        report_error("couldn't perform grpc get operation".to_string());
+        report_error(
+          &ERROR_MESSAGES,
+          "couldn't perform grpc get operation",
+          Some("get"),
+        );
       }
     });
 
@@ -136,10 +136,10 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
         }
         *maybe_client = Some(client);
       } else {
-        report_error("no client present".to_string());
+        report_error(&ERROR_MESSAGES, "no client present", Some("get"));
       }
     } else {
-      report_error("couldn't access client".to_string());
+      report_error(&ERROR_MESSAGES, "couldn't access client", Some("get"));
     }
   });
   check_error()?;
@@ -157,7 +157,11 @@ pub fn get_client_terminate_cxx() -> Result<(), String> {
     if let Some(client) = (*maybe_client).take() {
       RUNTIME.block_on(async {
         if client.rx_handle.await.is_err() {
-          report_error("wait for receiver handle failed".to_string());
+          report_error(
+            &ERROR_MESSAGES,
+            "wait for receiver handle failed",
+            Some("get"),
+          );
         }
       });
     } else {

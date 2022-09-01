@@ -1,6 +1,7 @@
 mod constants;
 mod get_client;
 mod put_client;
+mod tools;
 
 use put_client::{
   put_client_blocking_read_cxx, put_client_initialize_cxx,

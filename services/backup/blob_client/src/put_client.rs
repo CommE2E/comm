@@ -9,6 +9,7 @@ use proto::PutRequest;
 use proto::PutResponse;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
+use crate::tools::report_error;
 use lazy_static::lazy_static;
 use libc;
 use libc::c_char;
@@ -17,7 +18,6 @@ use std::sync::{Arc, Mutex};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
-use tracing::error;
 
 #[derive(Debug)]
 struct PutRequestData {
@@ -35,6 +35,7 @@ struct BidiClient {
 lazy_static! {
   static ref CLIENT: Arc<Mutex<Option<BidiClient>>> =
     Arc::new(Mutex::new(None));
+  // todo we should probably create separate clients for different IDs
   static ref RUNTIME: Runtime = Runtime::new().unwrap();
   static ref ERROR_MESSAGES: Arc<Mutex<Vec<String>>> =
     Arc::new(Mutex::new(Vec::new()));
@@ -46,18 +47,9 @@ fn is_initialized() -> bool {
       return true;
     }
   } else {
-    report_error("couldn't access client".to_string());
+    report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
   }
   false
-}
-
-fn report_error(message: String) {
-  println!("[RUST] [put] Error: {}", message);
-  if let Ok(mut error_messages) = ERROR_MESSAGES.lock() {
-    error_messages.push(message);
-    return;
-  }
-  error!("could not access error messages");
 }
 
 fn check_error() -> Result<(), String> {
@@ -91,7 +83,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
             match String::from_utf8(data.data).ok() {
               Some(utf8_data) => Some(Holder(utf8_data)),
               None => {
-                report_error("invalid utf-8".to_string());
+                report_error(&ERROR_MESSAGES, "invalid utf-8", Some("put"));
                 None
               },
             }
@@ -100,7 +92,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
             match String::from_utf8(data.data).ok() {
               Some(utf8_data) => Some(BlobHash(utf8_data)),
               None => {
-                report_error("invalid utf-8".to_string());
+                report_error(&ERROR_MESSAGES, "invalid utf-8", Some("put"));
                 None
               },
             }
@@ -109,7 +101,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
             Some(DataChunk(data.data))
           }
           _ => {
-            report_error(format!("invalid field index value {}", data.field_index));
+            report_error(&ERROR_MESSAGES, &format!("invalid field index value {}", data.field_index), Some("put"));
             None
           }
         };
@@ -119,7 +111,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
           };
           yield request;
         } else {
-          report_error("an error occured, aborting connection".to_string());
+          report_error(&ERROR_MESSAGES, "an error occured, aborting connection", Some("put"));
           break;
         }
       }
@@ -136,7 +128,7 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
       > = match grpc_client.put(tonic::Request::new(outbound)).await {
         Ok(res) => Some(res),
         Err(err) => {
-          report_error(err.to_string());
+          report_error(&ERROR_MESSAGES, &err.to_string(), Some("put"));
           None
         }
       };
@@ -158,20 +150,28 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
                   {
                     result = true;
                   } else {
-                    report_error("response queue full".to_string());
+                    report_error(
+                      &ERROR_MESSAGES,
+                      "response queue full",
+                      Some("put"),
+                    );
                   }
                 }
                 result
               }
               Err(err) => {
-                report_error(err.to_string());
+                report_error(&ERROR_MESSAGES, &err.to_string(), Some("put"));
                 false
               }
             };
           }
         }
         None => {
-          report_error(format!("unexpected result received"));
+          report_error(
+            &ERROR_MESSAGES,
+            &format!("unexpected result received"),
+            Some("put"),
+          );
           return;
         }
       };
@@ -200,15 +200,17 @@ pub fn put_client_blocking_read_cxx() -> Result<String, String> {
           response = Some(data);
         } else {
           report_error(
-            "couldn't receive data via client's receiver".to_string(),
+            &ERROR_MESSAGES,
+            "couldn't receive data via client's receiver",
+            Some("put"),
           );
         }
         *maybe_client = Some(client);
       } else {
-        report_error("no client detected".to_string());
+        report_error(&ERROR_MESSAGES, "no client detected", Some("put"));
       }
     } else {
-      report_error("couldn't access client".to_string());
+      report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
     }
   });
   check_error()?;
@@ -241,16 +243,18 @@ pub fn put_client_write_cxx(
           .await
         {
           Ok(_) => (),
-          Err(err) => {
-            report_error(format!("send data to receiver failed: {}", err))
-          }
+          Err(err) => report_error(
+            &ERROR_MESSAGES,
+            &format!("send data to receiver failed: {}", err),
+            Some("put"),
+          ),
         }
         *maybe_client = Some(client);
       } else {
-        report_error("no client detected".to_string());
+        report_error(&ERROR_MESSAGES, "no client detected", Some("put"));
       }
     } else {
-      report_error("couldn't access client".to_string());
+      report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
     }
   });
   Ok(())
@@ -268,7 +272,11 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
       drop(client.tx);
       RUNTIME.block_on(async {
         if client.rx_handle.await.is_err() {
-          report_error("wait for receiver handle failed".to_string());
+          report_error(
+            &ERROR_MESSAGES,
+            "wait for receiver handle failed",
+            Some("put"),
+          );
         }
       });
     } else {
