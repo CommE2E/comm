@@ -257,5 +257,31 @@ pub fn put_client_write_cxx(
 }
 
 pub fn put_client_terminate_cxx() -> Result<(), String> {
-  unimplemented!();
+  check_error()?;
+  if !is_initialized() {
+    check_error()?;
+    return Ok(());
+  }
+
+  if let Ok(mut maybe_client) = CLIENT.lock() {
+    if let Some(client) = (*maybe_client).take() {
+      drop(client.tx);
+      RUNTIME.block_on(async {
+        if client.rx_handle.await.is_err() {
+          report_error("wait for receiver handle failed".to_string());
+        }
+      });
+    } else {
+      return Err("no client detected".to_string());
+    }
+  } else {
+    return Err("couldn't access client".to_string());
+  }
+
+  assert!(
+    !is_initialized(),
+    "client transmitter handler released properly"
+  );
+  check_error()?;
+  Ok(())
 }
