@@ -72,7 +72,7 @@ void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
       this->terminate(*status);
       return;
     }
-  } catch (std::runtime_error &e) {
+  } catch (std::exception &e) {
     this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
     return;
   }
@@ -86,7 +86,7 @@ void ServerReadReactorBase<Request, Response>::terminate(
   try {
     this->terminateCallback();
     this->validate();
-  } catch (std::runtime_error &e) {
+  } catch (std::exception &e) {
     this->statusHolder->setStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
