@@ -17,16 +17,13 @@ use tokio::task::JoinHandle;
 use tracing::error;
 
 struct ReadClient {
-  rx: Option<mpsc::Receiver<Vec<u8>>>,
-  rx_handle: Option<JoinHandle<()>>,
+  rx: mpsc::Receiver<Vec<u8>>,
+  rx_handle: JoinHandle<()>,
 }
 
 lazy_static! {
-  static ref CLIENT: Arc<Mutex<ReadClient>> =
-    Arc::new(Mutex::new(ReadClient {
-      rx: None,
-      rx_handle: None,
-    }));
+  static ref CLIENT: Arc<Mutex<Option<ReadClient>>> =
+    Arc::new(Mutex::new(None));
   static ref RUNTIME: Runtime = Runtime::new().unwrap();
   static ref ERROR_MESSAGES: Arc<Mutex<Vec<String>>> =
     Arc::new(Mutex::new(Vec::new()));
@@ -34,13 +31,13 @@ lazy_static! {
 
 fn is_initialized() -> bool {
   if let Ok(client) = CLIENT.lock() {
-    if client.rx.is_none() || client.rx_handle.is_none() {
-      return false;
+    if client.is_some() {
+      return true;
     }
   } else {
-    return false;
+    report_error("couldn't access client".to_string());
   }
-  return true;
+  false
 }
 
 fn report_error(message: String) {
@@ -60,7 +57,7 @@ fn check_error() -> Result<(), String> {
   }
   Err("could not access error messages".to_string())
 }
-
+//...
 pub fn get_client_reinitialize_cxx(
   holder_char: *const c_char,
 ) -> Result<(), String> {
@@ -139,9 +136,10 @@ pub fn get_client_reinitialize_cxx(
     });
 
     if let Ok(mut client) = CLIENT.lock() {
-      client.rx_handle = Some(rx_handle);
-      client.rx = Some(response_thread_rx);
-      println!("[RUST] [get] initialized");
+      *client = Some(ReadClient {
+        rx_handle,
+        rx: response_thread_rx
+      });
       return Ok(());
     }
     return Err("could not access client".to_string());
@@ -153,20 +151,20 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
   let mut response: Option<Vec<u8>> = None;
   check_error()?;
   RUNTIME.block_on(async {
-    if let Ok(mut client) = CLIENT.lock() {
-      if let Some(mut rx) = client.rx.take() {
-        if let Some(data) = rx.recv().await {
+    if let Ok(mut maybe_client) = CLIENT.lock() {
+      if let Some(mut client) = (*maybe_client).take() {
+        if let Some(data) = client.rx.recv().await {
           println!(
             "[RUST] [get] data received from client channel, size: {}",
             data.len()
           );
           response = Some(data);
         } else {
-          return response = Some(vec![]);
+          response = Some(vec![]);
         }
-        client.rx = Some(rx);
+        *maybe_client = Some(client);
       } else {
-        report_error("couldn't access client's receiver".to_string());
+        report_error("no client present".to_string());
       }
     } else {
       report_error("couldn't access client".to_string());
@@ -179,8 +177,6 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
     response.len()
   );
   Ok(response)
-  // response.ok_or("response not received properly".to_string())
-  // HERE we send 4194299 bytes but in c++ we receive 4194315, maybe cxx adds some bytes? TODO CHECK THIS
 }
 
 pub fn get_client_terminate_cxx() -> Result<(), String> {
@@ -190,13 +186,15 @@ pub fn get_client_terminate_cxx() -> Result<(), String> {
   }
   println!("[RUST] [get] get_client_terminate_cxx begin");
 
-  if let Ok(mut client) = CLIENT.lock() {
-    if let Some(rx_handle) = client.rx_handle.take() {
+  if let Ok(mut maybe_client) = CLIENT.lock() {
+    if let Some(client) = (*maybe_client).take() {
       RUNTIME.block_on(async {
-        if rx_handle.await.is_err() {
+        if client.rx_handle.await.is_err() {
           report_error("wait for receiver handle failed".to_string());
         }
       });
+    } else {
+      report_error("no client detected".to_string());
     }
   } else {
     report_error("couldn't access client".to_string());
