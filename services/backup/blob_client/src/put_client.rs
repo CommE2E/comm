@@ -176,7 +176,28 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
 }
 
 pub fn put_client_blocking_read_cxx() -> Result<String, String> {
-  unimplemented!();
+  check_error()?;
+  let response: Option<String> = RUNTIME.block_on(async {
+    if let Ok(mut maybe_client) = CLIENT.lock() {
+      if let Some(mut client) = (*maybe_client).take() {
+        if let Some(data) = client.rx.recv().await {
+          return Some(data);
+        } else {
+          report_error(
+            "couldn't receive data via client's receiver".to_string(),
+          );
+        }
+        *maybe_client = Some(client);
+      } else {
+        report_error("no client detected".to_string());
+      }
+    } else {
+      report_error("couldn't access client".to_string());
+    }
+    None
+  });
+  check_error()?;
+  response.ok_or("response not received properly".to_string())
 }
 
 /**
