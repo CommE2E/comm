@@ -113,18 +113,18 @@ pub async fn run(
           if holder.len() == 0 {
             continue;
           }
-          println!("attachments for the backup: {}", holders);
+          println!("attachments for the backup: {}", holder);
           result
             .backup_item
             .attachments_holders
             .push(holder.to_string());
         }
       } else if state == State::Log {
+        println!("attachments for the log {:?}: {}", current_id, holders);
         for holder in holders_split {
           if holder.len() == 0 {
             continue;
           }
-          println!("attachments for the log: {}", holders);
           let log_items_size = result.log_items.len() - 1;
           result.log_items[log_items_size]
             .attachments_holders
