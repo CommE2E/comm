@@ -124,7 +124,27 @@ pub fn get_client_initialize_cxx(
 }
 
 pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
-  unimplemented!();
+  let mut response: Option<Vec<u8>> = None;
+  check_error()?;
+  RUNTIME.block_on(async {
+    if let Ok(mut maybe_client) = CLIENT.lock() {
+      if let Some(mut client) = (*maybe_client).take() {
+        if let Some(data) = client.rx.recv().await {
+          response = Some(data);
+        } else {
+          response = Some(vec![]);
+        }
+        *maybe_client = Some(client);
+      } else {
+        report_error("no client present".to_string());
+      }
+    } else {
+      report_error("couldn't access client".to_string());
+    }
+  });
+  check_error()?;
+  let response: Vec<u8> = response.unwrap();
+  Ok(response)
 }
 
 pub fn get_client_terminate_cxx() -> Result<(), String> {
