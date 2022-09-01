@@ -6,8 +6,8 @@
 #include <grpcpp/grpcpp.h>
 
 #include "ClientGetReadReactor.h"
-#include "_generated/tunnelbroker.grpc.pb.h"
-#include "_generated/tunnelbroker.pb.h"
+#include "tunnelbroker.grpc.pb.h"
+#include "tunnelbroker.pb.h"
 
 namespace comm {
 namespace network {
