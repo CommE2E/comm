@@ -25,7 +25,8 @@ function ThreadMembersList(props: Props): React.Node {
   const hasMembers = threadMembers.length > 0;
 
   const groupedByFirstLetterMembers = React.useMemo(
-    () => _groupBy(member => stringForUser(member)[0])(threadMembers),
+    () =>
+      _groupBy(member => stringForUser(member)[0].toLowerCase())(threadMembers),
     [threadMembers],
   );
 
