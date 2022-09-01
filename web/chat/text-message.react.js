@@ -58,7 +58,9 @@ function TextMessage(props: Props): React.Node {
       sendFailed={textMessageSendFailed(props.item)}
     >
       <div className={messageClassName} style={messageStyle}>
-        <Markdown rules={rules}>{text}</Markdown>
+        <Markdown threadInfo={props.threadInfo} rules={rules}>
+          {text}
+        </Markdown>
       </div>
     </ComposedMessage>
   );
