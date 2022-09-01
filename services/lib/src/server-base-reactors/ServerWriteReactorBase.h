@@ -64,7 +64,7 @@ void ServerWriteReactorBase<Request, Response>::terminate(
   try {
     this->terminateCallback();
     this->validate();
-  } catch (std::runtime_error &e) {
+  } catch (std::exception &e) {
     this->statusHolder->setStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
@@ -103,7 +103,7 @@ void ServerWriteReactorBase<Request, Response>::nextWrite() {
       return;
     }
     this->StartWrite(&this->response);
-  } catch (std::runtime_error &e) {
+  } catch (std::exception &e) {
     LOG(ERROR) << "error: " << e.what();
     this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
   }
