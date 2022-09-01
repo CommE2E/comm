@@ -16,3 +16,13 @@ pub fn report_error(
   }
   error!("could not access error messages");
 }
+
+pub fn check_error(error_messages: &Arc<Mutex<Vec<String>>>) -> Result<(), String> {
+  if let Ok(errors) = error_messages.lock() {
+    return match errors.is_empty() {
+      true => Ok(()),
+      false => Err(errors.join("\n")),
+    };
+  }
+  Err("could not access error messages".to_string())
+}
