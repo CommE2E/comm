@@ -52,6 +52,20 @@ std::string validateAttachmentHolders(const std::string &holders) {
   return result;
 }
 
+int charPtrToInt(const char *str) {
+  unsigned int intValue;
+  std::stringstream strValue;
+
+  strValue << str;
+  strValue >> intValue;
+
+  return intValue;
+}
+
+size_t getBlobPutField(blob::PutRequest::DataCase field) {
+  return static_cast<size_t>(field);
+}
+
 } // namespace tools
 } // namespace network
 } // namespace comm

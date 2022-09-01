@@ -1,5 +1,7 @@
 #pragma once
 
+#include <blob.pb.h>
+
 #include <string>
 
 namespace comm {
@@ -14,6 +16,10 @@ std::string generateHolder(
     const std::string &resourceID = "");
 
 std::string validateAttachmentHolders(const std::string &holders);
+
+int charPtrToInt(const char *str);
+
+size_t getBlobPutField(blob::PutRequest::DataCase field);
 
 } // namespace tools
 } // namespace network
