@@ -44,7 +44,7 @@ class SendLogReactor : public ServerReadReactorBase<
 
   void storeInDatabase();
   std::string generateLogID(const std::string &backupID);
-  void initializePutReactor();
+  void initializePutClient();
 
 public:
   using ServerReadReactorBase<backup::SendLogRequest, backup::SendLogResponse>::
