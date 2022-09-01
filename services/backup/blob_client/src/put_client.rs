@@ -225,7 +225,35 @@ pub fn put_client_write_cxx(
   field_index: usize,
   data: *const c_char,
 ) -> Result<(), String> {
-  unimplemented!();
+  check_error()?;
+  let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
+  let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
+
+  RUNTIME.block_on(async {
+    if let Ok(mut maybe_client) = CLIENT.lock() {
+      if let Some(client) = (*maybe_client).take() {
+        match client
+          .tx
+          .send(PutRequestData {
+            field_index,
+            data: data_bytes,
+          })
+          .await
+        {
+          Ok(_) => (),
+          Err(err) => {
+            report_error(format!("send data to receiver failed: {}", err))
+          }
+        }
+        *maybe_client = Some(client);
+      } else {
+        report_error("no client detected".to_string());
+      }
+    } else {
+      report_error("couldn't access client".to_string());
+    }
+  });
+  Ok(())
 }
 
 pub fn put_client_terminate_cxx() -> Result<(), String> {
