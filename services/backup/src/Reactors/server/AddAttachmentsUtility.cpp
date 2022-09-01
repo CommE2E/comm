@@ -1,5 +1,7 @@
 #include "AddAttachmentsUtility.h"
 
+#include "blob_client/src/lib.rs.h"
+
 #include <glog/logging.h>
 
 #include "BackupItem.h"
@@ -49,7 +51,7 @@ grpc::Status AddAttachmentsUtility::processRequest(
       }
       database::DatabaseManager::getInstance().putLogItem(*logItem);
     }
-  } catch (std::runtime_error &e) {
+  } catch (std::exception &e) {
     LOG(ERROR) << e.what();
     status = grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   }
@@ -72,10 +74,35 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
   // put into S3
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;
-  // todo:blob perform put
-  // todo:blob perform put:add chunk (std::move(data))
-  // todo:blob perform put:add chunk ("")
-  // todo:blob perform put:wait for completion
+  put_client_initialize_cxx();
+  put_client_write_cxx(
+      tools::getBlobPutField(tools::BlobPutField::HOLDER), holder.c_str());
+  put_client_blocking_read_cxx(); // todo this should be avoided
+                                  // (blocking); we should be able to
+                                  // ignore responses; we probably want to
+                                  // delegate performing ops to separate
+                                  // threads in the base reactors
+  put_client_write_cxx(
+      tools::getBlobPutField(tools::BlobPutField::HASH),
+      newLogItem->getDataHash().c_str());
+  rust::String responseStr =
+      put_client_blocking_read_cxx(); // todo this should be avoided
+                                      // (blocking); we should be able to
+                                      // ignore responses; we probably want to
+                                      // delegate performing ops to separate
+                                      // threads in the base reactors
+  // data exists?
+  if (!(bool)tools::charPtrToInt(responseStr.c_str())) {
+    put_client_write_cxx(
+        tools::getBlobPutField(tools::BlobPutField::DATA_CHUNK),
+        std::move(data).c_str());
+    put_client_blocking_read_cxx(); // todo this should be avoided
+                                    // (blocking); we should be able to
+                                    // ignore responses; we probably want to
+                                    // delegate performing ops to separate
+                                    // threads in the base reactors
+  }
+  put_client_terminate_cxx();
   return newLogItem;
 }
 
