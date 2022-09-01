@@ -98,7 +98,7 @@ void ServerBidiReactorBase<Request, Response>::terminate(
   try {
     this->terminateCallback();
     this->validate();
-  } catch (std::runtime_error &e) {
+  } catch (std::exception &e) {
     this->setStatus(ServerBidiReactorStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what())));
   }
@@ -145,7 +145,7 @@ void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
       return;
     }
     this->StartWrite(&this->response);
-  } catch (std::runtime_error &e) {
+  } catch (std::exception &e) {
     this->terminate(ServerBidiReactorStatus(
         grpc::Status(grpc::StatusCode::INTERNAL, e.what())));
   }
