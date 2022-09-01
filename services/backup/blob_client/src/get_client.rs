@@ -6,7 +6,7 @@ use proto::blob_service_client::BlobServiceClient;
 use proto::GetRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
-use crate::tools::report_error;
+use crate::tools::{check_error, report_error};
 use lazy_static::lazy_static;
 use libc;
 use libc::c_char;
@@ -38,16 +38,6 @@ fn is_initialized() -> bool {
     report_error(&ERROR_MESSAGES, "couldn't access client", Some("get"));
   }
   false
-}
-
-fn check_error() -> Result<(), String> {
-  if let Ok(errors) = ERROR_MESSAGES.lock() {
-    return match errors.is_empty() {
-      true => Ok(()),
-      false => Err(errors.join("\n")),
-    };
-  }
-  Err("could not access error messages".to_string())
 }
 
 pub fn get_client_initialize_cxx(
@@ -122,7 +112,7 @@ pub fn get_client_initialize_cxx(
 }
 
 pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   let response: Option<Vec<u8>> = RUNTIME.block_on(async {
     if let Ok(mut maybe_client) = CLIENT.lock() {
       if let Some(mut client) = (*maybe_client).take() {
@@ -138,14 +128,14 @@ pub fn get_client_blocking_read_cxx() -> Result<Vec<u8>, String> {
     }
     None
   });
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   response.ok_or("response could not be obtained".to_string())
 }
 
 pub fn get_client_terminate_cxx() -> Result<(), String> {
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   if !is_initialized() {
-    check_error()?;
+    check_error(&ERROR_MESSAGES)?;
     return Ok(());
   }
   if let Ok(mut maybe_client) = CLIENT.lock() {
@@ -170,6 +160,6 @@ pub fn get_client_terminate_cxx() -> Result<(), String> {
     !is_initialized(),
     "client transmitter handler released properly"
   );
-  check_error()?;
+  check_error(&ERROR_MESSAGES)?;
   Ok(())
 }
