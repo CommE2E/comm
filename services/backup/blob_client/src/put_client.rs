@@ -26,19 +26,15 @@ struct PutRequestData {
 }
 
 struct BidiClient {
-  tx: Option<mpsc::Sender<PutRequestData>>,
+  tx: mpsc::Sender<PutRequestData>,
 
-  rx: Option<mpsc::Receiver<String>>,
-  rx_handle: Option<JoinHandle<()>>,
+  rx: mpsc::Receiver<String>,
+  rx_handle: JoinHandle<()>,
 }
 
 lazy_static! {
-  static ref CLIENT: Arc<Mutex<BidiClient>> =
-    Arc::new(Mutex::new(BidiClient {
-      tx: None,
-      rx: None,
-      rx_handle: None,
-    }));
+  static ref CLIENT: Arc<Mutex<Option<BidiClient>>> =
+    Arc::new(Mutex::new(None));
   static ref RUNTIME: Runtime = Runtime::new().unwrap();
   static ref ERROR_MESSAGES: Arc<Mutex<Vec<String>>> =
     Arc::new(Mutex::new(Vec::new()));
@@ -46,14 +42,13 @@ lazy_static! {
 
 fn is_initialized() -> bool {
   if let Ok(client) = CLIENT.lock() {
-    if client.tx.is_none() || client.rx.is_none() || client.rx_handle.is_none()
-    {
-      return false;
+    if client.is_some() {
+      return true;
     }
   } else {
-    return false;
+    report_error("couldn't access client".to_string());
   }
-  return true;
+  false
 }
 
 fn report_error(message: String) {
@@ -192,9 +187,11 @@ pub fn put_client_initialize_cxx() -> Result<(), String> {
     });
 
     if let Ok(mut client) = CLIENT.lock() {
-      client.tx = Some(request_thread_tx);
-      client.rx_handle = Some(rx_handle);
-      client.rx = Some(response_thread_rx);
+      *client = Some(BidiClient {
+        tx: request_thread_tx,
+        rx: response_thread_rx,
+        rx_handle,
+      });
       println!("[RUST] [put] initialized");
       return Ok(());
     }
@@ -207,9 +204,9 @@ pub fn put_client_blocking_read_cxx() -> Result<String, String> {
   let mut response: Option<String> = None;
   check_error()?;
   RUNTIME.block_on(async {
-    if let Ok(mut client) = CLIENT.lock() {
-      if let Some(mut rx) = client.rx.take() {
-        if let Some(data) = rx.recv().await {
+    if let Ok(mut maybe_client) = CLIENT.lock() {
+      if let Some(mut client) = (*maybe_client).take() {
+        if let Some(data) = client.rx.recv().await {
           println!("received data {}", data);
           response = Some(data);
         } else {
@@ -217,9 +214,9 @@ pub fn put_client_blocking_read_cxx() -> Result<String, String> {
             "couldn't receive data via client's receiver".to_string(),
           );
         }
-        client.rx = Some(rx);
+        *maybe_client = Some(client);
       } else {
-        report_error("couldn't access client's receiver".to_string());
+        report_error("no client detected".to_string());
       }
     } else {
       report_error("couldn't access client".to_string());
@@ -253,9 +250,9 @@ pub fn put_client_write_cxx(
   );
 
   RUNTIME.block_on(async {
-    if let Ok(mut client) = CLIENT.lock() {
-      if let Some(tx) = client.tx.take() {
-        match tx
+    if let Ok(mut maybe_client) = CLIENT.lock() {
+      if let Some(client) = (*maybe_client).take() {
+        match client.tx
           .send(PutRequestData {
             field_index,
             data: data_bytes,
@@ -267,9 +264,9 @@ pub fn put_client_write_cxx(
             report_error(format!("send data to receiver failed: {}", err))
           }
         }
-        client.tx = Some(tx);
+        *maybe_client = Some(client);
       } else {
-        report_error("couldn't access client's transmitter".to_string());
+        report_error("no client detected".to_string());
       }
     } else {
       report_error("couldn't access client".to_string());
@@ -288,20 +285,16 @@ pub fn put_client_terminate_cxx() -> Result<(), String> {
   }
   println!("[RUST] [put] put_client_terminate_cxx checked initialized");
 
-  if let Ok(mut client) = CLIENT.lock() {
-    if let Some(tx) = client.tx.take() {
-      println!("[RUST] [put] put_client_terminate_cxx drop x");
-      drop(tx);
-      println!("[RUST] [put] put_client_terminate_cxx dropped x");
-    }
-    if let Some(rx_handle) = client.rx_handle.take() {
+  if let Ok(mut maybe_client) = CLIENT.lock() {
+    if let Some(client) = (*maybe_client).take() {
+      drop(client.tx);
       RUNTIME.block_on(async {
-        println!("[RUST] [put] put_client_terminate_cxx awaiting handle");
-        if rx_handle.await.is_err() {
+        if client.rx_handle.await.is_err() {
           report_error("wait for receiver handle failed".to_string());
         }
-        println!("[RUST] [put] put_client_terminate_cxx awaited handle");
       });
+    } else {
+      return Err("no client detected".to_string());
     }
   } else {
     report_error("couldn't access client".to_string());
