@@ -73,7 +73,9 @@ function TextMessage(props: Props): React.Node {
       canReply={canReply}
     >
       <div className={messageClassName} style={messageStyle}>
-        <Markdown rules={rules}>{text}</Markdown>
+        <Markdown threadInfo={props.threadInfo} rules={rules}>
+          {text}
+        </Markdown>
       </div>
     </ComposedMessage>
   );

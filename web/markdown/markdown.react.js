@@ -3,6 +3,9 @@
 import classNames from 'classnames';
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
+import tinycolor from 'tinycolor2';
+
+import { type ThreadInfo } from 'lib/types/thread-types';
 
 import css from './markdown.css';
 import type { MarkdownRules } from './rules.react';
@@ -10,9 +13,10 @@ import type { MarkdownRules } from './rules.react';
 type Props = {
   +children: string,
   +rules: MarkdownRules,
+  +threadInfo?: ThreadInfo,
 };
 function Markdown(props: Props): React.Node {
-  const { children, rules } = props;
+  const { children, rules, threadInfo } = props;
   const { simpleMarkdownRules, useDarkStyle } = rules;
 
   const markdownClassName = React.useMemo(
@@ -40,7 +44,19 @@ function Markdown(props: Props): React.Node {
   );
   const renderedOutput = React.useMemo(() => output(ast), [ast, output]);
 
-  return <div className={markdownClassName}>{renderedOutput}</div>;
+  let darkerThreadColor;
+  if (threadInfo) {
+    darkerThreadColor = tinycolor(threadInfo.color).darken(20).toString();
+  }
+
+  return (
+    <div
+      style={{ background: darkerThreadColor }}
+      className={markdownClassName}
+    >
+      {renderedOutput}
+    </div>
+  );
 }
 
 export default Markdown;
