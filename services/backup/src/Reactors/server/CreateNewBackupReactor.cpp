@@ -66,36 +66,30 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       }
       response->set_backupid(this->backupID);
       this->holder = tools::generateHolder(this->dataHash, this->backupID);
-      try {
-        put_client_initialize_cxx();
-        put_client_write_cxx(
-            tools::getBlobPutField(blob::PutRequest::DataCase::kHolder),
-            this->holder.c_str());
-        put_client_blocking_read_cxx(); // todo this should be avoided
-                                        // (blocking); we should be able to
-                                        // ignore responses; we probably want to
-                                        // delegate performing ops to separate
-                                        // threads in the base reactors
-        put_client_write_cxx(
-            tools::getBlobPutField(blob::PutRequest::DataCase::kBlobHash),
-            this->dataHash.c_str());
+      put_client_initialize_cxx();
+      put_client_write_cxx(
+          tools::getBlobPutField(blob::PutRequest::DataCase::kHolder),
+          this->holder.c_str());
+      put_client_blocking_read_cxx(); // todo this should be avoided
+                                      // (blocking); we should be able to
+                                      // ignore responses; we probably want to
+                                      // delegate performing ops to separate
+                                      // threads in the base reactors
+      put_client_write_cxx(
+          tools::getBlobPutField(blob::PutRequest::DataCase::kBlobHash),
+          this->dataHash.c_str());
 
-        rust::String responseStr =
-            put_client_blocking_read_cxx(); // todo this should be avoided
-                                            // (blocking); we should be able to
-                                            // ignore responses; we probably
-                                            // want to delegate performing ops
-                                            // to separate threads in the base
-                                            // reactors
-        // data exists?
-        if ((bool)tools::charPtrToInt(responseStr.c_str())) {
-          return std::make_unique<ServerBidiReactorStatus>(
-              grpc::Status::OK, true);
-        }
-      } catch (std::exception &e) {
-        throw std::runtime_error(
-            e.what()); // todo in base reactors we can just handle std exception
-                       // instead of keep rethrowing here
+      rust::String responseStr =
+          put_client_blocking_read_cxx(); // todo this should be avoided
+                                          // (blocking); we should be able to
+                                          // ignore responses; we probably
+                                          // want to delegate performing ops
+                                          // to separate threads in the base
+                                          // reactors
+      // data exists?
+      if ((bool)tools::charPtrToInt(responseStr.c_str())) {
+        return std::make_unique<ServerBidiReactorStatus>(
+            grpc::Status::OK, true);
       }
       return nullptr;
     }
@@ -126,13 +120,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 
 void CreateNewBackupReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-  try {
-    put_client_terminate_cxx();
-  } catch (std::exception &e) {
-    throw std::runtime_error(
-        e.what()); // todo in base reactors we can just handle std exception
-                   // instead of keep rethrowing here
-  }
+  put_client_terminate_cxx();
 
   // TODO add recovery data
   // TODO handle attachments holders
