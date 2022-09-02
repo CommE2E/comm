@@ -4,10 +4,17 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
+import { createMessageReply } from 'lib/shared/message-utils';
+import {
+  threadHasPermission,
+  useSidebarExistsOrCanBeCreated,
+} from 'lib/shared/thread-utils';
+import { isComposableMessageType } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadPermissions } from 'lib/types/thread-types';
 
 import CommIcon from '../CommIcon.react';
+import { InputStateContext } from '../input/input-state';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
@@ -351,10 +358,41 @@ function useMessageTooltipSidebarAction(
     threadCreatedFromMessage,
   ]);
 }
+
+function useMessageTooltipReplyAction(
+  item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
+): ?MessageTooltipAction {
+  const { messageInfo } = item;
+  const inputState = React.useContext(InputStateContext);
+  invariant(inputState, 'inputState is required');
+  const { addReply } = inputState;
+  return React.useMemo(() => {
+    if (
+      !isComposableMessageType(item.messageInfo.type) ||
+      !threadHasPermission(threadInfo, threadPermissions.VOICED)
+    ) {
+      return null;
+    }
+    const buttonContent = <CommIcon icon="reply-filled" size={18} />;
+    const onClick = () => {
+      if (!messageInfo.text) {
+        return;
+      }
+      addReply(createMessageReply(messageInfo.text));
+    };
+    return {
+      actionButtonContent: buttonContent,
+      onClick,
+      label: 'Reply',
+    };
+  }, [addReply, item.messageInfo.type, messageInfo, threadInfo]);
+}
 export {
   findTooltipPosition,
   calculateTooltipSize,
   getMessageActionTooltipStyle,
   useMessageTooltipSidebarAction,
+  useMessageTooltipReplyAction,
   sizeOfTooltipArrow,
 };
