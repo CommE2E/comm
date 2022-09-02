@@ -41,6 +41,7 @@ class PullBackupReactor : public ServerWriteReactorBase<
   std::string previousLogID;
   bool endOfQueue = false;
   bool clientInitialized = false;
+  std::unique_ptr<std::string> currentLogHolder;
 
   const size_t chunkLimit =
       GRPC_CHUNK_SIZE_LIMIT - GRPC_METADATA_SIZE_PER_MESSAGE;
