@@ -2,6 +2,12 @@
 
 import * as React from 'react';
 
+import { calculateMaxTextWidth } from '../utils/text-utils';
+import {
+  tooltipButtonStyle,
+  tooltipLabelStyle,
+  tooltipStyle,
+} from './chat-constants';
 import type { PositionInfo } from './position-types';
 
 export const tooltipPositions = Object.freeze({
@@ -39,9 +45,8 @@ export type MessageTooltipAction = {
 const sizeOfTooltipArrow = 10; // 7px arrow + 3px extra
 const appTopBarHeight = 65;
 
-// eslint-disable-next-line no-unused-vars
 const font =
-  '14px -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
+  '14px "Inter", -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
   '"Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", ui-sans-serif';
 
 type FindTooltipPositionArgs = {
@@ -173,5 +178,38 @@ function findTooltipPosition({
   }
   return defaultPosition;
 }
+type CalculateTooltipSizeArgs = {
+  +tooltipLabels: $ReadOnlyArray<string>,
+  +timestamp: string,
+};
 
-export { findTooltipPosition, sizeOfTooltipArrow };
+function calculateTooltipSize({
+  tooltipLabels,
+  timestamp,
+}: CalculateTooltipSizeArgs): {
+  +width: number,
+  +height: number,
+} {
+  const textWidth =
+    calculateMaxTextWidth([...tooltipLabels, timestamp], font) +
+    2 * tooltipLabelStyle.padding;
+  const buttonsWidth =
+    tooltipLabels.length *
+    (tooltipButtonStyle.width +
+      tooltipButtonStyle.paddingLeft +
+      tooltipButtonStyle.paddingRight);
+  const width =
+    Math.max(textWidth, buttonsWidth) +
+    tooltipStyle.paddingLeft +
+    tooltipStyle.paddingRight;
+  const height =
+    (tooltipLabelStyle.height + 2 * tooltipLabelStyle.padding) * 2 +
+    tooltipStyle.rowGap * 2 +
+    tooltipButtonStyle.height;
+  return {
+    width,
+    height,
+  };
+}
+
+export { findTooltipPosition, calculateTooltipSize, sizeOfTooltipArrow };
