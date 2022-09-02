@@ -13,9 +13,9 @@ import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
+import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils';
 import InlineSidebar from './inline-sidebar.react';
 import css from './robotext-message.css';
-import { tooltipPositions, useMessageTooltip } from './tooltip-utils';
 
 const availableTooltipPositionsForRobotext = [
   tooltipPositions.LEFT,

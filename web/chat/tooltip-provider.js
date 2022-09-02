@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { TooltipPositionStyle } from './tooltip-utils';
+import type { TooltipPositionStyle } from '../utils/tooltip-utils';
 import css from './tooltip.css';
 
 const onMouseLeaveSourceDisappearTimeoutMs = 200;
