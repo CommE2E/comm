@@ -25,6 +25,33 @@ lazy_static! {
   );
 }
 
+#[cxx::bridge(namespace = "blob")]
+mod ffi {
+  extern "Rust" {
+    type UploadState;
+    type DownloadState;
+
+    fn initialize_upload_state_blocking() -> Result<Box<UploadState>>;
+    fn start_upload_blocking(
+      state: &mut Box<UploadState>,
+      holder: String,
+      hash: String,
+    ) -> Result<()>;
+    fn upload_chunk_blocking(
+      state: &mut Box<UploadState>,
+      chunk: &String,
+    ) -> Result<()>;
+    fn resume_upload_blocking(client: Box<UploadState>) -> Result<bool>;
+    fn initialize_download_state_blocking(
+      holder: String,
+    ) -> Result<Box<DownloadState>>;
+    fn pull_chunk_blocking(
+      client: &mut Box<DownloadState>,
+      buffer: &mut Vec<String>,
+    ) -> Result<bool>;
+  }
+}
+
 pub struct UploadState {
   sender: mpsc::UnboundedSender<PutRequest>,
   receiver_task: task::JoinHandle<Result<bool, String>>,
@@ -156,4 +183,42 @@ async fn pull_chunk(
     return Ok(true);
   }
   Ok(false)
+}
+
+pub fn initialize_upload_state_blocking() -> Result<Box<UploadState>, String> {
+  RUNTIME.block_on(initialize_upload_state())
+}
+
+pub fn start_upload_blocking(
+  state: &mut Box<UploadState>,
+  holder: String,
+  hash: String,
+) -> Result<(), String> {
+  RUNTIME.block_on(start_upload(state, holder, hash))
+}
+
+pub fn upload_chunk_blocking(
+  state: &mut Box<UploadState>,
+  chunk: &String,
+) -> Result<(), String> {
+  RUNTIME.block_on(upload_chunk(state, chunk))
+}
+
+pub fn resume_upload_blocking(
+  client: Box<UploadState>,
+) -> Result<bool, String> {
+  RUNTIME.block_on(resume_upload(client))
+}
+
+pub fn initialize_download_state_blocking(
+  holder: String,
+) -> Result<Box<DownloadState>, String> {
+  RUNTIME.block_on(initialize_download_state(holder))
+}
+
+pub fn pull_chunk_blocking(
+  client: &mut Box<DownloadState>,
+  buffer: &mut Vec<String>,
+) -> Result<bool, String> {
+  RUNTIME.block_on(pull_chunk(client, buffer))
 }
