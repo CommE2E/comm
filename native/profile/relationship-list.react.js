@@ -466,7 +466,7 @@ class RelationshipList extends React.PureComponent<Props, State> {
 
       const emptyMessage =
         item.because === 'no-relationships'
-          ? `You haven't ${action} any users yet`
+          ? `You haven’t ${action} any users yet`
           : 'No results';
 
       return <Text style={this.props.styles.emptyText}>{emptyMessage}</Text>;

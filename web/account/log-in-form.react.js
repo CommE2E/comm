@@ -68,7 +68,7 @@ function LoginForm(): React.Node {
       } catch (e) {
         if (e.message === 'invalid_parameters') {
           setUsername('');
-          setErrorMessage(`user doesn't exist`);
+          setErrorMessage(`user doesn’t exist`);
           usernameInputRef.current?.focus();
         } else if (e.message === 'invalid_credentials') {
           setPassword('');

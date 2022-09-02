@@ -23,7 +23,7 @@ class LogInFirstModal extends React.PureComponent<Props> {
       <Modal name="Log in" onClose={this.props.popModal}>
         <div className={css['modal-body']}>
           <p>
-            {`In order to ${this.props.inOrderTo}, you'll first need to `}
+            {`In order to ${this.props.inOrderTo}, you’ll first need to `}
             <a
               href="#"
               className={css['show-login-modal']}
