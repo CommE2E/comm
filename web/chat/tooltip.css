@@ -1,50 +1,13 @@
-div.messageTooltipMenu {
-  position: absolute;
-  background-color: var(--tool-tip-bg);
-  color: var(--tool-tip-color);
-  padding: 5px;
-  border-radius: 5px;
-  font-size: 14px;
-  z-index: 1;
-  white-space: nowrap;
-}
-div.messageTooltipMenu ul {
-  list-style: none;
-}
-div.messageTooltipMenu li:not(:last-child) {
-  padding-bottom: 5px;
-}
-div.messageTooltipMenu button {
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  outline: none;
-  background-color: black;
-  color: white;
-  text-decoration: underline;
-}
-div.messageTooltipMenu button:hover {
-  background-color: black;
-  color: #129aff;
+div.leftTooltipAlign > div {
+  align-items: flex-start;
 }
 
-div.messageLeftTooltip {
-  transform: translate(0%, -50%);
-}
-div.messageRightTooltip {
-  transform: translate(0%, -50%);
-}
-
-div.messageTimestampTooltip {
-  display: flex;
-  flex-direction: row;
+div.centerTooltipAlign > div {
   align-items: center;
-  justify-content: center;
-  padding: 6px;
-  background-color: var(--message-action-tooltip-bg);
-  border-radius: 8px;
-  overflow: auto;
-  min-width: 72px;
+}
+
+div.rightTooltipAlign > div {
+  align-items: flex-end;
 }
 
 div.tooltipAbsolute {
