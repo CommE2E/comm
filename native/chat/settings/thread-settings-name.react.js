@@ -104,6 +104,7 @@ class ThreadSettingsName extends React.PureComponent<Props> {
           onChangeText={this.props.setNameEditValue}
           autoFocus={true}
           selectTextOnFocus={true}
+          multiline={true}
           onBlur={this.onSubmit}
           editable={this.props.loadingStatus !== 'loading'}
           ref={this.textInputRef}
