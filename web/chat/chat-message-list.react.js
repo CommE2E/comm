@@ -32,13 +32,9 @@ import { useTextMessageRulesFunc } from '../markdown/rules.react';
 import { useSelector } from '../redux/redux-utils';
 import css from './chat-message-list.css';
 import { MessageListContext } from './message-list-types';
-import MessageTimestampTooltip from './message-timestamp-tooltip.react';
 import Message from './message.react';
-import type {
-  OnMessagePositionWithContainerInfo,
-  MessagePositionInfo,
-} from './position-types';
 import RelationshipPrompt from './relationship-prompt/relationship-prompt';
+import { useTooltipContext } from './tooltip-provider';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,
@@ -64,18 +60,13 @@ type Props = {
   ) => Promise<FetchMessageInfosPayload>,
   // withInputState
   +inputState: ?InputState,
-};
-type State = {
-  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
+  +clearTooltip: () => mixed,
 };
 type Snapshot = {
   +scrollTop: number,
   +scrollHeight: number,
 };
-class ChatMessageList extends React.PureComponent<Props, State> {
-  state: State = {
-    mouseOverMessagePosition: null,
-  };
+class ChatMessageList extends React.PureComponent<Props> {
   container: ?HTMLDivElement;
   messageContainer: ?HTMLDivElement;
   loadingFromScroll = false;
@@ -110,7 +101,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     );
   }
 
-  componentDidUpdate(prevProps: Props, prevState: State, snapshot: ?Snapshot) {
+  componentDidUpdate(prevProps: Props, prevState, snapshot: ?Snapshot) {
     const { messageListData } = this.props;
     const prevMessageListData = prevProps.messageListData;
 
@@ -185,49 +176,10 @@ class ChatMessageList extends React.PureComponent<Props, State> {
       <Message
         item={item}
         threadInfo={threadInfo}
-        setMouseOverMessagePosition={this.setMouseOverMessagePosition}
-        mouseOverMessagePosition={this.state.mouseOverMessagePosition}
         timeZone={this.props.timeZone}
         key={ChatMessageList.keyExtractor(item)}
       />
     );
-  };
-
-  setMouseOverMessagePosition = (messagePositionInfo: MessagePositionInfo) => {
-    if (!this.messageContainer) {
-      return;
-    }
-    if (messagePositionInfo.type === 'off') {
-      this.setState({ mouseOverMessagePosition: null });
-      return;
-    }
-    const {
-      top: containerTop,
-      bottom: containerBottom,
-      left: containerLeft,
-      right: containerRight,
-      height: containerHeight,
-      width: containerWidth,
-    } = this.messageContainer.getBoundingClientRect();
-    const mouseOverMessagePosition = {
-      ...messagePositionInfo,
-      messagePosition: {
-        ...messagePositionInfo.messagePosition,
-        top: messagePositionInfo.messagePosition.top - containerTop,
-        bottom: messagePositionInfo.messagePosition.bottom - containerTop,
-        left: messagePositionInfo.messagePosition.left - containerLeft,
-        right: messagePositionInfo.messagePosition.right - containerLeft,
-      },
-      containerPosition: {
-        top: containerTop,
-        bottom: containerBottom,
-        left: containerLeft,
-        right: containerRight,
-        height: containerHeight,
-        width: containerWidth,
-      },
-    };
-    this.setState({ mouseOverMessagePosition });
   };
 
   render() {
@@ -237,17 +189,6 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     }
     invariant(inputState, 'InputState should be set');
     const messages = messageListData.map(this.renderItem);
-
-    let tooltip;
-    if (this.state.mouseOverMessagePosition) {
-      const messagePositionInfo = this.state.mouseOverMessagePosition;
-      tooltip = (
-        <MessageTimestampTooltip
-          messagePositionInfo={messagePositionInfo}
-          timeZone={this.props.timeZone}
-        />
-      );
-    }
 
     let relationshipPrompt;
     if (threadInfo) {
@@ -264,7 +205,6 @@ class ChatMessageList extends React.PureComponent<Props, State> {
         <div className={messageContainerStyle} ref={this.messageContainerRef}>
           {messages}
         </div>
-        {tooltip}
       </div>
     );
   }
@@ -283,9 +223,7 @@ class ChatMessageList extends React.PureComponent<Props, State> {
     if (!this.messageContainer) {
       return;
     }
-    if (this.state.mouseOverMessagePosition) {
-      this.setState({ mouseOverMessagePosition: null });
-    }
+    this.props.clearTooltip();
     this.possiblyLoadMoreMessages();
   };
 
@@ -384,6 +322,8 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<Base
 
     const inputState = React.useContext(InputStateContext);
 
+    const { clearTooltip } = useTooltipContext();
+
     const getTextMessageMarkdownRules = useTextMessageRulesFunc(threadInfo.id);
     const messageListContext = React.useMemo(() => {
       if (!getTextMessageMarkdownRules) {
@@ -405,6 +345,7 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<Base
           dispatchActionPromise={dispatchActionPromise}
           fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
           fetchMostRecentMessages={callFetchMostRecentMessages}
+          clearTooltip={clearTooltip}
         />
       </MessageListContext.Provider>
     );
