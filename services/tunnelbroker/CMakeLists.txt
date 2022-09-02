@@ -43,8 +43,8 @@ if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL "/transferred/tunnelbroker")
   set(_shared_path "../shared")
 else()
   # Inside repo
-  set(_proto_path "../../native/cpp/CommonCpp/grpc")
   set(_shared_path "../../shared")
+  set(_proto_path "../../shared/protos")
 endif()
 
 # Shared Comm protos
