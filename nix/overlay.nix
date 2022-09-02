@@ -68,14 +68,17 @@ prev:
     '';
   });
 
-  corrosion = prev.corrosion.overrideAttrs(_: {
-    patches = [
-      # Fix logic around finding cargo and rustc when not managed by rustup
-      (prev.fetchpatch {
-        url = "https://github.com/corrosion-rs/corrosion/commit/d5330b3f03c7abb4e4da71e35654fa03ecb778bb.patch";
-        sha256 = "sha256-jrA30bWNWprkqCiedf+xL7GlR9+9jgOyKAoTPVKkB9c=";
-      })
-    ];
+  # pin to newer version, as it has fixes for nix
+  corrosion = prev.corrosion.overrideAttrs(oldAttrs: rec {
+    version = "0.2.2";
+    name = "corrosion-${version}";
+
+    src = prev.fetchFromGitHub {
+      owner = "corrosion-rs";
+      repo = "corrosion";
+      rev = "v${version}";
+      sha256 = "sha256-eBYHe5krNBwjQ3mlukRtLvoS83kptW0/NzDUp1IePi0=";
+    };
   });
 
   # 16.14 now requires experimental import assertions syntax, pin to 16.13

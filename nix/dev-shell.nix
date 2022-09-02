@@ -106,6 +106,9 @@ mkShell {
     # Set development environment variable defaults
     source "${../scripts/source_development_defaults.sh}"
 
+    # Still make Nix's C compiler be preferred over system default
+    export PATH=${lib.makeBinPath [ stdenv.cc ]}:"$PATH"
+
   ''
   # Darwin condition can be removed once linux services are supported
   + lib.optionalString stdenv.isDarwin ''
