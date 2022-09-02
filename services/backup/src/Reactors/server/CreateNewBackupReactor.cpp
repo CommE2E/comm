@@ -67,26 +67,29 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       response->set_backupid(this->backupID);
       this->holder = tools::generateHolder(this->dataHash, this->backupID);
       bool dataExists = false;
-      put_client_initialize_cxx();
+      put_client_initialize_cxx(this->holder.c_str());
       put_client_write_cxx(
+          this->holder.c_str(),
           tools::getBlobPutField(blob::PutRequest::DataCase::kHolder),
           this->holder.c_str());
-      put_client_blocking_read_cxx(); // todo this should be avoided
-                                      // (blocking); we should be able to
-                                      // ignore responses; we probably want to
-                                      // delegate performing ops to separate
-                                      // threads in the base reactors
+      put_client_blocking_read_cxx(
+          this->holder.c_str()); // todo this should be avoided
+                                 // (blocking); we should be able to
+                                 // ignore responses; we probably want to
+                                 // delegate performing ops to separate
+                                 // threads in the base reactors
       put_client_write_cxx(
+          this->holder.c_str(),
           tools::getBlobPutField(blob::PutRequest::DataCase::kBlobHash),
           this->dataHash.c_str());
 
-      rust::String responseStr =
-          put_client_blocking_read_cxx(); // todo this should be avoided
-                                          // (blocking); we should be able to
-                                          // ignore responses; we probably
-                                          // want to delegate performing ops
-                                          // to separate threads in the base
-                                          // reactors
+      rust::String responseStr = put_client_blocking_read_cxx(
+          this->holder.c_str()); // todo this should be avoided
+                                 // (blocking); we should be able to
+                                 // ignore responses; we probably
+                                 // want to delegate performing ops
+                                 // to separate threads in the base
+                                 // reactors
       // data exists?
       if ((bool)tools::charPtrToInt(responseStr.c_str())) {
         return std::make_unique<ServerBidiReactorStatus>(
@@ -98,21 +101,18 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       if (request.mutable_newcompactionchunk()->empty()) {
         return std::make_unique<ServerBidiReactorStatus>(grpc::Status::OK);
       }
-      try {
-        put_client_write_cxx(
+      put_client_write_cxx(
+          this->holder.c_str(),
             tools::getBlobPutField(blob::PutRequest::DataCase::kDataChunk),
-            std::string(std::move(*request.mutable_newcompactionchunk()))
-                .c_str());
-        put_client_blocking_read_cxx(); // todo this should be avoided
-                                        // (blocking); we should be able to
-                                        // ignore responses; we probably want to
-                                        // delegate performing ops to separate
-                                        // threads in the base reactors
-      } catch (std::exception &e) {
-        throw std::runtime_error(
-            e.what()); // todo in base reactors we can just handle std exception
-                       // instead of keep rethrowing here
-      }
+          std::string(std::move(*request.mutable_newcompactionchunk()))
+              .c_str());
+      put_client_blocking_read_cxx(
+          this->holder.c_str()); // todo this should be avoided
+                                 // (blocking); we should be able to
+                                 // ignore responses; we probably want to
+                                 // delegate performing ops to separate
+                                 // threads in the base reactors
+
       return nullptr;
     }
   }
@@ -121,7 +121,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 
 void CreateNewBackupReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-  put_client_terminate_cxx();
+  put_client_terminate_cxx(this->holder.c_str());
 
   // TODO add recovery data
   // TODO handle attachments holders
