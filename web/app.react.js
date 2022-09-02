@@ -26,6 +26,7 @@ import { registerConfig } from 'lib/utils/config';
 import AppsDirectory from './apps/apps-directory.react';
 import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
+import { TooltipProvider } from './chat/tooltip-provider';
 import NavigationArrows from './components/navigation-arrows.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
@@ -141,13 +142,15 @@ class App extends React.PureComponent<Props> {
     }
     return (
       <DndProvider backend={HTML5Backend}>
-        <MenuProvider>
-          <FocusHandler />
-          <VisibilityHandler />
-          <DeviceIDUpdater />
-          {content}
-          {this.props.modals}
-        </MenuProvider>
+        <TooltipProvider>
+          <MenuProvider>
+            <FocusHandler />
+            <VisibilityHandler />
+            <DeviceIDUpdater />
+            {content}
+            {this.props.modals}
+          </MenuProvider>
+        </TooltipProvider>
       </DndProvider>
     );
   }
