@@ -26,11 +26,11 @@ import {
 import { tooltipPositions } from './tooltip-utils';
 
 const availableTooltipPositionsForViewerMessage = [
-  tooltipPositions.TOP_RIGHT,
+  tooltipPositions.RIGHT_TOP,
   tooltipPositions.LEFT,
 ];
 const availableTooltipPositionsForNonViewerMessage = [
-  tooltipPositions.TOP_LEFT,
+  tooltipPositions.LEFT_TOP,
   tooltipPositions.RIGHT,
 ];
 

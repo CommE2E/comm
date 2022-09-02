@@ -21,7 +21,7 @@ import {
 
 const availablePositionsForComposedViewerMessage = [tooltipPositions.LEFT];
 const availablePositionsForNonComposedOrNonViewerMessage = [
-  tooltipPositions.BOTTOM_RIGHT,
+  tooltipPositions.RIGHT_BOTTOM,
 ];
 
 type Props = {
@@ -99,7 +99,7 @@ function getTimestampTooltipStyle(
       top: tooltipPointing,
     };
     className = css.messageRightTooltip;
-  } else if (tooltipPosition === tooltipPositions.TOP_LEFT) {
+  } else if (tooltipPosition === tooltipPositions.LEFT_TOP) {
     const tooltipPointing = Math.min(
       containerHeight - messagePosition.top,
       containerHeight,
@@ -109,7 +109,7 @@ function getTimestampTooltipStyle(
       bottom: tooltipPointing + sizeOfTooltipArrow,
     };
     className = css.messageTopLeftTooltip;
-  } else if (tooltipPosition === tooltipPositions.TOP_RIGHT) {
+  } else if (tooltipPosition === tooltipPositions.RIGHT_TOP) {
     const tooltipPointing = Math.min(
       containerHeight - messagePosition.top,
       containerHeight,
@@ -119,14 +119,14 @@ function getTimestampTooltipStyle(
       bottom: tooltipPointing + sizeOfTooltipArrow,
     };
     className = css.messageTopRightTooltip;
-  } else if (tooltipPosition === tooltipPositions.BOTTOM_LEFT) {
+  } else if (tooltipPosition === tooltipPositions.LEFT_BOTTOM) {
     const tooltipPointing = Math.min(messagePosition.bottom, containerHeight);
     style = {
       left: messagePosition.left,
       top: tooltipPointing + sizeOfTooltipArrow,
     };
     className = css.messageBottomLeftTooltip;
-  } else if (tooltipPosition === tooltipPositions.BOTTOM_RIGHT) {
+  } else if (tooltipPosition === tooltipPositions.RIGHT_BOTTOM) {
     const centerOfMessage = messagePosition.top + messagePosition.height / 2;
     const tooltipPointing = Math.max(
       Math.min(centerOfMessage, containerHeight),
