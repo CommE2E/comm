@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { calculateMaxTextWidth } from '../utils/text-utils';
@@ -178,6 +179,98 @@ function findTooltipPosition({
   }
   return defaultPosition;
 }
+
+type GetMessageActionTooltipStyleParams = {
+  +sourcePositionInfo: PositionInfo,
+  +tooltipSize: TooltipSize,
+  +tooltipPosition: TooltipPosition,
+};
+
+function getMessageActionTooltipStyle({
+  sourcePositionInfo,
+  tooltipSize,
+  tooltipPosition,
+}: GetMessageActionTooltipStyleParams): TooltipPositionStyle {
+  if (tooltipPosition === tooltipPositions.RIGHT_TOP) {
+    return {
+      xCoord: sourcePositionInfo.right,
+      yCoord: sourcePositionInfo.top,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+      alignment: 'left',
+    };
+  } else if (tooltipPosition === tooltipPositions.LEFT_TOP) {
+    return {
+      xCoord: sourcePositionInfo.left,
+      yCoord: sourcePositionInfo.top,
+      horizontalPosition: 'left',
+      verticalPosition: 'bottom',
+      alignment: 'right',
+    };
+  } else if (tooltipPosition === tooltipPositions.RIGHT_BOTTOM) {
+    return {
+      xCoord: sourcePositionInfo.right,
+      yCoord: sourcePositionInfo.bottom,
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      alignment: 'left',
+    };
+  } else if (tooltipPosition === tooltipPositions.LEFT_BOTTOM) {
+    return {
+      xCoord: sourcePositionInfo.left,
+      yCoord: sourcePositionInfo.bottom,
+      horizontalPosition: 'left',
+      verticalPosition: 'top',
+      alignment: 'right',
+    };
+  } else if (tooltipPosition === tooltipPositions.LEFT) {
+    return {
+      xCoord: sourcePositionInfo.left,
+      yCoord:
+        sourcePositionInfo.top +
+        sourcePositionInfo.height / 2 -
+        tooltipSize.height / 2,
+      horizontalPosition: 'left',
+      verticalPosition: 'bottom',
+      alignment: 'right',
+    };
+  } else if (tooltipPosition === tooltipPositions.RIGHT) {
+    return {
+      xCoord: sourcePositionInfo.right,
+      yCoord:
+        sourcePositionInfo.top +
+        sourcePositionInfo.height / 2 -
+        tooltipSize.height / 2,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+      alignment: 'left',
+    };
+  } else if (tooltipPosition === tooltipPositions.TOP) {
+    return {
+      xCoord:
+        sourcePositionInfo.left +
+        sourcePositionInfo.width / 2 -
+        tooltipSize.width / 2,
+      yCoord: sourcePositionInfo.top,
+      horizontalPosition: 'right',
+      verticalPosition: 'top',
+      alignment: 'center',
+    };
+  } else if (tooltipPosition === tooltipPositions.BOTTOM) {
+    return {
+      xCoord:
+        sourcePositionInfo.left +
+        sourcePositionInfo.width / 2 -
+        tooltipSize.width / 2,
+      yCoord: sourcePositionInfo.bottom,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+      alignment: 'center',
+    };
+  }
+  invariant(false, `Unexpected tooltip position value: ${tooltipPosition}`);
+}
+
 type CalculateTooltipSizeArgs = {
   +tooltipLabels: $ReadOnlyArray<string>,
   +timestamp: string,
@@ -212,4 +305,9 @@ function calculateTooltipSize({
   };
 }
 
-export { findTooltipPosition, calculateTooltipSize, sizeOfTooltipArrow };
+export {
+  findTooltipPosition,
+  calculateTooltipSize,
+  getMessageActionTooltipStyle,
+  sizeOfTooltipArrow,
+};
