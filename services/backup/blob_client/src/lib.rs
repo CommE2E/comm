@@ -34,7 +34,7 @@ mod ffi {
     unsafe fn get_client_initialize_cxx(
       holder_char: *const c_char,
     ) -> Result<()>;
-    fn get_client_blocking_read_cxx() -> Result<Vec<u8>>;
-    fn get_client_terminate_cxx() -> Result<()>;
+    unsafe fn get_client_blocking_read_cxx(holder_char: *const c_char) -> Result<Vec<u8>>;
+    unsafe fn get_client_terminate_cxx(holder_char: *const c_char) -> Result<()>;
   }
 }
