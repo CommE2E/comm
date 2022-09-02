@@ -1,33 +1,55 @@
-div.inlineSidebarContent {
-  flex-direction: row;
+div.inlineSidebarContainer {
   display: flex;
-  margin: 0 40px 0 20px;
-  cursor: pointer;
-}
-div.inlineSidebar {
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-}
-div.inlineSidebarName {
-  padding-top: 1px;
-  color: #666666;
-  font-size: 16px;
-  padding-left: 4px;
-  padding-right: 2px;
-}
-div.unread {
-  font-weight: bold;
 }
 div.centerContainer {
   justify-content: center;
 }
-div.nonViewerMessageBoxContainer {
+div.leftContainer {
   justify-content: flex-start;
+  position: relative;
+  top: -10px;
+  left: 12px;
 }
-div.viewerMessageBoxContainer {
+div.rightContainer {
   justify-content: flex-end;
+  position: relative;
+  top: -10px;
+  right: 31px;
 }
+div.inlineSidebarContent {
+  background: var(--inline-sidebar-bg);
+  color: var(--inline-sidebar-color);
+  font-size: var(--s-font-14);
+  line-height: var(--line-height-text);
+  flex-direction: row;
+  display: flex;
+  border-radius: 16px;
+  padding: 8px;
+  cursor: pointer;
+  gap: 12px;
+  align-items: center;
+  transition: background 0.2s ease-in-out;
+}
+
+div.inlineSidebarContent:hover {
+  background: var(--inline-sidebar-bg-hover);
+}
+
+div.reactionsContainer {
+  flex-direction: row;
+  display: flex;
+  gap: 4px;
+}
+div.replies {
+  flex-direction: row;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+div.unread {
+  font-weight: bold;
+}
+
 svg.inlineSidebarIcon {
   color: #666666;
 }

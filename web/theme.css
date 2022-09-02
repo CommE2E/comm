@@ -176,4 +176,7 @@
   --chat-message-list-active-border: #5989d6;
   --sidebars-modal-color: var(--shades-black-60);
   --sidebars-modal-color-hover: var(--shades-white-100);
+  --inline-sidebar-bg: var(--shades-black-70);
+  --inline-sidebar-bg-hover: var(--shades-black-80);
+  --inline-sidebar-color: var(--fg);
 }

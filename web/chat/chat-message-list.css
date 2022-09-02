@@ -206,7 +206,7 @@ div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child ~ * {
   grid-column-end: span 2;
 }
 div.sidebarMarginBottom {
-  margin-bottom: 8px;
+  margin-bottom: 2px;
 }
 svg.inlineSidebarIcon {
   color: #666666;
