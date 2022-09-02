@@ -1,9 +1,11 @@
 // @flow
 
+import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
 import type { TooltipPositionStyle } from './tooltip-utils';
+import css from './tooltip.css';
 
 const onMouseLeaveSourceDisappearTimeoutMs = 200;
 const onMouseLeaveTooltipDisappearTimeoutMs = 100;
@@ -112,7 +114,37 @@ function TooltipProvider(props: Props): React.Node {
     tooltipCancelTimer.current = timer;
   }, [clearCurrentTooltip]);
 
-  const tooltip = React.useMemo(() => {}, []);
+  const tooltip = React.useMemo(() => {
+    if (!tooltipNode || !tooltipPosition) {
+      return null;
+    }
+    const tooltipContainerStyle = {
+      position: 'absolute',
+      top: tooltipPosition.yCoord,
+      left: tooltipPosition.xCoord,
+    };
+
+    const { verticalPosition, horizontalPosition } = tooltipPosition;
+
+    const tooltipClassName = classNames(css.tooltipAbsolute, {
+      [css.tooltipAbsoluteLeft]: horizontalPosition === 'right',
+      [css.tooltipAbsoluteRight]: horizontalPosition === 'left',
+      [css.tooltipAbsoluteTop]: verticalPosition === 'bottom',
+      [css.tooltipAbsoluteBottom]: verticalPosition === 'top',
+    });
+
+    return (
+      <div style={tooltipContainerStyle}>
+        <div
+          className={tooltipClassName}
+          onMouseEnter={onMouseEnterTooltip}
+          onMouseLeave={onMouseLeaveTooltip}
+        >
+          {tooltipNode}
+        </div>
+      </div>
+    );
+  }, [onMouseEnterTooltip, onMouseLeaveTooltip, tooltipNode, tooltipPosition]);
 
   const value = React.useMemo(
     () => ({
