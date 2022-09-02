@@ -24,6 +24,7 @@ import type {
 import css from './robotext-message.css';
 import { tooltipPositions } from './tooltip-utils';
 
+// eslint-disable-next-line no-unused-vars
 const availableTooltipPositionsForRobotext = [
   tooltipPositions.TOP_RIGHT,
   tooltipPositions.RIGHT,
@@ -57,7 +58,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       );
     }
 
-    const { item, threadInfo, sidebarExistsOrCanBeCreated } = this.props;
+    const { item, sidebarExistsOrCanBeCreated } = this.props;
     const { id } = item.messageInfo;
     let messageTooltip;
     if (
@@ -65,15 +66,7 @@ class RobotextMessage extends React.PureComponent<Props> {
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
       sidebarExistsOrCanBeCreated
     ) {
-      messageTooltip = (
-        <MessageTooltip
-          threadInfo={threadInfo}
-          item={item}
-          mouseOverMessagePosition={this.props.mouseOverMessagePosition}
-          availableTooltipPositions={availableTooltipPositionsForRobotext}
-          canReply={false}
-        />
-      );
+      messageTooltip = <MessageTooltip messageTimestamp="" actions={[]} />;
     }
 
     let messageTooltipLinks;

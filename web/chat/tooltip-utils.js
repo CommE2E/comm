@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
 
 import { calculateMaxTextWidth } from '../utils/text-utils';
 import type { ItemAndContainerPositionInfo } from './position-types';
@@ -23,6 +24,12 @@ export type TooltipPositionStyle = {
 };
 
 export type TooltipPosition = $Values<typeof tooltipPositions>;
+
+export type MessageTooltipAction = {
+  +label: string,
+  +onClick: (SyntheticEvent<HTMLDivElement>) => mixed,
+  +actionButtonContent: React.Node,
+};
 
 const sizeOfTooltipArrow = 10; // 7px arrow + 3px extra
 const tooltipMenuItemHeight = 22; // 17px line-height + 5px padding bottom
