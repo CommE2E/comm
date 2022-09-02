@@ -6,6 +6,8 @@ import * as SimpleMarkdown from 'simple-markdown';
 
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import * as SharedMarkdown from 'lib/shared/markdown';
+import { maxNestedQuotations } from 'lib/shared/markdown';
+import type { State } from 'lib/shared/markdown.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
@@ -78,15 +80,24 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     blockQuote: {
       ...SimpleMarkdown.defaultRules.blockQuote,
       // match end of blockQuote by either \n\n or end of string
-      match: SimpleMarkdown.blockRegex(SharedMarkdown.blockQuoteRegex),
+      match: (source: string, state: State) => {
+        if (state.quotationsCount >= maxNestedQuotations) {
+          return undefined;
+        }
+        return SharedMarkdown.blockQuoteRegex.exec(source);
+      },
       parse(
         capture: SharedMarkdown.Capture,
         parse: SharedMarkdown.Parser,
         state: SharedMarkdown.State,
       ) {
         const content = capture[1].replace(/^ *> ?/gm, '');
+        const currentQuotationsCount = state.quotationsCount ?? 0;
         return {
-          content: parse(content, state),
+          content: parse(content, {
+            ...state,
+            quotationsCount: currentQuotationsCount + 1,
+          }),
         };
       },
     },
