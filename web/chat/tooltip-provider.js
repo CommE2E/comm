@@ -5,6 +5,8 @@ import * as React from 'react';
 
 import type { TooltipPositionStyle } from './tooltip-utils';
 
+const onMouseLeaveSourceDisappearTimeoutMs = 200;
+
 export type RenderTooltipParams = {
   +newNode: React.Node,
   +tooltipPositionStyle: TooltipPositionStyle,
@@ -49,11 +51,48 @@ function TooltipProvider(props: Props): React.Node {
     setTooltipPosition,
   ] = React.useState<?TooltipPositionStyle>(null);
 
-  const clearCurrentTooltip = React.useCallback(() => {}, []);
+  const clearTooltip = React.useCallback((tooltipToClose: symbol) => {
+    if (tooltipSymbol.current !== tooltipToClose) {
+      return;
+    }
+    tooltipCancelTimer.current = null;
+    setTooltipNode(null);
+    setTooltipPosition(null);
+    tooltipSymbol.current = null;
+  }, []);
+
+  const clearCurrentTooltip = React.useCallback(() => {
+    if (tooltipSymbol.current) {
+      clearTooltip(tooltipSymbol.current);
+    }
+  }, [clearTooltip]);
 
   const renderTooltip = React.useCallback(
-    () => ({ onMouseLeaveCallback: () => {}, clearTooltip: () => {} }),
-    [],
+    ({
+      newNode,
+      tooltipPositionStyle: newTooltipPosition,
+    }: RenderTooltipParams): RenderTooltipResult => {
+      setTooltipNode(newNode);
+      setTooltipPosition(newTooltipPosition);
+      const newNodeSymbol = Symbol();
+      tooltipSymbol.current = newNodeSymbol;
+
+      if (tooltipCancelTimer.current) {
+        clearTimeout(tooltipCancelTimer.current);
+      }
+
+      return {
+        onMouseLeaveCallback: () => {
+          const newTimer = setTimeout(
+            () => clearTooltip(newNodeSymbol),
+            onMouseLeaveSourceDisappearTimeoutMs,
+          );
+          tooltipCancelTimer.current = newTimer;
+        },
+        clearTooltip: () => clearTooltip(newNodeSymbol),
+      };
+    },
+    [clearTooltip],
   );
 
   // eslint-disable-next-line no-unused-vars
