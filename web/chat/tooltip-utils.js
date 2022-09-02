@@ -13,6 +13,15 @@ export const tooltipPositions = Object.freeze({
   TOP_LEFT: 'top-left',
   TOP_RIGHT: 'top-right',
 });
+
+export type TooltipPositionStyle = {
+  +xCoord: number,
+  +yCoord: number,
+  +verticalPosition: 'top' | 'bottom',
+  +horizontalPosition: 'left' | 'right',
+  +alignment: 'left' | 'center' | 'right',
+};
+
 export type TooltipPosition = $Values<typeof tooltipPositions>;
 
 const sizeOfTooltipArrow = 10; // 7px arrow + 3px extra
