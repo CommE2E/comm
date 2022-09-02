@@ -9,7 +9,6 @@ import {
 } from 'react-feather';
 
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
@@ -18,31 +17,33 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import { InlineSidebar } from './inline-sidebar.react';
-import MessageTooltip from './message-tooltip.react';
-import {
-  type OnMessagePositionWithContainerInfo,
-  type MessagePositionInfo,
-} from './position-types';
-import { tooltipPositions } from './tooltip-utils';
+import { tooltipPositions, useMessageTooltip } from './tooltip-utils';
 
 const availableTooltipPositionsForViewerMessage = [
-  tooltipPositions.RIGHT_TOP,
   tooltipPositions.LEFT,
-];
-const availableTooltipPositionsForNonViewerMessage = [
+  tooltipPositions.LEFT_BOTTOM,
   tooltipPositions.LEFT_TOP,
   tooltipPositions.RIGHT,
+  tooltipPositions.RIGHT_BOTTOM,
+  tooltipPositions.RIGHT_TOP,
+  tooltipPositions.BOTTOM,
+  tooltipPositions.TOP,
+];
+const availableTooltipPositionsForNonViewerMessage = [
+  tooltipPositions.RIGHT,
+  tooltipPositions.RIGHT_BOTTOM,
+  tooltipPositions.RIGHT_TOP,
+  tooltipPositions.LEFT,
+  tooltipPositions.LEFT_BOTTOM,
+  tooltipPositions.LEFT_TOP,
+  tooltipPositions.BOTTOM,
+  tooltipPositions.TOP,
 ];
 
 type BaseProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
   +sendFailed: boolean,
-  +setMouseOverMessagePosition: (
-    messagePositionInfo: MessagePositionInfo,
-  ) => void,
-  +mouseOverMessagePosition?: ?OnMessagePositionWithContainerInfo,
-  +canReply: boolean,
   +children: React.Node,
   +fixedWidth?: boolean,
   +borderRadius: number,
@@ -50,10 +51,11 @@ type BaseProps = {
 type BaseConfig = React.Config<BaseProps, typeof ComposedMessage.defaultProps>;
 type Props = {
   ...BaseProps,
-  // Redux state
-  +sidebarExistsOrCanBeCreated: boolean,
   // withInputState
   +inputState: ?InputState,
+  +onMouseLeave: ?() => mixed,
+  +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
+  +containsInlineSidebar: boolean,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   static defaultProps: { +borderRadius: number } = {
@@ -118,38 +120,8 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let messageTooltip;
-    if (
-      this.props.mouseOverMessagePosition &&
-      this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
-      (this.props.sidebarExistsOrCanBeCreated || this.props.canReply)
-    ) {
-      // eslint-disable-next-line no-unused-vars
-      const availableTooltipPositions = isViewer
-        ? availableTooltipPositionsForViewerMessage
-        : availableTooltipPositionsForNonViewerMessage;
-
-      messageTooltip = <MessageTooltip messageTimestamp="" actions={[]} />;
-    }
-
-    let messageTooltipLinks;
-    if (messageTooltip) {
-      const tooltipLinksClassName = classNames({
-        [css.messageTooltipActiveArea]: true,
-        [css.viewerMessageTooltipActiveArea]: isViewer,
-        [css.nonViewerMessageActiveArea]: !isViewer,
-      });
-
-      messageTooltipLinks = (
-        <div className={tooltipLinksClassName}>{messageTooltip}</div>
-      );
-    }
-
-    const viewerTooltipLinks = isViewer ? messageTooltipLinks : null;
-    const nonViewerTooltipLinks = !isViewer ? messageTooltipLinks : null;
-
     let inlineSidebar = null;
-    if (item.threadCreatedFromMessage) {
+    if (this.props.containsInlineSidebar && item.threadCreatedFromMessage) {
       const positioning = isViewer ? 'right' : 'left';
       inlineSidebar = (
         <div className={css.sidebarMarginBottom}>
@@ -167,14 +139,12 @@ class ComposedMessage extends React.PureComponent<Props> {
         <div className={contentClassName}>
           <div
             className={messageBoxContainerClassName}
-            onMouseEnter={this.onMouseEnter}
-            onMouseLeave={this.onMouseLeave}
+            onMouseEnter={this.props.onMouseEnter}
+            onMouseLeave={this.props.onMouseLeave}
           >
-            {viewerTooltipLinks}
             <div className={messageBoxClassName} style={messageBoxStyle}>
               {this.props.children}
             </div>
-            {nonViewerTooltipLinks}
           </div>
           {deliveryIcon}
         </div>
@@ -183,23 +153,6 @@ class ComposedMessage extends React.PureComponent<Props> {
       </React.Fragment>
     );
   }
-
-  onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => void = event => {
-    const { item } = this.props;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const { top, bottom, left, right, height, width } = rect;
-    const messagePosition = { top, bottom, left, right, height, width };
-    this.props.setMouseOverMessagePosition({
-      type: 'on',
-      item,
-      messagePosition,
-    });
-  };
-
-  onMouseLeave: () => void = () => {
-    const { item } = this.props;
-    this.props.setMouseOverMessagePosition({ type: 'off', item });
-  };
 }
 
 type ConnectedConfig = React.Config<
@@ -208,16 +161,27 @@ type ConnectedConfig = React.Config<
 >;
 const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.memo<BaseConfig>(
   function ConnectedComposedMessage(props) {
-    const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
-      props.threadInfo,
-      props.item,
-    );
+    const { item, threadInfo } = props;
     const inputState = React.useContext(InputStateContext);
+    const isViewer = props.item.messageInfo.creator.isViewer;
+    const availablePositions = isViewer
+      ? availableTooltipPositionsForViewerMessage
+      : availableTooltipPositionsForNonViewerMessage;
+    const containsInlineSidebar = !!item.threadCreatedFromMessage;
+
+    const { onMouseLeave, onMouseEnter } = useMessageTooltip({
+      item,
+      threadInfo,
+      availablePositions,
+    });
+
     return (
       <ComposedMessage
         {...props}
-        sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
         inputState={inputState}
+        onMouseLeave={onMouseLeave}
+        onMouseEnter={onMouseEnter}
+        containsInlineSidebar={containsInlineSidebar}
       />
     );
   },

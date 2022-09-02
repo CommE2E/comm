@@ -12,9 +12,11 @@ import {
 import { isComposableMessageType } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadPermissions } from 'lib/types/thread-types';
+import { longAbsoluteDate } from 'lib/utils/date-utils';
 
 import CommIcon from '../CommIcon.react';
 import { InputStateContext } from '../input/input-state';
+import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
@@ -25,7 +27,9 @@ import {
   tooltipLabelStyle,
   tooltipStyle,
 } from './chat-constants';
+import MessageTooltip from './message-tooltip.react';
 import type { PositionInfo } from './position-types';
+import { useTooltipContext } from './tooltip-provider';
 
 export const tooltipPositions = Object.freeze({
   LEFT: 'left',
@@ -401,6 +405,111 @@ function useMessageTooltipActions(
   ]);
 }
 
+type UseMessageTooltipArgs = {
+  +availablePositions: $ReadOnlyArray<TooltipPosition>,
+  +item: ChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
+};
+
+type UseMessageTooltipResult = {
+  onMouseEnter: (event: SyntheticEvent<HTMLElement>) => void,
+  onMouseLeave: ?() => mixed,
+};
+
+function useMessageTooltip({
+  availablePositions,
+  item,
+  threadInfo,
+}: UseMessageTooltipArgs): UseMessageTooltipResult {
+  const [onMouseLeave, setOnMouseLeave] = React.useState<?() => mixed>(null);
+
+  const { renderTooltip } = useTooltipContext();
+  const tooltipActions = useMessageTooltipActions(item, threadInfo);
+
+  const containsInlineSidebar = !!item.threadCreatedFromMessage;
+
+  const timeZone = useSelector(state => state.timeZone);
+
+  const messageTimestamp = React.useMemo(() => {
+    const time = item.messageInfo.time;
+    return longAbsoluteDate(time, timeZone);
+  }, [item.messageInfo.time, timeZone]);
+
+  const tooltipSize = React.useMemo(() => {
+    if (typeof document === 'undefined') {
+      return {
+        width: 0,
+        height: 0,
+      };
+    }
+    const tooltipLabels = tooltipActions.map(action => action.label);
+    return calculateTooltipSize({
+      tooltipLabels,
+      timestamp: messageTimestamp,
+    });
+  }, [messageTimestamp, tooltipActions]);
+
+  const onMouseEnter = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      if (!renderTooltip) {
+        return;
+      }
+      const rect = event.currentTarget.getBoundingClientRect();
+      const { top, bottom, left, right, height, width } = rect;
+      const messagePosition = { top, bottom, left, right, height, width };
+
+      const tooltipPosition = findTooltipPosition({
+        sourcePositionInfo: messagePosition,
+        tooltipSize,
+        availablePositions,
+        defaultPosition: availablePositions[0],
+        preventDisplayingBelowSource: containsInlineSidebar,
+      });
+      if (!tooltipPosition) {
+        return;
+      }
+
+      const tooltipPositionStyle = getMessageActionTooltipStyle({
+        tooltipPosition,
+        sourcePositionInfo: messagePosition,
+        tooltipSize: tooltipSize,
+      });
+
+      const { alignment } = tooltipPositionStyle;
+
+      const tooltip = (
+        <MessageTooltip
+          actions={tooltipActions}
+          messageTimestamp={messageTimestamp}
+          alignment={alignment}
+        />
+      );
+
+      const renderTooltipResult = renderTooltip({
+        newNode: tooltip,
+        tooltipPositionStyle,
+      });
+      if (renderTooltipResult) {
+        const { onMouseLeaveCallback: callback } = renderTooltipResult;
+        setOnMouseLeave((() => callback: () => () => mixed));
+      }
+    },
+    [
+      availablePositions,
+      containsInlineSidebar,
+      messageTimestamp,
+      renderTooltip,
+      tooltipActions,
+      tooltipSize,
+    ],
+  );
+
+  return {
+    onMouseEnter,
+    onMouseLeave,
+  };
+}
+
 export {
   findTooltipPosition,
   calculateTooltipSize,
@@ -408,5 +517,6 @@ export {
   useMessageTooltipSidebarAction,
   useMessageTooltipReplyAction,
   useMessageTooltipActions,
+  useMessageTooltip,
   sizeOfTooltipArrow,
 };

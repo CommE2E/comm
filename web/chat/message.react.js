@@ -39,26 +39,12 @@ function Message(props: Props): React.Node {
   }
   let message;
   if (item.messageInfo.type === messageTypes.TEXT) {
-    message = (
-      <TextMessage
-        item={item}
-        threadInfo={props.threadInfo}
-        setMouseOverMessagePosition={props.setMouseOverMessagePosition}
-        mouseOverMessagePosition={props.mouseOverMessagePosition}
-      />
-    );
+    message = <TextMessage item={item} threadInfo={props.threadInfo} />;
   } else if (
     item.messageInfo.type === messageTypes.IMAGES ||
     item.messageInfo.type === messageTypes.MULTIMEDIA
   ) {
-    message = (
-      <MultimediaMessage
-        item={item}
-        threadInfo={props.threadInfo}
-        setMouseOverMessagePosition={props.setMouseOverMessagePosition}
-        mouseOverMessagePosition={props.mouseOverMessagePosition}
-      />
-    );
+    message = <MultimediaMessage item={item} threadInfo={props.threadInfo} />;
   } else {
     invariant(item.robotext, "Flow can't handle our fancy types :(");
     message = (
