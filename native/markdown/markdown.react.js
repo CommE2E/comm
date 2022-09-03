@@ -5,9 +5,11 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
 import * as SimpleMarkdown from 'simple-markdown';
+import tinycolor from 'tinycolor2';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
+import { useColors } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
 import type { MarkdownRules } from './rules.react';
 
@@ -15,10 +17,13 @@ type Props = {
   +style: TextStyle,
   +children: string,
   +rules: MarkdownRules,
+  +threadColor?: string,
 };
 function Markdown(props: Props): React.Node {
-  const { style, children, rules } = props;
+  const { style, children, rules, threadColor } = props;
   const { simpleMarkdownRules, emojiOnlyFactor, container } = rules;
+
+  const boundColors = useColors();
 
   const parser = React.useMemo(
     () => SimpleMarkdown.parserFor(simpleMarkdownRules),
@@ -61,10 +66,20 @@ function Markdown(props: Props): React.Node {
     return { ...flattened, fontSize: fontSize * emojiOnlyFactor };
   }, [emojiOnly, style, emojiOnlyFactor]);
 
-  const renderedOutput = React.useMemo(
-    () => output(ast, { textStyle, container }),
-    [ast, output, textStyle, container],
-  );
+  const renderedOutput = React.useMemo(() => {
+    let color = boundColors.listChatBubble;
+    if (threadColor) {
+      color = tinycolor(threadColor).darken(20).toString();
+    }
+    return output(ast, { textStyle, container, color });
+  }, [
+    ast,
+    output,
+    textStyle,
+    container,
+    threadColor,
+    boundColors.listChatBubble,
+  ]);
 
   if (container === 'Text') {
     return <Text>{renderedOutput}</Text>;

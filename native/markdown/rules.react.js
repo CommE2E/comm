@@ -23,6 +23,7 @@ export type MarkdownRules = {
   // View, and Views can't be nested inside Texts without explicit height and
   // width
   +container: 'View' | 'Text',
+  +color?: string,
 };
 
 // Entry requires a seamless transition between Markdown and TextInput
@@ -233,11 +234,16 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
         state: SharedMarkdown.State,
-      ) => (
-        <View key={state.key} style={styles.blockQuote}>
-          {output(node.content, state)}
-        </View>
-      ),
+      ) => {
+        return (
+          <View
+            key={state.key}
+            style={{ ...styles.blockQuote, backgroundColor: state.color }}
+          >
+            {output(node.content, state)}
+          </View>
+        );
+      },
     },
     codeBlock: {
       ...SimpleMarkdown.defaultRules.codeBlock,

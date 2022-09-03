@@ -70,7 +70,6 @@ function InnerTextMessage(props: Props): React.Node {
   const boundColors = useColors();
 
   const messageStyle = {};
-  const textStyle = {};
   let darkColor;
   if (isViewer) {
     const threadColor = item.threadInfo.color;
@@ -81,9 +80,6 @@ function InnerTextMessage(props: Props): React.Node {
     messageStyle.backgroundColor = boundColors.listChatBubble;
     darkColor = activeTheme === 'dark';
   }
-  textStyle.color = darkColor
-    ? colors.dark.listForegroundLabel
-    : colors.light.listForegroundLabel;
 
   const cornerStyle = getRoundedContainerStyle(filterCorners(allCorners, item));
 
@@ -95,6 +91,19 @@ function InnerTextMessage(props: Props): React.Node {
 
   const rules = useTextMessageMarkdownRules(darkColor);
 
+  const textStyle = React.useMemo(
+    () => ({
+      color: darkColor
+        ? colors.dark.listForegroundLabel
+        : colors.light.listForegroundLabel,
+    }),
+    [darkColor],
+  );
+
+  const markdownStyles = React.useMemo(() => [styles.text, textStyle], [
+    textStyle,
+  ]);
+
   const message = (
     <TouchableWithoutFeedback>
       <View>
@@ -105,7 +114,11 @@ function InnerTextMessage(props: Props): React.Node {
           style={[styles.message, cornerStyle]}
           animatedStyle={messageStyle}
         >
-          <Markdown style={[styles.text, textStyle]} rules={rules}>
+          <Markdown
+            style={markdownStyles}
+            rules={rules}
+            threadColor={item.threadInfo.color}
+          >
             {text}
           </Markdown>
         </GestureTouchableOpacity>
