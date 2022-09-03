@@ -26,15 +26,16 @@ find_package(Boost 1.40
 )
 
 # Rust integration
-include(cmake-components/corrosion-cxx.cmake)
 find_package(Corrosion REQUIRED)
 
 if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "^\/transferred.*")
   # Inside the docker build contex
   set(_proto_path "grpc")
+  include(cmake-components/corrosion-cxx.cmake)
 else()
   # Inside repo
-  set(_proto_path "../../native/cpp/CommonCpp/grpc")
+  set(_proto_path "../../shared/protos")
+  include(../../shared/cmake/corrosion-cxx.cmake)
 endif()
 
 # Shared Comm protos
