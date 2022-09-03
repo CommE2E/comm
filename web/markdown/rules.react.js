@@ -85,6 +85,8 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         state: SharedMarkdown.State,
       ) {
         const content = capture[1].replace(/^ *> ?/gm, '');
+        console.log('lksjdf');
+        console.log(content);
         return {
           content: parse(content, state),
         };

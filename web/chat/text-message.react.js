@@ -73,7 +73,7 @@ function TextMessage(props: Props): React.Node {
       canReply={canReply}
     >
       <div className={messageClassName} style={messageStyle}>
-        <Markdown threadInfo={props.threadInfo} rules={rules}>
+        <Markdown threadColor={props.threadInfo.color} rules={rules}>
           {text}
         </Markdown>
       </div>
