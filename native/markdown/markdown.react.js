@@ -5,6 +5,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
 import * as SimpleMarkdown from 'simple-markdown';
+import tinycolor from 'tinycolor2';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
@@ -15,9 +16,10 @@ type Props = {
   +style: TextStyle,
   +children: string,
   +rules: MarkdownRules,
+  +threadColor?: string,
 };
 function Markdown(props: Props): React.Node {
-  const { style, children, rules } = props;
+  const { style, children, rules, threadColor } = props;
   const { simpleMarkdownRules, emojiOnlyFactor, container } = rules;
 
   const parser = React.useMemo(
@@ -61,10 +63,10 @@ function Markdown(props: Props): React.Node {
     return { ...flattened, fontSize: fontSize * emojiOnlyFactor };
   }, [emojiOnly, style, emojiOnlyFactor]);
 
-  const renderedOutput = React.useMemo(
-    () => output(ast, { textStyle, container }),
-    [ast, output, textStyle, container],
-  );
+  const renderedOutput = React.useMemo(() => {
+    const color = tinycolor(threadColor).darken(20).toString();
+    return output(ast, { textStyle, container, color });
+  }, [ast, output, textStyle, container, threadColor]);
 
   if (container === 'Text') {
     return <Text>{renderedOutput}</Text>;

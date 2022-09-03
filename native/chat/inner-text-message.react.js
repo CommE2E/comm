@@ -105,7 +105,11 @@ function InnerTextMessage(props: Props): React.Node {
           style={[styles.message, cornerStyle]}
           animatedStyle={messageStyle}
         >
-          <Markdown style={[styles.text, textStyle]} rules={rules}>
+          <Markdown
+            style={[styles.text, textStyle]}
+            rules={rules}
+            threadColor={item.threadInfo.color}
+          >
             {text}
           </Markdown>
         </GestureTouchableOpacity>
