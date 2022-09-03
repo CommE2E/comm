@@ -224,11 +224,19 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
         state: SharedMarkdown.State,
-      ) => (
-        <View key={state.key} style={styles.blockQuote}>
-          {output(node.content, state)}
-        </View>
-      ),
+      ) => {
+        const { isNestedQuote } = state;
+        const backgroundColor = isNestedQuote ? '#00000000' : '#00000066';
+
+        return (
+          <View
+            key={state.key}
+            style={[styles.blockQuote, { backgroundColor }]}
+          >
+            {output(node.content, { ...state, isNestedQuote: true })}
+          </View>
+        );
+      },
     },
     codeBlock: {
       ...SimpleMarkdown.defaultRules.codeBlock,
