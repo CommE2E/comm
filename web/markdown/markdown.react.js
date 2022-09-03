@@ -5,28 +5,24 @@ import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
 import tinycolor from 'tinycolor2';
 
-import { type ThreadInfo } from 'lib/types/thread-types';
-
 import css from './markdown.css';
 import type { MarkdownRules } from './rules.react';
 
 type Props = {
   +children: string,
   +rules: MarkdownRules,
-  +threadInfo?: ThreadInfo,
+  +threadColor?: string,
 };
 function Markdown(props: Props): React.Node {
-  const { children, rules, threadInfo } = props;
-  const { simpleMarkdownRules, useDarkStyle } = rules;
+  const { children, rules, threadColor } = props;
+  const { simpleMarkdownRules } = rules;
 
   const markdownClassName = React.useMemo(
     () =>
       classNames({
         [css.markdown]: true,
-        [css.darkBackground]: useDarkStyle,
-        [css.lightBackground]: !useDarkStyle,
       }),
-    [useDarkStyle],
+    [],
   );
 
   const parser = React.useMemo(
@@ -44,19 +40,20 @@ function Markdown(props: Props): React.Node {
   );
   const renderedOutput = React.useMemo(() => output(ast), [ast, output]);
 
-  let darkerThreadColor;
-  if (threadInfo) {
-    darkerThreadColor = tinycolor(threadInfo.color).darken(20).toString();
-  }
+  React.useEffect(() => {
+    const blockQuote = renderedOutput.find(
+      element => element.type === 'blockquote',
+    );
+    if (blockQuote) {
+      console.log(blockQuote);
+      // how do I attach the style prop to the dynamically generated blockquote?
+      blockQuote.props.style = {
+        backgroundColor: tinycolor(threadColor).darken(20).toString(),
+      };
+    }
+  }, [threadColor, renderedOutput]);
 
-  return (
-    <div
-      style={{ background: darkerThreadColor }}
-      className={markdownClassName}
-    >
-      {renderedOutput}
-    </div>
-  );
+  return <div className={markdownClassName}>{renderedOutput}</div>;
 }
 
 export default Markdown;
