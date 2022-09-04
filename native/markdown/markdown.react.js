@@ -17,9 +17,10 @@ type Props = {
   +children: string,
   +rules: MarkdownRules,
   +threadColor?: string,
+  +isViewer?: boolean,
 };
 function Markdown(props: Props): React.Node {
-  const { style, children, rules, threadColor } = props;
+  const { style, children, rules, threadColor, isViewer } = props;
   const { simpleMarkdownRules, emojiOnlyFactor, container } = rules;
 
   const parser = React.useMemo(
@@ -64,9 +65,11 @@ function Markdown(props: Props): React.Node {
   }, [emojiOnly, style, emojiOnlyFactor]);
 
   const renderedOutput = React.useMemo(() => {
-    const color = tinycolor(threadColor).darken(20).toString();
+    const color = isViewer
+      ? tinycolor(threadColor).darken(20).toString()
+      : `#${String(threadColor)}`;
     return output(ast, { textStyle, container, color });
-  }, [ast, output, textStyle, container, threadColor]);
+  }, [ast, output, textStyle, container, threadColor, isViewer]);
 
   if (container === 'Text') {
     return <Text>{renderedOutput}</Text>;

@@ -109,6 +109,7 @@ function InnerTextMessage(props: Props): React.Node {
             style={[styles.text, textStyle]}
             rules={rules}
             threadColor={item.threadInfo.color}
+            isViewer={isViewer}
           >
             {text}
           </Markdown>
