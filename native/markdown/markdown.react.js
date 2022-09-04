@@ -18,9 +18,10 @@ type Props = {
   +children: string,
   +rules: MarkdownRules,
   +threadColor?: string,
+  +isViewer?: boolean,
 };
 function Markdown(props: Props): React.Node {
-  const { style, children, rules, threadColor } = props;
+  const { style, children, rules, threadColor, isViewer } = props;
   const { simpleMarkdownRules, emojiOnlyFactor, container } = rules;
 
   const boundColors = useColors();
@@ -69,7 +70,9 @@ function Markdown(props: Props): React.Node {
   const renderedOutput = React.useMemo(() => {
     let color = boundColors.listChatBubble;
     if (threadColor) {
-      color = tinycolor(threadColor).darken(20).toString();
+      color = isViewer
+        ? tinycolor(threadColor).darken(20).toString()
+        : tinycolor(threadColor).toString();
     }
     return output(ast, { textStyle, container, color });
   }, [
@@ -79,6 +82,7 @@ function Markdown(props: Props): React.Node {
     container,
     threadColor,
     boundColors.listChatBubble,
+    isViewer,
   ]);
 
   if (container === 'Text') {
