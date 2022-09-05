@@ -1,13 +1,15 @@
 #pragma once
 
 #include "BaseReactor.h"
+#include "ThreadPool.h"
 
-#include <grpcpp/grpcpp.h>
 #include <glog/logging.h>
+#include <grpcpp/grpcpp.h>
 
 #include <atomic>
 #include <memory>
 #include <string>
+#include <thread>
 
 namespace comm {
 namespace network {
@@ -66,38 +68,46 @@ void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
     this->terminate(grpc::Status::OK);
     return;
   }
-  try {
-    std::unique_ptr<grpc::Status> status = this->readRequest(this->request);
-    if (status != nullptr) {
-      this->terminate(*status);
-      return;
-    }
-  } catch (std::exception &e) {
-    this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
-    return;
-  }
-  this->StartRead(&this->request);
+  ThreadPool::getInstance().scheduleWithCallback(
+      [this]() {
+        std::unique_ptr<grpc::Status> status = this->readRequest(this->request);
+        if (status != nullptr) {
+          this->terminate(*status);
+          return;
+        }
+        this->StartRead(&this->request);
+      },
+      [this](std::unique_ptr<std::string> err) {
+        if (err != nullptr) {
+          this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, *err));
+        }
+      });
 }
 
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
   this->statusHolder->setStatus(status);
-  try {
-    this->terminateCallback();
-    this->validate();
-  } catch (std::exception &e) {
-    this->statusHolder->setStatus(
-        grpc::Status(grpc::StatusCode::INTERNAL, e.what()));
-  }
-  if (!this->statusHolder->getStatus().ok()) {
-    LOG(ERROR) << this->statusHolder->getStatus().error_message();
-  }
-  if (this->statusHolder->state != ReactorState::RUNNING) {
-    return;
-  }
-  this->Finish(this->statusHolder->getStatus());
-  this->statusHolder->state = ReactorState::TERMINATED;
+
+  ThreadPool::getInstance().scheduleWithCallback(
+      [this]() {
+        this->terminateCallback();
+        this->validate();
+      },
+      [this](std::unique_ptr<std::string> err) {
+        if (err != nullptr) {
+          this->statusHolder->setStatus(
+              grpc::Status(grpc::StatusCode::INTERNAL, *err));
+        }
+        if (!this->statusHolder->getStatus().ok()) {
+          LOG(ERROR) << this->statusHolder->getStatus().error_message();
+        }
+        if (this->statusHolder->state != ReactorState::RUNNING) {
+          return;
+        }
+        this->Finish(this->statusHolder->getStatus());
+        this->statusHolder->state = ReactorState::TERMINATED;
+      });
 }
 
 template <class Request, class Response>
