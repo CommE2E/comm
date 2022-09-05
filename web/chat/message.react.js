@@ -10,20 +10,12 @@ import { longAbsoluteDate } from 'lib/utils/date-utils';
 
 import css from './chat-message-list.css';
 import MultimediaMessage from './multimedia-message.react';
-import {
-  type OnMessagePositionWithContainerInfo,
-  type MessagePositionInfo,
-} from './position-types';
 import RobotextMessage from './robotext-message.react';
 import TextMessage from './text-message.react';
 
 type Props = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
-  +setMouseOverMessagePosition: (
-    messagePositionInfo: MessagePositionInfo,
-  ) => void,
-  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
   +timeZone: ?string,
 };
 function Message(props: Props): React.Node {
