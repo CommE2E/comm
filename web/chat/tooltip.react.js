@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { ItemAndContainerPositionInfo } from './position-types';
-import { findTooltipPosition, type TooltipPosition } from './tooltip-utils';
+import { type TooltipPosition, tooltipPositions } from './tooltip-utils';
 import css from './tooltip.css';
 
 type Style = {
@@ -25,34 +25,15 @@ type TooltipMenuProps = {
   >,
 };
 function TooltipMenu(props: TooltipMenuProps): React.Node {
-  const {
-    availableTooltipPositions,
-    targetPositionInfo,
-    layoutPosition,
-    getStyle,
-    children,
-  } = props;
+  const { getStyle, children } = props;
 
+  // eslint-disable-next-line no-unused-vars
   const tooltipTexts = React.useMemo(
     () => React.Children.map(children, item => item.props.text),
     [children],
   );
 
-  const tooltipPosition = React.useMemo(
-    () =>
-      findTooltipPosition({
-        pointingToInfo: targetPositionInfo,
-        tooltipTexts,
-        availablePositions: availableTooltipPositions,
-        layoutPosition,
-      }),
-    [
-      tooltipTexts,
-      targetPositionInfo,
-      availableTooltipPositions,
-      layoutPosition,
-    ],
-  );
+  const tooltipPosition = React.useMemo(() => tooltipPositions.LEFT, []);
 
   const tooltipStyle = React.useMemo(() => getStyle(tooltipPosition), [
     getStyle,

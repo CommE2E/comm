@@ -26,7 +26,7 @@ import { tooltipPositions } from './tooltip-utils';
 
 // eslint-disable-next-line no-unused-vars
 const availableTooltipPositionsForRobotext = [
-  tooltipPositions.TOP_RIGHT,
+  tooltipPositions.RIGHT_TOP,
   tooltipPositions.RIGHT,
   tooltipPositions.LEFT,
 ];
