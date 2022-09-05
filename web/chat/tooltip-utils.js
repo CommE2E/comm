@@ -3,6 +3,15 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
+import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
+import type { ThreadInfo } from 'lib/types/thread-types';
+
+import CommIcon from '../CommIcon.react';
+import {
+  useOnClickPendingSidebar,
+  useOnClickThread,
+} from '../selectors/nav-selectors';
 import { calculateMaxTextWidth } from '../utils/text-utils';
 import {
   tooltipButtonStyle,
@@ -305,9 +314,47 @@ function calculateTooltipSize({
   };
 }
 
+function useMessageTooltipSidebarAction(
+  item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
+): ?MessageTooltipAction {
+  const { threadCreatedFromMessage, messageInfo } = item;
+  const sidebarExists = !!threadCreatedFromMessage;
+  const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
+    threadInfo,
+    item,
+  );
+  const openThread = useOnClickThread(threadCreatedFromMessage);
+  const openPendingSidebar = useOnClickPendingSidebar(messageInfo, threadInfo);
+  return React.useMemo(() => {
+    if (!sidebarExistsOrCanBeCreated) {
+      return null;
+    }
+    const buttonContent = <CommIcon icon="sidebar-filled" size={16} />;
+    const onClick = (event: SyntheticEvent<HTMLElement>) => {
+      if (threadCreatedFromMessage) {
+        openThread(event);
+      } else {
+        openPendingSidebar(event);
+      }
+    };
+    return {
+      actionButtonContent: buttonContent,
+      onClick,
+      label: sidebarExists ? 'Go to thread' : 'Create thread',
+    };
+  }, [
+    openPendingSidebar,
+    openThread,
+    sidebarExists,
+    sidebarExistsOrCanBeCreated,
+    threadCreatedFromMessage,
+  ]);
+}
 export {
   findTooltipPosition,
   calculateTooltipSize,
   getMessageActionTooltipStyle,
+  useMessageTooltipSidebarAction,
   sizeOfTooltipArrow,
 };
