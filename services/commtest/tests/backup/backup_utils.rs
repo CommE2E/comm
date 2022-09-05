@@ -3,6 +3,7 @@ pub mod proto {
 }
 
 pub use proto::backup_service_client::BackupServiceClient;
+use std::collections::HashMap;
 
 // stands for both, backup and log items
 #[allow(dead_code)]
@@ -62,18 +63,34 @@ pub fn compare_backups(backup_data: &BackupData, result: &BackupData) {
   let from_result: usize = result.log_items.len();
   assert_eq!(
     expected, from_result,
-    "number of logs do not match, expected {}, got {}",
-    expected, from_result
+    "backup id {} number of logs do not match, expected {}, got {}",
+    backup_data.backup_item.id, expected, from_result
   );
 
   // check log sizes
   for i in 0..backup_data.log_items.len() {
     let expected: usize = backup_data.log_items[i].chunks_sizes.iter().sum();
+  }
+
+  // map<log_id, chunks_sizes>
+  let mut expected_log_map: HashMap<String, usize> = HashMap::new();
+  let mut result_log_map: HashMap<String, usize> = HashMap::new();
+  for i in 0..backup_data.log_items.len() {
+    let expected: usize = backup_data.log_items[i].chunks_sizes.iter().sum();
+    expected_log_map.insert(backup_data.log_items[i].id.clone(), expected);
     let from_result: usize = result.log_items[i].chunks_sizes.iter().sum();
+    result_log_map.insert(result.log_items[i].id.clone(), from_result);
+  }
+
+  for (expected_id, expected_size) in &expected_log_map {
+    let result_size = result_log_map.get(expected_id).expect(&format!(
+      "comparing logs: expected id found in result: {}",
+      expected_id
+    ));
     assert_eq!(
-      from_result, expected,
-      "log number {} sizes do not match, expected {}, got {}",
-      i, expected, from_result
+      expected_size, result_size,
+      "comparing logs, sizes don't match, backup {}",
+      backup_data.backup_item.id
     );
   }
 
