@@ -48,8 +48,10 @@ type TooltipSize = {
 };
 
 export type TooltipPositionStyle = {
-  +xCoord: number,
-  +yCoord: number,
+  +anchorPoint: {
+    +x: number,
+    +y: number,
+  },
   +verticalPosition: 'top' | 'bottom',
   +horizontalPosition: 'left' | 'right',
   +alignment: 'left' | 'center' | 'right',
@@ -212,76 +214,92 @@ function getMessageActionTooltipStyle({
 }: GetMessageActionTooltipStyleParams): TooltipPositionStyle {
   if (tooltipPosition === tooltipPositions.RIGHT_TOP) {
     return {
-      xCoord: sourcePositionInfo.right,
-      yCoord: sourcePositionInfo.top,
+      anchorPoint: {
+        x: sourcePositionInfo.right,
+        y: sourcePositionInfo.top,
+      },
       horizontalPosition: 'right',
       verticalPosition: 'bottom',
       alignment: 'left',
     };
   } else if (tooltipPosition === tooltipPositions.LEFT_TOP) {
     return {
-      xCoord: sourcePositionInfo.left,
-      yCoord: sourcePositionInfo.top,
+      anchorPoint: {
+        x: sourcePositionInfo.left,
+        y: sourcePositionInfo.top,
+      },
       horizontalPosition: 'left',
       verticalPosition: 'bottom',
       alignment: 'right',
     };
   } else if (tooltipPosition === tooltipPositions.RIGHT_BOTTOM) {
     return {
-      xCoord: sourcePositionInfo.right,
-      yCoord: sourcePositionInfo.bottom,
+      anchorPoint: {
+        x: sourcePositionInfo.right,
+        y: sourcePositionInfo.bottom,
+      },
       horizontalPosition: 'right',
       verticalPosition: 'top',
       alignment: 'left',
     };
   } else if (tooltipPosition === tooltipPositions.LEFT_BOTTOM) {
     return {
-      xCoord: sourcePositionInfo.left,
-      yCoord: sourcePositionInfo.bottom,
+      anchorPoint: {
+        x: sourcePositionInfo.left,
+        y: sourcePositionInfo.bottom,
+      },
       horizontalPosition: 'left',
       verticalPosition: 'top',
       alignment: 'right',
     };
   } else if (tooltipPosition === tooltipPositions.LEFT) {
     return {
-      xCoord: sourcePositionInfo.left,
-      yCoord:
-        sourcePositionInfo.top +
-        sourcePositionInfo.height / 2 -
-        tooltipSize.height / 2,
+      anchorPoint: {
+        x: sourcePositionInfo.left,
+        y:
+          sourcePositionInfo.top +
+          sourcePositionInfo.height / 2 -
+          tooltipSize.height / 2,
+      },
       horizontalPosition: 'left',
       verticalPosition: 'bottom',
       alignment: 'right',
     };
   } else if (tooltipPosition === tooltipPositions.RIGHT) {
     return {
-      xCoord: sourcePositionInfo.right,
-      yCoord:
-        sourcePositionInfo.top +
-        sourcePositionInfo.height / 2 -
-        tooltipSize.height / 2,
+      anchorPoint: {
+        x: sourcePositionInfo.right,
+        y:
+          sourcePositionInfo.top +
+          sourcePositionInfo.height / 2 -
+          tooltipSize.height / 2,
+      },
       horizontalPosition: 'right',
       verticalPosition: 'bottom',
       alignment: 'left',
     };
   } else if (tooltipPosition === tooltipPositions.TOP) {
     return {
-      xCoord:
-        sourcePositionInfo.left +
-        sourcePositionInfo.width / 2 -
-        tooltipSize.width / 2,
-      yCoord: sourcePositionInfo.top,
+      anchorPoint: {
+        x:
+          sourcePositionInfo.left +
+          sourcePositionInfo.width / 2 -
+          tooltipSize.width / 2,
+        y: sourcePositionInfo.top,
+      },
       horizontalPosition: 'right',
       verticalPosition: 'top',
       alignment: 'center',
     };
   } else if (tooltipPosition === tooltipPositions.BOTTOM) {
     return {
-      xCoord:
-        sourcePositionInfo.left +
-        sourcePositionInfo.width / 2 -
-        tooltipSize.width / 2,
-      yCoord: sourcePositionInfo.bottom,
+      anchorPoint: {
+        x:
+          sourcePositionInfo.left +
+          sourcePositionInfo.width / 2 -
+          tooltipSize.width / 2,
+        y: sourcePositionInfo.bottom,
+      },
       horizontalPosition: 'right',
       verticalPosition: 'bottom',
       alignment: 'center',

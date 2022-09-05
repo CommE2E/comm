@@ -120,8 +120,8 @@ function TooltipProvider(props: Props): React.Node {
     }
     const tooltipContainerStyle = {
       position: 'absolute',
-      top: tooltipPosition.yCoord,
-      left: tooltipPosition.xCoord,
+      top: tooltipPosition.anchorPoint.y,
+      left: tooltipPosition.anchorPoint.x,
     };
 
     const { verticalPosition, horizontalPosition } = tooltipPosition;
