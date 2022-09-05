@@ -6,6 +6,7 @@ import * as React from 'react';
 import type { TooltipPositionStyle } from './tooltip-utils';
 
 const onMouseLeaveSourceDisappearTimeoutMs = 200;
+const onMouseLeaveTooltipDisappearTimeoutMs = 100;
 
 export type RenderTooltipParams = {
   +newNode: React.Node,
@@ -96,10 +97,20 @@ function TooltipProvider(props: Props): React.Node {
   );
 
   // eslint-disable-next-line no-unused-vars
-  const onMouseEnterTooltip = React.useCallback(() => {}, []);
+  const onMouseEnterTooltip = React.useCallback(() => {
+    if (tooltipSymbol.current) {
+      clearTimeout(tooltipCancelTimer.current);
+    }
+  }, []);
 
   // eslint-disable-next-line no-unused-vars
-  const onMouseLeaveTooltip = React.useCallback(() => {}, []);
+  const onMouseLeaveTooltip = React.useCallback(() => {
+    const timer = setTimeout(
+      clearCurrentTooltip,
+      onMouseLeaveTooltipDisappearTimeoutMs,
+    );
+    tooltipCancelTimer.current = timer;
+  }, [clearCurrentTooltip]);
 
   const tooltip = React.useMemo(() => {}, []);
 
