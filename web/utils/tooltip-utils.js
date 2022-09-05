@@ -14,6 +14,14 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
 
+import {
+  tooltipButtonStyle,
+  tooltipLabelStyle,
+  tooltipStyle,
+} from '../chat/chat-constants';
+import MessageTooltip from '../chat/message-tooltip.react';
+import type { PositionInfo } from '../chat/position-types';
+import { useTooltipContext } from '../chat/tooltip-provider';
 import CommIcon from '../CommIcon.react';
 import { InputStateContext } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
@@ -22,14 +30,6 @@ import {
   useOnClickThread,
 } from '../selectors/nav-selectors';
 import { calculateMaxTextWidth } from '../utils/text-utils';
-import {
-  tooltipButtonStyle,
-  tooltipLabelStyle,
-  tooltipStyle,
-} from './chat-constants';
-import MessageTooltip from './message-tooltip.react';
-import type { PositionInfo } from './position-types';
-import { useTooltipContext } from './tooltip-provider';
 
 export const tooltipPositions = Object.freeze({
   LEFT: 'left',

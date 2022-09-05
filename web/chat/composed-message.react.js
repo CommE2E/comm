@@ -14,10 +14,10 @@ import { assertComposableMessageType } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { type InputState, InputStateContext } from '../input/input-state';
+import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
 import InlineSidebar from './inline-sidebar.react';
-import { tooltipPositions, useMessageTooltip } from './tooltip-utils';
 
 const availableTooltipPositionsForViewerMessage = [
   tooltipPositions.LEFT,

@@ -3,13 +3,13 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import { type MessageTooltipAction } from '../utils/tooltip-utils';
 import {
   tooltipButtonStyle,
   tooltipLabelStyle,
   tooltipStyle,
 } from './chat-constants';
 import css from './message-tooltip.css';
-import { type MessageTooltipAction } from './tooltip-utils';
 
 type MessageTooltipProps = {
   +actions: $ReadOnlyArray<MessageTooltipAction>,
