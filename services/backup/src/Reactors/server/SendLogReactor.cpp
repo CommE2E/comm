@@ -102,12 +102,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
             this->blobHolder.c_str(),
             tools::getBlobPutField(blob::PutRequest::DataCase::kDataChunk),
             request.mutable_logdata()->c_str());
-        put_client_blocking_read_cxx(
-            this->blobHolder.c_str()); // todo this should be avoided
-                                       // (blocking); we should be able to
-                                       // ignore responses; we probably want to
-                                       // delegate performing ops to separate
-                                       // threads in the base reactors
+        put_client_blocking_read_cxx(this->blobHolder.c_str());
 
         return nullptr;
       }
@@ -124,23 +119,13 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
             this->blobHolder.c_str(),
             tools::getBlobPutField(blob::PutRequest::DataCase::kHolder),
             this->blobHolder.c_str());
-        put_client_blocking_read_cxx(
-            this->blobHolder.c_str()); // todo this should be avoided
-                                       // (blocking); we should be able to
-                                       // ignore responses; we probably want to
-                                       // delegate performing ops to separate
-                                       // threads in the base reactors
+        put_client_blocking_read_cxx(this->blobHolder.c_str());
         put_client_write_cxx(
             this->blobHolder.c_str(),
             tools::getBlobPutField(blob::PutRequest::DataCase::kBlobHash),
             this->hash.c_str());
-        rust::String responseStr = put_client_blocking_read_cxx(
-            this->blobHolder.c_str()); // todo this should be avoided
-                                       // (blocking); we should be able to
-                                       // ignore responses; we probably
-                                       // want to delegate performing ops
-                                       // to separate threads in the base
-                                       // reactors
+        rust::String responseStr =
+            put_client_blocking_read_cxx(this->blobHolder.c_str());
         // data exists?
         if ((bool)tools::charPtrToInt(responseStr.c_str())) {
           return std::make_unique<grpc::Status>(grpc::Status::OK);
@@ -149,12 +134,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
             this->blobHolder.c_str(),
             tools::getBlobPutField(blob::PutRequest::DataCase::kDataChunk),
             std::move(this->value).c_str());
-        put_client_blocking_read_cxx(
-            this->blobHolder.c_str()); // todo this should be avoided
-                                       // (blocking); we should be able to
-                                       // ignore responses; we probably want to
-                                       // delegate performing ops to separate
-                                       // threads in the base reactors
+        put_client_blocking_read_cxx(this->blobHolder.c_str());
         this->value = "";
       } else {
         this->persistenceMethod = PersistenceMethod::DB;
