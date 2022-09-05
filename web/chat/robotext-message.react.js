@@ -13,7 +13,7 @@ import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
-import { InlineSidebar } from './inline-sidebar.react';
+import InlineSidebar from './inline-sidebar.react';
 import css from './robotext-message.css';
 import { tooltipPositions, useMessageTooltip } from './tooltip-utils';
 
