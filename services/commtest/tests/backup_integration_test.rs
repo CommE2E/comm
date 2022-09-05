@@ -13,6 +13,7 @@ mod tools;
 
 use backup_utils::{BackupData, Item};
 use bytesize::ByteSize;
+use std::collections::HashMap;
 use tools::Error;
 
 use std::env;
@@ -108,16 +109,24 @@ async fn backup_integration_test() -> Result<(), Error> {
     .append(&mut old_attachments);
   let result = pull_backup::run(&mut client, &backup_data).await?;
   // check logs attachments
+  // map<log_id, attachments size>
+  let mut expected_log_map: HashMap<String, usize> = HashMap::new();
+  let mut result_log_map: HashMap<String, usize> = HashMap::new();
   for i in 0..backup_data.log_items.len() {
     let expected: usize = backup_data.log_items[i].attachments_holders.len();
+    expected_log_map.insert(backup_data.log_items[i].id.clone(), expected);
     let from_result: usize = result.log_items[i].attachments_holders.len();
+    result_log_map.insert(result.log_items[i].id.clone(), from_result);
+  }
+  for (expected_id, expected_size) in &expected_log_map {
+    let result_size = result_log_map.get(expected_id).expect(&format!(
+      "comparing logs attachments: expected id found in result: {}",
+      expected_id
+    ));
     assert_eq!(
-      from_result, expected,
-      "after attachment add: log {}: number of attachments holders do not match,
-      expected {}, got {}",
-      i,
-      expected,
-      from_result
+      expected_size, result_size,
+      "comparing logs attachments, sizes don't match, backup {}",
+      backup_data.backup_item.id
     );
   }
 

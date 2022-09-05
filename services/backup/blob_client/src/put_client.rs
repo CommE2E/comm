@@ -204,7 +204,11 @@ pub fn put_client_blocking_read_cxx(
           );
         }
       } else {
-        report_error(&ERROR_MESSAGES, "no client detected in blocking read", Some("put"));
+        report_error(
+          &ERROR_MESSAGES,
+          "no client detected in blocking read",
+          Some("put"),
+        );
       }
     } else {
       report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
@@ -251,7 +255,11 @@ pub fn put_client_write_cxx(
           ),
         }
       } else {
-        report_error(&ERROR_MESSAGES, "no client detected in write", Some("put"));
+        report_error(
+          &ERROR_MESSAGES,
+          "no client detected in write",
+          Some("put"),
+        );
       }
     } else {
       report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
