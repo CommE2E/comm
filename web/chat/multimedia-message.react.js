@@ -12,18 +12,9 @@ import Multimedia from '../media/multimedia.react';
 import css from './chat-message-list.css';
 import ComposedMessage from './composed-message.react';
 import sendFailed from './multimedia-message-send-failed';
-import type {
-  MessagePositionInfo,
-  OnMessagePositionWithContainerInfo,
-} from './position-types';
-
 type BaseProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
-  +setMouseOverMessagePosition: (
-    messagePositionInfo: MessagePositionInfo,
-  ) => void,
-  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
 };
 type Props = {
   ...BaseProps,
@@ -71,9 +62,6 @@ class MultimediaMessage extends React.PureComponent<Props> {
         item={item}
         threadInfo={this.props.threadInfo}
         sendFailed={sendFailed(item, inputState)}
-        setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
-        mouseOverMessagePosition={this.props.mouseOverMessagePosition}
-        canReply={false}
         fixedWidth={multimedia.length > 1}
         borderRadius={16}
       >
