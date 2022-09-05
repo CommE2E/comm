@@ -388,11 +388,25 @@ function useMessageTooltipReplyAction(
     };
   }, [addReply, item.messageInfo.type, messageInfo, threadInfo]);
 }
+
+function useMessageTooltipActions(
+  item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
+): $ReadOnlyArray<MessageTooltipAction> {
+  const sidebarAction = useMessageTooltipSidebarAction(item, threadInfo);
+  const replyAction = useMessageTooltipReplyAction(item, threadInfo);
+  return React.useMemo(() => [replyAction, sidebarAction].filter(Boolean), [
+    replyAction,
+    sidebarAction,
+  ]);
+}
+
 export {
   findTooltipPosition,
   calculateTooltipSize,
   getMessageActionTooltipStyle,
   useMessageTooltipSidebarAction,
   useMessageTooltipReplyAction,
+  useMessageTooltipActions,
   sizeOfTooltipArrow,
 };
