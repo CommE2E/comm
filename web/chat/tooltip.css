@@ -46,3 +46,23 @@ div.messageTimestampTooltip {
   overflow: auto;
   min-width: 72px;
 }
+
+div.tooltipAbsolute {
+  position: absolute;
+}
+
+div.tooltipAbsoluteLeft {
+  left: 0;
+}
+
+div.tooltipAbsoluteRight {
+  right: 0;
+}
+
+div.tooltipAbsoluteTop {
+  top: 0;
+}
+
+div.tooltipAbsoluteBottom {
+  bottom: 0;
+}
