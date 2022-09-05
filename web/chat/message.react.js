@@ -47,14 +47,7 @@ function Message(props: Props): React.Node {
     message = <MultimediaMessage item={item} threadInfo={props.threadInfo} />;
   } else {
     invariant(item.robotext, "Flow can't handle our fancy types :(");
-    message = (
-      <RobotextMessage
-        item={item}
-        threadInfo={props.threadInfo}
-        setMouseOverMessagePosition={props.setMouseOverMessagePosition}
-        mouseOverMessagePosition={props.mouseOverMessagePosition}
-      />
-    );
+    message = <RobotextMessage item={item} threadInfo={props.threadInfo} />;
   }
   return (
     <div className={css.message}>

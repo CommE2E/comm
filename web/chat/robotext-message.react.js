@@ -1,13 +1,11 @@
 // @flow
 
-import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
-import { useSidebarExistsOrCanBeCreated } from 'lib/shared/thread-utils';
 import type { Dispatch } from 'lib/types/redux-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
@@ -16,33 +14,26 @@ import { linkRules } from '../markdown/rules.react';
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { InlineSidebar } from './inline-sidebar.react';
-import MessageTooltip from './message-tooltip.react';
-import type {
-  MessagePositionInfo,
-  OnMessagePositionWithContainerInfo,
-} from './position-types';
 import css from './robotext-message.css';
-import { tooltipPositions } from './tooltip-utils';
+import { tooltipPositions, useMessageTooltip } from './tooltip-utils';
 
-// eslint-disable-next-line no-unused-vars
 const availableTooltipPositionsForRobotext = [
-  tooltipPositions.RIGHT_TOP,
-  tooltipPositions.RIGHT,
   tooltipPositions.LEFT,
+  tooltipPositions.LEFT_TOP,
+  tooltipPositions.LEFT_BOTTOM,
+  tooltipPositions.RIGHT,
+  tooltipPositions.RIGHT_TOP,
+  tooltipPositions.RIGHT_BOTTOM,
 ];
 
 type BaseProps = {
   +item: RobotextChatMessageInfoItem,
   +threadInfo: ThreadInfo,
-  +setMouseOverMessagePosition: (
-    messagePositionInfo: MessagePositionInfo,
-  ) => void,
-  +mouseOverMessagePosition: ?OnMessagePositionWithContainerInfo,
 };
 type Props = {
   ...BaseProps,
-  // Redux state
-  +sidebarExistsOrCanBeCreated: boolean,
+  +onMouseLeave: ?() => mixed,
+  +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
 };
 class RobotextMessage extends React.PureComponent<Props> {
   render() {
@@ -58,40 +49,14 @@ class RobotextMessage extends React.PureComponent<Props> {
       );
     }
 
-    const { item, sidebarExistsOrCanBeCreated } = this.props;
-    const { id } = item.messageInfo;
-    let messageTooltip;
-    if (
-      this.props.mouseOverMessagePosition &&
-      this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
-      sidebarExistsOrCanBeCreated
-    ) {
-      messageTooltip = <MessageTooltip messageTimestamp="" actions={[]} />;
-    }
-
-    let messageTooltipLinks;
-    if (messageTooltip) {
-      messageTooltipLinks = (
-        <div
-          className={classNames(
-            css.messageTooltipLinks,
-            css.nonViewerMessageTooltipLinks,
-          )}
-        >
-          {messageTooltip}
-        </div>
-      );
-    }
-
     return (
       <div className={css.robotextContainer}>
         <div
           className={css.innerRobotextContainer}
-          onMouseEnter={this.onMouseEnter}
-          onMouseLeave={this.onMouseLeave}
+          onMouseEnter={this.props.onMouseEnter}
+          onMouseLeave={this.props.onMouseLeave}
         >
           <span>{this.linkedRobotext()}</span>
-          {messageTooltipLinks}
         </div>
         {inlineSidebar}
       </div>
@@ -131,25 +96,7 @@ class RobotextMessage extends React.PureComponent<Props> {
 
     return textParts;
   }
-
-  onMouseEnter = (event: SyntheticEvent<HTMLDivElement>) => {
-    const { item } = this.props;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const { top, bottom, left, right, height, width } = rect;
-    const messagePosition = { top, bottom, left, right, height, width };
-    this.props.setMouseOverMessagePosition({
-      type: 'on',
-      item,
-      messagePosition,
-    });
-  };
-
-  onMouseLeave = () => {
-    const { item } = this.props;
-    this.props.setMouseOverMessagePosition({ type: 'off', item });
-  };
 }
-
 type BaseInnerThreadEntityProps = {
   +id: string,
   +name: string,
@@ -198,14 +145,19 @@ function ColorEntity(props: { color: string }) {
 
 const ConnectedRobotextMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedRobotextMessage(props) {
-    const sidebarExistsOrCanBeCreated = useSidebarExistsOrCanBeCreated(
-      props.threadInfo,
-      props.item,
-    );
+    const { item, threadInfo } = props;
+
+    const { onMouseLeave, onMouseEnter } = useMessageTooltip({
+      item,
+      threadInfo,
+      availablePositions: availableTooltipPositionsForRobotext,
+    });
+
     return (
       <RobotextMessage
         {...props}
-        sidebarExistsOrCanBeCreated={sidebarExistsOrCanBeCreated}
+        onMouseLeave={onMouseLeave}
+        onMouseEnter={onMouseEnter}
       />
     );
   },
