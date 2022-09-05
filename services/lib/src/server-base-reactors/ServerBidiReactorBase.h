@@ -1,12 +1,14 @@
 #pragma once
 
 #include "BaseReactor.h"
+#include "ThreadPool.h"
 
 #include <grpcpp/grpcpp.h>
 
 #include <atomic>
 #include <memory>
 #include <string>
+#include <thread>
 
 namespace comm {
 namespace network {
@@ -95,23 +97,27 @@ template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::terminate(
     ServerBidiReactorStatus status) {
   this->setStatus(status);
-  try {
-    this->terminateCallback();
-    this->validate();
-  } catch (std::exception &e) {
-    this->setStatus(ServerBidiReactorStatus(
-        grpc::Status(grpc::StatusCode::INTERNAL, e.what())));
-  }
-  if (this->statusHolder->state != ReactorState::RUNNING) {
-    return;
-  }
-  if (this->getStatus().sendLastResponse) {
-    this->StartWriteAndFinish(
-        &this->response, grpc::WriteOptions(), this->getStatus().status);
-  } else {
-    this->Finish(this->getStatus().status);
-  }
-  this->statusHolder->state = ReactorState::TERMINATED;
+  ThreadPool::getInstance().scheduleWithCallback(
+      [this]() {
+        this->terminateCallback();
+        this->validate();
+      },
+      [this](std::unique_ptr<std::string> err) {
+        if (err != nullptr) {
+          this->setStatus(ServerBidiReactorStatus(
+              grpc::Status(grpc::StatusCode::INTERNAL, std::string(*err))));
+        }
+        if (this->statusHolder->state != ReactorState::RUNNING) {
+          return;
+        }
+        if (this->getStatus().sendLastResponse) {
+          this->StartWriteAndFinish(
+              &this->response, grpc::WriteOptions(), this->getStatus().status);
+        } else {
+          this->Finish(this->getStatus().status);
+        }
+        this->statusHolder->state = ReactorState::TERMINATED;
+      });
 }
 
 template <class Request, class Response>
@@ -136,19 +142,23 @@ void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
     this->terminate(ServerBidiReactorStatus(grpc::Status::OK));
     return;
   }
-  try {
-    this->response = Response();
-    std::unique_ptr<ServerBidiReactorStatus> status =
-        this->handleRequest(this->request, &this->response);
-    if (status != nullptr) {
-      this->terminate(*status);
-      return;
-    }
-    this->StartWrite(&this->response);
-  } catch (std::exception &e) {
-    this->terminate(ServerBidiReactorStatus(
-        grpc::Status(grpc::StatusCode::INTERNAL, e.what())));
-  }
+  ThreadPool::getInstance().scheduleWithCallback(
+      [this]() {
+        this->response = Response();
+        std::unique_ptr<ServerBidiReactorStatus> status =
+            this->handleRequest(this->request, &this->response);
+        if (status != nullptr) {
+          this->terminate(*status);
+          return;
+        }
+        this->StartWrite(&this->response);
+      },
+      [this](std::unique_ptr<std::string> err) {
+        if (err != nullptr) {
+          this->terminate(ServerBidiReactorStatus(
+              grpc::Status(grpc::StatusCode::INTERNAL, *err)));
+        }
+      });
 }
 
 template <class Request, class Response>

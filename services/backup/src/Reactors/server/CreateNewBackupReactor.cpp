@@ -71,24 +71,14 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
           this->holder.c_str(),
           tools::getBlobPutField(blob::PutRequest::DataCase::kHolder),
           this->holder.c_str());
-      put_client_blocking_read_cxx(
-          this->holder.c_str()); // todo this should be avoided
-                                 // (blocking); we should be able to
-                                 // ignore responses; we probably want to
-                                 // delegate performing ops to separate
-                                 // threads in the base reactors
+      put_client_blocking_read_cxx(this->holder.c_str());
       put_client_write_cxx(
           this->holder.c_str(),
           tools::getBlobPutField(blob::PutRequest::DataCase::kBlobHash),
           this->dataHash.c_str());
 
-      rust::String responseStr = put_client_blocking_read_cxx(
-          this->holder.c_str()); // todo this should be avoided
-                                 // (blocking); we should be able to
-                                 // ignore responses; we probably
-                                 // want to delegate performing ops
-                                 // to separate threads in the base
-                                 // reactors
+      rust::String responseStr =
+          put_client_blocking_read_cxx(this->holder.c_str());
       // data exists?
       if ((bool)tools::charPtrToInt(responseStr.c_str())) {
         return std::make_unique<ServerBidiReactorStatus>(
@@ -105,12 +95,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
           tools::getBlobPutField(blob::PutRequest::DataCase::kDataChunk),
           std::string(std::move(*request.mutable_newcompactionchunk()))
               .c_str());
-      put_client_blocking_read_cxx(
-          this->holder.c_str()); // todo this should be avoided
-                                 // (blocking); we should be able to
-                                 // ignore responses; we probably want to
-                                 // delegate performing ops to separate
-                                 // threads in the base reactors
+      put_client_blocking_read_cxx(this->holder.c_str());
 
       return nullptr;
     }
