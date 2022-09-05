@@ -38,6 +38,15 @@ async function loadPool(): Promise<Pool> {
       scriptContext && scriptContext.allowMultiStatementSQLQueries
     ),
   };
+
+  // This function can be run asynchronously multiple times,
+  // the previous check is not enough because the function will await
+  // on `getDBConfig()` and as result we might get there
+  // while the pool is already defined, which will result with
+  // creating a new pool and losing the previous one which will stay open
+  if (pool) {
+    return pool;
+  }
   pool = mysqlPromise.createPool(options);
   databaseMonitor = new DatabaseMonitor(pool);
   return pool;
