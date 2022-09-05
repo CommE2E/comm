@@ -31,8 +31,7 @@ void SendLogReactor::storeInDatabase() {
 }
 
 std::string SendLogReactor::generateLogID(const std::string &backupID) {
-  return backupID + tools::ID_SEPARATOR +
-      std::to_string(tools::getCurrentTimestamp());
+  return backupID + tools::ID_SEPARATOR + tools::generateUUID();
 }
 
 void SendLogReactor::initializePutClient() {
