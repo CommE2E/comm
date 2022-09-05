@@ -63,7 +63,6 @@ export type MessageTooltipAction = {
   +actionButtonContent: React.Node,
 };
 
-const sizeOfTooltipArrow = 10; // 7px arrow + 3px extra
 const appTopBarHeight = 65;
 
 const font =
@@ -518,5 +517,4 @@ export {
   useMessageTooltipReplyAction,
   useMessageTooltipActions,
   useMessageTooltip,
-  sizeOfTooltipArrow,
 };
