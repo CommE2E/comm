@@ -124,31 +124,12 @@ class ComposedMessage extends React.PureComponent<Props> {
       this.props.mouseOverMessagePosition.item.messageInfo.id === id &&
       (this.props.sidebarExistsOrCanBeCreated || this.props.canReply)
     ) {
+      // eslint-disable-next-line no-unused-vars
       const availableTooltipPositions = isViewer
         ? availableTooltipPositionsForViewerMessage
         : availableTooltipPositionsForNonViewerMessage;
 
-      const messageTooltipProps = {
-        threadInfo,
-        item,
-        availableTooltipPositions,
-        mouseOverMessagePosition: this.props.mouseOverMessagePosition,
-      };
-
-      if (this.props.canReply) {
-        messageTooltip = (
-          <MessageTooltip
-            {...messageTooltipProps}
-            canReply={true}
-            setMouseOverMessagePosition={this.props.setMouseOverMessagePosition}
-            inputState={this.props.inputState}
-          />
-        );
-      } else {
-        messageTooltip = (
-          <MessageTooltip {...messageTooltipProps} canReply={false} />
-        );
-      }
+      messageTooltip = <MessageTooltip messageTimestamp="" actions={[]} />;
     }
 
     let messageTooltipLinks;
