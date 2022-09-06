@@ -14,7 +14,7 @@ mod ffi {
       device_token: &str,
       message: &str,
       sandbox: bool,
-    ) -> Result<u16>;
+    ) -> Result<()>;
 
     #[cxx_name = "sendNotifToFCM"]
     fn send_notif_to_fcm(
@@ -37,7 +37,7 @@ pub fn send_notif_to_apns(
   device_token: &str,
   message: &str,
   sandbox: bool,
-) -> Result<u16> {
+) -> Result<()> {
   RUNTIME.block_on(apns::send_by_a2_client(
     certificate_path,
     certificate_password,
