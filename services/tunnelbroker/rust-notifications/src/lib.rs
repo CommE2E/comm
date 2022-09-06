@@ -22,7 +22,7 @@ mod ffi {
       device_registration_id: &str,
       message_title: &str,
       message_body: &str,
-    ) -> Result<u64>;
+    ) -> Result<()>;
   }
 }
 
@@ -52,7 +52,7 @@ pub fn send_notif_to_fcm(
   device_registration_id: &str,
   message_title: &str,
   message_body: &str,
-) -> Result<u64> {
+) -> Result<()> {
   RUNTIME.block_on(fcm::send_by_fcm_client(
     fcm_api_key,
     device_registration_id,

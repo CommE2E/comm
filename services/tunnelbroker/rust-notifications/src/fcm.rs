@@ -6,7 +6,7 @@ pub async fn send_by_fcm_client(
   device_registration_id: &str,
   message_title: &str,
   message_body: &str,
-) -> Result<u64> {
+) -> Result<()> {
   let client = Client::new();
   let mut notification_builder = NotificationBuilder::new();
   notification_builder.title(message_title);
@@ -17,8 +17,19 @@ pub async fn send_by_fcm_client(
     MessageBuilder::new(fcm_api_key, device_registration_id);
   message_builder.notification(notification);
   let result = client.send(message_builder.finalize()).await?;
-  match result.message_id {
-    Some(message_id) => Ok(message_id),
-    None => Err(anyhow!("FCM client returned an empty message id")),
+  match result.results {
+    Some(results) => {
+      if results.len() == 0 {
+        return Err(anyhow!("Client returned zero size results"));
+      }
+      for result in results {
+        match result.error {
+          Some(error) => return Err(anyhow!("Result error: {:?}", error)),
+          None => (),
+        }
+      }
+    }
+    None => return Err(anyhow!("Client has no results set")),
   }
+  Ok(())
 }
