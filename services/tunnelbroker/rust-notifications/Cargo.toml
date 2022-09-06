@@ -15,6 +15,7 @@ cxx = "1.0"
 log = "0.4"
 fcm = "0.9"
 anyhow = "1.0"
+openssl = { version = "0.10", features = ["vendored"] }
 
 [build-dependencies]
 cxx-build = "1.0"
