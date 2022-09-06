@@ -2,7 +2,7 @@ use a2::{
   Client, Endpoint, NotificationBuilder, NotificationOptions,
   PlainNotificationBuilder,
 };
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use std::fs::File;
 
 pub async fn send_by_a2_client(
@@ -11,7 +11,7 @@ pub async fn send_by_a2_client(
   device_token: &str,
   message: &str,
   sandbox: bool,
-) -> Result<u16> {
+) -> Result<()> {
   let mut certificate = File::open(certificate_path)?;
   let endpoint = if sandbox {
     Endpoint::Sandbox
@@ -26,5 +26,11 @@ pub async fn send_by_a2_client(
   let builder = PlainNotificationBuilder::new(message);
   let payload = builder.build(device_token, options);
   let response = client.send(payload).await?;
-  Ok(response.code)
+  if response.code != 200 {
+    return Err(anyhow!(
+      "Client returned HTTP error status code: {:?}",
+      response.code
+    ));
+  }
+  Ok(())
 }
