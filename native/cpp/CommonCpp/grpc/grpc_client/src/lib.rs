@@ -13,7 +13,8 @@ use tokio_stream::wrappers::ReceiverStream;
 use tonic::{transport::Channel, Request, Status};
 use tracing::{error, instrument};
 
-use ::identity::Cipher;
+mod opaque;
+use opaque::Cipher;
 
 use crate::identity::{
   identity_service_client::IdentityServiceClient,

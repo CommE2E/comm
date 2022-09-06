@@ -16,7 +16,10 @@ lazy_static = "1.4"
 rand = "0.8"
 opaque-ke = "1.2"
 tracing = "0.1"
-identity = {path = "../../../../../services/identity" }
+argon2 = "0.4"
+digest = "0.9"
+curve25519-dalek = "3.2"
+sha2 = "0.9"
 
 [build-dependencies]
 cxx-build = "1.0"
