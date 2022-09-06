@@ -23,6 +23,14 @@ const std::string ConfigManager::OPTION_DYNAMODB_SESSIONS_PUBLIC_KEY_TABLE =
     "dynamodb.sessions_public_key_table_name";
 const std::string ConfigManager::OPTION_DYNAMODB_MESSAGES_TABLE =
     "dynamodb.messages_table_name";
+const std::string ConfigManager::OPTION_NOTIFS_APNS_P12_CERT_PATH =
+    "notifications.apns_cert_path";
+const std::string ConfigManager::OPTION_NOTIFS_APNS_P12_CERT_PASSWORD =
+    "notifications.apns_cert_password";
+const std::string ConfigManager::OPTION_NOTIFS_APNS_TOPIC =
+    "notifications.apns_topic";
+const std::string ConfigManager::OPTION_NOTIFS_FCM_SERVER_KEY =
+    "notifications.fcm_server_key";
 
 ConfigManager &ConfigManager::getInstance() {
   static ConfigManager instance;
@@ -91,6 +99,23 @@ void ConfigManager::loadConfigFile(const std::string configFilePath) {
         boost::program_options::value<std::string>()->default_value(
             MESSAGES_TABLE_NAME),
         "DynamoDB table name for messages");
+
+    description.add_options()(
+        this->OPTION_NOTIFS_APNS_P12_CERT_PATH.c_str(),
+        boost::program_options::value<std::string>()->required(),
+        "P12 certificate path for iOS notifications");
+    description.add_options()(
+        this->OPTION_NOTIFS_APNS_P12_CERT_PASSWORD.c_str(),
+        boost::program_options::value<std::string>()->required(),
+        "P12 certificate password for iOS notifications");
+    description.add_options()(
+        this->OPTION_NOTIFS_APNS_TOPIC.c_str(),
+        boost::program_options::value<std::string>()->required(),
+        "APNs messages topic for iOS notifications");
+    description.add_options()(
+        this->OPTION_NOTIFS_FCM_SERVER_KEY.c_str(),
+        boost::program_options::value<std::string>()->required(),
+        "Firebase Cloud Messaging server key for Android notifications");
 
     boost::program_options::parsed_options parsedDescription =
         boost::program_options::parse_config_file(

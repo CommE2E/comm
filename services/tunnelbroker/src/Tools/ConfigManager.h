@@ -22,6 +22,10 @@ public:
   static const std::string OPTION_DYNAMODB_SESSIONS_VERIFICATION_TABLE;
   static const std::string OPTION_DYNAMODB_SESSIONS_PUBLIC_KEY_TABLE;
   static const std::string OPTION_DYNAMODB_MESSAGES_TABLE;
+  static const std::string OPTION_NOTIFS_APNS_P12_CERT_PATH;
+  static const std::string OPTION_NOTIFS_APNS_P12_CERT_PASSWORD;
+  static const std::string OPTION_NOTIFS_APNS_TOPIC;
+  static const std::string OPTION_NOTIFS_FCM_SERVER_KEY;
 
   static ConfigManager &getInstance();
   void load();
