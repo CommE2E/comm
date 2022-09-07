@@ -78,17 +78,8 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     blockQuote: {
       ...SimpleMarkdown.defaultRules.blockQuote,
       // match end of blockQuote by either \n\n or end of string
-      match: SimpleMarkdown.blockRegex(SharedMarkdown.blockQuoteRegex),
-      parse(
-        capture: SharedMarkdown.Capture,
-        parse: SharedMarkdown.Parser,
-        state: SharedMarkdown.State,
-      ) {
-        const content = capture[1].replace(/^ *> ?/gm, '');
-        return {
-          content: parse(content, state),
-        };
-      },
+      match: SharedMarkdown.matchBlockQuote(SharedMarkdown.blockQuoteRegex),
+      parse: SharedMarkdown.parseBlockQuote,
     },
     inlineCode: SimpleMarkdown.defaultRules.inlineCode,
     em: SimpleMarkdown.defaultRules.em,

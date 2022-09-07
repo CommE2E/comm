@@ -215,19 +215,10 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     blockQuote: {
       ...SimpleMarkdown.defaultRules.blockQuote,
       // match end of blockQuote by either \n\n or end of string
-      match: SimpleMarkdown.blockRegex(
+      match: SharedMarkdown.matchBlockQuote(
         SharedMarkdown.blockQuoteStripFollowingNewlineRegex,
       ),
-      parse(
-        capture: SharedMarkdown.Capture,
-        parse: SharedMarkdown.Parser,
-        state: SharedMarkdown.State,
-      ) {
-        const content = capture[1].replace(/^ *> ?/gm, '');
-        return {
-          content: parse(content, state),
-        };
-      },
+      parse: SharedMarkdown.parseBlockQuote,
       // eslint-disable-next-line react/display-name
       react: (
         node: SharedMarkdown.SingleASTNode,
