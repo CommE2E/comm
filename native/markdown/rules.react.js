@@ -8,7 +8,6 @@ import * as SimpleMarkdown from 'simple-markdown';
 
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import * as SharedMarkdown from 'lib/shared/markdown';
-import { maxNestedQuotations } from 'lib/shared/markdown';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
@@ -216,27 +215,17 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
     blockQuote: {
       ...SimpleMarkdown.defaultRules.blockQuote,
       // match end of blockQuote by either \n\n or end of string
-      match: (source: string, state: SharedMarkdown.State) => {
-        if (
-          state.quotationsDepth &&
-          state.quotationsDepth >= maxNestedQuotations
-        ) {
-          return null;
-        }
-        return SharedMarkdown.blockQuoteStripFollowingNewlineRegex.exec(source);
-      },
+      match: SimpleMarkdown.blockRegex(
+        SharedMarkdown.blockQuoteStripFollowingNewlineRegex,
+      ),
       parse(
         capture: SharedMarkdown.Capture,
         parse: SharedMarkdown.Parser,
         state: SharedMarkdown.State,
       ) {
         const content = capture[1].replace(/^ *> ?/gm, '');
-        const currentQuotationsDepth = state.quotationsDepth ?? 0;
         return {
-          content: parse(content, {
-            ...state,
-            quotationsDepth: currentQuotationsDepth + 1,
-          }),
+          content: parse(content, state),
         };
       },
       // eslint-disable-next-line react/display-name
