@@ -39,7 +39,7 @@
     "jsonwebtoken": "^8.5.1",
     "metro-react-native-babel-preset": "^0.66.2",
     "patch-package": "^6.4.7",
-    "pod-patch": "^0.0.9",
+    "pod-patch": "^0.0.10",
     "postinstall-postinstall": "^2.0.0",
     "react-native-codegen": "^0.0.13",
     "react-native-flipper": "^0.98.0",

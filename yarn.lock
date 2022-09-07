@@ -13570,10 +13570,10 @@ pngjs@^5.0.0:
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-5.0.0.tgz#e79dd2b215767fd9c04561c01236df960bce7fbb"
   integrity sha512-40QW5YalBNfQo5yRYmiw7Yz6TKKVr3h6970B2YE+3fQpsWcrbj1PzJgxeJ19DRQjhMbKPIuMY8rFaXc8moolVw==
 
-pod-patch@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/pod-patch/-/pod-patch-0.0.9.tgz#7e3078d14d72cbd43fa457ed0fd2b6db3ca1b78f"
-  integrity sha512-I5iY4U8CF6laUrqOlH+9VBqr8+iuXFNh4sAKD8vIpK+U66Wv6z35TqR+kMoBI5NtWFVSA7iCcJQ+0z4RMf+xZQ==
+pod-patch@^0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/pod-patch/-/pod-patch-0.0.10.tgz#997f1ffc29ed127d96d56165c24620f9c637d808"
+  integrity sha512-ACuBLhO3lcDqjqZvJYlk5VBJ0QR/WUv9Jo81Yr2wK6YfzQOSUkHJJRAd9FDuKd1tMVPrFOr/7FCIzbDqvpY5iQ==
 
 portfinder@^1.0.26:
   version "1.0.28"
