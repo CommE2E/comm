@@ -18,6 +18,7 @@ import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import {
   useExistingThreadInfoFinder,
   pendingThreadType,
+  threadIsPending,
 } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
@@ -261,6 +262,11 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo
       threadInfo,
       'threadInfo must be specified in messageListContainer',
     );
+    React.useEffect(() => {
+      if (!threadIsPending(threadInfo.id) && !isSearching) {
+        setBaseThreadInfo(threadInfo);
+      }
+    }, [isSearching, threadInfo]);
 
     const inputState = React.useContext(InputStateContext);
     invariant(inputState, 'inputState should be set in MessageListContainer');
