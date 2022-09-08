@@ -1,5 +1,6 @@
 // @flow
 
+import { useNavigationState } from '@react-navigation/native';
 import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
@@ -29,6 +30,7 @@ import {
   type OverlayContextType,
 } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
+import { ThreadSettingsRouteName } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
 import type { ChatMessageItemWithHeight } from '../types/chat-types';
@@ -262,14 +264,28 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo
       'threadInfo must be specified in messageListContainer',
     );
 
+    const { setParams } = props.navigation;
+    const navigationStack = useNavigationState(state => state.routes);
+    React.useEffect(() => {
+      const topRoute = navigationStack[navigationStack.length - 1];
+      if (topRoute?.name !== ThreadSettingsRouteName) {
+        return;
+      }
+      setBaseThreadInfo(threadInfo);
+      if (isSearching) {
+        setParams({
+          searching: false,
+          threadInfo,
+        });
+      }
+    }, [isSearching, navigationStack, setParams, threadInfo]);
+
     const inputState = React.useContext(InputStateContext);
     invariant(inputState, 'inputState should be set in MessageListContainer');
     const hideSearch = React.useCallback(() => {
       setBaseThreadInfo(threadInfo);
-      props.navigation.setParams({
-        searching: false,
-      });
-    }, [props.navigation, threadInfo]);
+      setParams({ searching: false, threadInfo });
+    }, [setParams, threadInfo]);
     React.useEffect(() => {
       if (!isSearching) {
         return;
@@ -278,7 +294,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo
       return () => inputState.unregisterSendCallback(hideSearch);
     }, [hideSearch, inputState, isSearching]);
 
-    const { setParams } = props.navigation;
     React.useEffect(() => {
       setParams({ threadInfo });
     }, [setParams, threadInfo]);
