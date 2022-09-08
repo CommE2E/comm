@@ -734,12 +734,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
       if (processedMedia.mediaType === 'video') {
         invariant(uploadThumbnailResult, 'uploadThumbnailResult exists');
-        const { uri: thumbnailURI } = uploadThumbnailResult;
+        const { uri: thumbnailURI, id: thumbnailID } = uploadThumbnailResult;
         updateMediaPayload = {
           ...updateMediaPayload,
           mediaUpdate: {
             ...updateMediaPayload.mediaUpdate,
             thumbnailURI,
+            thumbnailID,
           },
         };
       }
