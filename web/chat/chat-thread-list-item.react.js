@@ -33,7 +33,6 @@ function ChatThreadListItem(props: Props): React.Node {
   const { id: threadID, currentUser } = threadInfo;
 
   const ancestorThreads = useAncestorThreads(threadInfo);
-  const onClick = useOnClickThread(item.threadInfo);
 
   const timeZone = useSelector(state => state.timeZone);
   const lastActivity = shortAbsoluteDate(
@@ -42,6 +41,21 @@ function ChatThreadListItem(props: Props): React.Node {
   );
 
   const active = useThreadIsActive(threadID);
+  const isCreateMode = useSelector(
+    state => state.navInfo.chatMode === 'create',
+  );
+
+  const onClick = useOnClickThread(item.threadInfo);
+
+  const selectItemIfNotActiveCreation = React.useCallback(
+    (event: SyntheticEvent<HTMLAnchorElement>) => {
+      if (!isCreateMode || !active) {
+        onClick(event);
+      }
+    },
+    [isCreateMode, active, onClick],
+  );
+
   const containerClassName = React.useMemo(
     () =>
       classNames({
@@ -130,7 +144,10 @@ function ChatThreadListItem(props: Props): React.Node {
 
   return (
     <>
-      <div className={containerClassName} onClick={onClick}>
+      <div
+        className={containerClassName}
+        onClick={selectItemIfNotActiveCreation}
+      >
         <div className={css.colorContainer}>
           <div className={css.colorSplotchContainer}>
             <div className={css.dotContainer}>{unreadDot}</div>

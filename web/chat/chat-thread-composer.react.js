@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
+import { threadIsPending } from 'lib/shared/thread-utils';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
 import Label from '../components/label.react';
@@ -21,6 +22,10 @@ type Props = {
   +threadID: string,
   +inputState: InputState,
 };
+
+type ActiveThreadBehavior =
+  | 'reset-active-thread-if-pending'
+  | 'keep-active-thread';
 
 function ChatThreadComposer(props: Props): React.Node {
   const { userInfoInputArray, otherUserInfos, threadID, inputState } = props;
@@ -105,15 +110,26 @@ function ChatThreadComposer(props: Props): React.Node {
     usernameInputText,
   ]);
 
-  const hideSearch = React.useCallback(() => {
-    dispatch({
-      type: updateNavInfoActionType,
-      payload: {
-        chatMode: 'view',
-        activeChatThreadID: threadID,
-      },
-    });
-  }, [dispatch, threadID]);
+  const hideSearch = React.useCallback(
+    (threadBehavior: ActiveThreadBehavior = 'keep-active-thread') => {
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          chatMode: 'view',
+          activeChatThreadID:
+            threadBehavior === 'keep-active-thread' ||
+            !threadIsPending(threadID)
+              ? threadID
+              : null,
+        },
+      });
+    },
+    [dispatch, threadID],
+  );
+
+  const onCloseSearch = React.useCallback(() => {
+    hideSearch('reset-active-thread-if-pending');
+  }, [hideSearch]);
 
   const tagsList = React.useMemo(() => {
     if (!userInfoInputArray?.length) {
@@ -155,7 +171,7 @@ function ChatThreadComposer(props: Props): React.Node {
             placeholder="Select users for chat"
           />
         </div>
-        <div className={css.closeSearch} onClick={hideSearch}>
+        <div className={css.closeSearch} onClick={onCloseSearch}>
           <SWMansionIcon size={25} icon="cross" />
         </div>
       </div>

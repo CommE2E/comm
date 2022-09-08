@@ -140,24 +140,22 @@ function useOnClickThread(
       );
       event.preventDefault();
       const { id: threadID } = thread;
+
+      let payload;
       if (threadID.includes('pending')) {
-        dispatch({
-          type: updateNavInfoActionType,
-          payload: {
-            chatMode: 'view',
-            activeChatThreadID: threadID,
-            pendingThread: thread,
-          },
-        });
+        payload = {
+          chatMode: 'view',
+          activeChatThreadID: threadID,
+          pendingThread: thread,
+        };
       } else {
-        dispatch({
-          type: updateNavInfoActionType,
-          payload: {
-            chatMode: 'view',
-            activeChatThreadID: threadID,
-          },
-        });
+        payload = {
+          chatMode: 'view',
+          activeChatThreadID: threadID,
+        };
       }
+
+      dispatch({ type: updateNavInfoActionType, payload });
     },
     [dispatch, thread],
   );
