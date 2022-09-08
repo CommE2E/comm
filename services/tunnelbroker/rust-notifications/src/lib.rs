@@ -14,6 +14,7 @@ mod ffi {
       certificate_path: &str,
       certificate_password: &str,
       device_token: &str,
+      topic: &str,
       message: &str,
       sandbox: bool,
     ) -> Result<u16>;
@@ -40,6 +41,7 @@ pub fn send_notif_to_apns(
   certificate_path: &str,
   certificate_password: &str,
   device_token: &str,
+  topic: &str,
   message: &str,
   sandbox: bool,
 ) -> Result<u16> {
@@ -47,6 +49,7 @@ pub fn send_notif_to_apns(
     certificate_path,
     certificate_password,
     device_token,
+    topic,
     message,
     sandbox,
   ))

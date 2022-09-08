@@ -9,6 +9,7 @@ pub async fn send_by_a2_client(
   certificate_path: &str,
   certificate_password: &str,
   device_token: &str,
+  topic: &str,
   message: &str,
   sandbox: bool,
 ) -> Result<u16> {
@@ -21,6 +22,7 @@ pub async fn send_by_a2_client(
   let client =
     Client::certificate(&mut certificate, certificate_password, endpoint)?;
   let options = NotificationOptions {
+    apns_topic: Some(topic),
     ..Default::default()
   };
   let builder = PlainNotificationBuilder::new(message);
