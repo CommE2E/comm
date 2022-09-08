@@ -26,7 +26,8 @@ pub async fn send_by_a2_client(
     ..Default::default()
   };
   let builder = PlainNotificationBuilder::new(message);
-  let payload = builder.build(device_token, options);
+  let mut payload = builder.build(device_token, options);
+  payload.aps.content_available = Some(1);
   let response = client.send(payload).await?;
   Ok(response.code)
 }
