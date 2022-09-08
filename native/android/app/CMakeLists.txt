@@ -19,7 +19,10 @@ cmake_minimum_required(VERSION 3.18)
 # Gradle automatically packages shared libraries with your APK.
 set(PACKAGE_NAME "comm_jni_module")
 
-find_package(fbjni REQUIRED CONFIG)
+find_package(fbjni
+  NAMES fbjni fbjniLibrary
+  REQUIRED CONFIG
+)
 
 set(BUILD_TESTING OFF)
 set(HAVE_SYMBOLIZE OFF)
@@ -56,7 +59,7 @@ set(AR $ENV{ANDROID_HOME}/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/${CMAKE_HO
 FetchContent_Declare(
     Corrosion
     GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-    GIT_TAG v0.2.1
+    GIT_TAG v0.2.2
 )
 
 FetchContent_MakeAvailable(Corrosion)
@@ -83,6 +86,11 @@ add_subdirectory(${_third_party_dir}/grpc/grpc-${GRPC_VERSION}/
 )
 add_subdirectory(${_third_party_dir}/glog/glog-${GLOG_VERSION}/)
 add_subdirectory(../../node_modules/olm ./build)
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../cpp/CommonCpp
+  ${CMAKE_CURRENT_BINARY_DIR}/CommonCpp
+  EXCLUDE_FROM_ALL
+)
 
 set(_node_modules_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../node_modules)
 set(_react_native_dir ${_node_modules_dir}/react-native)
@@ -138,7 +146,6 @@ include_directories(
 file(GLOB SQLCIPHER
   "${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src/*.c"
 )
-file(GLOB_RECURSE COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
 file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES
   "${_third_party_dir}/double-conversion/double-conversion/*.cc"
@@ -192,7 +199,6 @@ add_library(
 
   # comm code
   ${ANDROID_NATIVE_CODE}
-  ${COMMON_NATIVE_CODE}
 )
 
 add_definitions(
