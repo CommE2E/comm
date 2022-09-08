@@ -15,7 +15,7 @@ import { createSelector } from 'reselect';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
-  sendMultimediaMessage,
+  legacySendMultimediaMessage,
   sendTextMessageActionTypes,
   sendTextMessage,
 } from 'lib/actions/message-actions';
@@ -1245,7 +1245,9 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const callUploadMultimedia = useServerCall(uploadMultimedia);
     const callDeleteUpload = useServerCall(deleteUpload);
-    const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
+    const callSendMultimediaMessage = useServerCall(
+      legacySendMultimediaMessage,
+    );
     const callSendTextMessage = useServerCall(sendTextMessage);
     const callNewThread = useServerCall(newThread);
     const dispatch = useDispatch();

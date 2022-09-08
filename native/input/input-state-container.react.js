@@ -10,7 +10,7 @@ import { createSelector } from 'reselect';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
-  sendMultimediaMessage,
+  legacySendMultimediaMessage,
   sendTextMessageActionTypes,
   sendTextMessage,
 } from 'lib/actions/message-actions';
@@ -1382,7 +1382,9 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
     const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
     const calendarQuery = useCalendarQuery();
     const callUploadMultimedia = useServerCall(uploadMultimedia);
-    const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
+    const callSendMultimediaMessage = useServerCall(
+      legacySendMultimediaMessage,
+    );
     const callSendTextMessage = useServerCall(sendTextMessage);
     const callNewThread = useServerCall(newThread);
     const dispatchActionPromise = useDispatchActionPromise();
