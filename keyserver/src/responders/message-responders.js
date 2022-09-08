@@ -16,7 +16,7 @@ import {
 import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
-import { tShape } from 'lib/utils/validation-utils';
+import { tShape, tMediaMessageMedia } from 'lib/utils/validation-utils';
 
 import createMessages from '../creators/message-creator';
 import {
@@ -89,11 +89,18 @@ async function messageFetchResponder(
   return { ...response, userInfos: {} };
 }
 
-const sendMultimediaMessageRequestInputValidator = tShape({
-  threadID: t.String,
-  localID: t.String,
-  mediaIDs: t.list(t.String),
-});
+const sendMultimediaMessageRequestInputValidator = t.union([
+  tShape({
+    threadID: t.String,
+    localID: t.String,
+    mediaIDs: t.list(t.String),
+  }),
+  tShape({
+    threadID: t.String,
+    localID: t.String,
+    mediaMessageContents: t.list(tMediaMessageMedia),
+  }),
+]);
 async function multimediaMessageCreationResponder(
   viewer: Viewer,
   input: any,
