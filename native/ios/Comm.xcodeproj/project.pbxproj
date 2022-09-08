@@ -176,6 +176,8 @@
 		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
 		891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
+		8B15717928CA36B400209C6A /* lib.rs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lib.rs.h; path = grpc_client/lib.rs.h; sourceTree = "<group>"; };
+		8B15717B28CA442C00209C6A /* cxx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cxx.h; path = grpc_client/cxx.h; sourceTree = "<group>"; };
 		8B3EE8BD28C7C3AA00C8303A /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lib.rs.cc; path = grpc_client/lib.rs.cc; sourceTree = "<group>"; };
 		8BF9F24C28B7943000E20C13 /* libgrpc_client.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgrpc_client.a; path = ../cpp/CommonCpp/grpc/grpc_client/target/universal/release/libgrpc_client.a; sourceTree = "<group>"; };
 		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
@@ -313,6 +315,8 @@
 		718A3C0426F22BD100F04A8D /* grpc */ = {
 			isa = PBXGroup;
 			children = (
+				8B15717B28CA442C00209C6A /* cxx.h */,
+				8B15717928CA36B400209C6A /* lib.rs.h */,
 				8B3EE8BD28C7C3AA00C8303A /* lib.rs.cc */,
 				71009A7926FDCD71002C8453 /* Client.cpp */,
 				71009A7A26FDCD71002C8453 /* Client.h */,
@@ -879,7 +883,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\nset -x\n# The $PATH used by Xcode likely won't contain Cargo, fix that.\n# In addition, the $PATH used by XCode has lots of Apple-specific\n# developer tools that your Cargo isn't expecting to use, fix that.\n# Note: This assumes a default `rustup` setup and default path.\nbuild_path=\"$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin\"\n# cd to Cargo project\ncd ${SRCROOT}/../cpp/CommonCpp/grpc/grpc_client\n# Add iOS targets for cross-compilation\nenv PATH=\"${build_path}\" rustup target add aarch64-apple-ios\nenv PATH=\"${build_path}\" rustup target add x86_64-apple-ios\n# Install cargo lipo\nenv PATH=\"${build_path}\" cargo install cargo-lipo\n# Build cxx bridge\nenv PATH=\"${build_path}\" cargo build\n# Build universal static library (works on simulator and iOS)\nenv PATH=\"${build_path}\" cargo lipo --release \"${build_args[@]}\"\n# Copy the .cc file to the cargo project root to make it available\n# to XCode\ncp $(readlink target/cxxbridge/grpc_client/src/lib.rs.cc) .\n";
+			shellScript = "#!/bin/bash\nset -x\n# The $PATH used by Xcode likely won't contain Cargo, fix that.\n# In addition, the $PATH used by XCode has lots of Apple-specific\n# developer tools that your Cargo isn't expecting to use, fix that.\n# Note: This assumes a default `rustup` setup and default path.\nbuild_path=\"$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin\"\n# cd to Cargo project\ncd ${SRCROOT}/../cpp/CommonCpp/grpc/grpc_client\n# Add iOS targets for cross-compilation\nenv PATH=\"${build_path}\" rustup target add aarch64-apple-ios\nenv PATH=\"${build_path}\" rustup target add x86_64-apple-ios\n# Install cargo lipo\nenv PATH=\"${build_path}\" cargo install cargo-lipo\n# Build cxx bridge\nenv PATH=\"${build_path}\" cargo build\n# Build universal static library (works on simulator and iOS)\nenv PATH=\"${build_path}\" cargo lipo --release \"${build_args[@]}\"\n# Copy the CXX files to the cargo project root to make them\n# available to XCode\ncp $(readlink target/cxxbridge/grpc_client/src/lib.rs.cc) .\ncp $(readlink target/cxxbridge/grpc_client/src/lib.rs.h) .\ncp $(readlink target/cxxbridge/rust/cxx.h) .\n";
 		};
 		8BFD334828CBC1910091411F /* Clean up generated CXX files */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1114,7 +1118,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
-					"$(SRCROOT)/../cpp/CommonCpp/grpc/grpc_client/target/cxxbridge/**",
+					"$(SRCROOT)/../cpp/CommonCpp/grpc/grpc_client",
 				);
 				INFOPLIST_FILE = Comm/Info.debug.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1259,7 +1263,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
-					"$(SRCROOT)/../cpp/CommonCpp/grpc/grpc_client/target/cxxbridge/**",
+					"$(SRCROOT)/../cpp/CommonCpp/grpc/grpc_client",
 				);
 				INFOPLIST_FILE = Comm/Info.release.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1485,7 +1489,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Comm Technologies, Inc. All rights reserved.";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 1.0.146;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1535,7 +1543,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = NotificationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 Comm Technologies, Inc. All rights reserved.";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 1.0.146;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
