@@ -118,6 +118,7 @@ async function legacyMultimediaMessageCreationResponder(
   viewer: Viewer,
   request: SendMultimediaMessageRequest,
 ): Promise<SendMessageResponse> {
+  invariant(request.mediaIDs);
   const { threadID, localID, mediaIDs } = request;
   if (mediaIDs.length === 0) {
     throw new ServerError('invalid_parameters');
