@@ -132,26 +132,20 @@ pub fn get_client_initialize_cxx(
 
 pub fn get_client_blocking_read_cxx(
   holder_char: *const c_char,
-) -> Result<Vec<u8>, String> {
-  let holder = c_char_pointer_to_string(holder_char)?;
-  check_error(&ERROR_MESSAGES)?;
-  let response: Option<Vec<u8>> = RUNTIME.block_on(async {
+) -> anyhow::Result<Vec<u8>, anyhow::Error> {
+  let holder = c_char_pointer_to_string_new(holder_char)?;
+  Ok(RUNTIME.block_on(async {
     if let Ok(mut clients) = CLIENTS.lock() {
-      let maybe_client = clients.get_mut(&holder);
-      if let Some(client) = maybe_client {
+      if let Some(client) = clients.get_mut(&holder) {
         let maybe_data = client.rx.recv().await;
-        let response = Some(maybe_data.unwrap_or_else(|| vec![]));
-        return response;
+        return Ok(maybe_data.unwrap_or_else(|| vec![]));
       } else {
-        report_error(&ERROR_MESSAGES, "no client present", Some("get"));
+        bail!(format!("no client present for {}", holder));
       }
     } else {
-      report_error(&ERROR_MESSAGES, "couldn't access client", Some("get"));
+      bail!("couldn't access client");
     }
-    None
-  });
-  check_error(&ERROR_MESSAGES)?;
-  response.ok_or("response could not be obtained".to_string())
+  })?)
 }
 
 pub fn get_client_terminate_cxx(
