@@ -9,8 +9,10 @@ use proto::PutRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
 use crate::tools::{
-  c_char_pointer_to_string, check_error, report_error, string_to_c_char_pointer,
+  c_char_pointer_to_string, c_char_pointer_to_string_new, check_error,
+  report_error, string_to_c_char_pointer, string_to_c_char_pointer_new,
 };
+use anyhow::bail;
 use crate::RUNTIME;
 use lazy_static::lazy_static;
 use libc;
@@ -53,13 +55,19 @@ fn is_initialized(holder: &str) -> bool {
   }
 }
 
+fn is_initialized_new(holder: &str) -> anyhow::Result<bool, anyhow::Error> {
+  return Ok(match CLIENTS.lock() {
+    Ok(clients) => clients.contains_key(holder),
+    _ => {
+      bail!("couldn't access client");
+    }
+  });
+}
+
 pub fn put_client_initialize_cxx(
   holder_char: *const c_char,
 ) -> Result<(), String> {
   let holder = c_char_pointer_to_string(holder_char)?;
-  if is_initialized(&holder) {
-    put_client_terminate_cxx(string_to_c_char_pointer(&holder)?)?;
-  }
   assert!(
     !is_initialized(&holder),
     "client cannot be initialized twice"
@@ -271,11 +279,9 @@ pub fn put_client_write_cxx(
 
 pub fn put_client_terminate_cxx(
   holder_char: *const c_char,
-) -> Result<(), String> {
-  let holder = c_char_pointer_to_string(holder_char)?;
-  check_error(&ERROR_MESSAGES)?;
-  if !is_initialized(&holder) {
-    check_error(&ERROR_MESSAGES)?;
+) -> anyhow::Result<(), anyhow::Error> {
+  let holder = c_char_pointer_to_string_new(holder_char)?;
+  if !is_initialized_new(&holder)? {
     return Ok(());
   }
 
@@ -285,24 +291,19 @@ pub fn put_client_terminate_cxx(
       drop(client.tx);
       RUNTIME.block_on(async {
         if client.rx_handle.await.is_err() {
-          report_error(
-            &ERROR_MESSAGES,
-            "wait for receiver handle failed",
-            Some("put"),
-          );
+          bail!(format!("awaiting for the client {} failed", holder));
         }
-      });
+        Ok(())
+      })?;
     } else {
-      return Err("no client detected in terminate".to_string());
+      bail!("no client detected in terminate");
     }
   } else {
-    return Err("couldn't access client".to_string());
+    bail!("couldn't access client");
   }
 
-  assert!(
-    !is_initialized(&holder),
-    "client transmitter handler released properly"
-  );
-  check_error(&ERROR_MESSAGES)?;
+  if is_initialized_new(&holder)? {
+    bail!("client transmitter handler released properly");
+  }
   Ok(())
 }
