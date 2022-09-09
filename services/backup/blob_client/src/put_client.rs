@@ -133,7 +133,7 @@ pub fn put_client_initialize_cxx(
               Ok(maybe_response_message) => {
                 let mut result = false;
                 if let Some(response_message) = maybe_response_message {
-                  // warning: this will produce an error if there's more unread 
+                  // warning: this will produce an error if there's more unread
                   // responses than MPSC_CHANNEL_BUFFER_CAPACITY
                   // you should then use put_client_blocking_read_cxx in order
                   // to dequeue the responses in c++ and make room for more
@@ -205,7 +205,11 @@ pub fn put_client_blocking_read_cxx(
           );
         }
       } else {
-        report_error(&ERROR_MESSAGES, "no client detected in blocking read", Some("put"));
+        report_error(
+          &ERROR_MESSAGES,
+          "no client detected in blocking read",
+          Some("put"),
+        );
       }
     } else {
       report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
@@ -252,7 +256,11 @@ pub fn put_client_write_cxx(
           ),
         }
       } else {
-        report_error(&ERROR_MESSAGES, "no client detected in write", Some("put"));
+        report_error(
+          &ERROR_MESSAGES,
+          "no client detected in write",
+          Some("put"),
+        );
       }
     } else {
       report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
