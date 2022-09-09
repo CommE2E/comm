@@ -6,9 +6,7 @@ use proto::blob_service_client::BlobServiceClient;
 use proto::GetRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
-use crate::tools::{
-  c_char_pointer_to_string, string_to_c_char_pointer,
-};
+use crate::tools::{c_char_pointer_to_string, string_to_c_char_pointer};
 use anyhow::bail;
 use crate::RUNTIME;
 use lazy_static::lazy_static;
