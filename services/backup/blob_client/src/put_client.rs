@@ -8,7 +8,6 @@ use proto::put_request::Data::*;
 use proto::PutRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
-use crate::tools::{c_char_pointer_to_string, string_to_c_char_pointer};
 use anyhow::bail;
 use crate::RUNTIME;
 use lazy_static::lazy_static;
@@ -50,11 +49,10 @@ fn is_initialized(holder: &str) -> anyhow::Result<bool, anyhow::Error> {
 }
 
 pub fn put_client_initialize_cxx(
-  holder_char: *const c_char,
+  holder: &str,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string(holder_char)?;
   if is_initialized(&holder)? {
-    put_client_terminate_cxx(string_to_c_char_pointer(&holder)?)?;
+    put_client_terminate_cxx(&holder.to_string())?;
   }
   if is_initialized(&holder)? {
     bail!("client cannot be initialized twice");
@@ -159,7 +157,7 @@ pub fn put_client_initialize_cxx(
         rx: response_thread_rx,
         rx_handle,
       };
-      (*clients).insert(holder, client);
+      (*clients).insert(holder.to_string(), client);
       return Ok(());
     }
     bail!(format!("could not access client for holder {}", holder));
@@ -168,12 +166,11 @@ pub fn put_client_initialize_cxx(
 }
 
 pub fn put_client_blocking_read_cxx(
-  holder_char: *const c_char,
+  holder: &str,
 ) -> anyhow::Result<String, anyhow::Error> {
-  let holder = c_char_pointer_to_string(holder_char)?;
   Ok(RUNTIME.block_on(async {
     if let Ok(mut clients) = CLIENTS.lock() {
-      let maybe_client = clients.get_mut(&holder);
+      let maybe_client = clients.get_mut(holder);
       if let Some(client) = maybe_client {
         if let Some(data) = client.rx.recv().await {
           return Ok(data);
@@ -199,17 +196,16 @@ pub fn put_client_blocking_read_cxx(
  * 3 - data chunk (bytes)
  */
 pub fn put_client_write_cxx(
-  holder_char: *const c_char,
+  holder: &str,
   field_index: usize,
   data: *const c_char,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string(holder_char)?;
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
 
   RUNTIME.block_on(async {
     if let Ok(clients) = CLIENTS.lock() {
-      let maybe_client = clients.get(&holder);
+      let maybe_client = clients.get(&holder.to_string());
       if let Some(client) = maybe_client {
         client
           .tx
@@ -229,15 +225,14 @@ pub fn put_client_write_cxx(
 }
 
 pub fn put_client_terminate_cxx(
-  holder_char: *const c_char,
+  holder: &str,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string(holder_char)?;
   if !is_initialized(&holder)? {
     return Ok(());
   }
 
   if let Ok(mut clients) = CLIENTS.lock() {
-    let maybe_client = clients.remove(&holder);
+    let maybe_client = clients.remove(&holder.to_string());
     if let Some(client) = maybe_client {
       drop(client.tx);
       RUNTIME.block_on(async { client.rx_handle.await? })?;

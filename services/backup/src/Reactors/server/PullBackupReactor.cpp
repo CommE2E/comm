@@ -19,7 +19,7 @@ void PullBackupReactor::initializeGetReactor(const std::string &holder) {
     throw std::runtime_error(
         "get reactor cannot be initialized when backup item is missing");
   }
-  get_client_initialize_cxx(holder.c_str());
+  get_client_initialize_cxx(rust::String(holder));
   this->clientInitialized = true;
 }
 
