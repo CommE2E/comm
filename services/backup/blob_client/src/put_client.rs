@@ -9,8 +9,7 @@ use proto::PutRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
 use crate::tools::{
-  c_char_pointer_to_string, c_char_pointer_to_string_new, check_error,
-  report_error, string_to_c_char_pointer, string_to_c_char_pointer_new,
+  c_char_pointer_to_string, c_char_pointer_to_string_new, report_error, string_to_c_char_pointer_new,
 };
 use anyhow::bail;
 use crate::RUNTIME;
@@ -195,36 +194,24 @@ pub fn put_client_initialize_cxx(
 
 pub fn put_client_blocking_read_cxx(
   holder_char: *const c_char,
-) -> Result<String, String> {
-  let holder = c_char_pointer_to_string(holder_char)?;
-  check_error(&ERROR_MESSAGES)?;
-  let response: Option<String> = RUNTIME.block_on(async {
+) -> anyhow::Result<String, anyhow::Error> {
+  let holder = c_char_pointer_to_string_new(holder_char)?;
+  Ok(RUNTIME.block_on(async {
     if let Ok(mut clients) = CLIENTS.lock() {
       let maybe_client = clients.get_mut(&holder);
       if let Some(client) = maybe_client {
         if let Some(data) = client.rx.recv().await {
-          return Some(data);
+          return Ok(data);
         } else {
-          report_error(
-            &ERROR_MESSAGES,
-            "couldn't receive data via client's receiver",
-            Some("put"),
-          );
+          bail!("couldn't receive data via client's receiver");
         }
       } else {
-        report_error(
-          &ERROR_MESSAGES,
-          "no client detected in blocking read",
-          Some("put"),
-        );
+        bail!(format!("no client detected for {} in blocking read", holder));
       }
     } else {
-      report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
+      bail!("couldn't access clients");
     }
-    None
-  });
-  check_error(&ERROR_MESSAGES)?;
-  response.ok_or("response not received properly".to_string())
+  })?)
 }
 
 /**
