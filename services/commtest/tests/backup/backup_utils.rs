@@ -68,10 +68,6 @@ pub fn compare_backups(backup_data: &BackupData, result: &BackupData) {
   );
 
   // check log sizes
-  for i in 0..backup_data.log_items.len() {
-    let expected: usize = backup_data.log_items[i].chunks_sizes.iter().sum();
-  }
-
   // map<log_id, chunks_sizes>
   let mut expected_log_map: HashMap<String, usize> = HashMap::new();
   let mut result_log_map: HashMap<String, usize> = HashMap::new();
