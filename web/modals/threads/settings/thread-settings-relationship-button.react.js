@@ -12,7 +12,10 @@ import {
   getRelationshipDispatchAction,
 } from 'lib/shared/relationship-utils';
 import type { SetState } from 'lib/types/hook-types';
-import { type RelationshipButton } from 'lib/types/relationship-types';
+import {
+  relationshipButtons,
+  type RelationshipButton,
+} from 'lib/types/relationship-types';
 import type { UserInfo } from 'lib/types/user-types';
 import {
   useDispatchActionPromise,
@@ -39,6 +42,23 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
 
   const { username } = otherUserInfo;
   invariant(username, 'Other username should be specified');
+
+  let variant = 'primary';
+  if (relationshipButton === relationshipButtons.FRIEND) {
+    variant = 'success';
+  } else if (relationshipButton === relationshipButtons.UNFRIEND) {
+    variant = 'danger';
+  } else if (relationshipButton === relationshipButtons.BLOCK) {
+    variant = 'danger';
+  } else if (relationshipButton === relationshipButtons.UNBLOCK) {
+    variant = 'success';
+  } else if (relationshipButton === relationshipButtons.ACCEPT) {
+    variant = 'success';
+  } else if (relationshipButton === relationshipButtons.REJECT) {
+    variant = 'danger';
+  } else if (relationshipButton === relationshipButtons.WITHDRAW) {
+    variant = 'danger';
+  }
 
   const { text, action } = React.useMemo(() => {
     return {
@@ -70,7 +90,7 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
   }, [dispatchActionPromise, updateRelationshipsActionPromise]);
 
   return (
-    <Button variant="primary" onClick={onClick} disabled={disabled}>
+    <Button variant={variant} onClick={onClick} disabled={disabled}>
       {text}
     </Button>
   );
