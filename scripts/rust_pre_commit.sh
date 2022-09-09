@@ -3,19 +3,19 @@
 set -e
 
 # shellcheck source=/dev/null
-source "$HOME"/.cargo/env 
+[[ -r "$HOME"/.cargo/env ]] && source "$HOME"/.cargo/env
 
 PATHS="services/commtest"
 
-cargo > /dev/null
+command -v cargo > /dev/null
 
-for PATH in $PATHS; do
-  pushd "$PATH"
-  echo "formatting $PATH..."
+for directory in $PATHS; do
+  pushd "$directory"
+  echo "formatting ${directory}..."
   cargo fmt --all -- --check
-  echo "checking $PATH..."
+  echo "checking ${directory}..."
   cargo check
-  popd # $PATH
+  popd # $directory
 done
 
 echo "done formatting"
