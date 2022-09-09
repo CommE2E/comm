@@ -23,7 +23,7 @@ add_library(comm-services-common
 
 find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
 find_package(Boost 1.40 COMPONENTS program_options REQUIRED)
-find_package(protobuf REQUIRED)
+find_package(Protobuf REQUIRED)
 find_package(glog REQUIRED)
 find_package(gRPC REQUIRED)
 
