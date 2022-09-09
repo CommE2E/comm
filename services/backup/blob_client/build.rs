@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   ) {
     "../grpc"
   } else {
-    "../../../native/cpp/CommonCpp/grpc/protos"
+    "../../../shared/protos"
   };
 
   tonic_build::compile_protos(format!("{}/blob.proto", proto_path))?;
