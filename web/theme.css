@@ -66,6 +66,9 @@
   --btn-bg-secondary: var(--shades-black-90);
   --btn-bg-secondary-hover: var(--shades-black-80);
   --btn-bg-secondary-disabled: var(--shades-black-90);
+  --btn-bg-success: var(--success-dark-50);
+  --btn-bg-success-hover: var(--success-dark-90);
+  --btn-bg-success-disabled: var(--shades-black-80);
   --btn-bg-danger: var(--error-primary);
   --btn-bg-danger-hover: var(--error-dark-50);
   --btn-bg-danger-disabled: var(--shades-black-80);

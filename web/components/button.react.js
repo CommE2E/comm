@@ -5,7 +5,12 @@ import * as React from 'react';
 
 import css from './button.css';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'round';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'success'
+  | 'danger'
+  | 'round';
 
 type Props = {
   +onClick: (event: SyntheticEvent<HTMLButtonElement>) => mixed,

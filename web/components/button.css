@@ -47,6 +47,19 @@
   background: var(--btn-bg-secondary-disabled);
 }
 
+.success {
+  background: var(--btn-bg-success);
+  color: var(--fg);
+}
+
+.success:hover {
+  background: var(--btn-bg-success-hover);
+}
+
+.success:disabled {
+  background: var(--btn-bg-success-disabled);
+}
+
 .danger {
   background: var(--btn-bg-danger);
   color: var(--fg);
