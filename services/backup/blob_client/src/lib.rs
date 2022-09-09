@@ -1,7 +1,6 @@
 mod constants;
 mod get_client;
 mod put_client;
-mod tools;
 
 use lazy_static::lazy_static;
 use tokio::runtime;
@@ -24,28 +23,28 @@ lazy_static! {
 #[cxx::bridge]
 mod ffi {
   extern "Rust" {
-    unsafe fn put_client_initialize_cxx(
-      holder_char: *const c_char,
+    fn put_client_initialize_cxx(
+      holder_char: &str,
     ) -> Result<()>;
     unsafe fn put_client_write_cxx(
-      holder_char: *const c_char,
+      holder_char: &str,
       field_index: usize,
       data: *const c_char,
     ) -> Result<()>;
-    unsafe fn put_client_blocking_read_cxx(
-      holder_char: *const c_char,
+    fn put_client_blocking_read_cxx(
+      holder_char: &str,
     ) -> Result<String>;
-    unsafe fn put_client_terminate_cxx(
-      holder_char: *const c_char,
+    fn put_client_terminate_cxx(
+      holder_char: &str,
     ) -> Result<()>;
-    unsafe fn get_client_initialize_cxx(
-      holder_char: *const c_char,
+    fn get_client_initialize_cxx(
+      holder_char: &str,
     ) -> Result<()>;
-    unsafe fn get_client_blocking_read_cxx(
-      holder_char: *const c_char,
+    fn get_client_blocking_read_cxx(
+      holder_char: &str,
     ) -> Result<Vec<u8>>;
-    unsafe fn get_client_terminate_cxx(
-      holder_char: *const c_char,
+    fn get_client_terminate_cxx(
+      holder_char: &str,
     ) -> Result<()>;
   }
 }

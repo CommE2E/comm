@@ -43,7 +43,7 @@ void SendLogReactor::initializePutClient() {
     throw std::runtime_error(
         "put reactor cannot be initialized with empty hash");
   }
-  put_client_initialize_cxx(this->blobHolder.c_str());
+  put_client_initialize_cxx(rust::String(this->blobHolder));
 }
 
 std::unique_ptr<grpc::Status>
@@ -98,7 +98,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
       }
       if (this->persistenceMethod == PersistenceMethod::BLOB) {
         put_client_write_cxx(
-            this->blobHolder.c_str(),
+            rust::String(this->blobHolder),
             tools::getBlobPutField(blob::PutRequest::DataCase::kDataChunk),
             request.mutable_logdata()->c_str());
         put_client_blocking_read_cxx(this->blobHolder.c_str());
@@ -115,12 +115,12 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
             tools::generateHolder(this->hash, this->backupID, this->logID);
         this->initializePutClient();
         put_client_write_cxx(
-            this->blobHolder.c_str(),
+            rust::String(this->blobHolder),
             tools::getBlobPutField(blob::PutRequest::DataCase::kHolder),
             this->blobHolder.c_str());
         put_client_blocking_read_cxx(this->blobHolder.c_str());
         put_client_write_cxx(
-            this->blobHolder.c_str(),
+            rust::String(this->blobHolder),
             tools::getBlobPutField(blob::PutRequest::DataCase::kBlobHash),
             this->hash.c_str());
         rust::String responseStr =
@@ -130,7 +130,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
           return std::make_unique<grpc::Status>(grpc::Status::OK);
         }
         put_client_write_cxx(
-            this->blobHolder.c_str(),
+            rust::String(this->blobHolder),
             tools::getBlobPutField(blob::PutRequest::DataCase::kDataChunk),
             std::move(this->value).c_str());
         put_client_blocking_read_cxx(this->blobHolder.c_str());
@@ -146,7 +146,7 @@ SendLogReactor::readRequest(backup::SendLogRequest request) {
 
 void SendLogReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-  put_client_terminate_cxx(this->blobHolder.c_str());
+  put_client_terminate_cxx(rust::String(this->blobHolder));
 
   if (!this->getStatusHolder()->getStatus().ok()) {
     throw std::runtime_error(

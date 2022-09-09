@@ -74,26 +74,26 @@ AddAttachmentsUtility::moveToS3(std::shared_ptr<database::LogItem> logItem) {
   // put into S3
   std::condition_variable blobPutDoneCV;
   std::mutex blobPutDoneCVMutex;
-  put_client_initialize_cxx(holder.c_str());
+  put_client_initialize_cxx(rust::String(holder));
   put_client_write_cxx(
-      holder.c_str(),
+      rust::String(holder),
       tools::getBlobPutField(blob::PutRequest::DataCase::kHolder),
       holder.c_str());
-  put_client_blocking_read_cxx(holder.c_str());
+  put_client_blocking_read_cxx(rust::String(holder));
   put_client_write_cxx(
-      holder.c_str(),
+      rust::String(holder),
       tools::getBlobPutField(blob::PutRequest::DataCase::kBlobHash),
       newLogItem->getDataHash().c_str());
-  rust::String responseStr = put_client_blocking_read_cxx(holder.c_str());
+  rust::String responseStr = put_client_blocking_read_cxx(rust::String(holder));
   // data exists?
   if (!(bool)tools::charPtrToInt(responseStr.c_str())) {
     put_client_write_cxx(
-        holder.c_str(),
+        rust::String(holder),
         tools::getBlobPutField(blob::PutRequest::DataCase::kDataChunk),
         std::move(data).c_str());
-    put_client_blocking_read_cxx(holder.c_str());
+    put_client_blocking_read_cxx(rust::String(holder));
   }
-  put_client_terminate_cxx(holder.c_str());
+  put_client_terminate_cxx(rust::String(holder));
   return newLogItem;
 }
 

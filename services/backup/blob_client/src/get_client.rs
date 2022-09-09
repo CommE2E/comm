@@ -6,12 +6,9 @@ use proto::blob_service_client::BlobServiceClient;
 use proto::GetRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
-use crate::tools::{c_char_pointer_to_string, string_to_c_char_pointer};
 use anyhow::bail;
 use crate::RUNTIME;
 use lazy_static::lazy_static;
-use libc;
-use libc::c_char;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use tokio::sync::mpsc;
@@ -39,11 +36,10 @@ fn is_initialized(holder: &str) -> anyhow::Result<bool, anyhow::Error> {
 }
 
 pub fn get_client_initialize_cxx(
-  holder_char: *const c_char,
+  holder: &str,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string(holder_char)?;
   if is_initialized(&holder)? {
-    get_client_terminate_cxx(string_to_c_char_pointer(&holder)?)?;
+    get_client_terminate_cxx(holder.clone())?;
   }
 
   // grpc
@@ -53,11 +49,11 @@ pub fn get_client_initialize_cxx(
     // spawn receiver thread
     let (response_thread_tx, response_thread_rx) =
       mpsc::channel::<Vec<u8>>(MPSC_CHANNEL_BUFFER_CAPACITY);
-    let cloned_holder = holder.clone();
+    let holder_string = holder.to_string();
     let rx_handle = RUNTIME.spawn(async move {
       let response = grpc_client
         .get(GetRequest {
-          holder: cloned_holder,
+          holder: holder_string,
         })
         .await?;
       let mut inner_response = response.into_inner();
@@ -85,7 +81,7 @@ pub fn get_client_initialize_cxx(
         rx_handle,
         rx: response_thread_rx,
       };
-      (*clients).insert(holder, client);
+      (*clients).insert(holder.to_string(), client);
       return Ok(());
     }
     bail!("could not access client");
@@ -94,12 +90,11 @@ pub fn get_client_initialize_cxx(
 }
 
 pub fn get_client_blocking_read_cxx(
-  holder_char: *const c_char,
+  holder: &str,
 ) -> anyhow::Result<Vec<u8>, anyhow::Error> {
-  let holder = c_char_pointer_to_string(holder_char)?;
   Ok(RUNTIME.block_on(async {
     if let Ok(mut clients) = CLIENTS.lock() {
-      if let Some(client) = clients.get_mut(&holder) {
+      if let Some(client) = clients.get_mut(&holder.to_string()) {
         let maybe_data = client.rx.recv().await;
         return Ok(maybe_data.unwrap_or_else(|| vec![]));
       } else {
@@ -112,14 +107,13 @@ pub fn get_client_blocking_read_cxx(
 }
 
 pub fn get_client_terminate_cxx(
-  holder_char: *const c_char,
+  holder: &str,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string(holder_char)?;
   if !is_initialized(&holder)? {
     return Ok(());
   }
   if let Ok(mut clients) = CLIENTS.lock() {
-    match clients.remove(&holder) {
+    match clients.remove(&holder.to_string()) {
       Some(client) => {
         RUNTIME.block_on(async {
           if client.rx_handle.await.is_err() {
