@@ -9,7 +9,7 @@ use proto::PutRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
 use crate::tools::{
-  c_char_pointer_to_string, c_char_pointer_to_string_new, report_error, string_to_c_char_pointer_new,
+  c_char_pointer_to_string, string_to_c_char_pointer,
 };
 use anyhow::bail;
 use lazy_static::lazy_static;
@@ -32,7 +32,7 @@ struct BidiClient {
   tx: mpsc::Sender<PutRequestData>,
 
   rx: mpsc::Receiver<String>,
-  rx_handle: JoinHandle<()>, //<anyhow::Result<(), anyhow::Error>>,
+  rx_handle: JoinHandle<anyhow::Result<(), anyhow::Error>>,
 }
 
 lazy_static! {
@@ -45,17 +45,7 @@ lazy_static! {
     Arc::new(Mutex::new(Vec::new()));
 }
 
-fn is_initialized(holder: &String) -> bool {
-  match CLIENTS.lock() {
-    Ok(clients) => clients.contains_key(holder),
-    _ => {
-      report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
-      false
-    }
-  }
-}
-
-fn is_initialized_new(holder: &String) -> anyhow::Result<bool, anyhow::Error> {
+fn is_initialized(holder: &String) -> anyhow::Result<bool, anyhow::Error> {
   return Ok(match CLIENTS.lock() {
     Ok(clients) => clients.contains_key(holder),
     _ => {
@@ -66,15 +56,14 @@ fn is_initialized_new(holder: &String) -> anyhow::Result<bool, anyhow::Error> {
 
 pub fn put_client_initialize_cxx(
   holder_char: *const c_char,
-) -> Result<(), String> {
+) -> anyhow::Result<(), anyhow::Error> {
   let holder = c_char_pointer_to_string(holder_char)?;
-  if is_initialized(&holder) {
-    // put_client_terminate_cxx(string_to_c_char_pointer(&holder)?)?;
+  if is_initialized(&holder)? {
+    put_client_terminate_cxx(string_to_c_char_pointer(&holder)?)?;
   }
-  assert!(
-    !is_initialized(&holder),
-    "client cannot be initialized twice"
-  );
+  if is_initialized(&holder)? {
+    bail!("client cannot be initialized twice");
+  }
   // grpc
   if let Ok(mut grpc_client) =
     RUNTIME.block_on(async { BlobServiceClient::connect(BLOB_ADDRESS).await })
@@ -89,8 +78,7 @@ pub fn put_client_initialize_cxx(
             match String::from_utf8(data.data) {
               Ok(utf8_data) => Some(Holder(utf8_data)),
               _ => {
-                report_error(&ERROR_MESSAGES, "invalid utf-8", Some("put"));
-                None
+                panic!("invalid utf-8");
               },
             }
           }
@@ -98,8 +86,7 @@ pub fn put_client_initialize_cxx(
             match String::from_utf8(data.data).ok() {
               Some(utf8_data) => Some(BlobHash(utf8_data)),
               None => {
-                report_error(&ERROR_MESSAGES, "invalid utf-8", Some("put"));
-                None
+                panic!("invalid utf-8");
               },
             }
           }
@@ -107,12 +94,7 @@ pub fn put_client_initialize_cxx(
             Some(DataChunk(data.data))
           }
           _ => {
-            report_error(
-              &ERROR_MESSAGES,
-              &format!("invalid field index value {}", data.field_index),
-              Some("put")
-            );
-            None
+            panic!("invalid field index value {}", data.field_index);
           }
         };
         if let Some (unpacked_data) = request_data {
@@ -121,12 +103,7 @@ pub fn put_client_initialize_cxx(
           };
           yield request;
         } else {
-          report_error(
-            &ERROR_MESSAGES,
-            "an error occured, aborting connection",
-            Some("put")
-          );
-          break;
+          panic!("an error occured, aborting connection");
         }
       }
     };
@@ -152,11 +129,7 @@ pub fn put_client_initialize_cxx(
                   {
                     result = true;
                   } else {
-                    report_error(
-                      &ERROR_MESSAGES,
-                      "response queue full",
-                      Some("put"),
-                    );
+                    bail!("response queue full");
                   }
                 }
                 if !result {
@@ -164,20 +137,20 @@ pub fn put_client_initialize_cxx(
                 }
               }
               Err(err) => {
-                report_error(&ERROR_MESSAGES, &err.to_string(), Some("put"));
-                break;
+                bail!(err.to_string());
               }
             };
           }
         }
         Err(err) => {
-          report_error(&ERROR_MESSAGES, &err.to_string(), Some("put"));
+          bail!(err.to_string());
         }
       };
+      Ok(())
     });
 
-    if is_initialized(&holder) {
-      return Err(format!(
+    if is_initialized(&holder)? {
+      bail!(format!(
         "client initialization overlapped for holder {}",
         holder
       ));
@@ -191,15 +164,15 @@ pub fn put_client_initialize_cxx(
       (*clients).insert(holder, client);
       return Ok(());
     }
-    return Err(format!("could not access client for holder {}", holder));
+    bail!(format!("could not access client for holder {}", holder));
   }
-  Err("could not successfully connect to the blob server".to_string())
+  bail!("could not successfully connect to the blob server");
 }
 
 pub fn put_client_blocking_read_cxx(
   holder_char: *const c_char,
 ) -> anyhow::Result<String, anyhow::Error> {
-  let holder = c_char_pointer_to_string_new(holder_char)?;
+  let holder = c_char_pointer_to_string(holder_char)?;
   Ok(RUNTIME.block_on(async {
     if let Ok(mut clients) = CLIENTS.lock() {
       let maybe_client = clients.get_mut(&holder);
@@ -229,7 +202,7 @@ pub fn put_client_write_cxx(
   field_index: usize,
   data: *const c_char,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string_new(holder_char)?;
+  let holder = c_char_pointer_to_string(holder_char)?;
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
 
@@ -257,8 +230,8 @@ pub fn put_client_write_cxx(
 pub fn put_client_terminate_cxx(
   holder_char: *const c_char,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string_new(holder_char)?;
-  if !is_initialized_new(&holder)? {
+  let holder = c_char_pointer_to_string(holder_char)?;
+  if !is_initialized(&holder)? {
     return Ok(());
   }
 
@@ -267,10 +240,7 @@ pub fn put_client_terminate_cxx(
     if let Some(client) = maybe_client {
       drop(client.tx);
       RUNTIME.block_on(async {
-        if client.rx_handle.await.is_err() {
-          bail!(format!("awaiting for the client {} failed", holder));
-        }
-        Ok(())
+        client.rx_handle.await?
       })?;
     } else {
       bail!("no client detected in terminate");
@@ -279,7 +249,7 @@ pub fn put_client_terminate_cxx(
     bail!("couldn't access client");
   }
 
-  if is_initialized_new(&holder)? {
+  if is_initialized(&holder)? {
     bail!("client transmitter handler released properly");
   }
   Ok(())
