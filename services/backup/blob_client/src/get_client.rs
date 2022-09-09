@@ -7,7 +7,7 @@ use proto::GetRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
 use crate::tools::{
-  c_char_pointer_to_string_new, string_to_c_char_pointer_new,
+  c_char_pointer_to_string, string_to_c_char_pointer,
 };
 use anyhow::bail;
 use crate::RUNTIME;
@@ -43,9 +43,9 @@ fn is_initialized(holder: &str) -> anyhow::Result<bool, anyhow::Error> {
 pub fn get_client_initialize_cxx(
   holder_char: *const c_char,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string_new(holder_char)?;
+  let holder = c_char_pointer_to_string(holder_char)?;
   if is_initialized(&holder)? {
-    get_client_terminate_cxx(string_to_c_char_pointer_new(&holder)?)?;
+    get_client_terminate_cxx(string_to_c_char_pointer(&holder)?)?;
   }
 
   // grpc
@@ -98,7 +98,7 @@ pub fn get_client_initialize_cxx(
 pub fn get_client_blocking_read_cxx(
   holder_char: *const c_char,
 ) -> anyhow::Result<Vec<u8>, anyhow::Error> {
-  let holder = c_char_pointer_to_string_new(holder_char)?;
+  let holder = c_char_pointer_to_string(holder_char)?;
   Ok(RUNTIME.block_on(async {
     if let Ok(mut clients) = CLIENTS.lock() {
       if let Some(client) = clients.get_mut(&holder) {
@@ -116,7 +116,7 @@ pub fn get_client_blocking_read_cxx(
 pub fn get_client_terminate_cxx(
   holder_char: *const c_char,
 ) -> anyhow::Result<(), anyhow::Error> {
-  let holder = c_char_pointer_to_string_new(holder_char)?;
+  let holder = c_char_pointer_to_string(holder_char)?;
   if !is_initialized(&holder)? {
     return Ok(());
   }
