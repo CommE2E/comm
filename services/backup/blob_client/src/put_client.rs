@@ -237,9 +237,8 @@ pub fn put_client_write_cxx(
   holder_char: *const c_char,
   field_index: usize,
   data: *const c_char,
-) -> Result<(), String> {
-  let holder = c_char_pointer_to_string(holder_char)?;
-  check_error(&ERROR_MESSAGES)?;
+) -> anyhow::Result<(), anyhow::Error> {
+  let holder = c_char_pointer_to_string_new(holder_char)?;
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
 
@@ -247,33 +246,20 @@ pub fn put_client_write_cxx(
     if let Ok(clients) = CLIENTS.lock() {
       let maybe_client = clients.get(&holder);
       if let Some(client) = maybe_client {
-        match client
+        client
           .tx
           .send(PutRequestData {
             field_index,
             data: data_bytes,
           })
-          .await
-        {
-          Ok(_) => (),
-          Err(err) => report_error(
-            &ERROR_MESSAGES,
-            &format!("send data to receiver failed: {}", err),
-            Some("put"),
-          ),
-        }
-      } else {
-        report_error(
-          &ERROR_MESSAGES,
-          "no client detected in write",
-          Some("put"),
-        );
+          .await?;
+        return Ok(());
       }
+      bail!(format!("no client detected for {} in write", holder));
     } else {
-      report_error(&ERROR_MESSAGES, "couldn't access client", Some("put"));
+      bail!("couldn't access clients");
     }
-  });
-  check_error(&ERROR_MESSAGES)?;
+  })?;
   Ok(())
 }
 
