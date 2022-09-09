@@ -16,7 +16,7 @@ set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
 set(WITH_GTEST "Use Google Test" OFF)
 
 find_package(glog REQUIRED)
-find_package(protobuf REQUIRED)
+find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(Folly REQUIRED)
 find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)

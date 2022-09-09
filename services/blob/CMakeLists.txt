@@ -16,7 +16,7 @@ set(WITH_GTEST "Use Google Test" OFF)
 
 # FIND LIBS
 find_package(glog REQUIRED)
-find_package(protobuf REQUIRED)
+find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
 find_package(Folly REQUIRED)
 find_package(AWSSDK REQUIRED COMPONENTS s3 core dynamodb)
