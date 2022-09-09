@@ -7,8 +7,10 @@ use proto::GetRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
 use crate::tools::{
-  c_char_pointer_to_string, check_error, report_error, string_to_c_char_pointer,
+  c_char_pointer_to_string, c_char_pointer_to_string_new, check_error,
+  report_error, string_to_c_char_pointer, string_to_c_char_pointer_new,
 };
+use anyhow::bail;
 use lazy_static::lazy_static;
 use libc;
 use libc::c_char;
@@ -42,12 +44,19 @@ fn is_initialized(holder: &String) -> bool {
   false
 }
 
+fn is_initialized_new(holder: &String) -> anyhow::Result<bool, anyhow::Error> {
+  if let Ok(clients) = CLIENTS.lock() {
+    return Ok(clients.contains_key(holder));
+  }
+  bail!("couldn't access client");
+}
+
 pub fn get_client_initialize_cxx(
   holder_char: *const c_char,
 ) -> Result<(), String> {
   let holder = c_char_pointer_to_string(holder_char)?;
   if is_initialized(&holder) {
-    get_client_terminate_cxx(string_to_c_char_pointer(&holder)?)?;
+    // get_client_terminate_cxx(string_to_c_char_pointer(&holder)?)?;
   }
 
   assert!(
@@ -147,36 +156,31 @@ pub fn get_client_blocking_read_cxx(
 
 pub fn get_client_terminate_cxx(
   holder_char: *const c_char,
-) -> Result<(), String> {
-  let holder = c_char_pointer_to_string(holder_char)?;
-  check_error(&ERROR_MESSAGES)?;
-  if !is_initialized(&holder) {
-    check_error(&ERROR_MESSAGES)?;
+) -> anyhow::Result<(), anyhow::Error> {
+  let holder = c_char_pointer_to_string_new(holder_char)?;
+  if !is_initialized_new(&holder)? {
     return Ok(());
   }
   if let Ok(mut clients) = CLIENTS.lock() {
-    let maybe_client = clients.remove(&holder);
-    if let Some(client) = maybe_client {
-      RUNTIME.block_on(async {
-        if client.rx_handle.await.is_err() {
-          report_error(
-            &ERROR_MESSAGES,
-            "wait for receiver handle failed",
-            Some("get"),
-          );
-        }
-      });
-    } else {
-      return Err("no client detected".to_string());
+    match clients.remove(&holder) {
+      Some(client) => {
+        RUNTIME.block_on(async {
+          if client.rx_handle.await.is_err() {
+            bail!(format!("awaiting for the client {} failed", holder));
+          }
+          Ok(())
+        })?;
+      }
+      None => {
+        bail!(format!("no client foudn for {}", holder));
+      }
     }
   } else {
-    return Err("couldn't access client".to_string());
+    bail!("couldn't access client");
   }
 
-  assert!(
-    !is_initialized(&holder),
-    "client transmitter handler released properly"
-  );
-  check_error(&ERROR_MESSAGES)?;
+  if is_initialized_new(&holder)? {
+    bail!("client transmitter handler released properly");
+  }
   Ok(())
 }
