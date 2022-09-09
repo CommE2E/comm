@@ -66,19 +66,19 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
       }
       response->set_backupid(this->backupID);
       this->holder = tools::generateHolder(this->dataHash, this->backupID);
-      put_client_initialize_cxx(this->holder.c_str());
+      put_client_initialize_cxx(rust::String(this->holder));
       put_client_write_cxx(
-          this->holder.c_str(),
+          rust::String(this->holder),
           tools::getBlobPutField(blob::PutRequest::DataCase::kHolder),
           this->holder.c_str());
-      put_client_blocking_read_cxx(this->holder.c_str());
+      put_client_blocking_read_cxx(rust::String(this->holder));
       put_client_write_cxx(
-          this->holder.c_str(),
+          rust::String(this->holder),
           tools::getBlobPutField(blob::PutRequest::DataCase::kBlobHash),
           this->dataHash.c_str());
 
       rust::String responseStr =
-          put_client_blocking_read_cxx(this->holder.c_str());
+          put_client_blocking_read_cxx(rust::String(this->holder));
       // data exists?
       if ((bool)tools::charPtrToInt(responseStr.c_str())) {
         return std::make_unique<ServerBidiReactorStatus>(
@@ -91,11 +91,11 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
         return std::make_unique<ServerBidiReactorStatus>(grpc::Status::OK);
       }
       put_client_write_cxx(
-          this->holder.c_str(),
+          rust::String(this->holder),
           tools::getBlobPutField(blob::PutRequest::DataCase::kDataChunk),
           std::string(std::move(*request.mutable_newcompactionchunk()))
               .c_str());
-      put_client_blocking_read_cxx(this->holder.c_str());
+      put_client_blocking_read_cxx(rust::String(this->holder));
 
       return nullptr;
     }
@@ -105,7 +105,7 @@ std::unique_ptr<ServerBidiReactorStatus> CreateNewBackupReactor::handleRequest(
 
 void CreateNewBackupReactor::terminateCallback() {
   const std::lock_guard<std::mutex> lock(this->reactorStateMutex);
-  put_client_terminate_cxx(this->holder.c_str());
+  put_client_terminate_cxx(rust::String(this->holder));
 
   // TODO add recovery data
   // TODO handle attachments holders
