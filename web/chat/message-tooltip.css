@@ -13,6 +13,7 @@ div.messageActionContainer {
   background-color: var(--message-action-tooltip-bg);
   border-radius: 8px;
   width: fit-content;
+  box-shadow: var(--message-action-tooltip-bg) 0 2px 8px;
 }
 
 div.messageActionButtons {
@@ -45,6 +46,7 @@ div.messageTooltipLabel {
   border-radius: 8px;
   overflow: auto;
   white-space: nowrap;
+  box-shadow: var(--message-action-tooltip-bg) 0 2px 8px;
 }
 
 div.leftTooltipAlign {
