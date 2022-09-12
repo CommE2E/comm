@@ -2,7 +2,9 @@ mod constants;
 mod get_client;
 mod put_client;
 
+use env_logger;
 use lazy_static::lazy_static;
+use log::info;
 use tokio::runtime;
 
 use put_client::{
@@ -16,8 +18,11 @@ use get_client::{
 };
 
 lazy_static! {
-  static ref RUNTIME: runtime::Runtime = runtime::Runtime::new()
-    .expect("Unable to create tokio runtime");
+  static ref RUNTIME: runtime::Runtime = {
+    env_logger::init();
+    info!("Creating tokio runtime");
+    runtime::Runtime::new().expect("Unable to create tokio runtime")
+  };
 }
 
 #[cxx::bridge]
