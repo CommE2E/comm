@@ -1,10 +1,10 @@
 use libc::c_char;
 use std::ffi::{CStr, CString};
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use tracing::error;
 
 pub fn report_error(
-  error_messages: &Arc<Mutex<Vec<String>>>,
+  error_messages: &Mutex<Vec<String>>,
   message: &str,
   label_provided: Option<&str>,
 ) {
@@ -20,7 +20,7 @@ pub fn report_error(
 }
 
 pub fn check_error(
-  error_messages: &Arc<Mutex<Vec<String>>>,
+  error_messages: &Mutex<Vec<String>>,
 ) -> Result<(), String> {
   if let Ok(errors) = error_messages.lock() {
     return match errors.is_empty() {

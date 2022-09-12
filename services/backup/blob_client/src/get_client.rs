@@ -11,7 +11,7 @@ use lazy_static::lazy_static;
 use libc;
 use libc::c_char;
 use std::ffi::CStr;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
@@ -22,11 +22,11 @@ struct ReadClient {
 }
 
 lazy_static! {
-  static ref CLIENT: Arc<Mutex<Option<ReadClient>>> =
-    Arc::new(Mutex::new(None));
+  static ref CLIENT: Mutex<Option<ReadClient>> =
+    Mutex::new(None);
   static ref RUNTIME: Runtime = Runtime::new().unwrap();
-  static ref ERROR_MESSAGES: Arc<Mutex<Vec<String>>> =
-    Arc::new(Mutex::new(Vec::new()));
+  static ref ERROR_MESSAGES: Mutex<Vec<String>> =
+    Mutex::new(Vec::new());
 }
 
 fn is_initialized() -> bool {
