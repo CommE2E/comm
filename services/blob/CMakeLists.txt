@@ -11,9 +11,6 @@ endif(COMMAND cmake_policy)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
-set(WITH_GTEST "Use Google Test" OFF)
-
 # FIND LIBS
 find_package(glog REQUIRED)
 find_package(Protobuf REQUIRED)
@@ -51,7 +48,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
 file(GLOB DOUBLE_CONVERSION_SOURCES
   "./lib/double-conversion/double-conversion/*.cc"
 )
-file(GLOB COMMON_CODE "${CMAKE_CURRENT_SOURCE_DIR}/../lib/src/*.cpp")
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 
 # SERVER
@@ -63,12 +59,10 @@ add_executable(
   ${FOLLY_SOURCES}
 
   ${SOURCE_CODE}
-  ${COMMON_CODE}
 )
 
-target_include_directories(
-  blob
-  PUBLIC
+set(
+  INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/src/server-base-reactors
   ${CMAKE_CURRENT_SOURCE_DIR}/src/DatabaseEntities
@@ -76,12 +70,13 @@ target_include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/server
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/server/base-reactors
 
-  # Ideally, we would add comm-services-common as a
-  # target link library, however, aws-sdk seems to not be able
-  # to be linked transitively
-  ${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
-
   ${Boost_INCLUDE_DIR}
+)
+
+target_include_directories(
+  blob
+  PUBLIC
+  ${INCLUDE_DIRS}
 )
 
 set(
@@ -98,6 +93,7 @@ set(
 
   comm-blob-grpc
   comm-server-base-reactors
+  comm-services-common
 )
 
 target_link_libraries(
@@ -112,12 +108,13 @@ install(
 )
 
 # TEST
-if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
+option(BUILD_TESTING "Turn on tests" ON)
+if (BUILD_TESTING)
   file(GLOB TEST_CODE "./test/*.cpp")
   list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
   enable_testing()
 
-  find_package(GTest REQUIRED)
+  find_package(GTest CONFIG REQUIRED)
   include_directories(
     ${GTEST_INCLUDE_DIR}
     ./test
@@ -132,16 +129,20 @@ if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
     ${SOURCE_CODE}
     ${TEST_CODE}
   )
+
+  target_include_directories(
+    runTests
+    PUBLIC
+    ${INCLUDE_DIRS}
+  )
+
   target_link_libraries(
     runTests
 
     ${LIBS}
-    gtest
-    gtest_main
+    GTest::gtest_main
   )
 
-  add_test(
-    NAME runTests
-    COMMAND runTests
-  )
+  include(GoogleTest)
+  gtest_discover_tests(runTests)
 endif()
