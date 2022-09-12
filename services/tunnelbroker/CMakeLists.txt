@@ -77,8 +77,6 @@ file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 set(
   SOURCE_CODE
 
-  ${DOUBLE_CONVERSION_SOURCES}
-  ${GENERATED_CODE}
   ${SOURCE_CODE}
 )
 
@@ -107,7 +105,6 @@ set(
 add_executable(
   tunnelbroker
 
-  ${GENERATED_CODE}
   ${SOURCE_CODE}
 )
 
@@ -140,7 +137,7 @@ if(BUILD_TESTING)
   list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
   enable_testing()
 
-  find_package(GTest REQUIRED)
+  find_package(GTest CONFIG REQUIRED)
 
   add_executable(
     runTests
