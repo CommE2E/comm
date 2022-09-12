@@ -12,7 +12,8 @@ fi
 echo "building the server (nproc=$NPROC)..."
 
 pushd cmake/build
-cmake ../..
+# gtest is not installed, avoid building test suites
+cmake ../.. -DBUILD_TESTING=OFF
 make -j "$NPROC"
 
 popd
