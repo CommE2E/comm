@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <regex>
 #include <string>
+#include <thread>
+#include <algorithm>
 
 namespace comm {
 namespace network {
@@ -26,6 +28,10 @@ bool hasEnvFlag(const std::string &flag) {
     return false;
   }
   return std::string(std::getenv(flag.c_str())) == "1";
+}
+
+size_t getNumberOfCores() {
+  return (size_t)std::max((unsigned int)1, std::thread::hardware_concurrency());
 }
 
 std::string decorateTableName(const std::string &baseName) {

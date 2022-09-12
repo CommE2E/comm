@@ -13,6 +13,8 @@ uint64_t getCurrentTimestamp();
 
 bool hasEnvFlag(const std::string &flag);
 
+size_t getNumberOfCores();
+
 std::string decorateTableName(const std::string &baseName);
 
 bool isSandbox();
