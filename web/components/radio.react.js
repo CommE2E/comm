@@ -9,7 +9,9 @@ type Props = {
 
 function Radio(props: Props): React.Node {
   const { checked } = props;
-  return <input className={css.radio} type="radio" checked={checked} />;
+  return (
+    <input className={css.radio} type="radio" checked={checked} readOnly />
+  );
 }
 
 export default Radio;
