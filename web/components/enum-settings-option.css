@@ -3,6 +3,7 @@ div.optionContainer {
   padding: 16px 32px 16px 16px;
   align-items: center;
   border-radius: 8px;
+  cursor: pointer;
 }
 
 div.optionContainerSelected {
@@ -11,6 +12,18 @@ div.optionContainerSelected {
 
 div.optionIcon {
   margin-right: 24px;
+}
+
+div.optionIconTop {
+  align-self: flex-start;
+}
+
+div.optionIconCenter {
+  align-self: center;
+}
+
+div.optionIconBottom {
+  align-self: flex-end;
 }
 
 div.optionContent {
