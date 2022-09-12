@@ -2,6 +2,7 @@
 #include "ConfigManager.h"
 #include "GlobalTools.h"
 #include "TunnelbrokerServiceImpl.h"
+#include "args.h"
 
 #include "GlobalConstants.h"
 
@@ -35,6 +36,7 @@ void RunServer() {
 } // namespace comm
 
 int main(int argc, char **argv) {
+  comm::tunnelbroker::parseArgs(argc, argv);
   comm::network::tools::InitLogging("tunnelbroker");
   comm::network::config::ConfigManager::getInstance().load();
   comm::network::AmqpManager::getInstance().init();
