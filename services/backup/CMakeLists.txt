@@ -12,9 +12,6 @@ set(CMAKE_CXX_STANDARD 17)
 # For C++17 on MacOS, we must set minimum target to 10.14+
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
-set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
-set(WITH_GTEST "Use Google Test" OFF)
-
 find_package(glog REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(gRPC REQUIRED)
@@ -55,17 +52,12 @@ file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 add_executable(
   backup
 
-  ${GENERATED_CODE}
-  ${FOLLY_SOURCES}
-
   ${SOURCE_CODE}
 )
 
 add_library_rust(PATH blob_client NAMESPACE backup)
 
-target_include_directories(
-  backup
-  PUBLIC
+set(INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/src/DatabaseEntities
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors
@@ -73,6 +65,12 @@ target_include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Reactors/server/base-reactors
 
   ${Boost_INCLUDE_DIR}
+)
+
+target_include_directories(
+  backup
+  PUBLIC
+  ${INCLUDE_DIRS}
 )
 
 set(
@@ -104,12 +102,14 @@ install(
 )
 
 # TEST
-if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
+option(BUILD_TESTING "Turn off tests" ON)
+
+if (BUILD_TESTING)
   file(GLOB TEST_CODE "./test/*.cpp")
   list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
   enable_testing()
 
-  find_package(GTest REQUIRED)
+  find_package(GTest CONFIG REQUIRED)
   include_directories(
     ${GTEST_INCLUDE_DIR}
     ./test
@@ -118,21 +118,23 @@ if ($ENV{COMM_TEST_SERVICES} MATCHES 1)
   add_executable(
     runTests
 
-    ${GENERATED_CODE}
-    ${FOLLY_SOURCES}
     ${SOURCE_CODE}
     ${TEST_CODE}
   )
+
+  target_include_directories(
+    runTests
+    PUBLIC
+    ${INCLUDE_DIRS}
+  )
+
   target_link_libraries(
     runTests
 
     ${LIBS}
-    gtest
-    gtest_main
+    GTest::gtest_main
   )
 
-  add_test(
-    NAME runTests
-    COMMAND runTests
-  )
+  include(GoogleTest)
+  gtest_discover_tests(runTests)
 endif()
