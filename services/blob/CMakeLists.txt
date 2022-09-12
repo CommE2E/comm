@@ -19,7 +19,7 @@ find_package(Folly REQUIRED)
 find_package(AWSSDK REQUIRED COMPONENTS s3 core dynamodb)
 find_package(Boost 1.40
   COMPONENTS program_options filesystem context regex system thread
-  REQUIRE
+  REQUIRED
 )
 find_package(OpenSSL REQUIRED)
 find_package(double-conversion REQUIRED)
@@ -44,19 +44,11 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
   EXCLUDE_FROM_ALL # Don't build everything, just what we need
 )
 
-# FIND FILES
-file(GLOB DOUBLE_CONVERSION_SOURCES
-  "./lib/double-conversion/double-conversion/*.cc"
-)
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 
 # SERVER
 add_executable(
   blob
-
-  ${GENERATED_CODE}
-  ${DOUBLE_CONVERSION_SOURCES}
-  ${FOLLY_SOURCES}
 
   ${SOURCE_CODE}
 )
@@ -123,9 +115,6 @@ if (BUILD_TESTING)
   add_executable(
     runTests
 
-    ${GENERATED_CODE}
-    ${DOUBLE_CONVERSION_SOURCES}
-    ${FOLLY_SOURCES}
     ${SOURCE_CODE}
     ${TEST_CODE}
   )
