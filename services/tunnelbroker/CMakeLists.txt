@@ -59,9 +59,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
   EXCLUDE_FROM_ALL
 )
 
-set(BUILD_TESTING OFF CACHE BOOL "Turn off tests" FORCE)
-set(WITH_GFLAGS OFF CACHE BOOL "Turn off gflags" FORCE)
-
 find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
 find_package(Boost 1.40
   COMPONENTS program_options thread system context filesystem regex
@@ -136,7 +133,9 @@ install(
 )
 
 # TEST
-if($ENV{COMM_TEST_SERVICES} MATCHES 1)
+option(BUILD_TESTING "Build test suite" ON)
+option(WITH_GFLAGS "Turn on GFLAGS" ON)
+if(BUILD_TESTING)
   file(GLOB TEST_CODE "./test/*.cpp")
   list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
   enable_testing()
