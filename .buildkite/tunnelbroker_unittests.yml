@@ -1,0 +1,9 @@
+steps:
+  - label: ":nix: Tunnelbroker Unittests"
+    command:
+      - 'cd services/tunnelbroker'
+      - 'rm -rf build && mkdir build && cd build'
+      - 'nix develop --command bash -c "cmake .. && make -j"'
+      - './bin/runTests --gtest_filter=-AmqpManager*:DatabaseManager*'
+    agents:
+      - 'mac=true'
