@@ -6,6 +6,7 @@
 , aws-sdk-cpp
 , better-prompt
 , boost
+, c-ares_cmake-config
 , cargo
 , cmake
 , cmake-format
@@ -65,6 +66,7 @@ mkShell {
 
     # Tunnelbroker + CMake
     amqp-cpp
+    c-ares_cmake-config
     cryptopp
     cmake
     cmake-format # linting

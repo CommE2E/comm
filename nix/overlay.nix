@@ -43,6 +43,12 @@ prev:
 
   better-prompt = prev.callPackage ./better-prompt.nix { };
 
+  # c-ares is used to bootstrap curl, so cmake is not available in the default
+  # build
+  c-ares_cmake-config = prev.c-ares.overrideAttrs(o: {
+    nativeBuildInputs = (o.nativeBuildInputs or []) ++ [ prev.cmake ];
+  });
+
   protobuf_3_15_cmake = prev.callPackage ./protobuf_3_15.nix { };
 
   devShell = final.callPackage ./dev-shell.nix { };
