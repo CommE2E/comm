@@ -1,0 +1,7 @@
+steps:
+  - label: ":nix: Identity Tests (Nix)"
+    command:
+      - 'cd services/identity'
+      - 'nix develop --command cargo test'
+    agents:
+      - 'mac=true'
