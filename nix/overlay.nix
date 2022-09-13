@@ -43,6 +43,10 @@ prev:
 
   better-prompt = prev.callPackage ./better-prompt.nix { };
 
+  # Vendored version of https://github.com/NixOS/nixpkgs/pull/191120
+  # Can remove after upstream PR gets merged
+  c-ares_cmake-config = final.callPackage ./c-ares-cmake.nix { };
+
   protobuf_3_15_cmake = prev.callPackage ./protobuf_3_15.nix { };
 
   devShell = final.callPackage ./dev-shell.nix { };
