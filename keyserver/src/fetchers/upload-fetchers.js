@@ -1,6 +1,9 @@
 // @flow
 
+import _keyBy from 'lodash/fp/keyBy';
+
 import type { Media } from 'lib/types/media-types';
+import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
@@ -112,6 +115,73 @@ async function fetchMedia(
   return result.map(mediaFromRow);
 }
 
+async function fetchMediaFromMediaMessageContent(
+  viewer: Viewer,
+  mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
+): Promise<$ReadOnlyArray<Media>> {
+  const uploadIDs = [];
+  for (const mediaContent of mediaMessageContents) {
+    uploadIDs.push(mediaContent.uploadID);
+    if (mediaContent.type === 'video') {
+      uploadIDs.push(mediaContent.thumbnailUploadID);
+    }
+  }
+
+  const query = SQL`
+    SELECT id AS uploadID, secret AS uploadSecret,
+      type AS uploadType, extra AS uploadExtra
+    FROM uploads
+    WHERE id IN (${uploadIDs}) AND uploader = ${viewer.id} AND container IS NULL
+  `;
+
+  const [uploads] = await dbQuery(query);
+  const uploadMap = _keyBy('uploadID')(uploads);
+
+  const media: Media[] = [];
+  for (const mediaMessageContent of mediaMessageContents) {
+    const primaryUploadID = mediaMessageContent.uploadID;
+    const primaryUpload = uploadMap[primaryUploadID];
+
+    const primaryUploadSecret = primaryUpload.uploadSecret;
+    const primaryUploadURI = getUploadURL(primaryUploadID, primaryUploadSecret);
+
+    const uploadExtra = JSON.parse(primaryUpload.uploadExtra);
+    const { width, height, loop } = uploadExtra;
+    const dimensions = { width, height };
+
+    if (mediaMessageContent.type === 'photo') {
+      media.push({
+        type: 'photo',
+        id: primaryUploadID,
+        uri: primaryUploadURI,
+        dimensions,
+      });
+      continue;
+    }
+
+    const thumbnailUploadID = mediaMessageContent.thumbnailUploadID;
+    const thumbnailUpload = uploadMap[thumbnailUploadID];
+
+    const thumbnailUploadSecret = thumbnailUpload.uploadSecret;
+    const thumbnailUploadURI = getUploadURL(
+      thumbnailUploadID,
+      thumbnailUploadSecret,
+    );
+
+    const video = {
+      type: 'video',
+      id: primaryUploadID,
+      uri: primaryUploadURI,
+      dimensions,
+      thumbnailID: thumbnailUploadID,
+      thumbnailURI: thumbnailUploadURI,
+    };
+    media.push(loop ? { ...video, loop } : video);
+  }
+
+  return media;
+}
+
 export {
   fetchUpload,
   fetchUploadChunk,
@@ -119,4 +189,5 @@ export {
   getUploadURL,
   mediaFromRow,
   fetchMedia,
+  fetchMediaFromMediaMessageContent,
 };
