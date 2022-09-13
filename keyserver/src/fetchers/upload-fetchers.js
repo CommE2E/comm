@@ -115,10 +115,10 @@ async function fetchMedia(
   return result.map(mediaFromRow);
 }
 
-async function fetchMediaFromMediaMessageContent(
+async function fetchUploadsForMessage(
   viewer: Viewer,
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
-): Promise<$ReadOnlyArray<Media>> {
+): Promise<$ReadOnlyArray<Object>> {
   const uploadIDs = [];
   for (const mediaContent of mediaMessageContents) {
     uploadIDs.push(mediaContent.uploadID);
@@ -135,6 +135,14 @@ async function fetchMediaFromMediaMessageContent(
   `;
 
   const [uploads] = await dbQuery(query);
+  return uploads;
+}
+
+async function fetchMediaFromMediaMessageContent(
+  viewer: Viewer,
+  mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
+): Promise<$ReadOnlyArray<Media>> {
+  const uploads = await fetchUploadsForMessage(viewer, mediaMessageContents);
   const uploadMap = _keyBy('uploadID')(uploads);
 
   const media: Media[] = [];
