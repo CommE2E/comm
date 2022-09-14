@@ -38,6 +38,9 @@ module.exports = {
   '{landing,lib}/**/*.js': function landingFlow(files) {
     return 'yarn workspace landing flow --quiet';
   },
+  'services/identity/**/*.rs': function testIdentity(files) {
+    return 'bash -c "cd services/identity && cargo test"';
+  },
   '{native,services}/**/*.{h,cpp,java,mm}': function clangFormat(files) {
     files = files.filter(path => {
       if (path.indexOf('generated') !== -1) {
