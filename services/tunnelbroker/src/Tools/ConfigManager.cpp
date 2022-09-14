@@ -142,6 +142,7 @@ std::string ConfigManager::getParameter(std::string param) {
         "ConfigManager Error: config parameter " + param +
         " can not be empty.");
   }
+
   return parameterValue;
 }
 
