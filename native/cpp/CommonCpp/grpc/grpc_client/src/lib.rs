@@ -87,6 +87,7 @@ mod ffi {
       user_id: String,
       device_id: String,
       password: String,
+      user_public_key: String,
     ) -> Result<String>;
     fn login_user_wallet_blocking(
       client: Box<Client>,
@@ -255,6 +256,7 @@ async fn login_user_pake(
   user_id: String,
   device_id: String,
   password: String,
+  user_public_key: String,
 ) -> Result<String, Status> {
   // Create a LoginRequest channel and use ReceiverStream to turn the
   // MPSC receiver into a Stream for outbound messages
@@ -286,6 +288,7 @@ async fn login_user_pake(
               error!("Could not serialize credential request: {}", e);
               Status::failed_precondition("PAKE failure")
             })?,
+          user_public_key,
         },
       )),
     })),
@@ -318,8 +321,15 @@ fn login_user_pake_blocking(
   user_id: String,
   device_id: String,
   password: String,
+  user_public_key: String,
 ) -> Result<String, Status> {
-  RUNTIME.block_on(login_user_pake(client, user_id, device_id, password))
+  RUNTIME.block_on(login_user_pake(
+    client,
+    user_id,
+    device_id,
+    password,
+    user_public_key,
+  ))
 }
 
 async fn login_user_wallet(

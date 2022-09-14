@@ -32,6 +32,7 @@ message PakeCredentialRequestAndUserID {
   string deviceID = 2;
   // Message sent to initiate PAKE login (step 1)
   bytes pakeCredentialRequest = 3;
+  string userPublicKey = 4;
 }
 
 message PakeLoginRequest {
