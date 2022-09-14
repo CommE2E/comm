@@ -47,6 +47,9 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
+      - name: brew install protobuf
+        run: brew install protobuf
+
       - name: npm install -g yarn
         run: npm install -g yarn
 
