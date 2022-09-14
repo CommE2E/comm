@@ -37,6 +37,8 @@ const baseDevBrowserConfig = {
     port: 8080,
     contentBase: path.join(__dirname, 'dist'),
     headers: { 'Access-Control-Allow-Origin': '*' },
+    allowedHosts: ['all'],
+    host: '0.0.0.0',
   },
 };
 
