@@ -211,7 +211,7 @@ type Props = {
   // Redux state
   +userInfos: UserInfos,
   +viewerID: ?string,
-  +threadInfo: ?ThreadInfo,
+  +threadInfo: ThreadInfo,
   +parentThreadInfo: ?ThreadInfo,
   +childThreadInfos: ?$ReadOnlyArray<ThreadInfo>,
   +somethingIsSaving: boolean,
@@ -239,8 +239,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    const threadInfo = props.threadInfo;
-    invariant(threadInfo, 'ThreadInfo should exist when ThreadSettings opened');
     this.state = {
       numMembersShowing: itemPageLength,
       numSubchannelsShowing: itemPageLength,
@@ -248,21 +246,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       nameEditValue: null,
       descriptionEditValue: null,
       descriptionTextHeight: null,
-      colorEditValue: threadInfo.color,
+      colorEditValue: props.threadInfo.color,
       verticalBounds: null,
     };
-  }
-
-  static getThreadInfo(props: {
-    threadInfo: ?ThreadInfo,
-    route: NavigationRoute<'ThreadSettings'>,
-    ...
-  }): ThreadInfo {
-    const { threadInfo } = props;
-    if (threadInfo) {
-      return threadInfo;
-    }
-    return props.route.params.threadInfo;
   }
 
   static scrollDisabled(props: Props) {
@@ -272,7 +258,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    const threadInfo = ThreadSettings.getThreadInfo(this.props);
+    const threadInfo = this.props.threadInfo;
     if (!threadInChatList(threadInfo)) {
       threadWatcher.watchID(threadInfo.id);
     }
@@ -284,7 +270,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    const threadInfo = ThreadSettings.getThreadInfo(this.props);
+    const threadInfo = this.props.threadInfo;
     if (!threadInChatList(threadInfo)) {
       threadWatcher.removeID(threadInfo.id);
     }
@@ -302,27 +288,27 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   };
 
   componentDidUpdate(prevProps: Props) {
-    const oldReduxThreadInfo = prevProps.threadInfo;
-    const newReduxThreadInfo = this.props.threadInfo;
-    if (newReduxThreadInfo && newReduxThreadInfo !== oldReduxThreadInfo) {
-      this.props.navigation.setParams({ threadInfo: newReduxThreadInfo });
+    const prevThreadInfo = prevProps.threadInfo;
+    const newThreadInfo = this.props.threadInfo;
+
+    if (newThreadInfo && newThreadInfo !== prevThreadInfo) {
+      this.props.navigation.setParams({ threadInfo: newThreadInfo });
     }
 
-    const oldNavThreadInfo = ThreadSettings.getThreadInfo(prevProps);
-    const newNavThreadInfo = ThreadSettings.getThreadInfo(this.props);
-    if (oldNavThreadInfo.id !== newNavThreadInfo.id) {
-      if (!threadInChatList(oldNavThreadInfo)) {
-        threadWatcher.removeID(oldNavThreadInfo.id);
+    if (prevThreadInfo.id !== newThreadInfo.id) {
+      if (!threadInChatList(prevThreadInfo)) {
+        threadWatcher.removeID(prevThreadInfo.id);
       }
-      if (!threadInChatList(newNavThreadInfo)) {
-        threadWatcher.watchID(newNavThreadInfo.id);
+      if (!threadInChatList(newThreadInfo)) {
+        threadWatcher.watchID(newThreadInfo.id);
       }
     }
+
     if (
-      !tinycolor.equals(newNavThreadInfo.color, oldNavThreadInfo.color) &&
-      tinycolor.equals(this.state.colorEditValue, oldNavThreadInfo.color)
+      !tinycolor.equals(newThreadInfo.color, prevThreadInfo.color) &&
+      tinycolor.equals(this.state.colorEditValue, prevThreadInfo.color)
     ) {
-      this.setState({ colorEditValue: newNavThreadInfo.color });
+      this.setState({ colorEditValue: newThreadInfo.color });
     }
 
     if (defaultStackScreenOptions.gestureEnabled) {
@@ -337,8 +323,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   threadBasicsListDataSelector = createSelector(
-    (propsAndState: PropsAndState) =>
-      ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.threadInfo,
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (propsAndState: PropsAndState) => propsAndState.nameEditValue,
     (propsAndState: PropsAndState) => propsAndState.colorEditValue,
@@ -470,8 +455,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   );
 
   subchannelsListDataSelector = createSelector(
-    (propsAndState: PropsAndState) =>
-      ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.threadInfo,
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
     (propsAndState: PropsAndState) => propsAndState.numSubchannelsShowing,
@@ -593,8 +577,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   );
 
   threadMembersListDataSelector = createSelector(
-    (propsAndState: PropsAndState) =>
-      ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.threadInfo,
     (propsAndState: PropsAndState) => !propsAndState.somethingIsSaving,
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.route.key,
@@ -669,8 +652,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   );
 
   actionsListDataSelector = createSelector(
-    (propsAndState: PropsAndState) =>
-      ThreadSettings.getThreadInfo(propsAndState),
+    (propsAndState: PropsAndState) => propsAndState.threadInfo,
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.styles,
@@ -810,17 +792,13 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   render() {
-    let threadAncestors;
-    if (this.props.threadInfo) {
-      threadAncestors = <ThreadAncestors threadInfo={this.props.threadInfo} />;
-    }
     return (
       <View
         style={this.props.styles.container}
         ref={this.flatListContainerRef}
         onLayout={this.onFlatListContainerLayout}
       >
-        {threadAncestors}
+        <ThreadAncestors threadInfo={this.props.threadInfo} />
         <FlatList
           data={this.listData}
           contentContainerStyle={this.props.styles.flatList}
@@ -999,18 +977,16 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   };
 
   onPressComposeSubchannel = () => {
-    const threadInfo = ThreadSettings.getThreadInfo(this.props);
     this.props.navigation.navigate(ComposeSubchannelModalRouteName, {
       presentedFrom: this.props.route.key,
-      threadInfo,
+      threadInfo: this.props.threadInfo,
     });
   };
 
   onPressAddMember = () => {
-    const threadInfo = ThreadSettings.getThreadInfo(this.props);
     this.props.navigation.navigate(AddUsersModalRouteName, {
       presentedFrom: this.props.route.key,
-      threadInfo,
+      threadInfo: this.props.threadInfo,
     });
   };
 
@@ -1104,21 +1080,20 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
     const threadID = props.route.params.threadInfo.id;
-    const threadInfo: ?ThreadInfo = useSelector(
+    const reduxThreadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
-    const parentThreadID = threadInfo
-      ? threadInfo.parentThreadID
-      : props.route.params.threadInfo.parentThreadID;
+    invariant(
+      reduxThreadInfo,
+      'ThreadInfo should exist when ThreadSettings opened',
+    );
+    const threadInfo: ThreadInfo =
+      reduxThreadInfo ?? props.route.params.threadInfo;
+    const parentThreadID = threadInfo.parentThreadID;
     const parentThreadInfo: ?ThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
-    const threadMembers = React.useMemo(() => {
-      if (!threadInfo) {
-        return [];
-      }
-      return threadInfo.members;
-    }, [threadInfo]);
+    const threadMembers = threadInfo.members;
     const boundChildThreadInfos = useSelector(
       state => childThreadInfos(state)[threadID],
     );
@@ -1129,7 +1104,6 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
     const indicatorStyle = useIndicatorStyle();
     const overlayContext = React.useContext(OverlayContext);
     const keyboardState = React.useContext(KeyboardContext);
-    invariant(threadInfo, 'threadInfo must be defined');
     const { canPromoteSidebar } = usePromoteSidebar(threadInfo);
     return (
       <ThreadSettings
