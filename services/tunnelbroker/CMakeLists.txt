@@ -17,8 +17,8 @@ find_package(PkgConfig REQUIRED)
 
 find_package(double-conversion REQUIRED)
 find_package(Folly REQUIRED)
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
+find_package(Protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
 
 # Find AMQP-CPP installation
 find_package(amqpcpp CONFIG REQUIRED)
