@@ -11,13 +11,13 @@ use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
 use crate::tools::{
   c_char_pointer_to_string, check_error, report_error, string_to_c_char_pointer,
 };
+use crate::RUNTIME;
 use lazy_static::lazy_static;
 use libc;
 use libc::c_char;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::sync::Mutex;
-use tokio::runtime::Runtime;
 use tokio::sync::mpsc;
 use tokio::task::JoinHandle;
 
@@ -39,7 +39,6 @@ lazy_static! {
   // if every client is able to allocate up to 4MB data at a time
   static ref CLIENTS: Mutex<HashMap<String, BidiClient>> =
     Mutex::new(HashMap::new());
-  static ref RUNTIME: Runtime = Runtime::new().unwrap();
   static ref ERROR_MESSAGES: Mutex<Vec<String>> =
     Mutex::new(Vec::new());
 }
@@ -133,7 +132,7 @@ pub fn put_client_initialize_cxx(
               Ok(maybe_response_message) => {
                 let mut result = false;
                 if let Some(response_message) = maybe_response_message {
-                  // warning: this will produce an error if there's more unread 
+                  // warning: this will produce an error if there's more unread
                   // responses than MPSC_CHANNEL_BUFFER_CAPACITY
                   // you should then use put_client_blocking_read_cxx in order
                   // to dequeue the responses in c++ and make room for more
