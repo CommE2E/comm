@@ -1,3 +1,4 @@
+use crate::ffi::apns_status;
 use anyhow::Result;
 use env_logger;
 use lazy_static::lazy_static;
@@ -8,6 +9,12 @@ pub mod fcm;
 
 #[cxx::bridge]
 mod ffi {
+  #[cxx_name = "apnsReturnStatus"]
+  enum apns_status {
+    Ok,
+    Unregistered,
+    BadDeviceToken,
+  }
   extern "Rust" {
     #[cxx_name = "sendNotifToAPNS"]
     fn send_notif_to_apns(
@@ -17,7 +24,7 @@ mod ffi {
       topic: &str,
       message: &str,
       sandbox: bool,
-    ) -> Result<u16>;
+    ) -> Result<apns_status>;
 
     #[cxx_name = "sendNotifToFCM"]
     fn send_notif_to_fcm(
@@ -44,7 +51,7 @@ pub fn send_notif_to_apns(
   topic: &str,
   message: &str,
   sandbox: bool,
-) -> Result<u16> {
+) -> Result<apns_status> {
   RUNTIME.block_on(apns::send_by_a2_client(
     certificate_path,
     certificate_password,
