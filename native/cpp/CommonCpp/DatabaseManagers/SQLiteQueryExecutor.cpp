@@ -600,11 +600,15 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("time", &Message::time)),
       make_table(
           "olm_persist_account",
-          make_column("id", &OlmPersistAccount::id),
+          make_column("id", &OlmPersistAccount::id, unique(), primary_key()),
           make_column("account_data", &OlmPersistAccount::account_data)),
       make_table(
           "olm_persist_sessions",
-          make_column("target_user_id", &OlmPersistSession::target_user_id),
+          make_column(
+              "target_user_id",
+              &OlmPersistSession::target_user_id,
+              unique(),
+              primary_key()),
           make_column("session_data", &OlmPersistSession::session_data)),
       make_table(
           "media",
