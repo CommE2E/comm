@@ -10,19 +10,20 @@ ARG COMM_SERVICES_SANDBOX
 ENV COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
 ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
 
-WORKDIR /transferred/backup
+# install rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+WORKDIR /transferred/services/backup
 
 COPY services/lib/docker/ scripts/
 
-# install rust
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN scripts/install_corrosion.sh
 
-ADD shared/protos grpc
-COPY shared/cmake cmake-components/
+ADD shared/protos /transferred/shared/protos/
+ADD shared/cmake /transferred/shared/cmake/
 
-COPY services/backup/ /transferred/backup/
-COPY services/lib/src/ /transferred/lib/src/
+COPY services/backup/ /transferred/services/backup/
+COPY services/lib/src/ /transferred/services/lib/src/
 
 RUN scripts/build_service.sh
 
