@@ -262,6 +262,32 @@ bool create_metadata_table(sqlite3 *db) {
   return create_table(db, query, "metadata");
 }
 
+bool add_not_null_constraint_to_drafts(sqlite3 *db) {
+  char *error;
+  sqlite3_exec(
+      db,
+      "CREATE TABLE IF NOT EXISTS temporary_drafts ("
+      "key TEXT UNIQUE PRIMARY KEY NOT NULL, "
+      "text TEXT NOT NULL);"
+      "INSERT INTO temporary_drafts SELECT * FROM drafts;"
+      "DROP TABLE drafts;"
+      "ALTER TABLE temporary_drafts RENAME TO drafts;",
+      nullptr,
+      nullptr,
+      &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream stringStream;
+  stringStream << "Error adding NOT NULL constraint to drafts table: " << error;
+  Logger::log(stringStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 void set_encryption_key(sqlite3 *db) {
   std::string set_encryption_key_query =
       "PRAGMA key = \"x'" + SQLiteQueryExecutor::encryptionKey + "'\";";
@@ -454,7 +480,8 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {20, {create_threads_table, true}},
      {21, {update_threadID_for_pending_threads_in_drafts, true}},
      {22, {enable_write_ahead_logging_mode, false}},
-     {23, {create_metadata_table, true}}}};
+     {23, {create_metadata_table, true}},
+     {24, {add_not_null_constraint_to_drafts, true}}}};
 
 void SQLiteQueryExecutor::migrate() const {
   validate_encryption();
