@@ -170,7 +170,12 @@ div.sidebarTitle.unread {
   color: var(--fg);
 }
 div.seeMoreButton {
-  padding-left: 58px;
+  display: flex;
+  align-items: center;
+  padding-left: 22px;
+}
+div.seeMoreText {
+  padding-left: 14px;
 }
 div.sidebarLastActivity {
   white-space: nowrap;

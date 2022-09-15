@@ -2,6 +2,7 @@
 
 import classNames from 'classnames';
 import * as React from 'react';
+import { IoIosMore } from 'react-icons/io';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 
@@ -31,16 +32,15 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
   return (
     <div className={classNames(css.thread, css.sidebar)} onClick={onClick}>
       <a className={css.threadButton}>
-        <div className={css.threadRow}>
-          <div
-            className={classNames({
-              [css.sidebarTitle]: true,
-              [css.seeMoreButton]: true,
-              [css.unread]: unread,
-            })}
-          >
-            See more...
-          </div>
+        <div
+          className={classNames({
+            [css.sidebarTitle]: true,
+            [css.seeMoreButton]: true,
+            [css.unread]: unread,
+          })}
+        >
+          <IoIosMore size="22px" />
+          <div className={css.seeMoreText}>See more...</div>
         </div>
       </a>
     </div>
