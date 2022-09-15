@@ -34,3 +34,9 @@ services/identity/target
 services/identity/Dockerfile
 services/backup/Dockerfile
 services/blob/Dockerfile
+
+native/cpp/**/build
+services/*/build
+services/build
+services/lib/src/build
+shared/protos/build
