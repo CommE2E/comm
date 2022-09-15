@@ -584,6 +584,12 @@ void SQLiteQueryExecutor::assign_encryption_key() {
 auto &SQLiteQueryExecutor::getStorage() {
   static auto storage = make_storage(
       SQLiteQueryExecutor::sqliteFilePath,
+      // make_index should be passed before make_table because when
+      // sync_schema() is called it uses those arguments in reverse order
+      // which will result in an exception of creating an index on non created
+      // table
+      make_index("messages_idx_thread_time", &Message::thread, &Message::time),
+      make_index("media_idx_container", &Media::container),
       make_table(
           "drafts",
           make_column("key", &Draft::key, unique(), primary_key()),
