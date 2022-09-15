@@ -1,5 +1,7 @@
 // @flow
 
+import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
+
 import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
 
@@ -16,4 +18,24 @@ async function assignMedia(
   await dbQuery(query);
 }
 
-export { assignMedia };
+async function assignMessageContainerToMedia(
+  viewer: Viewer,
+  mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
+  containerID: string,
+): Promise<void> {
+  const mediaIDs: string[] = [];
+  for (const mediaContent of mediaMessageContents) {
+    mediaIDs.push(mediaContent.uploadID);
+    if (mediaContent.type === 'video') {
+      mediaIDs.push(mediaContent.thumbnailUploadID);
+    }
+  }
+  const query = SQL`
+    UPDATE uploads
+    SET container = ${containerID}
+    WHERE id IN (${mediaIDs}) AND uploader = ${viewer.id} AND container IS NULL
+  `;
+  await dbQuery(query);
+}
+
+export { assignMedia, assignMessageContainerToMedia };
