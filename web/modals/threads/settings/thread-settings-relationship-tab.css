@@ -3,3 +3,18 @@ div.container {
   flex-direction: column;
   row-gap: 10px;
 }
+
+div.relationshipButtonContent {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+div.relationshipButtonText {
+  flex: 1;
+  margin: 0 24px;
+}
+
+svg.relationshipButtonIcon {
+  position: absolute;
+}

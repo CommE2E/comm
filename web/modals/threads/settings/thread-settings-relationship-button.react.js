@@ -1,4 +1,11 @@
 // @flow
+import {
+  faUserMinus,
+  faUserPlus,
+  faUserShield,
+  faUserSlash,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import invariant from 'invariant';
 import * as React from 'react';
 
@@ -24,6 +31,7 @@ import {
 
 import Button from '../../../components/button.react';
 import { useSelector } from '../../../redux/redux-utils';
+import css from './thread-settings-relationship-tab.css';
 
 const loadingStatusSelector = createLoadingStatusSelector(
   updateRelationshipsActionTypes,
@@ -67,6 +75,35 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
     };
   }, [relationshipButton, username]);
 
+  const icon = React.useMemo(() => {
+    let buttonIcon = null;
+
+    if (relationshipButton === relationshipButtons.FRIEND) {
+      buttonIcon = faUserPlus;
+    } else if (relationshipButton === relationshipButtons.UNFRIEND) {
+      buttonIcon = faUserMinus;
+    } else if (relationshipButton === relationshipButtons.BLOCK) {
+      buttonIcon = faUserShield;
+    } else if (relationshipButton === relationshipButtons.UNBLOCK) {
+      buttonIcon = faUserShield;
+    } else if (relationshipButton === relationshipButtons.ACCEPT) {
+      buttonIcon = faUserPlus;
+    } else if (relationshipButton === relationshipButtons.REJECT) {
+      buttonIcon = faUserSlash;
+    } else if (relationshipButton === relationshipButtons.WITHDRAW) {
+      buttonIcon = faUserMinus;
+    }
+
+    if (buttonIcon) {
+      return (
+        <FontAwesomeIcon
+          icon={buttonIcon}
+          className={css.relationshipButtonIcon}
+        />
+      );
+    }
+  }, [relationshipButton]);
+
   const dispatchActionPromise = useDispatchActionPromise();
   const callUpdateRelationships = useServerCall(updateRelationships);
 
@@ -91,7 +128,10 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
 
   return (
     <Button variant={variant} onClick={onClick} disabled={disabled}>
-      {text}
+      <div className={css.relationshipButtonContent}>
+        {icon}
+        <div className={css.relationshipButtonText}>{text}</div>
+      </div>
     </Button>
   );
 }
