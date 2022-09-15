@@ -17,14 +17,13 @@ div.markdown blockquote {
   box-sizing: border-box;
   width: 100%;
   margin: 6px 0;
+  border-radius: 8px;
+  border-left: 8px solid #00000066;
+  box-shadow: 0 1px 2px 1px #00000033;
 }
-div.darkBackground blockquote {
-  background: #a9a9a9;
-  border-left: 5px solid #808080;
-}
-div.lightBackground blockquote {
-  background: #d3d3d3;
-  border-left: 5px solid #c0c0c0;
+
+div.markdown > blockquote {
+  background-color: #00000066;
 }
 
 div.markdown code {
