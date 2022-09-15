@@ -49,6 +49,7 @@ const size_t DEVICEID_CHAR_LENGTH = 64;
 const std::regex DEVICEID_FORMAT_REGEX(
     "^(ks|mobile|web):[a-zA-Z0-9]{" + std::to_string(DEVICEID_CHAR_LENGTH) +
     "}$");
+const size_t DEVICE_ONLINE_PING_INTERVAL_MS = 3000;
 
 // Config
 const std::string CONFIG_FILE_DIRECTORY_ENV_VARIABLE =
