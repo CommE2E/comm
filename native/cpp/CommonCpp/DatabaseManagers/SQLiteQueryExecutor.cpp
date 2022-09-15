@@ -582,6 +582,8 @@ void SQLiteQueryExecutor::assign_encryption_key() {
 auto &SQLiteQueryExecutor::getStorage() {
   static auto storage = make_storage(
       SQLiteQueryExecutor::sqliteFilePath,
+      make_index("messages_idx_thread_time", &Message::thread, &Message::time),
+      make_index("media_idx_container", &Media::container),
       make_table(
           "drafts",
           make_column("key", &Draft::key, unique(), primary_key()),
