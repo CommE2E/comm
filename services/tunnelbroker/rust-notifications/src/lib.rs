@@ -1,4 +1,4 @@
-use crate::ffi::apns_status;
+use crate::ffi::{apns_status, fcm_status};
 use anyhow::Result;
 use env_logger;
 use lazy_static::lazy_static;
@@ -14,6 +14,12 @@ mod ffi {
     Ok,
     Unregistered,
     BadDeviceToken,
+  }
+  #[cxx_name = "fcmReturnStatus"]
+  enum fcm_status {
+    Ok,
+    InvalidRegistration,
+    NotRegistered,
   }
   extern "Rust" {
     #[cxx_name = "sendNotifToAPNS"]
@@ -32,7 +38,7 @@ mod ffi {
       device_registration_id: &str,
       message_title: &str,
       message_body: &str,
-    ) -> Result<u64>;
+    ) -> Result<fcm_status>;
   }
 }
 
@@ -67,7 +73,7 @@ pub fn send_notif_to_fcm(
   device_registration_id: &str,
   message_title: &str,
   message_body: &str,
-) -> Result<u64> {
+) -> Result<fcm_status> {
   RUNTIME.block_on(fcm::send_by_fcm_client(
     fcm_api_key,
     device_registration_id,
