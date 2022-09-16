@@ -209,6 +209,41 @@ TEST_F(DatabaseManagerTest, PutAndFoundDeviceSessionItemGeneratedDataIsSame) {
       item.getSessionID());
 }
 
+TEST_F(DatabaseManagerTest, UpdateIsOnlineDeviceSessionItem) {
+  const database::DeviceSessionItem item(
+      "bc0c1aa2-bf09-11ec-9d64-0242ac120002",
+      "mobile:"
+      "EMQNoQ7b2ueEmQ4QsevRWlXxFCNt055y20T1PHdoYAQRt0S6TLzZWNM6XSvdWqxm",
+      "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9Q9wodsQdZNynbTnC35hA4mFW"
+      "mwZf9BhbI93aGAwPF9au0eYsawRz0jtYi4lSFXC9KleyQDg+6J+UW1kiWvE3ZRYG"
+      "ECqgx4zqajPTzVt7EAOGaIh/dPyQ6x2Ul1GlkkSYXUhhixEzExGp9g84eCyVkbCB"
+      "U3SK6SNKyR7anAXDVQIDAQAB",
+      "hbI93aGAwPF9au0eYsawRz0jtYi4lSFXC9KleyQDg+6J+UW1kiWvE3",
+      "phone",
+      "ios:1.1.1",
+      "iOS 99.99.99");
+  EXPECT_EQ(
+      database::DatabaseManager::getInstance().isTableAvailable(
+          item.getTableName()),
+      true);
+  database::DatabaseManager::getInstance().putSessionItem(item);
+  std::shared_ptr<database::DeviceSessionItem> foundItem =
+      database::DatabaseManager::getInstance().findSessionItem(
+          item.getSessionID());
+  EXPECT_NE(foundItem, nullptr);
+  EXPECT_FALSE(foundItem->getIsOnline());
+
+  database::DatabaseManager::getInstance().updateSessionItemIsOnline(
+      item.getSessionID(), true);
+  foundItem = database::DatabaseManager::getInstance().findSessionItem(
+      item.getSessionID());
+  EXPECT_NE(foundItem, nullptr);
+  EXPECT_TRUE(foundItem->getIsOnline());
+
+  database::DatabaseManager::getInstance().removeSessionItem(
+      item.getSessionID());
+}
+
 TEST_F(DatabaseManagerTest, PutAndFoundSessionSignItemStaticDataIsSame) {
   const database::SessionSignItem item(
       "bB3OSLdKlY60KPBpw6VoGKX7Lmw3SA07FmNhnqnclvVeaxXueAQ0dpQSpiQTtlGn",
