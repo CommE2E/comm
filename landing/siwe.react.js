@@ -60,8 +60,7 @@ async function signInWithEthereum(address, signer) {
 }
 
 function SIWE(): React.Node {
-  const { data } = useAccount();
-  const { address } = data || {};
+  const { address } = useAccount();
   const { data: signer } = useSigner();
   const onClick = React.useCallback(() => signInWithEthereum(address, signer), [
     address,
