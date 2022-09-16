@@ -40,6 +40,28 @@ Next, you’ll want to ensure that the Comm project is configured with a valid T
 
 Install [Homebrew](https://brew.sh/), a package manager for macOS.
 
+### idb
+
+Flipper relies on Facebook’s idb tool to debug iOS apps running on your device. We’ll need to install it:
+
+```
+brew tap facebook/fb
+brew install idb-companion
+pip3 install --user --upgrade fb-idb
+```
+
+Since we run `pip3 install` with `--user` instead of running it with `sudo`, the `idb` executable gets installed in your userdir. For me, running MacOS with Python 3.9, it got installed in `~/Library/Python/3.9/bin/idb`. For Flipper to be able to talk to `idb`, you’ll need to set the IDB Binary Location in the Flipper Settings.
+
+If you have trouble getting Flipper to work with a physical iOS device, it may be due to Python weirdness. The above steps have been tested with Python 3.9 sourced from Homebrew. Let @ashoat know if you have any trouble!
+
+### Reactotron
+
+Reactotron is an event tracker and logger that can be used to aid in debugging on React Native.
+
+```
+brew install reactotron && brew upgrade reactotron
+```
+
 # Nix Android prerequisites
 
 ## Android Studio
@@ -108,28 +130,6 @@ Also, enable the option for “React Native keyboard shortcuts” below.
 Flipper has a plugin system that allows teams to integrate additional debugging tools into Flipper. We currently only use one plugin, which is for monitoring Redux state.
 
 To install it, open Flipper and click on the Plugin Manager on the top left sidebar. Type in “redux-debugger“ in the Install Plugins search bar and install the Flipper plugin with that name.
-
-## idb
-
-Flipper relies on Facebook’s idb tool to debug iOS apps running on your device. We’ll need to install it:
-
-```
-brew tap facebook/fb
-brew install idb-companion
-pip3 install --user --upgrade fb-idb
-```
-
-Since we run `pip3 install` with `--user` instead of running it with `sudo`, the `idb` executable gets installed in your userdir. For me, running MacOS with Python 3.9, it got installed in `~/Library/Python/3.9/bin/idb`. For Flipper to be able to talk to `idb`, you’ll need to set the IDB Binary Location in the Flipper Settings.
-
-If you have trouble getting Flipper to work with a physical iOS device, it may be due to Python weirdness. The above steps have been tested with Python 3.9 sourced from Homebrew. Let @ashoat know if you have any trouble!
-
-## Reactotron
-
-Reactotron is an event tracker and logger that can be used to aid in debugging on React Native.
-
-```
-brew install reactotron && brew upgrade reactotron
-```
 
 ## Android Emulator
 
