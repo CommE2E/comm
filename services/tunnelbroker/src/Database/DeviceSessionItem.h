@@ -17,6 +17,7 @@ class DeviceSessionItem : public Item {
   std::string appVersion;
   std::string deviceOs;
   int64_t checkpointTime = 0;
+  bool isOnline = false;
 
   void validate() const override;
 
@@ -30,6 +31,7 @@ public:
   static const std::string FIELD_DEVICE_OS;
   static const std::string FIELD_CHECKPOINT_TIME;
   static const std::string FIELD_EXPIRE;
+  static const std::string FIELD_IS_ONLINE;
 
   PrimaryKeyDescriptor getPrimaryKeyDescriptor() const override;
   PrimaryKeyValue getPrimaryKeyValue() const override;
@@ -42,6 +44,7 @@ public:
   std::string getAppVersion() const;
   std::string getDeviceOs() const;
   int64_t getCheckpointTime() const;
+  bool getIsOnline() const;
 
   DeviceSessionItem() {
   }

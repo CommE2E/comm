@@ -17,6 +17,7 @@ const std::string DeviceSessionItem::FIELD_APP_VERSION = "AppVersion";
 const std::string DeviceSessionItem::FIELD_DEVICE_OS = "DeviceOS";
 const std::string DeviceSessionItem::FIELD_CHECKPOINT_TIME = "CheckpointTime";
 const std::string DeviceSessionItem::FIELD_EXPIRE = "Expire";
+const std::string DeviceSessionItem::FIELD_IS_ONLINE = "IsOnline";
 
 DeviceSessionItem::DeviceSessionItem(
     const std::string sessionID,
@@ -71,6 +72,8 @@ void DeviceSessionItem::assignItemFromDatabase(
         std::string(
             itemFromDB.at(DeviceSessionItem::FIELD_CHECKPOINT_TIME).GetS())
             .c_str());
+    this->isOnline =
+        itemFromDB.at(DeviceSessionItem::FIELD_IS_ONLINE).GetBool();
   } catch (std::logic_error &e) {
     throw std::runtime_error(
         "Invalid device session database value " + std::string(e.what()));
@@ -121,6 +124,10 @@ std::string DeviceSessionItem::getDeviceOs() const {
 
 int64_t DeviceSessionItem::getCheckpointTime() const {
   return this->checkpointTime;
+}
+
+bool DeviceSessionItem::getIsOnline() const {
+  return this->isOnline;
 }
 
 } // namespace database

@@ -53,6 +53,9 @@ void DatabaseManager::putSessionItem(const DeviceSessionItem &item) {
       DeviceSessionItem::FIELD_EXPIRE,
       Aws::DynamoDB::Model::AttributeValue(std::to_string(
           static_cast<size_t>(std::time(0)) + SESSION_RECORD_TTL)));
+  request.AddItem(
+      DeviceSessionItem::FIELD_IS_ONLINE,
+      Aws::DynamoDB::Model::AttributeValue().SetBool(false));
   this->innerPutItem(std::make_shared<DeviceSessionItem>(item), request);
 }
 
