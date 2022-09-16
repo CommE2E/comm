@@ -39,7 +39,7 @@
 		7F8D602326535E060053CB29 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */; };
 		7F8D602826535F240053CB29 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */; };
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
-		8B3EE8BE28C7C3AA00C8303A /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B3EE8BD28C7C3AA00C8303A /* lib.rs.cc */; };
+		8B99AF6628D5024800EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99AF6428D5024700EB5ADB /* lib.rs.cc */; };
 		8BF9F24D28B7943000E20C13 /* libgrpc_client.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BF9F24C28B7943000E20C13 /* libgrpc_client.a */; };
 		B7162ABD28AAD461006588D3 /* CommIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B7162ABC28AAD461006588D3 /* CommIcons.ttf */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
@@ -176,9 +176,9 @@
 		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
 		891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
-		8B15717928CA36B400209C6A /* lib.rs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lib.rs.h; path = grpc_client/lib.rs.h; sourceTree = "<group>"; };
 		8B15717B28CA442C00209C6A /* cxx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cxx.h; path = grpc_client/cxx.h; sourceTree = "<group>"; };
-		8B3EE8BD28C7C3AA00C8303A /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lib.rs.cc; path = grpc_client/lib.rs.cc; sourceTree = "<group>"; };
+		8B99AF6428D5024700EB5ADB /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lib.rs.cc; path = grpc_client/lib.rs.cc; sourceTree = "<group>"; };
+		8B99AF6528D5024800EB5ADB /* lib.rs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lib.rs.h; path = grpc_client/lib.rs.h; sourceTree = "<group>"; };
 		8BF9F24C28B7943000E20C13 /* libgrpc_client.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgrpc_client.a; path = ../cpp/CommonCpp/grpc/grpc_client/target/universal/release/libgrpc_client.a; sourceTree = "<group>"; };
 		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
 		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -315,9 +315,9 @@
 		718A3C0426F22BD100F04A8D /* grpc */ = {
 			isa = PBXGroup;
 			children = (
+				8B99AF6428D5024700EB5ADB /* lib.rs.cc */,
+				8B99AF6528D5024800EB5ADB /* lib.rs.h */,
 				8B15717B28CA442C00209C6A /* cxx.h */,
-				8B15717928CA36B400209C6A /* lib.rs.h */,
-				8B3EE8BD28C7C3AA00C8303A /* lib.rs.cc */,
 				71009A7926FDCD71002C8453 /* Client.cpp */,
 				71009A7A26FDCD71002C8453 /* Client.h */,
 				B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */,
@@ -883,7 +883,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\nset -x\n# The $PATH used by Xcode likely won't contain Cargo, fix that.\n# In addition, the $PATH used by XCode has lots of Apple-specific\n# developer tools that your Cargo isn't expecting to use, fix that.\n# Note: This assumes a default `rustup` setup and default path.\nbuild_path=\"$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin\"\n# cd to Cargo project\ncd ${SRCROOT}/../cpp/CommonCpp/grpc/grpc_client\n# Add iOS targets for cross-compilation\nenv PATH=\"${build_path}\" rustup target add aarch64-apple-ios\nenv PATH=\"${build_path}\" rustup target add x86_64-apple-ios\n# Install cargo lipo\nenv PATH=\"${build_path}\" cargo install cargo-lipo\n# Build cxx bridge\nenv PATH=\"${build_path}\" cargo build\n# Build universal static library (works on simulator and iOS)\nenv PATH=\"${build_path}\" cargo lipo --release \"${build_args[@]}\"\n# Copy the CXX files to the cargo project root to make them\n# available to XCode\ncp $(readlink target/cxxbridge/grpc_client/src/lib.rs.cc) .\ncp $(readlink target/cxxbridge/grpc_client/src/lib.rs.h) .\ncp $(readlink target/cxxbridge/rust/cxx.h) .\n";
+			shellScript = "${SRCROOT}/../../scripts/build-rust-native-library.sh\n";
 		};
 		8BFD334828CBC1910091411F /* Clean up generated CXX files */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -902,7 +902,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#!/bin/bash\nset -x\n# cd to Cargo project\ncd ${SRCROOT}/../cpp/CommonCpp/grpc/grpc_client\n# Remove the generated files from root of Cargo project\nrm lib.rs.cc\n";
+			shellScript = "${SRCROOT}/../../scripts/clean-up-rust-native-library.sh\n";
 		};
 		DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1014,7 +1014,7 @@
 				CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */,
 				B7BEE749279B3FB6009CCA35 /* GRPCStreamHostObject.cpp in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
-				8B3EE8BE28C7C3AA00C8303A /* lib.rs.cc in Sources */,
+				8B99AF6628D5024800EB5ADB /* lib.rs.cc in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				71009A7B26FDCD72002C8453 /* Client.cpp in Sources */,
 				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,

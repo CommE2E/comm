@@ -1,4 +1,3 @@
-// @generated
 #pragma once
 #include <algorithm>
 #include <array>
@@ -820,13 +819,10 @@ template <typename T> std::size_t align_of() {
 } // namespace cxxbridge1
 } // namespace rust
 
-namespace identity {
 struct Client;
-}
 
-namespace identity {
-#ifndef CXXBRIDGE1_STRUCT_identity$Client
-#define CXXBRIDGE1_STRUCT_identity$Client
+#ifndef CXXBRIDGE1_STRUCT_Client
+#define CXXBRIDGE1_STRUCT_Client
 struct Client final : public ::rust::Opaque {
   ~Client() = delete;
 
@@ -837,23 +833,23 @@ private:
     static ::std::size_t align() noexcept;
   };
 };
-#endif // CXXBRIDGE1_STRUCT_identity$Client
+#endif // CXXBRIDGE1_STRUCT_Client
 
-::rust::Box<::identity::Client> initialize_client() noexcept;
+::rust::Box<::Client> initialize_client() noexcept;
 
 ::rust::String get_user_id_blocking(
-    ::rust::Box<::identity::Client> client,
+    ::rust::Box<::Client> client,
     ::std::int32_t auth_type,
     ::rust::String user_info);
 
 bool verify_user_token_blocking(
-    ::rust::Box<::identity::Client> client,
+    ::rust::Box<::Client> client,
     ::rust::String user_id,
     ::rust::String device_id,
     ::rust::String access_token);
 
 ::rust::String register_user_blocking(
-    ::rust::Box<::identity::Client> client,
+    ::rust::Box<::Client> client,
     ::rust::String user_id,
     ::rust::String device_id,
     ::rust::String username,
@@ -861,16 +857,15 @@ bool verify_user_token_blocking(
     ::rust::String user_public_key);
 
 ::rust::String login_user_pake_blocking(
-    ::rust::Box<::identity::Client> client,
+    ::rust::Box<::Client> client,
     ::rust::String user_id,
     ::rust::String device_id,
     ::rust::String password);
 
 ::rust::String login_user_wallet_blocking(
-    ::rust::Box<::identity::Client> client,
+    ::rust::Box<::Client> client,
     ::rust::String user_id,
     ::rust::String device_id,
     ::rust::String siwe_message,
     ::rust::Vec<::std::uint8_t> siwe_signature,
     ::rust::String user_public_key);
-} // namespace identity
