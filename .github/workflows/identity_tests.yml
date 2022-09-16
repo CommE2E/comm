@@ -2,7 +2,9 @@ name: Identity tests (Nix)
 
 on:
   push:
-    branches: [master]
+    branches:
+      - main
+      - 'jonringer/github-identity-tests'
     paths:
       - 'services/identity/**'
       - 'shared/protos/identity.proto'
