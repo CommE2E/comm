@@ -1,0 +1,22 @@
+name: Identity tests (Nix)
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'services/identity/**'
+      - 'shared/protos/identity.proto'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: cachix/install-nix-action@v17
+        with:
+          extra_nix_config: |
+            extra-substituters = https://comm.cachix.org
+            extra-trusted-public-keys = comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4=
+      - name: Identity tests
+        working-directory: ./services/identity
+        run: nix develop --command cargo test
