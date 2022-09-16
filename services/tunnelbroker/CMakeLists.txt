@@ -75,12 +75,6 @@ add_library_rust(PATH rust-notifications NAMESPACE rustlib)
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 
 set(
-  SOURCE_CODE
-
-  ${SOURCE_CODE}
-)
-
-set(
   LIBS
 
   comm-services-common
