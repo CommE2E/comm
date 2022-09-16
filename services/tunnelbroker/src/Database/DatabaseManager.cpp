@@ -2,6 +2,8 @@
 #include "DynamoDBTools.h"
 #include "GlobalTools.h"
 
+#include <glog/logging.h>
+
 namespace comm {
 namespace network {
 namespace database {
@@ -74,6 +76,43 @@ void DatabaseManager::removeSessionItem(const std::string &sessionID) {
     return;
   }
   this->innerRemoveItem(*item);
+}
+
+void DatabaseManager::updateSessionItemIsOnline(
+    const std::string &sessionID,
+    bool isOnline) {
+  std::shared_ptr<DeviceSessionItem> item = this->findSessionItem(sessionID);
+  if (item == nullptr) {
+    LOG(ERROR) << "Can't find for update sessionItem for sessionID: "
+               << sessionID;
+    return;
+  }
+  Aws::DynamoDB::Model::UpdateItemRequest request;
+  request.SetTableName(item->getTableName());
+
+  Aws::DynamoDB::Model::AttributeValue attributeKeyValue;
+  attributeKeyValue.SetS(sessionID);
+  request.AddKey(DeviceSessionItem::FIELD_SESSION_ID, attributeKeyValue);
+  Aws::String update_expression("SET #a = :valueA");
+  request.SetUpdateExpression(update_expression);
+  Aws::Map<Aws::String, Aws::String> expressionAttributeNames;
+  expressionAttributeNames["#a"] = DeviceSessionItem::FIELD_IS_ONLINE;
+  request.SetExpressionAttributeNames(expressionAttributeNames);
+
+  Aws::DynamoDB::Model::AttributeValue attributeUpdatedValue;
+  attributeUpdatedValue.SetBool(isOnline);
+  Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
+      expressionAttributeValue;
+  expressionAttributeValue[":valueA"] = attributeUpdatedValue;
+  request.SetExpressionAttributeValues(expressionAttributeValue);
+
+  const Aws::DynamoDB::Model::UpdateItemOutcome &result =
+      getDynamoDBClient()->UpdateItem(request);
+  if (!result.IsSuccess()) {
+    LOG(ERROR) << "Error updating device online status at "
+                  "`updateSessionItemIsOnline`: "
+               << result.GetError().GetMessage();
+  }
 }
 
 void DatabaseManager::putSessionSignItem(const SessionSignItem &item) {
