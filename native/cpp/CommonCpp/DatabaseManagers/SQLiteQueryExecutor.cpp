@@ -491,94 +491,6 @@ void validate_encryption() {
   Logger::log("Encryption completed successfully.");
 }
 
-typedef bool ShouldBeInTransaction;
-typedef std::pair<std::function<bool(sqlite3 *)>, ShouldBeInTransaction>
-    SQLiteMigration;
-std::vector<std::pair<uint, SQLiteMigration>> migrations{
-    {{1, {create_drafts_table, true}},
-     {2, {rename_threadID_to_key, true}},
-     {4, {create_persist_account_table, true}},
-     {5, {create_persist_sessions_table, true}},
-     {15, {create_media_table, true}},
-     {16, {drop_messages_table, true}},
-     {17, {recreate_messages_table, true}},
-     {18, {create_messages_idx_thread_time, true}},
-     {19, {create_media_idx_container, true}},
-     {20, {create_threads_table, true}},
-     {21, {update_threadID_for_pending_threads_in_drafts, true}},
-     {22, {enable_write_ahead_logging_mode, false}},
-     {23, {create_metadata_table, true}},
-     {24, {add_not_null_constraint_to_drafts, true}},
-     {25, {add_not_null_constraint_to_metadata, true}}}};
-
-void SQLiteQueryExecutor::migrate() const {
-  validate_encryption();
-
-  sqlite3 *db;
-  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
-  on_database_open(db);
-
-  std::stringstream db_path;
-  db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
-          << std::endl;
-  Logger::log(db_path.str());
-
-  sqlite3_stmt *user_version_stmt;
-  sqlite3_prepare_v2(
-      db, "PRAGMA user_version;", -1, &user_version_stmt, nullptr);
-  sqlite3_step(user_version_stmt);
-
-  int current_user_version = sqlite3_column_int(user_version_stmt, 0);
-  sqlite3_finalize(user_version_stmt);
-
-  std::stringstream version_msg;
-  version_msg << "db version: " << current_user_version << std::endl;
-  Logger::log(version_msg.str());
-
-  for (const auto &[idx, migration] : migrations) {
-    if (idx <= current_user_version) {
-      continue;
-    }
-    const auto &[applyMigration, shouldBeInTransaction] = migration;
-
-    std::stringstream migration_msg;
-
-    if (shouldBeInTransaction) {
-      sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
-    }
-
-    auto rc = applyMigration(db);
-    if (!rc) {
-      migration_msg << "migration " << idx << " failed." << std::endl;
-      Logger::log(migration_msg.str());
-      break;
-    }
-
-    std::stringstream update_version;
-    update_version << "PRAGMA user_version=" << idx << ";";
-    auto update_version_str = update_version.str();
-
-    sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, nullptr);
-
-    if (shouldBeInTransaction) {
-      sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
-    }
-    migration_msg << "migration " << idx << " succeeded." << std::endl;
-    Logger::log(migration_msg.str());
-  }
-
-  sqlite3_close(db);
-}
-
-void SQLiteQueryExecutor::assign_encryption_key() {
-  CommSecureStore commSecureStore{};
-  std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
-      SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
-  commSecureStore.set(
-      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
-  SQLiteQueryExecutor::encryptionKey = encryptionKey;
-}
-
 auto &SQLiteQueryExecutor::getStorage() {
   static auto storage = make_storage(
       SQLiteQueryExecutor::sqliteFilePath,
@@ -640,6 +552,112 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("data", &Metadata::data)));
   storage.on_open = on_database_open;
   return storage;
+}
+
+typedef bool ShouldBeInTransaction;
+typedef std::pair<std::function<bool(sqlite3 *)>, ShouldBeInTransaction>
+    SQLiteMigration;
+std::vector<std::pair<uint, SQLiteMigration>> migrations{
+    {{1, {create_drafts_table, true}},
+     {2, {rename_threadID_to_key, true}},
+     {4, {create_persist_account_table, true}},
+     {5, {create_persist_sessions_table, true}},
+     {15, {create_media_table, true}},
+     {16, {drop_messages_table, true}},
+     {17, {recreate_messages_table, true}},
+     {18, {create_messages_idx_thread_time, true}},
+     {19, {create_media_idx_container, true}},
+     {20, {create_threads_table, true}},
+     {21, {update_threadID_for_pending_threads_in_drafts, true}},
+     {22, {enable_write_ahead_logging_mode, false}},
+     {23, {create_metadata_table, true}},
+     {24, {add_not_null_constraint_to_drafts, true}},
+     {25, {add_not_null_constraint_to_metadata, true}}}};
+
+void SQLiteQueryExecutor::migrate() const {
+  validate_encryption();
+
+  sqlite3 *db;
+  sqlite3_open(SQLiteQueryExecutor::sqliteFilePath.c_str(), &db);
+  on_database_open(db);
+
+  std::stringstream db_path;
+  db_path << "db path: " << SQLiteQueryExecutor::sqliteFilePath.c_str()
+          << std::endl;
+  Logger::log(db_path.str());
+
+  sqlite3_stmt *user_version_stmt;
+  sqlite3_prepare_v2(
+      db, "PRAGMA user_version;", -1, &user_version_stmt, nullptr);
+  sqlite3_step(user_version_stmt);
+
+  int current_user_version = sqlite3_column_int(user_version_stmt, 0);
+  sqlite3_finalize(user_version_stmt);
+
+  std::stringstream version_msg;
+  version_msg << "db version: " << current_user_version << std::endl;
+  Logger::log(version_msg.str());
+
+  if (current_user_version == 0) {
+    SQLiteQueryExecutor::getStorage().sync_schema();
+
+    std::stringstream sync_msg;
+    sync_msg << "Creating new database, syncing structure with ORM storage."
+             << std::endl;
+    Logger::log(sync_msg.str());
+
+    auto latest_version = migrations.back().first;
+
+    std::stringstream update_version;
+    update_version << "PRAGMA user_version=" << latest_version << ";";
+    auto update_version_str = update_version.str();
+    sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, nullptr);
+
+    return;
+  }
+
+  for (const auto &[idx, migration] : migrations) {
+    if (idx <= current_user_version) {
+      continue;
+    }
+    const auto &[applyMigration, shouldBeInTransaction] = migration;
+
+    std::stringstream migration_msg;
+
+    if (shouldBeInTransaction) {
+      sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+    }
+
+    auto rc = applyMigration(db);
+    if (!rc) {
+      migration_msg << "migration " << idx << " failed." << std::endl;
+      Logger::log(migration_msg.str());
+      break;
+    }
+
+    std::stringstream update_version;
+    update_version << "PRAGMA user_version=" << idx << ";";
+    auto update_version_str = update_version.str();
+
+    sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, nullptr);
+
+    if (shouldBeInTransaction) {
+      sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
+    }
+    migration_msg << "migration " << idx << " succeeded." << std::endl;
+    Logger::log(migration_msg.str());
+  }
+
+  sqlite3_close(db);
+}
+
+void SQLiteQueryExecutor::assign_encryption_key() {
+  CommSecureStore commSecureStore{};
+  std::string encryptionKey = comm::crypto::Tools::generateRandomHexString(
+      SQLiteQueryExecutor::sqlcipherEncryptionKeySize);
+  commSecureStore.set(
+      SQLiteQueryExecutor::secureStoreEncryptionKeyID, encryptionKey);
+  SQLiteQueryExecutor::encryptionKey = encryptionKey;
 }
 
 void SQLiteQueryExecutor::initialize(std::string &databasePath) {
