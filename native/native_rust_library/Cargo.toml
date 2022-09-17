@@ -1,5 +1,5 @@
 [package]
-name = "grpc_client"
+name = "native_rust_library"
 version = "0.1.0"
 edition = "2021"
 license = "BSD-3-Clause"

@@ -39,8 +39,8 @@
 		7F8D602326535E060053CB29 /* OpenSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602026535E060053CB29 /* OpenSans-Regular.ttf */; };
 		7F8D602826535F240053CB29 /* IBMPlexSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602726535EEE0053CB29 /* IBMPlexSans-Bold.ttf */; };
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
-		8B99AF6628D5024800EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99AF6428D5024700EB5ADB /* lib.rs.cc */; };
-		8BF9F24D28B7943000E20C13 /* libgrpc_client.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BF9F24C28B7943000E20C13 /* libgrpc_client.a */; };
+		8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
+		8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */; };
 		B7162ABD28AAD461006588D3 /* CommIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B7162ABC28AAD461006588D3 /* CommIcons.ttf */; };
 		B71AFF1F265EDD8600B22352 /* IBMPlexSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */; };
 		B734D11028ADD55200570D04 /* SWMansionIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B734D10F28ADD55200570D04 /* SWMansionIcons.ttf */; };
@@ -176,10 +176,10 @@
 		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
 		891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
-		8B15717B28CA442C00209C6A /* cxx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cxx.h; path = grpc_client/cxx.h; sourceTree = "<group>"; };
-		8B99AF6428D5024700EB5ADB /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = lib.rs.cc; path = grpc_client/lib.rs.cc; sourceTree = "<group>"; };
-		8B99AF6528D5024800EB5ADB /* lib.rs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lib.rs.h; path = grpc_client/lib.rs.h; sourceTree = "<group>"; };
-		8BF9F24C28B7943000E20C13 /* libgrpc_client.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgrpc_client.a; path = ../cpp/CommonCpp/grpc/grpc_client/target/universal/release/libgrpc_client.a; sourceTree = "<group>"; };
+		8B99AF6D28D50D4800EB5ADB /* lib.rs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lib.rs.h; sourceTree = "<group>"; };
+		8B99B59928D50D4900EB5ADB /* cxx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cxx.h; sourceTree = "<group>"; };
+		8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnative_rust_library.a; path = ../native_rust_library/target/universal/release/libnative_rust_library.a; sourceTree = "<group>"; };
+		8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lib.rs.cc; sourceTree = "<group>"; };
 		913E5A7BDECB327E3DE11053 /* Pods-NotificationService.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.release.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.release.xcconfig"; sourceTree = "<group>"; };
 		994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Comm.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7055C6B26E477CF00BE0548 /* MessageStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageStoreOperations.h; sourceTree = "<group>"; };
@@ -236,7 +236,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BF9F24D28B7943000E20C13 /* libgrpc_client.a in Frameworks */,
+				8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */,
 				7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */,
 				D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */,
 			);
@@ -315,9 +315,6 @@
 		718A3C0426F22BD100F04A8D /* grpc */ = {
 			isa = PBXGroup;
 			children = (
-				8B99AF6428D5024700EB5ADB /* lib.rs.cc */,
-				8B99AF6528D5024800EB5ADB /* lib.rs.h */,
-				8B15717B28CA442C00209C6A /* cxx.h */,
 				71009A7926FDCD71002C8453 /* Client.cpp */,
 				71009A7A26FDCD71002C8453 /* Client.h */,
 				B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */,
@@ -482,7 +479,7 @@
 		7FF0870B1E833C3F000A1ACF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				8BF9F24C28B7943000E20C13 /* libgrpc_client.a */,
+				8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */,
 				CB3C621327CE66540054F24C /* libEXSecureStore.a */,
 				724995FA27BA9E8C00323FCE /* UserNotifications.framework */,
 				711CF80E25DC096000A00FBD /* libFolly.a */,
@@ -496,6 +493,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				8B99AF6B28D50D4800EB5ADB /* native_rust_library */,
 				FC2DF94E28BFCF5B0017C4AF /* shared */,
 				71BE84362636A944002849D2 /* cpp */,
 				13B07FAE1A68108700A75B9A /* Comm */,
@@ -519,6 +517,17 @@
 				724995D127B4103A00323FCE /* NotificationService.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8B99AF6B28D50D4800EB5ADB /* native_rust_library */ = {
+			isa = PBXGroup;
+			children = (
+				8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */,
+				8B99AF6D28D50D4800EB5ADB /* lib.rs.h */,
+				8B99B59928D50D4900EB5ADB /* cxx.h */,
+			);
+			name = native_rust_library;
+			path = ../native_rust_library;
 			sourceTree = "<group>";
 		};
 		AFF3F1F76178B42122C79BDE /* ExpoModulesProviders */ = {
@@ -879,7 +888,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"${SRCROOT}/../cpp/CommonCpp/grpc/grpc_client/lib.rs.cc",
+				"${SRCROOT}/../native_rust_library/lib.rs.cc",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -902,7 +911,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "${SRCROOT}/../../scripts/clean-up-rust-native-library.sh\n";
+			shellScript = "${SRCROOT}/../../scripts/clean-up-native-rust-library.sh\n";
 		};
 		DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1014,7 +1023,7 @@
 				CB38B48228771C7A00171182 /* NonBlockingLock.mm in Sources */,
 				B7BEE749279B3FB6009CCA35 /* GRPCStreamHostObject.cpp in Sources */,
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
-				8B99AF6628D5024800EB5ADB /* lib.rs.cc in Sources */,
+				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
 				71009A7B26FDCD72002C8453 /* Client.cpp in Sources */,
 				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,
@@ -1118,7 +1127,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
-					"$(SRCROOT)/../cpp/CommonCpp/grpc/grpc_client",
+					"$(SRCROOT)/../native_rust_library",
 				);
 				INFOPLIST_FILE = Comm/Info.debug.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1216,7 +1225,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-safe-area-context\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-video\"",
 					/usr/lib/swift,
-					"$(SRCROOT)/../cpp/CommonCpp/grpc/grpc_client/target/universal/release",
+					"$(SRCROOT)/../native_rust_library/target/universal/release",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DFOLLY_MOBILE=1",
@@ -1263,7 +1272,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../node_modules/react-native/Libraries/LinkingIOS",
 					"$(PODS_ROOT)/boost-for-react-native",
-					"$(SRCROOT)/../cpp/CommonCpp/grpc/grpc_client",
+					"$(SRCROOT)/../native_rust_library",
 				);
 				INFOPLIST_FILE = Comm/Info.release.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -1352,7 +1361,7 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-safe-area-context\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-video\"",
 					/usr/lib/swift,
-					"$(SRCROOT)/../cpp/CommonCpp/grpc/grpc_client/target/universal/release",
+					"$(SRCROOT)/../native_rust_library/target/universal/release",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (

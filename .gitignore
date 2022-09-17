@@ -8,7 +8,6 @@ landing/dist
 lib/node_modules
 
 native/cpp/CommonCpp/CryptoTools/opaque-ke-cxx/target
-native/cpp/CommonCpp/grpc/grpc_client/target
 
 web/node_modules
 web/dist

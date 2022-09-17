@@ -7,7 +7,7 @@ set -x
 # Note: This assumes a default `rustup` setup and default path.
 build_path="$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
 # cd to Cargo project
-cd "${SRCROOT}/../cpp/CommonCpp/grpc/grpc_client" || exit
+cd "${SRCROOT}/../native_rust_library" || exit
 # Add iOS targets for cross-compilation
 env PATH="${build_path}" rustup target add aarch64-apple-ios
 env PATH="${build_path}" rustup target add x86_64-apple-ios
@@ -22,6 +22,6 @@ env PATH="${build_path}" cargo lipo --release
 unset CXXFLAGS
 # Copy the CXX files to the cargo project root to make them
 # available to XCode
-cp "$(readlink target/cxxbridge/grpc_client/src/lib.rs.cc)" .
-cp "$(readlink target/cxxbridge/grpc_client/src/lib.rs.h)" .
+cp "$(readlink target/cxxbridge/native_rust_library/src/lib.rs.cc)" .
+cp "$(readlink target/cxxbridge/native_rust_library/src/lib.rs.h)" .
 cp "$(readlink target/cxxbridge/rust/cxx.h)" .
