@@ -1,5 +1,4 @@
 use lazy_static::lazy_static;
-use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
 use tonic::{transport::Channel, Status};
 use tracing::instrument;
@@ -20,14 +19,12 @@ use identity_client::{
 const IDENTITY_SERVICE_SOCKET_ADDR: &str = "https://[::1]:50051";
 
 lazy_static! {
-  pub static ref RUNTIME: Arc<Runtime> = Arc::new(
-    Builder::new_multi_thread()
-      .worker_threads(1)
-      .max_blocking_threads(1)
-      .enable_all()
-      .build()
-      .unwrap()
-  );
+  pub static ref RUNTIME: Runtime = Builder::new_multi_thread()
+    .worker_threads(1)
+    .max_blocking_threads(1)
+    .enable_all()
+    .build()
+    .unwrap();
 }
 
 #[cxx::bridge]
