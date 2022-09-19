@@ -29,4 +29,20 @@ UploadBlobClient::~UploadBlobClient() {
     ::complete_upload_blocking(std::move(*this->uploadState.release()));
   }
 }
+
+DownloadBlobClient::DownloadBlobClient(const std::string &holder) {
+  this->downloadState = std::make_unique<::rust::Box<::DownloadState>>(
+      ::initialize_download_state_blocking(holder));
+}
+
+std::tuple<bool, std::vector<std::uint8_t>>
+DownloadBlobClient::pullChunkBlocking() {
+  auto blob_chunk_response = ::pull_chunk_blocking(*this->downloadState);
+  if (blob_chunk_response.stream_end) {
+    return {true, {}};
+  }
+  auto data = blob_chunk_response.data;
+  std::vector<std::uint8_t> buffer(data.data(), data.data() + data.size());
+  return {false, buffer};
+}
 } // namespace comm
