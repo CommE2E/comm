@@ -182,4 +182,9 @@
   --inline-sidebar-bg: var(--shades-black-70);
   --inline-sidebar-bg-hover: var(--shades-black-80);
   --inline-sidebar-color: var(--fg);
+  --compose-subchannel-header-fg: var(--shades-black-60);
+  --compose-subchannel-header-bg: var(--shades-black-80);
+  --compose-subchannel-label-color: var(--shades-black-60);
+  --compose-subchannel-mark-color: var(--violet-light-100);
+  --enum-option-icon-color: var(--violet-dark-100);
 }

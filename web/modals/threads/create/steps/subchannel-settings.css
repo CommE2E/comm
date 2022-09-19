@@ -1,0 +1,8 @@
+.wrapper {
+  color: var(--enum-option-icon-color);
+}
+
+.label {
+  padding: 20px 0;
+  color: var(--compose-subchannel-label-color);
+}
