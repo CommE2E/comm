@@ -530,7 +530,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 <AnimatedView style={this.cameraRollIconStyle}>
                   <SWMansionIcon
                     name="image-1"
-                    size={24}
+                    size={28}
                     color={`#${this.props.threadInfo.color}`}
                   />
                 </AnimatedView>
@@ -543,7 +543,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
                 <AnimatedView style={this.cameraIconStyle}>
                   <SWMansionIcon
                     name="camera"
-                    size={24}
+                    size={28}
                     color={`#${this.props.threadInfo.color}`}
                   />
                 </AnimatedView>
@@ -717,15 +717,16 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
 const unboundStyles = {
   cameraIcon: {
-    paddingBottom: Platform.OS === 'android' ? 12 : 11,
-    paddingRight: 4,
+    paddingBottom: Platform.OS === 'android' ? 11 : 8,
+    paddingRight: 5,
   },
   cameraRollIcon: {
-    paddingBottom: Platform.OS === 'android' ? 12 : 11,
-    paddingRight: 6,
+    paddingBottom: Platform.OS === 'android' ? 11 : 8,
+    paddingRight: 5,
   },
   container: {
     backgroundColor: 'listBackground',
+    paddingLeft: Platform.OS === 'android' ? 10 : 5,
   },
   expandButton: {
     bottom: 0,
@@ -734,6 +735,7 @@ const unboundStyles = {
   },
   expandIcon: {
     paddingBottom: Platform.OS === 'android' ? 13 : 11,
+    paddingRight: 2,
   },
   expandoButtons: {
     alignSelf: 'flex-end',
