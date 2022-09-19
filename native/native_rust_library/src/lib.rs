@@ -10,6 +10,10 @@ mod identity {
   tonic::include_proto!("identity");
 }
 
+use blob_client::{
+  complete_upload, initialize_download_state, initialize_upload_state,
+  pull_chunk, start_upload, upload_chunk, DownloadState, UploadState,
+};
 use identity::identity_service_client::IdentityServiceClient;
 use identity_client::{
   get_user_id, login_user_pake, login_user_wallet, register_user,
@@ -41,6 +45,7 @@ mod ffi {
   // data structures declared here will be accessible in C++
   // but their fields will not be visible
   extern "Rust" {
+    // Identity Service Client
     type Client;
     fn initialize_client() -> Box<Client>;
     fn get_user_id_blocking(
@@ -77,6 +82,28 @@ mod ffi {
       siwe_signature: Vec<u8>,
       user_public_key: String,
     ) -> Result<String>;
+
+    // Blob Service Client
+    type UploadState;
+    type DownloadState;
+
+    fn initialize_upload_state_blocking() -> Result<Box<UploadState>>;
+    fn start_upload_blocking(
+      state: &mut Box<UploadState>,
+      holder: String,
+      hash: String,
+    ) -> Result<()>;
+    fn upload_chunk_blocking(
+      state: &mut Box<UploadState>,
+      chunk: &[u8],
+    ) -> Result<()>;
+    fn complete_upload_blocking(client: Box<UploadState>) -> Result<bool>;
+    fn initialize_download_state_blocking(
+      holder: String,
+    ) -> Result<Box<DownloadState>>;
+    fn pull_chunk_blocking(
+      client: &mut Box<DownloadState>,
+    ) -> Result<BlobChunkResponse>;
   }
 }
 
@@ -165,4 +192,41 @@ fn login_user_wallet_blocking(
     siwe_signature,
     user_public_key,
   ))
+}
+
+pub fn initialize_upload_state_blocking() -> Result<Box<UploadState>, String> {
+  RUNTIME.block_on(initialize_upload_state())
+}
+
+pub fn start_upload_blocking(
+  state: &mut Box<UploadState>,
+  holder: String,
+  hash: String,
+) -> Result<(), String> {
+  RUNTIME.block_on(start_upload(state, holder, hash))
+}
+
+pub fn upload_chunk_blocking(
+  state: &mut Box<UploadState>,
+  chunk: &[u8],
+) -> Result<(), String> {
+  RUNTIME.block_on(upload_chunk(state, chunk))
+}
+
+pub fn complete_upload_blocking(
+  client: Box<UploadState>,
+) -> Result<bool, String> {
+  RUNTIME.block_on(complete_upload(client))
+}
+
+pub fn initialize_download_state_blocking(
+  holder: String,
+) -> Result<Box<DownloadState>, String> {
+  RUNTIME.block_on(initialize_download_state(holder))
+}
+
+pub fn pull_chunk_blocking(
+  client: &mut Box<DownloadState>,
+) -> Result<ffi::BlobChunkResponse, String> {
+  RUNTIME.block_on(pull_chunk(client))
 }
