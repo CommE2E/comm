@@ -1,0 +1,30 @@
+div.modalHeader {
+  padding: 15px;
+  font-weight: var(--semi-bold);
+  color: var(--compose-subchannel-header-fg);
+  background-color: var(--compose-subchannel-header-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+div.modalHeaderParentName {
+  color: var(--compose-subchannel-mark-color);
+  display: inline;
+}
+
+div.container {
+  width: 383px;
+  overflow-y: auto;
+}
+
+div.stepContainer {
+  position: relative;
+  height: 100vh;
+  max-height: 533px;
+}
+
+div.stepItem {
+  padding: 20px;
+}

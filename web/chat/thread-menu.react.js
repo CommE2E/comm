@@ -28,6 +28,7 @@ import Menu from '../components/menu.react';
 import SidebarPromoteModal from '../modals/chat/sidebar-promote-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
+import ComposeSubchannelModal from '../modals/threads/create/compose-subchannel-modal.react';
 import ThreadMembersModal from '../modals/threads/members/members-modal.react';
 import ThreadNotificationsModal from '../modals/threads/notifications/notifications-modal.react';
 import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react';
@@ -144,6 +145,17 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
     );
   }, [hasSubchannels, onClickViewSubchannels]);
 
+  const onClickCreateSubchannel = React.useCallback(
+    () =>
+      pushModal(
+        <ComposeSubchannelModal
+          parentThreadInfo={threadInfo}
+          onClose={popModal}
+        />,
+      ),
+    [popModal, pushModal, threadInfo],
+  );
+
   const createSubchannelsItem = React.useMemo(() => {
     if (!canCreateSubchannels) {
       return null;
@@ -153,9 +165,10 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
         key="newSubchannel"
         text="Create new subchannel"
         icon="plus-circle"
+        onClick={onClickCreateSubchannel}
       />
     );
-  }, [canCreateSubchannels]);
+  }, [canCreateSubchannels, onClickCreateSubchannel]);
 
   const dispatchActionPromise = useDispatchActionPromise();
   const callLeaveThread = useServerCall(leaveThread);
@@ -245,16 +258,13 @@ function ThreadMenu(props: ThreadMenuProps): React.Node {
   const menuItems = React.useMemo(() => {
     const separator = <hr key="separator" className={css.separator} />;
 
-    // TODO: Enable menu items when the modals are implemented
-    const SHOW_CREATE_SUBCHANNELS = false;
-
     const items = [
       settingsItem,
       notificationsItem,
       membersItem,
       sidebarItem,
       viewSubchannelsItem,
-      SHOW_CREATE_SUBCHANNELS && createSubchannelsItem,
+      createSubchannelsItem,
       leaveThreadItem && separator,
       canPromoteSidebar && promoteSidebar,
       leaveThreadItem,
