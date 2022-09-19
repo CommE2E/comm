@@ -1,5 +1,7 @@
 use anyhow::Result;
+use env_logger;
 use lazy_static::lazy_static;
+use log::info;
 use tokio::runtime::Runtime;
 pub mod apns;
 pub mod fcm;
@@ -27,8 +29,11 @@ mod ffi {
 }
 
 lazy_static! {
-  // Lazy static Tokio runtime initialization
-  pub static ref RUNTIME: Runtime = Runtime::new().unwrap();
+  pub static ref RUNTIME: Runtime = {
+    env_logger::init();
+    info!("Tokio runtime initialization");
+    Runtime::new().unwrap()
+  };
 }
 
 pub fn send_notif_to_apns(
