@@ -10,7 +10,7 @@ import { createSelector } from 'reselect';
 import {
   createLocalMessageActionType,
   sendMultimediaMessageActionTypes,
-  legacySendMultimediaMessage,
+  sendMultimediaMessage,
   sendTextMessageActionTypes,
   sendTextMessage,
 } from 'lib/actions/message-actions';
@@ -54,7 +54,10 @@ import {
   type SendMessagePayload,
 } from 'lib/types/message-types';
 import type { RawImagesMessageInfo } from 'lib/types/messages/images';
-import type { RawMediaMessageInfo } from 'lib/types/messages/media';
+import type {
+  MediaMessageServerDBContent,
+  RawMediaMessageInfo,
+} from 'lib/types/messages/media';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
 import type { Dispatch } from 'lib/types/redux-types';
 import {
@@ -122,7 +125,7 @@ type Props = {
   +sendMultimediaMessage: (
     threadID: string,
     localID: string,
-    mediaIDs: $ReadOnlyArray<string>,
+    mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
   ) => Promise<SendMessageResult>,
   +sendTextMessage: (
     threadID: string,
@@ -324,15 +327,25 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       localID !== null && localID !== undefined,
       'localID should be set',
     );
-    const mediaIDs = [];
-    for (const { id } of messageInfo.media) {
-      mediaIDs.push(id);
-    }
+    const mediaMessageContents: MediaMessageServerDBContent[] = messageInfo.media.map(
+      media => {
+        if (media.type === 'photo') {
+          return { type: 'photo', uploadID: media.id };
+        } else {
+          return {
+            type: 'video',
+            uploadID: media.id,
+            thumbnailUploadID: media.thumbnailID,
+          };
+        }
+      },
+    );
+
     try {
       const result = await this.props.sendMultimediaMessage(
         threadID,
         localID,
-        mediaIDs,
+        mediaMessageContents,
       );
       return {
         localID,
@@ -1383,9 +1396,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
     const hasWiFi = useSelector(state => state.connectivity.hasWiFi);
     const calendarQuery = useCalendarQuery();
     const callUploadMultimedia = useServerCall(uploadMultimedia);
-    const callSendMultimediaMessage = useServerCall(
-      legacySendMultimediaMessage,
-    );
+    const callSendMultimediaMessage = useServerCall(sendMultimediaMessage);
     const callSendTextMessage = useServerCall(sendTextMessage);
     const callNewThread = useServerCall(newThread);
     const dispatchActionPromise = useDispatchActionPromise();
