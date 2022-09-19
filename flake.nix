@@ -40,7 +40,7 @@
     # to be built by any consumer
     nixConfig = {
       extra-substituters = [ "https://comm.cachix.org" ];
-      extra-trusted-public-keys = [
+      trusted-public-keys = [
         "comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4="
       ];
     };
