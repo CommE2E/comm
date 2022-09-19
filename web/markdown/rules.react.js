@@ -69,9 +69,10 @@ const linkRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
 
 const markdownRules: (
   useDarkStyle: boolean,
+  isViewer: boolean,
   threadColor: ?string,
 ) => MarkdownRules = _memoize(
-  (useDarkStyle, threadColor) => {
+  (useDarkStyle, isViewer, threadColor) => {
     const linkMarkdownRules = linkRules(useDarkStyle);
 
     const simpleMarkdownRules = {
@@ -99,16 +100,22 @@ const markdownRules: (
               '--text-message-default-background',
             );
           }
-          const backgroundColor = threadColor
-            ? tinycolor(threadColor).darken(20).toString()
-            : tinycolor(defaultTextMessageBackgroundColor)
-                .lighten(40)
-                .toString();
-          const borderLeftColor = threadColor
-            ? tinycolor(threadColor).darken(30).toString()
-            : tinycolor(defaultTextMessageBackgroundColor)
-                .lighten(20)
-                .toString();
+
+          let backgroundColor = tinycolor(defaultTextMessageBackgroundColor)
+            .lighten(40)
+            .toString();
+          let borderLeftColor = tinycolor(defaultTextMessageBackgroundColor)
+            .lighten(20)
+            .toString();
+
+          if (threadColor) {
+            backgroundColor = isViewer
+              ? tinycolor(threadColor).darken(20).toString()
+              : tinycolor(threadColor).toString();
+            borderLeftColor = isViewer
+              ? tinycolor(threadColor).darken(30).toString()
+              : tinycolor(threadColor).darken(20).toString();
+          }
 
           return (
             <blockquote
@@ -179,7 +186,7 @@ const markdownRules: (
 
 function useTextMessageRulesFunc(
   threadID: ?string,
-): ?(boolean) => MarkdownRules {
+): ?(useDarkStyle: boolean, isViewer: boolean) => MarkdownRules {
   const threadMembers = useSelector(
     relativeMemberInfoSelectorForMembersOfThread(threadID),
   );
@@ -196,8 +203,10 @@ function useTextMessageRulesFunc(
     if (!threadMembers) {
       return undefined;
     }
-    return _memoize<[boolean], MarkdownRules>((useDarkStyle: boolean) =>
-      textMessageRules(threadMembers, useDarkStyle, threadColor),
+    return _memoize<[boolean, boolean], MarkdownRules>(
+      (useDarkStyle: boolean, isViewer: boolean) =>
+        textMessageRules(threadMembers, useDarkStyle, isViewer, threadColor),
+      (...args) => JSON.stringify(args),
     );
   }, [threadMembers, threadColor]);
 }
@@ -205,9 +214,10 @@ function useTextMessageRulesFunc(
 function textMessageRules(
   members: $ReadOnlyArray<RelativeMemberInfo>,
   useDarkStyle: boolean,
+  isViewer: boolean,
   threadColor: ?string,
 ): MarkdownRules {
-  const baseRules = markdownRules(useDarkStyle, threadColor);
+  const baseRules = markdownRules(useDarkStyle, isViewer, threadColor);
   return {
     ...baseRules,
     simpleMarkdownRules: {
@@ -233,7 +243,7 @@ let defaultTextMessageRules = null;
 
 function getDefaultTextMessageRules(): MarkdownRules {
   if (!defaultTextMessageRules) {
-    defaultTextMessageRules = textMessageRules([], false, null);
+    defaultTextMessageRules = textMessageRules([], false, false, null);
   }
   return defaultTextMessageRules;
 }

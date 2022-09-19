@@ -50,7 +50,10 @@ function TextMessage(props: Props): React.Node {
 
   const messageListContext = React.useContext(MessageListContext);
   invariant(messageListContext, 'DummyTextNode should have MessageListContext');
-  const rules = messageListContext.getTextMessageMarkdownRules(darkColor);
+  const rules = messageListContext.getTextMessageMarkdownRules(
+    darkColor,
+    isViewer,
+  );
   return (
     <ComposedMessage
       item={props.item}
