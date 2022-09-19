@@ -8,6 +8,8 @@ on:
       - 'web/**'
       - 'docs/**'
       - 'keyserver/**'
+  pull_request:
+    types: [opened, reopened]
 
 jobs:
   build:

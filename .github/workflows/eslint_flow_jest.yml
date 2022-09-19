@@ -3,6 +3,8 @@ name: ESLint & Flow & Jest
 on:
   push:
     branches: [master]
+  pull_request:
+    types: [opened, reopened]
 
 jobs:
   build:

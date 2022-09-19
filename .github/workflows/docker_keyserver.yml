@@ -7,6 +7,8 @@ on:
       - 'native/**'
       - 'docs/**'
       - 'services/**'
+  pull_request:
+    types: [opened, reopened]
 
 jobs:
   build:

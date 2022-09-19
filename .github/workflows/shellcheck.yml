@@ -3,6 +3,8 @@ name: ShellCheck
 on:
   push:
     branches: [master]
+  pull_request:
+    types: [opened, reopened]
 
 jobs:
   shellcheck:
