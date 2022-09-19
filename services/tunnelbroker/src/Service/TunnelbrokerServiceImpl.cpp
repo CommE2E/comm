@@ -197,8 +197,8 @@ grpc::Status TunnelBrokerServiceImpl::Get(
     tunnelbroker::GetResponse response;
     auto respondToWriter =
         [&writer, &response](std::string fromDeviceID, std::string payload) {
-          response.set_fromdeviceid(fromDeviceID);
-          response.set_payload(payload);
+          response.mutable_responsemessage()->set_fromdeviceid(fromDeviceID);
+          response.mutable_responsemessage()->set_payload(payload);
           if (!writer->Write(response)) {
             throw std::runtime_error(
                 "gRPC: 'Get' writer error on sending data to the client");

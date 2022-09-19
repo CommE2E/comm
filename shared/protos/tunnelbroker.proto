@@ -70,10 +70,17 @@ message GetRequest {
   string sessionID = 1;
 }
 
-message GetResponse {
+message GetResponseMessage {
   string fromDeviceID = 1;
   bytes payload = 2;
   repeated string blobHashes = 3;
+}
+
+message GetResponse {
+  oneof data {
+    GetResponseMessage responseMessage = 1;
+    google.protobuf.Empty ping = 2;
+  }
 }
 
 // Common messages structures for the MessagesStream

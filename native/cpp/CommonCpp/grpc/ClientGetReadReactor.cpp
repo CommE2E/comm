@@ -16,7 +16,7 @@ void ClientGetReadReactor::OnReadDone(bool ok) {
   }
   std::lock_guard<std::mutex> guard{this->onReadDoneCallbackMutex};
   if (this->onReadDoneCallback) {
-    this->onReadDoneCallback(this->response.payload());
+    this->onReadDoneCallback(this->response.responsemessage().payload());
   }
   StartRead(&(this->response));
 }

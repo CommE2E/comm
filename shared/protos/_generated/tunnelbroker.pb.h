@@ -48,7 +48,7 @@ struct TableStruct_tunnelbroker_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[19]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[20]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -69,6 +69,9 @@ extern GetRequestDefaultTypeInternal _GetRequest_default_instance_;
 class GetResponse;
 struct GetResponseDefaultTypeInternal;
 extern GetResponseDefaultTypeInternal _GetResponse_default_instance_;
+class GetResponseMessage;
+struct GetResponseMessageDefaultTypeInternal;
+extern GetResponseMessageDefaultTypeInternal _GetResponseMessage_default_instance_;
 class MessageToClient;
 struct MessageToClientDefaultTypeInternal;
 extern MessageToClientDefaultTypeInternal _MessageToClient_default_instance_;
@@ -120,6 +123,7 @@ template<> ::tunnelbroker::CheckRequest* Arena::CreateMaybeMessage<::tunnelbroke
 template<> ::tunnelbroker::CheckResponse* Arena::CreateMaybeMessage<::tunnelbroker::CheckResponse>(Arena*);
 template<> ::tunnelbroker::GetRequest* Arena::CreateMaybeMessage<::tunnelbroker::GetRequest>(Arena*);
 template<> ::tunnelbroker::GetResponse* Arena::CreateMaybeMessage<::tunnelbroker::GetResponse>(Arena*);
+template<> ::tunnelbroker::GetResponseMessage* Arena::CreateMaybeMessage<::tunnelbroker::GetResponseMessage>(Arena*);
 template<> ::tunnelbroker::MessageToClient* Arena::CreateMaybeMessage<::tunnelbroker::MessageToClient>(Arena*);
 template<> ::tunnelbroker::MessageToClientStruct* Arena::CreateMaybeMessage<::tunnelbroker::MessageToClientStruct>(Arena*);
 template<> ::tunnelbroker::MessageToTunnelbroker* Arena::CreateMaybeMessage<::tunnelbroker::MessageToTunnelbroker>(Arena*);
@@ -1257,24 +1261,24 @@ class GetRequest PROTOBUF_FINAL :
 };
 // -------------------------------------------------------------------
 
-class GetResponse PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tunnelbroker.GetResponse) */ {
+class GetResponseMessage PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tunnelbroker.GetResponseMessage) */ {
  public:
-  inline GetResponse() : GetResponse(nullptr) {}
-  virtual ~GetResponse();
-  explicit constexpr GetResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline GetResponseMessage() : GetResponseMessage(nullptr) {}
+  virtual ~GetResponseMessage();
+  explicit constexpr GetResponseMessage(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  GetResponse(const GetResponse& from);
-  GetResponse(GetResponse&& from) noexcept
-    : GetResponse() {
+  GetResponseMessage(const GetResponseMessage& from);
+  GetResponseMessage(GetResponseMessage&& from) noexcept
+    : GetResponseMessage() {
     *this = ::std::move(from);
   }
 
-  inline GetResponse& operator=(const GetResponse& from) {
+  inline GetResponseMessage& operator=(const GetResponseMessage& from) {
     CopyFrom(from);
     return *this;
   }
-  inline GetResponse& operator=(GetResponse&& from) noexcept {
+  inline GetResponseMessage& operator=(GetResponseMessage&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -1292,20 +1296,20 @@ class GetResponse PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const GetResponse& default_instance() {
+  static const GetResponseMessage& default_instance() {
     return *internal_default_instance();
   }
-  static inline const GetResponse* internal_default_instance() {
-    return reinterpret_cast<const GetResponse*>(
-               &_GetResponse_default_instance_);
+  static inline const GetResponseMessage* internal_default_instance() {
+    return reinterpret_cast<const GetResponseMessage*>(
+               &_GetResponseMessage_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     6;
 
-  friend void swap(GetResponse& a, GetResponse& b) {
+  friend void swap(GetResponseMessage& a, GetResponseMessage& b) {
     a.Swap(&b);
   }
-  inline void Swap(GetResponse* other) {
+  inline void Swap(GetResponseMessage* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -1313,7 +1317,7 @@ class GetResponse PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(GetResponse* other) {
+  void UnsafeArenaSwap(GetResponseMessage* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -1321,17 +1325,17 @@ class GetResponse PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline GetResponse* New() const final {
-    return CreateMaybeMessage<GetResponse>(nullptr);
+  inline GetResponseMessage* New() const final {
+    return CreateMaybeMessage<GetResponseMessage>(nullptr);
   }
 
-  GetResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<GetResponse>(arena);
+  GetResponseMessage* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<GetResponseMessage>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const GetResponse& from);
-  void MergeFrom(const GetResponse& from);
+  void CopyFrom(const GetResponseMessage& from);
+  void MergeFrom(const GetResponseMessage& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -1345,13 +1349,13 @@ class GetResponse PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(GetResponse* other);
+  void InternalSwap(GetResponseMessage* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "tunnelbroker.GetResponse";
+    return "tunnelbroker.GetResponseMessage";
   }
   protected:
-  explicit GetResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit GetResponseMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -1430,7 +1434,7 @@ class GetResponse PROTOBUF_FINAL :
   std::string* _internal_mutable_payload();
   public:
 
-  // @@protoc_insertion_point(class_scope:tunnelbroker.GetResponse)
+  // @@protoc_insertion_point(class_scope:tunnelbroker.GetResponseMessage)
  private:
   class _Internal;
 
@@ -1441,6 +1445,191 @@ class GetResponse PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr fromdeviceid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr payload_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_tunnelbroker_2eproto;
+};
+// -------------------------------------------------------------------
+
+class GetResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:tunnelbroker.GetResponse) */ {
+ public:
+  inline GetResponse() : GetResponse(nullptr) {}
+  virtual ~GetResponse();
+  explicit constexpr GetResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GetResponse(const GetResponse& from);
+  GetResponse(GetResponse&& from) noexcept
+    : GetResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline GetResponse& operator=(const GetResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetResponse& operator=(GetResponse&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const GetResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  enum DataCase {
+    kResponseMessage = 1,
+    kPing = 2,
+    DATA_NOT_SET = 0,
+  };
+
+  static inline const GetResponse* internal_default_instance() {
+    return reinterpret_cast<const GetResponse*>(
+               &_GetResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(GetResponse& a, GetResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GetResponse* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetResponse* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline GetResponse* New() const final {
+    return CreateMaybeMessage<GetResponse>(nullptr);
+  }
+
+  GetResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<GetResponse>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const GetResponse& from);
+  void MergeFrom(const GetResponse& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GetResponse* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "tunnelbroker.GetResponse";
+  }
+  protected:
+  explicit GetResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_tunnelbroker_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kResponseMessageFieldNumber = 1,
+    kPingFieldNumber = 2,
+  };
+  // .tunnelbroker.GetResponseMessage responseMessage = 1;
+  bool has_responsemessage() const;
+  private:
+  bool _internal_has_responsemessage() const;
+  public:
+  void clear_responsemessage();
+  const ::tunnelbroker::GetResponseMessage& responsemessage() const;
+  ::tunnelbroker::GetResponseMessage* release_responsemessage();
+  ::tunnelbroker::GetResponseMessage* mutable_responsemessage();
+  void set_allocated_responsemessage(::tunnelbroker::GetResponseMessage* responsemessage);
+  private:
+  const ::tunnelbroker::GetResponseMessage& _internal_responsemessage() const;
+  ::tunnelbroker::GetResponseMessage* _internal_mutable_responsemessage();
+  public:
+  void unsafe_arena_set_allocated_responsemessage(
+      ::tunnelbroker::GetResponseMessage* responsemessage);
+  ::tunnelbroker::GetResponseMessage* unsafe_arena_release_responsemessage();
+
+  // .google.protobuf.Empty ping = 2;
+  bool has_ping() const;
+  private:
+  bool _internal_has_ping() const;
+  public:
+  void clear_ping();
+  const PROTOBUF_NAMESPACE_ID::Empty& ping() const;
+  PROTOBUF_NAMESPACE_ID::Empty* release_ping();
+  PROTOBUF_NAMESPACE_ID::Empty* mutable_ping();
+  void set_allocated_ping(PROTOBUF_NAMESPACE_ID::Empty* ping);
+  private:
+  const PROTOBUF_NAMESPACE_ID::Empty& _internal_ping() const;
+  PROTOBUF_NAMESPACE_ID::Empty* _internal_mutable_ping();
+  public:
+  void unsafe_arena_set_allocated_ping(
+      PROTOBUF_NAMESPACE_ID::Empty* ping);
+  PROTOBUF_NAMESPACE_ID::Empty* unsafe_arena_release_ping();
+
+  void clear_data();
+  DataCase data_case() const;
+  // @@protoc_insertion_point(class_scope:tunnelbroker.GetResponse)
+ private:
+  class _Internal;
+  void set_has_responsemessage();
+  void set_has_ping();
+
+  inline bool has_data() const;
+  inline void clear_has_data();
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  union DataUnion {
+    constexpr DataUnion() : _constinit_{} {}
+      ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
+    ::tunnelbroker::GetResponseMessage* responsemessage_;
+    PROTOBUF_NAMESPACE_ID::Empty* ping_;
+  } data_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
+
   friend struct ::TableStruct_tunnelbroker_2eproto;
 };
 // -------------------------------------------------------------------
@@ -1488,7 +1677,7 @@ class ProcessedMessages PROTOBUF_FINAL :
                &_ProcessedMessages_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    7;
+    8;
 
   friend void swap(ProcessedMessages& a, ProcessedMessages& b) {
     a.Swap(&b);
@@ -1640,7 +1829,7 @@ class MessageToTunnelbrokerStruct PROTOBUF_FINAL :
                &_MessageToTunnelbrokerStruct_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    8;
+    9;
 
   friend void swap(MessageToTunnelbrokerStruct& a, MessageToTunnelbrokerStruct& b) {
     a.Swap(&b);
@@ -1846,7 +2035,7 @@ class MessagesToSend PROTOBUF_FINAL :
                &_MessagesToSend_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    9;
+    10;
 
   friend void swap(MessagesToSend& a, MessagesToSend& b) {
     a.Swap(&b);
@@ -1998,7 +2187,7 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
                &_MessageToTunnelbroker_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    10;
+    11;
 
   friend void swap(MessageToTunnelbroker& a, MessageToTunnelbroker& b) {
     a.Swap(&b);
@@ -2195,7 +2384,7 @@ class MessageToClientStruct PROTOBUF_FINAL :
                &_MessageToClientStruct_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    11;
+    12;
 
   friend void swap(MessageToClientStruct& a, MessageToClientStruct& b) {
     a.Swap(&b);
@@ -2401,7 +2590,7 @@ class MessagesToDeliver PROTOBUF_FINAL :
                &_MessagesToDeliver_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    12;
+    13;
 
   friend void swap(MessagesToDeliver& a, MessagesToDeliver& b) {
     a.Swap(&b);
@@ -2553,7 +2742,7 @@ class MessageToClient PROTOBUF_FINAL :
                &_MessageToClient_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    13;
+    14;
 
   friend void swap(MessageToClient& a, MessageToClient& b) {
     a.Swap(&b);
@@ -2732,7 +2921,7 @@ class CheckRequest PROTOBUF_FINAL :
                &_CheckRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    14;
+    15;
 
   friend void swap(CheckRequest& a, CheckRequest& b) {
     a.Swap(&b);
@@ -2894,7 +3083,7 @@ class CheckResponse PROTOBUF_FINAL :
                &_CheckResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    15;
+    16;
 
   friend void swap(CheckResponse& a, CheckResponse& b) {
     a.Swap(&b);
@@ -3031,7 +3220,7 @@ class NewPrimaryRequest PROTOBUF_FINAL :
                &_NewPrimaryRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    16;
+    17;
 
   friend void swap(NewPrimaryRequest& a, NewPrimaryRequest& b) {
     a.Swap(&b);
@@ -3193,7 +3382,7 @@ class NewPrimaryResponse PROTOBUF_FINAL :
                &_NewPrimaryResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    17;
+    18;
 
   friend void swap(NewPrimaryResponse& a, NewPrimaryResponse& b) {
     a.Swap(&b);
@@ -3330,7 +3519,7 @@ class PongRequest PROTOBUF_FINAL :
                &_PongRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    18;
+    19;
 
   friend void swap(PongRequest& a, PongRequest& b) {
     a.Swap(&b);
@@ -4379,59 +4568,59 @@ inline void GetRequest::set_allocated_sessionid(std::string* sessionid) {
 
 // -------------------------------------------------------------------
 
-// GetResponse
+// GetResponseMessage
 
 // string fromDeviceID = 1;
-inline void GetResponse::clear_fromdeviceid() {
+inline void GetResponseMessage::clear_fromdeviceid() {
   fromdeviceid_.ClearToEmpty();
 }
-inline const std::string& GetResponse::fromdeviceid() const {
-  // @@protoc_insertion_point(field_get:tunnelbroker.GetResponse.fromDeviceID)
+inline const std::string& GetResponseMessage::fromdeviceid() const {
+  // @@protoc_insertion_point(field_get:tunnelbroker.GetResponseMessage.fromDeviceID)
   return _internal_fromdeviceid();
 }
-inline void GetResponse::set_fromdeviceid(const std::string& value) {
+inline void GetResponseMessage::set_fromdeviceid(const std::string& value) {
   _internal_set_fromdeviceid(value);
-  // @@protoc_insertion_point(field_set:tunnelbroker.GetResponse.fromDeviceID)
+  // @@protoc_insertion_point(field_set:tunnelbroker.GetResponseMessage.fromDeviceID)
 }
-inline std::string* GetResponse::mutable_fromdeviceid() {
-  // @@protoc_insertion_point(field_mutable:tunnelbroker.GetResponse.fromDeviceID)
+inline std::string* GetResponseMessage::mutable_fromdeviceid() {
+  // @@protoc_insertion_point(field_mutable:tunnelbroker.GetResponseMessage.fromDeviceID)
   return _internal_mutable_fromdeviceid();
 }
-inline const std::string& GetResponse::_internal_fromdeviceid() const {
+inline const std::string& GetResponseMessage::_internal_fromdeviceid() const {
   return fromdeviceid_.Get();
 }
-inline void GetResponse::_internal_set_fromdeviceid(const std::string& value) {
+inline void GetResponseMessage::_internal_set_fromdeviceid(const std::string& value) {
   
   fromdeviceid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void GetResponse::set_fromdeviceid(std::string&& value) {
+inline void GetResponseMessage::set_fromdeviceid(std::string&& value) {
   
   fromdeviceid_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:tunnelbroker.GetResponse.fromDeviceID)
+  // @@protoc_insertion_point(field_set_rvalue:tunnelbroker.GetResponseMessage.fromDeviceID)
 }
-inline void GetResponse::set_fromdeviceid(const char* value) {
+inline void GetResponseMessage::set_fromdeviceid(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   fromdeviceid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:tunnelbroker.GetResponse.fromDeviceID)
+  // @@protoc_insertion_point(field_set_char:tunnelbroker.GetResponseMessage.fromDeviceID)
 }
-inline void GetResponse::set_fromdeviceid(const char* value,
+inline void GetResponseMessage::set_fromdeviceid(const char* value,
     size_t size) {
   
   fromdeviceid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.GetResponse.fromDeviceID)
+  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.GetResponseMessage.fromDeviceID)
 }
-inline std::string* GetResponse::_internal_mutable_fromdeviceid() {
+inline std::string* GetResponseMessage::_internal_mutable_fromdeviceid() {
   
   return fromdeviceid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* GetResponse::release_fromdeviceid() {
-  // @@protoc_insertion_point(field_release:tunnelbroker.GetResponse.fromDeviceID)
+inline std::string* GetResponseMessage::release_fromdeviceid() {
+  // @@protoc_insertion_point(field_release:tunnelbroker.GetResponseMessage.fromDeviceID)
   return fromdeviceid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void GetResponse::set_allocated_fromdeviceid(std::string* fromdeviceid) {
+inline void GetResponseMessage::set_allocated_fromdeviceid(std::string* fromdeviceid) {
   if (fromdeviceid != nullptr) {
     
   } else {
@@ -4439,60 +4628,60 @@ inline void GetResponse::set_allocated_fromdeviceid(std::string* fromdeviceid) {
   }
   fromdeviceid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), fromdeviceid,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:tunnelbroker.GetResponse.fromDeviceID)
+  // @@protoc_insertion_point(field_set_allocated:tunnelbroker.GetResponseMessage.fromDeviceID)
 }
 
 // bytes payload = 2;
-inline void GetResponse::clear_payload() {
+inline void GetResponseMessage::clear_payload() {
   payload_.ClearToEmpty();
 }
-inline const std::string& GetResponse::payload() const {
-  // @@protoc_insertion_point(field_get:tunnelbroker.GetResponse.payload)
+inline const std::string& GetResponseMessage::payload() const {
+  // @@protoc_insertion_point(field_get:tunnelbroker.GetResponseMessage.payload)
   return _internal_payload();
 }
-inline void GetResponse::set_payload(const std::string& value) {
+inline void GetResponseMessage::set_payload(const std::string& value) {
   _internal_set_payload(value);
-  // @@protoc_insertion_point(field_set:tunnelbroker.GetResponse.payload)
+  // @@protoc_insertion_point(field_set:tunnelbroker.GetResponseMessage.payload)
 }
-inline std::string* GetResponse::mutable_payload() {
-  // @@protoc_insertion_point(field_mutable:tunnelbroker.GetResponse.payload)
+inline std::string* GetResponseMessage::mutable_payload() {
+  // @@protoc_insertion_point(field_mutable:tunnelbroker.GetResponseMessage.payload)
   return _internal_mutable_payload();
 }
-inline const std::string& GetResponse::_internal_payload() const {
+inline const std::string& GetResponseMessage::_internal_payload() const {
   return payload_.Get();
 }
-inline void GetResponse::_internal_set_payload(const std::string& value) {
+inline void GetResponseMessage::_internal_set_payload(const std::string& value) {
   
   payload_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
-inline void GetResponse::set_payload(std::string&& value) {
+inline void GetResponseMessage::set_payload(std::string&& value) {
   
   payload_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:tunnelbroker.GetResponse.payload)
+  // @@protoc_insertion_point(field_set_rvalue:tunnelbroker.GetResponseMessage.payload)
 }
-inline void GetResponse::set_payload(const char* value) {
+inline void GetResponseMessage::set_payload(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   payload_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:tunnelbroker.GetResponse.payload)
+  // @@protoc_insertion_point(field_set_char:tunnelbroker.GetResponseMessage.payload)
 }
-inline void GetResponse::set_payload(const void* value,
+inline void GetResponseMessage::set_payload(const void* value,
     size_t size) {
   
   payload_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.GetResponse.payload)
+  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.GetResponseMessage.payload)
 }
-inline std::string* GetResponse::_internal_mutable_payload() {
+inline std::string* GetResponseMessage::_internal_mutable_payload() {
   
   return payload_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
-inline std::string* GetResponse::release_payload() {
-  // @@protoc_insertion_point(field_release:tunnelbroker.GetResponse.payload)
+inline std::string* GetResponseMessage::release_payload() {
+  // @@protoc_insertion_point(field_release:tunnelbroker.GetResponseMessage.payload)
   return payload_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
-inline void GetResponse::set_allocated_payload(std::string* payload) {
+inline void GetResponseMessage::set_allocated_payload(std::string* payload) {
   if (payload != nullptr) {
     
   } else {
@@ -4500,83 +4689,234 @@ inline void GetResponse::set_allocated_payload(std::string* payload) {
   }
   payload_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), payload,
       GetArena());
-  // @@protoc_insertion_point(field_set_allocated:tunnelbroker.GetResponse.payload)
+  // @@protoc_insertion_point(field_set_allocated:tunnelbroker.GetResponseMessage.payload)
 }
 
 // repeated string blobHashes = 3;
-inline int GetResponse::_internal_blobhashes_size() const {
+inline int GetResponseMessage::_internal_blobhashes_size() const {
   return blobhashes_.size();
 }
-inline int GetResponse::blobhashes_size() const {
+inline int GetResponseMessage::blobhashes_size() const {
   return _internal_blobhashes_size();
 }
-inline void GetResponse::clear_blobhashes() {
+inline void GetResponseMessage::clear_blobhashes() {
   blobhashes_.Clear();
 }
-inline std::string* GetResponse::add_blobhashes() {
-  // @@protoc_insertion_point(field_add_mutable:tunnelbroker.GetResponse.blobHashes)
+inline std::string* GetResponseMessage::add_blobhashes() {
+  // @@protoc_insertion_point(field_add_mutable:tunnelbroker.GetResponseMessage.blobHashes)
   return _internal_add_blobhashes();
 }
-inline const std::string& GetResponse::_internal_blobhashes(int index) const {
+inline const std::string& GetResponseMessage::_internal_blobhashes(int index) const {
   return blobhashes_.Get(index);
 }
-inline const std::string& GetResponse::blobhashes(int index) const {
-  // @@protoc_insertion_point(field_get:tunnelbroker.GetResponse.blobHashes)
+inline const std::string& GetResponseMessage::blobhashes(int index) const {
+  // @@protoc_insertion_point(field_get:tunnelbroker.GetResponseMessage.blobHashes)
   return _internal_blobhashes(index);
 }
-inline std::string* GetResponse::mutable_blobhashes(int index) {
-  // @@protoc_insertion_point(field_mutable:tunnelbroker.GetResponse.blobHashes)
+inline std::string* GetResponseMessage::mutable_blobhashes(int index) {
+  // @@protoc_insertion_point(field_mutable:tunnelbroker.GetResponseMessage.blobHashes)
   return blobhashes_.Mutable(index);
 }
-inline void GetResponse::set_blobhashes(int index, const std::string& value) {
-  // @@protoc_insertion_point(field_set:tunnelbroker.GetResponse.blobHashes)
+inline void GetResponseMessage::set_blobhashes(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:tunnelbroker.GetResponseMessage.blobHashes)
   blobhashes_.Mutable(index)->assign(value);
 }
-inline void GetResponse::set_blobhashes(int index, std::string&& value) {
-  // @@protoc_insertion_point(field_set:tunnelbroker.GetResponse.blobHashes)
+inline void GetResponseMessage::set_blobhashes(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:tunnelbroker.GetResponseMessage.blobHashes)
   blobhashes_.Mutable(index)->assign(std::move(value));
 }
-inline void GetResponse::set_blobhashes(int index, const char* value) {
+inline void GetResponseMessage::set_blobhashes(int index, const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   blobhashes_.Mutable(index)->assign(value);
-  // @@protoc_insertion_point(field_set_char:tunnelbroker.GetResponse.blobHashes)
+  // @@protoc_insertion_point(field_set_char:tunnelbroker.GetResponseMessage.blobHashes)
 }
-inline void GetResponse::set_blobhashes(int index, const char* value, size_t size) {
+inline void GetResponseMessage::set_blobhashes(int index, const char* value, size_t size) {
   blobhashes_.Mutable(index)->assign(
     reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.GetResponse.blobHashes)
+  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.GetResponseMessage.blobHashes)
 }
-inline std::string* GetResponse::_internal_add_blobhashes() {
+inline std::string* GetResponseMessage::_internal_add_blobhashes() {
   return blobhashes_.Add();
 }
-inline void GetResponse::add_blobhashes(const std::string& value) {
+inline void GetResponseMessage::add_blobhashes(const std::string& value) {
   blobhashes_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add:tunnelbroker.GetResponse.blobHashes)
+  // @@protoc_insertion_point(field_add:tunnelbroker.GetResponseMessage.blobHashes)
 }
-inline void GetResponse::add_blobhashes(std::string&& value) {
+inline void GetResponseMessage::add_blobhashes(std::string&& value) {
   blobhashes_.Add(std::move(value));
-  // @@protoc_insertion_point(field_add:tunnelbroker.GetResponse.blobHashes)
+  // @@protoc_insertion_point(field_add:tunnelbroker.GetResponseMessage.blobHashes)
 }
-inline void GetResponse::add_blobhashes(const char* value) {
+inline void GetResponseMessage::add_blobhashes(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   blobhashes_.Add()->assign(value);
-  // @@protoc_insertion_point(field_add_char:tunnelbroker.GetResponse.blobHashes)
+  // @@protoc_insertion_point(field_add_char:tunnelbroker.GetResponseMessage.blobHashes)
 }
-inline void GetResponse::add_blobhashes(const char* value, size_t size) {
+inline void GetResponseMessage::add_blobhashes(const char* value, size_t size) {
   blobhashes_.Add()->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_add_pointer:tunnelbroker.GetResponse.blobHashes)
+  // @@protoc_insertion_point(field_add_pointer:tunnelbroker.GetResponseMessage.blobHashes)
 }
 inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
-GetResponse::blobhashes() const {
-  // @@protoc_insertion_point(field_list:tunnelbroker.GetResponse.blobHashes)
+GetResponseMessage::blobhashes() const {
+  // @@protoc_insertion_point(field_list:tunnelbroker.GetResponseMessage.blobHashes)
   return blobhashes_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-GetResponse::mutable_blobhashes() {
-  // @@protoc_insertion_point(field_mutable_list:tunnelbroker.GetResponse.blobHashes)
+GetResponseMessage::mutable_blobhashes() {
+  // @@protoc_insertion_point(field_mutable_list:tunnelbroker.GetResponseMessage.blobHashes)
   return &blobhashes_;
 }
 
+// -------------------------------------------------------------------
+
+// GetResponse
+
+// .tunnelbroker.GetResponseMessage responseMessage = 1;
+inline bool GetResponse::_internal_has_responsemessage() const {
+  return data_case() == kResponseMessage;
+}
+inline bool GetResponse::has_responsemessage() const {
+  return _internal_has_responsemessage();
+}
+inline void GetResponse::set_has_responsemessage() {
+  _oneof_case_[0] = kResponseMessage;
+}
+inline void GetResponse::clear_responsemessage() {
+  if (_internal_has_responsemessage()) {
+    if (GetArena() == nullptr) {
+      delete data_.responsemessage_;
+    }
+    clear_has_data();
+  }
+}
+inline ::tunnelbroker::GetResponseMessage* GetResponse::release_responsemessage() {
+  // @@protoc_insertion_point(field_release:tunnelbroker.GetResponse.responseMessage)
+  if (_internal_has_responsemessage()) {
+    clear_has_data();
+      ::tunnelbroker::GetResponseMessage* temp = data_.responsemessage_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    data_.responsemessage_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::tunnelbroker::GetResponseMessage& GetResponse::_internal_responsemessage() const {
+  return _internal_has_responsemessage()
+      ? *data_.responsemessage_
+      : reinterpret_cast< ::tunnelbroker::GetResponseMessage&>(::tunnelbroker::_GetResponseMessage_default_instance_);
+}
+inline const ::tunnelbroker::GetResponseMessage& GetResponse::responsemessage() const {
+  // @@protoc_insertion_point(field_get:tunnelbroker.GetResponse.responseMessage)
+  return _internal_responsemessage();
+}
+inline ::tunnelbroker::GetResponseMessage* GetResponse::unsafe_arena_release_responsemessage() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:tunnelbroker.GetResponse.responseMessage)
+  if (_internal_has_responsemessage()) {
+    clear_has_data();
+    ::tunnelbroker::GetResponseMessage* temp = data_.responsemessage_;
+    data_.responsemessage_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void GetResponse::unsafe_arena_set_allocated_responsemessage(::tunnelbroker::GetResponseMessage* responsemessage) {
+  clear_data();
+  if (responsemessage) {
+    set_has_responsemessage();
+    data_.responsemessage_ = responsemessage;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tunnelbroker.GetResponse.responseMessage)
+}
+inline ::tunnelbroker::GetResponseMessage* GetResponse::_internal_mutable_responsemessage() {
+  if (!_internal_has_responsemessage()) {
+    clear_data();
+    set_has_responsemessage();
+    data_.responsemessage_ = CreateMaybeMessage< ::tunnelbroker::GetResponseMessage >(GetArena());
+  }
+  return data_.responsemessage_;
+}
+inline ::tunnelbroker::GetResponseMessage* GetResponse::mutable_responsemessage() {
+  // @@protoc_insertion_point(field_mutable:tunnelbroker.GetResponse.responseMessage)
+  return _internal_mutable_responsemessage();
+}
+
+// .google.protobuf.Empty ping = 2;
+inline bool GetResponse::_internal_has_ping() const {
+  return data_case() == kPing;
+}
+inline bool GetResponse::has_ping() const {
+  return _internal_has_ping();
+}
+inline void GetResponse::set_has_ping() {
+  _oneof_case_[0] = kPing;
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* GetResponse::release_ping() {
+  // @@protoc_insertion_point(field_release:tunnelbroker.GetResponse.ping)
+  if (_internal_has_ping()) {
+    clear_has_data();
+      PROTOBUF_NAMESPACE_ID::Empty* temp = data_.ping_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    data_.ping_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const PROTOBUF_NAMESPACE_ID::Empty& GetResponse::_internal_ping() const {
+  return _internal_has_ping()
+      ? *data_.ping_
+      : reinterpret_cast< PROTOBUF_NAMESPACE_ID::Empty&>(PROTOBUF_NAMESPACE_ID::_Empty_default_instance_);
+}
+inline const PROTOBUF_NAMESPACE_ID::Empty& GetResponse::ping() const {
+  // @@protoc_insertion_point(field_get:tunnelbroker.GetResponse.ping)
+  return _internal_ping();
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* GetResponse::unsafe_arena_release_ping() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:tunnelbroker.GetResponse.ping)
+  if (_internal_has_ping()) {
+    clear_has_data();
+    PROTOBUF_NAMESPACE_ID::Empty* temp = data_.ping_;
+    data_.ping_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void GetResponse::unsafe_arena_set_allocated_ping(PROTOBUF_NAMESPACE_ID::Empty* ping) {
+  clear_data();
+  if (ping) {
+    set_has_ping();
+    data_.ping_ = ping;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tunnelbroker.GetResponse.ping)
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* GetResponse::_internal_mutable_ping() {
+  if (!_internal_has_ping()) {
+    clear_data();
+    set_has_ping();
+    data_.ping_ = CreateMaybeMessage< PROTOBUF_NAMESPACE_ID::Empty >(GetArena());
+  }
+  return data_.ping_;
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* GetResponse::mutable_ping() {
+  // @@protoc_insertion_point(field_mutable:tunnelbroker.GetResponse.ping)
+  return _internal_mutable_ping();
+}
+
+inline bool GetResponse::has_data() const {
+  return data_case() != DATA_NOT_SET;
+}
+inline void GetResponse::clear_has_data() {
+  _oneof_case_[0] = DATA_NOT_SET;
+}
+inline GetResponse::DataCase GetResponse::data_case() const {
+  return GetResponse::DataCase(_oneof_case_[0]);
+}
 // -------------------------------------------------------------------
 
 // ProcessedMessages
@@ -6071,6 +6411,8 @@ inline void PongRequest::set_allocated_devicetoken(std::string* devicetoken) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
