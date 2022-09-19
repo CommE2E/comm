@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import type { UserListItem } from 'lib/types/user-types';
 
-import css from './members-modal.css';
+import css from './add-members.css';
 
 type AddMembersItemProps = {
   +userInfo: UserListItem,

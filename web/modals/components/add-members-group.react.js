@@ -5,7 +5,7 @@ import * as React from 'react';
 import type { UserListItem } from 'lib/types/user-types';
 
 import AddMembersItem from './add-members-item.react';
-import css from './members-modal.css';
+import css from './add-members.css';
 
 type AddMemberItemGroupProps = {
   +header: ?string,

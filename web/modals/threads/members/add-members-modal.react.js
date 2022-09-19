@@ -22,7 +22,7 @@ import Button from '../../../components/button.react';
 import Label from '../../../components/label.react';
 import { useSelector } from '../../../redux/redux-utils';
 import SearchModal from '../../search-modal.react';
-import AddMembersList from './add-members-list.react';
+import AddMembersListContent from './add-members-list-content.react';
 import css from './members-modal.css';
 
 type ContentProps = {
@@ -139,7 +139,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     <div className={css.addMembersContent}>
       {labelItems}
       <div className={css.addMembersListContainer}>
-        <AddMembersList
+        <AddMembersListContent
           userListItems={userSearchResults}
           switchUser={onSwitchUser}
           pendingUsersToAdd={pendingUsersToAdd}

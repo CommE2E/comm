@@ -6,7 +6,7 @@ import * as React from 'react';
 
 import type { UserListItem } from 'lib/types/user-types';
 
-import AddMembersItemGroup from './add-members-group.react';
+import AddMembersList from '../../components/add-members-list.react';
 
 type Props = {
   +userListItems: $ReadOnlyArray<UserListItem>,
@@ -15,7 +15,7 @@ type Props = {
   +hasParentThread: boolean,
 };
 
-function AddMembersList(props: Props): React.Node {
+function AddMembersListContent(props: Props): React.Node {
   const {
     userListItems,
     pendingUsersToAdd,
@@ -67,19 +67,19 @@ function AddMembersList(props: Props): React.Node {
         membersInParentThread,
         ...membersNotInParentThread,
         usersUnavailableToAdd,
-      ].filter(Boolean),
+      ]
+        .filter(Boolean)
+        .map(([header, userInfos]) => ({ header, userInfos })),
     [membersInParentThread, membersNotInParentThread, usersUnavailableToAdd],
   );
 
-  return sortedGroupedUsersList.map(([header, userInfos]) => (
-    <AddMembersItemGroup
-      key={header}
-      header={header}
-      userInfos={userInfos}
-      onUserClick={switchUser}
-      usersAdded={pendingUsersToAdd}
+  return (
+    <AddMembersList
+      switchUser={switchUser}
+      pendingUsersToAdd={pendingUsersToAdd}
+      sortedGroupedUsersList={sortedGroupedUsersList}
     />
-  ));
+  );
 }
 
-export default AddMembersList;
+export default AddMembersListContent;

@@ -1,0 +1,41 @@
+div.addMemberItemsGroupHeader {
+  font-size: var(--s-font-14);
+  color: var(--add-members-group-header-color);
+  margin: 16px;
+}
+
+button.addMemberItem {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--add-members-item-color);
+  font-size: var(--l-font-18);
+  background-color: transparent;
+  border: none;
+  width: 100%;
+}
+
+button.addMemberItem:hover {
+  color: var(--add-members-item-color-hover);
+}
+
+button.addMemberItem:disabled {
+  color: var(--add-members-item-disabled-color);
+  cursor: not-allowed;
+}
+
+button.addMemberItem:hover:disabled {
+  color: var(--add-members-item-disabled-color-hover);
+}
+
+button.addMemberItem .label {
+  padding: 8px 16px;
+}
+
+button.addMemberItem .danger {
+  color: var(--add-members-remove-pending-color);
+}
+button.addMemberItem:hover .danger {
+  color: var(--add-members-remove-pending-color-hover);
+}
