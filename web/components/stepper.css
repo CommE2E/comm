@@ -1,0 +1,43 @@
+.stepperContainer {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.stepperItem {
+  overflow-y: auto;
+  height: 100%;
+}
+
+.stepperFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.button {
+  position: relative;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hide {
+  visibility: hidden;
+  height: 0;
+}
+
+.errorMessage {
+  color: var(--error);
+  font-style: italic;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  margin-top: 5px;
+}
