@@ -4,6 +4,7 @@ use tokio::runtime::{Builder, Runtime};
 use tonic::{transport::Channel, Status};
 use tracing::instrument;
 
+mod blob_client;
 mod identity_client;
 mod opaque;
 mod identity {
