@@ -29,6 +29,17 @@ lazy_static! {
 
 #[cxx::bridge]
 mod ffi {
+  // data structures which fields need to be accessible in both
+  // Rust and C++ must be declared outside extern "C++/Rust"
+
+  // Blob Service Client
+  struct BlobChunkResponse {
+    stream_end: bool,
+    data: Vec<u8>,
+  }
+
+  // data structures declared here will be accessible in C++
+  // but their fields will not be visible
   extern "Rust" {
     type Client;
     fn initialize_client() -> Box<Client>;

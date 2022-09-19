@@ -1,9 +1,10 @@
+use crate::ffi;
 use blob::blob_service_client::BlobServiceClient;
-use blob::{put_request::Data, PutRequest};
+use blob::{put_request::Data, GetRequest, GetResponse, PutRequest};
 use tokio::sync::mpsc;
 use tokio::task;
 use tokio_stream::wrappers::ReceiverStream;
-use tonic::Request;
+use tonic::{Request, Streaming};
 
 pub mod blob {
   tonic::include_proto!("blob");
@@ -15,6 +16,10 @@ const BLOB_SERVICE_SOCKET_ADDR: &str = "http://localhost:50053";
 pub struct UploadState {
   sender: mpsc::Sender<PutRequest>,
   receiver_task: task::JoinHandle<Result<bool, String>>,
+}
+
+pub struct DownloadState {
+  response_stream: Streaming<GetResponse>,
 }
 
 pub async fn initialize_upload_state() -> Result<Box<UploadState>, String> {
@@ -99,4 +104,43 @@ pub async fn complete_upload(state: Box<UploadState>) -> Result<bool, String> {
     .receiver_task
     .await
     .map_err(|e| format!("Error occurred on consumer task. Details {}", e))?
+}
+
+pub async fn initialize_download_state(
+  holder: String,
+) -> Result<Box<DownloadState>, String> {
+  let mut client =
+    BlobServiceClient::connect(BLOB_SERVICE_SOCKET_ADDR)
+      .await
+      .map_err(|e| format!("Can't connect to blob service. Details {}", e))?;
+
+  let request = GetRequest { holder };
+  let response_stream = client
+    .get(Request::new(request))
+    .await
+    .map_err(|e| format!("Can't initialize gRPC streaming. Details {}", e))?
+    .into_inner();
+
+  Ok(Box::new(DownloadState { response_stream }))
+}
+
+pub async fn pull_chunk(
+  client: &mut Box<DownloadState>,
+) -> Result<ffi::BlobChunkResponse, String> {
+  // Getting None from response_stream indicates that server closed
+  // stream, so we return false to inform C++ caller about this fact
+  if let Some(response) =
+    client.response_stream.message().await.map_err(|e| {
+      format!("Failed to pull response from stream. Details {}", e)
+    })?
+  {
+    return Ok(ffi::BlobChunkResponse {
+      stream_end: false,
+      data: response.data_chunk,
+    });
+  }
+  Ok(ffi::BlobChunkResponse {
+    stream_end: true,
+    data: vec![],
+  })
 }
