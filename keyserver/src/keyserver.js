@@ -37,6 +37,8 @@ import {
   getCommAppURLFacts,
 } from './utils/urls';
 
+console.log('Hello');
+
 (async () => {
   await prefetchAllURLFacts();
 
