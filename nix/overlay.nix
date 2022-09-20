@@ -52,6 +52,7 @@ prev:
   protobuf_3_15_cmake = prev.callPackage ./protobuf_3_15.nix { };
 
   devShells.default = final.callPackage ./dev-shell.nix { };
+  devShell = final.devShells.default;
 
   # Make our version of mariadb the default everywhere
   mariadb = prev.mariadb_108;
