@@ -1,6 +1,7 @@
 <resources>
   <style name="AppThemeBase" parent="Theme.AppCompat.DayNight.NoActionBar">
     <item name="android:editTextBackground">@android:color/transparent</item>
+    <item name="android:forceDarkAllowed">false</item>
   </style>
   <style name="AppTheme" parent="AppThemeBase">
   </style>
