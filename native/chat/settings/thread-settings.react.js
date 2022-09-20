@@ -258,10 +258,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    const threadInfo = this.props.threadInfo;
-    if (!threadInChatList(threadInfo)) {
-      threadWatcher.watchID(threadInfo.id);
-    }
     const tabNavigation: ?TabNavigationProp<
       'Chat',
     > = this.props.navigation.dangerouslyGetParent();
@@ -270,10 +266,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    const threadInfo = this.props.threadInfo;
-    if (!threadInChatList(threadInfo)) {
-      threadWatcher.removeID(threadInfo.id);
-    }
     const tabNavigation: ?TabNavigationProp<
       'Chat',
     > = this.props.navigation.dangerouslyGetParent();
@@ -290,19 +282,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props) {
     const prevThreadInfo = prevProps.threadInfo;
     const newThreadInfo = this.props.threadInfo;
-
-    if (newThreadInfo && newThreadInfo !== prevThreadInfo) {
-      this.props.navigation.setParams({ threadInfo: newThreadInfo });
-    }
-
-    if (prevThreadInfo.id !== newThreadInfo.id) {
-      if (!threadInChatList(prevThreadInfo)) {
-        threadWatcher.removeID(prevThreadInfo.id);
-      }
-      if (!threadInChatList(newThreadInfo)) {
-        threadWatcher.watchID(newThreadInfo.id);
-      }
-    }
 
     if (
       !tinycolor.equals(newThreadInfo.color, prevThreadInfo.color) &&
@@ -1080,6 +1059,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
     const threadID = props.route.params.threadInfo.id;
+
     const reduxThreadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
@@ -1090,8 +1070,26 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
       );
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const { setParams } = props.navigation;
+    React.useEffect(() => {
+      if (reduxThreadInfo) {
+        setParams({ threadInfo: reduxThreadInfo });
+      }
+    }, [reduxThreadInfo, setParams]);
     const threadInfo: ThreadInfo =
       reduxThreadInfo ?? props.route.params.threadInfo;
+
+    React.useEffect(() => {
+      if (threadInChatList(threadInfo)) {
+        return undefined;
+      }
+      threadWatcher.watchID(threadInfo.id);
+      return () => {
+        threadWatcher.removeID(threadInfo.id);
+      };
+    }, [threadInfo]);
+
     const parentThreadID = threadInfo.parentThreadID;
     const parentThreadInfo: ?ThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
