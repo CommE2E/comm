@@ -27,7 +27,7 @@
     # https://github.com/numtide/flake-utils#usage for more examples
     in utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" "aarch64-darwin" ] (system: rec {
       legacyPackages = pkgsForSystem system;
-      inherit (legacyPackages) devShells;
+      inherit (legacyPackages) devShell devShells;
     }) // {
       # these outputs will lack the system suffix (e.g.
       # devShell.aarch64-darwin), thus should be system agnostic such as
