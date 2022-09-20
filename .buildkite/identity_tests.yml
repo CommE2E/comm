@@ -2,6 +2,6 @@ steps:
   - label: ":nix: Identity Tests (Nix)"
     command:
       - 'cd services/identity'
-      - 'nix develop --command cargo test'
+      - 'nix develop --accept-flake-config --command cargo test'
     agents:
       - 'mac=true'

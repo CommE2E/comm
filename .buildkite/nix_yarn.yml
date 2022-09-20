@@ -1,5 +1,5 @@
 steps:
   - label: 'nix develop -c yarn cleaninstall'
-    command: 'nix develop -c yarn cleaninstall'
+    command: 'nix develop --accept-flake-config -c yarn cleaninstall'
     agents:
       - 'nixdarwin=true'

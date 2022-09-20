@@ -3,7 +3,7 @@ steps:
     command:
       - 'cd services/tunnelbroker'
       - 'rm -rf build && mkdir build && cd build'
-      - 'nix develop --command bash -c "cmake .. && make -j"'
+      - 'nix develop --accept-flake-config --command bash -c "cmake .. && make -j"'
       - './bin/runTests --gtest_filter=-AmqpManager*:DatabaseManager*'
     agents:
       - 'mac=true'
