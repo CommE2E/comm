@@ -1,12 +1,12 @@
+#![allow(dead_code)]
+
 use bytesize::ByteSize;
+use hex::ToHex;
 use lazy_static::lazy_static;
 use num_cpus;
+use sha2::{Digest, Sha512};
 use std::env;
 
-use hex::ToHex;
-use sha2::{Digest, Sha512};
-
-#[allow(dead_code)]
 pub fn generate_stable_nbytes(
   number_of_bytes: usize,
   predefined_byte_value: Option<u8>,
@@ -36,10 +36,8 @@ lazy_static! {
     (ByteSize::mib(4).as_u64() as usize) - GRPC_METADATA_SIZE_BYTES;
 }
 
-#[allow(dead_code)]
 pub const ATTACHMENT_DELIMITER: &str = ";";
 
-#[allow(dead_code)]
 pub fn obtain_number_of_threads() -> usize {
   let number_of_threads_str: String =
     env::var("COMM_NUMBER_OF_THREADS").unwrap();
@@ -49,12 +47,10 @@ pub fn obtain_number_of_threads() -> usize {
   return number_of_threads_str.parse::<usize>().unwrap();
 }
 
-#[allow(dead_code)]
 pub struct DataHasher {
   hasher: Sha512,
 }
 
-#[allow(dead_code)]
 impl DataHasher {
   pub fn new() -> DataHasher {
     return DataHasher {

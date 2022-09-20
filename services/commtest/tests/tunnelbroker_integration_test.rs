@@ -1,4 +1,3 @@
-#[path = "./lib/tools.rs"]
 mod tools;
 
 #[tokio::test]

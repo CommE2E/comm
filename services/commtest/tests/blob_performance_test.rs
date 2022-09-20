@@ -1,21 +1,14 @@
-#[path = "./blob/blob_utils.rs"]
-mod blob_utils;
-#[path = "./blob/get.rs"]
-mod get;
-#[path = "./blob/put.rs"]
-mod put;
-#[path = "./blob/remove.rs"]
-mod remove;
-#[path = "./lib/tools.rs"]
+mod blob;
 mod tools;
 
+use blob::{
+  blob_utils::{BlobData, BlobServiceClient},
+  get, put, remove,
+};
 use bytesize::ByteSize;
 use std::env;
-
 use tokio::runtime::Runtime;
 use tools::{obtain_number_of_threads, Error};
-
-use blob_utils::{BlobData, BlobServiceClient};
 
 #[tokio::test]
 async fn blob_performance_test() -> Result<(), Error> {

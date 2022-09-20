@@ -1,16 +1,9 @@
-#[path = "./backup_utils.rs"]
-mod backup_utils;
-#[path = "../lib/tools.rs"]
-mod tools;
-
-use crate::backup_utils::{
+use crate::backup::backup_utils::{
   proto::create_new_backup_request::Data::*, proto::CreateNewBackupRequest,
   BackupData, BackupServiceClient,
 };
-
-use tonic::Request;
-
 use crate::tools::{generate_stable_nbytes, DataHasher, Error};
+use tonic::Request;
 
 pub async fn run(
   client: &mut BackupServiceClient<tonic::transport::Channel>,

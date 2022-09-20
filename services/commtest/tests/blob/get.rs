@@ -1,12 +1,6 @@
-#[path = "./blob_utils.rs"]
-mod blob_utils;
-#[path = "../lib/tools.rs"]
-mod tools;
-
-use tonic::Request;
-
-use crate::blob_utils::{proto::GetRequest, BlobData, BlobServiceClient};
+use crate::blob::blob_utils::{proto::GetRequest, BlobData, BlobServiceClient};
 use crate::tools::Error;
+use tonic::Request;
 
 pub async fn run(
   client: &mut BlobServiceClient<tonic::transport::Channel>,

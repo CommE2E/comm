@@ -1,12 +1,10 @@
 pub mod proto {
   tonic::include_proto!("backup");
 }
-
 pub use proto::backup_service_client::BackupServiceClient;
 use std::collections::HashMap;
 
 // stands for both, backup and log items
-#[allow(dead_code)]
 #[derive(Clone)]
 pub struct Item {
   pub id: String,
@@ -14,7 +12,6 @@ pub struct Item {
   pub attachments_holders: Vec<String>,
 }
 
-#[allow(dead_code)]
 impl Item {
   pub fn new(
     id: String,
@@ -29,7 +26,6 @@ impl Item {
   }
 }
 
-#[allow(dead_code)]
 #[derive(Clone)]
 pub struct BackupData {
   pub user_id: String,
@@ -38,7 +34,6 @@ pub struct BackupData {
   pub log_items: Vec<Item>,
 }
 
-#[allow(dead_code)]
 pub fn compare_backups(backup_data: &BackupData, result: &BackupData) {
   // check backup size
   let expected: usize = backup_data.backup_item.chunks_sizes.iter().sum();

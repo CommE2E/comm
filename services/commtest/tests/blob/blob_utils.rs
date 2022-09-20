@@ -4,7 +4,6 @@ pub mod proto {
 
 pub use proto::blob_service_client::BlobServiceClient;
 
-#[allow(dead_code)]
 #[derive(Clone)]
 pub struct BlobData {
   pub holder: String,

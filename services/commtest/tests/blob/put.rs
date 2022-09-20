@@ -1,15 +1,8 @@
-#[path = "./blob_utils.rs"]
-mod blob_utils;
-#[path = "../lib/tools.rs"]
-mod tools;
-
-use crate::blob_utils::{
+use crate::blob::blob_utils::{
   proto::put_request::Data::*, proto::PutRequest, BlobData, BlobServiceClient,
 };
-
-use tonic::Request;
-
 use crate::tools::{generate_stable_nbytes, Error};
+use tonic::Request;
 
 pub async fn run(
   client: &mut BlobServiceClient<tonic::transport::Channel>,

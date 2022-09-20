@@ -1,14 +1,8 @@
-#[path = "./backup_utils.rs"]
-mod backup_utils;
-#[path = "../lib/tools.rs"]
-mod tools;
-
-use crate::backup_utils::{proto::AddAttachmentsRequest, BackupServiceClient};
-
-use tonic::Request;
-
-use crate::backup_utils::BackupData;
+use crate::backup::backup_utils::{
+  proto::AddAttachmentsRequest, BackupData, BackupServiceClient,
+};
 use crate::tools::{Error, ATTACHMENT_DELIMITER};
+use tonic::Request;
 
 // log_index = None means that we add attachments to the backup
 // log_index = Some(x) means that we add attachments to a specific log

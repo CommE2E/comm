@@ -1,24 +1,16 @@
-#[path = "./backup/add_attachments.rs"]
-mod add_attachments;
-#[path = "./backup/backup_utils.rs"]
-mod backup_utils;
-#[path = "./backup/create_new_backup.rs"]
-mod create_new_backup;
-#[path = "./backup/pull_backup.rs"]
-mod pull_backup;
-#[path = "./backup/send_log.rs"]
-mod send_log;
-#[path = "./lib/tools.rs"]
+mod backup;
 mod tools;
 
+use backup::{
+  add_attachments,
+  backup_utils::{self, BackupData, BackupServiceClient, Item},
+  create_new_backup, pull_backup, send_log,
+};
 use bytesize::ByteSize;
 use std::env;
 use std::sync::mpsc::channel;
-
 use tokio::runtime::Runtime;
 use tools::{obtain_number_of_threads, Error};
-
-use backup_utils::{BackupData, BackupServiceClient, Item};
 
 #[tokio::test]
 async fn backup_performance_test() -> Result<(), Error> {

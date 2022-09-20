@@ -1,18 +1,12 @@
-#[path = "./blob/blob_utils.rs"]
-mod blob_utils;
-#[path = "./blob/get.rs"]
-mod get;
-#[path = "./blob/put.rs"]
-mod put;
-#[path = "./blob/remove.rs"]
-mod remove;
-#[path = "./lib/tools.rs"]
+mod blob;
 mod tools;
 
+use blob::{
+  blob_utils::{BlobData, BlobServiceClient},
+  get, put, remove,
+};
 use bytesize::ByteSize;
 use std::env;
-
-use blob_utils::{BlobData, BlobServiceClient};
 use tools::Error;
 
 #[tokio::test]

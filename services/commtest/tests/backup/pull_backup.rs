@@ -1,19 +1,11 @@
-#[path = "./backup_utils.rs"]
-mod backup_utils;
-#[path = "../lib/tools.rs"]
-mod tools;
-
-use std::io::{Error as IOError, ErrorKind};
-use tonic::Request;
-
-use crate::backup_utils::{
+use crate::backup::backup_utils::{
   proto::pull_backup_response::Data, proto::pull_backup_response::Data::*,
   proto::pull_backup_response::Id, proto::pull_backup_response::Id::*,
-  proto::PullBackupRequest, BackupServiceClient,
+  proto::PullBackupRequest, BackupData, BackupServiceClient, Item,
 };
-
-use crate::backup_utils::{BackupData, Item};
 use crate::tools::{Error, ATTACHMENT_DELIMITER};
+use std::io::{Error as IOError, ErrorKind};
+use tonic::Request;
 
 #[derive(PartialEq, Debug)]
 enum State {
