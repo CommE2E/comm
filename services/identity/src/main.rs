@@ -41,6 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
   let subscriber = FmtSubscriber::new();
   tracing::subscriber::set_global_default(subscriber)?;
   let cli = Cli::parse();
+  println!("some change");
   match &cli.command {
     Commands::Keygen { dir } => {
       generate_and_persist_keypair(dir)?;
