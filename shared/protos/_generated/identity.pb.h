@@ -480,6 +480,7 @@ class PakeCredentialRequestAndUserID PROTOBUF_FINAL :
     kUserIDFieldNumber = 1,
     kDeviceIDFieldNumber = 2,
     kPakeCredentialRequestFieldNumber = 3,
+    kUserPublicKeyFieldNumber = 4,
   };
   // string userID = 1;
   void clear_userid();
@@ -529,6 +530,22 @@ class PakeCredentialRequestAndUserID PROTOBUF_FINAL :
   std::string* _internal_mutable_pakecredentialrequest();
   public:
 
+  // string userPublicKey = 4;
+  void clear_userpublickey();
+  const std::string& userpublickey() const;
+  void set_userpublickey(const std::string& value);
+  void set_userpublickey(std::string&& value);
+  void set_userpublickey(const char* value);
+  void set_userpublickey(const char* value, size_t size);
+  std::string* mutable_userpublickey();
+  std::string* release_userpublickey();
+  void set_allocated_userpublickey(std::string* userpublickey);
+  private:
+  const std::string& _internal_userpublickey() const;
+  void _internal_set_userpublickey(const std::string& value);
+  std::string* _internal_mutable_userpublickey();
+  public:
+
   // @@protoc_insertion_point(class_scope:identity.PakeCredentialRequestAndUserID)
  private:
   class _Internal;
@@ -539,6 +556,7 @@ class PakeCredentialRequestAndUserID PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr deviceid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr pakecredentialrequest_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userpublickey_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_identity_2eproto;
 };
@@ -3353,6 +3371,67 @@ inline void PakeCredentialRequestAndUserID::set_allocated_pakecredentialrequest(
   pakecredentialrequest_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), pakecredentialrequest,
       GetArena());
   // @@protoc_insertion_point(field_set_allocated:identity.PakeCredentialRequestAndUserID.pakeCredentialRequest)
+}
+
+// string userPublicKey = 4;
+inline void PakeCredentialRequestAndUserID::clear_userpublickey() {
+  userpublickey_.ClearToEmpty();
+}
+inline const std::string& PakeCredentialRequestAndUserID::userpublickey() const {
+  // @@protoc_insertion_point(field_get:identity.PakeCredentialRequestAndUserID.userPublicKey)
+  return _internal_userpublickey();
+}
+inline void PakeCredentialRequestAndUserID::set_userpublickey(const std::string& value) {
+  _internal_set_userpublickey(value);
+  // @@protoc_insertion_point(field_set:identity.PakeCredentialRequestAndUserID.userPublicKey)
+}
+inline std::string* PakeCredentialRequestAndUserID::mutable_userpublickey() {
+  // @@protoc_insertion_point(field_mutable:identity.PakeCredentialRequestAndUserID.userPublicKey)
+  return _internal_mutable_userpublickey();
+}
+inline const std::string& PakeCredentialRequestAndUserID::_internal_userpublickey() const {
+  return userpublickey_.Get();
+}
+inline void PakeCredentialRequestAndUserID::_internal_set_userpublickey(const std::string& value) {
+  
+  userpublickey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void PakeCredentialRequestAndUserID::set_userpublickey(std::string&& value) {
+  
+  userpublickey_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:identity.PakeCredentialRequestAndUserID.userPublicKey)
+}
+inline void PakeCredentialRequestAndUserID::set_userpublickey(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  userpublickey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:identity.PakeCredentialRequestAndUserID.userPublicKey)
+}
+inline void PakeCredentialRequestAndUserID::set_userpublickey(const char* value,
+    size_t size) {
+  
+  userpublickey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:identity.PakeCredentialRequestAndUserID.userPublicKey)
+}
+inline std::string* PakeCredentialRequestAndUserID::_internal_mutable_userpublickey() {
+  
+  return userpublickey_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* PakeCredentialRequestAndUserID::release_userpublickey() {
+  // @@protoc_insertion_point(field_release:identity.PakeCredentialRequestAndUserID.userPublicKey)
+  return userpublickey_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void PakeCredentialRequestAndUserID::set_allocated_userpublickey(std::string* userpublickey) {
+  if (userpublickey != nullptr) {
+    
+  } else {
+    
+  }
+  userpublickey_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userpublickey,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:identity.PakeCredentialRequestAndUserID.userPublicKey)
 }
 
 // -------------------------------------------------------------------

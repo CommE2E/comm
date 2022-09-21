@@ -37,7 +37,8 @@ constexpr PakeCredentialRequestAndUserID::PakeCredentialRequestAndUserID(
   ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : userid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , deviceid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , pakecredentialrequest_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+  , pakecredentialrequest_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , userpublickey_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
 struct PakeCredentialRequestAndUserIDDefaultTypeInternal {
   constexpr PakeCredentialRequestAndUserIDDefaultTypeInternal()
     : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -236,6 +237,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_identity_2eproto::offsets[] PR
   PROTOBUF_FIELD_OFFSET(::identity::PakeCredentialRequestAndUserID, userid_),
   PROTOBUF_FIELD_OFFSET(::identity::PakeCredentialRequestAndUserID, deviceid_),
   PROTOBUF_FIELD_OFFSET(::identity::PakeCredentialRequestAndUserID, pakecredentialrequest_),
+  PROTOBUF_FIELD_OFFSET(::identity::PakeCredentialRequestAndUserID, userpublickey_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::identity::PakeLoginRequest, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -339,19 +341,19 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_identity_2eproto::offsets[] PR
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::identity::PakeRegistrationRequestAndUserID)},
   { 10, -1, sizeof(::identity::PakeCredentialRequestAndUserID)},
-  { 18, -1, sizeof(::identity::PakeLoginRequest)},
-  { 26, -1, sizeof(::identity::PakeLoginResponse)},
-  { 34, -1, sizeof(::identity::PakeRegistrationUploadAndCredentialRequest)},
-  { 41, -1, sizeof(::identity::WalletLoginRequest)},
-  { 51, -1, sizeof(::identity::WalletLoginResponse)},
-  { 57, -1, sizeof(::identity::RegistrationRequest)},
-  { 66, -1, sizeof(::identity::RegistrationResponse)},
-  { 74, -1, sizeof(::identity::LoginRequest)},
-  { 82, -1, sizeof(::identity::LoginResponse)},
-  { 90, -1, sizeof(::identity::VerifyUserTokenRequest)},
-  { 98, -1, sizeof(::identity::VerifyUserTokenResponse)},
-  { 104, -1, sizeof(::identity::GetUserIDRequest)},
-  { 111, -1, sizeof(::identity::GetUserIDResponse)},
+  { 19, -1, sizeof(::identity::PakeLoginRequest)},
+  { 27, -1, sizeof(::identity::PakeLoginResponse)},
+  { 35, -1, sizeof(::identity::PakeRegistrationUploadAndCredentialRequest)},
+  { 42, -1, sizeof(::identity::WalletLoginRequest)},
+  { 52, -1, sizeof(::identity::WalletLoginResponse)},
+  { 58, -1, sizeof(::identity::RegistrationRequest)},
+  { 67, -1, sizeof(::identity::RegistrationResponse)},
+  { 75, -1, sizeof(::identity::LoginRequest)},
+  { 83, -1, sizeof(::identity::LoginResponse)},
+  { 91, -1, sizeof(::identity::VerifyUserTokenRequest)},
+  { 99, -1, sizeof(::identity::VerifyUserTokenResponse)},
+  { 105, -1, sizeof(::identity::GetUserIDRequest)},
+  { 112, -1, sizeof(::identity::GetUserIDResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -377,59 +379,60 @@ const char descriptor_table_protodef_identity_2eproto[] PROTOBUF_SECTION_VARIABL
   "trationRequestAndUserID\022\016\n\006userID\030\001 \001(\t\022"
   "\020\n\010deviceID\030\002 \001(\t\022\037\n\027pakeRegistrationReq"
   "uest\030\003 \001(\014\022\020\n\010username\030\004 \001(\t\022\025\n\ruserPubl"
-  "icKey\030\005 \001(\t\"a\n\036PakeCredentialRequestAndU"
+  "icKey\030\005 \001(\t\"x\n\036PakeCredentialRequestAndU"
   "serID\022\016\n\006userID\030\001 \001(\t\022\020\n\010deviceID\030\002 \001(\t\022"
-  "\035\n\025pakeCredentialRequest\030\003 \001(\014\"\224\001\n\020PakeL"
-  "oginRequest\022R\n\036pakeCredentialRequestAndU"
-  "serID\030\001 \001(\0132(.identity.PakeCredentialReq"
-  "uestAndUserIDH\000\022$\n\032pakeCredentialFinaliz"
-  "ation\030\002 \001(\014H\000B\006\n\004data\"T\n\021PakeLoginRespon"
-  "se\022 \n\026pakeCredentialResponse\030\001 \001(\014H\000\022\025\n\013"
-  "accessToken\030\002 \001(\tH\000B\006\n\004data\"k\n*PakeRegis"
-  "trationUploadAndCredentialRequest\022\036\n\026pak"
-  "eRegistrationUpload\030\001 \001(\014\022\035\n\025pakeCredent"
-  "ialRequest\030\002 \001(\014\"y\n\022WalletLoginRequest\022\016"
-  "\n\006userID\030\001 \001(\t\022\020\n\010deviceID\030\002 \001(\t\022\023\n\013siwe"
-  "Message\030\003 \001(\t\022\025\n\rsiweSignature\030\004 \001(\014\022\025\n\r"
-  "userPublicKey\030\005 \001(\t\"*\n\023WalletLoginRespon"
-  "se\022\023\n\013accessToken\030\001 \001(\t\"\207\002\n\023Registration"
-  "Request\022V\n pakeRegistrationRequestAndUse"
-  "rID\030\001 \001(\0132*.identity.PakeRegistrationReq"
-  "uestAndUserIDH\000\022j\n*pakeRegistrationUploa"
-  "dAndCredentialRequest\030\002 \001(\01324.identity.P"
-  "akeRegistrationUploadAndCredentialReques"
-  "tH\000\022$\n\032pakeCredentialFinalization\030\003 \001(\014H"
-  "\000B\006\n\004data\"|\n\024RegistrationResponse\022\"\n\030pak"
-  "eRegistrationResponse\030\001 \001(\014H\000\0228\n\021pakeLog"
-  "inResponse\030\002 \001(\0132\033.identity.PakeLoginRes"
-  "ponseH\000B\006\n\004data\"\212\001\n\014LoginRequest\0226\n\020pake"
-  "LoginRequest\030\001 \001(\0132\032.identity.PakeLoginR"
-  "equestH\000\022:\n\022walletLoginRequest\030\002 \001(\0132\034.i"
-  "dentity.WalletLoginRequestH\000B\006\n\004data\"\217\001\n"
-  "\rLoginResponse\0228\n\021pakeLoginResponse\030\001 \001("
-  "\0132\033.identity.PakeLoginResponseH\000\022<\n\023wall"
-  "etLoginResponse\030\002 \001(\0132\035.identity.WalletL"
-  "oginResponseH\000B\006\n\004data\"O\n\026VerifyUserToke"
-  "nRequest\022\016\n\006userID\030\001 \001(\t\022\020\n\010deviceID\030\002 \001"
-  "(\t\022\023\n\013accessToken\030\003 \001(\t\"-\n\027VerifyUserTok"
-  "enResponse\022\022\n\ntokenValid\030\001 \001(\010\"\201\001\n\020GetUs"
-  "erIDRequest\0225\n\010authType\030\001 \001(\0162#.identity"
-  ".GetUserIDRequest.AuthType\022\020\n\010userInfo\030\002"
-  " \001(\t\"$\n\010AuthType\022\014\n\010PASSWORD\020\000\022\n\n\006WALLET"
-  "\020\001\"#\n\021GetUserIDResponse\022\016\n\006userID\030\001 \001(\t2"
-  "\314\002\n\017IdentityService\022S\n\014RegisterUser\022\035.id"
-  "entity.RegistrationRequest\032\036.identity.Re"
-  "gistrationResponse\"\000(\0010\001\022B\n\tLoginUser\022\026."
-  "identity.LoginRequest\032\027.identity.LoginRe"
-  "sponse\"\000(\0010\001\022X\n\017VerifyUserToken\022 .identi"
-  "ty.VerifyUserTokenRequest\032!.identity.Ver"
-  "ifyUserTokenResponse\"\000\022F\n\tGetUserID\022\032.id"
-  "entity.GetUserIDRequest\032\033.identity.GetUs"
-  "erIDResponse\"\000b\006proto3"
+  "\035\n\025pakeCredentialRequest\030\003 \001(\014\022\025\n\ruserPu"
+  "blicKey\030\004 \001(\t\"\224\001\n\020PakeLoginRequest\022R\n\036pa"
+  "keCredentialRequestAndUserID\030\001 \001(\0132(.ide"
+  "ntity.PakeCredentialRequestAndUserIDH\000\022$"
+  "\n\032pakeCredentialFinalization\030\002 \001(\014H\000B\006\n\004"
+  "data\"T\n\021PakeLoginResponse\022 \n\026pakeCredent"
+  "ialResponse\030\001 \001(\014H\000\022\025\n\013accessToken\030\002 \001(\t"
+  "H\000B\006\n\004data\"k\n*PakeRegistrationUploadAndC"
+  "redentialRequest\022\036\n\026pakeRegistrationUplo"
+  "ad\030\001 \001(\014\022\035\n\025pakeCredentialRequest\030\002 \001(\014\""
+  "y\n\022WalletLoginRequest\022\016\n\006userID\030\001 \001(\t\022\020\n"
+  "\010deviceID\030\002 \001(\t\022\023\n\013siweMessage\030\003 \001(\t\022\025\n\r"
+  "siweSignature\030\004 \001(\014\022\025\n\ruserPublicKey\030\005 \001"
+  "(\t\"*\n\023WalletLoginResponse\022\023\n\013accessToken"
+  "\030\001 \001(\t\"\207\002\n\023RegistrationRequest\022V\n pakeRe"
+  "gistrationRequestAndUserID\030\001 \001(\0132*.ident"
+  "ity.PakeRegistrationRequestAndUserIDH\000\022j"
+  "\n*pakeRegistrationUploadAndCredentialReq"
+  "uest\030\002 \001(\01324.identity.PakeRegistrationUp"
+  "loadAndCredentialRequestH\000\022$\n\032pakeCreden"
+  "tialFinalization\030\003 \001(\014H\000B\006\n\004data\"|\n\024Regi"
+  "strationResponse\022\"\n\030pakeRegistrationResp"
+  "onse\030\001 \001(\014H\000\0228\n\021pakeLoginResponse\030\002 \001(\0132"
+  "\033.identity.PakeLoginResponseH\000B\006\n\004data\"\212"
+  "\001\n\014LoginRequest\0226\n\020pakeLoginRequest\030\001 \001("
+  "\0132\032.identity.PakeLoginRequestH\000\022:\n\022walle"
+  "tLoginRequest\030\002 \001(\0132\034.identity.WalletLog"
+  "inRequestH\000B\006\n\004data\"\217\001\n\rLoginResponse\0228\n"
+  "\021pakeLoginResponse\030\001 \001(\0132\033.identity.Pake"
+  "LoginResponseH\000\022<\n\023walletLoginResponse\030\002"
+  " \001(\0132\035.identity.WalletLoginResponseH\000B\006\n"
+  "\004data\"O\n\026VerifyUserTokenRequest\022\016\n\006userI"
+  "D\030\001 \001(\t\022\020\n\010deviceID\030\002 \001(\t\022\023\n\013accessToken"
+  "\030\003 \001(\t\"-\n\027VerifyUserTokenResponse\022\022\n\ntok"
+  "enValid\030\001 \001(\010\"\201\001\n\020GetUserIDRequest\0225\n\010au"
+  "thType\030\001 \001(\0162#.identity.GetUserIDRequest"
+  ".AuthType\022\020\n\010userInfo\030\002 \001(\t\"$\n\010AuthType\022"
+  "\014\n\010PASSWORD\020\000\022\n\n\006WALLET\020\001\"#\n\021GetUserIDRe"
+  "sponse\022\016\n\006userID\030\001 \001(\t2\314\002\n\017IdentityServi"
+  "ce\022S\n\014RegisterUser\022\035.identity.Registrati"
+  "onRequest\032\036.identity.RegistrationRespons"
+  "e\"\000(\0010\001\022B\n\tLoginUser\022\026.identity.LoginReq"
+  "uest\032\027.identity.LoginResponse\"\000(\0010\001\022X\n\017V"
+  "erifyUserToken\022 .identity.VerifyUserToke"
+  "nRequest\032!.identity.VerifyUserTokenRespo"
+  "nse\"\000\022F\n\tGetUserID\022\032.identity.GetUserIDR"
+  "equest\032\033.identity.GetUserIDResponse\"\000b\006p"
+  "roto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_identity_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_identity_2eproto = {
-  false, false, 2102, descriptor_table_protodef_identity_2eproto, "identity.proto", 
+  false, false, 2125, descriptor_table_protodef_identity_2eproto, "identity.proto", 
   &descriptor_table_identity_2eproto_once, nullptr, 0, 15,
   schemas, file_default_instances, TableStruct_identity_2eproto::offsets,
   file_level_metadata_identity_2eproto, file_level_enum_descriptors_identity_2eproto, file_level_service_descriptors_identity_2eproto,
@@ -842,6 +845,11 @@ PakeCredentialRequestAndUserID::PakeCredentialRequestAndUserID(const PakeCredent
     pakecredentialrequest_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_pakecredentialrequest(), 
       GetArena());
   }
+  userpublickey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_userpublickey().empty()) {
+    userpublickey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_userpublickey(), 
+      GetArena());
+  }
   // @@protoc_insertion_point(copy_constructor:identity.PakeCredentialRequestAndUserID)
 }
 
@@ -849,6 +857,7 @@ void PakeCredentialRequestAndUserID::SharedCtor() {
 userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 deviceid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 pakecredentialrequest_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+userpublickey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 PakeCredentialRequestAndUserID::~PakeCredentialRequestAndUserID() {
@@ -862,6 +871,7 @@ void PakeCredentialRequestAndUserID::SharedDtor() {
   userid_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   deviceid_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   pakecredentialrequest_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  userpublickey_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 
 void PakeCredentialRequestAndUserID::ArenaDtor(void* object) {
@@ -883,6 +893,7 @@ void PakeCredentialRequestAndUserID::Clear() {
   userid_.ClearToEmpty();
   deviceid_.ClearToEmpty();
   pakecredentialrequest_.ClearToEmpty();
+  userpublickey_.ClearToEmpty();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -916,6 +927,15 @@ const char* PakeCredentialRequestAndUserID::_InternalParse(const char* ptr, ::PR
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           auto str = _internal_mutable_pakecredentialrequest();
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string userPublicKey = 4;
+      case 4:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
+          auto str = _internal_mutable_userpublickey();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "identity.PakeCredentialRequestAndUserID.userPublicKey"));
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -973,6 +993,16 @@ failure:
         3, this->_internal_pakecredentialrequest(), target);
   }
 
+  // string userPublicKey = 4;
+  if (this->userpublickey().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_userpublickey().data(), static_cast<int>(this->_internal_userpublickey().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "identity.PakeCredentialRequestAndUserID.userPublicKey");
+    target = stream->WriteStringMaybeAliased(
+        4, this->_internal_userpublickey(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -1008,6 +1038,13 @@ size_t PakeCredentialRequestAndUserID::ByteSizeLong() const {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::BytesSize(
         this->_internal_pakecredentialrequest());
+  }
+
+  // string userPublicKey = 4;
+  if (this->userpublickey().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_userpublickey());
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1050,6 +1087,9 @@ void PakeCredentialRequestAndUserID::MergeFrom(const PakeCredentialRequestAndUse
   if (from.pakecredentialrequest().size() > 0) {
     _internal_set_pakecredentialrequest(from._internal_pakecredentialrequest());
   }
+  if (from.userpublickey().size() > 0) {
+    _internal_set_userpublickey(from._internal_userpublickey());
+  }
 }
 
 void PakeCredentialRequestAndUserID::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
@@ -1076,6 +1116,7 @@ void PakeCredentialRequestAndUserID::InternalSwap(PakeCredentialRequestAndUserID
   userid_.Swap(&other->userid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   deviceid_.Swap(&other->deviceid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   pakecredentialrequest_.Swap(&other->pakecredentialrequest_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  userpublickey_.Swap(&other->userpublickey_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata PakeCredentialRequestAndUserID::GetMetadata() const {
