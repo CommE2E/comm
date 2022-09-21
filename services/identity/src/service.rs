@@ -128,6 +128,7 @@ impl IdentityService for MyIdentityService {
             let registration_finish_and_login_start_result =
               match pake_registration_finish(
                 &user_id,
+                &device_id,
                 client.clone(),
                 &pake_registration_upload_and_credential_request
                   .pake_registration_upload,
@@ -626,6 +627,7 @@ async fn pake_registration_start(
 
 async fn pake_registration_finish(
   user_id: &str,
+  device_id: &str,
   client: DatabaseClient,
   registration_upload_bytes: &[u8],
   server_registration: Option<ServerRegistration<Cipher>>,
@@ -662,6 +664,7 @@ async fn pake_registration_finish(
   match client
     .update_users_table(
       user_id.to_string(),
+      device_id.to_string(),
       Some(server_registration_finish_result),
       Some(username.to_string()),
       Some(user_public_key.to_string()),
