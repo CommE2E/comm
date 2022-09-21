@@ -68,6 +68,7 @@ message SendRequest {
 
 message GetRequest {
   string sessionID = 1;
+  optional string newNotifyToken = 2;
 }
 
 message GetResponseMessage {
@@ -80,6 +81,7 @@ message GetResponse {
   oneof data {
     GetResponseMessage responseMessage = 1;
     google.protobuf.Empty ping = 2;
+    google.protobuf.Empty newNotifyTokenRequired = 3;
   }
 }
 
