@@ -43,6 +43,9 @@ public:
   findSessionItem(const std::string &deviceID);
   void removeSessionItem(const std::string &sessionID);
   void updateSessionItemIsOnline(const std::string &sessionID, bool isOnline);
+  bool updateSessionItemDeviceToken(
+      const std::string &sessionID,
+      const std::string &newDeviceToken);
 
   void putSessionSignItem(const SessionSignItem &item);
   std::shared_ptr<SessionSignItem>

@@ -115,6 +115,45 @@ void DatabaseManager::updateSessionItemIsOnline(
   }
 }
 
+bool DatabaseManager::updateSessionItemDeviceToken(
+    const std::string &sessionID,
+    const std::string &newDeviceToken) {
+  std::shared_ptr<DeviceSessionItem> item = this->findSessionItem(sessionID);
+  if (item == nullptr) {
+    LOG(ERROR) << "Can't find for update sessionItem for sessionID: "
+               << sessionID;
+    return false;
+  }
+  Aws::DynamoDB::Model::UpdateItemRequest request;
+  request.SetTableName(item->getTableName());
+
+  Aws::DynamoDB::Model::AttributeValue attributeKeyValue;
+  attributeKeyValue.SetS(sessionID);
+  request.AddKey(DeviceSessionItem::FIELD_SESSION_ID, attributeKeyValue);
+  Aws::String update_expression("SET #a = :valueA");
+  request.SetUpdateExpression(update_expression);
+  Aws::Map<Aws::String, Aws::String> expressionAttributeNames;
+  expressionAttributeNames["#a"] = DeviceSessionItem::FIELD_NOTIFY_TOKEN;
+  request.SetExpressionAttributeNames(expressionAttributeNames);
+
+  Aws::DynamoDB::Model::AttributeValue attributeUpdatedValue;
+  attributeUpdatedValue.SetS(newDeviceToken);
+  Aws::Map<Aws::String, Aws::DynamoDB::Model::AttributeValue>
+      expressionAttributeValue;
+  expressionAttributeValue[":valueA"] = attributeUpdatedValue;
+  request.SetExpressionAttributeValues(expressionAttributeValue);
+
+  const Aws::DynamoDB::Model::UpdateItemOutcome &result =
+      getDynamoDBClient()->UpdateItem(request);
+  if (!result.IsSuccess()) {
+    LOG(ERROR)
+        << "Error updating device token at updateSessionItemDeviceToken: "
+        << result.GetError().GetMessage();
+    return false;
+  }
+  return true;
+}
+
 void DatabaseManager::putSessionSignItem(const SessionSignItem &item) {
   Aws::DynamoDB::Model::PutItemRequest request;
   request.SetTableName(item.getTableName());
