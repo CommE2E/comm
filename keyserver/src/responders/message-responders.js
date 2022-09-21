@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 
 import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
+import type { Media } from 'lib/types/media-types.js';
 import {
   messageTypes,
   type SendTextMessageRequest,
@@ -118,63 +119,14 @@ async function multimediaMessageCreationResponder(
     request,
   );
 
-  if (request.mediaIDs) {
-    return legacyMultimediaMessageCreationResponder(viewer, request);
-  }
-
-  const { threadID, localID, mediaMessageContents } = request;
-  if (mediaMessageContents.length === 0) {
+  if (
+    (request.mediaIDs && request.mediaIDs.length === 0) ||
+    (request.mediaMessageContents && request.mediaMessageContents.length === 0)
+  ) {
     throw new ServerError('invalid_parameters');
   }
 
-  const hasPermission = await checkThreadPermission(
-    viewer,
-    threadID,
-    threadPermissions.VOICED,
-  );
-  if (!hasPermission) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  const [media, existingMessageInfo] = await Promise.all([
-    fetchMediaFromMediaMessageContent(viewer, mediaMessageContents),
-    fetchMessageInfoForLocalID(viewer, localID),
-  ]);
-
-  if (media.length !== mediaMessageContents.length && !existingMessageInfo) {
-    throw new ServerError('invalid_parameters');
-  }
-
-  const messageData = createMediaMessageData({
-    localID,
-    threadID,
-    creatorID: viewer.id,
-    media,
-  });
-  const [newMessageInfo] = await createMessages(viewer, [messageData]);
-  const { id } = newMessageInfo;
-  invariant(
-    id !== null && id !== undefined,
-    'serverID should be set in createMessages result',
-  );
-
-  await assignMessageContainerToMedia(viewer, mediaMessageContents, id);
-  return { newMessageInfo };
-}
-
-async function legacyMultimediaMessageCreationResponder(
-  viewer: Viewer,
-  request: SendMultimediaMessageRequest,
-): Promise<SendMessageResponse> {
   const { threadID, localID } = request;
-  const mediaIDs = request.mediaIDs
-    ? request.mediaIDs
-    : request.mediaMessageContents.map(contents => contents.uploadID);
-
-  if (mediaIDs.length === 0) {
-    throw new ServerError('invalid_parameters');
-  }
-
   const hasPermission = await checkThreadPermission(
     viewer,
     threadID,
@@ -184,11 +136,20 @@ async function legacyMultimediaMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const [media, existingMessageInfo] = await Promise.all([
-    fetchMedia(viewer, mediaIDs),
-    fetchMessageInfoForLocalID(viewer, localID),
+  const existingMessageInfoPromise = fetchMessageInfoForLocalID(
+    viewer,
+    localID,
+  );
+  const mediaPromise: Promise<$ReadOnlyArray<Media>> = request.mediaIDs
+    ? fetchMedia(viewer, request.mediaIDs)
+    : fetchMediaFromMediaMessageContent(viewer, request.mediaMessageContents);
+
+  const [existingMessageInfo, media] = await Promise.all([
+    existingMessageInfoPromise,
+    mediaPromise,
   ]);
-  if (media.length !== mediaIDs.length && !existingMessageInfo) {
+
+  if (media.length === 0 && !existingMessageInfo) {
     throw new ServerError('invalid_parameters');
   }
 
@@ -199,13 +160,21 @@ async function legacyMultimediaMessageCreationResponder(
     media,
   });
   const [newMessageInfo] = await createMessages(viewer, [messageData]);
-
   const { id } = newMessageInfo;
   invariant(
     id !== null && id !== undefined,
     'serverID should be set in createMessages result',
   );
-  await assignMedia(viewer, mediaIDs, id);
+
+  if (request.mediaIDs) {
+    await assignMedia(viewer, request.mediaIDs, id);
+  } else {
+    await assignMessageContainerToMedia(
+      viewer,
+      request.mediaMessageContents,
+      id,
+    );
+  }
 
   return { newMessageInfo };
 }
