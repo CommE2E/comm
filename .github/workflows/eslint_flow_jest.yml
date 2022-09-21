@@ -15,8 +15,8 @@ jobs:
       - name: npm install -g yarn
         run: npm install -g yarn
 
-      - name: yarn --frozen-lockfile
-        run: yarn --frozen-lockfile
+      - name: yarn --frozen-lockfile --network-timeout 180000
+        run: yarn --frozen-lockfile --network-timeout 180000
 
       - name: yarn eslint --max-warnings=0
         run: yarn eslint --max-warnings=0

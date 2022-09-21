@@ -1,7 +1,7 @@
 steps:
-  - label: ":robot_face: Android Build"
+  - label: ':robot_face: Android Build'
     command:
-      - 'yarn cleaninstall --frozen-lockfile --skip-optional'
+      - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
       - 'cd native/android'
       - './gradlew bundleRelease --no-daemon "-Dorg.gradle.jvmargs=-Xmx32g -XX:MaxPermSize=32g -XX:+HeapDumpOnOutOfMemoryError"'
     plugins:

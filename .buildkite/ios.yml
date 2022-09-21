@@ -1,8 +1,8 @@
 steps:
-  - label: ":ios: iOS Build"
+  - label: ':ios: iOS Build'
     command:
       - 'pod repo update && yarn workspace native clean-ios'
-      - 'yarn cleaninstall --frozen-lockfile --skip-optional'
+      - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
       - 'cd native/ios && xcodebuild -workspace Comm.xcworkspace -scheme Comm -destination generic/platform=iOS -allowProvisioningUpdates'
     agents:
       - 'mac=true'
