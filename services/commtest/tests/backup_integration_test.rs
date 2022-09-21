@@ -1,15 +1,12 @@
-mod backup;
-mod tools;
-
-use backup::{
+use bytesize::ByteSize;
+use commtest::backup::{
   add_attachments,
   backup_utils::{self, BackupData, BackupServiceClient, Item},
   create_new_backup, pull_backup, send_log,
 };
-use bytesize::ByteSize;
+use commtest::tools::{self, Error};
 use std::collections::HashMap;
 use std::env;
-use tools::Error;
 
 #[tokio::test]
 async fn backup_integration_test() -> Result<(), Error> {

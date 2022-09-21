@@ -1,13 +1,10 @@
-mod blob;
-mod tools;
-
-use blob::{
+use bytesize::ByteSize;
+use commtest::blob::{
   blob_utils::{BlobData, BlobServiceClient},
   get, put, remove,
 };
-use bytesize::ByteSize;
+use commtest::tools::{self, Error};
 use std::env;
-use tools::Error;
 
 #[tokio::test]
 async fn blob_integration_test() -> Result<(), Error> {

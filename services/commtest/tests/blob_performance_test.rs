@@ -1,14 +1,11 @@
-mod blob;
-mod tools;
-
-use blob::{
+use bytesize::ByteSize;
+use commtest::blob::{
   blob_utils::{BlobData, BlobServiceClient},
   get, put, remove,
 };
-use bytesize::ByteSize;
+use commtest::tools::{obtain_number_of_threads, Error};
 use std::env;
 use tokio::runtime::Runtime;
-use tools::{obtain_number_of_threads, Error};
 
 #[tokio::test]
 async fn blob_performance_test() -> Result<(), Error> {

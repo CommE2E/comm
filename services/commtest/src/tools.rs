@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use bytesize::ByteSize;
 use hex::ToHex;
 use lazy_static::lazy_static;

@@ -1,16 +1,13 @@
-mod backup;
-mod tools;
-
-use backup::{
+use bytesize::ByteSize;
+use commtest::backup::{
   add_attachments,
   backup_utils::{self, BackupData, BackupServiceClient, Item},
   create_new_backup, pull_backup, send_log,
 };
-use bytesize::ByteSize;
+use commtest::tools::{obtain_number_of_threads, Error};
 use std::env;
 use std::sync::mpsc::channel;
 use tokio::runtime::Runtime;
-use tools::{obtain_number_of_threads, Error};
 
 #[tokio::test]
 async fn backup_performance_test() -> Result<(), Error> {
