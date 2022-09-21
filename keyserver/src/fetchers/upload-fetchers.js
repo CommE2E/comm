@@ -4,6 +4,7 @@ import _keyBy from 'lodash/fp/keyBy';
 
 import type { Media } from 'lib/types/media-types';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
+import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
@@ -119,14 +120,9 @@ async function fetchUploadsForMessage(
   viewer: Viewer,
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
 ): Promise<$ReadOnlyArray<Object>> {
-  const uploadIDs = [];
-  for (const mediaContent of mediaMessageContents) {
-    uploadIDs.push(mediaContent.uploadID);
-    if (mediaContent.type === 'video') {
-      uploadIDs.push(mediaContent.thumbnailUploadID);
-    }
-  }
-
+  const uploadIDs = getUploadIDsFromMediaMessageServerDBContents(
+    mediaMessageContents,
+  );
   const query = SQL`
     SELECT id AS uploadID, secret AS uploadSecret,
       type AS uploadType, extra AS uploadExtra
