@@ -24,9 +24,15 @@ import {
   fetchMessageInfoForLocalID,
 } from '../fetchers/message-fetchers';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
-import { fetchMedia } from '../fetchers/upload-fetchers';
+import {
+  fetchMedia,
+  fetchMediaFromMediaMessageContent,
+} from '../fetchers/upload-fetchers';
 import type { Viewer } from '../session/viewer';
-import { assignMedia } from '../updaters/upload-updaters';
+import {
+  assignMedia,
+  assignMessageContainerToMedia,
+} from '../updaters/upload-updaters';
 import { validateInput } from '../utils/validation-utils';
 
 const sendTextMessageRequestInputValidator = tShape({
@@ -111,7 +117,49 @@ async function multimediaMessageCreationResponder(
     sendMultimediaMessageRequestInputValidator,
     request,
   );
-  return legacyMultimediaMessageCreationResponder(viewer, request);
+
+  if (request.mediaIDs) {
+    return legacyMultimediaMessageCreationResponder(viewer, request);
+  }
+
+  const { threadID, localID, mediaMessageContents } = request;
+  if (mediaMessageContents.length === 0) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const hasPermission = await checkThreadPermission(
+    viewer,
+    threadID,
+    threadPermissions.VOICED,
+  );
+  if (!hasPermission) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const [media, existingMessageInfo] = await Promise.all([
+    fetchMediaFromMediaMessageContent(viewer, mediaMessageContents),
+    fetchMessageInfoForLocalID(viewer, localID),
+  ]);
+
+  if (media.length !== mediaMessageContents.length && !existingMessageInfo) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const messageData = createMediaMessageData({
+    localID,
+    threadID,
+    creatorID: viewer.id,
+    media,
+  });
+  const [newMessageInfo] = await createMessages(viewer, [messageData]);
+  const { id } = newMessageInfo;
+  invariant(
+    id !== null && id !== undefined,
+    'serverID should be set in createMessages result',
+  );
+
+  await assignMessageContainerToMedia(viewer, mediaMessageContents, id);
+  return { newMessageInfo };
 }
 
 async function legacyMultimediaMessageCreationResponder(
