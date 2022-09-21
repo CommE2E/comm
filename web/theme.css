@@ -77,7 +77,7 @@
   --chat-confirmation-icon: var(--violet-dark-100);
   --keyserver-selection: var(--violet-dark-60);
   --thread-selection: var(--violet-light-80);
-  --thread-hover-bg: var(--shades-black-90);
+  --thread-hover-bg: var(--shades-black-80);
   --thread-active-bg: var(--shades-black-80);
   --chat-timestamp-color: var(--shades-black-60);
   --tool-tip-bg: var(--shades-black-80);
