@@ -227,13 +227,25 @@ grpc::Status TunnelBrokerServiceImpl::Get(
           "No such session found. SessionID: " + sessionID);
     }
 
+    tunnelbroker::GetResponse response;
     // Handling of device notification token expiration and update
-    if (request->has_newnotifytoken() &&
-        !database::DatabaseManager::getInstance().updateSessionItemDeviceToken(
-            sessionID, request->newnotifytoken())) {
-      return grpc::Status(
-          grpc::StatusCode::INTERNAL,
-          "Can't update device token in the database");
+    if (request->has_newnotifytoken()) {
+      if (!database::DatabaseManager::getInstance()
+               .updateSessionItemDeviceToken(
+                   sessionID, request->newnotifytoken())) {
+        return grpc::Status(
+            grpc::StatusCode::INTERNAL,
+            "Can't update device token in the database");
+      }
+      sessionItem =
+          database::DatabaseManager::getInstance().findSessionItem(sessionID);
+    } else if (sessionItem->getNotifyToken().empty()) {
+      response.mutable_newnotifytokenrequired();
+      if (!writer->Write(response)) {
+        throw std::runtime_error(
+            "gRPC writer error on sending data to the client");
+      }
+      response.Clear();
     }
 
     const std::string clientDeviceID = sessionItem->getDeviceID();
@@ -249,7 +261,7 @@ grpc::Status TunnelBrokerServiceImpl::Get(
       // DeliveryBroker.
       DeliveryBroker::getInstance().erase(clientDeviceID);
     }
-    tunnelbroker::GetResponse response;
+
     auto respondToWriter =
         [&writer, &response](std::string fromDeviceID, std::string payload) {
           response.mutable_responsemessage()->set_fromdeviceid(fromDeviceID);
