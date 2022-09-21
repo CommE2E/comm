@@ -257,28 +257,6 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     return overlayContext.scrollBlockingModalStatus !== 'closed';
   }
 
-  componentDidMount() {
-    const tabNavigation: ?TabNavigationProp<
-      'Chat',
-    > = this.props.navigation.dangerouslyGetParent();
-    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation.addListener('tabPress', this.onTabPress);
-  }
-
-  componentWillUnmount() {
-    const tabNavigation: ?TabNavigationProp<
-      'Chat',
-    > = this.props.navigation.dangerouslyGetParent();
-    invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
-    tabNavigation.removeListener('tabPress', this.onTabPress);
-  }
-
-  onTabPress = () => {
-    if (this.props.navigation.isFocused() && !this.props.somethingIsSaving) {
-      this.props.navigation.popToTop();
-    }
-  };
-
   componentDidUpdate(prevProps: Props) {
     const prevThreadInfo = prevProps.threadInfo;
     const newThreadInfo = this.props.threadInfo;
@@ -1101,6 +1079,24 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
     const boundSomethingIsSaving = useSelector(state =>
       somethingIsSaving(state, threadMembers),
     );
+
+    const { navigation } = props;
+    React.useEffect(() => {
+      const tabNavigation: ?TabNavigationProp<
+        'Chat',
+      > = navigation.dangerouslyGetParent();
+      invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
+
+      const onTabPress = () => {
+        if (navigation.isFocused() && !boundSomethingIsSaving) {
+          navigation.popToTop();
+        }
+      };
+
+      tabNavigation.addListener('tabPress', onTabPress);
+      return () => tabNavigation.removeListener('tabPress', onTabPress);
+    }, [navigation, boundSomethingIsSaving]);
+
     const styles = useStyles(unboundStyles);
     const indicatorStyle = useIndicatorStyle();
     const overlayContext = React.useContext(OverlayContext);
