@@ -139,7 +139,18 @@ async function fetchMediaFromMediaMessageContent(
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
 ): Promise<$ReadOnlyArray<Media>> {
   const uploads = await fetchUploadsForMessage(viewer, mediaMessageContents);
-  const uploadMap = _keyBy('uploadID')(uploads);
+
+  return constructMediaFromMediaMessageContentsAndUploadRows(
+    mediaMessageContents,
+    uploads,
+  );
+}
+
+function constructMediaFromMediaMessageContentsAndUploadRows(
+  mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
+  uploadRows: $ReadOnlyArray<Object>,
+): $ReadOnlyArray<Media> {
+  const uploadMap = _keyBy('uploadID')(uploadRows);
 
   const media: Media[] = [];
   for (const mediaMessageContent of mediaMessageContents) {
@@ -194,4 +205,5 @@ export {
   mediaFromRow,
   fetchMedia,
   fetchMediaFromMediaMessageContent,
+  constructMediaFromMediaMessageContentsAndUploadRows,
 };
