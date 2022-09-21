@@ -35,7 +35,10 @@ import type { SQLStatementType } from '../database/types';
 import type { PushInfo } from '../push/send';
 import type { Viewer } from '../session/viewer';
 import { creationString, localIDFromCreationString } from '../utils/idempotent';
-import { mediaFromRow } from './upload-fetchers';
+import {
+  constructMediaFromMediaMessageContentsAndUploadRows,
+  mediaFromRow,
+} from './upload-fetchers';
 
 export type CollapsableNotifInfo = {
   collapseKey: ?string,
@@ -228,7 +231,16 @@ function rawMessageInfoFromRows(
   const messageSpec = messageSpecs[type];
 
   if (type === messageTypes.IMAGES || type === messageTypes.MULTIMEDIA) {
-    const media = rows.filter(row => row.uploadID).map(mediaFromRow);
+    let media;
+    if (type === messageTypes.MULTIMEDIA) {
+      const mediaMessageContents = JSON.parse(rows[0].content);
+      media = constructMediaFromMediaMessageContentsAndUploadRows(
+        mediaMessageContents,
+        rows,
+      );
+    } else {
+      media = rows.filter(row => row.uploadID).map(mediaFromRow);
+    }
     const [row] = rows;
     const localID = localIDFromCreationString(viewer, row.creation);
     invariant(
