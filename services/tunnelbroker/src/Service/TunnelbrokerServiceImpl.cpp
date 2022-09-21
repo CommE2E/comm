@@ -226,6 +226,16 @@ grpc::Status TunnelBrokerServiceImpl::Get(
           grpc::StatusCode::PERMISSION_DENIED,
           "No such session found. SessionID: " + sessionID);
     }
+
+    // Handling of device notification token expiration and update
+    if (request->has_newnotifytoken() &&
+        !database::DatabaseManager::getInstance().updateSessionItemDeviceToken(
+            sessionID, request->newnotifytoken())) {
+      return grpc::Status(
+          grpc::StatusCode::INTERNAL,
+          "Can't update device token in the database");
+    }
+
     const std::string clientDeviceID = sessionItem->getDeviceID();
     DeliveryBrokerMessage messageToDeliver;
 
