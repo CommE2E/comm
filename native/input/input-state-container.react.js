@@ -58,6 +58,7 @@ import type {
   MediaMessageServerDBContent,
   RawMediaMessageInfo,
 } from 'lib/types/messages/media';
+import { getMediaMessageServerDBContentsFromMedia } from 'lib/types/messages/media';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
 import type { Dispatch } from 'lib/types/redux-types';
 import {
@@ -327,20 +328,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       localID !== null && localID !== undefined,
       'localID should be set',
     );
-    const mediaMessageContents: MediaMessageServerDBContent[] = messageInfo.media.map(
-      media => {
-        if (media.type === 'photo') {
-          return { type: 'photo', uploadID: media.id };
-        } else {
-          return {
-            type: 'video',
-            uploadID: media.id,
-            thumbnailUploadID: media.thumbnailID,
-          };
-        }
-      },
+    const mediaMessageContents = getMediaMessageServerDBContentsFromMedia(
+      messageInfo.media,
     );
-
     try {
       const result = await this.props.sendMultimediaMessage(
         threadID,
