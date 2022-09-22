@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build and archive iOS app
-    runs-on: macos-11
+    runs-on: macos-12
 
     steps:
       - name: Checkout
