@@ -3,6 +3,7 @@
 import * as React from 'react';
 import ExitApp from 'react-native-exit-app';
 
+import { commCoreModule } from '../native-modules';
 import { useSelector } from '../redux/redux-utils';
 
 function SensitiveDataCleaner(): null {
@@ -12,15 +13,15 @@ function SensitiveDataCleaner(): null {
   React.useEffect(() => {
     (async () => {
       try {
-        const databaseCurrentUserInfoID = await global.CommCoreModule.getCurrentUserID();
+        const databaseCurrentUserInfoID = await commCoreModule.getCurrentUserID();
         if (
           databaseCurrentUserInfoID &&
           databaseCurrentUserInfoID !== currentLoggedInUserID
         ) {
-          await global.CommCoreModule.clearSensitiveData();
+          await commCoreModule.clearSensitiveData();
         }
         if (currentLoggedInUserID) {
-          await global.CommCoreModule.setCurrentUserID(currentLoggedInUserID);
+          await commCoreModule.setCurrentUserID(currentLoggedInUserID);
         }
       } catch (e) {
         if (__DEV__) {

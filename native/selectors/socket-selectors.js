@@ -41,7 +41,7 @@ const sessionIdentificationSelector: (
 
 function oneTimeKeyGenerator(inc: number): string {
   // todo replace this hard code with something like
-  // global.CommCoreModule.generateOneTimeKeys()
+  // commCoreModule.generateOneTimeKeys()
   let str = Date.now().toString() + '_' + inc.toString() + '_';
   while (str.length < 43) {
     str += Math.random().toString(36).substr(2, 5);

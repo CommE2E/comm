@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import { draftKeyFromThreadID } from 'lib/shared/thread-utils';
 
+import { commCoreModule } from '../native-modules';
+
 export type UpdateDraft = (draft: {
   +key: string,
   +text: string,
@@ -22,8 +24,8 @@ export type CoreData = {
 const defaultCoreData = Object.freeze({
   drafts: {
     data: ({}: { +[key: string]: string }),
-    updateDraft: global.CommCoreModule.updateDraft,
-    moveDraft: global.CommCoreModule.moveDraft,
+    updateDraft: commCoreModule.updateDraft,
+    moveDraft: commCoreModule.moveDraft,
   },
 });
 

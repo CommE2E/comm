@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
+import { commCoreModule } from '../native-modules';
 import { type CoreData, defaultCoreData, CoreDataContext } from './core-data';
 
 type Props = {
@@ -15,7 +16,7 @@ function CoreDataProvider(props: Props): React.Node {
 
   React.useEffect(() => {
     (async () => {
-      const fetchedDrafts = await global.CommCoreModule.getAllDrafts();
+      const fetchedDrafts = await commCoreModule.getAllDrafts();
       setDraftCache(prevDrafts => {
         const mergedDrafts = {};
         for (const draftObj of fetchedDrafts) {
@@ -37,7 +38,7 @@ function CoreDataProvider(props: Props): React.Node {
     const oldDrafts = draftCache;
     setDraftCache({});
     try {
-      return await global.CommCoreModule.removeAllDrafts();
+      return await commCoreModule.removeAllDrafts();
     } catch (e) {
       setDraftCache(oldDrafts);
       throw e;
@@ -88,7 +89,7 @@ function CoreDataProvider(props: Props): React.Node {
       const prevDraftText = draftCache[draft.key];
       setDrafts([draft]);
       try {
-        return await global.CommCoreModule.updateDraft(draft);
+        return await commCoreModule.updateDraft(draft);
       } catch (e) {
         setDrafts([{ key: draft.key, text: prevDraftText }]);
         throw e;
@@ -108,7 +109,7 @@ function CoreDataProvider(props: Props): React.Node {
         { key: prevKey, text: null },
       ]);
       try {
-        return await global.CommCoreModule.moveDraft(prevKey, newKey);
+        return await commCoreModule.moveDraft(prevKey, newKey);
       } catch (e) {
         setDrafts([
           { key: newKey, text: null },

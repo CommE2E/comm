@@ -35,6 +35,7 @@ import { setNewSessionActionType } from 'lib/utils/action-utils';
 import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
 
+import { commCoreModule } from '../native-modules';
 import { defaultNavInfo } from '../navigation/default-state';
 import { getGlobalNavContext } from '../navigation/icky-global';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
@@ -318,14 +319,14 @@ function reducer(state: AppState = defaultState, action: Action) {
       const promises = [];
       if (convertedThreadStoreOperations.length > 0) {
         promises.push(
-          global.CommCoreModule.processThreadStoreOperations(
+          commCoreModule.processThreadStoreOperations(
             convertedThreadStoreOperations,
           ),
         );
       }
       if (convertedMessageStoreOperations.length > 0) {
         promises.push(
-          global.CommCoreModule.processMessageStoreOperations(
+          commCoreModule.processMessageStoreOperations(
             convertedMessageStoreOperations,
           ),
         );

@@ -9,6 +9,7 @@ import { sqliteLoadFailure } from 'lib/actions/user-actions';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
 
+import { commCoreModule } from '../native-modules';
 import { useSelector } from '../redux/redux-utils';
 import { SQLiteContext } from './sqlite-context';
 
@@ -32,7 +33,7 @@ function SQLiteContextProvider(props: Props): React.Node {
     }
     (async () => {
       try {
-        const threads = await global.CommCoreModule.getAllThreads();
+        const threads = await commCoreModule.getAllThreads();
         const threadInfosFromDB = convertClientDBThreadInfosToRawThreadInfos(
           threads,
         );
@@ -40,7 +41,7 @@ function SQLiteContextProvider(props: Props): React.Node {
           type: setThreadStoreActionType,
           payload: { threadInfos: threadInfosFromDB },
         });
-        const messages = await global.CommCoreModule.getAllMessages();
+        const messages = await commCoreModule.getAllMessages();
         dispatch({
           type: setMessageStoreMessages,
           payload: messages,

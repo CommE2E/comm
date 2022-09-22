@@ -24,6 +24,7 @@ import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { translateRawMessageInfoToClientDBMessageInfo } from 'lib/utils/message-ops-utils';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
 
+import { commCoreModule } from '../native-modules';
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultGlobalThemeInfo } from '../types/themes';
@@ -206,7 +207,7 @@ const migrations = {
   [22]: state => {
     for (const key in state.drafts) {
       const value = state.drafts[key];
-      global.CommCoreModule.updateDraft({
+      commCoreModule.updateDraft({
         key,
         text: value,
       });
@@ -340,7 +341,7 @@ const migrations = {
         payload: { id, threadInfo: threadInfos[id] },
       })),
     ];
-    const processingResult: boolean = global.CommCoreModule.processThreadStoreOperationsSync(
+    const processingResult: boolean = commCoreModule.processThreadStoreOperationsSync(
       convertThreadStoreOperationsToClientDBOperations(operations),
     );
     if (!processingResult) {
@@ -359,7 +360,7 @@ const migrations = {
         payload: translateRawMessageInfoToClientDBMessageInfo(messages[id]),
       })),
     ];
-    const processingResult: boolean = global.CommCoreModule.processMessageStoreOperationsSync(
+    const processingResult: boolean = commCoreModule.processMessageStoreOperationsSync(
       operations,
     );
     if (!processingResult) {
@@ -438,7 +439,7 @@ const persistConfig = {
   timeout: ((__DEV__ ? 0 : undefined): number | void),
 };
 
-const codeVersion: number = global.CommCoreModule.getCodeVersion();
+const codeVersion: number = commCoreModule.getCodeVersion();
 
 // This local exists to avoid a circular dependency where redux-setup needs to
 // import all the navigation and screen stuff, but some of those screens want to
