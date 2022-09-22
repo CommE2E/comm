@@ -8,6 +8,9 @@
 #include "GlobalTools.h"
 #include "Tools.h"
 
+#include "rust-notifications/src/lib.rs.h"
+#include "rust/cxx.h"
+
 #include <glog/logging.h>
 
 namespace comm {
@@ -140,6 +143,8 @@ grpc::Status TunnelBrokerServiceImpl::Send(
     }
     const std::string clientDeviceID = sessionItem->getDeviceID();
     const std::string messageID = tools::generateUUID();
+    const std::string notifyToken = sessionItem->getNotifyToken();
+    const std::string deviceOs = sessionItem->getDeviceOs();
 
     const database::MessageItem message(
         messageID,
@@ -154,6 +159,46 @@ grpc::Status TunnelBrokerServiceImpl::Send(
       return grpc::Status(
           grpc::StatusCode::INTERNAL,
           "Error while publish the message to AMQP");
+    }
+
+    if (!sessionItem->getIsOnline()) {
+      const std::string notificationMessageTitle = "New message";
+      const std::string notificationMessageText = "You have a new message";
+      if (deviceOs == "iOS" && !notifyToken.empty()) {
+        const apnsReturnStatus apnsResult = sendNotifToAPNS(
+            config::ConfigManager::getInstance().getParameter(
+                config::ConfigManager::OPTION_NOTIFS_APNS_P12_CERT_PATH),
+            config::ConfigManager::getInstance().getParameter(
+                config::ConfigManager::OPTION_NOTIFS_APNS_P12_CERT_PASSWORD),
+            notifyToken,
+            config::ConfigManager::getInstance().getParameter(
+                config::ConfigManager::OPTION_NOTIFS_APNS_TOPIC),
+            notificationMessageText,
+            false);
+        if ((apnsResult == apnsReturnStatus::Unregistered ||
+             apnsResult == apnsReturnStatus::BadDeviceToken) &&
+            !database::DatabaseManager::getInstance()
+                 .updateSessionItemDeviceToken(sessionID, "")) {
+          return grpc::Status(
+              grpc::StatusCode::INTERNAL,
+              "Can't clear the device token in database");
+        }
+      } else if (deviceOs == "Android" && !notifyToken.empty()) {
+        const fcmReturnStatus fcmResult = sendNotifToFCM(
+            config::ConfigManager::getInstance().getParameter(
+                config::ConfigManager::OPTION_NOTIFS_FCM_SERVER_KEY),
+            notifyToken,
+            notificationMessageTitle,
+            notificationMessageText);
+        if ((fcmResult == fcmReturnStatus::InvalidRegistration ||
+             fcmResult == fcmReturnStatus::NotRegistered) &&
+            !database::DatabaseManager::getInstance()
+                 .updateSessionItemDeviceToken(sessionID, "")) {
+          return grpc::Status(
+              grpc::StatusCode::INTERNAL,
+              "Can't clear the device token in database");
+        }
+      }
     }
   } catch (std::runtime_error &e) {
     LOG(ERROR) << "gRPC: "
