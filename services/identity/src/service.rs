@@ -176,6 +176,7 @@ impl IdentityService for MyIdentityService {
             let login_finish_result = pake_login_finish(
               &user_id,
               &device_id,
+              &user_public_key,
               client,
               server_login,
               &pake_credential_finalization,
@@ -226,6 +227,7 @@ impl IdentityService for MyIdentityService {
       let mut user_id: String = String::new();
       let mut device_id: String = String::new();
       let mut server_login: Option<ServerLogin<Cipher>> = None;
+      let mut user_public_key: String = String::new();
       let mut num_messages_received = 0;
       while let Some(message) = in_stream.next().await {
         match message {
@@ -276,6 +278,8 @@ impl IdentityService for MyIdentityService {
             }
             user_id = pake_credential_request_and_user_id.user_id;
             device_id = pake_credential_request_and_user_id.device_id;
+            user_public_key =
+              pake_credential_request_and_user_id.user_public_key;
           }
           Ok(LoginRequest {
             data:
@@ -287,6 +291,7 @@ impl IdentityService for MyIdentityService {
             let login_finish_result = pake_login_finish(
               &user_id,
               &device_id,
+              &user_public_key,
               client,
               server_login,
               &pake_credential_finalization,
@@ -542,6 +547,7 @@ async fn pake_login_start(
 async fn pake_login_finish(
   user_id: &str,
   device_id: &str,
+  user_public_key: &str,
   client: DatabaseClient,
   server_login: Option<ServerLogin<Cipher>>,
   pake_credential_finalization: &[u8],
@@ -564,7 +570,7 @@ async fn pake_login_finish(
     );
     return Err(Status::aborted("user not found"));
   }
-  match server_login
+  server_login
     .ok_or_else(|| {
       error!("Server login missing in {:?} PAKE workflow", pake_workflow);
       Status::aborted("login failed")
@@ -575,21 +581,32 @@ async fn pake_login_finish(
           error!("Failed to deserialize credential finalization bytes: {}", e);
           Status::aborted("login failed")
         })?,
-    ) {
-    Ok(_) => Ok(PakeLoginResponseStruct {
-      data: Some(AccessToken(
-        put_token_helper(client, AuthType::Password, user_id, device_id, rng)
-          .await?,
-      )),
-    }),
-    Err(e) => {
+    )
+    .map_err(|e| {
       error!(
         "Encountered a PAKE protocol error when finishing login: {}",
         e
       );
-      Err(Status::aborted("server error"))
-    }
+      Status::aborted("server error")
+    })?;
+  if matches!(pake_workflow, PakeWorkflow::Login) {
+    client
+      .update_users_table(
+        user_id.to_string(),
+        device_id.to_string(),
+        None,
+        None,
+        Some(user_public_key.to_string()),
+      )
+      .await
+      .map_err(handle_db_error)?;
   }
+  Ok(PakeLoginResponseStruct {
+    data: Some(AccessToken(
+      put_token_helper(client, AuthType::Password, user_id, device_id, rng)
+        .await?,
+    )),
+  })
 }
 
 async fn pake_registration_start(
