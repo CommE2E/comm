@@ -1,10 +1,20 @@
 // @flow
 import * as React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
+import { newThread, newThreadActionTypes } from 'lib/actions/thread-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { threadTypes } from 'lib/types/thread-types';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 import { trimText } from 'lib/utils/text-utils';
 
 import Stepper from '../../../components/stepper.react';
+import { updateNavInfoActionType } from '../../../redux/action-types';
+import { nonThreadCalendarQuery } from '../../../selectors/nav-selectors';
 import Modal from '../../modal.react';
 import css from './compose-subchannel-modal.css';
 import SubchannelMembers from './steps/subchannel-members.react';
@@ -14,6 +24,18 @@ import type { VisibilityType } from './steps/subchannel-settings.react';
 type Props = {
   +onClose: () => void,
   +parentThreadInfo: ThreadInfo,
+};
+
+const getThreadType = (visibility: VisibilityType, announcement: boolean) => {
+  if (visibility === 'open') {
+    return announcement
+      ? threadTypes.COMMUNITY_OPEN_ANNOUNCEMENT_SUBTHREAD
+      : threadTypes.COMMUNITY_OPEN_SUBTHREAD;
+  } else {
+    return announcement
+      ? threadTypes.COMMUNITY_SECRET_ANNOUNCEMENT_SUBTHREAD
+      : threadTypes.COMMUNITY_SECRET_SUBTHREAD;
+  }
 };
 
 type Steps = 'settings' | 'members';
@@ -34,6 +56,10 @@ function ComposeSubchannelHeader(props: HeaderProps): React.Node {
   );
 }
 
+const createSubchannelLoadingStatusSelector = createLoadingStatusSelector(
+  newThreadActionTypes,
+);
+
 function ComposeSubchannelModal(props: Props): React.Node {
   const { parentThreadInfo, onClose } = props;
   const { uiName: parentThreadName } = parentThreadInfo;
@@ -49,6 +75,70 @@ function ComposeSubchannelModal(props: Props): React.Node {
     $ReadOnlySet<string>,
   >(new Set());
   const [searchUserText, setSearchUserText] = React.useState<string>('');
+
+  const loadingState = useSelector(createSubchannelLoadingStatusSelector);
+
+  const [errorMessage, setErrorMessage] = React.useState<string>('');
+
+  const calendarQuery = useSelector(nonThreadCalendarQuery);
+  const callNewThread = useServerCall(newThread);
+
+  const dispatchActionPromise = useDispatchActionPromise();
+  const dispatch = useDispatch();
+
+  const createSubchannel = React.useCallback(async () => {
+    try {
+      const threadType = getThreadType(visibilityType, announcement);
+
+      const query = calendarQuery();
+      const result = await callNewThread({
+        name: channelName,
+        type: threadType,
+        parentThreadID: parentThreadInfo.id,
+        initialMemberIDs: Array.from(selectedUsers),
+        calendarQuery: query,
+        color: parentThreadInfo.color,
+      });
+
+      return result;
+    } catch (e) {
+      await setErrorMessage(
+        e.message === 'invalid_parameters'
+          ? 'announcement channels currently not available'
+          : 'unknown error',
+      );
+
+      return null;
+    }
+  }, [
+    parentThreadInfo,
+    selectedUsers,
+    visibilityType,
+    announcement,
+    callNewThread,
+    calendarQuery,
+    channelName,
+  ]);
+
+  const dispatchCreateSubchannel = React.useCallback(async () => {
+    await setErrorMessage('');
+
+    const response = createSubchannel();
+    await dispatchActionPromise(newThreadActionTypes, response);
+    const result = await response;
+
+    if (result) {
+      const { newThreadID } = result;
+      await dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          activeChatThreadID: newThreadID,
+        },
+      });
+
+      props.onClose();
+    }
+  }, [dispatchActionPromise, createSubchannel, props, dispatch]);
 
   const onChangeChannelName = React.useCallback(
     (event: SyntheticEvent<HTMLInputElement>) => {
@@ -115,6 +205,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
           content: 'Next',
           disabled: !channelName.trim(),
           onClick: () => {
+            setErrorMessage('');
             setChannelName(channelName.trim());
             setActiveStep('members');
           },
@@ -127,13 +218,15 @@ function ComposeSubchannelModal(props: Props): React.Node {
         },
         nextProps: {
           content: 'Create',
+          loading: loadingState === 'loading',
+          disabled: selectedUsers.size === 0,
           onClick: () => {
-            // TODO: make form logic
+            dispatchCreateSubchannel();
           },
         },
       },
     }),
-    [channelName],
+    [channelName, dispatchCreateSubchannel, loadingState, selectedUsers],
   );
 
   const subchannelMembers = React.useMemo(
@@ -179,6 +272,7 @@ function ComposeSubchannelModal(props: Props): React.Node {
               name="members"
               prevProps={stepperButtons.members.prevProps}
               nextProps={stepperButtons.members.nextProps}
+              errorMessage={errorMessage}
             />
           </Stepper.Container>
         </div>
