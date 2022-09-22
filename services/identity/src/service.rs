@@ -461,26 +461,34 @@ async fn wallet_login_helper(
     error!("Too many messages received in stream, aborting");
     return Err(Status::aborted("please retry"));
   }
-  match parse_and_verify_siwe_message(
+  parse_and_verify_siwe_message(
     &wallet_login_request.user_id,
     &wallet_login_request.device_id,
     &wallet_login_request.siwe_message,
     wallet_login_request.siwe_signature,
-  ) {
-    Ok(()) => Ok(LoginResponse {
-      data: Some(WalletLoginResponse(WalletLoginResponseStruct {
-        access_token: put_token_helper(
-          client,
-          AuthType::Wallet,
-          &wallet_login_request.user_id,
-          &wallet_login_request.device_id,
-          rng,
-        )
-        .await?,
-      })),
-    }),
-    Err(e) => Err(e),
-  }
+  )?;
+  client
+    .update_users_table(
+      wallet_login_request.user_id.clone(),
+      wallet_login_request.device_id.clone(),
+      None,
+      None,
+      Some(wallet_login_request.user_public_key),
+    )
+    .await
+    .map_err(handle_db_error)?;
+  Ok(LoginResponse {
+    data: Some(WalletLoginResponse(WalletLoginResponseStruct {
+      access_token: put_token_helper(
+        client,
+        AuthType::Wallet,
+        &wallet_login_request.user_id,
+        &wallet_login_request.device_id,
+        rng,
+      )
+      .await?,
+    })),
+  })
 }
 
 async fn pake_login_start(
