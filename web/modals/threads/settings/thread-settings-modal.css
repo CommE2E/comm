@@ -2,18 +2,24 @@ div.modal_body {
   display: flex;
   flex-direction: column;
   width: 383px;
-  height: 539px;
+  height: 560px;
   overflow: hidden;
 }
 div.tab_body {
   padding: 20px;
   overflow: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 div.modal_form_error {
   display: flex;
+  align-items: flex-end;
   justify-content: center;
-  padding-top: 8px;
-  font-size: 16px;
-  color: red;
+  font-size: var(--s-font-16);
+  color: var(--error);
   font-style: italic;
+  min-height: 26px;
+  flex: 1;
+  padding: 5px;
 }

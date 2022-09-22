@@ -19,13 +19,15 @@ div.form_content {
   margin-bottom: 12px;
 }
 
+form.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .deletion_warning {
   font-weight: var(--bold);
   color: var(--fg);
   font-size: var(--s-font-14);
   margin-bottom: 16px;
-}
-
-.delete_button {
-  width: 100%;
 }

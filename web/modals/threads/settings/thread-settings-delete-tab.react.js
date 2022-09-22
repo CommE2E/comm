@@ -13,16 +13,17 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
-import Button from '../../../components/button.react';
 import SWMansionIcon from '../../../SWMansionIcon.react';
 import Input from '../../input.react';
 import { useModalContext } from '../../modal-provider.react';
+import SubmitSection from './submit-section.react';
 import css from './thread-settings-delete-tab.css';
 
 type ThreadSettingsDeleteTabProps = {
   +threadSettingsOperationInProgress: boolean,
   +threadInfo: ThreadInfo,
-  +setErrorMessage: SetState<string>,
+  +setErrorMessage: SetState<?string>,
+  +errorMessage?: ?string,
 };
 
 function ThreadSettingsDeleteTab(
@@ -32,6 +33,7 @@ function ThreadSettingsDeleteTab(
     threadSettingsOperationInProgress,
     threadInfo,
     setErrorMessage,
+    errorMessage,
   } = props;
 
   const modalContext = useModalContext();
@@ -83,7 +85,7 @@ function ThreadSettingsDeleteTab(
   );
 
   return (
-    <form method="POST">
+    <form method="POST" className={css.container}>
       <div>
         <SWMansionIcon icon="warning-circle" size={22} />
         <p className={css.deletion_warning}>
@@ -107,16 +109,16 @@ function ThreadSettingsDeleteTab(
           />
         </div>
       </div>
-      <Button
+      <SubmitSection
+        errorMessage={errorMessage}
         onClick={onDelete}
         variant="danger"
         disabled={
           threadSettingsOperationInProgress || accountPassword.length === 0
         }
-        className={css.delete_button}
       >
         Delete
-      </Button>
+      </SubmitSection>
     </form>
   );
 }

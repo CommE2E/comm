@@ -20,10 +20,10 @@ import {
 } from 'lib/utils/action-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
-import Button from '../../../components/button.react';
 import LoadingIndicator from '../../../loading-indicator.react';
 import Input from '../../input.react';
 import ColorSelector from '../color-selector.react';
+import SubmitSection from './submit-section.react';
 import css from './thread-settings-general-tab.css';
 
 type ThreadSettingsGeneralTabProps = {
@@ -32,7 +32,8 @@ type ThreadSettingsGeneralTabProps = {
   +threadNamePlaceholder: string,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
-  +setErrorMessage: SetState<string>,
+  +setErrorMessage: SetState<?string>,
+  +errorMessage?: ?string,
 };
 function ThreadSettingsGeneralTab(
   props: ThreadSettingsGeneralTabProps,
@@ -44,6 +45,7 @@ function ThreadSettingsGeneralTab(
     queuedChanges,
     setQueuedChanges,
     setErrorMessage,
+    errorMessage,
   } = props;
 
   const dispatchActionPromise = useDispatchActionPromise();
@@ -145,7 +147,7 @@ function ThreadSettingsGeneralTab(
   }, [threadSettingsOperationInProgress]);
 
   return (
-    <form method="POST">
+    <form method="POST" className={css.container}>
       <div>
         <div className={css.form_title}>Chat name</div>
         <div className={css.form_content}>
@@ -182,14 +184,13 @@ function ThreadSettingsGeneralTab(
           />
         </div>
       </div>
-      <Button
-        type="submit"
+      <SubmitSection
+        errorMessage={errorMessage}
         onClick={onSubmit}
         disabled={threadSettingsOperationInProgress || !changeQueued}
-        className={css.save_button}
       >
         {saveButtonContent}
-      </Button>
+      </SubmitSection>
     </form>
   );
 }

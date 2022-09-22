@@ -59,7 +59,7 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       state => threadInfoSelector(state)[props.threadID],
     );
     const modalContext = useModalContext();
-    const [errorMessage, setErrorMessage] = React.useState('');
+    const [errorMessage, setErrorMessage] = React.useState<?string>('');
     const [currentTabType, setCurrentTabType] = React.useState<TabType>(
       'general',
     );
@@ -144,8 +144,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
             queuedChanges={queuedChanges}
             setQueuedChanges={setQueuedChanges}
             setErrorMessage={setErrorMessage}
+            errorMessage={errorMessage}
           />
-          <div className={css.modal_form_error}>{errorMessage}</div>
         </div>
       </Tabs.Item>,
     ];
@@ -169,8 +169,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
               queuedChanges={queuedChanges}
               setQueuedChanges={setQueuedChanges}
               setErrorMessage={setErrorMessage}
+              errorMessage={errorMessage}
             />
-            <div className={css.modal_form_error}>{errorMessage}</div>
           </div>
         </Tabs.Item>,
       );
@@ -200,8 +200,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
               threadSettingsOperationInProgress={changeInProgress}
               threadInfo={threadInfo}
               setErrorMessage={setErrorMessage}
+              errorMessage={errorMessage}
             />
-            <div className={css.modal_form_error}>{errorMessage}</div>
           </div>
         </Tabs.Item>,
       );

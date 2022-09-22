@@ -10,7 +10,7 @@ import ThreadSettingsRelationshipButton from './thread-settings-relationship-but
 import css from './thread-settings-relationship-tab.css';
 
 type Props = {
-  +setErrorMessage: SetState<string>,
+  +setErrorMessage: SetState<?string>,
   +relationshipButtons: $ReadOnlyArray<RelationshipButton>,
   +otherUserInfo: UserInfo,
 };

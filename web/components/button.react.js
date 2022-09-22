@@ -12,7 +12,7 @@ export type ButtonVariant =
   | 'danger'
   | 'round';
 
-type Props = {
+export type ButtonProps = {
   +onClick: (event: SyntheticEvent<HTMLButtonElement>) => mixed,
   +children: React.Node,
   +variant?: ButtonVariant,
@@ -21,7 +21,7 @@ type Props = {
   +className?: string,
 };
 
-function Button(props: Props): React.Node {
+function Button(props: ButtonProps): React.Node {
   const {
     onClick,
     children,

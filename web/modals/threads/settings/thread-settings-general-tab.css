@@ -27,7 +27,8 @@ div.colorSelectorContainer {
   margin-bottom: 12px;
 }
 
-.save_button {
-  width: 100%;
-  min-height: 46px;
+form.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }

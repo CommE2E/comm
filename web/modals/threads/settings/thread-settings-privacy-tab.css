@@ -8,6 +8,8 @@ div.enum_container {
   padding: 12px 0;
 }
 
-.save_button {
-  width: 100%;
+form.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }

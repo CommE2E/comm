@@ -18,10 +18,10 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
-import Button from '../../../components/button.react';
 import EnumSettingsOption from '../../../components/enum-settings-option.react';
 import SWMansionIcon from '../../../SWMansionIcon.react';
 import { useModalContext } from '../../modal-provider.react';
+import SubmitSection from './submit-section.react';
 import css from './thread-settings-privacy-tab.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;
@@ -47,7 +47,8 @@ type ThreadSettingsPrivacyTabProps = {
   +threadInfo: ThreadInfo,
   +queuedChanges: ThreadChanges,
   +setQueuedChanges: SetState<ThreadChanges>,
-  +setErrorMessage: SetState<string>,
+  +setErrorMessage: SetState<?string>,
+  +errorMessage?: ?string,
 };
 function ThreadSettingsPrivacyTab(
   props: ThreadSettingsPrivacyTabProps,
@@ -58,6 +59,7 @@ function ThreadSettingsPrivacyTab(
     queuedChanges,
     setQueuedChanges,
     setErrorMessage,
+    errorMessage,
   } = props;
 
   const modalContext = useModalContext();
@@ -138,7 +140,7 @@ function ThreadSettingsPrivacyTab(
   );
 
   return (
-    <form method="POST">
+    <form method="POST" className={css.container}>
       <div className={css.form_title}>Chat type</div>
       <div className={css.enum_container}>
         <EnumSettingsOption
@@ -162,14 +164,13 @@ function ThreadSettingsPrivacyTab(
         />
       </div>
 
-      <Button
-        type="submit"
+      <SubmitSection
         onClick={onSubmit}
         disabled={threadSettingsOperationInProgress || !changeQueued}
-        className={css.save_button}
+        errorMessage={errorMessage}
       >
         Save
-      </Button>
+      </SubmitSection>
     </form>
   );
 }

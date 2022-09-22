@@ -40,7 +40,7 @@ const loadingStatusSelector = createLoadingStatusSelector(
 type ButtonProps = {
   +relationshipButton: RelationshipButton,
   +otherUserInfo: UserInfo,
-  +setErrorMessage?: SetState<string>,
+  +setErrorMessage?: SetState<?string>,
 };
 
 function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
