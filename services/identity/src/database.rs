@@ -91,20 +91,22 @@ impl DatabaseClient {
     if let Some(reg) = registration {
       update_expression_parts
         .push(format!("{} = :r", USERS_TABLE_REGISTRATION_ATTRIBUTE));
-      expression_attribute_values
-        .insert(":r".into(), AttributeValue::B(Blob::new(reg.serialize())));
+      expression_attribute_values.insert(
+        ":r".to_string(),
+        AttributeValue::B(Blob::new(reg.serialize())),
+      );
     };
     if let Some(username) = username {
       update_expression_parts
         .push(format!("{} = :u", USERS_TABLE_USERNAME_ATTRIBUTE));
       expression_attribute_values
-        .insert(":u".into(), AttributeValue::S(username));
+        .insert(":u".to_string(), AttributeValue::S(username));
     };
     if let Some(public_key) = user_public_key {
       update_expression_parts
         .push(format!("{} = :k", USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE));
       expression_attribute_values
-        .insert(":k".into(), AttributeValue::S(public_key));
+        .insert(":k".to_string(), AttributeValue::S(public_key));
     };
 
     self
@@ -188,30 +190,30 @@ impl DatabaseClient {
   ) -> Result<PutItemOutput, Error> {
     let item = HashMap::from([
       (
-        ACCESS_TOKEN_TABLE_PARTITION_KEY.into(),
+        ACCESS_TOKEN_TABLE_PARTITION_KEY.to_string(),
         AttributeValue::S(access_token_data.user_id),
       ),
       (
-        ACCESS_TOKEN_SORT_KEY.into(),
+        ACCESS_TOKEN_SORT_KEY.to_string(),
         AttributeValue::S(access_token_data.device_id),
       ),
       (
-        ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.into(),
+        ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE.to_string(),
         AttributeValue::S(access_token_data.access_token),
       ),
       (
-        ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.into(),
+        ACCESS_TOKEN_TABLE_CREATED_ATTRIBUTE.to_string(),
         AttributeValue::S(access_token_data.created.to_rfc3339()),
       ),
       (
-        ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.into(),
+        ACCESS_TOKEN_TABLE_AUTH_TYPE_ATTRIBUTE.to_string(),
         AttributeValue::S(match access_token_data.auth_type {
           AuthType::Password => "password".to_string(),
           AuthType::Wallet => "wallet".to_string(),
         }),
       ),
       (
-        ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.into(),
+        ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE.to_string(),
         AttributeValue::Bool(access_token_data.valid),
       ),
     ]);
