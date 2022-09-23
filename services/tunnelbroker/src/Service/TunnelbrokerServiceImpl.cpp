@@ -221,6 +221,12 @@ grpc::Status TunnelBrokerServiceImpl::Get(
   std::mutex writerMutex;
   std::atomic_bool writerIsReady{true};
 
+  const std::string sessionID = request->sessionid();
+  if (!tools::validateSessionID(sessionID)) {
+    return grpc::Status(
+        grpc::StatusCode::INVALID_ARGUMENT,
+        "Format validation failed for sessionID");
+  }
   // Thread-safe response writer
   auto respondToWriter = [&](tunnelbroker::GetResponse response) {
     std::lock_guard<std::mutex> lock(writerMutex);
@@ -229,6 +235,8 @@ grpc::Status TunnelBrokerServiceImpl::Get(
     }
     if (!writer->Write(response)) {
       writerIsReady = false;
+      database::DatabaseManager::getInstance().updateSessionItemIsOnline(
+          sessionID, false);
       return false;
     }
     return true;
@@ -246,12 +254,6 @@ grpc::Status TunnelBrokerServiceImpl::Get(
   };
 
   try {
-    const std::string sessionID = request->sessionid();
-    if (!tools::validateSessionID(sessionID)) {
-      return grpc::Status(
-          grpc::StatusCode::INVALID_ARGUMENT,
-          "Format validation failed for sessionID");
-    }
     std::shared_ptr<database::DeviceSessionItem> sessionItem =
         database::DatabaseManager::getInstance().findSessionItem(sessionID);
     if (sessionItem == nullptr) {
@@ -294,6 +296,8 @@ grpc::Status TunnelBrokerServiceImpl::Get(
       // DeliveryBroker.
       DeliveryBroker::getInstance().erase(clientDeviceID);
     }
+    database::DatabaseManager::getInstance().updateSessionItemIsOnline(
+        sessionID, true);
 
     for (auto &messageFromDatabase : messagesFromDatabase) {
       tunnelbroker::GetResponse response;
@@ -337,9 +341,13 @@ grpc::Status TunnelBrokerServiceImpl::Get(
   } catch (std::runtime_error &e) {
     LOG(ERROR) << "gRPC: Runtime error while processing 'Get' request: "
                << e.what();
+    database::DatabaseManager::getInstance().updateSessionItemIsOnline(
+        sessionID, false);
     return grpc::Status(grpc::StatusCode::INTERNAL, e.what());
   } catch (...) {
     LOG(ERROR) << "gRPC: Unknown error while processing 'Get' request";
+    database::DatabaseManager::getInstance().updateSessionItemIsOnline(
+        sessionID, false);
     return grpc::Status(grpc::StatusCode::INTERNAL, "Unknown error");
   }
   return grpc::Status::OK;
