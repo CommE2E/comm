@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace keyserver clean && yarn workspace landing clean && rm -rf node_modules/",
-    "cleaninstall": "yarn clean && yarn",
+    "cleaninstall": "(killall flow || pkill flow || true) && yarn clean && yarn",
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",
     "clang-format-all": "eval `node scripts/get_clang_paths_cli.js` | xargs clang-format -i",
