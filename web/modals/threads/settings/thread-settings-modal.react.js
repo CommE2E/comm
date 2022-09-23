@@ -124,6 +124,8 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       }
     }, [currentTabType, hasPermissionForTab, threadInfo]);
 
+    React.useEffect(() => () => setErrorMessage(''), [currentTabType]);
+
     if (!threadInfo) {
       return (
         <Modal onClose={modalContext.popModal} name="Invalid chat">
