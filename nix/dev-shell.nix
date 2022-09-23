@@ -22,6 +22,7 @@
 , gtest
 , libiconv
 , libuv
+, localstack
 , mariadb
 , mariadb-up
 , nodejs-16_x
@@ -73,6 +74,7 @@ mkShell {
     cmake
     cmake-format # linting
     libuv
+    localstack
     pkg-config
     protobuf_3_15_cmake
     grpc
