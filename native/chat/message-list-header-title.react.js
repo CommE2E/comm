@@ -5,7 +5,10 @@ import * as React from 'react';
 import { View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import { threadIsPending } from 'lib/shared/thread-utils';
+import {
+  threadIsPending,
+  threadMembersWithoutAddedAshoat,
+} from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { firstLine } from 'lib/utils/string-utils';
 
@@ -26,7 +29,8 @@ type Props = {
 class MessageListHeaderTitle extends React.PureComponent<Props> {
   render() {
     const isSearchEmpty =
-      this.props.searching && this.props.threadInfo.members.length === 1;
+      this.props.searching &&
+      threadMembersWithoutAddedAshoat(this.props.threadInfo).length === 1;
     let icon, fakeIcon;
     const areSettingsDisabled =
       threadIsPending(this.props.threadInfo.id) || isSearchEmpty;
