@@ -30,7 +30,10 @@ class Multimedia extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      currentURI: props.mediaInfo.uri,
+      currentURI:
+        props.mediaInfo.type === 'video'
+          ? props.mediaInfo.thumbnailURI
+          : props.mediaInfo.uri,
       departingURI: null,
     };
   }
@@ -57,7 +60,10 @@ class Multimedia extends React.PureComponent<Props, State> {
   componentDidUpdate(prevProps: Props, prevState: State) {
     const { inputState } = this;
 
-    const newURI = this.props.mediaInfo.uri;
+    const newURI =
+      this.props.mediaInfo.type === 'video'
+        ? this.props.mediaInfo.thumbnailURI
+        : this.props.mediaInfo.uri;
     const oldURI = this.state.currentURI;
     if (newURI !== oldURI) {
       inputState.reportURIDisplayed(newURI, true);
