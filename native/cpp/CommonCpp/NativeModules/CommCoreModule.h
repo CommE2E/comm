@@ -24,6 +24,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   std::unique_ptr<network::Client> networkClient;
 
+  template <class T>
+  T runSyncOrThrowJSError(jsi::Runtime &rt, std::function<T()> task);
   jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) override;
   jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
   jsi::Value moveDraft(

@@ -18,6 +18,28 @@ namespace comm {
 
 using namespace facebook::react;
 
+template <class T>
+T CommCoreModule::runSyncOrThrowJSError(
+    jsi::Runtime &rt,
+    std::function<T()> task) {
+  std::promise<T> promise;
+  this->databaseThread->scheduleTask([&promise, &task]() {
+    try {
+      promise.set_value(task());
+    } catch (const std::exception &e) {
+      promise.set_exception(std::make_exception_ptr(e));
+    }
+  });
+  // We cannot instantiate JSError on database thread, so
+  // on the main thread we re-throw C++ error, catch it and
+  // transform to informative JSError on the main thread
+  try {
+    return promise.get_future().get();
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
+  }
+}
+
 jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
   std::string keyStr = key.utf8(rt);
   return createPromiseAsJSIValue(
@@ -161,16 +183,10 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
 }
 
 jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
-  std::promise<std::vector<std::pair<Message, std::vector<Media>>>>
-      messagesResult;
-  auto messagesResultFuture = messagesResult.get_future();
-
-  this->databaseThread->scheduleTask([&messagesResult]() {
-    messagesResult.set_value(
-        DatabaseManager::getQueryExecutor().getAllMessages());
+  auto messagesVector = this->runSyncOrThrowJSError<
+      std::vector<std::pair<Message, std::vector<Media>>>>(rt, []() {
+    return DatabaseManager::getQueryExecutor().getAllMessages();
   });
-
-  auto messagesVector = messagesResultFuture.get();
   size_t numMessages{messagesVector.size()};
   jsi::Array jsiMessages = jsi::Array(rt, numMessages);
 
@@ -510,15 +526,8 @@ jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
 };
 
 jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
-  std::promise<std::vector<Thread>> threadsResult;
-  auto threadsResultFuture = threadsResult.get_future();
-
-  this->databaseThread->scheduleTask([&threadsResult]() {
-    threadsResult.set_value(
-        DatabaseManager::getQueryExecutor().getAllThreads());
-  });
-
-  auto threadsVector = threadsResultFuture.get();
+  auto threadsVector = this->runSyncOrThrowJSError<std::vector<Thread>>(
+      rt, []() { return DatabaseManager::getQueryExecutor().getAllThreads(); });
   size_t numThreads{threadsVector.size()};
   jsi::Array jsiThreads = jsi::Array(rt, numThreads);
 
