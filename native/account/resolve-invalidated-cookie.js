@@ -1,7 +1,7 @@
 // @flow
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
-import type { LogInActionSource } from 'lib/types/account-types';
+import type { LogInActionSourceType } from 'lib/types/account-types';
 import type { DispatchRecoveryAttempt } from 'lib/utils/action-utils';
 import type { FetchJSON } from 'lib/utils/fetch-json';
 
@@ -13,7 +13,7 @@ import { fetchNativeKeychainCredentials } from './native-credentials';
 async function resolveInvalidatedCookie(
   fetchJSON: FetchJSON,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
-  source?: LogInActionSource,
+  source?: LogInActionSourceType,
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (!keychainCredentials) {
