@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 
 import { setMessageStoreMessages } from 'lib/actions/message-actions.js';
 import { setThreadStoreActionType } from 'lib/actions/thread-actions';
-import { sqliteLoadFailure } from 'lib/actions/user-actions';
+import { loginActionSources } from 'lib/types/account-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
 
@@ -51,7 +51,7 @@ function SQLiteContextProvider(props: Props): React.Node {
           dispatch,
           cookie,
           urlPrefix,
-          sqliteLoadFailure,
+          loginActionSources.sqliteLoadFailure,
         );
       } finally {
         setStoreLoaded(true);

@@ -12,7 +12,6 @@ import {
   logOutActionTypes,
   deleteAccountActionTypes,
   logInActionTypes,
-  sqliteOpFailure,
 } from 'lib/actions/user-actions';
 import baseReducer from 'lib/reducers/master-reducer';
 import { processThreadStoreOperations } from 'lib/reducers/thread-reducer';
@@ -20,6 +19,7 @@ import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
+import { loginActionSources } from 'lib/types/account-types';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types';
@@ -347,7 +347,7 @@ function reducer(state: AppState = defaultState, action: Action) {
             cookie: state.cookie,
           },
           error: null,
-          source: sqliteOpFailure,
+          source: loginActionSources.sqliteOpFailure,
         },
       });
       await persistor.flush();

@@ -18,11 +18,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 
-import {
-  appStartCookieLoggedInButInvalidRedux,
-  appStartReduxLoggedInButInvalidCookie,
-} from 'lib/actions/user-actions';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { loginActionSources } from 'lib/types/account-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 
@@ -289,8 +286,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
     if (!__DEV__) {
       const actionSource = loggedIn
-        ? appStartReduxLoggedInButInvalidCookie
-        : appStartCookieLoggedInButInvalidRedux;
+        ? loginActionSources.appStartReduxLoggedInButInvalidCookie
+        : loginActionSources.appStartCookieLoggedInButInvalidRedux;
       const sessionChange = await fetchNewCookieFromNativeCredentials(
         dispatch,
         cookie,
