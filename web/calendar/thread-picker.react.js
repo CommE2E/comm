@@ -8,7 +8,6 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
-import { LeftPager, RightPager } from '../vectors.react';
 import css from './thread-picker.css';
 
 type OptionProps = {
@@ -41,20 +40,12 @@ type Props = {
   ...BaseProps,
   +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
 };
-type State = {
-  +currentPage: number,
-};
 
-class ThreadPicker extends React.PureComponent<Props, State> {
-  static pageSize = 5;
-
+class ThreadPicker extends React.PureComponent<Props> {
   pickerDiv: ?HTMLDivElement;
 
   constructor(props: Props) {
     super(props);
-    this.state = {
-      currentPage: 0,
-    };
     invariant(
       props.onScreenThreadInfos.length > 0,
       "ThreadPicker can't be open when onScreenThreadInfos is empty",
@@ -72,60 +63,14 @@ class ThreadPicker extends React.PureComponent<Props, State> {
       length > 0,
       "ThreadPicker can't be open when onScreenThreadInfos is empty",
     );
-    const firstIndex = ThreadPicker.pageSize * this.state.currentPage;
-    const secondIndex = Math.min(
-      ThreadPicker.pageSize * (this.state.currentPage + 1),
-      length,
-    );
 
-    let pager = null;
-    if (length > ThreadPicker.pageSize) {
-      let leftPager = <LeftPager className={css.pagerIcon} />;
-      if (this.state.currentPage > 0) {
-        leftPager = (
-          <a
-            href="#"
-            className={css.pagerButton}
-            onClick={this.onBackPagerClick}
-          >
-            {leftPager}
-          </a>
-        );
-      }
-      let rightPager = <RightPager className={css.pagerIcon} />;
-      if (ThreadPicker.pageSize * (this.state.currentPage + 1) < length) {
-        rightPager = (
-          <a
-            href="#"
-            className={css.pagerButton}
-            onClick={this.onNextPagerClick}
-          >
-            {rightPager}
-          </a>
-        );
-      }
-      pager = (
-        <div className={css.pagerContainer} key="pager">
-          <div className={css.pager}>
-            {leftPager}
-            <span className={css.pagerStatus}>
-              {`${firstIndex + 1}–${secondIndex} of ${length}`}
-            </span>
-            {rightPager}
-          </div>
-        </div>
-      );
-    }
-
-    const options = this.props.onScreenThreadInfos
-      .slice(firstIndex, secondIndex)
-      .map(threadInfo => (
-        <ThreadPickerOption
-          threadInfo={threadInfo}
-          createNewEntry={this.props.createNewEntry}
-          key={threadInfo.id}
-        />
-      ));
+    const options = this.props.onScreenThreadInfos.map(threadInfo => (
+      <ThreadPickerOption
+        threadInfo={threadInfo}
+        createNewEntry={this.props.createNewEntry}
+        key={threadInfo.id}
+      />
+    ));
 
     return (
       <div
@@ -137,7 +82,6 @@ class ThreadPicker extends React.PureComponent<Props, State> {
         ref={this.pickerDivRef}
       >
         {options}
-        {pager}
       </div>
     );
   }
@@ -160,26 +104,6 @@ class ThreadPicker extends React.PureComponent<Props, State> {
       // This prevents onBlur from firing
       event.preventDefault();
     }
-  };
-
-  onBackPagerClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.setState(prevState => {
-      invariant(prevState.currentPage > 0, "can't go back from 0");
-      return { currentPage: prevState.currentPage - 1 };
-    });
-  };
-
-  onNextPagerClick = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    this.setState((prevState, props) => {
-      invariant(
-        ThreadPicker.pageSize * (prevState.currentPage + 1) <
-          props.onScreenThreadInfos.length,
-        'page is too high',
-      );
-      return { currentPage: prevState.currentPage + 1 };
-    });
   };
 }
 

@@ -43,30 +43,3 @@ div.colorPreview {
 div.threadName {
   padding-top: 1px;
 }
-div.pagerContainer {
-  text-align: center;
-  height: 15px;
-  margin-top: -2px;
-  cursor: default;
-  background-color: #eaeaea;
-  position: relative;
-  border-radius: 0 0 3px 3px;
-}
-div.pager {
-  position: relative;
-  top: -2px;
-}
-span.pagerStatus {
-  text-transform: uppercase;
-  color: #777777;
-  font-size: 9px;
-}
-svg.pagerIcon {
-  fill: #777777;
-  vertical-align: middle;
-  width: 13px;
-  height: 13px;
-}
-a.pagerButton > svg.pagerIcon {
-  fill: #2a5db0;
-}
