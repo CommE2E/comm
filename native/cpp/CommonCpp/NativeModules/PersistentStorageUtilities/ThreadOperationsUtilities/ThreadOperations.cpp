@@ -12,8 +12,9 @@ void ThreadOperations::updateSQLiteUnreadStatus(
   std::unique_ptr<Thread> thread =
       DatabaseManager::getQueryExecutor().getThread(threadID);
   if (thread == nullptr) {
-    throw std::runtime_error(
+    Logger::log(
         "Attempted to update non-existing thread with ID:  " + threadID);
+    return;
   }
   folly::dynamic updatedCurrentUser;
   try {
