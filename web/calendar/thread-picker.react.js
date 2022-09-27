@@ -2,8 +2,11 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
+import { createSelector } from 'reselect';
 
+import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
+import SearchIndex from 'lib/shared/search-index';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
@@ -39,13 +42,23 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +onScreenThreadInfos: $ReadOnlyArray<ThreadInfo>,
+  +searchIndex: SearchIndex,
 };
+type State = {
+  +searchText: string,
+  +searchResults: Set<string>,
+};
+type PropsAndState = { ...Props, ...State };
 
-class ThreadPicker extends React.PureComponent<Props> {
+class ThreadPicker extends React.PureComponent<Props, State> {
   pickerDiv: ?HTMLDivElement;
 
   constructor(props: Props) {
     super(props);
+    this.state = {
+      searchText: '',
+      searchResults: new Set(),
+    };
     invariant(
       props.onScreenThreadInfos.length > 0,
       "ThreadPicker can't be open when onScreenThreadInfos is empty",
@@ -57,6 +70,24 @@ class ThreadPicker extends React.PureComponent<Props> {
     this.pickerDiv.focus();
   }
 
+  listDataSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.onScreenThreadInfos,
+    (propsAndState: PropsAndState) => propsAndState.searchText,
+    (propsAndState: PropsAndState) => propsAndState.searchResults,
+    (
+      threadInfos: $ReadOnlyArray<ThreadInfo>,
+      text: string,
+      searchResults: Set<string>,
+    ) =>
+      text
+        ? threadInfos.filter(threadInfo => searchResults.has(threadInfo.id))
+        : [...threadInfos],
+  );
+
+  get getListData() {
+    return this.listDataSelector({ ...this.props, ...this.state });
+  }
+
   render() {
     const length = this.props.onScreenThreadInfos.length;
     invariant(
@@ -64,7 +95,7 @@ class ThreadPicker extends React.PureComponent<Props> {
       "ThreadPicker can't be open when onScreenThreadInfos is empty",
     );
 
-    const options = this.props.onScreenThreadInfos.map(threadInfo => (
+    const options = this.getListData.map(threadInfo => (
       <ThreadPickerOption
         threadInfo={threadInfo}
         createNewEntry={this.props.createNewEntry}
@@ -105,13 +136,23 @@ class ThreadPicker extends React.PureComponent<Props> {
       event.preventDefault();
     }
   };
+
+  onChangeSearchText = (searchText: string) => {
+    const results = this.props.searchIndex.getSearchResults(searchText);
+    this.setState({ searchText, searchResults: new Set(results) });
+  };
 }
 
 const ConnectedThreadPicker: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedThreadPicker(props) {
     const onScreenThreadInfos = useSelector(onScreenEntryEditableThreadInfos);
+    const index = useSelector(state => threadSearchIndex(state));
     return (
-      <ThreadPicker {...props} onScreenThreadInfos={onScreenThreadInfos} />
+      <ThreadPicker
+        {...props}
+        onScreenThreadInfos={onScreenThreadInfos}
+        searchIndex={index}
+      />
     );
   },
 );
