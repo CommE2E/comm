@@ -7,6 +7,7 @@ import {
   updateSubscriptionActionTypes,
 } from 'lib/actions/user-actions';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { threadTypes } from 'lib/types/thread-types';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -23,64 +24,79 @@ import css from './notifications-modal.css';
 
 type NotificationSettings = 'focused' | 'badge-only' | 'background';
 
-const BANNER_NOTIFS = 'Banner notifs';
-const BADGE_COUNT = 'Badge count';
-const IN_FOCUSED_TAB = 'Lives in Focused tab';
-const IN_BACKGROUND_TAB = 'Lives in Background tab';
+function getStatements(includeTabStatements: boolean) {
+  const BANNER_NOTIFS = 'Banner notifs';
+  const BADGE_COUNT = 'Badge count';
+  const IN_FOCUSED_TAB = 'Lives in Focused tab';
+  const IN_BACKGROUND_TAB = 'Lives in Background tab';
 
-const focusedStatements = [
-  {
-    statement: BANNER_NOTIFS,
-    isStatementValid: true,
-    styleStatementBasedOnValidity: true,
-  },
-  {
-    statement: BADGE_COUNT,
-    isStatementValid: true,
-    styleStatementBasedOnValidity: true,
-  },
-  {
-    statement: IN_FOCUSED_TAB,
-    isStatementValid: true,
-    styleStatementBasedOnValidity: true,
-  },
-];
+  const focusedStatements = [
+    {
+      statement: BANNER_NOTIFS,
+      isStatementValid: true,
+      styleStatementBasedOnValidity: true,
+    },
+    {
+      statement: BADGE_COUNT,
+      isStatementValid: true,
+      styleStatementBasedOnValidity: true,
+    },
+  ];
+  if (includeTabStatements) {
+    focusedStatements.push({
+      statement: IN_FOCUSED_TAB,
+      isStatementValid: true,
+      styleStatementBasedOnValidity: true,
+    });
+  }
 
-const badgeOnlyStatements = [
-  {
-    statement: BANNER_NOTIFS,
-    isStatementValid: false,
-    styleStatementBasedOnValidity: true,
-  },
-  {
-    statement: BADGE_COUNT,
-    isStatementValid: true,
-    styleStatementBasedOnValidity: true,
-  },
-  {
-    statement: IN_FOCUSED_TAB,
-    isStatementValid: true,
-    styleStatementBasedOnValidity: true,
-  },
-];
+  const badgeOnlyStatements = [
+    {
+      statement: BANNER_NOTIFS,
+      isStatementValid: false,
+      styleStatementBasedOnValidity: true,
+    },
+    {
+      statement: BADGE_COUNT,
+      isStatementValid: true,
+      styleStatementBasedOnValidity: true,
+    },
+  ];
+  if (includeTabStatements) {
+    badgeOnlyStatements.push({
+      statement: IN_FOCUSED_TAB,
+      isStatementValid: true,
+      styleStatementBasedOnValidity: true,
+    });
+  }
 
-const backgroundStatements = [
-  {
-    statement: BANNER_NOTIFS,
-    isStatementValid: false,
-    styleStatementBasedOnValidity: true,
-  },
-  {
-    statement: BADGE_COUNT,
-    isStatementValid: false,
-    styleStatementBasedOnValidity: true,
-  },
-  {
-    statement: IN_BACKGROUND_TAB,
-    isStatementValid: true,
-    styleStatementBasedOnValidity: true,
-  },
-];
+  let backgroundStatements = null;
+  if (includeTabStatements) {
+    backgroundStatements = [
+      {
+        statement: BANNER_NOTIFS,
+        isStatementValid: false,
+        styleStatementBasedOnValidity: true,
+      },
+      {
+        statement: BADGE_COUNT,
+        isStatementValid: false,
+        styleStatementBasedOnValidity: true,
+      },
+      {
+        statement: IN_BACKGROUND_TAB,
+        isStatementValid: true,
+        styleStatementBasedOnValidity: true,
+      },
+    ];
+  }
+
+  return {
+    focusedStatements,
+    badgeOnlyStatements,
+    backgroundStatements,
+  };
+}
 
 type Props = {
   +threadID: string,
@@ -90,6 +106,14 @@ function NotificationsModal(props: Props): React.Node {
   const { onClose, threadID } = props;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
   const { subscription } = threadInfo.currentUser;
+
+  const isSidebar = threadInfo.type === threadTypes.SIDEBAR;
+
+  const {
+    focusedStatements,
+    badgeOnlyStatements,
+    backgroundStatements,
+  } = React.useMemo(() => getStatements(!isSidebar), [isSidebar]);
 
   const initialThreadSetting = React.useMemo<NotificationSettings>(() => {
     if (!subscription.home) {
@@ -131,7 +155,7 @@ function NotificationsModal(props: Props): React.Node {
         onSelect={onFocusedSelected}
       />
     );
-  }, [isFocusedSelected, onFocusedSelected]);
+  }, [focusedStatements, isFocusedSelected, onFocusedSelected]);
 
   const isFocusedBadgeOnlySelected = notificationSettings === 'badge-only';
   const focusedBadgeOnlyItem = React.useMemo(() => {
@@ -145,10 +169,13 @@ function NotificationsModal(props: Props): React.Node {
         onSelect={onBadgeOnlySelected}
       />
     );
-  }, [isFocusedBadgeOnlySelected, onBadgeOnlySelected]);
+  }, [badgeOnlyStatements, isFocusedBadgeOnlySelected, onBadgeOnlySelected]);
 
   const isBackgroundSelected = notificationSettings === 'background';
   const backgroundItem = React.useMemo(() => {
+    if (backgroundStatements === null) {
+      return null;
+    }
     const icon = <MutedNotifsIllustration />;
     return (
       <EnumSettingsOption
@@ -159,7 +186,7 @@ function NotificationsModal(props: Props): React.Node {
         onSelect={onBackgroundSelected}
       />
     );
-  }, [isBackgroundSelected, onBackgroundSelected]);
+  }, [backgroundStatements, isBackgroundSelected, onBackgroundSelected]);
 
   const dispatchActionPromise = useDispatchActionPromise();
 
@@ -185,8 +212,12 @@ function NotificationsModal(props: Props): React.Node {
     threadID,
   ]);
 
+  const modalName = isSidebar
+    ? 'Thread notifications'
+    : 'Channel notifications';
+
   return (
-    <Modal name="Channel notifications" size="fit-content" onClose={onClose}>
+    <Modal name={modalName} size="fit-content" onClose={onClose}>
       <div className={css.container}>
         <div className={css.optionsContainer}>
           {focusedItem}
