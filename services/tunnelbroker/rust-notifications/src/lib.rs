@@ -4,8 +4,7 @@ use env_logger;
 use lazy_static::lazy_static;
 use log::info;
 use tokio::runtime::Runtime;
-pub mod apns;
-pub mod fcm;
+pub mod notifications;
 
 #[cxx::bridge]
 mod ffi {
@@ -58,7 +57,7 @@ pub fn send_notif_to_apns(
   message: &str,
   sandbox: bool,
 ) -> Result<apns_status> {
-  RUNTIME.block_on(apns::send_by_a2_client(
+  RUNTIME.block_on(notifications::apns::send_by_a2_client(
     certificate_path,
     certificate_password,
     device_token,
@@ -74,7 +73,7 @@ pub fn send_notif_to_fcm(
   message_title: &str,
   message_body: &str,
 ) -> Result<fcm_status> {
-  RUNTIME.block_on(fcm::send_by_fcm_client(
+  RUNTIME.block_on(notifications::fcm::send_by_fcm_client(
     fcm_api_key,
     device_registration_id,
     message_title,
