@@ -110,7 +110,9 @@ function ThreadSettingsDeleteTab(
       <Button
         onClick={onDelete}
         variant="danger"
-        disabled={threadSettingsOperationInProgress}
+        disabled={
+          threadSettingsOperationInProgress || accountPassword.length === 0
+        }
         className={css.delete_button}
       >
         Delete
