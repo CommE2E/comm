@@ -43,13 +43,6 @@ function Team(): React.Node {
             imageURL={`${assetsCacheURLPrefix}/atul.jpeg`}
           />
           <TeamProfile
-            name="Benjamin Schachter"
-            role="Software Engineer"
-            githubHandle="benschac"
-            twitterHandle="benschac"
-            imageURL={`${assetsCacheURLPrefix}/ben.png`}
-          />
-          <TeamProfile
             name="Varun Dhananjaya"
             role="Software Engineer"
             githubHandle="vdhanan"
@@ -73,19 +66,6 @@ function Team(): React.Node {
           role="Software Engineer"
           githubHandle="palys-swm"
           imageURL={`${assetsCacheURLPrefix}/tomek.png`}
-        />
-        <TeamProfile
-          name="Karol Bisztyga"
-          role="Software Engineer"
-          githubHandle="karol-bisztyga"
-          twitterHandle="KBisztyga"
-          imageURL={`${assetsCacheURLPrefix}/karol.jpeg`}
-        />
-        <TeamProfile
-          name="Jacek Nitychoruk"
-          role="Software Engineer"
-          githubHandle="def-au1t"
-          imageURL={`${assetsCacheURLPrefix}/jacek.jpeg`}
         />
         <TeamProfile
           name="Marcin Wasowicz"
