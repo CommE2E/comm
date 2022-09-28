@@ -55,6 +55,8 @@ On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for 
     - [Android SDK](./nix_mobile_setup.md#android-sdk)
     - [Android Emulator](./nix_mobile_setup.md#android-emulator)
   - [Flipper (React Native Debugger)](./nix_mobile_setup.md#flipper)
+- [Services prerequisites](./nix_services.md#development-prerequisites)
+  - [Docker](./nix_services.md#docker)
 
 # Development environment
 
@@ -86,6 +88,9 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
     - [Working with a stack](./nix_shared_workflows.md#working-with-a-stack)
     - [Committing a diff](./nix_shared_workflows.md#committing-a-diff)
   - [Final notes](./nix_shared_workflows.md#final-notes)
+- [Services workflows](./nix_services.md#building-and-testing)
+  - [C++ services](./nix_services.md#c-services)
+  - [Rust services](./nix_services.md#rust-services)
 
 ## How Nix introduces dependencies to a development environment
 
