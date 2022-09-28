@@ -773,7 +773,7 @@ Finally, we need to direct the mobile app to use your local keyserver instance. 
 - If you’re deploying a release build, the above strategy won’t work. Your best bet to override the server URL is to get to the secret “Developer tools” menu option in the app.
 
   1.  You may need to use a real production account for this, since the server address will default to the production server if this is the first build you’ve deployed to the target device.
-  2.  Next, in order for the “Developer tools” menu option to appear, you’ll need to add your user ID to [the list of user IDs in `staff.json`](https://github.com/CommE2E/comm/blob/master/lib/facts/staff.json). A good way to figure out your user ID is to use the Chrome Redux debugger to inspect the `currentUserInfo` property when logged into the web app.
+  2.  Next, in order for the “Developer tools” menu option to appear, you’ll need to add your user ID to [the list of user IDs in `staff.js`](https://github.com/CommE2E/comm/blob/master/lib/facts/staff.js). A good way to figure out your user ID is to use the Chrome Redux debugger to inspect the `currentUserInfo` property when logged into the web app.
   3.  Finally, you should be able to navigate to Profile → Developer tools in the app and set the address of the local server. It should look something like this:
 
       ```

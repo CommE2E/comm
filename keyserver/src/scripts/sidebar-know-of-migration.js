@@ -1,6 +1,6 @@
 // @flow
 
-import bots from 'lib/facts/bots.json';
+import bots from 'lib/facts/bots';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 
 import { dbQuery, SQL } from '../database/database';
