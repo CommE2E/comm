@@ -796,7 +796,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       const { uploadThumbnailURI } = processedMedia;
       cleanupPromises.push(
         (async () => {
-          const disposeStep = await disposeTempFile(uploadThumbnailURI);
+          const {
+            steps: clearSteps,
+            result: thumbnailPath,
+          } = await this.waitForCaptureURIUnload(uploadThumbnailURI);
+          steps.push(...clearSteps);
+          if (!thumbnailPath) {
+            return;
+          }
+          const disposeStep = await disposeTempFile(thumbnailPath);
           steps.push(disposeStep);
         })(),
       );
