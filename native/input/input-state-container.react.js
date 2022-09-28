@@ -75,12 +75,12 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import type {
+  CallServerEndpointOptions,
+  CallServerEndpointResponse,
+} from 'lib/utils/call-server-endpoint';
 import { getConfig } from 'lib/utils/config';
 import { getMessageForException, cloneError } from 'lib/utils/errors';
-import type {
-  FetchJSONOptions,
-  FetchJSONServerResponse,
-} from 'lib/utils/fetch-json';
 import { values } from 'lib/utils/objects';
 import { useIsReportEnabled } from 'lib/utils/report-utils';
 
@@ -897,8 +897,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     cookie: ?string,
     sessionID: ?string,
     input: { [key: string]: mixed },
-    options?: ?FetchJSONOptions,
-  ): Promise<FetchJSONServerResponse> => {
+    options?: ?CallServerEndpointOptions,
+  ): Promise<CallServerEndpointResponse> => {
     invariant(
       cookie &&
         input.multimedia &&
