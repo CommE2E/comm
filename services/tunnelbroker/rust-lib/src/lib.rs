@@ -8,18 +8,21 @@ pub mod notifications;
 
 #[cxx::bridge]
 mod ffi {
+  #[namespace = "rust::notifications"]
   #[cxx_name = "apnsReturnStatus"]
   enum apns_status {
     Ok,
     Unregistered,
     BadDeviceToken,
   }
+  #[namespace = "rust::notifications"]
   #[cxx_name = "fcmReturnStatus"]
   enum fcm_status {
     Ok,
     InvalidRegistration,
     NotRegistered,
   }
+  #[namespace = "rust::notifications"]
   extern "Rust" {
     #[cxx_name = "sendNotifToAPNS"]
     fn send_notif_to_apns(

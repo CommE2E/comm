@@ -170,16 +170,19 @@ grpc::Status TunnelBrokerServiceImpl::Send(
       const std::string notificationMessageTitle = "New message";
       const std::string notificationMessageText = "You have a new message";
       if (deviceOs == "iOS" && !notifyToken.empty()) {
-        const apnsReturnStatus apnsResult = sendNotifToAPNS(
-            config::ConfigManager::getInstance().getParameter(
-                config::ConfigManager::OPTION_NOTIFS_APNS_P12_CERT_PATH),
-            config::ConfigManager::getInstance().getParameter(
-                config::ConfigManager::OPTION_NOTIFS_APNS_P12_CERT_PASSWORD),
-            notifyToken,
-            config::ConfigManager::getInstance().getParameter(
-                config::ConfigManager::OPTION_NOTIFS_APNS_TOPIC),
-            notificationMessageText,
-            false);
+        typedef rust::notifications::apnsReturnStatus apnsReturnStatus;
+        const apnsReturnStatus apnsResult =
+            rust::notifications::sendNotifToAPNS(
+                config::ConfigManager::getInstance().getParameter(
+                    config::ConfigManager::OPTION_NOTIFS_APNS_P12_CERT_PATH),
+                config::ConfigManager::getInstance().getParameter(
+                    config::ConfigManager::
+                        OPTION_NOTIFS_APNS_P12_CERT_PASSWORD),
+                notifyToken,
+                config::ConfigManager::getInstance().getParameter(
+                    config::ConfigManager::OPTION_NOTIFS_APNS_TOPIC),
+                notificationMessageText,
+                false);
         if ((apnsResult == apnsReturnStatus::Unregistered ||
              apnsResult == apnsReturnStatus::BadDeviceToken) &&
             !database::DatabaseManager::getInstance()
@@ -189,7 +192,8 @@ grpc::Status TunnelBrokerServiceImpl::Send(
               "Can't clear the device token in database");
         }
       } else if (deviceOs == "Android" && !notifyToken.empty()) {
-        const fcmReturnStatus fcmResult = sendNotifToFCM(
+        typedef rust::notifications::fcmReturnStatus fcmReturnStatus;
+        const fcmReturnStatus fcmResult = rust::notifications::sendNotifToFCM(
             config::ConfigManager::getInstance().getParameter(
                 config::ConfigManager::OPTION_NOTIFS_FCM_SERVER_KEY),
             notifyToken,
