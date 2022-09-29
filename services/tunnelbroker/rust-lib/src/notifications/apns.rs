@@ -4,7 +4,7 @@ use a2::{
   ErrorReason::{BadDeviceToken, Unregistered},
   NotificationBuilder, NotificationOptions, PlainNotificationBuilder,
 };
-use anyhow::{anyhow, Result};
+use anyhow::{bail, Result};
 use std::fs::File;
 
 pub async fn send_by_a2_client(
@@ -35,20 +35,20 @@ pub async fn send_by_a2_client(
     Err(Error::ResponseError(response)) => {
       if let Some(error_body) = response.error {
         match error_body.reason {
-          // We are returning `Ok` with the error types here to distinguish the exact 
+          // We are returning `Ok` with the error types here to distinguish the exact
           // error type in a C++ side
           BadDeviceToken => Ok(apns_status::BadDeviceToken),
           Unregistered => Ok(apns_status::Unregistered),
-          _ => Err(anyhow!(
+          _ => bail!(
             "Notification was not accepted by APNs, reason: {:?}",
             error_body.reason
-          )),
+          ),
         }
       } else {
-        Err(anyhow!(
+        bail!(
           "Unhandled response error from APNs, response: {:?}",
           response
-        ))
+        )
       }
     }
     Err(error) => Err(anyhow::Error::new(error)),

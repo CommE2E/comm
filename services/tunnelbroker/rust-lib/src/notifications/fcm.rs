@@ -1,5 +1,5 @@
 use crate::ffi::fcm_status;
-use anyhow::{anyhow, Result};
+use anyhow::{bail, ensure, Result};
 use fcm::{
   response::ErrorReason::{InvalidRegistration, NotRegistered},
   Client, MessageBuilder, NotificationBuilder,
@@ -24,25 +24,21 @@ pub async fn send_by_fcm_client(
   let result = client.send(message_builder.finalize()).await?;
   match result.results {
     Some(results) => {
-      if results.len() == 0 {
-        return Err(anyhow!("FCM client returned zero size results"));
-      }
+      ensure!(results.len() > 0, "FCM client returned zero size results");
       if let Some(result_error) = results[0].error {
         match result_error {
           // We are returning `Ok` with the error types here to distinguish the exact
           // error type in a C++ side
           InvalidRegistration => return Ok(fcm_status::InvalidRegistration),
           NotRegistered => return Ok(fcm_status::NotRegistered),
-          _ => {
-            return Err(anyhow!(
-              "Notification was not accepted by FCM, reason: {:?}",
-              result_error
-            ))
-          }
+          _ => bail!(
+            "Notification was not accepted by FCM, reason: {:?}",
+            result_error,
+          ),
         }
       }
     }
-    None => return Err(anyhow!("FCM client has no results set")),
+    None => bail!("FCM client has no results set"),
   }
   Ok(fcm_status::Ok)
 }
