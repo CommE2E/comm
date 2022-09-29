@@ -3,7 +3,8 @@ use commtest::blob::{
   blob_utils::{BlobData, BlobServiceClient},
   get, put, remove,
 };
-use commtest::tools::{self, Error};
+use commtest::constants;
+use commtest::tools::Error;
 use std::env;
 
 #[tokio::test]
@@ -27,8 +28,8 @@ async fn blob_integration_test() -> Result<(), Error> {
       holder: "test_holder002".to_string(),
       hash: "test_hash002".to_string(),
       chunks_sizes: vec![
-        *tools::GRPC_CHUNK_SIZE_LIMIT,
-        *tools::GRPC_CHUNK_SIZE_LIMIT,
+        *constants::GRPC_CHUNK_SIZE_LIMIT,
+        *constants::GRPC_CHUNK_SIZE_LIMIT,
         ByteSize::b(10).as_u64() as usize,
       ],
     },
@@ -36,9 +37,9 @@ async fn blob_integration_test() -> Result<(), Error> {
       holder: "test_holder003".to_string(),
       hash: "test_hash003".to_string(),
       chunks_sizes: vec![
-        *tools::GRPC_CHUNK_SIZE_LIMIT,
+        *constants::GRPC_CHUNK_SIZE_LIMIT,
         ByteSize::b(100).as_u64() as usize,
-        *tools::GRPC_CHUNK_SIZE_LIMIT,
+        *constants::GRPC_CHUNK_SIZE_LIMIT,
       ],
     },
   ];

@@ -1,6 +1,4 @@
-use bytesize::ByteSize;
 use hex::ToHex;
-use lazy_static::lazy_static;
 use num_cpus;
 use sha2::{Digest, Sha512};
 use std::env;
@@ -24,17 +22,6 @@ pub enum Error {
   #[display(...)]
   TonicStatus(tonic::Status),
 }
-
-pub const GRPC_METADATA_SIZE_BYTES: usize = 5;
-
-lazy_static! {
-  pub static ref DYNAMO_DB_ITEM_SIZE_LIMIT: usize =
-    ByteSize::kib(400).as_u64() as usize;
-  pub static ref GRPC_CHUNK_SIZE_LIMIT: usize =
-    (ByteSize::mib(4).as_u64() as usize) - GRPC_METADATA_SIZE_BYTES;
-}
-
-pub const ATTACHMENT_DELIMITER: &str = ";";
 
 pub fn obtain_number_of_threads() -> usize {
   let number_of_threads_str: String =

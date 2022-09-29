@@ -1,7 +1,8 @@
 use crate::backup::backup_utils::{
   proto::AddAttachmentsRequest, BackupData, BackupServiceClient,
 };
-use crate::tools::{Error, ATTACHMENT_DELIMITER};
+use crate::constants::ATTACHMENT_DELIMITER;
+use crate::tools::Error;
 use tonic::Request;
 
 // log_index = None means that we add attachments to the backup

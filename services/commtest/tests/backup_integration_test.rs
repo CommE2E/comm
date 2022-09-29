@@ -4,7 +4,8 @@ use commtest::backup::{
   backup_utils::{self, BackupData, BackupServiceClient, Item},
   create_new_backup, pull_backup, send_log,
 };
-use commtest::tools::{self, Error};
+use commtest::constants;
+use commtest::tools::Error;
 use std::collections::HashMap;
 use std::env;
 
@@ -36,7 +37,7 @@ async fn backup_integration_test() -> Result<(), Error> {
       Item::new(
         String::new(),
         vec![
-          *tools::DYNAMO_DB_ITEM_SIZE_LIMIT
+          *constants::DYNAMO_DB_ITEM_SIZE_LIMIT
             - ByteSize::b(attachments_fill_size / 2).as_u64() as usize,
         ],
         vec!["holder0".to_string(), "holder1".to_string()],
@@ -50,7 +51,10 @@ async fn backup_integration_test() -> Result<(), Error> {
       // a big item that should be placed in the S3 right away
       Item::new(
         String::new(),
-        vec![*tools::GRPC_CHUNK_SIZE_LIMIT, *tools::GRPC_CHUNK_SIZE_LIMIT],
+        vec![
+          *constants::GRPC_CHUNK_SIZE_LIMIT,
+          *constants::GRPC_CHUNK_SIZE_LIMIT,
+        ],
         vec![
           "holder0".to_string(),
           "holder1".to_string(),

@@ -3,7 +3,8 @@ use crate::backup::backup_utils::{
   proto::pull_backup_response::Id, proto::pull_backup_response::Id::*,
   proto::PullBackupRequest, BackupData, BackupServiceClient, Item,
 };
-use crate::tools::{Error, ATTACHMENT_DELIMITER};
+use crate::constants::ATTACHMENT_DELIMITER;
+use crate::tools::Error;
 use std::io::{Error as IOError, ErrorKind};
 use tonic::Request;
 
