@@ -13,7 +13,7 @@ import { fetchNativeKeychainCredentials } from './native-credentials';
 async function resolveInvalidatedCookie(
   callServerEndpoint: CallServerEndpoint,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
-  source?: LogInActionSource,
+  source: LogInActionSource,
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (!keychainCredentials) {
