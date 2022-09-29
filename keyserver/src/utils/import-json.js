@@ -1,5 +1,7 @@
 // @flow
 
+import fs from 'fs';
+
 type ConfigName = {
   +folder: 'secrets' | 'facts',
   +name: string,
@@ -42,10 +44,9 @@ async function getJSON<T>(configName: ConfigName): Promise<?T> {
   }
   const path = getPathForConfigName(configName);
   try {
-    // $FlowFixMe
-    const importedJSON = await import(`../../${path}`);
-    return importedJSON.default;
-  } catch {
+    return JSON.parse(fs.readFileSync(path, 'utf8'));
+  } catch (e) {
+    console.log(`Failed to read JSON from ${path}`, e);
     return null;
   }
 }
