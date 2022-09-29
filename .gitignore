@@ -20,7 +20,7 @@ keyserver/*.env
 keyserver/*.env.*
 
 services/identity/target
-services/tunnelbroker/rust-notifications/target
+services/tunnelbroker/rust-lib/target
 
 .eslintcache
 .vscode

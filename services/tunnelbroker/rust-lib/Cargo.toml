@@ -1,6 +1,6 @@
 [package]
-name = "rust-notifications"
-description = "Library for sending iOS and Android push notifications"
+name = "rust-lib"
+description = "Rust code library to call from the C++ codebase"
 homepage = "https://comm.app"
 version = "0.1.0"
 license = "BSD-3-Clause"

@@ -8,7 +8,7 @@
 #include "GlobalTools.h"
 #include "Tools.h"
 
-#include "rust-notifications/src/lib.rs.h"
+#include "rust-lib/src/lib.rs.h"
 #include "rust/cxx.h"
 
 #include <glog/logging.h>

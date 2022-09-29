@@ -70,7 +70,7 @@ find_package(glog)
 # Corrosion and CXX Rust integration
 find_package(Corrosion REQUIRED)
 include(${_shared_path}/cmake/corrosion-cxx.cmake)
-add_library_rust(PATH rust-notifications NAMESPACE rustlib)
+add_library_rust(PATH rust-lib NAMESPACE rust)
 
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
 
@@ -92,7 +92,7 @@ set(
   glog::glog
   double-conversion::double-conversion
   Folly::folly
-  rustlib::rust-notifications
+  rust::rust-lib
 )
 
 # SERVER
@@ -126,6 +126,7 @@ install(
 # TEST
 option(BUILD_TESTING "Build test suite" ON)
 option(WITH_GFLAGS "Turn on GFLAGS" ON)
+
 if(BUILD_TESTING)
   file(GLOB TEST_CODE "./test/*.cpp")
   list(FILTER SOURCE_CODE EXCLUDE REGEX "./src/server.cpp")
