@@ -189,7 +189,9 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       } = await MediaLibrary.getAssetsAsync({
         first: 20,
         after,
-        mediaType: [MediaLibrary.MediaType.photo, MediaLibrary.MediaType.video],
+        // Include `MediaLibrary.MediaType.video` in `mediaType` array
+        // when working on video messages so videos show up in media gallery.
+        mediaType: [MediaLibrary.MediaType.photo],
       });
 
       let firstRemoved = false,
