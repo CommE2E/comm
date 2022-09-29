@@ -9,9 +9,10 @@ import {
   oldValidUsernameRegex,
   validEmailRegex,
 } from 'lib/shared/account-utils';
-import type {
-  LogInExtraInfo,
-  LogInStartingPayload,
+import {
+  type LogInExtraInfo,
+  type LogInStartingPayload,
+  loginActionSources,
 } from 'lib/types/account-types';
 import {
   useDispatchActionPromise,
@@ -59,9 +60,10 @@ function LoginForm(): React.Node {
     async (extraInfo: LogInExtraInfo) => {
       try {
         const result = await callLogIn({
+          ...extraInfo,
           username,
           password,
-          ...extraInfo,
+          source: loginActionSources.logInFromWebForm,
         });
         modalContext.popModal();
         return result;
