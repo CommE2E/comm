@@ -21,7 +21,10 @@ import { Platform, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { threadIsPending } from 'lib/shared/thread-utils';
+import {
+  threadIsPending,
+  threadMembersWithoutAddedAshoat,
+} from 'lib/shared/thread-utils';
 import { firstLine } from 'lib/utils/string-utils';
 
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
@@ -192,33 +195,44 @@ const chatThreadListOptions = ({ navigation }) => ({
   headerBackTitleVisible: false,
   headerStyle: unboundStyles.threadListHeaderStyle,
 });
-const messageListOptions = ({ navigation, route }) => ({
-  // This is a render prop, not a component
-  // eslint-disable-next-line react/display-name
-  headerTitle: () => (
-    <MessageListHeaderTitle
-      threadInfo={route.params.threadInfo}
-      searching={route.params.searching}
-      navigate={navigation.navigate}
-    />
-  ),
-  headerTitleContainerStyle: {
-    marginHorizontal: Platform.select({ ios: 80, default: 0 }),
-    flex: 1,
-  },
-  headerRight:
-    Platform.OS === 'android' && !threadIsPending(route.params.threadInfo.id)
-      ? // This is a render prop, not a component
-        // eslint-disable-next-line react/display-name
-        () => (
-          <ThreadSettingsButton
-            threadInfo={route.params.threadInfo}
-            navigate={navigation.navigate}
-          />
-        )
-      : undefined,
-  headerBackTitleVisible: false,
-});
+
+const messageListOptions = ({ navigation, route }) => {
+  const isSearchEmpty =
+    !!route.params.searching &&
+    threadMembersWithoutAddedAshoat(route.params.threadInfo).length === 1;
+
+  const areSettingsEnabled =
+    !threadIsPending(route.params.threadInfo.id) && !isSearchEmpty;
+
+  return {
+    // This is a render prop, not a component
+    // eslint-disable-next-line react/display-name
+    headerTitle: () => (
+      <MessageListHeaderTitle
+        threadInfo={route.params.threadInfo}
+        navigate={navigation.navigate}
+        areSettingsEnabled={areSettingsEnabled}
+        isSearchEmpty={isSearchEmpty}
+      />
+    ),
+    headerTitleContainerStyle: {
+      marginHorizontal: Platform.select({ ios: 80, default: 0 }),
+      flex: 1,
+    },
+    headerRight:
+      Platform.OS === 'android' && areSettingsEnabled
+        ? // This is a render prop, not a component
+          // eslint-disable-next-line react/display-name
+          () => (
+            <ThreadSettingsButton
+              threadInfo={route.params.threadInfo}
+              navigate={navigation.navigate}
+            />
+          )
+        : undefined,
+    headerBackTitleVisible: false,
+  };
+};
 const composeThreadOptions = {
   headerTitle: 'Compose chat',
   headerBackTitleVisible: false,

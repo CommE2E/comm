@@ -5,10 +5,6 @@ import * as React from 'react';
 import { View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-import {
-  threadIsPending,
-  threadMembersWithoutAddedAshoat,
-} from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { firstLine } from 'lib/utils/string-utils';
 
@@ -19,8 +15,9 @@ import type { ChatNavigationProp } from './chat.react';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,
-  +searching: boolean | void,
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
+  +isSearchEmpty: boolean,
+  +areSettingsEnabled: boolean,
 };
 type Props = {
   ...BaseProps,
@@ -28,13 +25,8 @@ type Props = {
 };
 class MessageListHeaderTitle extends React.PureComponent<Props> {
   render() {
-    const isSearchEmpty =
-      this.props.searching &&
-      threadMembersWithoutAddedAshoat(this.props.threadInfo).length === 1;
     let icon, fakeIcon;
-    const areSettingsDisabled =
-      threadIsPending(this.props.threadInfo.id) || isSearchEmpty;
-    if (Platform.OS === 'ios' && !areSettingsDisabled) {
+    if (Platform.OS === 'ios' && this.props.areSettingsEnabled) {
       icon = (
         <Icon
           name="ios-arrow-forward"
@@ -50,13 +42,17 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
         />
       );
     }
-    const title = isSearchEmpty ? 'New Message' : this.props.threadInfo.uiName;
+
+    const title = this.props.isSearchEmpty
+      ? 'New Message'
+      : this.props.threadInfo.uiName;
+
     return (
       <Button
         onPress={this.onPress}
         style={this.props.styles.button}
         androidBorderlessRipple={true}
-        disabled={areSettingsDisabled}
+        disabled={!this.props.areSettingsEnabled}
       >
         <View style={this.props.styles.container}>
           {fakeIcon}
