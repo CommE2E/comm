@@ -11,11 +11,12 @@ import {
   validEmailRegex,
   oldValidUsernameRegex,
 } from 'lib/shared/account-utils';
-import type {
-  LogInInfo,
-  LogInExtraInfo,
-  LogInResult,
-  LogInStartingPayload,
+import {
+  type LogInInfo,
+  type LogInExtraInfo,
+  type LogInResult,
+  type LogInStartingPayload,
+  loginActionSources,
 } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
@@ -249,9 +250,10 @@ class LogInPanel extends React.PureComponent<Props> {
   async logInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
     try {
       const result = await this.props.logIn({
+        ...extraInfo,
         username: this.usernameInputText,
         password: this.passwordInputText,
-        ...extraInfo,
+        source: loginActionSources.logInFromNativeForm,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
