@@ -2,14 +2,12 @@
 
 import * as React from 'react';
 import { Text } from 'react-native';
-import Icon from 'react-native-vector-icons/Entypo';
 
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
-import UnreadDot from '../components/unread-dot.react';
 import { useColors, useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
 
@@ -17,7 +15,6 @@ type Props = {
   +sidebarInfo: SidebarInfo,
   +onPressItem: (threadInfo: ThreadInfo) => void,
   +style?: ?ViewStyle,
-  +unreadIndicator?: boolean,
 };
 function SidebarItem(props: Props): React.Node {
   const { lastUpdatedTime } = props.sidebarInfo;
@@ -35,34 +32,9 @@ function SidebarItem(props: Props): React.Node {
 
   const colors = useColors();
 
-  const { unreadIndicator } = props;
   const sidebarStyle = React.useMemo(() => {
-    if (unreadIndicator) {
-      return [styles.sidebar, styles.sidebarWithUnreadIndicator, props.style];
-    }
     return [styles.sidebar, props.style];
-  }, [
-    props.style,
-    styles.sidebar,
-    styles.sidebarWithUnreadIndicator,
-    unreadIndicator,
-  ]);
-
-  const sidebarIconStyle = React.useMemo(() => {
-    if (unreadIndicator) {
-      return [styles.sidebarIcon, styles.sidebarIconWithUnreadIndicator];
-    }
-    return styles.sidebarIcon;
-  }, [
-    styles.sidebarIcon,
-    styles.sidebarIconWithUnreadIndicator,
-    unreadIndicator,
-  ]);
-
-  let unreadDot;
-  if (unreadIndicator) {
-    unreadDot = <UnreadDot unread={threadInfo.currentUser.unread} />;
-  }
+  }, [props.style, styles.sidebar]);
 
   return (
     <Button
@@ -72,8 +44,6 @@ function SidebarItem(props: Props): React.Node {
       style={sidebarStyle}
       onPress={onPress}
     >
-      {unreadDot}
-      <Icon name="align-right" style={sidebarIconStyle} size={24} />
       <SingleLine style={[styles.name, unreadStyle]}>
         {threadInfo.uiName}
       </SingleLine>
@@ -92,20 +62,10 @@ const unboundStyles = {
     height: sidebarHeight,
     flexDirection: 'row',
     display: 'flex',
-    paddingLeft: 28,
+    paddingLeft: 6,
     paddingRight: 18,
     alignItems: 'center',
     backgroundColor: 'listBackground',
-  },
-  sidebarWithUnreadIndicator: {
-    paddingLeft: 6,
-  },
-  sidebarIcon: {
-    paddingRight: 5,
-    color: 'listForegroundSecondaryLabel',
-  },
-  sidebarIconWithUnreadIndicator: {
-    paddingLeft: 22,
   },
   name: {
     color: 'listForegroundSecondaryLabel',

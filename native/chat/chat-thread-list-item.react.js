@@ -56,7 +56,7 @@ function ChatThreadListItem({
     );
   }, [data.mostRecentMessageInfo, data.threadInfo, styles]);
 
-  const sidebars = data.sidebars.map(sidebarItem => {
+  const sidebars = data.sidebars.map((sidebarItem, index) => {
     if (sidebarItem.type === 'sidebar') {
       const { type, ...sidebarInfo } = sidebarItem;
       return (
@@ -66,6 +66,7 @@ function ChatThreadListItem({
           onSwipeableWillOpen={onSwipeableWillOpen}
           currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
           key={sidebarItem.threadInfo.id}
+          extendArrow={index > 0}
         />
       );
     } else if (sidebarItem.type === 'seeMore') {
