@@ -27,7 +27,10 @@ import { firstLine } from 'lib/utils/string-utils';
 
 import { dbQuery, SQL } from '../database/database';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers';
-import { determineThreadAncestry } from '../fetchers/thread-fetchers';
+import {
+  determineThreadAncestry,
+  personalThreadQuery,
+} from '../fetchers/thread-fetchers';
 import {
   checkThreadPermission,
   validateCandidateMembers,
@@ -233,17 +236,7 @@ async function createThread(
       otherMemberID,
       'Other member id should be set for a PERSONAL thread',
     );
-    existingThreadQuery = SQL`
-      SELECT t.id 
-      FROM threads t
-      INNER JOIN memberships m1 
-        ON m1.thread = t.id AND m1.user = ${viewer.userID}
-      INNER JOIN memberships m2
-        ON m2.thread = t.id AND m2.user = ${otherMemberID}
-      WHERE t.type = ${threadTypes.PERSONAL}
-        AND m1.role > 0
-        AND m2.role > 0
-    `;
+    existingThreadQuery = personalThreadQuery(viewer.userID, otherMemberID);
   } else if (sourceMessageID) {
     existingThreadQuery = SQL`
       SELECT t.id

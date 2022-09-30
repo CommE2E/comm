@@ -214,6 +214,32 @@ async function determineThreadAncestry(
   return { containingThreadID, community, depth };
 }
 
+function personalThreadQuery(
+  firstMemberID: string,
+  secondMemberID: string,
+): SQLStatementType {
+  return SQL`
+    SELECT t.id 
+    FROM threads t
+    INNER JOIN memberships m1 
+      ON m1.thread = t.id AND m1.user = ${firstMemberID}
+    INNER JOIN memberships m2
+      ON m2.thread = t.id AND m2.user = ${secondMemberID}
+    WHERE t.type = ${threadTypes.PERSONAL}
+      AND m1.role > 0
+      AND m2.role > 0
+    `;
+}
+
+async function fetchPersonalThreadID(
+  viewerID: string,
+  otherMemberID: string,
+): Promise<?string> {
+  const query = personalThreadQuery(viewerID, otherMemberID);
+  const [threads] = await dbQuery(query);
+  return threads[0]?.id.toString();
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
@@ -221,4 +247,6 @@ export {
   verifyThreadIDs,
   verifyThreadID,
   determineThreadAncestry,
+  personalThreadQuery,
+  fetchPersonalThreadID,
 };
