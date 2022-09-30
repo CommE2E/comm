@@ -7,6 +7,7 @@ import {
   updateSubscriptionActionTypes,
 } from 'lib/actions/user-actions';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { threadIsSidebar } from 'lib/shared/thread-utils';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -90,6 +91,7 @@ function NotificationsModal(props: Props): React.Node {
   const { onClose, threadID } = props;
   const threadInfo = useSelector(state => threadInfoSelector(state)[threadID]);
   const { subscription } = threadInfo.currentUser;
+  const isSidebar = threadIsSidebar(threadInfo);
 
   const initialThreadSetting = React.useMemo<NotificationSettings>(() => {
     if (!subscription.home) {
@@ -185,8 +187,12 @@ function NotificationsModal(props: Props): React.Node {
     threadID,
   ]);
 
+  const modalName = isSidebar
+    ? 'Thread notifications'
+    : 'Channel notifications';
+
   return (
-    <Modal name="Channel notifications" size="fit-content" onClose={onClose}>
+    <Modal name={modalName} size="fit-content" onClose={onClose}>
       <div className={css.container}>
         <div className={css.optionsContainer}>
           {focusedItem}
