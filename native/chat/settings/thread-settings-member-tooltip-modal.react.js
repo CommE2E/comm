@@ -14,7 +14,7 @@ import {
 } from 'lib/shared/thread-utils';
 import { stringForUser } from 'lib/shared/user-utils';
 import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
-import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
+import type { DispatchFunctions, BindServerCall } from 'lib/utils/action-utils';
 
 import {
   createTooltip,
@@ -32,7 +32,7 @@ export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{
 function onRemoveUser(
   route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
-  bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
+  bindServerCall: BindServerCall,
 ) {
   const { memberInfo, threadInfo } = route.params;
   const boundRemoveUsersFromThread = bindServerCall(removeUsersFromThread);
@@ -59,7 +59,7 @@ function onRemoveUser(
 function onToggleAdmin(
   route: TooltipRoute<'ThreadSettingsMemberTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
-  bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
+  bindServerCall: BindServerCall,
 ) {
   const { memberInfo, threadInfo } = route.params;
   const isCurrentlyAdmin = memberIsAdmin(memberInfo, threadInfo);

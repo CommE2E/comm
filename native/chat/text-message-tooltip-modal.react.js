@@ -5,7 +5,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { createMessageReply } from 'lib/shared/message-utils';
-import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
+import type { DispatchFunctions, BindServerCall } from 'lib/utils/action-utils';
 
 import type { InputState } from '../input/input-state';
 import { displayActionResultModal } from '../navigation/action-result-modal';
@@ -35,7 +35,7 @@ function onPressCopy(route: TooltipRoute<'TextMessageTooltipModal'>) {
 function onPressReply(
   route: TooltipRoute<'TextMessageTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
-  bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
+  bindServerCall: BindServerCall,
   inputState: ?InputState,
 ) {
   invariant(

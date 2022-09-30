@@ -24,6 +24,7 @@ import {
   useDispatchActionPromise,
   type DispatchActionPromise,
   type ActionFunc,
+  type BindServerCall,
   type DispatchFunctions,
 } from 'lib/utils/action-utils';
 
@@ -52,7 +53,7 @@ export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {
   +onPress: (
     route: TooltipRoute<RouteName>,
     dispatchFunctions: DispatchFunctions,
-    bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
+    bindServerCall: BindServerCall,
     inputState: ?InputState,
     navigation: AppNavigationProp<RouteName>,
     viewerID: ?string,

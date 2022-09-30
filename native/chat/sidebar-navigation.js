@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { createPendingSidebar } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import type { DispatchFunctions, ActionFunc } from 'lib/utils/action-utils';
+import type { DispatchFunctions, BindServerCall } from 'lib/utils/action-utils';
 
 import type { InputState } from '../input/input-state';
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
@@ -45,7 +45,7 @@ function getSidebarThreadInfo(
 function navigateToSidebar<RouteName: MessageTooltipRouteNames>(
   route: TooltipRoute<RouteName>,
   dispatchFunctions: DispatchFunctions,
-  bindServerCall: <F>(serverCall: ActionFunc<F>) => F,
+  bindServerCall: BindServerCall,
   inputState: ?InputState,
   navigation: AppNavigationProp<RouteName>,
   viewerID: ?string,
