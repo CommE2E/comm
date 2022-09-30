@@ -87,11 +87,17 @@ function ThreadSettingsDeleteTab(
   return (
     <form method="POST" className={css.container}>
       <div>
-        <SWMansionIcon icon="warning-circle" size={22} />
-        <p className={css.deletion_warning}>
-          Your chat will be permanently deleted. There is no way to reverse
-          this.
-        </p>
+        <div className={css.warning_container}>
+          <SWMansionIcon
+            icon="warning-circle"
+            className={css.warning_icon}
+            size={26}
+          />
+          <p className={css.deletion_warning}>
+            Your chat will be permanently deleted. There is no way to reverse
+            this.
+          </p>
+        </div>
       </div>
       <div>
         <p className={css.confirm_account_password}>

@@ -11,6 +11,7 @@ div.form_title {
   vertical-align: top;
   color: var(--fg);
 }
+
 div.form_content {
   display: flex;
   font-family: var(--font-stack);
@@ -23,6 +24,15 @@ form.container {
   display: flex;
   flex-direction: column;
   flex: 1;
+}
+
+div.warning_container {
+  display: flex;
+  flex-direction: row;
+}
+
+.warning_icon {
+  padding: 8px 8px 0px 0px;
 }
 
 .deletion_warning {
