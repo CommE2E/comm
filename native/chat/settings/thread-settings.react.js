@@ -373,11 +373,13 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           key: 'pushNotifs',
           threadInfo,
         });
-        listData.push({
-          itemType: 'homeNotifs',
-          key: 'homeNotifs',
-          threadInfo,
-        });
+        if (threadInfo.type !== threadTypes.SIDEBAR) {
+          listData.push({
+            itemType: 'homeNotifs',
+            key: 'homeNotifs',
+            threadInfo,
+          });
+        }
         listData.push({
           itemType: 'footer',
           key: 'subscriptionFooter',
