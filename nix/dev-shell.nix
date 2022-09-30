@@ -134,6 +134,9 @@ mkShell {
     wait "$mariadb_pid" "$redis_pid"
   '' + ''
 
+    # Render default configuration for keyserver
+    $PRJ_ROOT/scripts/create_url_facts.sh
+
     # Provide decent bash prompt
     source "${better-prompt}/bin/better-prompt"
 
