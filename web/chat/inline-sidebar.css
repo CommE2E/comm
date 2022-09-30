@@ -9,12 +9,14 @@ div.leftContainer {
   position: relative;
   top: -10px;
   left: 12px;
+  margin-right: 12px;
 }
 div.rightContainer {
   justify-content: flex-end;
   position: relative;
   top: -10px;
   right: 31px;
+  margin-left: 31px;
 }
 div.inlineSidebarContent {
   background: var(--inline-sidebar-bg);
