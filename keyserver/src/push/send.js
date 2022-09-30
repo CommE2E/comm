@@ -505,6 +505,10 @@ function prepareIOSNotification(
     notification.collapseId = collapseKey;
   }
   const messageInfos = JSON.stringify(newRawMessageInfos);
+  // We make a copy before checking notification's length, because calling
+  // length compiles the notification and makes it immutable. Further
+  // changes to its properties won't be reflected in the final plaintext
+  // data that is sent.
   const copyWithMessageInfos = _cloneDeep(notification);
   copyWithMessageInfos.payload = {
     ...copyWithMessageInfos.payload,
@@ -512,6 +516,13 @@ function prepareIOSNotification(
   };
   if (copyWithMessageInfos.length() <= apnMaxNotificationPayloadByteSize) {
     notification.payload.messageInfos = messageInfos;
+    return notification;
+  }
+  const notificationCopy = _cloneDeep(notification);
+  if (notificationCopy.length() > apnMaxNotificationPayloadByteSize) {
+    console.warn(
+      `iOS notification ${uniqueID} exceeds size limit, even with messageInfos omitted`,
+    );
   }
   return notification;
 }
@@ -564,6 +575,15 @@ function prepareAndroidNotification(
     fcmMaxNotificationPayloadByteSize
   ) {
     return copyWithMessageInfos;
+  }
+
+  if (
+    Buffer.byteLength(JSON.stringify(notification)) >
+    fcmMaxNotificationPayloadByteSize
+  ) {
+    console.warn(
+      `Android notification ${notifID} exceeds size limit, even with messageInfos omitted`,
+    );
   }
   return notification;
 }
