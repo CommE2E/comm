@@ -6,6 +6,10 @@ import {
   directedStatus,
   userRelationshipStatus,
 } from 'lib/types/relationship-types';
+import {
+  communityThreadTypes,
+  threadPermissions,
+} from 'lib/types/thread-types';
 import type {
   UserInfos,
   CurrentUserInfo,
@@ -265,6 +269,27 @@ async function fetchUsername(id: string): Promise<?string> {
   return row.username;
 }
 
+async function fetchKeyserverAdminID(): Promise<?string> {
+  const changeRoleExtractString = `$.${threadPermissions.CHANGE_ROLE}`;
+  const query = SQL`
+    SELECT m.user FROM memberships m
+    INNER JOIN roles r ON m.role = r.id
+    INNER JOIN threads t ON r.thread = t.id
+    WHERE r.name = "Admins" AND 
+      t.type IN (${communityThreadTypes}) AND 
+      JSON_EXTRACT(r.permissions, ${changeRoleExtractString}) IS TRUE
+  `;
+  const [result] = await dbQuery(query);
+  if (result.length === 0) {
+    return null;
+  }
+  if (result.length > 1) {
+    console.warn('more than one community admin found');
+  }
+
+  return result[0].user;
+}
+
 export {
   fetchUserInfos,
   fetchLoggedInUserInfo,
@@ -274,4 +299,5 @@ export {
   fetchAllUserIDs,
   fetchUsername,
   fetchKnownUserInfos,
+  fetchKeyserverAdminID,
 };
