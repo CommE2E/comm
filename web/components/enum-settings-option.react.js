@@ -20,6 +20,7 @@ type IconPosition = $Keys<typeof iconPositionClassnames>;
 type Props = {
   +selected: boolean,
   +onSelect: () => void,
+  +disabled?: boolean,
   +icon: React.Node,
   +title: string,
   +type?: InputType,
@@ -38,6 +39,7 @@ function EnumSettingsOption(props: Props): React.Node {
     statements,
     selected,
     onSelect,
+    disabled = false,
     type = 'radio',
     iconPosition = 'center',
   } = props;
@@ -59,15 +61,15 @@ function EnumSettingsOption(props: Props): React.Node {
     [selected, statements],
   );
 
-  const inputIcon = React.useMemo(
-    () =>
-      type === 'checkbox' ? (
-        <Checkbox checked={selected} />
-      ) : (
-        <Radio checked={selected} />
-      ),
-    [type, selected],
-  );
+  const inputIcon = React.useMemo(() => {
+    if (disabled) {
+      return null;
+    } else if (type === 'checkbox') {
+      return <Checkbox checked={selected} />;
+    } else if (type === 'radio') {
+      return <Radio checked={selected} />;
+    }
+  }, [disabled, type, selected]);
 
   const optionContainerClasses = React.useMemo(
     () =>
@@ -83,7 +85,10 @@ function EnumSettingsOption(props: Props): React.Node {
   );
 
   return (
-    <div className={optionContainerClasses} onClick={onSelect}>
+    <div
+      className={optionContainerClasses}
+      onClick={disabled ? null : onSelect}
+    >
       <div className={optionIconClasses}>{icon}</div>
       <div className={css.optionContent}>
         <div className={css.optionTitle}>{title}</div>

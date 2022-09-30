@@ -158,10 +158,11 @@ function NotificationsModal(props: Props): React.Node {
         title="Background"
         statements={backgroundStatements}
         icon={icon}
+        disabled={isSidebar}
         onSelect={onBackgroundSelected}
       />
     );
-  }, [isBackgroundSelected, onBackgroundSelected]);
+  }, [isBackgroundSelected, onBackgroundSelected, isSidebar]);
 
   const dispatchActionPromise = useDispatchActionPromise();
 
