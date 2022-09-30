@@ -17,6 +17,7 @@ import {
   type BaseTooltipProps,
 } from '../navigation/tooltip.react';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
+import { onPressReport } from './message-report-utils';
 import { navigateToSidebar } from './sidebar-navigation';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 
@@ -25,7 +26,6 @@ export type TextMessageTooltipModalParams = TooltipParams<{
 }>;
 
 const confirmCopy = () => displayActionResultModal('copied!');
-const confirmReport = () => displayActionResultModal('reported to admin');
 
 function onPressCopy(route: TooltipRoute<'TextMessageTooltipModal'>) {
   Clipboard.setString(route.params.item.messageInfo.text);
@@ -52,7 +52,7 @@ const spec = {
     {
       id: 'report',
       text: 'Report',
-      onPress: confirmReport,
+      onPress: onPressReport,
     },
     {
       id: 'create_sidebar',

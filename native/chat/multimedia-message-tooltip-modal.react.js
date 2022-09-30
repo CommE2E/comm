@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 
-import { displayActionResultModal } from '../navigation/action-result-modal';
 import {
   createTooltip,
   tooltipHeight,
@@ -11,6 +10,7 @@ import {
 } from '../navigation/tooltip.react';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
+import { onPressReport } from './message-report-utils';
 import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react';
 import { navigateToSidebar } from './sidebar-navigation';
 
@@ -19,7 +19,6 @@ export type MultimediaMessageTooltipModalParams = TooltipParams<{
   +verticalBounds: VerticalBounds,
 }>;
 
-const confirmReport = () => displayActionResultModal('reported to admin');
 const spec = {
   entries: [
     {
@@ -35,7 +34,7 @@ const spec = {
     {
       id: 'report',
       text: 'Report',
-      onPress: confirmReport,
+      onPress: onPressReport,
     },
   ],
 };
