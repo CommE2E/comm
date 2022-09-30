@@ -229,7 +229,7 @@ function personalThreadQuery(
     WHERE t.type = ${threadTypes.PERSONAL}
       AND m1.role > 0
       AND m2.role > 0
-    `;
+  `;
 }
 
 async function fetchPersonalThreadID(
