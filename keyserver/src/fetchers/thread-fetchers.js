@@ -7,6 +7,7 @@ import {
   getCommunity,
 } from 'lib/shared/thread-utils';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import type { RawMessageInfo, MessageInfo } from 'lib/types/message-types';
 import {
   threadTypes,
   type ThreadType,
@@ -240,6 +241,14 @@ async function fetchPersonalThreadID(
   return threads[0]?.id.toString();
 }
 
+async function serverThreadInfoFromMessageInfo(
+  message: RawMessageInfo | MessageInfo,
+): Promise<?ServerThreadInfo> {
+  const threadID = message.threadID;
+  const threads = await fetchServerThreadInfos(SQL`t.id = ${threadID}`);
+  return threads.threadInfos[threadID];
+}
+
 export {
   fetchServerThreadInfos,
   fetchThreadInfos,
@@ -249,4 +258,5 @@ export {
   determineThreadAncestry,
   personalThreadQuery,
   fetchPersonalThreadID,
+  serverThreadInfoFromMessageInfo,
 };
