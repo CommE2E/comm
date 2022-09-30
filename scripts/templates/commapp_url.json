@@ -1,0 +1,6 @@
+{
+  "baseDomain": "http://localhost:3000",
+  "basePath": "/comm/",
+  "baseRoutePath": "/",
+  "https": false
+}

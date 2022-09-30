@@ -105,6 +105,8 @@ mkShell {
 
   # shell commands to be ran upon entering shell
   shellHook = ''
+    PRJ_ROOT=$(git rev-parse --show-toplevel)
+
     # Set development environment variable defaults
     source "${../scripts/source_development_defaults.sh}"
 
@@ -120,6 +122,9 @@ mkShell {
 
     wait "$mariadb_pid" "$redis_pid"
   '' + ''
+
+    # Render default configuration for keyserver
+    $PRJ_ROOT/scripts/create_url_facts.sh
 
     # Provide decent bash prompt
     source "${better-prompt}/bin/better-prompt"
