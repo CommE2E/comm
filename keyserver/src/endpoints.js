@@ -18,6 +18,7 @@ import {
 } from './responders/entry-responders';
 import type { JSONResponder } from './responders/handlers';
 import { getSessionPublicKeysResponder } from './responders/keys-responders';
+import { messageReportCreationResponder } from './responders/message-report-responder';
 import {
   textMessageCreationResponder,
   messageFetchResponder,
@@ -58,6 +59,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   create_account: accountCreationResponder,
   create_entry: entryCreationResponder,
   create_error_report: reportCreationResponder,
+  create_message_report: messageReportCreationResponder,
   create_multimedia_message: multimediaMessageCreationResponder,
   create_report: reportCreationResponder,
   create_reports: reportMultiCreationResponder,
