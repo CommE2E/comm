@@ -4,7 +4,8 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { useAncestorThreads } from 'lib/shared/ancestor-threads';
-import { memberHasAdminPowers, colorIsDark } from 'lib/shared/thread-utils';
+import { colorIsDark } from 'lib/shared/thread-utils';
+import { getKeyserverAdmin } from 'lib/shared/user-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../CommIcon.react';
@@ -39,14 +40,10 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
 
   const userInfos = useSelector(state => state.userStore.userInfos);
   const community = ancestorThreads[0] ?? threadInfo;
-  const keyserverOwnerUsername: ?string = React.useMemo(() => {
-    for (const member of community.members) {
-      if (memberHasAdminPowers(member)) {
-        return userInfos[member.id].username;
-      }
-    }
-    return undefined;
-  }, [community.members, userInfos]);
+  const keyserverOwnerUsername: ?string = React.useMemo(
+    () => getKeyserverAdmin(community, userInfos)?.username,
+    [community, userInfos],
+  );
 
   const keyserverInfo = React.useMemo(
     () => (

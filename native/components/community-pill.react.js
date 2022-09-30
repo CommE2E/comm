@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { memberHasAdminPowers } from 'lib/shared/thread-utils';
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
+import { getKeyserverAdmin } from 'lib/shared/user-utils';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 import { useColors } from '../themes/colors';
@@ -19,13 +19,10 @@ function CommunityPill(props: Props): React.Node {
   const { community } = props;
 
   const userInfos = useSelector(state => state.userStore.userInfos);
-  const keyserverOperatorUsername: ?string = React.useMemo(() => {
-    for (const member: RelativeMemberInfo of community.members) {
-      if (memberHasAdminPowers(member)) {
-        return userInfos[member.id].username;
-      }
-    }
-  }, [community, userInfos]);
+  const keyserverOperatorUsername: ?string = React.useMemo(
+    () => getKeyserverAdmin(community, userInfos)?.username,
+    [community, userInfos],
+  );
 
   const colors = useColors();
   const keyserverOperatorLabel: ?React.Node = React.useMemo(() => {
