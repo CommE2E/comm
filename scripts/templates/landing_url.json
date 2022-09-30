@@ -1,0 +1,6 @@
+{
+  "baseDomain": "http://localhost:3000",
+  "basePath": "/commlanding/",
+  "baseRoutePath": "/commlanding/",
+  "https": false
+}
