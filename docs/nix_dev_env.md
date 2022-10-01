@@ -14,10 +14,10 @@ Some workflows require additional steps after the Nix installation. These steps 
 
 | Workflow                        | macOS supported |
 | ------------------------------- | --------------- |
-| `keyserver` (Node.js)           | ✅              |
-| `web` (Webpack)                 | ✅              |
-| `native` iOS (React Native)     | ✅              |
-| `native` Android (React Native) | ✅              |
+| `keyserver` (Node.js)           | ❌              |
+| `web` & `landing` (Webpack)     | ❌              |
+| `native` iOS (React Native)     | ❌              |
+| `native` Android (React Native) | ❌              |
 | C++ services                    | ❌ **\***       |
 | Rust services                   | ✅              |
 
