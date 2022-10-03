@@ -1,5 +1,8 @@
 FROM rust:1.61
 
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  protobuf-compiler && rm -rf /var/lib/apt/lists/*
+
 # Create a new user comm and use it to run subsequent commands
 RUN useradd -m comm
 USER comm

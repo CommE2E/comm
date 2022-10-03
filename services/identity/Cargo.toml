@@ -5,8 +5,8 @@ edition = "2021"
 license = "BSD-3-Clause"
 
 [dependencies]
-tonic = "0.6"
-prost = "0.9"
+tonic = "0.8"
+prost = "0.11"
 futures-core = "0.3"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1.9"
@@ -29,4 +29,4 @@ constant_time_eq = "0.2.2"
 siwe = "0.3"
 
 [build-dependencies]
-tonic-build = "0.6"
+tonic-build = "0.8"
