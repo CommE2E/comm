@@ -46,7 +46,9 @@ async function getJSON<T>(configName: ConfigName): Promise<?T> {
   try {
     return JSON.parse(fs.readFileSync(path, 'utf8'));
   } catch (e) {
-    console.log(`Failed to read JSON from ${path}`, e);
+    if (e.code !== 'ENOENT') {
+      console.log(`Failed to read JSON from ${path}`, e);
+    }
     return null;
   }
 }
