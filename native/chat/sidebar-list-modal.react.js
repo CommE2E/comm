@@ -1,11 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { TextInput, FlatList, StyleSheet } from 'react-native';
+import { TextInput, FlatList, StyleSheet, View } from 'react-native';
 
 import { useSearchSidebars } from 'lib/hooks/search-sidebars';
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 
+import ArrowLong from '../components/arrow-long.react';
 import Modal from '../components/modal.react';
 import Search from '../components/search.react';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
@@ -71,11 +72,19 @@ function SidebarListModal(props: Props): React.Node {
   const renderItem = React.useCallback(
     (row: { item: SidebarInfo, ... }) => {
       return (
-        <SidebarItem
-          sidebarInfo={row.item}
-          onPressItem={onPressItem}
-          style={styles.sidebar}
-        />
+        <View style={styles.sidebarRowContainer}>
+          <View style={styles.arrow}>
+            <ArrowLong />
+          </View>
+          <View style={styles.spacer} />
+          <View style={styles.sidebarItemContainer}>
+            <SidebarItem
+              sidebarInfo={row.item}
+              onPressItem={onPressItem}
+              style={styles.sidebar}
+            />
+          </View>
+        </View>
       );
     },
     [onPressItem],
@@ -105,6 +114,10 @@ function SidebarListModal(props: Props): React.Node {
 }
 
 const styles = StyleSheet.create({
+  arrow: {
+    position: 'absolute',
+    top: -19,
+  },
   search: {
     marginBottom: 8,
   },
@@ -112,6 +125,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     paddingLeft: 0,
     paddingRight: 5,
+  },
+  sidebarItemContainer: {
+    flex: 1,
+  },
+  sidebarRowContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  spacer: {
+    width: 30,
   },
 });
 
