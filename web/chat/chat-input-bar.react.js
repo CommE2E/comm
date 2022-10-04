@@ -34,6 +34,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
+import Button from '../components/button.react';
 import {
   type InputState,
   type PendingMultimediaUpload,
@@ -185,13 +186,13 @@ class ChatInputBar extends React.PureComponent<Props> {
       }
       joinButton = (
         <div className={css.joinButtonContainer}>
-          <button
+          <Button
+            variant="filled"
+            buttonColor={{ backgroundColor: `#${this.props.threadInfo.color}` }}
             onClick={this.onClickJoin}
-            className={css.joinButton}
-            style={{ backgroundColor: `#${this.props.threadInfo.color}` }}
           >
             {buttonContent}
-          </button>
+          </Button>
         </div>
       );
     }
@@ -414,8 +415,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     }
   };
 
-  onClickJoin = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  onClickJoin = () => {
     this.props.dispatchActionPromise(joinThreadActionTypes, this.joinAction());
   };
 
