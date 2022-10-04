@@ -553,6 +553,7 @@ auto &SQLiteQueryExecutor::getStorage() {
           make_column("name", &Metadata::name, unique(), primary_key()),
           make_column("data", &Metadata::data)));
   storage.on_open = on_database_open;
+  storage.pragma.journal_mode(journal_mode::WAL);
   return storage;
 }
 
