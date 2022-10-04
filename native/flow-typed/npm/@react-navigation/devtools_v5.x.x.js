@@ -870,8 +870,8 @@ declare module '@react-navigation/devtools' {
     +goBack: () => void,
     +isFocused: () => boolean,
     +canGoBack: () => boolean,
-    +dangerouslyGetParent: <Parent: NavigationProp<ParamListBase>>() => ?Parent,
-    +dangerouslyGetState: () => NavigationState,
+    +getParent: <Parent: NavigationProp<ParamListBase>>() => ?Parent,
+    +getState: () => NavigationState,
     +addListener: <EventName: $Keys<
       {| ...EventMap, ...EventMapCore<State> |},
     >>(
