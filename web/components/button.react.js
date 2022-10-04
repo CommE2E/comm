@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import css from './button.css';
 
-export type ButtonVariant = 'filled' | 'outline' | 'round';
+export type ButtonVariant = 'filled' | 'outline' | 'round' | 'text';
 export type ButtonColor = {
   +backgroundColor?: string,
   +color?: string,
@@ -49,12 +49,12 @@ function Button(props: ButtonProps): React.Node {
 
   const btnCls = classnames(css.btn, css[variant]);
 
-  let style;
+  let style = {};
   if (buttonColor) {
     style = buttonColor;
   } else if (variant === 'outline') {
     style = buttonThemes.outline;
-  } else {
+  } else if (variant === 'filled' || variant === 'round') {
     style = buttonThemes.standard;
   }
 

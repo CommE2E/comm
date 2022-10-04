@@ -4,6 +4,7 @@
 
   position: relative;
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
   border: var(--border-width) solid transparent;
@@ -64,8 +65,16 @@
 }
 
 .round {
+  background: var(--settings-btn-bg);
   width: 30px;
   height: 30px;
   border-radius: 50%;
   padding: 0;
+}
+
+.text {
+  background: transparent;
+  white-space: nowrap;
+  padding: 0;
+  border: none;
 }

@@ -12,6 +12,7 @@ import {
 } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
+import Button from '../components/button.react';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { useSelector } from '../redux/redux-utils';
 import css from './chat-message-list.css';
@@ -79,28 +80,23 @@ class FailedSend extends React.PureComponent<Props> {
   }
 
   render() {
-    const threadColor = {
-      color: `#${this.props.threadInfo.color}`,
-    };
     return (
       <div className={css.failedSend}>
-        <span>Delivery failed.</span>
-        <a
-          onClick={this.retrySend}
-          className={{
-            ...css.retrySend,
-            ...threadColor,
+        <span className={css.deliveryFailed}>Delivery failed.</span>
+        <Button
+          variant="text"
+          buttonColor={{
+            color: `#${this.props.threadInfo.color}`,
           }}
+          onClick={this.retrySend}
         >
-          {'Retry?'}
-        </a>
+          <span className={css.retryButtonText}>Retry?</span>
+        </Button>
       </div>
     );
   }
 
-  retrySend = (event: SyntheticEvent<HTMLAnchorElement>) => {
-    event.stopPropagation();
-
+  retrySend = () => {
     const { inputState } = this.props;
     invariant(inputState, 'inputState should be set in FailedSend');
 
