@@ -18,7 +18,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
-import Button from '../components/button.react';
+import Button, { buttonThemes } from '../components/button.react';
 import Input from '../modals/input.react';
 import Modal from '../modals/modal.react';
 import { useSelector } from '../redux/redux-utils';
@@ -89,7 +89,8 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
             />
             <div className={css.form_footer}>
               <Button
-                variant="danger"
+                variant="filled"
+                buttonColor={buttonThemes.danger}
                 type="submit"
                 onClick={this.onDelete}
                 disabled={inputDisabled}

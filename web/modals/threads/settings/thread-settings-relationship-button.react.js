@@ -29,7 +29,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
-import Button from '../../../components/button.react';
+import Button, { buttonThemes } from '../../../components/button.react';
 import { useSelector } from '../../../redux/redux-utils';
 import css from './thread-settings-relationship-tab.css';
 
@@ -51,21 +51,21 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
   const { username } = otherUserInfo;
   invariant(username, 'Other username should be specified');
 
-  let variant = 'primary';
+  let color;
   if (relationshipButton === relationshipButtons.FRIEND) {
-    variant = 'success';
+    color = buttonThemes.success;
   } else if (relationshipButton === relationshipButtons.UNFRIEND) {
-    variant = 'danger';
+    color = buttonThemes.danger;
   } else if (relationshipButton === relationshipButtons.BLOCK) {
-    variant = 'danger';
+    color = buttonThemes.danger;
   } else if (relationshipButton === relationshipButtons.UNBLOCK) {
-    variant = 'success';
+    color = buttonThemes.success;
   } else if (relationshipButton === relationshipButtons.ACCEPT) {
-    variant = 'success';
+    color = buttonThemes.success;
   } else if (relationshipButton === relationshipButtons.REJECT) {
-    variant = 'danger';
+    color = buttonThemes.danger;
   } else if (relationshipButton === relationshipButtons.WITHDRAW) {
-    variant = 'danger';
+    color = buttonThemes.danger;
   }
 
   const { text, action } = React.useMemo(() => {
@@ -127,7 +127,12 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
   }, [dispatchActionPromise, updateRelationshipsActionPromise]);
 
   return (
-    <Button variant={variant} onClick={onClick} disabled={disabled}>
+    <Button
+      variant="filled"
+      buttonColor={color}
+      onClick={onClick}
+      disabled={disabled}
+    >
       <div className={css.relationshipButtonContent}>
         {icon}
         <div className={css.relationshipButtonText}>{text}</div>

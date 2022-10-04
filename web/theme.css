@@ -60,18 +60,11 @@
   --success: var(--success-dark-50);
 
   /* Color Theme */
-  --btn-bg-primary: var(--violet-dark-100);
-  --btn-bg-primary-hover: var(--violet-dark-80);
-  --btn-bg-primary-disabled: var(--shades-black-80);
-  --btn-bg-secondary: var(--shades-black-90);
-  --btn-bg-secondary-hover: var(--shades-black-80);
-  --btn-bg-secondary-disabled: var(--shades-black-90);
+  --btn-bg-filled: var(--violet-dark-100);
+  --btn-bg-outline: var(--shades-black-90);
   --btn-bg-success: var(--success-dark-50);
-  --btn-bg-success-hover: var(--success-dark-90);
-  --btn-bg-success-disabled: var(--shades-black-80);
   --btn-bg-danger: var(--error-primary);
-  --btn-bg-danger-hover: var(--error-dark-50);
-  --btn-bg-danger-disabled: var(--shades-black-80);
+  --btn-bg-disabled: var(--shades-black-80);
   --btn-disabled-color: var(--shades-black-60);
   --chat-bg: var(--violet-dark-80);
   --chat-confirmation-icon: var(--violet-dark-100);
@@ -96,7 +89,7 @@
   --help-color: var(--shades-black-60);
   --breadcrumb-color: var(--shades-white-60);
   --breadcrumb-color-unread: var(--shades-white-60);
-  --btn-secondary-border: var(--shades-black-60);
+  --btn-outline-border: var(--shades-black-60);
   --thread-color-read: var(--shades-black-60);
   --thread-from-color-read: var(--shades-black-80);
   --thread-last-message-color-read: var(--shades-black-60);

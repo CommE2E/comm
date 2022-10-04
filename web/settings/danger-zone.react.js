@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react';
 
-import Button from '../components/button.react.js';
+import Button, { buttonThemes } from '../components/button.react';
 import AccountDeleteModal from './account-delete-modal.react';
 import css from './danger-zone.css';
 
@@ -21,7 +21,8 @@ function DangerZone(): React.Node {
       <h5 className={css.subheading}>Delete Account</h5>
       <Button
         onClick={onDeleteAccountClick}
-        variant="danger"
+        variant="filled"
+        buttonColor={buttonThemes.danger}
         className={css.button}
       >
         Delete Account

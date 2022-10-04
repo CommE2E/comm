@@ -1,18 +1,57 @@
 .btn {
+  --border-width: 1px;
+  --border-radius: 4px;
+
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--settings-btn-bg);
-  border: 1px solid transparent;
+  border: var(--border-width) solid transparent;
   font-size: var(--m-font-16);
   padding: 12px 24px;
-  border-radius: 4px;
+  color: var(--fg);
+  border-radius: var(--border-radius);
   cursor: pointer;
 }
 
-.btn:hover {
+.btn.outline {
+  border: var(--border-width) solid var(--btn-outline-border);
+}
+
+.btn > * {
+  position: relative;
+}
+
+.btn::before {
+  content: '';
+  border: inherit;
+  border-radius: inherit;
+  background: inherit;
+  position: absolute;
+  top: calc(-1 * var(--border-width));
+  left: calc(-1 * var(--border-width));
+  width: 100%;
+  height: 100%;
+}
+
+.btn.outline::before {
+  top: 0;
+  left: 0;
+  border: none;
+  border-radius: calc(var(--border-radius) - var(--border-width));
+}
+
+.btn:hover::before {
   transition-duration: 200ms;
-  transition-property: background, color;
+  transition-property: filter;
+}
+
+.btn:hover:not(:disabled)::before {
+  filter: brightness(0.8);
+}
+
+.btn.outline:hover:not(:disabled)::before {
+  filter: brightness(2);
 }
 
 .btn:disabled {
@@ -20,57 +59,8 @@
   color: var(--btn-disabled-color);
 }
 
-.primary {
-  background: var(--btn-bg-primary);
-  color: var(--fg);
-}
-
-.primary:hover {
-  background: var(--btn-bg-primary-hover);
-}
-
-.primary:disabled {
-  background: var(--btn-bg-primary-disabled);
-}
-
-.secondary {
-  background: var(--btn-bg-secondary);
-  color: var(--fg);
-  border-color: var(--btn-secondary-border);
-}
-
-.secondary:hover {
-  background: var(--btn-bg-secondary-hover);
-}
-
-.secondary:disabled {
-  background: var(--btn-bg-secondary-disabled);
-}
-
-.success {
-  background: var(--btn-bg-success);
-  color: var(--fg);
-}
-
-.success:hover {
-  background: var(--btn-bg-success-hover);
-}
-
-.success:disabled {
-  background: var(--btn-bg-success-disabled);
-}
-
-.danger {
-  background: var(--btn-bg-danger);
-  color: var(--fg);
-}
-
-.danger:hover {
-  background: var(--btn-bg-danger-hover);
-}
-
-.danger:disabled {
-  background: var(--btn-bg-danger-disabled);
+.btn:not(.outline):disabled::before {
+  background-color: var(--btn-bg-disabled);
 }
 
 .round {

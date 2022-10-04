@@ -23,7 +23,7 @@
 .button {
   font-size: var(--s-font-14);
   line-height: var(--line-height-text);
-  color: var(--btn-bg-primary);
+  color: var(--btn-bg-filled);
   cursor: pointer;
   background: none;
   border: none;

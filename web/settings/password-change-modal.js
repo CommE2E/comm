@@ -113,7 +113,7 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
             <div className={css['form-footer']}>
               <Button
                 type="submit"
-                variant="primary"
+                variant="filled"
                 onClick={this.onSubmit}
                 disabled={inputDisabled}
               >

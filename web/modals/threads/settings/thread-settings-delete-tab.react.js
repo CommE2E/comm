@@ -14,6 +14,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
+import { buttonThemes } from '../../../components/button.react';
 import SWMansionIcon from '../../../SWMansionIcon.react';
 import Input from '../../input.react';
 import SubmitSection from './submit-section.react';
@@ -118,7 +119,8 @@ function ThreadSettingsDeleteTab(
       <SubmitSection
         errorMessage={errorMessage}
         onClick={onDelete}
-        variant="danger"
+        variant="filled"
+        buttonColor={buttonThemes.danger}
         disabled={
           threadSettingsOperationInProgress || accountPassword.length === 0
         }
