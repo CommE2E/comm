@@ -38,7 +38,7 @@ class ComposeThreadButton extends React.PureComponent<Props> {
 
   onPress = () => {
     if (this.props.viewerID) {
-      this.props.navigate({
+      this.props.navigate<'MessageList'>({
         name: MessageListRouteName,
         params: {
           threadInfo: createPendingThread({

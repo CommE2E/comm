@@ -181,7 +181,7 @@ class ThreadSettingsMember extends React.PureComponent<Props> {
 
     editButton.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
-      this.props.navigate({
+      this.props.navigate<'ThreadSettingsMemberTooltipModal'>({
         name: ThreadSettingsMemberTooltipModalRouteName,
         params: {
           presentedFrom: this.props.threadSettingsRouteKey,

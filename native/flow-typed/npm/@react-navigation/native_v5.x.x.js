@@ -450,6 +450,12 @@ declare module '@react-navigation/native' {
 
   declare type $Partial<T> = $ReadOnly<$Rest<T, {...}>>;
 
+  // If { ...T, ... } counts as a T, then we're inexact
+  declare type $IsExact<T> = $Call<
+    (T => false) & (mixed => true),
+    { ...T, ... },
+  >;
+
   /**
    * Actions, state, etc.
    */
@@ -808,25 +814,45 @@ declare module '@react-navigation/native' {
    * Navigation prop
    */
 
+  declare type PartialWithMergeProperty<ParamsType> = $If<
+    $IsExact<ParamsType>,
+    { ...$Partial<ParamsType>, +merge: true },
+    { ...$Partial<ParamsType>, +merge: true, ... },
+  >;
+
+  declare type EitherExactOrPartialWithMergeProperty<ParamsType> =
+    | ParamsType
+    | PartialWithMergeProperty<ParamsType>;
+
   declare export type SimpleNavigate<ParamList> =
     <DestinationRouteName: $Keys<ParamList>>(
       routeName: DestinationRouteName,
-      params: $ElementType<ParamList, DestinationRouteName>,
+      params: EitherExactOrPartialWithMergeProperty<
+        $ElementType<ParamList, DestinationRouteName>,
+      >,
     ) => void;
 
   declare export type Navigate<ParamList> =
     & SimpleNavigate<ParamList>
     & <DestinationRouteName: $Keys<ParamList>>(
-        route:
+        route: $If<
+          $IsUndefined<$ElementType<ParamList, DestinationRouteName>>,
+          | {| +key: string |} |
+            {| +name: DestinationRouteName, +key?: string |},
           | {|
               +key: string,
-              +params?: $ElementType<ParamList, DestinationRouteName>,
-            |}
-          | {|
+              +params?: EitherExactOrPartialWithMergeProperty<
+                $ElementType<ParamList, DestinationRouteName>,
+              >,
+            |} |
+            {|
               +name: DestinationRouteName,
               +key?: string,
-              +params?: $ElementType<ParamList, DestinationRouteName>,
+              +params?: EitherExactOrPartialWithMergeProperty<
+                $ElementType<ParamList, DestinationRouteName>,
+              >,
             |},
+        >,
       ) => void;
 
   declare type NavigationHelpers<
@@ -861,6 +887,15 @@ declare module '@react-navigation/native' {
     ...
   };
 
+  declare type SetParamsInput<
+    ParamList: ParamListBase,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+  > = $If<
+    $IsUndefined<$ElementType<ParamList, RouteName>>,
+    empty,
+    $Partial<$NonMaybeType<$ElementType<ParamList, RouteName>>>,
+  >;
+
   declare export type NavigationProp<
     ParamList: ParamListBase,
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
@@ -874,13 +909,7 @@ declare module '@react-navigation/native' {
       EventMap,
     >>,
     +setOptions: (options: $Partial<ScreenOptions>) => void,
-    +setParams: (
-      params: $If<
-        $IsUndefined<$ElementType<ParamList, RouteName>>,
-        empty,
-        $Partial<$NonMaybeType<$ElementType<ParamList, RouteName>>>,
-      >,
-    ) => void,
+    +setParams: (params: SetParamsInput<ParamList, RouteName>) => void,
     ...
   };
 

@@ -65,7 +65,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
 
   onPress = () => {
     const threadInfo = this.props.threadInfo;
-    this.props.navigate({
+    this.props.navigate<'ThreadSettings'>({
       name: ThreadSettingsRouteName,
       params: { threadInfo },
       key: `${ThreadSettingsRouteName}${threadInfo.id}`,

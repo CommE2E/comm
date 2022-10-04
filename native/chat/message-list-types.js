@@ -64,7 +64,7 @@ function useNavigateToThread(): (params: MessageListParams) => void {
   const { navigate } = useNavigation();
   return React.useCallback(
     (params: MessageListParams) => {
-      navigate(createNavigateToThreadAction(params));
+      navigate<'MessageList'>(createNavigateToThreadAction(params));
     },
     [navigate],
   );

@@ -64,7 +64,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
     initialCoordinates: LayoutCoordinates,
   ) => {
     const { navigation, item, route, verticalBounds } = this.props;
-    navigation.navigate({
+    navigation.navigate<'VideoPlaybackModal' | 'ImageModal'>({
       name:
         mediaInfo.type === 'video'
           ? VideoPlaybackModalRouteName
@@ -152,7 +152,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         margin = aboveMargin;
       }
 
-      this.props.navigation.navigate({
+      this.props.navigation.navigate<'MultimediaMessageTooltipModal'>({
         name: MultimediaMessageTooltipModalRouteName,
         params: {
           presentedFrom: this.props.route.key,
