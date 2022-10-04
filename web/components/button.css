@@ -1,12 +1,12 @@
 .btn {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  background: var(--settings-btn-bg);
-  border: 1px solid transparent;
+  border: none;
+  border-radius: 4px;
   font-size: var(--m-font-16);
   padding: 12px 24px;
-  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -37,6 +37,7 @@
   background: var(--btn-bg-outline);
   color: var(--fg);
   border-color: var(--btn-outline-border);
+  border: 1px solid var(--btn-secondary-border);
 }
 
 .outline:hover {
@@ -74,8 +75,15 @@
 }
 
 .round {
+  background: var(--settings-btn-bg);
   width: 30px;
   height: 30px;
   border-radius: 50%;
+  padding: 0;
+}
+
+.text {
+  background: transparent;
+  white-space: nowrap;
   padding: 0;
 }

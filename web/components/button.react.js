@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import css from './button.css';
 
-export type ButtonVariant = 'filled' | 'outline' | 'round';
+export type ButtonVariant = 'filled' | 'outline' | 'round' | 'text';
 export type ButtonColor =
   | 'success'
   | 'danger'

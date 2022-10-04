@@ -47,18 +47,20 @@ ul.searchResultsContainer {
   flex-direction: column;
   overflow: auto;
   padding: 0 12px 8px;
+  list-style-type: none;
 }
 
-li.searchResultsItem {
+.searchResultsItem {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  cursor: pointer;
 }
 
-li.searchResultsItem:hover {
+.searchResultsButton {
+  justify-content: space-between;
+  flex: 1;
+  padding: 8px 12px;
+}
+
+.searchResultsButton:hover {
   background-color: var(--thread-creation-search-item-bg-hover);
 }
 

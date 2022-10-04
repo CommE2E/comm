@@ -9,6 +9,7 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils';
 
+import Button from '../components/button.react';
 import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -62,9 +63,9 @@ function AccountSettings(): React.Node {
               <span className={css.logoutLabel}>{'Logged in as '}</span>
               <span className={css.username}>{username}</span>
             </p>
-            <button className={css.button} onClick={logOutUser}>
-              Log out
-            </button>
+            <Button variant="text" onClick={logOutUser}>
+              <p className={css.buttonText}>Log out</p>
+            </Button>
           </li>
           <li>
             <span>Password</span>
@@ -80,15 +81,15 @@ function AccountSettings(): React.Node {
           </li>
           <li>
             <span>Friend List</span>
-            <button className={css.button} onClick={openFriendList}>
-              See List
-            </button>
+            <Button variant="text" onClick={openFriendList}>
+              <p className={css.buttonText}>See List</p>
+            </Button>
           </li>
           <li>
             <span>Block List</span>
-            <button className={css.button} onClick={openBlockList}>
-              See List
-            </button>
+            <Button variant="text" onClick={openBlockList}>
+              <p className={css.buttonText}>See List</p>
+            </Button>
           </li>
         </ul>
       </div>

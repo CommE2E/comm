@@ -41,14 +41,9 @@
   color: var(--fg);
 }
 
-.button {
+.buttonText {
   color: var(--account-button-color);
-  background-color: transparent;
-  font-size: var(--m-font-16);
-  border: none;
-  cursor: pointer;
   line-height: var(--line-height-text);
-  white-space: nowrap;
 }
 
 .passwordContainer {

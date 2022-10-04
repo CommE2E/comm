@@ -141,7 +141,6 @@ div.fixedWidthMessageBox {
 }
 
 div.failedSend {
-  text-transform: uppercase;
   display: flex;
   justify-content: flex-end;
   flex-shrink: 0;
@@ -153,9 +152,8 @@ span.deliveryFailed {
   padding: 0 3px;
   color: #555555;
 }
-a.retrySend {
-  padding: 0 3px;
-  cursor: pointer;
+.retryButtonText {
+  font-size: var(--m-font-14);
 }
 
 div.messageBox > div.imageGrid {
