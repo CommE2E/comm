@@ -1,16 +1,21 @@
 // @flow
 
-import classnames from 'classnames';
 import * as React from 'react';
 
 import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 
+import Button from '../../components/button.react';
 import MenuItem from '../../components/menu-item.react';
 import Menu from '../../components/menu.react';
 import SWMansionIcon from '../../SWMansionIcon.react';
 import css from './user-list-row.css';
 import type { UserRowProps } from './user-list.react';
+
+const dangerButtonColor = {
+  backgroundColor: 'transparent',
+  color: 'var(--btn-bg-danger)',
+};
 
 function FriendListRow(props: UserRowProps): React.Node {
   const { userInfo, onMenuVisibilityChange } = props;
@@ -19,12 +24,14 @@ function FriendListRow(props: UserRowProps): React.Node {
   const buttons = React.useMemo(() => {
     if (userInfo.relationshipStatus === userRelationshipStatus.REQUEST_SENT) {
       return (
-        <button
-          className={classnames([css.button, css.destructive])}
+        <Button
+          variant="text"
+          className={css.button}
+          buttonColor={dangerButtonColor}
           onClick={unfriendUser}
         >
           Cancel request
-        </button>
+        </Button>
       );
     }
     if (
@@ -32,15 +39,17 @@ function FriendListRow(props: UserRowProps): React.Node {
     ) {
       return (
         <>
-          <button className={css.button} onClick={friendUser}>
+          <Button variant="text" className={css.button} onClick={friendUser}>
             Accept
-          </button>
-          <button
-            className={classnames([css.button, css.destructive])}
+          </Button>
+          <Button
+            variant="text"
+            className={css.button}
+            buttonColor={dangerButtonColor}
             onClick={unfriendUser}
           >
             Reject
-          </button>
+          </Button>
         </>
       );
     }

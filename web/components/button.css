@@ -1,8 +1,9 @@
 .btn {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
+  border: none;
   font-size: var(--m-font-16);
   padding: 12px 24px;
   background: var(--background-color);
@@ -28,8 +29,19 @@
 }
 
 .round {
+  background: var(--settings-btn-bg);
   width: 30px;
   height: 30px;
   border-radius: 50%;
   padding: 0;
+}
+
+.text {
+  background: transparent;
+  white-space: nowrap;
+  padding: 0;
+}
+
+.text:hover{
+  background: transparent;
 }

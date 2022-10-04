@@ -141,21 +141,23 @@ div.fixedWidthMessageBox {
 }
 
 div.failedSend {
-  text-transform: uppercase;
   display: flex;
   justify-content: flex-end;
   flex-shrink: 0;
-  font-size: 14px;
   margin-right: 30px;
   padding-bottom: 6px;
 }
-span.deliveryFailed {
+
+.deliveryFailed {
+  text-transform: uppercase;
+  font-size: 14px;
   padding: 0 3px;
-  color: #555555;
+  color: var(--fg);
 }
-a.retrySend {
-  padding: 0 3px;
-  cursor: pointer;
+
+.retryButtonText {
+  text-transform: uppercase;
+  font-size: 14px;
 }
 
 div.messageBox > div.imageGrid {

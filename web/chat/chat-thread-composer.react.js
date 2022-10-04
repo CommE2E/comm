@@ -8,6 +8,7 @@ import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
+import Button from '../components/button.react';
 import Label from '../components/label.react';
 import Search from '../components/search.react';
 import type { InputState } from '../input/input-state';
@@ -92,13 +93,15 @@ function ChatThreadComposer(props: Props): React.Node {
     return (
       <ul className={css.searchResultsContainer}>
         {userListItems.map((userSearchResult: UserListItem) => (
-          <li
-            className={css.searchResultsItem}
-            key={userSearchResult.id}
-            onClick={() => onSelectUserFromSearch(userSearchResult.id)}
-          >
-            <div className={css.userName}>{userSearchResult.username}</div>
-            <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
+          <li key={userSearchResult.id} className={css.searchResultsItem}>
+            <Button
+              variant="text"
+              onClick={() => onSelectUserFromSearch(userSearchResult.id)}
+              className={css.searchResultsButton}
+            >
+              <div className={css.userName}>{userSearchResult.username}</div>
+              <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
+            </Button>
           </li>
         ))}
       </ul>

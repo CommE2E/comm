@@ -24,14 +24,6 @@
   font-size: var(--s-font-14);
   line-height: var(--line-height-text);
   color: var(--btn-bg-filled);
-  cursor: pointer;
-  background: none;
-  border: none;
-  white-space: nowrap;
-}
-
-.destructive {
-  color: var(--btn-bg-danger);
 }
 
 .edit_menu {
