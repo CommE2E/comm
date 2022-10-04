@@ -37,28 +37,8 @@ div.joinButtonContainer {
   width: 100%;
   justify-content: center;
 }
-button.joinButton {
-  display: flex;
-  align-items: center;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 4px;
-  color: var(--fg);
-  font-size: var(--m-font-16);
-  font-weight: var(--semi-bold);
-  cursor: pointer;
-}
-
-button.joinButton {
-  display: flex;
-  border-radius: 4px;
-  justify-content: center;
-  cursor: pointer;
-}
 p.joinButtonText {
-  font-size: var(--m-font-16);
   font-weight: var(--semi-bold);
-  color: var(--fg);
   padding-left: 8px;
 }
 span.explanation {
