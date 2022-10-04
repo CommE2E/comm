@@ -3,8 +3,15 @@ div.container {
   flex-direction: column;
   color: var(--fg);
   margin: 24px 32px;
-  row-gap: 40px;
+  row-gap: 20px;
   min-width: 343px;
+  width: min-content;
+}
+
+p.notice {
+  text-align: center;
+  font-size: var(--xs-font-12);
+  color: var(--notification-settings-option-color);
 }
 
 div.optionsContainer {
