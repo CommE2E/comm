@@ -113,7 +113,7 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   visibleEntryIDs() {
-    const result = ['copy', 'report'];
+    const result = ['copy'];
 
     if (this.canReply()) {
       result.push('reply');
@@ -123,6 +123,10 @@ class TextMessage extends React.PureComponent<Props> {
       result.push('open_sidebar');
     } else if (this.props.canCreateSidebarFromMessage) {
       result.push('create_sidebar');
+    }
+
+    if (!this.props.item.messageInfo.creator.isViewer) {
+      result.push('report');
     }
 
     return result;
