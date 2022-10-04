@@ -9,6 +9,7 @@ import {
   userRelationshipStatus,
 } from 'lib/types/relationship-types.js';
 
+import { buttonThemes } from '../../components/button.react';
 import AddUsersListModal from './add-users-list-modal.react.js';
 
 const excludedStatuses = new Set([
@@ -36,7 +37,7 @@ function BlockUsersModal(props: Props): React.Node {
       name="Block Users"
       excludedStatuses={excludedStatuses}
       confirmButtonContent={buttonContent}
-      confirmButtonVariant="danger"
+      confirmButtonColor={buttonThemes.danger}
       relationshipAction={relationshipActions.BLOCK}
     />
   );

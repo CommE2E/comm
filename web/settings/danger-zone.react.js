@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import Button from '../components/button.react.js';
+import Button, { buttonThemes } from '../components/button.react';
 import { useModalContext } from '../modals/modal-provider.react.js';
 import AccountDeleteModal from './account-delete-modal.react';
 import css from './danger-zone.css';
@@ -20,7 +20,8 @@ function DangerZone(): React.Node {
       <h5 className={css.subheading}>Delete Account</h5>
       <Button
         onClick={onDeleteAccountClick}
-        variant="danger"
+        variant="filled"
+        buttonColor={buttonThemes.danger}
         className={css.button}
       >
         Delete Account

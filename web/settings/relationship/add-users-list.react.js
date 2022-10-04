@@ -20,7 +20,7 @@ import {
 } from 'lib/utils/action-utils.js';
 
 import Button from '../../components/button.react.js';
-import type { ButtonVariant } from '../../components/button.react.js';
+import type { ButtonColor } from '../../components/button.react.js';
 import Label from '../../components/label.react.js';
 import LoadingIndicator from '../../loading-indicator.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
@@ -36,7 +36,7 @@ type Props = {
   +excludedStatuses?: $ReadOnlySet<UserRelationshipStatus>,
   +closeModal: () => void,
   +confirmButtonContent: React.Node,
-  +confirmButtonVariant: ButtonVariant,
+  +confirmButtonColor?: ButtonColor,
   +relationshipAction: RelationshipAction,
 };
 
@@ -46,7 +46,7 @@ function AddUsersList(props: Props): React.Node {
     excludedStatuses = new Set(),
     closeModal,
     confirmButtonContent,
-    confirmButtonVariant,
+    confirmButtonColor,
     relationshipAction,
   } = props;
 
@@ -232,13 +232,14 @@ function AddUsersList(props: Props): React.Node {
       <div className={css.userRowsContainer}>{userRows}</div>
       {errors}
       <div className={css.buttons}>
-        <Button variant="secondary" onClick={closeModal}>
+        <Button variant="outline" onClick={closeModal}>
           Cancel
         </Button>
         <Button
           onClick={confirmSelection}
           disabled={pendingUserIDs.size === 0 || loadingStatus === 'loading'}
-          variant={confirmButtonVariant}
+          variant="filled"
+          buttonColor={confirmButtonColor}
         >
           <div className={css.confirmButtonContainer}>{buttonContent}</div>
         </Button>

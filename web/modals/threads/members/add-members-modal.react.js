@@ -147,12 +147,12 @@ function AddMembersModalContent(props: ContentProps): React.Node {
         />
       </div>
       <div className={css.addMembersFooter}>
-        <Button onClick={onClose} variant="secondary">
+        <Button onClick={onClose} variant="outline">
           Cancel
         </Button>
         <Button
           disabled={!pendingUsersToAdd.size}
-          variant="primary"
+          variant="filled"
           onClick={addUsers}
         >
           Add selected members

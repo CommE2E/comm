@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { type ThreadInfo } from 'lib/types/thread-types';
 
-import Button from '../../components/button.react';
+import Button, { buttonThemes } from '../../components/button.react';
 import Modal from '../modal.react';
 import css from './confirm-leave-thread-modal.css';
 
@@ -32,10 +32,15 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
           {'"?'}
         </p>
         <div className={css.buttonContainer}>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={onConfirm} type="submit">
+          <Button
+            variant="filled"
+            buttonColor={buttonThemes.danger}
+            onClick={onConfirm}
+            type="submit"
+          >
             Yes, leave chat
           </Button>
         </div>

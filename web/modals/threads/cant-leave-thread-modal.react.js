@@ -20,7 +20,7 @@ function CantLeaveThreadModal(props: Props): React.Node {
         <Button
           onClick={props.onClose}
           type="submit"
-          variant="primary"
+          variant="filled"
           className={css.ok_button}
         >
           OK

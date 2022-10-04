@@ -2,10 +2,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--settings-btn-bg);
   border: 1px solid transparent;
   font-size: var(--m-font-16);
   padding: 12px 24px;
+  background: var(--background-color);
+  color: var(--fg);
   border-radius: 4px;
   cursor: pointer;
 }
@@ -13,64 +14,17 @@
 .btn:hover {
   transition-duration: 200ms;
   transition-property: background, color;
+  background-color: var(--hover-background-color);
 }
 
 .btn:disabled {
   cursor: not-allowed;
   color: var(--btn-disabled-color);
+  background: var(--disabled-background-color);
 }
 
-.primary {
-  background: var(--btn-bg-primary);
-  color: var(--fg);
-}
-
-.primary:hover {
-  background: var(--btn-bg-primary-hover);
-}
-
-.primary:disabled {
-  background: var(--btn-bg-primary-disabled);
-}
-
-.secondary {
-  background: var(--btn-bg-secondary);
-  color: var(--fg);
-  border-color: var(--btn-secondary-border);
-}
-
-.secondary:hover {
-  background: var(--btn-bg-secondary-hover);
-}
-
-.secondary:disabled {
-  background: var(--btn-bg-secondary-disabled);
-}
-
-.success {
-  background: var(--btn-bg-success);
-  color: var(--fg);
-}
-
-.success:hover {
-  background: var(--btn-bg-success-hover);
-}
-
-.success:disabled {
-  background: var(--btn-bg-success-disabled);
-}
-
-.danger {
-  background: var(--btn-bg-danger);
-  color: var(--fg);
-}
-
-.danger:hover {
-  background: var(--btn-bg-danger-hover);
-}
-
-.danger:disabled {
-  background: var(--btn-bg-danger-disabled);
+.outline {
+  border: 1px solid var(--btn-outline-border);
 }
 
 .round {
