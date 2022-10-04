@@ -32,10 +32,15 @@ function ConfirmLeaveThreadModal(props: Props): React.Node {
           {'"?'}
         </p>
         <div className={css.buttonContainer}>
-          <Button variant="secondary" onClick={onClose}>
+          <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={onConfirm} type="submit">
+          <Button
+            variant="filled"
+            buttonColor="danger"
+            onClick={onConfirm}
+            type="submit"
+          >
             Yes, leave chat
           </Button>
         </div>

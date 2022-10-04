@@ -7,7 +7,7 @@ import type {
   RelationshipAction,
 } from 'lib/types/relationship-types.js';
 
-import type { ButtonVariant } from '../../components/button.react.js';
+import type { ButtonColor } from '../../components/button.react.js';
 import SearchModal from '../../modals/search-modal.react';
 import AddUsersList from './add-users-list.react.js';
 
@@ -16,7 +16,7 @@ type Props = {
   +name: string,
   +excludedStatuses: $ReadOnlySet<UserRelationshipStatus>,
   +confirmButtonContent: React.Node,
-  +confirmButtonVariant?: ButtonVariant,
+  +confirmButtonColor?: ButtonColor,
   +relationshipAction: RelationshipAction,
 };
 
@@ -26,7 +26,7 @@ function AddUsersListModal(props: Props): React.Node {
     name,
     excludedStatuses,
     confirmButtonContent,
-    confirmButtonVariant = 'primary',
+    confirmButtonColor,
     relationshipAction,
   } = props;
 
@@ -36,7 +36,7 @@ function AddUsersListModal(props: Props): React.Node {
         searchText={searchText}
         excludedStatuses={excludedStatuses}
         confirmButtonContent={confirmButtonContent}
-        confirmButtonVariant={confirmButtonVariant}
+        confirmButtonColor={confirmButtonColor}
         relationshipAction={relationshipAction}
         closeModal={closeModal}
       />
@@ -44,7 +44,7 @@ function AddUsersListModal(props: Props): React.Node {
     [
       excludedStatuses,
       confirmButtonContent,
-      confirmButtonVariant,
+      confirmButtonColor,
       relationshipAction,
       closeModal,
     ],

@@ -20,7 +20,8 @@ function DangerZone(): React.Node {
       <h5 className={css.subheading}>Delete Account</h5>
       <Button
         onClick={onDeleteAccountClick}
-        variant="danger"
+        variant="filled"
+        buttonColor="danger"
         className={css.button}
       >
         Delete Account

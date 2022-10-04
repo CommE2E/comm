@@ -20,31 +20,31 @@
   color: var(--btn-disabled-color);
 }
 
-.primary {
-  background: var(--btn-bg-primary);
+.filled {
+  background: var(--btn-bg-filled);
   color: var(--fg);
 }
 
-.primary:hover {
-  background: var(--btn-bg-primary-hover);
+.filled:hover {
+  background: var(--btn-bg-filled-hover);
 }
 
-.primary:disabled {
-  background: var(--btn-bg-primary-disabled);
+.filled:disabled {
+  background: var(--btn-bg-filled-disabled);
 }
 
-.secondary {
-  background: var(--btn-bg-secondary);
+.outline {
+  background: var(--btn-bg-outline);
   color: var(--fg);
-  border-color: var(--btn-secondary-border);
+  border-color: var(--btn-outline-border);
 }
 
-.secondary:hover {
-  background: var(--btn-bg-secondary-hover);
+.outline:hover {
+  background: var(--btn-bg-outline-hover);
 }
 
-.secondary:disabled {
-  background: var(--btn-bg-secondary-disabled);
+.outline:disabled {
+  background: var(--btn-bg-outline-disabled);
 }
 
 .success {

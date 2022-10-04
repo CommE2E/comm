@@ -22,7 +22,7 @@ function Alert(props: AlertProps): React.Node {
         <Button
           onClick={popModal}
           type="submit"
-          variant="primary"
+          variant="filled"
           className={css.ok_button}
         >
           OK

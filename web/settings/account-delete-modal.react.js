@@ -89,7 +89,8 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
             />
             <div className={css.form_footer}>
               <Button
-                variant="danger"
+                variant="filled"
+                buttonColor="danger"
                 type="submit"
                 onClick={this.onDelete}
                 disabled={inputDisabled}

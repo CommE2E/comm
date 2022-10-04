@@ -37,7 +37,7 @@ function ActionButton(props: ActionButtonProps) {
   return (
     <Button
       className={css.button}
-      variant={type === 'prev' ? 'secondary' : 'primary'}
+      variant={type === 'prev' ? 'outline' : 'filled'}
       disabled={disabled || loading}
       onClick={onClick}
     >

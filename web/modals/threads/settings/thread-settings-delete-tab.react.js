@@ -118,7 +118,8 @@ function ThreadSettingsDeleteTab(
       <SubmitSection
         errorMessage={errorMessage}
         onClick={onDelete}
-        variant="danger"
+        variant="filled"
+        buttonColor="danger"
         disabled={
           threadSettingsOperationInProgress || accountPassword.length === 0
         }

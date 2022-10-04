@@ -34,10 +34,15 @@ function SidebarPromoteModal(props: Props): React.Node {
         <p>{`Are you sure you want to promote "${uiName}"?`}</p>
         <p>Promoting a thread to a channel cannot be undone.</p>
         <div className={css.buttonContainer}>
-          <Button onClick={onClose} type="submit" variant="secondary">
+          <Button onClick={onClose} type="submit" variant="outline">
             Cancel
           </Button>
-          <Button onClick={handleConfirm} type="submit" variant="danger">
+          <Button
+            onClick={handleConfirm}
+            type="submit"
+            variant="filled"
+            buttonColor="danger"
+          >
             Promote to channel
           </Button>
         </div>

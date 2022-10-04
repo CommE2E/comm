@@ -5,17 +5,20 @@ import * as React from 'react';
 
 import css from './button.css';
 
-export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
+export type ButtonVariant = 'filled' | 'outline' | 'round';
+export type ButtonColor =
   | 'success'
   | 'danger'
-  | 'round';
+  | {
+      +backgroundColor: string,
+      +color?: string,
+    };
 
 export type ButtonProps = {
   +onClick: (event: SyntheticEvent<HTMLButtonElement>) => mixed,
   +children: React.Node,
   +variant?: ButtonVariant,
+  +buttonColor?: ButtonColor,
   +type?: string,
   +disabled?: boolean,
   +className?: string,
@@ -25,12 +28,18 @@ function Button(props: ButtonProps): React.Node {
   const {
     onClick,
     children,
-    variant = 'primary',
+    variant = 'filled',
+    buttonColor,
     type,
     disabled = false,
     className = '',
   } = props;
-  const btnCls = classnames(css.btn, css[variant]);
+
+  const btnCls = classnames(
+    css.btn,
+    css[variant],
+    typeof buttonColor === 'string' ? css[buttonColor] : null,
+  );
 
   return (
     <button
@@ -38,6 +47,7 @@ function Button(props: ButtonProps): React.Node {
       className={`${btnCls} ${className}`}
       onClick={onClick}
       disabled={disabled}
+      style={typeof buttonColor !== 'string' ? buttonColor : null}
     >
       {children}
     </button>

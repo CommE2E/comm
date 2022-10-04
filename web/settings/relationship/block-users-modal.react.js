@@ -36,7 +36,7 @@ function BlockUsersModal(props: Props): React.Node {
       name="Block Users"
       excludedStatuses={excludedStatuses}
       confirmButtonContent={buttonContent}
-      confirmButtonVariant="danger"
+      confirmButtonColor="danger"
       relationshipAction={relationshipActions.BLOCK}
     />
   );
