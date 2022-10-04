@@ -56,6 +56,35 @@ function Team(): React.Node {
             twitterHandle="GeekMaks"
             imageURL={`${assetsCacheURLPrefix}/max.jpeg`}
           />
+          <TeamProfile
+            name="Jon Ringer"
+            role="Software Engineer"
+            githubHandle="jonringer"
+            imageURL={`${assetsCacheURLPrefix}/jon.jpg`}
+          />
+          <TeamProfile
+            name="Abosh Upadhyaya"
+            role="Software Engineer"
+            githubHandle="yayabosh"
+            imageURL={`${assetsCacheURLPrefix}/abosh.jpg`}
+          />
+          <TeamProfile
+            name="Mark Rafferty"
+            role="Recruiter"
+            imageURL={`${assetsCacheURLPrefix}/mark.jpg`}
+          />
+          <TeamProfile
+            name="Anunay Kulshrestha"
+            role="Research Scientist"
+            imageURL={`${assetsCacheURLPrefix}/anunay.jpg`}
+          />
+          <TeamProfile
+            name="Ginsu Eddy"
+            role="Software Engineer"
+            githubHandle="ginsueddy"
+            twitterHandle="ginsueddy"
+            imageURL={`${assetsCacheURLPrefix}/ginsu.jpg`}
+          />
         </div>
       </section>
 
@@ -72,6 +101,31 @@ function Team(): React.Node {
           role="Software Engineer"
           githubHandle="marcinwasowicz"
           imageURL={`${assetsCacheURLPrefix}/marcin.jpeg`}
+        />
+        <TeamProfile
+          name="Inka Sokolowska"
+          role="Software Engineer"
+          githubHandle="InkaAlicja"
+          imageURL={`${assetsCacheURLPrefix}/inka.jpg`}
+        />
+        <TeamProfile
+          name="Kamil Kurowski"
+          role="Software Engineer"
+          githubHandle="xsanm"
+          imageURL={`${assetsCacheURLPrefix}/kamil.jpg`}
+        />
+        <TeamProfile
+          name="Michał Gniadek"
+          role="Software Engineer"
+          githubHandle="MichalGniadek"
+          imageURL={`${assetsCacheURLPrefix}/michał.jpg`}
+        />
+        <TeamProfile
+          name="Bartłomiej Klocek"
+          role="Software Engineer"
+          githubHandle="barthap"
+          twitterHandle="barthap10"
+          imageURL={`${assetsCacheURLPrefix}/bartłomiej.jpg`}
         />
       </section>
     </div>
