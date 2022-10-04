@@ -605,6 +605,11 @@ void SQLiteQueryExecutor::migrate() const {
 
     Logger::log("Creating new database, syncing structure with ORM storage.");
 
+    auto write_ahead_enabled = enable_write_ahead_logging_mode(db);
+    if (!write_ahead_enabled) {
+      throw std::runtime_error("Error enabling write-ahead logging mode");
+    }
+
     auto latest_version = migrations.back().first;
 
     std::stringstream update_version;
