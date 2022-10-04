@@ -1084,9 +1084,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
 
     const { navigation } = props;
     React.useEffect(() => {
-      const tabNavigation: ?TabNavigationProp<
-        'Chat',
-      > = navigation.dangerouslyGetParent();
+      const tabNavigation: ?TabNavigationProp<'Chat'> = navigation.getParent();
       invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
 
       const onTabPress = () => {

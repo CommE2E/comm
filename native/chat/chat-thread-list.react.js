@@ -157,11 +157,11 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
     const chatNavigation: ?ChatNavigationProp<
       'ChatThreadList',
-    > = this.props.navigation.dangerouslyGetParent();
+    > = this.props.navigation.getParent();
     invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
     const tabNavigation: ?TabNavigationProp<
       'Chat',
-    > = chatNavigation.dangerouslyGetParent();
+    > = chatNavigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.addListener('tabPress', this.onTabPress);
 
@@ -173,11 +173,11 @@ class ChatThreadList extends React.PureComponent<Props, State> {
 
     const chatNavigation: ?ChatNavigationProp<
       'ChatThreadList',
-    > = this.props.navigation.dangerouslyGetParent();
+    > = this.props.navigation.getParent();
     invariant(chatNavigation, 'ChatNavigator should be within TabNavigator');
     const tabNavigation: ?TabNavigationProp<
       'Chat',
-    > = chatNavigation.dangerouslyGetParent();
+    > = chatNavigation.getParent();
     invariant(tabNavigation, 'ChatNavigator should be within TabNavigator');
     tabNavigation.removeListener('tabPress', this.onTabPress);
 
