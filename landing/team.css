@@ -1,6 +1,7 @@
 .wrapper {
   padding: 16px 0;
   margin: 0 auto 48px auto;
+  max-width: 1200px;
 }
 
 .header {
@@ -32,7 +33,7 @@
   transition: 300ms;
   display: flex;
   flex-wrap: wrap;
-  row-gap: 16px;
+  row-gap: 32px;
   justify-content: center;
   min-width: 320px;
   margin: 0 auto;
