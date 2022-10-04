@@ -179,7 +179,7 @@ class TextMessage extends React.PureComponent<Props> {
         margin = aboveMargin;
       }
 
-      this.props.navigation.navigate({
+      this.props.navigation.navigate<'TextMessageTooltipModal'>({
         name: TextMessageTooltipModalRouteName,
         params: {
           presentedFrom: this.props.route.key,

@@ -115,7 +115,7 @@ function RobotextMessage(props: Props): React.Node {
         margin = aboveMargin;
       }
 
-      props.navigation.navigate({
+      props.navigation.navigate<'RobotextMessageTooltipModal'>({
         name: RobotextMessageTooltipModalRouteName,
         params: {
           presentedFrom: props.route.key,

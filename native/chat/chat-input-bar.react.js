@@ -928,7 +928,7 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo
           sendTime: 0,
           retries: 0,
         };
-        navigation.navigate({
+        navigation.navigate<'ImagePasteModal'>({
           name: ImagePasteModalRouteName,
           params: {
             imagePasteStagingInfo: pastedImage,
@@ -966,7 +966,7 @@ const ConnectedChatInputBar: React.ComponentType<ChatInputBarProps> = React.memo
 
     const openCamera = React.useCallback(() => {
       keyboardState?.dismissKeyboard();
-      navigation.navigate({
+      navigation.navigate<'CameraModal'>({
         name: CameraModalRouteName,
         params: {
           presentedFrom: route.key,

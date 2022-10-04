@@ -221,7 +221,7 @@ class RelationshipListItem extends React.PureComponent<Props> {
     };
     editButton.current.measure((x, y, width, height, pageX, pageY) => {
       const coordinates = { x: pageX, y: pageY, width, height };
-      this.props.navigate({
+      this.props.navigate<'RelationshipListItemTooltipModal'>({
         name: RelationshipListItemTooltipModalRouteName,
         params: {
           presentedFrom: this.props.relationshipListRoute.key,

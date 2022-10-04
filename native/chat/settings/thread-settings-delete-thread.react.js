@@ -19,7 +19,7 @@ type Props = {
 function ThreadSettingsDeleteThread(props: Props): React.Node {
   const { navigate, threadInfo } = props;
   const onPress = React.useCallback(() => {
-    navigate({
+    navigate<'DeleteThread'>({
       name: DeleteThreadRouteName,
       params: { threadInfo },
       key: `${DeleteThreadRouteName}${threadInfo.id}`,

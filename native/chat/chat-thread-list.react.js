@@ -549,7 +549,7 @@ class ChatThreadList extends React.PureComponent<Props, State> {
     if (this.searchInput) {
       this.searchInput.blur();
     }
-    this.props.navigation.navigate({
+    this.props.navigation.navigate<'SidebarListModal'>({
       name: SidebarListModalRouteName,
       params: { threadInfo },
     });

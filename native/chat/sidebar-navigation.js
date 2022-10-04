@@ -58,7 +58,9 @@ function navigateToSidebar<RouteName: MessageTooltipRouteNames>(
   chatContext?.setCurrentTransitionSidebarSourceID(
     route.params.item.messageInfo.id,
   );
-  navigation.navigate(createNavigateToThreadAction({ threadInfo }));
+  navigation.navigate<'MessageList'>(
+    createNavigateToThreadAction({ threadInfo }),
+  );
 }
 
 function useNavigateToSidebar(item: ChatMessageInfoItemWithHeight): () => void {

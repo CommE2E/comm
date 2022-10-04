@@ -72,7 +72,7 @@ class ComposeSubchannelModal extends React.PureComponent<Props> {
 
   onPressOpen = () => {
     const threadInfo = this.props.route.params.threadInfo;
-    this.props.navigation.navigate({
+    this.props.navigation.navigate<'ComposeSubchannel'>({
       name: ComposeSubchannelRouteName,
       params: {
         threadType: threadTypes.COMMUNITY_OPEN_SUBTHREAD,
@@ -86,7 +86,7 @@ class ComposeSubchannelModal extends React.PureComponent<Props> {
 
   onPressSecret = () => {
     const threadInfo = this.props.route.params.threadInfo;
-    this.props.navigation.navigate({
+    this.props.navigation.navigate<'ComposeSubchannel'>({
       name: ComposeSubchannelRouteName,
       params: {
         threadType: threadTypes.COMMUNITY_SECRET_SUBTHREAD,
