@@ -637,6 +637,10 @@ void SQLiteQueryExecutor::migrate() const {
 
     auto rc = applyMigration(db);
     if (!rc) {
+      if (shouldBeInTransaction) {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+      }
+
       migration_msg << "migration " << idx << " failed." << std::endl;
       Logger::log(migration_msg.str());
       break;
@@ -646,7 +650,21 @@ void SQLiteQueryExecutor::migrate() const {
     update_version << "PRAGMA user_version=" << idx << ";";
     auto update_version_str = update_version.str();
 
-    sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, nullptr);
+    char *error;
+    sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, &error);
+    if (error) {
+      if (shouldBeInTransaction) {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+      }
+
+      std::ostringstream errorStream;
+      errorStream << "Error updating database version after migration " << idx
+                  << ": " << error;
+      Logger::log(errorStream.str());
+      sqlite3_free(error);
+
+      break;
+    }
 
     if (shouldBeInTransaction) {
       sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
