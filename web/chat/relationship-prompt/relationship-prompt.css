@@ -1,19 +1,18 @@
 div.promptButtonContainer {
   display: flex;
 }
+
 button.promptButton {
-  font-size: var(--m-font-16);
-  font-weight: var(--semi-bold);
-  cursor: pointer;
-  margin: 0.5rem;
-  padding: 1.2rem;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
   flex: 1;
-  border-radius: 0.4rem;
-  border: none;
+  margin: 0.5rem;
+}
+
+button.promptButton:hover {
+  transition-property: none;
+}
+
+p.promptText {
+  font-weight: var(--semi-bold);
 }
 
 svg.promptIcon {
