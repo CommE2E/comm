@@ -1,6 +1,7 @@
 #include "CommCoreModule.h"
 #include "DatabaseManager.h"
 #include "GRPCStreamHostObject.h"
+#include "InternalModules/GlobalDBSingleton.h"
 #include "InternalModules/GlobalNetworkSingleton.h"
 #include "MessageStoreOperations.h"
 #include "ThreadStoreOperations.h"
@@ -17,7 +18,7 @@ T CommCoreModule::runSyncOrThrowJSError(
     jsi::Runtime &rt,
     std::function<T()> task) {
   std::promise<T> promise;
-  this->databaseThread->scheduleTask([&promise, &task]() {
+  GlobalDBSingleton::instance.scheduleOrRun([&promise, &task]() {
     try {
       if constexpr (std::is_void<T>::value) {
         task();
@@ -60,7 +61,7 @@ jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
             promise->resolve(std::move(draft));
           });
         };
-        this->databaseThread->scheduleTask(job);
+        GlobalDBSingleton::instance.scheduleOrRun(job);
       });
 }
 
@@ -85,7 +86,7 @@ CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
             }
           });
         };
-        this->databaseThread->scheduleTask(job);
+        GlobalDBSingleton::instance.scheduleOrRun(job);
       });
 }
 
@@ -115,7 +116,7 @@ jsi::Value CommCoreModule::moveDraft(
             }
           });
         };
-        this->databaseThread->scheduleTask(job);
+        GlobalDBSingleton::instance.scheduleOrRun(job);
       });
 }
 
@@ -155,7 +156,7 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
             promise->resolve(std::move(jsiDrafts));
           });
         };
-        this->databaseThread->scheduleTask(job);
+        GlobalDBSingleton::instance.scheduleOrRun(job);
       });
 }
 
@@ -177,7 +178,7 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
             promise->resolve(jsi::Value::undefined());
           });
         };
-        this->databaseThread->scheduleTask(job);
+        GlobalDBSingleton::instance.scheduleOrRun(job);
       });
 }
 
@@ -307,7 +308,7 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
                 promise->resolve(std::move(jsiMessages));
               });
         };
-        this->databaseThread->scheduleTask(job);
+        GlobalDBSingleton::instance.scheduleOrRun(job);
       });
 }
 
@@ -398,7 +399,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
             }
           });
         };
-        this->databaseThread->scheduleTask(job);
+        GlobalDBSingleton::instance.scheduleOrRun(job);
       });
 }
 
@@ -430,7 +431,7 @@ void CommCoreModule::processMessageStoreOperationsSync(
 jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([=, &innerRt]() {
+        GlobalDBSingleton::instance.scheduleOrRun([=, &innerRt]() {
           std::string error;
           std::vector<Thread> threadsVector;
           size_t numThreads;
@@ -693,7 +694,7 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
   }
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([=]() {
+        GlobalDBSingleton::instance.scheduleOrRun([=]() {
           std::string error = operationsError;
           if (!error.size()) {
             try {
@@ -757,7 +758,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([=]() {
+        GlobalDBSingleton::instance.scheduleOrRun([=]() {
           crypto::Persist persist;
           std::string error;
           try {
@@ -789,7 +790,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
             if (persist.isEmpty()) {
               crypto::Persist newPersist =
                   this->cryptoModule->storeAsB64(storedSecretKey.value());
-              this->databaseThread->scheduleTask([=]() {
+              GlobalDBSingleton::instance.scheduleOrRun([=]() {
                 std::string error;
                 try {
                   DatabaseManager::getQueryExecutor().storeOlmPersistData(
@@ -888,8 +889,8 @@ CommCoreModule::openSocket(jsi::Runtime &rt, const jsi::String &endpoint) {
 CommCoreModule::CommCoreModule(
     std::shared_ptr<facebook::react::CallInvoker> jsInvoker)
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
-      databaseThread(std::make_unique<WorkerThread>("database")),
       cryptoThread(std::make_unique<WorkerThread>("crypto")) {
+  GlobalDBSingleton::instance.enableMultithreading();
   GlobalNetworkSingleton::instance.enableMultithreading();
 }
 
@@ -904,29 +905,30 @@ CommCoreModule::setNotifyToken(jsi::Runtime &rt, const jsi::String &token) {
       rt,
       [this,
        notifyToken](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([this, notifyToken, promise]() {
-          std::string error;
-          try {
-            DatabaseManager::getQueryExecutor().setNotifyToken(notifyToken);
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
+        GlobalDBSingleton::instance.scheduleOrRun(
+            [this, notifyToken, promise]() {
+              std::string error;
+              try {
+                DatabaseManager::getQueryExecutor().setNotifyToken(notifyToken);
+              } catch (std::system_error &e) {
+                error = e.what();
+              }
 
-          this->jsInvoker_->invokeAsync([error, promise]() {
-            if (error.size()) {
-              promise->reject(error);
-            } else {
-              promise->resolve(jsi::Value::undefined());
-            }
-          });
-        });
+              this->jsInvoker_->invokeAsync([error, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                } else {
+                  promise->resolve(jsi::Value::undefined());
+                }
+              });
+            });
       });
 }
 
 jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([this, promise]() {
+        GlobalDBSingleton::instance.scheduleOrRun([this, promise]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().clearNotifyToken();
@@ -951,7 +953,9 @@ CommCoreModule::setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) {
       rt,
       [this,
        currentUserID](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([this, promise, currentUserID]() {
+        GlobalDBSingleton::instance.scheduleOrRun([this,
+                                                   promise,
+                                                   currentUserID]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().setCurrentUserID(currentUserID);
@@ -972,7 +976,7 @@ CommCoreModule::setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) {
 jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([this, &innerRt, promise]() {
+        GlobalDBSingleton::instance.scheduleOrRun([this, &innerRt, promise]() {
           std::string error;
           std::string result;
           try {
@@ -994,7 +998,7 @@ jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
 jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        this->databaseThread->scheduleTask([this, promise]() {
+        GlobalDBSingleton::instance.scheduleOrRun([this, promise]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().clearSensitiveData();
