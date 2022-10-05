@@ -15,6 +15,7 @@
 #import <reacthermes/HermesExecutorFactory.h>
 
 #import "CommCoreModule.h"
+#import "GlobalDBSingleton.h"
 #import "GlobalNetworkSingleton.h"
 #import "Logger.h"
 #import "MessageOperationsUtilities.h"
@@ -168,7 +169,9 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
       // this callback may be called from inactive state so we need
       // to initialize the database
       [self attemptDatabaseInitialization];
-      comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+      comm::GlobalDBSingleton::instance.scheduleOrRun([threadID]() mutable {
+        comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+      });
     }
     [[UNUserNotificationCenter currentNotificationCenter]
         getDeliveredNotificationsWithCompletionHandler:^(
@@ -271,7 +274,9 @@ using Runtime = facebook::jsi::Runtime;
   NSArray<NSString *> *messages = [temporaryStorage readAndClearMessages];
   for (NSString *message in messages) {
     std::string messageInfos = std::string([message UTF8String]);
-    comm::MessageOperationsUtilities::storeMessageInfos(messageInfos);
+    comm::GlobalDBSingleton::instance.scheduleOrRun([messageInfos]() mutable {
+      comm::MessageOperationsUtilities::storeMessageInfos(messageInfos);
+    });
   }
 }
 
