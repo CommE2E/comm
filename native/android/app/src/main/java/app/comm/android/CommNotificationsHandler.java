@@ -5,6 +5,7 @@ import android.content.Context;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 import app.comm.android.fbjni.CommSecureStore;
+import app.comm.android.fbjni.GlobalDBSingleton;
 import app.comm.android.fbjni.MessageOperationsUtilities;
 import app.comm.android.fbjni.NetworkModule;
 import app.comm.android.fbjni.ThreadOperations;
@@ -99,8 +100,10 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
     File sqliteFile =
         this.getApplicationContext().getDatabasePath("comm.sqlite");
     if (rawMessageInfosString != null && sqliteFile.exists()) {
-      MessageOperationsUtilities.storeMessageInfos(
-          sqliteFile.getPath(), rawMessageInfosString);
+      GlobalDBSingleton.scheduleOrRun(() -> {
+        MessageOperationsUtilities.storeMessageInfos(
+            sqliteFile.getPath(), rawMessageInfosString);
+      });
     } else if (rawMessageInfosString != null) {
       Log.w("COMM", "Database not existing yet. Skipping notification");
     }
@@ -115,8 +118,10 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
           this.getApplicationContext().getDatabasePath("comm.sqlite");
       if (sqliteFile.exists()) {
         String threadID = message.getData().get(THREAD_ID_KEY);
-        ThreadOperations.updateSQLiteUnreadStatus(
-            sqliteFile.getPath(), threadID, false);
+        GlobalDBSingleton.scheduleOrRun(() -> {
+          ThreadOperations.updateSQLiteUnreadStatus(
+              sqliteFile.getPath(), threadID, false);
+        });
       } else {
         Log.w(
             "COMM",
