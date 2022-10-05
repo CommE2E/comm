@@ -29,7 +29,7 @@ struct BidiClient {
   tx: mpsc::Sender<PutRequestData>,
 
   rx: mpsc::Receiver<String>,
-  rx_handle: JoinHandle<anyhow::Result<(), anyhow::Error>>,
+  rx_handle: JoinHandle<anyhow::Result<()>>,
 }
 
 lazy_static! {
@@ -41,7 +41,7 @@ lazy_static! {
     Mutex::new(Vec::new());
 }
 
-fn is_initialized(holder: &str) -> anyhow::Result<bool, anyhow::Error> {
+fn is_initialized(holder: &str) -> anyhow::Result<bool> {
   match CLIENTS.lock() {
     Ok(clients) => Ok(clients.contains_key(holder)),
     _ => bail!("couldn't access client")
@@ -50,7 +50,7 @@ fn is_initialized(holder: &str) -> anyhow::Result<bool, anyhow::Error> {
 
 pub fn put_client_initialize_cxx(
   holder: &str,
-) -> anyhow::Result<(), anyhow::Error> {
+) -> anyhow::Result<()> {
   if is_initialized(&holder)? {
     put_client_terminate_cxx(&holder.to_string())?;
   }
@@ -167,7 +167,7 @@ pub fn put_client_initialize_cxx(
 
 pub fn put_client_blocking_read_cxx(
   holder: &str,
-) -> anyhow::Result<String, anyhow::Error> {
+) -> anyhow::Result<String> {
   Ok(RUNTIME.block_on(async {
     if let Ok(mut clients) = CLIENTS.lock() {
       let maybe_client = clients.get_mut(holder);
@@ -199,7 +199,7 @@ pub fn put_client_write_cxx(
   holder: &str,
   field_index: usize,
   data: *const c_char,
-) -> anyhow::Result<(), anyhow::Error> {
+) -> anyhow::Result<()> {
   let data_c_str: &CStr = unsafe { CStr::from_ptr(data) };
   let data_bytes: Vec<u8> = data_c_str.to_bytes().to_vec();
 
@@ -226,7 +226,7 @@ pub fn put_client_write_cxx(
 
 pub fn put_client_terminate_cxx(
   holder: &str,
-) -> anyhow::Result<(), anyhow::Error> {
+) -> anyhow::Result<()> {
   if !is_initialized(&holder)? {
     return Ok(());
   }

@@ -16,7 +16,7 @@ use tokio::task::JoinHandle;
 
 struct ReadClient {
   rx: mpsc::Receiver<Vec<u8>>,
-  rx_handle: JoinHandle<anyhow::Result<(), anyhow::Error>>,
+  rx_handle: JoinHandle<anyhow::Result<()>>,
 }
 
 lazy_static! {
@@ -28,7 +28,7 @@ lazy_static! {
     Mutex::new(Vec::new());
 }
 
-fn is_initialized(holder: &str) -> anyhow::Result<bool, anyhow::Error> {
+fn is_initialized(holder: &str) -> anyhow::Result<bool> {
   if let Ok(clients) = CLIENTS.lock() {
     return Ok(clients.contains_key(holder));
   }
@@ -37,7 +37,7 @@ fn is_initialized(holder: &str) -> anyhow::Result<bool, anyhow::Error> {
 
 pub fn get_client_initialize_cxx(
   holder: &str,
-) -> anyhow::Result<(), anyhow::Error> {
+) -> anyhow::Result<()> {
   if is_initialized(&holder)? {
     get_client_terminate_cxx(holder.clone())?;
   }
@@ -91,7 +91,7 @@ pub fn get_client_initialize_cxx(
 
 pub fn get_client_blocking_read_cxx(
   holder: &str,
-) -> anyhow::Result<Vec<u8>, anyhow::Error> {
+) -> anyhow::Result<Vec<u8>> {
   Ok(RUNTIME.block_on(async {
     if let Ok(mut clients) = CLIENTS.lock() {
       if let Some(client) = clients.get_mut(&holder.to_string()) {
@@ -108,7 +108,7 @@ pub fn get_client_blocking_read_cxx(
 
 pub fn get_client_terminate_cxx(
   holder: &str,
-) -> anyhow::Result<(), anyhow::Error> {
+) -> anyhow::Result<()> {
   if !is_initialized(&holder)? {
     return Ok(());
   }
