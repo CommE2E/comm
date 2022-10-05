@@ -34,7 +34,7 @@ target_include_directories(comm-databasemanagers
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Tools>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   # TODO: Remove once native/cpp has a CMakeLists.txt
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../lib/sqlite_orm>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../../third-party/sqlite_orm>
   PRIVATE
   # HACK
   "../../../node_modules/react-native/ReactCommon/jsi"

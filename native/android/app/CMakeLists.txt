@@ -85,7 +85,7 @@ include_directories(
   ${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src
 
   # SQLite ORM
-  ../../cpp/lib/sqlite_orm
+  ../../cpp/third-party/sqlite_orm
 
   # symlinked React Native headers
   ../headers

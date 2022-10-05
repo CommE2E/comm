@@ -344,7 +344,7 @@
 			isa = PBXGroup;
 			children = (
 				71BE84372636A944002849D2 /* CommonCpp */,
-				71BE84462636A944002849D2 /* lib */,
+				71BE84462636A944002849D2 /* third-party */,
 			);
 			name = cpp;
 			path = ../cpp;
@@ -414,12 +414,12 @@
 			path = entities;
 			sourceTree = "<group>";
 		};
-		71BE84462636A944002849D2 /* lib */ = {
+		71BE84462636A944002849D2 /* third-party */ = {
 			isa = PBXGroup;
 			children = (
 				71BE84472636A944002849D2 /* sqlite_orm */,
 			);
-			path = lib;
+			path = "third-party";
 			sourceTree = "<group>";
 		};
 		71BE84472636A944002849D2 /* sqlite_orm */ = {
