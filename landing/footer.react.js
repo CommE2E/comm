@@ -32,6 +32,9 @@ function Footer(): React.Node {
           <NavLink to="/team" exact {...navLinkProps}>
             Team
           </NavLink>
+          <NavLink to="/investors" exact {...navLinkProps}>
+            Investors
+          </NavLink>
           <NavLink to="/terms" exact {...navLinkProps}>
             Terms of Use
           </NavLink>
