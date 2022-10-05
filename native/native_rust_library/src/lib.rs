@@ -4,12 +4,14 @@ use tokio::runtime::{Builder, Runtime};
 use tonic::{transport::Channel, Status};
 use tracing::instrument;
 
+mod crypto_tools;
 mod identity_client;
 mod opaque;
 mod identity {
   tonic::include_proto!("identity");
 }
 
+pub use crypto_tools::generate_device_id;
 use identity::identity_service_client::IdentityServiceClient;
 use identity_client::{
   get_user_id, login_user_pake, login_user_wallet, register_user,
@@ -31,6 +33,13 @@ lazy_static! {
 
 #[cxx::bridge]
 mod ffi {
+
+  enum DeviceType {
+    KEYSERVER,
+    WEB,
+    MOBILE,
+  }
+
   extern "Rust" {
     type Client;
     fn initialize_client() -> Box<Client>;
@@ -68,6 +77,7 @@ mod ffi {
       siwe_signature: Vec<u8>,
       user_public_key: String,
     ) -> Result<String>;
+    fn generate_device_id(device_type: DeviceType) -> Result<String>;
   }
 }
 
