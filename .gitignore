@@ -21,6 +21,7 @@ keyserver/*.env.*
 
 services/identity/target
 services/tunnelbroker/rust-lib/target
+services/tunnelbroker/tunnelbroker.ini
 
 .eslintcache
 .vscode

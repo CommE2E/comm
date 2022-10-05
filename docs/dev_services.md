@@ -39,7 +39,8 @@ rabbitmqctl add_user {username}
 You'll need to create a Tunnelbroker-specific configuration file.
 
 ```
-vim services/tunnelbroker/tunnelbroker.ini
+mkdir -p $HOME/tunnelbroker
+vim $HOME/tunnelbroker/tunnelbroker.ini
 ```
 
 Provide a unique ID for each running instance of Tunnelbroker and a RabbitMQ URI in accordance with this [specification](https://www.rabbitmq.com/uri-spec.html).
@@ -47,6 +48,9 @@ Provide a unique ID for each running instance of Tunnelbroker and a RabbitMQ URI
 ```
 [tunnelbroker]
 instance-id = tunnelbroker1
+
+[keyserver]
+default_keyserver_id = ks:256
 
 [amqp]
 uri = amqp://guest:guest@0.0.0.0/vhost
