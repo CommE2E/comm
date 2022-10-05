@@ -2,14 +2,8 @@
 #include "DatabaseManager.h"
 #include "GRPCStreamHostObject.h"
 #include "InternalModules/GlobalNetworkSingleton.h"
-#include "InternalModules/NetworkModule.h"
-#include "Logger.h"
 #include "MessageStoreOperations.h"
 #include "ThreadStoreOperations.h"
-
-#include <folly/Optional.h>
-
-#include "../DatabaseManagers/entities/Media.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <future>

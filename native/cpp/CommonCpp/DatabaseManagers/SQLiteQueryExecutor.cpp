@@ -3,18 +3,9 @@
 #include "Logger.h"
 #include "sqlite_orm.h"
 
-#include "entities/Media.h"
 #include "entities/Metadata.h"
-#include <sqlite3.h>
-#include <cerrno>
-#include <cstdio>
-#include <cstring>
 #include <fstream>
 #include <iostream>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <system_error>
 #include <thread>
 
 #ifdef __ANDROID__
