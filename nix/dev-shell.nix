@@ -35,6 +35,7 @@
 , redis
 , redis-up
 , rustc
+, rustup
 , shellcheck
 , sqlite
 , terraform
@@ -66,6 +67,7 @@ mkShell {
     cargo # includes rustc
     rustc # allow for direct invocation of rustc
     rustfmt
+    rustup
 
     # Tunnelbroker + CMake
     amqp-cpp
