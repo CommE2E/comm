@@ -67,6 +67,7 @@
 		CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
 		CB4821B127CFB1FA001AB7E1 /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
 		CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
+		CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
 		CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFE58282885852B003B94C9 /* ThreadOperations.cpp */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
 		F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */; };
@@ -223,6 +224,7 @@
 		CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UpdateRelationshipMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/UpdateRelationshipMessageSpec.h; sourceTree = "<group>"; };
 		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalDBSingleton.h; sourceTree = "<group>"; };
+		CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlobalDBSingleton.mm; path = Comm/GlobalDBSingleton.mm; sourceTree = "<group>"; };
 		CBFE58272885852B003B94C9 /* ThreadOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadOperations.h; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.h; sourceTree = "<group>"; };
 		CBFE58282885852B003B94C9 /* ThreadOperations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadOperations.cpp; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.cpp; sourceTree = "<group>"; };
 		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
@@ -329,6 +331,7 @@
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
 			isa = PBXGroup;
 			children = (
+				CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */,
 				CB38B4782877177B00171182 /* TemporaryMessageStorage */,
 				71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */,
 				71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */,
@@ -1042,6 +1045,7 @@
 				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
 				71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
+				CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */,
 				726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
