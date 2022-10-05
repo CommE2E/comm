@@ -19,4 +19,13 @@ struct HashMap
   }
 };
 
+struct Runnable : public jni::JavaClass<Runnable> {
+  static constexpr auto kJavaDescriptor = "Ljava/lang/Runnable;";
+  void run() {
+    static const auto method =
+        jni::findClassStatic("java/lang/Runnable")->getMethod<void()>("run");
+    method(this->self());
+  }
+};
+
 } // namespace comm
