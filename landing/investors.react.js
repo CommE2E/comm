@@ -16,6 +16,8 @@ function Investors(): React.Node {
             our community as investors.
           </p>
         </div>
+
+        <div className={css.investorContainer} />
       </section>
     </div>
   );
