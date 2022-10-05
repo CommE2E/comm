@@ -36,7 +36,7 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Block User"
           icon={faUserShield}
-          color="--relationship-button-red"
+          backgroundColor="--relationship-button-red"
           onClick={blockUser}
         />
       </RelationshipPromptButtonContainer>
@@ -50,7 +50,7 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Unblock User"
           icon={faUserShield}
-          color="--relationship-button-green"
+          backgroundColor="--relationship-button-green"
           onClick={unblockUser}
         />
       </RelationshipPromptButtonContainer>
@@ -61,13 +61,13 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Accept Friend Request"
           icon={faUserPlus}
-          color="--relationship-button-green"
+          backgroundColor="--relationship-button-green"
           onClick={friendUser}
         />
         <RelationshipPromptButton
           text="Reject Friend Request"
           icon={faUserSlash}
-          color="--relationship-button-red"
+          backgroundColor="--relationship-button-red"
           onClick={unfriendUser}
         />
       </RelationshipPromptButtonContainer>
@@ -78,7 +78,7 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Withdraw Friend Request"
           icon={faUserMinus}
-          color="--relationship-button-red"
+          backgroundColor="--relationship-button-red"
           onClick={unfriendUser}
         />
       </RelationshipPromptButtonContainer>
@@ -89,13 +89,13 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Add Friend"
           icon={faUserPlus}
-          color="--relationship-button-green"
+          backgroundColor="--relationship-button-green"
           onClick={friendUser}
         />
         <RelationshipPromptButton
           text="Block User"
           icon={faUserShield}
-          color="--relationship-button-red"
+          backgroundColor="--relationship-button-red"
           onClick={blockUser}
         />
       </RelationshipPromptButtonContainer>
