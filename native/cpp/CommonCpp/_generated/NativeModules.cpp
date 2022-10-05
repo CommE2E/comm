@@ -37,7 +37,8 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processMessageSt
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processMessageStoreOperations(rt, args[0].getObject(rt).getArray(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processMessageStoreOperationsSync(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processMessageStoreOperationsSync(rt, args[0].getObject(rt).getArray(rt));
+  static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processMessageStoreOperationsSync(rt, args[0].getObject(rt).getArray(rt));
+  return jsi::Value::undefined();
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllThreads(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getAllThreads(rt);
@@ -49,7 +50,8 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadSto
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processThreadStoreOperations(rt, args[0].getObject(rt).getArray(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_processThreadStoreOperationsSync(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processThreadStoreOperationsSync(rt, args[0].getObject(rt).getArray(rt));
+  static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->processThreadStoreOperationsSync(rt, args[0].getObject(rt).getArray(rt));
+  return jsi::Value::undefined();
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_initializeCryptoAccount(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->initializeCryptoAccount(rt, args[0].getString(rt));

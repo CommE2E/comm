@@ -32,7 +32,7 @@ export interface Spec extends TurboModule {
   ) => Promise<void>;
   +processMessageStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
-  ) => boolean;
+  ) => void;
   +getAllThreads: () => Promise<$ReadOnlyArray<ClientDBThreadInfo>>;
   +getAllThreadsSync: () => $ReadOnlyArray<ClientDBThreadInfo>;
   +processThreadStoreOperations: (
@@ -40,7 +40,7 @@ export interface Spec extends TurboModule {
   ) => Promise<void>;
   +processThreadStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
-  ) => boolean;
+  ) => void;
   +initializeCryptoAccount: (userId: string) => Promise<string>;
   +getUserPublicKey: () => Promise<string>;
   +getUserOneTimeKeys: () => Promise<string>;

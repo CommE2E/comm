@@ -25,7 +25,12 @@ T CommCoreModule::runSyncOrThrowJSError(
   std::promise<T> promise;
   this->databaseThread->scheduleTask([&promise, &task]() {
     try {
-      promise.set_value(task());
+      if constexpr (std::is_void<T>::value) {
+        task();
+        promise.set_value();
+      } else {
+        promise.set_value(task());
+      }
     } catch (const std::exception &e) {
       promise.set_exception(std::make_exception_ptr(e));
     }
@@ -403,40 +408,29 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
       });
 }
 
-bool CommCoreModule::processMessageStoreOperationsSync(
+void CommCoreModule::processMessageStoreOperationsSync(
     jsi::Runtime &rt,
     const jsi::Array &operations) {
-
-  std::promise<bool> operationsResult;
-  std::future<bool> operationsResultFuture = operationsResult.get_future();
-
   std::vector<std::unique_ptr<MessageStoreOperationBase>> messageStoreOps;
-  std::string operationsError;
 
   try {
     messageStoreOps = createMessageStoreOperations(rt, operations);
-  } catch (std::runtime_error &e) {
-    return false;
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
   }
 
-  this->databaseThread->scheduleTask(
-      [=, &messageStoreOps, &operationsResult, &rt]() {
-        std::string error = operationsError;
-        if (!error.size()) {
-          try {
-            DatabaseManager::getQueryExecutor().beginTransaction();
-            for (const auto &operation : messageStoreOps) {
-              operation->execute();
-            }
-            DatabaseManager::getQueryExecutor().commitTransaction();
-          } catch (std::system_error &e) {
-            error = e.what();
-            DatabaseManager::getQueryExecutor().rollbackTransaction();
-          }
-        }
-        operationsResult.set_value(error.size() == 0);
-      });
-  return operationsResultFuture.get();
+  this->runSyncOrThrowJSError<void>(rt, [&messageStoreOps]() {
+    try {
+      DatabaseManager::getQueryExecutor().beginTransaction();
+      for (const auto &operation : messageStoreOps) {
+        operation->execute();
+      }
+      DatabaseManager::getQueryExecutor().commitTransaction();
+    } catch (const std::exception &e) {
+      DatabaseManager::getQueryExecutor().rollbackTransaction();
+      throw e;
+    }
+  });
 }
 
 jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
@@ -730,37 +724,29 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
       });
 }
 
-bool CommCoreModule::processThreadStoreOperationsSync(
+void CommCoreModule::processThreadStoreOperationsSync(
     jsi::Runtime &rt,
     const jsi::Array &operations) {
-
-  std::promise<bool> operationsResult;
-  std::future<bool> operationsResultFuture = operationsResult.get_future();
   std::vector<std::unique_ptr<ThreadStoreOperationBase>> threadStoreOps;
-  std::string operationsError;
+
   try {
     threadStoreOps = createThreadStoreOperations(rt, operations);
-  } catch (std::runtime_error &e) {
-    return false;
+  } catch (const std::exception &e) {
+    throw jsi::JSError(rt, e.what());
   }
-  this->databaseThread->scheduleTask(
-      [=, &threadStoreOps, &operationsResult, &rt]() {
-        std::string error = operationsError;
-        if (!error.size()) {
-          try {
-            DatabaseManager::getQueryExecutor().beginTransaction();
-            for (const auto &operation : threadStoreOps) {
-              operation->execute();
-            }
-            DatabaseManager::getQueryExecutor().commitTransaction();
-          } catch (std::system_error &e) {
-            error = e.what();
-            DatabaseManager::getQueryExecutor().rollbackTransaction();
-          }
-        }
-        operationsResult.set_value(error.size() == 0);
-      });
-  return operationsResultFuture.get();
+
+  this->runSyncOrThrowJSError<void>(rt, [&threadStoreOps]() {
+    try {
+      DatabaseManager::getQueryExecutor().beginTransaction();
+      for (const auto &operation : threadStoreOps) {
+        operation->execute();
+      }
+      DatabaseManager::getQueryExecutor().commitTransaction();
+    } catch (const std::exception &e) {
+      DatabaseManager::getQueryExecutor().rollbackTransaction();
+      throw e;
+    }
+  });
 }
 
 jsi::Value CommCoreModule::initializeCryptoAccount(

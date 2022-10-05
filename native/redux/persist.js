@@ -341,10 +341,12 @@ const migrations = {
         payload: { id, threadInfo: threadInfos[id] },
       })),
     ];
-    const processingResult: boolean = commCoreModule.processThreadStoreOperationsSync(
-      convertThreadStoreOperationsToClientDBOperations(operations),
-    );
-    if (!processingResult) {
+    try {
+      commCoreModule.processThreadStoreOperationsSync(
+        convertThreadStoreOperationsToClientDBOperations(operations),
+      );
+    } catch (exception) {
+      console.log(exception);
       return { ...state, cookie: null };
     }
     return state;
@@ -360,10 +362,10 @@ const migrations = {
         payload: translateRawMessageInfoToClientDBMessageInfo(messages[id]),
       })),
     ];
-    const processingResult: boolean = commCoreModule.processMessageStoreOperationsSync(
-      operations,
-    );
-    if (!processingResult) {
+    try {
+      commCoreModule.processMessageStoreOperationsSync(operations);
+    } catch (exception) {
+      console.log(exception);
       return { ...state, cookie: null };
     }
     return state;
