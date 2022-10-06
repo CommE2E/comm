@@ -36,6 +36,20 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       await dbQuery(SQL`ALTER TABLE uploads ADD INDEX container (container)`);
     },
   ],
+  [
+    5,
+    async () => {
+      await dbQuery(SQL`
+        CREATE TABLE IF NOT EXISTS policy_acknowledgments (
+          user bigint(20) NOT NULL,
+          policy varchar(255) NOT NULL,
+          date bigint(20) NOT NULL,
+          confirmed tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+          PRIMARY KEY (user, policy)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
