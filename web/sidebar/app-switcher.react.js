@@ -59,13 +59,13 @@ function AppSwitcher(): React.Node {
   const chatNavigationItem = React.useMemo(
     () => (
       <NavigationPanel.Item tab="chat">
-        <div className={css.navigationPanelTab} onClick={onClickChat}>
+        <a className={css.navigationPanelTab} onClick={onClickChat}>
           <span className={css.chatIconWrapper}>
             <SWMansionIcon icon="message-square" size={24} />
             {chatBadge}
           </span>
           <p>Chat</p>
-        </div>
+        </a>
       </NavigationPanel.Item>
     ),
     [chatBadge, onClickChat],
@@ -89,10 +89,10 @@ function AppSwitcher(): React.Node {
     }
     return (
       <NavigationPanel.Item tab="calendar">
-        <div className={css.navigationPanelTab} onClick={onClickCalendar}>
+        <a className={css.navigationPanelTab} onClick={onClickCalendar}>
           <SWMansionIcon icon="calendar" size={24} />
           <p>Calendar</p>
-        </div>
+        </a>
       </NavigationPanel.Item>
     );
   }, [isCalendarEnabled, onClickCalendar]);
@@ -113,10 +113,10 @@ function AppSwitcher(): React.Node {
   const appNavigationItem = React.useMemo(
     () => (
       <NavigationPanel.Item tab="apps">
-        <div className={css.navigationPanelTab} onClick={onClickApps}>
+        <a className={css.navigationPanelTab} onClick={onClickApps}>
           <SWMansionIcon icon="globe-1" size={24} />
           <p>Apps</p>
-        </div>
+        </a>
       </NavigationPanel.Item>
     ),
     [onClickApps],

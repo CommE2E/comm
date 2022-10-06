@@ -1,8 +1,8 @@
-div.thread {
+.thread {
   display: flex;
   flex-direction: row;
 }
-div.threadListSidebar {
+.threadListSidebar {
   display: flex;
   flex-direction: row;
   height: 32px;
@@ -10,33 +10,36 @@ div.threadListSidebar {
   position: relative;
   cursor: pointer;
 }
-div.threadListSidebar > svg {
+.threadListSidebar > svg {
   position: absolute;
   top: -7px;
   left: 30px;
 }
-div.thread:first-child {
+.thread:first-child {
   padding-top: 6px;
 }
-div.activeThread,
-div.threadListSidebar:hover {
+
+.activeThread,
+.threadListSidebar:hover {
   background: var(--thread-active-bg);
 }
 
-div.activeThread :is(div.dark, .lastMessage span.read, .title) {
+.activeThread :is(div.dark, .lastMessage span.read, .title) {
   color: var(--chat-thread-list-color-active);
 }
 
-div.activeThread .lastMessage.read {
+.activeThread .lastMessage.read {
   color: var(--chat-thread-list-color-active);
 }
 
-div.activeThread.thread:hover {
+.activeThread.thread:hover {
   background: var(--thread-active-bg);
 }
-div.thread:hover {
+
+.thread:hover {
   background: var(--thread-hover-bg);
 }
+
 div.title {
   flex: 1;
   font-size: var(--m-font-16);
@@ -163,7 +166,7 @@ div.sidebarTitle {
   color: var(--thread-color-read);
   align-self: flex-start;
 }
-div.threadListSidebar > div.dotContainer {
+.threadListSidebar > div.dotContainer {
   width: 16px;
 }
 div.sidebarTitle.unread {

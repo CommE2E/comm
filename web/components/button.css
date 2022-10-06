@@ -64,14 +64,6 @@
   background-color: var(--btn-bg-disabled);
 }
 
-.round {
-  background: var(--settings-btn-bg);
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  padding: 0;
-}
-
 .text {
   background: transparent;
   white-space: nowrap;

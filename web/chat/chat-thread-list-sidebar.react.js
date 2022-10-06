@@ -33,7 +33,7 @@ function ChatThreadListSidebar(props: Props): React.Node {
   }
 
   return (
-    <div
+    <a
       className={classNames(css.threadListSidebar, css.sidebar, {
         [css.activeThread]: active,
       })}
@@ -46,7 +46,7 @@ function ChatThreadListSidebar(props: Props): React.Node {
         mostRecentNonLocalMessage={mostRecentNonLocalMessage}
         renderStyle="thread"
       />
-    </div>
+    </a>
   );
 }
 

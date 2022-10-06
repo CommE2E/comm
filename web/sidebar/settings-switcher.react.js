@@ -23,9 +23,9 @@ function SettingsSwitcher(): React.Node {
   );
   const accountSettingsNavigationItem = React.useMemo(
     () => (
-      <div className={css.navigationPanelTab} onClick={onClickAccountSettings}>
+      <a className={css.navigationPanelTab} onClick={onClickAccountSettings}>
         <p>My Account</p>
-      </div>
+      </a>
     ),
     [onClickAccountSettings],
   );
@@ -42,9 +42,9 @@ function SettingsSwitcher(): React.Node {
   );
   const dangerZoneNavigationItem = React.useMemo(
     () => (
-      <div className={css.navigationPanelTab} onClick={onClickDangerZone}>
+      <a className={css.navigationPanelTab} onClick={onClickDangerZone}>
         <p>Danger Zone</p>
-      </div>
+      </a>
     ),
     [onClickDangerZone],
   );

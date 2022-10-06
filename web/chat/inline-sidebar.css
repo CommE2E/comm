@@ -18,7 +18,7 @@ div.rightContainer {
   right: 31px;
   margin-left: 31px;
 }
-div.inlineSidebarContent {
+.inlineSidebarContent {
   background: var(--inline-sidebar-bg);
   color: var(--inline-sidebar-color);
   font-size: var(--s-font-14);
@@ -33,7 +33,7 @@ div.inlineSidebarContent {
   transition: background 0.2s ease-in-out;
 }
 
-div.inlineSidebarContent:hover {
+.inlineSidebarContent:hover {
   background: var(--inline-sidebar-bg-hover);
 }
 

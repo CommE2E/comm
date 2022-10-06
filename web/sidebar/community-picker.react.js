@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import Button from '../components/button.react';
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -55,9 +54,9 @@ function CommunityPicker(): React.Node {
       </a>
       <div className={css.spacer} />
       <div className={settingsButtonContainerClass}>
-        <Button variant="round" onClick={openAccountSettings}>
+        <a className={css.settingsIcon} onClick={openAccountSettings}>
           <SWMansionIcon icon="settings" size={22} />
-        </Button>
+        </a>
       </div>
     </div>
   );
