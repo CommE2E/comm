@@ -61,13 +61,13 @@ function InlineSidebar(props: Props): React.Node {
 
   return (
     <div className={containerClasses}>
-      <div
+      <a
         className={css.inlineSidebarContent}
         onClick={threadInfoExists ? onClick : null}
       >
         {sidebarItem}
         {reactionsList}
-      </div>
+      </a>
     </div>
   );
 }

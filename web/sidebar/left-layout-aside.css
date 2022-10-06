@@ -11,26 +11,26 @@
   margin-top: 12px;
 }
 
-div.navigationPanelTab {
+.navigationPanelTab {
   display: flex;
   flex-direction: row;
   padding: 12px 0 12px 28px;
   cursor: pointer;
 }
 
-div.navigationPanelTab svg {
+.navigationPanelTab svg {
   padding-right: 12px;
   color: var(--color-disabled);
   stroke: var(--color-disabled);
   fill: var(--color-disabled);
 }
 
-div.navigationPanelTab p {
+.navigationPanelTab p {
   color: var(--color-disabled);
 }
 
-div.navigationPanelTab:hover p,
-div.navigationPanelTab:hover svg,
+.navigationPanelTab:hover p,
+.navigationPanelTab:hover svg,
 div.current_tab p,
 div.current_tab svg {
   color: var(--fg);

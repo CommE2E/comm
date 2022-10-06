@@ -30,7 +30,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
     [popModal, pushModal, threadInfo.id],
   );
   return (
-    <div className={classNames(css.thread, css.sidebar)} onClick={onClick}>
+    <a className={classNames(css.thread, css.sidebar)} onClick={onClick}>
       <a className={css.threadButton}>
         <div
           className={classNames({
@@ -43,7 +43,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
           <div className={css.seeMoreText}>See more...</div>
         </div>
       </a>
-    </div>
+    </a>
   );
 }
 

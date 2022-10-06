@@ -144,10 +144,7 @@ function ChatThreadListItem(props: Props): React.Node {
 
   return (
     <>
-      <div
-        className={containerClassName}
-        onClick={selectItemIfNotActiveCreation}
-      >
+      <a className={containerClassName} onClick={selectItemIfNotActiveCreation}>
         <div className={css.colorContainer}>
           <div className={css.colorSplotchContainer}>
             <div className={css.dotContainer}>{unreadDot}</div>
@@ -173,7 +170,7 @@ function ChatThreadListItem(props: Props): React.Node {
           />
           <div className={lastActivityClassName}>{lastActivity}</div>
         </div>
-      </div>
+      </a>
       {sidebars}
     </>
   );
