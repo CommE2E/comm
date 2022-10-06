@@ -61,6 +61,7 @@ import {
   updatePassword,
   updateUserSettings,
 } from '../updaters/account-updaters';
+import { userAcknowledgmentUpdater } from '../updaters/user-acknowledgment-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import { validateInput } from '../utils/validation-utils';
 import {
@@ -245,6 +246,9 @@ async function logInResponder(
   viewer.setNewCookie(userViewerData);
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, newServerTime);
+  }
+  if (input.source === loginActionSources.logInFromNativeForm) {
+    await userAcknowledgmentUpdater(viewer);
   }
 
   const threadCursors = {};
