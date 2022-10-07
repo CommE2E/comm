@@ -1,0 +1,41 @@
+div.container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin: 16px;
+}
+
+div.contentContainer {
+  overflow: scroll;
+  height: 448px;
+}
+
+div.threadPickerOptionContainer {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+}
+
+div.threadPickerOptionContainer:hover {
+  background-color: var(--thread-hover-bg);
+  border-radius: 8px;
+}
+
+div.threadSplotch {
+  min-width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+div.threadNameText {
+  color: var(--shades-white-100);
+  margin-left: 16px;
+}
+
+div.noResultsText {
+  text-align: center;
+  color: var(--shades-white-100);
+  margin-top: 24px;
+  font-weight: 500;
+}
