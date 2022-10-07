@@ -31,6 +31,7 @@ div.optionContent {
   flex-direction: column;
   flex: 1;
   line-height: var(--line-height-text);
+  margin-right: 6px;
 }
 
 div.optionTitle {
