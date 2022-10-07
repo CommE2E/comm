@@ -2228,21 +2228,32 @@ declare module '@react-navigation/native' {
    * Linking
    */
 
+  declare export type LinkTo<
+    ParamList: ParamListBase,
+    RouteName: $Keys<ParamList>,
+  > =
+    | string
+    | {| +screen: RouteName, +params?: $ElementType<ParamList, RouteName> |};
+
   declare export var Link: React$ComponentType<{
-    +to: string,
+    +to: LinkTo<>,
     +action?: GenericNavigationAction,
     +target?: string,
     +children: React$Node,
     ...
   }>;
 
-  declare export function useLinkTo(): (path: string) => void;
+  declare export function useLinkTo<ParamList: ParamListBase>(
+  ): (path: LinkTo<ParamList,>) => void;
 
-  declare export function useLinkProps<To: string>(props: {|
-    +to: To,
+  declare export function useLinkProps<
+    ParamList: ParamListBase,
+    RouteName: $Keys<ParamList>,
+  >(props: {|
+    +to: LinkTo<ParamList, RouteName>,
     +action?: GenericNavigationAction,
   |}): {|
-    +href: To,
+    +href: string,
     +accessibilityRole: 'link',
     +onPress: (MouseEvent | PressEvent) => void,
   |};
