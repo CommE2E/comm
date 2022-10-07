@@ -946,14 +946,14 @@ declare module '@react-navigation/stack' {
     +options?:
       | ScreenOptions
       | ({|
-          route: RouteProp<ParamList, RouteName>,
-          navigation: NavProp,
+          +route: RouteProp<ParamList, RouteName>,
+          +navigation: NavProp,
         |}) => ScreenOptions,
     +listeners?:
       | ScreenListeners<State, EventMap>
       | ({|
-          route: RouteProp<ParamList, RouteName>,
-          navigation: NavProp,
+          +route: RouteProp<ParamList, RouteName>,
+          +navigation: NavProp,
         |}) => ScreenListeners<State, EventMap>,
     +initialParams?: $Partial<$ElementType<ParamList, RouteName>>,
   |};
@@ -976,8 +976,22 @@ declare module '@react-navigation/stack' {
           EventMap,
         >,
         +component: React$ComponentType<{|
-          route: RouteProp<ParamList, RouteName>,
-          navigation: NavProp,
+          +route: RouteProp<ParamList, RouteName>,
+          +navigation: NavProp,
+        |}>,
+      |}
+    | {|
+        ...BaseScreenProps<
+          ParamList,
+          NavProp,
+          RouteName,
+          State,
+          ScreenOptions,
+          EventMap,
+        >,
+        +getComponent: () => React$ComponentType<{|
+          +route: RouteProp<ParamList, RouteName>,
+          +navigation: NavProp,
         |}>,
       |}
     | {|
@@ -990,8 +1004,8 @@ declare module '@react-navigation/stack' {
           EventMap,
         >,
         +children: ({|
-          route: RouteProp<ParamList, RouteName>,
-          navigation: NavProp,
+          +route: RouteProp<ParamList, RouteName>,
+          +navigation: NavProp,
         |}) => React$Node,
       |};
 
