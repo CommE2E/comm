@@ -1,6 +1,6 @@
 // @flow
 
-import type { LeafRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react';
@@ -144,10 +144,9 @@ export type ScreenParamList = {
   ...ProfileParamList,
 };
 
-export type NavigationRoute<RouteName: string = $Keys<ScreenParamList>> = {
-  ...LeafRoute<RouteName>,
-  +params: $ElementType<ScreenParamList, RouteName>,
-};
+export type NavigationRoute<
+  RouteName: string = $Keys<ScreenParamList>,
+> = RouteProp<ScreenParamList, RouteName>;
 
 export const accountModals = [LoggedOutModalRouteName];
 

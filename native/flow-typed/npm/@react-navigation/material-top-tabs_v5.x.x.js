@@ -923,6 +923,7 @@ declare module '@react-navigation/material-top-tabs' {
   > = {|
     ...LeafRoute<RouteName>,
     +params: $ElementType<ParamList, RouteName>,
+    +path?: string,
   |};
 
   declare export type ScreenListeners<

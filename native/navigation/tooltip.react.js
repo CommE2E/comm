@@ -1,6 +1,6 @@
 // @flow
 
-import type { LeafRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import invariant from 'invariant';
 import * as React from 'react';
@@ -80,10 +80,10 @@ export type TooltipParams<CustomProps> = {
   +margin?: number,
   +visibleEntryIDs?: $ReadOnlyArray<string>,
 };
-export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = {
-  ...LeafRoute<RouteName>,
-  +params: $ElementType<TooltipModalParamList, RouteName>,
-};
+export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = RouteProp<
+  TooltipModalParamList,
+  RouteName,
+>;
 
 export type BaseTooltipProps<RouteName> = {
   +navigation: AppNavigationProp<RouteName>,
