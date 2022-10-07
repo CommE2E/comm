@@ -31,10 +31,18 @@ function Modal(props: ModalProps): React.Node {
     withCloseButton = true,
   } = props;
   const overlayRef = React.useRef();
+  const firstClickRef = React.useRef(null);
 
-  const onBackgroundClick = React.useCallback(
+  const onBackgroundMouseDown = React.useCallback(event => {
+    firstClickRef.current = event.target;
+  }, []);
+
+  const onBackgroundMouseUp = React.useCallback(
     event => {
-      if (event.target === overlayRef.current) {
+      if (
+        event.target === overlayRef.current &&
+        firstClickRef.current === overlayRef.current
+      ) {
         onClose();
       }
     },
@@ -87,7 +95,8 @@ function Modal(props: ModalProps): React.Node {
     <div
       className={css.modalOverlay}
       ref={overlayRef}
-      onClick={onBackgroundClick}
+      onMouseDown={onBackgroundMouseDown}
+      onMouseUp={onBackgroundMouseUp}
       tabIndex={0}
       onKeyDown={onKeyDown}
     >
