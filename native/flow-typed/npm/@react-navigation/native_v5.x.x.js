@@ -1078,6 +1078,11 @@ declare module '@react-navigation/native' {
       ...$Exact<ExtraNavigatorProps>,
       ...ScreenOptionsProp<ScreenOptions, NavProp>,
     |}>,
+    +Group: React$ComponentType<{|
+      ...ScreenOptionsProp<ScreenOptions, NavProp>,
+      +children: React$Node,
+      +navigationKey?: string,
+    |}>,
   |};
 
   declare export type CreateNavigatorFactory = <
