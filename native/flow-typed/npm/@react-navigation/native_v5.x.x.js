@@ -2236,11 +2236,6 @@ declare module '@react-navigation/native' {
     ...
   }>;
 
-  declare export function useLinking(
-    container: { +current: ?React$ElementRef<NavigationContainerType>, ... },
-    options: LinkingOptions,
-  ): {| +getInitialState: () => Promise<?PossiblyStaleNavigationState> |};
-
   declare export function useLinkTo(): (path: string) => void;
 
   declare export function useLinkProps<To: string>(props: {|
