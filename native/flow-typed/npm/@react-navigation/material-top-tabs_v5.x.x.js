@@ -956,6 +956,10 @@ declare module '@react-navigation/material-top-tabs' {
           +navigation: NavProp,
         |}) => ScreenListeners<State, EventMap>,
     +initialParams?: $Partial<$ElementType<ParamList, RouteName>>,
+    +getId?: ({
+      +params: $ElementType<ParamList, RouteName>,
+    }) => string | void,
+    +navigationKey?: string,
   |};
 
   declare export type ScreenProps<
