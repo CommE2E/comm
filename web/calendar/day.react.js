@@ -24,13 +24,13 @@ import {
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
 import { useModalContext } from '../modals/modal-provider.react';
+import ThreadPickerModal from '../modals/threads/thread-picker-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import { htmlTargetFromEvent } from '../vector-utils';
 import { AddVector, HistoryVector } from '../vectors.react';
 import css from './calendar.css';
 import type { InnerEntry } from './entry.react';
 import Entry from './entry.react';
-import ThreadPicker from './thread-picker.react';
 
 type BaseProps = {
   +dayString: string,
@@ -46,27 +46,19 @@ type Props = {
   +timeZone: ?string,
   +dispatch: Dispatch,
   +pushModal: (modal: React.Node) => void,
+  +popModal: () => void,
 };
 type State = {
-  +pickerOpen: boolean,
   +hovered: boolean,
 };
 class Day extends React.PureComponent<Props, State> {
   state: State = {
-    pickerOpen: false,
     hovered: false,
   };
   entryContainer: ?HTMLDivElement;
   entryContainerSpacer: ?HTMLDivElement;
   actionLinks: ?HTMLDivElement;
   entries: Map<string, InnerEntry> = new Map();
-
-  static getDerivedStateFromProps(props: Props) {
-    if (props.onScreenThreadInfos.length === 0) {
-      return { pickerOpen: false };
-    }
-    return null;
-  }
 
   componentDidUpdate(prevProps: Props) {
     if (this.props.entryInfos.length > prevProps.entryInfos.length) {
@@ -115,20 +107,6 @@ class Day extends React.PureComponent<Props, State> {
         );
       });
 
-    let threadPicker = null;
-    if (this.state.pickerOpen) {
-      invariant(
-        this.props.onScreenThreadInfos.length > 0,
-        'onScreenThreadInfos should exist if pickerOpen',
-      );
-      threadPicker = (
-        <ThreadPicker
-          createNewEntry={this.createNewEntry}
-          closePicker={this.closePicker}
-        />
-      );
-    }
-
     const entryContainerClasses = classNames(css.entryContainer, {
       [css.focusedEntryContainer]: hovered,
     });
@@ -149,7 +127,6 @@ class Day extends React.PureComponent<Props, State> {
           />
         </div>
         {actionLinks}
-        {threadPicker}
       </td>
     );
   }
@@ -168,10 +145,6 @@ class Day extends React.PureComponent<Props, State> {
 
   entryRef = (key: string, entry: InnerEntry) => {
     this.entries.set(key, entry);
-  };
-
-  closePicker = () => {
-    this.setState({ pickerOpen: false });
   };
 
   onMouseEnter = () => {
@@ -210,7 +183,13 @@ class Day extends React.PureComponent<Props, State> {
     if (this.props.onScreenThreadInfos.length === 1) {
       this.createNewEntry(this.props.onScreenThreadInfos[0].id);
     } else if (this.props.onScreenThreadInfos.length > 1) {
-      this.setState({ pickerOpen: true });
+      this.props.pushModal(
+        <ThreadPickerModal
+          name="Chats"
+          onClose={this.props.popModal}
+          createNewEntry={this.createNewEntry}
+        />,
+      );
     }
   };
 
@@ -262,7 +241,7 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const nextLocalID = useSelector(state => state.nextLocalID);
     const timeZone = useSelector(state => state.timeZone);
     const dispatch = useDispatch();
-    const modalContext = useModalContext();
+    const { pushModal, popModal } = useModalContext();
 
     return (
       <Day
@@ -273,7 +252,8 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         nextLocalID={nextLocalID}
         timeZone={timeZone}
         dispatch={dispatch}
-        pushModal={modalContext.pushModal}
+        pushModal={pushModal}
+        popModal={popModal}
       />
     );
   },
