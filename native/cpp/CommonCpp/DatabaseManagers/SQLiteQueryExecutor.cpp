@@ -593,7 +593,6 @@ void SQLiteQueryExecutor::migrate() const {
 
   if (current_user_version == 0) {
     SQLiteQueryExecutor::getStorage().sync_schema();
-    SQLiteQueryExecutor::getStorage().pragma.journal_mode(journal_mode::WAL);
 
     Logger::log("Creating new database, syncing structure with ORM storage.");
 
