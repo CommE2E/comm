@@ -919,7 +919,7 @@ declare module '@react-navigation/devtools' {
 
   declare export type RouteProp<
     ParamList: ParamListBase,
-    RouteName: $Keys<ParamList>,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
   > = {|
     ...LeafRoute<RouteName>,
     +params: $ElementType<ParamList, RouteName>,
@@ -1077,6 +1077,12 @@ declare module '@react-navigation/devtools' {
     +Navigator: React$ComponentType<{|
       ...$Exact<ExtraNavigatorProps>,
       ...ScreenOptionsProp<ScreenOptions, NavProp>,
+      +screenListeners?:
+        | ScreenListeners<State, EventMap>
+        | ({|
+            +route: RouteProp<ParamList>,
+            +navigation: NavProp,
+          |}) => ScreenListeners<State, EventMap>,
     |}>,
     +Group: React$ComponentType<{|
       ...ScreenOptionsProp<ScreenOptions, NavProp>,
