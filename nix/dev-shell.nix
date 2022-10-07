@@ -107,8 +107,13 @@ mkShell {
 
   # shell commands to be ran upon entering shell
   shellHook = ''
+    PRJ_ROOT=$(git rev-parse --show-toplevel)
+
     # Set development environment variable defaults
     source "${../scripts/source_development_defaults.sh}"
+
+    # Cache development path for some use cases such as XCode
+    "$PRJ_ROOT/scripts/save_path.sh"
 
   ''
   # Darwin condition can be removed once linux services are supported
