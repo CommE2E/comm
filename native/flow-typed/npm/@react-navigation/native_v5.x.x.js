@@ -923,6 +923,7 @@ declare module '@react-navigation/native' {
   > = {|
     ...LeafRoute<RouteName>,
     +params: $ElementType<ParamList, RouteName>,
+    +path?: string,
   |};
 
   declare export type ScreenListeners<
