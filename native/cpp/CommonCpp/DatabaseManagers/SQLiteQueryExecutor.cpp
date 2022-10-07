@@ -84,7 +84,7 @@ bool rename_threadID_to_key(sqlite3 *db) {
 
 bool create_persist_account_table(sqlite3 *db) {
   std::string query =
-      "CREATE TABLE olm_persist_account("
+      "CREATE TABLE IF NOT EXISTS olm_persist_account("
       "id INTEGER UNIQUE PRIMARY KEY NOT NULL, "
       "account_data TEXT NOT NULL);";
   return create_table(db, query, "olm_persist_account");
@@ -92,7 +92,7 @@ bool create_persist_account_table(sqlite3 *db) {
 
 bool create_persist_sessions_table(sqlite3 *db) {
   std::string query =
-      "CREATE TABLE olm_persist_sessions("
+      "CREATE TABLE IF NOT EXISTS olm_persist_sessions("
       "target_user_id TEXT UNIQUE PRIMARY KEY NOT NULL, "
       "session_data TEXT NOT NULL);";
   return create_table(db, query, "olm_persist_sessions");
@@ -132,7 +132,7 @@ bool create_messages_idx_thread_time(sqlite3 *db) {
   char *error;
   sqlite3_exec(
       db,
-      "CREATE INDEX messages_idx_thread_time "
+      "CREATE INDEX IF NOT EXISTS messages_idx_thread_time "
       "ON messages (thread, time);",
       nullptr,
       nullptr,
@@ -167,7 +167,7 @@ bool create_media_idx_container(sqlite3 *db) {
   char *error;
   sqlite3_exec(
       db,
-      "CREATE INDEX media_idx_container "
+      "CREATE INDEX IF NOT EXISTS media_idx_container "
       "ON media (container);",
       nullptr,
       nullptr,
