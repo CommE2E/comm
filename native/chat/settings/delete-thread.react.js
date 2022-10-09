@@ -143,7 +143,13 @@ class DeleteThread extends React.PureComponent<Props, State> {
         </View>
         <Button
           onPress={this.submitDeletion}
-          style={this.props.styles.deleteButton}
+          style={[
+            this.props.styles.baseDeleteButton,
+            this.state.password === ''
+              ? this.props.styles.deleteButtonDisabled
+              : this.props.styles.deleteButtonEnabled,
+          ]}
+          disabled={this.state.password === ''}
         >
           {buttonContent}
         </Button>
@@ -167,6 +173,10 @@ class DeleteThread extends React.PureComponent<Props, State> {
   };
 
   submitDeletion = () => {
+    if (this.state.password === '') {
+      return;
+    }
+
     this.props.dispatchActionPromise(
       deleteThreadActionTypes,
       this.deleteThread(),
@@ -221,13 +231,18 @@ class DeleteThread extends React.PureComponent<Props, State> {
 }
 
 const unboundStyles = {
-  deleteButton: {
-    backgroundColor: 'redButton',
+  baseDeleteButton: {
     borderRadius: 5,
     flex: 1,
     marginHorizontal: 24,
     marginVertical: 12,
     padding: 12,
+  },
+  deleteButtonEnabled: {
+    backgroundColor: 'redButton',
+  },
+  deleteButtonDisabled: {
+    backgroundColor: 'disabledButton',
   },
   deleteText: {
     color: 'white',
