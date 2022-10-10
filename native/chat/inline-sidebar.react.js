@@ -91,7 +91,6 @@ const unboundStyles = {
     flexDirection: 'row',
     height: inlineSidebarStyle.height,
     display: 'flex',
-    backgroundColor: 'listBackground',
     borderRadius: 16,
   },
   unread: {
