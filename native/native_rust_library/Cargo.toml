@@ -20,6 +20,7 @@ argon2 = "0.4"
 digest = "0.9"
 curve25519-dalek = "3.2"
 sha2 = "0.9"
+regex = "1.6"
 
 [build-dependencies]
 cxx-build = "1.0"
