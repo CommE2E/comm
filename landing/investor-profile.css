@@ -43,3 +43,14 @@ p.involvement {
   font-weight: 500;
   font-size: 14px;
 }
+
+@media (max-width: 600px) {
+  .profile {
+    flex-direction: column;
+    margin: 0 16px;
+  }
+
+  div.investorInfoContainer {
+    margin: 16px 0 0;
+  }
+}
