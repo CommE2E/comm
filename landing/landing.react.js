@@ -3,6 +3,11 @@
 import * as React from 'react';
 import { useRouteMatch } from 'react-router-dom';
 
+import {
+  ModalProvider,
+  useModalContext,
+} from 'lib/components/modal-provider.react';
+
 import AppLanding from './app-landing.react';
 import Footer from './footer.react';
 import Header from './header.react';
@@ -19,6 +24,16 @@ import './reset.css';
 import './global.css';
 
 function Landing(): React.Node {
+  const modalContext = useModalContext();
+
+  const modals = React.useMemo(
+    () =>
+      modalContext.modals.map(([modal, key]) => (
+        <React.Fragment key={key}>{modal}</React.Fragment>
+      )),
+    [modalContext.modals],
+  );
+
   useScrollToTopOnNavigate();
   const onPrivacy = useRouteMatch({ path: '/privacy' });
   const onTerms = useRouteMatch({ path: '/terms' });
@@ -75,8 +90,17 @@ function Landing(): React.Node {
       {header}
       {activePage}
       {footer}
+      {modals}
     </>
   );
 }
 
-export default Landing;
+function LandingWithProvider(): React.Node {
+  return (
+    <ModalProvider>
+      <Landing />
+    </ModalProvider>
+  );
+}
+
+export default LandingWithProvider;

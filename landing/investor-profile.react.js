@@ -9,20 +9,21 @@ type Props = {
   +description: string,
   +involvement: ?string,
   +imageURL: string,
+  +onClick: () => void,
 };
 
 function InvestorProfile(props: Props): React.Node {
-  const { name, description, involvement, imageURL } = props;
+  const { name, description, involvement, imageURL, onClick } = props;
 
   return (
-    <div className={css.profile}>
+    <a className={css.profile} onClick={onClick}>
       <img alt={`image of Comm investor ${name}`} src={imageURL} />
       <div className={css.investorInfoContainer}>
         <p className={css.name}>{name}</p>
         <p className={css.description}>{description}</p>
         <p className={css.involvement}>{involvement}</p>
       </div>
-    </div>
+    </a>
   );
 }
 
