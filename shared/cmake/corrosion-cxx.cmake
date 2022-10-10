@@ -46,9 +46,15 @@ function(add_library_rust)
 
   corrosion_import_crate(MANIFEST_PATH "${lib_path}/Cargo.toml")
 
-  # Set cxxbridge values
   get_filename_component(_LIB_PATH_STEM ${lib_path} NAME)
   message(STATUS "Library stem path: ${_LIB_PATH_STEM}")
+
+  # Set AR env var if it's present (Android-specific)
+  if(AR)
+    corrosion_set_env_vars(${_LIB_PATH_STEM} "AR=${AR}")
+  endif()
+
+  # Set cxxbridge values
   set(
     cxx_bridge_binary_folder
     ${CMAKE_BINARY_DIR}/cargo/build/${Rust_CARGO_TARGET}/cxxbridge)

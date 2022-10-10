@@ -499,7 +499,8 @@ android {
                 arguments "-DANDROID_STL=c++_shared",
                     "-DGLOG_VERSION=" + GLOG_VERSION,
                     "-DOPENSSL_VERSION=" + OPENSSL_VERSION,
-                    "-DGRPC_VERSION=" + GRPC_VERSION
+                    "-DGRPC_VERSION=" + GRPC_VERSION,
+                    "-DNDK_VERSION=" + rootProject.ext.ndkVersion
                 targets "comm_jni_module", "turbomodulejsijni"
             }
         }

@@ -40,6 +40,19 @@ set(gRPC_SSL_PROVIDER "package" CACHE STRING "SSL library provider")
 # gRPC client
 include(FetchContent)
 
+if(CMAKE_ANDROID_ARCH_ABI STREQUAL arm64-v8a)
+  set(Rust_CARGO_TARGET aarch64-linux-android)
+elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86)
+  set(Rust_CARGO_TARGET i686-linux-android)
+elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86_64)
+  set(Rust_CARGO_TARGET x86_64-linux-android)
+elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL armeabi-v7a)
+  set(Rust_CARGO_TARGET arm-linux-androideabi)
+endif()
+
+string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} CMAKE_HOST_SYSTEM_NAME_LOWER)
+set(AR $ENV{ANDROID_HOME}/ndk/${NDK_VERSION}/toolchains/llvm/prebuilt/${CMAKE_HOST_SYSTEM_NAME_LOWER}-x86_64/bin/${Rust_CARGO_TARGET}-ar)
+
 FetchContent_Declare(
     Corrosion
     GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
@@ -47,6 +60,21 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(Corrosion)
+
+include(../../../shared/cmake/corrosion-cxx.cmake)
+
+add_custom_target(install_rust_target_platforms ALL
+  COMMAND
+  rustup target add aarch64-linux-android armv7-linux-androideabi
+  i686-linux-android arm-linux-androideabi
+  WORKING_DIRECTORY
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  COMMENT
+  "Installing rust platform targets dependencies"
+)
+
+add_library_rust(PATH ../../native_rust_library NAMESPACE comm)
+add_dependencies(native_rust_library-total install_rust_target_platforms)
 
 # Disable unused plugins
 set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF)
@@ -110,6 +138,9 @@ include_directories(
   ../../cpp/CommonCpp/Tools
   ../../../shared/protos/_generated
   ../../cpp/CommonCpp/grpc
+
+  # native rust library
+  ../../native_rust_library
 )
 
 # search for all cpp files in this directory
@@ -229,6 +260,7 @@ target_link_libraries(
   openssl-ssl
   grpc++
   libprotobuf
+  comm::native_rust_library
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java
