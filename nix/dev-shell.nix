@@ -1,4 +1,5 @@
 { mkShell
+, mkShellNoCC
 , stdenv
 , lib
 , amqp-cpp
@@ -41,7 +42,15 @@
 , yarn
 }:
 
-mkShell {
+let
+  # For darwin, inherit the system's clang C Compiler to avoid issues
+  # around finding frameworks installed with XCode
+  mkCommShell = if stdenv.isDarwin then
+      mkShellNoCC
+    else
+      mkShell;
+
+in mkCommShell {
 
   # programs which are meant to be executed should go here
   nativeBuildInputs = [
