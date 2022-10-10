@@ -36,6 +36,7 @@
 , rustc
 , shellcheck
 , sqlite
+, terraform
 , watchman
 , rustfmt
 , yarn
@@ -45,9 +46,10 @@ mkShell {
 
   # programs which are meant to be executed should go here
   nativeBuildInputs = [
-    # generic development
+    # generic development or tools
     arcanist
     shellcheck
+    terraform
 
     # node development
     mariadb
