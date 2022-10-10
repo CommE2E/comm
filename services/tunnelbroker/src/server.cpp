@@ -1,9 +1,11 @@
 #include "AmqpManager.h"
 #include "ConfigManager.h"
+#include "GlobalConstants.h"
 #include "GlobalTools.h"
 #include "TunnelbrokerServiceImpl.h"
 
-#include "GlobalConstants.h"
+#include "rust-lib/src/lib.rs.h"
+#include "rust/cxx.h"
 
 #include <glog/logging.h>
 #include <grpcpp/grpcpp.h>
@@ -38,6 +40,18 @@ int main(int argc, char **argv) {
   comm::network::tools::InitLogging("tunnelbroker");
   comm::network::config::ConfigManager::getInstance().load();
   comm::network::AmqpManager::getInstance().init();
+  rust::notifications::init(
+      comm::network::config::ConfigManager::getInstance().getParameter(
+          comm::network::config::ConfigManager::OPTION_NOTIFS_FCM_SERVER_KEY),
+      comm::network::config::ConfigManager::getInstance().getParameter(
+          comm::network::config::ConfigManager::
+              OPTION_NOTIFS_APNS_P12_CERT_PATH),
+      comm::network::config::ConfigManager::getInstance().getParameter(
+          comm::network::config::ConfigManager::
+              OPTION_NOTIFS_APNS_P12_CERT_PASSWORD),
+      comm::network::config::ConfigManager::getInstance().getParameter(
+          comm::network::config::ConfigManager::OPTION_NOTIFS_APNS_TOPIC),
+      false);
   std::thread grpcThread(comm::network::RunServer);
   grpcThread.join();
   return 0;

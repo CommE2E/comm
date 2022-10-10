@@ -173,16 +173,7 @@ grpc::Status TunnelBrokerServiceImpl::Send(
         typedef rust::notifications::apnsReturnStatus apnsReturnStatus;
         const apnsReturnStatus apnsResult =
             rust::notifications::sendNotifToAPNS(
-                config::ConfigManager::getInstance().getParameter(
-                    config::ConfigManager::OPTION_NOTIFS_APNS_P12_CERT_PATH),
-                config::ConfigManager::getInstance().getParameter(
-                    config::ConfigManager::
-                        OPTION_NOTIFS_APNS_P12_CERT_PASSWORD),
-                notifyToken,
-                config::ConfigManager::getInstance().getParameter(
-                    config::ConfigManager::OPTION_NOTIFS_APNS_TOPIC),
-                notificationMessageText,
-                false);
+                notifyToken, notificationMessageText);
         if ((apnsResult == apnsReturnStatus::Unregistered ||
              apnsResult == apnsReturnStatus::BadDeviceToken) &&
             !database::DatabaseManager::getInstance()
@@ -194,11 +185,7 @@ grpc::Status TunnelBrokerServiceImpl::Send(
       } else if (deviceOs == "Android" && !notifyToken.empty()) {
         typedef rust::notifications::fcmReturnStatus fcmReturnStatus;
         const fcmReturnStatus fcmResult = rust::notifications::sendNotifToFCM(
-            config::ConfigManager::getInstance().getParameter(
-                config::ConfigManager::OPTION_NOTIFS_FCM_SERVER_KEY),
-            notifyToken,
-            notificationMessageTitle,
-            notificationMessageText);
+            notifyToken, notificationMessageTitle, notificationMessageText);
         if ((fcmResult == fcmReturnStatus::InvalidRegistration ||
              fcmResult == fcmReturnStatus::NotRegistered) &&
             !database::DatabaseManager::getInstance()

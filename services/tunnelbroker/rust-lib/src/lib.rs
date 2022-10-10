@@ -35,17 +35,12 @@ mod ffi {
     ) -> Result<()>;
     #[cxx_name = "sendNotifToAPNS"]
     fn send_notif_to_apns(
-      certificate_path: &str,
-      certificate_password: &str,
       device_token: &str,
-      topic: &str,
       message: &str,
-      sandbox: bool,
     ) -> Result<apns_status>;
 
     #[cxx_name = "sendNotifToFCM"]
     fn send_notif_to_fcm(
-      fcm_api_key: &str,
       device_registration_id: &str,
       message_title: &str,
       message_body: &str,
@@ -80,31 +75,29 @@ pub fn notifications_init(
 }
 
 pub fn send_notif_to_apns(
-  certificate_path: &str,
-  certificate_password: &str,
   device_token: &str,
-  topic: &str,
   message: &str,
-  sandbox: bool,
 ) -> Result<apns_status> {
   RUNTIME.block_on(notifications::apns::send_by_a2_client(
-    certificate_path,
-    certificate_password,
+    &NOTIFICATIONS_CONFIG.read().unwrap().apns_certificate_path,
+    &NOTIFICATIONS_CONFIG
+      .read()
+      .unwrap()
+      .apns_certificate_password,
     device_token,
-    topic,
+    &NOTIFICATIONS_CONFIG.read().unwrap().apns_topic,
     message,
-    sandbox,
+    NOTIFICATIONS_CONFIG.read().unwrap().sandbox,
   ))
 }
 
 pub fn send_notif_to_fcm(
-  fcm_api_key: &str,
   device_registration_id: &str,
   message_title: &str,
   message_body: &str,
 ) -> Result<fcm_status> {
   RUNTIME.block_on(notifications::fcm::send_by_fcm_client(
-    fcm_api_key,
+    &NOTIFICATIONS_CONFIG.read().unwrap().fcm_api_key,
     device_registration_id,
     message_title,
     message_body,
