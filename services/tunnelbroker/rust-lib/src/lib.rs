@@ -3,6 +3,7 @@ use anyhow::Result;
 use env_logger;
 use lazy_static::lazy_static;
 use log::info;
+use std::sync::RwLock;
 use tokio::runtime::Runtime;
 pub mod notifications;
 
@@ -24,6 +25,14 @@ mod ffi {
   }
   #[namespace = "rust::notifications"]
   extern "Rust" {
+    #[cxx_name = "init"]
+    fn notifications_init(
+      fcm_api_key: &str,
+      apns_certificate_path: &str,
+      apns_certificate_password: &str,
+      apns_topic: &str,
+      sandbox: bool,
+    ) -> Result<()>;
     #[cxx_name = "sendNotifToAPNS"]
     fn send_notif_to_apns(
       certificate_path: &str,
@@ -50,6 +59,24 @@ lazy_static! {
     info!("Tokio runtime initialization");
     Runtime::new().unwrap()
   };
+  static ref NOTIFICATIONS_CONFIG: RwLock<notifications::config::Config> =
+    RwLock::new(notifications::config::Config::default());
+}
+
+pub fn notifications_init(
+  fcm_api_key: &str,
+  apns_certificate_path: &str,
+  apns_certificate_password: &str,
+  apns_topic: &str,
+  sandbox: bool,
+) -> Result<()> {
+  let mut config = NOTIFICATIONS_CONFIG.write().unwrap();
+  config.fcm_api_key = String::from(fcm_api_key);
+  config.apns_certificate_path = String::from(apns_certificate_path);
+  config.apns_certificate_password = String::from(apns_certificate_password);
+  config.apns_topic = String::from(apns_topic);
+  config.sandbox = sandbox;
+  Ok(())
 }
 
 pub fn send_notif_to_apns(
