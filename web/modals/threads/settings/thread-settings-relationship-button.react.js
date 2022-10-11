@@ -51,22 +51,26 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
   const { username } = otherUserInfo;
   invariant(username, 'Other username should be specified');
 
-  let color;
+  let backgroundColor;
   if (relationshipButton === relationshipButtons.FRIEND) {
-    color = 'success';
+    backgroundColor = '--relationship-button-green';
   } else if (relationshipButton === relationshipButtons.UNFRIEND) {
-    color = 'danger';
+    backgroundColor = '--relationship-button-red';
   } else if (relationshipButton === relationshipButtons.BLOCK) {
-    color = 'danger';
+    backgroundColor = '--relationship-button-red';
   } else if (relationshipButton === relationshipButtons.UNBLOCK) {
-    color = 'success';
+    backgroundColor = '--relationship-button-green';
   } else if (relationshipButton === relationshipButtons.ACCEPT) {
-    color = 'success';
+    backgroundColor = '--relationship-button-green';
   } else if (relationshipButton === relationshipButtons.REJECT) {
-    color = 'danger';
+    backgroundColor = '--relationship-button-red';
   } else if (relationshipButton === relationshipButtons.WITHDRAW) {
-    color = 'danger';
+    backgroundColor = '--relationship-button-red';
   }
+  invariant(
+    backgroundColor,
+    'every relationship type should have a color assigned',
+  );
 
   const { text, action } = React.useMemo(() => {
     return {
@@ -129,7 +133,10 @@ function ThreadSettingsRelationshipButton(props: ButtonProps): React.Node {
   return (
     <Button
       variant="filled"
-      buttonColor={color}
+      buttonColor={{
+        backgroundColor: `var(${backgroundColor})`,
+        color: 'var(--relationship-button-text)',
+      }}
       onClick={onClick}
       disabled={disabled}
     >
