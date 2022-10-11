@@ -10,7 +10,7 @@ const std::string BlobItem::FIELD_BLOB_HASH = "blobHash";
 const std::string BlobItem::FIELD_S3_PATH = "s3Path";
 const std::string BlobItem::FIELD_CREATED = "created";
 
-std::string BlobItem::tableName = BLOB_TABLE_NAME;
+const std::string BlobItem::TABLE_NAME = BLOB_TABLE_NAME;
 
 BlobItem::BlobItem(
     const std::string blobHash,
@@ -45,7 +45,7 @@ void BlobItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
 }
 
 std::string BlobItem::getTableName() const {
-  return BlobItem::tableName;
+  return BlobItem::TABLE_NAME;
 }
 
 PrimaryKeyDescriptor BlobItem::getPrimaryKeyDescriptor() const {

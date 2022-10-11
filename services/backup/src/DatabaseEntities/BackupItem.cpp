@@ -14,7 +14,7 @@ const std::string BackupItem::FIELD_RECOVERY_DATA = "recoveryData";
 const std::string BackupItem::FIELD_COMPACTION_HOLDER = "compactionHolder";
 const std::string BackupItem::FIELD_ATTACHMENT_HOLDERS = "attachmentHolders";
 
-std::string BackupItem::tableName = BACKUP_TABLE_NAME;
+const std::string BackupItem::TABLE_NAME = BACKUP_TABLE_NAME;
 
 BackupItem::BackupItem(
     std::string userID,
@@ -76,7 +76,7 @@ void BackupItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
 }
 
 std::string BackupItem::getTableName() const {
-  return BackupItem::tableName;
+  return BackupItem::TABLE_NAME;
 }
 
 PrimaryKeyDescriptor BackupItem::getPrimaryKeyDescriptor() const {

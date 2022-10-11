@@ -9,7 +9,7 @@ namespace database {
 const std::string ReverseIndexItem::FIELD_HOLDER = "holder";
 const std::string ReverseIndexItem::FIELD_BLOB_HASH = "blobHash";
 
-std::string ReverseIndexItem::tableName = REVERSE_INDEX_TABLE_NAME;
+const std::string ReverseIndexItem::TABLE_NAME = REVERSE_INDEX_TABLE_NAME;
 
 ReverseIndexItem::ReverseIndexItem(
     const std::string holder,
@@ -38,7 +38,7 @@ void ReverseIndexItem::assignItemFromDatabase(
 }
 
 std::string ReverseIndexItem::getTableName() const {
-  return ReverseIndexItem::tableName;
+  return ReverseIndexItem::TABLE_NAME;
 }
 
 PrimaryKeyDescriptor ReverseIndexItem::getPrimaryKeyDescriptor() const {

@@ -19,7 +19,7 @@ DatabaseManager &DatabaseManager::getInstance() {
 
 void DatabaseManager::putBlobItem(const BlobItem &item) {
   Aws::DynamoDB::Model::PutItemRequest request;
-  request.SetTableName(BlobItem::tableName);
+  request.SetTableName(BlobItem::TABLE_NAME);
   request.AddItem(
       BlobItem::FIELD_BLOB_HASH,
       Aws::DynamoDB::Model::AttributeValue(item.getBlobHash()));
@@ -58,7 +58,7 @@ void DatabaseManager::putReverseIndexItem(const ReverseIndexItem &item) {
         "] already exists");
   }
   Aws::DynamoDB::Model::PutItemRequest request;
-  request.SetTableName(ReverseIndexItem::tableName);
+  request.SetTableName(ReverseIndexItem::TABLE_NAME);
   request.AddItem(
       ReverseIndexItem::FIELD_HOLDER,
       Aws::DynamoDB::Model::AttributeValue(item.getHolder()));
@@ -84,7 +84,7 @@ DatabaseManager::findReverseIndexItemsByHash(const std::string &blobHash) {
   std::vector<std::shared_ptr<database::ReverseIndexItem>> result;
 
   Aws::DynamoDB::Model::QueryRequest req;
-  req.SetTableName(ReverseIndexItem::tableName);
+  req.SetTableName(ReverseIndexItem::TABLE_NAME);
   req.SetKeyConditionExpression("blobHash = :valueToMatch");
 
   AttributeValues attributeValues;

@@ -28,7 +28,7 @@ class LogItem : public Item {
   void validate() const override;
 
 public:
-  static std::string tableName;
+  static const std::string TABLE_NAME;
   static const std::string FIELD_BACKUP_ID;
   static const std::string FIELD_LOG_ID;
   static const std::string FIELD_PERSISTED_IN_BLOB;

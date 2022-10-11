@@ -20,7 +20,7 @@ DatabaseManager &DatabaseManager::getInstance() {
 
 void DatabaseManager::putBackupItem(const BackupItem &item) {
   Aws::DynamoDB::Model::PutItemRequest request;
-  request.SetTableName(BackupItem::tableName);
+  request.SetTableName(BackupItem::TABLE_NAME);
   request.AddItem(
       BackupItem::FIELD_USER_ID,
       Aws::DynamoDB::Model::AttributeValue(item.getUserID()));
@@ -64,7 +64,7 @@ DatabaseManager::findLastBackupItem(const std::string &userID) {
   std::shared_ptr<BackupItem> item = createItemByType<BackupItem>();
 
   Aws::DynamoDB::Model::QueryRequest req;
-  req.SetTableName(BackupItem::tableName);
+  req.SetTableName(BackupItem::TABLE_NAME);
   req.SetKeyConditionExpression(BackupItem::FIELD_USER_ID + " = :valueToMatch");
 
   AttributeValues attributeValues;
@@ -97,7 +97,7 @@ void DatabaseManager::removeBackupItem(std::shared_ptr<BackupItem> item) {
 
 void DatabaseManager::putLogItem(const LogItem &item) {
   Aws::DynamoDB::Model::PutItemRequest request;
-  request.SetTableName(LogItem::tableName);
+  request.SetTableName(LogItem::TABLE_NAME);
   request.AddItem(
       LogItem::FIELD_BACKUP_ID,
       Aws::DynamoDB::Model::AttributeValue(item.getBackupID()));
@@ -140,7 +140,7 @@ DatabaseManager::findLogItemsForBackup(const std::string &backupID) {
   std::shared_ptr<LogItem> item = createItemByType<LogItem>();
 
   Aws::DynamoDB::Model::QueryRequest req;
-  req.SetTableName(LogItem::tableName);
+  req.SetTableName(LogItem::TABLE_NAME);
   req.SetKeyConditionExpression(LogItem::FIELD_BACKUP_ID + " = :valueToMatch");
 
   AttributeValues attributeValues;

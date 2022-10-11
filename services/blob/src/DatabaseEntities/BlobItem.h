@@ -18,7 +18,7 @@ class BlobItem : public Item {
   void validate() const override;
 
 public:
-  static std::string tableName;
+  static const std::string TABLE_NAME;
   static const std::string FIELD_BLOB_HASH;
   static const std::string FIELD_S3_PATH;
   static const std::string FIELD_CREATED;

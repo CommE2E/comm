@@ -16,7 +16,7 @@ const std::string LogItem::FIELD_VALUE = "value";
 const std::string LogItem::FIELD_ATTACHMENT_HOLDERS = "attachmentHolders";
 const std::string LogItem::FIELD_DATA_HASH = "dataHash";
 
-std::string LogItem::tableName = LOG_TABLE_NAME;
+const std::string LogItem::TABLE_NAME = LOG_TABLE_NAME;
 
 LogItem::LogItem(
     const std::string backupID,
@@ -83,7 +83,7 @@ void LogItem::assignItemFromDatabase(const AttributeValues &itemFromDB) {
 }
 
 std::string LogItem::getTableName() const {
-  return LogItem::tableName;
+  return LogItem::TABLE_NAME;
 }
 
 PrimaryKeyDescriptor LogItem::getPrimaryKeyDescriptor() const {

@@ -41,7 +41,7 @@ class BackupItem : public Item {
   void validate() const override;
 
 public:
-  static std::string tableName;
+  static const std::string TABLE_NAME;
   static const std::string FIELD_USER_ID;
   static const std::string FIELD_BACKUP_ID;
   static const std::string FIELD_CREATED;
