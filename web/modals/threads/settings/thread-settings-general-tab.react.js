@@ -185,6 +185,7 @@ function ThreadSettingsGeneralTab(
         </div>
       </div>
       <SubmitSection
+        variant="filled"
         errorMessage={errorMessage}
         onClick={onSubmit}
         disabled={threadSettingsOperationInProgress || !changeQueued}

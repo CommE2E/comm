@@ -1,14 +1,19 @@
-.btn {
+.plain {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   border: none;
+  cursor: pointer;
+  background: none;
+}
+
+.btn {
+  border-radius: 4px;
   font-size: var(--m-font-16);
   padding: 12px 24px;
   background: var(--background-color);
   color: var(--fg);
-  border-radius: 4px;
   cursor: pointer;
 }
 

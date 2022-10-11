@@ -6,7 +6,7 @@ import tinycolor from 'tinycolor2';
 
 import css from './button.css';
 
-export type ButtonVariant = 'filled' | 'outline' | 'text';
+export type ButtonVariant = 'plain' | 'filled' | 'outline' | 'text';
 export type ButtonColor = {
   +backgroundColor: string,
   +color?: string,
@@ -38,7 +38,7 @@ export const buttonThemes = {
 };
 
 export type ButtonProps = {
-  +onClick: (event: SyntheticEvent<HTMLButtonElement>) => mixed,
+  +onClick: ?(event: SyntheticEvent<HTMLButtonElement>) => mixed,
   +children: React.Node,
   +variant?: ButtonVariant,
   +buttonColor?: ButtonColor,
@@ -51,14 +51,18 @@ function Button(props: ButtonProps): React.Node {
   const {
     onClick,
     children,
-    variant = 'filled',
+    variant = 'plain',
     buttonColor,
-    type,
+    type = 'button',
     disabled = false,
     className = '',
   } = props;
 
-  const btnCls = classnames(css.btn, css[variant]);
+  const btnCls = classnames({
+    [css.plain]: true,
+    [css.btn]: variant === 'filled' || variant === 'outline',
+    [css[variant]]: true,
+  });
 
   const style = React.useMemo(() => {
     let color;
