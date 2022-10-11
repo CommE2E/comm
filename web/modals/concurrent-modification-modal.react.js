@@ -23,6 +23,7 @@ export default function ConcurrentModificationModal(props: Props): React.Node {
           time as you! Please refresh the entry and try again.
         </p>
         <Button
+          variant="filled"
           onClick={props.onRefresh}
           type="submit"
           className={css.refresh_button}

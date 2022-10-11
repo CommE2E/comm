@@ -149,7 +149,12 @@ function LoginForm(): React.Node {
           </div>
         </div>
         <div className={css['form-footer']}>
-          <Button type="submit" disabled={inputDisabled} onClick={onSubmit}>
+          <Button
+            variant="filled"
+            type="submit"
+            disabled={inputDisabled}
+            onClick={onSubmit}
+          >
             {loginButtonContent}
           </Button>
           <div className={css['modal-form-error']}>{errorMessage}</div>

@@ -165,6 +165,7 @@ function ThreadSettingsPrivacyTab(
       </div>
 
       <SubmitSection
+        variant="filled"
         onClick={onSubmit}
         disabled={threadSettingsOperationInProgress || !changeQueued}
         errorMessage={errorMessage}

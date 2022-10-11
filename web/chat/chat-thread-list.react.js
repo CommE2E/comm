@@ -56,7 +56,11 @@ function ChatThreadList(): React.Node {
         <div>{threadComponents}</div>
       </div>
       <div className={css.createNewThread}>
-        <Button disabled={isThreadCreation} onClick={onClickNewThread}>
+        <Button
+          variant="filled"
+          disabled={isThreadCreation}
+          onClick={onClickNewThread}
+        >
           Create new chat
         </Button>
       </div>

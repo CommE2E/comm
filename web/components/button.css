@@ -1,18 +1,23 @@
+.plain {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
 .btn {
   --border-width: 1px;
   --border-radius: 4px;
 
   position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  border: var(--border-width) solid transparent;
   font-size: var(--m-font-16);
   padding: 12px 24px;
   color: var(--fg);
+  border: var(--border-width) solid transparent;
   border-radius: var(--border-radius);
-  cursor: pointer;
 }
 
 .btn.outline {
@@ -65,8 +70,7 @@
 }
 
 .text {
+  font-size: var(--m-font-16);
   background: transparent;
   white-space: nowrap;
-  padding: 0;
-  border: none;
 }

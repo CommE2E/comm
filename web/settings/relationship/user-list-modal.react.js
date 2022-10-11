@@ -39,7 +39,9 @@ function UserListModal(props: Props): React.Node {
           usersComparator={usersComparator}
           searchText={searchText}
         />
-        <Button onClick={onAddUsersClick}>{buttonLabel}</Button>
+        <Button variant="filled" onClick={onAddUsersClick}>
+          {buttonLabel}
+        </Button>
       </div>
     ),
     [

@@ -250,7 +250,7 @@ function NotificationsModal(props: Props): React.Node {
           {backgroundItem}
         </div>
         <Button
-          type="primary"
+          variant="filled"
           onClick={onClickSave}
           disabled={notificationSettings === initialThreadSetting}
         >

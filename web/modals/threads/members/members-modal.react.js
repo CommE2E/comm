@@ -96,7 +96,9 @@ function ThreadMembersModalContent(props: ContentProps): React.Node {
     }
     return (
       <div className={css.addNewMembers}>
-        <Button onClick={onClickAddMembers}>Add members</Button>
+        <Button variant="filled" onClick={onClickAddMembers}>
+          Add members
+        </Button>
       </div>
     );
   }, [canAddMembers, onClickAddMembers]);
