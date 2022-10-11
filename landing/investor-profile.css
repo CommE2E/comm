@@ -6,6 +6,7 @@
   padding: 40px 32px;
   background-color: #7e57c221;
   box-shadow: 0px 4px 4px #00000040, inset 0px 0px 12px 5px #7e57c24d;
+  cursor: pointer;
 }
 
 .profile img {
@@ -44,10 +45,29 @@ p.involvement {
   font-size: 14px;
 }
 
+a.profileModal {
+  background-color: #7e57c266;
+  cursor: default;
+  min-width: 576px;
+  width: max-content;
+  max-width: min(692px, 90vw);
+}
+
+p.descriptionModal {
+  display: block;
+  min-height: 56px;
+  height: auto;
+}
+
 @media (max-width: 600px) {
   .profile {
     flex-direction: column;
-    margin: 0 16px;
+    max-width: 464px;
+  }
+
+  a.profileModal {
+    min-width: 90vw;
+    width: 90vw;
   }
 
   div.investorInfoContainer {
