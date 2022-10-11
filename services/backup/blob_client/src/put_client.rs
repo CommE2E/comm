@@ -8,7 +8,7 @@ use proto::put_request::Data::*;
 use proto::PutRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
-use anyhow::bail;
+use anyhow::{bail, ensure};
 use crate::RUNTIME;
 use lazy_static::lazy_static;
 use libc;
@@ -54,9 +54,8 @@ pub fn put_client_initialize_cxx(
   if is_initialized(&holder)? {
     put_client_terminate_cxx(&holder.to_string())?;
   }
-  if is_initialized(&holder)? {
-    bail!("client cannot be initialized twice");
-  }
+  ensure!(!is_initialized(&holder)?, "client cannot be initialized twice");
+
   // grpc
   if let Ok(mut grpc_client) =
     RUNTIME.block_on(async { BlobServiceClient::connect(BLOB_ADDRESS).await })
@@ -145,12 +144,11 @@ pub fn put_client_initialize_cxx(
       Ok(())
     });
 
-    if is_initialized(&holder)? {
-      bail!(format!(
-        "client initialization overlapped for holder {}",
-        holder
-      ));
-    }
+    ensure!(!is_initialized(&holder)?, format!(
+      "client initialization overlapped for holder {}",
+      holder
+    ));
+
     if let Ok(mut clients) = CLIENTS.lock() {
       let client = BidiClient {
         tx: request_thread_tx,
@@ -243,8 +241,6 @@ pub fn put_client_terminate_cxx(
     bail!("couldn't access client");
   }
 
-  if is_initialized(&holder)? {
-    bail!("client transmitter handler released properly");
-  }
+  ensure!(!is_initialized(&holder)?, "client transmitter handler released properly");
   Ok(())
 }

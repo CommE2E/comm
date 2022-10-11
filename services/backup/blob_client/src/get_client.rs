@@ -6,7 +6,7 @@ use proto::blob_service_client::BlobServiceClient;
 use proto::GetRequest;
 
 use crate::constants::{BLOB_ADDRESS, MPSC_CHANNEL_BUFFER_CAPACITY};
-use anyhow::bail;
+use anyhow::{bail, ensure};
 use crate::RUNTIME;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
@@ -130,8 +130,6 @@ pub fn get_client_terminate_cxx(
     bail!("couldn't access client");
   }
 
-  if is_initialized(&holder)? {
-    bail!("client transmitter handler released properly");
-  }
+  ensure!(!is_initialized(&holder)?, "client transmitter handler released properly");
   Ok(())
 }
