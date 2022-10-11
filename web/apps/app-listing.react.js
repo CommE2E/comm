@@ -13,6 +13,7 @@ import {
 } from 'lib/reducers/enabled-apps-reducer';
 import type { SupportedApps } from 'lib/types/enabled-apps';
 
+import Button from '../components/button.react';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './apps.css';
 
@@ -52,18 +53,15 @@ function AppListing(props: Props): React.Node {
         </div>
       );
     }
-    const iconClasses = classnames(
-      css.appListingIcon,
-      css.appListingIconState,
-      {
-        [css.iconEnabled]: enabled,
-        [css.iconDisabled]: !enabled,
-      },
-    );
+    const iconClasses = classnames({
+      [css.appListingIconState]: true,
+      [css.iconEnabled]: enabled,
+      [css.iconDisabled]: !enabled,
+    });
     return (
-      <div className={iconClasses} onClick={switchAppState}>
+      <Button className={iconClasses} onClick={switchAppState}>
         <FontAwesomeIcon icon={enabled ? faCheckCircle : faPlusCircle} />
-      </div>
+      </Button>
     );
   }, [enabled, readOnly, switchAppState]);
   return (

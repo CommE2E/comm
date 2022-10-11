@@ -1,15 +1,11 @@
-div.container {
+.container {
   height: 48px;
   width: 48px;
   border-radius: 24px;
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  display: flex;
 }
 
-div.active,
-div.container:hover {
+.active,
+.container:hover {
   background-color: var(--color-selector-active-bg);
 }
 

@@ -7,6 +7,7 @@ import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { getMessagePreview } from 'lib/shared/message-utils';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
+import Button from '../../../components/button.react';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react';
 import { useSelector } from '../../../redux/redux-utils';
 import { useOnClickThread } from '../../../selectors/nav-selectors';
@@ -58,7 +59,7 @@ function Sidebar(props: Props): React.Node {
   }, [lastActivity, mostRecentMessageInfo, threadInfo]);
 
   return (
-    <button className={css.sidebarContainer} onClick={onClickThread}>
+    <Button className={css.sidebarContainer} onClick={onClickThread}>
       <img
         className={css.sidebarArrow}
         src={
@@ -72,7 +73,7 @@ function Sidebar(props: Props): React.Node {
         <div className={css.longTextEllipsis}>{threadInfo.uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>
       </div>
-    </button>
+    </Button>
   );
 }
 

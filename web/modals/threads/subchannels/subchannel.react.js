@@ -7,6 +7,7 @@ import { type ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { getMessagePreview } from 'lib/shared/message-utils';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
+import Button from '../../../components/button.react';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react';
 import { useSelector } from '../../../redux/redux-utils';
 import { useOnClickThread } from '../../../selectors/nav-selectors';
@@ -62,13 +63,13 @@ function Subchannel(props: Props): React.Node {
   }, [lastActivity, mostRecentMessageInfo, threadInfo]);
 
   return (
-    <div className={css.subchannelContainer} onClick={onClickThread}>
+    <Button className={css.subchannelContainer} onClick={onClickThread}>
       <SWMansionIcon icon="message-square" size={22} />
       <div className={css.subchannelInfo}>
         <div className={css.longTextEllipsis}>{threadInfo.uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>
       </div>
-    </div>
+    </Button>
   );
 }
 

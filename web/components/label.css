@@ -7,10 +7,6 @@ div.label {
 }
 
 button.close {
-  display: flex;
-  align-items: center;
   margin-left: 4px;
-  background: transparent;
-  border: none;
   color: inherit;
 }

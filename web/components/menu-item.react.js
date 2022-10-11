@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
+import Button from './button.react';
 import css from './menu.css';
 
 type MenuItemProps = {
@@ -19,13 +20,14 @@ function MenuItem(props: MenuItemProps): React.Node {
   const itemClasses = classNames(css.menuAction, {
     [css.menuActionDangerous]: dangerous,
   });
+
   return (
-    <button className={itemClasses} onClick={onClick}>
+    <Button className={itemClasses} onClick={onClick}>
       <div className={css.menuActionIcon}>
         <SWMansionIcon size="100%" icon={icon} />
       </div>
       <div>{text}</div>
-    </button>
+    </Button>
   );
 }
 

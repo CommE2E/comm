@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import ModalOverlay from 'lib/components/modal-overlay.react';
 
+import Button from '../components/button.react';
 import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
 import css from './modal.css';
 
@@ -47,9 +48,9 @@ function Modal(props: ModalProps): React.Node {
       return null;
     }
     return (
-      <span className={css.modalClose} onClick={onClose}>
+      <Button className={css.modalClose} onClick={onClose}>
         <SWMansionIcon size={24} icon="cross" />
-      </span>
+      </Button>
     );
   }, [onClose, withCloseButton]);
 

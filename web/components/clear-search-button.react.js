@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import SWMansionIcon from '../SWMansionIcon.react';
+import Button from './button.react';
 import css from './search.css';
 
 type ClearSearchButtonProps = {
@@ -17,9 +18,9 @@ function ClearSearchButton(props: ClearSearchButtonProps): React.Node {
     [css.clearSearchDisabled]: !active,
   });
   return (
-    <button className={searchClassNames} onClick={onClick}>
+    <Button className={searchClassNames} onClick={onClick}>
       <SWMansionIcon icon="cross" size={12} />
-    </button>
+    </Button>
   );
 }
 

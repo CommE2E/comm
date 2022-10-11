@@ -12,6 +12,7 @@ import {
 
 import { useModalContext } from 'lib/components/modal-provider.react';
 
+import Button from '../components/button.react';
 import { type PendingMultimediaUpload } from '../input/input-state';
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react';
@@ -71,7 +72,9 @@ class Multimedia extends React.PureComponent<Props> {
 
       if (remove) {
         removeButton = (
-          <XCircleIcon onClick={this.remove} className={css.removeUpload} />
+          <Button onClick={this.remove}>
+            <XCircleIcon className={css.removeUpload} />
+          </Button>
         );
       }
     }
@@ -85,13 +88,13 @@ class Multimedia extends React.PureComponent<Props> {
     const containerClasses = [css.multimedia, this.props.multimediaCSSClass];
     return (
       <span className={classNames(containerClasses)}>
-        <span
+        <Button
           className={classNames(imageContainerClasses)}
           onClick={this.onClick}
         >
           <img src={this.props.uri} />
           {removeButton}
-        </span>
+        </Button>
         {progressIndicator}
         {errorIndicator}
       </span>
@@ -109,9 +112,7 @@ class Multimedia extends React.PureComponent<Props> {
     remove(pendingUpload.localID);
   };
 
-  onClick: (event: SyntheticEvent<HTMLSpanElement>) => void = event => {
-    event.stopPropagation();
-
+  onClick: () => void = () => {
     const { pushModal, uri } = this.props;
     pushModal(<MultimediaModal uri={uri} />);
   };

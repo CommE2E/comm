@@ -30,10 +30,8 @@ input.searchInput::placeholder {
 button.clearSearch {
   color: var(--search-clear-color);
   transition: ease-in-out 0.15s;
-  border: none;
   background: var(--search-clear-bg);
   border-radius: 50%;
-  display: flex;
   padding: 6px;
 }
 

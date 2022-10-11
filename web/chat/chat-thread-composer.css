@@ -34,10 +34,7 @@ div.searchField {
   flex-grow: 1;
 }
 
-div.closeSearch {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
+.closeSearch {
   color: var(--thread-creation-close-search-color);
   margin: 0 8px;
 }

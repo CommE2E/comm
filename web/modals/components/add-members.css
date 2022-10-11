@@ -5,14 +5,9 @@ div.addMemberItemsGroupHeader {
 }
 
 button.addMemberItem {
-  display: flex;
-  flex-direction: row;
   justify-content: space-between;
-  align-items: center;
   color: var(--add-members-item-color);
   font-size: var(--l-font-18);
-  background-color: transparent;
-  border: none;
   width: 100%;
 }
 

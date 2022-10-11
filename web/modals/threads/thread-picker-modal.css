@@ -12,12 +12,16 @@ div.contentContainer {
 
 div.threadPickerOptionContainer {
   display: flex;
-  align-items: center;
-  padding: 12px 16px;
-  cursor: pointer;
 }
 
-div.threadPickerOptionContainer:hover {
+.threadPickerOptionButton {
+  flex: 1;
+  justify-content: left;
+  padding: 12px 16px;
+  font-size: var(--m-font-16);
+}
+
+.threadPickerOptionButton:hover {
   background-color: var(--thread-hover-bg);
   border-radius: 8px;
 }

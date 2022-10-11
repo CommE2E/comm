@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
+import Button from '../../components/button.react';
 import css from './add-users-list.css';
 
 type Props = {
@@ -18,10 +19,10 @@ function AddUsersListItem(props: Props): React.Node {
     userInfo.id,
   ]);
   return (
-    <button className={css.addUserButton} onClick={addUser}>
+    <Button className={css.addUserButton} onClick={addUser}>
       <div className={css.addUserButtonUsername}>{userInfo.username}</div>
       Add
-    </button>
+    </Button>
   );
 }
 

@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import type { UserListItem } from 'lib/types/user-types';
 
+import Button from '../../components/button.react';
 import css from './add-members.css';
 
 type AddMembersItemProps = {
@@ -36,14 +37,14 @@ function AddMemberItem(props: AddMembersItemProps): React.Node {
   }, [canBeAdded, userAdded, userInfo.alertTitle]);
 
   return (
-    <button
+    <Button
       className={css.addMemberItem}
       onClick={onClickCallback}
       disabled={!canBeAdded}
     >
       <div className={css.label}>{userInfo.username}</div>
       <div className={css.label}>{action}</div>
-    </button>
+    </Button>
   );
 }
 
