@@ -47,6 +47,11 @@ footer.wrapper {
   font-size: clamp(1rem, 0.8954rem + 0.5229vw, 1.5rem);
   font-weight: 400;
 }
+
+.navigation svg {
+  margin-left: 8px;
+}
+
 .navigation a,
 .navigation svg {
   color: #808080;

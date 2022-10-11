@@ -39,7 +39,15 @@ function Footer(): React.Node {
             Privacy Policy
           </NavLink>
           <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
-            How Comm works{' '}
+            Learn how Comm works
+            <FontAwesomeIcon
+              size="sm"
+              color="#ffffff"
+              icon={faExternalLinkSquareAlt}
+            />
+          </a>
+          <a href="https://commapp.notion.site/Learn-more-about-Comm-1efb9b646d504dddae30a20b4f33200e">
+            About Comm
             <FontAwesomeIcon
               size="sm"
               color="#ffffff"
