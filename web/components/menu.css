@@ -35,14 +35,10 @@ div.menuActionListMemberActions {
 button.menuAction {
   color: inherit;
   z-index: 1;
-  background-color: transparent;
   padding: 12px 16px;
   line-height: 1.5;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
   font-size: inherit;
+  justify-content: start;
 }
 
 button.menuAction:hover {

@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import SWMansionIcon from '../SWMansionIcon.react';
+import Button from './button.react';
 import css from './label.css';
 
 type Props = {
@@ -36,9 +37,9 @@ function Label(props: Props): React.Node {
       return null;
     }
     return (
-      <button className={css.close} onClick={onClose}>
+      <Button className={css.close} onClick={onClose}>
         <SWMansionIcon icon="cross" size={size} />
-      </button>
+      </Button>
     );
   }, [onClose, size]);
 

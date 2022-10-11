@@ -2,8 +2,6 @@ div.subchannelsListContainer {
   display: flex;
   flex-direction: column;
   overflow: auto;
-  line-height: var(--line-height-text);
-  color: var(--subchannels-modal-color);
   row-gap: 8px;
   width: 383px;
   height: 458px;
@@ -13,14 +11,16 @@ div.noSubchannels {
   text-align: center;
 }
 
-div.subchannelContainer {
-  cursor: pointer;
-  display: flex;
+.subchannelContainer {
+  align-items: flex-start;
+  font-size: var(--m-font-18);
+  line-height: var(--line-height-text);
+  color: var(--subchannels-modal-color);
   padding: 8px 16px;
   column-gap: 8px;
 }
 
-div.subchannelContainer:hover {
+.subchannelContainer:hover {
   color: var(--subchannels-modal-color-hover);
 }
 
@@ -33,6 +33,7 @@ div.subchannelInfo {
 }
 
 div.longTextEllipsis {
+  align-self: flex-start;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;

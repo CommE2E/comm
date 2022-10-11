@@ -18,13 +18,10 @@ div.noSidebars {
 }
 
 button.sidebarContainer {
-  cursor: pointer;
-  display: flex;
   padding: 0 16px;
   column-gap: 8px;
   align-items: flex-start;
   width: 100%;
-  border: none;
   font-size: inherit;
   text-align: inherit;
   line-height: inherit;

@@ -46,7 +46,8 @@ div.appListingIcon {
   align-items: center;
 }
 
-div.appListingIconState {
+.appListingIconState {
+  padding: 0 20px;
   font-size: var(--xl-font-20);
 }
 
@@ -54,10 +55,10 @@ div.iconReadOnly {
   color: var(--app-list-icon-read-only-color);
 }
 
-div.iconEnabled {
+.iconEnabled {
   color: var(--app-list-icon-enabled-color);
 }
 
-div.iconDisabled {
+.iconDisabled {
   color: var(--app-list-icon-disabled-color);
 }

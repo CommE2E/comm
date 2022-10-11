@@ -29,13 +29,11 @@ div.modalContainerLarge {
   width: 500px;
 }
 
-span.modalClose {
-  display: flex;
+.modalClose {
   color: var(--modal-close-color);
 }
 
-span.modalClose:hover {
-  cursor: pointer;
+.modalClose:hover {
   color: var(--modal-close-color-hover);
 }
 

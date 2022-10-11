@@ -9,22 +9,18 @@ span.multimedia {
   position: relative;
   vertical-align: top;
 }
-span.multimedia > span.multimediaImage {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+span.multimedia > .multimediaImage {
   position: relative;
   min-height: 50px;
   min-width: 50px;
 }
-span.multimedia > span.multimediaImage > img {
+span.multimedia > .multimediaImage > img {
   max-height: 200px;
   max-width: 100%;
 }
-span.multimedia > span.multimediaImage > svg.removeUpload {
+span.multimedia > .multimediaImage svg.removeUpload {
   display: none;
   position: absolute;
-  cursor: pointer;
   top: 3px;
   right: 3px;
   color: white;
@@ -32,7 +28,7 @@ span.multimedia > span.multimediaImage > svg.removeUpload {
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
   background-color: rgba(34, 34, 34, 0.67);
 }
-span.multimedia:hover > span.multimediaImage > svg.removeUpload {
+span.multimedia:hover > .multimediaImage svg.removeUpload {
   display: inherit;
 }
 span.multimedia > svg.uploadError {

@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
+import Button from '../../components/button.react';
 import css from './color-selector-button.css';
 
 type ColorSelectorButtonProps = {
@@ -31,9 +32,9 @@ function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
   }, [onColorSelection, color]);
 
   return (
-    <div onClick={onColorSplotchClicked} className={containerClassName}>
+    <Button onClick={onColorSplotchClicked} className={containerClassName}>
       <div className={css.colorSplotch} style={colorSplotchStyle} />
-    </div>
+    </Button>
   );
 }
 

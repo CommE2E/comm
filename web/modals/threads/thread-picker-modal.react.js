@@ -8,6 +8,7 @@ import { threadSearchIndex } from 'lib/selectors/nav-selectors';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import Button from '../../components/button.react';
 import Search from '../../components/search.react';
 import { useSelector } from '../../redux/redux-utils';
 import Modal, { type ModalOverridableProps } from '../modal.react';
@@ -35,13 +36,14 @@ function ThreadPickerOption(props: OptionProps) {
   );
 
   return (
-    <div
-      key={threadInfo.id}
-      className={css.threadPickerOptionContainer}
-      onClick={onClickThreadOption}
-    >
-      <div style={splotchColorStyle} className={css.threadSplotch} />
-      <div className={css.threadNameText}>{threadInfo.uiName}</div>
+    <div key={threadInfo.id} className={css.threadPickerOptionContainer}>
+      <Button
+        className={css.threadPickerOptionButton}
+        onClick={onClickThreadOption}
+      >
+        <div style={splotchColorStyle} className={css.threadSplotch} />
+        <div className={css.threadNameText}>{threadInfo.uiName}</div>
+      </Button>
     </div>
   );
 }

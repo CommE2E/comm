@@ -174,9 +174,9 @@ function ChatThreadComposer(props: Props): React.Node {
             placeholder="Select users for chat"
           />
         </div>
-        <div className={css.closeSearch} onClick={onCloseSearch}>
+        <Button className={css.closeSearch} onClick={onCloseSearch}>
           <SWMansionIcon size={25} icon="cross" />
-        </div>
+        </Button>
       </div>
       {tagsList}
       {userSearchResultList}

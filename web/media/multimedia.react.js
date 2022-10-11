@@ -10,6 +10,7 @@ import {
   AlertCircle as AlertCircleIcon,
 } from 'react-feather';
 
+import Button from '../components/button.react';
 import { type PendingMultimediaUpload } from '../input/input-state';
 import { useModalContext } from '../modals/modal-provider.react';
 import css from './media.css';
@@ -70,7 +71,9 @@ class Multimedia extends React.PureComponent<Props> {
 
       if (remove) {
         removeButton = (
-          <XCircleIcon onClick={this.remove} className={css.removeUpload} />
+          <Button onClick={this.remove}>
+            <XCircleIcon className={css.removeUpload} />
+          </Button>
         );
       }
     }
@@ -84,13 +87,13 @@ class Multimedia extends React.PureComponent<Props> {
     const containerClasses = [css.multimedia, this.props.multimediaCSSClass];
     return (
       <span className={classNames(containerClasses)}>
-        <span
+        <Button
           className={classNames(imageContainerClasses)}
           onClick={this.onClick}
         >
           <img src={this.props.uri} />
           {removeButton}
-        </span>
+        </Button>
         {progressIndicator}
         {errorIndicator}
       </span>
@@ -108,9 +111,7 @@ class Multimedia extends React.PureComponent<Props> {
     remove(pendingUpload.localID);
   };
 
-  onClick: (event: SyntheticEvent<HTMLSpanElement>) => void = event => {
-    event.stopPropagation();
-
+  onClick: () => void = () => {
     const { pushModal, uri } = this.props;
     pushModal(<MultimediaModal uri={uri} />);
   };

@@ -6,6 +6,7 @@ import * as React from 'react';
 import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import Button from '../components/button.react';
 import { useThreadIsActive } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-list-item-menu.css';
@@ -59,14 +60,14 @@ function ChatThreadListItemMenu(props: Props): React.Node {
   });
   return (
     <div className={menuCls} onMouseLeave={hideMenu}>
-      <button onClick={toggleMenu}>
+      <Button onClick={toggleMenu}>
         <SWMansionIcon icon="menu-vertical" size={menuIconSize} />
-      </button>
+      </Button>
       <div>
-        <button className={btnCls} onClick={onToggleUnreadStatusClicked}>
+        <Button className={btnCls} onClick={onToggleUnreadStatusClicked}>
           <SWMansionIcon className={css.mailIcon} icon="mail" size={18} />
           {toggleUnreadStatusButtonText}
-        </button>
+        </Button>
       </div>
     </div>
   );
