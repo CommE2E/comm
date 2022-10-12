@@ -91,7 +91,11 @@ prev:
 
   # 16.14 now requires experimental import assertions syntax, pin to 16.13
   # https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V16.md
-  nodejs-16_x = prev.nodejs-16_x.overrideAttrs (oldAttrs: rec {
+  #
+  # TODO: Use nodejs-16_x-openssl_1_1 once
+  # https://github.com/NixOS/nixpkgs/pull/195722 is merged.
+  # Related openssl issue: https://linear.app/comm/issue/ENG-2029
+  nodejs-16_x = (prev.nodejs-16_x.overrideAttrs (oldAttrs: rec {
     version = "16.13.0";
     name = "nodejs-${version}";
 
@@ -116,7 +120,7 @@ prev:
     patches = [
       (prev.lib.head oldAttrs.patches)
     ];
-  });
+  })).override { openssl = prev.openssl_1_1; };
 
   # Ensure that yarn is using the pinned version
   yarn = prev.yarn.override (_: {
