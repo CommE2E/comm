@@ -27,8 +27,7 @@ async function userAcknowledgmentUpdater(viewer: Viewer) {
       INSERT INTO policy_acknowledgments (user, policy, date, confirmed)
         VALUES (${viewer.data.id}, ${policy}, ${time}, 1)
         ON DUPLICATE KEY UPDATE
-         SET confirmed = 1, date = ${time}
-         WHERE user = ${viewer.data.id} AND policy = ${policy};
+         confirmed = 1, date = ${time};
     `);
   });
 
