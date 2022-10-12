@@ -1,0 +1,13 @@
+div.modalOverlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
+  z-index: 4;
+  width: 100%;
+  background-color: #000000e6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
