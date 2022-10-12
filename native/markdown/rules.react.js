@@ -180,6 +180,26 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         </Text>
       ),
     },
+    spoiler: {
+      order: SimpleMarkdown.defaultRules.paragraph.order - 1,
+      match: SimpleMarkdown.inlineRegex(SharedMarkdown.spoilerRegex),
+      parse(
+        capture: SharedMarkdown.Capture,
+        parse: SharedMarkdown.Parser,
+        state: SharedMarkdown.State,
+      ) {
+        const content = capture[1];
+        return {
+          content: SimpleMarkdown.parseInline(parse, content, state),
+        };
+      },
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => <Text key={state.key}>{output(node.content, state)}</Text>,
+    },
     inlineCode: {
       ...SimpleMarkdown.defaultRules.inlineCode,
       // eslint-disable-next-line react/display-name
