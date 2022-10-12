@@ -1,8 +1,9 @@
 // @flow
+
 const localPackages = ['landing', 'lib', 'web'];
 
-async function resolve(specifier, context, defaultResolve) {
-  const defaultResult = defaultResolve(specifier, context, defaultResolve);
+async function resolve(specifier, context, nextResolve) {
+  const defaultResult = await nextResolve(specifier, context);
 
   // Special hack to use Babel-transpiled lib and web
   if (localPackages.some(pkg => specifier.startsWith(`${pkg}/`))) {
