@@ -279,46 +279,29 @@ async function fetchMessageInfos(
 
   const viewerID = viewer.id;
   const query = SQL`
-    SELECT * FROM (
-      SELECT x.id, x.content, x.time, x.type, x.user AS creatorID,
-        x.creation, x.subthread_permissions, x.uploadID, x.uploadType,
-        x.uploadSecret, x.uploadExtra,
-        @num := if(
-          @thread = x.thread,
-          if(@message = x.id, @num, @num + 1),
-          1
-        ) AS number,
-        @message := x.id AS messageID,
-        @thread := x.thread AS threadID
-      FROM (SELECT @num := 0, @thread := '', @message := '') init
-      JOIN (
-        SELECT m.id, m.thread, m.user, m.content, m.time, m.type,
-          m.creation, stm.permissions AS subthread_permissions,
-          up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
-          up.extra AS uploadExtra
-        FROM messages m
-        LEFT JOIN uploads up ON up.container = m.id
-        LEFT JOIN memberships mm
-          ON mm.thread = m.thread AND mm.user = ${viewerID}
-        LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
-          AND stm.thread = m.content AND stm.user = ${viewerID}
-        WHERE JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
+    WITH thread_window AS (
+      SELECT m.id, m.thread AS threadID, m.user AS creatorID, m.content,
+        m.time, m.type, m.creation, stm.permissions AS subthread_permissions,
+        ROW_NUMBER() OVER (
+          PARTITION BY threadID ORDER BY m.time DESC, m.id DESC
+        ) n
+      FROM messages m
+      LEFT JOIN memberships mm
+        ON mm.thread = m.thread AND mm.user = ${viewerID}
+      LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
+        AND stm.thread = m.content AND stm.user = ${viewerID}
+      WHERE JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE AND
   `;
   query.append(selectionClause);
-  // - We specify a ridiculously high LIMIT here to force MariaDB to maintain
-  //   the ORDER BY. Otherwise the query optimizer will assume that the order
-  //   doesn't matter because the outer query doesn't have an ORDER BY.
-  // - Setting an ORDER BY on the outer query won't work because our quirky
-  //   counting logic in the SELECT would be executed before the ORDER, on the
-  //   unsorted results from the inner query.
-  // - More details available here:
-  //   https://mariadb.com/kb/en/why-is-order-by-in-a-from-subquery-ignored/
   query.append(SQL`
-        ORDER BY m.thread, m.time DESC, m.id DESC
-        LIMIT 18446744073709551615
-      ) x
-    ) y
-    WHERE y.number <= ${numberPerThread}
+    )
+    SELECT tw.*,
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
+      up.extra AS uploadExtra
+    FROM thread_window tw
+    LEFT JOIN uploads up ON up.container = tw.id
+    WHERE tw.n <= ${numberPerThread}
+    ORDER BY tw.threadID, tw.time DESC, tw.id DESC
   `);
 
   const [result] = await dbQuery(query);
