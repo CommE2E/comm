@@ -59,20 +59,27 @@ async function getAssetInfo() {
     };
     return assetInfo;
   }
-  // $FlowFixMe landing/dist doesn't always exist
-  const { default: assets } = await import('landing/dist/assets');
-  assetInfo = {
-    jsURL: `compiled/${assets.browser.js}`,
-    fontURLs: [googleFontsURL, iaDuoFontsURL],
-    cssInclude: html`
-      <link
-        rel="stylesheet"
-        type="text/css"
-        href="compiled/${assets.browser.css}"
-      />
-    `,
-  };
-  return assetInfo;
+  try {
+    // $FlowFixMe landing/dist doesn't always exist
+    const { default: assets } = await import('landing/dist/assets');
+    assetInfo = {
+      jsURL: `compiled/${assets.browser.js}`,
+      fontURLs: [googleFontsURL, iaDuoFontsURL],
+      cssInclude: html`
+        <link
+          rel="stylesheet"
+          type="text/css"
+          href="compiled/${assets.browser.css}"
+        />
+      `,
+    };
+    return assetInfo;
+  } catch {
+    throw new Error(
+      'Could not load assets.json for landing build. ' +
+        'Did you forget to run `yarn dev` in the landing folder?',
+    );
+  }
 }
 
 type LandingApp = React.ComponentType<LandingSSRProps>;

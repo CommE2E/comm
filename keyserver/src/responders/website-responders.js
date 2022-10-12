@@ -81,20 +81,27 @@ async function getAssetInfo() {
     };
     return assetInfo;
   }
-  // $FlowFixMe web/dist doesn't always exist
-  const { default: assets } = await import('web/dist/assets');
-  assetInfo = {
-    jsURL: `compiled/${assets.browser.js}`,
-    fontsURL: googleFontsURL,
-    cssInclude: html`
-      <link
-        rel="stylesheet"
-        type="text/css"
-        href="compiled/${assets.browser.css}"
-      />
-    `,
-  };
-  return assetInfo;
+  try {
+    // $FlowFixMe web/dist doesn't always exist
+    const { default: assets } = await import('web/dist/assets');
+    assetInfo = {
+      jsURL: `compiled/${assets.browser.js}`,
+      fontsURL: googleFontsURL,
+      cssInclude: html`
+        <link
+          rel="stylesheet"
+          type="text/css"
+          href="compiled/${assets.browser.css}"
+        />
+      `,
+    };
+    return assetInfo;
+  } catch {
+    throw new Error(
+      'Could not load assets.json for web build. ' +
+        'Did you forget to run `yarn dev` in the web folder?',
+    );
+  }
 }
 
 let webpackCompiledRootComponent: ?React.ComponentType<{}> = null;
