@@ -1,8 +1,6 @@
 // @flow
 
 import type {
-  StackNavigationProp,
-  ParamListBase,
   StackAction,
   Route,
   Router,
@@ -62,11 +60,7 @@ export type ChatRouterNavigationAction =
   | ClearThreadsAction
   | PushNewThreadAction;
 
-export type ChatRouterNavigationProp<
-  ParamList: ParamListBase = ParamListBase,
-  RouteName: string = string,
-> = {
-  ...StackNavigationProp<ParamList, RouteName>,
+export type ChatRouterNavigationHelpers = {
   +clearScreens: (routeNames: $ReadOnlyArray<string>) => void,
   +replaceWithThread: (threadInfo: ThreadInfo) => void,
   +clearThreads: (threadIDs: $ReadOnlyArray<string>) => void,

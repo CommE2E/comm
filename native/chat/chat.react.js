@@ -13,6 +13,9 @@ import {
   type StackNavigatorProps,
   type ExtraStackNavigatorProps,
   type StackHeaderProps as CoreStackHeaderProps,
+  type StackNavigationProp,
+  type StackNavigationHelpers,
+  type ParamListBase,
 } from '@react-navigation/native';
 import { StackView, type StackHeaderProps } from '@react-navigation/stack';
 import invariant from 'invariant';
@@ -47,7 +50,7 @@ import {
 import { useColors, useStyles } from '../themes/colors';
 import BackgroundChatThreadList from './background-chat-thread-list.react';
 import ChatHeader from './chat-header.react';
-import ChatRouter, { type ChatRouterNavigationProp } from './chat-router';
+import ChatRouter, { type ChatRouterNavigationHelpers } from './chat-router';
 import ComposeSubchannel from './compose-subchannel.react';
 import ComposeThreadButton from './compose-thread-button.react';
 import HomeChatThreadList from './home-chat-thread-list.react';
@@ -131,7 +134,12 @@ function ChatThreadsComponent(): React.Node {
   );
 }
 
-type ChatNavigatorProps = StackNavigatorProps<ChatRouterNavigationProp<>>;
+export type ChatNavigationHelpers<ParamList: ParamListBase = ParamListBase> = {
+  ...$Exact<StackNavigationHelpers<ParamList>>,
+  ...ChatRouterNavigationHelpers,
+};
+
+type ChatNavigatorProps = StackNavigatorProps<ChatNavigationHelpers<>>;
 function ChatNavigator({
   initialRouteName,
   children,
@@ -174,7 +182,7 @@ const createChatNavigator = createNavigatorFactory<
   StackNavigationState,
   StackOptions,
   StackNavigationEventMap,
-  ChatRouterNavigationProp<>,
+  ChatNavigationHelpers<>,
   ExtraStackNavigatorProps,
 >(ChatNavigator);
 
@@ -248,12 +256,15 @@ const deleteThreadOptions = {
 
 export type ChatNavigationProp<
   RouteName: $Keys<ChatParamList> = $Keys<ChatParamList>,
-> = ChatRouterNavigationProp<ScreenParamList, RouteName>;
+> = {
+  ...StackNavigationProp<ScreenParamList, RouteName>,
+  ...ChatRouterNavigationHelpers,
+};
 
 const Chat = createChatNavigator<
   ScreenParamList,
   ChatParamList,
-  ChatNavigationProp<>,
+  ChatNavigationHelpers<ScreenParamList>,
 >();
 // eslint-disable-next-line no-unused-vars
 export default function ChatComponent(props: { ... }): React.Node {

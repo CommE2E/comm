@@ -855,7 +855,7 @@ declare module '@react-navigation/native' {
         >,
       ) => void;
 
-  declare type NavigationHelpers<
+  declare type CoreNavigationHelpers<
     ParamList: ParamListBase,
     State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
     EventMap: EventMapBase = EventMapCore<State>,
@@ -887,6 +887,19 @@ declare module '@react-navigation/native' {
     ...
   };
 
+  declare export type NavigationHelpers<
+    ParamList: ParamListBase,
+    State: PossiblyStaleNavigationState = PossiblyStaleNavigationState,
+    EventMap: EventMapBase = EventMapCore<State>,
+  > = {
+    ...$Exact<CoreNavigationHelpers<
+      ParamList,
+      State,
+      EventMap,
+    >>,
+    ...
+  };
+
   declare type SetParamsInput<
     ParamList: ParamListBase,
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
@@ -903,7 +916,7 @@ declare module '@react-navigation/native' {
     ScreenOptions: {...} = {...},
     EventMap: EventMapBase = EventMapCore<State>,
   > = {
-    ...$Exact<NavigationHelpers<
+    ...$Exact<CoreNavigationHelpers<
       ParamList,
       State,
       EventMap,
@@ -1243,7 +1256,7 @@ declare module '@react-navigation/native' {
    */
 
   declare export type StackDescriptor = Descriptor<
-    StackNavigationProp<>,
+    StackNavigationHelpers<>,
     StackOptions,
   >;
 
@@ -1263,7 +1276,7 @@ declare module '@react-navigation/native' {
     +insets: EdgeInsets,
     +scene: Scene<Route<>>,
     +previous?: Scene<Route<>>,
-    +navigation: StackNavigationProp<ParamListBase>,
+    +navigation: StackNavigationHelpers<ParamListBase>,
     +styleInterpolator: StackHeaderStyleInterpolator,
   |};
 
@@ -1354,23 +1367,25 @@ declare module '@react-navigation/native' {
     +gestureCancel: {| +data: void, +canPreventDefault: false |},
   |};
 
-  declare type InexactStackNavigationProp<
+  declare type StackExtraNavigationHelpers<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = $Keys<ParamList>,
-    Options: {...} = StackOptions,
-    EventMap: EventMapBase = StackNavigationEventMap,
-  > = {
-    ...$Exact<NavigationProp<
-      ParamList,
-      RouteName,
-      StackNavigationState,
-      Options,
-      EventMap,
-    >>,
+  > = {|
     +replace: SimpleNavigate<ParamList>,
     +push: SimpleNavigate<ParamList>,
     +pop: (count?: number) => void,
     +popToTop: () => void,
+  |};
+
+  declare export type StackNavigationHelpers<
+    ParamList: ParamListBase = ParamListBase,
+    EventMap: EventMapBase = StackNavigationEventMap,
+  > = {
+    ...$Exact<NavigationHelpers<
+      ParamList,
+      StackNavigationState,
+      EventMap,
+    >>,
+    ...StackExtraNavigationHelpers<ParamList>,
     ...
   };
 
@@ -1379,12 +1394,16 @@ declare module '@react-navigation/native' {
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
     Options: {...} = StackOptions,
     EventMap: EventMapBase = StackNavigationEventMap,
-  > = $Exact<InexactStackNavigationProp<
-    ParamList,
-    RouteName,
-    Options,
-    EventMap,
-  >>;
+  > = {|
+    ...$Exact<NavigationProp<
+      ParamList,
+      RouteName,
+      StackNavigationState,
+      Options,
+      EventMap,
+    >>,
+    ...StackExtraNavigationHelpers<ParamList>,
+  |};
 
   /**
    * Miscellaneous stack exports
@@ -1404,10 +1423,10 @@ declare module '@react-navigation/native' {
   |};
 
   declare export type StackNavigatorProps<
-    NavProp: InexactStackNavigationProp<> = StackNavigationProp<>,
+    NavHelpers: StackNavigationHelpers<> = StackNavigationHelpers<>,
   > = {|
     ...ExtraStackNavigatorProps,
-    ...ScreenOptionsProp<StackOptions, NavProp>,
+    ...ScreenOptionsProp<StackOptions, NavHelpers>,
   |};
 
   /**
