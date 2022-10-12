@@ -28,6 +28,7 @@ import {
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { getNextLocalUploadID } from 'lib/media/media-utils';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
 import {
@@ -73,7 +74,6 @@ import { getMessageForException, cloneError } from 'lib/utils/errors';
 
 import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
-import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { type PendingMultimediaUpload, InputStateContext } from './input-state';

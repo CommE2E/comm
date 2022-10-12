@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 import type { AccountUserInfo } from 'lib/types/user-types';
 
-import { useModalContext } from '../../modals/modal-provider.react.js';
 import BlockListRow from './block-list-row.react';
 import BlockUsersModal from './block-users-modal.react';
 import UserListModal from './user-list-modal.react';

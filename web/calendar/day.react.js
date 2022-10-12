@@ -10,6 +10,7 @@ import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { onScreenThreadInfos as onScreenThreadInfosSelector } from 'lib/selectors/thread-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import type { EntryInfo } from 'lib/types/entry-types';
@@ -23,7 +24,6 @@ import {
 
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
-import { useModalContext } from '../modals/modal-provider.react';
 import ThreadPickerModal from '../modals/threads/thread-picker-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import { htmlTargetFromEvent } from '../vector-utils';

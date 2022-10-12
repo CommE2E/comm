@@ -10,8 +10,9 @@ import {
   AlertCircle as AlertCircleIcon,
 } from 'react-feather';
 
+import { useModalContext } from 'lib/components/modal-provider.react';
+
 import { type PendingMultimediaUpload } from '../input/input-state';
-import { useModalContext } from '../modals/modal-provider.react';
 import css from './media.css';
 import MultimediaModal from './multimedia-modal.react';
 

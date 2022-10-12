@@ -12,6 +12,7 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import Switch from 'react-switch';
 
+import { useModalContext } from 'lib/components/modal-provider.react';
 import {
   filteredThreadIDsSelector,
   includeDeletedSelector,
@@ -26,7 +27,6 @@ import {
 } from 'lib/types/filter-types';
 import type { Dispatch } from 'lib/types/redux-types';
 
-import { useModalContext } from '../modals/modal-provider.react';
 import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import {

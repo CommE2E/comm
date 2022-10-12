@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   oldValidUsernameRegex,
@@ -22,7 +23,6 @@ import {
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
 import Input from '../modals/input.react';
-import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors';
 import css from './log-in-form.css';

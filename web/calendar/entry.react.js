@@ -14,6 +14,7 @@ import {
   deleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
@@ -45,7 +46,6 @@ import LoadingIndicator from '../loading-indicator.react';
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import ConcurrentModificationModal from '../modals/concurrent-modification-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
-import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { HistoryVector, DeleteVector } from '../vectors.react';

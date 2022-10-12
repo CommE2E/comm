@@ -6,6 +6,7 @@ import {
   deleteThreadActionTypes,
   deleteThread,
 } from 'lib/actions/thread-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { type SetState } from 'lib/types/hook-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 import {
@@ -15,7 +16,6 @@ import {
 
 import SWMansionIcon from '../../../SWMansionIcon.react';
 import Input from '../../input.react';
-import { useModalContext } from '../../modal-provider.react';
 import SubmitSection from './submit-section.react';
 import css from './thread-settings-delete-tab.css';
 

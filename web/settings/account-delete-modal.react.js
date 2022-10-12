@@ -7,6 +7,7 @@ import {
   deleteAccount,
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogOutResult } from 'lib/types/account-types';
@@ -19,7 +20,6 @@ import {
 
 import Button from '../components/button.react';
 import Input from '../modals/input.react';
-import { useModalContext } from '../modals/modal-provider.react';
 import Modal from '../modals/modal.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react.js';
