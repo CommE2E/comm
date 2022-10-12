@@ -8,6 +8,9 @@ import {
   type StackNavigationEventMap,
   type StackNavigatorProps,
   type ExtraStackNavigatorProps,
+  type ParamListBase,
+  type StackNavigationHelpers,
+  type StackNavigationProp,
 } from '@react-navigation/native';
 import { StackView, TransitionPresets } from '@react-navigation/stack';
 import * as React from 'react';
@@ -25,7 +28,9 @@ import CustomServerModal from '../profile/custom-server-modal.react';
 import AppNavigator from './app-navigator.react';
 import { defaultStackScreenOptions } from './options';
 import { RootNavigatorContext } from './root-navigator-context';
-import RootRouter, { type RootRouterNavigationProp } from './root-router';
+import RootRouter, {
+  type RootRouterExtraNavigationHelpers,
+} from './root-router';
 import {
   LoggedOutModalRouteName,
   AppRouteName,
@@ -42,7 +47,13 @@ import {
 
 enableScreens();
 
-type RootNavigatorProps = StackNavigatorProps<RootRouterNavigationProp<>>;
+export type RootNavigationHelpers<ParamList: ParamListBase = ParamListBase> = {
+  ...$Exact<StackNavigationHelpers<ParamList>>,
+  ...RootRouterExtraNavigationHelpers,
+  ...
+};
+
+type RootNavigatorProps = StackNavigatorProps<RootNavigationHelpers<>>;
 function RootNavigator({
   initialRouteName,
   children,
@@ -80,7 +91,7 @@ const createRootNavigator = createNavigatorFactory<
   StackNavigationState,
   StackOptions,
   StackNavigationEventMap,
-  RootRouterNavigationProp<>,
+  RootNavigationHelpers<>,
   ExtraStackNavigatorProps,
 >(RootNavigator);
 
@@ -121,14 +132,25 @@ const modalOverlayScreenOptions = {
   cardOverlayEnabled: true,
 };
 
+export type RootRouterNavigationProp<
+  ParamList: ParamListBase = ParamListBase,
+  RouteName: $Keys<ParamList> = $Keys<ParamList>,
+> = {
+  ...StackNavigationProp<ParamList, RouteName>,
+  ...RootRouterExtraNavigationHelpers,
+};
+
 export type RootNavigationProp<
   RouteName: $Keys<ScreenParamList> = $Keys<ScreenParamList>,
-> = RootRouterNavigationProp<ScreenParamList, RouteName>;
+> = {
+  ...StackNavigationProp<ScreenParamList, RouteName>,
+  ...RootRouterExtraNavigationHelpers,
+};
 
 const Root = createRootNavigator<
   ScreenParamList,
   RootParamList,
-  RootNavigationProp<>,
+  RootNavigationHelpers<ScreenParamList>,
 >();
 function RootComponent(): React.Node {
   return (

@@ -30,7 +30,10 @@ import { RootContext } from '../root-context';
 import { waitForInteractions } from '../utils/timers';
 import ActionResultModal from './action-result-modal.react';
 import { createOverlayNavigator } from './overlay-navigator.react';
-import type { OverlayRouterNavigationProp } from './overlay-router';
+import type {
+  OverlayNavigationProp,
+  OverlayNavigationHelpers,
+} from './overlay-navigator.react';
 import type { RootNavigationProp } from './root-navigator.react';
 import {
   CalendarRouteName,
@@ -147,12 +150,12 @@ function TabNavigator() {
 
 export type AppNavigationProp<
   RouteName: $Keys<OverlayParamList> = $Keys<OverlayParamList>,
-> = OverlayRouterNavigationProp<ScreenParamList, RouteName>;
+> = OverlayNavigationProp<ScreenParamList, RouteName>;
 
 const App = createOverlayNavigator<
   ScreenParamList,
   OverlayParamList,
-  AppNavigationProp<>,
+  OverlayNavigationHelpers<ScreenParamList>,
 >();
 type AppNavigatorProps = {
   navigation: RootNavigationProp<'App'>,

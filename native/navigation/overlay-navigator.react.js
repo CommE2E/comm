@@ -5,6 +5,9 @@ import type {
   NavigatorPropsBase,
   ExtraNavigatorPropsBase,
   CreateNavigator,
+  StackNavigationProp,
+  ParamListBase,
+  StackNavigationHelpers,
 } from '@react-navigation/native';
 import {
   useNavigationBuilder,
@@ -22,14 +25,30 @@ import { values } from 'lib/utils/objects';
 import { isMessageTooltipKey } from '../chat/utils';
 import { OverlayContext } from './overlay-context';
 import OverlayRouter from './overlay-router';
-import type { OverlayRouterNavigationProp } from './overlay-router';
+import type { OverlayRouterExtraNavigationHelpers } from './overlay-router';
 import { scrollBlockingModals, TabNavigatorRouteName } from './route-names';
+
+export type OverlayNavigationHelpers<
+  ParamList: ParamListBase = ParamListBase,
+> = {
+  ...$Exact<StackNavigationHelpers<ParamList, {}>>,
+  ...OverlayRouterExtraNavigationHelpers,
+  ...
+};
+
+export type OverlayNavigationProp<
+  ParamList: ParamListBase = ParamListBase,
+  RouteName: $Keys<ParamList> = $Keys<ParamList>,
+> = {
+  ...StackNavigationProp<ParamList, RouteName, {}, {}>,
+  ...OverlayRouterExtraNavigationHelpers,
+};
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type Props = $Exact<NavigatorPropsBase<{}, OverlayRouterNavigationProp<>>>;
+type Props = $Exact<NavigatorPropsBase<{}, OverlayNavigationHelpers<>>>;
 const OverlayNavigator = React.memo<Props>(
   ({ initialRouteName, children, screenOptions }: Props) => {
     const { state, descriptors, navigation } = useNavigationBuilder(
@@ -463,7 +482,7 @@ const createOverlayNavigator: CreateNavigator<
   StackNavigationState,
   {},
   {},
-  OverlayRouterNavigationProp<>,
+  OverlayNavigationHelpers<>,
   ExtraNavigatorPropsBase,
 >(OverlayNavigator);
 

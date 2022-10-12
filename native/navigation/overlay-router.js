@@ -1,8 +1,6 @@
 // @flow
 
 import type {
-  StackNavigationProp,
-  ParamListBase,
   StackAction,
   Route,
   Router,
@@ -25,11 +23,7 @@ export type OverlayRouterNavigationAction =
   | StackAction
   | ClearOverlayModalsAction;
 
-export type OverlayRouterNavigationProp<
-  ParamList: ParamListBase = ParamListBase,
-  RouteName: string = string,
-> = {
-  ...StackNavigationProp<ParamList, RouteName, {}, {}>,
+export type OverlayRouterExtraNavigationHelpers = {
   +clearOverlayModals: (keys: $ReadOnlyArray<string>) => void,
   +goBackOnce: () => void,
 };

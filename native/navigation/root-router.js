@@ -1,8 +1,6 @@
 // @flow
 
 import type {
-  StackNavigationProp,
-  ParamListBase,
   NavigationState,
   StackAction,
   PossiblyStaleRoute,
@@ -56,11 +54,7 @@ export type RootRouterNavigationAction =
   | ClearRootModalsAction
   | SetNavStateAction;
 
-export type RootRouterNavigationProp<
-  ParamList: ParamListBase = ParamListBase,
-  RouteName: string = string,
-> = {
-  ...StackNavigationProp<ParamList, RouteName>,
+export type RootRouterExtraNavigationHelpers = {
   +logIn: () => void,
   +logOut: () => void,
   +clearRootModals: (keys: $ReadOnlyArray<string>) => void,

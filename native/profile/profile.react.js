@@ -3,6 +3,7 @@
 import {
   createStackNavigator,
   type StackNavigationProp,
+  type StackNavigationHelpers,
   type StackHeaderProps,
 } from '@react-navigation/stack';
 import * as React from 'react';
@@ -56,7 +57,7 @@ export type ProfileNavigationProp<
 const Profile = createStackNavigator<
   ScreenParamList,
   ProfileParamList,
-  ProfileNavigationProp<>,
+  StackNavigationHelpers<ScreenParamList>,
 >();
 // eslint-disable-next-line no-unused-vars
 function ProfileComponent(props: { ... }): React.Node {
