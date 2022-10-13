@@ -23,6 +23,7 @@
     "flow-typed": "^3.2.1"
   },
   "dependencies": {
+    "classnames": "^2.2.5",
     "dateformat": "^3.0.3",
     "emoji-regex": "^9.2.0",
     "fast-json-stable-stringify": "^2.0.0",
