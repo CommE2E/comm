@@ -1,12 +1,16 @@
 // @flow
 
 import * as React from 'react';
+import { Alert } from 'react-native';
+import ExitApp from 'react-native-exit-app';
 import { useDispatch } from 'react-redux';
 
 import { setMessageStoreMessages } from 'lib/actions/message-actions.js';
 import { setThreadStoreActionType } from 'lib/actions/thread-actions';
+import { isStaff } from 'lib/shared/user-utils';
 import { loginActionSources } from 'lib/types/account-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
+import { getMessageForException } from 'lib/utils/errors';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
 
 import { commCoreModule } from '../native-modules';
@@ -26,6 +30,9 @@ function SQLiteContextProvider(props: Props): React.Node {
   );
   const cookie = useSelector(state => state.cookie);
   const urlPrefix = useSelector(state => state.urlPrefix);
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
 
   React.useEffect(() => {
     if (storeLoaded || !rehydrateConcluded) {
@@ -46,18 +53,39 @@ function SQLiteContextProvider(props: Props): React.Node {
           type: setMessageStoreMessages,
           payload: messages,
         });
-      } catch {
-        await fetchNewCookieFromNativeCredentials(
-          dispatch,
-          cookie,
-          urlPrefix,
-          loginActionSources.sqliteLoadFailure,
-        );
-      } finally {
         setStoreLoaded(true);
+      } catch (setStoreException) {
+        if (__DEV__ || (viewerID && isStaff(viewerID))) {
+          Alert.alert(
+            `Error setting threadStore or messageStore: ${
+              getMessageForException(setStoreException) ??
+              '{no exception message}'
+            }`,
+          );
+        }
+        try {
+          await fetchNewCookieFromNativeCredentials(
+            dispatch,
+            cookie,
+            urlPrefix,
+            loginActionSources.sqliteLoadFailure,
+          );
+          setStoreLoaded(true);
+        } catch (fetchCookieException) {
+          if (__DEV__ || (viewerID && isStaff(viewerID))) {
+            Alert.alert(
+              `Error fetching new cookie from native credentials: ${
+                getMessageForException(fetchCookieException) ??
+                '{no exception message}'
+              }. Please kill the app.`,
+            );
+          } else {
+            ExitApp.exitApp();
+          }
+        }
       }
     })();
-  }, [storeLoaded, urlPrefix, rehydrateConcluded, cookie, dispatch]);
+  }, [storeLoaded, urlPrefix, rehydrateConcluded, cookie, dispatch, viewerID]);
 
   const contextValue = React.useMemo(
     () => ({
