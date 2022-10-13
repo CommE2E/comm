@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
+import ModalOverlay from './modal-overlay.react';
 import css from './modal.css';
 
 export type ModalSize = 'small' | 'large' | 'fit-content';
@@ -30,39 +31,6 @@ function Modal(props: ModalProps): React.Node {
     icon,
     withCloseButton = true,
   } = props;
-  const overlayRef = React.useRef();
-  const firstClickRef = React.useRef(null);
-
-  const onBackgroundMouseDown = React.useCallback(event => {
-    firstClickRef.current = event.target;
-  }, []);
-
-  const onBackgroundMouseUp = React.useCallback(
-    event => {
-      if (
-        event.target === overlayRef.current &&
-        firstClickRef.current === overlayRef.current
-      ) {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  const onKeyDown = React.useCallback(
-    event => {
-      if (event.keyCode === 27) {
-        onClose();
-      }
-    },
-    [onClose],
-  );
-
-  React.useEffect(() => {
-    if (overlayRef.current) {
-      overlayRef.current.focus();
-    }
-  }, []);
 
   const modalContainerClasses = React.useMemo(
     () =>
@@ -92,14 +60,7 @@ function Modal(props: ModalProps): React.Node {
   }, [icon]);
 
   return (
-    <div
-      className={css.modalOverlay}
-      ref={overlayRef}
-      onMouseDown={onBackgroundMouseDown}
-      onMouseUp={onBackgroundMouseUp}
-      tabIndex={0}
-      onKeyDown={onKeyDown}
-    >
+    <ModalOverlay onClose={onClose}>
       <div className={modalContainerClasses}>
         <div className={css.modalHeader}>
           <h2 className={css.title}>
@@ -110,7 +71,7 @@ function Modal(props: ModalProps): React.Node {
         </div>
         {children}
       </div>
-    </div>
+    </ModalOverlay>
   );
 }
 
