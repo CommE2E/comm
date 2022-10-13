@@ -2224,6 +2224,7 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
   enum DataCase {
     kMessagesToSend = 2,
     kProcessedMessages = 3,
+    kNewNotifyToken = 4,
     DATA_NOT_SET = 0,
   };
 
@@ -2305,6 +2306,7 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
     kSessionIDFieldNumber = 1,
     kMessagesToSendFieldNumber = 2,
     kProcessedMessagesFieldNumber = 3,
+    kNewNotifyTokenFieldNumber = 4,
   };
   // string sessionID = 1;
   void clear_sessionid();
@@ -2358,6 +2360,26 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
       ::tunnelbroker::ProcessedMessages* processedmessages);
   ::tunnelbroker::ProcessedMessages* unsafe_arena_release_processedmessages();
 
+  // string newNotifyToken = 4;
+  bool has_newnotifytoken() const;
+  private:
+  bool _internal_has_newnotifytoken() const;
+  public:
+  void clear_newnotifytoken();
+  const std::string& newnotifytoken() const;
+  void set_newnotifytoken(const std::string& value);
+  void set_newnotifytoken(std::string&& value);
+  void set_newnotifytoken(const char* value);
+  void set_newnotifytoken(const char* value, size_t size);
+  std::string* mutable_newnotifytoken();
+  std::string* release_newnotifytoken();
+  void set_allocated_newnotifytoken(std::string* newnotifytoken);
+  private:
+  const std::string& _internal_newnotifytoken() const;
+  void _internal_set_newnotifytoken(const std::string& value);
+  std::string* _internal_mutable_newnotifytoken();
+  public:
+
   void clear_data();
   DataCase data_case() const;
   // @@protoc_insertion_point(class_scope:tunnelbroker.MessageToTunnelbroker)
@@ -2365,6 +2387,7 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
   class _Internal;
   void set_has_messagestosend();
   void set_has_processedmessages();
+  void set_has_newnotifytoken();
 
   inline bool has_data() const;
   inline void clear_has_data();
@@ -2378,6 +2401,7 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
     ::tunnelbroker::MessagesToSend* messagestosend_;
     ::tunnelbroker::ProcessedMessages* processedmessages_;
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr newnotifytoken_;
   } data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
@@ -2779,6 +2803,8 @@ class MessageToClient PROTOBUF_FINAL :
   enum DataCase {
     kMessagesToDeliver = 1,
     kProcessedMessages = 2,
+    kNewNotifyTokenRequired = 3,
+    kPing = 4,
     DATA_NOT_SET = 0,
   };
 
@@ -2859,6 +2885,8 @@ class MessageToClient PROTOBUF_FINAL :
   enum : int {
     kMessagesToDeliverFieldNumber = 1,
     kProcessedMessagesFieldNumber = 2,
+    kNewNotifyTokenRequiredFieldNumber = 3,
+    kPingFieldNumber = 4,
   };
   // .tunnelbroker.MessagesToDeliver messagesToDeliver = 1;
   bool has_messagestodeliver() const;
@@ -2896,6 +2924,42 @@ class MessageToClient PROTOBUF_FINAL :
       ::tunnelbroker::ProcessedMessages* processedmessages);
   ::tunnelbroker::ProcessedMessages* unsafe_arena_release_processedmessages();
 
+  // .google.protobuf.Empty newNotifyTokenRequired = 3;
+  bool has_newnotifytokenrequired() const;
+  private:
+  bool _internal_has_newnotifytokenrequired() const;
+  public:
+  void clear_newnotifytokenrequired();
+  const PROTOBUF_NAMESPACE_ID::Empty& newnotifytokenrequired() const;
+  PROTOBUF_NAMESPACE_ID::Empty* release_newnotifytokenrequired();
+  PROTOBUF_NAMESPACE_ID::Empty* mutable_newnotifytokenrequired();
+  void set_allocated_newnotifytokenrequired(PROTOBUF_NAMESPACE_ID::Empty* newnotifytokenrequired);
+  private:
+  const PROTOBUF_NAMESPACE_ID::Empty& _internal_newnotifytokenrequired() const;
+  PROTOBUF_NAMESPACE_ID::Empty* _internal_mutable_newnotifytokenrequired();
+  public:
+  void unsafe_arena_set_allocated_newnotifytokenrequired(
+      PROTOBUF_NAMESPACE_ID::Empty* newnotifytokenrequired);
+  PROTOBUF_NAMESPACE_ID::Empty* unsafe_arena_release_newnotifytokenrequired();
+
+  // .google.protobuf.Empty ping = 4;
+  bool has_ping() const;
+  private:
+  bool _internal_has_ping() const;
+  public:
+  void clear_ping();
+  const PROTOBUF_NAMESPACE_ID::Empty& ping() const;
+  PROTOBUF_NAMESPACE_ID::Empty* release_ping();
+  PROTOBUF_NAMESPACE_ID::Empty* mutable_ping();
+  void set_allocated_ping(PROTOBUF_NAMESPACE_ID::Empty* ping);
+  private:
+  const PROTOBUF_NAMESPACE_ID::Empty& _internal_ping() const;
+  PROTOBUF_NAMESPACE_ID::Empty* _internal_mutable_ping();
+  public:
+  void unsafe_arena_set_allocated_ping(
+      PROTOBUF_NAMESPACE_ID::Empty* ping);
+  PROTOBUF_NAMESPACE_ID::Empty* unsafe_arena_release_ping();
+
   void clear_data();
   DataCase data_case() const;
   // @@protoc_insertion_point(class_scope:tunnelbroker.MessageToClient)
@@ -2903,6 +2967,8 @@ class MessageToClient PROTOBUF_FINAL :
   class _Internal;
   void set_has_messagestodeliver();
   void set_has_processedmessages();
+  void set_has_newnotifytokenrequired();
+  void set_has_ping();
 
   inline bool has_data() const;
   inline void clear_has_data();
@@ -2915,6 +2981,8 @@ class MessageToClient PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
     ::tunnelbroker::MessagesToDeliver* messagestodeliver_;
     ::tunnelbroker::ProcessedMessages* processedmessages_;
+    PROTOBUF_NAMESPACE_ID::Empty* newnotifytokenrequired_;
+    PROTOBUF_NAMESPACE_ID::Empty* ping_;
   } data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
@@ -5693,6 +5761,116 @@ inline ::tunnelbroker::ProcessedMessages* MessageToTunnelbroker::mutable_process
   return _internal_mutable_processedmessages();
 }
 
+// string newNotifyToken = 4;
+inline bool MessageToTunnelbroker::_internal_has_newnotifytoken() const {
+  return data_case() == kNewNotifyToken;
+}
+inline bool MessageToTunnelbroker::has_newnotifytoken() const {
+  return _internal_has_newnotifytoken();
+}
+inline void MessageToTunnelbroker::set_has_newnotifytoken() {
+  _oneof_case_[0] = kNewNotifyToken;
+}
+inline void MessageToTunnelbroker::clear_newnotifytoken() {
+  if (_internal_has_newnotifytoken()) {
+    data_.newnotifytoken_.Destroy(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+    clear_has_data();
+  }
+}
+inline const std::string& MessageToTunnelbroker::newnotifytoken() const {
+  // @@protoc_insertion_point(field_get:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+  return _internal_newnotifytoken();
+}
+inline void MessageToTunnelbroker::set_newnotifytoken(const std::string& value) {
+  _internal_set_newnotifytoken(value);
+  // @@protoc_insertion_point(field_set:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+}
+inline std::string* MessageToTunnelbroker::mutable_newnotifytoken() {
+  // @@protoc_insertion_point(field_mutable:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+  return _internal_mutable_newnotifytoken();
+}
+inline const std::string& MessageToTunnelbroker::_internal_newnotifytoken() const {
+  if (_internal_has_newnotifytoken()) {
+    return data_.newnotifytoken_.Get();
+  }
+  return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
+}
+inline void MessageToTunnelbroker::_internal_set_newnotifytoken(const std::string& value) {
+  if (!_internal_has_newnotifytoken()) {
+    clear_data();
+    set_has_newnotifytoken();
+    data_.newnotifytoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newnotifytoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void MessageToTunnelbroker::set_newnotifytoken(std::string&& value) {
+  // @@protoc_insertion_point(field_set:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+  if (!_internal_has_newnotifytoken()) {
+    clear_data();
+    set_has_newnotifytoken();
+    data_.newnotifytoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newnotifytoken_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+}
+inline void MessageToTunnelbroker::set_newnotifytoken(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  if (!_internal_has_newnotifytoken()) {
+    clear_data();
+    set_has_newnotifytoken();
+    data_.newnotifytoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newnotifytoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{},
+      ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+}
+inline void MessageToTunnelbroker::set_newnotifytoken(const char* value,
+                             size_t size) {
+  if (!_internal_has_newnotifytoken()) {
+    clear_data();
+    set_has_newnotifytoken();
+    data_.newnotifytoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  data_.newnotifytoken_.Set(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size),
+      GetArena());
+  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+}
+inline std::string* MessageToTunnelbroker::_internal_mutable_newnotifytoken() {
+  if (!_internal_has_newnotifytoken()) {
+    clear_data();
+    set_has_newnotifytoken();
+    data_.newnotifytoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  }
+  return data_.newnotifytoken_.Mutable(
+      ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* MessageToTunnelbroker::release_newnotifytoken() {
+  // @@protoc_insertion_point(field_release:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+  if (_internal_has_newnotifytoken()) {
+    clear_has_data();
+    return data_.newnotifytoken_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  } else {
+    return nullptr;
+  }
+}
+inline void MessageToTunnelbroker::set_allocated_newnotifytoken(std::string* newnotifytoken) {
+  if (has_data()) {
+    clear_data();
+  }
+  if (newnotifytoken != nullptr) {
+    set_has_newnotifytoken();
+    data_.newnotifytoken_.UnsafeSetDefault(newnotifytoken);
+    ::PROTOBUF_NAMESPACE_ID::Arena* arena = GetArena();
+    if (arena != nullptr) {
+      arena->Own(newnotifytoken);
+    }
+  }
+  // @@protoc_insertion_point(field_set_allocated:tunnelbroker.MessageToTunnelbroker.newNotifyToken)
+}
+
 inline bool MessageToTunnelbroker::has_data() const {
   return data_case() != DATA_NOT_SET;
 }
@@ -6154,6 +6332,136 @@ inline ::tunnelbroker::ProcessedMessages* MessageToClient::_internal_mutable_pro
 inline ::tunnelbroker::ProcessedMessages* MessageToClient::mutable_processedmessages() {
   // @@protoc_insertion_point(field_mutable:tunnelbroker.MessageToClient.processedMessages)
   return _internal_mutable_processedmessages();
+}
+
+// .google.protobuf.Empty newNotifyTokenRequired = 3;
+inline bool MessageToClient::_internal_has_newnotifytokenrequired() const {
+  return data_case() == kNewNotifyTokenRequired;
+}
+inline bool MessageToClient::has_newnotifytokenrequired() const {
+  return _internal_has_newnotifytokenrequired();
+}
+inline void MessageToClient::set_has_newnotifytokenrequired() {
+  _oneof_case_[0] = kNewNotifyTokenRequired;
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::release_newnotifytokenrequired() {
+  // @@protoc_insertion_point(field_release:tunnelbroker.MessageToClient.newNotifyTokenRequired)
+  if (_internal_has_newnotifytokenrequired()) {
+    clear_has_data();
+      PROTOBUF_NAMESPACE_ID::Empty* temp = data_.newnotifytokenrequired_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    data_.newnotifytokenrequired_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const PROTOBUF_NAMESPACE_ID::Empty& MessageToClient::_internal_newnotifytokenrequired() const {
+  return _internal_has_newnotifytokenrequired()
+      ? *data_.newnotifytokenrequired_
+      : reinterpret_cast< PROTOBUF_NAMESPACE_ID::Empty&>(PROTOBUF_NAMESPACE_ID::_Empty_default_instance_);
+}
+inline const PROTOBUF_NAMESPACE_ID::Empty& MessageToClient::newnotifytokenrequired() const {
+  // @@protoc_insertion_point(field_get:tunnelbroker.MessageToClient.newNotifyTokenRequired)
+  return _internal_newnotifytokenrequired();
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::unsafe_arena_release_newnotifytokenrequired() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:tunnelbroker.MessageToClient.newNotifyTokenRequired)
+  if (_internal_has_newnotifytokenrequired()) {
+    clear_has_data();
+    PROTOBUF_NAMESPACE_ID::Empty* temp = data_.newnotifytokenrequired_;
+    data_.newnotifytokenrequired_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void MessageToClient::unsafe_arena_set_allocated_newnotifytokenrequired(PROTOBUF_NAMESPACE_ID::Empty* newnotifytokenrequired) {
+  clear_data();
+  if (newnotifytokenrequired) {
+    set_has_newnotifytokenrequired();
+    data_.newnotifytokenrequired_ = newnotifytokenrequired;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tunnelbroker.MessageToClient.newNotifyTokenRequired)
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::_internal_mutable_newnotifytokenrequired() {
+  if (!_internal_has_newnotifytokenrequired()) {
+    clear_data();
+    set_has_newnotifytokenrequired();
+    data_.newnotifytokenrequired_ = CreateMaybeMessage< PROTOBUF_NAMESPACE_ID::Empty >(GetArena());
+  }
+  return data_.newnotifytokenrequired_;
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::mutable_newnotifytokenrequired() {
+  // @@protoc_insertion_point(field_mutable:tunnelbroker.MessageToClient.newNotifyTokenRequired)
+  return _internal_mutable_newnotifytokenrequired();
+}
+
+// .google.protobuf.Empty ping = 4;
+inline bool MessageToClient::_internal_has_ping() const {
+  return data_case() == kPing;
+}
+inline bool MessageToClient::has_ping() const {
+  return _internal_has_ping();
+}
+inline void MessageToClient::set_has_ping() {
+  _oneof_case_[0] = kPing;
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::release_ping() {
+  // @@protoc_insertion_point(field_release:tunnelbroker.MessageToClient.ping)
+  if (_internal_has_ping()) {
+    clear_has_data();
+      PROTOBUF_NAMESPACE_ID::Empty* temp = data_.ping_;
+    if (GetArena() != nullptr) {
+      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+    }
+    data_.ping_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const PROTOBUF_NAMESPACE_ID::Empty& MessageToClient::_internal_ping() const {
+  return _internal_has_ping()
+      ? *data_.ping_
+      : reinterpret_cast< PROTOBUF_NAMESPACE_ID::Empty&>(PROTOBUF_NAMESPACE_ID::_Empty_default_instance_);
+}
+inline const PROTOBUF_NAMESPACE_ID::Empty& MessageToClient::ping() const {
+  // @@protoc_insertion_point(field_get:tunnelbroker.MessageToClient.ping)
+  return _internal_ping();
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::unsafe_arena_release_ping() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:tunnelbroker.MessageToClient.ping)
+  if (_internal_has_ping()) {
+    clear_has_data();
+    PROTOBUF_NAMESPACE_ID::Empty* temp = data_.ping_;
+    data_.ping_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void MessageToClient::unsafe_arena_set_allocated_ping(PROTOBUF_NAMESPACE_ID::Empty* ping) {
+  clear_data();
+  if (ping) {
+    set_has_ping();
+    data_.ping_ = ping;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tunnelbroker.MessageToClient.ping)
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::_internal_mutable_ping() {
+  if (!_internal_has_ping()) {
+    clear_data();
+    set_has_ping();
+    data_.ping_ = CreateMaybeMessage< PROTOBUF_NAMESPACE_ID::Empty >(GetArena());
+  }
+  return data_.ping_;
+}
+inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::mutable_ping() {
+  // @@protoc_insertion_point(field_mutable:tunnelbroker.MessageToClient.ping)
+  return _internal_mutable_ping();
 }
 
 inline bool MessageToClient::has_data() const {
