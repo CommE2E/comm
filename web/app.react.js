@@ -14,6 +14,10 @@ import {
   updateCalendarQueryActionTypes,
 } from 'lib/actions/entry-actions';
 import {
+  ModalProvider,
+  useModalContext,
+} from 'lib/components/modal-provider.react';
+import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
 } from 'lib/selectors/loading-selectors';
@@ -31,7 +35,6 @@ import NavigationArrows from './components/navigation-arrows.react';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
 import { MenuProvider } from './menu-provider.react';
-import { ModalProvider, useModalContext } from './modals/modal-provider.react';
 import { updateNavInfoActionType } from './redux/action-types';
 import DeviceIDUpdater from './redux/device-id-updater';
 import DisconnectedBar from './redux/disconnected-bar';

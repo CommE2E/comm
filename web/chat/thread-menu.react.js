@@ -6,6 +6,7 @@ import {
   leaveThread,
   leaveThreadActionTypes,
 } from 'lib/actions/thread-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react';
 import { childThreadInfos } from 'lib/selectors/thread-selectors';
 import {
@@ -26,7 +27,6 @@ import {
 import MenuItem from '../components/menu-item.react';
 import Menu from '../components/menu.react';
 import SidebarPromoteModal from '../modals/chat/sidebar-promote-modal.react';
-import { useModalContext } from '../modals/modal-provider.react';
 import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
 import ComposeSubchannelModal from '../modals/threads/create/compose-subchannel-modal.react';
 import ThreadMembersModal from '../modals/threads/members/members-modal.react';

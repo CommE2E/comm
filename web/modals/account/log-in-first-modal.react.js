@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 
-import { useModalContext } from '../../modals/modal-provider.react';
+import { useModalContext } from 'lib/components/modal-provider.react';
+
 import css from '../../style.css';
 import Modal from '../modal.react';
 import LogInModal from './log-in-modal.react';

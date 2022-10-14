@@ -2,9 +2,10 @@
 
 import * as React from 'react';
 
+import { useModalContext } from 'lib/components/modal-provider.react';
+
 import Button from '../components/button.react';
 import css from './concurrent-modification-modal.css';
-import { useModalContext } from './modal-provider.react';
 import Modal from './modal.react';
 
 type Props = {

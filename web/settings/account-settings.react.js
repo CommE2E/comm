@@ -3,13 +3,13 @@
 import * as React from 'react';
 
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
 
-import { useModalContext } from '../modals/modal-provider.react';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './account-settings.css';

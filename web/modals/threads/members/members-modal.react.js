@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { userStoreSearchIndex } from 'lib/selectors/user-selectors';
 import {
@@ -17,7 +18,6 @@ import {
 import Button from '../../../components/button.react';
 import Tabs from '../../../components/tabs.react';
 import { useSelector } from '../../../redux/redux-utils';
-import { useModalContext } from '../../modal-provider.react';
 import SearchModal from '../../search-modal.react';
 import AddMembersModal from './add-members-modal.react';
 import ThreadMembersList from './members-list.react';

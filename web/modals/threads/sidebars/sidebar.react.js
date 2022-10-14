@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 
+import { useModalContext } from 'lib/components/modal-provider.react';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { getMessagePreview } from 'lib/shared/message-utils';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
@@ -9,7 +10,6 @@ import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react';
 import { useSelector } from '../../../redux/redux-utils';
 import { useOnClickThread } from '../../../selectors/nav-selectors';
-import { useModalContext } from '../../modal-provider.react';
 import css from './sidebars-modal.css';
 
 type Props = {

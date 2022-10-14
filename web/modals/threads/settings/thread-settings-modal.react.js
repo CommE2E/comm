@@ -7,6 +7,7 @@ import {
   deleteThreadActionTypes,
   changeThreadSettingsActionTypes,
 } from 'lib/actions/thread-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils';
@@ -24,7 +25,6 @@ import {
 
 import Tabs from '../../../components/tabs.react';
 import { useSelector } from '../../../redux/redux-utils';
-import { useModalContext } from '../../modal-provider.react';
 import Modal from '../../modal.react';
 import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react';
 import ThreadSettingsGeneralTab from './thread-settings-general-tab.react';

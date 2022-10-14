@@ -15,6 +15,7 @@ import {
   fetchRevisionsForEntryActionTypes,
   fetchRevisionsForEntry,
 } from 'lib/actions/entry-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { nonExcludeDeletedCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type {
@@ -33,7 +34,6 @@ import {
 import { dateFromString } from 'lib/utils/date-utils';
 
 import LoadingIndicator from '../../loading-indicator.react';
-import { useModalContext } from '../../modals/modal-provider.react';
 import { useSelector } from '../../redux/redux-utils';
 import { allDaysToEntries } from '../../selectors/entry-selectors';
 import Modal from '../modal.react';

@@ -7,6 +7,7 @@ import {
   changeUserPasswordActionTypes,
   changeUserPassword,
 } from 'lib/actions/user-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   type PasswordUpdate,
@@ -20,7 +21,6 @@ import {
 
 import Button from '../components/button.react';
 import Input from '../modals/input.react';
-import { useModalContext } from '../modals/modal-provider.react';
 import Modal from '../modals/modal.react';
 import { useSelector } from '../redux/redux-utils';
 import css from './password-change-modal.css';
