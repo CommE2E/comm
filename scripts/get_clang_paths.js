@@ -7,6 +7,10 @@ const clangPaths = [
     excludes: ['_generated'],
   },
   {
+    path: 'services/lib/src',
+    extensions: ['cpp', 'h'],
+  },
+  {
     path: 'services/tunnelbroker/src',
     extensions: ['cpp', 'h'],
   },

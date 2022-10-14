@@ -2,8 +2,8 @@
 
 #include "BaseReactor.h"
 
-#include <grpcpp/grpcpp.h>
 #include <glog/logging.h>
+#include <grpcpp/grpcpp.h>
 
 namespace comm {
 namespace network {

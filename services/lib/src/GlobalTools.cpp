@@ -6,12 +6,12 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <iomanip>
 #include <regex>
 #include <string>
 #include <thread>
-#include <algorithm>
 
 namespace comm {
 namespace network {

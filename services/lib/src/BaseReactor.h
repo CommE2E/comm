@@ -22,7 +22,7 @@ public:
   virtual void terminate(const grpc::Status &status) = 0;
   // Validates current values of the reactor's fields.
   virtual void validate() = 0;
-  // Should be called when `OnDone` is called. gRPC calls `OnDone` when there 
+  // Should be called when `OnDone` is called. gRPC calls `OnDone` when there
   // are not going to be more rpc operations.
   virtual void doneCallback() = 0;
   // Should be called when `terminate` is called.
