@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
+import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
   LogOutResponse,
@@ -227,7 +228,11 @@ async function logInResponder(
   }
   const userRow = userResult[0];
   if (!userRow.hash || !bcrypt.compareSync(request.password, userRow.hash)) {
-    throw new ServerError('invalid_credentials');
+    if (hasMinCodeVersion(viewer.platformDetails, 99999)) {
+      throw new ServerError('invalid_parameters');
+    } else {
+      throw new ServerError('invalid_credentials');
+    }
   }
   const id = userRow.id.toString();
 

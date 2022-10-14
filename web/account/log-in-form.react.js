@@ -40,7 +40,6 @@ function LoginForm(): React.Node {
   const [errorMessage, setErrorMessage] = React.useState<string>('');
 
   const usernameInputRef = React.useRef();
-  const passwordInputRef = React.useRef();
 
   React.useEffect(() => {
     usernameInputRef.current?.focus();
@@ -72,20 +71,14 @@ function LoginForm(): React.Node {
         modalContext.popModal();
         return result;
       } catch (e) {
-        if (e.message === 'invalid_parameters') {
-          setUsername('');
-          setErrorMessage(`user doesn't exist`);
-          usernameInputRef.current?.focus();
-        } else if (e.message === 'invalid_credentials') {
-          setPassword('');
-          setErrorMessage('wrong password');
-          passwordInputRef.current?.focus();
+        setUsername('');
+        setPassword('');
+        if (e.message === 'invalid_credentials') {
+          setErrorMessage('incorrect username or password');
         } else {
-          setUsername('');
-          setPassword('');
           setErrorMessage('unknown error');
-          usernameInputRef.current?.focus();
         }
+        usernameInputRef.current?.focus();
         throw e;
       }
     },
@@ -151,7 +144,6 @@ function LoginForm(): React.Node {
               placeholder="Password"
               value={password}
               onChange={onPasswordChange}
-              ref={passwordInputRef}
               disabled={inputDisabled}
             />
           </div>

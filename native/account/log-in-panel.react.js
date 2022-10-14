@@ -237,16 +237,6 @@ class LogInPanel extends React.PureComponent<Props> {
     );
   };
 
-  onUsernameAlertAcknowledged: () => void = () => {
-    this.props.setActiveAlert(false);
-    this.props.logInState.setState(
-      {
-        usernameInputText: '',
-      },
-      this.focusUsernameInput,
-    );
-  };
-
   async logInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
     try {
       const result = await this.props.logIn({
@@ -262,18 +252,11 @@ class LogInPanel extends React.PureComponent<Props> {
       });
       return result;
     } catch (e) {
-      if (e.message === 'invalid_parameters') {
+      if (e.message === 'invalid_credentials') {
         Alert.alert(
-          'Invalid username',
-          'User doesn’t exist',
-          [{ text: 'OK', onPress: this.onUsernameAlertAcknowledged }],
-          { cancelable: false },
-        );
-      } else if (e.message === 'invalid_credentials') {
-        Alert.alert(
-          'Incorrect password',
-          'The password you entered is incorrect',
-          [{ text: 'OK', onPress: this.onPasswordAlertAcknowledged }],
+          'Incorrect username or password',
+          "Either that user doesn't exist, or the password is incorrect",
+          [{ text: 'OK', onPress: this.onUnsuccessfulLoginAlertAckowledged }],
           { cancelable: false },
         );
       } else if (e.message === 'client_version_unsupported') {
@@ -299,6 +282,27 @@ class LogInPanel extends React.PureComponent<Props> {
       throw e;
     }
   }
+
+  onUnsuccessfulLoginAlertAckowledged: () => void = () => {
+    this.props.setActiveAlert(false);
+    this.props.logInState.setState(
+      {
+        usernameInputText: '',
+        passwordInputText: '',
+      },
+      this.focusUsernameInput,
+    );
+  };
+
+  onUsernameAlertAcknowledged: () => void = () => {
+    this.props.setActiveAlert(false);
+    this.props.logInState.setState(
+      {
+        usernameInputText: '',
+      },
+      this.focusUsernameInput,
+    );
+  };
 
   onPasswordAlertAcknowledged: () => void = () => {
     this.props.setActiveAlert(false);
