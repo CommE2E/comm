@@ -27,6 +27,8 @@ async function landingHandler(req: $Request, res: $Response) {
 }
 
 const access = promisify(fs.access);
+const readFile = promisify(fs.readFile);
+
 const googleFontsURL =
   'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500&display=swap';
 const iaDuoFontsURL = 'fonts/duo.css';
@@ -60,8 +62,8 @@ async function getAssetInfo() {
     return assetInfo;
   }
   try {
-    // $FlowFixMe landing/dist doesn't always exist
-    const { default: assets } = await import('landing/dist/assets');
+    const assetsString = await readFile('../landing/dist/assets.json', 'utf8');
+    const assets = JSON.parse(assetsString);
     assetInfo = {
       jsURL: `compiled/${assets.browser.js}`,
       fontURLs: [googleFontsURL, iaDuoFontsURL],

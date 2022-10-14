@@ -1,6 +1,9 @@
 // @flow
 
 import fs from 'fs';
+import { promisify } from 'util';
+
+const readFile = promisify(fs.readFile);
 
 type ConfigName = {
   +folder: 'secrets' | 'facts',
@@ -44,7 +47,8 @@ async function getJSON<T>(configName: ConfigName): Promise<?T> {
   }
   const path = getPathForConfigName(configName);
   try {
-    return JSON.parse(fs.readFileSync(path, 'utf8'));
+    const pathString = await readFile(path, 'utf8');
+    return JSON.parse(pathString);
   } catch (e) {
     if (e.code !== 'ENOENT') {
       console.log(`Failed to read JSON from ${path}`, e);

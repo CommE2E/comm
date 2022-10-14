@@ -54,6 +54,8 @@ import {
 const { renderToNodeStream } = ReactDOMServer;
 
 const access = promisify(fs.access);
+const readFile = promisify(fs.readFile);
+
 const googleFontsURL =
   'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap';
 const localFontsURL = 'fonts/local-fonts.css';
@@ -82,8 +84,8 @@ async function getAssetInfo() {
     return assetInfo;
   }
   try {
-    // $FlowFixMe web/dist doesn't always exist
-    const { default: assets } = await import('web/dist/assets');
+    const assetsString = await readFile('../web/dist/assets.json', 'utf8');
+    const assets = JSON.parse(assetsString);
     assetInfo = {
       jsURL: `compiled/${assets.browser.js}`,
       fontsURL: googleFontsURL,
