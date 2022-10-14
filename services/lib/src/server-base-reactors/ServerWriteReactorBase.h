@@ -24,10 +24,14 @@ class ServerWriteReactorBase : public grpc::ServerWriteReactor<Response>,
                                public BaseReactor {
   std::shared_ptr<ReactorStatusHolder> statusHolder =
       std::make_shared<ReactorStatusHolder>();
+
+  std::atomic<int> ongoingPoolTaskCounter{0};
   Response response;
   bool initialized = false;
 
   void nextWrite();
+  void beginPoolTask();
+  void finishPoolTask();
 
 protected:
   // this is a const ref since it's not meant to be modified
@@ -64,6 +68,7 @@ template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
   this->statusHolder->setStatus(status);
+  this->beginPoolTask();
   ThreadPool::getInstance().scheduleWithCallback(
       [this]() {
         this->terminateCallback();
@@ -77,11 +82,11 @@ void ServerWriteReactorBase<Request, Response>::terminate(
         if (!this->statusHolder->getStatus().ok()) {
           LOG(ERROR) << this->statusHolder->getStatus().error_message();
         }
-        if (this->statusHolder->state != ReactorState::RUNNING) {
-          return;
+        if (this->statusHolder->state == ReactorState::RUNNING) {
+          this->Finish(this->statusHolder->getStatus());
+          this->statusHolder->state = ReactorState::TERMINATED;
         }
-        this->Finish(this->statusHolder->getStatus());
-        this->statusHolder->state = ReactorState::TERMINATED;
+        this->finishPoolTask();
       });
 }
 
@@ -98,6 +103,7 @@ ServerWriteReactorBase<Request, Response>::ServerWriteReactorBase(
 
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::nextWrite() {
+  this->beginPoolTask();
   ThreadPool::getInstance().scheduleWithCallback(
       [this]() {
         if (!this->initialized) {
@@ -117,6 +123,7 @@ void ServerWriteReactorBase<Request, Response>::nextWrite() {
         if (err != nullptr) {
           this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, *err));
         }
+        this->finishPoolTask();
       });
 }
 
@@ -128,10 +135,10 @@ void ServerWriteReactorBase<Request, Response>::start() {
 
 template <class Request, class Response>
 void ServerWriteReactorBase<Request, Response>::OnDone() {
-  this->doneCallback();
-  // This looks weird but apparently it is okay to do this. More information:
-  // https://phabricator.ashoat.com/D3246#87890
-  delete this;
+  this->beginPoolTask();
+  ThreadPool::getInstance().scheduleWithCallback(
+      [this]() { this->doneCallback(); },
+      [this](std::unique_ptr<std::string> err) { this->finishPoolTask(); });
 }
 
 template <class Request, class Response>
@@ -147,6 +154,23 @@ void ServerWriteReactorBase<Request, Response>::OnWriteDone(bool ok) {
     return;
   }
   this->nextWrite();
+}
+
+template <class Request, class Response>
+void ServerWriteReactorBase<Request, Response>::beginPoolTask() {
+  this->ongoingPoolTaskCounter++;
+}
+
+template <class Request, class Response>
+void ServerWriteReactorBase<Request, Response>::finishPoolTask() {
+  this->ongoingPoolTaskCounter--;
+  if (!this->ongoingPoolTaskCounter.load() &&
+      this->statusHolder->state == ReactorState::DONE) {
+    // This looks weird but apparently it is okay to do this. More
+    // information:
+    // https://phab.comm.dev/D3246#87890
+    delete this;
+  }
 }
 
 } // namespace reactor

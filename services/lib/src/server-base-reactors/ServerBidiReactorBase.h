@@ -34,8 +34,14 @@ class ServerBidiReactorBase : public grpc::ServerBidiReactor<Request, Response>,
                               public BaseReactor {
   std::shared_ptr<ReactorStatusHolder> statusHolder =
       std::make_shared<ReactorStatusHolder>();
+
+  std::atomic<int> ongoingPoolTaskCounter{0};
+
   Request request;
   Response response;
+
+  void beginPoolTask();
+  void finishPoolTask();
 
 protected:
   ServerBidiReactorStatus status;
@@ -86,17 +92,20 @@ void ServerBidiReactorBase<Request, Response>::terminate(
 
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::OnDone() {
-  this->statusHolder->state = ReactorState::DONE;
-  this->doneCallback();
-  // This looks weird but apparently it is okay to do this. More information:
-  // https://phabricator.ashoat.com/D3246#87890
-  delete this;
+  this->beginPoolTask();
+  ThreadPool::getInstance().scheduleWithCallback(
+      [this]() {
+        this->statusHolder->state = ReactorState::DONE;
+        this->doneCallback();
+      },
+      [this](std::unique_ptr<std::string> err) { this->finishPoolTask(); });
 }
 
 template <class Request, class Response>
 void ServerBidiReactorBase<Request, Response>::terminate(
     ServerBidiReactorStatus status) {
   this->setStatus(status);
+  this->beginPoolTask();
   ThreadPool::getInstance().scheduleWithCallback(
       [this]() {
         this->terminateCallback();
@@ -108,6 +117,7 @@ void ServerBidiReactorBase<Request, Response>::terminate(
               grpc::Status(grpc::StatusCode::INTERNAL, std::string(*err))));
         }
         if (this->statusHolder->state != ReactorState::RUNNING) {
+          this->finishPoolTask();
           return;
         }
         if (this->getStatus().sendLastResponse) {
@@ -117,6 +127,7 @@ void ServerBidiReactorBase<Request, Response>::terminate(
           this->Finish(this->getStatus().status);
         }
         this->statusHolder->state = ReactorState::TERMINATED;
+        this->finishPoolTask();
       });
 }
 
@@ -142,6 +153,7 @@ void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
     this->terminate(ServerBidiReactorStatus(grpc::Status::OK));
     return;
   }
+  this->beginPoolTask();
   ThreadPool::getInstance().scheduleWithCallback(
       [this]() {
         this->response = Response();
@@ -158,6 +170,7 @@ void ServerBidiReactorBase<Request, Response>::OnReadDone(bool ok) {
           this->terminate(ServerBidiReactorStatus(
               grpc::Status(grpc::StatusCode::INTERNAL, *err)));
         }
+        this->finishPoolTask();
       });
 }
 
@@ -175,6 +188,23 @@ template <class Request, class Response>
 std::shared_ptr<ReactorStatusHolder>
 ServerBidiReactorBase<Request, Response>::getStatusHolder() {
   return this->statusHolder;
+}
+
+template <class Request, class Response>
+void ServerBidiReactorBase<Request, Response>::beginPoolTask() {
+  this->ongoingPoolTaskCounter++;
+}
+
+template <class Request, class Response>
+void ServerBidiReactorBase<Request, Response>::finishPoolTask() {
+  this->ongoingPoolTaskCounter--;
+  if (!this->ongoingPoolTaskCounter.load() &&
+      this->statusHolder->state == ReactorState::DONE) {
+    // This looks weird but apparently it is okay to do this. More
+    // information:
+    // https://phab.comm.dev/D3246#87890
+    delete this;
+  }
 }
 
 } // namespace reactor

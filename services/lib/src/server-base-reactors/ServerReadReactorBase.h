@@ -24,7 +24,12 @@ class ServerReadReactorBase : public grpc::ServerReadReactor<Request>,
                               public BaseReactor {
   std::shared_ptr<ReactorStatusHolder> statusHolder =
       std::make_shared<ReactorStatusHolder>();
+
+  std::atomic<int> ongoingPoolTaskCounter{0};
   Request request;
+
+  void beginPoolTask();
+  void finishPoolTask();
 
 protected:
   Response *response;
@@ -68,6 +73,7 @@ void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
     this->terminate(grpc::Status::OK);
     return;
   }
+  this->beginPoolTask();
   ThreadPool::getInstance().scheduleWithCallback(
       [this]() {
         std::unique_ptr<grpc::Status> status = this->readRequest(this->request);
@@ -81,6 +87,7 @@ void ServerReadReactorBase<Request, Response>::OnReadDone(bool ok) {
         if (err != nullptr) {
           this->terminate(grpc::Status(grpc::StatusCode::INTERNAL, *err));
         }
+        this->finishPoolTask();
       });
 }
 
@@ -88,7 +95,7 @@ template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::terminate(
     const grpc::Status &status) {
   this->statusHolder->setStatus(status);
-
+  this->beginPoolTask();
   ThreadPool::getInstance().scheduleWithCallback(
       [this]() {
         this->terminateCallback();
@@ -102,27 +109,46 @@ void ServerReadReactorBase<Request, Response>::terminate(
         if (!this->statusHolder->getStatus().ok()) {
           LOG(ERROR) << this->statusHolder->getStatus().error_message();
         }
-        if (this->statusHolder->state != ReactorState::RUNNING) {
-          return;
+        if (this->statusHolder->state == ReactorState::RUNNING) {
+          this->Finish(this->statusHolder->getStatus());
+          this->statusHolder->state = ReactorState::TERMINATED;
         }
-        this->Finish(this->statusHolder->getStatus());
-        this->statusHolder->state = ReactorState::TERMINATED;
+        this->finishPoolTask();
       });
 }
 
 template <class Request, class Response>
 void ServerReadReactorBase<Request, Response>::OnDone() {
-  this->statusHolder->state = ReactorState::DONE;
-  this->doneCallback();
-  // This looks weird but apparently it is okay to do this. More information:
-  // https://phabricator.ashoat.com/D3246#87890
-  delete this;
+  this->beginPoolTask();
+  ThreadPool::getInstance().scheduleWithCallback(
+      [this]() {
+        this->statusHolder->state = ReactorState::DONE;
+        this->doneCallback();
+      },
+      [this](std::unique_ptr<std::string> err) { this->finishPoolTask(); });
 }
 
 template <class Request, class Response>
 std::shared_ptr<ReactorStatusHolder>
 ServerReadReactorBase<Request, Response>::getStatusHolder() {
   return this->statusHolder;
+}
+
+template <class Request, class Response>
+void ServerReadReactorBase<Request, Response>::beginPoolTask() {
+  this->ongoingPoolTaskCounter++;
+}
+
+template <class Request, class Response>
+void ServerReadReactorBase<Request, Response>::finishPoolTask() {
+  this->ongoingPoolTaskCounter--;
+  if (!this->ongoingPoolTaskCounter.load() &&
+      this->statusHolder->state == ReactorState::DONE) {
+    // This looks weird but apparently it is okay to do this. More
+    // information:
+    // https://phab.comm.dev/D3246#87890
+    delete this;
+  }
 }
 
 } // namespace reactor
