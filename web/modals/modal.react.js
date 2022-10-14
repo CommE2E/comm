@@ -3,8 +3,9 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import ModalOverlay from 'lib/components/modal-overlay.react';
+
 import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
-import ModalOverlay from './modal-overlay.react';
 import css from './modal.css';
 
 export type ModalSize = 'small' | 'large' | 'fit-content';
