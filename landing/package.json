@@ -48,6 +48,7 @@
     "@lottiefiles/lottie-interactivity": "^0.1.4",
     "@lottiefiles/lottie-player": "^1.0.3",
     "@rainbow-me/rainbowkit": "^0.5.0",
+    "classnames": "^2.2.5",
     "core-js": "^3.6.5",
     "ethers": "^5.7.0",
     "invariant": "^2.2.4",
