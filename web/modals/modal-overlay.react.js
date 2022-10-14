@@ -15,6 +15,12 @@ function ModalOverlay(props: ModalOverlayProps): React.Node {
   const overlayRef = React.useRef();
   const firstClickRef = React.useRef(null);
 
+  React.useLayoutEffect(() => {
+    if (overlayRef.current) {
+      overlayRef.current.focus();
+    }
+  }, []);
+
   const onBackgroundMouseDown = React.useCallback(event => {
     firstClickRef.current = event.target;
   }, []);
@@ -39,12 +45,6 @@ function ModalOverlay(props: ModalOverlayProps): React.Node {
     },
     [onClose],
   );
-
-  React.useEffect(() => {
-    if (overlayRef.current) {
-      overlayRef.current.focus();
-    }
-  }, []);
 
   return (
     <div
