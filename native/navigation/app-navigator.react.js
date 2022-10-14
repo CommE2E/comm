@@ -1,6 +1,9 @@
 // @flow
 
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type {
+  BottomTabNavigationHelpers,
+  BottomTabNavigationProp,
+} from '@react-navigation/bottom-tabs';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
@@ -95,7 +98,7 @@ export type TabNavigationProp<
 const Tab = createBottomTabNavigator<
   ScreenParamList,
   TabParamList,
-  TabNavigationProp<>,
+  BottomTabNavigationHelpers<ScreenParamList>,
 >();
 const tabBarOptions = {
   keyboardHidesTabBar: false,
