@@ -1492,12 +1492,31 @@ declare module '@react-navigation/native' {
     +tabLongPress: {| +data: void, +canPreventDefault: false |},
   |};
 
-  declare type InexactTabNavigationProp<
-    ParamList: ParamListBase,
-    RouteName: $Keys<ParamList>,
-    Options: {...},
-    EventMap: EventMapBase,
+  declare type TabExtraNavigationHelpers<
+    ParamList: ParamListBase = ParamListBase,
+  > = {|
+    +jumpTo: SimpleNavigate<ParamList>,
+  |};
+
+  declare export type BottomTabNavigationHelpers<
+    ParamList: ParamListBase = ParamListBase,
+    EventMap: EventMapBase = BottomTabNavigationEventMap,
   > = {
+    ...$Exact<NavigationHelpers<
+      ParamList,
+      TabNavigationState,
+      EventMap,
+    >>,
+    ...TabExtraNavigationHelpers<ParamList>,
+    ...
+  };
+
+  declare export type BottomTabNavigationProp<
+    ParamList: ParamListBase = ParamListBase,
+    RouteName: $Keys<ParamList> = $Keys<ParamList>,
+    Options: {...} = BottomTabOptions,
+    EventMap: EventMapBase = BottomTabNavigationEventMap,
+  > = {|
     ...$Exact<NavigationProp<
       ParamList,
       RouteName,
@@ -1505,40 +1524,15 @@ declare module '@react-navigation/native' {
       Options,
       EventMap,
     >>,
-    +jumpTo: SimpleNavigate<ParamList>,
-    ...
-  };
-
-  declare export type InexactBottomTabNavigationProp<
-    ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = $Keys<ParamList>,
-    Options: {...} = BottomTabOptions,
-    EventMap: EventMapBase = BottomTabNavigationEventMap,
-  > = InexactTabNavigationProp<
-    ParamList,
-    RouteName,
-    Options,
-    EventMap,
-  >;
-
-  declare export type BottomTabNavigationProp<
-    ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = $Keys<ParamList>,
-    Options: {...} = BottomTabOptions,
-    EventMap: EventMapBase = BottomTabNavigationEventMap,
-  > = $Exact<InexactBottomTabNavigationProp<
-    ParamList,
-    RouteName,
-    Options,
-    EventMap,
-  >>;
+    ...TabExtraNavigationHelpers<ParamList>,
+  |};
 
   /**
    * Miscellaneous bottom tab exports
    */
 
   declare export type BottomTabDescriptor = Descriptor<
-    BottomTabNavigationProp<>,
+    BottomTabNavigationHelpers<>,
     BottomTabOptions,
   >;
 
@@ -1562,7 +1556,7 @@ declare module '@react-navigation/native' {
 
   declare type BottomTabNavigationBuilderResult = {|
     +state: TabNavigationState,
-    +navigation: BottomTabNavigationProp<>,
+    +navigation: BottomTabNavigationHelpers<>,
     +descriptors: {| +[key: string]: BottomTabDescriptor |},
   |};
 
@@ -1585,10 +1579,10 @@ declare module '@react-navigation/native' {
   |};
 
   declare export type BottomTabNavigatorProps<
-    NavProp: InexactBottomTabNavigationProp<> = BottomTabNavigationProp<>,
+    NavHelpers: BottomTabNavigationHelpers<> = BottomTabNavigationHelpers<>,
   > = {|
     ...ExtraBottomTabNavigatorProps,
-    ...ScreenOptionsProp<BottomTabOptions, NavProp>,
+    ...ScreenOptionsProp<BottomTabOptions, NavHelpers>,
   |};
 
   /**
@@ -1616,29 +1610,34 @@ declare module '@react-navigation/native' {
     +tabPress: {| +data: void, +canPreventDefault: true |},
   |};
 
-  declare export type InexactMaterialBottomTabNavigationProp<
+  declare export type MaterialBottomTabNavigationHelpers<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = $Keys<ParamList>,
-    Options: {...} = MaterialBottomTabOptions,
     EventMap: EventMapBase = MaterialBottomTabNavigationEventMap,
-  > = InexactTabNavigationProp<
-    ParamList,
-    RouteName,
-    Options,
-    EventMap,
-  >;
+  > = {
+    ...$Exact<NavigationHelpers<
+      ParamList,
+      TabNavigationState,
+      EventMap,
+    >>,
+    ...TabExtraNavigationHelpers<ParamList>,
+    ...
+  };
 
   declare export type MaterialBottomTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
     Options: {...} = MaterialBottomTabOptions,
     EventMap: EventMapBase = MaterialBottomTabNavigationEventMap,
-  > = $Exact<InexactMaterialBottomTabNavigationProp<
-    ParamList,
-    RouteName,
-    Options,
-    EventMap,
-  >>;
+  > = {|
+    ...$Exact<NavigationProp<
+      ParamList,
+      RouteName,
+      TabNavigationState,
+      Options,
+      EventMap,
+    >>,
+    ...TabExtraNavigationHelpers<ParamList>,
+  |};
 
   /**
    * Miscellaneous material bottom tab exports
@@ -1731,11 +1730,11 @@ declare module '@react-navigation/native' {
   |};
 
   declare export type MaterialBottomTabNavigatorProps<
-    NavProp: InexactMaterialBottomTabNavigationProp<> =
-      MaterialBottomTabNavigationProp<>,
+    NavHelpers: MaterialBottomTabNavigationHelpers<> =
+      MaterialBottomTabNavigationHelpers<>,
   > = {|
     ...ExtraMaterialBottomTabNavigatorProps,
-    ...ScreenOptionsProp<MaterialBottomTabOptions, NavProp>,
+    ...ScreenOptionsProp<MaterialBottomTabOptions, NavHelpers>,
   |};
 
   /**
@@ -1764,29 +1763,34 @@ declare module '@react-navigation/native' {
     +swipeEnd: {| +data: void, +canPreventDefault: false |},
   |};
 
-  declare export type InexactMaterialTopTabNavigationProp<
+  declare export type MaterialTopTabNavigationHelpers<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = $Keys<ParamList>,
-    Options: {...} = MaterialTopTabOptions,
     EventMap: EventMapBase = MaterialTopTabNavigationEventMap,
-  > = InexactTabNavigationProp<
-    ParamList,
-    RouteName,
-    Options,
-    EventMap,
-  >;
+  > = {
+    ...$Exact<NavigationHelpers<
+      ParamList,
+      TabNavigationState,
+      EventMap,
+    >>,
+    ...TabExtraNavigationHelpers<ParamList>,
+    ...
+  };
 
   declare export type MaterialTopTabNavigationProp<
     ParamList: ParamListBase = ParamListBase,
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
     Options: {...} = MaterialTopTabOptions,
     EventMap: EventMapBase = MaterialTopTabNavigationEventMap,
-  > = $Exact<InexactMaterialTopTabNavigationProp<
-    ParamList,
-    RouteName,
-    Options,
-    EventMap,
-  >>;
+  > = {|
+    ...$Exact<NavigationProp<
+      ParamList,
+      RouteName,
+      TabNavigationState,
+      Options,
+      EventMap,
+    >>,
+    ...TabExtraNavigationHelpers<ParamList>,
+  |};
 
   /**
    * Miscellaneous material top tab exports
@@ -1858,13 +1862,13 @@ declare module '@react-navigation/native' {
   |}>;
 
   declare export type MaterialTopTabDescriptor = Descriptor<
-    MaterialBottomTabNavigationProp<>,
+    MaterialBottomTabNavigationHelpers<>,
     MaterialBottomTabOptions,
   >;
 
   declare type MaterialTopTabNavigationBuilderResult = {|
     +state: TabNavigationState,
-    +navigation: MaterialTopTabNavigationProp<>,
+    +navigation: MaterialTopTabNavigationHelpers<>,
     +descriptors: {| +[key: string]: MaterialTopTabDescriptor |},
   |};
 
@@ -1900,11 +1904,11 @@ declare module '@react-navigation/native' {
   |};
 
   declare export type MaterialTopTabNavigatorProps<
-    NavProp: InexactMaterialTopTabNavigationProp<> =
-      MaterialTopTabNavigationProp<>,
+    NavHelpers: MaterialTopTabNavigationHelpers<> =
+      MaterialTopTabNavigationHelpers<>,
   > = {|
     ...ExtraMaterialTopTabNavigatorProps,
-    ...ScreenOptionsProp<MaterialTopTabOptions, NavProp>,
+    ...ScreenOptionsProp<MaterialTopTabOptions, NavHelpers>,
   |};
 
   /**
