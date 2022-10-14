@@ -16,7 +16,6 @@
 - (NSString *)_getValueWithKey:(NSString *)key
                    withOptions:(NSDictionary *)options
                          error:(NSError **)error;
-- (void)_deleteValueWithKey:(NSString *)key withOptions:(NSDictionary *)options;
 @end
 
 @implementation CommSecureStoreIOSWrapper
@@ -34,8 +33,6 @@
         (EXSecureStore *)[[moduleRegistryProvider moduleRegistry]
             getExportedModuleOfClass:EXSecureStore.class];
     shared.secureStore = secureStore;
-    shared.options =
-        @{@"keychainAccessible" : @(EXSecureStoreAccessibleAfterFirstUnlock)};
   });
   return shared;
 }
@@ -65,35 +62,6 @@
   return [[self secureStore] _getValueWithKey:key
                                   withOptions:[self options]
                                         error:&error];
-}
-
-- (void)migrateOptionsForKey:(NSString *)key withVersion:(NSString *)version {
-  NSString *secureStoreKeyVersionID = [key stringByAppendingString:@".version"];
-  NSString *failureProtectionCopyKey = [key stringByAppendingString:@".copy"];
-
-  NSString *secureStoreKeyVersion = [self get:secureStoreKeyVersionID];
-  if (secureStoreKeyVersion &&
-      [secureStoreKeyVersion isEqualToString:version]) {
-    return;
-  }
-
-  NSString *value = [self get:key];
-  NSString *valueCopy = [self get:failureProtectionCopyKey];
-
-  if (value) {
-    [self set:failureProtectionCopyKey value:value];
-    [[self secureStore] _deleteValueWithKey:key withOptions:[self options]];
-  } else if (valueCopy) {
-    value = valueCopy;
-  } else {
-    [self set:secureStoreKeyVersionID value:version];
-    return;
-  }
-
-  [self set:key value:value];
-  [self set:secureStoreKeyVersionID value:version];
-  [[self secureStore] _deleteValueWithKey:failureProtectionCopyKey
-                              withOptions:[self options]];
 }
 
 @end
