@@ -12,6 +12,7 @@ import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt';
 import { userRelationshipStatus } from 'lib/types/relationship-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import { buttonThemes } from '../../components/button.react';
 import RelationshipPromptButton from './relationship-prompt-button';
 import RelationshipPromptButtonContainer from './relationship-prompt-button-container';
 
@@ -36,7 +37,7 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Block User"
           icon={faUserShield}
-          backgroundColor="--relationship-button-red"
+          buttonColor={buttonThemes.danger}
           onClick={blockUser}
         />
       </RelationshipPromptButtonContainer>
@@ -50,7 +51,7 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Unblock User"
           icon={faUserShield}
-          backgroundColor="--relationship-button-green"
+          buttonColor={buttonThemes.success}
           onClick={unblockUser}
         />
       </RelationshipPromptButtonContainer>
@@ -61,13 +62,13 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Accept Friend Request"
           icon={faUserPlus}
-          backgroundColor="--relationship-button-green"
+          buttonColor={buttonThemes.success}
           onClick={friendUser}
         />
         <RelationshipPromptButton
           text="Reject Friend Request"
           icon={faUserSlash}
-          backgroundColor="--relationship-button-red"
+          buttonColor={buttonThemes.danger}
           onClick={unfriendUser}
         />
       </RelationshipPromptButtonContainer>
@@ -78,7 +79,7 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Withdraw Friend Request"
           icon={faUserMinus}
-          backgroundColor="--relationship-button-red"
+          buttonColor={buttonThemes.danger}
           onClick={unfriendUser}
         />
       </RelationshipPromptButtonContainer>
@@ -89,13 +90,13 @@ function RelationshipPrompt(props: Props) {
         <RelationshipPromptButton
           text="Add Friend"
           icon={faUserPlus}
-          backgroundColor="--relationship-button-green"
+          buttonColor={buttonThemes.success}
           onClick={friendUser}
         />
         <RelationshipPromptButton
           text="Block User"
           icon={faUserShield}
-          backgroundColor="--relationship-button-red"
+          buttonColor={buttonThemes.danger}
           onClick={blockUser}
         />
       </RelationshipPromptButtonContainer>

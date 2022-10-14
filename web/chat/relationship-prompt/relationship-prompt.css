@@ -7,10 +7,6 @@ button.promptButton {
   margin: 0.5rem;
 }
 
-button.promptButton:hover {
-  transition-property: none;
-}
-
 p.promptText {
   font-weight: var(--semi-bold);
 }

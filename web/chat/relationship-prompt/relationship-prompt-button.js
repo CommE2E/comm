@@ -4,25 +4,17 @@ import { type IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
-import Button from '../../components/button.react';
+import Button, { type ButtonColor } from '../../components/button.react';
 import css from './relationship-prompt.css';
 
 type Props = {
   +text: string,
   +icon: IconDefinition,
-  +backgroundColor: string,
+  +buttonColor: ButtonColor,
   +onClick: () => void,
 };
 function RelationshipPromptButton(props: Props): React.Node {
-  const { text, icon, backgroundColor, onClick } = props;
-
-  const buttonColor = React.useMemo(
-    () => ({
-      backgroundColor: `var(${backgroundColor})`,
-      color: 'var(--relationship-button-text)',
-    }),
-    [backgroundColor],
-  );
+  const { text, icon, buttonColor, onClick } = props;
 
   return (
     <Button

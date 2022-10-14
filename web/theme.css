@@ -41,6 +41,7 @@
   --success-light-50: #6cdf9c;
   --success-primary: #00c853;
   --success-dark-50: #029841;
+  --success-dark-70: #017933;
   --success-dark-90: #034920;
 
   --error-light-10: #feebe6;
@@ -67,7 +68,7 @@
   --btn-bg-outline-hover: var(--shades-black-80);
   --btn-bg-outline-disabled: var(--shades-black-90);
   --btn-bg-success: var(--success-dark-50);
-  --btn-bg-success-hover: var(--success-dark-90);
+  --btn-bg-success-hover: var(--success-dark-70);
   --btn-bg-success-disabled: var(--shades-black-80);
   --btn-bg-danger: var(--error-primary);
   --btn-bg-danger-hover: var(--error-dark-50);
