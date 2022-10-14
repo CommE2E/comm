@@ -180,7 +180,7 @@ class LogInPanel extends React.PureComponent<Props> {
   };
 
   onChangeUsernameInputText: (text: string) => void = text => {
-    this.props.logInState.setState({ usernameInputText: text });
+    this.props.logInState.setState({ usernameInputText: text.trim() });
   };
 
   onUsernameKeyPress: (event: KeyPressEvent) => void = event => {

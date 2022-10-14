@@ -51,6 +51,10 @@ function LoginForm(): React.Node {
     setUsername(e.target.value);
   }, []);
 
+  const onUsernameBlur = React.useCallback(() => {
+    setUsername(untrimmedUsername => untrimmedUsername.trim());
+  }, []);
+
   const onPasswordChange = React.useCallback(e => {
     invariant(e.target instanceof HTMLInputElement, 'target not input');
     setPassword(e.target.value);
@@ -133,6 +137,7 @@ function LoginForm(): React.Node {
               placeholder="Username"
               value={username}
               onChange={onUsernameChange}
+              onBlur={onUsernameBlur}
               ref={usernameInputRef}
               disabled={inputDisabled}
             />

@@ -9,6 +9,7 @@ type Props = {
   +placeholder: string,
   +value: string,
   +onChange: (value: SyntheticEvent<HTMLInputElement>) => mixed,
+  +onBlur?: (value: SyntheticEvent<HTMLInputElement>) => mixed,
   +disabled?: boolean,
   +label?: string,
   +id?: string,
