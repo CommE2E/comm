@@ -670,7 +670,6 @@
 				DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */,
 				EA2E8897D838D7F3E680EACE /* [CP] Embed Pods Frameworks */,
 				724995DA27B4103A00323FCE /* Embed App Extensions */,
-				8BFD334828CBC1910091411F /* Clean up generated CXX files */,
 			);
 			buildRules = (
 			);
@@ -898,25 +897,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "${SRCROOT}/../../scripts/build-rust-native-library.sh\n";
-		};
-		8BFD334828CBC1910091411F /* Clean up generated CXX files */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Clean up generated CXX files";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "${SRCROOT}/../../scripts/clean-up-native-rust-library.sh\n";
 		};
 		DB38BFA0686C805CE44F051F /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
