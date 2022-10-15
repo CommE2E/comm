@@ -14,6 +14,10 @@ const unboundStyles = {
   italics: {
     fontStyle: 'italic',
   },
+  spoiler: {
+    color: 'spoiler',
+    backgroundColor: 'spoiler',
+  },
   bold: {
     fontWeight: 'bold',
   },
