@@ -198,7 +198,11 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
         state: SharedMarkdown.State,
-      ) => <Text key={state.key}>{output(node.content, state)}</Text>,
+      ) => (
+        <Text key={state.key} style={styles.spoiler}>
+          {output(node.content, state)}
+        </Text>
+      ),
     },
     inlineCode: {
       ...SimpleMarkdown.defaultRules.inlineCode,
