@@ -87,6 +87,7 @@ function Button(props: ButtonProps): React.Node {
     }
 
     return {
+      'background-color': color.backgroundColor,
       'color': color.color,
       '--background-color': color.backgroundColor,
       '--hover-background-color': hoverColor,

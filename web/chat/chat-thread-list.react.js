@@ -61,7 +61,8 @@ function ChatThreadList(): React.Node {
           disabled={isThreadCreation}
           onClick={onClickNewThread}
         >
-          Create new chat
+          {/* has to be a div because we need to move z-index */}
+          <div>Create new chat</div>
         </Button>
       </div>
     </>
