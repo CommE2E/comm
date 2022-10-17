@@ -9,6 +9,7 @@ import * as SimpleMarkdown from 'simple-markdown';
 import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
 import * as SharedMarkdown from 'lib/shared/markdown';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
+import Spoiler from 'native/components/spoiler.react';
 
 import { useSelector } from '../redux/redux-utils';
 import MarkdownLink from './markdown-link.react';
@@ -198,11 +199,7 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         node: SharedMarkdown.SingleASTNode,
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
         state: SharedMarkdown.State,
-      ) => (
-        <Text key={state.key} style={styles.spoiler}>
-          {output(node.content, state)}
-        </Text>
-      ),
+      ) => <Spoiler key={state.key} text={output(node.content, state)} />,
     },
     inlineCode: {
       ...SimpleMarkdown.defaultRules.inlineCode,
