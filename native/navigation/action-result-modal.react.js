@@ -12,8 +12,8 @@ import { OverlayContext } from './overlay-context';
 import type { NavigationRoute } from './route-names';
 
 export type ActionResultModalParams = {
-  message: string,
-  preventPresses: true,
+  +message: string,
+  +preventPresses: true,
 };
 
 type Props = {

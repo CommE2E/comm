@@ -21,8 +21,8 @@ import { useSelector } from '../redux/redux-utils';
 import { waitForInteractions } from '../utils/timers';
 
 export type ThreadPickerModalParams = {
-  presentedFrom: string,
-  dateString: string,
+  +presentedFrom: string,
+  +dateString: string,
 };
 
 type Props = {

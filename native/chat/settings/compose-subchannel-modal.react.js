@@ -16,8 +16,8 @@ import { ComposeSubchannelRouteName } from '../../navigation/route-names';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 
 export type ComposeSubchannelModalParams = {
-  presentedFrom: string,
-  threadInfo: ThreadInfo,
+  +presentedFrom: string,
+  +threadInfo: ThreadInfo,
 };
 
 type BaseProps = {

@@ -17,7 +17,7 @@ import { useStyles } from '../themes/colors';
 import { setCustomServer } from '../utils/url-utils';
 
 export type CustomServerModalParams = {
-  presentedFrom: string,
+  +presentedFrom: string,
 };
 
 type BaseProps = {
