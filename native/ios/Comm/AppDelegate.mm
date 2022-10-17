@@ -2,16 +2,10 @@
 
 #import "Orientation.h"
 #import "RNNotifications.h"
-#import <React/RCTBridge.h>
-#import <React/RCTBundleURLProvider.h>
-#import <React/RCTConvert.h>
 #import <React/RCTRootView.h>
 
-#import <React/RCTBridge+Private.h>
 #import <React/RCTCxxBridgeDelegate.h>
 #import <React/RCTJSIExecutorRuntimeInstaller.h>
-#import <cxxreact/JSExecutor.h>
-#import <jsireact/JSIExecutor.h>
 #import <reacthermes/HermesExecutorFactory.h>
 
 #import "CommCoreModule.h"
@@ -19,14 +13,9 @@
 #import "GlobalNetworkSingleton.h"
 #import "Logger.h"
 #import "MessageOperationsUtilities.h"
-#import "NetworkModule.h"
-#import "SQLiteQueryExecutor.h"
 #import "TemporaryMessageStorage.h"
 #import "ThreadOperations.h"
 #import "Tools.h"
-#import <cstdio>
-#import <stdexcept>
-#import <string>
 
 #ifdef FB_SONARKIT_ENABLED
 #import <FlipperKit/FlipperClient.h>
@@ -53,8 +42,6 @@ static void InitializeFlipper(UIApplication *application) {
 #import <ReactCommon/RCTTurboModuleManager.h>
 
 #import <RNReanimated/REAInitializer.h>
-
-#import <UserNotifications/UserNotifications.h>
 
 NSString *const backgroundNotificationTypeKey = @"backgroundNotifType";
 NSString *const setUnreadStatusKey = @"setUnreadStatus";
