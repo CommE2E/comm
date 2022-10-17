@@ -517,8 +517,8 @@ void validate_encryption() {
 }
 
 typedef bool ShouldBeInTransaction;
-typedef std::pair<std::function<bool(sqlite3 *)>, ShouldBeInTransaction>
-    SQLiteMigration;
+typedef std::function<bool(sqlite3 *)> MigrateFunction;
+typedef std::pair<MigrateFunction, ShouldBeInTransaction> SQLiteMigration;
 std::vector<std::pair<uint, SQLiteMigration>> migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
@@ -535,6 +535,49 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {23, {create_metadata_table, true}},
      {24, {add_not_null_constraint_to_drafts, true}},
      {25, {add_not_null_constraint_to_metadata, true}}}};
+
+enum MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
+
+MigrationResult
+applyMigrationWithTransaction(sqlite3 *db, MigrateFunction migrate, int index) {
+  sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+  auto db_version = get_database_version(db);
+  if (index <= db_version) {
+    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    return NOT_APPLIED;
+  }
+  auto rc = migrate(db);
+  if (!rc) {
+    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    return FAILURE;
+  }
+  set_database_version(db, index);
+  sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
+  return SUCCESS;
+}
+
+MigrationResult applyMigrationWithoutTransaction(
+    sqlite3 *db,
+    MigrateFunction migrate,
+    int index) {
+  auto db_version = get_database_version(db);
+  if (index <= db_version) {
+    return NOT_APPLIED;
+  }
+  auto rc = migrate(db);
+  if (!rc) {
+    return FAILURE;
+  }
+  sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+  auto inner_db_version = get_database_version(db);
+  if (index <= inner_db_version) {
+    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    return NOT_APPLIED;
+  }
+  set_database_version(db, index);
+  sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
+  return SUCCESS;
+}
 
 void SQLiteQueryExecutor::migrate() const {
   validate_encryption();
@@ -554,31 +597,30 @@ void SQLiteQueryExecutor::migrate() const {
   Logger::log(version_msg.str());
 
   for (const auto &[idx, migration] : migrations) {
-    if (idx <= db_version) {
-      continue;
-    }
     const auto &[applyMigration, shouldBeInTransaction] = migration;
 
-    std::stringstream migration_msg;
-
+    MigrationResult migrationsResult;
     if (shouldBeInTransaction) {
-      sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+      migrationsResult = applyMigrationWithTransaction(db, applyMigration, idx);
+    } else {
+      migrationsResult =
+          applyMigrationWithoutTransaction(db, applyMigration, idx);
     }
 
-    auto rc = applyMigration(db);
-    if (!rc) {
+    if (migrationsResult == NOT_APPLIED) {
+      continue;
+    }
+
+    std::stringstream migration_msg;
+    if (migrationsResult == FAILURE) {
       migration_msg << "migration " << idx << " failed." << std::endl;
       Logger::log(migration_msg.str());
       break;
     }
-
-    set_database_version(db, idx);
-
-    if (shouldBeInTransaction) {
-      sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
+    if (migrationsResult == SUCCESS) {
+      migration_msg << "migration " << idx << " succeeded." << std::endl;
+      Logger::log(migration_msg.str());
     }
-    migration_msg << "migration " << idx << " succeeded." << std::endl;
-    Logger::log(migration_msg.str());
   }
 
   sqlite3_close(db);
