@@ -12,6 +12,7 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 import MarkdownLink from './markdown-link.react';
+import MarkdownSpoiler from './markdown-spoiler.react';
 import { getMarkdownStyles } from './styles';
 
 export type MarkdownRules = {
@@ -199,9 +200,7 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
         state: SharedMarkdown.State,
       ) => (
-        <Text key={state.key} style={styles.spoiler}>
-          {output(node.content, state)}
-        </Text>
+        <MarkdownSpoiler key={state.key} text={output(node.content, state)} />
       ),
     },
     inlineCode: {
