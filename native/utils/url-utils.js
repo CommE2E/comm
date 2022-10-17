@@ -10,6 +10,7 @@ const localhostHostname = 'localhost';
 const localhostHostnameFromAndroidEmulator = '10.0.2.2';
 
 const productionNodeServerURL = 'https://squadcal.org';
+const productionLandingURL = 'https://comm.app';
 const devIsEmulator: boolean = __DEV__ && DeviceInfo.isEmulatorSync();
 
 function getDevServerHostname(): string {
@@ -29,10 +30,20 @@ function getDevNodeServerURLFromHostname(hostname: string): string {
   return `http://${hostname}/comm`;
 }
 
+function getDevLandingURLFromHostname(hostname: string): string {
+  return `http://${hostname}/commlanding`;
+}
+
 function getDevNodeServerURL(): string {
   invariant(__DEV__, 'getDevNodeServerURL called from production');
   const hostname = getDevServerHostname();
   return getDevNodeServerURLFromHostname(hostname);
+}
+
+function getDevLandingURL(): string {
+  invariant(__DEV__, 'getDevLandingURL called from production');
+  const hostname = getDevServerHostname();
+  return getDevLandingURLFromHostname(hostname);
 }
 
 const nodeServerOptions = [productionNodeServerURL];
@@ -48,12 +59,17 @@ const defaultURLPrefix: string = __DEV__
   ? getDevNodeServerURL()
   : productionNodeServerURL;
 
+const defaultLandingURLPrefix: string = __DEV__
+  ? getDevLandingURL()
+  : productionLandingURL;
+
 const natNodeServer: string = getDevNodeServerURLFromHostname(natDevHostname);
 
 const setCustomServer = 'SET_CUSTOM_SERVER';
 
 export {
   defaultURLPrefix,
+  defaultLandingURLPrefix,
   getDevServerHostname,
   nodeServerOptions,
   natNodeServer,

@@ -19,10 +19,10 @@ import {
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
+import { defaultLandingURLPrefix } from '../utils/url-utils';
 import { setNativeCredentials } from './native-credentials';
-const commSIWE = __DEV__
-  ? 'http://localhost/commlanding/siwe'
-  : 'https://comm.app/siwe';
+
+const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 
 type BaseProps = {
   +setActiveAlert: (activeAlert: boolean) => void,
