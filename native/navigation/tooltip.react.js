@@ -29,7 +29,9 @@ import {
 } from 'lib/utils/action-utils';
 
 import { ChatContext, type ChatContextType } from '../chat/chat-context';
+import CommIcon from '../components/comm-icon.react';
 import { SingleLine } from '../components/single-line.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import { useSelector } from '../redux/redux-utils';
@@ -118,11 +120,34 @@ function createTooltip<
 ): React.ComponentType<BaseTooltipPropsType> {
   class TooltipItem extends React.PureComponent<TooltipItemProps<RouteName>> {
     render() {
+      let icon;
+      if (this.props.spec.id === 'copy') {
+        icon = <SWMansionIcon name="copy" style={styles.icon} size={16} />;
+      } else if (this.props.spec.id === 'reply') {
+        icon = <CommIcon name="reply" style={styles.icon} size={12} />;
+      } else if (this.props.spec.id === 'report') {
+        icon = (
+          <SWMansionIcon name="warning-circle" style={styles.icon} size={16} />
+        );
+      } else if (
+        this.props.spec.id === 'create_sidebar' ||
+        this.props.spec.id === 'open_sidebar'
+      ) {
+        icon = (
+          <SWMansionIcon
+            name="message-circle-lines"
+            style={styles.icon}
+            size={16}
+          />
+        );
+      }
+
       return (
         <TouchableOpacity
           onPress={this.onPress}
           style={[styles.itemContainer, this.props.containerStyle]}
         >
+          {icon}
           <SingleLine style={[styles.label, this.props.labelStyle]}>
             {this.props.spec.text}
           </SingleLine>
@@ -496,7 +521,14 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: 'hidden',
   },
+  icon: {
+    marginRight: 4,
+  },
   itemContainer: {
+    alignItems: 'center',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
     padding: 10,
   },
   itemMargin: {
