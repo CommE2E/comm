@@ -8,7 +8,6 @@ import {
   View,
   StyleSheet,
   TouchableWithoutFeedback,
-  Platform,
   TouchableOpacity,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -227,7 +226,7 @@ function createTooltip<
     }
 
     get tooltipHeight(): number {
-      return tooltipHeight(this.entries.length);
+      return tooltipHeight;
     }
 
     get location(): 'above' | 'below' {
@@ -310,12 +309,11 @@ function createTooltip<
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
       if (extraLeftSpace < extraRightSpace) {
-        style.left = 0;
-        style.minWidth = width + 2 * extraLeftSpace;
+        style.left = 8;
       } else {
-        style.right = 0;
-        style.minWidth = width + 2 * extraRightSpace;
+        style.right = 8;
       }
+      style.minWidth = dimensions.width - 16;
 
       if (location === 'above') {
         const fullScreenHeight = dimensions.height;
@@ -361,33 +359,6 @@ function createTooltip<
         );
       });
 
-      let triangleStyle;
-      const { route } = this.props;
-      const { initialCoordinates } = route.params;
-      const { x, width } = initialCoordinates;
-      const extraLeftSpace = x;
-      const extraRightSpace = dimensions.width - width - x;
-      if (extraLeftSpace < extraRightSpace) {
-        triangleStyle = {
-          alignSelf: 'flex-start',
-          left: extraLeftSpace + (width - 20) / 2,
-        };
-      } else {
-        triangleStyle = {
-          alignSelf: 'flex-end',
-          right: extraRightSpace + (width - 20) / 2,
-        };
-      }
-
-      let triangleDown = null;
-      let triangleUp = null;
-      const { location } = this;
-      if (location === 'above') {
-        triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
-      } else {
-        triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
-      }
-
       invariant(overlayContext, 'Tooltip should have OverlayContext');
       const { position } = overlayContext;
       const isOpeningSidebar = !!chatContext?.currentTransitionSidebarSourceID;
@@ -411,9 +382,7 @@ function createTooltip<
               style={this.tooltipContainerStyle}
               onLayout={this.onTooltipContainerLayout}
             >
-              {triangleUp}
               <View style={styles.items}>{items}</View>
-              {triangleDown}
             </AnimatedView>
           </View>
         </TouchableWithoutFeedback>
@@ -527,17 +496,19 @@ const styles = StyleSheet.create({
   itemContainer: {
     alignItems: 'center',
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'center',
     padding: 10,
   },
   itemMargin: {
-    borderBottomColor: '#E1E1E1',
-    borderBottomWidth: 1,
+    borderRightColor: '#E1E1E1',
+    borderRightWidth: 1,
   },
   items: {
     backgroundColor: 'white',
     borderRadius: 5,
+    flex: 1,
+    flexDirection: 'row',
     overflow: 'hidden',
   },
   label: {
@@ -546,39 +517,8 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     textAlign: 'center',
   },
-  triangleDown: {
-    borderBottomColor: 'transparent',
-    borderBottomWidth: 0,
-    borderLeftColor: 'transparent',
-    borderLeftWidth: 10,
-    borderRightColor: 'transparent',
-    borderRightWidth: 10,
-    borderStyle: 'solid',
-    borderTopColor: 'white',
-    borderTopWidth: 10,
-    height: 10,
-    top: Platform.OS === 'android' ? -1 : 0,
-    width: 10,
-  },
-  triangleUp: {
-    borderBottomColor: 'white',
-    borderBottomWidth: 10,
-    borderLeftColor: 'transparent',
-    borderLeftWidth: 10,
-    borderRightColor: 'transparent',
-    borderRightWidth: 10,
-    borderStyle: 'solid',
-    borderTopColor: 'transparent',
-    borderTopWidth: 0,
-    bottom: Platform.OS === 'android' ? -1 : 0,
-    height: 10,
-    width: 10,
-  },
 });
 
-function tooltipHeight(numEntries: number): number {
-  // 10 (triangle) + 37 * numEntries (entries) + numEntries - 1 (padding)
-  return 9 + 38 * numEntries;
-}
+const tooltipHeight: number = 53;
 
 export { createTooltip, tooltipHeight };
