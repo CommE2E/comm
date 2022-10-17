@@ -554,29 +554,42 @@ void SQLiteQueryExecutor::migrate() const {
   Logger::log(version_msg.str());
 
   for (const auto &[idx, migration] : migrations) {
+    auto db_version = get_database_version(db);
     if (idx <= db_version) {
       continue;
     }
-    const auto &[applyMigration, shouldBeInTransaction] = migration;
 
     std::stringstream migration_msg;
-
-    if (shouldBeInTransaction) {
-      sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+    const auto &[applyMigration, shouldBeInTransaction] = migration;
+    if (!shouldBeInTransaction) {
+      auto rc = applyMigration(db);
+      if (!rc) {
+        migration_msg << "migration " << idx << " failed." << std::endl;
+        Logger::log(migration_msg.str());
+        break;
+      }
     }
 
-    auto rc = applyMigration(db);
-    if (!rc) {
-      migration_msg << "migration " << idx << " failed." << std::endl;
-      Logger::log(migration_msg.str());
-      break;
+    sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+    auto db_version_inside_transaction = get_database_version(db);
+    if (idx <= db_version_inside_transaction) {
+      sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+      continue;
+    }
+
+    if (shouldBeInTransaction) {
+      auto rc = applyMigration(db);
+      if (!rc) {
+        migration_msg << "migration " << idx << " failed." << std::endl;
+        Logger::log(migration_msg.str());
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+        break;
+      }
     }
 
     set_database_version(db, idx);
 
-    if (shouldBeInTransaction) {
-      sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
-    }
+    sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
     migration_msg << "migration " << idx << " succeeded." << std::endl;
     Logger::log(migration_msg.str());
   }
