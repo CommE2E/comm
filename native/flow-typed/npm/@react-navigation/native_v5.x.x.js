@@ -1940,23 +1940,25 @@ declare module '@react-navigation/native' {
     +drawerClose: {| +data: void, +canPreventDefault: false |},
   |};
 
-  declare export type InexactDrawerNavigationProp<
+  declare type DrawerExtraNavigationHelpers<
     ParamList: ParamListBase = ParamListBase,
-    RouteName: $Keys<ParamList> = $Keys<ParamList>,
-    Options: {...} = DrawerOptions,
-    EventMap: EventMapBase = DrawerNavigationEventMap,
-  > = {
-    ...$Exact<NavigationProp<
-      ParamList,
-      RouteName,
-      DrawerNavigationState,
-      Options,
-      EventMap,
-    >>,
+  > = {|
     +jumpTo: SimpleNavigate<ParamList>,
     +openDrawer: () => void,
     +closeDrawer: () => void,
     +toggleDrawer: () => void,
+  |};
+
+  declare export type DrawerNavigationHelpers<
+    ParamList: ParamListBase = ParamListBase,
+    EventMap: EventMapBase = DrawerNavigationEventMap,
+  > = {
+    ...$Exact<NavigationHelpers<
+      ParamList,
+      DrawerNavigationState,
+      EventMap,
+    >>,
+    ...DrawerExtraNavigationHelpers<ParamList>,
     ...
   };
 
@@ -1965,19 +1967,23 @@ declare module '@react-navigation/native' {
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
     Options: {...} = DrawerOptions,
     EventMap: EventMapBase = DrawerNavigationEventMap,
-  > = $Exact<InexactDrawerNavigationProp<
-    ParamList,
-    RouteName,
-    Options,
-    EventMap,
-  >>;
+  > = {|
+    ...$Exact<NavigationProp<
+      ParamList,
+      RouteName,
+      DrawerNavigationState,
+      Options,
+      EventMap,
+    >>,
+    ...DrawerExtraNavigationHelpers<ParamList>,
+  |};
 
   /**
    * Miscellaneous drawer exports
    */
 
   declare export type DrawerDescriptor = Descriptor<
-    DrawerNavigationProp<>,
+    DrawerNavigationHelpers<>,
     DrawerOptions,
   >;
 
@@ -1998,7 +2004,7 @@ declare module '@react-navigation/native' {
 
   declare type DrawerNavigationBuilderResult = {|
     +state: DrawerNavigationState,
-    +navigation: DrawerNavigationProp<>,
+    +navigation: DrawerNavigationHelpers<>,
     +descriptors: {| +[key: string]: DrawerDescriptor |},
   |};
 
@@ -2033,10 +2039,10 @@ declare module '@react-navigation/native' {
   |};
 
   declare export type DrawerNavigatorProps<
-    NavProp: InexactDrawerNavigationProp<> = DrawerNavigationProp<>,
+    NavHelpers: DrawerNavigationHelpers<> = DrawerNavigationHelpers<>,
   > = {|
     ...ExtraDrawerNavigatorProps,
-    ...ScreenOptionsProp<DrawerOptions, NavProp>,
+    ...ScreenOptionsProp<DrawerOptions, NavHelpers>,
   |};
 
   /**
