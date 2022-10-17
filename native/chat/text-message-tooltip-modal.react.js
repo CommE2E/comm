@@ -11,7 +11,6 @@ import type { InputState } from '../input/input-state';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import {
   createTooltip,
-  tooltipHeight,
   type TooltipParams,
   type TooltipRoute,
   type BaseTooltipProps,
@@ -56,12 +55,12 @@ const spec = {
     },
     {
       id: 'create_sidebar',
-      text: 'Create thread',
+      text: 'Thread',
       onPress: navigateToSidebar,
     },
     {
       id: 'open_sidebar',
-      text: 'Go to thread',
+      text: 'Thread',
       onPress: navigateToSidebar,
     },
   ],
@@ -71,6 +70,4 @@ const TextMessageTooltipModal: React.ComponentType<
   BaseTooltipProps<'TextMessageTooltipModal'>,
 > = createTooltip<'TextMessageTooltipModal'>(TextMessageTooltipButton, spec);
 
-const textMessageTooltipHeight: number = tooltipHeight(spec.entries.length);
-
-export { TextMessageTooltipModal, textMessageTooltipHeight };
+export default TextMessageTooltipModal;

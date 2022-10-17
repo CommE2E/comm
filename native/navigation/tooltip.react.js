@@ -145,7 +145,7 @@ function createTooltip<
       return (
         <TouchableOpacity
           onPress={this.onPress}
-          style={[styles.itemContainer, this.props.containerStyle]}
+          style={this.props.containerStyle}
         >
           {icon}
           <SingleLine style={[styles.label, this.props.labelStyle]}>
@@ -227,7 +227,11 @@ function createTooltip<
     }
 
     get tooltipHeight(): number {
-      return tooltipHeight(this.entries.length);
+      if (this.props.route.params.location === 'fixed') {
+        return fixedTooltipHeight;
+      } else {
+        return tooltipHeight(this.entries.length);
+      }
     }
 
     get location(): 'above' | 'below' | 'fixed' {
@@ -317,6 +321,12 @@ function createTooltip<
         style.minWidth = width + 2 * extraRightSpace;
       }
 
+      if (location === 'fixed') {
+        style.minWidth = dimensions.width - 16;
+        style.left = 8;
+        style.right = 8;
+      }
+
       if (location === 'above') {
         const fullScreenHeight = dimensions.height;
         style.bottom =
@@ -347,15 +357,26 @@ function createTooltip<
         ...navAndRouteForFlow
       } = this.props;
 
+      const tooltipContainerStyle = [styles.itemContainer];
+
+      if (this.location === 'fixed') {
+        tooltipContainerStyle.push(styles.itemContainerFixed);
+      }
+
       const { entries } = this;
       const items = entries.map((entry, index) => {
-        const style = index !== entries.length - 1 ? styles.itemMargin : null;
+        let style;
+        if (this.location === 'fixed') {
+          style = index !== entries.length - 1 ? styles.itemMarginFixed : null;
+        } else {
+          style = index !== entries.length - 1 ? styles.itemMargin : null;
+        }
         return (
           <TooltipItem
             key={index}
             spec={entry}
             onPress={this.onPressEntry}
-            containerStyle={style}
+            containerStyle={[...tooltipContainerStyle, style]}
             labelStyle={tooltipSpec.labelStyle}
           />
         );
@@ -384,7 +405,7 @@ function createTooltip<
       const { location } = this;
       if (location === 'above') {
         triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
-      } else {
+      } else if (location === 'below') {
         triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
       }
 
@@ -397,6 +418,12 @@ function createTooltip<
         progress: position,
         isOpeningSidebar,
       };
+
+      const itemsStyle = [styles.items];
+
+      if (this.location === 'fixed') {
+        itemsStyle.push(styles.itemsFixed);
+      }
 
       return (
         <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
@@ -412,7 +439,7 @@ function createTooltip<
               onLayout={this.onTooltipContainerLayout}
             >
               {triangleUp}
-              <View style={styles.items}>{items}</View>
+              <View style={itemsStyle}>{items}</View>
               {triangleDown}
             </AnimatedView>
           </View>
@@ -531,14 +558,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 10,
   },
+  itemContainerFixed: {
+    flexDirection: 'column',
+  },
   itemMargin: {
     borderBottomColor: '#E1E1E1',
     borderBottomWidth: 1,
+  },
+  itemMarginFixed: {
+    borderRightColor: '#E1E1E1',
+    borderRightWidth: 1,
   },
   items: {
     backgroundColor: 'white',
     borderRadius: 5,
     overflow: 'hidden',
+  },
+  itemsFixed: {
+    flex: 1,
+    flexDirection: 'row',
   },
   label: {
     color: '#444',
@@ -581,4 +619,6 @@ function tooltipHeight(numEntries: number): number {
   return 9 + 38 * numEntries;
 }
 
-export { createTooltip, tooltipHeight };
+const fixedTooltipHeight: number = 53;
+
+export { createTooltip, fixedTooltipHeight };

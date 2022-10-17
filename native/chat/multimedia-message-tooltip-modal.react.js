@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import {
   createTooltip,
-  tooltipHeight,
   type TooltipParams,
   type BaseTooltipProps,
 } from '../navigation/tooltip.react';
@@ -46,8 +45,4 @@ const MultimediaMessageTooltipModal: React.ComponentType<
   spec,
 );
 
-const multimediaMessageTooltipHeight: number = tooltipHeight(
-  spec.entries.length,
-);
-
-export { MultimediaMessageTooltipModal, multimediaMessageTooltipHeight };
+export default MultimediaMessageTooltipModal;

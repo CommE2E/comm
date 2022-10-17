@@ -4,7 +4,6 @@ import * as React from 'react';
 
 import {
   createTooltip,
-  tooltipHeight,
   type TooltipParams,
   type BaseTooltipProps,
 } from '../navigation/tooltip.react';
@@ -38,6 +37,4 @@ const RobotextMessageTooltipModal: React.ComponentType<
   spec,
 );
 
-const robotextMessageTooltipHeight: number = tooltipHeight(spec.entries.length);
-
-export { RobotextMessageTooltipModal, robotextMessageTooltipHeight };
+export default RobotextMessageTooltipModal;
