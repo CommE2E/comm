@@ -897,6 +897,7 @@ declare module '@react-navigation/native' {
       State,
       EventMap,
     >>,
+    +setParams: (params: ScreenParams) => void,
     ...
   };
 
@@ -2077,7 +2078,6 @@ declare module '@react-navigation/native' {
       PossiblyStaleNavigationState,
       ContainerEventMap,
     >>,
-    +setParams: (params: ScreenParams) => void,
     +resetRoot: (state?: ?PossiblyStaleNavigationState) => void,
     +getRootState: () => PossiblyStaleNavigationState,
   |};
