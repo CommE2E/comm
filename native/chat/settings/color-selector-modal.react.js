@@ -27,10 +27,10 @@ import { useSelector } from '../../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../../themes/colors';
 
 export type ColorSelectorModalParams = {
-  presentedFrom: string,
-  color: string,
-  threadInfo: ThreadInfo,
-  setColor: (color: string) => void,
+  +presentedFrom: string,
+  +color: string,
+  +threadInfo: ThreadInfo,
+  +setColor: (color: string) => void,
 };
 
 type BaseProps = {

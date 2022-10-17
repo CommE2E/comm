@@ -142,11 +142,11 @@ function runDecay(
 }
 
 export type ImageModalParams = {
-  presentedFrom: string,
-  mediaInfo: MediaInfo,
-  initialCoordinates: LayoutCoordinates,
-  verticalBounds: VerticalBounds,
-  item: ChatMultimediaMessageInfoItem,
+  +presentedFrom: string,
+  +mediaInfo: MediaInfo,
+  +initialCoordinates: LayoutCoordinates,
+  +verticalBounds: VerticalBounds,
+  +item: ChatMultimediaMessageInfoItem,
 };
 
 type TouchableOpacityInstance = React.AbstractComponent<
