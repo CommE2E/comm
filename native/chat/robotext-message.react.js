@@ -11,6 +11,7 @@ import { KeyboardContext } from '../keyboard/keyboard-state';
 import { OverlayContext } from '../navigation/overlay-context';
 import { RobotextMessageTooltipModalRouteName } from '../navigation/route-names';
 import type { NavigationRoute } from '../navigation/route-names';
+import { tooltipHeight } from '../navigation/tooltip.react';
 import { useStyles } from '../themes/colors';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
@@ -19,7 +20,6 @@ import { inlineSidebarCenterStyle } from './chat-constants';
 import type { ChatNavigationProp } from './chat.react';
 import { InlineSidebar } from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
-import { robotextMessageTooltipHeight } from './robotext-message-tooltip-modal.react';
 import { Timestamp } from './timestamp.react';
 import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils';
 
@@ -100,10 +100,10 @@ function RobotextMessage(props: Props): React.Node {
       const boundsBottom = verticalBounds.y + verticalBounds.height;
 
       const belowMargin = 20;
-      const belowSpace = robotextMessageTooltipHeight + belowMargin;
+      const belowSpace = tooltipHeight + belowMargin;
       const { isViewer } = item.messageInfo.creator;
       const aboveMargin = isViewer ? 30 : 50;
-      const aboveSpace = robotextMessageTooltipHeight + aboveMargin;
+      const aboveSpace = tooltipHeight + aboveMargin;
 
       let location = 'below',
         margin = 0;
