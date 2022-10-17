@@ -1,27 +1,8 @@
 FROM commapp/services-base:1.3.2
 
-ARG MAKE_JOBS=4
-ENV MAKEFLAGS="-j${MAKE_JOBS}"
-
-WORKDIR /transferred/scripts
-
-# Install Curl
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y curl
-
-# Install SDKs
-COPY services/tunnelbroker/docker/install_amqp_cpp.sh .
-RUN ./install_amqp_cpp.sh
-
-COPY services/tunnelbroker/docker/install_cryptopp.sh .
-RUN ./install_cryptopp.sh
-
-COPY services/tunnelbroker/docker/install_libuv.sh .
-RUN ./install_libuv.sh
-
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
-
-COPY services/lib/docker/install_corrosion.sh .
-RUN ./install_corrosion.sh
+RUN apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y curl && \
+  rm -rf /var/lib/apt/lists/*
 
 ARG COMM_TEST_SERVICES
 ARG COMM_SERVICES_SANDBOX
@@ -29,18 +10,25 @@ ARG COMM_SERVICES_SANDBOX
 ENV COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
 ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
 
-WORKDIR /transferred
+# Install Rust
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
-COPY services/lib/src/ lib/src/
-COPY shared/ shared/
+WORKDIR /transferred/services/tunnelbroker
 
-WORKDIR /transferred/tunnelbroker
-
-ADD shared/protos grpc
-COPY services/lib/cmake-components cmake-components
 COPY services/lib/docker/ scripts/
-COPY services/tunnelbroker/docker/* docker/
-COPY services/tunnelbroker/ .
+COPY services/tunnelbroker/docker/ scripts/
+
+# Install SDKs
+RUN scripts/install_amqp_cpp.sh
+RUN scripts/install_cryptopp.sh
+RUN scripts/install_libuv.sh
+RUN scripts/install_corrosion.sh
+
+ADD shared/protos /transferred/shared/protos/
+ADD shared/cmake /transferred/shared/cmake/
+
+COPY services/tunnelbroker/ /transferred/services/tunnelbroker/
+COPY services/lib/src/ /transferred/services/lib/src/
 
 RUN scripts/build_service.sh
 

@@ -14,14 +14,18 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
 
 find_package(PkgConfig REQUIRED)
-
 find_package(double-conversion REQUIRED)
 find_package(Folly REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
-
-# Find AMQP-CPP installation
 find_package(amqpcpp CONFIG REQUIRED)
+find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
+find_package(Boost 1.40
+  COMPONENTS program_options thread system context filesystem regex
+  REQUIRED
+)
+find_package(OpenSSL REQUIRED)
+find_package(glog)
 
 # Find Cryptopp installation
 pkg_check_modules(CRYPTOPP
@@ -37,15 +41,9 @@ pkg_check_modules(LIBUV
   libuv>=1.43
 )
 
-if(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL "/transferred/tunnelbroker")
-  # Inside the docker build contex
-  set(_proto_path "grpc")
-  set(_shared_path "../shared")
-else()
-  # Inside repo
-  set(_shared_path "../../shared")
-  set(_proto_path "../../shared/protos")
-endif()
+set(_shared_path "../../shared")
+set(_proto_path "${_shared_path}/protos")
+set(_shared_cmake "${_shared_path}/cmake")
 
 # Shared Comm protos
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${_proto_path}
@@ -55,21 +53,13 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${_proto_path}
 
 # Shared services code
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
-  ${CMAKE_CURRENT_BINARY_DIR}/common
+  ${CMAKE_CURRENT_BINARY_DIR}/lib/src
   EXCLUDE_FROM_ALL
 )
 
-find_package(AWSSDK REQUIRED COMPONENTS core dynamodb)
-find_package(Boost 1.40
-  COMPONENTS program_options thread system context filesystem regex
-  REQUIRED
-)
-find_package(OpenSSL REQUIRED)
-find_package(glog)
-
 # Corrosion and CXX Rust integration
 find_package(Corrosion REQUIRED)
-include(${_shared_path}/cmake/corrosion-cxx.cmake)
+include(${_shared_cmake}/corrosion-cxx.cmake)
 add_library_rust(PATH rust-lib NAMESPACE rust)
 
 file(GLOB_RECURSE SOURCE_CODE "./src/*.cpp")
@@ -102,14 +92,20 @@ add_executable(
   ${SOURCE_CODE}
 )
 
-target_include_directories(tunnelbroker
-  PUBLIC
+set(
+  INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Database
   ${CMAKE_CURRENT_SOURCE_DIR}/src/DeliveryBroker
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Service
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Tools
   ${CMAKE_CURRENT_SOURCE_DIR}/src/Amqp
+)
+
+target_include_directories(
+  tunnelbroker
+  PUBLIC
+  ${INCLUDE_DIRS}
 )
 
 target_link_libraries(
@@ -147,14 +143,10 @@ if(BUILD_TESTING)
     GTest::gtest_main
   )
 
-  target_include_directories(runTests
+  target_include_directories(
+    runTests
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Database
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DeliveryBroker
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Service
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Tools
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Amqp
+    ${INCLUDE_DIRS}
   )
 
   include(GoogleTest)
