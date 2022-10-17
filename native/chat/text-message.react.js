@@ -18,13 +18,13 @@ import {
 } from '../navigation/overlay-context';
 import type { NavigationRoute } from '../navigation/route-names';
 import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
+import { fixedTooltipHeight } from '../navigation/tooltip.react';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import ComposedMessage from './composed-message.react';
 import { InnerTextMessage } from './inner-text-message.react';
 import textMessageSendFailed from './text-message-send-failed';
-import { textMessageTooltipHeight } from './text-message-tooltip-modal.react';
 import { getMessageTooltipKey } from './utils';
 
 type BaseProps = {
@@ -164,10 +164,10 @@ class TextMessage extends React.PureComponent<Props> {
       const boundsBottom = verticalBounds.y + verticalBounds.height;
 
       const belowMargin = 20;
-      const belowSpace = textMessageTooltipHeight + belowMargin;
+      const belowSpace = fixedTooltipHeight + belowMargin;
       const { isViewer } = item.messageInfo.creator;
       const aboveMargin = isViewer ? 30 : 50;
-      const aboveSpace = textMessageTooltipHeight + aboveMargin;
+      const aboveSpace = fixedTooltipHeight + aboveMargin;
 
       let margin = belowMargin;
       if (
