@@ -663,6 +663,39 @@ MigrationResult applyMigrationWithoutTransaction(
   return MigrationResult::SUCCESS;
 }
 
+bool set_up_database(sqlite3 *db) {
+  auto write_ahead_enabled = enable_write_ahead_logging_mode(db);
+  if (!write_ahead_enabled) {
+    return false;
+  }
+
+  sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+  auto db_version = get_database_version(db);
+  auto latest_version = migrations.back().first;
+  if (db_version == latest_version) {
+    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    return true;
+  }
+  if (db_version != 0) {
+    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    return false;
+  }
+
+  auto tables_created = create_schema(db);
+  if (!tables_created) {
+    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    return false;
+  }
+
+  auto database_version_set = set_database_version(db, latest_version);
+  if (!database_version_set) {
+    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+    return false;
+  }
+  sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
+  return true;
+}
+
 void SQLiteQueryExecutor::migrate() const {
   validate_encryption();
 
@@ -679,6 +712,14 @@ void SQLiteQueryExecutor::migrate() const {
   std::stringstream version_msg;
   version_msg << "db version: " << db_version << std::endl;
   Logger::log(version_msg.str());
+
+  if (db_version == 0) {
+    set_up_database(db);
+    Logger::log("Database structure created.");
+
+    sqlite3_close(db);
+    return;
+  }
 
   for (const auto &[idx, migration] : migrations) {
     const auto &[applyMigration, shouldBeInTransaction] = migration;
