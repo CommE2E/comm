@@ -324,6 +324,17 @@ void set_encryption_key(sqlite3 *db) {
   }
 }
 
+int get_database_version(sqlite3 *db) {
+  sqlite3_stmt *user_version_stmt;
+  sqlite3_prepare_v2(
+      db, "PRAGMA user_version;", -1, &user_version_stmt, nullptr);
+  sqlite3_step(user_version_stmt);
+
+  int current_user_version = sqlite3_column_int(user_version_stmt, 0);
+  sqlite3_finalize(user_version_stmt);
+  return current_user_version;
+}
+
 void trace_queries(sqlite3 *db) {
   int error_code = sqlite3_trace_v2(
       db,
@@ -516,20 +527,13 @@ void SQLiteQueryExecutor::migrate() const {
           << std::endl;
   Logger::log(db_path.str());
 
-  sqlite3_stmt *user_version_stmt;
-  sqlite3_prepare_v2(
-      db, "PRAGMA user_version;", -1, &user_version_stmt, nullptr);
-  sqlite3_step(user_version_stmt);
-
-  int current_user_version = sqlite3_column_int(user_version_stmt, 0);
-  sqlite3_finalize(user_version_stmt);
-
+  auto db_version = get_database_version(db);
   std::stringstream version_msg;
-  version_msg << "db version: " << current_user_version << std::endl;
+  version_msg << "db version: " << db_version << std::endl;
   Logger::log(version_msg.str());
 
   for (const auto &[idx, migration] : migrations) {
-    if (idx <= current_user_version) {
+    if (idx <= db_version) {
       continue;
     }
     const auto &[applyMigration, shouldBeInTransaction] = migration;
