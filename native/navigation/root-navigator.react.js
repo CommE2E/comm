@@ -58,6 +58,7 @@ function RootNavigator({
   initialRouteName,
   children,
   screenOptions,
+  screenListeners,
   id,
   ...rest
 }: RootNavigatorProps) {
@@ -66,6 +67,7 @@ function RootNavigator({
     initialRouteName,
     children,
     screenOptions,
+    screenListeners,
   });
 
   const [keyboardHandlingEnabled, setKeyboardHandlingEnabled] = React.useState(

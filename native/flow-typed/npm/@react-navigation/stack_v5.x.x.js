@@ -837,15 +837,15 @@ declare module '@react-navigation/stack' {
     & <DestinationRouteName: $Keys<ParamList>>(
         route: $If<
           $IsUndefined<$ElementType<ParamList, DestinationRouteName>>,
-          | {| +key: string |} |
-            {| +name: DestinationRouteName, +key?: string |},
+          | {| +key: string |}
+          | {| +name: DestinationRouteName, +key?: string |},
           | {|
               +key: string,
               +params?: EitherExactOrPartialWithMergeProperty<
                 $ElementType<ParamList, DestinationRouteName>,
               >,
-            |} |
-            {|
+            |}
+          | {|
               +name: DestinationRouteName,
               +key?: string,
               +params?: EitherExactOrPartialWithMergeProperty<
@@ -933,7 +933,7 @@ declare module '@react-navigation/stack' {
    */
 
   declare export type RouteProp<
-    ParamList: ParamListBase,
+    ParamList: ParamListBase = ParamListBase,
     RouteName: $Keys<ParamList> = $Keys<ParamList>,
   > = {|
     ...LeafRoute<RouteName>,
@@ -1052,10 +1052,26 @@ declare module '@react-navigation/stack' {
     EventMap,
   >) => React$Node;
 
-  declare type ScreenOptionsProp<ScreenOptions: {...}, NavHelpers> = {|
+  declare type ScreenOptionsProp<
+    ScreenOptions: {...},
+    RouteParam,
+    NavHelpers,
+  > = {|
     +screenOptions?:
       | ScreenOptions
-      | ({| route: LeafRoute<>, navigation: NavHelpers |}) => ScreenOptions,
+      | ({| +route: RouteParam, +navigation: NavHelpers |}) => ScreenOptions,
+  |};
+  declare type ScreenListenersProp<
+    ScreenListenersParam: {...},
+    RouteParam,
+    NavHelpers,
+  > = {|
+    +screenListeners?:
+      | ScreenListenersParam
+      | ({|
+          +route: RouteParam,
+          +navigation: NavHelpers,
+        |}) => ScreenListenersParam,
   |};
   declare export type ExtraNavigatorPropsBase = {
     ...$Exact<DefaultRouterOptions>,
@@ -1063,11 +1079,29 @@ declare module '@react-navigation/stack' {
     +children?: React$Node,
     ...
   };
-  declare export type NavigatorPropsBase<ScreenOptions: {...}, NavHelpers> = {
-    ...$Exact<ExtraNavigatorPropsBase>,
-    ...ScreenOptionsProp<ScreenOptions, NavHelpers>,
+  declare export type NavigatorProps<
+    ScreenOptions: {...},
+    ScreenListenersParam,
+    RouteParam,
+    NavHelpers,
+    ExtraNavigatorProps: ExtraNavigatorPropsBase,
+  > = {
+    ...$Exact<ExtraNavigatorProps>,
+    ...ScreenOptionsProp<ScreenOptions, RouteParam, NavHelpers>,
+    ...ScreenListenersProp<ScreenListenersParam, RouteParam, NavHelpers>,
     ...
   };
+  declare export type NavigatorPropsBase<
+    ScreenOptions: {...},
+    ScreenListenersParam: {...},
+    NavHelpers,
+  > = NavigatorProps<
+    ScreenOptions,
+    ScreenListenersParam,
+    RouteProp<>,
+    NavHelpers,
+    ExtraNavigatorPropsBase,
+  >;
 
   declare export type CreateNavigator<
     State: NavigationState,
@@ -1090,18 +1124,15 @@ declare module '@react-navigation/stack' {
       ScreenOptions,
       EventMap,
     >,
-    +Navigator: React$ComponentType<{|
-      ...$Exact<ExtraNavigatorProps>,
-      ...ScreenOptionsProp<ScreenOptions, NavHelpers>,
-      +screenListeners?:
-        | ScreenListeners<State, EventMap>
-        | ({|
-            +route: RouteProp<ParamList>,
-            +navigation: NavHelpers,
-          |}) => ScreenListeners<State, EventMap>,
-    |}>,
+    +Navigator: React$ComponentType<$Exact<NavigatorProps<
+      ScreenOptions,
+      ScreenListeners<State, EventMap>,
+      RouteProp<ParamList>,
+      NavHelpers,
+      ExtraNavigatorProps,
+    >>>,
     +Group: React$ComponentType<{|
-      ...ScreenOptionsProp<ScreenOptions, NavHelpers>,
+      ...ScreenOptionsProp<ScreenOptions, RouteProp<ParamList>, NavHelpers>,
       +children: React$Node,
       +navigationKey?: string,
     |}>,
@@ -1118,11 +1149,15 @@ declare module '@react-navigation/stack' {
     >,
     ExtraNavigatorProps: ExtraNavigatorPropsBase,
   >(
-    navigator: React$ComponentType<{|
-      ...$Exact<ExtraNavigatorPropsBase>,
-      ...ScreenOptionsProp<ScreenOptions, NavHelpers>,
-    |}>,
+    navigator: React$ComponentType<$Exact<NavigatorProps<
+      ScreenOptions,
+      ScreenListeners<State, EventMap>,
+      RouteProp<>,
+      NavHelpers,
+      ExtraNavigatorProps,
+    >>>,
   ) => CreateNavigator<State, ScreenOptions, EventMap, ExtraNavigatorProps>;
+
 
   /**
    * useNavigationBuilder
@@ -1147,7 +1182,7 @@ declare module '@react-navigation/stack' {
     routerFactory: RouterFactory<State, Action, RouterOptions>,
     options: {|
       ...$Exact<RouterOptions>,
-      ...ScreenOptionsProp<ScreenOptions, NavHelpers>,
+      ...ScreenOptionsProp<ScreenOptions, RouteProp<>, NavHelpers>,
       +children?: React$Node,
     |},
   ) => {|
@@ -1428,10 +1463,13 @@ declare module '@react-navigation/stack' {
 
   declare export type StackNavigatorProps<
     NavHelpers: StackNavigationHelpers<> = StackNavigationHelpers<>,
-  > = {|
-    ...ExtraStackNavigatorProps,
-    ...ScreenOptionsProp<StackOptions, NavHelpers>,
-  |};
+  > = $Exact<NavigatorProps<
+    StackOptions,
+    ScreenListeners<StackNavigationState, StackNavigationEventMap>,
+    RouteProp<>,
+    NavHelpers,
+    ExtraStackNavigatorProps,
+  >>;
 
   /**
    * Bottom tab options
@@ -1584,10 +1622,13 @@ declare module '@react-navigation/stack' {
 
   declare export type BottomTabNavigatorProps<
     NavHelpers: BottomTabNavigationHelpers<> = BottomTabNavigationHelpers<>,
-  > = {|
-    ...ExtraBottomTabNavigatorProps,
-    ...ScreenOptionsProp<BottomTabOptions, NavHelpers>,
-  |};
+  > = $Exact<NavigatorProps<
+    BottomTabOptions,
+    ScreenListeners<TabNavigationState, BottomTabNavigationEventMap>,
+    RouteProp<>,
+    NavHelpers,
+    ExtraBottomTabNavigatorProps,
+  >>;
 
   /**
    * Material bottom tab options
@@ -1736,10 +1777,13 @@ declare module '@react-navigation/stack' {
   declare export type MaterialBottomTabNavigatorProps<
     NavHelpers: MaterialBottomTabNavigationHelpers<> =
       MaterialBottomTabNavigationHelpers<>,
-  > = {|
-    ...ExtraMaterialBottomTabNavigatorProps,
-    ...ScreenOptionsProp<MaterialBottomTabOptions, NavHelpers>,
-  |};
+  > = $Exact<NavigatorProps<
+    MaterialBottomTabOptions,
+    ScreenListeners<TabNavigationState, MaterialBottomTabNavigationEventMap>,
+    RouteProp<>,
+    NavHelpers,
+    ExtraMaterialBottomTabNavigatorProps,
+  >>;
 
   /**
    * Material top tab options
@@ -1910,10 +1954,13 @@ declare module '@react-navigation/stack' {
   declare export type MaterialTopTabNavigatorProps<
     NavHelpers: MaterialTopTabNavigationHelpers<> =
       MaterialTopTabNavigationHelpers<>,
-  > = {|
-    ...ExtraMaterialTopTabNavigatorProps,
-    ...ScreenOptionsProp<MaterialTopTabOptions, NavHelpers>,
-  |};
+  > = $Exact<NavigatorProps<
+    MaterialTopTabOptions,
+    ScreenListeners<TabNavigationState, MaterialTopTabNavigationEventMap>,
+    RouteProp<>,
+    NavHelpers,
+    ExtraMaterialTopTabNavigatorProps,
+  >>;
 
   /**
    * Drawer options
@@ -2044,10 +2091,13 @@ declare module '@react-navigation/stack' {
 
   declare export type DrawerNavigatorProps<
     NavHelpers: DrawerNavigationHelpers<> = DrawerNavigationHelpers<>,
-  > = {|
-    ...ExtraDrawerNavigatorProps,
-    ...ScreenOptionsProp<DrawerOptions, NavHelpers>,
-  |};
+  > = $Exact<NavigatorProps<
+    DrawerOptions,
+    ScreenListeners<DrawerNavigationState, DrawerNavigationEventMap>,
+    RouteProp<>,
+    NavHelpers,
+    ExtraDrawerNavigatorProps,
+  >>;
 
   /**
    * BaseNavigationContainer
