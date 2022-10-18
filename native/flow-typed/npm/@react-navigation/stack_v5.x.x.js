@@ -2158,6 +2158,11 @@ declare module '@react-navigation/stack' {
     +isReady: () => boolean,
   |};
 
+  declare type BaseNavigationContainerInterfaceRef = {|
+    ...BaseNavigationContainerInterface,
+    +current: BaseNavigationContainerInterface | null,
+  |};
+
   /**
    * State utils
    */
