@@ -58,6 +58,7 @@ function RootNavigator({
   initialRouteName,
   children,
   screenOptions,
+  defaultScreenOptions,
   screenListeners,
   id,
   ...rest
@@ -67,6 +68,7 @@ function RootNavigator({
     initialRouteName,
     children,
     screenOptions,
+    defaultScreenOptions,
     screenListeners,
   });
 

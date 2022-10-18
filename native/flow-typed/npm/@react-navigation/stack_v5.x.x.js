@@ -1098,6 +1098,13 @@ declare module '@react-navigation/stack' {
     ...$Exact<ExtraNavigatorProps>,
     ...ScreenOptionsProps<ScreenOptions, RouteParam, NavHelpers>,
     ...ScreenListenersProps<ScreenListenersParam, RouteParam, NavHelpers>,
+    +defaultScreenOptions?:
+      | ScreenOptions
+      | ({|
+          +route: RouteParam,
+          +navigation: NavHelpers,
+          +options: ScreenOptions,
+        |}) => ScreenOptions,
     ...
   };
   declare export type NavigatorPropsBase<
