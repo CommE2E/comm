@@ -1382,6 +1382,7 @@ declare module '@react-navigation/bottom-tabs' {
     +gestureVelocityImpact: number,
     +safeAreaInsets: $Partial<EdgeInsets>,
     +keyboardHandlingEnabled: boolean,
+    +presentation: 'card' | 'modal' | 'transparentModal',
     // Transition
     ...TransitionPreset,
     // Header
@@ -1470,7 +1471,6 @@ declare module '@react-navigation/bottom-tabs' {
    */
 
   declare type StackNavigationConfig = {|
-    +mode?: 'card' | 'modal',
     +headerMode?: 'float' | 'screen' | 'none',
     +detachInactiveScreens?: boolean,
   |};
