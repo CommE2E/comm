@@ -1187,13 +1187,17 @@ declare module '@react-navigation/native' {
     ScreenOptions: {...},
     RouterOptions: DefaultRouterOptions,
     NavHelpers,
+    EventMap: EventMapBase,
+    ExtraNavigatorProps: ExtraNavigatorPropsBase,
   >(
     routerFactory: RouterFactory<State, Action, RouterOptions>,
-    options: {|
-      ...$Exact<RouterOptions>,
-      ...ScreenOptionsProps<ScreenOptions, RouteProp<>, NavHelpers>,
-      +children?: React$Node,
-    |},
+    options: $Exact<NavigatorProps<
+      ScreenOptions,
+      ScreenListeners<State, EventMap>,
+      RouteProp<>,
+      NavHelpers,
+      ExtraNavigatorProps,
+    >>,
   ) => {|
     +id?: string,
     +state: State,
