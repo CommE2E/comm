@@ -941,6 +941,13 @@ declare module '@react-navigation/devtools' {
     +path?: string,
   |};
 
+  declare type ScreenOptionsProp<
+    ScreenOptions: {...},
+    RouteParam,
+    NavHelpers,
+  > =
+    | ScreenOptions
+    | ({| +route: RouteParam, +navigation: NavHelpers |}) => ScreenOptions;
   declare export type ScreenListeners<
     State: NavigationState = NavigationState,
     EventMap: EventMapBase = EventMapCore<State>,
@@ -948,6 +955,13 @@ declare module '@react-navigation/devtools' {
     {| [name: $Keys<EventMap>]: empty |},
     <K: $Keys<EventMap>>(K, empty) => EventListenerCallback<K, State, EventMap>,
   >;
+  declare type ScreenListenersProp<
+    ScreenListenersParam: {...},
+    RouteParam,
+    NavHelpers,
+  > =
+    | ScreenListenersParam
+    | ({| +route: RouteParam, +navigation: NavHelpers |}) => ScreenListenersParam;
 
   declare type BaseScreenProps<
     ParamList: ParamListBase,
@@ -958,18 +972,16 @@ declare module '@react-navigation/devtools' {
     EventMap: EventMapBase = EventMapCore<State>,
   > = {|
     +name: RouteName,
-    +options?:
-      | ScreenOptions
-      | ({|
-          +route: RouteProp<ParamList, RouteName>,
-          +navigation: NavProp,
-        |}) => ScreenOptions,
-    +listeners?:
-      | ScreenListeners<State, EventMap>
-      | ({|
-          +route: RouteProp<ParamList, RouteName>,
-          +navigation: NavProp,
-        |}) => ScreenListeners<State, EventMap>,
+    +options?: ScreenOptionsProp<
+      ScreenOptions,
+      RouteProp<ParamList, RouteName>,
+      NavProp,
+    >,
+    +listeners?: ScreenListenersProp<
+      ScreenListeners<State, EventMap>,
+      RouteProp<ParamList, RouteName>,
+      NavProp,
+    >,
     +initialParams?: $Partial<$ElementType<ParamList, RouteName>>,
     +getId?: ({
       +params: $ElementType<ParamList, RouteName>,
@@ -1052,26 +1064,23 @@ declare module '@react-navigation/devtools' {
     EventMap,
   >) => React$Node;
 
-  declare type ScreenOptionsProp<
+  declare type ScreenOptionsProps<
     ScreenOptions: {...},
     RouteParam,
     NavHelpers,
   > = {|
-    +screenOptions?:
-      | ScreenOptions
-      | ({| +route: RouteParam, +navigation: NavHelpers |}) => ScreenOptions,
+    +screenOptions?: ScreenOptionsProp<ScreenOptions, RouteParam, NavHelpers>,
   |};
-  declare type ScreenListenersProp<
+  declare type ScreenListenersProps<
     ScreenListenersParam: {...},
     RouteParam,
     NavHelpers,
   > = {|
-    +screenListeners?:
-      | ScreenListenersParam
-      | ({|
-          +route: RouteParam,
-          +navigation: NavHelpers,
-        |}) => ScreenListenersParam,
+    +screenListeners?: ScreenListenersProp<
+      ScreenListenersParam,
+      RouteParam,
+      NavHelpers,
+    >,
   |};
   declare export type ExtraNavigatorPropsBase = {
     ...$Exact<DefaultRouterOptions>,
@@ -1087,8 +1096,8 @@ declare module '@react-navigation/devtools' {
     ExtraNavigatorProps: ExtraNavigatorPropsBase,
   > = {
     ...$Exact<ExtraNavigatorProps>,
-    ...ScreenOptionsProp<ScreenOptions, RouteParam, NavHelpers>,
-    ...ScreenListenersProp<ScreenListenersParam, RouteParam, NavHelpers>,
+    ...ScreenOptionsProps<ScreenOptions, RouteParam, NavHelpers>,
+    ...ScreenListenersProps<ScreenListenersParam, RouteParam, NavHelpers>,
     ...
   };
   declare export type NavigatorPropsBase<
@@ -1132,7 +1141,7 @@ declare module '@react-navigation/devtools' {
       ExtraNavigatorProps,
     >>>,
     +Group: React$ComponentType<{|
-      ...ScreenOptionsProp<ScreenOptions, RouteProp<ParamList>, NavHelpers>,
+      ...ScreenOptionsProps<ScreenOptions, RouteProp<ParamList>, NavHelpers>,
       +children: React$Node,
       +navigationKey?: string,
     |}>,
@@ -1182,7 +1191,7 @@ declare module '@react-navigation/devtools' {
     routerFactory: RouterFactory<State, Action, RouterOptions>,
     options: {|
       ...$Exact<RouterOptions>,
-      ...ScreenOptionsProp<ScreenOptions, RouteProp<>, NavHelpers>,
+      ...ScreenOptionsProps<ScreenOptions, RouteProp<>, NavHelpers>,
       +children?: React$Node,
     |},
   ) => {|
