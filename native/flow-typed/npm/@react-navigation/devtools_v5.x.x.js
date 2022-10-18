@@ -2158,6 +2158,11 @@ declare module '@react-navigation/devtools' {
     +isReady: () => boolean,
   |};
 
+  declare type BaseNavigationContainerInterfaceRef = {|
+    ...BaseNavigationContainerInterface,
+    +current: BaseNavigationContainerInterface | null,
+  |};
+
   /**
    * State utils
    */

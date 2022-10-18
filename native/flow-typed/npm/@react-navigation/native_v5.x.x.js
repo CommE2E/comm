@@ -2158,6 +2158,11 @@ declare module '@react-navigation/native' {
     +isReady: () => boolean,
   |};
 
+  declare type BaseNavigationContainerInterfaceRef = {|
+    ...BaseNavigationContainerInterface,
+    +current: BaseNavigationContainerInterface | null,
+  |};
+
   /**
    * State utils
    */
@@ -2402,6 +2407,12 @@ declare module '@react-navigation/native' {
    */
 
   declare export var NavigationContainer: NavigationContainerType;
+
+  declare export function createNavigationContainerRef(
+  ): BaseNavigationContainerInterfaceRef;
+
+  declare export function useNavigationContainerRef(
+  ): BaseNavigationContainerInterfaceRef;
 
   /**
    * useBackButton
