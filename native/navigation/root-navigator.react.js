@@ -63,18 +63,31 @@ function RootNavigator({
   id,
   ...rest
 }: RootNavigatorProps) {
+  const [keyboardHandlingEnabled, setKeyboardHandlingEnabled] = React.useState(
+    true,
+  );
+  const mergedScreenOptions = React.useMemo(() => {
+    if (typeof screenOptions === 'function') {
+      return input => ({
+        ...screenOptions(input),
+        keyboardHandlingEnabled,
+      });
+    }
+    return {
+      ...screenOptions,
+      keyboardHandlingEnabled,
+    };
+  }, [screenOptions, keyboardHandlingEnabled]);
+
   const { state, descriptors, navigation } = useNavigationBuilder(RootRouter, {
     id,
     initialRouteName,
     children,
-    screenOptions,
+    screenOptions: mergedScreenOptions,
     defaultScreenOptions,
     screenListeners,
   });
 
-  const [keyboardHandlingEnabled, setKeyboardHandlingEnabled] = React.useState(
-    true,
-  );
   const rootNavigationContext = React.useMemo(
     () => ({ setKeyboardHandlingEnabled }),
     [setKeyboardHandlingEnabled],
@@ -87,7 +100,6 @@ function RootNavigator({
         state={state}
         descriptors={descriptors}
         navigation={navigation}
-        keyboardHandlingEnabled={keyboardHandlingEnabled}
         detachInactiveScreens={Platform.OS !== 'ios'}
       />
     </RootNavigatorContext.Provider>
