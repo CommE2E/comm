@@ -2131,8 +2131,11 @@ declare module '@react-navigation/bottom-tabs' {
       PossiblyStaleNavigationState,
       ContainerEventMap,
     >>,
-    +resetRoot: (state?: ?PossiblyStaleNavigationState) => void,
-    +getRootState: () => PossiblyStaleNavigationState,
+    +resetRoot: (state?: PossiblyStaleNavigationState) => void,
+    +getRootState: () => NavigationState,
+    +getCurrentRoute: () => RouteProp<> | void,
+    +getCurrentOptions: () => Object | void,
+    +isReady: () => boolean,
   |};
 
   /**
