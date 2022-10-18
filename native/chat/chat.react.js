@@ -144,6 +144,7 @@ function ChatNavigator({
   initialRouteName,
   children,
   screenOptions,
+  defaultScreenOptions,
   screenListeners,
   id,
   ...rest
@@ -153,6 +154,7 @@ function ChatNavigator({
     initialRouteName,
     children,
     screenOptions,
+    defaultScreenOptions,
     screenListeners,
   });
 
