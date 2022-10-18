@@ -14,12 +14,7 @@ function addLifecycleListener(
     return getLifecycleEventEmitter().addLifecycleListener(listener);
   }
 
-  NativeAppState.addEventListener('change', listener);
-  return {
-    remove: () => {
-      NativeAppState.removeEventListener('change', listener);
-    },
-  };
+  return NativeAppState.addEventListener('change', listener);
 }
 
 function getCurrentLifecycleState(): ?string {
