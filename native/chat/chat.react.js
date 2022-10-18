@@ -144,9 +144,11 @@ function ChatNavigator({
   initialRouteName,
   children,
   screenOptions,
+  id,
   ...rest
 }: ChatNavigatorProps) {
   const { state, descriptors, navigation } = useNavigationBuilder(ChatRouter, {
+    id,
     initialRouteName,
     children,
     screenOptions,

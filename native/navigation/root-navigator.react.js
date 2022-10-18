@@ -58,9 +58,11 @@ function RootNavigator({
   initialRouteName,
   children,
   screenOptions,
+  id,
   ...rest
 }: RootNavigatorProps) {
   const { state, descriptors, navigation } = useNavigationBuilder(RootRouter, {
+    id,
     initialRouteName,
     children,
     screenOptions,

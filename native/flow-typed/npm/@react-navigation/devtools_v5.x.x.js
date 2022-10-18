@@ -870,7 +870,8 @@ declare module '@react-navigation/devtools' {
     +goBack: () => void,
     +isFocused: () => boolean,
     +canGoBack: () => boolean,
-    +getParent: <Parent: NavigationProp<ParamListBase>>() => ?Parent,
+    +getId: () => string | void,
+    +getParent: <Parent: NavigationProp<ParamListBase>>(id?: string) => ?Parent,
     +getState: () => NavigationState,
     +addListener: <EventName: $Keys<
       {| ...EventMap, ...EventMapCore<State> |},
@@ -1058,6 +1059,7 @@ declare module '@react-navigation/devtools' {
   |};
   declare export type ExtraNavigatorPropsBase = {
     ...$Exact<DefaultRouterOptions>,
+    +id?: string,
     +children?: React$Node,
     ...
   };
@@ -1149,6 +1151,7 @@ declare module '@react-navigation/devtools' {
       +children?: React$Node,
     |},
   ) => {|
+    +id?: string,
     +state: State,
     +descriptors: {| +[key: string]: Descriptor<NavHelpers, ScreenOptions> |},
     +navigation: NavHelpers,
