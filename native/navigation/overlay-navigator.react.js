@@ -8,6 +8,7 @@ import type {
   StackNavigationProp,
   ParamListBase,
   StackNavigationHelpers,
+  ScreenListeners,
 } from '@react-navigation/native';
 import {
   useNavigationBuilder,
@@ -48,14 +49,21 @@ export type OverlayNavigationProp<
 const { Value, timing, cond, call, lessOrEq, block } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type Props = $Exact<NavigatorPropsBase<{}, OverlayNavigationHelpers<>>>;
+type Props = $Exact<
+  NavigatorPropsBase<
+    {},
+    ScreenListeners<StackNavigationState, {}>,
+    OverlayNavigationHelpers<>,
+  >,
+>;
 const OverlayNavigator = React.memo<Props>(
-  ({ initialRouteName, children, screenOptions }: Props) => {
+  ({ initialRouteName, children, screenOptions, screenListeners }: Props) => {
     const { state, descriptors, navigation } = useNavigationBuilder(
       OverlayRouter,
       {
         children,
         screenOptions,
+        screenListeners,
         initialRouteName,
       },
     );

@@ -144,6 +144,7 @@ function ChatNavigator({
   initialRouteName,
   children,
   screenOptions,
+  screenListeners,
   id,
   ...rest
 }: ChatNavigatorProps) {
@@ -152,6 +153,7 @@ function ChatNavigator({
     initialRouteName,
     children,
     screenOptions,
+    screenListeners,
   });
 
   // Clear ComposeSubchannel screens after each message is sent. If a user goes
