@@ -1,5 +1,7 @@
 // @flow
 
+import _keyBy from 'lodash/fp/keyBy';
+
 import { assetsCacheURLPrefix } from './asset-meta-data';
 
 type Investors = {
@@ -10,7 +12,7 @@ type Investors = {
   +imageURL: string,
 };
 
-const investors: $ReadOnlyArray<Investors> = [
+const investorsData: $ReadOnlyArray<Investors> = [
   {
     id: 'ashoat_tevosyan',
     name: 'Ashoat Tevosyan',
@@ -629,4 +631,8 @@ const investors: $ReadOnlyArray<Investors> = [
   },
 ];
 
-export default investors;
+const keyedInvestorData: { [key: string]: Investors } = _keyBy('id')(
+  investorsData,
+);
+
+export { investorsData, keyedInvestorData };
