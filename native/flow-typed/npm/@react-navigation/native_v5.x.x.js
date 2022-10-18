@@ -1381,6 +1381,7 @@ declare module '@react-navigation/native' {
     +gestureResponseDistance: {| vertical?: number, horizontal?: number |},
     +gestureVelocityImpact: number,
     +safeAreaInsets: $Partial<EdgeInsets>,
+    +keyboardHandlingEnabled: boolean,
     // Transition
     ...TransitionPreset,
     // Header
@@ -1471,7 +1472,6 @@ declare module '@react-navigation/native' {
   declare type StackNavigationConfig = {|
     +mode?: 'card' | 'modal',
     +headerMode?: 'float' | 'screen' | 'none',
-    +keyboardHandlingEnabled?: boolean,
     +detachInactiveScreens?: boolean,
   |};
 
