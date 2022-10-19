@@ -20,6 +20,8 @@ div.form_content textarea {
   font-size: var(--m-font-16);
   border-radius: 4px;
   width: 100%;
+  resize: vertical;
+  min-height: 20px;
 }
 
 div.colorSelectorContainer {
