@@ -761,6 +761,8 @@ PODS:
     - React
   - react-native-orientation-locker (1.1.6):
     - React
+  - react-native-pager-view (6.0.1):
+    - React-Core
   - react-native-safe-area-context (3.1.9):
     - React-Core
   - react-native-video/Video (5.1.1):
@@ -850,8 +852,8 @@ PODS:
   - RNCClipboard (1.5.1):
     - React-Core
     - SDWebImage (~> 5.8)
-  - RNCMaskedView (0.1.10):
-    - React
+  - RNCMaskedView (0.2.8):
+    - React-Core
   - RNDeviceInfo (8.0.7):
     - React-Core
   - RNExitApp (1.1.0):
@@ -992,6 +994,7 @@ DEPENDENCIES:
   - "react-native-netinfo (from `../../node_modules/@react-native-community/netinfo`)"
   - react-native-notifications (from `../../node_modules/react-native-notifications`)
   - react-native-orientation-locker (from `../../node_modules/react-native-orientation-locker`)
+  - react-native-pager-view (from `../../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../../node_modules/react-native-safe-area-context`)
   - react-native-video/VideoCaching (from `../../node_modules/react-native-video/react-native-video.podspec`)
   - react-native-webview (from `../../node_modules/react-native-webview`)
@@ -1013,7 +1016,7 @@ DEPENDENCIES:
   - ReactNativeKeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "RNCAsyncStorage (from `../../node_modules/@react-native-community/async-storage`)"
   - "RNCClipboard (from `../../node_modules/@react-native-community/clipboard`)"
-  - "RNCMaskedView (from `../../node_modules/@react-native-community/masked-view`)"
+  - "RNCMaskedView (from `../../node_modules/@react-native-masked-view/masked-view`)"
   - RNDeviceInfo (from `../../node_modules/react-native-device-info`)
   - RNExitApp (from `../../node_modules/react-native-exit-app`)
   - RNFastImage (from `../../node_modules/react-native-fast-image`)
@@ -1142,6 +1145,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native-notifications"
   react-native-orientation-locker:
     :path: "../../node_modules/react-native-orientation-locker"
+  react-native-pager-view:
+    :path: "../../node_modules/react-native-pager-view"
   react-native-safe-area-context:
     :path: "../../node_modules/react-native-safe-area-context"
   react-native-video:
@@ -1185,7 +1190,7 @@ EXTERNAL SOURCES:
   RNCClipboard:
     :path: "../../node_modules/@react-native-community/clipboard"
   RNCMaskedView:
-    :path: "../../node_modules/@react-native-community/masked-view"
+    :path: "../../node_modules/@react-native-masked-view/masked-view"
   RNDeviceInfo:
     :path: "../../node_modules/react-native-device-info"
   RNExitApp:
@@ -1275,6 +1280,7 @@ SPEC CHECKSUMS:
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
+  react-native-pager-view: 3051346698a0ba0c4e13e40097cc11b00ee03cca
   react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
   react-native-video: 0bb76b6d6b77da3009611586c7dbf817b947f30e
   react-native-webview: e771bc375f789ebfa02a26939a57dbc6fa897336
@@ -1296,7 +1302,7 @@ SPEC CHECKSUMS:
   ReactNativeKeyboardTrackingView: 02137fac3b2ebd330d74fa54ead48b14750a2306
   RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
   RNCClipboard: f470a4445c779f99c10201b038ab3f9e24e71dbc
-  RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
+  RNCMaskedView: bc0170f389056201c82a55e242e5d90070e18e5a
   RNDeviceInfo: 55463fa6e252ca3f0e2ba6001a7b82f879914338
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
   RNFastImage: 2ed80661d5ef384fb1b539f1f3c81a1733f92bc9
