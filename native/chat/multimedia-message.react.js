@@ -83,10 +83,8 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
   visibleEntryIDs() {
     const result = [];
 
-    if (this.props.item.threadCreatedFromMessage) {
-      result.push('open_sidebar');
-    } else if (this.props.canCreateSidebarFromMessage) {
-      result.push('create_sidebar');
+    if (this.props.canCreateSidebarFromMessage) {
+      result.push('sidebar');
     }
 
     if (!this.props.item.messageInfo.creator.isViewer) {
