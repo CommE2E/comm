@@ -1,6 +1,6 @@
 // @flow
 
-import { HeaderBackButton as BaseHeaderBackButton } from '@react-navigation/stack';
+import { HeaderBackButton as BaseHeaderBackButton } from '@react-navigation/elements';
 import * as React from 'react';
 
 import { useColors } from '../themes/colors';

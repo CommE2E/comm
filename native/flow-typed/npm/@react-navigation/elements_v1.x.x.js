@@ -1,7 +1,4 @@
-// flow-typed signature: 5b28e0fdf284df0de63f1b8f132e6f5c
-// flow-typed version: dc2d6a22c7/@react-navigation/stack_v5.x.x/flow_>=v0.104.x
-
-declare module '@react-navigation/stack' {
+declare module '@react-navigation/elements' {
 
   //---------------------------------------------------------------------------
   // SECTION 1: IDENTICAL TYPE DEFINITIONS
@@ -2243,91 +2240,41 @@ declare module '@react-navigation/stack' {
   //---------------------------------------------------------------------------
 
   /**
-   * StackView
+   * Image assets
    */
 
-  declare export var StackView: React$ComponentType<{|
-    ...StackNavigationConfig,
-    +state: StackNavigationState,
-    +navigation: StackNavigationHelpers<>,
-    +descriptors: {| +[key: string]: StackDescriptor |},
-  |}>;
-
-  /**
-   * createStackNavigator
-   */
-
-  declare export var createStackNavigator: CreateNavigator<
-    StackNavigationState,
-    StackOptions,
-    StackNavigationEventMap,
-    ExtraStackNavigatorProps,
-  >;
+  declare export var Assets: $ReadOnlyArray<ImageURISource>;
 
   /**
    * Header components
    */
 
-  declare export var Header: React$ComponentType<StackHeaderProps>;
+  declare export type StackHeaderTitleProps = $Partial<StackHeaderTitleInputBase>;
+  declare export var HeaderTitle: React$ComponentType<StackHeaderTitleProps>;
+
+  declare export type HeaderBackButtonProps = $Partial<{|
+    ...StackHeaderLeftButtonProps,
+    +disabled: boolean,
+    +accessibilityLabel: string,
+  |}>;
+  declare export var HeaderBackButton: React$ComponentType<
+    HeaderBackButtonProps,
+  >;
+
+  declare export type HeaderBackgroundProps = $Partial<{
+    +children: React$Node,
+    +style: AnimatedViewStyleProp,
+    ...
+  }>;
+  declare export var HeaderBackground: React$ComponentType<
+    HeaderBackgroundProps,
+  >;
 
   /**
-   * Style/animation options
+   * HeaderHeight accessors
    */
 
-  declare export var CardStyleInterpolators: {|
-    +forHorizontalIOS: StackCardStyleInterpolator,
-    +forVerticalIOS: StackCardStyleInterpolator,
-    +forModalPresentationIOS: StackCardStyleInterpolator,
-    +forFadeFromBottomAndroid: StackCardStyleInterpolator,
-    +forRevealFromBottomAndroid: StackCardStyleInterpolator,
-    +forScaleFromCenterAndroid: StackCardStyleInterpolator,
-    +forNoAnimation: StackCardStyleInterpolator,
-  |};
-  declare export var HeaderStyleInterpolators: {|
-    +forUIKit: StackHeaderStyleInterpolator,
-    +forFade: StackHeaderStyleInterpolator,
-    +forSlideLeft: StackHeaderStyleInterpolator,
-    +forSlideRight: StackHeaderStyleInterpolator,
-    +forSlideUp: StackHeaderStyleInterpolator,
-    +forNoAnimation: StackHeaderStyleInterpolator,
-  |};
-  declare export var TransitionSpecs: {|
-    +TransitionIOSSpec: TransitionSpec,
-    +FadeInFromBottomAndroidSpec: TransitionSpec,
-    +FadeOutToBottomAndroidSpec: TransitionSpec,
-    +RevealFromBottomAndroidSpec: TransitionSpec,
-    +ScaleFromCenterAndroidSpec: TransitionSpec,
-  |};
-  declare export var TransitionPresets: {|
-    +SlideFromRightIOS: TransitionPreset,
-    +ModalSlideFromBottomIOS: TransitionPreset,
-    +ModalPresentationIOS: TransitionPreset,
-    +FadeFromBottomAndroid: TransitionPreset,
-    +RevealFromBottomAndroid: TransitionPreset,
-    +ScaleFromCenterAndroid: TransitionPreset,
-    +DefaultTransition: TransitionPreset,
-    +ModalTransition: TransitionPreset,
-  |};
-
-  /**
-   * CardAnimation accessors
-   */
-
-  declare export var CardAnimationContext: React$Context<
-    ?StackCardInterpolationProps,
-  >;
-  declare export function useCardAnimation(): StackCardInterpolationProps
-
-  /**
-   * GestureHandler accessors
-   */
-
-  declare type GestureHandlerRef = React$Ref<
-    React$ComponentType<PanGestureHandlerProps>,
-  >;
-  declare export var GestureHandlerRefContext: React$Context<
-    ?GestureHandlerRef,
-  >;
-  declare export function useGestureHandlerRef(): GestureHandlerRef;
+  declare export var HeaderHeightContext: React$Context<?number>;
+  declare export function useHeaderHeight(): number;
 
 }
