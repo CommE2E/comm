@@ -100,16 +100,14 @@ const Tab = createBottomTabNavigator<
   TabParamList,
   BottomTabNavigationHelpers<ScreenParamList>,
 >();
-const tabBarOptions = {
-  keyboardHidesTabBar: false,
-  activeTintColor: '#AE94DB',
-  style: {
+const tabBarScreenOptions = {
+  headerShown: false,
+  tabBarHideOnKeyboard: false,
+  tabBarActiveTintColor: '#AE94DB',
+  tabBarStyle: {
     backgroundColor: '#0A0A0A',
     borderTopWidth: 1,
   },
-};
-const tabBarScreenOptions = {
-  headerShown: false,
 };
 function TabNavigator() {
   const chatBadge = useSelector(unreadCount);
@@ -132,7 +130,6 @@ function TabNavigator() {
       lazy={false}
       tabBar={tabBar}
       backBehavior="none"
-      tabBarOptions={tabBarOptions}
       screenOptions={tabBarScreenOptions}
     >
       {calendarTab}

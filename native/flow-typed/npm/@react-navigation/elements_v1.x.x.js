@@ -1538,6 +1538,18 @@ declare module '@react-navigation/elements' {
       +hide: TabBarVisibilityAnimationConfig,
     |}>,
     +tabBarButton: BottomTabBarButtonProps => React$Node,
+    +tabBarHideOnKeyboard: boolean,
+    +tabBarActiveTintColor: string,
+    +tabBarInactiveTintColor: string,
+    +tabBarActiveBackgroundColor: string,
+    +tabBarInactiveBackgroundColor: string,
+    +tabBarAllowFontScaling: boolean,
+    +tabBarShowLabel: boolean,
+    +tabBarLabelStyle: TextStyleProp,
+    +tabBarIconStyle: TextStyleProp,
+    +tabBarItemStyle: ViewStyleProp,
+    +tabBarLabelPosition: 'beside-icon' | 'below-icon',
+    +tabBarStyle: ViewStyleProp,
     +unmountOnBlur: boolean,
     +headerShown: boolean,
   |}>;
@@ -1596,39 +1608,18 @@ declare module '@react-navigation/elements' {
     BottomTabOptions,
   >;
 
-  declare export type BottomTabBarOptions = $Partial<{|
-    +keyboardHidesTabBar: boolean,
-    +activeTintColor: string,
-    +inactiveTintColor: string,
-    +activeBackgroundColor: string,
-    +inactiveBackgroundColor: string,
-    +allowFontScaling: boolean,
-    +showLabel: boolean,
-    +showIcon: boolean,
-    +labelStyle: TextStyleProp,
-    +iconStyle: TextStyleProp,
-    +tabStyle: ViewStyleProp,
-    +labelPosition: 'beside-icon' | 'below-icon',
-    +adaptive: boolean,
-    +safeAreaInsets: $Partial<EdgeInsets>,
-    +style: ViewStyleProp,
-  |}>;
-
   declare type BottomTabNavigationBuilderResult = {|
     +state: TabNavigationState,
     +navigation: BottomTabNavigationHelpers<>,
     +descriptors: {| +[key: string]: BottomTabDescriptor |},
   |};
 
-  declare export type BottomTabBarProps = {|
-    ...BottomTabBarOptions,
-    ...BottomTabNavigationBuilderResult,
-  |}
+  declare export type BottomTabBarProps = BottomTabNavigationBuilderResult;
 
   declare type BottomTabNavigationConfig = {|
     +lazy?: boolean,
     +tabBar?: BottomTabBarProps => React$Node,
-    +tabBarOptions?: BottomTabBarOptions,
+    +safeAreaInsets?: $Partial<EdgeInsets>,
     +detachInactiveScreens?: boolean,
   |};
 
