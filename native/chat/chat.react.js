@@ -102,16 +102,16 @@ const ChatThreadsTopTab = createMaterialTopTabNavigator();
 function ChatThreadsComponent(): React.Node {
   const colors = useColors();
   const { tabBarBackground, tabBarAccent } = colors;
-  const tabBarOptions = React.useMemo(
+  const screenOptions = React.useMemo(
     () => ({
-      showIcon: true,
-      style: {
+      tabBarShowIcon: true,
+      tabBarStyle: {
         backgroundColor: tabBarBackground,
       },
-      tabStyle: {
+      tabBarItemStyle: {
         flexDirection: 'row',
       },
-      indicatorStyle: {
+      tabBarIndicatorStyle: {
         borderColor: tabBarAccent,
         borderBottomWidth: 2,
       },
@@ -119,7 +119,7 @@ function ChatThreadsComponent(): React.Node {
     [tabBarAccent, tabBarBackground],
   );
   return (
-    <ChatThreadsTopTab.Navigator tabBarOptions={tabBarOptions}>
+    <ChatThreadsTopTab.Navigator screenOptions={screenOptions}>
       <ChatThreadsTopTab.Screen
         name={HomeChatThreadListRouteName}
         component={HomeChatThreadList}

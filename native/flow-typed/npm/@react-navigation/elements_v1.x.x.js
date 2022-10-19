@@ -1805,6 +1805,26 @@ declare module '@react-navigation/elements' {
     +tabBarIcon: ({| +focused: boolean, +color: string |}) => React$Node,
     +tabBarAccessibilityLabel: string,
     +tabBarTestID: string,
+    +tabBarActiveTintColor: string,
+    +tabBarInactiveTintColor: string,
+    +tabBarPressColor: string,
+    +tabBarPressOpacity: number,
+    +tabBarShowLabel: boolean,
+    +tabBarShowIcon: boolean,
+    +tabBarAllowFontScaling: boolean,
+    +tabBarBounces: boolean,
+    +tabBarScrollEnabled: boolean,
+    +tabBarIconStyle: ViewStyleProp,
+    +tabBarLabelStyle: TextStyleProp,
+    +tabBarItemStyle: ViewStyleProp,
+    +tabBarIndicatorStyle: ViewStyleProp,
+    +tabBarIndicatorContainerStyle: ViewStyleProp,
+    +tabBarContentContainerStyle: ViewStyleProp,
+    +tabBarStyle: ViewStyleProp,
+    +tabBarBadge: () => React$Node,
+    +tabBarIndicator: MaterialTopTabBarIndicatorProps => React$Node,
+    +lazy: boolean,
+    +lazyPlaceholder: ({| +route: Route<> |}) => React$Node,
   |}>;
 
   /**
@@ -1888,34 +1908,11 @@ declare module '@react-navigation/elements' {
   |};
 
   declare export type MaterialTopTabBarIndicatorProps = {|
-    +navigationState: TabNavigationState,
+    +state: TabNavigationState,
     +width: string,
     +style?: ViewStyleProp,
     +getTabWidth: number => number,
   |};
-
-  declare export type MaterialTopTabBarOptions = $Partial<{|
-    +scrollEnabled: boolean,
-    +bounces: boolean,
-    +pressColor: string,
-    +pressOpacity: number,
-    +getAccessible: ({| +route: Route<> |}) => boolean,
-    +renderBadge: ({| +route: Route<> |}) => React$Node,
-    +renderIndicator: MaterialTopTabBarIndicatorProps => React$Node,
-    +tabStyle: ViewStyleProp,
-    +indicatorStyle: ViewStyleProp,
-    +indicatorContainerStyle: ViewStyleProp,
-    +labelStyle: TextStyleProp,
-    +contentContainerStyle: ViewStyleProp,
-    +style: ViewStyleProp,
-    +activeTintColor: string,
-    +inactiveTintColor: string,
-    +iconStyle: ViewStyleProp,
-    +labelStyle: TextStyleProp,
-    +showLabel: boolean,
-    +showIcon: boolean,
-    +allowFontScaling: boolean,
-  |}>;
 
   declare export type MaterialTopTabDescriptor = Descriptor<
     MaterialBottomTabNavigationHelpers<>,
@@ -1929,7 +1926,6 @@ declare module '@react-navigation/elements' {
   |};
 
   declare export type MaterialTopTabBarProps = {|
-    ...MaterialTopTabBarOptions,
     ...MaterialTopTabNavigationBuilderResult,
     +layout: {| +width: number, +height: number |},
     +position: any, // Reanimated.Node<number>
@@ -1941,16 +1937,13 @@ declare module '@react-navigation/elements' {
     +position?: any, // Reanimated.Value<number>
     +tabBarPosition?: 'top' | 'bottom',
     +initialLayout?: $Partial<{| +width: number, +height: number |}>,
-    +lazy?: boolean,
     +lazyPreloadDistance?: number,
     +removeClippedSubviews?: boolean,
     +sceneContainerStyle?: ViewStyleProp,
     +style?: ViewStyleProp,
     +gestureHandlerProps?: PanGestureHandlerProps,
     +pager?: MaterialTopTabPagerProps => React$Node,
-    +lazyPlaceholder?: ({| +route: Route<> |}) => React$Node,
     +tabBar?: MaterialTopTabBarProps => React$Node,
-    +tabBarOptions?: MaterialTopTabBarOptions,
   |};
 
   declare export type ExtraMaterialTopTabNavigatorProps = {|
