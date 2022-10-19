@@ -1542,6 +1542,7 @@ declare module '@react-navigation/devtools' {
     |}>,
     +tabBarButton: BottomTabBarButtonProps => React$Node,
     +unmountOnBlur: boolean,
+    +headerShown: boolean,
   |}>;
 
   /**
