@@ -1542,6 +1542,7 @@ declare module '@react-navigation/material-top-tabs' {
     |}>,
     +tabBarButton: BottomTabBarButtonProps => React$Node,
     +unmountOnBlur: boolean,
+    +headerShown: boolean,
   |}>;
 
   /**

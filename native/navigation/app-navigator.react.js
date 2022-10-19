@@ -108,6 +108,9 @@ const tabBarOptions = {
     borderTopWidth: 1,
   },
 };
+const tabBarScreenOptions = {
+  headerShown: false,
+};
 function TabNavigator() {
   const chatBadge = useSelector(unreadCount);
   const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
@@ -130,6 +133,7 @@ function TabNavigator() {
       tabBar={tabBar}
       backBehavior="none"
       tabBarOptions={tabBarOptions}
+      screenOptions={tabBarScreenOptions}
     >
       {calendarTab}
       <Tab.Screen
