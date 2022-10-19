@@ -1376,7 +1376,7 @@ declare module '@react-navigation/devtools' {
     +animationEnabled: boolean,
     +animationTypeForReplace: 'push' | 'pop',
     +gestureEnabled: boolean,
-    +gestureResponseDistance: {| vertical?: number, horizontal?: number |},
+    +gestureResponseDistance: number,
     +gestureVelocityImpact: number,
     +safeAreaInsets: $Partial<EdgeInsets>,
     +keyboardHandlingEnabled: boolean,
