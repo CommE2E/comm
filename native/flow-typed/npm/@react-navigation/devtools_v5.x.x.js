@@ -1369,8 +1369,6 @@ declare module '@react-navigation/devtools' {
 
   declare export type StackOptions = $Partial<{|
     +title: string,
-    +header: StackHeaderProps => React$Node,
-    +headerShown: boolean,
     +cardShadowEnabled: boolean,
     +cardOverlayEnabled: boolean,
     +cardOverlay: {| style: ViewStyleProp |} => React$Node,
@@ -1386,6 +1384,9 @@ declare module '@react-navigation/devtools' {
     // Transition
     ...TransitionPreset,
     // Header
+    +header: StackHeaderProps => React$Node,
+    +headerShown: boolean,
+    +headerMode: 'float' | 'screen',
     +headerTitle: string | (StackHeaderTitleInputProps => React$Node),
     +headerTitleAlign: 'left' | 'center',
     +headerTitleStyle: AnimatedTextStyleProp,
@@ -1471,7 +1472,6 @@ declare module '@react-navigation/devtools' {
    */
 
   declare type StackNavigationConfig = {|
-    +headerMode?: 'float' | 'screen' | 'none',
     +detachInactiveScreens?: boolean,
   |};
 
