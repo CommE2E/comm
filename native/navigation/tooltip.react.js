@@ -128,10 +128,7 @@ function createTooltip<
         icon = (
           <SWMansionIcon name="warning-circle" style={styles.icon} size={16} />
         );
-      } else if (
-        this.props.spec.id === 'create_sidebar' ||
-        this.props.spec.id === 'open_sidebar'
-      ) {
+      } else if (this.props.spec.id === 'sidebar') {
         icon = (
           <SWMansionIcon
             name="message-circle-lines"

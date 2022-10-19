@@ -119,10 +119,11 @@ class TextMessage extends React.PureComponent<Props> {
       result.push('reply');
     }
 
-    if (this.props.item.threadCreatedFromMessage) {
-      result.push('open_sidebar');
-    } else if (this.props.canCreateSidebarFromMessage) {
-      result.push('create_sidebar');
+    if (
+      this.props.item.threadCreatedFromMessage ||
+      this.props.canCreateSidebarFromMessage
+    ) {
+      result.push('sidebar');
     }
 
     if (!this.props.item.messageInfo.creator.isViewer) {

@@ -18,13 +18,8 @@ export type RobotextMessageTooltipModalParams = TooltipParams<{
 const spec = {
   entries: [
     {
-      id: 'create_sidebar',
-      text: 'Create thread',
-      onPress: navigateToSidebar,
-    },
-    {
-      id: 'open_sidebar',
-      text: 'Go to thread',
+      id: 'sidebar',
+      text: 'Thread',
       onPress: navigateToSidebar,
     },
   ],
