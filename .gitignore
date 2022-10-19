@@ -19,8 +19,6 @@ keyserver/facts
 keyserver/*.env
 keyserver/*.env.*
 
-services/identity/target
-services/identity/secrets
 services/tunnelbroker/rust-lib/target
 services/tunnelbroker/tunnelbroker.ini
 

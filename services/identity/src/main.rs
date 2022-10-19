@@ -34,6 +34,8 @@ enum Commands {
     #[clap(default_value_t = String::from(SECRETS_DIRECTORY))]
     dir: String,
   },
+  /// Populates the `identity-users` table in DynamoDB from MySQL
+  PopulateDB,
 }
 
 #[tokio::main]
@@ -56,6 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .serve(addr)
         .await?;
     }
+    Commands::PopulateDB => unimplemented!(),
   }
 
   Ok(())
