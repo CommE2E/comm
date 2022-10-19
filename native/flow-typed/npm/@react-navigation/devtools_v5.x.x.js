@@ -1330,12 +1330,12 @@ declare module '@react-navigation/devtools' {
   |};
 
   declare export type StackHeaderProps = {|
-    +mode: 'float' | 'screen',
+    +navigation: StackNavigationHelpers<>,
+    +route: RouteProp<>,
+    +options: StackOptions,
     +layout: {| +width: number, +height: number |},
-    +insets: EdgeInsets,
-    +scene: Scene<Route<>>,
-    +previous?: Scene<Route<>>,
-    +navigation: StackNavigationHelpers<ParamListBase>,
+    +progress: AnimatedInterpolation,
+    +back?: {| +title: string |},
     +styleInterpolator: StackHeaderStyleInterpolator,
   |};
 
