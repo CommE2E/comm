@@ -54,12 +54,7 @@ const spec = {
       onPress: onPressReport,
     },
     {
-      id: 'create_sidebar',
-      text: 'Thread',
-      onPress: navigateToSidebar,
-    },
-    {
-      id: 'open_sidebar',
+      id: 'sidebar',
       text: 'Thread',
       onPress: navigateToSidebar,
     },
