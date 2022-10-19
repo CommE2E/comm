@@ -1535,7 +1535,6 @@ declare module '@react-navigation/bottom-tabs' {
     +tabBarBadgeStyle: TextStyleProp,
     +tabBarAccessibilityLabel: string,
     +tabBarTestID: string,
-    +tabBarVisible: boolean,
     +tabBarVisibilityAnimationConfig: $Partial<{|
       +show: TabBarVisibilityAnimationConfig,
       +hide: TabBarVisibilityAnimationConfig,
