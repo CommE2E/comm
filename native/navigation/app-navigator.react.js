@@ -108,6 +108,7 @@ const tabBarScreenOptions = {
     backgroundColor: '#0A0A0A',
     borderTopWidth: 1,
   },
+  lazy: false,
 };
 function TabNavigator() {
   const chatBadge = useSelector(unreadCount);
@@ -127,7 +128,6 @@ function TabNavigator() {
   return (
     <Tab.Navigator
       initialRouteName={ChatRouteName}
-      lazy={false}
       tabBar={tabBar}
       backBehavior="none"
       screenOptions={tabBarScreenOptions}

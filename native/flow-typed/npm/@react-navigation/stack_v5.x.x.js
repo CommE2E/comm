@@ -1554,6 +1554,7 @@ declare module '@react-navigation/stack' {
     +tabBarStyle: ViewStyleProp,
     +unmountOnBlur: boolean,
     +headerShown: boolean,
+    +lazy: boolean,
   |}>;
 
   /**
@@ -1619,7 +1620,6 @@ declare module '@react-navigation/stack' {
   declare export type BottomTabBarProps = BottomTabNavigationBuilderResult;
 
   declare type BottomTabNavigationConfig = {|
-    +lazy?: boolean,
     +tabBar?: BottomTabBarProps => React$Node,
     +safeAreaInsets?: $Partial<EdgeInsets>,
     +detachInactiveScreens?: boolean,
