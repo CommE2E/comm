@@ -78,10 +78,8 @@ function RobotextMessage(props: Props): React.Node {
     item.messageInfo,
   );
   const visibleEntryIDs = React.useMemo(() => {
-    if (item.threadCreatedFromMessage) {
-      return ['open_sidebar'];
-    } else if (canCreateSidebarFromMessage) {
-      return ['create_sidebar'];
+    if (item.threadCreatedFromMessage || canCreateSidebarFromMessage) {
+      return ['sidebar'];
     }
     return [];
   }, [item.threadCreatedFromMessage, canCreateSidebarFromMessage]);
