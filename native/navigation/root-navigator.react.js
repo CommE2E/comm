@@ -143,6 +143,7 @@ const defaultScreenOptions = {
   ...transitionPreset,
   cardStyle: { backgroundColor: 'transparent' },
   presentation: 'modal',
+  headerShown: false,
 };
 const disableGesturesScreenOptions = {
   gestureEnabled: false,
@@ -173,7 +174,7 @@ const Root = createRootNavigator<
 >();
 function RootComponent(): React.Node {
   return (
-    <Root.Navigator headerMode="none" screenOptions={defaultScreenOptions}>
+    <Root.Navigator screenOptions={defaultScreenOptions}>
       <Root.Screen
         name={LoggedOutModalRouteName}
         component={LoggedOutModal}
