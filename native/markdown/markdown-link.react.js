@@ -5,16 +5,13 @@ import { Text, Linking, Alert, Platform } from 'react-native';
 
 import { normalizeURL } from 'lib/utils/url-utils';
 
-import {
-  MarkdownLinkContext,
-  type MarkdownLinkContextType,
-} from './markdown-link-context';
+import { MarkdownContext, type MarkdownContextType } from './markdown-context';
 
 function useDisplayLinkPrompt(
   inputURL: string,
-  markdownLinkContext: ?MarkdownLinkContextType,
+  markdownContext: ?MarkdownContextType,
 ) {
-  const setLinkModalActive = markdownLinkContext?.setLinkModalActive;
+  const setLinkModalActive = markdownContext?.setLinkModalActive;
   const onDismiss = React.useCallback(() => {
     setLinkModalActive?.(false);
   }, [setLinkModalActive]);
@@ -50,12 +47,12 @@ type Props = {
   ...TextProps,
 };
 function MarkdownLink(props: Props): React.Node {
-  const markdownLinkContext = React.useContext(MarkdownLinkContext);
+  const markdownContext = React.useContext(MarkdownContext);
 
   const { target, ...rest } = props;
-  const onPressLink = useDisplayLinkPrompt(target, markdownLinkContext);
+  const onPressLink = useDisplayLinkPrompt(target, markdownContext);
 
-  const setLinkPressActive = markdownLinkContext?.setLinkPressActive;
+  const setLinkPressActive = markdownContext?.setLinkPressActive;
   const androidOnStartShouldSetResponderCapture = React.useCallback(() => {
     setLinkPressActive?.(true);
     return true;
