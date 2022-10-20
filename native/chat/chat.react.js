@@ -221,18 +221,15 @@ const messageListOptions = ({ navigation, route }) => {
   return {
     // This is a render prop, not a component
     // eslint-disable-next-line react/display-name
-    headerTitle: () => (
+    headerTitle: props => (
       <MessageListHeaderTitle
         threadInfo={route.params.threadInfo}
         navigate={navigation.navigate}
         areSettingsEnabled={areSettingsEnabled}
         isSearchEmpty={isSearchEmpty}
+        {...props}
       />
     ),
-    headerTitleContainerStyle: {
-      marginHorizontal: Platform.select({ ios: 80, default: 0 }),
-      flex: 1,
-    },
     headerRight:
       Platform.OS === 'android' && areSettingsEnabled
         ? // This is a render prop, not a component
