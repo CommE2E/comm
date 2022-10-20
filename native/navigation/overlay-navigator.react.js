@@ -313,10 +313,9 @@ const OverlayNavigator = React.memo<Props>(
                 const newVisibleOverlays = curVisibleOverlays.filter(
                   overlay => overlay.routeKey !== key,
                 );
-                invariant(
-                  newVisibleOverlays.length < curVisibleOverlays.length,
-                  `could not find ${key} in visibleOverlays`,
-                );
+                if (newVisibleOverlays.length === curVisibleOverlays.length) {
+                  return;
+                }
                 visibleOverlaysRef.current = newVisibleOverlays;
                 setSceneData(curSceneData => {
                   const newSceneData = {};
