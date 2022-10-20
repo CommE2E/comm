@@ -335,6 +335,27 @@ int get_database_version(sqlite3 *db) {
   return current_user_version;
 }
 
+bool set_database_version(sqlite3 *db, int db_version) {
+  std::stringstream update_version;
+  update_version << "PRAGMA user_version=" << db_version << ";";
+  auto update_version_str = update_version.str();
+
+  char *error;
+  sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, &error);
+
+  if (!error) {
+    return true;
+  }
+
+  std::ostringstream errorStream;
+  errorStream << "Error setting database version to " << db_version << ": "
+              << error;
+  Logger::log(errorStream.str());
+
+  sqlite3_free(error);
+  return false;
+}
+
 void trace_queries(sqlite3 *db) {
   int error_code = sqlite3_trace_v2(
       db,
@@ -551,11 +572,7 @@ void SQLiteQueryExecutor::migrate() const {
       break;
     }
 
-    std::stringstream update_version;
-    update_version << "PRAGMA user_version=" << idx << ";";
-    auto update_version_str = update_version.str();
-
-    sqlite3_exec(db, update_version_str.c_str(), nullptr, nullptr, nullptr);
+    set_database_version(db, idx);
 
     if (shouldBeInTransaction) {
       sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
