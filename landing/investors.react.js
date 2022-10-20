@@ -26,6 +26,9 @@ function Investors(): React.Node {
         involvement={investor.involvement}
         imageURL={investor.imageURL}
         onClick={() => onClickInvestorProfileCard(investor.id)}
+        website={investor.website}
+        twitterHandle={investor.twitter}
+        linkedinHandle={investor.linkedin}
       />
     ));
   }, [onClickInvestorProfileCard]);

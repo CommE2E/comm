@@ -30,7 +30,10 @@ function InvestorProfileModal(props: Props): React.Node {
         involvement={foundInvestor.involvement}
         imageURL={foundInvestor.imageURL}
         onClick={popModal}
-        isModalContent
+        isModalActive
+        website={foundInvestor.website}
+        twitterHandle={foundInvestor.twitter}
+        linkedinHandle={foundInvestor.linkedin}
       />
     );
   }, [investorID, popModal]);

@@ -31,7 +31,7 @@ p.name {
 
 p.description {
   font-size: 18px;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -43,6 +43,19 @@ p.description {
 p.involvement {
   font-weight: 500;
   font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.profile span svg {
+  color: var(--grey);
+}
+
+.profile span svg:hover {
+  color: var(--white);
+}
+
+.profile span > a + a {
+  margin-left: 8px;
 }
 
 a.profileModal {
@@ -62,7 +75,7 @@ p.descriptionModal {
 @media (max-width: 600px) {
   .profile {
     flex-direction: column;
-    max-width: 464px;
+    width: 90vw;
   }
 
   a.profileModal {
