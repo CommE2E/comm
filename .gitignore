@@ -19,8 +19,8 @@ keyserver/facts
 keyserver/*.env
 keyserver/*.env.*
 
-services/tunnelbroker/rust-lib/target
-services/tunnelbroker/tunnelbroker.ini
+services/tunnelbroker/target
+services/tunnelbroker/src/libcpp/test/build
 
 .eslintcache
 .vscode
