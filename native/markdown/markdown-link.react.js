@@ -5,16 +5,13 @@ import { Text, Linking, Alert } from 'react-native';
 
 import { normalizeURL } from 'lib/utils/url-utils';
 
-import {
-  MarkdownLinkContext,
-  type MarkdownLinkContextType,
-} from './markdown-link-context';
+import { MarkdownContext, type MarkdownContextType } from './markdown-context';
 
 function useDisplayLinkPrompt(
   inputURL: string,
-  markdownLinkContext: ?MarkdownLinkContextType,
+  markdownContext: ?MarkdownContextType,
 ) {
-  const setLinkModalActive = markdownLinkContext?.setLinkModalActive;
+  const setLinkModalActive = markdownContext?.setLinkModalActive;
   const onDismiss = React.useCallback(() => {
     setLinkModalActive?.(false);
   }, [setLinkModalActive]);
@@ -51,8 +48,8 @@ type Props = {
 };
 function MarkdownLink(props: Props): React.Node {
   const { target, ...rest } = props;
-  const markdownLinkContext = React.useContext(MarkdownLinkContext);
-  const onPressLink = useDisplayLinkPrompt(target, markdownLinkContext);
+  const markdownContext = React.useContext(MarkdownContext);
+  const onPressLink = useDisplayLinkPrompt(target, markdownContext);
   return <Text onPress={onPressLink} {...rest} />;
 }
 

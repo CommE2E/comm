@@ -12,7 +12,7 @@ import {
 import { threadPermissions } from 'lib/types/thread-types';
 
 import { ChatContext, type ChatContextType } from '../chat/chat-context';
-import { MarkdownLinkContext } from '../markdown/markdown-link-context';
+import { MarkdownContext } from '../markdown/markdown-context';
 import {
   OverlayContext,
   type OverlayContextType,
@@ -47,8 +47,9 @@ type Props = {
   +canCreateSidebarFromMessage: boolean,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
-  // MarkdownLinkContext
+  // ChatContext
   +chatContext: ?ChatContextType,
+  // MarkdownContext
   +linkModalActive: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
@@ -223,7 +224,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
     const chatContext = React.useContext(ChatContext);
 
     const [linkModalActive, setLinkModalActive] = React.useState(false);
-    const markdownLinkContext = React.useMemo(
+    const markdownContext = React.useMemo(
       () => ({
         setLinkModalActive,
       }),
@@ -235,7 +236,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
     );
 
     return (
-      <MarkdownLinkContext.Provider value={markdownLinkContext}>
+      <MarkdownContext.Provider value={markdownContext}>
         <TextMessage
           {...props}
           canCreateSidebarFromMessage={canCreateSidebarFromMessage}
@@ -243,7 +244,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
           chatContext={chatContext}
           linkModalActive={linkModalActive}
         />
-      </MarkdownLinkContext.Provider>
+      </MarkdownContext.Provider>
     );
   },
 );
