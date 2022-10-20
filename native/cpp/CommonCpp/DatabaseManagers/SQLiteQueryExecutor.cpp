@@ -565,6 +565,14 @@ void SQLiteQueryExecutor::migrate() const {
       sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
     }
 
+    auto db_version_inside_transaction = get_database_version(db);
+    if (idx <= db_version_inside_transaction) {
+      if (shouldBeInTransaction) {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+      }
+      continue;
+    }
+
     auto rc = applyMigration(db);
     if (!rc) {
       migration_msg << "migration " << idx << " failed." << std::endl;
