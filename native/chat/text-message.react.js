@@ -170,13 +170,11 @@ class TextMessage extends React.PureComponent<Props> {
       const aboveMargin = isViewer ? 30 : 50;
       const aboveSpace = tooltipHeight + aboveMargin;
 
-      let location = 'below',
-        margin = belowMargin;
+      let margin = belowMargin;
       if (
         messageBottom + belowSpace > boundsBottom &&
         messageTop - aboveSpace > boundsTop
       ) {
-        location = 'above';
         margin = aboveMargin;
       }
 
@@ -187,7 +185,6 @@ class TextMessage extends React.PureComponent<Props> {
           initialCoordinates: coordinates,
           verticalBounds,
           visibleEntryIDs,
-          location,
           margin,
           item,
         },
