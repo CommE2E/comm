@@ -36,6 +36,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       await dbQuery(SQL`ALTER TABLE uploads ADD INDEX container (container)`);
     },
   ],
+  [
+    5,
+    async () => {
+      await dbQuery(SQL`
+        ALTER TABLE cookies
+          ADD device_id varchar(255) DEFAULT NULL,
+          ADD public_key varchar(255) DEFAULT NULL,
+          ADD social_proof mediumtext DEFAULT NULL;
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
