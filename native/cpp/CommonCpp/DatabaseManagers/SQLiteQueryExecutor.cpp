@@ -544,6 +544,9 @@ void SQLiteQueryExecutor::migrate() const {
     if (!rc) {
       migration_msg << "migration " << idx << " failed." << std::endl;
       Logger::log(migration_msg.str());
+      if (shouldBeInTransaction) {
+        sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
+      }
       break;
     }
 
