@@ -77,7 +77,6 @@ export type TooltipParams<CustomProps> = {
   +presentedFrom: string,
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
-  +location?: 'above' | 'below',
   +margin?: number,
   +visibleEntryIDs?: $ReadOnlyArray<string>,
 };
@@ -226,32 +225,6 @@ function createTooltip<
       return tooltipHeight;
     }
 
-    get location(): 'above' | 'below' {
-      const { params } = this.props.route;
-      const { location } = params;
-      if (location) {
-        return location;
-      }
-
-      const { initialCoordinates, verticalBounds } = params;
-      const { y, height } = initialCoordinates;
-      const contentTop = y;
-      const contentBottom = y + height;
-      const boundsTop = verticalBounds.y;
-      const boundsBottom = verticalBounds.y + verticalBounds.height;
-
-      const { margin, tooltipHeight: curTooltipHeight } = this;
-      const fullHeight = curTooltipHeight + margin;
-      if (
-        contentBottom + fullHeight > boundsBottom &&
-        contentTop - fullHeight > boundsTop
-      ) {
-        return 'above';
-      }
-
-      return 'below';
-    }
-
     get opacityStyle() {
       return {
         ...styles.backdrop,
@@ -295,7 +268,7 @@ function createTooltip<
       const { dimensions, route } = this.props;
       const { initialCoordinates, verticalBounds } = route.params;
       const { x, y, width, height } = initialCoordinates;
-      const { margin, location } = this;
+      const { margin } = this;
 
       const style = {};
       style.position = 'absolute';
@@ -312,17 +285,9 @@ function createTooltip<
       }
       style.minWidth = dimensions.width - 16;
 
-      if (location === 'above') {
-        const fullScreenHeight = dimensions.height;
-        style.bottom =
-          fullScreenHeight - Math.max(y, verticalBounds.y) + margin;
-        style.transform.push({ translateY: this.tooltipVerticalAbove });
-      } else {
-        style.top =
-          Math.min(y + height, verticalBounds.y + verticalBounds.height) +
-          margin;
-        style.transform.push({ translateY: this.tooltipVerticalBelow });
-      }
+      style.top =
+        Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
+      style.transform.push({ translateY: this.tooltipVerticalBelow });
 
       style.transform.push({ scale: this.tooltipScale });
 
