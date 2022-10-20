@@ -1,6 +1,9 @@
 // @flow
 
-import { HeaderTitle } from '@react-navigation/elements';
+import {
+  HeaderTitle,
+  type StackHeaderTitleInputProps,
+} from '@react-navigation/elements';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -18,6 +21,7 @@ type BaseProps = {
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
   +isSearchEmpty: boolean,
   +areSettingsEnabled: boolean,
+  ...StackHeaderTitleInputProps,
 };
 type Props = {
   ...BaseProps,
@@ -25,38 +29,37 @@ type Props = {
 };
 class MessageListHeaderTitle extends React.PureComponent<Props> {
   render() {
+    const {
+      threadInfo,
+      navigate,
+      isSearchEmpty,
+      areSettingsEnabled,
+      styles,
+      ...rest
+    } = this.props;
+
     let icon, fakeIcon;
-    if (Platform.OS === 'ios' && this.props.areSettingsEnabled) {
+    if (Platform.OS === 'ios' && areSettingsEnabled) {
       icon = (
-        <Icon
-          name="ios-arrow-forward"
-          size={20}
-          style={this.props.styles.forwardIcon}
-        />
+        <Icon name="ios-arrow-forward" size={20} style={styles.forwardIcon} />
       );
       fakeIcon = (
-        <Icon
-          name="ios-arrow-forward"
-          size={20}
-          style={this.props.styles.fakeIcon}
-        />
+        <Icon name="ios-arrow-forward" size={20} style={styles.fakeIcon} />
       );
     }
 
-    const title = this.props.isSearchEmpty
-      ? 'New Message'
-      : this.props.threadInfo.uiName;
+    const title = isSearchEmpty ? 'New Message' : threadInfo.uiName;
 
     return (
       <Button
         onPress={this.onPress}
-        style={this.props.styles.button}
+        style={styles.button}
         androidBorderlessRipple={true}
-        disabled={!this.props.areSettingsEnabled}
+        disabled={!areSettingsEnabled}
       >
-        <View style={this.props.styles.container}>
+        <View style={styles.container}>
           {fakeIcon}
-          <HeaderTitle>{firstLine(title)}</HeaderTitle>
+          <HeaderTitle {...rest}>{firstLine(title)}</HeaderTitle>
           {icon}
         </View>
       </Button>
