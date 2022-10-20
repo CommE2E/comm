@@ -5,7 +5,7 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "clean": "yarn clean-commoncpp && yarn clean-android && yarn clean-ios && rm -rf node_modules/",
-    "clean-commoncpp": "rm -rf cpp/CommonCpp/build && rm -rf cpp/CommonCpp/CryptoTools/build && rm -rf cpp/CommonCpp/DatabaseManagers/build && rm -rf cpp/CommonCpp/NativeModules/build && rm -rf cpp/CommonCpp/Tools/build",
+    "clean-commoncpp": "rm -rf cpp/CommonCpp/build && rm -rf cpp/CommonCpp/CryptoTools/build && rm -rf cpp/CommonCpp/DatabaseManagers/build && rm -rf cpp/CommonCpp/NativeModules/build && rm -rf cpp/CommonCpp/Tools/build && rm -rf cpp/CommonCpp/grpc/grpc_client",
     "clean-android": "rm -rf android/build android/app/build android/app/.cxx",
     "clean-ios": "rm -rf ios/Pods/",
     "clean-all": "yarn clean && rm -rf ~/Library/Developer/Xcode/DerivedData/Comm-*; cd android && (./gradlew clean || true)",
