@@ -16,7 +16,8 @@
     "clang-format-all": "eval `node scripts/get_clang_paths_cli.js` | xargs clang-format -i",
     "rust-pre-commit": "./scripts/rust_pre_commit.sh",
     "terraform-pre-commit": "./scripts/terraform_pre_commit.sh",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "patch": "git pull --all --tags && arc patch"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
