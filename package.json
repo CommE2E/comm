@@ -17,7 +17,7 @@
     "rust-pre-commit": "./scripts/rust_pre_commit.sh",
     "terraform-pre-commit": "./scripts/terraform_pre_commit.sh",
     "prepare": "husky install",
-    "patch": "git pull --all --tags && arc patch"
+    "arcpatch": "git pull --all --tags && arc patch"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
