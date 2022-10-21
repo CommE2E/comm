@@ -20,7 +20,7 @@ services:
       - $HOME/.aws/config:/root/.aws/config:ro
       - $HOME/.aws/credentials:/root/.aws/credentials:ro
       - ./tunnelbroker/tunnelbroker.ini:/root/tunnelbroker/tunnelbroker.ini:ro
-      - ./tunnelbroker/tunnelbroker-dev.ini:/root/tunnelbroker/tunnelbroker-dev.ini:ro
+      - ./tunnelbroker/tunnelbroker-sandbox.ini:/root/tunnelbroker/tunnelbroker-sandbox.ini:ro
   # backup
   backup-server:
     depends_on:
