@@ -24,7 +24,7 @@ import { dbQuery, SQL } from '../database/database';
 import type { Viewer } from '../session/viewer';
 
 async function fetchUserInfos(
-  userIDs: string[],
+  userIDs: $ReadOnlyArray<string>,
 ): Promise<{ [id: string]: GlobalUserInfo }> {
   if (userIDs.length <= 0) {
     return {};
