@@ -27,8 +27,8 @@ jobs:
       - name: rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android
         run: rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android
 
-      - name: apt update && apt install -y protobuf-compiler
-        run: apt update && apt install -y protobuf-compiler
+      - name: sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y protobuf-compiler
+        run: sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y protobuf-compiler
 
       - name: Install Yarn
         run: npm install -g yarn
