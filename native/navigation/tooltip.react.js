@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   icon: {
-    marginRight: 4,
+    color: '#FFFFFF',
   },
   itemContainer: {
     alignItems: 'center',
@@ -559,15 +559,15 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   itemMargin: {
-    borderBottomColor: '#E1E1E1',
+    borderBottomColor: '#404040',
     borderBottomWidth: 1,
   },
   itemMarginFixed: {
-    borderRightColor: '#E1E1E1',
+    borderRightColor: '#404040',
     borderRightWidth: 1,
   },
   items: {
-    backgroundColor: 'white',
+    backgroundColor: '#1F1F1F',
     borderRadius: 5,
     overflow: 'hidden',
   },
@@ -576,7 +576,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   label: {
-    color: '#444',
+    color: '#FFFFFF',
     fontSize: 14,
     lineHeight: 17,
     textAlign: 'center',
@@ -589,14 +589,14 @@ const styles = StyleSheet.create({
     borderRightColor: 'transparent',
     borderRightWidth: 10,
     borderStyle: 'solid',
-    borderTopColor: 'white',
+    borderTopColor: '#1F1F1F',
     borderTopWidth: 10,
     height: 10,
     top: Platform.OS === 'android' ? -1 : 0,
     width: 10,
   },
   triangleUp: {
-    borderBottomColor: 'white',
+    borderBottomColor: '#1F1F1F',
     borderBottomWidth: 10,
     borderLeftColor: 'transparent',
     borderLeftWidth: 10,
