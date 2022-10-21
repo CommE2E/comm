@@ -267,8 +267,7 @@ function createTooltip<
     get tooltipContainerStyle() {
       const { dimensions, route } = this.props;
       const { initialCoordinates, verticalBounds } = route.params;
-      const { x, y, width, height } = initialCoordinates;
-      const { margin } = this;
+      const { x, width } = initialCoordinates;
 
       const style = {};
       style.position = 'absolute';
@@ -285,8 +284,10 @@ function createTooltip<
       }
       style.minWidth = dimensions.width - 16;
 
-      style.top =
-        Math.min(y + height, verticalBounds.y + verticalBounds.height) + margin;
+      const fullScreenHeight = dimensions.height;
+      style.bottom =
+        fullScreenHeight - verticalBounds.height - verticalBounds.y - 32;
+
       style.transform.push({ translateY: this.tooltipVerticalBelow });
 
       style.transform.push({ scale: this.tooltipScale });
