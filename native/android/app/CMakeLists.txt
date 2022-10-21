@@ -63,18 +63,7 @@ FetchContent_MakeAvailable(Corrosion)
 
 include(../../../shared/cmake/corrosion-cxx.cmake)
 
-add_custom_target(install_rust_target_platforms ALL
-  COMMAND
-  rustup target add aarch64-linux-android armv7-linux-androideabi
-  i686-linux-android arm-linux-androideabi
-  WORKING_DIRECTORY
-  ${CMAKE_CURRENT_SOURCE_DIR}
-  COMMENT
-  "Installing rust platform targets dependencies"
-)
-
 add_library_rust(PATH ../../native_rust_library NAMESPACE comm)
-add_dependencies(native_rust_library-total install_rust_target_platforms)
 
 # Disable unused plugins
 set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF)

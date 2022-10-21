@@ -349,10 +349,20 @@ task removeCXX(type: Exec) {
     commandLine 'rm', '-rf', '.cxx'
 }
 
+// Add cross-compilation targets to Rust toolchain
+task updateRustToolchain(type: Exec) {
+    commandLine "rustup", "target", "add",
+      "aarch64-linux-android",
+      "armv7-linux-androideabi",
+      "i686-linux-android",
+      "arm-linux-androideabi",
+      "x86_64-linux-android"
+}
+
 // Bind preBuild dependencies only if not 'clean' running
 if (!isCleanRunning()) {
     afterEvaluate {
-        preBuild.dependsOn(prepareExternalLibs)
+        preBuild.dependsOn(prepareExternalLibs, updateRustToolchain)
     }
 }
 
