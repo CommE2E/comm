@@ -39,6 +39,7 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchCurrentUserInfo,
   fetchKnownUserInfos,
+  fetchUserInfos,
 } from '../fetchers/user-fetchers.js';
 import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
@@ -143,6 +144,28 @@ async function websiteResponder(
     throw new ServerError(e.message);
   }
 
+  let navInfoUserInfoPromise;
+  if (
+    viewer.loggedIn &&
+    initialNavInfo.tab === 'chat' &&
+    initialNavInfo.chatMode === 'create' &&
+    initialNavInfo.selectedUserList &&
+    initialNavInfo.selectedUserList.length > 0
+  ) {
+    const userIDs = initialNavInfo.selectedUserList;
+    navInfoUserInfoPromise = (async () => {
+      const userInfos = {};
+      const fetchedUserInfos = await fetchUserInfos(userIDs);
+      for (const userID in fetchedUserInfos) {
+        const userInfo = fetchedUserInfos[userID];
+        if (userInfo.username) {
+          userInfos[userID] = userInfo;
+        }
+      }
+      return userInfos;
+    })();
+  }
+
   const calendarQuery = {
     startDate: initialNavInfo.startDate,
     endDate: initialNavInfo.endDate,
@@ -160,7 +183,7 @@ async function websiteResponder(
   );
   const entryInfoPromise = fetchEntryInfos(viewer, [calendarQuery]);
   const currentUserInfoPromise = fetchCurrentUserInfo(viewer);
-  const userInfoPromise = fetchKnownUserInfos(viewer);
+  const knownUserInfoPromise = fetchKnownUserInfos(viewer);
 
   const sessionIDPromise = (async () => {
     if (viewer.loggedIn) {
@@ -221,12 +244,16 @@ async function websiteResponder(
     };
   })();
   const userStorePromise = (async () => {
-    const [userInfos, hasNotAcknowledgedPolicies] = await Promise.all([
-      userInfoPromise,
-      hasNotAcknowledgedPoliciesPromise,
-    ]);
+    const [knownUserInfos, hasNotAcknowledgedPolicies, navInfoUserInfos] =
+      await Promise.all([
+        knownUserInfoPromise,
+        hasNotAcknowledgedPoliciesPromise,
+        navInfoUserInfoPromise,
+      ]);
     return {
-      userInfos: hasNotAcknowledgedPolicies ? {} : userInfos,
+      userInfos: hasNotAcknowledgedPolicies
+        ? {}
+        : { ...navInfoUserInfos, ...knownUserInfos },
       inconsistencyReports: [],
     };
   })();
