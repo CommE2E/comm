@@ -15,6 +15,7 @@ import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
+import { sortIDs } from 'lib/shared/relationship-utils';
 import {
   threadHasPermission,
   threadIsPending,
@@ -24,6 +25,7 @@ import {
 import { defaultWebEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
+import { undirectedStatus } from 'lib/types/relationship-types';
 import { defaultEnabledReports } from 'lib/types/report-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { threadPermissions, threadTypes } from 'lib/types/thread-types';
@@ -42,9 +44,11 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchCurrentUserInfo,
   fetchKnownUserInfos,
+  fetchUserInfos,
 } from '../fetchers/user-fetchers';
 import { setNewSession } from '../session/cookies';
 import { Viewer } from '../session/viewer';
+import { updateUndirectedRelationships } from '../updaters/relationship-updaters';
 import { streamJSON, waitForStream } from '../utils/json-stream';
 import {
   getAppURLFactsFromRequestURL,
@@ -145,6 +149,30 @@ async function websiteResponder(
     throw new ServerError(e.message);
   }
 
+  let validUserIDsPromise, updateRelationshipsPromise;
+  if (
+    viewer.loggedIn &&
+    initialNavInfo.tab === 'chat' &&
+    initialNavInfo.chatMode === 'create' &&
+    initialNavInfo.selectedUserList &&
+    initialNavInfo.selectedUserList.length > 0
+  ) {
+    const userIDs = initialNavInfo.selectedUserList;
+    validUserIDsPromise = (async () => {
+      const userInfos = await fetchUserInfos(userIDs);
+      return userIDs.filter(userID => !!userInfos[userID].username);
+    })();
+    updateRelationshipsPromise = (async () => {
+      const validUserIDs = await validUserIDsPromise;
+      const rows = validUserIDs.map(userID => {
+        const [user1, user2] = sortIDs(viewer.userID, userID);
+        const status = undirectedStatus.KNOW_OF;
+        return { user1, user2, status };
+      });
+      await updateUndirectedRelationships(rows);
+    })();
+  }
+
   const calendarQuery = {
     startDate: initialNavInfo.startDate,
     endDate: initialNavInfo.endDate,
@@ -162,7 +190,11 @@ async function websiteResponder(
   );
   const entryInfoPromise = fetchEntryInfos(viewer, [calendarQuery]);
   const currentUserInfoPromise = fetchCurrentUserInfo(viewer);
-  const userInfoPromise = fetchKnownUserInfos(viewer);
+  const userStorePromise = (async () => {
+    await updateRelationshipsPromise;
+    const userInfos = await fetchKnownUserInfos(viewer);
+    return { userInfos, inconsistencyReports: [] };
+  })();
 
   const sessionIDPromise = (async () => {
     if (viewer.loggedIn) {
@@ -196,24 +228,23 @@ async function websiteResponder(
       lastUserInteractionCalendar: initialTime,
     };
   })();
-  const userStorePromise = (async () => {
-    const userInfos = await userInfoPromise;
-    return { userInfos, inconsistencyReports: [] };
-  })();
 
   const navInfoPromise = (async () => {
     const [
       { threadInfos },
+      validUserIDs,
       messageStore,
       currentUserInfo,
       userStore,
     ] = await Promise.all([
       threadInfoPromise,
+      validUserIDsPromise,
       messageStorePromise,
       currentUserInfoPromise,
       userStorePromise,
     ]);
     const finalNavInfo = initialNavInfo;
+    finalNavInfo.selectedUserList = validUserIDs;
 
     const requestedActiveChatThreadID = finalNavInfo.activeChatThreadID;
     if (
