@@ -105,13 +105,11 @@ function RobotextMessage(props: Props): React.Node {
       const aboveMargin = isViewer ? 30 : 50;
       const aboveSpace = robotextMessageTooltipHeight + aboveMargin;
 
-      let location = 'below',
-        margin = 0;
+      let margin = 0;
       if (
         messageBottom + belowSpace > boundsBottom &&
         messageTop - aboveSpace > boundsTop
       ) {
-        location = 'above';
         margin = aboveMargin;
       }
 
@@ -122,7 +120,7 @@ function RobotextMessage(props: Props): React.Node {
           initialCoordinates: coordinates,
           verticalBounds,
           visibleEntryIDs,
-          location,
+          location: 'fixed',
           margin,
           item,
         },
