@@ -3,10 +3,13 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors';
+import { searchUsers } from 'lib/actions/user-actions';
+import { filterPotentialMembers } from 'lib/selectors/user-selectors';
+import SearchIndex from 'lib/shared/search-index';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
+import { useServerCall } from 'lib/utils/action-utils';
 
 import Button from '../components/button.react';
 import Label from '../components/label.react';
@@ -19,6 +22,9 @@ import css from './chat-thread-composer.css';
 
 type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
+  +setUserInfoInputArray: (
+    ($ReadOnlyArray<AccountUserInfo>) => $ReadOnlyArray<AccountUserInfo>,
+  ) => void,
   +otherUserInfos: { [id: string]: AccountUserInfo },
   +threadID: string,
   +inputState: InputState,
@@ -29,12 +35,61 @@ type ActiveThreadBehavior =
   | 'keep-active-thread';
 
 function ChatThreadComposer(props: Props): React.Node {
-  const { userInfoInputArray, otherUserInfos, threadID, inputState } = props;
+  const {
+    userInfoInputArray,
+    setUserInfoInputArray,
+    otherUserInfos,
+    threadID,
+    inputState,
+  } = props;
 
   const [usernameInputText, setUsernameInputText] = React.useState('');
 
-  const dispatch = useDispatch();
-  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
+  const userInfos = useSelector(state => state.userStore.userInfos);
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
+  const [serverSearchUserInfos, setServerSearchUserInfos] = React.useState<{
+    [id: string]: AccountUserInfo,
+  }>({});
+  const callSearchUsers = useServerCall(searchUsers);
+  React.useEffect(() => {
+    (async () => {
+      if (usernameInputText.length === 0) {
+        setServerSearchUserInfos({});
+      } else {
+        const { userInfos: serverUserInfos } = await callSearchUsers(
+          usernameInputText,
+        );
+        const result = {};
+        for (const user of serverUserInfos) {
+          if (!(user.id in userInfos)) {
+            result[user.id] = user;
+          }
+        }
+        const potentialMembers = filterPotentialMembers(result, viewerID);
+        setServerSearchUserInfos(potentialMembers);
+      }
+    })();
+  }, [userInfos, callSearchUsers, usernameInputText, viewerID]);
+
+  const {
+    mergedUserInfos,
+    userSearchIndex,
+  }: {
+    mergedUserInfos: { [id: string]: AccountUserInfo },
+    userSearchIndex: SearchIndex,
+  } = React.useMemo(() => {
+    const bothUserInfos = { ...serverSearchUserInfos, ...otherUserInfos };
+
+    const searchIndex = new SearchIndex();
+    for (const id in bothUserInfos) {
+      searchIndex.addEntry(id, bothUserInfos[id].username);
+    }
+
+    return {
+      mergedUserInfos: bothUserInfos,
+      userSearchIndex: searchIndex,
+    };
+  }, [serverSearchUserInfos, otherUserInfos]);
 
   const userInfoInputIDs = React.useMemo(
     () => userInfoInputArray.map(userInfo => userInfo.id),
@@ -45,41 +100,31 @@ function ChatThreadComposer(props: Props): React.Node {
     () =>
       getPotentialMemberItems(
         usernameInputText,
-        otherUserInfos,
+        mergedUserInfos,
         userSearchIndex,
         userInfoInputIDs,
       ),
-    [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputIDs],
+    [usernameInputText, mergedUserInfos, userSearchIndex, userInfoInputIDs],
   );
 
   const onSelectUserFromSearch = React.useCallback(
-    (id: string) => {
-      const selectedUserIDs = userInfoInputArray.map(user => user.id);
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          selectedUserList: [...selectedUserIDs, id],
-        },
-      });
+    (id: string, username: string) => {
+      setUserInfoInputArray(previousUserInfoInputArray => [
+        ...previousUserInfoInputArray,
+        { id, username },
+      ]);
       setUsernameInputText('');
     },
-    [dispatch, userInfoInputArray],
+    [setUserInfoInputArray],
   );
 
   const onRemoveUserFromSelected = React.useCallback(
     (id: string) => {
-      const selectedUserIDs = userInfoInputArray.map(user => user.id);
-      if (!selectedUserIDs.includes(id)) {
-        return;
-      }
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          selectedUserList: selectedUserIDs.filter(userID => userID !== id),
-        },
-      });
+      setUserInfoInputArray(previousUserInfoInputArray =>
+        previousUserInfoInputArray.filter(user => user.id !== id),
+      );
     },
-    [dispatch, userInfoInputArray],
+    [setUserInfoInputArray],
   );
 
   const userSearchResultList = React.useMemo(() => {
@@ -96,7 +141,12 @@ function ChatThreadComposer(props: Props): React.Node {
           <li key={userSearchResult.id} className={css.searchResultsItem}>
             <Button
               variant="text"
-              onClick={() => onSelectUserFromSearch(userSearchResult.id)}
+              onClick={() =>
+                onSelectUserFromSearch(
+                  userSearchResult.id,
+                  userSearchResult.username,
+                )
+              }
               className={css.searchResultsButton}
             >
               <div className={css.userName}>{userSearchResult.username}</div>
@@ -113,6 +163,7 @@ function ChatThreadComposer(props: Props): React.Node {
     usernameInputText,
   ]);
 
+  const dispatch = useDispatch();
   const hideSearch = React.useCallback(
     (threadBehavior: ActiveThreadBehavior = 'keep-active-thread') => {
       dispatch({

@@ -79,14 +79,12 @@ async function createThread(
     throw new ServerError('not_logged_in');
   }
 
-  const forceAddMembers = options?.forceAddMembers ?? false;
   const updatesForCurrentSession =
     options?.updatesForCurrentSession ?? 'return';
   const silentlyFailMembers = options?.silentlyFailMembers ?? false;
 
   const threadType = request.type;
-  const shouldCreateRelationships =
-    forceAddMembers || threadType === threadTypes.PERSONAL;
+  const shouldCreateRelationships = options?.forceAddMembers ?? false;
   let parentThreadID = request.parentThreadID ? request.parentThreadID : null;
   const initialMemberIDsFromRequest =
     request.initialMemberIDs && request.initialMemberIDs.length > 0

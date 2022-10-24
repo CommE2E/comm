@@ -16,7 +16,6 @@ import {
   threadIsPending,
 } from 'lib/shared/thread-utils';
 import { threadTypes } from 'lib/types/thread-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
 
 import { InputStateContext } from '../input/input-state';
 import { updateNavInfoActionType } from '../redux/action-types';
@@ -36,12 +35,32 @@ function ChatMessageListContainer(props: Props): React.Node {
   const isChatCreation =
     useSelector(state => state.navInfo.chatMode) === 'create';
 
-  const selectedUserIDs = useSelector(state => state.navInfo.selectedUserList);
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userInfoInputArray: $ReadOnlyArray<AccountUserInfo> = React.useMemo(
-    () => selectedUserIDs?.map(id => otherUserInfos[id]).filter(Boolean) ?? [],
-    [otherUserInfos, selectedUserIDs],
+  const selectedUserIDs = useSelector(
+    state => state.navInfo.selectedUserList ?? [],
   );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const [userInfoInputArray, setUserInfoInputArray] = React.useState(() =>
+    selectedUserIDs.map(id => otherUserInfos[id]).filter(Boolean),
+  );
+
+  React.useEffect(() => {
+    if (!isChatCreation) {
+      setUserInfoInputArray([]);
+    }
+  }, [isChatCreation]);
+
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    if (isChatCreation) {
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          selectedUserList: userInfoInputArray.map(user => user.id),
+        },
+      });
+    }
+  }, [dispatch, isChatCreation, userInfoInputArray]);
+
   const viewerID = useSelector(state => state.currentUserInfo?.id);
   invariant(viewerID, 'should be set');
 
@@ -104,7 +123,6 @@ function ChatMessageListContainer(props: Props): React.Node {
   ]);
   invariant(threadInfo, 'ThreadInfo should be set');
 
-  const dispatch = useDispatch();
   React.useEffect(() => {
     if (isChatCreation && activeChatThreadID !== threadInfo?.id) {
       let payload = {
@@ -196,6 +214,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     const chatUserSelection = (
       <ChatThreadComposer
         userInfoInputArray={userInfoInputArray}
+        setUserInfoInputArray={setUserInfoInputArray}
         otherUserInfos={otherUserInfos}
         threadID={threadInfo.id}
         inputState={inputState}
