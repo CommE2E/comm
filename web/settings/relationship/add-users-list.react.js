@@ -50,6 +50,7 @@ function AddUsersList(props: Props): React.Node {
     relationshipAction,
   } = props;
 
+  const viewerID = useSelector(state => state.currentUserInfo?.id);
   const userStoreSearchIndex = useSelector(userStoreSearchIndexSelector);
   const [userStoreSearchResults, setUserStoreSearchResults] = React.useState<
     $ReadOnlySet<string>,
@@ -106,9 +107,13 @@ function AddUsersList(props: Props): React.Node {
     () =>
       Object.keys(mergedUserInfos)
         .map(userID => mergedUserInfos[userID])
-        .filter(user => !excludedStatuses.has(user.relationshipStatus))
+        .filter(
+          user =>
+            user.id !== viewerID &&
+            !excludedStatuses.has(user.relationshipStatus),
+        )
         .sort((user1, user2) => user1.username.localeCompare(user2.username)),
-    [excludedStatuses, mergedUserInfos],
+    [excludedStatuses, mergedUserInfos, viewerID],
   );
 
   const [pendingUsersToAdd, setPendingUsersToAdd] = React.useState<
