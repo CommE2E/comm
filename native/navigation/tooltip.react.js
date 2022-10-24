@@ -78,7 +78,7 @@ export type TooltipParams<CustomProps> = {
   +presentedFrom: string,
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
-  +location?: 'above' | 'below',
+  +location?: 'above' | 'below' | 'fixed',
   +margin?: number,
   +visibleEntryIDs?: $ReadOnlyArray<string>,
 };
@@ -230,7 +230,7 @@ function createTooltip<
       return tooltipHeight(this.entries.length);
     }
 
-    get location(): 'above' | 'below' {
+    get location(): 'above' | 'below' | 'fixed' {
       const { params } = this.props.route;
       const { location } = params;
       if (location) {

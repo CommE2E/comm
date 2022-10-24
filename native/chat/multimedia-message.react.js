@@ -142,13 +142,11 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       const aboveMargin = isViewer ? 30 : 50;
       const aboveSpace = multimediaMessageTooltipHeight + aboveMargin;
 
-      let location = 'below',
-        margin = belowMargin;
+      let margin = belowMargin;
       if (
         multimediaBottom + belowSpace > boundsBottom &&
         multimediaTop - aboveSpace > boundsTop
       ) {
-        location = 'above';
         margin = aboveMargin;
       }
 
@@ -159,7 +157,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
           item,
           initialCoordinates: coordinates,
           verticalBounds,
-          location,
+          location: 'fixed',
           margin,
           visibleEntryIDs,
         },
