@@ -25,7 +25,7 @@
 , localstack
 , mariadb
 , mariadb-up
-, nodejs-16_x
+, nodejs-16_x-openssl_1_1
 , olm
 , openjdk8
 , openssl
@@ -55,7 +55,7 @@ mkShell {
 
     # node development
     mariadb
-    nodejs-16_x
+    nodejs-16_x-openssl_1_1
     yarn
     watchman # react native
     python3
@@ -76,7 +76,9 @@ mkShell {
     cmake
     cmake-format # linting
     libuv
-    localstack
+    # Localstack is currently broken by partial update
+    # See https://github.com/NixOS/nixpkgs/pull/197572
+    #localstack
     pkg-config
     protobuf_3_15_cmake
     grpc

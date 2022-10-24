@@ -89,41 +89,8 @@ prev:
     ];
   });
 
-  # 16.14 now requires experimental import assertions syntax, pin to 16.13
-  # https://github.com/nodejs/node/blob/main/doc/changelogs/CHANGELOG_V16.md
-  #
-  # TODO: Use nodejs-16_x-openssl_1_1 once
-  # https://github.com/NixOS/nixpkgs/pull/195722 is merged.
-  # Related openssl issue: https://linear.app/comm/issue/ENG-2029
-  nodejs-16_x = (prev.nodejs-16_x.overrideAttrs (oldAttrs: rec {
-    version = "16.13.0";
-    name = "nodejs-${version}";
-
-    src = prev.fetchurl {
-      url = "https://nodejs.org/dist/v${version}/node-v${version}.tar.xz";
-      sha256 = "sha256-MhFLPcOUXtD5X4vDO0LGjg7xjECMtWEiVyoWPZB+y8w=";
-    };
-
-    # Nixpkgs applies two patches for 16.15. One patch is for finding headers
-    # needed for v8 on darwin using apple_sdk 11; the other patch fixes crashes
-    # related cache dir defaulting to using `$HOME` without asserting that
-    # it exists.
-    #
-    # However, 16.13 doesn't need the second patch, as the regression which
-    # caused it was introduced after 16.13. This ends up being a no-op. But
-    # nix will still try to apply the patch and fail with "this patch has
-    # already been applied".
-    #
-    # For more context, see (https://github.com/npm/cli/pull/5197)
-    #
-    # lib.head will select the first element in an array
-    patches = [
-      (prev.lib.head oldAttrs.patches)
-    ];
-  })).override { openssl = prev.openssl_1_1; };
-
   # Ensure that yarn is using the pinned version
   yarn = prev.yarn.override (_: {
-    nodejs = final.nodejs-16_x;
+    nodejs = final.nodejs-16_x-openssl_1_1;
   });
 }
