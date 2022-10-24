@@ -2,7 +2,6 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { useDrop } from 'react-dnd';
 import { NativeTypes } from 'react-dnd-html5-backend';
@@ -17,7 +16,6 @@ import {
   threadIsPending,
 } from 'lib/shared/thread-utils';
 import { threadTypes } from 'lib/types/thread-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
 
 import { InputStateContext } from '../input/input-state';
 import { updateNavInfoActionType } from '../redux/action-types';
@@ -37,12 +35,32 @@ function ChatMessageListContainer(props: Props): React.Node {
   const isChatCreation =
     useSelector(state => state.navInfo.chatMode) === 'create';
 
-  const selectedUserIDs = useSelector(state => state.navInfo.selectedUserList);
-  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-  const userInfoInputArray: $ReadOnlyArray<AccountUserInfo> = React.useMemo(
-    () => selectedUserIDs?.map(id => otherUserInfos[id]).filter(Boolean) ?? [],
-    [otherUserInfos, selectedUserIDs],
+  const selectedUserIDs = useSelector(
+    state => state.navInfo.selectedUserList ?? [],
   );
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const [userInfoInputArray, setUserInfoInputArray] = React.useState(() =>
+    selectedUserIDs.map(id => otherUserInfos[id]).filter(Boolean),
+  );
+
+  React.useEffect(() => {
+    if (!isChatCreation) {
+      setUserInfoInputArray([]);
+    }
+  }, [isChatCreation]);
+
+  const dispatch = useDispatch();
+  React.useEffect(() => {
+    if (isChatCreation) {
+      dispatch({
+        type: updateNavInfoActionType,
+        payload: {
+          selectedUserList: userInfoInputArray.map(user => user.id),
+        },
+      });
+    }
+  }, [dispatch, isChatCreation, userInfoInputArray]);
+
   const viewerID = useSelector(state => state.currentUserInfo?.id);
   invariant(viewerID, 'should be set');
 
@@ -104,36 +122,6 @@ function ChatMessageListContainer(props: Props): React.Node {
     pendingNewThread,
   ]);
   invariant(threadInfo, 'ThreadInfo should be set');
-
-  const dispatch = useDispatch();
-
-  // The effect removes members from list in navInfo
-  // if some of the user IDs don't exist in redux store
-  React.useEffect(() => {
-    if (!isChatCreation) {
-      return;
-    }
-    const existingSelectedUsersSet = new Set(
-      userInfoInputArray.map(userInfo => userInfo.id),
-    );
-    if (
-      selectedUserIDs?.length !== existingSelectedUsersSet.size ||
-      !_isEqual(new Set(selectedUserIDs), existingSelectedUsersSet)
-    ) {
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          selectedUserList: Array.from(existingSelectedUsersSet),
-        },
-      });
-    }
-  }, [
-    dispatch,
-    isChatCreation,
-    otherUserInfos,
-    selectedUserIDs,
-    userInfoInputArray,
-  ]);
 
   React.useEffect(() => {
     if (isChatCreation && activeChatThreadID !== threadInfo?.id) {
@@ -226,6 +214,7 @@ function ChatMessageListContainer(props: Props): React.Node {
     const chatUserSelection = (
       <ChatThreadComposer
         userInfoInputArray={userInfoInputArray}
+        setUserInfoInputArray={setUserInfoInputArray}
         otherUserInfos={otherUserInfos}
         threadID={threadInfo.id}
         inputState={inputState}
