@@ -69,6 +69,12 @@ function ThreadPickerModal(props: Props): React.Node {
     new Set(),
   );
 
+  const searchRef = React.useRef();
+
+  React.useEffect(() => {
+    searchRef.current?.focus();
+  }, []);
+
   const onChangeSearchText = React.useCallback(
     (text: string) => {
       const results = searchIndex.getSearchResults(text);
@@ -126,6 +132,7 @@ function ThreadPickerModal(props: Props): React.Node {
           onChangeText={onChangeSearchText}
           searchText={searchText}
           placeholder="Search chats"
+          ref={searchRef}
         />
         <div className={css.contentContainer}>{threadPickerContent}</div>
       </div>

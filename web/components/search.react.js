@@ -12,7 +12,7 @@ type Props = {
   +placeholder?: string,
 };
 
-function Search(props: Props): React.Node {
+function Search(props: Props, ref): React.Node {
   const { searchText, onChangeText, placeholder } = props;
 
   const showClearButton = !!searchText;
@@ -39,10 +39,16 @@ function Search(props: Props): React.Node {
         value={searchText}
         type="text"
         placeholder={placeholder}
+        ref={ref}
       />
       <ClearSearchButton onClick={onClear} active={showClearButton} />
     </div>
   );
 }
 
-export default Search;
+const ForwardedSearch: React.AbstractComponent<
+  Props,
+  HTMLInputElement,
+> = React.forwardRef<Props, HTMLInputElement>(Search);
+
+export default ForwardedSearch;
