@@ -12,6 +12,7 @@
     "postinstall": "cd ../ && echo '{\"name\": \"olm\", \"version\": \"3.2.4\"}' > ./node_modules/olm/package.json && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && npx pod-patch && ((cd ios && pod install) || true)",
     "start": "yarn react-native start",
     "dev": "yarn concurrently --names=\"REDUX,METRO\" -c \"bgGreen.bold,bgBlue.bold\" \"yarn redux-devtools\" \"yarn start\"",
+    "run-ios": "PATH=/usr/bin:$PATH yarn react-native run-ios",
     "test": "yarn jest",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'",
     "redux-devtools": "redux-devtools --port=8043",
