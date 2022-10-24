@@ -155,6 +155,7 @@ async function threadCreationResponder(
 
   return await createThread(viewer, request, {
     silentlyFailMembers: request.type === threadTypes.SIDEBAR,
+    forceAddMembers: true,
   });
 }
 
