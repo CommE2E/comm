@@ -87,6 +87,8 @@ add_subdirectory(../../node_modules/olm ./build)
 set(_node_modules_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../node_modules)
 set(_react_native_dir ${_node_modules_dir}/react-native)
 
+string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
+
 include_directories(
   ${_react_native_dir}/React
   ${_react_native_dir}/React/Base
@@ -129,7 +131,7 @@ include_directories(
   ../../cpp/CommonCpp/grpc
 
   # native rust library
-  ../../native_rust_library
+  ./.cxx/cmake/${CMAKE_BUILD_TYPE_LOWER}/${CMAKE_ANDROID_ARCH_ABI}/cargo/build/${Rust_CARGO_TARGET}/cxxbridge/native_rust_library/src
 )
 
 # search for all cpp files in this directory
