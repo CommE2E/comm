@@ -52,6 +52,7 @@ prev:
   protobuf_3_15_cmake = prev.callPackage ./protobuf_3_15.nix { };
 
   devShells.default = final.callPackage ./dev-shell.nix { };
+  devShells.ios = final.callPackage ./ios-shell.nix { };
   devShell = final.devShells.default;
 
   localstack-down = prev.callPackage ./localstack-down.nix { };
