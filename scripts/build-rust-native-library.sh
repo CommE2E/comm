@@ -1,11 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -x
+set -euxo pipefail
+
+COMM_NIX_PATH="$HOME/.cache/comm/path"
+
+# If in nix environment, re-expose nix PATH
+if [[ -f "$COMM_NIX_PATH" ]]; then
+  # shellcheck source=/dev/null
+  source "$COMM_NIX_PATH"
+fi
+
 # The $PATH used by Xcode likely won't contain Cargo, fix that.
 # In addition, the $PATH used by XCode has lots of Apple-specific
 # developer tools that your Cargo isn't expecting to use, fix that.
 # Note: This assumes a default `rustup` setup and default path.
-build_path="$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin"
+build_path="$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin${PATH:+:}$PATH"
 # cd to Cargo project
 cd "${SRCROOT}/../native_rust_library" || exit
 # Add iOS targets for cross-compilation
