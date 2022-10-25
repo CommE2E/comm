@@ -26,6 +26,7 @@ import Input from '../modals/input.react';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors';
 import css from './log-in-form.css';
+import PasswordInput from './password-input.react';
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function LoginForm(): React.Node {
@@ -139,9 +140,7 @@ function LoginForm(): React.Node {
         <div>
           <div className={css['form-title']}>Password</div>
           <div className={css['form-content']}>
-            <Input
-              type="password"
-              placeholder="Password"
+            <PasswordInput
               value={password}
               onChange={onPasswordChange}
               disabled={inputDisabled}

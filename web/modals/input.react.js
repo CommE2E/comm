@@ -1,22 +1,34 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import css from './input.css';
 
-type Props = {
-  +type: string,
-  +placeholder: string,
+export type BaseInputProps = {
   +value: string,
   +onChange: (value: SyntheticEvent<HTMLInputElement>) => mixed,
   +onBlur?: (value: SyntheticEvent<HTMLInputElement>) => mixed,
   +disabled?: boolean,
   +label?: string,
   +id?: string,
+  +className?: string,
 };
 
-function Input(props: Props, ref): React.Node {
-  const { label: labelProp, disabled = false, id, ...rest } = props;
+export type InputProps = {
+  ...BaseInputProps,
+  +type: string,
+  +placeholder: string,
+};
+
+function Input(props: InputProps, ref): React.Node {
+  const {
+    label: labelProp,
+    disabled = false,
+    className = '',
+    id,
+    ...rest
+  } = props;
 
   let label;
   if (labelProp) {
@@ -27,11 +39,13 @@ function Input(props: Props, ref): React.Node {
     );
   }
 
+  const inputClassName = classNames(css.input, className);
+
   return (
     <>
       {label}
       <input
-        className={css.input}
+        className={inputClassName}
         id={id}
         disabled={disabled}
         {...rest}
@@ -42,8 +56,8 @@ function Input(props: Props, ref): React.Node {
 }
 
 const ForwardedInput: React.AbstractComponent<
-  Props,
+  InputProps,
   HTMLInputElement,
-> = React.forwardRef<Props, HTMLInputElement>(Input);
+> = React.forwardRef<InputProps, HTMLInputElement>(Input);
 
 export default ForwardedInput;

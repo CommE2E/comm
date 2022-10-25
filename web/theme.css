@@ -180,4 +180,5 @@
   --compose-subchannel-label-color: var(--shades-black-60);
   --compose-subchannel-mark-color: var(--violet-light-100);
   --enum-option-icon-color: var(--violet-dark-100);
+  --show-password-bg-hover: var(--shades-black-70);
 }
