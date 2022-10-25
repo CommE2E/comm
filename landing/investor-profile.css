@@ -9,6 +9,11 @@
   cursor: pointer;
 }
 
+.profile:hover {
+  box-shadow: 0px 2px 4px #7847ff99, inset 0px 0px 12px 5px #7e57c24d;
+  transition: 200ms;
+}
+
 .profile img {
   border-radius: 72px;
   max-width: 144px;
