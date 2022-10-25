@@ -2,12 +2,16 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, PixelRatio } from 'react-native';
 import shallowequal from 'shallowequal';
 
 import type { Shape } from 'lib/types/core';
 
-import type { LayoutEvent } from '../types/react-native';
+import {
+  addLifecycleListener,
+  getCurrentLifecycleState,
+} from '../lifecycle/lifecycle';
+import type { LayoutEvent, EventSubscription } from '../types/react-native';
 
 const measureBatchSize = 50;
 
@@ -66,10 +70,20 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
   State<Item, MergedItem>,
 > {
   containerWidth: ?number;
+  // we track font scale when native app state changes
+  appLifecycleSubscription: ?EventSubscription;
+  currentLifecycleState: ?string = getCurrentLifecycleState();
+  currentFontScale: number = PixelRatio.getFontScale();
 
   constructor(props: Props<Item, MergedItem>) {
     super(props);
 
+    this.state = NodeHeightMeasurer.createInitialStateFromProps(props);
+  }
+
+  static createInitialStateFromProps<InnerItem, InnerMergedItem>(
+    props: Props<InnerItem, InnerMergedItem>,
+  ): State<InnerItem, InnerMergedItem> {
     const {
       listData,
       itemToID,
@@ -100,7 +114,7 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
       }
     }
 
-    this.state = {
+    return {
       currentlyMeasuring: [],
       iteration: 0,
       measuredHeights,
@@ -181,13 +195,44 @@ class NodeHeightMeasurer<Item, MergedItem> extends React.PureComponent<
     }
   }
 
+  handleAppStateChange: (nextState: ?string) => void = nextState => {
+    if (!nextState || nextState === 'unknown') {
+      return;
+    }
+
+    const lastState = this.currentLifecycleState;
+    this.currentLifecycleState = nextState;
+
+    // detect font scale changes only when app enters foreground
+    if (lastState !== 'background' || nextState !== 'active') {
+      return;
+    }
+
+    const lastScale = this.currentFontScale;
+    this.currentFontScale = PixelRatio.getFontScale();
+
+    if (lastScale !== this.currentFontScale) {
+      // recreate initial state to trigger full remeasurement
+      this.setState(NodeHeightMeasurer.createInitialStateFromProps(this.props));
+    }
+  };
+
   componentDidMount() {
+    this.appLifecycleSubscription = addLifecycleListener(
+      this.handleAppStateChange,
+    );
     this.triggerCallback(
       this.state.measurableItems,
       this.state.unmeasurableItems,
       this.state.measuredHeights,
       false,
     );
+  }
+
+  componentWillUnmount() {
+    if (this.appLifecycleSubscription) {
+      this.appLifecycleSubscription.remove();
+    }
   }
 
   triggerCallback(
