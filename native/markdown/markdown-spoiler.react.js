@@ -7,12 +7,12 @@ import type { ReactElement } from 'lib/shared/markdown';
 
 import { useStyles } from '../themes/colors';
 
-type SpoilerProps = {
+type MarkdownSpoilerProps = {
   +text: ReactElement,
   +children?: React.Node,
 };
 
-function Spoiler(props: SpoilerProps): React.Node {
+function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
   const [isRevealed, setIsRevealed] = React.useState(false);
   const styles = useStyles(unboundStyles);
   const { text } = props;
@@ -42,4 +42,4 @@ const unboundStyles = {
   },
 };
 
-export default Spoiler;
+export default MarkdownSpoiler;
