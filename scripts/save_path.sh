@@ -7,4 +7,4 @@ COMM_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/comm"
 
 mkdir -p "$COMM_CACHE"
 
-echo "export PATH=$PATH\${PATH:+:}\"\$PATH\"" > "$COMM_CACHE"/path
+echo "export PATH=\"$PATH\${PATH:+:}\$PATH\"" > "$COMM_CACHE"/path
