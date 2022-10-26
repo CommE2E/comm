@@ -1,4 +1,5 @@
 use super::constants;
+use super::cxx_bridge::ffi::{sessionSignatureHandler, GRPCStatusCodes};
 use anyhow::Result;
 use futures::Stream;
 use std::pin::Pin;
@@ -7,7 +8,7 @@ use tonic::{Request, Response, Status, Streaming};
 use tunnelbroker::tunnelbroker_service_server::{
   TunnelbrokerService, TunnelbrokerServiceServer,
 };
-
+mod tools;
 mod tunnelbroker {
   tonic::include_proto!("tunnelbroker");
 }
@@ -19,9 +20,18 @@ struct TunnelbrokerServiceHandlers {}
 impl TunnelbrokerService for TunnelbrokerServiceHandlers {
   async fn session_signature(
     &self,
-    _request: Request<tunnelbroker::SessionSignatureRequest>,
+    request: Request<tunnelbroker::SessionSignatureRequest>,
   ) -> Result<Response<tunnelbroker::SessionSignatureResponse>, Status> {
-    Err(Status::unimplemented("Not implemented yet"))
+    let result = sessionSignatureHandler(&request.into_inner().device_id);
+    if result.grpcStatus.statusCode != GRPCStatusCodes::Ok {
+      return Err(tools::create_tonic_status(
+        result.grpcStatus.statusCode,
+        &result.grpcStatus.errorText,
+      ));
+    }
+    Ok(Response::new(tunnelbroker::SessionSignatureResponse {
+      to_sign: result.toSign,
+    }))
   }
 
   async fn new_session(

@@ -7,6 +7,7 @@
 #include "Tools.h"
 
 #include "rust/cxx.h"
+#include "tunnelbroker/src/cxx_bridge.rs.h"
 
 void initialize() {
   comm::network::tools::InitLogging("tunnelbroker");
@@ -44,4 +45,24 @@ rust::String getConfigParameter(rust::Str parameter) {
 
 bool isSandbox() {
   return comm::network::tools::isSandbox();
+}
+
+SessionSignatureResult sessionSignatureHandler(rust::Str deviceID) {
+  const std::string requestedDeviceID(deviceID);
+  if (!comm::network::tools::validateDeviceID(requestedDeviceID)) {
+    return SessionSignatureResult{
+        .grpcStatus = {
+            .statusCode = GRPCStatusCodes::InvalidArgument,
+            .errorText =
+                "Format validation failed for deviceID: " + requestedDeviceID}};
+  }
+  const std::string toSign = comm::network::tools::generateRandomString(
+      comm::network::SIGNATURE_REQUEST_LENGTH);
+  std::shared_ptr<comm::network::database::SessionSignItem> SessionSignItem =
+      std::make_shared<comm::network::database::SessionSignItem>(
+          toSign, requestedDeviceID);
+  comm::network::database::DatabaseManager::getInstance().putSessionSignItem(
+      *SessionSignItem);
+
+  return SessionSignatureResult{.toSign = toSign};
 }
