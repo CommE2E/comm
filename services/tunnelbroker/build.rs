@@ -27,7 +27,7 @@ fn main() {
   add_import_path("src/libcpp/src/DeliveryBroker");
   add_import_path("src/libcpp/src/Tools");
 
-  cxx_build::bridge("src/main.rs")
+  cxx_build::bridge("src/cxx_bridge.rs")
     .files(get_cpp_sources("../lib/src"))
     .files(get_cpp_sources("src/libcpp/src"))
     .file(Path::new("src/libcpp/Tunnelbroker.cpp"))

@@ -1,13 +1,6 @@
 pub mod constants;
-
-#[cxx::bridge]
-mod ffi {
-  unsafe extern "C++" {
-    include!("tunnelbroker/src/libcpp/Tunnelbroker.h");
-    pub fn initialize();
-  }
-}
+pub mod cxx_bridge;
 
 pub fn main() {
-  ffi::initialize();
+  cxx_bridge::ffi::initialize();
 }
