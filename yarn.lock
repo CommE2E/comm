@@ -9376,6 +9376,11 @@ figma-squircle@^0.1.2:
   resolved "https://registry.yarnpkg.com/figma-squircle/-/figma-squircle-0.1.2.tgz#fa97de644131d99f2c42a2d8b70d56a36783c234"
   integrity sha512-S5t05Sfo5N7oH4/diQEbTSbzfuiRTWTfkoyfhNTmPHhmQRu9kAFKCcTnQSyBp6bnGv0dk/1ewiPZBVtUKPq+1A==
 
+figma-squircle@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/figma-squircle/-/figma-squircle-0.3.0.tgz#f9ad82ea6c3eb06b7a2e6b4ac01729dd4abbb76a"
+  integrity sha512-E75UbUSJyqJ+3Zzn68La0/tXvxtJDDmaivh5q+FC7+z4PoLHbzshMIbT8WtfvUafF4JAzbyT7RsOQbqmGxlMrA==
+
 figures@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/figures/-/figures-2.0.0.tgz#3ab1a2d2a62c8bfb431a0c94cb797a2fce27c962"
