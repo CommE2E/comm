@@ -1,6 +1,7 @@
 // @flow
 
 import _keyBy from 'lodash/fp/keyBy';
+import _shuffle from 'lodash/fp/shuffle';
 
 import { assetsCacheURLPrefix } from './asset-meta-data';
 
@@ -778,8 +779,12 @@ const investorsData: $ReadOnlyArray<Investors> = [
   },
 ];
 
+const shuffledInvestorsData: $ReadOnlyArray<Investors> = _shuffle(
+  investorsData,
+);
+
 const keyedInvestorData: { [key: string]: Investors } = _keyBy('id')(
   investorsData,
 );
 
-export { investorsData, keyedInvestorData };
+export { shuffledInvestorsData, keyedInvestorData };

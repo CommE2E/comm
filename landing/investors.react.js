@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react';
 
-import { investorsData } from './investor-data';
+import { shuffledInvestorsData } from './investor-data';
 import InvestorProfileModal from './investor-profile-modal.react';
 import InvestorProfile from './investor-profile.react';
 import css from './investors.css';
@@ -18,7 +18,7 @@ function Investors(): React.Node {
   );
 
   const investors = React.useMemo(() => {
-    return investorsData.map(investor => (
+    return shuffledInvestorsData.map(investor => (
       <InvestorProfile
         key={investor.id}
         name={investor.name}
