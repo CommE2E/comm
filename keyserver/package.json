@@ -13,7 +13,7 @@
     "update-geoip": "yarn script dist/scripts/update-geoip.js",
     "prod": "node --trace-warnings --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node dist/keyserver",
     "dev-rsync": "yarn --silent chokidar --initial --silent -s 'src/**/*.json' 'src/**/*.cjs' -c 'yarn rsync > /dev/null 2>&1'",
-    "dev": "yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build --source-maps --watch\" \"yarn dev-rsync\" \". bash/source-nvm.sh && NODE_ENV=development nodemon -e js,json,cjs --watch dist --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node dist/keyserver\"",
+    "dev": ". bash/source-nvm.sh && yarn concurrently --names=\"BABEL,RSYNC,NODEM\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"yarn babel-build --source-maps --watch\" \"yarn dev-rsync\" \". bash/source-nvm.sh && NODE_ENV=development nodemon -e js,json,cjs --watch dist --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node dist/keyserver\"",
     "script": ". bash/source-nvm.sh && NODE_ENV=development node --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node",
     "test": "jest"
   },
