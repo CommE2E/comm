@@ -33,3 +33,11 @@ pub const IDENTITY_SERVICE_SOCKET_ADDR: &str = "[::]:50051";
 // Token
 
 pub const ACCESS_TOKEN_LENGTH: usize = 512;
+
+// MySQL
+
+pub const MYSQL_USER: &str = "comm";
+pub const MYSQL_PASSWORD: &str = "password";
+pub const MYSQL_DOMAIN: &str = "localhost";
+pub const MYSQL_PORT: &str = "3306";
+pub const MYSQL_DATABASE: &str = "comm";

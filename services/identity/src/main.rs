@@ -8,12 +8,17 @@ mod constants;
 mod database;
 mod keygen;
 mod opaque;
+mod populate_db;
 mod service;
 mod token;
 
 use config::Config;
-use constants::{IDENTITY_SERVICE_SOCKET_ADDR, SECRETS_DIRECTORY};
+use constants::{
+  IDENTITY_SERVICE_SOCKET_ADDR, MYSQL_DATABASE, MYSQL_DOMAIN, MYSQL_PASSWORD,
+  MYSQL_PORT, MYSQL_USER, SECRETS_DIRECTORY,
+};
 use keygen::generate_and_persist_keypair;
+use populate_db::get_users;
 use service::{IdentityServiceServer, MyIdentityService};
 
 #[derive(Parser)]
@@ -35,7 +40,23 @@ enum Commands {
     dir: String,
   },
   /// Populates the `identity-users` table in DynamoDB from MySQL
-  PopulateDB,
+  PopulateDB {
+    #[clap(long)]
+    #[clap(default_value_t = String::from(MYSQL_USER))]
+    user: String,
+    #[clap(long)]
+    #[clap(default_value_t = String::from(MYSQL_PASSWORD))]
+    password: String,
+    #[clap(long)]
+    #[clap(default_value_t = String::from(MYSQL_DOMAIN))]
+    domain: String,
+    #[clap(long)]
+    #[clap(default_value_t = String::from(MYSQL_PORT))]
+    port: String,
+    #[clap(long)]
+    #[clap(default_value_t = String::from(MYSQL_DATABASE))]
+    database: String,
+  },
 }
 
 #[tokio::main]
@@ -58,7 +79,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .serve(addr)
         .await?;
     }
-    Commands::PopulateDB => unimplemented!(),
+    Commands::PopulateDB {
+      user,
+      password,
+      domain,
+      port,
+      database,
+    } => unimplemented!(),
   }
 
   Ok(())
