@@ -1,0 +1,38 @@
+#include "./IdentityClient.h"
+
+namespace comm {
+IdentityClient::IdentityClient() {
+  this->Client = std::make_unique<::rust::Box<::Client>>(
+      ::initialize_client());
+}
+
+  string IdentityClient::getIdentityUserId(
+  const jsi::String &auth_type, 
+  const jsi::String &user_info
+  ) {
+    ::get_user_id_blocking(this->Client)
+  }
+// void UploadBlobClient::startUploadBlocking(
+//     const std::string &holder,
+//     const std::string &hash) {
+//   ::start_upload_blocking(*this->uploadState, holder, hash);
+// }
+
+// void UploadBlobClient::uploadChunkBlocking(
+//     std::uint8_t *chunk,
+//     size_t chunk_length) {
+//   ::upload_chunk_blocking(
+//       *this->uploadState,
+//       ::rust::Slice<const std::uint8_t>(chunk, chunk_length));
+// }
+
+// bool UploadBlobClient::completeUploadBlocking() {
+//   return ::complete_upload_blocking(std::move(*this->uploadState.release()));
+// }
+
+// UploadBlobClient::~UploadBlobClient() {
+//   if (this->uploadState) {
+//     ::complete_upload_blocking(std::move(*this->uploadState.release()));
+//   }
+// }
+} // namespace comm

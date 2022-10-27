@@ -5,7 +5,7 @@
 #include "InternalModules/GlobalNetworkSingleton.h"
 #include "MessageStoreOperations.h"
 #include "ThreadStoreOperations.h"
-
+#include "lib.rs.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <future>
 
@@ -981,6 +981,26 @@ jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
           std::string result;
           try {
             result = DatabaseManager::getQueryExecutor().getCurrentUserID();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([&innerRt, error, result, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::String::createFromUtf8(innerRt, result));
+            }
+          });
+        });
+      });
+}
+
+jsi::Value CommCoreModule::getIdentityUserId(jsi::Runtime &rt, const jsi::String &auth_type, const jsi::String &user_info) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+          try {
+            
+            identity::get_user_id_blocking(
           } catch (const std::exception &e) {
             error = e.what();
           }

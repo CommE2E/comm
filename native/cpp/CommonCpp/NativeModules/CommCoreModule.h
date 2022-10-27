@@ -5,6 +5,8 @@
 #include "../Tools/WorkerThread.h"
 #include "../_generated/NativeModules.h"
 #include "../grpc/Client.h"
+#include "../../../native_rust_library/lib.rs.h"
+#include "../IdentityClient/IdentityClient.h"
 #include <jsi/jsi.h>
 #include <memory>
 
@@ -21,6 +23,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
 
   std::unique_ptr<network::Client> networkClient;
+  std::unique_ptr<IdentityClient> client;
+
 
   template <class T>
   T runSyncOrThrowJSError(jsi::Runtime &rt, std::function<T()> task);
@@ -61,6 +65,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   jsi::Value
   setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) override;
   jsi::Value getCurrentUserID(jsi::Runtime &rt) override;
+  jsi::Value getIdentityUserId(jsi::Runtime &rt, const jsi::String &auth_type, const jsi::String &user_info) override;
   jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
 
 public:
