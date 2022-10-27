@@ -30,7 +30,7 @@ services:
     expose:
       - "3306"
     command: >
-      --max-allowed-packet=64M
+      --max-allowed-packet=256M
       --local-infile=0
       --sql-mode=STRICT_ALL_TABLES
       --innodb-buffer-pool-size=1600M

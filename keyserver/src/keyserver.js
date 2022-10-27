@@ -65,7 +65,7 @@ import {
   } else {
     const server = express();
     expressWs(server);
-    server.use(express.json({ limit: '50mb' }));
+    server.use(express.json({ limit: '250mb' }));
     server.use(cookieParser());
 
     const setupAppRouter = router => {
