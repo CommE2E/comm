@@ -47,6 +47,19 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       `);
     },
   ],
+  [
+    6,
+    async () => {
+      await dbQuery(SQL`
+        ALTER TABLE users
+          DROP COLUMN public_key;
+          MODIFY hash char(60) COLLATE utf8mb4_bin DEFAULT NULL;
+  
+        ALTER TABLE sessions 
+          DROP COLUMN public_key;
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
