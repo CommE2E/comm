@@ -37,6 +37,7 @@ import {
   setNativeCredentials,
 } from './native-credentials';
 import { PanelButton, Panel } from './panel-components.react';
+import PasswordInput from './password-input.react';
 
 export type LogInState = {
   +usernameInputText: ?string,
@@ -59,7 +60,7 @@ type Props = {
 };
 class LogInPanel extends React.PureComponent<Props> {
   usernameInput: ?TextInput;
-  passwordInput: ?TextInput;
+  passwordInput: ?PasswordInput;
 
   componentDidMount() {
     this.attemptToFetchCredentials();
@@ -132,14 +133,14 @@ class LogInPanel extends React.PureComponent<Props> {
             color="#555"
             style={styles.icon}
           />
-          <TextInput
+          <PasswordInput
             style={styles.input}
             value={this.passwordInputText}
             onChangeText={this.onChangePasswordInputText}
             placeholder="Password"
-            secureTextEntry={true}
             textContentType="password"
             autoComplete="password"
+            autoCapitalize="none"
             returnKeyType="go"
             blurOnSubmit={false}
             onSubmitEditing={this.onSubmit}
@@ -170,7 +171,7 @@ class LogInPanel extends React.PureComponent<Props> {
     this.usernameInput.focus();
   };
 
-  passwordInputRef: (passwordInput: ?TextInput) => void = passwordInput => {
+  passwordInputRef: (passwordInput: ?PasswordInput) => void = passwordInput => {
     this.passwordInput = passwordInput;
   };
 
