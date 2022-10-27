@@ -10,14 +10,15 @@
     "clean-android": "rm -rf android/build android/app/build android/app/.cxx",
     "clean-ios": "rm -rf ios/Pods/",
     "clean-all": "yarn clean && rm -rf ~/Library/Developer/Xcode/DerivedData/Comm-*; cd android && (./gradlew clean || true)",
-    "postinstall": "cd ../ && echo '{\"name\": \"olm\", \"version\": \"3.2.4\"}' > ./node_modules/olm/package.json && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && npx pod-patch && ((cd ios && pod install) || true)",
+    "postinstall": "cd ../ && echo '{\"name\": \"olm\", \"version\": \"3.2.4\"}' > ./node_modules/olm/package.json && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && npx pod-patch && ((cd ios && PATH=/usr/bin:\"$PATH\" pod install) || true)",
     "start": "yarn react-native start",
     "dev": "yarn concurrently --names=\"REDUX,METRO\" -c \"bgGreen.bold,bgBlue.bold\" \"yarn redux-devtools\" \"yarn start\"",
     "test": "yarn jest",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'",
     "redux-devtools": "redux-devtools --port=8043",
     "codegen-jsi": "flow && babel codegen/src/ -d codegen/dist/ && node codegen/dist",
-    "codegen-grpc": "protoc -I=cpp/CommonCpp/grpc/protos --cpp_out=cpp/CommonCpp/grpc/_generated --grpc_out=cpp/CommonCpp/grpc/_generated --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` cpp/CommonCpp/grpc/protos/*.proto && ./scripts/mark-generated.sh"
+    "codegen-grpc": "protoc -I=cpp/CommonCpp/grpc/protos --cpp_out=cpp/CommonCpp/grpc/_generated --grpc_out=cpp/CommonCpp/grpc/_generated --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` cpp/CommonCpp/grpc/protos/*.proto && ./scripts/mark-generated.sh",
+    "react-native": "PATH=/usr/bin:\"$PATH\" react-native"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
