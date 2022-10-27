@@ -1,20 +1,16 @@
 // @flow
 
 import * as React from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
-import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
+import type { SidebarInfo } from 'lib/types/thread-types';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
-import Button from '../components/button.react';
 import { SingleLine } from '../components/single-line.react';
-import { useColors, useStyles } from '../themes/colors';
-import type { ViewStyle } from '../types/styles';
+import { useStyles } from '../themes/colors';
 
 type Props = {
   +sidebarInfo: SidebarInfo,
-  +onPressItem: (threadInfo: ThreadInfo) => void,
-  +style?: ?ViewStyle,
 };
 function SidebarItem(props: Props): React.Node {
   const { lastUpdatedTime } = props.sidebarInfo;
@@ -24,48 +20,26 @@ function SidebarItem(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const unreadStyle = threadInfo.currentUser.unread ? styles.unread : null;
 
-  const { onPressItem } = props;
-  const onPress = React.useCallback(() => onPressItem(threadInfo), [
-    threadInfo,
-    onPressItem,
-  ]);
-
-  const colors = useColors();
-
-  const sidebarStyle = React.useMemo(() => {
-    return [styles.sidebar, props.style];
-  }, [props.style, styles.sidebar]);
-
   return (
-    <Button
-      iosFormat="highlight"
-      iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
-      iosActiveOpacity={0.85}
-      style={sidebarStyle}
-      onPress={onPress}
-    >
+    <View style={styles.itemContainer}>
       <SingleLine style={[styles.name, unreadStyle]}>
         {threadInfo.uiName}
       </SingleLine>
       <Text style={[styles.lastActivity, unreadStyle]}>{lastActivity}</Text>
-    </Button>
+    </View>
   );
 }
 
 const sidebarHeight = 30;
 const unboundStyles = {
+  itemContainer: {
+    flexDirection: 'row',
+    height: sidebarHeight,
+    alignItems: 'center',
+  },
   unread: {
     color: 'listForegroundLabel',
     fontWeight: 'bold',
-  },
-  sidebar: {
-    height: sidebarHeight,
-    flexDirection: 'row',
-    display: 'flex',
-    paddingLeft: 6,
-    paddingRight: 18,
-    alignItems: 'center',
-    backgroundColor: 'listBackground',
   },
   name: {
     color: 'listForegroundSecondaryLabel',

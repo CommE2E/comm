@@ -56,6 +56,10 @@ function ChatThreadListItem({
     );
   }, [data.mostRecentMessageInfo, data.threadInfo, styles]);
 
+  const numOfSidebarsWithExtendedArrow =
+    data.sidebars.filter(sidebarItem => sidebarItem.type === 'sidebar').length -
+    1;
+
   const sidebars = data.sidebars.map((sidebarItem, index) => {
     if (sidebarItem.type === 'sidebar') {
       const { type, ...sidebarInfo } = sidebarItem;
@@ -66,7 +70,7 @@ function ChatThreadListItem({
           onSwipeableWillOpen={onSwipeableWillOpen}
           currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
           key={sidebarItem.threadInfo.id}
-          extendArrow={index > 0}
+          extendArrow={index < numOfSidebarsWithExtendedArrow}
         />
       );
     } else if (sidebarItem.type === 'seeMore') {

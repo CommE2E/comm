@@ -1,14 +1,16 @@
 // @flow
 
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 
-import ArrowLong from '../components/arrow-long.react';
+import ExtendedArrow from '../components/arrow-extended.react';
 import Arrow from '../components/arrow.react';
+import Button from '../components/button.react';
 import UnreadDot from '../components/unread-dot.react';
-import { SidebarItem } from './sidebar-item.react';
+import { useColors, useStyles } from '../themes/colors';
+import { SidebarItem, sidebarHeight } from './sidebar-item.react';
 import SwipeableThread from './swipeable-thread.react';
 
 type Props = {
@@ -19,6 +21,9 @@ type Props = {
   +extendArrow: boolean,
 };
 function ChatThreadListSidebar(props: Props): React.Node {
+  const colors = useColors();
+  const styles = useStyles(unboundStyles);
+
   const {
     sidebarInfo,
     onSwipeableWillOpen,
@@ -30,8 +35,8 @@ function ChatThreadListSidebar(props: Props): React.Node {
   let arrow;
   if (extendArrow) {
     arrow = (
-      <View style={styles.longArrow}>
-        <ArrowLong />
+      <View style={styles.extendedArrow}>
+        <ExtendedArrow />
       </View>
     );
   } else {
@@ -42,8 +47,21 @@ function ChatThreadListSidebar(props: Props): React.Node {
     );
   }
 
+  const { threadInfo } = sidebarInfo;
+
+  const onPress = React.useCallback(() => onPressItem(threadInfo), [
+    threadInfo,
+    onPressItem,
+  ]);
+
   return (
-    <View style={styles.chatThreadListContainer}>
+    <Button
+      iosFormat="highlight"
+      iosHighlightUnderlayColor={colors.listIosHighlightUnderlay}
+      iosActiveOpacity={0.85}
+      style={styles.sidebar}
+      onPress={onPress}
+    >
       {arrow}
       <View style={styles.unreadIndicatorContainer}>
         <UnreadDot unread={sidebarInfo.threadInfo.currentUser.unread} />
@@ -56,37 +74,44 @@ function ChatThreadListSidebar(props: Props): React.Node {
           currentlyOpenedSwipeableId={currentlyOpenedSwipeableId}
           iconSize={16}
         >
-          <SidebarItem sidebarInfo={sidebarInfo} onPressItem={onPressItem} />
+          <SidebarItem sidebarInfo={sidebarInfo} />
         </SwipeableThread>
       </View>
-    </View>
+    </Button>
   );
 }
 
-const styles = StyleSheet.create({
+const unboundStyles = {
   arrow: {
-    left: 27.5,
+    left: 28,
     position: 'absolute',
     top: -12,
   },
-  chatThreadListContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  longArrow: {
+  extendedArrow: {
     left: 28,
     position: 'absolute',
-    top: -19,
+    top: -6,
+  },
+  sidebar: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    width: '100%',
+    height: sidebarHeight,
+    paddingLeft: 6,
+    paddingRight: 18,
+    backgroundColor: 'listBackground',
   },
   swipeableThreadContainer: {
     flex: 1,
+    height: '100%',
   },
   unreadIndicatorContainer: {
-    display: 'flex',
-    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
     paddingLeft: 6,
     width: 56,
   },
-});
+};
 
 export default ChatThreadListSidebar;
