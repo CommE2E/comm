@@ -27,6 +27,7 @@ rand = "0.8"
 bytes = "1.1"
 constant_time_eq = "0.2.2"
 siwe = "0.3"
+mysql_async = "0.30"
 
 [build-dependencies]
 tonic-build = "0.6"
