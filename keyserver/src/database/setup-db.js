@@ -136,8 +136,7 @@ async function createTables() {
         query json NOT NULL,
         creation_time bigint(20) NOT NULL,
         last_update bigint(20) NOT NULL,
-        last_validated bigint(20) NOT NULL,
-        public_key char(116) DEFAULT NULL
+        last_validated bigint(20) NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
       CREATE TABLE threads (
@@ -184,10 +183,9 @@ async function createTables() {
       CREATE TABLE users (
         id bigint(20) NOT NULL,
         username varchar(${usernameMaxLength}) COLLATE utf8mb4_bin NOT NULL,
-        hash char(60) COLLATE utf8mb4_bin NOT NULL,
+        hash char(60) COLLATE utf8mb4_bin DEFAULT NULL,
         avatar varchar(191) COLLATE utf8mb4_bin DEFAULT NULL,
-        creation_time bigint(20) NOT NULL,
-        public_key char(116) DEFAULT NULL
+        creation_time bigint(20) NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
       CREATE TABLE relationships_undirected (
@@ -289,8 +287,7 @@ async function createTables() {
 
       ALTER TABLE sessions
         ADD PRIMARY KEY (id),
-        ADD KEY user (user),
-        ADD UNIQUE INDEX public_key (public_key);
+        ADD KEY user (user);
 
       ALTER TABLE threads
         ADD PRIMARY KEY (id),
@@ -312,8 +309,7 @@ async function createTables() {
 
       ALTER TABLE users
         ADD PRIMARY KEY (id),
-        ADD UNIQUE KEY username (username),
-        ADD UNIQUE INDEX public_key (public_key);
+        ADD UNIQUE KEY username (username);
 
       ALTER TABLE relationships_undirected
         ADD UNIQUE KEY user1_user2 (user1,user2),
