@@ -13,6 +13,7 @@ import { messageKey } from 'lib/shared/message-utils';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
 import type { MediaInfo } from 'lib/types/media-types';
 
+import { ChatContext, type ChatContextType } from '../chat/chat-context';
 import { OverlayContext } from '../navigation/overlay-context';
 import type { OverlayContextType } from '../navigation/overlay-context';
 import {
@@ -44,6 +45,7 @@ type Props = {
   +navigation: NavigationProp<ParamListBase>,
   +route: LeafRoute<>,
   +overlayContext: ?OverlayContextType,
+  +chatContext: ?ChatContextType,
   +canCreateSidebarFromMessage: boolean,
 };
 type State = {
@@ -151,6 +153,10 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
         margin = aboveMargin;
       }
 
+      const currentInputBarHeight =
+        this.props.chatContext?.chatInputBarHeights.get(item.threadInfo.id) ??
+        0;
+
       this.props.navigation.navigate<'MultimediaMessageTooltipModal'>({
         name: MultimediaMessageTooltipModalRouteName,
         params: {
@@ -161,6 +167,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
           location: 'fixed',
           margin,
           visibleEntryIDs,
+          chatInputBarHeight: currentInputBarHeight,
         },
         key: getMessageTooltipKey(item),
       });
@@ -183,6 +190,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       navigation,
       route,
       overlayContext,
+      chatContext,
       canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
@@ -220,6 +228,7 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo<Ba
     const navigation = useNavigation();
     const route = useRoute();
     const overlayContext = React.useContext(OverlayContext);
+    const chatContext = React.useContext(ChatContext);
     const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
       props.item.threadInfo,
       props.item.messageInfo,
@@ -230,6 +239,7 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo<Ba
         navigation={navigation}
         route={route}
         overlayContext={overlayContext}
+        chatContext={chatContext}
         canCreateSidebarFromMessage={canCreateSidebarFromMessage}
       />
     );
