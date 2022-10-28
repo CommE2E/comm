@@ -11,6 +11,7 @@ import {
 } from 'lib/shared/thread-utils';
 import { threadPermissions } from 'lib/types/thread-types';
 
+import { ChatContext, type ChatContextType } from '../chat/chat-context';
 import { MarkdownLinkContext } from '../markdown/markdown-link-context';
 import {
   OverlayContext,
@@ -43,6 +44,7 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // MarkdownLinkContext
+  +chatContext: ?ChatContextType,
   +linkModalActive: boolean,
   +linkIsBlockingPresses: boolean,
 };
@@ -58,6 +60,7 @@ class TextMessage extends React.PureComponent<Props> {
       toggleFocus,
       verticalBounds,
       overlayContext,
+      chatContext,
       linkModalActive,
       linkIsBlockingPresses,
       canCreateSidebarFromMessage,
@@ -178,6 +181,10 @@ class TextMessage extends React.PureComponent<Props> {
         margin = aboveMargin;
       }
 
+      const currentInputBarHeight =
+        this.props.chatContext?.chatInputBarHeights.get(item.threadInfo.id) ??
+        0;
+
       this.props.navigation.navigate<'TextMessageTooltipModal'>({
         name: TextMessageTooltipModalRouteName,
         params: {
@@ -188,6 +195,7 @@ class TextMessage extends React.PureComponent<Props> {
           location: 'fixed',
           margin,
           item,
+          chatInputBarHeight: currentInputBarHeight,
         },
         key: getMessageTooltipKey(item),
       });
@@ -198,6 +206,7 @@ class TextMessage extends React.PureComponent<Props> {
 const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedTextMessage(props: BaseProps) {
     const overlayContext = React.useContext(OverlayContext);
+    const chatContext = React.useContext(ChatContext);
 
     const [linkModalActive, setLinkModalActive] = React.useState(false);
     const [linkPressActive, setLinkPressActive] = React.useState(false);
@@ -220,6 +229,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
           {...props}
           canCreateSidebarFromMessage={canCreateSidebarFromMessage}
           overlayContext={overlayContext}
+          chatContext={chatContext}
           linkModalActive={linkModalActive}
           linkIsBlockingPresses={linkIsBlockingPresses}
         />

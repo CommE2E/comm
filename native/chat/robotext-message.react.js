@@ -7,6 +7,7 @@ import { View } from 'react-native';
 import { messageKey } from 'lib/shared/message-utils';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
 
+import { ChatContext } from '../chat/chat-context';
 import { KeyboardContext } from '../keyboard/keyboard-state';
 import { OverlayContext } from '../navigation/overlay-context';
 import { RobotextMessageTooltipModalRouteName } from '../navigation/route-names';
@@ -60,6 +61,7 @@ function RobotextMessage(props: Props): React.Node {
     );
   }
 
+  const chatContext = React.useContext(ChatContext);
   const keyboardState = React.useContext(KeyboardContext);
   const key = messageKey(item.messageInfo);
   const onPress = React.useCallback(() => {
@@ -111,6 +113,9 @@ function RobotextMessage(props: Props): React.Node {
         margin = aboveMargin;
       }
 
+      const currentInputBarHeight =
+        chatContext?.chatInputBarHeights.get(item.threadInfo.id) ?? 0;
+
       props.navigation.navigate<'RobotextMessageTooltipModal'>({
         name: RobotextMessageTooltipModalRouteName,
         params: {
@@ -121,11 +126,19 @@ function RobotextMessage(props: Props): React.Node {
           location: 'fixed',
           margin,
           item,
+          chatInputBarHeight: currentInputBarHeight,
         },
         key: getMessageTooltipKey(item),
       });
     },
-    [item, props.navigation, props.route.key, verticalBounds, visibleEntryIDs],
+    [
+      item,
+      props.navigation,
+      props.route.key,
+      verticalBounds,
+      visibleEntryIDs,
+      chatContext,
+    ],
   );
 
   const onLongPress = React.useCallback(() => {

@@ -81,6 +81,7 @@ export type TooltipParams<CustomProps> = {
   +location?: 'above' | 'below' | 'fixed',
   +margin?: number,
   +visibleEntryIDs?: $ReadOnlyArray<string>,
+  +chatInputBarHeight?: number,
 };
 export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = RouteProp<
   TooltipModalParamList,
@@ -298,7 +299,11 @@ function createTooltip<
 
     get tooltipContainerStyle() {
       const { dimensions, route } = this.props;
-      const { initialCoordinates, verticalBounds } = route.params;
+      const {
+        initialCoordinates,
+        verticalBounds,
+        chatInputBarHeight,
+      } = route.params;
       const { x, y, width, height } = initialCoordinates;
       const { margin, location } = this;
 
@@ -318,16 +323,23 @@ function createTooltip<
         style.minWidth = width + 2 * extraRightSpace;
       }
 
+      const inputBarHeight = chatInputBarHeight ?? 0;
+
       if (location === 'fixed') {
+        const padding = 8;
+
         style.minWidth = dimensions.width - 16;
         style.left = 8;
         style.right = 8;
-      }
-
-      if (location === 'above') {
-        const fullScreenHeight = dimensions.height;
         style.bottom =
-          fullScreenHeight - Math.max(y, verticalBounds.y) + margin;
+          dimensions.height -
+          verticalBounds.height -
+          verticalBounds.y -
+          inputBarHeight +
+          padding;
+      } else if (location === 'above') {
+        style.bottom =
+          dimensions.height - Math.max(y, verticalBounds.y) + margin;
         style.transform.push({ translateY: this.tooltipVerticalAbove });
       } else {
         style.top =
