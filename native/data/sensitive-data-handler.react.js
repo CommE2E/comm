@@ -6,9 +6,9 @@ import ExitApp from 'react-native-exit-app';
 import { commCoreModule } from '../native-modules';
 import { useSelector } from '../redux/redux-utils';
 
-function SensitiveDataCleaner(): null {
-  const currentLoggedInUserID = useSelector(state =>
-    state.currentUserInfo?.anonymous ? null : state.currentUserInfo?.id,
+function SensitiveDataHandler(): null {
+  const currentLoggedInUserID: ?string = useSelector(state =>
+    state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
   );
   React.useEffect(() => {
     (async () => {
@@ -23,6 +23,10 @@ function SensitiveDataCleaner(): null {
         if (currentLoggedInUserID) {
           await commCoreModule.setCurrentUserID(currentLoggedInUserID);
         }
+        const databaseDeviceID = await commCoreModule.getDeviceID();
+        if (!databaseDeviceID) {
+          await commCoreModule.setDeviceID('MOBILE');
+        }
       } catch (e) {
         if (__DEV__) {
           throw e;
@@ -36,4 +40,4 @@ function SensitiveDataCleaner(): null {
   return null;
 }
 
-export { SensitiveDataCleaner };
+export { SensitiveDataHandler };
