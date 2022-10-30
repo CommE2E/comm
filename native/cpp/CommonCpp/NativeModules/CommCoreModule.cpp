@@ -1,4 +1,5 @@
 #include "CommCoreModule.h"
+#include "../CryptoTools/DeviceID.h"
 #include "DatabaseManager.h"
 #include "GRPCStreamHostObject.h"
 #include "InternalModules/GlobalDBSingleton.h"
@@ -981,6 +982,50 @@ jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
           std::string result;
           try {
             result = DatabaseManager::getQueryExecutor().getCurrentUserID();
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+          this->jsInvoker_->invokeAsync([&innerRt, error, result, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::String::createFromUtf8(innerRt, result));
+            }
+          });
+        });
+      });
+}
+
+jsi::Value
+CommCoreModule::setDeviceID(jsi::Runtime &rt, const jsi::String &deviceType) {
+  std::string type = deviceType.utf8(rt);
+  std::string deviceID;
+  try {
+    deviceID = DeviceIDGenerator::generateDeviceID(type);
+  } catch (std::invalid_argument &e) {
+    throw jsi::JSError(
+        rt,
+        "setDeviceID: incorrect function argument. Must be one of: "
+        "KEYSERVER, WEB, MOBILE.");
+  }
+  GlobalDBSingleton::instance.scheduleOrRun([&rt, deviceID]() {
+    try {
+      DatabaseManager::getQueryExecutor().setDeviceID(deviceID);
+    } catch (const std::exception &e) {
+      throw jsi::JSError(rt, e.what());
+    }
+  });
+  return jsi::String::createFromUtf8(rt, deviceID);
+}
+
+jsi::Value CommCoreModule::getDeviceID(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        GlobalDBSingleton::instance.scheduleOrRun([this, &innerRt, promise]() {
+          std::string error;
+          std::string result;
+          try {
+            result = DatabaseManager::getQueryExecutor().getDeviceID();
           } catch (const std::exception &e) {
             error = e.what();
           }

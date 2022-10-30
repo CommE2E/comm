@@ -80,6 +80,12 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCurrentUserID
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCurrentUserID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getCurrentUserID(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setDeviceID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->setDeviceID(rt, args[0].getString(rt));
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDeviceID(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getDeviceID(rt);
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->clearSensitiveData(rt);
 }
@@ -108,6 +114,8 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["clearNotifyToken"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearNotifyToken};
   methodMap_["setCurrentUserID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setCurrentUserID};
   methodMap_["getCurrentUserID"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getCurrentUserID};
+  methodMap_["setDeviceID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setDeviceID};
+  methodMap_["getDeviceID"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDeviceID};
   methodMap_["clearSensitiveData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData};
 }
 

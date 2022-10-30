@@ -40,6 +40,8 @@ virtual jsi::Value setNotifyToken(jsi::Runtime &rt, const jsi::String &token) = 
 virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;
 virtual jsi::Value setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) = 0;
 virtual jsi::Value getCurrentUserID(jsi::Runtime &rt) = 0;
+virtual jsi::Value setDeviceID(jsi::Runtime &rt, const jsi::String &deviceType) = 0;
+virtual jsi::Value getDeviceID(jsi::Runtime &rt) = 0;
 virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
 
 };
