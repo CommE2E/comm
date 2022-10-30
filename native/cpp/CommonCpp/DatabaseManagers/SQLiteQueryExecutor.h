@@ -63,6 +63,8 @@ public:
   void clearNotifyToken() const override;
   void setCurrentUserID(std::string userID) const override;
   std::string getCurrentUserID() const override;
+  void setDeviceID(std::string deviceID) const override;
+  std::string getDeviceID() const override;
   void clearSensitiveData() const override;
 };
 
