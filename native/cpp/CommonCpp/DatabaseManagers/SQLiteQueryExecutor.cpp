@@ -914,14 +914,6 @@ std::string SQLiteQueryExecutor::getCurrentUserID() const {
   return this->getMetadata("current_user_id");
 }
 
-void SQLiteQueryExecutor::setDeviceID(std::string deviceID) const {
-  this->setMetadata("device_id", deviceID);
-};
-
-std::string SQLiteQueryExecutor::getDeviceID() const {
-  return this->getMetadata("device_id");
-};
-
 void SQLiteQueryExecutor::setMetadata(std::string entry_name, std::string data)
     const {
   Metadata entry{

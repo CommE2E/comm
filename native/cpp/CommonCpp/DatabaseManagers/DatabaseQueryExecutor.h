@@ -64,8 +64,6 @@ public:
   virtual void clearNotifyToken() const = 0;
   virtual void setCurrentUserID(std::string userID) const = 0;
   virtual std::string getCurrentUserID() const = 0;
-  virtual void setDeviceID(std::string deviceID) const = 0;
-  virtual std::string getDeviceID() const = 0;
   virtual void clearSensitiveData() const = 0;
 };
 
