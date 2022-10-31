@@ -23,10 +23,6 @@ namespace jsi = facebook::jsi;
  * following the RAII pattern
  */
 class DatabaseQueryExecutor {
-  virtual void setMetadata(std::string entry_name, std::string data) const = 0;
-  virtual void clearMetadata(std::string entry_name) const = 0;
-  virtual std::string getMetadata(std::string entry_name) const = 0;
-
 public:
   virtual std::string getDraft(std::string key) const = 0;
   virtual std::unique_ptr<Thread> getThread(std::string threadID) const = 0;
