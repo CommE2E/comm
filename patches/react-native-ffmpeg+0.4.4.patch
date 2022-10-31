@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-ffmpeg/android/build.gradle b/node_modules/react-native-ffmpeg/android/build.gradle
+index 32923e4..76ff404 100644
+--- a/node_modules/react-native-ffmpeg/android/build.gradle
++++ b/node_modules/react-native-ffmpeg/android/build.gradle
+@@ -14,7 +14,7 @@ apply plugin: 'com.android.library'
+ 
+ buildscript {
+     repositories {
+-        jcenter()
++        gradlePluginPortal()
+         maven { url 'https://maven.google.com' }
+     }
+ 
