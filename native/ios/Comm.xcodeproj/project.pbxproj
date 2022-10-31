@@ -32,7 +32,6 @@
 		724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724995FA27BA9E8C00323FCE /* UserNotifications.framework */; };
 		726E5D752731A4790032361D /* NetworkModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D732731A4790032361D /* NetworkModule.cpp */; };
 		726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
-		75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75291F0328F9A0AE00F4C80E /* DeviceID.cpp */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
 		7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F788C2B248AA2130098F071 /* SplashScreen.storyboard */; };
 		7F8D602126535E060053CB29 /* OpenSans-Semibold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D601E26535E060053CB29 /* OpenSans-Semibold.ttf */; };
@@ -165,8 +164,6 @@
 		726E5D742731A4790032361D /* NetworkModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkModule.h; sourceTree = "<group>"; };
 		726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalNetworkSingleton.cpp; sourceTree = "<group>"; };
 		726E5D772731A5E10032361D /* GlobalNetworkSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalNetworkSingleton.h; sourceTree = "<group>"; };
-		75291F0228F9A09E00F4C80E /* DeviceID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeviceID.h; sourceTree = "<group>"; };
-		75291F0328F9A0AE00F4C80E /* DeviceID.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DeviceID.cpp; sourceTree = "<group>"; };
 		769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-NotificationService/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		7F26E81B24440D87004049C6 /* dummy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = dummy.swift; sourceTree = "<group>"; };
 		7F554F822332D58B007CB9F7 /* Info.debug.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.debug.plist; path = Comm/Info.debug.plist; sourceTree = "<group>"; };
@@ -440,8 +437,6 @@
 		71BF5B6A26B3FCFF00EDE27D /* CryptoTools */ = {
 			isa = PBXGroup;
 			children = (
-				75291F0328F9A0AE00F4C80E /* DeviceID.cpp */,
-				75291F0228F9A09E00F4C80E /* DeviceID.h */,
 				71BF5B7B26BBDA6100EDE27D /* CryptoModule.cpp */,
 				71BF5B7A26BBDA6000EDE27D /* CryptoModule.h */,
 				71BF5B6F26B3FF0900EDE27D /* Session.cpp */,
@@ -1006,7 +1001,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */,
 				FC2DF95628BFCFE90017C4AF /* tunnelbroker.pb.cc in Sources */,
 				CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */,
