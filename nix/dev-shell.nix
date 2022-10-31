@@ -7,7 +7,6 @@
 , better-prompt
 , boost
 , c-ares_cmake-config
-, cargo
 , cmake
 , cmake-format
 , cocoapods
@@ -34,7 +33,6 @@
 , python3
 , redis
 , redis-up
-, rustc
 , rustup
 , shellcheck
 , sqlite
@@ -64,8 +62,6 @@ mkShell {
     # native dependencies
     # C/CXX toolchains are already brought in with mkShell
     # Identity Service
-    cargo # includes rustc
-    rustc # allow for direct invocation of rustc
     rustfmt
     rustup
 
@@ -136,6 +132,9 @@ mkShell {
 
     # Render default configuration for keyserver
     $PRJ_ROOT/scripts/create_url_facts.sh
+
+    # Ensure rustup tooling is installed
+    $PRJ_ROOT/scripts/ensure_rustup_setup.sh
 
     # Provide decent bash prompt
     source "${better-prompt}/bin/better-prompt"

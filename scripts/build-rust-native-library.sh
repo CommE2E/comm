@@ -3,6 +3,7 @@
 set -euxo pipefail
 
 COMM_NIX_PATH="$HOME/.cache/comm/path"
+PRJ_ROOT="$(git rev-parse --show-toplevel)"
 
 # If in nix environment, re-expose nix PATH
 if [[ -f "$COMM_NIX_PATH" ]]; then
@@ -15,13 +16,13 @@ fi
 # developer tools that your Cargo isn't expecting to use, fix that.
 # Note: This assumes a default `rustup` setup and default path.
 build_path="$HOME/.cargo/bin:/usr/local/bin:/usr/bin:/bin${PATH:+:}$PATH"
+
 # cd to Cargo project
 cd "${SRCROOT}/../native_rust_library" || exit
-# Add iOS targets for cross-compilation
-env PATH="${build_path}" rustup target add aarch64-apple-ios
-env PATH="${build_path}" rustup target add x86_64-apple-ios
-# Install cargo lipo
-env PATH="${build_path}" cargo install cargo-lipo
+
+# Ensure rust tooling is available
+env PATH="${build_path}" "$PRJ_ROOT/scripts/ensure_rustup_setup.sh"
+
 # Set C++ standard and build cxx bridge
 export CXXFLAGS="-std=c++14"
 env PATH="${build_path}" cargo build
