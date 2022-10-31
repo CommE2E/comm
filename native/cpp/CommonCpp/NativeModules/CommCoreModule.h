@@ -61,9 +61,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   jsi::Value
   setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) override;
   jsi::Value getCurrentUserID(jsi::Runtime &rt) override;
-  jsi::Value
-  setDeviceID(jsi::Runtime &rt, const jsi::String &deviceType) override;
-  jsi::Value getDeviceID(jsi::Runtime &rt) override;
   jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
 
 public:
