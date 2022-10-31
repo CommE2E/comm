@@ -543,7 +543,7 @@ const investorsData: $ReadOnlyArray<Investors> = [
   {
     id: 'david_rodriguez',
     name: 'David Rodriguez',
-    description: 'Co-Founder and Managing Partner at Draft Venturest',
+    description: 'Co-Founder and Managing Partner at Draft Ventures',
     involvement: 'Initially Invested in Dec 2021',
     imageURL: `${assetsCacheURLPrefix}/investors/david_rodriguez.jpeg`,
     twitter: 'davidjrodriguez',
