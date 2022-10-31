@@ -1,5 +1,6 @@
 // @flow
 
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 import { NavigationContainer } from '@react-navigation/native';
@@ -248,23 +249,25 @@ function Root() {
             <RootContext.Provider value={rootContext}>
               <InputStateContainer>
                 <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                  <ChatContextProvider>
-                    <SQLiteContextProvider>
-                      <ConnectedStatusBar />
-                      <ReduxPersistGate persistor={getPersistor()}>
-                        {gated}
-                      </ReduxPersistGate>
-                      <PersistedStateGate>
-                        <Socket
-                          detectUnsupervisedBackgroundRef={
-                            detectUnsupervisedBackgroundRef
-                          }
-                        />
-                      </PersistedStateGate>
-                      {navigation}
-                      <NavigationHandler />
-                    </SQLiteContextProvider>
-                  </ChatContextProvider>
+                  <ActionSheetProvider>
+                    <ChatContextProvider>
+                      <SQLiteContextProvider>
+                        <ConnectedStatusBar />
+                        <ReduxPersistGate persistor={getPersistor()}>
+                          {gated}
+                        </ReduxPersistGate>
+                        <PersistedStateGate>
+                          <Socket
+                            detectUnsupervisedBackgroundRef={
+                              detectUnsupervisedBackgroundRef
+                            }
+                          />
+                        </PersistedStateGate>
+                        {navigation}
+                        <NavigationHandler />
+                      </SQLiteContextProvider>
+                    </ChatContextProvider>
+                  </ActionSheetProvider>
                 </SafeAreaProvider>
               </InputStateContainer>
             </RootContext.Provider>

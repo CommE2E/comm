@@ -46,17 +46,17 @@ function onPressReply(
 
 const spec = {
   entries: [
-    { id: 'copy', text: 'Copy', onPress: onPressCopy },
     { id: 'reply', text: 'Reply', onPress: onPressReply },
-    {
-      id: 'report',
-      text: 'Report',
-      onPress: onPressReport,
-    },
     {
       id: 'sidebar',
       text: 'Thread',
       onPress: navigateToSidebar,
+    },
+    { id: 'copy', text: 'Copy', onPress: onPressCopy },
+    {
+      id: 'report',
+      text: 'Report',
+      onPress: onPressReport,
     },
   ],
 };

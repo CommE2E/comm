@@ -1,5 +1,9 @@
 // @flow
 
+import {
+  useActionSheet,
+  type ShowActionSheetWithOptions,
+} from '@expo/react-native-action-sheet';
 import type { RouteProp } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import invariant from 'invariant';
@@ -10,6 +14,7 @@ import {
   TouchableWithoutFeedback,
   Platform,
   TouchableOpacity,
+  Keyboard,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
@@ -111,7 +116,11 @@ type TooltipProps<Base> = {
   // withInputState
   +inputState: ?InputState,
   +chatContext: ?ChatContextType,
+  +showActionSheetWithOptions: ShowActionSheetWithOptions,
+  +actionSheetShown: boolean,
+  +setActionSheetShown: (actionSheetShown: boolean) => void,
 };
+
 function createTooltip<
   RouteName: $Keys<TooltipModalParamList>,
   BaseTooltipPropsType: BaseTooltipProps<RouteName> = BaseTooltipProps<RouteName>,
@@ -137,6 +146,10 @@ function createTooltip<
             style={styles.icon}
             size={16}
           />
+        );
+      } else if (this.props.spec.id === 'more') {
+        icon = (
+          <SWMansionIcon name="menu-vertical" style={styles.icon} size={16} />
         );
       }
 
@@ -363,6 +376,9 @@ function createTooltip<
         overlayContext,
         inputState,
         chatContext,
+        showActionSheetWithOptions,
+        actionSheetShown,
+        setActionSheetShown,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -390,6 +406,27 @@ function createTooltip<
           />
         );
       });
+
+      if (this.location === 'fixed' && entries.length > 3) {
+        items.splice(3);
+
+        const moreSpec = {
+          id: 'more',
+          text: 'More',
+          onPress: this.onPressMore,
+        };
+
+        const moreTooltipItem = (
+          <TooltipItem
+            key={entries.length}
+            spec={moreSpec}
+            onPress={moreSpec.onPress}
+            containerStyle={tooltipContainerStyle}
+          />
+        );
+
+        items.push(moreTooltipItem);
+      }
 
       let triangleStyle;
       const { route } = this.props;
@@ -434,6 +471,11 @@ function createTooltip<
         itemsStyle.push(styles.itemsFixed);
       }
 
+      let tooltip = <View style={itemsStyle}>{items}</View>;
+      if (this.props.actionSheetShown) {
+        tooltip = null;
+      }
+
       return (
         <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
           <View style={styles.container}>
@@ -448,7 +490,7 @@ function createTooltip<
               onLayout={this.onTooltipContainerLayout}
             >
               {triangleUp}
-              <View style={itemsStyle}>{items}</View>
+              {tooltip}
               {triangleDown}
             </AnimatedView>
           </View>
@@ -475,6 +517,87 @@ function createTooltip<
         this.props.viewerID,
         this.props.chatContext,
       );
+    };
+
+    onPressMore = () => {
+      Keyboard.dismiss();
+      this.props.setActionSheetShown(true);
+
+      const { entries } = this;
+      const options = entries.map(entry => entry.text);
+
+      const {
+        destructiveButtonIndex,
+        cancelButtonIndex,
+      } = this.getPlatformSpecificButtonIndices(options);
+
+      // We're reversing options to populate the action sheet from bottom to
+      // top instead of the default (top to bottom) ordering.
+      options.reverse();
+
+      const containerStyle = {
+        paddingBottom: 24,
+      };
+
+      const icons = [
+        <SWMansionIcon
+          key="report"
+          name="warning-circle"
+          style={styles.bottomSheetIcon}
+          size={16}
+        />,
+        <SWMansionIcon
+          key="copy"
+          name="copy"
+          style={styles.bottomSheetIcon}
+          size={16}
+        />,
+        <SWMansionIcon
+          key="thread"
+          name="message-circle-lines"
+          style={styles.bottomSheetIcon}
+          size={16}
+        />,
+        <CommIcon
+          key="reply"
+          name="reply"
+          style={styles.bottomSheetIcon}
+          size={12}
+        />,
+      ];
+
+      const onPressAction = (selectedIndex?: number) => {
+        if (selectedIndex === cancelButtonIndex) {
+          this.props.navigation.goBackOnce();
+          return;
+        }
+        const index = entries.length - (selectedIndex ?? 0);
+        const entry = entries[Platform.OS === 'ios' ? index : index - 1];
+        this.onPressEntry(entry);
+      };
+
+      this.props.showActionSheetWithOptions(
+        {
+          options,
+          cancelButtonIndex,
+          destructiveButtonIndex,
+          containerStyle,
+          icons,
+        },
+        onPressAction,
+      );
+    };
+
+    getPlatformSpecificButtonIndices = (options: Array<string>) => {
+      const destructiveButtonIndex = Platform.OS === 'ios' ? 1 : undefined;
+      const cancelButtonIndex = Platform.OS === 'ios' ? 0 : -1;
+
+      // The "Cancel" action is iOS-specific
+      if (Platform.OS === 'ios') {
+        options.push('Cancel');
+      }
+
+      return { destructiveButtonIndex, cancelButtonIndex };
     };
 
     bindServerCall = <F>(serverCall: ActionFunc<F>): F => {
@@ -515,6 +638,8 @@ function createTooltip<
   return React.memo<BaseTooltipPropsType>(function ConnectedTooltip(
     props: BaseTooltipPropsType,
   ) {
+    const { showActionSheetWithOptions } = useActionSheet();
+
     const dimensions = useSelector(state => state.dimensions);
     const serverCallState = useSelector(serverCallStateSelector);
     const viewerID = useSelector(
@@ -525,6 +650,11 @@ function createTooltip<
     const overlayContext = React.useContext(OverlayContext);
     const inputState = React.useContext(InputStateContext);
     const chatContext = React.useContext(ChatContext);
+
+    const [actionSheetShown, setActionSheetShown] = React.useState<boolean>(
+      false,
+    );
+
     return (
       <Tooltip
         {...props}
@@ -536,6 +666,9 @@ function createTooltip<
         overlayContext={overlayContext}
         inputState={inputState}
         chatContext={chatContext}
+        showActionSheetWithOptions={showActionSheetWithOptions}
+        actionSheetShown={actionSheetShown}
+        setActionSheetShown={setActionSheetShown}
       />
     );
   });
@@ -549,6 +682,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: 0,
+  },
+  bottomSheetIcon: {
+    color: '#000000',
   },
   container: {
     flex: 1,
