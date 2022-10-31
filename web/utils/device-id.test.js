@@ -3,62 +3,64 @@
 import {
   generateDeviceID,
   deviceIDCharLength,
-  deviceTypes,
+  deviceIDTypes,
   deviceIDFormatRegex,
 } from './device-id';
 
 describe('generateDeviceID', () => {
   it(
-    'passed deviceTypes.KEYSERVER retruns a randomly generated string, ' +
+    'passed deviceIDTypes.KEYSERVER retruns a randomly generated string, ' +
       'subject to ^(ks|mobile|web):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceTypes.KEYSERVER)).toMatch(
+      expect(generateDeviceID(deviceIDTypes.KEYSERVER)).toMatch(
         deviceIDFormatRegex,
       );
     },
   );
 
   it(
-    'passed deviceTypes.WEB retruns a randomly generated string, ' +
+    'passed deviceIDTypes.WEB retruns a randomly generated string, ' +
       'subject to ^(ks|mobile|web):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceTypes.WEB)).toMatch(deviceIDFormatRegex);
+      expect(generateDeviceID(deviceIDTypes.WEB)).toMatch(deviceIDFormatRegex);
     },
   );
 
   it(
-    'passed deviceTypes.MOBILE retruns a randomly generated string, ' +
+    'passed deviceIDTypes.MOBILE retruns a randomly generated string, ' +
       'subject to ^(ks|mobile|web):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceTypes.MOBILE)).toMatch(deviceIDFormatRegex);
+      expect(generateDeviceID(deviceIDTypes.MOBILE)).toMatch(
+        deviceIDFormatRegex,
+      );
     },
   );
 
   it(
-    'passed deviceTypes.KEYSERVER retruns a randomly generated string, ' +
+    'passed deviceIDTypes.KEYSERVER retruns a randomly generated string, ' +
       'subject to ^(ks):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceTypes.KEYSERVER)).toMatch(
+      expect(generateDeviceID(deviceIDTypes.KEYSERVER)).toMatch(
         new RegExp(`^(ks):[a-zA-Z0-9]{${deviceIDCharLength.toString()}}$`),
       );
     },
   );
 
   it(
-    'passed deviceTypes.WEB retruns a randomly generated string, ' +
+    'passed deviceIDTypes.WEB retruns a randomly generated string, ' +
       'subject to ^(web):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceTypes.WEB)).toMatch(
+      expect(generateDeviceID(deviceIDTypes.WEB)).toMatch(
         new RegExp(`^(web):[a-zA-Z0-9]{${deviceIDCharLength.toString()}}$`),
       );
     },
   );
 
   it(
-    'passed deviceTypes.MOBILE retruns a randomly generated string, ' +
+    'passed deviceIDTypes.MOBILE retruns a randomly generated string, ' +
       'subject to ^(mobile):[a-zA-Z0-9]{DEVICEID_CHAR_LENGTH}$',
     () => {
-      expect(generateDeviceID(deviceTypes.MOBILE)).toMatch(
+      expect(generateDeviceID(deviceIDTypes.MOBILE)).toMatch(
         new RegExp(`^(mobile):[a-zA-Z0-9]{${deviceIDCharLength.toString()}}$`),
       );
     },
