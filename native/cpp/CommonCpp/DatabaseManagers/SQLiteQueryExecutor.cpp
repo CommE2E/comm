@@ -899,38 +899,30 @@ void SQLiteQueryExecutor::storeOlmPersistData(crypto::Persist persist) const {
 }
 
 void SQLiteQueryExecutor::setNotifyToken(std::string token) const {
-  this->setMetadata("notify_token", token);
-}
-
-void SQLiteQueryExecutor::clearNotifyToken() const {
-  this->clearMetadata("notify_token");
-}
-
-void SQLiteQueryExecutor::setCurrentUserID(std::string userID) const {
-  this->setMetadata("current_user_id", userID);
-}
-
-std::string SQLiteQueryExecutor::getCurrentUserID() const {
-  return this->getMetadata("current_user_id");
-}
-
-void SQLiteQueryExecutor::setMetadata(std::string entry_name, std::string data)
-    const {
   Metadata entry{
-      entry_name,
-      data,
+      "notify_token",
+      token,
   };
   SQLiteQueryExecutor::getStorage().replace(entry);
 }
 
-void SQLiteQueryExecutor::clearMetadata(std::string entry_name) const {
-  SQLiteQueryExecutor::getStorage().remove<Metadata>(entry_name);
+void SQLiteQueryExecutor::clearNotifyToken() const {
+  SQLiteQueryExecutor::getStorage().remove<Metadata>("notify_token");
 }
 
-std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
-  std::unique_ptr<Metadata> entry =
-      SQLiteQueryExecutor::getStorage().get_pointer<Metadata>(entry_name);
-  return (entry == nullptr) ? "" : entry->data;
+void SQLiteQueryExecutor::setCurrentUserID(std::string userID) const {
+  Metadata entry{
+      "current_user_id",
+      userID,
+  };
+  SQLiteQueryExecutor::getStorage().replace(entry);
+}
+
+std::string SQLiteQueryExecutor::getCurrentUserID() const {
+  std::unique_ptr<Metadata> currentUserID =
+      SQLiteQueryExecutor::getStorage().get_pointer<Metadata>(
+          "current_user_id");
+  return (currentUserID == nullptr) ? "" : currentUserID->data;
 }
 
 void SQLiteQueryExecutor::clearSensitiveData() const {
