@@ -26,6 +26,7 @@ import { SQLiteDataHandler } from './data/sqlite-data-handler';
 import ErrorBoundary from './error-boundary.react';
 import InputStateContainer from './input/input-state-container.react';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react';
+import MarkdownContextProvider from './markdown/markdown-context-provider.react';
 import { defaultNavigationState } from './navigation/default-state';
 import DisconnectedBarVisibilityHandler from './navigation/disconnected-bar-visibility-handler.react';
 import { setGlobalNavContext } from './navigation/icky-global';
@@ -246,22 +247,24 @@ function Root() {
             <InputStateContainer>
               <SafeAreaProvider initialMetrics={initialWindowMetrics}>
                 <ActionSheetProvider>
-                  <ChatContextProvider>
-                    <SQLiteDataHandler />
-                    <ConnectedStatusBar />
-                    <ReduxPersistGate persistor={getPersistor()}>
-                      {gated}
-                    </ReduxPersistGate>
-                    <PersistedStateGate>
-                      <Socket
-                        detectUnsupervisedBackgroundRef={
-                          detectUnsupervisedBackgroundRef
-                        }
-                      />
-                    </PersistedStateGate>
-                    {navigation}
-                    <NavigationHandler />
-                  </ChatContextProvider>
+                  <MarkdownContextProvider>
+                    <ChatContextProvider>
+                      <SQLiteDataHandler />
+                      <ConnectedStatusBar />
+                      <ReduxPersistGate persistor={getPersistor()}>
+                        {gated}
+                      </ReduxPersistGate>
+                      <PersistedStateGate>
+                        <Socket
+                          detectUnsupervisedBackgroundRef={
+                            detectUnsupervisedBackgroundRef
+                          }
+                        />
+                      </PersistedStateGate>
+                      {navigation}
+                      <NavigationHandler />
+                    </ChatContextProvider>
+                  </MarkdownContextProvider>
                 </ActionSheetProvider>
               </SafeAreaProvider>
             </InputStateContainer>

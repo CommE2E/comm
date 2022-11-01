@@ -2,8 +2,12 @@
 
 import * as React from 'react';
 
+import type { SetState } from 'lib/types/hook-types';
+
 export type MarkdownContextType = {
-  +setLinkModalActive: boolean => void,
+  +setLinkModalActive: SetState<{ [key: string]: boolean }>,
+  +linkModalActive: { [key: string]: boolean },
+  +clearMarkdownContextData: () => void,
 };
 
 const MarkdownContext: React.Context<?MarkdownContextType> = React.createContext<?MarkdownContextType>(

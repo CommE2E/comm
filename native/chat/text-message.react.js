@@ -50,7 +50,7 @@ type Props = {
   // ChatContext
   +chatContext: ?ChatContextType,
   // MarkdownContext
-  +linkModalActive: boolean,
+  +isLinkModalActive: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -73,7 +73,7 @@ class TextMessage extends React.PureComponent<Props> {
       verticalBounds,
       overlayContext,
       chatContext,
-      linkModalActive,
+      isLinkModalActive,
       canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
@@ -81,7 +81,7 @@ class TextMessage extends React.PureComponent<Props> {
     let swipeOptions = 'none';
     const canReply = this.canReply();
     const canNavigateToSidebar = this.canNavigateToSidebar();
-    if (linkModalActive) {
+    if (isLinkModalActive) {
       swipeOptions = 'none';
     } else if (canReply && canNavigateToSidebar) {
       swipeOptions = 'both';
@@ -159,9 +159,9 @@ class TextMessage extends React.PureComponent<Props> {
 
     const {
       message,
-      props: { verticalBounds, linkModalActive },
+      props: { verticalBounds, isLinkModalActive },
     } = this;
-    if (!message || !verticalBounds || linkModalActive) {
+    if (!message || !verticalBounds || isLinkModalActive) {
       return;
     }
 
@@ -222,29 +222,33 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
   function ConnectedTextMessage(props: BaseProps) {
     const overlayContext = React.useContext(OverlayContext);
     const chatContext = React.useContext(ChatContext);
+    const markdownContext = React.useContext(MarkdownContext);
+    invariant(markdownContext, 'markdownContext should be set');
 
-    const [linkModalActive, setLinkModalActive] = React.useState(false);
-    const markdownContext = React.useMemo(
-      () => ({
-        setLinkModalActive,
-      }),
-      [setLinkModalActive],
-    );
+    const { linkModalActive, clearMarkdownContextData } = markdownContext;
+
+    const key = messageKey(props.item.messageInfo);
+
+    // We check if there is an key in the object - if not, we
+    // default to false. The likely situation where the former statement
+    // evaluates to null is when the thread is opened for the first time.
+    const isLinkModalActive = linkModalActive[key] ?? false;
+
     const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
       props.item.threadInfo,
       props.item.messageInfo,
     );
 
+    React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
+
     return (
-      <MarkdownContext.Provider value={markdownContext}>
-        <TextMessage
-          {...props}
-          canCreateSidebarFromMessage={canCreateSidebarFromMessage}
-          overlayContext={overlayContext}
-          chatContext={chatContext}
-          linkModalActive={linkModalActive}
-        />
-      </MarkdownContext.Provider>
+      <TextMessage
+        {...props}
+        canCreateSidebarFromMessage={canCreateSidebarFromMessage}
+        overlayContext={overlayContext}
+        chatContext={chatContext}
+        isLinkModalActive={isLinkModalActive}
+      />
     );
   },
 );
