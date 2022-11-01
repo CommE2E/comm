@@ -25,6 +25,7 @@ import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import ComposedMessage from './composed-message.react';
 import { InnerTextMessage } from './inner-text-message.react';
+import { MessageContext } from './message-context.react';
 import textMessageSendFailed from './text-message-send-failed';
 import { getMessageTooltipKey } from './utils';
 
@@ -46,7 +47,7 @@ type Props = {
   // ChatContext
   +chatContext: ?ChatContextType,
   // MarkdownContext
-  +linkModalActive: boolean,
+  +isLinkModalActive: boolean,
   +linkIsBlockingPresses: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
@@ -62,7 +63,7 @@ class TextMessage extends React.PureComponent<Props> {
       verticalBounds,
       overlayContext,
       chatContext,
-      linkModalActive,
+      isLinkModalActive,
       linkIsBlockingPresses,
       canCreateSidebarFromMessage,
       ...viewProps
@@ -71,7 +72,7 @@ class TextMessage extends React.PureComponent<Props> {
     let swipeOptions = 'none';
     const canReply = this.canReply();
     const canNavigateToSidebar = this.canNavigateToSidebar();
-    if (linkModalActive) {
+    if (isLinkModalActive) {
       swipeOptions = 'none';
     } else if (canReply && canNavigateToSidebar) {
       swipeOptions = 'both';
@@ -147,6 +148,7 @@ class TextMessage extends React.PureComponent<Props> {
       message,
       props: { verticalBounds, linkIsBlockingPresses },
     } = this;
+
     if (!message || !verticalBounds || linkIsBlockingPresses) {
       return;
     }
@@ -208,33 +210,57 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
   function ConnectedTextMessage(props: BaseProps) {
     const overlayContext = React.useContext(OverlayContext);
     const chatContext = React.useContext(ChatContext);
+    const markdownContext = React.useContext(MarkdownContext);
+    invariant(markdownContext, 'markdownContext should be set');
 
-    const [linkModalActive, setLinkModalActive] = React.useState(false);
-    const [linkPressActive, setLinkPressActive] = React.useState(false);
-    const markdownContext = React.useMemo(
-      () => ({
-        setLinkModalActive,
-        setLinkPressActive,
-      }),
-      [setLinkModalActive, setLinkPressActive],
-    );
+    const {
+      linkModalActive,
+      linkPressActive,
+      clearMarkdownContextData,
+    } = markdownContext;
+
+    const { id } = props.item.messageInfo;
+    invariant(id, 'messageInfo.id should exist');
+
+    // We check if there is an ID in the respective objects - if not, we
+    // default to false. The likely situation where the former statement
+    // evaluates to null is when the thread is opened for the first time.
+    const linkIsBlockingPresses =
+      (linkModalActive[id] || linkPressActive[id]) ?? false;
+
+    const isLinkModalActive = linkModalActive[id] ?? false;
+
     const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
       props.item.threadInfo,
       props.item.messageInfo,
     );
 
-    const linkIsBlockingPresses = linkModalActive || linkPressActive;
+    // We use a MessageContext to allow MarkdownLink (and MarkdownSpoiler soon)
+    // to access the messageID so it is 'self-aware'
+    const contextValue = React.useMemo(
+      () => ({
+        messageID: id,
+      }),
+      [id],
+    );
+
+    React.useEffect(() => {
+      return () => {
+        clearMarkdownContextData();
+      };
+    }, [clearMarkdownContextData]);
+
     return (
-      <MarkdownContext.Provider value={markdownContext}>
+      <MessageContext.Provider value={contextValue}>
         <TextMessage
           {...props}
           canCreateSidebarFromMessage={canCreateSidebarFromMessage}
           overlayContext={overlayContext}
           chatContext={chatContext}
-          linkModalActive={linkModalActive}
+          isLinkModalActive={isLinkModalActive}
           linkIsBlockingPresses={linkIsBlockingPresses}
         />
-      </MarkdownContext.Provider>
+      </MessageContext.Provider>
     );
   },
 );
