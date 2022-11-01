@@ -10,6 +10,7 @@ import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-m
 import TextMessageTooltipModal from '../chat/text-message-tooltip-modal.react';
 import { type SQLiteContextType, SQLiteContext } from '../data/sqlite-context';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
+import MarkdownContextProvider from '../markdown/markdown-context-provider.react';
 import CameraModal from '../media/camera-modal.react';
 import ImageModal from '../media/image-modal.react';
 import VideoPlaybackModal from '../media/video-playback-modal.react';
@@ -103,39 +104,41 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
   }
   return (
     <KeyboardStateContainer>
-      <App.Navigator>
-        <App.Screen name={TabNavigatorRouteName} component={TabNavigator} />
-        <App.Screen name={ImageModalRouteName} component={ImageModal} />
-        <App.Screen
-          name={MultimediaMessageTooltipModalRouteName}
-          component={MultimediaMessageTooltipModal}
-        />
-        <App.Screen
-          name={ActionResultModalRouteName}
-          component={ActionResultModal}
-        />
-        <App.Screen
-          name={TextMessageTooltipModalRouteName}
-          component={TextMessageTooltipModal}
-        />
-        <App.Screen
-          name={ThreadSettingsMemberTooltipModalRouteName}
-          component={ThreadSettingsMemberTooltipModal}
-        />
-        <App.Screen
-          name={RelationshipListItemTooltipModalRouteName}
-          component={RelationshipListItemTooltipModal}
-        />
-        <App.Screen
-          name={RobotextMessageTooltipModalRouteName}
-          component={RobotextMessageTooltipModal}
-        />
-        <App.Screen name={CameraModalRouteName} component={CameraModal} />
-        <App.Screen
-          name={VideoPlaybackModalRouteName}
-          component={VideoPlaybackModal}
-        />
-      </App.Navigator>
+      <MarkdownContextProvider>
+        <App.Navigator>
+          <App.Screen name={TabNavigatorRouteName} component={TabNavigator} />
+          <App.Screen name={ImageModalRouteName} component={ImageModal} />
+          <App.Screen
+            name={MultimediaMessageTooltipModalRouteName}
+            component={MultimediaMessageTooltipModal}
+          />
+          <App.Screen
+            name={ActionResultModalRouteName}
+            component={ActionResultModal}
+          />
+          <App.Screen
+            name={TextMessageTooltipModalRouteName}
+            component={TextMessageTooltipModal}
+          />
+          <App.Screen
+            name={ThreadSettingsMemberTooltipModalRouteName}
+            component={ThreadSettingsMemberTooltipModal}
+          />
+          <App.Screen
+            name={RelationshipListItemTooltipModalRouteName}
+            component={RelationshipListItemTooltipModal}
+          />
+          <App.Screen
+            name={RobotextMessageTooltipModalRouteName}
+            component={RobotextMessageTooltipModal}
+          />
+          <App.Screen name={CameraModalRouteName} component={CameraModal} />
+          <App.Screen
+            name={VideoPlaybackModalRouteName}
+            component={VideoPlaybackModal}
+          />
+        </App.Navigator>
+      </MarkdownContextProvider>
       {pushHandler}
     </KeyboardStateContainer>
   );
