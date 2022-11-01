@@ -37,7 +37,6 @@ import {
   createRealThreadFromPendingThread,
   threadIsPending,
 } from 'lib/shared/thread-utils';
-import { isStaff } from 'lib/shared/user-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type {
   UploadMultimediaResult,
@@ -89,6 +88,7 @@ import { processMedia } from '../media/media-utils';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import { useCalendarQuery } from '../navigation/nav-selectors';
 import { useSelector } from '../redux/redux-utils';
+import { useStaffCanSee } from '../utils/staff-utils';
 import {
   InputStateContext,
   type PendingMultimediaUploads,
@@ -117,6 +117,7 @@ type Props = {
   +mediaReportsEnabled: boolean,
   +calendarQuery: () => CalendarQuery,
   +dispatch: Dispatch,
+  +staffCanSee: boolean,
   +dispatchActionPromise: DispatchActionPromise,
   +uploadMultimedia: (
     multimedia: Object,
@@ -841,11 +842,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   mediaProcessConfig(localMessageID: string, localID: string) {
-    const { hasWiFi, viewerID } = this.props;
+    const { hasWiFi, staffCanSee } = this.props;
     const onTranscodingProgress = (percent: number) => {
       this.setProgress(localMessageID, localID, 'transcoding', percent);
     };
-    if (__DEV__ || (viewerID && isStaff(viewerID))) {
+    if (staffCanSee) {
       return {
         hasWiFi,
         finalFileHeaderCheck: true,
@@ -1400,6 +1401,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
     const dispatchActionPromise = useDispatchActionPromise();
     const dispatch = useDispatch();
     const mediaReportsEnabled = useIsReportEnabled('mediaReports');
+    const staffCanSee = useStaffCanSee();
 
     return (
       <InputStateContainer
@@ -1417,6 +1419,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
         newThread={callNewThread}
         dispatchActionPromise={dispatchActionPromise}
         dispatch={dispatch}
+        staffCanSee={staffCanSee}
       />
     );
   },

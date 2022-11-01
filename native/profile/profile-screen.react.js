@@ -6,7 +6,6 @@ import { View, Text, Alert, Platform, ScrollView } from 'react-native';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { isStaff } from 'lib/shared/user-utils';
 import type { LogOutResult } from 'lib/types/account-types';
 import { type PreRequestUserState } from 'lib/types/session-types';
 import { type CurrentUserInfo } from 'lib/types/user-types';
@@ -35,22 +34,8 @@ import {
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useColors, useStyles } from '../themes/colors';
+import { useStaffCanSee } from '../utils/staff-utils';
 import type { ProfileNavigationProp } from './profile.react';
-
-type BaseProps = {
-  +navigation: ProfileNavigationProp<'ProfileScreen'>,
-  +route: NavigationRoute<'ProfileScreen'>,
-};
-type Props = {
-  ...BaseProps,
-  +currentUserInfo: ?CurrentUserInfo,
-  +preRequestUserState: PreRequestUserState,
-  +logOutLoading: boolean,
-  +colors: Colors,
-  +styles: typeof unboundStyles,
-  +dispatchActionPromise: DispatchActionPromise,
-  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
-};
 
 type ProfileRowProps = {
   +content: string,
@@ -67,6 +52,22 @@ function ProfileRow(props: ProfileRowProps): React.Node {
     </Action.Row>
   );
 }
+
+type BaseProps = {
+  +navigation: ProfileNavigationProp<'ProfileScreen'>,
+  +route: NavigationRoute<'ProfileScreen'>,
+};
+type Props = {
+  ...BaseProps,
+  +currentUserInfo: ?CurrentUserInfo,
+  +preRequestUserState: PreRequestUserState,
+  +logOutLoading: boolean,
+  +colors: Colors,
+  +styles: typeof unboundStyles,
+  +dispatchActionPromise: DispatchActionPromise,
+  +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
+  +staffCanSee: boolean,
+};
 
 class ProfileScreen extends React.PureComponent<Props> {
   get username() {
@@ -85,10 +86,8 @@ class ProfileScreen extends React.PureComponent<Props> {
 
   render() {
     let appearancePreferences, developerTools, defaultNotifications;
-    if (
-      (this.props.currentUserInfo && isStaff(this.props.currentUserInfo.id)) ||
-      __DEV__
-    ) {
+    const { staffCanSee } = this.props;
+    if (staffCanSee) {
       appearancePreferences = (
         <ProfileRow content="Appearance" onPress={this.onPressAppearance} />
       );
@@ -355,6 +354,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo<BasePr
     const styles = useStyles(unboundStyles);
     const callLogOut = useServerCall(logOut);
     const dispatchActionPromise = useDispatchActionPromise();
+    const staffCanSee = useStaffCanSee();
 
     return (
       <ProfileScreen
@@ -366,6 +366,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo<BasePr
         styles={styles}
         logOut={callLogOut}
         dispatchActionPromise={dispatchActionPromise}
+        staffCanSee={staffCanSee}
       />
     );
   },

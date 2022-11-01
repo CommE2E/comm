@@ -7,7 +7,6 @@ import { useDispatch } from 'react-redux';
 
 import { setMessageStoreMessages } from 'lib/actions/message-actions.js';
 import { setThreadStoreActionType } from 'lib/actions/thread-actions';
-import { isStaff } from 'lib/shared/user-utils';
 import { loginActionSources } from 'lib/types/account-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import { getMessageForException } from 'lib/utils/errors';
@@ -15,6 +14,7 @@ import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops
 
 import { commCoreModule } from '../native-modules';
 import { useSelector } from '../redux/redux-utils';
+import { useStaffCanSee } from '../utils/staff-utils';
 import { SQLiteContext } from './sqlite-context';
 
 type Props = {
@@ -30,9 +30,7 @@ function SQLiteContextProvider(props: Props): React.Node {
   );
   const cookie = useSelector(state => state.cookie);
   const urlPrefix = useSelector(state => state.urlPrefix);
-  const viewerID = useSelector(
-    state => state.currentUserInfo && state.currentUserInfo.id,
-  );
+  const staffCanSee = useStaffCanSee();
 
   React.useEffect(() => {
     if (storeLoaded || !rehydrateConcluded) {
@@ -55,7 +53,7 @@ function SQLiteContextProvider(props: Props): React.Node {
         });
         setStoreLoaded(true);
       } catch (setStoreException) {
-        if (__DEV__ || (viewerID && isStaff(viewerID))) {
+        if (staffCanSee) {
           Alert.alert(
             `Error setting threadStore or messageStore: ${
               getMessageForException(setStoreException) ??
@@ -72,7 +70,7 @@ function SQLiteContextProvider(props: Props): React.Node {
           );
           setStoreLoaded(true);
         } catch (fetchCookieException) {
-          if (__DEV__ || (viewerID && isStaff(viewerID))) {
+          if (staffCanSee) {
             Alert.alert(
               `Error fetching new cookie from native credentials: ${
                 getMessageForException(fetchCookieException) ??
@@ -85,7 +83,14 @@ function SQLiteContextProvider(props: Props): React.Node {
         }
       }
     })();
-  }, [storeLoaded, urlPrefix, rehydrateConcluded, cookie, dispatch, viewerID]);
+  }, [
+    cookie,
+    dispatch,
+    rehydrateConcluded,
+    staffCanSee,
+    storeLoaded,
+    urlPrefix,
+  ]);
 
   const contextValue = React.useMemo(
     () => ({
