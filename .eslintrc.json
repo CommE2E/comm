@@ -35,6 +35,7 @@
     "no-unused-vars": ["error", { "ignoreRestSiblings": true }],
     "react/prop-types": ["error", { "skipUndeclared": true }],
     "no-shadow": 1,
+    "no-var": "error",
     "import/order": [
       "warn",
       {
