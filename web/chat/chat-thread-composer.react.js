@@ -5,12 +5,17 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import { searchUsers } from 'lib/actions/user-actions';
+import { useModalContext } from 'lib/components/modal-provider.react';
 import {
   filterPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors';
-import { getPotentialMemberItems } from 'lib/shared/search-utils';
+import {
+  getPotentialMemberItems,
+  notFriendNotice,
+} from 'lib/shared/search-utils';
 import { threadIsPending } from 'lib/shared/thread-utils';
+import type { ExistingThreadInfoFinder } from 'lib/shared/thread-utils';
 import type { SetState } from 'lib/types/hook-types';
 import type {
   AccountUserInfo,
@@ -23,6 +28,7 @@ import Button from '../components/button.react';
 import Label from '../components/label.react';
 import Search from '../components/search.react';
 import type { InputState } from '../input/input-state';
+import Alert from '../modals/alert.react';
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -31,6 +37,7 @@ import css from './chat-thread-composer.css';
 type Props = {
   +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
   +setUserInfoInputArray: SetState<$ReadOnlyArray<AccountUserInfo>>,
+  +existingThreadInfoFinderForCreatingThread: ExistingThreadInfoFinder,
   +otherUserInfos: { [id: string]: AccountUserInfo },
   +threadID: string,
   +inputState: InputState,
@@ -44,6 +51,7 @@ function ChatThreadComposer(props: Props): React.Node {
   const {
     userInfoInputArray,
     setUserInfoInputArray,
+    existingThreadInfoFinderForCreatingThread,
     otherUserInfos,
     threadID,
     inputState,
@@ -116,15 +124,49 @@ function ChatThreadComposer(props: Props): React.Node {
     ],
   );
 
+  const dispatch = useDispatch();
+  const { pushModal } = useModalContext();
   const onSelectUserFromSearch = React.useCallback(
-    (id: string, username: string) => {
-      setUserInfoInputArray(previousUserInfoInputArray => [
-        ...previousUserInfoInputArray,
-        { id, username },
-      ]);
+    (userItem: UserListItem) => {
       setUsernameInputText('');
+      if (!userItem.alert) {
+        setUserInfoInputArray(previousUserInfoInputArray => [
+          ...previousUserInfoInputArray,
+          { id: userItem.id, username: userItem.username },
+        ]);
+      } else if (
+        userItem.notice === notFriendNotice &&
+        userInfoInputArray.length === 0
+      ) {
+        const newUserInfoInputArray = [
+          { id: userItem.id, username: userItem.username },
+        ];
+        setUserInfoInputArray(newUserInfoInputArray);
+        const threadInfo = existingThreadInfoFinderForCreatingThread({
+          searching: true,
+          userInfoInputArray: newUserInfoInputArray,
+        });
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: {
+            chatMode: 'view',
+            activeChatThreadID: threadInfo?.id,
+            pendingThread: threadInfo,
+          },
+        });
+      } else {
+        pushModal(
+          <Alert title={userItem.alert.title}>{userItem.alert.text}</Alert>,
+        );
+      }
     },
-    [setUserInfoInputArray],
+    [
+      dispatch,
+      existingThreadInfoFinderForCreatingThread,
+      pushModal,
+      setUserInfoInputArray,
+      userInfoInputArray.length,
+    ],
   );
 
   const onRemoveUserFromSelected = React.useCallback(
@@ -150,18 +192,11 @@ function ChatThreadComposer(props: Props): React.Node {
           <li key={userSearchResult.id} className={css.searchResultsItem}>
             <Button
               variant="text"
-              onClick={() =>
-                onSelectUserFromSearch(
-                  userSearchResult.id,
-                  userSearchResult.username,
-                )
-              }
+              onClick={() => onSelectUserFromSearch(userSearchResult)}
               className={css.searchResultsButton}
             >
               <div className={css.userName}>{userSearchResult.username}</div>
-              <div className={css.userInfo}>
-                {userSearchResult.alert?.title}
-              </div>
+              <div className={css.userInfo}>{userSearchResult.notice}</div>
             </Button>
           </li>
         ))}
@@ -174,7 +209,6 @@ function ChatThreadComposer(props: Props): React.Node {
     usernameInputText,
   ]);
 
-  const dispatch = useDispatch();
   const hideSearch = React.useCallback(
     (threadBehavior: ActiveThreadBehavior = 'keep-active-thread') => {
       dispatch({
