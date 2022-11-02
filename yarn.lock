@@ -2190,6 +2190,14 @@
     semver "7.3.2"
     xml2js "0.4.23"
 
+"@expo/react-native-action-sheet@^3.14.0":
+  version "3.14.0"
+  resolved "https://registry.yarnpkg.com/@expo/react-native-action-sheet/-/react-native-action-sheet-3.14.0.tgz#484781425fb31c2a76c4344cdfdbb3609509846e"
+  integrity sha512-JvABIv68dyxbdXg965+K7OYDJdlJftHesqmaWGv1KF4bobbwKli4NK/zQKSltlfiI+cLxONwzBlvmx+AjlYGng==
+  dependencies:
+    "@types/hoist-non-react-statics" "^3.3.1"
+    hoist-non-react-statics "^3.3.0"
+
 "@expo/sdk-runtime-versions@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@expo/sdk-runtime-versions/-/sdk-runtime-versions-1.0.0.tgz#d7ebd21b19f1c6b0395e50d78da4416941c57f7c"

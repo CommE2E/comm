@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@commapp/sqlcipher-amalgamation": "^4.4.3-a",
+    "@expo/react-native-action-sheet": "^3.14.0",
     "@react-native-community/art": "^1.2.0",
     "@react-native-community/async-storage": "^1.6.1",
     "@react-native-community/clipboard": "^1.5.1",
