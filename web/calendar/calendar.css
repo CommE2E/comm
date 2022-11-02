@@ -15,14 +15,14 @@ a.filtersButton > svg {
   padding-right: 5px;
 }
 div.content {
-  min-height: 100%;
-  padding-top: 10px;
+  height: 100%;
   position: relative;
+  overflow: auto;
 }
 
 nav.nav {
   text-align: center;
-  margin: 8px auto 12px auto;
+  margin: 18px auto 12px auto;
   width: 350px;
   color: #333333;
   display: flex;
@@ -39,7 +39,7 @@ nav.nav > .monthName {
 
 table.calendar {
   table-layout: fixed;
-  padding: 24px 28px 0 28px;
+  padding: 24px 28px 10px 28px;
   width: 100%;
 }
 table.calendar > thead > tr > th {
