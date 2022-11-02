@@ -13,7 +13,7 @@ import { fetchNativeKeychainCredentials } from './native-credentials';
 async function resolveInvalidatedCookie(
   callServerEndpoint: CallServerEndpoint,
   dispatchRecoveryAttempt: DispatchRecoveryAttempt,
-  source: LogInActionSource,
+  logInActionSource: LogInActionSource,
 ) {
   const keychainCredentials = await fetchNativeKeychainCredentials();
   if (!keychainCredentials) {
@@ -29,7 +29,7 @@ async function resolveInvalidatedCookie(
     logIn(callServerEndpoint)({
       ...keychainCredentials,
       ...extraInfo,
-      source,
+      logInActionSource,
     }),
     { calendarQuery },
   );

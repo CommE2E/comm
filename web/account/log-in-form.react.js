@@ -13,7 +13,7 @@ import {
 import {
   type LogInExtraInfo,
   type LogInStartingPayload,
-  loginActionSources,
+  logInActionSources,
 } from 'lib/types/account-types';
 import {
   useDispatchActionPromise,
@@ -66,7 +66,7 @@ function LoginForm(): React.Node {
           ...extraInfo,
           username,
           password,
-          source: loginActionSources.logInFromWebForm,
+          logInActionSource: logInActionSources.logInFromWebForm,
         });
         modalContext.popModal();
         return result;
