@@ -12,6 +12,15 @@ pub mod ffi {
     sessionID: String,
     grpcStatus: GrpcResult,
   }
+  struct SessionItem {
+    deviceID: String,
+    publicKey: String,
+    notifyToken: String,
+    deviceType: i32,
+    appVersion: String,
+    deviceOS: String,
+    isOnline: bool,
+  }
 
   unsafe extern "C++" {
     include!("tunnelbroker/src/libcpp/Tunnelbroker.h");
@@ -26,5 +35,6 @@ pub mod ffi {
       deviceOS: &str,
       notifyToken: &str,
     ) -> NewSessionResult;
+    pub fn getSessionItem(sessionID: &str) -> Result<SessionItem>;
   }
 }

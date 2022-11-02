@@ -13,3 +13,4 @@ NewSessionResult newSessionHandler(
     rust::Str deviceAppVersion,
     rust::Str deviceOS,
     rust::Str notifyToken);
+SessionItem getSessionItem(rust::Str sessionID);
