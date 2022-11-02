@@ -170,3 +170,8 @@ SessionItem getSessionItem(rust::Str sessionID) {
       .deviceOS = sessionItem->getDeviceOs(),
       .isOnline = sessionItem->getIsOnline()};
 }
+
+void updateSessionItemIsOnline(rust::Str sessionID, bool isOnline) {
+  comm::network::database::DatabaseManager::getInstance()
+      .updateSessionItemIsOnline(std::string{sessionID}, isOnline);
+}

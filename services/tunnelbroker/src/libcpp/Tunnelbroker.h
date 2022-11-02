@@ -16,3 +16,4 @@ NewSessionResult newSessionHandler(
     rust::Str deviceOS,
     rust::Str notifyToken);
 SessionItem getSessionItem(rust::Str sessionID);
+void updateSessionItemIsOnline(rust::Str sessionID, bool isOnline);

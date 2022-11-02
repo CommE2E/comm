@@ -1,13 +1,16 @@
 use super::constants;
 use super::cxx_bridge::ffi::{
-  getSessionItem, newSessionHandler, sessionSignatureHandler, GRPCStatusCodes,
+  getSessionItem, newSessionHandler, sessionSignatureHandler,
+  updateSessionItemIsOnline, GRPCStatusCodes,
 };
 use anyhow::Result;
 use futures::Stream;
 use std::pin::Pin;
 use tokio::sync::mpsc;
+use tokio::time::{sleep, Duration};
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::{transport::Server, Request, Response, Status, Streaming};
+use tracing::debug;
 use tunnelbroker::tunnelbroker_service_server::{
   TunnelbrokerService, TunnelbrokerServiceServer,
 };
@@ -98,7 +101,53 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
       Err(err) => return Err(Status::unauthenticated(err.what())),
     };
 
-    let (_tx, rx) = mpsc::channel(constants::GRPC_TX_QUEUE_SIZE);
+    let (tx, rx) = mpsc::channel(constants::GRPC_TX_QUEUE_SIZE);
+
+    // Through this function, we will write to the output stream from different Tokio
+    // tasks and update the device's online status if the write was unsuccessful
+    async fn tx_writer<T>(
+      session_id: &str,
+      channel: &tokio::sync::mpsc::Sender<T>,
+      payload: T,
+    ) -> Result<(), String> {
+      let result = channel.send(payload).await;
+      match result {
+        Ok(result) => Ok(result),
+        Err(err) => {
+          if let Err(err) = updateSessionItemIsOnline(&session_id, false) {
+            return Err(err.what().to_string());
+          }
+          return Err(err.to_string());
+        }
+      }
+    }
+
+    if let Err(err) = updateSessionItemIsOnline(&session_id, true) {
+      return Err(Status::internal(err.what()));
+    }
+
+    // Spawning asynchronous Tokio task with the client pinging loop inside to
+    // make sure that the client is online
+    tokio::spawn({
+      let session_id = session_id.clone();
+      let tx = tx.clone();
+      async move {
+        loop {
+          sleep(Duration::from_millis(constants::GRPC_PING_INTERVAL_MS)).await;
+          let result = tx_writer(
+            &session_id,
+            &tx,
+            Ok(tunnelbroker::MessageToClient {
+              data: Some(tunnelbroker::message_to_client::Data::Ping(())),
+            }),
+          );
+          if let Err(err) = result.await {
+            debug!("Failed to write ping to a channel: {}", err);
+            break;
+          };
+        }
+      }
+    });
 
     let output_stream = ReceiverStream::new(rx);
     Ok(Response::new(

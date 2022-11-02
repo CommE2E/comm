@@ -57,5 +57,9 @@ pub mod ffi {
       notifyToken: &str,
     ) -> NewSessionResult;
     pub fn getSessionItem(sessionID: &str) -> Result<SessionItem>;
+    pub fn updateSessionItemIsOnline(
+      sessionID: &str,
+      isOnline: bool,
+    ) -> Result<()>;
   }
 }
