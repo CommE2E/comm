@@ -158,13 +158,13 @@ function reducer(state: AppState = defaultState, action: Action) {
       invalidSessionRecovery(
         state,
         action.payload.sessionChange.currentUserInfo,
-        action.payload.source,
+        action.payload.logInActionSource,
       )) ||
     (action.type === logInActionTypes.success &&
       invalidSessionRecovery(
         state,
         action.payload.currentUserInfo,
-        action.payload.source,
+        action.payload.logInActionSource,
       ))
   ) {
     return state;
@@ -347,7 +347,7 @@ function reducer(state: AppState = defaultState, action: Action) {
             cookie: state.cookie,
           },
           error: null,
-          source: loginActionSources.sqliteOpFailure,
+          logInActionSource: loginActionSources.sqliteOpFailure,
         },
       });
       await persistor.flush();

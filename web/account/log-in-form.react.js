@@ -66,7 +66,7 @@ function LoginForm(): React.Node {
           ...extraInfo,
           username,
           password,
-          source: loginActionSources.logInFromWebForm,
+          logInActionSource: loginActionSources.logInFromWebForm,
         });
         modalContext.popModal();
         return result;

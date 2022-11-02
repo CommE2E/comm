@@ -190,7 +190,7 @@ const logInRequestInputValidator = tShape({
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
-  source: t.maybe(t.enums.of(values(loginActionSources))),
+  logInActionSource: t.maybe(t.enums.of(values(loginActionSources))),
 });
 
 async function logInResponder(
