@@ -24,7 +24,7 @@ function AddMembersListContent(props: Props): React.Node {
   } = props;
 
   const usersAvailableToAdd = React.useMemo(
-    () => userListItems.filter(user => !user.alertText),
+    () => userListItems.filter(user => !user.alert),
     [userListItems],
   );
 
@@ -54,7 +54,7 @@ function AddMembersListContent(props: Props): React.Node {
   );
 
   const usersUnavailableToAdd = React.useMemo(() => {
-    const usersUnavailable = userListItems.filter(user => user.alertText);
+    const usersUnavailable = userListItems.filter(user => user.alert);
     if (!usersUnavailable.length) {
       return null;
     }
