@@ -19,7 +19,7 @@ import type {
 import {
   userSettingsTypes,
   notificationTypeValues,
-  loginActionSources,
+  logInActionSources,
 } from 'lib/types/account-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type {
@@ -190,7 +190,7 @@ const logInRequestInputValidator = tShape({
   calendarQuery: t.maybe(entryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
-  source: t.maybe(t.enums.of(values(loginActionSources))),
+  source: t.maybe(t.enums.of(values(logInActionSources))),
 });
 
 async function logInResponder(

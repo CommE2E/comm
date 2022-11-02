@@ -16,7 +16,7 @@ import {
   type LogInExtraInfo,
   type LogInResult,
   type LogInStartingPayload,
-  loginActionSources,
+  logInActionSources,
 } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
@@ -243,7 +243,7 @@ class LogInPanel extends React.PureComponent<Props> {
         ...extraInfo,
         username: this.usernameInputText,
         password: this.passwordInputText,
-        source: loginActionSources.logInFromNativeForm,
+        logInActionSource: logInActionSources.logInFromNativeForm,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({

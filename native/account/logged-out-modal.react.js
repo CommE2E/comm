@@ -19,7 +19,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { loginActionSources } from 'lib/types/account-types';
+import { logInActionSources } from 'lib/types/account-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 
@@ -286,8 +286,8 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
     if (!__DEV__) {
       const actionSource = loggedIn
-        ? loginActionSources.appStartReduxLoggedInButInvalidCookie
-        : loginActionSources.appStartCookieLoggedInButInvalidRedux;
+        ? logInActionSources.appStartReduxLoggedInButInvalidCookie
+        : logInActionSources.appStartCookieLoggedInButInvalidRedux;
       const sessionChange = await fetchNewCookieFromNativeCredentials(
         dispatch,
         cookie,

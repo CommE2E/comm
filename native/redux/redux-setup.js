@@ -19,7 +19,7 @@ import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
-import { loginActionSources } from 'lib/types/account-types';
+import { logInActionSources } from 'lib/types/account-types';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types';
@@ -158,13 +158,13 @@ function reducer(state: AppState = defaultState, action: Action) {
       invalidSessionRecovery(
         state,
         action.payload.sessionChange.currentUserInfo,
-        action.payload.source,
+        action.payload.logInActionSource,
       )) ||
     (action.type === logInActionTypes.success &&
       invalidSessionRecovery(
         state,
         action.payload.currentUserInfo,
-        action.payload.source,
+        action.payload.logInActionSource,
       ))
   ) {
     return state;
@@ -347,7 +347,7 @@ function reducer(state: AppState = defaultState, action: Action) {
             cookie: state.cookie,
           },
           error: null,
-          source: loginActionSources.sqliteOpFailure,
+          logInActionSource: logInActionSources.sqliteOpFailure,
         },
       });
       await persistor.flush();
