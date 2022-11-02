@@ -156,6 +156,36 @@ function ChatThreadComposer(props: Props): React.Node {
         });
       } else {
         pushModal(
+          <Alert title={userItem.alert?.title}>{userItem.alert?.text}</Alert>,
+        );
+      }
+      if (!userItem.alert) {
+        setUserInfoInputArray(previousUserInfoInputArray => [
+          ...previousUserInfoInputArray,
+          { id: userItem.id, username: userItem.username },
+        ]);
+      } else if (
+        userItem.notice === notFriendNotice &&
+        userInfoInputArray.length === 0
+      ) {
+        const newUserInfoInputArray = [
+          { id: userItem.id, username: userItem.username },
+        ];
+        setUserInfoInputArray(newUserInfoInputArray);
+        const threadInfo = existingThreadInfoFinderForCreatingThread({
+          searching: true,
+          userInfoInputArray: newUserInfoInputArray,
+        });
+        dispatch({
+          type: updateNavInfoActionType,
+          payload: {
+            chatMode: 'view',
+            activeChatThreadID: threadInfo?.id,
+            pendingThread: threadInfo,
+          },
+        });
+      } else {
+        pushModal(
           <Alert title={userItem.alert.title}>{userItem.alert.text}</Alert>,
         );
       }
