@@ -1,6 +1,6 @@
 // @flow
 
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useReduxDevToolsExtension } from '@react-navigation/devtools';
 import { NavigationContainer } from '@react-navigation/native';
 import type { PossiblyStaleNavigationState } from '@react-navigation/native';

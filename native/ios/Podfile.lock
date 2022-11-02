@@ -847,8 +847,8 @@ PODS:
     - React
   - ReactNativeKeyboardTrackingView (5.7.0):
     - React
-  - RNCAsyncStorage (1.6.2):
-    - React
+  - RNCAsyncStorage (1.17.10):
+    - React-Core
   - RNCClipboard (1.5.1):
     - React-Core
     - SDWebImage (~> 5.8)
@@ -1013,7 +1013,7 @@ DEPENDENCIES:
   - ReactNativeDarkMode (from `../../node_modules/react-native-dark-mode`)
   - ReactNativeKeyboardInput (from `../../node_modules/react-native-keyboard-input`)
   - ReactNativeKeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
-  - "RNCAsyncStorage (from `../../node_modules/@react-native-community/async-storage`)"
+  - "RNCAsyncStorage (from `../../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../../node_modules/@react-native-community/clipboard`)"
   - "RNCMaskedView (from `../../node_modules/@react-native-masked-view/masked-view`)"
   - RNDeviceInfo (from `../../node_modules/react-native-device-info`)
@@ -1185,7 +1185,7 @@ EXTERNAL SOURCES:
   ReactNativeKeyboardTrackingView:
     :path: "../../node_modules/react-native-keyboard-tracking-view"
   RNCAsyncStorage:
-    :path: "../../node_modules/@react-native-community/async-storage"
+    :path: "../../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
     :path: "../../node_modules/@react-native-community/clipboard"
   RNCMaskedView:
@@ -1299,7 +1299,7 @@ SPEC CHECKSUMS:
   ReactNativeDarkMode: 88317ff05ba95fd063dd347ad32f8c4cefd3166c
   ReactNativeKeyboardInput: 266ba27a2e9921f5bdc0b4cc30289b2a2f46b157
   ReactNativeKeyboardTrackingView: 02137fac3b2ebd330d74fa54ead48b14750a2306
-  RNCAsyncStorage: 60a80e72d95bf02a01cace55d3697d9724f0d77f
+  RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
   RNCClipboard: f470a4445c779f99c10201b038ab3f9e24e71dbc
   RNCMaskedView: bc0170f389056201c82a55e242e5d90070e18e5a
   RNDeviceInfo: 55463fa6e252ca3f0e2ba6001a7b82f879914338
