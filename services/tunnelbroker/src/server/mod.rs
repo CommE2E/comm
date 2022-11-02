@@ -1,12 +1,13 @@
 use super::constants;
 use super::cxx_bridge::ffi::{
-  newSessionHandler, sessionSignatureHandler, GRPCStatusCodes,
+  getSessionItem, newSessionHandler, sessionSignatureHandler, GRPCStatusCodes,
 };
 use anyhow::Result;
 use futures::Stream;
 use std::pin::Pin;
-use tonic::transport::Server;
-use tonic::{Request, Response, Status, Streaming};
+use tokio::sync::mpsc;
+use tokio_stream::wrappers::ReceiverStream;
+use tonic::{transport::Server, Request, Response, Status, Streaming};
 use tunnelbroker::tunnelbroker_service_server::{
   TunnelbrokerService, TunnelbrokerServiceServer,
 };
@@ -76,11 +77,33 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
       dyn Stream<Item = Result<tunnelbroker::MessageToClient, Status>> + Send,
     >,
   >;
+
   async fn messages_stream(
     &self,
-    _request: Request<Streaming<tunnelbroker::MessageToTunnelbroker>>,
+    request: Request<Streaming<tunnelbroker::MessageToTunnelbroker>>,
   ) -> Result<Response<Self::MessagesStreamStream>, Status> {
-    Err(Status::unimplemented("Not implemented yet"))
+    let session_id = match request.metadata().get("sessionID") {
+      Some(metadata_session_id) => metadata_session_id
+        .to_str()
+        .expect("metadata session id was not valid UTF8")
+        .to_string(),
+      None => {
+        return Err(Status::invalid_argument(
+          "No 'sessionID' in metadata was provided",
+        ))
+      }
+    };
+    let _session_item = match getSessionItem(&session_id) {
+      Ok(database_item) => database_item,
+      Err(err) => return Err(Status::unauthenticated(err.what())),
+    };
+
+    let (_tx, rx) = mpsc::channel(constants::GRPC_TX_QUEUE_SIZE);
+
+    let output_stream = ReceiverStream::new(rx);
+    Ok(Response::new(
+      Box::pin(output_stream) as Self::MessagesStreamStream
+    ))
   }
 
   // These empty old API handlers are deprecated and should be removed.

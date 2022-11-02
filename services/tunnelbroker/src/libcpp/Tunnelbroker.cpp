@@ -148,3 +148,25 @@ NewSessionResult newSessionHandler(
       .sessionID = newSessionID,
       .grpcStatus = {.statusCode = GRPCStatusCodes::Ok}};
 }
+
+SessionItem getSessionItem(rust::Str sessionID) {
+  const std::string stringSessionID = std::string{sessionID};
+  if (!comm::network::tools::validateSessionID(stringSessionID)) {
+    throw std::invalid_argument("Invalid format for 'sessionID'");
+  }
+  std::shared_ptr<comm::network::database::DeviceSessionItem> sessionItem =
+      comm::network::database::DatabaseManager::getInstance().findSessionItem(
+          stringSessionID);
+  if (sessionItem == nullptr) {
+    throw std::invalid_argument(
+        "No sessions found for 'sessionID': " + stringSessionID);
+  }
+  return SessionItem{
+      .deviceID = sessionItem->getDeviceID(),
+      .publicKey = sessionItem->getPubKey(),
+      .notifyToken = sessionItem->getNotifyToken(),
+      .deviceType = static_cast<int>(sessionItem->getDeviceType()),
+      .appVersion = sessionItem->getAppVersion(),
+      .deviceOS = sessionItem->getDeviceOs(),
+      .isOnline = sessionItem->getIsOnline()};
+}
