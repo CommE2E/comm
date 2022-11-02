@@ -22,6 +22,8 @@ service TunnelbrokerService {
   rpc Get(GetRequest) returns (stream GetResponse) {}
 
   // Replacing Send and Get with a single bidirectional streaming RPC
+  // The client should provide the valid `sessionID` identifier 
+  // from the `NewSession` in the stream request metadata
   rpc MessagesStream(stream MessageToTunnelbroker) returns (stream MessageToClient) {}
 }
 
@@ -105,11 +107,10 @@ message MessagesToSend {
 }
 
 message MessageToTunnelbroker {
-  string sessionID = 1;
   oneof data {
-    MessagesToSend messagesToSend = 2;
-    ProcessedMessages processedMessages = 3;
-    string newNotifyToken = 4;
+    MessagesToSend messagesToSend = 1;
+    ProcessedMessages processedMessages = 2;
+    string newNotifyToken = 3;
   }
 }
 
