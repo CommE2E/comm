@@ -102,7 +102,9 @@ function ChatThreadComposer(props: Props): React.Node {
               className={css.searchResultsButton}
             >
               <div className={css.userName}>{userSearchResult.username}</div>
-              <div className={css.userInfo}>{userSearchResult.alertTitle}</div>
+              <div className={css.userInfo}>
+                {userSearchResult.alert?.title}
+              </div>
             </Button>
           </li>
         ))}

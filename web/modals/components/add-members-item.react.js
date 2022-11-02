@@ -16,7 +16,7 @@ type AddMembersItemProps = {
 function AddMemberItem(props: AddMembersItemProps): React.Node {
   const { userInfo, onClick, userAdded = false } = props;
 
-  const canBeAdded = !userInfo.alertText;
+  const canBeAdded = !userInfo.alert;
 
   const onClickCallback = React.useCallback(() => {
     if (!canBeAdded) {
@@ -27,14 +27,14 @@ function AddMemberItem(props: AddMembersItemProps): React.Node {
 
   const action = React.useMemo(() => {
     if (!canBeAdded) {
-      return userInfo.alertTitle;
+      return userInfo.alert?.title;
     }
     if (userAdded) {
       return <span className={css.danger}>Remove</span>;
     } else {
       return 'Add';
     }
-  }, [canBeAdded, userAdded, userInfo.alertTitle]);
+  }, [canBeAdded, userAdded, userInfo.alert]);
 
   return (
     <Button
