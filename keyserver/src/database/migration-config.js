@@ -48,16 +48,19 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     },
   ],
   [
-    6,
+    7,
     async () => {
-      await dbQuery(SQL`
-        ALTER TABLE users
-          DROP COLUMN public_key,
-          MODIFY hash char(60) COLLATE utf8mb4_bin DEFAULT NULL;
-  
-        ALTER TABLE sessions 
-          DROP COLUMN public_key;
-      `);
+      await dbQuery(
+        SQL`
+          ALTER TABLE users
+            DROP COLUMN IF EXISTS public_key,
+            MODIFY hash char(60) COLLATE utf8mb4_bin DEFAULT NULL;
+    
+          ALTER TABLE sessions 
+            DROP COLUMN IF EXISTS public_key;
+        `,
+        { multipleStatements: true },
+      );
     },
   ],
 ]);
