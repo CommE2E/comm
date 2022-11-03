@@ -2,8 +2,23 @@ project(grpc-comm)
 cmake_minimum_required(VERSION 3.4)
 
 include(GNUInstallDirs)
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
+
+# Targets exported through add_subdirectory lack a namespace
+# This is important when the android build needs to add the vendored
+# dependencies, which haven't been installed to the system
+if(TARGET libprotobuf)
+  set(LIBPROTO libprotobuf)
+else()
+  find_package(Protobuf REQUIRED)
+  set(LIBPROTO protobuf::libprotobuf)
+endif()
+
+if(TARGET grpc++)
+  set(LIBGRPC grpc++)
+else()
+  find_package(gRPC REQUIRED)
+  set(LIBGRPC gRPC::grpc++)
+endif()
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -29,8 +44,8 @@ add_library(comm-client
 )
 
 target_link_libraries(comm-client
-  gRPC::grpc++
-  protobuf::libprotobuf
+  ${LIBGRPC}
+  ${LIBPROTO}
   comm-tunnelbroker-grpc
 )
 
@@ -46,13 +61,13 @@ target_include_directories(comm-client
   "../../../node_modules/react-native/ReactCommon/jsi"
 )
 
-install(TARGETS comm-client EXPORT comm-export
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-client
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
-)
+# install(TARGETS comm-client EXPORT comm-export
+#   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-client
+#   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
+#   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
+# )
 
-install(FILES ${CLIENT_HDRS} DESTINATION include/grpc)
+# install(FILES ${CLIENT_HDRS} DESTINATION include/grpc)
 
 # For development purposes, able to reference build directory
 export(TARGETS comm-client

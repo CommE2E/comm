@@ -43,6 +43,41 @@ set(gRPC_SSL_PROVIDER "package" CACHE STRING "SSL library provider")
 # gRPC client
 include(FetchContent)
 
+# Ancient vendored checkout of folly still has a broken cmake config
+add_library(
+  folly
+  ${_third_party_dir}/folly/folly/detail/Futex.cpp
+  ${_third_party_dir}/folly/folly/synchronization/ParkingLot.cpp
+  ${_third_party_dir}/folly/folly/lang/SafeAssert.cpp
+  ${_third_party_dir}/folly/folly/FileUtil.cpp
+  ${_third_party_dir}/folly/folly/Subprocess.cpp
+  ${_third_party_dir}/folly/folly/File.cpp
+  ${_third_party_dir}/folly/folly/Format.cpp
+  ${_third_party_dir}/folly/folly/Conv.cpp
+  ${_third_party_dir}/folly/folly/io/IOBuf.cpp
+  ${_third_party_dir}/folly/folly/memory/detail/MallocImpl.cpp
+  ${_third_party_dir}/folly/folly/ScopeGuard.cpp
+  ${_third_party_dir}/folly/folly/hash/SpookyHashV2.cpp
+  ${_third_party_dir}/folly/folly/io/IOBufQueue.cpp
+  ${_third_party_dir}/folly/folly/lang/Assume.cpp
+  ${_third_party_dir}/folly/folly/String.cpp
+  ${_third_party_dir}/folly/folly/portability/SysUio.cpp
+  ${_third_party_dir}/folly/folly/net/NetOps.cpp
+  ${_third_party_dir}/folly/folly/dynamic.cpp
+  ${_third_party_dir}/folly/folly/json.cpp
+  ${_third_party_dir}/folly/folly/json_pointer.cpp
+  ${_third_party_dir}/folly/folly/Unicode.cpp
+)
+
+target_include_directories(folly
+  PUBLIC
+  ${_third_party_dir}/folly/folly
+)
+
+export(TARGETS folly
+  FILE ${CMAKE_CURRENT_BINARY_DIR}/folly/folly.cmake
+)
+
 if(CMAKE_ANDROID_ARCH_ABI STREQUAL arm64-v8a)
   set(Rust_CARGO_TARGET aarch64-linux-android)
 elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86)
@@ -118,7 +153,6 @@ include_directories(
   ../headers
 
   # external libs
-  ${_third_party_dir}/folly
   ${_third_party_dir}/boost/boost
   ${_third_party_dir}/double-conversion
 
@@ -168,29 +202,6 @@ add_library(
 
   # SQLCipher
   ${SQLCIPHER}
-
-  # folly
-  ${_third_party_dir}/folly/folly/detail/Futex.cpp
-  ${_third_party_dir}/folly/folly/synchronization/ParkingLot.cpp
-  ${_third_party_dir}/folly/folly/lang/SafeAssert.cpp
-  ${_third_party_dir}/folly/folly/FileUtil.cpp
-  ${_third_party_dir}/folly/folly/Subprocess.cpp
-  ${_third_party_dir}/folly/folly/File.cpp
-  ${_third_party_dir}/folly/folly/Format.cpp
-  ${_third_party_dir}/folly/folly/Conv.cpp
-  ${_third_party_dir}/folly/folly/io/IOBuf.cpp
-  ${_third_party_dir}/folly/folly/memory/detail/MallocImpl.cpp
-  ${_third_party_dir}/folly/folly/ScopeGuard.cpp
-  ${_third_party_dir}/folly/folly/hash/SpookyHashV2.cpp
-  ${_third_party_dir}/folly/folly/io/IOBufQueue.cpp
-  ${_third_party_dir}/folly/folly/lang/Assume.cpp
-  ${_third_party_dir}/folly/folly/String.cpp
-  ${_third_party_dir}/folly/folly/portability/SysUio.cpp
-  ${_third_party_dir}/folly/folly/net/NetOps.cpp
-  ${_third_party_dir}/folly/folly/dynamic.cpp
-  ${_third_party_dir}/folly/folly/json.cpp
-  ${_third_party_dir}/folly/folly/json_pointer.cpp
-  ${_third_party_dir}/folly/folly/Unicode.cpp
 
   # double-conversion
   ${DOUBLE_CONVERSION_SOURCES}
@@ -251,6 +262,7 @@ target_link_libraries(
   fbjni::fbjni
   android
   ${log-lib}
+  folly
   glog::glog
   olm
   openssl-crypto

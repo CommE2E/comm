@@ -2,8 +2,23 @@ project(grpc-comm)
 cmake_minimum_required(VERSION 3.4)
 
 include(GNUInstallDirs)
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
+# Targets exported through add_subdirectory lack a namespace
+# This is important when the android build needs to add the vendored
+# dependencies, which haven't been installed to the system
+if(TARGET libprotobuf)
+  set(LIBPROTO libprotobuf)
+else()
+  find_package(Protobuf REQUIRED)
+  set(LIBPROTO protobuf::libprotobuf)
+endif()
+
+if(TARGET grpc++)
+  set(LIBGRPC grpc++)
+else()
+  find_package(gRPC REQUIRED)
+  set(LIBGRPC gRPC::grpc++)
+endif()
+
 
 set(CMAKE_CXX_STANDARD 14)
 # Allow for tools on PATH to be found
@@ -59,8 +74,8 @@ foreach(component ${_components})
   )
 
   target_link_libraries(${LIB_NAME}
-    gRPC::grpc++
-    protobuf::libprotobuf
+    ${LIBPROTO}
+    ${LIBGRPC}
   )
 
   # reference local directory when building
@@ -71,14 +86,14 @@ foreach(component ${_components})
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
-  install(TARGETS ${LIB_NAME} EXPORT comm-grpc-export
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${LIB_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_NAME}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_NAME}
-  )
+  # install(TARGETS ${LIB_NAME} EXPORT comm-grpc-export
+  #   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${LIB_NAME}
+  #   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_NAME}
+  #   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_NAME}
+  # )
 
   # ensure headers are also installed
-  install(FILES ${PROTO_HDRS} DESTINATION include/comm/grpc)
+  # install(FILES ${PROTO_HDRS} DESTINATION include/comm/grpc)
 endforeach()
 
 export(TARGETS ${TARGETS}
@@ -87,8 +102,8 @@ export(TARGETS ${TARGETS}
 )
 
 # For installation
-install(EXPORT comm-grpc-export
-  FILE comm-grpc-targets.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-grpc
-  NAMESPACE comm::
-)
+# install(EXPORT comm-grpc-export
+#   FILE comm-grpc-targets.cmake
+#   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-grpc
+#   NAMESPACE comm::
+# )

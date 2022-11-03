@@ -37,13 +37,13 @@ target_include_directories(comm-cryptotools
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS comm-cryptotools EXPORT comm-cryptotools-export
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-cryptotools
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
-)
+# install(TARGETS comm-cryptotools EXPORT comm-cryptotools-export
+#   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-cryptotools
+#   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
+#   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
+# )
 
-install(FILES ${TOOLS_HDRS} DESTINATION include/Tools)
+# install(FILES ${TOOLS_HDRS} DESTINATION include/Tools)
 
 set(_builddir_export_path cmake/comm-cryptotools/comm-cryptotools-targets.cmake)
 export(TARGETS comm-cryptotools

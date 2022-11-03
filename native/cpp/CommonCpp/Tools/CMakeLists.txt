@@ -3,7 +3,13 @@ cmake_minimum_required(VERSION 3.4)
 
 include(GNUInstallDirs)
 
-find_package(Folly REQUIRED)
+# Re-use folly target if already exported through `add_subdirectory`
+if(TARGET folly)
+  set(LIBFOLLY folly)
+else()
+  find_package(Folly REQUIRED)
+  set(LIBFOLLY Folly::folly)
+endif()
 
 set(TOOLS_HDRS
   "CommSecureStore.h"
@@ -22,7 +28,7 @@ add_library(comm-tools
 )
 
 target_link_libraries(comm-tools
-  Folly::folly
+  ${LIBFOLLY}
 )
 
 target_include_directories(comm-tools
@@ -32,13 +38,13 @@ target_include_directories(comm-tools
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS comm-tools EXPORT comm-tools-export
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-tools
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-tools
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-tools
-)
+# install(TARGETS comm-tools EXPORT comm-tools-export
+#   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-tools
+#   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-tools
+#   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-tools
+# )
 
-install(FILES ${TOOLS_HDRS} DESTINATION include/Tools)
+# install(FILES ${TOOLS_HDRS} DESTINATION include/Tools)
 
 export(TARGETS comm-tools
   NAMESPACE comm-tools::
@@ -46,8 +52,8 @@ export(TARGETS comm-tools
 )
 
 # For installation
-install(EXPORT comm-tools-export
-  FILE comm-tools-targets.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-tool
-  NAMESPACE comm-tools::
-)
+# install(EXPORT comm-tools-export
+#   FILE comm-tools-targets.cmake
+#   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-tool
+#   NAMESPACE comm-tools::
+# )

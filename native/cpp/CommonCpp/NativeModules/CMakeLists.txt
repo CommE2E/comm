@@ -95,24 +95,24 @@ target_include_directories(comm-modules-persistentstorage
   "../../../node_modules/react-native/ReactCommon/jsi"
 )
 
-set(_components internal native persistentstorage)
-foreach(component ${_components})
+# set(_components internal native persistentstorage)
+# foreach(component ${_components})
+#
+#   install(TARGETS comm-modules-${component} EXPORT comm-modules-export
+#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-modules
+#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
+#     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
+#   )
+#
+# endforeach()
 
-  install(TARGETS comm-modules-${component} EXPORT comm-modules-export
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-modules
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
-  )
-
-endforeach()
-
-install(FILES ${INTERNAL_HDRS} DESTINATION include/InternalModules)
-install(FILES ${NATIVE_HDRS} DESTINATION include/NativeModules)
-install(FILES ${MESSAGE_HDRS} DESTINATION include/PersistentStorageUtilities)
-install(FILES ${MESSAGE_SPEC_HDRS}
-  DESTINATION include/PersistentStorageUtilities/MessageSpecs
-)
-install(FILES ${THREAD_OP_HDRS} DESTINATION include/ThreadOperationsUtilities)
+# install(FILES ${INTERNAL_HDRS} DESTINATION include/InternalModules)
+# install(FILES ${NATIVE_HDRS} DESTINATION include/NativeModules)
+# install(FILES ${MESSAGE_HDRS} DESTINATION include/PersistentStorageUtilities)
+# install(FILES ${MESSAGE_SPEC_HDRS}
+#   DESTINATION include/PersistentStorageUtilities/MessageSpecs
+# )
+# install(FILES ${THREAD_OP_HDRS} DESTINATION include/ThreadOperationsUtilities)
 
 export(TARGETS comm-modules-internal comm-modules-native
   NAMESPACE comm-modules::
