@@ -1,6 +1,6 @@
 // @flow
 
-import Clipboard from '@react-native-community/clipboard';
+import Clipboard from '@react-native-clipboard/clipboard';
 import invariant from 'invariant';
 import * as React from 'react';
 

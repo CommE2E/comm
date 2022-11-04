@@ -1,19 +1,18 @@
-diff --git a/node_modules/@react-native-community/clipboard/RNCClipboard.podspec b/node_modules/@react-native-community/clipboard/RNCClipboard.podspec
-index 095b496..b19b07f 100644
---- a/node_modules/@react-native-community/clipboard/RNCClipboard.podspec
-+++ b/node_modules/@react-native-community/clipboard/RNCClipboard.podspec
-@@ -17,4 +17,6 @@ Pod::Spec.new do |s|
+diff --git a/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec b/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec
+index 3a708ca..a809a9b 100644
+--- a/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec
++++ b/node_modules/@react-native-clipboard/clipboard/RNCClipboard.podspec
+@@ -17,4 +17,5 @@ Pod::Spec.new do |s|
    s.osx.source_files = "macos/**/*.{h,m,mm}"
  
    s.dependency 'React-Core'
 +  s.dependency 'SDWebImage', '~> 5.8'
-+
  end
-diff --git a/node_modules/@react-native-community/clipboard/dist/Clipboard.js b/node_modules/@react-native-community/clipboard/dist/Clipboard.js
-index c0c652d..20ef163 100644
---- a/node_modules/@react-native-community/clipboard/dist/Clipboard.js
-+++ b/node_modules/@react-native-community/clipboard/dist/Clipboard.js
-@@ -32,6 +32,83 @@ exports.Clipboard = {
+diff --git a/node_modules/@react-native-clipboard/clipboard/dist/Clipboard.js b/node_modules/@react-native-clipboard/clipboard/dist/Clipboard.js
+index 67b7237..a485338 100644
+--- a/node_modules/@react-native-clipboard/clipboard/dist/Clipboard.js
++++ b/node_modules/@react-native-clipboard/clipboard/dist/Clipboard.js
+@@ -111,6 +111,83 @@ exports.Clipboard = {
      setString: function (content) {
          NativeClipboard_1.default.setString(content);
      },
@@ -95,26 +94,23 @@ index c0c652d..20ef163 100644
 +        return NativeClipboard_1.default.getImageFilePath();
 +    },
      /**
-      * Returns whether the clipboard has content or is empty.
-      * This method returns a `Promise`, so you can use following code to get clipboard content
-diff --git a/node_modules/@react-native-community/clipboard/ios/RNCClipboard.m b/node_modules/@react-native-community/clipboard/ios/RNCClipboard.m
-index 3b848c2..4d50dba 100644
---- a/node_modules/@react-native-community/clipboard/ios/RNCClipboard.m
-+++ b/node_modules/@react-native-community/clipboard/ios/RNCClipboard.m
-@@ -1,9 +1,11 @@
- #import "RNCClipboard.h"
- 
- 
-+#import <MobileCoreServices/MobileCoreServices.h>
+      * Set content of string array type. You can use following code to set clipboard content
+      * ```javascript
+diff --git a/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m b/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
+index 04143f4..97a4359 100644
+--- a/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
++++ b/node_modules/@react-native-clipboard/clipboard/ios/RNCClipboard.m
+@@ -4,6 +4,8 @@
  #import <UIKit/UIKit.h>
  #import <React/RCTBridge.h>
  #import <React/RCTEventDispatcher.h>
++#import <MobileCoreServices/MobileCoreServices.h>
 +#import <SDWebImage/SDWebImageManager.h>
  
  
- @implementation RNCClipboard
-@@ -28,6 +30,100 @@ - (dispatch_queue_t)methodQueue
-   resolve((clipboard.string ? : @""));
+ @implementation RNCClipboard {
+@@ -146,6 +148,100 @@ - (void) listener:(NSNotification *) notification
+   resolve([NSNumber numberWithBool: imagePresent]);
  }
  
 +RCT_EXPORT_METHOD(setImageFromBase64:(NSString *)image)

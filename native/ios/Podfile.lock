@@ -849,7 +849,7 @@ PODS:
     - React
   - RNCAsyncStorage (1.17.10):
     - React-Core
-  - RNCClipboard (1.5.1):
+  - RNCClipboard (1.11.1):
     - React-Core
     - SDWebImage (~> 5.8)
   - RNCMaskedView (0.2.8):
@@ -1014,7 +1014,7 @@ DEPENDENCIES:
   - ReactNativeKeyboardInput (from `../../node_modules/react-native-keyboard-input`)
   - ReactNativeKeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "RNCAsyncStorage (from `../../node_modules/@react-native-async-storage/async-storage`)"
-  - "RNCClipboard (from `../../node_modules/@react-native-community/clipboard`)"
+  - "RNCClipboard (from `../../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCMaskedView (from `../../node_modules/@react-native-masked-view/masked-view`)"
   - RNDeviceInfo (from `../../node_modules/react-native-device-info`)
   - RNExitApp (from `../../node_modules/react-native-exit-app`)
@@ -1187,7 +1187,7 @@ EXTERNAL SOURCES:
   RNCAsyncStorage:
     :path: "../../node_modules/@react-native-async-storage/async-storage"
   RNCClipboard:
-    :path: "../../node_modules/@react-native-community/clipboard"
+    :path: "../../node_modules/@react-native-clipboard/clipboard"
   RNCMaskedView:
     :path: "../../node_modules/@react-native-masked-view/masked-view"
   RNDeviceInfo:
@@ -1300,7 +1300,7 @@ SPEC CHECKSUMS:
   ReactNativeKeyboardInput: 266ba27a2e9921f5bdc0b4cc30289b2a2f46b157
   ReactNativeKeyboardTrackingView: 02137fac3b2ebd330d74fa54ead48b14750a2306
   RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
-  RNCClipboard: f470a4445c779f99c10201b038ab3f9e24e71dbc
+  RNCClipboard: f66930407a30948ffdecf43a2459bcf05aa59804
   RNCMaskedView: bc0170f389056201c82a55e242e5d90070e18e5a
   RNDeviceInfo: 55463fa6e252ca3f0e2ba6001a7b82f879914338
   RNExitApp: c4e052df2568b43bec8a37c7cd61194d4cfee2c3
