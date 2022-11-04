@@ -742,7 +742,7 @@ declare module '@react-navigation/native' {
 
   declare export type DrawerRouterOptions = {|
     ...TabRouterOptions,
-    +openByDefault?: boolean,
+    +defaultStatus?: 'open' | 'closed',
   |};
 
   /**
@@ -1971,29 +1971,46 @@ declare module '@react-navigation/native' {
    */
 
   declare export type DrawerOptions = $Partial<{|
-    title: string,
-    drawerLabel:
+    +title: string,
+    +lazy: boolean,
+    +drawerLabel:
       | string
       | ({| +color: string, +focused: boolean |}) => React$Node,
-    drawerIcon: ({|
+    +drawerIcon: ({|
       +color: string,
       +size: number,
       +focused: boolean,
     |}) => React$Node,
-    gestureEnabled: boolean,
-    swipeEnabled: boolean,
-    unmountOnBlur: boolean,
+    +drawerActiveTintColor: string,
+    +drawerActiveBackgroundColor: string,
+    +drawerInactiveTintColor: string,
+    +drawerInactiveBackgroundColor: string,
+    +drawerItemStyle: ViewStyleProp,
+    +drawerLabelStyle: TextStyleProp,
+    +drawerContentContainerStyle: ViewStyleProp,
+    +drawerContentStyle: ViewStyleProp,
+    +drawerStyle: ViewStyleProp,
+    +drawerPosition: 'left' | 'right',
+    +drawerType: 'front' | 'back' | 'slide' | 'permanent',
+    +drawerHideStatusBarOnOpen: boolean,
+    +drawerStatusBarAnimation: 'slide' | 'none' | 'fade',
+    +overlayColor: string,
+    +sceneContainerStyle: ViewStyleProp,
+    +gestureHandlerProps: PanGestureHandlerProps,
+    +swipeEnabled: boolean,
+    +swipeEdgeWidth: number,
+    +swipeMinDistance: number,
+    +keyboardDismissMode: 'on-drag' | 'none',
+    +unmountOnBlur: boolean,
+    +headerShown: boolean,
   |}>;
 
   /**
    * Drawer navigation prop
    */
 
-  declare export type DrawerNavigationEventMap = {|
-    ...EventMapCore<DrawerNavigationState>,
-    +drawerOpen: {| +data: void, +canPreventDefault: false |},
-    +drawerClose: {| +data: void, +canPreventDefault: false |},
-  |};
+  declare export type DrawerNavigationEventMap =
+    EventMapCore<DrawerNavigationState>;
 
   declare type DrawerExtraNavigationHelpers<
     ParamList: ParamListBase = ParamListBase,
@@ -2042,49 +2059,16 @@ declare module '@react-navigation/native' {
     DrawerOptions,
   >;
 
-  declare export type DrawerItemListBaseOptions = $Partial<{|
-    +activeTintColor: string,
-    +activeBackgroundColor: string,
-    +inactiveTintColor: string,
-    +inactiveBackgroundColor: string,
-    +itemStyle: ViewStyleProp,
-    +labelStyle: TextStyleProp,
-  |}>;
-
-  declare export type DrawerContentOptions = $Partial<{|
-    ...DrawerItemListBaseOptions,
-    +contentContainerStyle: ViewStyleProp,
-    +style: ViewStyleProp,
-  |}>;
-
   declare type DrawerNavigationBuilderResult = {|
     +state: DrawerNavigationState,
     +navigation: DrawerNavigationHelpers<>,
     +descriptors: {| +[key: string]: DrawerDescriptor |},
   |};
 
-  declare export type DrawerContentProps = {|
-    ...DrawerContentOptions,
-    ...DrawerNavigationBuilderResult,
-    +progress: any, // Reanimated.Node<number>
-  |};
-
   declare export type DrawerNavigationConfig = {|
-    +drawerPosition?: 'left' | 'right',
-    +drawerType?: 'front' | 'back' | 'slide' | 'permanent',
-    +edgeWidth?: number,
-    +hideStatusBar?: boolean,
-    +keyboardDismissMode?: 'on-drag' | 'none',
-    +minSwipeDistance?: number,
-    +overlayColor?: string,
-    +statusBarAnimation?: 'slide' | 'none' | 'fade',
-    +gestureHandlerProps?: PanGestureHandlerProps,
-    +lazy?: boolean,
-    +drawerContent?: DrawerContentProps => React$Node,
-    +drawerContentOptions?: DrawerContentOptions,
-    +sceneContainerStyle?: ViewStyleProp,
-    +drawerStyle?: ViewStyleProp,
+    +drawerContent?: DrawerNavigationBuilderResult => React$Node,
     +detachInactiveScreens?: boolean,
+    +useLegacyImplementation?: boolean,
   |};
 
   declare export type ExtraDrawerNavigatorProps = {|
