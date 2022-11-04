@@ -11,7 +11,10 @@ import {
 } from 'lib/shared/thread-utils';
 import { threadPermissions } from 'lib/types/thread-types';
 
-import { MarkdownContext } from '../markdown/markdown-context';
+import {
+  MarkdownContext,
+  type MarkdownContextType,
+} from '../markdown/markdown-context';
 import {
   OverlayContext,
   type OverlayContextType,
@@ -44,8 +47,10 @@ type Props = {
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // MarkdownContext
+  +markdownContext: MarkdownContextType,
   +isLinkModalActive: boolean,
   +linkIsBlockingPresses: boolean,
+  +spoilerIsBlockingTooltip: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -59,8 +64,10 @@ class TextMessage extends React.PureComponent<Props> {
       toggleFocus,
       verticalBounds,
       overlayContext,
+      markdownContext,
       isLinkModalActive,
       linkIsBlockingPresses,
+      spoilerIsBlockingTooltip,
       canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
@@ -141,10 +148,23 @@ class TextMessage extends React.PureComponent<Props> {
 
     const {
       message,
-      props: { verticalBounds, linkIsBlockingPresses },
+      props: {
+        verticalBounds,
+        markdownContext,
+        linkIsBlockingPresses,
+        spoilerIsBlockingTooltip,
+      },
     } = this;
 
-    if (!message || !verticalBounds || linkIsBlockingPresses) {
+    const { setSpoilerPressActive } = markdownContext;
+    setSpoilerPressActive(false);
+
+    if (
+      !message ||
+      !verticalBounds ||
+      linkIsBlockingPresses ||
+      spoilerIsBlockingTooltip
+    ) {
       return;
     }
 
@@ -207,10 +227,11 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
     const {
       linkModalActive,
       linkPressActive,
+      spoilerPressActive,
       clearMarkdownContextData,
     } = markdownContext;
 
-    const { id } = props.item.messageInfo;
+    const { id, text } = props.item.messageInfo;
     invariant(id, 'messageInfo.id should exist');
 
     // We check if there is an ID in the respective objects - if not, we
@@ -220,6 +241,8 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
       (linkModalActive[id] || linkPressActive[id]) ?? false;
 
     const isLinkModalActive = linkModalActive[id] ?? false;
+
+    const spoilerIsBlockingTooltip = spoilerPressActive ?? false;
 
     const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
       props.item.threadInfo,
@@ -231,8 +254,9 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
     const contextValue = React.useMemo(
       () => ({
         messageID: id,
+        messageText: text ?? '',
       }),
-      [id],
+      [id, text],
     );
 
     React.useEffect(() => {
@@ -249,7 +273,9 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
           canCreateSidebarFromMessage={canCreateSidebarFromMessage}
           overlayContext={overlayContext}
           isLinkModalActive={isLinkModalActive}
+          markdownContext={markdownContext}
           linkIsBlockingPresses={linkIsBlockingPresses}
+          spoilerIsBlockingTooltip={spoilerIsBlockingTooltip}
         />
       </MessageContext.Provider>
     );
