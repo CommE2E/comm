@@ -257,10 +257,6 @@ TEST_F(DatabaseManagerTest, UpdateNotifTokenInDeviceSessionItem) {
       database::DeviceSessionItem::DeviceTypes::MOBILE,
       "ios:1.1.1",
       "iOS 99.99.99");
-  EXPECT_EQ(
-      database::DatabaseManager::getInstance().isTableAvailable(
-          item.getTableName()),
-      true);
   database::DatabaseManager::getInstance().putSessionItem(item);
   std::shared_ptr<database::DeviceSessionItem> foundItem =
       database::DatabaseManager::getInstance().findSessionItem(
