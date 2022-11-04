@@ -12,7 +12,10 @@ import {
 import { threadPermissions } from 'lib/types/thread-types';
 
 import { ChatContext, type ChatContextType } from '../chat/chat-context';
-import { MarkdownContext } from '../markdown/markdown-context';
+import {
+  MarkdownContext,
+  type MarkdownContextType,
+} from '../markdown/markdown-context';
 import {
   OverlayContext,
   type OverlayContextType,
@@ -47,8 +50,10 @@ type Props = {
   // ChatContext
   +chatContext: ?ChatContextType,
   // MarkdownContext
+  +markdownContext: MarkdownContextType,
   +isLinkModalActive: boolean,
   +linkIsBlockingPresses: boolean,
+  +spoilerPressActive: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -63,8 +68,10 @@ class TextMessage extends React.PureComponent<Props> {
       verticalBounds,
       overlayContext,
       chatContext,
+      markdownContext,
       isLinkModalActive,
       linkIsBlockingPresses,
+      spoilerPressActive,
       canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
@@ -146,10 +153,23 @@ class TextMessage extends React.PureComponent<Props> {
 
     const {
       message,
-      props: { verticalBounds, linkIsBlockingPresses },
+      props: {
+        verticalBounds,
+        markdownContext,
+        linkIsBlockingPresses,
+        spoilerPressActive,
+      },
     } = this;
 
-    if (!message || !verticalBounds || linkIsBlockingPresses) {
+    const { setSpoilerPressActive } = markdownContext;
+    setSpoilerPressActive(false);
+
+    if (
+      !message ||
+      !verticalBounds ||
+      linkIsBlockingPresses ||
+      spoilerPressActive
+    ) {
       return;
     }
 
@@ -216,6 +236,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
     const {
       linkModalActive,
       linkPressActive,
+      spoilerPressActive,
       clearMarkdownContextData,
     } = markdownContext;
 
@@ -258,7 +279,9 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
           overlayContext={overlayContext}
           chatContext={chatContext}
           isLinkModalActive={isLinkModalActive}
+          markdownContext={markdownContext}
           linkIsBlockingPresses={linkIsBlockingPresses}
+          spoilerPressActive={spoilerPressActive}
         />
       </MessageContext.Provider>
     );

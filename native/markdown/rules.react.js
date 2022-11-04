@@ -200,7 +200,11 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
         state: SharedMarkdown.State,
       ) => (
-        <MarkdownSpoiler key={state.key} text={output(node.content, state)} />
+        <MarkdownSpoiler
+          key={state.key}
+          identifier={state.key}
+          text={output(node.content, state)}
+        />
       ),
     },
     inlineCode: {
