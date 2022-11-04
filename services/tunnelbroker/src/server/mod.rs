@@ -1,5 +1,5 @@
 use super::constants;
-use super::cxx_bridge::ffi::sessionSignatureHandler;
+use super::cxx_bridge::ffi::{newSessionHandler, sessionSignatureHandler};
 use anyhow::Result;
 use futures::Stream;
 use std::pin::Pin;
@@ -36,9 +36,34 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
 
   async fn new_session(
     &self,
-    _request: Request<tunnelbroker::NewSessionRequest>,
+    request: Request<tunnelbroker::NewSessionRequest>,
   ) -> Result<Response<tunnelbroker::NewSessionResponse>, Status> {
-    Err(Status::unimplemented("Not implemented yet"))
+    let inner_request = request.into_inner();
+    let notify_token = inner_request.notify_token.unwrap_or(String::new());
+    if !tunnelbroker::new_session_request::DeviceTypes::is_valid(
+      inner_request.device_type,
+    ) {
+      return Err(tools::create_tonic_status(3, "Unsupported device type"));
+    };
+
+    let result = newSessionHandler(
+      &inner_request.device_id,
+      &inner_request.public_key,
+      &inner_request.signature,
+      inner_request.device_type,
+      &inner_request.device_app_version,
+      &inner_request.device_os,
+      &notify_token,
+    );
+    if result.grpcStatus.statusCode > 0 {
+      return Err(tools::create_tonic_status(
+        result.grpcStatus.statusCode,
+        &result.grpcStatus.errorText,
+      ));
+    }
+    Ok(Response::new(tunnelbroker::NewSessionResponse {
+      session_id: result.sessionID,
+    }))
   }
 
   type MessagesStreamStream = Pin<
