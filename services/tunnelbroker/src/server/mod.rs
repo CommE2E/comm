@@ -1,16 +1,19 @@
 use super::constants;
 use super::cxx_bridge::ffi::{
   getSessionItem, newSessionHandler, sessionSignatureHandler,
-  updateSessionItemIsOnline, GRPCStatusCodes,
+  updateSessionItemDeviceToken, updateSessionItemIsOnline, GRPCStatusCodes,
 };
 use anyhow::Result;
 use futures::Stream;
 use std::pin::Pin;
 use tokio::sync::mpsc;
 use tokio::time::{sleep, Duration};
-use tokio_stream::wrappers::ReceiverStream;
+use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tonic::{transport::Server, Request, Response, Status, Streaming};
-use tracing::debug;
+use tracing::{debug, error};
+use tunnelbroker::message_to_tunnelbroker::Data::{
+  MessagesToSend, NewNotifyToken, ProcessedMessages,
+};
 use tunnelbroker::tunnelbroker_service_server::{
   TunnelbrokerService, TunnelbrokerServiceServer,
 };
@@ -146,6 +149,54 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
             break;
           };
         }
+      }
+    });
+
+    let mut input_stream = request.into_inner();
+    // Spawning asynchronous Tokio task for handling incoming messages from the client
+    tokio::spawn(async move {
+      while let Some(result) = input_stream.next().await {
+        if let Err(err) = result {
+          debug!("Error in input stream: {}", err);
+          break;
+        }
+        if let Some(message_data) = result.unwrap().data {
+          match message_data {
+            NewNotifyToken(new_token) => {
+              if let Err(err) =
+                updateSessionItemDeviceToken(&session_id, &new_token)
+              {
+                error!(
+                  "Error in updating the device notification token in the database: {}",
+                  err.what()
+                );
+                let writer_result = tx_writer(
+                  &session_id,
+                  &tx,
+                  Err(
+                    Status::internal(
+                      "Error in updating the device notification token in the database"
+                    )
+                  ),
+                );
+                if let Err(err) = writer_result.await {
+                  debug!(
+                    "Failed to write internal error to a channel: {}",
+                    err
+                  );
+                };
+              }
+            }
+            MessagesToSend(_) => (),
+            ProcessedMessages(_) => (),
+          }
+        }
+      }
+      if let Err(err) = updateSessionItemIsOnline(&session_id, false) {
+        error!(
+          "Error in updating the session online state in the database: {}",
+          err.what()
+        );
       }
     });
 

@@ -175,3 +175,11 @@ void updateSessionItemIsOnline(rust::Str sessionID, bool isOnline) {
   comm::network::database::DatabaseManager::getInstance()
       .updateSessionItemIsOnline(std::string{sessionID}, isOnline);
 }
+
+void updateSessionItemDeviceToken(
+    rust::Str sessionID,
+    rust::Str newNotifToken) {
+  comm::network::database::DatabaseManager::getInstance()
+      .updateSessionItemDeviceToken(
+          std::string{sessionID}, std::string{newNotifToken});
+}

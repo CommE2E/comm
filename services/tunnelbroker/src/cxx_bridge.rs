@@ -61,5 +61,9 @@ pub mod ffi {
       sessionID: &str,
       isOnline: bool,
     ) -> Result<()>;
+    pub fn updateSessionItemDeviceToken(
+      sessionID: &str,
+      newNotifToken: &str,
+    ) -> Result<()>;
   }
 }
