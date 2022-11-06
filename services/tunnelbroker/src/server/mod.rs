@@ -1,7 +1,8 @@
 use super::constants;
 use super::cxx_bridge::ffi::{
-  getSessionItem, newSessionHandler, sessionSignatureHandler,
-  updateSessionItemDeviceToken, updateSessionItemIsOnline, GRPCStatusCodes,
+  eraseMessagesFromAMQP, getMessagesFromDatabase, getSessionItem,
+  newSessionHandler, sessionSignatureHandler, updateSessionItemDeviceToken,
+  updateSessionItemIsOnline, GRPCStatusCodes,
 };
 use anyhow::Result;
 use futures::Stream;
@@ -148,6 +149,46 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
           "Error while sending notification token request to the client: {}",
           err
         );
+      };
+    }
+
+    // When a client connects to the bidirectional messages stream, first we check
+    // if there are undelivered messages in the database
+    let messages_from_database =
+      match getMessagesFromDatabase(&session_item.deviceID) {
+        Ok(messages) => messages,
+        Err(err) => return Err(Status::internal(err.what())),
+      };
+    if messages_from_database.len() > 0 {
+      if let Err(err) = eraseMessagesFromAMQP(&session_item.deviceID) {
+        return Err(Status::internal(err.what()));
+      };
+      let mut messages_to_response = vec![];
+      for message in &messages_from_database {
+        messages_to_response.push(tunnelbroker::MessageToClientStruct {
+          message_id: message.messageID.clone(),
+          from_device_id: message.fromDeviceID.clone(),
+          payload: message.payload.clone(),
+          blob_hashes: vec![message.blobHashes.clone()],
+        });
+      }
+      let result_from_writer = tx_writer(
+        &session_id,
+        &tx,
+        Ok(tunnelbroker::MessageToClient {
+          data: Some(tunnelbroker::message_to_client::Data::MessagesToDeliver(
+            tunnelbroker::MessagesToDeliver {
+              messages: messages_to_response,
+            },
+          )),
+        }),
+      );
+      if let Err(err) = result_from_writer.await {
+        debug!(
+          "Error while sending undelivered messages from database to the client: {}",
+          err
+        );
+        return Err(Status::aborted(err));
       };
     }
 

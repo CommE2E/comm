@@ -40,6 +40,13 @@ pub mod ffi {
     deviceOS: String,
     isOnline: bool,
   }
+  struct MessageItem {
+    messageID: String,
+    fromDeviceID: String,
+    toDeviceID: String,
+    payload: String,
+    blobHashes: String,
+  }
 
   unsafe extern "C++" {
     include!("tunnelbroker/src/libcpp/Tunnelbroker.h");
@@ -65,5 +72,7 @@ pub mod ffi {
       sessionID: &str,
       newNotifToken: &str,
     ) -> Result<()>;
+    pub fn getMessagesFromDatabase(deviceID: &str) -> Result<Vec<MessageItem>>;
+    pub fn eraseMessagesFromAMQP(deviceID: &str) -> Result<()>;
   }
 }

@@ -4,6 +4,7 @@
 #include "ConfigManager.h"
 #include "CryptoTools.h"
 #include "DatabaseManager.h"
+#include "DeliveryBroker.h"
 #include "GlobalTools.h"
 #include "Tools.h"
 
@@ -182,4 +183,25 @@ void updateSessionItemDeviceToken(
   comm::network::database::DatabaseManager::getInstance()
       .updateSessionItemDeviceToken(
           std::string{sessionID}, std::string{newNotifToken});
+}
+
+rust::Vec<MessageItem> getMessagesFromDatabase(rust::Str deviceID) {
+  std::vector<std::shared_ptr<comm::network::database::MessageItem>>
+      messagesFromDatabase =
+          comm::network::database::DatabaseManager::getInstance()
+              .findMessageItemsByReceiver(std::string{deviceID});
+  rust::Vec<MessageItem> result;
+  for (auto &messageFromDatabase : messagesFromDatabase) {
+    result.push_back(MessageItem{
+        .messageID = messageFromDatabase->getMessageID(),
+        .fromDeviceID = messageFromDatabase->getFromDeviceID(),
+        .payload = messageFromDatabase->getPayload(),
+        .blobHashes = messageFromDatabase->getBlobHashes(),
+    });
+  }
+  return result;
+}
+
+void eraseMessagesFromAMQP(rust::Str deviceID) {
+  comm::network::DeliveryBroker::getInstance().erase(std::string{deviceID});
 }
