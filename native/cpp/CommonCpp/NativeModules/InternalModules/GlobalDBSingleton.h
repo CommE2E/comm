@@ -20,6 +20,24 @@ class GlobalDBSingleton {
     task();
   }
 
+  void scheduleOrRunCancellableCommonImpl(const taskType task) {
+    if (this->tasksCancelled.load()) {
+      throw std::runtime_error("TASK_CANCELLED");
+      return;
+    }
+    if (this->databaseThread != nullptr) {
+      this->databaseThread->scheduleTask([this, task]() {
+        if (this->tasksCancelled.load()) {
+          throw std::runtime_error("TASK_CANCELLED");
+        } else {
+          task();
+        }
+      });
+      return;
+    }
+    task();
+  }
+
   void enableMultithreadingCommonImpl() {
     if (this->databaseThread == nullptr) {
       this->databaseThread = std::make_unique<WorkerThread>("database");
@@ -30,6 +48,7 @@ class GlobalDBSingleton {
 public:
   static GlobalDBSingleton instance;
   void scheduleOrRun(const taskType task);
+  void scheduleOrRunCancellable(const taskType task);
   void enableMultithreading();
   void setTasksCancelled(bool tasksCancelled) {
     this->tasksCancelled.store(tasksCancelled);
