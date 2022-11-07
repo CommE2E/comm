@@ -316,6 +316,10 @@ declare module 'react-native-reanimated' {
     static build(): EntryExitAnimationFunction | LayoutAnimationFunction;
   }
 
+  declare export type ReanimatedAnimationBuilder =
+    | Class<BaseAnimationBuilder>
+    | BaseAnimationBuilder;
+
   declare export class ComplexAnimationBuilder extends BaseAnimationBuilder {
     static easing(easingFunction: EasingFn): ComplexAnimationBuilder;
     easing(easingFunction: EasingFn): ComplexAnimationBuilder;
