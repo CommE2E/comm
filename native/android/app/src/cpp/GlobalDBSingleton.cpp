@@ -6,7 +6,8 @@ GlobalDBSingleton GlobalDBSingleton::instance;
 
 GlobalDBSingleton::GlobalDBSingleton()
     : multithreadingEnabled(true),
-      databaseThread(std::make_unique<WorkerThread>("database")) {
+      databaseThread(std::make_unique<WorkerThread>("database")),
+      tasksCancelled(false) {
 }
 
 void GlobalDBSingleton::scheduleOrRun(const taskType task) {
