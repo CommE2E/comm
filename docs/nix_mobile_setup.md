@@ -64,6 +64,32 @@ brew install reactotron && brew upgrade reactotron
 
 # Nix Android prerequisites
 
+## JDK
+
+We’ll need the Java Development Kit (JDK) for Android development. The nix development environment will provide JDK 11 with `nix develop`. However, development with Android Studio outside of the nix environment will require a standalone install. We’re using [SDKMAN!](https://sdkman.io/) to manage our JDK installation.
+
+Run the following to install SDKMAN!:
+
+```
+curl -s "https://get.sdkman.io" | bash
+```
+
+Now either close and reopen your terminal window or re-source your `~/.bash_profile` (or desired shell configuration file) in order to load SDKMAN!:
+
+```
+source ~/.bash_profile
+```
+
+You can run `sdk version` to see if SDKMAN! was installed properly.
+
+Run the following to install Azul Zulu 11 with SDKMAN!:
+
+```
+sdk install java 11.0.13-zulu
+```
+
+SDKMAN! takes care of setting up the `$JAVA_HOME` environment variable to point to the newly installed JDK. You can verify this by running `echo $JAVA_HOME`.
+
 ## Android Studio
 
 Start by downloading and installing [Android Studio](https://developer.android.com/studio/index.html) for your platform. When prompted to choose an installation type, select “Custom”.
