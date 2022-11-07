@@ -81,6 +81,26 @@ const markdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       match: SharedMarkdown.matchBlockQuote(SharedMarkdown.blockQuoteRegex),
       parse: SharedMarkdown.parseBlockQuote,
     },
+    spoiler: {
+      order: SimpleMarkdown.defaultRules.paragraph.order - 1,
+      match: SimpleMarkdown.inlineRegex(SharedMarkdown.spoilerRegex),
+      parse(
+        capture: SharedMarkdown.Capture,
+        parse: SharedMarkdown.Parser,
+        state: SharedMarkdown.State,
+      ) {
+        const content = capture[1];
+        return {
+          content: SimpleMarkdown.parseInline(parse, content, state),
+        };
+      },
+      // eslint-disable-next-line react/display-name
+      react: (
+        node: SharedMarkdown.SingleASTNode,
+        output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
+        state: SharedMarkdown.State,
+      ) => <span>{output(node.content, state)}</span>,
+    },
     inlineCode: SimpleMarkdown.defaultRules.inlineCode,
     em: SimpleMarkdown.defaultRules.em,
     strong: SimpleMarkdown.defaultRules.strong,
