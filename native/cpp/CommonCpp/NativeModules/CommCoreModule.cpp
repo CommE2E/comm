@@ -62,7 +62,8 @@ jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
             promise->resolve(std::move(draft));
           });
         };
-        GlobalDBSingleton::instance.scheduleOrRun(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -87,7 +88,8 @@ CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
             }
           });
         };
-        GlobalDBSingleton::instance.scheduleOrRun(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -117,7 +119,8 @@ jsi::Value CommCoreModule::moveDraft(
             }
           });
         };
-        GlobalDBSingleton::instance.scheduleOrRun(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -157,7 +160,8 @@ jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
             promise->resolve(std::move(jsiDrafts));
           });
         };
-        GlobalDBSingleton::instance.scheduleOrRun(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -179,7 +183,8 @@ jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
             promise->resolve(jsi::Value::undefined());
           });
         };
-        GlobalDBSingleton::instance.scheduleOrRun(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -309,7 +314,8 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
                 promise->resolve(std::move(jsiMessages));
               });
         };
-        GlobalDBSingleton::instance.scheduleOrRun(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -400,7 +406,8 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
             }
           });
         };
-        GlobalDBSingleton::instance.scheduleOrRun(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -432,7 +439,7 @@ void CommCoreModule::processMessageStoreOperationsSync(
 jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun([=, &innerRt]() {
+        taskType job = [=, &innerRt]() {
           std::string error;
           std::vector<Thread> threadsVector;
           size_t numThreads;
@@ -511,7 +518,9 @@ jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
             }
             promise->resolve(std::move(jsiThreads));
           });
-        });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 };
 
@@ -695,7 +704,7 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
   }
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun([=]() {
+        taskType job = [=]() {
           std::string error = operationsError;
           if (!error.size()) {
             try {
@@ -716,7 +725,9 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
               promise->resolve(jsi::Value::undefined());
             }
           });
-        });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -759,7 +770,7 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
 
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun([=]() {
+        taskType job = [=]() {
           crypto::Persist persist;
           std::string error;
           try {
@@ -791,22 +802,25 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
             if (persist.isEmpty()) {
               crypto::Persist newPersist =
                   this->cryptoModule->storeAsB64(storedSecretKey.value());
-              GlobalDBSingleton::instance.scheduleOrRun([=]() {
-                std::string error;
-                try {
-                  DatabaseManager::getQueryExecutor().storeOlmPersistData(
-                      newPersist);
-                } catch (std::system_error &e) {
-                  error = e.what();
-                }
-                this->jsInvoker_->invokeAsync([=]() {
-                  if (error.size()) {
-                    promise->reject(error);
-                    return;
-                  }
-                  promise->resolve(jsi::Value::undefined());
-                });
-              });
+              GlobalDBSingleton::instance.scheduleOrRunCancellable(
+                  [=]() {
+                    std::string error;
+                    try {
+                      DatabaseManager::getQueryExecutor().storeOlmPersistData(
+                          newPersist);
+                    } catch (std::system_error &e) {
+                      error = e.what();
+                    }
+                    this->jsInvoker_->invokeAsync([=]() {
+                      if (error.size()) {
+                        promise->reject(error);
+                        return;
+                      }
+                      promise->resolve(jsi::Value::undefined());
+                    });
+                  },
+                  promise,
+                  this->jsInvoker_);
 
             } else {
               this->cryptoModule->restoreFromB64(
@@ -820,7 +834,9 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
               });
             }
           });
-        });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -906,30 +922,31 @@ CommCoreModule::setNotifyToken(jsi::Runtime &rt, const jsi::String &token) {
       rt,
       [this,
        notifyToken](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun(
-            [this, notifyToken, promise]() {
-              std::string error;
-              try {
-                DatabaseManager::getQueryExecutor().setNotifyToken(notifyToken);
-              } catch (std::system_error &e) {
-                error = e.what();
-              }
+        taskType job = [this, notifyToken, promise]() {
+          std::string error;
+          try {
+            DatabaseManager::getQueryExecutor().setNotifyToken(notifyToken);
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
 
-              this->jsInvoker_->invokeAsync([error, promise]() {
-                if (error.size()) {
-                  promise->reject(error);
-                } else {
-                  promise->resolve(jsi::Value::undefined());
-                }
-              });
-            });
+          this->jsInvoker_->invokeAsync([error, promise]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
 jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun([this, promise]() {
+        taskType job = [this, promise]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().clearNotifyToken();
@@ -943,7 +960,9 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
               promise->resolve(jsi::Value::undefined());
             }
           });
-        });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 };
 
@@ -954,9 +973,7 @@ CommCoreModule::setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) {
       rt,
       [this,
        currentUserID](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun([this,
-                                                   promise,
-                                                   currentUserID]() {
+        taskType job = [this, promise, currentUserID]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().setCurrentUserID(currentUserID);
@@ -970,14 +987,16 @@ CommCoreModule::setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) {
               promise->resolve(jsi::Value::undefined());
             }
           });
-        });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
 jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun([this, &innerRt, promise]() {
+        taskType job = [this, &innerRt, promise]() {
           std::string error;
           std::string result;
           try {
@@ -992,7 +1011,9 @@ jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
               promise->resolve(jsi::String::createFromUtf8(innerRt, result));
             }
           });
-        });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
@@ -1033,14 +1054,15 @@ CommCoreModule::setDeviceID(jsi::Runtime &rt, const jsi::String &deviceType) {
             }
           });
         };
-        GlobalDBSingleton::instance.scheduleOrRun(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
 jsi::Value CommCoreModule::getDeviceID(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun([this, &innerRt, promise]() {
+        taskType job = [this, &innerRt, promise]() {
           std::string error;
           std::string result;
           try {
@@ -1055,7 +1077,9 @@ jsi::Value CommCoreModule::getDeviceID(jsi::Runtime &rt) {
               promise->resolve(jsi::String::createFromUtf8(innerRt, result));
             }
           });
-        });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
