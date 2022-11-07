@@ -219,3 +219,23 @@ MessageItem waitMessageFromDeliveryBroker(rust::Str deviceID) {
       .payload = message.payload,
       .deliveryTag = message.deliveryTag};
 }
+
+void removeMessages(
+    rust::Str deviceID,
+    const rust::Vec<rust::String> &messagesIDs) {
+  std::vector<std::string> vectorOfmessagesIDs;
+  std::string stringDeviceID = std::string{deviceID};
+  for (auto id : messagesIDs) {
+    vectorOfmessagesIDs.push_back(std::string{id});
+  };
+  comm::network::database::DatabaseManager::getInstance()
+      .removeMessageItemsByIDsForDeviceID(vectorOfmessagesIDs, stringDeviceID);
+
+  // If messages queue for `deviceID` is empty we don't need to store
+  // `folly::MPMCQueue` for it and need to free memory to fix possible
+  // 'ghost' queues in DeliveryBroker.
+  // We call `deleteQueueIfEmpty()` for this purpose here after removing
+  // messages.
+  comm::network::DeliveryBroker::DeliveryBroker::getInstance()
+      .deleteQueueIfEmpty(stringDeviceID);
+}

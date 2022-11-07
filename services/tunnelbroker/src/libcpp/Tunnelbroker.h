@@ -22,3 +22,6 @@ rust::Vec<MessageItem> getMessagesFromDatabase(rust::Str deviceID);
 void eraseMessagesFromAMQP(rust::Str deviceID);
 void ackMessageFromAMQP(uint64_t deliveryTag);
 MessageItem waitMessageFromDeliveryBroker(rust::Str deviceID);
+void removeMessages(
+    rust::Str deviceID,
+    const rust::Vec<rust::String> &messagesIDs);

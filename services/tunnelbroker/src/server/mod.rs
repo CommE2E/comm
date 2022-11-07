@@ -1,7 +1,7 @@
 use super::constants;
 use super::cxx_bridge::ffi::{
   ackMessageFromAMQP, eraseMessagesFromAMQP, getMessagesFromDatabase,
-  getSessionItem, newSessionHandler, sessionSignatureHandler,
+  getSessionItem, newSessionHandler, removeMessages, sessionSignatureHandler,
   updateSessionItemDeviceToken, updateSessionItemIsOnline,
   waitMessageFromDeliveryBroker, GRPCStatusCodes,
 };
@@ -301,7 +301,17 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
               }
             }
             MessagesToSend(_) => (),
-            ProcessedMessages(_) => (),
+            ProcessedMessages(processed_messages) => {
+              if let Err(err) = removeMessages(
+                &session_item.deviceID,
+                &processed_messages.message_id,
+              ) {
+                error!(
+                  "Error removing messages from the database: {}",
+                  err.what()
+                );
+              };
+            }
           }
         }
       }

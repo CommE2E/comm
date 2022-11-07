@@ -78,5 +78,9 @@ pub mod ffi {
     pub fn ackMessageFromAMQP(deliveryTag: u64) -> Result<()>;
     pub fn waitMessageFromDeliveryBroker(deviceID: &str)
       -> Result<MessageItem>;
+    pub fn removeMessages(
+      deviceID: &str,
+      messagesIDs: &Vec<String>,
+    ) -> Result<()>;
   }
 }
