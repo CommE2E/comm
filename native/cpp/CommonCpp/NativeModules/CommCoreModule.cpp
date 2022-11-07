@@ -1000,22 +1000,37 @@ jsi::Value
 CommCoreModule::setDeviceID(jsi::Runtime &rt, const jsi::String &deviceType) {
   std::string type = deviceType.utf8(rt);
   std::string deviceID;
+  std::string generatingError;
+
   try {
     deviceID = DeviceIDGenerator::generateDeviceID(type);
   } catch (std::invalid_argument &e) {
-    throw jsi::JSError(
-        rt,
-        "setDeviceID: incorrect function argument. Must be one of: "
-        "KEYSERVER, WEB, MOBILE.");
+    generatingError =
+        "setDeviceID: incorrect function argument. Must be one of: KEYSERVER, "
+        "WEB, MOBILE.";
   }
-  GlobalDBSingleton::instance.scheduleOrRun([&rt, deviceID]() {
-    try {
-      DatabaseManager::getQueryExecutor().setDeviceID(deviceID);
-    } catch (const std::exception &e) {
-      throw jsi::JSError(rt, e.what());
-    }
-  });
-  return jsi::String::createFromUtf8(rt, deviceID);
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, &innerRt, promise, generatingError, deviceID]() {
+          std::string error = generatingError;
+          if (!error.size()) {
+            try {
+              DatabaseManager::getQueryExecutor().setDeviceID(deviceID);
+            } catch (const std::exception &e) {
+              error = e.what();
+            }
+          }
+          this->jsInvoker_->invokeAsync([&innerRt, promise, error, deviceID]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::String::createFromUtf8(innerRt, deviceID));
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRun(job);
+      });
 }
 
 jsi::Value CommCoreModule::getDeviceID(jsi::Runtime &rt) {
