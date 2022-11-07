@@ -5,6 +5,9 @@
 #include <atomic>
 
 namespace comm {
+
+const std::string TASK_CANCELLED_FLAG("TASK_CANCELLED");
+
 class GlobalDBSingleton {
   std::atomic<bool> multithreadingEnabled;
   std::unique_ptr<WorkerThread> databaseThread;
@@ -20,6 +23,22 @@ class GlobalDBSingleton {
     task();
   }
 
+  void scheduleOrRunCancellableCommonImpl(const taskType task) {
+    if (this->tasksCancelled.load()) {
+      throw std::runtime_error(TASK_CANCELLED_FLAG);
+    }
+    if (this->databaseThread == nullptr) {
+      task();
+      return;
+    }
+    this->databaseThread->scheduleTask([this, task]() {
+      if (this->tasksCancelled.load()) {
+        throw std::runtime_error(TASK_CANCELLED_FLAG);
+      }
+      task();
+    });
+  }
+
   void enableMultithreadingCommonImpl() {
     if (this->databaseThread == nullptr) {
       this->databaseThread = std::make_unique<WorkerThread>("database");
@@ -30,6 +49,7 @@ class GlobalDBSingleton {
 public:
   static GlobalDBSingleton instance;
   void scheduleOrRun(const taskType task);
+  void scheduleOrRunCancellable(const taskType task);
   void enableMultithreading();
   void setTasksCancelled(bool tasksCancelled) {
     this->tasksCancelled.store(tasksCancelled);
