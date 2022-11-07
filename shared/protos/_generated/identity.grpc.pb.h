@@ -72,6 +72,15 @@ class IdentityService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserIDResponse>> PrepareAsyncGetUserID(::grpc::ClientContext* context, const ::identity::GetUserIDRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserIDResponse>>(PrepareAsyncGetUserIDRaw(context, request, cq));
     }
+    // Called by keyservers to get the public key corresponding to a given user ID
+    // and device ID
+    virtual ::grpc::Status GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::identity::GetUserPublicKeyResponse* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserPublicKeyResponse>> AsyncGetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserPublicKeyResponse>>(AsyncGetUserPublicKeyRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserPublicKeyResponse>> PrepareAsyncGetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserPublicKeyResponse>>(PrepareAsyncGetUserPublicKeyRaw(context, request, cq));
+    }
     class async_interface {
      public:
       virtual ~async_interface() {}
@@ -86,6 +95,10 @@ class IdentityService final {
       // address or username
       virtual void GetUserID(::grpc::ClientContext* context, const ::identity::GetUserIDRequest* request, ::identity::GetUserIDResponse* response, std::function<void(::grpc::Status)>) = 0;
       virtual void GetUserID(::grpc::ClientContext* context, const ::identity::GetUserIDRequest* request, ::identity::GetUserIDResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      // Called by keyservers to get the public key corresponding to a given user ID
+      // and device ID
+      virtual void GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response, ::grpc::ClientUnaryReactor* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
     virtual class async_interface* async() { return nullptr; }
@@ -101,6 +114,8 @@ class IdentityService final {
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::identity::VerifyUserTokenResponse>* PrepareAsyncVerifyUserTokenRaw(::grpc::ClientContext* context, const ::identity::VerifyUserTokenRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserIDResponse>* AsyncGetUserIDRaw(::grpc::ClientContext* context, const ::identity::GetUserIDRequest& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserIDResponse>* PrepareAsyncGetUserIDRaw(::grpc::ClientContext* context, const ::identity::GetUserIDRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserPublicKeyResponse>* AsyncGetUserPublicKeyRaw(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::identity::GetUserPublicKeyResponse>* PrepareAsyncGetUserPublicKeyRaw(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
@@ -137,6 +152,13 @@ class IdentityService final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::identity::GetUserIDResponse>> PrepareAsyncGetUserID(::grpc::ClientContext* context, const ::identity::GetUserIDRequest& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::identity::GetUserIDResponse>>(PrepareAsyncGetUserIDRaw(context, request, cq));
     }
+    ::grpc::Status GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::identity::GetUserPublicKeyResponse* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::identity::GetUserPublicKeyResponse>> AsyncGetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::identity::GetUserPublicKeyResponse>>(AsyncGetUserPublicKeyRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::identity::GetUserPublicKeyResponse>> PrepareAsyncGetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::identity::GetUserPublicKeyResponse>>(PrepareAsyncGetUserPublicKeyRaw(context, request, cq));
+    }
     class async final :
       public StubInterface::async_interface {
      public:
@@ -146,6 +168,8 @@ class IdentityService final {
       void VerifyUserToken(::grpc::ClientContext* context, const ::identity::VerifyUserTokenRequest* request, ::identity::VerifyUserTokenResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
       void GetUserID(::grpc::ClientContext* context, const ::identity::GetUserIDRequest* request, ::identity::GetUserIDResponse* response, std::function<void(::grpc::Status)>) override;
       void GetUserID(::grpc::ClientContext* context, const ::identity::GetUserIDRequest* request, ::identity::GetUserIDResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response, std::function<void(::grpc::Status)>) override;
+      void GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response, ::grpc::ClientUnaryReactor* reactor) override;
      private:
       friend class Stub;
       explicit async(Stub* stub): stub_(stub) { }
@@ -167,10 +191,13 @@ class IdentityService final {
     ::grpc::ClientAsyncResponseReader< ::identity::VerifyUserTokenResponse>* PrepareAsyncVerifyUserTokenRaw(::grpc::ClientContext* context, const ::identity::VerifyUserTokenRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::identity::GetUserIDResponse>* AsyncGetUserIDRaw(::grpc::ClientContext* context, const ::identity::GetUserIDRequest& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::identity::GetUserIDResponse>* PrepareAsyncGetUserIDRaw(::grpc::ClientContext* context, const ::identity::GetUserIDRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::identity::GetUserPublicKeyResponse>* AsyncGetUserPublicKeyRaw(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::identity::GetUserPublicKeyResponse>* PrepareAsyncGetUserPublicKeyRaw(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_RegisterUser_;
     const ::grpc::internal::RpcMethod rpcmethod_LoginUser_;
     const ::grpc::internal::RpcMethod rpcmethod_VerifyUserToken_;
     const ::grpc::internal::RpcMethod rpcmethod_GetUserID_;
+    const ::grpc::internal::RpcMethod rpcmethod_GetUserPublicKey_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -187,6 +214,9 @@ class IdentityService final {
     // Called by users and keyservers to get userID corresponding to a wallet
     // address or username
     virtual ::grpc::Status GetUserID(::grpc::ServerContext* context, const ::identity::GetUserIDRequest* request, ::identity::GetUserIDResponse* response);
+    // Called by keyservers to get the public key corresponding to a given user ID
+    // and device ID
+    virtual ::grpc::Status GetUserPublicKey(::grpc::ServerContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response);
   };
   template <class BaseClass>
   class WithAsyncMethod_RegisterUser : public BaseClass {
@@ -268,7 +298,27 @@ class IdentityService final {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_RegisterUser<WithAsyncMethod_LoginUser<WithAsyncMethod_VerifyUserToken<WithAsyncMethod_GetUserID<Service > > > > AsyncService;
+  template <class BaseClass>
+  class WithAsyncMethod_GetUserPublicKey : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithAsyncMethod_GetUserPublicKey() {
+      ::grpc::Service::MarkMethodAsync(4);
+    }
+    ~WithAsyncMethod_GetUserPublicKey() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetUserPublicKey(::grpc::ServerContext* /*context*/, const ::identity::GetUserPublicKeyRequest* /*request*/, ::identity::GetUserPublicKeyResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestGetUserPublicKey(::grpc::ServerContext* context, ::identity::GetUserPublicKeyRequest* request, ::grpc::ServerAsyncResponseWriter< ::identity::GetUserPublicKeyResponse>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_RegisterUser<WithAsyncMethod_LoginUser<WithAsyncMethod_VerifyUserToken<WithAsyncMethod_GetUserID<WithAsyncMethod_GetUserPublicKey<Service > > > > > AsyncService;
   template <class BaseClass>
   class WithCallbackMethod_RegisterUser : public BaseClass {
    private:
@@ -369,7 +419,34 @@ class IdentityService final {
     virtual ::grpc::ServerUnaryReactor* GetUserID(
       ::grpc::CallbackServerContext* /*context*/, const ::identity::GetUserIDRequest* /*request*/, ::identity::GetUserIDResponse* /*response*/)  { return nullptr; }
   };
-  typedef WithCallbackMethod_RegisterUser<WithCallbackMethod_LoginUser<WithCallbackMethod_VerifyUserToken<WithCallbackMethod_GetUserID<Service > > > > CallbackService;
+  template <class BaseClass>
+  class WithCallbackMethod_GetUserPublicKey : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithCallbackMethod_GetUserPublicKey() {
+      ::grpc::Service::MarkMethodCallback(4,
+          new ::grpc::internal::CallbackUnaryHandler< ::identity::GetUserPublicKeyRequest, ::identity::GetUserPublicKeyResponse>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response) { return this->GetUserPublicKey(context, request, response); }));}
+    void SetMessageAllocatorFor_GetUserPublicKey(
+        ::grpc::MessageAllocator< ::identity::GetUserPublicKeyRequest, ::identity::GetUserPublicKeyResponse>* allocator) {
+      ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(4);
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::identity::GetUserPublicKeyRequest, ::identity::GetUserPublicKeyResponse>*>(handler)
+              ->SetMessageAllocator(allocator);
+    }
+    ~WithCallbackMethod_GetUserPublicKey() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetUserPublicKey(::grpc::ServerContext* /*context*/, const ::identity::GetUserPublicKeyRequest* /*request*/, ::identity::GetUserPublicKeyResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* GetUserPublicKey(
+      ::grpc::CallbackServerContext* /*context*/, const ::identity::GetUserPublicKeyRequest* /*request*/, ::identity::GetUserPublicKeyResponse* /*response*/)  { return nullptr; }
+  };
+  typedef WithCallbackMethod_RegisterUser<WithCallbackMethod_LoginUser<WithCallbackMethod_VerifyUserToken<WithCallbackMethod_GetUserID<WithCallbackMethod_GetUserPublicKey<Service > > > > > CallbackService;
   typedef CallbackService ExperimentalCallbackService;
   template <class BaseClass>
   class WithGenericMethod_RegisterUser : public BaseClass {
@@ -435,6 +512,23 @@ class IdentityService final {
     }
     // disable synchronous version of this method
     ::grpc::Status GetUserID(::grpc::ServerContext* /*context*/, const ::identity::GetUserIDRequest* /*request*/, ::identity::GetUserIDResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithGenericMethod_GetUserPublicKey : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithGenericMethod_GetUserPublicKey() {
+      ::grpc::Service::MarkMethodGeneric(4);
+    }
+    ~WithGenericMethod_GetUserPublicKey() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetUserPublicKey(::grpc::ServerContext* /*context*/, const ::identity::GetUserPublicKeyRequest* /*request*/, ::identity::GetUserPublicKeyResponse* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
@@ -517,6 +611,26 @@ class IdentityService final {
     }
     void RequestGetUserID(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(3, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
+  class WithRawMethod_GetUserPublicKey : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawMethod_GetUserPublicKey() {
+      ::grpc::Service::MarkMethodRaw(4);
+    }
+    ~WithRawMethod_GetUserPublicKey() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetUserPublicKey(::grpc::ServerContext* /*context*/, const ::identity::GetUserPublicKeyRequest* /*request*/, ::identity::GetUserPublicKeyResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestGetUserPublicKey(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(4, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -610,6 +724,28 @@ class IdentityService final {
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
   };
   template <class BaseClass>
+  class WithRawCallbackMethod_GetUserPublicKey : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithRawCallbackMethod_GetUserPublicKey() {
+      ::grpc::Service::MarkMethodRawCallback(4,
+          new ::grpc::internal::CallbackUnaryHandler< ::grpc::ByteBuffer, ::grpc::ByteBuffer>(
+            [this](
+                   ::grpc::CallbackServerContext* context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetUserPublicKey(context, request, response); }));
+    }
+    ~WithRawCallbackMethod_GetUserPublicKey() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetUserPublicKey(::grpc::ServerContext* /*context*/, const ::identity::GetUserPublicKeyRequest* /*request*/, ::identity::GetUserPublicKeyResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    virtual ::grpc::ServerUnaryReactor* GetUserPublicKey(
+      ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)  { return nullptr; }
+  };
+  template <class BaseClass>
   class WithStreamedUnaryMethod_VerifyUserToken : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
@@ -663,9 +799,36 @@ class IdentityService final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedGetUserID(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::identity::GetUserIDRequest,::identity::GetUserIDResponse>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_VerifyUserToken<WithStreamedUnaryMethod_GetUserID<Service > > StreamedUnaryService;
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_GetUserPublicKey : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
+   public:
+    WithStreamedUnaryMethod_GetUserPublicKey() {
+      ::grpc::Service::MarkMethodStreamed(4,
+        new ::grpc::internal::StreamedUnaryHandler<
+          ::identity::GetUserPublicKeyRequest, ::identity::GetUserPublicKeyResponse>(
+            [this](::grpc::ServerContext* context,
+                   ::grpc::ServerUnaryStreamer<
+                     ::identity::GetUserPublicKeyRequest, ::identity::GetUserPublicKeyResponse>* streamer) {
+                       return this->StreamedGetUserPublicKey(context,
+                         streamer);
+                  }));
+    }
+    ~WithStreamedUnaryMethod_GetUserPublicKey() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status GetUserPublicKey(::grpc::ServerContext* /*context*/, const ::identity::GetUserPublicKeyRequest* /*request*/, ::identity::GetUserPublicKeyResponse* /*response*/) override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedGetUserPublicKey(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::identity::GetUserPublicKeyRequest,::identity::GetUserPublicKeyResponse>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_VerifyUserToken<WithStreamedUnaryMethod_GetUserID<WithStreamedUnaryMethod_GetUserPublicKey<Service > > > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_VerifyUserToken<WithStreamedUnaryMethod_GetUserID<Service > > StreamedService;
+  typedef WithStreamedUnaryMethod_VerifyUserToken<WithStreamedUnaryMethod_GetUserID<WithStreamedUnaryMethod_GetUserPublicKey<Service > > > StreamedService;
 };
 
 }  // namespace identity

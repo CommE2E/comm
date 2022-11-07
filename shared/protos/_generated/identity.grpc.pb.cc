@@ -26,6 +26,7 @@ static const char* IdentityService_method_names[] = {
   "/identity.IdentityService/LoginUser",
   "/identity.IdentityService/VerifyUserToken",
   "/identity.IdentityService/GetUserID",
+  "/identity.IdentityService/GetUserPublicKey",
 };
 
 std::unique_ptr< IdentityService::Stub> IdentityService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -39,6 +40,7 @@ IdentityService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& ch
   , rpcmethod_LoginUser_(IdentityService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::BIDI_STREAMING, channel)
   , rpcmethod_VerifyUserToken_(IdentityService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   , rpcmethod_GetUserID_(IdentityService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_GetUserPublicKey_(IdentityService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
 ::grpc::ClientReaderWriter< ::identity::RegistrationRequest, ::identity::RegistrationResponse>* IdentityService::Stub::RegisterUserRaw(::grpc::ClientContext* context) {
@@ -119,6 +121,29 @@ void IdentityService::Stub::async::GetUserID(::grpc::ClientContext* context, con
   return result;
 }
 
+::grpc::Status IdentityService::Stub::GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::identity::GetUserPublicKeyResponse* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::identity::GetUserPublicKeyRequest, ::identity::GetUserPublicKeyResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_GetUserPublicKey_, context, request, response);
+}
+
+void IdentityService::Stub::async::GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::identity::GetUserPublicKeyRequest, ::identity::GetUserPublicKeyResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetUserPublicKey_, context, request, response, std::move(f));
+}
+
+void IdentityService::Stub::async::GetUserPublicKey(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response, ::grpc::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetUserPublicKey_, context, request, response, reactor);
+}
+
+::grpc::ClientAsyncResponseReader< ::identity::GetUserPublicKeyResponse>* IdentityService::Stub::PrepareAsyncGetUserPublicKeyRaw(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::identity::GetUserPublicKeyResponse, ::identity::GetUserPublicKeyRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_GetUserPublicKey_, context, request);
+}
+
+::grpc::ClientAsyncResponseReader< ::identity::GetUserPublicKeyResponse>* IdentityService::Stub::AsyncGetUserPublicKeyRaw(::grpc::ClientContext* context, const ::identity::GetUserPublicKeyRequest& request, ::grpc::CompletionQueue* cq) {
+  auto* result =
+    this->PrepareAsyncGetUserPublicKeyRaw(context, request, cq);
+  result->StartCall();
+  return result;
+}
+
 IdentityService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       IdentityService_method_names[0],
@@ -160,6 +185,16 @@ IdentityService::Service::Service() {
              ::identity::GetUserIDResponse* resp) {
                return service->GetUserID(ctx, req, resp);
              }, this)));
+  AddMethod(new ::grpc::internal::RpcServiceMethod(
+      IdentityService_method_names[4],
+      ::grpc::internal::RpcMethod::NORMAL_RPC,
+      new ::grpc::internal::RpcMethodHandler< IdentityService::Service, ::identity::GetUserPublicKeyRequest, ::identity::GetUserPublicKeyResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+          [](IdentityService::Service* service,
+             ::grpc::ServerContext* ctx,
+             const ::identity::GetUserPublicKeyRequest* req,
+             ::identity::GetUserPublicKeyResponse* resp) {
+               return service->GetUserPublicKey(ctx, req, resp);
+             }, this)));
 }
 
 IdentityService::Service::~Service() {
@@ -185,6 +220,13 @@ IdentityService::Service::~Service() {
 }
 
 ::grpc::Status IdentityService::Service::GetUserID(::grpc::ServerContext* context, const ::identity::GetUserIDRequest* request, ::identity::GetUserIDResponse* response) {
+  (void) context;
+  (void) request;
+  (void) response;
+  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+}
+
+::grpc::Status IdentityService::Service::GetUserPublicKey(::grpc::ServerContext* context, const ::identity::GetUserPublicKeyRequest* request, ::identity::GetUserPublicKeyResponse* response) {
   (void) context;
   (void) request;
   (void) response;

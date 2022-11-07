@@ -93,6 +93,8 @@ class TunnelbrokerService final {
       return std::unique_ptr< ::grpc::ClientAsyncReaderInterface< ::tunnelbroker::GetResponse>>(PrepareAsyncGetRaw(context, request, cq));
     }
     // Replacing Send and Get with a single bidirectional streaming RPC
+    // The client should provide the valid `sessionID` identifier 
+    // from the `NewSession` in the stream request metadata
     std::unique_ptr< ::grpc::ClientReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>> MessagesStream(::grpc::ClientContext* context) {
       return std::unique_ptr< ::grpc::ClientReaderWriterInterface< ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>>(MessagesStreamRaw(context));
     }
@@ -125,6 +127,8 @@ class TunnelbrokerService final {
       virtual void Send(::grpc::ClientContext* context, const ::tunnelbroker::SendRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       virtual void Get(::grpc::ClientContext* context, const ::tunnelbroker::GetRequest* request, ::grpc::ClientReadReactor< ::tunnelbroker::GetResponse>* reactor) = 0;
       // Replacing Send and Get with a single bidirectional streaming RPC
+      // The client should provide the valid `sessionID` identifier 
+      // from the `NewSession` in the stream request metadata
       virtual void MessagesStream(::grpc::ClientContext* context, ::grpc::ClientBidiReactor< ::tunnelbroker::MessageToTunnelbroker,::tunnelbroker::MessageToClient>* reactor) = 0;
     };
     typedef class async_interface experimental_async_interface;
@@ -288,6 +292,8 @@ class TunnelbrokerService final {
     virtual ::grpc::Status Send(::grpc::ServerContext* context, const ::tunnelbroker::SendRequest* request, ::google::protobuf::Empty* response);
     virtual ::grpc::Status Get(::grpc::ServerContext* context, const ::tunnelbroker::GetRequest* request, ::grpc::ServerWriter< ::tunnelbroker::GetResponse>* writer);
     // Replacing Send and Get with a single bidirectional streaming RPC
+    // The client should provide the valid `sessionID` identifier 
+    // from the `NewSession` in the stream request metadata
     virtual ::grpc::Status MessagesStream(::grpc::ServerContext* context, ::grpc::ServerReaderWriter< ::tunnelbroker::MessageToClient, ::tunnelbroker::MessageToTunnelbroker>* stream);
   };
   template <class BaseClass>

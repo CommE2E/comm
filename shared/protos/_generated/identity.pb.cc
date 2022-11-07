@@ -213,8 +213,33 @@ struct GetUserIDResponseDefaultTypeInternal {
   };
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT GetUserIDResponseDefaultTypeInternal _GetUserIDResponse_default_instance_;
+constexpr GetUserPublicKeyRequest::GetUserPublicKeyRequest(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : userid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
+  , deviceid_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+struct GetUserPublicKeyRequestDefaultTypeInternal {
+  constexpr GetUserPublicKeyRequestDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~GetUserPublicKeyRequestDefaultTypeInternal() {}
+  union {
+    GetUserPublicKeyRequest _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT GetUserPublicKeyRequestDefaultTypeInternal _GetUserPublicKeyRequest_default_instance_;
+constexpr GetUserPublicKeyResponse::GetUserPublicKeyResponse(
+  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+  : publickey_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+struct GetUserPublicKeyResponseDefaultTypeInternal {
+  constexpr GetUserPublicKeyResponseDefaultTypeInternal()
+    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  ~GetUserPublicKeyResponseDefaultTypeInternal() {}
+  union {
+    GetUserPublicKeyResponse _instance;
+  };
+};
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT GetUserPublicKeyResponseDefaultTypeInternal _GetUserPublicKeyResponse_default_instance_;
 }  // namespace identity
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_identity_2eproto[15];
+static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_identity_2eproto[17];
 static const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* file_level_enum_descriptors_identity_2eproto[1];
 static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_identity_2eproto = nullptr;
 
@@ -337,6 +362,19 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_identity_2eproto::offsets[] PR
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::identity::GetUserIDResponse, userid_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::identity::GetUserPublicKeyRequest, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::identity::GetUserPublicKeyRequest, userid_),
+  PROTOBUF_FIELD_OFFSET(::identity::GetUserPublicKeyRequest, deviceid_),
+  ~0u,  // no _has_bits_
+  PROTOBUF_FIELD_OFFSET(::identity::GetUserPublicKeyResponse, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  PROTOBUF_FIELD_OFFSET(::identity::GetUserPublicKeyResponse, publickey_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::identity::PakeRegistrationRequestAndUserID)},
@@ -354,6 +392,8 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 99, -1, sizeof(::identity::VerifyUserTokenResponse)},
   { 105, -1, sizeof(::identity::GetUserIDRequest)},
   { 112, -1, sizeof(::identity::GetUserIDResponse)},
+  { 118, -1, sizeof(::identity::GetUserPublicKeyRequest)},
+  { 125, -1, sizeof(::identity::GetUserPublicKeyResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -372,6 +412,8 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::identity::_VerifyUserTokenResponse_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::identity::_GetUserIDRequest_default_instance_),
   reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::identity::_GetUserIDResponse_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::identity::_GetUserPublicKeyRequest_default_instance_),
+  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::identity::_GetUserPublicKeyResponse_default_instance_),
 };
 
 const char descriptor_table_protodef_identity_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -419,21 +461,26 @@ const char descriptor_table_protodef_identity_2eproto[] PROTOBUF_SECTION_VARIABL
   "thType\030\001 \001(\0162#.identity.GetUserIDRequest"
   ".AuthType\022\020\n\010userInfo\030\002 \001(\t\"$\n\010AuthType\022"
   "\014\n\010PASSWORD\020\000\022\n\n\006WALLET\020\001\"#\n\021GetUserIDRe"
-  "sponse\022\016\n\006userID\030\001 \001(\t2\314\002\n\017IdentityServi"
-  "ce\022S\n\014RegisterUser\022\035.identity.Registrati"
-  "onRequest\032\036.identity.RegistrationRespons"
-  "e\"\000(\0010\001\022B\n\tLoginUser\022\026.identity.LoginReq"
-  "uest\032\027.identity.LoginResponse\"\000(\0010\001\022X\n\017V"
-  "erifyUserToken\022 .identity.VerifyUserToke"
-  "nRequest\032!.identity.VerifyUserTokenRespo"
-  "nse\"\000\022F\n\tGetUserID\022\032.identity.GetUserIDR"
-  "equest\032\033.identity.GetUserIDResponse\"\000b\006p"
-  "roto3"
+  "sponse\022\016\n\006userID\030\001 \001(\t\";\n\027GetUserPublicK"
+  "eyRequest\022\016\n\006userID\030\001 \001(\t\022\020\n\010deviceID\030\002 "
+  "\001(\t\"-\n\030GetUserPublicKeyResponse\022\021\n\tpubli"
+  "cKey\030\001 \001(\t2\251\003\n\017IdentityService\022S\n\014Regist"
+  "erUser\022\035.identity.RegistrationRequest\032\036."
+  "identity.RegistrationResponse\"\000(\0010\001\022B\n\tL"
+  "oginUser\022\026.identity.LoginRequest\032\027.ident"
+  "ity.LoginResponse\"\000(\0010\001\022X\n\017VerifyUserTok"
+  "en\022 .identity.VerifyUserTokenRequest\032!.i"
+  "dentity.VerifyUserTokenResponse\"\000\022F\n\tGet"
+  "UserID\022\032.identity.GetUserIDRequest\032\033.ide"
+  "ntity.GetUserIDResponse\"\000\022[\n\020GetUserPubl"
+  "icKey\022!.identity.GetUserPublicKeyRequest"
+  "\032\".identity.GetUserPublicKeyResponse\"\000b\006"
+  "proto3"
   ;
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_identity_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_identity_2eproto = {
-  false, false, 2125, descriptor_table_protodef_identity_2eproto, "identity.proto", 
-  &descriptor_table_identity_2eproto_once, nullptr, 0, 15,
+  false, false, 2326, descriptor_table_protodef_identity_2eproto, "identity.proto", 
+  &descriptor_table_identity_2eproto_once, nullptr, 0, 17,
   schemas, file_default_instances, TableStruct_identity_2eproto::offsets,
   file_level_metadata_identity_2eproto, file_level_enum_descriptors_identity_2eproto, file_level_service_descriptors_identity_2eproto,
 };
@@ -4584,6 +4631,444 @@ void GetUserIDResponse::InternalSwap(GetUserIDResponse* other) {
 }
 
 
+// ===================================================================
+
+class GetUserPublicKeyRequest::_Internal {
+ public:
+};
+
+GetUserPublicKeyRequest::GetUserPublicKeyRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+  SharedCtor();
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:identity.GetUserPublicKeyRequest)
+}
+GetUserPublicKeyRequest::GetUserPublicKeyRequest(const GetUserPublicKeyRequest& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_userid().empty()) {
+    userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_userid(), 
+      GetArena());
+  }
+  deviceid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_deviceid().empty()) {
+    deviceid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_deviceid(), 
+      GetArena());
+  }
+  // @@protoc_insertion_point(copy_constructor:identity.GetUserPublicKeyRequest)
+}
+
+void GetUserPublicKeyRequest::SharedCtor() {
+userid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+deviceid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+GetUserPublicKeyRequest::~GetUserPublicKeyRequest() {
+  // @@protoc_insertion_point(destructor:identity.GetUserPublicKeyRequest)
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+void GetUserPublicKeyRequest::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
+  userid_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  deviceid_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+void GetUserPublicKeyRequest::ArenaDtor(void* object) {
+  GetUserPublicKeyRequest* _this = reinterpret_cast< GetUserPublicKeyRequest* >(object);
+  (void)_this;
+}
+void GetUserPublicKeyRequest::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void GetUserPublicKeyRequest::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void GetUserPublicKeyRequest::Clear() {
+// @@protoc_insertion_point(message_clear_start:identity.GetUserPublicKeyRequest)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  userid_.ClearToEmpty();
+  deviceid_.ClearToEmpty();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* GetUserPublicKeyRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string userID = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          auto str = _internal_mutable_userid();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "identity.GetUserPublicKeyRequest.userID"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // string deviceID = 2;
+      case 2:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+          auto str = _internal_mutable_deviceid();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "identity.GetUserPublicKeyRequest.deviceID"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* GetUserPublicKeyRequest::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:identity.GetUserPublicKeyRequest)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string userID = 1;
+  if (this->userid().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_userid().data(), static_cast<int>(this->_internal_userid().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "identity.GetUserPublicKeyRequest.userID");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_userid(), target);
+  }
+
+  // string deviceID = 2;
+  if (this->deviceid().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_deviceid().data(), static_cast<int>(this->_internal_deviceid().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "identity.GetUserPublicKeyRequest.deviceID");
+    target = stream->WriteStringMaybeAliased(
+        2, this->_internal_deviceid(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:identity.GetUserPublicKeyRequest)
+  return target;
+}
+
+size_t GetUserPublicKeyRequest::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:identity.GetUserPublicKeyRequest)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string userID = 1;
+  if (this->userid().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_userid());
+  }
+
+  // string deviceID = 2;
+  if (this->deviceid().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_deviceid());
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void GetUserPublicKeyRequest::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:identity.GetUserPublicKeyRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  const GetUserPublicKeyRequest* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<GetUserPublicKeyRequest>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:identity.GetUserPublicKeyRequest)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:identity.GetUserPublicKeyRequest)
+    MergeFrom(*source);
+  }
+}
+
+void GetUserPublicKeyRequest::MergeFrom(const GetUserPublicKeyRequest& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:identity.GetUserPublicKeyRequest)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.userid().size() > 0) {
+    _internal_set_userid(from._internal_userid());
+  }
+  if (from.deviceid().size() > 0) {
+    _internal_set_deviceid(from._internal_deviceid());
+  }
+}
+
+void GetUserPublicKeyRequest::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:identity.GetUserPublicKeyRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void GetUserPublicKeyRequest::CopyFrom(const GetUserPublicKeyRequest& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:identity.GetUserPublicKeyRequest)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool GetUserPublicKeyRequest::IsInitialized() const {
+  return true;
+}
+
+void GetUserPublicKeyRequest::InternalSwap(GetUserPublicKeyRequest* other) {
+  using std::swap;
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  userid_.Swap(&other->userid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  deviceid_.Swap(&other->deviceid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata GetUserPublicKeyRequest::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
+// ===================================================================
+
+class GetUserPublicKeyResponse::_Internal {
+ public:
+};
+
+GetUserPublicKeyResponse::GetUserPublicKeyResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena)
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
+  SharedCtor();
+  RegisterArenaDtor(arena);
+  // @@protoc_insertion_point(arena_constructor:identity.GetUserPublicKeyResponse)
+}
+GetUserPublicKeyResponse::GetUserPublicKeyResponse(const GetUserPublicKeyResponse& from)
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  publickey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  if (!from._internal_publickey().empty()) {
+    publickey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_publickey(), 
+      GetArena());
+  }
+  // @@protoc_insertion_point(copy_constructor:identity.GetUserPublicKeyResponse)
+}
+
+void GetUserPublicKeyResponse::SharedCtor() {
+publickey_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+GetUserPublicKeyResponse::~GetUserPublicKeyResponse() {
+  // @@protoc_insertion_point(destructor:identity.GetUserPublicKeyResponse)
+  SharedDtor();
+  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+void GetUserPublicKeyResponse::SharedDtor() {
+  GOOGLE_DCHECK(GetArena() == nullptr);
+  publickey_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+}
+
+void GetUserPublicKeyResponse::ArenaDtor(void* object) {
+  GetUserPublicKeyResponse* _this = reinterpret_cast< GetUserPublicKeyResponse* >(object);
+  (void)_this;
+}
+void GetUserPublicKeyResponse::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
+}
+void GetUserPublicKeyResponse::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+
+void GetUserPublicKeyResponse::Clear() {
+// @@protoc_insertion_point(message_clear_start:identity.GetUserPublicKeyResponse)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  publickey_.ClearToEmpty();
+  _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+}
+
+const char* GetUserPublicKeyResponse::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while (!ctx->Done(&ptr)) {
+    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
+    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    CHK_(ptr);
+    switch (tag >> 3) {
+      // string publicKey = 1;
+      case 1:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+          auto str = _internal_mutable_publickey();
+          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
+          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "identity.GetUserPublicKeyResponse.publicKey"));
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      default: {
+      handle_unusual:
+        if ((tag & 7) == 4 || tag == 0) {
+          ctx->SetLastTag(tag);
+          goto success;
+        }
+        ptr = UnknownFieldParse(tag,
+            _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(),
+            ptr, ctx);
+        CHK_(ptr != nullptr);
+        continue;
+      }
+    }  // switch
+  }  // while
+success:
+  return ptr;
+failure:
+  ptr = nullptr;
+  goto success;
+#undef CHK_
+}
+
+::PROTOBUF_NAMESPACE_ID::uint8* GetUserPublicKeyResponse::_InternalSerialize(
+    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+  // @@protoc_insertion_point(serialize_to_array_start:identity.GetUserPublicKeyResponse)
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // string publicKey = 1;
+  if (this->publickey().size() > 0) {
+    ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+      this->_internal_publickey().data(), static_cast<int>(this->_internal_publickey().length()),
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+      "identity.GetUserPublicKeyResponse.publicKey");
+    target = stream->WriteStringMaybeAliased(
+        1, this->_internal_publickey(), target);
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+        _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:identity.GetUserPublicKeyResponse)
+  return target;
+}
+
+size_t GetUserPublicKeyResponse::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:identity.GetUserPublicKeyResponse)
+  size_t total_size = 0;
+
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  // string publicKey = 1;
+  if (this->publickey().size() > 0) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
+        this->_internal_publickey());
+  }
+
+  if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
+    return ::PROTOBUF_NAMESPACE_ID::internal::ComputeUnknownFieldsSize(
+        _internal_metadata_, total_size, &_cached_size_);
+  }
+  int cached_size = ::PROTOBUF_NAMESPACE_ID::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void GetUserPublicKeyResponse::MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:identity.GetUserPublicKeyResponse)
+  GOOGLE_DCHECK_NE(&from, this);
+  const GetUserPublicKeyResponse* source =
+      ::PROTOBUF_NAMESPACE_ID::DynamicCastToGenerated<GetUserPublicKeyResponse>(
+          &from);
+  if (source == nullptr) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:identity.GetUserPublicKeyResponse)
+    ::PROTOBUF_NAMESPACE_ID::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:identity.GetUserPublicKeyResponse)
+    MergeFrom(*source);
+  }
+}
+
+void GetUserPublicKeyResponse::MergeFrom(const GetUserPublicKeyResponse& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:identity.GetUserPublicKeyResponse)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.publickey().size() > 0) {
+    _internal_set_publickey(from._internal_publickey());
+  }
+}
+
+void GetUserPublicKeyResponse::CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:identity.GetUserPublicKeyResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void GetUserPublicKeyResponse::CopyFrom(const GetUserPublicKeyResponse& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:identity.GetUserPublicKeyResponse)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool GetUserPublicKeyResponse::IsInitialized() const {
+  return true;
+}
+
+void GetUserPublicKeyResponse::InternalSwap(GetUserPublicKeyResponse* other) {
+  using std::swap;
+  _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
+  publickey_.Swap(&other->publickey_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+
+::PROTOBUF_NAMESPACE_ID::Metadata GetUserPublicKeyResponse::GetMetadata() const {
+  return GetMetadataStatic();
+}
+
+
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace identity
 PROTOBUF_NAMESPACE_OPEN
@@ -4631,6 +5116,12 @@ template<> PROTOBUF_NOINLINE ::identity::GetUserIDRequest* Arena::CreateMaybeMes
 }
 template<> PROTOBUF_NOINLINE ::identity::GetUserIDResponse* Arena::CreateMaybeMessage< ::identity::GetUserIDResponse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::identity::GetUserIDResponse >(arena);
+}
+template<> PROTOBUF_NOINLINE ::identity::GetUserPublicKeyRequest* Arena::CreateMaybeMessage< ::identity::GetUserPublicKeyRequest >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::identity::GetUserPublicKeyRequest >(arena);
+}
+template<> PROTOBUF_NOINLINE ::identity::GetUserPublicKeyResponse* Arena::CreateMaybeMessage< ::identity::GetUserPublicKeyResponse >(Arena* arena) {
+  return Arena::CreateMessageInternal< ::identity::GetUserPublicKeyResponse >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE
 

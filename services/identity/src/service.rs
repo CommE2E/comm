@@ -40,8 +40,8 @@ use proto::{
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse as PakeRegistrationLoginResponse,
   registration_response::Data::PakeRegistrationResponse, GetUserIdRequest,
-  GetUserIdResponse, LoginRequest, LoginResponse,
-  PakeLoginRequest as PakeLoginRequestStruct,
+  GetUserIdResponse, GetUserPublicKeyRequest, GetUserPublicKeyResponse,
+  LoginRequest, LoginResponse, PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
   RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
   WalletLoginRequest as WalletLoginRequestStruct,
@@ -376,6 +376,14 @@ impl IdentityService for MyIdentityService {
     };
     let response = Response::new(GetUserIdResponse { user_id });
     Ok(response)
+  }
+
+  #[instrument(skip(self))]
+  async fn get_user_public_key(
+    &self,
+    request: Request<GetUserPublicKeyRequest>,
+  ) -> Result<Response<GetUserPublicKeyResponse>, Status> {
+    unimplemented!()
   }
 }
 

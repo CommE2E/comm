@@ -2222,9 +2222,9 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
     return *internal_default_instance();
   }
   enum DataCase {
-    kMessagesToSend = 2,
-    kProcessedMessages = 3,
-    kNewNotifyToken = 4,
+    kMessagesToSend = 1,
+    kProcessedMessages = 2,
+    kNewNotifyToken = 3,
     DATA_NOT_SET = 0,
   };
 
@@ -2303,28 +2303,11 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kSessionIDFieldNumber = 1,
-    kMessagesToSendFieldNumber = 2,
-    kProcessedMessagesFieldNumber = 3,
-    kNewNotifyTokenFieldNumber = 4,
+    kMessagesToSendFieldNumber = 1,
+    kProcessedMessagesFieldNumber = 2,
+    kNewNotifyTokenFieldNumber = 3,
   };
-  // string sessionID = 1;
-  void clear_sessionid();
-  const std::string& sessionid() const;
-  void set_sessionid(const std::string& value);
-  void set_sessionid(std::string&& value);
-  void set_sessionid(const char* value);
-  void set_sessionid(const char* value, size_t size);
-  std::string* mutable_sessionid();
-  std::string* release_sessionid();
-  void set_allocated_sessionid(std::string* sessionid);
-  private:
-  const std::string& _internal_sessionid() const;
-  void _internal_set_sessionid(const std::string& value);
-  std::string* _internal_mutable_sessionid();
-  public:
-
-  // .tunnelbroker.MessagesToSend messagesToSend = 2;
+  // .tunnelbroker.MessagesToSend messagesToSend = 1;
   bool has_messagestosend() const;
   private:
   bool _internal_has_messagestosend() const;
@@ -2342,7 +2325,7 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
       ::tunnelbroker::MessagesToSend* messagestosend);
   ::tunnelbroker::MessagesToSend* unsafe_arena_release_messagestosend();
 
-  // .tunnelbroker.ProcessedMessages processedMessages = 3;
+  // .tunnelbroker.ProcessedMessages processedMessages = 2;
   bool has_processedmessages() const;
   private:
   bool _internal_has_processedmessages() const;
@@ -2360,7 +2343,7 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
       ::tunnelbroker::ProcessedMessages* processedmessages);
   ::tunnelbroker::ProcessedMessages* unsafe_arena_release_processedmessages();
 
-  // string newNotifyToken = 4;
+  // string newNotifyToken = 3;
   bool has_newnotifytoken() const;
   private:
   bool _internal_has_newnotifytoken() const;
@@ -2395,7 +2378,6 @@ class MessageToTunnelbroker PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr sessionid_;
   union DataUnion {
     constexpr DataUnion() : _constinit_{} {}
       ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized _constinit_;
@@ -5554,68 +5536,7 @@ MessagesToSend::messages() const {
 
 // MessageToTunnelbroker
 
-// string sessionID = 1;
-inline void MessageToTunnelbroker::clear_sessionid() {
-  sessionid_.ClearToEmpty();
-}
-inline const std::string& MessageToTunnelbroker::sessionid() const {
-  // @@protoc_insertion_point(field_get:tunnelbroker.MessageToTunnelbroker.sessionID)
-  return _internal_sessionid();
-}
-inline void MessageToTunnelbroker::set_sessionid(const std::string& value) {
-  _internal_set_sessionid(value);
-  // @@protoc_insertion_point(field_set:tunnelbroker.MessageToTunnelbroker.sessionID)
-}
-inline std::string* MessageToTunnelbroker::mutable_sessionid() {
-  // @@protoc_insertion_point(field_mutable:tunnelbroker.MessageToTunnelbroker.sessionID)
-  return _internal_mutable_sessionid();
-}
-inline const std::string& MessageToTunnelbroker::_internal_sessionid() const {
-  return sessionid_.Get();
-}
-inline void MessageToTunnelbroker::_internal_set_sessionid(const std::string& value) {
-  
-  sessionid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
-}
-inline void MessageToTunnelbroker::set_sessionid(std::string&& value) {
-  
-  sessionid_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:tunnelbroker.MessageToTunnelbroker.sessionID)
-}
-inline void MessageToTunnelbroker::set_sessionid(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  sessionid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:tunnelbroker.MessageToTunnelbroker.sessionID)
-}
-inline void MessageToTunnelbroker::set_sessionid(const char* value,
-    size_t size) {
-  
-  sessionid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.MessageToTunnelbroker.sessionID)
-}
-inline std::string* MessageToTunnelbroker::_internal_mutable_sessionid() {
-  
-  return sessionid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
-}
-inline std::string* MessageToTunnelbroker::release_sessionid() {
-  // @@protoc_insertion_point(field_release:tunnelbroker.MessageToTunnelbroker.sessionID)
-  return sessionid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void MessageToTunnelbroker::set_allocated_sessionid(std::string* sessionid) {
-  if (sessionid != nullptr) {
-    
-  } else {
-    
-  }
-  sessionid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), sessionid,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:tunnelbroker.MessageToTunnelbroker.sessionID)
-}
-
-// .tunnelbroker.MessagesToSend messagesToSend = 2;
+// .tunnelbroker.MessagesToSend messagesToSend = 1;
 inline bool MessageToTunnelbroker::_internal_has_messagestosend() const {
   return data_case() == kMessagesToSend;
 }
@@ -5688,7 +5609,7 @@ inline ::tunnelbroker::MessagesToSend* MessageToTunnelbroker::mutable_messagesto
   return _internal_mutable_messagestosend();
 }
 
-// .tunnelbroker.ProcessedMessages processedMessages = 3;
+// .tunnelbroker.ProcessedMessages processedMessages = 2;
 inline bool MessageToTunnelbroker::_internal_has_processedmessages() const {
   return data_case() == kProcessedMessages;
 }
@@ -5761,7 +5682,7 @@ inline ::tunnelbroker::ProcessedMessages* MessageToTunnelbroker::mutable_process
   return _internal_mutable_processedmessages();
 }
 
-// string newNotifyToken = 4;
+// string newNotifyToken = 3;
 inline bool MessageToTunnelbroker::_internal_has_newnotifytoken() const {
   return data_case() == kNewNotifyToken;
 }

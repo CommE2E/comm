@@ -47,7 +47,7 @@ struct TableStruct_identity_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[15]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[17]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -62,6 +62,12 @@ extern GetUserIDRequestDefaultTypeInternal _GetUserIDRequest_default_instance_;
 class GetUserIDResponse;
 struct GetUserIDResponseDefaultTypeInternal;
 extern GetUserIDResponseDefaultTypeInternal _GetUserIDResponse_default_instance_;
+class GetUserPublicKeyRequest;
+struct GetUserPublicKeyRequestDefaultTypeInternal;
+extern GetUserPublicKeyRequestDefaultTypeInternal _GetUserPublicKeyRequest_default_instance_;
+class GetUserPublicKeyResponse;
+struct GetUserPublicKeyResponseDefaultTypeInternal;
+extern GetUserPublicKeyResponseDefaultTypeInternal _GetUserPublicKeyResponse_default_instance_;
 class LoginRequest;
 struct LoginRequestDefaultTypeInternal;
 extern LoginRequestDefaultTypeInternal _LoginRequest_default_instance_;
@@ -105,6 +111,8 @@ extern WalletLoginResponseDefaultTypeInternal _WalletLoginResponse_default_insta
 PROTOBUF_NAMESPACE_OPEN
 template<> ::identity::GetUserIDRequest* Arena::CreateMaybeMessage<::identity::GetUserIDRequest>(Arena*);
 template<> ::identity::GetUserIDResponse* Arena::CreateMaybeMessage<::identity::GetUserIDResponse>(Arena*);
+template<> ::identity::GetUserPublicKeyRequest* Arena::CreateMaybeMessage<::identity::GetUserPublicKeyRequest>(Arena*);
+template<> ::identity::GetUserPublicKeyResponse* Arena::CreateMaybeMessage<::identity::GetUserPublicKeyResponse>(Arena*);
 template<> ::identity::LoginRequest* Arena::CreateMaybeMessage<::identity::LoginRequest>(Arena*);
 template<> ::identity::LoginResponse* Arena::CreateMaybeMessage<::identity::LoginResponse>(Arena*);
 template<> ::identity::PakeCredentialRequestAndUserID* Arena::CreateMaybeMessage<::identity::PakeCredentialRequestAndUserID>(Arena*);
@@ -2870,6 +2878,312 @@ class GetUserIDResponse PROTOBUF_FINAL :
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_identity_2eproto;
 };
+// -------------------------------------------------------------------
+
+class GetUserPublicKeyRequest PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:identity.GetUserPublicKeyRequest) */ {
+ public:
+  inline GetUserPublicKeyRequest() : GetUserPublicKeyRequest(nullptr) {}
+  virtual ~GetUserPublicKeyRequest();
+  explicit constexpr GetUserPublicKeyRequest(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GetUserPublicKeyRequest(const GetUserPublicKeyRequest& from);
+  GetUserPublicKeyRequest(GetUserPublicKeyRequest&& from) noexcept
+    : GetUserPublicKeyRequest() {
+    *this = ::std::move(from);
+  }
+
+  inline GetUserPublicKeyRequest& operator=(const GetUserPublicKeyRequest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetUserPublicKeyRequest& operator=(GetUserPublicKeyRequest&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const GetUserPublicKeyRequest& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetUserPublicKeyRequest* internal_default_instance() {
+    return reinterpret_cast<const GetUserPublicKeyRequest*>(
+               &_GetUserPublicKeyRequest_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    15;
+
+  friend void swap(GetUserPublicKeyRequest& a, GetUserPublicKeyRequest& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GetUserPublicKeyRequest* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetUserPublicKeyRequest* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline GetUserPublicKeyRequest* New() const final {
+    return CreateMaybeMessage<GetUserPublicKeyRequest>(nullptr);
+  }
+
+  GetUserPublicKeyRequest* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<GetUserPublicKeyRequest>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const GetUserPublicKeyRequest& from);
+  void MergeFrom(const GetUserPublicKeyRequest& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GetUserPublicKeyRequest* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "identity.GetUserPublicKeyRequest";
+  }
+  protected:
+  explicit GetUserPublicKeyRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_identity_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUserIDFieldNumber = 1,
+    kDeviceIDFieldNumber = 2,
+  };
+  // string userID = 1;
+  void clear_userid();
+  const std::string& userid() const;
+  void set_userid(const std::string& value);
+  void set_userid(std::string&& value);
+  void set_userid(const char* value);
+  void set_userid(const char* value, size_t size);
+  std::string* mutable_userid();
+  std::string* release_userid();
+  void set_allocated_userid(std::string* userid);
+  private:
+  const std::string& _internal_userid() const;
+  void _internal_set_userid(const std::string& value);
+  std::string* _internal_mutable_userid();
+  public:
+
+  // string deviceID = 2;
+  void clear_deviceid();
+  const std::string& deviceid() const;
+  void set_deviceid(const std::string& value);
+  void set_deviceid(std::string&& value);
+  void set_deviceid(const char* value);
+  void set_deviceid(const char* value, size_t size);
+  std::string* mutable_deviceid();
+  std::string* release_deviceid();
+  void set_allocated_deviceid(std::string* deviceid);
+  private:
+  const std::string& _internal_deviceid() const;
+  void _internal_set_deviceid(const std::string& value);
+  std::string* _internal_mutable_deviceid();
+  public:
+
+  // @@protoc_insertion_point(class_scope:identity.GetUserPublicKeyRequest)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr userid_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr deviceid_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_identity_2eproto;
+};
+// -------------------------------------------------------------------
+
+class GetUserPublicKeyResponse PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:identity.GetUserPublicKeyResponse) */ {
+ public:
+  inline GetUserPublicKeyResponse() : GetUserPublicKeyResponse(nullptr) {}
+  virtual ~GetUserPublicKeyResponse();
+  explicit constexpr GetUserPublicKeyResponse(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GetUserPublicKeyResponse(const GetUserPublicKeyResponse& from);
+  GetUserPublicKeyResponse(GetUserPublicKeyResponse&& from) noexcept
+    : GetUserPublicKeyResponse() {
+    *this = ::std::move(from);
+  }
+
+  inline GetUserPublicKeyResponse& operator=(const GetUserPublicKeyResponse& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GetUserPublicKeyResponse& operator=(GetUserPublicKeyResponse&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const GetUserPublicKeyResponse& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GetUserPublicKeyResponse* internal_default_instance() {
+    return reinterpret_cast<const GetUserPublicKeyResponse*>(
+               &_GetUserPublicKeyResponse_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    16;
+
+  friend void swap(GetUserPublicKeyResponse& a, GetUserPublicKeyResponse& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GetUserPublicKeyResponse* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GetUserPublicKeyResponse* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline GetUserPublicKeyResponse* New() const final {
+    return CreateMaybeMessage<GetUserPublicKeyResponse>(nullptr);
+  }
+
+  GetUserPublicKeyResponse* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<GetUserPublicKeyResponse>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const GetUserPublicKeyResponse& from);
+  void MergeFrom(const GetUserPublicKeyResponse& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GetUserPublicKeyResponse* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "identity.GetUserPublicKeyResponse";
+  }
+  protected:
+  explicit GetUserPublicKeyResponse(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_identity_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kPublicKeyFieldNumber = 1,
+  };
+  // string publicKey = 1;
+  void clear_publickey();
+  const std::string& publickey() const;
+  void set_publickey(const std::string& value);
+  void set_publickey(std::string&& value);
+  void set_publickey(const char* value);
+  void set_publickey(const char* value, size_t size);
+  std::string* mutable_publickey();
+  std::string* release_publickey();
+  void set_allocated_publickey(std::string* publickey);
+  private:
+  const std::string& _internal_publickey() const;
+  void _internal_set_publickey(const std::string& value);
+  std::string* _internal_mutable_publickey();
+  public:
+
+  // @@protoc_insertion_point(class_scope:identity.GetUserPublicKeyResponse)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr publickey_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_identity_2eproto;
+};
 // ===================================================================
 
 
@@ -5507,9 +5821,204 @@ inline void GetUserIDResponse::set_allocated_userid(std::string* userid) {
   // @@protoc_insertion_point(field_set_allocated:identity.GetUserIDResponse.userID)
 }
 
+// -------------------------------------------------------------------
+
+// GetUserPublicKeyRequest
+
+// string userID = 1;
+inline void GetUserPublicKeyRequest::clear_userid() {
+  userid_.ClearToEmpty();
+}
+inline const std::string& GetUserPublicKeyRequest::userid() const {
+  // @@protoc_insertion_point(field_get:identity.GetUserPublicKeyRequest.userID)
+  return _internal_userid();
+}
+inline void GetUserPublicKeyRequest::set_userid(const std::string& value) {
+  _internal_set_userid(value);
+  // @@protoc_insertion_point(field_set:identity.GetUserPublicKeyRequest.userID)
+}
+inline std::string* GetUserPublicKeyRequest::mutable_userid() {
+  // @@protoc_insertion_point(field_mutable:identity.GetUserPublicKeyRequest.userID)
+  return _internal_mutable_userid();
+}
+inline const std::string& GetUserPublicKeyRequest::_internal_userid() const {
+  return userid_.Get();
+}
+inline void GetUserPublicKeyRequest::_internal_set_userid(const std::string& value) {
+  
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void GetUserPublicKeyRequest::set_userid(std::string&& value) {
+  
+  userid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:identity.GetUserPublicKeyRequest.userID)
+}
+inline void GetUserPublicKeyRequest::set_userid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:identity.GetUserPublicKeyRequest.userID)
+}
+inline void GetUserPublicKeyRequest::set_userid(const char* value,
+    size_t size) {
+  
+  userid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:identity.GetUserPublicKeyRequest.userID)
+}
+inline std::string* GetUserPublicKeyRequest::_internal_mutable_userid() {
+  
+  return userid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* GetUserPublicKeyRequest::release_userid() {
+  // @@protoc_insertion_point(field_release:identity.GetUserPublicKeyRequest.userID)
+  return userid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void GetUserPublicKeyRequest::set_allocated_userid(std::string* userid) {
+  if (userid != nullptr) {
+    
+  } else {
+    
+  }
+  userid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), userid,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:identity.GetUserPublicKeyRequest.userID)
+}
+
+// string deviceID = 2;
+inline void GetUserPublicKeyRequest::clear_deviceid() {
+  deviceid_.ClearToEmpty();
+}
+inline const std::string& GetUserPublicKeyRequest::deviceid() const {
+  // @@protoc_insertion_point(field_get:identity.GetUserPublicKeyRequest.deviceID)
+  return _internal_deviceid();
+}
+inline void GetUserPublicKeyRequest::set_deviceid(const std::string& value) {
+  _internal_set_deviceid(value);
+  // @@protoc_insertion_point(field_set:identity.GetUserPublicKeyRequest.deviceID)
+}
+inline std::string* GetUserPublicKeyRequest::mutable_deviceid() {
+  // @@protoc_insertion_point(field_mutable:identity.GetUserPublicKeyRequest.deviceID)
+  return _internal_mutable_deviceid();
+}
+inline const std::string& GetUserPublicKeyRequest::_internal_deviceid() const {
+  return deviceid_.Get();
+}
+inline void GetUserPublicKeyRequest::_internal_set_deviceid(const std::string& value) {
+  
+  deviceid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void GetUserPublicKeyRequest::set_deviceid(std::string&& value) {
+  
+  deviceid_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:identity.GetUserPublicKeyRequest.deviceID)
+}
+inline void GetUserPublicKeyRequest::set_deviceid(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  deviceid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:identity.GetUserPublicKeyRequest.deviceID)
+}
+inline void GetUserPublicKeyRequest::set_deviceid(const char* value,
+    size_t size) {
+  
+  deviceid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:identity.GetUserPublicKeyRequest.deviceID)
+}
+inline std::string* GetUserPublicKeyRequest::_internal_mutable_deviceid() {
+  
+  return deviceid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* GetUserPublicKeyRequest::release_deviceid() {
+  // @@protoc_insertion_point(field_release:identity.GetUserPublicKeyRequest.deviceID)
+  return deviceid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void GetUserPublicKeyRequest::set_allocated_deviceid(std::string* deviceid) {
+  if (deviceid != nullptr) {
+    
+  } else {
+    
+  }
+  deviceid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), deviceid,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:identity.GetUserPublicKeyRequest.deviceID)
+}
+
+// -------------------------------------------------------------------
+
+// GetUserPublicKeyResponse
+
+// string publicKey = 1;
+inline void GetUserPublicKeyResponse::clear_publickey() {
+  publickey_.ClearToEmpty();
+}
+inline const std::string& GetUserPublicKeyResponse::publickey() const {
+  // @@protoc_insertion_point(field_get:identity.GetUserPublicKeyResponse.publicKey)
+  return _internal_publickey();
+}
+inline void GetUserPublicKeyResponse::set_publickey(const std::string& value) {
+  _internal_set_publickey(value);
+  // @@protoc_insertion_point(field_set:identity.GetUserPublicKeyResponse.publicKey)
+}
+inline std::string* GetUserPublicKeyResponse::mutable_publickey() {
+  // @@protoc_insertion_point(field_mutable:identity.GetUserPublicKeyResponse.publicKey)
+  return _internal_mutable_publickey();
+}
+inline const std::string& GetUserPublicKeyResponse::_internal_publickey() const {
+  return publickey_.Get();
+}
+inline void GetUserPublicKeyResponse::_internal_set_publickey(const std::string& value) {
+  
+  publickey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+}
+inline void GetUserPublicKeyResponse::set_publickey(std::string&& value) {
+  
+  publickey_.Set(
+    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:identity.GetUserPublicKeyResponse.publicKey)
+}
+inline void GetUserPublicKeyResponse::set_publickey(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  
+  publickey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
+  // @@protoc_insertion_point(field_set_char:identity.GetUserPublicKeyResponse.publicKey)
+}
+inline void GetUserPublicKeyResponse::set_publickey(const char* value,
+    size_t size) {
+  
+  publickey_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:identity.GetUserPublicKeyResponse.publicKey)
+}
+inline std::string* GetUserPublicKeyResponse::_internal_mutable_publickey() {
+  
+  return publickey_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+}
+inline std::string* GetUserPublicKeyResponse::release_publickey() {
+  // @@protoc_insertion_point(field_release:identity.GetUserPublicKeyResponse.publicKey)
+  return publickey_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void GetUserPublicKeyResponse::set_allocated_publickey(std::string* publickey) {
+  if (publickey != nullptr) {
+    
+  } else {
+    
+  }
+  publickey_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), publickey,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:identity.GetUserPublicKeyResponse.publicKey)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
