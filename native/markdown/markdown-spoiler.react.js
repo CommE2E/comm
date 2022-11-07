@@ -19,10 +19,6 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
   const messageContext = React.useContext(MessageContext);
   const styles = useStyles(unboundStyles);
 
-  const [styleBasedOnState, setStyleBasedOnState] = React.useState(
-    styles.spoilerHidden,
-  );
-
   const { messageID, messageText } = messageContext;
   const text = props.text;
 
@@ -31,6 +27,12 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
   const setSpoilerPressActive = markdownContext?.setSpoilerPressActive;
 
   const spoilerIndex = messageText?.indexOf(text.toString());
+
+  const [styleBasedOnState, setStyleBasedOnState] = React.useState(
+    spoilerIndex && spoilerRevealed?.[messageID]?.[spoilerIndex]
+      ? null
+      : styles.spoilerHidden,
+  );
 
   const onSpoilerClick = React.useCallback(() => {
     if (styleBasedOnState === null) {
