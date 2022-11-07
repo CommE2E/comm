@@ -18,7 +18,6 @@ import {
   type MessageStore,
   messageTypes,
   type ClientDBMessageStoreOperation,
-  type RawMessageInfo,
 } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { translateRawMessageInfoToClientDBMessageInfo } from 'lib/utils/message-ops-utils';
@@ -394,10 +393,7 @@ type PersistedMessageStore = {
   +currentAsOf: number,
   +threads: { +[threadID: string]: PersistedThreadMessageInfo },
 };
-type RehydratedMessageStore = $Diff<
-  MessageStore,
-  { +messages: { +[id: string]: RawMessageInfo } },
->;
+
 const messageStoreMessagesBlocklistTransform: Transform = createTransform(
   (state: MessageStore): PersistedMessageStore => {
     const { messages, threads, ...messageStoreSansMessages } = state;
@@ -411,13 +407,13 @@ const messageStoreMessagesBlocklistTransform: Transform = createTransform(
     }
     return { ...messageStoreSansMessages, threads: threadsToPersist };
   },
-  (state: PersistedMessageStore): RehydratedMessageStore => {
+  (state: PersistedMessageStore): MessageStore => {
     const { threads: persistedThreads, ...messageStore } = state;
     const threads = {};
     for (const threadID in persistedThreads) {
       threads[threadID] = { ...persistedThreads[threadID], messageIDs: [] };
     }
-    return { ...messageStore, threads };
+    return { ...messageStore, threads, messages: {} };
   },
   { whitelist: ['messageStore'] },
 );
