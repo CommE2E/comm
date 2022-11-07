@@ -14,23 +14,45 @@
  */
 
 declare module 'react-native-reanimated' {
-  
-  declare class Node { }
-  
+  // This was taken from the flow typed library definitions of bottom-tabs_v6
+  declare type StyleObj =
+    | null
+    | void
+    | number
+    | false
+    | ''
+    | $ReadOnlyArray<StyleObj>
+    | { [name: string]: any, ... };
+
+  declare type ViewStyleProp = StyleObj;
+  declare type TextStyleProp = StyleObj;
+
+  declare type StyleProps = {|
+    ...ViewStyleProp,
+    ...TextStyleProp,
+    +originX?: number,
+    +originY?: number,
+    +[key: string]: any,
+  |};
+
+  declare class Node {}
+
   declare class Value extends Node {
     constructor(val: number): this;
     setValue(num: number): void;
   }
 
-  declare class Clock extends Node { }
+  declare class Clock extends Node {}
 
-  declare class View extends React$Component<{ ... }> { }
-  declare class Text extends React$Component<{ ... }> { }
-  declare class Image extends React$Component<{ ... }> { }
-  declare class Code extends React$Component<{
-    +exec: Node,
-    ...
-  }> { }
+  declare class View extends React$Component<{ ... }> {}
+  declare class Text extends React$Component<{ ... }> {}
+  declare class Image extends React$Component<{ ... }> {}
+  declare class Code
+    extends
+      React$Component<{
+        +exec: Node,
+        ...
+      }> {}
 
   declare type NodeOrNum = Node | number;
   declare export type NodeParam = NodeOrNum | $ReadOnlyArray<?NodeParam>;
@@ -70,10 +92,10 @@ declare module 'react-native-reanimated' {
   declare export type Pow = (...$ReadOnlyArray<NodeParam>) => Node;
   declare export type Max = (NodeParam, NodeParam) => Node;
   declare export type Min = (NodeParam, NodeParam) => Node;
-  declare export type Abs = (NodeParam) => Node;
-  declare export type Ceil = (NodeParam) => Node;
-  declare export type Floor = (NodeParam) => Node;
-  declare export type Round = (NodeParam) => Node;
+  declare export type Abs = NodeParam => Node;
+  declare export type Ceil = NodeParam => Node;
+  declare export type Floor = NodeParam => Node;
+  declare export type Round = NodeParam => Node;
 
   declare export type StartClock = Clock => Node;
   declare export type StopClock = Clock => Node;
@@ -103,7 +125,7 @@ declare module 'react-native-reanimated' {
   };
   declare export type InterpolateColors = (
     animationValue: NodeParam,
-    interpolationConfig: InterpolateColorsConfig
+    interpolationConfig: InterpolateColorsConfig,
   ) => Node;
 
   declare export type Interpolate = (
@@ -123,6 +145,7 @@ declare module 'react-native-reanimated' {
     ...
   };
   declare export var EasingNode: EasingModule;
+  declare type EasingFn = (t: number) => number;
 
   declare export type TimingState = {
     +finished: Value,
@@ -142,15 +165,8 @@ declare module 'react-native-reanimated' {
     ...
   };
   declare type Timing = {|
-    (
-      value: Value,
-      config: TimingConfig,
-    ): Animator,
-    (
-      clock: Clock,
-      state: TimingState,
-      config: TimingConfig,
-    ): Node,
+    (value: Value, config: TimingConfig): Animator,
+    (clock: Clock, state: TimingState, config: TimingConfig): Node,
   |};
 
   declare export type SpringConfig = {
@@ -179,15 +195,8 @@ declare module 'react-native-reanimated' {
     ...
   };
   declare type Spring = {|
-    (
-      value: Value,
-      config: SpringConfig,
-    ): Animator,
-    (
-      clock: Clock,
-      state: SpringState,
-      config: SpringConfig,
-    ): Node,
+    (value: Value, config: SpringConfig): Animator,
+    (clock: Clock, state: SpringState, config: SpringConfig): Node,
   |};
 
   declare export type DecayConfig = {
@@ -202,16 +211,164 @@ declare module 'react-native-reanimated' {
     ...
   };
   declare type Decay = {|
-    (
-      value: Value,
-      config: DecayConfig,
-    ): Animator,
-    (
-      clock: Clock,
-      state: DecayState,
-      config: DecayConfig,
-    ): Node,
+    (value: Value, config: DecayConfig): Animator,
+    (clock: Clock, state: DecayState, config: DecayConfig): Node,
   |};
+
+  declare type LayoutAnimation = {
+    +initialValues: StyleProps,
+    +animations: StyleProps,
+    +callback?: (finished: boolean) => void,
+  };
+
+  declare type AnimationFunction = (a?: any, b?: any, c?: any) => any;
+
+  declare type EntryAnimationsValues = {|
+    +targetOriginX: number,
+    +targetOriginY: number,
+    +targetWidth: number,
+    +targetHeight: number,
+    +targetGlobalOriginX: number,
+    +targetGlobalOriginY: number,
+  |};
+
+  declare type ExitAnimationsValues = {|
+    +currentOriginX: number,
+    +currentOriginY: number,
+    +currentWidth: number,
+    +currentHeight: number,
+    +currentGlobalOriginX: number,
+    +currentGlobalOriginY: number,
+  |};
+
+  declare export type EntryExitAnimationFunction = (
+    targetValues: EntryAnimationsValues | ExitAnimationsValues,
+  ) => LayoutAnimation;
+
+  declare type AnimationConfigFunction<T> = (
+    targetValues: T,
+  ) => LayoutAnimation;
+
+  declare type LayoutAnimationsValues = {|
+    +currentOriginX: number,
+    +currentOriginY: number,
+    +currentWidth: number,
+    +currentHeight: number,
+    +currentGlobalOriginX: number,
+    +currentGlobalOriginY: number,
+    +targetOriginX: number,
+    +targetOriginY: number,
+    +targetWidth: number,
+    +targetHeight: number,
+    +targetGlobalOriginX: number,
+    +argetGlobalOriginY: number,
+    +windowWidth: number,
+    +windowHeight: number,
+  |};
+
+  declare type LayoutAnimationFunction = (
+    targetValues: LayoutAnimationsValues,
+  ) => LayoutAnimation;
+
+  declare type BaseLayoutAnimationConfig = {|
+    +duration?: number,
+    +easing?: EasingFn,
+    +type?: AnimationFunction,
+    +damping?: number,
+    +mass?: number,
+    +stiffness?: number,
+    +overshootClamping?: number,
+    +restDisplacementThreshold?: number,
+    +restSpeedThreshold?: number,
+  |};
+
+  declare type BaseBuilderAnimationConfig = {|
+    ...BaseLayoutAnimationConfig,
+    rotate?: number | string,
+  |};
+
+  declare type LayoutAnimationAndConfig = [
+    AnimationFunction,
+    BaseBuilderAnimationConfig,
+  ];
+
+  declare export class BaseAnimationBuilder {
+    static duration(durationMs: number): BaseAnimationBuilder;
+    duration(durationMs: number): BaseAnimationBuilder;
+
+    static delay(delayMs: number): BaseAnimationBuilder;
+    delay(delayMs: number): BaseAnimationBuilder;
+
+    static withCallback(
+      callback: (finished: boolean) => void,
+    ): BaseAnimationBuilder;
+    withCallback(callback: (finished: boolean) => void): BaseAnimationBuilder;
+
+    static getDuration(): number;
+    getDuration(): number;
+
+    static randomDelay(): BaseAnimationBuilder;
+    randomDelay(): BaseAnimationBuilder;
+
+    getDelay(): number;
+    getDelayFunction(): AnimationFunction;
+
+    static build(): EntryExitAnimationFunction | LayoutAnimationFunction;
+  }
+
+  declare export class ComplexAnimationBuilder extends BaseAnimationBuilder {
+    static easing(easingFunction: EasingFn): ComplexAnimationBuilder;
+    easing(easingFunction: EasingFn): ComplexAnimationBuilder;
+
+    static rotate(degree: string): ComplexAnimationBuilder;
+    rotate(degree: string): ComplexAnimationBuilder;
+
+    static springify(): ComplexAnimationBuilder;
+    springify(): ComplexAnimationBuilder;
+
+    static damping(damping: number): ComplexAnimationBuilder;
+    damping(damping: number): ComplexAnimationBuilder;
+
+    static mass(mass: number): ComplexAnimationBuilder;
+    mass(mass: number): ComplexAnimationBuilder;
+
+    static stiffness(stiffness: number): ComplexAnimationBuilder;
+    stiffness(stiffness: number): ComplexAnimationBuilder;
+
+    static overshootClamping(
+      overshootClamping: number,
+    ): ComplexAnimationBuilder;
+    overshootClamping(overshootClamping: number): ComplexAnimationBuilder;
+
+    static restDisplacementThreshold(
+      restDisplacementThreshold: number,
+    ): ComplexAnimationBuilder;
+    restDisplacementThreshold(
+      restDisplacementThreshold: number,
+    ): ComplexAnimationBuilder;
+
+    static restSpeedThreshold(
+      restSpeedThreshold: number,
+    ): ComplexAnimationBuilder;
+    restSpeedThreshold(restSpeedThreshold: number): ComplexAnimationBuilder;
+
+    static withInitialValues(values: StyleProps): BaseAnimationBuilder;
+    withInitialValues(values: StyleProps): BaseAnimationBuilder;
+
+    getAnimationAndConfig(): LayoutAnimationAndConfig;
+  }
+
+  declare export class SlideInDown extends ComplexAnimationBuilder {
+    static createInstance(): SlideInDown;
+
+    build(): AnimationConfigFunction<EntryAnimationsValues>;
+  }
+
+  declare export class SlideOutDown extends ComplexAnimationBuilder {
+    static createInstance(): SlideOutDown;
+
+    build(): AnimationConfigFunction<ExitAnimationsValues>;
+  }
 
   declare type $SyntheticEvent<T: { ... }> = {
     +nativeEvent: $ReadOnly<$Exact<T>>,
@@ -242,10 +399,12 @@ declare module 'react-native-reanimated' {
   }>;
 
   declare type ToValue = (val: mixed) => Value;
-  declare type Event = <T, E: $Event<T>>(defs: $ReadOnlyArray<{
-    +nativeEvent: $Shape<$ObjMap<E, ToValue>>,
-    ...
-  }>) => E;
+  declare type Event = <T, E: $Event<T>>(
+    defs: $ReadOnlyArray<{
+      +nativeEvent: $Shape<$ObjMap<E, ToValue>>,
+      ...
+    }>,
+  ) => E;
 
   declare type UseValue = (initialVal: number) => Value;
 
@@ -412,5 +571,4 @@ declare module 'react-native-reanimated' {
     +cancelAnimation: CancelAnimation,
     ...
   };
-
 }

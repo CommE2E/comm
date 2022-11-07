@@ -16,7 +16,7 @@ import {
   TouchableOpacity,
   Keyboard,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -324,7 +324,10 @@ function createTooltip<
       style.position = 'absolute';
       (style.alignItems = 'center'),
         (style.opacity = this.tooltipContainerOpacity);
-      style.transform = [{ translateX: this.tooltipHorizontal }];
+
+      if (location !== 'fixed') {
+        style.transform = [{ translateX: this.tooltipHorizontal }];
+      }
 
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
@@ -361,7 +364,9 @@ function createTooltip<
         style.transform.push({ translateY: this.tooltipVerticalBelow });
       }
 
-      style.transform.push({ scale: this.tooltipScale });
+      if (location !== 'fixed') {
+        style.transform.push({ scale: this.tooltipScale });
+      }
 
       return style;
     }
@@ -467,11 +472,32 @@ function createTooltip<
 
       const itemsStyle = [styles.items];
 
+      let tooltip = (
+        <AnimatedView
+          style={this.tooltipContainerStyle}
+          onLayout={this.onTooltipContainerLayout}
+        >
+          {triangleUp}
+          <View style={itemsStyle}>{items}</View>
+          {triangleDown}
+        </AnimatedView>
+      );
+
       if (this.location === 'fixed') {
         itemsStyle.push(styles.itemsFixed);
+
+        tooltip = (
+          <AnimatedView
+            style={this.tooltipContainerStyle}
+            entering={SlideInDown.delay(200)}
+            exiting={SlideOutDown}
+          >
+            <View style={itemsStyle}>{items}</View>
+          </AnimatedView>
+        );
       }
 
-      let tooltip = <View style={itemsStyle}>{items}</View>;
+      // let tooltip = <View style={itemsStyle}>{items}</View>;
       if (this.props.actionSheetShown) {
         tooltip = null;
       }
@@ -485,21 +511,22 @@ function createTooltip<
                 <ButtonComponent {...buttonProps} />
               </View>
             </View>
-            <AnimatedView
-              style={this.tooltipContainerStyle}
-              onLayout={this.onTooltipContainerLayout}
-            >
-              {triangleUp}
-              {tooltip}
-              {triangleDown}
-            </AnimatedView>
+            {tooltip}
           </View>
         </TouchableWithoutFeedback>
       );
     }
 
     onPressBackdrop = () => {
-      this.props.navigation.goBackOnce();
+      if (this.location !== 'fixed') {
+        this.props.navigation.goBackOnce();
+      } else {
+        this.props.setActionSheetShown(true);
+
+        setTimeout(() => {
+          this.props.navigation.goBackOnce();
+        }, 200);
+      }
     };
 
     onPressEntry = (entry: TooltipEntry<RouteName>) => {

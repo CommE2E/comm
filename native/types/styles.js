@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 import { View, Text, Image } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  type BaseAnimationBuilder,
+  type EntryExitAnimationFunction,
+} from 'react-native-reanimated';
 
 type ViewProps = React.ElementConfig<typeof View>;
 export type ViewStyle = $PropertyType<ViewProps, 'style'>;
@@ -30,6 +33,8 @@ export type AnimatedViewStyle =
 const AnimatedView: React.ComponentType<{
   ...$Diff<ViewProps, { style: ViewStyle }>,
   +style: AnimatedViewStyle,
+  +entering?: BaseAnimationBuilder | EntryExitAnimationFunction | Keyframe,
+  +exiting?: BaseAnimationBuilder | EntryExitAnimationFunction | Keyframe,
 }> = Animated.View;
 
 export type AnimatedTextStyle =
