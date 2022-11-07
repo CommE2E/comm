@@ -51,7 +51,7 @@ export interface Spec extends TurboModule {
   +setCurrentUserID: (userID: string) => Promise<void>;
   +getCurrentUserID: () => Promise<string>;
   +setDeviceID: (deviceType: string) => Promise<string>;
-  +getDeviceID: () => Promise<String>;
+  +getDeviceID: () => Promise<string>;
   +clearSensitiveData: () => Promise<void>;
 }
 
