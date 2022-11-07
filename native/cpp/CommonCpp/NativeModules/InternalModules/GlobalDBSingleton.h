@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Tools/WorkerThread.h"
+#include <ReactCommon/TurboModuleUtils.h>
 
 #include <atomic>
 
@@ -38,6 +39,37 @@ class GlobalDBSingleton {
     task();
   }
 
+  void scheduleOrRunCancellableCommonImpl(
+      const taskType task,
+      const std::shared_ptr<facebook::react::Promise> promise,
+      const std::shared_ptr<facebook::react::CallInvoker> jsInvoker) {
+    if (this->tasksCancelled.load()) {
+      std::string error = "TASK_CANCELLED";
+      jsInvoker->invokeAsync([=]() {
+        promise->reject(error);
+        return;
+      });
+      return;
+    }
+
+    if (this->databaseThread != nullptr) {
+      this->databaseThread->scheduleTask([this, task, promise, jsInvoker]() {
+        if (this->tasksCancelled.load()) {
+          std::string error = "TASK_CANCELLED";
+          jsInvoker->invokeAsync([error, promise]() {
+            promise->reject(error);
+            return;
+          });
+        } else {
+          task();
+        }
+      });
+      return;
+    }
+
+    task();
+  }
+
   void enableMultithreadingCommonImpl() {
     if (this->databaseThread == nullptr) {
       this->databaseThread = std::make_unique<WorkerThread>("database");
@@ -50,6 +82,10 @@ public:
   void scheduleOrRun(const taskType task);
   void scheduleOrRunCancellable(const taskType task);
   void enableMultithreading();
+  void scheduleOrRunCancellable(
+      const taskType task,
+      const std::shared_ptr<facebook::react::Promise> promise,
+      const std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
   void setTasksCancelled(bool tasksCancelled) {
     this->tasksCancelled.store(tasksCancelled);
   }
