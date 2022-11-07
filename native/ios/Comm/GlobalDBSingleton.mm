@@ -21,6 +21,17 @@ void GlobalDBSingleton::scheduleOrRun(const taskType task) {
   });
 }
 
+void GlobalDBSingleton::scheduleOrRunCancellable(const taskType task) {
+  if (NSThread.isMainThread || this->multithreadingEnabled.load()) {
+    this->scheduleOrRunCancellableCommonImpl(task);
+    return;
+  }
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+    this->scheduleOrRunCancellableCommonImpl(task);
+  });
+}
+
 void GlobalDBSingleton::enableMultithreading() {
   if (NSThread.isMainThread) {
     this->enableMultithreadingCommonImpl();
