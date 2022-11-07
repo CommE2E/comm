@@ -52,6 +52,7 @@ On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for 
     - [idb (iOS Development Bridge)](./nix_mobile_setup.md#idb)
     - [Reactotron](./nix_mobile_setup.md#reactotron)
   - [Android Studio](./nix_mobile_setup.md#android-studio)
+    - [JDK](./nix_mobile_setup.md#jdk)
     - [Android SDK](./nix_mobile_setup.md#android-sdk)
     - [Android Emulator](./nix_mobile_setup.md#android-emulator)
   - [Flipper (React Native Debugger)](./nix_mobile_setup.md#flipper)
