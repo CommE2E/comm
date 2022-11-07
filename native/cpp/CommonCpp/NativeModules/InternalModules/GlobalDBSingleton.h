@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Tools/WorkerThread.h"
+#include <ReactCommon/TurboModuleUtils.h>
 
 #include <atomic>
 
@@ -39,6 +40,29 @@ class GlobalDBSingleton {
     });
   }
 
+  void scheduleOrRunCancellableCommonImpl(
+      const taskType task,
+      const std::shared_ptr<facebook::react::Promise> promise,
+      const std::shared_ptr<facebook::react::CallInvoker> jsInvoker) {
+    if (this->tasksCancelled.load()) {
+      jsInvoker->invokeAsync([=]() { promise->reject(TASK_CANCELLED_FLAG); });
+      return;
+    }
+
+    if (this->databaseThread == nullptr) {
+      task();
+      return;
+    }
+
+    this->databaseThread->scheduleTask([this, task, promise, jsInvoker]() {
+      if (this->tasksCancelled.load()) {
+        jsInvoker->invokeAsync([=]() { promise->reject(TASK_CANCELLED_FLAG); });
+        return;
+      }
+      task();
+    });
+  }
+
   void enableMultithreadingCommonImpl() {
     if (this->databaseThread == nullptr) {
       this->databaseThread = std::make_unique<WorkerThread>("database");
@@ -50,6 +74,10 @@ public:
   static GlobalDBSingleton instance;
   void scheduleOrRun(const taskType task);
   void scheduleOrRunCancellable(const taskType task);
+  void scheduleOrRunCancellable(
+      const taskType task,
+      const std::shared_ptr<facebook::react::Promise> promise,
+      const std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
   void enableMultithreading();
   void setTasksCancelled(bool tasksCancelled) {
     this->tasksCancelled.store(tasksCancelled);
