@@ -14,6 +14,10 @@ void GlobalDBSingleton::scheduleOrRun(const taskType task) {
   this->scheduleOrRunCommonImpl(task);
 }
 
+void GlobalDBSingleton::scheduleOrRunCancellable(const taskType task) {
+  this->scheduleOrRunCancellableCommonImpl(task);
+}
+
 void GlobalDBSingleton::enableMultithreading() {
   this->enableMultithreadingCommonImpl();
 }
