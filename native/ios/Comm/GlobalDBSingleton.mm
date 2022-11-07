@@ -1,5 +1,6 @@
 #import "GlobalDBSingleton.h"
 #import <Foundation/Foundation.h>
+#include <ReactCommon/TurboModuleUtils.h>
 
 namespace comm {
 GlobalDBSingleton GlobalDBSingleton::instance;
@@ -29,6 +30,20 @@ void GlobalDBSingleton::scheduleOrRunCancellable(const taskType task) {
 
   dispatch_async(dispatch_get_main_queue(), ^{
     this->scheduleOrRunCancellableCommonImpl(task);
+  });
+}
+
+void GlobalDBSingleton::scheduleOrRunCancellable(
+    const taskType task,
+    const std::shared_ptr<facebook::react::Promise> promise,
+    const std::shared_ptr<facebook::react::CallInvoker> jsInvoker) {
+  if (NSThread.isMainThread || this->multithreadingEnabled.load()) {
+    this->scheduleOrRunCancellableCommonImpl(task, promise, jsInvoker);
+    return;
+  }
+
+  dispatch_async(dispatch_get_main_queue(), ^{
+    this->scheduleOrRunCancellableCommonImpl(task, promise, jsInvoker);
   });
 }
 
