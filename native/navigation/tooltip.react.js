@@ -15,7 +15,13 @@ import {
   TouchableOpacity,
   Keyboard,
 } from 'react-native';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  SlideInDown,
+  SlideOutDown,
+  runOnJS,
+  useSharedValue,
+  type SharedValue,
+} from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -118,8 +124,10 @@ type TooltipProps<Base> = {
   +inputState: ?InputState,
   +chatContext: ?ChatContextType,
   +showActionSheetWithOptions: ShowActionSheetWithOptions,
-  +actionSheetShown: boolean,
-  +setActionSheetShown: (actionSheetShown: boolean) => void,
+  +actionSheetShown: SharedValue<boolean>,
+  +hideTooltip: boolean,
+  +setHideTooltip: (hideTooltip: boolean) => void,
+  +exitAnimationWorklet: (finished: boolean) => void,
   +styles: typeof unboundStyles,
 };
 
@@ -327,7 +335,10 @@ function createTooltip<
       style.position = 'absolute';
       (style.alignItems = 'center'),
         (style.opacity = this.tooltipContainerOpacity);
-      style.transform = [{ translateX: this.tooltipHorizontal }];
+
+      if (location !== 'fixed') {
+        style.transform = [{ translateX: this.tooltipHorizontal }];
+      }
 
       const extraLeftSpace = x;
       const extraRightSpace = dimensions.width - width - x;
@@ -364,7 +375,9 @@ function createTooltip<
         style.transform.push({ translateY: this.tooltipVerticalBelow });
       }
 
-      style.transform.push({ scale: this.tooltipScale });
+      if (location !== 'fixed') {
+        style.transform.push({ scale: this.tooltipScale });
+      }
 
       return style;
     }
@@ -381,7 +394,9 @@ function createTooltip<
         chatContext,
         showActionSheetWithOptions,
         actionSheetShown,
-        setActionSheetShown,
+        hideTooltip,
+        setHideTooltip,
+        exitAnimationWorklet,
         styles,
         ...navAndRouteForFlow
       } = this.props;
@@ -471,15 +486,36 @@ function createTooltip<
         isOpeningSidebar,
       };
 
-      const itemsStyle = [styles.items];
+      const itemsStyles = [styles.items, styles.itemsFixed];
 
-      if (this.location === 'fixed') {
-        itemsStyle.push(styles.itemsFixed);
-      }
+      const animationDelay = Platform.OS === 'ios' ? 200 : 500;
+      const enterAnimation = SlideInDown.delay(animationDelay);
 
-      let tooltip = <View style={itemsStyle}>{items}</View>;
-      if (this.props.actionSheetShown) {
-        tooltip = null;
+      const exitAnimation = SlideOutDown.withCallback(exitAnimationWorklet);
+
+      let tooltip = null;
+
+      if (this.location !== 'fixed') {
+        tooltip = (
+          <AnimatedView
+            style={this.tooltipContainerStyle}
+            onLayout={this.onTooltipContainerLayout}
+          >
+            {triangleUp}
+            <View style={styles.items}>{items}</View>
+            {triangleDown}
+          </AnimatedView>
+        );
+      } else if (this.location === 'fixed' && !this.props.hideTooltip) {
+        tooltip = (
+          <AnimatedView
+            style={this.tooltipContainerStyle}
+            entering={enterAnimation}
+            exiting={exitAnimation}
+          >
+            <View style={itemsStyles}>{items}</View>
+          </AnimatedView>
+        );
       }
 
       return (
@@ -491,25 +527,27 @@ function createTooltip<
                 <ButtonComponent {...buttonProps} />
               </View>
             </View>
-            <AnimatedView
-              style={this.tooltipContainerStyle}
-              onLayout={this.onTooltipContainerLayout}
-            >
-              {triangleUp}
-              {tooltip}
-              {triangleDown}
-            </AnimatedView>
+            {tooltip}
           </View>
         </TouchableWithoutFeedback>
       );
     }
 
     onPressBackdrop = () => {
-      this.props.navigation.goBackOnce();
+      if (this.location !== 'fixed') {
+        this.props.navigation.goBackOnce();
+      } else {
+        this.props.setHideTooltip(true);
+      }
     };
 
     onPressEntry = (entry: TooltipEntry<RouteName>) => {
-      this.props.navigation.goBackOnce();
+      if (this.location !== 'fixed' || this.props.actionSheetShown.value) {
+        this.props.navigation.goBackOnce();
+      } else {
+        this.props.setHideTooltip(true);
+      }
+
       const dispatchFunctions = {
         dispatch: this.props.dispatch,
         dispatchActionPromise: this.props.dispatchActionPromise,
@@ -527,7 +565,8 @@ function createTooltip<
 
     onPressMore = () => {
       Keyboard.dismiss();
-      this.props.setActionSheetShown(true);
+      this.props.actionSheetShown.value = true;
+      this.props.setHideTooltip(true);
 
       const { entries } = this;
       const options = entries.map(entry => entry.text);
@@ -658,8 +697,23 @@ function createTooltip<
     const inputState = React.useContext(InputStateContext);
     const chatContext = React.useContext(ChatContext);
 
-    const [actionSheetShown, setActionSheetShown] = React.useState<boolean>(
-      false,
+    const actionSheetShown = useSharedValue(false);
+    const [hideTooltip, setHideTooltip] = React.useState<boolean>(false);
+
+    const goBackCallback = React.useCallback(() => {
+      if (!actionSheetShown.value) {
+        props.navigation.goBackOnce();
+      }
+    }, [actionSheetShown.value, props.navigation]);
+
+    const exitAnimationWorklet = React.useCallback(
+      finished => {
+        'worklet';
+        if (finished) {
+          runOnJS(goBackCallback)();
+        }
+      },
+      [goBackCallback],
     );
 
     const styles = useStyles(unboundStyles);
@@ -677,7 +731,9 @@ function createTooltip<
         chatContext={chatContext}
         showActionSheetWithOptions={showActionSheetWithOptions}
         actionSheetShown={actionSheetShown}
-        setActionSheetShown={setActionSheetShown}
+        hideTooltip={hideTooltip}
+        setHideTooltip={setHideTooltip}
+        exitAnimationWorklet={exitAnimationWorklet}
         styles={styles}
       />
     );
