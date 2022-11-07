@@ -205,3 +205,17 @@ rust::Vec<MessageItem> getMessagesFromDatabase(rust::Str deviceID) {
 void eraseMessagesFromAMQP(rust::Str deviceID) {
   comm::network::DeliveryBroker::getInstance().erase(std::string{deviceID});
 }
+
+void ackMessageFromAMQP(uint64_t deliveryTag) {
+  comm::network::AmqpManager::getInstance().ack(deliveryTag);
+}
+
+MessageItem waitMessageFromDeliveryBroker(rust::Str deviceID) {
+  const auto message =
+      comm::network::DeliveryBroker::getInstance().pop(std::string{deviceID});
+  return MessageItem{
+      .messageID = message.messageID,
+      .fromDeviceID = message.fromDeviceID,
+      .payload = message.payload,
+      .deliveryTag = message.deliveryTag};
+}

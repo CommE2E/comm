@@ -46,6 +46,7 @@ pub mod ffi {
     toDeviceID: String,
     payload: String,
     blobHashes: String,
+    deliveryTag: u64,
   }
 
   unsafe extern "C++" {
@@ -74,5 +75,8 @@ pub mod ffi {
     ) -> Result<()>;
     pub fn getMessagesFromDatabase(deviceID: &str) -> Result<Vec<MessageItem>>;
     pub fn eraseMessagesFromAMQP(deviceID: &str) -> Result<()>;
+    pub fn ackMessageFromAMQP(deliveryTag: u64) -> Result<()>;
+    pub fn waitMessageFromDeliveryBroker(deviceID: &str)
+      -> Result<MessageItem>;
   }
 }

@@ -1,8 +1,9 @@
 use super::constants;
 use super::cxx_bridge::ffi::{
-  eraseMessagesFromAMQP, getMessagesFromDatabase, getSessionItem,
-  newSessionHandler, sessionSignatureHandler, updateSessionItemDeviceToken,
-  updateSessionItemIsOnline, GRPCStatusCodes,
+  ackMessageFromAMQP, eraseMessagesFromAMQP, getMessagesFromDatabase,
+  getSessionItem, newSessionHandler, sessionSignatureHandler,
+  updateSessionItemDeviceToken, updateSessionItemIsOnline,
+  waitMessageFromDeliveryBroker, GRPCStatusCodes,
 };
 use anyhow::Result;
 use futures::Stream;
@@ -210,6 +211,55 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
           if let Err(err) = result.await {
             debug!("Failed to write ping to a channel: {}", err);
             break;
+          };
+        }
+      }
+    });
+
+    // Spawning asynchronous Tokio task to deliver new messages
+    // to the client from delivery broker
+    tokio::spawn({
+      let device_id = session_item.deviceID.clone();
+      let session_id = session_id.clone();
+      let tx = tx.clone();
+      async move {
+        loop {
+          let message_to_deliver =
+            match waitMessageFromDeliveryBroker(&device_id) {
+              Ok(message_item) => message_item,
+              Err(err) => {
+                error!(
+                  "Error on waiting messages from DeliveryBroker: {}",
+                  err.what()
+                );
+                return;
+              }
+            };
+          let writer_result = tx_writer(
+            &session_id,
+            &tx,
+            Ok(tunnelbroker::MessageToClient {
+              data: Some(
+                tunnelbroker::message_to_client::Data::MessagesToDeliver(
+                  tunnelbroker::MessagesToDeliver {
+                    messages: vec![tunnelbroker::MessageToClientStruct {
+                      message_id: message_to_deliver.messageID,
+                      from_device_id: message_to_deliver.fromDeviceID,
+                      payload: message_to_deliver.payload,
+                      blob_hashes: vec![message_to_deliver.blobHashes],
+                    }],
+                  },
+                ),
+              ),
+            }),
+          );
+          if let Err(err) = writer_result.await {
+            debug!("Error on writing to the stream: {}", err);
+            return;
+          };
+          if let Err(err) = ackMessageFromAMQP(message_to_deliver.deliveryTag) {
+            debug!("Error on message acknowledgement in AMQP queue: {}", err);
+            return;
           };
         }
       }
