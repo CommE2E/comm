@@ -5,6 +5,7 @@
 #include "../Tools/WorkerThread.h"
 #include "../_generated/NativeModules.h"
 #include "../grpc/Client.h"
+#include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 #include <memory>
 
