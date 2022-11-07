@@ -19,7 +19,7 @@ T CommCoreModule::runSyncOrThrowJSError(
     jsi::Runtime &rt,
     std::function<T()> task) {
   std::promise<T> promise;
-  GlobalDBSingleton::instance.scheduleOrRun([&promise, &task]() {
+  GlobalDBSingleton::instance.scheduleOrRunCancellable([&promise, &task]() {
     try {
       if constexpr (std::is_void<T>::value) {
         task();
