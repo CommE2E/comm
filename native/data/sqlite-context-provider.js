@@ -38,7 +38,10 @@ function SQLiteContextProvider(props: Props): React.Node {
     }
     (async () => {
       try {
-        const threads = await commCoreModule.getAllThreads();
+        const [threads, messages] = await Promise.all([
+          commCoreModule.getAllThreads(),
+          commCoreModule.getAllMessages(),
+        ]);
         const threadInfosFromDB = convertClientDBThreadInfosToRawThreadInfos(
           threads,
         );
@@ -46,7 +49,6 @@ function SQLiteContextProvider(props: Props): React.Node {
           type: setThreadStoreActionType,
           payload: { threadInfos: threadInfosFromDB },
         });
-        const messages = await commCoreModule.getAllMessages();
         dispatch({
           type: setMessageStoreMessages,
           payload: messages,
