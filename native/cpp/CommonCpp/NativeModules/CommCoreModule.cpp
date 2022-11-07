@@ -1062,7 +1062,8 @@ jsi::Value CommCoreModule::getDeviceID(jsi::Runtime &rt) {
 jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        GlobalDBSingleton::instance.scheduleOrRun([this, promise]() {
+        GlobalDBSingleton::instance.setTasksCancelled(true);
+        taskType job = [this, promise]() {
           std::string error;
           try {
             DatabaseManager::getQueryExecutor().clearSensitiveData();
@@ -1076,7 +1077,10 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
               promise->resolve(jsi::Value::undefined());
             }
           });
-        });
+          GlobalDBSingleton::instance.scheduleOrRun(
+              []() { GlobalDBSingleton::instance.setTasksCancelled(false); });
+        };
+        GlobalDBSingleton::instance.scheduleOrRun(job);
       });
 }
 

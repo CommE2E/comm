@@ -8,6 +8,7 @@ namespace comm {
 class GlobalDBSingleton {
   std::atomic<bool> multithreadingEnabled;
   std::unique_ptr<WorkerThread> databaseThread;
+  std::atomic<bool> tasksCancelled;
 
   GlobalDBSingleton();
 
@@ -30,5 +31,8 @@ public:
   static GlobalDBSingleton instance;
   void scheduleOrRun(const taskType task);
   void enableMultithreading();
+  void setTasksCancelled(bool tasksCancelled) {
+    this->tasksCancelled.store(tasksCancelled);
+  }
 };
 } // namespace comm
