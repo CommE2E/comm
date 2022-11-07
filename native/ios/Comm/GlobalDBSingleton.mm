@@ -5,7 +5,9 @@ namespace comm {
 GlobalDBSingleton GlobalDBSingleton::instance;
 
 GlobalDBSingleton::GlobalDBSingleton()
-    : multithreadingEnabled(false), databaseThread(nullptr) {
+    : multithreadingEnabled(false),
+      databaseThread(nullptr),
+      tasksCancelled(false) {
 }
 
 void GlobalDBSingleton::scheduleOrRun(const taskType task) {
