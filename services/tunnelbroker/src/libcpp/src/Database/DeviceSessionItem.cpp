@@ -49,7 +49,6 @@ void DeviceSessionItem::validate() const {
     throw std::runtime_error("Error: DeviceID format is wrong.");
   }
   tools::checkIfNotEmpty("pubKey", this->pubKey);
-  tools::checkIfNotEmpty("notifyToken", this->notifyToken);
   tools::checkIfNotEmpty("deviceType", this->deviceType);
   tools::checkIfNotEmpty("appVersion", this->appVersion);
   tools::checkIfNotEmpty("deviceOs", this->deviceOs);
