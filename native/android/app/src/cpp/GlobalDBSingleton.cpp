@@ -18,6 +18,13 @@ void GlobalDBSingleton::scheduleOrRunCancellable(const taskType task) {
   this->scheduleOrRunCancellableCommonImpl(task);
 }
 
+void GlobalDBSingleton::scheduleOrRunCancellable(
+    const taskType task,
+    const std::shared_ptr<facebook::react::Promise> promise,
+    const std::shared_ptr<facebook::react::CallInvoker> jsInvoker) {
+  this->scheduleOrRunCancellableCommonImpl(task, promise, jsInvoker);
+}
+
 void GlobalDBSingleton::enableMultithreading() {
   this->enableMultithreadingCommonImpl();
 }
