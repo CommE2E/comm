@@ -2,8 +2,11 @@ steps:
   - label: ':nix: Tunnelbroker Unittests'
     command:
       - 'cd services/tunnelbroker'
-      - 'rm -rf build && mkdir build && cd build'
-      - 'nix develop --accept-flake-config --command bash -c "cmake .. && make -j"'
-      - './bin/runTests --gtest_filter=-AmqpManager*:DatabaseManager*'
+      - 'rm -rf target'
+      - 'nix develop --accept-flake-config -c bash -c "cargo build && cargo test"'
+      - 'cd src/libcpp/test'
+      - 'rm -rf build'
+      - 'nix develop --accept-flake-config -c bash -c "cmake -B build . && make -C build -j"'
+      - 'build/runTests --gtest_filter="-AmqpManager*:DatabaseManager*"'
     agents:
       - 'mac=true'
