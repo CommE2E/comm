@@ -1,34 +1,21 @@
 // @flow
 
-import type {
-  BottomTabNavigationHelpers,
-  BottomTabNavigationProp,
-} from '@react-navigation/bottom-tabs';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import { unreadCount } from 'lib/selectors/thread-selectors';
-
-import AppsDirectory from '../apps/apps-directory.react';
-import Calendar from '../calendar/calendar.react';
-import Chat from '../chat/chat.react';
 import { MultimediaMessageTooltipModal } from '../chat/multimedia-message-tooltip-modal.react';
 import { RobotextMessageTooltipModal } from '../chat/robotext-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import { TextMessageTooltipModal } from '../chat/text-message-tooltip-modal.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
 import { type SQLiteContextType, SQLiteContext } from '../data/sqlite-context';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import CameraModal from '../media/camera-modal.react';
 import ImageModal from '../media/image-modal.react';
 import VideoPlaybackModal from '../media/video-playback-modal.react';
-import Profile from '../profile/profile.react';
 import RelationshipListItemTooltipModal from '../profile/relationship-list-item-tooltip-modal.react';
 import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
-import { useSelector } from '../redux/redux-utils';
 import { RootContext } from '../root-context';
 import { waitForInteractions } from '../utils/timers';
 import ActionResultModal from './action-result-modal.react';
@@ -39,9 +26,6 @@ import type {
 } from './overlay-navigator.react';
 import type { RootNavigationProp } from './root-navigator.react';
 import {
-  CalendarRouteName,
-  ChatRouteName,
-  ProfileRouteName,
   TabNavigatorRouteName,
   ImageModalRouteName,
   MultimediaMessageTooltipModalRouteName,
@@ -52,105 +36,12 @@ import {
   RobotextMessageTooltipModalRouteName,
   CameraModalRouteName,
   VideoPlaybackModalRouteName,
-  AppsRouteName,
   type ScreenParamList,
-  type TabParamList,
   type OverlayParamList,
 } from './route-names';
-import { tabBar } from './tab-bar.react';
+import TabNavigator from './tab-navigator.react';
 
 let splashScreenHasHidden = false;
-
-const calendarTabOptions = {
-  tabBarLabel: 'Calendar',
-  // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ color }) => (
-    <SWMansionIcon name="calendar" style={[styles.icon, { color }]} />
-  ),
-};
-const getChatTabOptions = (badge: number) => ({
-  tabBarLabel: 'Inbox',
-  // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ color }) => (
-    <SWMansionIcon name="message-square" style={[styles.icon, { color }]} />
-  ),
-  tabBarBadge: badge ? badge : undefined,
-});
-const profileTabOptions = {
-  tabBarLabel: 'Profile',
-  // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ color }) => (
-    <SWMansionIcon name="user-2" style={[styles.icon, { color }]} />
-  ),
-};
-const appsTabOptions = {
-  tabBarLabel: 'Apps',
-  // eslint-disable-next-line react/display-name
-  tabBarIcon: ({ color }) => (
-    <SWMansionIcon name="globe-1" style={[styles.icon, { color }]} />
-  ),
-};
-
-export type TabNavigationProp<
-  RouteName: $Keys<TabParamList> = $Keys<TabParamList>,
-> = BottomTabNavigationProp<ScreenParamList, RouteName>;
-
-const Tab = createBottomTabNavigator<
-  ScreenParamList,
-  TabParamList,
-  BottomTabNavigationHelpers<ScreenParamList>,
->();
-const tabBarScreenOptions = {
-  headerShown: false,
-  tabBarHideOnKeyboard: false,
-  tabBarActiveTintColor: '#AE94DB',
-  tabBarStyle: {
-    backgroundColor: '#0A0A0A',
-    borderTopWidth: 1,
-  },
-  lazy: false,
-};
-function TabNavigator() {
-  const chatBadge = useSelector(unreadCount);
-  const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
-
-  let calendarTab;
-  if (isCalendarEnabled) {
-    calendarTab = (
-      <Tab.Screen
-        name={CalendarRouteName}
-        component={Calendar}
-        options={calendarTabOptions}
-      />
-    );
-  }
-
-  return (
-    <Tab.Navigator
-      initialRouteName={ChatRouteName}
-      tabBar={tabBar}
-      backBehavior="none"
-      screenOptions={tabBarScreenOptions}
-    >
-      {calendarTab}
-      <Tab.Screen
-        name={ChatRouteName}
-        component={Chat}
-        options={getChatTabOptions(chatBadge)}
-      />
-      <Tab.Screen
-        name={ProfileRouteName}
-        component={Profile}
-        options={profileTabOptions}
-      />
-      <Tab.Screen
-        name={AppsRouteName}
-        component={AppsDirectory}
-        options={appsTabOptions}
-      />
-    </Tab.Navigator>
-  );
-}
 
 export type AppNavigationProp<
   RouteName: $Keys<OverlayParamList> = $Keys<OverlayParamList>,
@@ -249,11 +140,5 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
     </KeyboardStateContainer>
   );
 }
-
-const styles = {
-  icon: {
-    fontSize: 28,
-  },
-};
 
 export default AppNavigator;

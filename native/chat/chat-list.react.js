@@ -18,7 +18,7 @@ import {
   type KeyboardState,
   KeyboardContext,
 } from '../keyboard/keyboard-state';
-import type { TabNavigationProp } from '../navigation/app-navigator.react';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react';
 import { useSelector } from '../redux/redux-utils';
 import type { ChatMessageItemWithHeight } from '../types/chat-types';
 import type { ScrollEvent } from '../types/react-native';
