@@ -99,7 +99,7 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
         ))
       }
     };
-    let _session_item = match getSessionItem(&session_id) {
+    let session_item = match getSessionItem(&session_id) {
       Ok(database_item) => database_item,
       Err(err) => return Err(Status::unauthenticated(err.what())),
     };
@@ -127,6 +127,28 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
 
     if let Err(err) = updateSessionItemIsOnline(&session_id, true) {
       return Err(Status::internal(err.what()));
+    }
+
+    // Checking for an empty notif token and requesting the new one from the client
+    if session_item.notifyToken.is_empty()
+      && session_item.deviceType
+        == tunnelbroker::new_session_request::DeviceTypes::Mobile as i32
+    {
+      let result = tx_writer(
+        &session_id,
+        &tx,
+        Ok(tunnelbroker::MessageToClient {
+          data: Some(
+            tunnelbroker::message_to_client::Data::NewNotifyTokenRequired(()),
+          ),
+        }),
+      );
+      if let Err(err) = result.await {
+        debug!(
+          "Error while sending notification token request to the client: {}",
+          err
+        );
+      };
     }
 
     // Spawning asynchronous Tokio task with the client pinging loop inside to
