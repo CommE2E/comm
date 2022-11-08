@@ -44,19 +44,7 @@ impl DatabaseClient {
     &self,
     user_id: String,
   ) -> Result<Option<ServerRegistration<Cipher>>, Error> {
-    let primary_key = create_simple_primary_key((
-      USERS_TABLE_PARTITION_KEY.to_string(),
-      user_id.clone(),
-    ));
-    let get_item_result = self
-      .client
-      .get_item()
-      .table_name(USERS_TABLE)
-      .set_key(Some(primary_key))
-      .consistent_read(true)
-      .send()
-      .await;
-    match get_item_result {
+    match self.get_item_from_users_table(&user_id).await {
       Ok(GetItemOutput {
         item: Some(mut item),
         ..
