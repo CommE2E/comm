@@ -26,7 +26,7 @@
 , mariadb-up
 , nodejs-16_x-openssl_1_1
 , olm
-, openjdk8
+, openjdk11
 , openssl
 , pkg-config
 , protobuf_3_15_cmake
@@ -50,6 +50,9 @@ mkShell {
     arcanist
     shellcheck
     terraform
+
+    # android
+    openjdk11
 
     # node development
     mariadb
@@ -105,7 +108,7 @@ mkShell {
     libiconv  # identity service
   ]);
 
-  JAVA_HOME = openjdk8.passthru.home;
+  JAVA_HOME = openjdk11.passthru.home;
 
   # shell commands to be ran upon entering shell
   shellHook = ''
