@@ -20,7 +20,7 @@ const tabBarAnimationDuration = 200;
 
 type Props = React.ElementConfig<typeof BottomTabBar>;
 function TabBar(props: Props) {
-  const tabBarVisibleRef = new React.useRef();
+  const tabBarVisibleRef = React.useRef();
   if (!tabBarVisibleRef.current) {
     tabBarVisibleRef.current = new Value(1);
   }

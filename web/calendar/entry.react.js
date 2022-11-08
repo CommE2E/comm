@@ -384,7 +384,7 @@ class Entry extends React.PureComponent<Props, State> {
           this.setState({ loadingStatus: 'inactive' }, this.updateHeight);
           this.props.dispatch({
             type: concurrentModificationResetActionType,
-            payload: { id: entryID, dbText: e.payload.db },
+            payload: { id: entryID, dbText: e.payload?.db },
           });
           this.props.popModal();
         };

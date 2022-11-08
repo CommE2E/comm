@@ -99,11 +99,11 @@ function mergeOrConditions(
 }
 
 // We use this fake result for dry runs
-function FakeSQLResult() {
-  this.insertId = -1;
-}
-FakeSQLResult.prototype = Array.prototype;
-const fakeResult: QueryResults = (new FakeSQLResult(): any);
+const fakeResult: QueryResults = (() => {
+  const result: any = [];
+  result.insertId = -1;
+  return result;
+})();
 
 const MYSQL_DEADLOCK_ERROR_CODE = 1213;
 
