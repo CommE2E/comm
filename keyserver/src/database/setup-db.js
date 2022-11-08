@@ -185,6 +185,7 @@ async function createTables() {
         username varchar(${usernameMaxLength}) COLLATE utf8mb4_bin NOT NULL,
         hash char(60) COLLATE utf8mb4_bin DEFAULT NULL,
         avatar varchar(191) COLLATE utf8mb4_bin DEFAULT NULL,
+        ethereum_address char(42) DEFAULT NULL,
         creation_time bigint(20) NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 

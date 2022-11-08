@@ -63,6 +63,17 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       );
     },
   ],
+  [
+    8,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE users
+            ADD COLUMN IF NOT EXISTS ethereum_address char(42) DEFAULT NULL;
+        `,
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
