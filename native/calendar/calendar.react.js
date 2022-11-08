@@ -157,6 +157,7 @@ type State = {
 class Calendar extends React.PureComponent<Props, State> {
   flatList: ?FlatList<CalendarItemWithHeight> = null;
   currentState: ?string = NativeAppState.currentState;
+  appStateListener: ?EventSubscription;
   lastForegrounded = 0;
   lastCalendarReset = 0;
   currentScrollPosition: ?number = null;
@@ -196,7 +197,10 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    NativeAppState.addEventListener('change', this.handleAppStateChange);
+    this.appStateListener = NativeAppState.addEventListener(
+      'change',
+      this.handleAppStateChange,
+    );
     this.keyboardShowListener = addKeyboardShowListener(this.keyboardShow);
     this.keyboardDismissListener = addKeyboardDismissListener(
       this.keyboardDismiss,
@@ -205,7 +209,10 @@ class Calendar extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    NativeAppState.removeEventListener('change', this.handleAppStateChange);
+    if (this.appStateListener) {
+      this.appStateListener.remove();
+      this.appStateListener = null;
+    }
     if (this.keyboardShowListener) {
       removeKeyboardListener(this.keyboardShowListener);
       this.keyboardShowListener = null;

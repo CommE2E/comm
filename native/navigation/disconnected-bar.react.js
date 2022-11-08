@@ -26,7 +26,7 @@ type Props = {
 };
 function DisconnectedBar(props: Props): React.Node {
   const { shouldShowDisconnectedBar } = useShouldShowDisconnectedBar();
-  const showingRef = new React.useRef();
+  const showingRef = React.useRef();
   if (!showingRef.current) {
     showingRef.current = new Animated.Value(shouldShowDisconnectedBar ? 1 : 0);
   }

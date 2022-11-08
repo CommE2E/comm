@@ -35,71 +35,71 @@ declare module 'react-native-reanimated' {
     +[key: string]: any,
   |};
   
-  declare class Node { }
+  declare class NodeImpl { }
   
-  declare class Value extends Node {
+  declare class ValueImpl extends NodeImpl {
     constructor(val: number): this;
     setValue(num: number): void;
   }
 
-  declare class Clock extends Node { }
+  declare class ClockImpl extends NodeImpl { }
 
-  declare class View extends React$Component<{ ... }> { }
-  declare class Text extends React$Component<{ ... }> { }
-  declare class Image extends React$Component<{ ... }> { }
-  declare class Code extends React$Component<{
-    +exec: Node,
+  declare class ViewImpl extends React$Component<{ ... }> { }
+  declare class TextImpl extends React$Component<{ ... }> { }
+  declare class ImageImpl extends React$Component<{ ... }> { }
+  declare class CodeImpl extends React$Component<{
+    +exec: NodeImpl,
     ...
   }> { }
 
-  declare type NodeOrNum = Node | number;
+  declare type NodeOrNum = NodeImpl | number;
   declare export type NodeParam = NodeOrNum | $ReadOnlyArray<?NodeParam>;
 
-  declare type NodeOrArrayOfNodes = Node | $ReadOnlyArray<?NodeOrArrayOfNodes>;
+  declare type NodeOrArrayOfNodes = NodeImpl | $ReadOnlyArray<?NodeOrArrayOfNodes>;
   declare export type Block = (
     nodes: $ReadOnlyArray<?NodeOrArrayOfNodes>,
-  ) => Node;
+  ) => NodeImpl;
 
-  declare export type Set = (node: Value, val: NodeParam) => Node;
+  declare export type Set = (node: ValueImpl, val: NodeParam) => NodeImpl;
 
   declare type ToNumber = (val: mixed) => number;
-  declare export type Call = <N: $ReadOnlyArray<Node>>(
+  declare export type Call = <N: $ReadOnlyArray<NodeImpl>>(
     nodes: N,
     callback: (vals: $TupleMap<N, ToNumber>) => mixed,
-  ) => Node;
+  ) => NodeImpl;
 
   declare export type Cond = (
     cond: NodeParam,
     branch1: ?NodeParam,
     branch2?: ?NodeParam,
-  ) => Node;
+  ) => NodeImpl;
 
-  declare export type Not = Node => Node;
-  declare export type And = (...$ReadOnlyArray<NodeParam>) => Node;
-  declare export type Or = (...$ReadOnlyArray<NodeParam>) => Node;
-  declare export type Eq = (NodeParam, NodeParam) => Node;
-  declare export type Neq = (NodeParam, NodeParam) => Node;
-  declare export type LessThan = (NodeParam, NodeParam) => Node;
-  declare export type GreaterThan = (NodeParam, NodeParam) => Node;
-  declare export type LessOrEq = (NodeParam, NodeParam) => Node;
-  declare export type GreaterOrEq = (NodeParam, NodeParam) => Node;
-  declare export type Add = (...$ReadOnlyArray<NodeParam>) => Node;
-  declare export type Sub = (...$ReadOnlyArray<NodeParam>) => Node;
-  declare export type Multiply = (...$ReadOnlyArray<NodeParam>) => Node;
-  declare export type Divide = (...$ReadOnlyArray<NodeParam>) => Node;
-  declare export type Pow = (...$ReadOnlyArray<NodeParam>) => Node;
-  declare export type Max = (NodeParam, NodeParam) => Node;
-  declare export type Min = (NodeParam, NodeParam) => Node;
-  declare export type Abs = (NodeParam) => Node;
-  declare export type Ceil = (NodeParam) => Node;
-  declare export type Floor = (NodeParam) => Node;
-  declare export type Round = (NodeParam) => Node;
+  declare export type Not = NodeImpl => NodeImpl;
+  declare export type And = (...$ReadOnlyArray<NodeParam>) => NodeImpl;
+  declare export type Or = (...$ReadOnlyArray<NodeParam>) => NodeImpl;
+  declare export type Eq = (NodeParam, NodeParam) => NodeImpl;
+  declare export type Neq = (NodeParam, NodeParam) => NodeImpl;
+  declare export type LessThan = (NodeParam, NodeParam) => NodeImpl;
+  declare export type GreaterThan = (NodeParam, NodeParam) => NodeImpl;
+  declare export type LessOrEq = (NodeParam, NodeParam) => NodeImpl;
+  declare export type GreaterOrEq = (NodeParam, NodeParam) => NodeImpl;
+  declare export type Add = (...$ReadOnlyArray<NodeParam>) => NodeImpl;
+  declare export type Sub = (...$ReadOnlyArray<NodeParam>) => NodeImpl;
+  declare export type Multiply = (...$ReadOnlyArray<NodeParam>) => NodeImpl;
+  declare export type Divide = (...$ReadOnlyArray<NodeParam>) => NodeImpl;
+  declare export type Pow = (...$ReadOnlyArray<NodeParam>) => NodeImpl;
+  declare export type Max = (NodeParam, NodeParam) => NodeImpl;
+  declare export type Min = (NodeParam, NodeParam) => NodeImpl;
+  declare export type Abs = (NodeParam) => NodeImpl;
+  declare export type Ceil = (NodeParam) => NodeImpl;
+  declare export type Floor = (NodeParam) => NodeImpl;
+  declare export type Round = (NodeParam) => NodeImpl;
 
-  declare export type StartClock = Clock => Node;
-  declare export type StopClock = Clock => Node;
-  declare export type ClockRunning = Clock => Node;
+  declare export type StartClock = ClockImpl => NodeImpl;
+  declare export type StopClock = ClockImpl => NodeImpl;
+  declare export type ClockRunning = ClockImpl => NodeImpl;
 
-  declare export type Debug = (string, NodeParam) => Node;
+  declare export type Debug = (string, NodeParam) => NodeImpl;
 
   declare type ExtrapolateType = { ... };
   declare type ExtrapolateModule = {
@@ -115,7 +115,7 @@ declare module 'react-native-reanimated' {
   declare export type InterpolateNode = (
     node: NodeParam,
     interpolationConfig: InterpolationConfig,
-  ) => Node;
+  ) => NodeImpl;
 
   declare export type InterpolateColorsConfig = {
     +inputRange: $ReadOnlyArray<number>,
@@ -124,7 +124,7 @@ declare module 'react-native-reanimated' {
   declare export type InterpolateColors = (
     animationValue: NodeParam,
     interpolationConfig: InterpolateColorsConfig
-  ) => Node;
+  ) => NodeImpl;
 
   declare export type Interpolate = (
     input: number,
@@ -146,10 +146,10 @@ declare module 'react-native-reanimated' {
   declare type EasingFn = (t: number) => number;
 
   declare export type TimingState = {
-    +finished: Value,
-    +position: Value,
-    +frameTime: Value,
-    +time: Value,
+    +finished: ValueImpl,
+    +position: ValueImpl,
+    +frameTime: ValueImpl,
+    +time: ValueImpl,
     ...
   };
   declare export type TimingConfig = {
@@ -164,14 +164,14 @@ declare module 'react-native-reanimated' {
   };
   declare type Timing = {|
     (
-      value: Value,
+      value: ValueImpl,
       config: TimingConfig,
     ): Animator,
     (
-      clock: Clock,
+      clock: ClockImpl,
       state: TimingState,
       config: TimingConfig,
-    ): Node,
+    ): NodeImpl,
   |};
 
   declare export type SpringConfig = {
@@ -193,22 +193,22 @@ declare module 'react-native-reanimated' {
   };
 
   declare export type SpringState = {
-    +finished: Value,
-    +position: Value,
-    +velocity: Value,
-    +time: Value,
+    +finished: ValueImpl,
+    +position: ValueImpl,
+    +velocity: ValueImpl,
+    +time: ValueImpl,
     ...
   };
   declare type Spring = {|
     (
-      value: Value,
+      value: ValueImpl,
       config: SpringConfig,
     ): Animator,
     (
-      clock: Clock,
+      clock: ClockImpl,
       state: SpringState,
       config: SpringConfig,
-    ): Node,
+    ): NodeImpl,
   |};
 
   declare export type DecayConfig = {
@@ -216,22 +216,22 @@ declare module 'react-native-reanimated' {
     ...
   };
   declare export type DecayState = {
-    +finished: Value,
-    +position: Value,
-    +velocity: Value,
-    +time: Value,
+    +finished: ValueImpl,
+    +position: ValueImpl,
+    +velocity: ValueImpl,
+    +time: ValueImpl,
     ...
   };
   declare type Decay = {|
     (
-      value: Value,
+      value: ValueImpl,
       config: DecayConfig,
     ): Animator,
     (
-      clock: Clock,
+      clock: ClockImpl,
       state: DecayState,
       config: DecayConfig,
-    ): Node,
+    ): NodeImpl,
   |};
 
   declare type LayoutAnimation = {|
@@ -412,22 +412,22 @@ declare module 'react-native-reanimated' {
     | GestureStateActive
     | GestureStateEnd;
 
-  declare type $Event<T: { ... }> = $SyntheticEvent<{
+  declare type $Event<T: { ... }> = {
     handlerTag: number,
     numberOfPointers: number,
     state: GestureState,
     oldState: GestureState,
     ...$Exact<T>,
     ...
-  }>;
+  };
 
-  declare type ToValue = (val: mixed) => Value;
+  declare type ToValue = (val: mixed) => ValueImpl;
   declare type Event = <T, E: $Event<T>>(defs: $ReadOnlyArray<{
     +nativeEvent: $Shape<$ObjMap<E, ToValue>>,
     ...
-  }>) => E;
+  }>) => $SyntheticEvent<E> => void;
 
-  declare type UseValue = (initialVal: number) => Value;
+  declare type UseValue = (initialVal: number) => ValueImpl;
 
   declare type AnimatedGestureHandlerEventCallback<T, E: $Event<T>> = (
     event: $Shape<E>,
@@ -484,13 +484,13 @@ declare module 'react-native-reanimated' {
 
   declare type CancelAnimation = (animation: number) => void;
 
-  declare export var Node: typeof Node;
-  declare export var Value: typeof Value;
-  declare export var Clock: typeof Clock;
-  declare export var View: typeof View;
-  declare export var Text: typeof Text;
-  declare export var Image: typeof Image;
-  declare export var Code: typeof Code;
+  declare export var Node: typeof NodeImpl;
+  declare export var Value: typeof ValueImpl;
+  declare export var Clock: typeof ClockImpl;
+  declare export var View: typeof ViewImpl;
+  declare export var Text: typeof TextImpl;
+  declare export var Image: typeof ImageImpl;
+  declare export var Code: typeof CodeImpl;
   declare export var block: Block;
   declare export var set: Set;
   declare export var call: Call;
@@ -538,13 +538,13 @@ declare module 'react-native-reanimated' {
   declare export var cancelAnimation: CancelAnimation;
 
   declare export default {
-    +Node: typeof Node,
-    +Value: typeof Value,
-    +Clock: typeof Clock,
-    +View: typeof View,
-    +Text: typeof Text,
-    +Image: typeof Image,
-    +Code: typeof Code,
+    +Node: typeof NodeImpl,
+    +Value: typeof ValueImpl,
+    +Clock: typeof ClockImpl,
+    +View: typeof ViewImpl,
+    +Text: typeof TextImpl,
+    +Image: typeof ImageImpl,
+    +Code: typeof CodeImpl,
     +block: Block,
     +set: Set,
     +call: Call,
