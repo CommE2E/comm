@@ -40,7 +40,7 @@ add_if_missing_in_nix_conf() {
     echo "/etc/nix/nix.conf is missing a value for ${key}. " \
       "Appending '${key} = ${value}' to /etc/nix/nix.conf"
 
-    # make sure that user can write to file
+    # Make sure that user can write to file
     if sudo test -w /etc/nix/nix.conf; then
       echo "${key} = ${value}" | sudo tee -a /etc/nix/nix.conf &> /dev/null
     else
@@ -51,12 +51,44 @@ add_if_missing_in_nix_conf() {
   fi
 }
 
+# Add value for a given value, append the additional value
+append_value_in_nix_conf() {
+  local key="$1"
+  local value="$2"
+
+  # Add value for key if it's missing entirely
+  if ! grep "$key" /etc/nix/nix.conf &> /dev/null; then
+    add_if_missing_in_nix_conf "$key" "$value";
+    return $?
+  fi
+
+  # Check that key does not already contain the desired value
+  if ! grep "$key" /etc/nix/nix.conf | grep "$value" &> /dev/null; then
+    echo "/etc/nix/nix.conf is missing '${value}' for '${key}'. " \
+      "Appending '${value}' to '${key}' in /etc/nix/nix.conf"
+
+    # Make sure that user can write to file
+    if sudo test -w /etc/nix/nix.conf; then
+      # Find the line with the related setting, then append the new value
+      # Values for nix.conf are space separated
+      sudo sed -i.bak  -e "|$key|s|\$| $value|" /etc/nix/nix.conf
+    else
+      # nix.conf is read only, which is true for NixOS
+      echo "Unable to write to nix.conf, please append '$value' to '$key'" \
+        "in your nix.conf"
+    fi
+  fi
+}
+
 # Check if nix.conf is already configured for a given value.
 add_if_missing_in_nix_conf "trusted-users" "${ADMIN_GROUP} ${USER}"
 add_if_missing_in_nix_conf \
   "experimental-features" "flakes nix-command"
 add_if_missing_in_nix_conf "cores" "${cores}"
 add_if_missing_in_nix_conf "max-jobs" "${jobs}"
+append_value_in_nix_conf "substituters" "https://comm.cachix.org"
+append_value_in_nix_conf "trusted-public-keys" \
+  "comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4="
 
 # Ask user if they would like to use Powerline for bash prompt
 SCRIPT_DIR=$(cd "$(dirname "$0")" || true; pwd -P)
