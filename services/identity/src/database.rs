@@ -2,11 +2,12 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::sync::Arc;
 
+use aws_sdk_dynamodb::error::GetItemError;
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_dynamodb::output::{
   GetItemOutput, PutItemOutput, QueryOutput, UpdateItemOutput,
 };
-use aws_sdk_dynamodb::types::Blob;
+use aws_sdk_dynamodb::types::{Blob, SdkError};
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use aws_types::sdk_config::SdkConfig;
 use chrono::{DateTime, Utc};
@@ -315,6 +316,24 @@ impl DatabaseClient {
         Err(Error::AwsSdk(e.into()))
       }
     }
+  }
+
+  async fn get_item_from_users_table(
+    &self,
+    user_id: &str,
+  ) -> Result<GetItemOutput, SdkError<GetItemError>> {
+    let primary_key = create_simple_primary_key((
+      USERS_TABLE_PARTITION_KEY.to_string(),
+      user_id.to_string(),
+    ));
+    self
+      .client
+      .get_item()
+      .table_name(USERS_TABLE)
+      .set_key(Some(primary_key))
+      .consistent_read(true)
+      .send()
+      .await
   }
 }
 
