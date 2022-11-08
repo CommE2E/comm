@@ -612,7 +612,7 @@ class InternalEntry extends React.Component<Props, State> {
       }
       this.currentlySaving = null;
       if (e instanceof ServerError && e.message === 'concurrent_modification') {
-        const revertedText = e.payload.db;
+        const revertedText = e.payload?.db;
         const onRefresh = () => {
           this.guardedSetState({
             loadingStatus: 'inactive',

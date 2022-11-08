@@ -977,6 +977,8 @@ async function deleteMemberships(
   }
 }
 
+const emptyCommitMembershipChangesetConfig = Object.freeze({});
+
 // Specify non-empty changedThreadIDs to force updates to be generated for those
 // threads, presumably for reasons not covered in the changeset. calendarQuery
 // only needs to be specified if a JOIN_THREAD update will be generated for the
@@ -996,7 +998,7 @@ async function commitMembershipChangeset(
     +changedThreadIDs?: Set<string>,
     +calendarQuery?: ?CalendarQuery,
     +updatesForCurrentSession?: UpdatesForCurrentSession,
-  } = {},
+  } = emptyCommitMembershipChangesetConfig,
 ): Promise<ChangesetCommitResult> {
   if (!viewer.loggedIn) {
     throw new ServerError('not_logged_in');
@@ -1130,6 +1132,8 @@ async function commitMembershipChangeset(
   };
 }
 
+const emptyGetChangesetCommitResultConfig = Object.freeze({});
+
 // When the user tries to create a new thread, it's possible for the client to
 // fail the creation even if a row gets added to the threads table. This may
 // occur due to a timeout (on either the client or server side), or due to some
@@ -1147,7 +1151,7 @@ async function getChangesetCommitResultForExistingThread(
   }: {
     +calendarQuery?: ?CalendarQuery,
     +updatesForCurrentSession?: UpdatesForCurrentSession,
-  } = {},
+  } = emptyGetChangesetCommitResultConfig,
 ): Promise<CreateUpdatesResult> {
   for (const update of otherUpdates) {
     if (

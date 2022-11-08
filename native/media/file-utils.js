@@ -155,11 +155,11 @@ async function fetchFileInfo(
 
   let finalURI = uri;
   if (newLocalURI && newLocalURI !== uri) {
+    finalURI = newLocalURI;
     console.log(
       'fetchAssetInfo returned localURI ' +
         `${newLocalURI} when we already had ${uri}`,
     );
-    finalURI = newLocalURI;
   }
 
   return {

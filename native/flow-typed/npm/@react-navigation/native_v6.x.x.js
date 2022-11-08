@@ -2323,8 +2323,8 @@ declare module '@react-navigation/native' {
    * Themes
    */
 
-  declare export var DefaultTheme: Theme & { +dark: false, ... };
-  declare export var DarkTheme: Theme & { +dark: true, ... };
+  declare export var DefaultTheme: {| ...Theme, +dark: false |};
+  declare export var DarkTheme: {| ...Theme, +dark: true |};
   declare export function useTheme(): Theme;
   declare export var ThemeProvider: React$ComponentType<{|
     +value: Theme,

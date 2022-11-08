@@ -2,9 +2,7 @@
 
 import invariant from 'invariant';
 
-declare class SVGElement {
-  parentNode: Element;
-}
+declare class SVGElement extends Element {}
 
 function htmlTargetFromEvent(event: SyntheticEvent<*>): HTMLElement {
   let target = event.target;

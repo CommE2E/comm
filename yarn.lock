@@ -10292,10 +10292,10 @@ flora-colossus@^1.0.0:
     debug "^4.1.1"
     fs-extra "^7.0.0"
 
-flow-bin@^0.158.0:
-  version "0.158.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.158.0.tgz#0a09763d41eb8ec7135ced6a3b9f8fa370a393d8"
-  integrity sha512-Gk5md8XTwk/M+J5M+rFyS1LJfFen6ldY60jM9+meWixlKf4b0vwdoUO8R7oo471pze+GY+blrnskUeqLDxFJfg==
+flow-bin@^0.182.0:
+  version "0.182.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.182.0.tgz#1dacbd72465743670412ada015d3182deda6f966"
+  integrity sha512-Ux90c2sMfoV/VVjOEFT2OHFJFnyfoIbTK/5AKAMnU4Skfru1G+FyS5YLu3XxQl0R6mpA9+rrFlPfYZq/5B+J3w==
 
 flow-mono-cli@^1.5.0:
   version "1.5.3"

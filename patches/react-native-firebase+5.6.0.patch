@@ -246,7 +246,7 @@ index 96026b6..86c9b24 100644
  export default class User {
    _auth: Auth;
 diff --git a/node_modules/react-native-firebase/dist/modules/core/app.js.flow b/node_modules/react-native-firebase/dist/modules/core/app.js.flow
-index 6e27c61..27d226d 100644
+index 6e27c61..0b0b492 100644
 --- a/node_modules/react-native-firebase/dist/modules/core/app.js.flow
 +++ b/node_modules/react-native-firebase/dist/modules/core/app.js.flow
 @@ -21,7 +21,9 @@ import Links, { NAMESPACE as LinksNamespace } from '../links';
@@ -259,23 +259,21 @@ index 6e27c61..27d226d 100644
  import Performance, { NAMESPACE as PerfNamespace } from '../perf';
  import Storage, { NAMESPACE as StorageNamespace } from '../storage';
  import Utils, { NAMESPACE as UtilsNamespace } from '../utils';
-@@ -63,7 +65,14 @@ export default class App {
+@@ -63,7 +65,12 @@ export default class App {
  
    messaging: () => Messaging;
  
 -  notifications: () => Notifications;
-+  notifications: {
-+    (): Notifications,
-+    +Android: NotificationsStatics.Android,
-+    +Notification: (
-+      nativeNotification?: NativeNotification,
-+      notifications?: Notifications,
-+    ) => NotificationsStatics.Notification,
-+  };
++  notifications:
++    & ((): Notifications)
++    & {
++        +Android: NotificationsStatics.Android,
++        +Notification: NotificationsStatics.Notification,
++      };
  
    perf: () => Performance;
  
-@@ -77,7 +86,7 @@ export default class App {
+@@ -77,7 +84,7 @@ export default class App {
      fromNative: boolean = false
    ) {
      this._name = name;
@@ -284,7 +282,7 @@ index 6e27c61..27d226d 100644
  
      if (fromNative) {
        this._initialized = true;
-@@ -129,7 +138,7 @@ export default class App {
+@@ -129,7 +136,7 @@ export default class App {
     * @return {*}
     */
    get options(): FirebaseOptions {
