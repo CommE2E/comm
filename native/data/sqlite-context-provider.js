@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 
 import { setMessageStoreMessages } from 'lib/actions/message-actions.js';
 import { setThreadStoreActionType } from 'lib/actions/thread-actions';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { logInActionSources } from 'lib/types/account-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import { getMessageForException } from 'lib/utils/errors';
@@ -31,9 +32,14 @@ function SQLiteContextProvider(props: Props): React.Node {
   const cookie = useSelector(state => state.cookie);
   const urlPrefix = useSelector(state => state.urlPrefix);
   const staffCanSee = useStaffCanSee();
+  const loggedIn = useSelector(isLoggedIn);
 
   React.useEffect(() => {
     if (storeLoaded || !rehydrateConcluded) {
+      return;
+    }
+    if (!loggedIn) {
+      setStoreLoaded(true);
       return;
     }
     (async () => {
@@ -86,6 +92,7 @@ function SQLiteContextProvider(props: Props): React.Node {
       }
     })();
   }, [
+    loggedIn,
     cookie,
     dispatch,
     rehydrateConcluded,
