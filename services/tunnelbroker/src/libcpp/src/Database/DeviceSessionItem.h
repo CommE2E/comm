@@ -13,7 +13,7 @@ class DeviceSessionItem : public Item {
   std::string deviceID;
   std::string pubKey;
   std::string notifyToken;
-  std::string deviceType;
+  size_t deviceType;
   std::string appVersion;
   std::string deviceOs;
   int64_t checkpointTime = 0;
@@ -40,7 +40,7 @@ public:
   std::string getDeviceID() const;
   std::string getPubKey() const;
   std::string getNotifyToken() const;
-  std::string getDeviceType() const;
+  size_t getDeviceType() const;
   std::string getAppVersion() const;
   std::string getDeviceOs() const;
   int64_t getCheckpointTime() const;
@@ -53,7 +53,7 @@ public:
       const std::string deviceID,
       const std::string pubKey,
       const std::string notifyToken,
-      const std::string deviceType,
+      size_t deviceType,
       const std::string appVersion,
       const std::string deviceOs);
   DeviceSessionItem(const AttributeValues &itemFromDB);

@@ -40,7 +40,8 @@ void DatabaseManager::putSessionItem(const DeviceSessionItem &item) {
       Aws::DynamoDB::Model::AttributeValue(item.getNotifyToken()));
   request.AddItem(
       DeviceSessionItem::FIELD_DEVICE_TYPE,
-      Aws::DynamoDB::Model::AttributeValue(item.getDeviceType()));
+      Aws::DynamoDB::Model::AttributeValue(
+          std::to_string(item.getDeviceType())));
   request.AddItem(
       DeviceSessionItem::FIELD_APP_VERSION,
       Aws::DynamoDB::Model::AttributeValue(item.getAppVersion()));
