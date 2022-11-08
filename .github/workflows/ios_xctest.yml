@@ -71,8 +71,6 @@ jobs:
           AUTH_KEY_ISSUER_ID: ${{secrets.AUTH_KEY_ISSUER_ID}}
         run: xcodebuild ENABLE_TESTABILITY=YES test -workspace Comm.xcworkspace -scheme Comm -destination name="iPhone 13 Pro" -configuration Release -authenticationKeyIssuerID "$AUTH_KEY_ISSUER_ID" -authenticationKeyID "$AUTH_KEY_ID" -authenticationKeyPath $PWD/AUTH_KEY.p8
 
-      - name: Clean up keychain and provisioning profile
+      - name: Clean up keychain
         if: ${{ always() }}
-        run: |
-          rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
-          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+        run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db

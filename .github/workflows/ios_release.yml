@@ -78,8 +78,6 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
         run: xcrun altool --upload-app --type ios --file output/Comm.ipa --username "$APPLE_USER_NAME" --password "$APPLE_APP_SPECIFIC_PASSWORD"
 
-      - name: Clean up keychain and provisioning profile
+      - name: Clean up keychain
         if: ${{ always() }}
-        run: |
-          rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
-          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+        run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
