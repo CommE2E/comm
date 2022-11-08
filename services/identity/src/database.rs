@@ -510,6 +510,25 @@ fn parse_string_attribute(
   }
 }
 
+fn parse_map_attribute(
+  attribute_name: &'static str,
+  attribute_value: Option<AttributeValue>,
+) -> Result<HashMap<String, AttributeValue>, DBItemError> {
+  match attribute_value {
+    Some(AttributeValue::M(value)) => Ok(value),
+    Some(_) => Err(DBItemError::new(
+      attribute_name,
+      attribute_value,
+      DBItemAttributeError::IncorrectType,
+    )),
+    None => Err(DBItemError::new(
+      attribute_name,
+      attribute_value,
+      DBItemAttributeError::Missing,
+    )),
+  }
+}
+
 #[cfg(test)]
 mod tests {
   use super::*;
