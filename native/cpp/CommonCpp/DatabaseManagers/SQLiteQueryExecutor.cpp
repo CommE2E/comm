@@ -308,88 +308,6 @@ bool add_not_null_constraint_to_metadata(sqlite3 *db) {
   return false;
 }
 
-bool create_schema(sqlite3 *db) {
-  char *error;
-  sqlite3_exec(
-      db,
-      "CREATE TABLE IF NOT EXISTS drafts ("
-      "	 key TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 text TEXT NOT NULL"
-      ");"
-
-      "CREATE TABLE IF NOT EXISTS messages ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 local_id TEXT,"
-      "	 thread TEXT NOT NULL,"
-      "	 user TEXT NOT NULL,"
-      "	 type INTEGER NOT NULL,"
-      "	 future_type INTEGER,"
-      "	 content TEXT,"
-      "	 time INTEGER NOT NULL"
-      ");"
-
-      "CREATE TABLE IF NOT EXISTS olm_persist_account ("
-      "	 id INTEGER UNIQUE PRIMARY KEY NOT NULL,"
-      "	 account_data TEXT NOT NULL"
-      ");"
-
-      "CREATE TABLE IF NOT EXISTS olm_persist_sessions ("
-      "	 target_user_id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 session_data TEXT NOT NULL"
-      ");"
-
-      "CREATE TABLE IF NOT EXISTS media ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 container TEXT NOT NULL,"
-      "	 thread TEXT NOT NULL,"
-      "	 uri TEXT NOT NULL,"
-      "	 type TEXT NOT NULL,"
-      "	 extras TEXT NOT NULL"
-      ");"
-
-      "CREATE TABLE IF NOT EXISTS threads ("
-      "	 id TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 type INTEGER NOT NULL,"
-      "	 name TEXT,"
-      "	 description TEXT,"
-      "	 color TEXT NOT NULL,"
-      "	 creation_time BIGINT NOT NULL,"
-      "	 parent_thread_id TEXT,"
-      "	 containing_thread_id TEXT,"
-      "	 community TEXT,"
-      "	 members TEXT NOT NULL,"
-      "	 roles TEXT NOT NULL,"
-      "	 current_user TEXT NOT NULL,"
-      "	 source_message_id TEXT,"
-      "	 replies_count INTEGER NOT NULL"
-      ");"
-
-      "CREATE TABLE IF NOT EXISTS metadata ("
-      "	 name TEXT UNIQUE PRIMARY KEY NOT NULL,"
-      "	 data TEXT NOT NULL"
-      ");"
-
-      "CREATE INDEX IF NOT EXISTS media_idx_container"
-      "  ON media (container);"
-
-      "CREATE INDEX IF NOT EXISTS messages_idx_thread_time"
-      "  ON messages (thread, time);",
-      nullptr,
-      nullptr,
-      &error);
-
-  if (!error) {
-    return true;
-  }
-
-  std::ostringstream stringStream;
-  stringStream << "Error creating tables: " << error;
-  Logger::log(stringStream.str());
-
-  sqlite3_free(error);
-  return false;
-}
-
 void set_encryption_key(sqlite3 *db) {
   std::string set_encryption_key_query =
       "PRAGMA key = \"x'" + SQLiteQueryExecutor::encryptionKey + "'\";";
@@ -599,8 +517,8 @@ void validate_encryption() {
 }
 
 typedef bool ShouldBeInTransaction;
-typedef std::function<bool(sqlite3 *)> MigrateFunction;
-typedef std::pair<MigrateFunction, ShouldBeInTransaction> SQLiteMigration;
+typedef std::pair<std::function<bool(sqlite3 *)>, ShouldBeInTransaction>
+    SQLiteMigration;
 std::vector<std::pair<uint, SQLiteMigration>> migrations{
     {{1, {create_drafts_table, true}},
      {2, {rename_threadID_to_key, true}},
@@ -617,81 +535,6 @@ std::vector<std::pair<uint, SQLiteMigration>> migrations{
      {23, {create_metadata_table, true}},
      {24, {add_not_null_constraint_to_drafts, true}},
      {25, {add_not_null_constraint_to_metadata, true}}}};
-
-enum class MigrationResult { SUCCESS, FAILURE, NOT_APPLIED };
-
-MigrationResult applyMigrationWithTransaction(
-    sqlite3 *db,
-    const MigrateFunction &migrate,
-    int index) {
-  sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
-  auto db_version = get_database_version(db);
-  if (index <= db_version) {
-    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
-    return MigrationResult::NOT_APPLIED;
-  }
-  auto rc = migrate(db);
-  if (!rc) {
-    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
-    return MigrationResult::FAILURE;
-  }
-  auto database_version_set = set_database_version(db, index);
-  if (!database_version_set) {
-    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
-    return MigrationResult::FAILURE;
-  }
-  sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
-  return MigrationResult::SUCCESS;
-}
-
-MigrationResult applyMigrationWithoutTransaction(
-    sqlite3 *db,
-    const MigrateFunction &migrate,
-    int index) {
-  auto db_version = get_database_version(db);
-  if (index <= db_version) {
-    return MigrationResult::NOT_APPLIED;
-  }
-  auto rc = migrate(db);
-  if (!rc) {
-    return MigrationResult::FAILURE;
-  }
-  sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
-  auto inner_db_version = get_database_version(db);
-  if (index <= inner_db_version) {
-    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
-    return MigrationResult::NOT_APPLIED;
-  }
-  auto database_version_set = set_database_version(db, index);
-  if (!database_version_set) {
-    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
-    return MigrationResult::FAILURE;
-  }
-  sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
-  return MigrationResult::SUCCESS;
-}
-
-bool set_up_database(sqlite3 *db) {
-  auto write_ahead_enabled = enable_write_ahead_logging_mode(db);
-  if (!write_ahead_enabled) {
-    return false;
-  }
-
-  sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
-  auto db_version = get_database_version(db);
-  auto latest_version = migrations.back().first;
-  if (db_version == latest_version) {
-    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
-    return true;
-  }
-  if (db_version != 0 || !create_schema(db) ||
-      !set_database_version(db, latest_version)) {
-    sqlite3_exec(db, "ROLLBACK;", nullptr, nullptr, nullptr);
-    return false;
-  }
-  sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
-  return true;
-}
 
 void SQLiteQueryExecutor::migrate() const {
   validate_encryption();
@@ -710,39 +553,32 @@ void SQLiteQueryExecutor::migrate() const {
   version_msg << "db version: " << db_version << std::endl;
   Logger::log(version_msg.str());
 
-  if (db_version == 0) {
-    set_up_database(db);
-    Logger::log("Database structure created.");
-
-    sqlite3_close(db);
-    return;
-  }
-
   for (const auto &[idx, migration] : migrations) {
-    const auto &[applyMigration, shouldBeInTransaction] = migration;
-
-    MigrationResult migrationResult;
-    if (shouldBeInTransaction) {
-      migrationResult = applyMigrationWithTransaction(db, applyMigration, idx);
-    } else {
-      migrationResult =
-          applyMigrationWithoutTransaction(db, applyMigration, idx);
-    }
-
-    if (migrationResult == MigrationResult::NOT_APPLIED) {
+    if (idx <= db_version) {
       continue;
     }
+    const auto &[applyMigration, shouldBeInTransaction] = migration;
 
     std::stringstream migration_msg;
-    if (migrationResult == MigrationResult::FAILURE) {
+
+    if (shouldBeInTransaction) {
+      sqlite3_exec(db, "BEGIN TRANSACTION;", nullptr, nullptr, nullptr);
+    }
+
+    auto rc = applyMigration(db);
+    if (!rc) {
       migration_msg << "migration " << idx << " failed." << std::endl;
       Logger::log(migration_msg.str());
       break;
     }
-    if (migrationResult == MigrationResult::SUCCESS) {
-      migration_msg << "migration " << idx << " succeeded." << std::endl;
-      Logger::log(migration_msg.str());
+
+    set_database_version(db, idx);
+
+    if (shouldBeInTransaction) {
+      sqlite3_exec(db, "END TRANSACTION;", nullptr, nullptr, nullptr);
     }
+    migration_msg << "migration " << idx << " succeeded." << std::endl;
+    Logger::log(migration_msg.str());
   }
 
   sqlite3_close(db);
