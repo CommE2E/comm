@@ -6,6 +6,7 @@
 , aws-sdk-cpp
 , better-prompt
 , boost
+, bundler
 , c-ares_cmake-config
 , cmake
 , cmake-format
@@ -83,6 +84,7 @@ mkShell {
     grpc
   ] ++ lib.optionals stdenv.isDarwin [
     cocoapods # needed for ios
+    bundler
   ];
 
   # include any libraries buildInputs
