@@ -20,10 +20,10 @@ use crate::constants::{
   ACCESS_TOKEN_TABLE_PARTITION_KEY, ACCESS_TOKEN_TABLE_TOKEN_ATTRIBUTE,
   ACCESS_TOKEN_TABLE_VALID_ATTRIBUTE, USERS_TABLE,
   USERS_TABLE_DEVICES_ATTRIBUTE, USERS_TABLE_DEVICES_MAP_ATTRIBUTE_NAME,
-  USERS_TABLE_PARTITION_KEY, USERS_TABLE_REGISTRATION_ATTRIBUTE,
-  USERS_TABLE_USERNAME_ATTRIBUTE, USERS_TABLE_USERNAME_INDEX,
-  USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE,
-  USERS_TABLE_WALLET_ADDRESS_INDEX,
+  USERS_TABLE_DEVICE_ATTRIBUTE, USERS_TABLE_PARTITION_KEY,
+  USERS_TABLE_REGISTRATION_ATTRIBUTE, USERS_TABLE_USERNAME_ATTRIBUTE,
+  USERS_TABLE_USERNAME_INDEX, USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
+  USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
 use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
@@ -312,6 +312,53 @@ impl DatabaseClient {
         error!(
           "DynamoDB client failed to get user ID from {} {}: {}",
           attribute_name, user_info, e
+        );
+        Err(Error::AwsSdk(e.into()))
+      }
+    }
+  }
+
+  pub async fn get_user_public_key(
+    &self,
+    user_id: String,
+    device_id: String,
+  ) -> Result<Option<String>, Error> {
+    match self.get_item_from_users_table(&user_id).await {
+      Ok(GetItemOutput {
+        item: Some(mut item),
+        ..
+      }) => {
+        // `devices` is a HashMap that maps device IDs to a HashMap of
+        // device-specific attributes
+        let mut devices = parse_map_attribute(
+          USERS_TABLE_DEVICES_ATTRIBUTE,
+          item.remove(USERS_TABLE_DEVICES_ATTRIBUTE),
+        )?;
+        if devices.get(&device_id).is_none() {
+          return Ok(None);
+        }
+        let mut device = parse_map_attribute(
+          USERS_TABLE_DEVICE_ATTRIBUTE,
+          devices.remove(&device_id),
+        )?;
+        parse_string_attribute(
+          USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
+          device.remove(USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE),
+        )
+        .map(Some)
+        .map_err(Error::Attribute)
+      }
+      Ok(_) => {
+        info!(
+          "No item found for user {} and device {} in users table",
+          user_id, device_id
+        );
+        Ok(None)
+      }
+      Err(e) => {
+        error!(
+          "DynamoDB client failed to get user public key for user {}: {}",
+          user_id, e
         );
         Err(Error::AwsSdk(e.into()))
       }
