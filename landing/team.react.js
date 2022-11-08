@@ -140,6 +140,11 @@ function Team(): React.Node {
           githubHandle="pweglik"
           imageURL={`${assetsCacheURLPrefix}/przemek.jpg`}
         />
+        <TeamProfile
+          name="Aleksandra Grzęda"
+          role="Project Manager"
+          imageURL={`${assetsCacheURLPrefix}/aleksandra.jpg`}
+        />
       </section>
     </div>
   );
