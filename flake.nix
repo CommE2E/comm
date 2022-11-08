@@ -34,14 +34,4 @@
       # overlays or utility functions.
       overlays.default = localOverlay;
     };
-
-    # Flake specific additions to what is found in /etc/nix/nix.conf
-    # Add comm binary cache to avoid our pinned packages from needing
-    # to be built by any consumer
-    nixConfig = {
-      extra-trusted-substituters = [ "https://comm.cachix.org" ];
-      extra-trusted-public-keys = [
-        "comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4="
-      ];
-    };
 }
