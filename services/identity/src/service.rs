@@ -383,7 +383,18 @@ impl IdentityService for MyIdentityService {
     &self,
     request: Request<GetUserPublicKeyRequest>,
   ) -> Result<Response<GetUserPublicKeyResponse>, Status> {
-    unimplemented!()
+    let message = request.into_inner();
+    let public_key = match self
+      .client
+      .get_user_public_key(message.user_id, message.device_id)
+      .await
+    {
+      Ok(Some(public_key)) => public_key,
+      Ok(None) => return Err(Status::not_found("no public key found")),
+      Err(e) => return Err(handle_db_error(e)),
+    };
+    let response = Response::new(GetUserPublicKeyResponse { public_key });
+    Ok(response)
   }
 }
 
