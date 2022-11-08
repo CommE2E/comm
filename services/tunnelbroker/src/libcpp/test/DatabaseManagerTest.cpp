@@ -141,7 +141,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundDeviceSessionItemStaticDataIsSame) {
       "ECqgx4zqajPTzVt7EAOGaIh/dPyQ6x2Ul1GlkkSYXUhhixEzExGp9g84eCyVkbCB"
       "U3SK6SNKyR7anAXDVQIDAQAB",
       "hbI93aGAwPF9au0eYsawRz0jtYi4lSFXC9KleyQDg+6J+UW1kiWvE3",
-      "phone",
+      database::DeviceSessionItem::DeviceTypes::MOBILE,
       "ios:1.1.1",
       "iOS 99.99.99");
   EXPECT_EQ(
@@ -169,7 +169,7 @@ TEST_F(DatabaseManagerTest, PutAndFoundDeviceSessionItemGeneratedDataIsSame) {
       "mobile:" + tools::generateRandomString(DEVICEID_CHAR_LENGTH),
       tools::generateRandomString(451),
       tools::generateRandomString(64),
-      tools::generateRandomString(12),
+      database::DeviceSessionItem::DeviceTypes::MOBILE,
       tools::generateRandomString(12),
       tools::generateRandomString(12));
   EXPECT_EQ(
@@ -219,7 +219,7 @@ TEST_F(DatabaseManagerTest, UpdateIsOnlineDeviceSessionItem) {
       "ECqgx4zqajPTzVt7EAOGaIh/dPyQ6x2Ul1GlkkSYXUhhixEzExGp9g84eCyVkbCB"
       "U3SK6SNKyR7anAXDVQIDAQAB",
       "hbI93aGAwPF9au0eYsawRz0jtYi4lSFXC9KleyQDg+6J+UW1kiWvE3",
-      "phone",
+      database::DeviceSessionItem::DeviceTypes::MOBILE,
       "ios:1.1.1",
       "iOS 99.99.99");
   EXPECT_EQ(
@@ -254,7 +254,7 @@ TEST_F(DatabaseManagerTest, UpdateNotifTokenInDeviceSessionItem) {
       "ECqgx4zqajPTzVt7EAOGaIh/dPyQ6x2Ul1GlkkSYXUhhixEzExGp9g84eCyVkbCB"
       "U3SK6SNKyR7anAXDVQIDAQAB",
       "hbI93aGAwPF9au0eYsawRz0jtYi4lSFXC9KleyQDg+6J+UW1kiWvE3",
-      "phone",
+      database::DeviceSessionItem::DeviceTypes::MOBILE,
       "ios:1.1.1",
       "iOS 99.99.99");
   EXPECT_EQ(

@@ -24,7 +24,7 @@ DeviceSessionItem::DeviceSessionItem(
     const std::string deviceID,
     const std::string pubKey,
     const std::string notifyToken,
-    const std::string deviceType,
+    const size_t deviceType,
     const std::string appVersion,
     const std::string deviceOs)
     : sessionID(sessionID),
@@ -49,7 +49,6 @@ void DeviceSessionItem::validate() const {
     throw std::runtime_error("Error: DeviceID format is wrong.");
   }
   tools::checkIfNotEmpty("pubKey", this->pubKey);
-  tools::checkIfNotEmpty("deviceType", this->deviceType);
   tools::checkIfNotEmpty("appVersion", this->appVersion);
   tools::checkIfNotEmpty("deviceOs", this->deviceOs);
 }
@@ -63,7 +62,7 @@ void DeviceSessionItem::assignItemFromDatabase(
     this->notifyToken =
         itemFromDB.at(DeviceSessionItem::FIELD_NOTIFY_TOKEN).GetS();
     this->deviceType =
-        itemFromDB.at(DeviceSessionItem::FIELD_DEVICE_TYPE).GetS();
+        std::stoul(itemFromDB.at(DeviceSessionItem::FIELD_DEVICE_TYPE).GetS());
     this->appVersion =
         itemFromDB.at(DeviceSessionItem::FIELD_APP_VERSION).GetS();
     this->deviceOs = itemFromDB.at(DeviceSessionItem::FIELD_DEVICE_OS).GetS();
@@ -109,7 +108,7 @@ std::string DeviceSessionItem::getNotifyToken() const {
   return this->notifyToken;
 }
 
-std::string DeviceSessionItem::getDeviceType() const {
+size_t DeviceSessionItem::getDeviceType() const {
   return this->deviceType;
 }
 

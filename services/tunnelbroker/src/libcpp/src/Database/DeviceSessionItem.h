@@ -13,7 +13,7 @@ class DeviceSessionItem : public Item {
   std::string deviceID;
   std::string pubKey;
   std::string notifyToken;
-  std::string deviceType;
+  size_t deviceType;
   std::string appVersion;
   std::string deviceOs;
   int64_t checkpointTime = 0;
@@ -33,6 +33,8 @@ public:
   static const std::string FIELD_EXPIRE;
   static const std::string FIELD_IS_ONLINE;
 
+  enum DeviceTypes { MOBILE = 0, WEB = 1, KEYSERVER = 2 };
+
   PrimaryKeyDescriptor getPrimaryKeyDescriptor() const override;
   PrimaryKeyValue getPrimaryKeyValue() const override;
   std::string getTableName() const override;
@@ -40,7 +42,7 @@ public:
   std::string getDeviceID() const;
   std::string getPubKey() const;
   std::string getNotifyToken() const;
-  std::string getDeviceType() const;
+  size_t getDeviceType() const;
   std::string getAppVersion() const;
   std::string getDeviceOs() const;
   int64_t getCheckpointTime() const;
@@ -53,7 +55,7 @@ public:
       const std::string deviceID,
       const std::string pubKey,
       const std::string notifyToken,
-      const std::string deviceType,
+      size_t deviceType,
       const std::string appVersion,
       const std::string deviceOs);
   DeviceSessionItem(const AttributeValues &itemFromDB);
