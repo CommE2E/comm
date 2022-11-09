@@ -142,7 +142,7 @@ add_library(
   ${_react_native_dir}/ReactCommon/jsi/jsi/jsi.cpp
   ${_react_native_dir}/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
   ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
-  ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/LongLivedObject.cpp
+  ${_react_native_dir}/ReactCommon/react/bridging/LongLivedObject.cpp
   ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleUtils.cpp
 
   # SQLCipher
