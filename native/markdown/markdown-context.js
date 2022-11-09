@@ -9,6 +9,7 @@ export type MarkdownContextType = {
   +linkModalActive: { [key: string]: boolean },
   +setLinkPressActive: SetState<{ [key: string]: boolean }>,
   +linkPressActive: { [key: string]: boolean },
+
   +setSpoilerRevealed: SetState<{ [key: string]: { [key: number]: boolean } }>,
   +spoilerRevealed: { [key: string]: { [key: number]: boolean } },
   +setSpoilerPressActive: SetState<boolean>,
