@@ -85,7 +85,6 @@
     "react-native": "0.66.5",
     "react-native-background-upload": "^6.5.1",
     "react-native-camera": "^3.31.0",
-    "react-native-dark-mode": "^0.2.0-rc.1",
     "react-native-device-info": "^8.0.7",
     "react-native-exit-app": "^1.1.0",
     "react-native-fast-image": "^8.3.0",

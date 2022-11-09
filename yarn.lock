@@ -4126,14 +4126,6 @@
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.4.tgz#cd667bcfdd025213aafb7ca5915a932590acdcdc"
   integrity sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==
 
-"@types/react-native@*":
-  version "0.60.21"
-  resolved "https://registry.yarnpkg.com/@types/react-native/-/react-native-0.60.21.tgz#81a41cae7b232f52ab3983d854f4a0b0df79531e"
-  integrity sha512-E7F+P/UG4Utu+kh8Hy544i0m4CzpHw1awNX6hVfkhlu4mXSlAn6KLZzKEkPBbHm7g1kspmZTiuP23HAKZpASPw==
-  dependencies:
-    "@types/prop-types" "*"
-    "@types/react" "*"
-
 "@types/react-redux@^7.1.20":
   version "7.1.21"
   resolved "https://registry.yarnpkg.com/@types/react-redux/-/react-redux-7.1.21.tgz#f32bbaf7cbc4b93f51e10d340aa54035c084b186"
@@ -16315,17 +16307,6 @@ react-native-codegen@^0.0.13:
     jscodeshift "^0.13.1"
     nullthrows "^1.1.1"
 
-react-native-dark-mode@^0.2.0-rc.1:
-  version "0.2.0-rc.1"
-  resolved "https://registry.yarnpkg.com/react-native-dark-mode/-/react-native-dark-mode-0.2.0-rc.1.tgz#fc83f4a6d897613f49b49bde10f9c3d0f8e4ae69"
-  integrity sha512-pxdr+vdL9KF0pRqlls9A31ie3DdlJ3/2soMTBAWGmqASEhYkvdduH2QvJStrjby0EDSxzV4lTLuw7FdIrkoldw==
-  dependencies:
-    "@types/events" "*"
-    "@types/react" "*"
-    "@types/react-native" "*"
-    events "^3.0.0"
-    toolkit.ts "^0.0.2"
-
 react-native-device-info@^8.0.7:
   version "8.0.7"
   resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-8.0.7.tgz#c04f5dd50a977da21305b99088c0b42b588d07f9"
@@ -19072,11 +19053,6 @@ tokenize-text@^1.1.3:
   integrity sha1-iwWdatojYYQC8TPbOAjjdSXNXns=
   dependencies:
     lodash "^3.2.0"
-
-toolkit.ts@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/toolkit.ts/-/toolkit.ts-0.0.2.tgz#91bde730e5e6ad1a22146cdaf83f4a52721cf3b2"
-  integrity sha512-yJJTVbCwiD6AfFgReewJCGJuODmyZUeL1sDjnxp33t0UBxnezgQrLbz/F9++RC28CTlk5u5pVji4TbeondYEkw==
 
 touch@^3.1.0:
   version "3.1.0"

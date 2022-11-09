@@ -1,10 +1,8 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
-import {
-  initialMode as initialSystemTheme,
-  eventEmitter as systemThemeEventEmitter,
-} from 'react-native-dark-mode';
+import { Appearance } from 'react-native';
 import { useDispatch } from 'react-redux';
 
 import type { Shape } from 'lib/types/core';
@@ -21,7 +19,7 @@ function ThemeHandler(): null {
   const globalThemeInfo = useSelector(state => state.globalThemeInfo);
   const dispatch = useDispatch();
   const updateSystemTheme = React.useCallback(
-    (colorScheme: GlobalTheme) => {
+    (colorScheme: ?GlobalTheme) => {
       if (globalThemeInfo.systemTheme === colorScheme) {
         return;
       }
@@ -45,20 +43,21 @@ function ThemeHandler(): null {
     if (!osCanTheme) {
       return undefined;
     }
-    systemThemeEventEmitter.addListener(
-      'currentModeChanged',
-      updateSystemTheme,
-    );
-    return () => {
-      systemThemeEventEmitter.removeListener(
-        'currentModeChanged',
-        updateSystemTheme,
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      invariant(
+        colorScheme === undefined ||
+          colorScheme === null ||
+          colorScheme === 'light' ||
+          colorScheme === 'dark',
+        'Flow types for Appearance module are non-specific',
       );
-    };
+      updateSystemTheme(colorScheme);
+    });
+    return () => subscription.remove();
   }, [updateSystemTheme]);
 
   React.useEffect(
-    () => updateSystemTheme(initialSystemTheme),
+    () => updateSystemTheme(Appearance.getColorScheme()),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );

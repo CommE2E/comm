@@ -841,8 +841,6 @@ PODS:
     - React-perflogger (= 0.66.5)
   - ReactNativeART (1.2.0):
     - React
-  - ReactNativeDarkMode (0.2.0-rc.1):
-    - React
   - ReactNativeKeyboardInput (6.0.1):
     - React
   - ReactNativeKeyboardTrackingView (5.7.0):
@@ -1010,7 +1008,6 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../../node_modules/react-native/ReactCommon`)
   - "ReactNativeART (from `../../node_modules/@react-native-community/art`)"
-  - ReactNativeDarkMode (from `../../node_modules/react-native-dark-mode`)
   - ReactNativeKeyboardInput (from `../../node_modules/react-native-keyboard-input`)
   - ReactNativeKeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "RNCAsyncStorage (from `../../node_modules/@react-native-async-storage/async-storage`)"
@@ -1178,8 +1175,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/react-native/ReactCommon"
   ReactNativeART:
     :path: "../../node_modules/@react-native-community/art"
-  ReactNativeDarkMode:
-    :path: "../../node_modules/react-native-dark-mode"
   ReactNativeKeyboardInput:
     :path: "../../node_modules/react-native-keyboard-input"
   ReactNativeKeyboardTrackingView:
@@ -1296,7 +1291,6 @@ SPEC CHECKSUMS:
   React-runtimeexecutor: 09041c28ce04143a113eac2d357a6b06bd64b607
   ReactCommon: 8a7a138ae43c04bb8dd760935589f326ca810484
   ReactNativeART: 78edc68dd4a1e675338cd0cd113319cf3a65f2ab
-  ReactNativeDarkMode: 88317ff05ba95fd063dd347ad32f8c4cefd3166c
   ReactNativeKeyboardInput: 266ba27a2e9921f5bdc0b4cc30289b2a2f46b157
   ReactNativeKeyboardTrackingView: 02137fac3b2ebd330d74fa54ead48b14750a2306
   RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
