@@ -48,6 +48,8 @@ const unboundStyles = {
   },
   modal: {
     backgroundColor: 'modalBackground',
+    borderColor: 'modalForegroundBorder',
+    borderWidth: 2,
     borderRadius: 5,
     flex: 1,
     justifyContent: 'center',
