@@ -1,0 +1,18 @@
+{
+  "name": "desktop",
+  "version": "0.0.1",
+  "main": "main.js",
+  "private": true,
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "dev": "ENV=dev electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0",
+    "@electron-forge/maker-zip": "^6.0.0",
+    "electron": "^21.2.2",
+    "fs-extra": "10.1.0"
+  }
+}

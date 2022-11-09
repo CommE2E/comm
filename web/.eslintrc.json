@@ -4,6 +4,7 @@
     "jest": true
   },
   "globals": {
-    "process": true
+    "process": true,
+    "electronContextBridge": "readonly"
   }
 }

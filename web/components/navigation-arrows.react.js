@@ -1,7 +1,9 @@
 // @flow
 
+import classnames from 'classnames';
 import * as React from 'react';
 
+import electron from '../electron.js';
 import history from '../router-history.js';
 import SWMansionIcon from '../SWMansionIcon.react.js';
 import css from './navigation-arrows.css';
@@ -16,12 +18,29 @@ function NavigationArrows(): React.Node {
     [],
   );
 
+  const [disableBack, setDisableBack] = React.useState(false);
+  const [disableFoward, setDisableForward] = React.useState(false);
+
+  electron?.onNavigate((event, { canGoBack, canGoForward }) => {
+    setDisableBack(!canGoBack);
+    setDisableForward(!canGoForward);
+  });
+
+  const goBackClasses = React.useMemo(
+    () => classnames([css.button, disableBack ? css.disabled : null]),
+    [disableBack],
+  );
+  const goForwardClasses = React.useMemo(
+    () => classnames([css.button, disableFoward ? css.disabled : null]),
+    [disableFoward],
+  );
+
   return (
     <div className={css.container}>
-      <a className={css.button} onClick={goBack}>
+      <a className={goBackClasses} onClick={goBack}>
         <SWMansionIcon icon="arrow-left" size={24} />
       </a>
-      <a className={css.button} onClick={goForward}>
+      <a className={goForwardClasses} onClick={goForward}>
         <SWMansionIcon icon="arrow-right" size={24} />
       </a>
     </div>

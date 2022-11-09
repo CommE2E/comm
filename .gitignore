@@ -36,3 +36,7 @@ shared/protos/build
 # Nix
 result*
 services/backup/blob_client/target/
+
+# Electron
+desktop/out/
+desktop/assets/

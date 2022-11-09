@@ -1,0 +1,8 @@
+{
+  "globals": {
+    "require": "readonly",
+    "__dirname": "readonly",
+    "process": "readonly",
+    "setTimeout": "readonly"
+  }
+}

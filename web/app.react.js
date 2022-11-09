@@ -3,6 +3,7 @@
 import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
+import classnames from 'classnames';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -32,6 +33,7 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import { TooltipProvider } from './chat/tooltip-provider';
 import NavigationArrows from './components/navigation-arrows.react';
+import electron from './electron';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
 import { MenuProvider } from './menu-provider.react';
@@ -175,18 +177,22 @@ class App extends React.PureComponent<Props> {
       }
     }
 
-    const shouldShowNavigationArrows = false;
     let navigationArrows = null;
-    if (shouldShowNavigationArrows) {
+    if (electron) {
       navigationArrows = <NavigationArrows />;
     }
+
+    const mainHeaderClasses = classnames(
+      css['main-header'],
+      electron ? css['electron-draggable'] : null,
+    );
 
     return (
       <div className={css.layout}>
         <DisconnectedBarVisibilityHandler />
         <DisconnectedBar />
         <header className={css['header']}>
-          <div className={css['main-header']}>
+          <div className={mainHeaderClasses}>
             <h1 className={css.wordmark}>
               <a
                 title="Comm Home"
@@ -253,6 +259,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const boundUnreadCount = useSelector(unreadCount);
     React.useEffect(() => {
       document.title = getTitle(boundUnreadCount);
+      electron?.setBadge?.(boundUnreadCount === 0 ? null : boundUnreadCount);
     }, [boundUnreadCount]);
 
     const dispatch = useDispatch();
