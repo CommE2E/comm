@@ -1107,7 +1107,7 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_NO_CONFIG",
 					"-DFOLLY_USE_LIBCPP=1",
-					"-DRNVERSION=70",
+					"-DREACT_NATIVE_MINOR_VERSION=70",
 					"-fcxx-modules",
 					"-fmodules",
 				);
@@ -1245,7 +1245,7 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_NO_CONFIG",
 					"-DFOLLY_USE_LIBCPP=1",
-					"-DRNVERSION=70",
+					"-DREACT_NATIVE_MINOR_VERSION=70",
 					"-fcxx-modules",
 					"-fmodules",
 				);
