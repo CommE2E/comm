@@ -89,6 +89,19 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDeviceID(jsi:
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->clearSensitiveData(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_cancelTasks(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->cancelTasks(rt);
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_runTasks(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->runTasks(rt);
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_printMessageAndWaitAsync(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->printMessageAndWaitAsync(rt, args[0].getString(rt));
+}
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_printMessageAndWaitSync(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->printMessageAndWaitSync(rt, args[0].getString(rt));
+  return jsi::Value::undefined();
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -117,6 +130,10 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["setDeviceID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setDeviceID};
   methodMap_["getDeviceID"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDeviceID};
   methodMap_["clearSensitiveData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData};
+  methodMap_["cancelTasks"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_cancelTasks};
+  methodMap_["runTasks"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_runTasks};
+  methodMap_["printMessageAndWaitAsync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_printMessageAndWaitAsync};
+  methodMap_["printMessageAndWaitSync"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_printMessageAndWaitSync};
 }
 
 

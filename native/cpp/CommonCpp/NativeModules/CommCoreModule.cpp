@@ -10,6 +10,8 @@
 #include <ReactCommon/TurboModuleUtils.h>
 #include <future>
 
+#include "Logger.h"
+
 namespace comm {
 
 using namespace facebook::react;
@@ -1100,6 +1102,85 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
           });
         };
         GlobalDBSingleton::instance.scheduleOrRun(job);
+      });
+}
+
+jsi::Value CommCoreModule::cancelTasks(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        GlobalDBSingleton::instance.setTasksCancelled(true);
+        taskType job = [this, promise]() {
+          this->jsInvoker_->invokeAsync(
+              [promise]() { promise->resolve(jsi::Value::undefined()); });
+        };
+        GlobalDBSingleton::instance.scheduleOrRun(job);
+      });
+}
+
+jsi::Value CommCoreModule::runTasks(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [this, promise]() {
+          GlobalDBSingleton::instance.setTasksCancelled(false);
+          this->jsInvoker_->invokeAsync(
+              [promise]() { promise->resolve(jsi::Value::undefined()); });
+        };
+        GlobalDBSingleton::instance.scheduleOrRun(job);
+      });
+}
+
+void CommCoreModule::printMessageAndWaitSync(
+    jsi::Runtime &rt,
+    const jsi::String &message) {
+  std::string msg = message.utf8(rt);
+  this->runSyncOrThrowJSError<void>(rt, [msg]() {
+    std::ostringstream startMessage;
+    startMessage << "Starting sync task: " << msg;
+    Logger::log(startMessage.str());
+
+    // some dummy operations here
+
+    std::ostringstream endMessage;
+    endMessage << "Ending sync task: " << msg;
+    Logger::log(endMessage.str());
+  });
+
+  return;
+}
+
+jsi::Value CommCoreModule::printMessageAndWaitAsync(
+    jsi::Runtime &rt,
+    const jsi::String &message) {
+  std::string msg = message.utf8(rt);
+  return createPromiseAsJSIValue(
+      rt, [this, msg](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=]() {
+          std::string error;
+          try {
+            std::ostringstream startMessage;
+            startMessage << "Starting async task: " << msg;
+            Logger::log(startMessage.str());
+
+            // some dummy operations here
+
+            std::ostringstream endMessage;
+            endMessage << "Ending async task: " << msg;
+            Logger::log(endMessage.str());
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+
+          this->jsInvoker_->invokeAsync([promise, error]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 

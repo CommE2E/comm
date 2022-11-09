@@ -43,6 +43,10 @@ virtual jsi::Value getCurrentUserID(jsi::Runtime &rt) = 0;
 virtual jsi::Value setDeviceID(jsi::Runtime &rt, const jsi::String &deviceType) = 0;
 virtual jsi::Value getDeviceID(jsi::Runtime &rt) = 0;
 virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
+virtual jsi::Value cancelTasks(jsi::Runtime &rt) = 0;
+virtual jsi::Value runTasks(jsi::Runtime &rt) = 0;
+virtual jsi::Value printMessageAndWaitAsync(jsi::Runtime &rt, const jsi::String &message) = 0;
+virtual void printMessageAndWaitSync(jsi::Runtime &rt, const jsi::String &message) = 0;
 
 };
 
