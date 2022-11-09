@@ -80,8 +80,9 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
   [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient
                                          error:nil];
 
-  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self
-                                            launchOptions:launchOptions];
+  RCTBridge *bridge =
+      [self.reactDelegate createBridgeWithDelegate:self
+                                     launchOptions:launchOptions];
 
 #if RCT_NEW_ARCH_ENABLED
   _contextContainer =
@@ -96,7 +97,9 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 #endif
 
   NSDictionary *initProps = [self prepareInitialProps];
-  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"Comm", initProps);
+  UIView *rootView = [self.reactDelegate createRootViewWithBridge:bridge
+                                                       moduleName:@"Comm"
+                                                initialProperties:initProps];
 
   if (@available(iOS 13.0, *)) {
     rootView.backgroundColor = [UIColor systemBackgroundColor];
@@ -105,7 +108,8 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
   }
 
   self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [UIViewController new];
+  UIViewController *rootViewController =
+      [self.reactDelegate createRootViewController];
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
