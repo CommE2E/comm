@@ -17892,10 +17892,10 @@ react-motion@^0.5.2:
     prop-types "^15.5.8"
     raf "^3.1.0"
 
-react-native-background-upload@^6.5.1:
-  version "6.5.1"
-  resolved "https://registry.yarnpkg.com/react-native-background-upload/-/react-native-background-upload-6.5.1.tgz#862e1d783e608bdca073ca2d7aeae79503e0507c"
-  integrity sha512-cKVCrpQ7xIePL9rh+TBFQw69Z2eG3tL5/R732+I7lfpq6F9xwrwkYDgxqKfGzTtY3V6JZ3ZENCO8MOMEh6O0jw==
+react-native-background-upload@^6.6.0:
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/react-native-background-upload/-/react-native-background-upload-6.6.0.tgz#7c081f4260d16e7a416522c3622b81938ad799c8"
+  integrity sha512-adfOJmeO3GmPmc53cdHYWp5eTGKagk/AhkraSoQ89BHRwBWrtRQ29NN9sm2CLezBYrSQWg0W47C8TaowtYZ1LQ==
 
 react-native-camera@^3.31.0:
   version "3.31.0"
