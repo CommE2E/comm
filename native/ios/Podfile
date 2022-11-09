@@ -2,22 +2,26 @@ require File.join(File.dirname(`node --print "require.resolve('expo/package.json
 require File.join(File.dirname(`node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
 require File.join(File.dirname(`node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`), "native_modules")
 
-platform :ios, '12.4'
+platform :ios, '13.0'
 install! 'cocoapods', :deterministic_uuids => false
 
 require 'json'
 
 def common_comm_target_pods
   pod 'SQLCipher-Amalgamation', :path => '../../node_modules/@commapp/sqlcipher-amalgamation'
+  pod 'react-native-video/VideoCaching', :podspec => '../node_modules/react-native-video'
+  pod 'react-native-ffmpeg/min-lts', :podspec => '../node_modules/react-native-ffmpeg'
 end
 
-target 'Comm' do
-  pod 'ReactNativeKeyboardTrackingView', :path => '../../node_modules/react-native-keyboard-tracking-view'
-  pod 'ReactNativeKeyboardInput', :path => '../../node_modules/react-native-keyboard-input'
-  pod 'react-native-video/VideoCaching', :podspec => '../../node_modules/react-native-video/react-native-video.podspec'
-  pod 'react-native-ffmpeg/min-lts', :podspec => '../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec'
-  common_comm_target_pods
+post_integrate do |installer|
+  begin
+    expo_patch_react_imports!(installer)
+  rescue => e
+    Pod::UI.warn e
+  end
+end
 
+def react_native_config
   use_expo_modules!
   use_native_modules!
 
@@ -38,22 +42,20 @@ target 'Comm' do
   )
 end
 
+target 'Comm' do
+  common_comm_target_pods
+  pod 'ReactNativeKeyboardTrackingView', :path => '../../node_modules/react-native-keyboard-tracking-view'
+  pod 'ReactNativeKeyboardInput', :path => '../node_modules/react-native-keyboard-input'
+
+  react_native_config
+end
+
 target 'NotificationService' do
   common_comm_target_pods
   pod 'OLMKit', :path => "../node_modules/olm"
   pod 'RCT-Folly', :podspec => "../../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
 
-  # Lines below are only needed to compile and use Expo Secure Store in
-  # Notification Service.
-  # If Apple disapproves 'APPLICATION_EXTENSION_API_ONLY' flag then we can
-  # safely delete them and use customized Expo Secure Store that does not depend
-  # on ExpoModulesCore
-  podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
-  use_expo_modules!
-  use_react_native!(
-    :path => "../../node_modules/react-native",
-    :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
-  )
+  react_native_config
 end
 
 post_install do |installer|

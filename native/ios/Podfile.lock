@@ -2,34 +2,35 @@ PODS:
   - boost (1.76.0)
   - DoubleConversion (1.1.6)
   - DVAssetLoaderDelegate (0.3.3)
-  - EXApplication (4.0.2):
+  - EXApplication (5.0.1):
     - ExpoModulesCore
-  - EXConstants (12.1.3):
+  - EXConstants (14.0.2):
     - ExpoModulesCore
-  - EXFileSystem (13.0.3):
+  - EXFileSystem (15.1.1):
     - ExpoModulesCore
-  - EXFont (10.0.5):
+  - EXFont (11.0.1):
     - ExpoModulesCore
-  - EXHaptics (11.0.3):
-    - ExpoModulesCore
-  - EXImageLoader (3.0.0):
+  - EXImageLoader (4.0.0):
     - ExpoModulesCore
     - React-Core
-  - EXImageManipulator (10.1.2):
+  - EXMediaLibrary (15.0.0):
+    - ExpoModulesCore
+    - React-Core
+  - Expo (47.0.8):
+    - ExpoModulesCore
+  - ExpoHaptics (12.0.1):
+    - ExpoModulesCore
+  - ExpoImageManipulator (11.0.0):
     - EXImageLoader
     - ExpoModulesCore
-  - EXKeepAwake (10.0.2):
+  - ExpoKeepAwake (11.0.1):
     - ExpoModulesCore
-  - EXMediaLibrary (13.0.3):
-    - ExpoModulesCore
+  - ExpoModulesCore (1.0.3):
     - React-Core
-  - Expo (43.0.0):
+    - ReactCommon/turbomodule/core
+  - EXSecureStore (12.0.0):
     - ExpoModulesCore
-  - ExpoModulesCore (0.4.10):
-    - React-Core
-  - EXSecureStore (11.0.3):
-    - ExpoModulesCore
-  - EXSplashScreen (0.13.5):
+  - EXSplashScreen (0.17.5):
     - ExpoModulesCore
     - React-Core
   - FBLazyVector (0.70.6)
@@ -475,13 +476,13 @@ DEPENDENCIES:
   - EXConstants (from `../../node_modules/expo-constants/ios`)
   - EXFileSystem (from `../../node_modules/expo-file-system/ios`)
   - EXFont (from `../../node_modules/expo-font/ios`)
-  - EXHaptics (from `../../node_modules/expo-haptics/ios`)
   - EXImageLoader (from `../../node_modules/expo-image-loader/ios`)
-  - EXImageManipulator (from `../../node_modules/expo-image-manipulator/ios`)
-  - EXKeepAwake (from `../../node_modules/expo-keep-awake/ios`)
   - EXMediaLibrary (from `../../node_modules/expo-media-library/ios`)
-  - Expo (from `../../node_modules/expo/ios`)
-  - ExpoModulesCore (from `../../node_modules/expo-modules-core/ios`)
+  - Expo (from `../../node_modules/expo`)
+  - ExpoHaptics (from `../../node_modules/expo-haptics/ios`)
+  - ExpoImageManipulator (from `../../node_modules/expo-image-manipulator/ios`)
+  - ExpoKeepAwake (from `../../node_modules/expo-keep-awake/ios`)
+  - ExpoModulesCore (from `../../node_modules/expo-modules-core`)
   - EXSecureStore (from `../../node_modules/expo-secure-store/ios`)
   - EXSplashScreen (from `../../node_modules/expo-splash-screen/ios`)
   - FBLazyVector (from `../../node_modules/react-native/Libraries/FBLazyVector`)
@@ -510,14 +511,14 @@ DEPENDENCIES:
   - React-logger (from `../../node_modules/react-native/ReactCommon/logger`)
   - react-native-background-upload (from `../node_modules/react-native-background-upload`)
   - react-native-camera (from `../node_modules/react-native-camera`)
-  - react-native-ffmpeg/min-lts (from `../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec`)
+  - react-native-ffmpeg/min-lts (from `../node_modules/react-native-ffmpeg`)
   - react-native-in-app-message (from `../node_modules/react-native-in-app-message`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-notifications (from `../node_modules/react-native-notifications`)
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - react-native-video/VideoCaching (from `../../node_modules/react-native-video/react-native-video.podspec`)
+  - react-native-video/VideoCaching (from `../node_modules/react-native-video`)
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -532,7 +533,7 @@ DEPENDENCIES:
   - React-runtimeexecutor (from `../../node_modules/react-native/ReactCommon/runtimeexecutor`)
   - ReactCommon/turbomodule/core (from `../../node_modules/react-native/ReactCommon`)
   - "ReactNativeART (from `../node_modules/@react-native-community/art`)"
-  - ReactNativeKeyboardInput (from `../../node_modules/react-native-keyboard-input`)
+  - ReactNativeKeyboardInput (from `../node_modules/react-native-keyboard-input`)
   - ReactNativeKeyboardTrackingView (from `../../node_modules/react-native-keyboard-tracking-view`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
@@ -575,20 +576,20 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/expo-file-system/ios"
   EXFont:
     :path: "../../node_modules/expo-font/ios"
-  EXHaptics:
-    :path: "../../node_modules/expo-haptics/ios"
   EXImageLoader:
     :path: "../../node_modules/expo-image-loader/ios"
-  EXImageManipulator:
-    :path: "../../node_modules/expo-image-manipulator/ios"
-  EXKeepAwake:
-    :path: "../../node_modules/expo-keep-awake/ios"
   EXMediaLibrary:
     :path: "../../node_modules/expo-media-library/ios"
   Expo:
-    :path: "../../node_modules/expo/ios"
+    :path: "../../node_modules/expo"
+  ExpoHaptics:
+    :path: "../../node_modules/expo-haptics/ios"
+  ExpoImageManipulator:
+    :path: "../../node_modules/expo-image-manipulator/ios"
+  ExpoKeepAwake:
+    :path: "../../node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
-    :path: "../../node_modules/expo-modules-core/ios"
+    :path: "../../node_modules/expo-modules-core"
   EXSecureStore:
     :path: "../../node_modules/expo-secure-store/ios"
   EXSplashScreen:
@@ -642,7 +643,7 @@ EXTERNAL SOURCES:
   react-native-camera:
     :path: "../node_modules/react-native-camera"
   react-native-ffmpeg:
-    :podspec: "../../node_modules/react-native-ffmpeg/react-native-ffmpeg.podspec"
+    :podspec: "../node_modules/react-native-ffmpeg"
   react-native-in-app-message:
     :path: "../node_modules/react-native-in-app-message"
   react-native-netinfo:
@@ -656,7 +657,7 @@ EXTERNAL SOURCES:
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-video:
-    :podspec: "../../node_modules/react-native-video/react-native-video.podspec"
+    :podspec: "../node_modules/react-native-video"
   react-native-webview:
     :path: "../node_modules/react-native-webview"
   React-perflogger:
@@ -686,7 +687,7 @@ EXTERNAL SOURCES:
   ReactNativeART:
     :path: "../node_modules/@react-native-community/art"
   ReactNativeKeyboardInput:
-    :path: "../../node_modules/react-native-keyboard-input"
+    :path: "../node_modules/react-native-keyboard-input"
   ReactNativeKeyboardTrackingView:
     :path: "../../node_modules/react-native-keyboard-tracking-view"
   RNCAsyncStorage:
@@ -724,19 +725,19 @@ SPEC CHECKSUMS:
   boost: a7c83b31436843459a1961bfd74b96033dc77234
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   DVAssetLoaderDelegate: 0caec20e4e08b8560b691131539e9180024d4bce
-  EXApplication: 54fe5bd6268d697771645e8f1aef8b806a65247a
-  EXConstants: 6d585d93723b18d7a8c283591a335609e3bc153e
-  EXFileSystem: 99aac7962c11c680681819dd9cbca24e20e5b1e7
-  EXFont: 2597c10ac85a69d348d44d7873eccf5a7576ef5e
-  EXHaptics: f52df335f17192e440d9639c971ebcbb3fb91dec
-  EXImageLoader: 939451be6f7b731aaa6588920b90743f20121a4d
-  EXImageManipulator: 49bbcede2429523edfd95dc242cf7f8fdf271307
-  EXKeepAwake: bf48d7f740a5cd2befed6cf9a49911d385c6c47d
-  EXMediaLibrary: 2a684cca228d6605a72f9995d3e7b8af2a05246c
-  Expo: f3357f1f9796d0b4d396d0be84c49933671db4ad
-  ExpoModulesCore: c9438f6add0fb7b04b7c64eb97a833d2752a7834
-  EXSecureStore: 919bf7c28472862020d2cd7b59b69aae160b5d40
-  EXSplashScreen: 57f329dbf25c5c12800feed79068a056453dc772
+  EXApplication: 034b1c40a8e9fe1bff76a1e511ee90dff64ad834
+  EXConstants: 3c86653c422dd77e40d10cbbabb3025003977415
+  EXFileSystem: 60602b6eefa6873f97172c684b7537c9760b50d6
+  EXFont: 319606bfe48c33b5b5063fb0994afdc496befe80
+  EXImageLoader: 84b65e6bd9d3345d6fbb3ab936a546c54496a64d
+  EXMediaLibrary: b1c4f78878e45f6a359aff3a059e1660c41b73ab
+  Expo: 36b5f625d36728adbdd1934d4d57182f319ab832
+  ExpoHaptics: 5a56d30a87ea213dd00b09566dc4b441a4dff97f
+  ExpoImageManipulator: 5f3c1ab8dd81de11491b5051bb925abc91fe57e4
+  ExpoKeepAwake: 69b59d0a8d2b24de9f82759c39b3821fec030318
+  ExpoModulesCore: b5d21c8880afda6fb6ee95469f9ac2ec9b98e995
+  EXSecureStore: daec0117c922a67c658cb229152a9e252e5c1750
+  EXSplashScreen: 3e989924f61a8dd07ee4ea584c6ba14be9b51949
   FBLazyVector: 48289402952f4f7a4e235de70a9a590aa0b79ef4
   FBReactNativeSpec: c8856286d1e15e74b57b892c68d7d1d05b79c7de
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
@@ -809,6 +810,6 @@ SPEC CHECKSUMS:
   SQLCipher-Amalgamation: cbd36045fe7b458b8a442958a01aefdbc44c20f8
   Yoga: 99caf8d5ab45e9d637ee6e0174ec16fbbb01bcfc
 
-PODFILE CHECKSUM: 8f0b1a33a6698a6a36733554716a2d673208acc7
+PODFILE CHECKSUM: 773766c9c6cbcb12022cfa6d3b3dc498a490fe25
 
 COCOAPODS: 1.11.3
