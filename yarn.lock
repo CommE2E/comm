@@ -2477,7 +2477,7 @@
     protobufjs "^6.10.0"
     yargs "^16.2.0"
 
-"@grpc/proto-loader@^0.7.0":
+"@grpc/proto-loader@^0.7.0", "@grpc/proto-loader@^0.7.3":
   version "0.7.3"
   resolved "https://registry.yarnpkg.com/@grpc/proto-loader/-/proto-loader-0.7.3.tgz#75a6f95b51b85c5078ac7394da93850c32d36bb8"
   integrity sha512-5dAvoZwna2Py3Ef96Ux9jIkp3iZ62TUsV00p3wVBPNX5K178UbNi8Q7gQVqwXT1Yq9RejIGG9G2IPEo93T6RcA==
