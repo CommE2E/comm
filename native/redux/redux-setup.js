@@ -19,10 +19,12 @@ import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
+import { isStaff } from 'lib/shared/user-utils';
 import { logInActionSources } from 'lib/types/account-types';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types';
+import { rehydrateActionType } from 'lib/types/redux-types';
 import type { SetSessionPayload } from 'lib/types/session-types';
 import {
   defaultConnectionInfo,
@@ -45,6 +47,7 @@ import reactotron from '../reactotron';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultConnectivityInfo } from '../types/connectivity';
 import { defaultGlobalThemeInfo } from '../types/themes';
+import { isStaffRelease } from '../utils/staff-utils';
 import {
   defaultURLPrefix,
   natNodeServer,
@@ -128,6 +131,53 @@ const defaultState = ({
 function reducer(state: AppState = defaultState, action: Action) {
   if (action.type === setReduxStateActionType) {
     return action.payload.state;
+  }
+
+  // We want to alert staff/developers if there's a difference between the keys
+  // we expect to see REHYDRATED and the keys that are actually REHYDRATED.
+  // Context: https://linear.app/comm/issue/ENG-2127/
+  if (
+    action.type === rehydrateActionType &&
+    (__DEV__ ||
+      isStaffRelease ||
+      (state.currentUserInfo &&
+        state.currentUserInfo.id &&
+        isStaff(state.currentUserInfo.id)))
+  ) {
+    // 1. Construct set of keys expected to be REHYDRATED
+    const defaultKeys = Object.keys(defaultState);
+    const expectedKeys = defaultKeys.filter(
+      each => !persistConfig.blacklist.includes(each),
+    );
+    const expectedKeysSet = new Set(expectedKeys);
+
+    // 2. Construct set of keys actually REHYDRATED
+    const rehydratedKeys = Object.keys(action.payload ?? {});
+    const rehydratedKeysSet = new Set(rehydratedKeys);
+
+    // 3. Determine the difference between the two sets
+    const expectedKeysNotRehydrated = expectedKeys.filter(
+      each => !rehydratedKeysSet.has(each),
+    );
+    const rehydratedKeysNotExpected = rehydratedKeys.filter(
+      each => !expectedKeysSet.has(each),
+    );
+
+    // 4. Display alerts with the differences between the two sets
+    if (expectedKeysNotRehydrated.length > 0) {
+      Alert.alert(
+        `EXPECTED KEYS NOT REHYDRATED: ${JSON.stringify(
+          expectedKeysNotRehydrated,
+        )}`,
+      );
+    }
+    if (rehydratedKeysNotExpected.length > 0) {
+      Alert.alert(
+        `REHYDRATED KEYS NOT EXPECTED: ${JSON.stringify(
+          rehydratedKeysNotExpected,
+        )}`,
+      );
+    }
   }
 
   if (

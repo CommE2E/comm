@@ -16,4 +16,4 @@ function useStaffCanSee(): boolean {
   return __DEV__ || isStaffRelease || isCurrentUserStaff;
 }
 
-export { useStaffCanSee };
+export { isStaffRelease, useStaffCanSee };
