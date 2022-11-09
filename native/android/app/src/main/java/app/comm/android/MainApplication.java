@@ -60,7 +60,9 @@ public class MainApplication
       });
 
   private final ReactNativeHost mNewArchitectureNativeHost =
-      new MainApplicationReactNativeHost(this);
+      new ReactNativeHostWrapper(
+          this,
+          new MainApplicationReactNativeHost(this));
 
   @Override
   public ReactNativeHost getReactNativeHost() {
@@ -94,7 +96,7 @@ public class MainApplication
   }
 
   @Override
-  public void onConfigurationChanged(@NonNull Configuration newConfig) {
+  public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig);
   }
