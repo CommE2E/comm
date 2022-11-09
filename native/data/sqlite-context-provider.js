@@ -33,9 +33,42 @@ function SQLiteContextProvider(props: Props): React.Node {
   const urlPrefix = useSelector(state => state.urlPrefix);
   const staffCanSee = useStaffCanSee();
   const loggedIn = useSelector(isLoggedIn);
+  const currentLoggedInUserID = useSelector(state =>
+    state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
+  );
+
+  const handleSensitiveData = React.useCallback(async () => {
+    try {
+      const databaseCurrentUserInfoID = await commCoreModule.getCurrentUserID();
+      if (
+        databaseCurrentUserInfoID &&
+        databaseCurrentUserInfoID !== currentLoggedInUserID
+      ) {
+        await commCoreModule.clearSensitiveData();
+      }
+      if (currentLoggedInUserID) {
+        await commCoreModule.setCurrentUserID(currentLoggedInUserID);
+      }
+      const databaseDeviceID = await commCoreModule.getDeviceID();
+      if (!databaseDeviceID) {
+        await commCoreModule.setDeviceID('MOBILE');
+      }
+    } catch (e) {
+      if (__DEV__) {
+        throw e;
+      } else {
+        console.log(e);
+        ExitApp.exitApp();
+      }
+    }
+  }, [currentLoggedInUserID]);
 
   React.useEffect(() => {
-    if (storeLoaded || !rehydrateConcluded) {
+    if (!rehydrateConcluded) {
+      return;
+    }
+    const sensitiveDataHandled = handleSensitiveData();
+    if (storeLoaded) {
       return;
     }
     if (!loggedIn) {
@@ -43,6 +76,7 @@ function SQLiteContextProvider(props: Props): React.Node {
       return;
     }
     (async () => {
+      await sensitiveDataHandled;
       try {
         const [threads, messages] = await Promise.all([
           commCoreModule.getAllThreads(),
@@ -92,6 +126,7 @@ function SQLiteContextProvider(props: Props): React.Node {
       }
     })();
   }, [
+    handleSensitiveData,
     loggedIn,
     cookie,
     dispatch,
