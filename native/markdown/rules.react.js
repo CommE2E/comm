@@ -202,7 +202,7 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ) => (
         <MarkdownSpoiler
           key={state.key}
-          identifier={state.key}
+          spoilerIdentifier={state.key}
           text={output(node.content, state)}
         />
       ),

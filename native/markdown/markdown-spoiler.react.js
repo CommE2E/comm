@@ -10,7 +10,7 @@ import { useStyles } from '../themes/colors';
 import { MarkdownContext } from './markdown-context';
 
 type MarkdownSpoilerProps = {
-  +identifier: string | number | void,
+  +spoilerIdentifier: string | number | void,
   +text: ReactElement,
   +children?: React.Node,
 };
@@ -20,47 +20,68 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
   const messageContext = React.useContext(MessageContext);
   const styles = useStyles(unboundStyles);
 
-  const [styleBasedOnState, setStyleBasedOnState] = React.useState(
-    styles.spoilerHidden,
-  );
-
   const { messageID } = messageContext;
-  const { text, identifier } = props;
+  const { text, spoilerIdentifier } = props;
+
+  const parsedSpoilerIdentifier = spoilerIdentifier
+    ? parseInt(spoilerIdentifier)
+    : -1;
 
   const setSpoilerRevealed = markdownContext?.setSpoilerRevealed;
   const spoilerRevealed = markdownContext?.spoilerRevealed;
   const setSpoilerPressActive = markdownContext?.setSpoilerPressActive;
 
+  const styleBasedOnSpoilerState = React.useMemo(() => {
+    return parsedSpoilerIdentifier &&
+      spoilerRevealed?.[messageID]?.[parsedSpoilerIdentifier]
+      ? null
+      : styles.spoilerHidden;
+  }, [
+    parsedSpoilerIdentifier,
+    spoilerRevealed,
+    messageID,
+    styles.spoilerHidden,
+  ]);
+
   const onSpoilerClick = React.useCallback(() => {
-    if (styleBasedOnState === null) {
+    if (
+      parsedSpoilerIdentifier &&
+      spoilerRevealed?.[messageID]?.[parsedSpoilerIdentifier]
+    ) {
       setSpoilerPressActive && setSpoilerPressActive(false);
       return;
     }
 
-    if (spoilerRevealed && setSpoilerRevealed && messageID && identifier) {
+    if (
+      spoilerRevealed &&
+      setSpoilerRevealed &&
+      messageID &&
+      parsedSpoilerIdentifier
+    ) {
       setSpoilerRevealed({
         ...spoilerRevealed,
-        [messageID]: { ...spoilerRevealed[messageID], [identifier]: true },
+        [messageID]: {
+          ...spoilerRevealed[messageID],
+          [parsedSpoilerIdentifier]: true,
+        },
       });
     }
     setSpoilerPressActive && setSpoilerPressActive(true);
-    setStyleBasedOnState(null);
   }, [
     setSpoilerPressActive,
     spoilerRevealed,
     setSpoilerRevealed,
     messageID,
-    identifier,
-    styleBasedOnState,
+    parsedSpoilerIdentifier,
   ]);
 
   const memoizedSpoiler = React.useMemo(() => {
     return (
-      <Text onPress={onSpoilerClick} style={styleBasedOnState}>
+      <Text onPress={onSpoilerClick} style={styleBasedOnSpoilerState}>
         {text}
       </Text>
     );
-  }, [onSpoilerClick, styleBasedOnState, text]);
+  }, [onSpoilerClick, styleBasedOnSpoilerState, text]);
 
   return memoizedSpoiler;
 }
