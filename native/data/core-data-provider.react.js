@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 
 import { commCoreModule } from '../native-modules';
+import { checkIfTaskWasCancelled } from '../utils/error-handling';
 import { type CoreData, defaultCoreData, CoreDataContext } from './core-data';
 
 type Props = {
@@ -16,21 +17,27 @@ function CoreDataProvider(props: Props): React.Node {
 
   React.useEffect(() => {
     (async () => {
-      const fetchedDrafts = await commCoreModule.getAllDrafts();
-      setDraftCache(prevDrafts => {
-        const mergedDrafts = {};
-        for (const draftObj of fetchedDrafts) {
-          mergedDrafts[draftObj.key] = draftObj.text;
-        }
-        for (const key in prevDrafts) {
-          const value = prevDrafts[key];
-          if (!value) {
-            continue;
+      try {
+        const fetchedDrafts = await commCoreModule.getAllDrafts();
+        setDraftCache(prevDrafts => {
+          const mergedDrafts = {};
+          for (const draftObj of fetchedDrafts) {
+            mergedDrafts[draftObj.key] = draftObj.text;
           }
-          mergedDrafts[key] = value;
+          for (const key in prevDrafts) {
+            const value = prevDrafts[key];
+            if (!value) {
+              continue;
+            }
+            mergedDrafts[key] = value;
+          }
+          return mergedDrafts;
+        });
+      } catch (e) {
+        if (!checkIfTaskWasCancelled(e)) {
+          throw e;
         }
-        return mergedDrafts;
-      });
+      }
     })();
   }, []);
 
@@ -41,7 +48,9 @@ function CoreDataProvider(props: Props): React.Node {
       return await commCoreModule.removeAllDrafts();
     } catch (e) {
       setDraftCache(oldDrafts);
-      throw e;
+      if (!checkIfTaskWasCancelled(e)) {
+        throw e;
+      }
     }
   }, [draftCache]);
 
@@ -92,6 +101,9 @@ function CoreDataProvider(props: Props): React.Node {
         return await commCoreModule.updateDraft(draft);
       } catch (e) {
         setDrafts([{ key: draft.key, text: prevDraftText }]);
+        if (checkIfTaskWasCancelled(e)) {
+          return false;
+        }
         throw e;
       }
     },
@@ -115,6 +127,9 @@ function CoreDataProvider(props: Props): React.Node {
           { key: newKey, text: null },
           { key: prevKey, text: value },
         ]);
+        if (checkIfTaskWasCancelled(e)) {
+          return false;
+        }
         throw e;
       }
     },

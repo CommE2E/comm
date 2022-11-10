@@ -47,6 +47,7 @@ import reactotron from '../reactotron';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultConnectivityInfo } from '../types/connectivity';
 import { defaultGlobalThemeInfo } from '../types/themes';
+import { checkIfTaskWasCancelled } from '../utils/error-handling';
 import { isStaffRelease } from '../utils/staff-utils';
 import {
   defaultURLPrefix,
@@ -382,7 +383,10 @@ function reducer(state: AppState = defaultState, action: Action) {
         );
       }
       await Promise.all(promises);
-    } catch {
+    } catch (e) {
+      if (checkIfTaskWasCancelled(e)) {
+        return;
+      }
       dispatch({
         type: setNewSessionActionType,
         payload: {
