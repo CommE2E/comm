@@ -4,6 +4,8 @@ import * as React from 'react';
 
 import type { ReactElement } from 'lib/shared/markdown';
 
+import css from './markdown.css';
+
 type MarkdownSpoilerProps = {
   +text: ReactElement,
 };
@@ -11,7 +13,7 @@ type MarkdownSpoilerProps = {
 function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
   const { text } = props;
 
-  return <span>{text}</span>;
+  return <span className={css.spoiler}>{text}</span>;
 }
 
 const MemoizedMarkdownSpoiler: React.ComponentType<MarkdownSpoilerProps> = React.memo<MarkdownSpoilerProps>(

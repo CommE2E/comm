@@ -76,3 +76,9 @@ div.lightBackground a {
 div.darkBackground a {
   color: white;
 }
+
+span.spoiler {
+  background: var(--spoiler-background-color);
+  color: var(--spoiler-text-color);
+  cursor: pointer;
+}
