@@ -9,7 +9,7 @@ import BackgroundIllustration from '../assets/background-illustration.react';
 import Button from '../components/button.react';
 import Search from '../components/search.react';
 import { useSelector } from '../redux/redux-utils';
-import { useOnClickNewThread } from '../selectors/nav-selectors';
+import { useOnClickNewThread } from '../selectors/thread-selectors';
 import ChatThreadListItem from './chat-thread-list-item.react';
 import css from './chat-thread-list.css';
 import { ThreadListContext } from './thread-list-provider';

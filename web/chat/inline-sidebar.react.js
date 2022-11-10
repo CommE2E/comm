@@ -7,7 +7,7 @@ import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../CommIcon.react';
-import { useOnClickThread } from '../selectors/nav-selectors';
+import { useOnClickThread } from '../selectors/thread-selectors';
 import css from './inline-sidebar.css';
 
 type Props = {

@@ -7,7 +7,7 @@ import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
-import { useThreadIsActive } from '../selectors/nav-selectors';
+import { useThreadIsActive } from '../selectors/thread-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-list-item-menu.css';
 

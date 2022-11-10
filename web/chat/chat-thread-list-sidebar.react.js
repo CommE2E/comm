@@ -8,7 +8,7 @@ import type { SidebarInfo } from 'lib/types/thread-types';
 import {
   useOnClickThread,
   useThreadIsActive,
-} from '../selectors/nav-selectors';
+} from '../selectors/thread-selectors';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import css from './chat-thread-list.css';
 import SidebarItem from './sidebar-item.react';

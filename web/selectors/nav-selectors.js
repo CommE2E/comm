@@ -1,25 +1,14 @@
 // @flow
 
 import invariant from 'invariant';
-import * as React from 'react';
-import { useDispatch } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import { nonThreadCalendarFiltersSelector } from 'lib/selectors/calendar-filter-selectors';
 import { currentCalendarQuery } from 'lib/selectors/nav-selectors';
-import { createPendingSidebar } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
-import type {
-  ComposableMessageInfo,
-  RobotextMessageInfo,
-} from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
 
-import { getDefaultTextMessageRules } from '../markdown/rules.react';
-import { updateNavInfoActionType } from '../redux/action-types';
 import type { AppState } from '../redux/redux-setup';
-import { useSelector } from '../redux/redux-utils';
 import {
   type NavigationTab,
   type NavigationSettingsSection,
@@ -128,90 +117,6 @@ const nonThreadCalendarQuery: (
   },
 );
 
-function useOnClickThread(
-  thread: ?ThreadInfo,
-): (event: SyntheticEvent<HTMLElement>) => void {
-  const dispatch = useDispatch();
-  return React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
-      invariant(
-        thread?.id,
-        'useOnClickThread should be called with threadID set',
-      );
-      event.preventDefault();
-      const { id: threadID } = thread;
-
-      let payload;
-      if (threadID.includes('pending')) {
-        payload = {
-          chatMode: 'view',
-          activeChatThreadID: threadID,
-          pendingThread: thread,
-        };
-      } else {
-        payload = {
-          chatMode: 'view',
-          activeChatThreadID: threadID,
-        };
-      }
-
-      dispatch({ type: updateNavInfoActionType, payload });
-    },
-    [dispatch, thread],
-  );
-}
-
-function useThreadIsActive(threadID: string): boolean {
-  return useSelector(state => threadID === state.navInfo.activeChatThreadID);
-}
-
-function useOnClickPendingSidebar(
-  messageInfo: ComposableMessageInfo | RobotextMessageInfo,
-  threadInfo: ThreadInfo,
-): (event: SyntheticEvent<HTMLElement>) => void {
-  const dispatch = useDispatch();
-  const viewerID = useSelector(state => state.currentUserInfo?.id);
-  return React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
-      event.preventDefault();
-      if (!viewerID) {
-        return;
-      }
-      const pendingSidebarInfo = createPendingSidebar(
-        messageInfo,
-        threadInfo,
-        viewerID,
-        getDefaultTextMessageRules().simpleMarkdownRules,
-      );
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          activeChatThreadID: pendingSidebarInfo.id,
-          pendingThread: pendingSidebarInfo,
-        },
-      });
-    },
-    [viewerID, messageInfo, threadInfo, dispatch],
-  );
-}
-
-function useOnClickNewThread(): (event: SyntheticEvent<HTMLElement>) => void {
-  const dispatch = useDispatch();
-  return React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
-      event.preventDefault();
-      dispatch({
-        type: updateNavInfoActionType,
-        payload: {
-          chatMode: 'create',
-          selectedUserList: [],
-        },
-      });
-    },
-    [dispatch],
-  );
-}
-
 function navTabSelector(state: AppState): NavigationTab {
   return state.navInfo.tab;
 }
@@ -230,10 +135,6 @@ export {
   activeThreadSelector,
   webCalendarQuery,
   nonThreadCalendarQuery,
-  useOnClickThread,
-  useThreadIsActive,
-  useOnClickPendingSidebar,
-  useOnClickNewThread,
   navTabSelector,
   navSettingsSectionSelector,
 };

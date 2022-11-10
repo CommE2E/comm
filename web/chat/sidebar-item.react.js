@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import type { SidebarInfo } from 'lib/types/thread-types';
 
-import { useOnClickThread } from '../selectors/nav-selectors';
+import { useOnClickThread } from '../selectors/thread-selectors';
 import css from './chat-thread-list.css';
 
 type Props = {

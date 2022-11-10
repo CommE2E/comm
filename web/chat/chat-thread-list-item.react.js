@@ -11,7 +11,7 @@ import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickThread,
   useThreadIsActive,
-} from '../selectors/nav-selectors';
+} from '../selectors/thread-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';

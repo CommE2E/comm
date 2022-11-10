@@ -28,7 +28,7 @@ import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
-} from '../selectors/nav-selectors';
+} from '../selectors/thread-selectors';
 import { calculateMaxTextWidth } from '../utils/text-utils';
 
 export const tooltipPositions = Object.freeze({

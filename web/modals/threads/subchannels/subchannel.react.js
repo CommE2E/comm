@@ -10,7 +10,7 @@ import { shortAbsoluteDate } from 'lib/utils/date-utils';
 import Button from '../../../components/button.react';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react';
 import { useSelector } from '../../../redux/redux-utils';
-import { useOnClickThread } from '../../../selectors/nav-selectors';
+import { useOnClickThread } from '../../../selectors/thread-selectors';
 import SWMansionIcon from '../../../SWMansionIcon.react';
 import css from './subchannels-modal.css';
 
