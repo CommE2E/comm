@@ -40,7 +40,7 @@ DatabaseManager::findBlobItem(const std::string &blobHash) {
   request.AddKey(
       BlobItem::FIELD_BLOB_HASH,
       Aws::DynamoDB::Model::AttributeValue(blobHash));
-  return std::move(this->innerFindItem<BlobItem>(request));
+  return this->innerFindItem<BlobItem>(request);
 }
 
 void DatabaseManager::removeBlobItem(const std::string &blobHash) {
@@ -76,7 +76,7 @@ DatabaseManager::findReverseIndexItemByHolder(const std::string &holder) {
       ReverseIndexItem::FIELD_HOLDER,
       Aws::DynamoDB::Model::AttributeValue(holder));
 
-  return std::move(this->innerFindItem<ReverseIndexItem>(request));
+  return this->innerFindItem<ReverseIndexItem>(request);
 }
 
 std::vector<std::shared_ptr<database::ReverseIndexItem>>

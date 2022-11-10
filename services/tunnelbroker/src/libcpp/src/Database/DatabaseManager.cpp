@@ -67,7 +67,7 @@ DatabaseManager::findSessionItem(const std::string &sessionID) {
   request.AddKey(
       DeviceSessionItem::FIELD_SESSION_ID,
       Aws::DynamoDB::Model::AttributeValue(sessionID));
-  return std::move(this->innerFindItem<DeviceSessionItem>(request));
+  return this->innerFindItem<DeviceSessionItem>(request);
 }
 
 void DatabaseManager::removeSessionItem(const std::string &sessionID) {
@@ -176,7 +176,7 @@ DatabaseManager::findSessionSignItem(const std::string &deviceID) {
   request.AddKey(
       SessionSignItem::FIELD_DEVICE_ID,
       Aws::DynamoDB::Model::AttributeValue(deviceID));
-  return std::move(this->innerFindItem<SessionSignItem>(request));
+  return this->innerFindItem<SessionSignItem>(request);
 }
 
 void DatabaseManager::removeSessionSignItem(const std::string &deviceID) {
@@ -205,7 +205,7 @@ DatabaseManager::findPublicKeyItem(const std::string &deviceID) {
   request.AddKey(
       PublicKeyItem::FIELD_DEVICE_ID,
       Aws::DynamoDB::Model::AttributeValue(deviceID));
-  return std::move(this->innerFindItem<PublicKeyItem>(request));
+  return this->innerFindItem<PublicKeyItem>(request);
 }
 
 void DatabaseManager::removePublicKeyItem(const std::string &deviceID) {
@@ -282,7 +282,7 @@ std::shared_ptr<MessageItem> DatabaseManager::findMessageItem(
   request.AddKey(
       MessageItem::FIELD_MESSAGE_ID,
       Aws::DynamoDB::Model::AttributeValue(messageID));
-  return std::move(this->innerFindItem<MessageItem>(request));
+  return this->innerFindItem<MessageItem>(request);
 }
 
 std::vector<std::shared_ptr<MessageItem>>

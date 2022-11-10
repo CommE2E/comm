@@ -48,7 +48,7 @@ std::shared_ptr<T> DatabaseManagerBase::innerFindItem(
     return nullptr;
   }
   item->assignItemFromDatabase(outcomeItem);
-  return std::move(item);
+  return item;
 }
 
 } // namespace database
