@@ -2,7 +2,6 @@
 
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
-import { useContext } from 'react';
 import {
   View,
   StyleSheet,
@@ -42,14 +41,12 @@ import {
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
 import { splashStyleSelector } from '../splash';
-import { StaffContext } from '../staff/staff-context';
 import type { EventSubscription, KeyboardEvent } from '../types/react-native';
 import type { ImageStyle } from '../types/styles';
 import {
   runTiming,
   ratchetAlongWithKeyboardHeight,
 } from '../utils/animation-utils';
-import { useStaffCanSee } from '../utils/staff-utils';
 import {
   type StateContainer,
   type StateChange,
@@ -58,6 +55,7 @@ import {
 import { splashBackgroundURI } from './background-info';
 import LogInPanel from './log-in-panel.react';
 import type { LogInState } from './log-in-panel.react';
+import LoggedOutStaffInfo from './logged-out-staff-info.react';
 import RegisterPanel from './register-panel.react';
 import type { RegisterState } from './register-panel.react';
 import SIWEPanel from './siwe-panel.react';
@@ -117,8 +115,6 @@ type Props = {
   +splashStyle: ImageStyle,
   // Redux dispatch functions
   +dispatch: Dispatch,
-  +staffUserHasBeenLoggedIn: boolean,
-  +staffCanSee: boolean,
   ...
 };
 type State = {
@@ -468,14 +464,6 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         </TouchableOpacity>
       );
     }
-    let staffUserHasBeenLoggedInIndicator = null;
-    if (this.props.staffCanSee && this.props.staffUserHasBeenLoggedIn) {
-      staffUserHasBeenLoggedInIndicator = (
-        <TouchableOpacity style={styles.button} activeOpacity={0.6}>
-          <Text style={styles.buttonText}>STAFF HAS BEEN LOGGED IN</Text>
-        </TouchableOpacity>
-      );
-    }
 
     if (this.state.mode === 'siwe') {
       panel = (
@@ -504,7 +492,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       const opacityStyle = { opacity: this.buttonOpacity };
       buttons = (
         <Animated.View style={[styles.buttonContainer, opacityStyle]}>
-          {staffUserHasBeenLoggedInIndicator}
+          <LoggedOutStaffInfo />
           {siweButton}
           <TouchableOpacity
             onPress={this.onPressLogIn}
@@ -673,8 +661,6 @@ const ConnectedLoggedOutModal: React.ComponentType<{ ... }> = React.memo<{
   const loggedIn = useSelector(isLoggedIn);
   const dimensions = useSelector(derivedDimensionsInfoSelector);
   const splashStyle = useSelector(splashStyleSelector);
-  const { staffUserHasBeenLoggedIn } = useContext(StaffContext);
-  const staffCanSee = useStaffCanSee();
 
   const dispatch = useDispatch();
   return (
@@ -689,8 +675,6 @@ const ConnectedLoggedOutModal: React.ComponentType<{ ... }> = React.memo<{
       dimensions={dimensions}
       splashStyle={splashStyle}
       dispatch={dispatch}
-      staffUserHasBeenLoggedIn={staffUserHasBeenLoggedIn}
-      staffCanSee={staffCanSee}
     />
   );
 });
