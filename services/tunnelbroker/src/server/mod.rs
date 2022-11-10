@@ -1,9 +1,11 @@
+use crate::cxx_bridge::ffi::MessageItem;
+
 use super::constants;
 use super::cxx_bridge::ffi::{
   ackMessageFromAMQP, eraseMessagesFromAMQP, getMessagesFromDatabase,
-  getSessionItem, newSessionHandler, removeMessages, sessionSignatureHandler,
-  updateSessionItemDeviceToken, updateSessionItemIsOnline,
-  waitMessageFromDeliveryBroker, GRPCStatusCodes,
+  getSessionItem, newSessionHandler, removeMessages, sendMessages,
+  sessionSignatureHandler, updateSessionItemDeviceToken,
+  updateSessionItemIsOnline, waitMessageFromDeliveryBroker, GRPCStatusCodes,
 };
 use anyhow::Result;
 use futures::Stream;
@@ -300,7 +302,45 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
                 };
               }
             }
-            MessagesToSend(_) => (),
+            MessagesToSend(messages_to_send) => {
+              let mut messages_vec = vec![];
+              for message in messages_to_send.messages {
+                messages_vec.push(MessageItem {
+                  messageID: String::new(),
+                  fromDeviceID: session_item.deviceID.clone(),
+                  toDeviceID: message.to_device_id,
+                  payload: message.payload,
+                  blobHashes: String::new(),
+                  deliveryTag: 0,
+                });
+              }
+              let messages_ids = match sendMessages(&messages_vec) {
+                Err(err) => {
+                  error!("Error on sending messages: {}", err.what());
+                  return;
+                }
+                Ok(ids) => ids,
+              };
+              if let Err(err) = tx_writer(
+                &session_id,
+                &tx,
+                Ok(tunnelbroker::MessageToClient {
+                  data: Some(
+                    tunnelbroker::message_to_client::Data::ProcessedMessages(
+                      tunnelbroker::ProcessedMessages {
+                        message_id: messages_ids,
+                      },
+                    ),
+                  ),
+                }),
+              )
+              .await
+              {
+                debug!(
+                  "Error on sending back processed messages IDs to the stream: {}",
+                err);
+              };
+            }
             ProcessedMessages(processed_messages) => {
               if let Err(err) = removeMessages(
                 &session_item.deviceID,

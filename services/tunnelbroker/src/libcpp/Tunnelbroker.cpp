@@ -239,3 +239,26 @@ void removeMessages(
   comm::network::DeliveryBroker::DeliveryBroker::getInstance()
       .deleteQueueIfEmpty(stringDeviceID);
 }
+
+rust::Vec<rust::String> sendMessages(const rust::Vec<MessageItem> &messages) {
+  std::vector<comm::network::database::MessageItem> vectorOfMessages;
+  rust::Vec<rust::String> messagesIDs;
+  for (auto &message : messages) {
+    std::string messageID = comm::network::tools::generateUUID();
+    vectorOfMessages.push_back(comm::network::database::MessageItem{
+        comm::network::database::MessageItem{
+            messageID,
+            std::string{message.fromDeviceID},
+            std::string{message.toDeviceID},
+            std::string{message.payload},
+            std::string{message.blobHashes},
+        }});
+    messagesIDs.push_back(rust::String{messageID});
+  };
+  comm::network::database::DatabaseManager::getInstance()
+      .putMessageItemsByBatch(vectorOfMessages);
+  for (auto message : vectorOfMessages) {
+    comm::network::AmqpManager::getInstance().send(&message);
+  }
+  return messagesIDs;
+}

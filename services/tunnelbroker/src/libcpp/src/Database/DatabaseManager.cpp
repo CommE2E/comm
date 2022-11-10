@@ -255,9 +255,9 @@ void DatabaseManager::putMessageItem(const MessageItem &item) {
 }
 
 void DatabaseManager::putMessageItemsByBatch(
-    std::vector<MessageItem> &messageItems) {
+    const std::vector<MessageItem> &messageItems) {
   std::vector<Aws::DynamoDB::Model::WriteRequest> writeRequests;
-  for (MessageItem &messageItem : messageItems) {
+  for (MessageItem messageItem : messageItems) {
     Aws::DynamoDB::Model::PutRequest putRequest;
     putRequest =
         this->populatePutRequestFromMessageItem(putRequest, messageItem);

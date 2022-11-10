@@ -74,6 +74,7 @@ pub mod ffi {
       newNotifToken: &str,
     ) -> Result<()>;
     pub fn getMessagesFromDatabase(deviceID: &str) -> Result<Vec<MessageItem>>;
+    pub fn sendMessages(messages: &Vec<MessageItem>) -> Result<Vec<String>>;
     pub fn eraseMessagesFromAMQP(deviceID: &str) -> Result<()>;
     pub fn ackMessageFromAMQP(deliveryTag: u64) -> Result<()>;
     pub fn waitMessageFromDeliveryBroker(deviceID: &str)

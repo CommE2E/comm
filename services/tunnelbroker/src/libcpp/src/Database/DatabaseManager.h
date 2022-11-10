@@ -57,7 +57,7 @@ public:
   void removePublicKeyItem(const std::string &deviceID);
 
   void putMessageItem(const MessageItem &item);
-  void putMessageItemsByBatch(std::vector<MessageItem> &messageItems);
+  void putMessageItemsByBatch(const std::vector<MessageItem> &messageItems);
   std::shared_ptr<MessageItem>
   findMessageItem(const std::string &toDeviceID, const std::string &messageID);
   std::vector<std::shared_ptr<MessageItem>>

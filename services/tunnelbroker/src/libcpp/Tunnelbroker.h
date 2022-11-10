@@ -19,6 +19,7 @@ SessionItem getSessionItem(rust::Str sessionID);
 void updateSessionItemIsOnline(rust::Str sessionID, bool isOnline);
 void updateSessionItemDeviceToken(rust::Str sessionID, rust::Str newNotifToken);
 rust::Vec<MessageItem> getMessagesFromDatabase(rust::Str deviceID);
+rust::Vec<rust::String> sendMessages(const rust::Vec<MessageItem> &messages);
 void eraseMessagesFromAMQP(rust::Str deviceID);
 void ackMessageFromAMQP(uint64_t deliveryTag);
 MessageItem waitMessageFromDeliveryBroker(rust::Str deviceID);
