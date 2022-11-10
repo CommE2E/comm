@@ -118,11 +118,13 @@ type State = {
     [threadID: string]: { [localUploadID: string]: PendingMultimediaUpload },
   },
   +drafts: { [threadID: string]: string },
+  +textCursorPositions: { [threadID: string]: number },
 };
 class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
     drafts: {},
+    textCursorPositions: {},
   };
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
@@ -153,8 +155,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       state.pendingUploads,
       props,
     );
+    const textCursorPositions = InputStateContainer.reassignToRealizedThreads(
+      state.textCursorPositions,
+      props,
+    );
 
-    if (!drafts && !pendingUploads) {
+    if (!drafts && !pendingUploads && !textCursorPositions) {
       return null;
     }
 
@@ -164,6 +170,9 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     }
     if (pendingUploads) {
       stateUpdate.pendingUploads = pendingUploads;
+    }
+    if (textCursorPositions) {
+      stateUpdate.textCursorPositions = textCursorPositions;
     }
     return stateUpdate;
   }
@@ -451,9 +460,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     createSelector(
       (state: State) => state.pendingUploads[threadID],
       (state: State) => state.drafts[threadID],
+      (state: State) => state.textCursorPositions[threadID],
       (
         pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
         draft: ?string,
+        textCursorPosition: ?number,
       ) => {
         let threadPendingUploads = [];
         const assignedUploads = {};
@@ -473,7 +484,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         return {
           pendingUploads: threadPendingUploads,
           assignedUploads,
-          draft: draft ? draft : '',
+          draft: draft ?? '',
+          textCursorPosition: textCursorPosition ?? 0,
           appendFiles: (files: $ReadOnlyArray<File>) =>
             this.appendFiles(threadID, files),
           cancelPendingUpload: (localUploadID: string) =>
@@ -485,6 +497,8 @@ class InputStateContainer extends React.PureComponent<Props, State> {
           createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) =>
             this.createMultimediaMessage(localID, threadInfo),
           setDraft: (newDraft: string) => this.setDraft(threadID, newDraft),
+          setTextCursorPosition: (newPosition: number) =>
+            this.setTextCursorPosition(threadID, newPosition),
           messageHasUploadFailure: (localMessageID: string) =>
             this.messageHasUploadFailure(assignedUploads[localMessageID]),
           retryMultimediaMessage: (
@@ -1061,6 +1075,18 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         drafts: {
           ...prevState.drafts,
           [newThreadID]: draft,
+        },
+      };
+    });
+  }
+
+  setTextCursorPosition(threadID: string, newPosition: number) {
+    this.setState(prevState => {
+      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+      return {
+        textCursorPositions: {
+          ...prevState.textCursorPositions,
+          [newThreadID]: newPosition,
         },
       };
     });

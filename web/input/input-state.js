@@ -36,29 +36,31 @@ export type PendingMultimediaUpload = {
 
 // This type represents the input state for a particular thread
 export type InputState = {
-  pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
-  assignedUploads: {
+  +pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
+  +assignedUploads: {
     [messageID: string]: $ReadOnlyArray<PendingMultimediaUpload>,
   },
-  draft: string,
-  appendFiles: (files: $ReadOnlyArray<File>) => Promise<boolean>,
-  cancelPendingUpload: (localUploadID: string) => void,
-  sendTextMessage: (
+  +draft: string,
+  +textCursorPosition: number,
+  +appendFiles: (files: $ReadOnlyArray<File>) => Promise<boolean>,
+  +cancelPendingUpload: (localUploadID: string) => void,
+  +sendTextMessage: (
     messageInfo: RawTextMessageInfo,
     threadInfo: ThreadInfo,
   ) => Promise<void>,
-  createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
-  setDraft: (draft: string) => void,
-  messageHasUploadFailure: (localMessageID: string) => boolean,
-  retryMultimediaMessage: (
+  +createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
+  +setDraft: (draft: string) => void,
+  +setTextCursorPosition: (newPosition: number) => void,
+  +messageHasUploadFailure: (localMessageID: string) => boolean,
+  +retryMultimediaMessage: (
     localMessageID: string,
     threadInfo: ThreadInfo,
   ) => void,
-  addReply: (text: string) => void,
-  addReplyListener: ((message: string) => void) => void,
-  removeReplyListener: ((message: string) => void) => void,
-  registerSendCallback: (() => mixed) => void,
-  unregisterSendCallback: (() => mixed) => void,
+  +addReply: (text: string) => void,
+  +addReplyListener: ((message: string) => void) => void,
+  +removeReplyListener: ((message: string) => void) => void,
+  +registerSendCallback: (() => mixed) => void,
+  +unregisterSendCallback: (() => mixed) => void,
 };
 
 const InputStateContext: React.Context<?InputState> = React.createContext<?InputState>(
