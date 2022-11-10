@@ -6,6 +6,7 @@ import { Text } from 'react-native';
 import type { ReactElement } from 'lib/shared/markdown';
 
 import { MessageContext } from '../chat/message-context.react';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import { useStyles } from '../themes/colors';
 import { MarkdownContext } from './markdown-context';
 
@@ -30,16 +31,16 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
   const setSpoilerPressActive = markdownContext?.setSpoilerPressActive;
 
   const styleBasedOnSpoilerState = React.useMemo(() => {
-    return castedIdentifier && spoilerRevealed?.[messageID]?.[castedIdentifier]
+    return castedIdentifier &&
+      spoilerRevealed?.[messageID]?.[castedIdentifier] === true
       ? null
       : styles.spoilerHidden;
   }, [castedIdentifier, spoilerRevealed, messageID, styles.spoilerHidden]);
 
   const onSpoilerClick = React.useCallback(() => {
-    if (styleBasedOnSpoilerState === null) {
-      setSpoilerPressActive && setSpoilerPressActive(false);
-      return;
-    }
+    // if (styleBasedOnSpoilerState === null) {
+    //   return;
+    // }
 
     if (
       spoilerRevealed &&
@@ -51,13 +52,13 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
         ...spoilerRevealed,
         [messageID]: {
           ...spoilerRevealed[messageID],
-          [castedIdentifier]: true,
+          [castedIdentifier]:
+            !spoilerRevealed?.[messageID]?.[castedIdentifier] ?? true,
         },
       });
     }
-    setSpoilerPressActive && setSpoilerPressActive(true);
+    setSpoilerPressActive && setSpoilerPressActive(false);
   }, [
-    styleBasedOnSpoilerState,
     setSpoilerPressActive,
     spoilerRevealed,
     setSpoilerRevealed,
@@ -67,9 +68,9 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
 
   const memoizedSpoiler = React.useMemo(() => {
     return (
-      <Text onPress={onSpoilerClick} style={styleBasedOnSpoilerState}>
-        {text}
-      </Text>
+      <GestureTouchableOpacity onPress={onSpoilerClick}>
+        <Text style={styleBasedOnSpoilerState}>{text}</Text>
+      </GestureTouchableOpacity>
     );
   }, [onSpoilerClick, styleBasedOnSpoilerState, text]);
 
