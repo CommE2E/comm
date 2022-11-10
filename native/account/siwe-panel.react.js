@@ -3,11 +3,11 @@ import * as React from 'react';
 import Animated from 'react-native-reanimated';
 import WebView from 'react-native-webview';
 
-import { registerActionTypes, register } from 'lib/actions/user-actions';
+import { siweActionTypes, siwe } from 'lib/actions/user-actions';
 import type {
-  RegisterInfo,
+  SIWEInfo,
+  SIWEResult,
   LogInExtraInfo,
-  RegisterResult,
   LogInStartingPayload,
 } from 'lib/types/account-types';
 import {
@@ -35,23 +35,24 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +registerAction: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
+  +siweAction: (siweInfo: SIWEInfo) => Promise<SIWEResult>,
 };
 
 function SIWEPanel({
   logInExtraInfo,
   dispatchActionPromise,
-  registerAction,
+  siweAction,
 }: Props) {
   const handleSIWE = React.useCallback(
-    ({ address, signature }) => {
+    ({ address, message, signature }) => {
       // this is all mocked from register-panel
       const extraInfo = logInExtraInfo();
       dispatchActionPromise(
-        registerActionTypes,
-        registerAction({
-          username: address,
-          password: signature,
+        siweActionTypes,
+        siweAction({
+          address,
+          message,
+          signature,
           ...extraInfo,
         }),
         undefined,
@@ -59,16 +60,16 @@ function SIWEPanel({
       );
       setNativeCredentials({ username: address, password: signature });
     },
-    [logInExtraInfo, dispatchActionPromise, registerAction],
+    [logInExtraInfo, dispatchActionPromise, siweAction],
   );
   const handleMessage = React.useCallback(
     event => {
       const {
         nativeEvent: { data },
       } = event;
-      const { address, signature } = JSON.parse(data);
+      const { address, message, signature } = JSON.parse(data);
       if (address && signature) {
-        handleSIWE({ address, signature });
+        handleSIWE({ address, message, signature });
       }
     },
     [handleSIWE],
@@ -87,14 +88,14 @@ const ConnectedSIWEPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>
     );
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callRegister = useServerCall(register);
+    const callSiwe = useServerCall(siwe);
 
     return (
       <SIWEPanel
         {...props}
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
-        registerAction={callRegister}
+        siweAction={callSiwe}
       />
     );
   },
