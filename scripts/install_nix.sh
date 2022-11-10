@@ -86,6 +86,13 @@ add_if_missing_in_nix_conf \
   "experimental-features" "flakes nix-command"
 add_if_missing_in_nix_conf "cores" "${cores}"
 add_if_missing_in_nix_conf "max-jobs" "${jobs}"
+
+# Explictly add default cache for older nix versions to prevent custom cache
+# becoming only trusted cache.
+append_value_in_nix_conf "substituters" "https://cache.nixos.org"
+append_value_in_nix_conf "trusted-public-keys" \
+  "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+
 append_value_in_nix_conf "substituters" "https://comm.cachix.org"
 append_value_in_nix_conf "trusted-public-keys" \
   "comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4="
