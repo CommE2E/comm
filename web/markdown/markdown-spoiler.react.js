@@ -13,7 +13,24 @@ type MarkdownSpoilerProps = {
 function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
   const { text } = props;
 
-  return <span className={css.spoiler}>{text}</span>;
+  const [isRevealed, setIsRevealed] = React.useState(false);
+
+  const styleBasedOnSpoilerState = React.useMemo(() => {
+    if (isRevealed) {
+      return css.revealSpoilerAnimation;
+    }
+    return css.spoiler;
+  }, [isRevealed]);
+
+  const onSpoilerClick = React.useCallback(() => {
+    setIsRevealed(true);
+  }, [setIsRevealed]);
+
+  return (
+    <span className={styleBasedOnSpoilerState} onClick={onSpoilerClick}>
+      {text}
+    </span>
+  );
 }
 
 const MemoizedMarkdownSpoiler: React.ComponentType<MarkdownSpoilerProps> = React.memo<MarkdownSpoilerProps>(

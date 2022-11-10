@@ -82,3 +82,16 @@ span.spoiler {
   color: var(--spoiler-text-color);
   cursor: pointer;
 }
+span.revealSpoilerAnimation {
+  animation: revealSpoiler 1s;
+}
+@keyframes revealSpoiler {
+  from {
+    background: var(--spoiler-background-color);
+    color: var(--spoiler-text-color);
+  }
+  to {
+    background: transparent;
+    color: white;
+  }
+}
