@@ -71,7 +71,7 @@ append_value_in_nix_conf() {
     if sudo test -w /etc/nix/nix.conf; then
       # Find the line with the related setting, then append the new value
       # Values for nix.conf are space separated
-      sudo sed -i.bak  -e "|$key|s|\$| $value|" /etc/nix/nix.conf
+      sudo sed -i.bak  -e "/$key/s|\$| $value|" /etc/nix/nix.conf
     else
       # nix.conf is read only, which is true for NixOS
       echo "Unable to write to nix.conf, please append '$value' to '$key'" \
@@ -86,6 +86,13 @@ add_if_missing_in_nix_conf \
   "experimental-features" "flakes nix-command"
 add_if_missing_in_nix_conf "cores" "${cores}"
 add_if_missing_in_nix_conf "max-jobs" "${jobs}"
+
+# Explictly add default cache for older nix versions to prevent custom cache
+# becoming only trusted cache.
+append_value_in_nix_conf "substituters" "https://cache.nixos.org"
+append_value_in_nix_conf "trusted-public-keys" \
+  "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+
 append_value_in_nix_conf "substituters" "https://comm.cachix.org"
 append_value_in_nix_conf "trusted-public-keys" \
   "comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4="
