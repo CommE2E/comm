@@ -2,13 +2,55 @@
 
 import * as React from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { useSelector } from 'react-redux';
+
+import { isStaff } from 'lib/shared/user-utils';
 
 import { persistConfig, codeVersion } from '../redux/persist';
+import { StaffContext } from '../staff/staff-context';
 import { useStyles } from '../themes/colors';
+import { isStaffRelease, useStaffCanSee } from '../utils/staff-utils';
 
 // eslint-disable-next-line no-unused-vars
 function BuildInfo(props: { ... }): React.Node {
+  const isCurrentUserStaff = useSelector(
+    state =>
+      state.currentUserInfo &&
+      state.currentUserInfo.id &&
+      isStaff(state.currentUserInfo.id),
+  );
+  const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);
   const styles = useStyles(unboundStyles);
+  const staffCanSee = useStaffCanSee();
+
+  let staffCanSeeRows;
+  if (staffCanSee || staffUserHasBeenLoggedIn) {
+    staffCanSeeRows = (
+      <>
+        <View style={styles.row}>
+          <Text style={styles.label}>__DEV__</Text>
+          <Text style={styles.text}>{__DEV__ ? 'TRUE' : 'FALSE'}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Staff Release</Text>
+          <Text style={styles.text}>{isStaffRelease ? 'TRUE' : 'FALSE'}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>isCurrentUserStaff</Text>
+          <Text style={styles.text}>
+            {isCurrentUserStaff ? 'TRUE' : 'FALSE'}
+          </Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>hasStaffUserLoggedIn</Text>
+          <Text style={styles.text}>
+            {staffUserHasBeenLoggedIn ? 'TRUE' : 'FALSE'}
+          </Text>
+        </View>
+      </>
+    );
+  }
+
   return (
     <ScrollView
       contentContainerStyle={styles.scrollViewContentContainer}
@@ -23,6 +65,7 @@ function BuildInfo(props: { ... }): React.Node {
           <Text style={styles.label}>State version</Text>
           <Text style={styles.text}>{persistConfig.version}</Text>
         </View>
+        {staffCanSeeRows}
       </View>
       <View style={styles.section}>
         <View style={styles.row}>
