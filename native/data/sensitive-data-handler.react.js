@@ -5,6 +5,7 @@ import ExitApp from 'react-native-exit-app';
 
 import { commCoreModule } from '../native-modules';
 import { useSelector } from '../redux/redux-utils';
+import { checkIfTaskWasCancelled } from '../utils/error-handling';
 
 function SensitiveDataHandler(): null {
   const currentLoggedInUserID: ?string = useSelector(state =>
@@ -28,6 +29,9 @@ function SensitiveDataHandler(): null {
           await commCoreModule.setDeviceID('MOBILE');
         }
       } catch (e) {
+        if (checkIfTaskWasCancelled(e)) {
+          return;
+        }
         if (__DEV__) {
           throw e;
         } else {

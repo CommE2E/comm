@@ -15,6 +15,7 @@ import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops
 
 import { commCoreModule } from '../native-modules';
 import { useSelector } from '../redux/redux-utils';
+import { checkIfTaskWasCancelled } from '../utils/error-handling';
 import { useStaffCanSee } from '../utils/staff-utils';
 import { SQLiteContext } from './sqlite-context';
 
@@ -61,6 +62,10 @@ function SQLiteContextProvider(props: Props): React.Node {
         });
         setStoreLoaded(true);
       } catch (setStoreException) {
+        if (checkIfTaskWasCancelled(setStoreException)) {
+          setStoreLoaded(true);
+          return;
+        }
         if (staffCanSee) {
           Alert.alert(
             `Error setting threadStore or messageStore: ${
