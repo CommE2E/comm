@@ -464,14 +464,14 @@ async function rescindAndUpdateBadgeCounts(
     | 'mark_as_read'
   ),
 ) {
-  const excludeDeviceTokens = [];
+  const notificationPromises = [];
   if (rescindCondition) {
-    const handledDeviceTokens = await rescindPushNotifs(rescindCondition);
-    excludeDeviceTokens.push(...handledDeviceTokens);
+    notificationPromises.push(rescindPushNotifs(rescindCondition));
   }
   if (badgeCountUpdateSource) {
-    await updateBadgeCount(viewer, badgeCountUpdateSource, excludeDeviceTokens);
+    notificationPromises.push(updateBadgeCount(viewer, badgeCountUpdateSource));
   }
+  await Promise.all(notificationPromises);
 }
 
 async function shouldResetThreadToUnread(

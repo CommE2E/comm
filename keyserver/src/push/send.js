@@ -761,7 +761,6 @@ async function removeInvalidTokens(
 async function updateBadgeCount(
   viewer: Viewer,
   source: 'mark_as_unread' | 'mark_as_read' | 'activity_update',
-  excludeDeviceTokens: $ReadOnlyArray<string>,
 ) {
   const { userID } = viewer;
 
@@ -773,11 +772,6 @@ async function updateBadgeCount(
   `;
   if (viewer.data.cookieID) {
     deviceTokenQuery.append(SQL`AND id != ${viewer.cookieID} `);
-  }
-  if (excludeDeviceTokens.length > 0) {
-    deviceTokenQuery.append(
-      SQL`AND device_token NOT IN (${excludeDeviceTokens}) `,
-    );
   }
   const [unreadCounts, [deviceTokenResult], [dbID]] = await Promise.all([
     getUnreadCounts([userID]),
