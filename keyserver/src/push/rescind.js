@@ -170,7 +170,6 @@ function prepareIOSNotification(
 ): apn.Notification {
   const notification = new apn.Notification();
   notification.contentAvailable = true;
-  notification.badge = unreadCount;
   notification.topic = getAPNsNotificationTopic(codeVersion);
   notification.priority = 5;
   notification.pushType = 'background';
