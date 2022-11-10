@@ -31,6 +31,7 @@ import { commCoreModule } from '../native-modules';
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultGlobalThemeInfo } from '../types/themes';
+import { isTaskCancelledError } from '../utils/error-handling';
 import { migrateThreadStoreForEditThreadPermissions } from './edit-thread-permission-migration';
 import type { AppState } from './state-types';
 
@@ -210,10 +211,16 @@ const migrations = {
   [22]: state => {
     for (const key in state.drafts) {
       const value = state.drafts[key];
-      commCoreModule.updateDraft({
-        key,
-        text: value,
-      });
+      try {
+        commCoreModule.updateDraft({
+          key,
+          text: value,
+        });
+      } catch (e) {
+        if (!isTaskCancelledError(e)) {
+          throw e;
+        }
+      }
     }
     return {
       ...state,
@@ -350,6 +357,9 @@ const migrations = {
       );
     } catch (exception) {
       console.log(exception);
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
       return { ...state, cookie: null };
     }
     return state;
@@ -369,6 +379,9 @@ const migrations = {
       commCoreModule.processMessageStoreOperationsSync(operations);
     } catch (exception) {
       console.log(exception);
+      if (isTaskCancelledError(exception)) {
+        return state;
+      }
       return { ...state, cookie: null };
     }
     return state;
