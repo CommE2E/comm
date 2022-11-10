@@ -5,12 +5,14 @@ import * as React from 'react';
 import { draftKeyFromThreadID } from 'lib/shared/thread-utils';
 
 import { commCoreModule } from '../native-modules';
+import { isTaskCancelledError } from '../utils/error-handling';
 
-export type UpdateDraft = (draft: {
+type DraftType = {
   +key: string,
   +text: string,
-}) => Promise<boolean>;
+};
 
+export type UpdateDraft = (draft: DraftType) => Promise<boolean>;
 export type MoveDraft = (prevKey: string, nextKey: string) => Promise<boolean>;
 
 export type CoreData = {
@@ -24,8 +26,26 @@ export type CoreData = {
 const defaultCoreData = Object.freeze({
   drafts: {
     data: ({}: { +[key: string]: string }),
-    updateDraft: commCoreModule.updateDraft,
-    moveDraft: commCoreModule.moveDraft,
+    updateDraft: async (draft: DraftType): Promise<boolean> => {
+      try {
+        return commCoreModule.updateDraft(draft);
+      } catch (e) {
+        if (!isTaskCancelledError(e)) {
+          throw e;
+        }
+      }
+      return false;
+    },
+    moveDraft: async (prevKey: string, nextKey: string): Promise<boolean> => {
+      try {
+        return commCoreModule.moveDraft(prevKey, nextKey);
+      } catch (e) {
+        if (!isTaskCancelledError(e)) {
+          throw e;
+        }
+      }
+      return false;
+    },
   },
 });
 
