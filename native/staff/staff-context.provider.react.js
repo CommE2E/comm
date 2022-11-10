@@ -1,10 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { useSelector } from 'react-redux';
 
-import { isStaff } from 'lib/shared/user-utils';
-
+import { useIsCurrentUserStaff } from '../utils/staff-utils';
 import { StaffContext, type StaffContextType } from './staff-context';
 
 type Props = {
@@ -16,12 +14,7 @@ function StaffContextProvider(props: Props): React.Node {
     setStaffUserHasBeenLoggedIn,
   ] = React.useState(false);
 
-  const isCurrentUserStaff = useSelector(
-    state =>
-      state.currentUserInfo &&
-      state.currentUserInfo.id &&
-      isStaff(state.currentUserInfo.id),
-  );
+  const isCurrentUserStaff = useIsCurrentUserStaff();
 
   React.useEffect(() => {
     if (isCurrentUserStaff) {

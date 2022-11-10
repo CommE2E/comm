@@ -2,23 +2,19 @@
 
 import * as React from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { useSelector } from 'react-redux';
-
-import { isStaff } from 'lib/shared/user-utils';
 
 import { persistConfig, codeVersion } from '../redux/persist';
 import { StaffContext } from '../staff/staff-context';
 import { useStyles } from '../themes/colors';
-import { isStaffRelease, useStaffCanSee } from '../utils/staff-utils';
+import {
+  isStaffRelease,
+  useIsCurrentUserStaff,
+  useStaffCanSee,
+} from '../utils/staff-utils';
 
 // eslint-disable-next-line no-unused-vars
 function BuildInfo(props: { ... }): React.Node {
-  const isCurrentUserStaff = useSelector(
-    state =>
-      state.currentUserInfo &&
-      state.currentUserInfo.id &&
-      isStaff(state.currentUserInfo.id),
-  );
+  const isCurrentUserStaff = useIsCurrentUserStaff();
   const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);
   const styles = useStyles(unboundStyles);
   const staffCanSee = useStaffCanSee();
