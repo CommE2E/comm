@@ -90,3 +90,32 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
 ## How Nix introduces dependencies to a development environment
 
 Nix installs packages in the Nix store at package-specific paths (e.g. `/nix/store/x7kdiasp...-clang/bin/clang`). When you run `nix develop`, Nix sets environment variables such as `PATH` to expose the binary dependencies to your shell. This model can be extended through shell hooks to support other build toolchains such as `pkg-config`, `cmake`, and many other language specific package managers by simply adding the respective toolchain to `nativeBuildInputs`.
+
+# Nix-specific actions
+
+## Update nixpkgs
+
+Updating nixpkgs will update all of the versions of packages used by nix. Pinning or overriding the default behavior of packages from nixpkgs should be done in `nix/overlay.nix`.
+
+```
+nix flake lock --update-input nixpkgs --commit-lock-file
+
+# To commit changes
+git commit --amend
+# Change subject line to `[Nix] Update flake.lock`
+```
+
+Since this potentially affects all workflows, each workflow should be tested thoroughly for regressions in the new packages.
+
+## Update Comm binary cache
+
+For Comm specific packages, we use a binary cache which avoids developers having to build packages which are not available in the official nixpkgs repository. To upload built packages for the development shell, please run:
+
+```
+# Setting auth token only needs to be done once per-user
+nix run nixpkgs#cachix -- authtoken <TOKEN> # token available through 1Password
+
+nix build .#devShells.default
+
+nix run nixpkgs#cachix -- push comm ./result
+```
