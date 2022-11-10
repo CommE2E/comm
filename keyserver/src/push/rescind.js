@@ -13,11 +13,10 @@ import type { SQLStatementType } from '../database/types';
 import { getAPNsNotificationTopic } from './providers';
 import { apnPush, fcmPush } from './utils';
 
-// Returns list of deviceTokens that have been updated
 async function rescindPushNotifs(
   notifCondition: SQLStatementType,
   inputCountCondition?: SQLStatementType,
-): Promise<string[]> {
+) {
   const notificationExtractString = `$.${threadSubscriptions.home}`;
   const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
   const fetchQuery = SQL`
@@ -41,7 +40,6 @@ async function rescindPushNotifs(
   const deliveryPromises = {};
   const notifInfo = {};
   const rescindedIDs = [];
-  const receivingDeviceTokens = [];
   for (const row of fetchResult) {
     const rawDelivery = JSON.parse(row.delivery);
     const deliveries = Array.isArray(rawDelivery) ? rawDelivery : [rawDelivery];
@@ -65,7 +63,6 @@ async function rescindPushNotifs(
           deviceTokens: delivery.iosDeviceTokens,
           codeVersion: null,
         });
-        receivingDeviceTokens.push(...delivery.iosDeviceTokens);
       } else if (delivery.androidID) {
         // Old Android
         const notification = prepareAndroidNotification(
@@ -78,7 +75,6 @@ async function rescindPushNotifs(
           deviceTokens: delivery.androidDeviceTokens,
           codeVersion: null,
         });
-        receivingDeviceTokens.push(...delivery.androidDeviceTokens);
       } else if (delivery.deviceType === 'ios') {
         // New iOS
         const { iosID, deviceTokens, codeVersion } = delivery;
@@ -93,7 +89,6 @@ async function rescindPushNotifs(
           deviceTokens,
           codeVersion,
         });
-        receivingDeviceTokens.push(...deviceTokens);
       } else if (delivery.deviceType === 'android') {
         // New Android
         const { deviceTokens, codeVersion } = delivery;
@@ -107,7 +102,6 @@ async function rescindPushNotifs(
           deviceTokens,
           codeVersion,
         });
-        receivingDeviceTokens.push(...deviceTokens);
       }
     }
     rescindedIDs.push(row.id);
@@ -158,8 +152,6 @@ async function rescindPushNotifs(
     `;
     await dbQuery(insertQuery);
   }
-
-  return [...new Set(receivingDeviceTokens)];
 }
 
 function prepareIOSNotification(
