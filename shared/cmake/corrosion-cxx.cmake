@@ -30,9 +30,7 @@ function(add_library_rust)
       "Must supply a namespace given by keyvalue NAMESPACE <value>")
   endif()
 
-  if("${rust_lib_CXX_BRIDGE_SOURCE_FILE}" STREQUAL "")
-    set(rust_lib_CXX_BRIDGE_SOURCE_FILE "src/lib.rs")
-  endif()
+  set(rust_lib_SOURCE_FOLDER "src")
 
   if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${rust_lib_PATH}/Cargo.toml")
     message(
@@ -42,7 +40,7 @@ function(add_library_rust)
 
   set(lib_path ${rust_lib_PATH})
   set(namespace ${rust_lib_NAMESPACE})
-  set(cxx_bridge_source_file ${rust_lib_CXX_BRIDGE_SOURCE_FILE})
+  set(cxx_bridge_source_file "${rust_lib_SOURCE_FOLDER}/lib.rs")
 
   corrosion_import_crate(MANIFEST_PATH "${lib_path}/Cargo.toml")
 
@@ -61,9 +59,16 @@ function(add_library_rust)
   set(
     common_header
     ${cxx_bridge_binary_folder}/rust/cxx.h)
+  # We name the variable dynamically in case a single
+  # build has multiple entrypoints into this script
+  # cmake-lint: disable=C0103
+  set(
+    "${_LIB_PATH_STEM}_include_dir"
+    ${cxx_bridge_binary_folder}/${_LIB_PATH_STEM}/${rust_lib_SOURCE_FOLDER}
+    PARENT_SCOPE)
   set(
     binding_header
-    ${cxx_bridge_binary_folder}/${_LIB_PATH_STEM}/${cxx_bridge_source_file}.h)
+    ${${_LIB_PATH_STEM}_include_dir}/${cxx_bridge_source_file}.h)
   set(
     binding_source
     ${cxx_bridge_binary_folder}/${_LIB_PATH_STEM}/${cxx_bridge_source_file}.cc)

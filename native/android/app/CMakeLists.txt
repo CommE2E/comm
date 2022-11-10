@@ -131,7 +131,7 @@ include_directories(
   ../../cpp/CommonCpp/grpc
 
   # native rust library
-  ./.cxx/cmake/${CMAKE_BUILD_TYPE_LOWER}/${CMAKE_ANDROID_ARCH_ABI}/cargo/build/${Rust_CARGO_TARGET}/cxxbridge/native_rust_library/src
+  ${native_rust_library_include_dir}
 )
 
 # search for all cpp files in this directory
