@@ -1,8 +1,8 @@
 diff --git a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
-index f61d266..b4ca15e 100644
+index 8fa1171..316b482 100644
 --- a/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
 +++ b/node_modules/react-native/Libraries/Components/TextInput/TextInput.js
-@@ -211,6 +211,13 @@ export type TextContentType =
+@@ -208,6 +208,13 @@ export type TextContentType =
  type PasswordRules = string;
  
  type IOSProps = $ReadOnly<{|
@@ -17,7 +17,7 @@ index f61d266..b4ca15e 100644
     * When the clear button should appear on the right side of the text view.
     * This property is supported only for single-line TextInput component.
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
-index 5cb03ee..8e92c21 100644
+index 5ccb6b6..1f326d4 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 +++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.h
 @@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
@@ -30,10 +30,10 @@ index 5cb03ee..8e92c21 100644
  
  @end
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-index 2f72cb8..b7b7d4e 100644
+index 92371bc..e991835 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/Multiline/RCTUITextView.m
-@@ -178,8 +178,12 @@ - (void)setSelectedTextRange:(UITextRange *)selectedTextRange notifyDelegate:(BO
+@@ -164,8 +164,12 @@ - (void)setSelectedTextRange:(UITextRange *)selectedTextRange notifyDelegate:(BO
  
  - (void)paste:(id)sender
  {
@@ -47,8 +47,8 @@ index 2f72cb8..b7b7d4e 100644
 +  }
  }
  
- - (void)setContentOffset:(CGPoint)contentOffset animated:(__unused BOOL)animated
-@@ -266,6 +270,10 @@ - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
+ // Turn off scroll animation to fix flaky scrolling.
+@@ -254,6 +258,10 @@ - (BOOL)canPerformAction:(SEL)action withSender:(id)sender
      return NO;
    }
  
@@ -60,7 +60,7 @@ index 2f72cb8..b7b7d4e 100644
  }
  
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
-index 3e1839b..c9f33d2 100644
+index c2a4362..90f8583 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBackedTextInputDelegate.h
 @@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
@@ -73,7 +73,7 @@ index 3e1839b..c9f33d2 100644
  
  - (void)scrollViewDidScroll:(UIScrollView *)scrollView;
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
-index 9965f9c..22c12be 100644
+index a492492..e3b38cb 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputView.m
 @@ -19,6 +19,8 @@
@@ -85,7 +85,7 @@ index 9965f9c..22c12be 100644
  @implementation RCTBaseTextInputView {
    __weak RCTBridge *_bridge;
    __weak id<RCTEventDispatcherProtocol> _eventDispatcher;
-@@ -499,6 +501,46 @@ - (void)textInputDidChangeSelection
+@@ -491,6 +493,46 @@ - (void)textInputDidChangeSelection
    });
  }
  
@@ -133,7 +133,7 @@ index 9965f9c..22c12be 100644
  {
    [self enforceTextAttributesIfNeeded];
 diff --git a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
-index 34994ca..cd8322e 100644
+index b1ecf85..3462f98 100644
 --- a/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
 +++ b/node_modules/react-native/Libraries/Text/TextInput/RCTBaseTextInputViewManager.m
 @@ -33,6 +33,7 @@ @implementation RCTBaseTextInputViewManager
@@ -144,50 +144,3 @@ index 34994ca..cd8322e 100644
  RCT_REMAP_VIEW_PROPERTY(autoCapitalize, backedTextInputView.autocapitalizationType, UITextAutocapitalizationType)
  RCT_REMAP_VIEW_PROPERTY(autoCorrect, backedTextInputView.autocorrectionType, UITextAutocorrectionType)
  RCT_REMAP_VIEW_PROPERTY(contextMenuHidden, backedTextInputView.contextMenuHidden, BOOL)
-diff --git a/node_modules/react-native/scripts/react_native_pods.rb b/node_modules/react-native/scripts/react_native_pods.rb
-index df31139..e3db02f 100644
---- a/node_modules/react-native/scripts/react_native_pods.rb
-+++ b/node_modules/react-native/scripts/react_native_pods.rb
-@@ -132,11 +132,7 @@ def exclude_architectures(installer)
- 
-   projects.each do |project|
-     project.build_configurations.each do |config|
--      if arm_value == 1 then
--        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = excluded_archs_default
--      else
--        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64 " + excluded_archs_default
--      end
-+      config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = excluded_archs_default
-     end
- 
-     project.save()
-diff --git a/node_modules/react-native/third-party-podspecs/RCT-Folly.podspec b/node_modules/react-native/third-party-podspecs/RCT-Folly.podspec
-index f5dc212..b439680 100644
---- a/node_modules/react-native/third-party-podspecs/RCT-Folly.podspec
-+++ b/node_modules/react-native/third-party-podspecs/RCT-Folly.podspec
-@@ -35,6 +35,7 @@ Pod::Spec.new do |spec|
-                       'folly/json.cpp',
-                       'folly/json_pointer.cpp',
-                       'folly/container/detail/F14Table.cpp',
-+                      'folly/detail/Futex.cpp',
-                       'folly/detail/Demangle.cpp',
-                       'folly/detail/UniqueInstance.cpp',
-                       'folly/hash/SpookyHashV2.cpp',
-@@ -44,6 +45,7 @@ Pod::Spec.new do |spec|
-                       'folly/memory/detail/MallocImpl.cpp',
-                       'folly/net/NetOps.cpp',
-                       'folly/portability/SysUio.cpp',
-+                      'folly/synchronization/ParkingLot.cpp',
-                       'folly/system/ThreadId.h',
-                       'folly/system/ThreadId.cpp',
-                       'folly/*.h',
-@@ -71,7 +73,8 @@ Pod::Spec.new do |spec|
-                         'folly/memory/detail/*.h',
-                         'folly/net/*.h',
-                         'folly/net/detail/*.h',
--                        'folly/portability/*.h'
-+                        'folly/portability/*.h',
-+                        'folly/synchronization/*.h'
-   spec.libraries           = "stdc++", "c++abi" # NOTE Apple-only: Keep c++abi here due to https://github.com/react-native-community/releases/issues/251
-   spec.pod_target_xcconfig = { "USE_HEADERMAP" => "NO",
-                                "CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
