@@ -2,7 +2,7 @@
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 project(comm CXX C)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # C0103 is a naming convention, but the variable names which need to be set
 # are determined by the upstream project
@@ -76,9 +76,40 @@ add_subdirectory(../../node_modules/olm ./build)
 set(_node_modules_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../node_modules)
 set(_react_native_dir ${_node_modules_dir}/react-native)
 
-string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
+file(GLOB SQLCIPHER
+  "${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src/*.c"
+)
+file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
+file(GLOB_RECURSE COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
+add_library(
+  # Sets the name of the library
+  ${PACKAGE_NAME}
 
-include_directories(
+  # Sets the library as a shared library
+  SHARED
+
+  # React dependencies
+  ${_react_native_dir}/ReactCommon/jsi/jsi/jsi.cpp
+  ${_react_native_dir}/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
+  ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
+  ${_react_native_dir}/ReactCommon/react/bridging/LongLivedObject.cpp
+  ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleUtils.cpp
+
+  # Third party dependencies
+  ${SQLCIPHER}
+
+  # comm code
+  ${ANDROID_NATIVE_CODE}
+  ${COMMON_NATIVE_CODE}
+)
+
+set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
+
+target_include_directories(
+  ${PACKAGE_NAME}
+  PRIVATE
+
+  # React Native
   ${_react_native_dir}/React
   ${_react_native_dir}/React/Base
   ${_react_native_dir}/ReactCommon
@@ -99,9 +130,9 @@ include_directories(
   ../headers
 
   # external libs
-  ${_third_party_dir}/folly
-  ${_third_party_dir}/boost/boost
-  ${_third_party_dir}/double-conversion
+  "${_third_party_dir}/folly"
+  "${_third_party_dir}/boost/boost_${BOOST_VERSION}"
+  "${_third_party_dir}/double-conversion"
 
   # comm android specific code
   ./src/cpp
@@ -121,72 +152,30 @@ include_directories(
   ${native_rust_library_include_dir}
 )
 
-# search for all cpp files in this directory
-file(GLOB SQLCIPHER
-  "${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src/*.c"
-)
-file(GLOB_RECURSE COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
-file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
-file(GLOB DOUBLE_CONVERSION_SOURCES
-  "${_third_party_dir}/double-conversion/double-conversion/*.cc"
+file(GLOB LIBRN_DIR "${REACT_NATIVE_SO_DIR}/${ANDROID_ABI}")
+if (NOT LIBRN_DIR)
+  # If /${ANDROID_ABI} dir not found, then ${REACT_NATIVE_SO_DIR} is probably:
+  # ReactAndroid/build/react-ndk/exported
+  file(GLOB LIBRN_DIR "${REACT_NATIVE_SO_DIR}")
+endif ()
+
+find_library(
+  folly-lib
+  folly_runtime
+  PATHS ${LIBRN_DIR}
+  NO_CMAKE_FIND_ROOT_PATH
 )
 
-add_library(
-  # Sets the name of the library.
+target_compile_options(
   ${PACKAGE_NAME}
-
-  # Sets the library as a shared library.
-  SHARED
-
-  # Provides a relative path to your source file(s).
-  ${_react_native_dir}/ReactCommon/jsi/jsi/jsi.cpp
-  ${_react_native_dir}/ReactAndroid/src/main/java/com/facebook/react/turbomodule/core/jni/ReactCommon/CallInvokerHolder.cpp
-  ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModule.cpp
-  ${_react_native_dir}/ReactCommon/react/bridging/LongLivedObject.cpp
-  ${_react_native_dir}/ReactCommon/react/nativemodule/core/ReactCommon/TurboModuleUtils.cpp
-
-  # SQLCipher
-  ${SQLCIPHER}
-
-  # folly
-  ${_third_party_dir}/folly/folly/detail/Futex.cpp
-  ${_third_party_dir}/folly/folly/synchronization/ParkingLot.cpp
-  ${_third_party_dir}/folly/folly/lang/SafeAssert.cpp
-  ${_third_party_dir}/folly/folly/FileUtil.cpp
-  ${_third_party_dir}/folly/folly/Subprocess.cpp
-  ${_third_party_dir}/folly/folly/File.cpp
-  ${_third_party_dir}/folly/folly/Format.cpp
-  ${_third_party_dir}/folly/folly/Conv.cpp
-  ${_third_party_dir}/folly/folly/io/IOBuf.cpp
-  ${_third_party_dir}/folly/folly/memory/detail/MallocImpl.cpp
-  ${_third_party_dir}/folly/folly/ScopeGuard.cpp
-  ${_third_party_dir}/folly/folly/hash/SpookyHashV2.cpp
-  ${_third_party_dir}/folly/folly/io/IOBufQueue.cpp
-  ${_third_party_dir}/folly/folly/lang/Assume.cpp
-  ${_third_party_dir}/folly/folly/String.cpp
-  ${_third_party_dir}/folly/folly/portability/SysUio.cpp
-  ${_third_party_dir}/folly/folly/net/NetOps.cpp
-  ${_third_party_dir}/folly/folly/dynamic.cpp
-  ${_third_party_dir}/folly/folly/json.cpp
-  ${_third_party_dir}/folly/folly/json_pointer.cpp
-  ${_third_party_dir}/folly/folly/Unicode.cpp
-
-  # double-conversion
-  ${DOUBLE_CONVERSION_SOURCES}
-
-  # comm code
-  ${ANDROID_NATIVE_CODE}
-  ${COMMON_NATIVE_CODE}
-)
-
-add_definitions(
-  # Folly
-  -DFOLLY_NO_CONFIG=1
+  PRIVATE -DFOLLY_NO_CONFIG=1
   -DFOLLY_HAVE_CLOCK_GETTIME=1
   -DFOLLY_HAVE_MEMRCHR=1
   -DFOLLY_USE_LIBCPP=1
   -DFOLLY_MOBILE=1
+)
 
+add_definitions(
   # SQLCipher
   -DSQLITE_THREADSAFE=0
   -DSQLITE_HAS_CODEC
@@ -229,6 +218,7 @@ target_link_libraries(
   fbjni::fbjni
   android
   ${log-lib}
+  ${folly-lib}
   glog::glog
   olm
   openssl-crypto
