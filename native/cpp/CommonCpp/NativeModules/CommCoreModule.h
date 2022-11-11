@@ -3,7 +3,7 @@
 #include "../CryptoTools/CryptoModule.h"
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
-#include "../_generated/NativeModules.h"
+#include "../_generated/commJSI.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 #include <memory>
@@ -22,49 +22,44 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
   template <class T>
   T runSyncOrThrowJSError(jsi::Runtime &rt, std::function<T()> task);
-  jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) override;
-  jsi::Value updateDraft(
+  virtual jsi::Value getDraft(jsi::Runtime &rt, jsi::String key) override;
+  virtual jsi::Value
+  updateDraft(jsi::Runtime &rt, jsi::String key, jsi::String text) override;
+  virtual jsi::Value
+  moveDraft(jsi::Runtime &rt, jsi::String oldKey, jsi::String newKey) override;
+  virtual jsi::Value getClientDBStore(jsi::Runtime &rt) override;
+  virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) override;
+  virtual jsi::Array getAllMessagesSync(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  processDraftStoreOperations(jsi::Runtime &rt, jsi::Array operations) override;
+  virtual jsi::Value processMessageStoreOperations(
       jsi::Runtime &rt,
-      const jsi::String &key,
-      const jsi::String &text) override;
-  jsi::Value moveDraft(
+      jsi::Array operations) override;
+  virtual void processMessageStoreOperationsSync(
       jsi::Runtime &rt,
-      const jsi::String &oldKey,
-      const jsi::String &newKey) override;
-  jsi::Value getClientDBStore(jsi::Runtime &rt) override;
-  jsi::Value removeAllDrafts(jsi::Runtime &rt) override;
-  jsi::Array getAllMessagesSync(jsi::Runtime &rt) override;
-  jsi::Value processDraftStoreOperations(
+      jsi::Array operations) override;
+  virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) override;
+  virtual jsi::Value processThreadStoreOperations(
       jsi::Runtime &rt,
-      const jsi::Array &operations) override;
-  jsi::Value processMessageStoreOperations(
+      jsi::Array operations) override;
+  virtual void processThreadStoreOperationsSync(
       jsi::Runtime &rt,
-      const jsi::Array &operations) override;
-  void processMessageStoreOperationsSync(
-      jsi::Runtime &rt,
-      const jsi::Array &operations) override;
-  jsi::Array getAllThreadsSync(jsi::Runtime &rt) override;
-  jsi::Value processThreadStoreOperations(
-      jsi::Runtime &rt,
-      const jsi::Array &operations) override;
-  void processThreadStoreOperationsSync(
-      jsi::Runtime &rt,
-      const jsi::Array &operations) override;
-  jsi::Value
-  initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) override;
-  jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
-  jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
-  double getCodeVersion(jsi::Runtime &rt) override;
-  jsi::Value
-  setNotifyToken(jsi::Runtime &rt, const jsi::String &token) override;
-  jsi::Value clearNotifyToken(jsi::Runtime &rt) override;
-  jsi::Value
-  setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) override;
-  jsi::Value getCurrentUserID(jsi::Runtime &rt) override;
-  jsi::Value
-  setDeviceID(jsi::Runtime &rt, const jsi::String &deviceType) override;
-  jsi::Value getDeviceID(jsi::Runtime &rt) override;
-  jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
+      jsi::Array operations) override;
+  virtual jsi::Value
+  initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) override;
+  virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
+  virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
+  virtual double getCodeVersion(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  setNotifyToken(jsi::Runtime &rt, jsi::String token) override;
+  virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  setCurrentUserID(jsi::Runtime &rt, jsi::String userID) override;
+  virtual jsi::Value getCurrentUserID(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  setDeviceID(jsi::Runtime &rt, jsi::String deviceType) override;
+  virtual jsi::Value getDeviceID(jsi::Runtime &rt) override;
+  virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
