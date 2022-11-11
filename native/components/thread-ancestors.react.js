@@ -9,7 +9,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { useNavigateToThread } from '../chat/message-list-types';
 import { useSelector } from '../redux/redux-utils';
-import { useStyles } from '../themes/colors';
+import { useColors, useStyles } from '../themes/colors';
 import Button from './button.react';
 import CommunityPill from './community-pill.react';
 import ThreadPill from './thread-pill.react';
@@ -21,9 +21,22 @@ type Props = {
 function ThreadAncestors(props: Props): React.Node {
   const { threadInfo } = props;
   const styles = useStyles(unboundStyles);
+  const colors = useColors();
 
   const ancestorThreads: $ReadOnlyArray<ThreadInfo> = useSelector(
     ancestorThreadInfos(threadInfo.id),
+  );
+
+  const rightArrow = React.useMemo(
+    () => (
+      <Icon
+        name="chevron-right"
+        size={12}
+        color={colors.panelForegroundLabel}
+        style={unboundStyles.arrowIcon}
+      />
+    ),
+    [colors.panelForegroundLabel],
   );
 
   const navigateToThread = useNavigateToThread();
@@ -50,7 +63,13 @@ function ThreadAncestors(props: Props): React.Node {
       );
     }
     return <View style={styles.pathItem}>{elements}</View>;
-  }, [ancestorThreads, navigateToThread, styles.pathItem, styles.row]);
+  }, [
+    ancestorThreads,
+    navigateToThread,
+    rightArrow,
+    styles.pathItem,
+    styles.row,
+  ]);
 
   return (
     <View style={styles.container}>
@@ -88,14 +107,5 @@ const unboundStyles = {
     flexDirection: 'row',
   },
 };
-
-const rightArrow: React.Node = (
-  <Icon
-    name="chevron-right"
-    size={12}
-    color="white"
-    style={unboundStyles.arrowIcon}
-  />
-);
 
 export default ThreadAncestors;
