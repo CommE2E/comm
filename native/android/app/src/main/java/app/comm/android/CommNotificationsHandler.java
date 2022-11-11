@@ -10,12 +10,9 @@ import app.comm.android.fbjni.MessageOperationsUtilities;
 import app.comm.android.fbjni.NetworkModule;
 import app.comm.android.fbjni.ThreadOperations;
 import com.google.firebase.messaging.RemoteMessage;
-import expo.modules.securestore.SecureStoreModule;
 import io.invertase.firebase.messaging.RNFirebaseMessagingService;
 import java.io.File;
 import me.leolin.shortcutbadger.ShortcutBadger;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * We're extending RNFirebaseMessagingService here instead of
@@ -57,7 +54,7 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
   public void onCreate() {
     super.onCreate();
     CommSecureStore.getInstance().initialize(
-        () -> new SecureStoreModule(this.getApplicationContext()));
+        ExpoUtils.createExpoSecureStoreSupplier(this.getApplicationContext()));
     notificationManager = (NotificationManager)this.getSystemService(
         Context.NOTIFICATION_SERVICE);
   }
