@@ -29,7 +29,7 @@ const light = Object.freeze({
   listBackgroundLabel: 'black',
   listBackgroundSecondaryLabel: '#444444',
   listBackgroundTernaryLabel: '#999999',
-  listChatBubble: '#DDDDDDBB',
+  listChatBubble: '#F1F0F5',
   listForegroundLabel: 'black',
   listForegroundQuaternaryLabel: '#AAAAAA',
   listForegroundSecondaryLabel: '#333333',
