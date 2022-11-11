@@ -65,7 +65,7 @@ const unboundStyles = {
     padding: 18,
   },
   title: {
-    color: 'white',
+    color: 'modalForegroundLabel',
     fontSize: 28,
     paddingVertical: 12,
   },
