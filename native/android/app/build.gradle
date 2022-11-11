@@ -136,15 +136,20 @@ def dependenciesPath = System.getenv("REACT_NATIVE_DEPENDENCIES")
 def downloadsDir = customDownloadsDir ? new File(customDownloadsDir) : new File("$buildDir/downloads")
 def thirdPartyNdkDir = new File("$buildDir/third-party-ndk")
 
-// The Boost library is a very large download (>100MB).
-// If Boost is already present on your system, define the REACT_NATIVE_BOOST_PATH env variable
-// and the build will use that.
-def boostPath = dependenciesPath ?: System.getenv("REACT_NATIVE_BOOST_PATH")
-
 task createNativeDepsDirectories {
     downloadsDir.mkdirs()
     thirdPartyNdkDir.mkdirs()
 }
+
+def REACT_NATIVE_DIR = new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim()).parent
+def reactNativeThirdParty = new File("$REACT_NATIVE_DIR/ReactAndroid/src/main/jni/third-party")
+
+def reactProperties = new Properties()
+file("$REACT_NATIVE_DIR/ReactAndroid/gradle.properties").withInputStream { reactProperties.load(it) }
+
+def FOLLY_VERSION = reactProperties.getProperty("FOLLY_VERSION")
+def BOOST_VERSION = reactProperties.getProperty("BOOST_VERSION")
+def DOUBLE_CONVERSION_VERSION = reactProperties.getProperty("DOUBLE_CONVERSION_VERSION")
 
 // FOLLY
 task downloadFolly(dependsOn: createNativeDepsDirectories, type: Download) {
@@ -154,35 +159,11 @@ task downloadFolly(dependsOn: createNativeDepsDirectories, type: Download) {
     dest(new File(downloadsDir, "folly-${FOLLY_VERSION}.tar.gz"))
 }
 
-def follyFindWrapNoInt = 'return int\\(wrapNoInt\\(open, name, flags, mode\\)\\);'
-def follyReplaceWrapNoInt = '''
-    ssize_t r;
-    do {
-        r = open(name, flags, mode);
-    } while (r == -1 && errno == EINTR);
-    return r;
-'''
-def follyFindTableSize = 'for \\(int fd = getdtablesize\\(\\) - 1'
-def follyReplaceTableSize = 'for (int fd = sysconf(_SC_OPEN_MAX) - 1'
-
-task prepareFolly(dependsOn: dependenciesPath ? [] : [downloadFolly], type: Copy) {
-    inputs.properties([
-      'findWrapNoInt': follyFindWrapNoInt,
-      'replaceWrapNoInt': follyReplaceWrapNoInt,
-      'findTableSize': follyFindTableSize,
-      'replaceTableSize': follyReplaceTableSize,
-    ])
-    from(dependenciesPath ?: tarTree(downloadFolly.dest))
-    include("folly-${FOLLY_VERSION}/folly/**/*")
+task prepareFolly(dependsOn: [downloadFolly], type: Copy) {
+    from(tarTree(downloadFolly.dest))
+    from("$reactNativeThirdParty/folly/Android.mk")
+    include("folly-${FOLLY_VERSION}/folly/**/*", "Android.mk")
     eachFile { fname -> fname.path = (fname.path - "folly-${FOLLY_VERSION}/") }
-
-    // Fixes problem with Folly failing to build on certain systems. See
-    // https://github.com/facebook/react-native/issues/28298
-    filter { line -> line.replaceAll(follyFindWrapNoInt, follyReplaceWrapNoInt) }
-    // fix undeclared identifier 'getdtablesize' in Subprocess.cpp
-    // https://stackoverflow.com/questions/8225186/portable-equivalent-of-open-max/8225235#8225235
-    filter { line -> line.replaceAll(follyFindTableSize, follyReplaceTableSize) }
-
     includeEmptyDirs = false
     into("$thirdPartyNdkDir/folly")
 }
@@ -203,31 +184,27 @@ task prepareGlog(dependsOn: dependenciesPath ? [] : [downloadGlog], type: Copy) 
 }
 
 // BOOST
+
+// The Boost library is a very large download (>100MB).
+// If Boost is already present on your system, define the REACT_NATIVE_BOOST_PATH env variable
+// and the build will use that.
+def boostPath = dependenciesPath ?: System.getenv("REACT_NATIVE_BOOST_PATH")
+
 task downloadBoost(dependsOn: createNativeDepsDirectories, type: Download) {
-    src("https://github.com/react-native-community/boost-for-react-native/releases/download/v${BOOST_VERSION.replace("_", ".")}-0/boost_${BOOST_VERSION}.tar.gz")
+    src("https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION.replace("_", ".")}/source/boost_${BOOST_VERSION}.tar.gz")
     onlyIfNewer(true)
     overwrite(false)
     dest(new File(downloadsDir, "boost_${BOOST_VERSION}.tar.gz"))
 }
 
-task prepareBoost(dependsOn: boostPath ? [] : [downloadBoost]) {
-    inputs.properties([
-        'boost.version': BOOST_VERSION
-    ])
-    outputs.dir("$thirdPartyNdkDir/boost/boost/")
-        .withPropertyName('boost.output')
-    doFirst {
-        copy {
-            from(boostPath ?: tarTree(resources.gzip(downloadBoost.dest)))
-            include("boost_${BOOST_VERSION}/boost/**/*.hpp", "boost/boost/**/*.hpp")
-            include("boost_${BOOST_VERSION}/boost/**/*.ipp", "boost/boost/**/*.ipp")
-            include("boost_${BOOST_VERSION}/boost/**/*.h", "boost/boost/**/*.h")
-            includeEmptyDirs = false
-            into("$thirdPartyNdkDir/boost")
-        }
-    }
+task prepareBoost(dependsOn: [downloadBoost], type: Copy) {
+    from(tarTree(resources.gzip(downloadBoost.dest)))
+    from("$reactNativeThirdParty/boost/Android.mk")
+    include("Android.mk", "boost_${BOOST_VERSION}/boost/**/*.hpp", "boost/boost/**/*.hpp")
+    includeEmptyDirs = false
+    into("$thirdPartyNdkDir/boost")
     doLast {
-        file("$thirdPartyNdkDir/boost/boost_${BOOST_VERSION}").renameTo("$thirdPartyNdkDir/boost/boost")
+        file("$thirdPartyNdkDir/boost/boost").renameTo("$thirdPartyNdkDir/boost/boost_${BOOST_VERSION}")
     }
 }
 
@@ -239,9 +216,9 @@ task downloadDoubleConversion(dependsOn: createNativeDepsDirectories, type: Down
     dest(new File(downloadsDir, "double-conversion-${DOUBLE_CONVERSION_VERSION}.tar.gz"))
 }
 
-task prepareDoubleConversion(dependsOn: dependenciesPath ? [] : [downloadDoubleConversion], type: Copy) {
-    from(dependenciesPath ?: tarTree(downloadDoubleConversion.dest))
-    from("src/main/jni/third-party/double-conversion/Android.mk")
+task prepareDoubleConversion(dependsOn: [downloadDoubleConversion], type: Copy) {
+    from(tarTree(downloadDoubleConversion.dest))
+    from("$reactNativeThirdParty/double-conversion/Android.mk")
     include("double-conversion-${DOUBLE_CONVERSION_VERSION}/src/**/*", "Android.mk")
     filesMatching("*/src/**/*", { fname -> fname.path = "double-conversion/${fname.name}" })
     includeEmptyDirs = false
@@ -298,6 +275,86 @@ task prebuildOpenSSL(dependsOn: dependenciesPath ? [] : [prepareOpenSSL]) {
     }
 }
 
+// JNI
+def REACT_NATIVE_AAR = "${buildDir}/react-native.aar"
+
+def extractReactNativeAAR = { buildType ->
+    def suffix = buildType == 'Debug' ? '-debug' : '-release'
+    def rnAARs = fileTree(REACT_NATIVE_DIR).matching { include "**/react-native/**/*${suffix}.aar" }
+    if (rnAARs.isEmpty()) {
+        rnAARs = fileTree(REACT_NATIVE_DIR).matching { include "**/react-native/**/*.aar" }
+    }
+    if (rnAARs.any() && rnAARs.size() > 1) {
+        logger.error("More than one React Native AAR file has been found:")
+        rnAARs.each { println(it) }
+        throw new GradleException(
+            "Multiple React Native AARs found:\n${rnAARs.join("\n")}" +
+            "\nRemove the old ones and try again"
+        )
+    }
+    def rnAAR = rnAARs.singleFile
+    def file = rnAAR.absoluteFile
+    def packageName = file.name.tokenize('-')[0]
+    copy {
+        from zipTree(file)
+        into REACT_NATIVE_AAR
+        include "jni/**/*"
+    }
+}
+
+task extractReactNativeAARRelease {
+    doLast {
+        extractReactNativeAAR('Release')
+    }
+}
+
+task extractReactNativeAARDebug {
+    doLast {
+        extractReactNativeAAR('Debug')
+    }
+}
+
+
+task extractAARHeaders {
+    doLast {
+        configurations.extractHeaders.files.each {
+            def file = it.absoluteFile
+            copy {
+                from zipTree(file)
+                into "$buildDir/$file.name"
+                include "**/*.h"
+            }
+        }
+    }
+}
+
+task extractJNIFiles {
+    doLast {
+        configurations.extractJNI.files.each {
+            def file = it.absoluteFile
+            copy {
+                from zipTree(file)
+                into "$buildDir/$file.name"
+                include "jni/**/*"
+            }
+        }
+    }
+}
+
+tasks.whenTaskAdded { task ->
+    if (
+        !task.name.contains("Clean") &&
+        (task.name.contains('externalNativeBuild') ||
+            task.name.startsWith('configureCMake') ||
+            task.name.startsWith('buildCMake'))
+    ) {
+        def buildType = task.name.endsWith('Debug') ? 'Debug' : 'Release'
+        task.dependsOn(extractAARHeaders)
+        task.dependsOn(extractJNIFiles)
+        task.dependsOn("extractReactNativeAAR${buildType}")
+    }
+}
+
 // EXTERNAL LIBS
 task prepareExternalLibs {
     dependsOn prepareFolly
@@ -316,11 +373,11 @@ task removeCXX(type: Exec) {
 // Add cross-compilation targets to Rust toolchain
 task updateRustToolchain(type: Exec) {
     commandLine "rustup", "target", "add",
-      "aarch64-linux-android",
-      "armv7-linux-androideabi",
-      "i686-linux-android",
-      "arm-linux-androideabi",
-      "x86_64-linux-android"
+        "aarch64-linux-android",
+        "armv7-linux-androideabi",
+        "i686-linux-android",
+        "arm-linux-androideabi",
+        "x86_64-linux-android"
 }
 
 // Bind preBuild dependencies only if not 'clean' running
@@ -389,15 +446,22 @@ def getBuildTypeABIs(nativeArchitectures) {
     return detectedAbis
 }
 
+def REACT_NATIVE_SO_DIR = "${REACT_NATIVE_AAR}/jni"
+
 android {
     buildFeatures {
         prefab true
     }
     configurations {
         all*.exclude module: 'fbjni-java-only'
+        extractHeaders
+        extractJNI
     }
     dependencies {
-        implementation 'com.facebook.fbjni:fbjni:0.1.0'
+        implementation 'com.facebook.fbjni:fbjni:0.2.2'
+        compileOnly 'com.facebook.fbjni:fbjni:0.2.2'
+        extractHeaders 'com.facebook.fbjni:fbjni:0.2.2:headers'
+        extractJNI 'com.facebook.fbjni:fbjni:0.2.2'
     }
 
     ndkVersion rootProject.ext.ndkVersion
@@ -532,7 +596,9 @@ android {
                 arguments "-DANDROID_STL=c++_shared",
                     "-DGLOG_VERSION=" + GLOG_VERSION,
                     "-DOPENSSL_VERSION=" + OPENSSL_VERSION,
-                    "-DNDK_VERSION=" + rootProject.ext.ndkVersion
+                    "-DNDK_VERSION=" + rootProject.ext.ndkVersion,
+                    "-DREACT_NATIVE_SO_DIR=${REACT_NATIVE_SO_DIR}",
+                    "-DBOOST_VERSION=${BOOST_VERSION}"
                 targets "comm_jni_module", "turbomodulejsijni"
             }
         }
@@ -558,6 +624,11 @@ android {
                         defaultConfig.versionCode * 1000 + versionCodes.get(abi)
             }
         }
+    }
+
+    afterEvaluate {
+        extractAARHeaders.dependsOn(prepareExternalLibs)
+        extractJNIFiles.dependsOn(prepareExternalLibs)
     }
 }
 
