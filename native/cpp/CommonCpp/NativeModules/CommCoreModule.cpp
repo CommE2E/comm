@@ -40,7 +40,7 @@ T CommCoreModule::runSyncOrThrowJSError(
   }
 }
 
-jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
+jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, jsi::String key) {
   std::string keyStr = key.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -68,8 +68,8 @@ jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
 
 jsi::Value CommCoreModule::updateDraft(
     jsi::Runtime &rt,
-    const jsi::String &key,
-    const jsi::String &text) {
+    jsi::String key,
+    jsi::String text) {
   std::string keyStr = key.utf8(rt);
   std::string textStr = text.utf8(rt);
   return createPromiseAsJSIValue(
@@ -96,8 +96,8 @@ jsi::Value CommCoreModule::updateDraft(
 
 jsi::Value CommCoreModule::moveDraft(
     jsi::Runtime &rt,
-    const jsi::String &oldKey,
-    const jsi::String &newKey) {
+    jsi::String oldKey,
+    jsi::String newKey) {
   std::string oldKeyStr = oldKey.utf8(rt);
   std::string newKeyStr = newKey.utf8(rt);
 
@@ -373,7 +373,7 @@ createDraftStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
 
 jsi::Value CommCoreModule::processDraftStoreOperations(
     jsi::Runtime &rt,
-    const jsi::Array &operations) {
+    jsi::Array operations) {
   std::string createOperationsError;
   std::shared_ptr<std::vector<std::unique_ptr<DraftStoreOperationBase>>>
       draftStoreOpsPtr;
@@ -465,7 +465,7 @@ createMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
 
 jsi::Value CommCoreModule::processMessageStoreOperations(
     jsi::Runtime &rt,
-    const jsi::Array &operations) {
+    jsi::Array operations) {
 
   std::string createOperationsError;
   std::shared_ptr<std::vector<std::unique_ptr<MessageStoreOperationBase>>>
@@ -512,7 +512,7 @@ jsi::Value CommCoreModule::processMessageStoreOperations(
 
 void CommCoreModule::processMessageStoreOperationsSync(
     jsi::Runtime &rt,
-    const jsi::Array &operations) {
+    jsi::Array operations) {
   std::vector<std::unique_ptr<MessageStoreOperationBase>> messageStoreOps;
 
   try {
@@ -653,7 +653,7 @@ createThreadStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
 
 jsi::Value CommCoreModule::processThreadStoreOperations(
     jsi::Runtime &rt,
-    const jsi::Array &operations) {
+    jsi::Array operations) {
   std::string operationsError;
   std::shared_ptr<std::vector<std::unique_ptr<ThreadStoreOperationBase>>>
       threadStoreOpsPtr;
@@ -696,7 +696,7 @@ jsi::Value CommCoreModule::processThreadStoreOperations(
 
 void CommCoreModule::processThreadStoreOperationsSync(
     jsi::Runtime &rt,
-    const jsi::Array &operations) {
+    jsi::Array operations) {
   std::vector<std::unique_ptr<ThreadStoreOperationBase>> threadStoreOps;
 
   try {
@@ -719,9 +719,8 @@ void CommCoreModule::processThreadStoreOperationsSync(
   });
 }
 
-jsi::Value CommCoreModule::initializeCryptoAccount(
-    jsi::Runtime &rt,
-    const jsi::String &userId) {
+jsi::Value
+CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) {
   std::string userIdStr = userId.utf8(rt);
   folly::Optional<std::string> storedSecretKey =
       this->secureStore.get(this->secureStoreAccountDataKey);
@@ -860,8 +859,7 @@ double CommCoreModule::getCodeVersion(jsi::Runtime &rt) {
   return this->codeVersion;
 }
 
-jsi::Value
-CommCoreModule::setNotifyToken(jsi::Runtime &rt, const jsi::String &token) {
+jsi::Value CommCoreModule::setNotifyToken(jsi::Runtime &rt, jsi::String token) {
   auto notifyToken{token.utf8(rt)};
   return createPromiseAsJSIValue(
       rt,
@@ -912,7 +910,7 @@ jsi::Value CommCoreModule::clearNotifyToken(jsi::Runtime &rt) {
 };
 
 jsi::Value
-CommCoreModule::setCurrentUserID(jsi::Runtime &rt, const jsi::String &userID) {
+CommCoreModule::setCurrentUserID(jsi::Runtime &rt, jsi::String userID) {
   auto currentUserID{userID.utf8(rt)};
   return createPromiseAsJSIValue(
       rt,
@@ -963,7 +961,7 @@ jsi::Value CommCoreModule::getCurrentUserID(jsi::Runtime &rt) {
 }
 
 jsi::Value
-CommCoreModule::setDeviceID(jsi::Runtime &rt, const jsi::String &deviceType) {
+CommCoreModule::setDeviceID(jsi::Runtime &rt, jsi::String deviceType) {
   std::string type = deviceType.utf8(rt);
   std::string deviceID;
   std::string deviceIDGenerationError;

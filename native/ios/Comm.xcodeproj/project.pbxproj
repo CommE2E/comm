@@ -16,7 +16,6 @@
 		713EE41126C66B80003D7C48 /* CryptoTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 713EE41026C66B80003D7C48 /* CryptoTest.mm */; };
 		71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
 		718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; };
-		71BE84492636A944002849D2 /* NativeModules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843B2636A944002849D2 /* NativeModules.cpp */; };
 		71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE843C2636A944002849D2 /* CommCoreModule.cpp */; };
 		71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
 		71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6F26B3FF0900EDE27D /* Session.cpp */; };
@@ -39,6 +38,7 @@
 		7F8D602926535F2A0053CB29 /* IBMPlexSans-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7F8D602626535EEE0053CB29 /* IBMPlexSans-Regular.ttf */; };
 		7FA2DCDE293E62F500991BA4 /* CommIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDC293E62F500991BA4 /* CommIcons.ttf */; };
 		7FA2DCDF293E62F500991BA4 /* SWMansionIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7FA2DCDD293E62F500991BA4 /* SWMansionIcons.ttf */; };
+		7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */; };
 		8B99BAAC28D50F3000EB5ADB /* libnative_rust_library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B99BAAB28D50F3000EB5ADB /* libnative_rust_library.a */; };
 		8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8B99BAAD28D511FF00EB5ADB /* lib.rs.cc */; };
 		8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8E43C32B291E5B4A009378F5 /* TerminateApp.mm */; };
@@ -119,9 +119,7 @@
 		718DE99D2653D41C00365824 /* WorkerThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkerThread.h; sourceTree = "<group>"; };
 		71B8CCBD26BD4DEB0040C0A2 /* CommSecureStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommSecureStore.h; sourceTree = "<group>"; };
 		71BE84392636A944002849D2 /* Logger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
-		71BE843B2636A944002849D2 /* NativeModules.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NativeModules.cpp; sourceTree = "<group>"; };
 		71BE843C2636A944002849D2 /* CommCoreModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommCoreModule.cpp; sourceTree = "<group>"; };
-		71BE843D2636A944002849D2 /* NativeModules.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeModules.h; sourceTree = "<group>"; };
 		71BE843E2636A944002849D2 /* CommCoreModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommCoreModule.h; sourceTree = "<group>"; };
 		71BE84402636A944002849D2 /* DatabaseQueryExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseQueryExecutor.h; sourceTree = "<group>"; };
 		71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SQLiteQueryExecutor.cpp; sourceTree = "<group>"; };
@@ -162,6 +160,8 @@
 		7FA2DCDD293E62F500991BA4 /* SWMansionIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SWMansionIcons.ttf; path = ../fonts/SWMansionIcons.ttf; sourceTree = "<group>"; };
 		7FCEA2DC2444010B004017B1 /* Comm-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Comm-Bridging-Header.h"; sourceTree = "<group>"; };
 		7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = Comm.entitlements; path = Comm/Comm.entitlements; sourceTree = "<group>"; };
+		7FE4D9F3291DFE9300667BF6 /* commJSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = commJSI.h; sourceTree = "<group>"; };
+		7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "commJSI-generated.cpp"; sourceTree = "<group>"; };
 		891D1495EE1F375F3AF6C7ED /* Pods-NotificationService.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NotificationService.debug.xcconfig"; path = "Target Support Files/Pods-NotificationService/Pods-NotificationService.debug.xcconfig"; sourceTree = "<group>"; };
 		8B99AF6D28D50D4800EB5ADB /* lib.rs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lib.rs.h; sourceTree = "<group>"; };
 		8B99B59928D50D4900EB5ADB /* cxx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cxx.h; sourceTree = "<group>"; };
@@ -420,8 +420,8 @@
 		71F971B4270726C000DDC5BF /* _generated */ = {
 			isa = PBXGroup;
 			children = (
-				71BE843D2636A944002849D2 /* NativeModules.h */,
-				71BE843B2636A944002849D2 /* NativeModules.cpp */,
+				7FE4D9F4291DFE9300667BF6 /* commJSI-generated.cpp */,
+				7FE4D9F3291DFE9300667BF6 /* commJSI.h */,
 			);
 			path = _generated;
 			sourceTree = "<group>";
@@ -924,9 +924,9 @@
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */,
 				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
-				71BE84492636A944002849D2 /* NativeModules.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
 				71BF5B7F26BBDD7400EDE27D /* CryptoModule.cpp in Sources */,
 				71BE844A2636A944002849D2 /* CommCoreModule.cpp in Sources */,
