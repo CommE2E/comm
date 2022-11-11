@@ -91,14 +91,14 @@ function TabNavigator(props: Props): React.Node {
     () => ({
       headerShown: false,
       tabBarHideOnKeyboard: false,
-      tabBarActiveTintColor: '#AE94DB',
+      tabBarActiveTintColor: colors.tabBarActiveTintColor,
       tabBarStyle: {
         backgroundColor: colors.tabBarBackground,
         borderTopWidth: 1,
       },
       lazy: false,
     }),
-    [colors.tabBarBackground],
+    [colors.tabBarActiveTintColor, colors.tabBarBackground],
   );
 
   return (
