@@ -75,7 +75,7 @@ const unboundStyles = {
     elevation: 0,
     shadowOffset: { width: 0, height: 0 },
     borderBottomWidth: 0,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: 'tabBarBackground',
   },
 };
 
@@ -200,16 +200,6 @@ const header = (props: CoreStackHeaderProps) => {
 };
 const headerBackButton = props => <HeaderBackButton {...props} />;
 
-const chatThreadListOptions = ({ navigation }) => ({
-  headerTitle: 'Inbox',
-  headerRight:
-    Platform.OS === 'ios'
-      ? () => <ComposeThreadButton navigate={navigation.navigate} />
-      : undefined,
-  headerBackTitleVisible: false,
-  headerStyle: unboundStyles.threadListHeaderStyle,
-});
-
 const messageListOptions = ({ navigation, route }) => {
   const isSearchEmpty =
     !!route.params.searching &&
@@ -290,6 +280,19 @@ export default function ChatComponent(props: { ... }): React.Node {
       },
     }),
     [colors.tabBarBackground],
+  );
+
+  const chatThreadListOptions = React.useCallback(
+    ({ navigation }) => ({
+      headerTitle: 'Inbox',
+      headerRight:
+        Platform.OS === 'ios'
+          ? () => <ComposeThreadButton navigate={navigation.navigate} />
+          : undefined,
+      headerBackTitleVisible: false,
+      headerStyle: styles.threadListHeaderStyle,
+    }),
+    [styles.threadListHeaderStyle],
   );
 
   return (
