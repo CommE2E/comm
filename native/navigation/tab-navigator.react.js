@@ -15,6 +15,7 @@ import Chat from '../chat/chat.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import Profile from '../profile/profile.react';
 import { useSelector } from '../redux/redux-utils';
+import { useColors } from '../themes/colors';
 import {
   CalendarRouteName,
   ChatRouteName,
@@ -65,22 +66,13 @@ const Tab = createBottomTabNavigator<
   TabParamList,
   BottomTabNavigationHelpers<ScreenParamList>,
 >();
-const tabBarScreenOptions = {
-  headerShown: false,
-  tabBarHideOnKeyboard: false,
-  tabBarActiveTintColor: '#AE94DB',
-  tabBarStyle: {
-    backgroundColor: '#0A0A0A',
-    borderTopWidth: 1,
-  },
-  lazy: false,
-};
 type Props = {
   +navigation: TabNavigationProp<'TabNavigator'>,
   +route: NavigationRoute<'TabNavigator'>,
 };
 // eslint-disable-next-line no-unused-vars
 function TabNavigator(props: Props): React.Node {
+  const colors = useColors();
   const chatBadge = useSelector(unreadCount);
   const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
 
@@ -94,6 +86,20 @@ function TabNavigator(props: Props): React.Node {
       />
     );
   }
+
+  const tabBarScreenOptions = React.useMemo(
+    () => ({
+      headerShown: false,
+      tabBarHideOnKeyboard: false,
+      tabBarActiveTintColor: '#AE94DB',
+      tabBarStyle: {
+        backgroundColor: colors.tabBarBackground,
+        borderTopWidth: 1,
+      },
+      lazy: false,
+    }),
+    [colors.tabBarBackground],
+  );
 
   return (
     <Tab.Navigator
