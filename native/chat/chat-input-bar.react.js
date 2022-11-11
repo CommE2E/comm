@@ -32,6 +32,7 @@ import {
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
+  colorIsDark,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -422,13 +423,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
           />
         );
       } else {
+        const textStyle = colorIsDark(this.props.threadInfo.color)
+          ? this.props.styles.joinButtonTextLight
+          : this.props.styles.joinButtonTextDark;
         buttonContent = (
           <View style={this.props.styles.joinButtonContent}>
-            <SWMansionIcon
-              name="plus"
-              style={this.props.styles.joinButtonText}
-            />
-            <Text style={this.props.styles.joinButtonText}>Join Chat</Text>
+            <SWMansionIcon name="plus" style={textStyle} />
+            <Text style={textStyle}>Join Chat</Text>
           </View>
         );
       }
@@ -771,8 +772,13 @@ const unboundStyles = {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  joinButtonText: {
-    color: 'listForegroundLabel',
+  joinButtonTextLight: {
+    color: 'white',
+    fontSize: 20,
+    marginHorizontal: 4,
+  },
+  joinButtonTextDark: {
+    color: 'black',
     fontSize: 20,
     marginHorizontal: 4,
   },
