@@ -10,7 +10,6 @@ import invariant from 'invariant';
 import * as React from 'react';
 import {
   View,
-  StyleSheet,
   TouchableWithoutFeedback,
   Platform,
   TouchableOpacity,
@@ -40,6 +39,7 @@ import SWMansionIcon from '../components/swmansion-icon.react';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import { useSelector } from '../redux/redux-utils';
+import { useStyles } from '../themes/colors';
 import {
   type VerticalBounds,
   type LayoutCoordinates,
@@ -72,6 +72,7 @@ type TooltipItemProps<RouteName> = {
   +onPress: (entry: TooltipEntry<RouteName>) => void,
   +containerStyle?: ViewStyle,
   +labelStyle?: TextStyle,
+  +styles: typeof unboundStyles,
 };
 type TooltipSpec<RouteName> = {
   +entries: $ReadOnlyArray<TooltipEntry<RouteName>>,
@@ -119,6 +120,7 @@ type TooltipProps<Base> = {
   +showActionSheetWithOptions: ShowActionSheetWithOptions,
   +actionSheetShown: boolean,
   +setActionSheetShown: (actionSheetShown: boolean) => void,
+  +styles: typeof unboundStyles,
 };
 
 function createTooltip<
@@ -131,6 +133,7 @@ function createTooltip<
   class TooltipItem extends React.PureComponent<TooltipItemProps<RouteName>> {
     render() {
       let icon;
+      const { styles } = this.props;
       if (this.props.spec.id === 'copy') {
         icon = <SWMansionIcon name="copy" style={styles.icon} size={16} />;
       } else if (this.props.spec.id === 'reply') {
@@ -273,7 +276,7 @@ function createTooltip<
 
     get opacityStyle() {
       return {
-        ...styles.backdrop,
+        ...this.props.styles.backdrop,
         opacity: this.backdropOpacity,
       };
     }
@@ -285,7 +288,7 @@ function createTooltip<
       const bottom =
         fullScreenHeight - verticalBounds.y - verticalBounds.height;
       return {
-        ...styles.contentContainer,
+        ...this.props.styles.contentContainer,
         marginTop: top,
         marginBottom: bottom,
       };
@@ -379,6 +382,7 @@ function createTooltip<
         showActionSheetWithOptions,
         actionSheetShown,
         setActionSheetShown,
+        styles,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -403,6 +407,7 @@ function createTooltip<
             onPress={this.onPressEntry}
             containerStyle={[...tooltipContainerStyle, style]}
             labelStyle={tooltipSpec.labelStyle}
+            styles={styles}
           />
         );
       });
@@ -422,6 +427,7 @@ function createTooltip<
             spec={moreSpec}
             onPress={moreSpec.onPress}
             containerStyle={tooltipContainerStyle}
+            styles={styles}
           />
         );
 
@@ -539,6 +545,7 @@ function createTooltip<
         paddingBottom: 24,
       };
 
+      const { styles } = this.props;
       const icons = [
         <SWMansionIcon
           key="report"
@@ -655,6 +662,8 @@ function createTooltip<
       false,
     );
 
+    const styles = useStyles(unboundStyles);
+
     return (
       <Tooltip
         {...props}
@@ -669,12 +678,13 @@ function createTooltip<
         showActionSheetWithOptions={showActionSheetWithOptions}
         actionSheetShown={actionSheetShown}
         setActionSheetShown={setActionSheetShown}
+        styles={styles}
       />
     );
   });
 }
 
-const styles = StyleSheet.create({
+const unboundStyles = {
   backdrop: {
     backgroundColor: 'black',
     bottom: 0,
@@ -694,7 +704,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   icon: {
-    color: '#FFFFFF',
+    color: 'modalForegroundLabel',
   },
   itemContainer: {
     alignItems: 'center',
@@ -711,11 +721,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   itemMarginFixed: {
-    borderRightColor: '#404040',
+    borderRightColor: 'panelForegroundBorder',
     borderRightWidth: 1,
   },
   items: {
-    backgroundColor: '#1F1F1F',
+    backgroundColor: 'panelBackground',
     borderRadius: 5,
     overflow: 'hidden',
   },
@@ -724,7 +734,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   label: {
-    color: '#FFFFFF',
+    color: 'modalForegroundLabel',
     fontSize: 14,
     lineHeight: 17,
     textAlign: 'center',
@@ -757,7 +767,7 @@ const styles = StyleSheet.create({
     height: 10,
     width: 10,
   },
-});
+};
 
 function tooltipHeight(numEntries: number): number {
   // 10 (triangle) + 37 * numEntries (entries) + numEntries - 1 (padding)
