@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    color: 'white',
+    color: 'modalForegroundLabel',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,

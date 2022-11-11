@@ -1,10 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import tinycolor from 'tinycolor2';
 
 import type { SetState } from 'lib/types/hook-types';
+
+import { useStyles } from '../themes/colors';
 
 type ColorSelectorButtonProps = {
   +color: string,
@@ -13,10 +15,11 @@ type ColorSelectorButtonProps = {
 };
 function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
   const { color, pendingColor, setPendingColor } = props;
+  const styles = useStyles(unboundStyles);
 
   const colorSplotchStyle = React.useMemo(() => {
     return [styles.button, { backgroundColor: `#${color}` }];
-  }, [color]);
+  }, [color, styles.button]);
 
   const onPendingColorSelected = React.useCallback(() => {
     setPendingColor(color);
@@ -33,7 +36,7 @@ function ColorSelectorButton(props: ColorSelectorButtonProps): React.Node {
   );
 }
 
-const styles = StyleSheet.create({
+const unboundStyles = {
   button: {
     borderRadius: 20,
     height: 40,
@@ -47,12 +50,12 @@ const styles = StyleSheet.create({
     width: 60,
   },
   outerRingSelected: {
-    backgroundColor: '#404040',
+    backgroundColor: 'modalForegroundBorder',
     borderRadius: 30,
     height: 60,
     margin: 5,
     width: 60,
   },
-});
+};
 
 export default ColorSelectorButton;
