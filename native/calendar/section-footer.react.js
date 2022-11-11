@@ -47,7 +47,7 @@ const unboundStyles = {
     fontWeight: 'bold',
   },
   addButton: {
-    backgroundColor: 'panelForeground',
+    backgroundColor: 'panelSecondaryForeground',
     borderRadius: 5,
     margin: 5,
     paddingBottom: 5,

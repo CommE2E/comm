@@ -1031,7 +1031,7 @@ const unboundStyles = {
     bottom: 0,
   },
   sectionHeader: {
-    backgroundColor: 'panelForeground',
+    backgroundColor: 'panelSecondaryForeground',
     borderBottomWidth: 2,
     borderColor: 'listBackground',
     height: 31,
