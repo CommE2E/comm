@@ -7658,16 +7658,6 @@ combined-stream@^1.0.8:
   dependencies:
     delayed-stream "~1.0.0"
 
-"comm-react-native-codegen@npm:react-native-codegen@^0.70.6", react-native-codegen@^0.70.6:
-  version "0.70.6"
-  resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.70.6.tgz#2ce17d1faad02ad4562345f8ee7cbe6397eda5cb"
-  integrity sha512-kdwIhH2hi+cFnG5Nb8Ji2JwmcCxnaOOo9440ov7XDzSvGfmUStnCzl+MCW8jLjqHcE4icT7N9y+xx4f50vfBTw==
-  dependencies:
-    "@babel/parser" "^7.14.0"
-    flow-parser "^0.121.0"
-    jscodeshift "^0.13.1"
-    nullthrows "^1.1.1"
-
 command-exists@^1.2.4:
   version "1.2.9"
   resolved "https://registry.yarnpkg.com/command-exists/-/command-exists-1.2.9.tgz#c50725af3808c8ab0260fd60b01fbfa25b954f69"
@@ -17919,6 +17909,16 @@ react-native-camera@^3.31.0:
   integrity sha512-TTuse7JGVUbh/cj+a4OfyXoPqhwPyYx+63tzJWZT0sWwZX5bvlxjYaEur/U1hiZZjOC03muEIMkTD7nYp6ZVFA==
   dependencies:
     prop-types "^15.6.2"
+
+react-native-codegen@^0.70.6:
+  version "0.70.6"
+  resolved "https://registry.yarnpkg.com/react-native-codegen/-/react-native-codegen-0.70.6.tgz#2ce17d1faad02ad4562345f8ee7cbe6397eda5cb"
+  integrity sha512-kdwIhH2hi+cFnG5Nb8Ji2JwmcCxnaOOo9440ov7XDzSvGfmUStnCzl+MCW8jLjqHcE4icT7N9y+xx4f50vfBTw==
+  dependencies:
+    "@babel/parser" "^7.14.0"
+    flow-parser "^0.121.0"
+    jscodeshift "^0.13.1"
+    nullthrows "^1.1.1"
 
 react-native-device-info@^8.0.7:
   version "8.0.7"

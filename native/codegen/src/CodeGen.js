@@ -3,16 +3,16 @@
  * @format
  */
 // import generators
-import { type SchemaType } from 'comm-react-native-codegen/lib/CodegenSchema';
-import generatorCpp from 'comm-react-native-codegen/lib/generators/modules/GenerateModuleCpp.js';
-import generatorH from 'comm-react-native-codegen/lib/generators/modules/GenerateModuleH.js';
-import generatorJavaSpec from 'comm-react-native-codegen/lib/generators/modules/GenerateModuleJavaSpec.js';
-import generatorJniCpp from 'comm-react-native-codegen/lib/generators/modules/GenerateModuleJniCpp.js';
-import generatorJniH from 'comm-react-native-codegen/lib/generators/modules/GenerateModuleJniH.js';
-// import parser
-import parser from 'comm-react-native-codegen/lib/parsers/flow/index.js';
 import fs from 'fs';
 import path from 'path';
+import { type SchemaType } from 'react-native-codegen/lib/CodegenSchema';
+import generatorCpp from 'react-native-codegen/lib/generators/modules/GenerateModuleCpp.js';
+import generatorH from 'react-native-codegen/lib/generators/modules/GenerateModuleH.js';
+import generatorJavaSpec from 'react-native-codegen/lib/generators/modules/GenerateModuleJavaSpec.js';
+import generatorJniCpp from 'react-native-codegen/lib/generators/modules/GenerateModuleJniCpp.js';
+import generatorJniH from 'react-native-codegen/lib/generators/modules/GenerateModuleJniH.js';
+// import parser
+import parser from 'react-native-codegen/lib/parsers/flow/index.js';
 
 export type GeneratorKindType = 'cpp' | 'h' | 'java' | 'jni_cpp' | 'jni_h';
 
