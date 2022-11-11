@@ -85,12 +85,9 @@ class ProfileScreen extends React.PureComponent<Props> {
   }
 
   render() {
-    let appearancePreferences, developerTools, defaultNotifications;
+    let developerTools, defaultNotifications;
     const { staffCanSee } = this.props;
     if (staffCanSee) {
-      appearancePreferences = (
-        <ProfileRow content="Appearance" onPress={this.onPressAppearance} />
-      );
       developerTools = (
         <ProfileRow content="Developer tools" onPress={this.onPressDevTools} />
       );
@@ -149,7 +146,7 @@ class ProfileScreen extends React.PureComponent<Props> {
           </View>
           <Text style={this.props.styles.header}>PREFERENCES</Text>
           <View style={this.props.styles.section}>
-            {appearancePreferences}
+            <ProfileRow content="Appearance" onPress={this.onPressAppearance} />
             <ProfileRow content="Privacy" onPress={this.onPressPrivacy} />
             {defaultNotifications}
           </View>
