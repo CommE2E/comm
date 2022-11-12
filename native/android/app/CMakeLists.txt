@@ -39,7 +39,7 @@ elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86)
 elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL x86_64)
   set(Rust_CARGO_TARGET x86_64-linux-android)
 elseif(CMAKE_ANDROID_ARCH_ABI STREQUAL armeabi-v7a)
-  set(Rust_CARGO_TARGET arm-linux-androideabi)
+  set(Rust_CARGO_TARGET armv7-linux-androideabi)
 endif()
 
 string(TOLOWER ${CMAKE_HOST_SYSTEM_NAME} CMAKE_HOST_SYSTEM_NAME_LOWER)
@@ -70,7 +70,16 @@ set(OPENSSL_ROOT_DIR
 )
 list(APPEND CMAKE_FIND_ROOT_PATH "${OPENSSL_ROOT_DIR}")
 
+# Override HAVE_EXECINFO_H in glog's CMakeLists.txt
+if(
+  CMAKE_ANDROID_ARCH_ABI STREQUAL arm64-v8a OR
+  CMAKE_ANDROID_ARCH_ABI STREQUAL armeabi-v7a
+)
+  SET(HAVE_EXECINFO_H OFF CACHE BOOL "Whether platform has execinfo.h")
+endif()
+
 add_subdirectory(${_third_party_dir}/glog/glog-${GLOG_VERSION}/)
+
 add_subdirectory(../../node_modules/olm ./build)
 
 set(_node_modules_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../node_modules)
