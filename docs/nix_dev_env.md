@@ -50,6 +50,7 @@ On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for 
     - [Xcode](./nix_mobile_setup.md#xcode)
     - [Xcode settings](./nix_mobile_setup.md#xcode-settings)
   - [Android development]((./nix_mobile_setup.md#android-development)
+    - [JDK (Java Development Kit)](./nix_mobile_setup.md#jdk)
     - [Android Studio](./nix_mobile_setup.md#android-studio)
     - [Android SDK](./nix_mobile_setup.md#android-sdk)
     - [Android emulator](./nix_mobile_setup.md#android-emulator)
