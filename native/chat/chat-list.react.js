@@ -237,7 +237,6 @@ class ChatList extends React.PureComponent<Props, State> {
   toggleNewMessagesPill(show: boolean) {
     Animated.timing(this.newMessagesPillProgress, {
       ...animationSpec,
-      // $FlowFixMe[method-unbinding]
       easing: show ? Easing.ease : Easing.out(Easing.ease),
       toValue: show ? 1 : 0,
     }).start(({ finished }) => {
