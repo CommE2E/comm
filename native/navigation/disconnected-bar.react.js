@@ -17,7 +17,6 @@ const expandedHeight = Platform.select({
 const timingConfig = {
   useNativeDriver: false,
   duration: 200,
-  // $FlowFixMe[method-unbinding]
   easing: Easing.inOut(Easing.ease),
 };
 
