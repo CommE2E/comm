@@ -1,6 +1,8 @@
 # Nix mobile prerequisites
 
-## Xcode
+## iOS development
+
+### Xcode
 
 Go to the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835) to install Xcode, or if you already have it, to update it to the latest version.
 
@@ -36,35 +38,9 @@ Next, you’ll want to ensure that the Comm project is configured with a valid T
 - Provisioning Profile
   - Make sure that the Provisioning Profile exists
 
-## Homebrew
+## Android development
 
-Install [Homebrew](https://brew.sh/), a package manager for macOS.
-
-### idb
-
-Flipper relies on Facebook’s idb tool to debug iOS apps running on your device. We’ll need to install it:
-
-```
-brew tap facebook/fb
-brew install idb-companion
-pip3 install --user --upgrade fb-idb
-```
-
-Since we run `pip3 install` with `--user` instead of running it with `sudo`, the `idb` executable gets installed in your userdir. For me, running MacOS with Python 3.9, it got installed in `~/Library/Python/3.9/bin/idb`. For Flipper to be able to talk to `idb`, you’ll need to set the IDB Binary Location in the Flipper Settings.
-
-If you have trouble getting Flipper to work with a physical iOS device, it may be due to Python weirdness. The above steps have been tested with Python 3.9 sourced from Homebrew. Let @ashoat know if you have any trouble!
-
-### Reactotron
-
-Reactotron is an event tracker and logger that can be used to aid in debugging on React Native.
-
-```
-brew install reactotron && brew upgrade reactotron
-```
-
-# Nix Android prerequisites
-
-## Android Studio
+### Android Studio
 
 Start by downloading and installing [Android Studio](https://developer.android.com/studio/index.html) for your platform. When prompted to choose an installation type, select “Custom”.
 
@@ -113,25 +89,7 @@ Next, select the “SDK Tools” tab, and check the box for “Show Package Deta
 
 To finish the SDK Manager step, click “Apply” to download and install everything you’ve selected.
 
-## Flipper
-
-Flipper is a debugging tool for mobile applications from Facebook. We use it for JavaScript debugging using the Hermes runtime, and also use several plugins such as the React Dev Tools. You can download the latest version of Flipper for MacOS [here](https://www.facebook.com/fbflipper/public/mac).
-
-### Flipper settings
-
-After opening Flipper, click the gear icon in the bottom left and navigate to “Settings”.
-
-Let’s set the Android SDK path. To find the path, open Android Studio and navigate to Preferences → Appearance & Behavior → System Settings → Android SDK. The explicit path of your Android SDK is defined in “Android SDK Location”. Use this path in Flipper Settings as the “Android SDK Location”.
-
-Also, enable the option for “React Native keyboard shortcuts” below.
-
-### Flipper plugins
-
-Flipper has a plugin system that allows teams to integrate additional debugging tools into Flipper. We currently only use one plugin, which is for monitoring Redux state.
-
-To install it, open Flipper and click on the Plugin Manager on the top left sidebar. Type in “redux-debugger“ in the Install Plugins search bar and install the Flipper plugin with that name.
-
-## Android Emulator
+### Android Emulator
 
 In order to test the Android app on your computer you’ll need to set up an Android Emulator. To do this we’ll need to open up the Virtual Device Manager in Android Studio. You can access the Virtual Device Manager from the “Welcome to Android Studio” screen that pops up when you first open the application, from More Actions → Virtual Device Manager. If you already have a project open, you can access it from Tools → Virtual Device Manager.
 
@@ -140,3 +98,49 @@ With the Virtual Device Manager open, select “Create device” on the top left
 On the next screen you’ll be asked to select a system image. Go for the latest version of Android that’s been released.
 
 From there you can just hit Next and then Finish. You should then be able to start your new Android Virtual Device from the Virtual Device Manager.
+
+## Debugging tools
+
+### Homebrew
+
+Install [Homebrew](https://brew.sh/), a package manager for macOS. It’s necessary for some of the following steps.
+
+### Reactotron
+
+Reactotron is an event tracker and logger that can be used to aid in debugging on React Native.
+
+```
+brew install reactotron && brew upgrade reactotron
+```
+
+### Flipper
+
+Flipper is a debugging tool for mobile applications from Facebook. We use it for JavaScript debugging using the Hermes runtime, and also use several plugins such as the React Dev Tools. You can download the latest version of Flipper for MacOS [here](https://www.facebook.com/fbflipper/public/mac).
+
+#### Flipper settings
+
+After opening Flipper, click the gear icon in the bottom left and navigate to “Settings”.
+
+Let’s set the Android SDK path. To find the path, open Android Studio and navigate to Preferences → Appearance & Behavior → System Settings → Android SDK. The explicit path of your Android SDK is defined in “Android SDK Location”. Use this path in Flipper Settings as the “Android SDK Location”.
+
+Also, enable the option for “React Native keyboard shortcuts” below.
+
+#### Flipper plugins
+
+Flipper has a plugin system that allows teams to integrate additional debugging tools into Flipper. We currently only use one plugin, which is for monitoring Redux state.
+
+To install it, open Flipper and click on the Plugin Manager on the top left sidebar. Type in “redux-debugger“ in the Install Plugins search bar and install the Flipper plugin with that name.
+
+### idb
+
+Flipper relies on Facebook’s idb tool to debug iOS apps running on your device. We’ll need to install it:
+
+```
+brew tap facebook/fb
+brew install idb-companion
+pip3 install --user --upgrade fb-idb
+```
+
+Since we run `pip3 install` with `--user` instead of running it with `sudo`, the `idb` executable gets installed in your userdir. For me, running MacOS with Python 3.9, it got installed in `~/Library/Python/3.9/bin/idb`. For Flipper to be able to talk to `idb`, you’ll need to set the IDB Binary Location in the Flipper Settings.
+
+If you have trouble getting Flipper to work with a physical iOS device, it may be due to Python weirdness. The above steps have been tested with Python 3.9 sourced from Homebrew. Let @ashoat know if you have any trouble!
