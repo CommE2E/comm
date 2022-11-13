@@ -108,7 +108,6 @@ const stagingModeAnimationConfig = {
 };
 const sendButtonAnimationConfig = {
   duration: 150,
-  // $FlowFixMe[method-unbinding]
   easing: Easing.inOut(Easing.ease),
   useNativeDriver: true,
 };
