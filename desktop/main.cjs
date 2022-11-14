@@ -128,6 +128,10 @@ const createMainWindow = () => {
     }
   });
 
+  ipcMain.on('set-badge', (event, value) => {
+    app.dock.setBadge(value?.toString() ?? '');
+  });
+
   win.webContents.setWindowOpenHandler(({ url: openURL }) => {
     shell.openExternal(openURL);
     // Returning 'deny' prevents a new electron window from being created

@@ -274,6 +274,7 @@ const ConnectedApp: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const boundUnreadCount = useSelector(unreadCount);
     React.useEffect(() => {
       document.title = getTitle(boundUnreadCount);
+      electron?.setBadge(boundUnreadCount === 0 ? null : boundUnreadCount);
     }, [boundUnreadCount]);
 
     const dispatch = useDispatch();

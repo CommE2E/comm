@@ -8,6 +8,7 @@ const bridge = {
   },
   clearHistory: () => ipcRenderer.send('clear-history'),
   doubleClickTopBar: () => ipcRenderer.send('double-click-top-bar'),
+  setBadge: value => ipcRenderer.send('set-badge', value),
 };
 
 contextBridge.exposeInMainWorld('electronContextBridge', bridge);

@@ -12,6 +12,7 @@ const electron: null | {
   +onNavigate: OnNavigateListener => () => void,
   +clearHistory: () => void,
   +doubleClickTopBar: () => void,
+  +setBadge: (value: string | number | null) => void,
 } = typeof electronContextBridge === 'undefined' ? null : electronContextBridge;
 
 export default electron;
