@@ -192,12 +192,16 @@ class App extends React.PureComponent<Props> {
         <DisconnectedBarVisibilityHandler />
         <DisconnectedBar />
         <header className={css['header']}>
-          <div className={mainHeaderClasses}>
+          <div
+            className={mainHeaderClasses}
+            onDoubleClick={() => electron?.onTopBarDoubleClick()}
+          >
             <h1 className={css.wordmark}>
               <a
                 title="Comm Home"
                 aria-label="Go to Comm Home"
                 onClick={this.onWordmarkClicked}
+                onDoubleClick={electron ? e => e.stopPropagation() : null}
               >
                 Comm
               </a>

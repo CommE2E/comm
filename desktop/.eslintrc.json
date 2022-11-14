@@ -1,4 +1,7 @@
 {
+  "rules": {
+    "flowtype/require-valid-file-annotation": "off"
+  },
   "globals": {
     "require": "readonly",
     "__dirname": "readonly",

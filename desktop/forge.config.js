@@ -1,4 +1,3 @@
-// @noflow
 const fs = require('fs-extra');
 
 // eslint-disable-next-line no-undef

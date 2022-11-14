@@ -1,5 +1,11 @@
-// @noflow
-const { app, BrowserWindow, shell, Menu, ipcMain } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  shell,
+  Menu,
+  ipcMain,
+  systemPreferences,
+} = require('electron');
 const path = require('path');
 
 const isDev = process.env.ENV === 'dev';
@@ -48,6 +54,26 @@ const createMainWindow = () => {
       app.dock.setBadge(value.toString());
     } else {
       app.dock.setBadge('');
+    }
+  });
+
+  ipcMain.on('on-top-bar-double-click', () => {
+    if (isMac) {
+      const action = systemPreferences.getUserDefault(
+        'AppleActionOnDoubleClick',
+        'string',
+      );
+      if (action === 'None') {
+        return;
+      } else if (action === 'Minimize') {
+        win.minimize();
+      }
+    }
+
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
     }
   });
 

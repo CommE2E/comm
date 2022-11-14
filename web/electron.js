@@ -7,6 +7,7 @@ const electron: null | {
     (event: any, { canGoBack: boolean, canGoForward: boolean }) => void,
   ) => void,
   setBadge: (value: string | number | null) => void,
+  onTopBarDoubleClick: () => {},
 } = typeof electronContextBridge === 'undefined' ? null : electronContextBridge;
 
 export default electron;
