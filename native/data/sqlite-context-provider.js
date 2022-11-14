@@ -15,6 +15,7 @@ import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops
 
 import { commCoreModule } from '../native-modules';
 import { useSelector } from '../redux/redux-utils';
+import { StaffContext } from '../staff/staff-context';
 import { isTaskCancelledError } from '../utils/error-handling';
 import { useStaffCanSee } from '../utils/staff-utils';
 import { SQLiteContext } from './sqlite-context';
@@ -33,6 +34,7 @@ function SQLiteContextProvider(props: Props): React.Node {
   const cookie = useSelector(state => state.cookie);
   const urlPrefix = useSelector(state => state.urlPrefix);
   const staffCanSee = useStaffCanSee();
+  const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);
   const loggedIn = useSelector(isLoggedIn);
   const currentLoggedInUserID = useSelector(state =>
     state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
@@ -45,7 +47,16 @@ function SQLiteContextProvider(props: Props): React.Node {
         databaseCurrentUserInfoID &&
         databaseCurrentUserInfoID !== currentLoggedInUserID
       ) {
+        if (staffCanSee || staffUserHasBeenLoggedIn) {
+          Alert.alert('Starting SQLite database deletion process');
+        }
         await commCoreModule.clearSensitiveData();
+        if (staffCanSee || staffUserHasBeenLoggedIn) {
+          Alert.alert(
+            'SQLite database successfully deleted',
+            'SQLite database deletion was triggered by change in logged-in user credentials',
+          );
+        }
       }
       if (currentLoggedInUserID) {
         await commCoreModule.setCurrentUserID(currentLoggedInUserID);
@@ -65,7 +76,7 @@ function SQLiteContextProvider(props: Props): React.Node {
         ExitApp.exitApp();
       }
     }
-  }, [currentLoggedInUserID]);
+  }, [currentLoggedInUserID, staffCanSee, staffUserHasBeenLoggedIn]);
 
   React.useEffect(() => {
     if (!rehydrateConcluded) {
