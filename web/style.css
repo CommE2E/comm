@@ -85,6 +85,12 @@ div.main-header > .wordmark {
 .wordmark > a {
   color: inherit;
 }
+.electron-draggable {
+  -webkit-app-region: drag;
+}
+.electron-non-draggable {
+  -webkit-app-region: no-drag;
+}
 
 div.main-content-container {
   position: relative;

@@ -3,6 +3,7 @@
 import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
+import classnames from 'classnames';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
@@ -187,13 +188,26 @@ class App extends React.PureComponent<Props> {
       navigationArrows = <NavigationArrows />;
     }
 
+    const headerClasses = classnames({
+      [css.header]: true,
+      [css['electron-draggable']]: electron,
+    });
+
+    const wordmarkClasses = classnames({
+      [css.wordmark]: true,
+      [css['electron-non-draggable']]: electron,
+    });
+
     return (
       <div className={css.layout}>
         <DisconnectedBarVisibilityHandler />
         <DisconnectedBar />
-        <header className={css.header} onDoubleClick={this.onHeaderDoubleClick}>
+        <header
+          className={headerClasses}
+          onDoubleClick={this.onHeaderDoubleClick}
+        >
           <div className={css['main-header']}>
-            <h1 className={css.wordmark}>
+            <h1 className={wordmarkClasses}>
               <a
                 title="Comm Home"
                 aria-label="Go to Comm Home"
