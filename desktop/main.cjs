@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, Menu } = require('electron');
+const { app, BrowserWindow, shell, Menu, ipcMain } = require('electron');
 const fs = require('fs');
 const path = require('path');
 
@@ -79,6 +79,21 @@ const createMainWindow = () => {
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 20, y: 24 },
     backgroundColor: '#0A0A0A',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.cjs'),
+    },
+  });
+
+  const updateNavigationState = () => {
+    win.webContents.send('on-navigate', {
+      canGoBack: win.webContents.canGoBack(),
+      canGoForward: win.webContents.canGoForward(),
+    });
+  };
+  win.webContents.on('did-navigate-in-page', updateNavigationState);
+  ipcMain.on('clear-history', () => {
+    win.webContents.clearHistory();
+    updateNavigationState();
   });
 
   win.webContents.setWindowOpenHandler(({ url: openURL }) => {

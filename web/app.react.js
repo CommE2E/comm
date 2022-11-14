@@ -32,6 +32,7 @@ import Calendar from './calendar/calendar.react';
 import Chat from './chat/chat.react';
 import { TooltipProvider } from './chat/tooltip-provider';
 import NavigationArrows from './components/navigation-arrows.react';
+import electron from './electron';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
 import { MenuProvider } from './menu-provider.react';
@@ -127,6 +128,9 @@ class App extends React.PureComponent<Props> {
         history.replace(newURL);
       }
     }
+    if (loggedIn !== prevProps.loggedIn) {
+      electron?.clearHistory();
+    }
   }
 
   onWordmarkClicked = () => {
@@ -175,9 +179,8 @@ class App extends React.PureComponent<Props> {
       }
     }
 
-    const shouldShowNavigationArrows = false;
     let navigationArrows = null;
-    if (shouldShowNavigationArrows) {
+    if (electron) {
       navigationArrows = <NavigationArrows />;
     }
 
