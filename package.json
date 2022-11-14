@@ -6,10 +6,11 @@
     "web",
     "native",
     "keyserver",
-    "landing"
+    "landing",
+    "desktop"
   ],
   "scripts": {
-    "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace keyserver clean && yarn workspace landing clean && rm -rf node_modules/",
+    "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace keyserver clean && yarn workspace landing clean && yarn workspace desktop clean && rm -rf node_modules/",
     "cleaninstall": "(killall flow || pkill flow || true) && yarn clean && yarn",
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",

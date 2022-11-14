@@ -631,6 +631,31 @@ You should now be able to load the web app in your web browser at http://localho
 
 This command will start two processes. One is `webpack-dev-server`, which will serve the JS files. `webpack-dev-server` also makes sure the website automatically hot-reloads whenever any of the source files change. The other process is `webpack --watch`, which will build the `app.build.cjs` file, as well as rebuilding it whenever any of the source files change. The `app.build.cjs` file is consumed by the Node server in order to pre-render the initial HTML from the web source (“Server-Side Rendering”).
 
+## Running desktop app
+
+First, make sure that the keyserver and the web app is running. If you haven’t already, run:
+
+```
+cd keyserver
+yarn dev
+```
+
+Next, open a new terminal and run:
+
+```
+cd web
+yarn dev
+```
+
+Then start the desktop app:
+
+```
+cd desktop
+yarn dev
+```
+
+This will run the desktop app in dev mode. Only code that is shared with the web app will be hot-reloaded, but you can easily reload the Electron app by typing `rs` into the terminal.
+
 ## Running landing page
 
 First, make sure that the keyserver is running. If you haven’t already, run:

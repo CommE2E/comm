@@ -1,0 +1,21 @@
+{
+  "name": "desktop",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "main": "main.cjs",
+  "private": true,
+  "license": "BSD-3-Clause",
+  "scripts": {
+    "dev": "ENV=dev electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "clean": "rm -rf assets/ && rm -rf out/ && rm -rf node_modules/"
+  },
+  "devDependencies": {
+    "@electron-forge/async-ora": "^6.0.0",
+    "@electron-forge/cli": "^6.0.0",
+    "@electron-forge/maker-zip": "^6.0.0",
+    "electron": "^21.2.2",
+    "fs-extra": "^10.1.0"
+  }
+}

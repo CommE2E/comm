@@ -1,0 +1,55 @@
+html {
+  height: 100%;
+}
+
+body {
+  background: var(--logo-bg);
+  color: var(--fg);
+  font-size: 2rem;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-stack);
+  -webkit-app-region: drag;
+}
+
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.icon {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 20px;
+  pointer-events: none;
+}
+
+.loading-indicator {
+  margin-left: 20px;
+  display: inline-block;
+}
+@keyframes loading-indicator {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loading-indicator:after {
+  content: ' ';
+  display: block;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  border: 5px solid #fff;
+  border-color: #fff transparent #fff transparent;
+  animation-name: loading-indicator;
+  animation-duration: 1.2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+}

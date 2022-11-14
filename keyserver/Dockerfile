@@ -97,6 +97,7 @@ COPY --chown=comm lib/package.json lib/.flowconfig lib/
 COPY --chown=comm web/package.json web/.flowconfig web/
 COPY --chown=comm native/package.json native/.flowconfig native/
 COPY --chown=comm landing/package.json landing/.flowconfig landing/
+COPY --chown=comm desktop/package.json desktop/
 
 # Copy in files needed for patch-package and pod-patch
 COPY --chown=comm patches patches/

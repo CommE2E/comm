@@ -49,6 +49,8 @@
   --error-dark-50: #b62602;
   --error-dark-90: #4f1203;
 
+  --logo-bg: #111827;
+
   --bg: var(--shades-black-100);
   --fg: var(--shades-white-100);
   --color-disabled: var(--shades-black-60);
