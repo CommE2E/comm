@@ -35,3 +35,9 @@ void initialize() {
   };
   comm::network::AmqpManager::getInstance().init();
 }
+
+rust::String getConfigParameter(rust::Str parameter) {
+  return rust::String{
+      comm::network::config::ConfigManager::getInstance().getParameter(
+          std::string{parameter})};
+}
