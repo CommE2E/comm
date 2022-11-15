@@ -25,7 +25,6 @@ import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import ComposedMessage from './composed-message.react';
 import { InnerTextMessage } from './inner-text-message.react';
-import { MessageContext } from './message-context.react';
 import textMessageSendFailed from './text-message-send-failed';
 import { getMessageTooltipKey } from './utils';
 
@@ -234,28 +233,17 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
       props.item.messageInfo,
     );
 
-    // We use a MessageContext to allow MarkdownLink and MarkdownSpoiler
-    // to access the messageKey so it is 'self-aware'
-    const contextValue = React.useMemo(
-      () => ({
-        messageKey: key,
-      }),
-      [key],
-    );
-
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
     return (
-      <MessageContext.Provider value={contextValue}>
-        <TextMessage
-          {...props}
-          canCreateSidebarFromMessage={canCreateSidebarFromMessage}
-          overlayContext={overlayContext}
-          chatContext={chatContext}
-          isLinkModalActive={isLinkModalActive}
-          linkIsBlockingPresses={linkIsBlockingPresses}
-        />
-      </MessageContext.Provider>
+      <TextMessage
+        {...props}
+        canCreateSidebarFromMessage={canCreateSidebarFromMessage}
+        overlayContext={overlayContext}
+        chatContext={chatContext}
+        isLinkModalActive={isLinkModalActive}
+        linkIsBlockingPresses={linkIsBlockingPresses}
+      />
     );
   },
 );

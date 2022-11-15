@@ -5,6 +5,7 @@ import * as React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { messageKey } from 'lib/shared/message-utils';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
@@ -13,6 +14,7 @@ import { useSelector } from '../redux/redux-utils';
 import { useColors, colors } from '../themes/colors';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import { useComposedMessageMaxWidth } from './composed-message-width';
+import { MessageContext } from './message-context.react';
 import { MessageListContext } from './message-list-types';
 import {
   allCorners,
@@ -101,6 +103,16 @@ function InnerTextMessage(props: Props): React.Node {
     return [styles.text, textStyle];
   }, [darkColor]);
 
+  // We use a MessageContext to allow MarkdownLink and MarkdownSpoiler
+  // to access the messageKey so it is 'self-aware'
+  const key = messageKey(item.messageInfo);
+  const messageContextValue = React.useMemo(
+    () => ({
+      messageKey: key,
+    }),
+    [key],
+  );
+
   const message = (
     <TouchableWithoutFeedback>
       <View>
@@ -111,9 +123,11 @@ function InnerTextMessage(props: Props): React.Node {
           style={[styles.message, cornerStyle]}
           animatedStyle={messageStyle}
         >
-          <Markdown style={markdownStyles} rules={rules}>
-            {text}
-          </Markdown>
+          <MessageContext.Provider value={messageContextValue}>
+            <Markdown style={markdownStyles} rules={rules}>
+              {text}
+            </Markdown>
+          </MessageContext.Provider>
         </GestureTouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
