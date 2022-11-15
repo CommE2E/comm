@@ -5,32 +5,78 @@ import { Text } from 'react-native';
 
 import type { ReactElement } from 'lib/shared/markdown';
 
+import { MessageContext } from '../chat/message-context.react';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import { useStyles } from '../themes/colors';
+import { MarkdownContext } from './markdown-context';
 
 type MarkdownSpoilerProps = {
+  +spoilerIdentifier: string | number | void,
   +text: ReactElement,
   +children?: React.Node,
 };
 
 function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
-  const [isRevealed, setIsRevealed] = React.useState(false);
+  const markdownContext = React.useContext(MarkdownContext);
+  const messageContext = React.useContext(MessageContext);
   const styles = useStyles(unboundStyles);
-  const { text } = props;
+
+  const { messageID } = messageContext;
+  const { text, spoilerIdentifier } = props;
+
+  const setSpoilerRevealed = markdownContext?.setSpoilerRevealed;
+  const spoilerRevealed = markdownContext?.spoilerRevealed;
+  const parsedSpoilerIdentifier = spoilerIdentifier
+    ? parseInt(spoilerIdentifier)
+    : -1;
+
+  const [isRevealed, setIsRevealed] = React.useState(
+    spoilerRevealed?.[messageID]?.[parsedSpoilerIdentifier] ?? false,
+  );
+
+  const styleBasedOnSpoilerState = React.useMemo(() => {
+    if (isRevealed) {
+      return null;
+    }
+    return styles.spoilerHidden;
+  }, [isRevealed, styles.spoilerHidden]);
 
   const onSpoilerClick = React.useCallback(() => {
+    if (isRevealed) {
+      return;
+    }
+
+    if (
+      spoilerRevealed &&
+      setSpoilerRevealed &&
+      messageID &&
+      parsedSpoilerIdentifier
+    ) {
+      setSpoilerRevealed({
+        ...spoilerRevealed,
+        [messageID]: {
+          ...spoilerRevealed[messageID],
+          [parsedSpoilerIdentifier]: true,
+        },
+      });
+    }
     setIsRevealed(true);
-  }, []);
+  }, [
+    isRevealed,
+    spoilerRevealed,
+    setSpoilerRevealed,
+    messageID,
+    parsedSpoilerIdentifier,
+    setIsRevealed,
+  ]);
 
   const memoizedSpoiler = React.useMemo(() => {
     return (
-      <Text
-        onPress={onSpoilerClick}
-        style={!isRevealed ? styles.spoilerHidden : null}
-      >
-        {text}
-      </Text>
+      <GestureTouchableOpacity onPress={onSpoilerClick}>
+        <Text style={styleBasedOnSpoilerState}>{text}</Text>
+      </GestureTouchableOpacity>
     );
-  }, [onSpoilerClick, isRevealed, styles.spoilerHidden, text]);
+  }, [onSpoilerClick, styleBasedOnSpoilerState, text]);
 
   return memoizedSpoiler;
 }
