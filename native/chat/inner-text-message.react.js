@@ -13,6 +13,7 @@ import { useSelector } from '../redux/redux-utils';
 import { useColors, colors } from '../themes/colors';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import { useComposedMessageMaxWidth } from './composed-message-width';
+import { MessageContext } from './message-context.react';
 import { MessageListContext } from './message-list-types';
 import {
   allCorners,
@@ -101,6 +102,12 @@ function InnerTextMessage(props: Props): React.Node {
     return [styles.text, textStyle];
   }, [darkColor]);
 
+  const messageContextValue = React.useMemo(() => {
+    return {
+      messageID: item.messageInfo.id ?? '',
+    };
+  }, [item.messageInfo.id]);
+
   const message = (
     <TouchableWithoutFeedback>
       <View>
@@ -111,9 +118,11 @@ function InnerTextMessage(props: Props): React.Node {
           style={[styles.message, cornerStyle]}
           animatedStyle={messageStyle}
         >
-          <Markdown style={markdownStyles} rules={rules}>
-            {text}
-          </Markdown>
+          <MessageContext.Provider value={messageContextValue}>
+            <Markdown style={markdownStyles} rules={rules}>
+              {text}
+            </Markdown>
+          </MessageContext.Provider>
         </GestureTouchableOpacity>
       </View>
     </TouchableWithoutFeedback>
