@@ -16,9 +16,16 @@ function MarkdownContextProvider(props: Props): React.Node {
     [key: string]: boolean,
   }>({});
 
+  const [spoilerRevealed, setSpoilerRevealed] = React.useState<{
+    [key: string]: {
+      [key: number]: boolean,
+    },
+  }>({});
+
   const clearMarkdownContextData = React.useCallback(() => {
     setLinkModalActive({});
     setLinkPressActive({});
+    setSpoilerRevealed({});
   }, []);
 
   const contextValue = React.useMemo(
@@ -27,6 +34,8 @@ function MarkdownContextProvider(props: Props): React.Node {
       linkModalActive,
       setLinkPressActive,
       linkPressActive,
+      setSpoilerRevealed,
+      spoilerRevealed,
       clearMarkdownContextData,
     }),
     [
@@ -34,6 +43,8 @@ function MarkdownContextProvider(props: Props): React.Node {
       linkModalActive,
       setLinkPressActive,
       linkPressActive,
+      setSpoilerRevealed,
+      spoilerRevealed,
       clearMarkdownContextData,
     ],
   );
