@@ -20,7 +20,7 @@ import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import { defaultLandingURLPrefix } from '../utils/url-utils';
-
+import { commCoreModule } from '../native-modules';
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 
 type BaseProps = {
@@ -43,15 +43,18 @@ function SIWEPanel({
   siweAction,
 }: Props) {
   const handleSIWE = React.useCallback(
-    ({ address, message, signature }) => {
-      // this is all mocked from register-panel
+    async ({ address, message, signature }) => {
       const extraInfo = logInExtraInfo();
+      await commCoreModule.initializeCryptoAccount(address);
+      const { ed25519 } = await commCoreModule.getUserPublicKey();
       dispatchActionPromise(
         siweActionTypes,
         siweAction({
           address,
           message,
           signature,
+          publicKey: ed25519,
+          socialProof: signature,
           ...extraInfo,
         }),
         undefined,
