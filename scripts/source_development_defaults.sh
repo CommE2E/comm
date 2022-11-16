@@ -11,5 +11,7 @@ if [[ "$OSTYPE" == 'darwin'* ]]; then
   export ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}
 fi
 
-export PATH=$PATH:$ANDROID_SDK_ROOT/emulator:$ANDROID_SDK_ROOT/tools
-export PATH=$PATH:$ANDROID_SDK_ROOT/tools/bin:$ANDROID_SDK_ROOT/platform-tools
+export PATH="$PATH":"$ANDROID_SDK_ROOT"/emulator:$ANDROID_SDK_ROOT/tools
+export PATH="$PATH":"$ANDROID_SDK_ROOT"/tools/bin:$ANDROID_SDK_ROOT/platform-tools
+
+export PATH="$PATH":./node_modules/.bin
