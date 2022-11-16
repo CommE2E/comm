@@ -37,13 +37,13 @@ const wagmiClient = createClient({
   provider,
 });
 
-function createSiweMessage(address, statement) {
+function createSiweMessage(address) {
   const domain = window.location.host;
   const origin = window.location.origin;
   const message = new SiweMessage({
     domain,
     address,
-    statement,
+    statement: `Sign in to Comm with Ethereum. public_key:${window.ReactNativeWebView?.injectedPublicKey}`,
     uri: origin,
     version: '1',
     chainId: '1',
@@ -52,7 +52,7 @@ function createSiweMessage(address, statement) {
 }
 
 async function signInWithEthereum(address, signer) {
-  const message = createSiweMessage(address, 'Sign in to Comm with Ethereum');
+  const message = createSiweMessage(address);
   const signature = await signer.signMessage(message);
   const messageToPost = JSON.stringify({ address, message, signature });
   window.ReactNativeWebView?.postMessage?.(messageToPost);

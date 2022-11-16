@@ -71,7 +71,7 @@ async function createAccount(
     WHERE LCASE(username) = LCASE(${request.username})
   `;
   const promises = [dbQuery(usernameQuery)];
-  const { calendarQuery } = request;
+  const { calendarQuery, publicKey, socialProof } = request;
   if (calendarQuery) {
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
@@ -103,6 +103,8 @@ async function createAccount(
     createNewUserCookie(id, {
       platformDetails: request.platformDetails,
       deviceToken,
+      publicKey,
+      socialProof,
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
