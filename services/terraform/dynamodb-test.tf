@@ -97,9 +97,22 @@ resource "aws_dynamodb_table" "tunnelbroker-device-sessions-test" {
     type = "S"
   }
 
+  attribute {
+    name = "DeviceID"
+    type = "S"
+  }
+
   ttl {
     attribute_name = "Expire"
     enabled        = true
+  }
+
+  global_secondary_index {
+    name            = "DeviceID-index"
+    hash_key        = "DeviceID"
+    write_capacity  = 10
+    read_capacity   = 10
+    projection_type = "ALL"
   }
 }
 
