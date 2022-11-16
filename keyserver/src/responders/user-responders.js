@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { SiweMessage, ErrorTypes } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
@@ -13,6 +14,8 @@ import type {
   RegisterRequest,
   LogInResponse,
   LogInRequest,
+  SIWERequest,
+  SIWEResponse,
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
 } from 'lib/types/account-types';
@@ -290,6 +293,124 @@ async function logInResponder(
   return response;
 }
 
+const siweRequestInputValidator = tShape({
+  address: t.String,
+  signature: t.String,
+  message: t.String,
+  watchedIDs: t.list(t.String),
+  calendarQuery: t.maybe(entryQueryInputValidator),
+  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+  platformDetails: tPlatformDetails,
+  source: t.maybe(t.enums.of(values(logInActionSources))),
+});
+
+async function siweResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<SIWEResponse> {
+  await validateInput(viewer, siweRequestInputValidator, input);
+  const request: SIWERequest = input;
+
+  const { address, message, signature } = request;
+  const calendarQuery = request.calendarQuery
+    ? normalizeCalendarQuery(request.calendarQuery)
+    : null;
+  if (!address) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  try {
+    const siweMessage = new SiweMessage(message);
+    await siweMessage.validate(signature);
+  } catch (error) {
+    switch (error) {
+      case ErrorTypes.EXPIRED_MESSAGE:
+        throw new ServerError('expired_signature', { status: 440 });
+      case ErrorTypes.INVALID_SIGNATURE:
+        throw new ServerError('invalid_signature', { status: 422 });
+      default:
+        throw new ServerError('oops', { status: 500 });
+    }
+  }
+
+  const userQuery = SQL`
+    SELECT id, hash, username
+    FROM users
+    WHERE ethereum_address = ${address}
+  `;
+  const [userResult] = await dbQuery(userQuery);
+  if (userResult.length === 0) {
+    // breaking out variables for flow's sake
+    const {
+      message: noop,
+      signature: noop2,
+      watchedIDs: noop3,
+      ...rest
+    } = request;
+    return await createAccount(viewer, {
+      username: address,
+      password: signature,
+      ...rest,
+    });
+  }
+  const userRow = userResult[0];
+  const id = userRow.id.toString();
+
+  const newServerTime = Date.now();
+  const deviceToken = request.deviceTokenUpdateRequest
+    ? request.deviceTokenUpdateRequest.deviceToken
+    : viewer.deviceToken;
+  const [userViewerData] = await Promise.all([
+    createNewUserCookie(id, {
+      platformDetails: request.platformDetails,
+      deviceToken,
+    }),
+    deleteCookie(viewer.cookieID),
+  ]);
+  viewer.setNewCookie(userViewerData);
+  if (calendarQuery) {
+    await setNewSession(viewer, calendarQuery, newServerTime);
+  }
+
+  const threadCursors = {};
+  // $FlowFixMe undefined [1] is incompatible with  `$Iterable` [2].
+  for (const watchedThreadID of request.watchedIDs) {
+    threadCursors[watchedThreadID] = null;
+  }
+  const messageSelectionCriteria = { threadCursors, joinedThreads: true };
+
+  const [
+    threadsResult,
+    messagesResult,
+    entriesResult,
+    userInfos,
+    currentUserInfo,
+  ] = await Promise.all([
+    fetchThreadInfos(viewer),
+    fetchMessageInfos(viewer, messageSelectionCriteria, defaultNumberPerThread),
+    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
+    fetchKnownUserInfos(viewer),
+    fetchLoggedInUserInfo(viewer),
+  ]);
+
+  const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
+  const response: LogInResponse = {
+    currentUserInfo,
+    rawMessageInfos: messagesResult.rawMessageInfos,
+    truncationStatuses: messagesResult.truncationStatuses,
+    serverTime: newServerTime,
+    userInfos: values(userInfos),
+    cookieChange: {
+      threadInfos: threadsResult.threadInfos,
+      userInfos: [],
+    },
+  };
+  if (rawEntryInfos) {
+    response.rawEntryInfos = rawEntryInfos;
+  }
+  return response;
+}
+
 const updatePasswordRequestInputValidator = tShape({
   code: t.String,
   password: tPassword,
@@ -339,4 +460,5 @@ export {
   logInResponder,
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
+  siweResponder,
 };
