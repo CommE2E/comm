@@ -484,6 +484,7 @@ const persistConfig = {
     'loadingStatuses',
     'lifecycleState',
     'dimensions',
+    'draftStore',
     'connectivity',
     'deviceOrientation',
     'frozen',
