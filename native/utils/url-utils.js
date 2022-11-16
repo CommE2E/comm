@@ -40,7 +40,12 @@ function getDevNodeServerURL(): string {
   return getDevNodeServerURLFromHostname(hostname);
 }
 
+const canRainbowKitSignOverHTTPYet = false;
+
 function getDevLandingURL(): string {
+  if (!canRainbowKitSignOverHTTPYet) {
+    return productionLandingURL;
+  }
   invariant(__DEV__, 'getDevLandingURL called from production');
   const hostname = getDevServerHostname();
   return getDevLandingURLFromHostname(hostname);
