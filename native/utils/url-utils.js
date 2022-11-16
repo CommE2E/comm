@@ -40,7 +40,13 @@ function getDevNodeServerURL(): string {
   return getDevNodeServerURLFromHostname(hostname);
 }
 
+// the wallet SIWE prompt hangs indefinitely if it doesn't originate from HTTPs
+const canRainbowKitSignOverHTTPYet = false;
+
 function getDevLandingURL(): string {
+  if (!canRainbowKitSignOverHTTPYet) {
+    return productionLandingURL;
+  }
   invariant(__DEV__, 'getDevLandingURL called from production');
   const hostname = getDevServerHostname();
   return getDevLandingURLFromHostname(hostname);

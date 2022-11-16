@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { SiweMessage, ErrorTypes } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
@@ -13,6 +14,8 @@ import type {
   RegisterRequest,
   LogInResponse,
   LogInRequest,
+  SIWERequest,
+  SIWEResponse,
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
 } from 'lib/types/account-types';
@@ -193,55 +196,18 @@ const logInRequestInputValidator = tShape({
   source: t.maybe(t.enums.of(values(logInActionSources))),
 });
 
-async function logInResponder(
-  viewer: Viewer,
-  input: any,
-): Promise<LogInResponse> {
-  await validateInput(viewer, logInRequestInputValidator, input);
-  const request: LogInRequest = input;
-
+async function logInQueries(viewer: Viewer, input: any, userId: string) {
+  const request: LogInRequest | SIWERequest = input;
   const calendarQuery = request.calendarQuery
     ? normalizeCalendarQuery(request.calendarQuery)
     : null;
-  const promises = {};
-  if (calendarQuery) {
-    promises.verifyCalendarQueryThreadIDs = verifyCalendarQueryThreadIDs(
-      calendarQuery,
-    );
-  }
-  const username = request.username ?? request.usernameOrEmail;
-  if (!username) {
-    throw new ServerError('invalid_parameters');
-  }
-  const userQuery = SQL`
-    SELECT id, hash, username
-    FROM users
-    WHERE LCASE(username) = LCASE(${username})
-  `;
-  promises.userQuery = dbQuery(userQuery);
-  const {
-    userQuery: [userResult],
-  } = await promiseAll(promises);
-
-  if (userResult.length === 0) {
-    throw new ServerError('invalid_parameters');
-  }
-  const userRow = userResult[0];
-  if (!userRow.hash || !bcrypt.compareSync(request.password, userRow.hash)) {
-    if (hasMinCodeVersion(viewer.platformDetails, 99999)) {
-      throw new ServerError('invalid_parameters');
-    } else {
-      throw new ServerError('invalid_credentials');
-    }
-  }
-  const id = userRow.id.toString();
 
   const newServerTime = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
   const [userViewerData] = await Promise.all([
-    createNewUserCookie(id, {
+    createNewUserCookie(userId, {
       platformDetails: request.platformDetails,
       deviceToken,
     }),
@@ -288,6 +254,116 @@ async function logInResponder(
     response.rawEntryInfos = rawEntryInfos;
   }
   return response;
+}
+
+async function logInResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<LogInResponse> {
+  await validateInput(viewer, logInRequestInputValidator, input);
+  const request: LogInRequest = input;
+
+  const calendarQuery = request.calendarQuery
+    ? normalizeCalendarQuery(request.calendarQuery)
+    : null;
+  const promises = {};
+  if (calendarQuery) {
+    promises.verifyCalendarQueryThreadIDs = verifyCalendarQueryThreadIDs(
+      calendarQuery,
+    );
+  }
+  const username = request.username ?? request.usernameOrEmail;
+  if (!username) {
+    throw new ServerError('invalid_parameters');
+  }
+  const userQuery = SQL`
+    SELECT id, hash, username
+    FROM users
+    WHERE LCASE(username) = LCASE(${username})
+  `;
+  promises.userQuery = dbQuery(userQuery);
+  const {
+    userQuery: [userResult],
+  } = await promiseAll(promises);
+
+  if (userResult.length === 0) {
+    throw new ServerError('invalid_parameters');
+  }
+  const userRow = userResult[0];
+  if (!userRow.hash || !bcrypt.compareSync(request.password, userRow.hash)) {
+    if (hasMinCodeVersion(viewer.platformDetails, 99999)) {
+      throw new ServerError('invalid_parameters');
+    } else {
+      throw new ServerError('invalid_credentials');
+    }
+  }
+  const id = userRow.id.toString();
+
+  return await logInQueries(viewer, input, id);
+}
+
+const siweRequestInputValidator = tShape({
+  address: t.String,
+  signature: t.String,
+  message: t.String,
+  watchedIDs: t.list(t.String),
+  calendarQuery: t.maybe(entryQueryInputValidator),
+  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+  platformDetails: tPlatformDetails,
+  source: t.maybe(t.enums.of(values(logInActionSources))),
+});
+
+async function siweResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<SIWEResponse> {
+  await validateInput(viewer, siweRequestInputValidator, input);
+  const request: SIWERequest = input;
+
+  const { address, message, signature } = request;
+  if (!address) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  try {
+    const siweMessage = new SiweMessage(message);
+    await siweMessage.validate(signature);
+  } catch (error) {
+    switch (error) {
+      case ErrorTypes.EXPIRED_MESSAGE:
+        throw new ServerError('expired_signature', { status: 440 });
+      case ErrorTypes.INVALID_SIGNATURE:
+        throw new ServerError('invalid_signature', { status: 422 });
+      default:
+        throw new ServerError('oops', { status: 500 });
+    }
+  }
+  // addresses are case insensitive to the network but not to sql queries
+  // lowercasing just in case
+  const userQuery = SQL`
+    SELECT id, hash, username
+    FROM users
+    WHERE LCASE(ethereum_address) = LCASE(${address})
+  `;
+  const [userResult] = await dbQuery(userQuery);
+  if (userResult.length === 0) {
+    // broke out vars for flow's sake - no thread IDs to watch on a new account
+    const {
+      message: noop,
+      signature: noop2,
+      watchedIDs: noop3,
+      ...rest
+    } = request;
+    return await createAccount(viewer, {
+      username: address,
+      password: signature,
+      ...rest,
+    });
+  }
+  const userRow = userResult[0];
+  const id = userRow.id.toString();
+
+  return await logInQueries(viewer, input, id);
 }
 
 const updatePasswordRequestInputValidator = tShape({
@@ -339,4 +415,5 @@ export {
   logInResponder,
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
+  siweResponder,
 };
