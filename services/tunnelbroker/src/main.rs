@@ -1,5 +1,6 @@
 pub mod constants;
 pub mod cxx_bridge;
+pub mod notifications;
 pub mod server;
 use anyhow::Result;
 
