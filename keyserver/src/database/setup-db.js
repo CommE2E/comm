@@ -233,6 +233,13 @@ async function createTables() {
         name varchar(255) NOT NULL,
         data varchar(255)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+      
+      CREATE TABLE policy_acknowledgments (
+        user bigint(20) NOT NULL,
+        policy varchar(255) NOT NULL,
+        date bigint(20) NOT NULL,
+        confirmed tinyint(1) UNSIGNED NOT NULL DEFAULT 0
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
       ALTER TABLE cookies
         ADD PRIMARY KEY (id),
@@ -343,6 +350,9 @@ async function createTables() {
 
       ALTER TABLE metadata
         ADD PRIMARY KEY (name);
+        
+      ALTER TABLE policy_acknowledgments
+        ADD PRIMARY KEY (user, policy);
     `,
     { multipleStatements: true },
   );
