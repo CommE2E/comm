@@ -34,10 +34,25 @@ To set up a dev environment using Nix, you will need a macOS or Linux machine.
 To install and configure the [Nix package manager](https://nixos.org), please run:
 
 ```
+# Pull down Git repository
+git clone git@github.com:CommE2E/comm.git
+cd comm
+
+# Install Nix and Comm binary cache
 ./scripts/install_nix.sh
 ```
 
 ## Workflow prerequisites
+
+### Download Yarn dependencies
+
+As a first step, you’ll want to set up the JavaScript environment and pull in all necessary NPM packages. Run the following command:
+
+```
+yarn cleaninstall
+```
+
+### Workflow specific prerequisites
 
 On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for all workflows.
 
