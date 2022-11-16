@@ -10,7 +10,7 @@ import type { Transform } from 'redux-persist/es/types';
 import { highestLocalIDSelector } from 'lib/selectors/local-id-selectors';
 import { inconsistencyResponsesToReports } from 'lib/shared/report-utils';
 import { getContainingThreadID, getCommunity } from 'lib/shared/thread-utils';
-import { unshimMessageStore } from 'lib/shared/unshim-utils';
+import { unshimMessageStore, unshimFunc } from 'lib/shared/unshim-utils';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import {
@@ -19,8 +19,12 @@ import {
   messageTypes,
   type ClientDBMessageStoreOperation,
 } from 'lib/types/message-types';
+import type { ClientDBMessageInfo } from 'lib/types/message-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
-import { translateRawMessageInfoToClientDBMessageInfo } from 'lib/utils/message-ops-utils';
+import {
+  translateClientDBMessageInfoToRawMessageInfo,
+  translateRawMessageInfoToClientDBMessageInfo,
+} from 'lib/utils/message-ops-utils';
 import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
 
 import { commCoreModule } from '../native-modules';
@@ -367,6 +371,48 @@ const migrations = {
       console.log(exception);
       return { ...state, cookie: null };
     }
+    return state;
+  },
+  [32]: (state: AppState) => {
+    // 1. Get messages from SQLite `messages` table.
+    const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
+
+    // 2. Translate `ClientDBMessageInfo`s to `RawMessageInfo`s.
+    const rawMessageInfos = clientDBMessageInfos.map(
+      translateClientDBMessageInfoToRawMessageInfo,
+    );
+
+    // 3. "Unshim" translated `RawMessageInfo`s.
+    const unshimmedRawMessageInfos = rawMessageInfos.map(messageInfo =>
+      unshimFunc(messageInfo, new Set([messageTypes.MULTIMEDIA])),
+    );
+
+    // 4. Translate unshimmed `RawMessageInfo`s back to `ClientDBMessageInfo`s.
+    const unshimmedClientDBMessageInfos = unshimmedRawMessageInfos.map(
+      translateRawMessageInfoToClientDBMessageInfo,
+    );
+
+    // 5. Construct `ClientDBMessageStoreOperation`s to clear SQLite `messages`
+    //    table and repopulate with unshimmed `ClientDBMessageInfo`s.
+    const operations: $ReadOnlyArray<ClientDBMessageStoreOperation> = [
+      {
+        type: 'remove_all',
+      },
+      ...unshimmedClientDBMessageInfos.map((message: ClientDBMessageInfo) => ({
+        type: 'replace',
+        payload: message,
+      })),
+    ];
+
+    // 6. Try processing `ClientDBMessageStoreOperation`s and log out if
+    //    `processMessageStoreOperationsSync(...)` throws an exception.
+    try {
+      commCoreModule.processMessageStoreOperationsSync(operations);
+    } catch (exception) {
+      console.log(exception);
+      return { ...state, cookie: null };
+    }
+
     return state;
   },
 };
