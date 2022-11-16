@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
+import { policyTypes } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
@@ -62,6 +63,7 @@ import {
   updatePassword,
   updateUserSettings,
 } from '../updaters/account-updaters';
+import { userAcknowledgmentUpdater } from '../updaters/user-acknowledgment-updater.js';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import { validateInput } from '../utils/validation-utils';
 import {
@@ -250,6 +252,12 @@ async function logInResponder(
   viewer.setNewCookie(userViewerData);
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, newServerTime);
+  }
+  if (
+    input.source === logInActionSources.logInFromNativeForm ||
+    (!hasMinCodeVersion(viewer.platformDetails, 99999) && !input.source)
+  ) {
+    await userAcknowledgmentUpdater(viewer, policyTypes.tosAndPrivacyPolicy);
   }
 
   const threadCursors = {};
