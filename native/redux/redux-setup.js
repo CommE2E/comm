@@ -78,6 +78,7 @@ import type { AppState } from './state-types';
 const defaultState = ({
   navInfo: defaultNavInfo,
   currentUserInfo: null,
+  draftStore: { drafts: {} },
   entryStore: {
     entryInfos: {},
     daysToEntries: {},

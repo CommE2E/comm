@@ -3,6 +3,7 @@
 import type { Orientations } from 'react-native-orientation-locker';
 import type { PersistState } from 'redux-persist/src/types';
 
+import type { DraftStore } from 'lib/types/draft-types';
 import type { EnabledApps } from 'lib/types/enabled-apps';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
@@ -24,6 +25,7 @@ import type { DimensionsInfo } from './dimensions-updater.react';
 export type AppState = {
   navInfo: NavInfo,
   currentUserInfo: ?CurrentUserInfo,
+  draftStore: DraftStore,
   entryStore: EntryStore,
   threadStore: ThreadStore,
   userStore: UserStore,

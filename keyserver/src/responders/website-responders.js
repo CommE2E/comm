@@ -310,6 +310,7 @@ async function websiteResponder(
     navInfo: navInfoPromise,
     deviceID: null,
     currentUserInfo: ((currentUserInfoPromise: any): Promise<CurrentUserInfo>),
+    draftStore: { drafts: {} },
     sessionID: sessionIDPromise,
     entryStore: entryStorePromise,
     threadStore: threadStorePromise,

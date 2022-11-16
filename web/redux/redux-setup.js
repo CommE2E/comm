@@ -12,6 +12,7 @@ import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
 import type { Shape } from 'lib/types/core';
+import type { DraftStore } from 'lib/types/draft-types';
 import type { EnabledApps } from 'lib/types/enabled-apps';
 import type { EntryStore } from 'lib/types/entry-types';
 import type { CalendarFilter } from 'lib/types/filter-types';
@@ -42,6 +43,7 @@ export type AppState = {
   navInfo: NavInfo,
   deviceID: ?string,
   currentUserInfo: ?CurrentUserInfo,
+  draftStore: DraftStore,
   sessionID: ?string,
   entryStore: EntryStore,
   threadStore: ThreadStore,
