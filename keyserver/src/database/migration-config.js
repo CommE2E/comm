@@ -2,6 +2,8 @@
 
 import fs from 'fs';
 
+import { policyTypes } from 'lib/facts/policies.js';
+
 import { dbQuery, SQL } from '../database/database';
 import { updateRolesAndPermissionsForAllThreads } from '../updaters/thread-permission-updaters';
 
@@ -85,6 +87,18 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
           confirmed tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
           PRIMARY KEY (user, policy)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+      `);
+    },
+  ],
+  [
+    10,
+    async () => {
+      const time = Date.now();
+      await dbQuery(SQL`
+        INSERT IGNORE INTO policy_acknowledgments (policy, user, date, 
+          confirmed)
+        SELECT ${policyTypes.tosAndPrivacyPolicy}, id, ${time}, 1
+        FROM users
       `);
     },
   ],
