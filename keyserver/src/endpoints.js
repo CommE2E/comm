@@ -51,6 +51,7 @@ import {
   logInResponder,
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
+  siweResponder,
 } from './responders/user-responders';
 import { codeVerificationResponder } from './responders/verification-responders';
 import { uploadDeletionResponder } from './uploads/uploads';
@@ -84,6 +85,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   send_password_reset_email: sendPasswordResetEmailResponder,
   send_verification_email: sendVerificationEmailResponder,
   set_thread_unread_status: threadSetUnreadStatusResponder,
+  siwe: siweResponder,
   update_account: passwordUpdateResponder,
   update_activity: updateActivityResponder,
   update_calendar_query: calendarQueryUpdateResponder,
