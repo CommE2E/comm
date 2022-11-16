@@ -201,7 +201,7 @@ async function logInQueries(viewer: Viewer, input: any, userId: string) {
   const calendarQuery = request.calendarQuery
     ? normalizeCalendarQuery(request.calendarQuery)
     : null;
-
+  const { publicKey, socialProof } = request;
   const newServerTime = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
@@ -210,6 +210,8 @@ async function logInQueries(viewer: Viewer, input: any, userId: string) {
     createNewUserCookie(userId, {
       platformDetails: request.platformDetails,
       deviceToken,
+      publicKey,
+      socialProof,
     }),
     deleteCookie(viewer.cookieID),
   ]);
