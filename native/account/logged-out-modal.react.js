@@ -30,6 +30,7 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
+import { commCoreModule } from '../native-modules';
 import { createIsForegroundSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import { LoggedOutModalRouteName } from '../navigation/route-names';
@@ -59,7 +60,6 @@ import LoggedOutStaffInfo from './logged-out-staff-info.react';
 import RegisterPanel from './register-panel.react';
 import type { RegisterState } from './register-panel.react';
 import SIWEPanel from './siwe-panel.react';
-
 let initialAppLoad = true;
 const safeAreaEdges = ['top', 'bottom'];
 
@@ -279,7 +279,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       return;
     }
     initialAppLoad = false;
-
+    commCoreModule.initializeCryptoAccount(`stringThatIsn'tUsedAnywhere`);
     const { loggedIn, cookie, urlPrefix, dispatch } = this.props;
     const hasUserCookie = cookie && cookie.startsWith('user=');
     if (loggedIn === !!hasUserCookie) {
