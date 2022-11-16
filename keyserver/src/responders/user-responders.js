@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
+import { policyTypes } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
@@ -63,6 +64,7 @@ import {
   updateUserSettings,
 } from '../updaters/account-updaters';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
+import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import { validateInput } from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
@@ -258,6 +260,17 @@ async function logInResponder(
   }
   const messageSelectionCriteria = { threadCursors, joinedThreads: true };
 
+  let acknowledgmentUpdate = undefined;
+  if (
+    input.source === logInActionSources.logInFromNativeForm ||
+    (!hasMinCodeVersion(viewer.platformDetails, 99999) && !input.source)
+  ) {
+    acknowledgmentUpdate = viewerAcknowledgmentUpdater(
+      viewer,
+      policyTypes.tosAndPrivacyPolicy,
+    );
+  }
+
   const [
     threadsResult,
     messagesResult,
@@ -270,6 +283,7 @@ async function logInResponder(
     calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
     fetchKnownUserInfos(viewer),
     fetchLoggedInUserInfo(viewer),
+    acknowledgmentUpdate,
   ]);
 
   const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
