@@ -30,6 +30,7 @@ import {
   addKeyboardDismissListener,
   removeKeyboardListener,
 } from '../keyboard/keyboard';
+import { commCoreModule } from '../native-modules';
 import { createIsForegroundSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import { LoggedOutModalRouteName } from '../navigation/route-names';
@@ -279,7 +280,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       return;
     }
     initialAppLoad = false;
-
+    commCoreModule.initializeCryptoAccount(`stringThatIsn'tUsedAnywhere`);
     const { loggedIn, cookie, urlPrefix, dispatch } = this.props;
     const hasUserCookie = cookie && cookie.startsWith('user=');
     if (loggedIn === !!hasUserCookie) {

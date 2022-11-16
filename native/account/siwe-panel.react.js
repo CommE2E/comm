@@ -16,11 +16,11 @@ import {
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
 
+import { commCoreModule } from '../native-modules';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import { defaultLandingURLPrefix } from '../utils/url-utils';
-
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 
 type BaseProps = {
@@ -37,14 +37,26 @@ type Props = {
   +siweAction: (siweInfo: SIWEServerCall) => Promise<SIWEResult>,
 };
 
+type WebViewProps = {};
+type WebViewMethods = {
+  +injectJavaScript: (script: string) => void,
+};
+type WebViewComponent = React.AbstractComponent<WebViewProps, WebViewMethods>;
+
 function SIWEPanel({
   logInExtraInfo,
   dispatchActionPromise,
   siweAction,
 }: Props) {
+  const webviewRef = React.useRef<?React.ElementRef<WebViewComponent>>(null);
+  async function setKey() {
+    const { ed25519 } = await commCoreModule.getUserPublicKey();
+    webviewRef.current?.injectJavaScript(
+      `window.ReactNativeWebView.injectedPublicKey = ${ed25519}`,
+    );
+  }
   const handleSIWE = React.useCallback(
-    ({ address, message, signature }) => {
-      // this is all mocked from register-panel
+    async ({ address, message, signature }) => {
       const extraInfo = logInExtraInfo();
       dispatchActionPromise(
         siweActionTypes,
@@ -73,7 +85,14 @@ function SIWEPanel({
     [handleSIWE],
   );
   const source = React.useMemo(() => ({ uri: commSIWE }), []);
-  return <WebView source={source} onMessage={handleMessage} />;
+  return (
+    <WebView
+      source={source}
+      onMessage={handleMessage}
+      ref={webviewRef}
+      onLoadEnd={setKey}
+    />
+  );
 }
 const ConnectedSIWEPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedRegisterPanel(props: BaseProps) {

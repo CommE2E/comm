@@ -40,6 +40,7 @@ function getDevNodeServerURL(): string {
   return getDevNodeServerURLFromHostname(hostname);
 }
 
+// the SIWE message prompt hangs indefinitely if it doesn't originate from HTTPs
 const canRainbowKitSignOverHTTPYet = false;
 
 function getDevLandingURL(): string {
