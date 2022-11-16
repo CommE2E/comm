@@ -1,8 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
-import { SiweMessage, ErrorTypes } from 'siwe';
-// import { generateNonce } from 'siwe';
+import { SiweMessage, ErrorTypes, generateNonce } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
@@ -295,10 +294,10 @@ async function logInResponder(
 }
 
 // todo, see https://linear.app/comm/issue/ENG-2226/add-nonce-to-cookie-session
-// async function siweNonceResponder(viewer: Viewer) {
-//   const nonce = generateNonce();
-//   return nonce;
-// }
+async function siweNonceResponder(viewer: Viewer) {
+  const nonce = generateNonce();
+  return nonce;
+}
 
 const siweRequestInputValidator = tShape({
   address: t.String,
