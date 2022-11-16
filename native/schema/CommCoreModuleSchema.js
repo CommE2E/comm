@@ -5,6 +5,7 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 
+import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types';
 import type {
   ClientDBMessageInfo,
   ClientDBMessageStoreOperation,
@@ -27,6 +28,9 @@ export interface Spec extends TurboModule {
   +removeAllDrafts: () => Promise<void>;
   +getAllMessages: () => Promise<$ReadOnlyArray<ClientDBMessageInfo>>;
   +getAllMessagesSync: () => $ReadOnlyArray<ClientDBMessageInfo>;
+  +processDraftStoreOperations: (
+    operations: $ReadOnlyArray<ClientDBDraftStoreOperation>,
+  ) => Promise<void>;
   +processMessageStoreOperations: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
   ) => Promise<void>;

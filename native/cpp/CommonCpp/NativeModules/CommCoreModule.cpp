@@ -1,6 +1,7 @@
 #include "CommCoreModule.h"
 #include "../CryptoTools/DeviceID.h"
 #include "DatabaseManager.h"
+#include "DraftStoreOperations.h"
 #include "GRPCStreamHostObject.h"
 #include "InternalModules/GlobalDBSingleton.h"
 #include "InternalModules/GlobalNetworkSingleton.h"
@@ -319,11 +320,83 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
       });
 }
 
-#define REKEY_OPERATION "rekey"
-#define REMOVE_OPERATION "remove"
-#define REPLACE_OPERATION "replace"
-#define REMOVE_MSGS_FOR_THREADS_OPERATION "remove_messages_for_threads"
-#define REMOVE_ALL_OPERATION "remove_all"
+const std::string UPDATE_DRAFT_OPERATION = "update";
+const std::string MOVE_DRAFT_OPERATION = "move";
+const std::string REMOVE_ALL_DRAFTS_OPERATION = "remove_all";
+
+std::vector<std::unique_ptr<DraftStoreOperationBase>>
+createDraftStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
+  std::vector<std::unique_ptr<DraftStoreOperationBase>> draftStoreOps;
+  for (auto idx = 0; idx < operations.size(rt); idx++) {
+    auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
+    auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
+    auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
+    if (op_type == UPDATE_DRAFT_OPERATION) {
+      draftStoreOps.push_back(
+          std::make_unique<UpdateDraftOperation>(rt, payload_obj));
+    } else if (op_type == MOVE_DRAFT_OPERATION) {
+      draftStoreOps.push_back(
+          std::make_unique<MoveDraftOperation>(rt, payload_obj));
+    } else if (op_type == REMOVE_ALL_DRAFTS_OPERATION) {
+      draftStoreOps.push_back(std::make_unique<RemoveAllDraftsOperation>());
+    } else {
+      throw std::runtime_error("unsupported operation: " + op_type);
+    }
+  }
+  return draftStoreOps;
+}
+
+jsi::Value CommCoreModule::processDraftStoreOperations(
+    jsi::Runtime &rt,
+    const jsi::Array &operations) {
+  std::string createOperationsError;
+  std::shared_ptr<std::vector<std::unique_ptr<DraftStoreOperationBase>>>
+      draftStoreOpsPtr;
+  try {
+    auto draftStoreOps = createDraftStoreOperations(rt, operations);
+    draftStoreOpsPtr =
+        std::make_shared<std::vector<std::unique_ptr<DraftStoreOperationBase>>>(
+            std::move(draftStoreOps));
+  } catch (std::runtime_error &e) {
+    createOperationsError = e.what();
+  }
+
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=]() {
+          std::string error = createOperationsError;
+
+          if (!error.size()) {
+            try {
+              DatabaseManager::getQueryExecutor().beginTransaction();
+              for (const auto &operation : *draftStoreOpsPtr) {
+                operation->execute();
+              }
+              DatabaseManager::getQueryExecutor().commitTransaction();
+            } catch (std::system_error &e) {
+              error = e.what();
+              DatabaseManager::getQueryExecutor().rollbackTransaction();
+            }
+          }
+
+          this->jsInvoker_->invokeAsync([=]() {
+            if (error.size()) {
+              promise->reject(error);
+            } else {
+              promise->resolve(jsi::Value::undefined());
+            }
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
+      });
+}
+
+const std::string REKEY_OPERATION = "rekey";
+const std::string REMOVE_OPERATION = "remove";
+const std::string REPLACE_OPERATION = "replace";
+const std::string REMOVE_MSGS_FOR_THREADS_OPERATION =
+    "remove_messages_for_threads";
+const std::string REMOVE_ALL_OPERATION = "remove_all";
 
 std::vector<std::unique_ptr<MessageStoreOperationBase>>
 createMessageStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
