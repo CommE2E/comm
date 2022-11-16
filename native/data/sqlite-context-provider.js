@@ -5,6 +5,7 @@ import { Alert } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import { useDispatch } from 'react-redux';
 
+import { setDraftStoreDrafts } from 'lib/actions/draft-actions';
 import { setMessageStoreMessages } from 'lib/actions/message-actions.js';
 import { setThreadStoreActionType } from 'lib/actions/thread-actions';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
@@ -93,9 +94,10 @@ function SQLiteContextProvider(props: Props): React.Node {
     (async () => {
       await sensitiveDataHandled;
       try {
-        const [threads, messages] = await Promise.all([
+        const [threads, messages, drafts] = await Promise.all([
           commCoreModule.getAllThreads(),
           commCoreModule.getAllMessages(),
+          commCoreModule.getAllDrafts(),
         ]);
         const threadInfosFromDB = convertClientDBThreadInfosToRawThreadInfos(
           threads,
@@ -107,6 +109,10 @@ function SQLiteContextProvider(props: Props): React.Node {
         dispatch({
           type: setMessageStoreMessages,
           payload: messages,
+        });
+        dispatch({
+          type: setDraftStoreDrafts,
+          payload: drafts,
         });
         setStoreLoaded(true);
       } catch (setStoreException) {

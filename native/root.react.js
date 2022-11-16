@@ -22,7 +22,6 @@ import { actionLogger } from 'lib/utils/action-logger';
 import ChatContextProvider from './chat/chat-context-provider.react';
 import PersistedStateGate from './components/persisted-state-gate';
 import ConnectedStatusBar from './connected-status-bar.react';
-import CoreDataProvider from './data/core-data-provider.react';
 import { SQLiteContextProvider } from './data/sqlite-context-provider';
 import ErrorBoundary from './error-boundary.react';
 import InputStateContainer from './input/input-state-container.react';
@@ -242,35 +241,33 @@ function Root() {
   return (
     <View style={styles.app}>
       <StaffContextProvider>
-        <CoreDataProvider>
-          <NavContext.Provider value={navContext}>
-            <RootContext.Provider value={rootContext}>
-              <InputStateContainer>
-                <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-                  <ActionSheetProvider>
-                    <ChatContextProvider>
-                      <SQLiteContextProvider>
-                        <ConnectedStatusBar />
-                        <ReduxPersistGate persistor={getPersistor()}>
-                          {gated}
-                        </ReduxPersistGate>
-                        <PersistedStateGate>
-                          <Socket
-                            detectUnsupervisedBackgroundRef={
-                              detectUnsupervisedBackgroundRef
-                            }
-                          />
-                        </PersistedStateGate>
-                        {navigation}
-                        <NavigationHandler />
-                      </SQLiteContextProvider>
-                    </ChatContextProvider>
-                  </ActionSheetProvider>
-                </SafeAreaProvider>
-              </InputStateContainer>
-            </RootContext.Provider>
-          </NavContext.Provider>
-        </CoreDataProvider>
+        <NavContext.Provider value={navContext}>
+          <RootContext.Provider value={rootContext}>
+            <InputStateContainer>
+              <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+                <ActionSheetProvider>
+                  <ChatContextProvider>
+                    <SQLiteContextProvider>
+                      <ConnectedStatusBar />
+                      <ReduxPersistGate persistor={getPersistor()}>
+                        {gated}
+                      </ReduxPersistGate>
+                      <PersistedStateGate>
+                        <Socket
+                          detectUnsupervisedBackgroundRef={
+                            detectUnsupervisedBackgroundRef
+                          }
+                        />
+                      </PersistedStateGate>
+                      {navigation}
+                      <NavigationHandler />
+                    </SQLiteContextProvider>
+                  </ChatContextProvider>
+                </ActionSheetProvider>
+              </SafeAreaProvider>
+            </InputStateContainer>
+          </RootContext.Provider>
+        </NavContext.Provider>
       </StaffContextProvider>
     </View>
   );

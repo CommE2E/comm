@@ -19,6 +19,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
 import {
+  moveDraftActionType,
+  updateDraftActionType,
+} from 'lib/actions/draft-actions';
+import {
   joinThreadActionTypes,
   joinThread,
   newThreadActionTypes,
@@ -55,7 +59,6 @@ import {
 import Button from '../components/button.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
-import { type UpdateDraft, type MoveDraft, useDrafts } from '../data/core-data';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { getKeyboardHeight } from '../keyboard/keyboard';
 import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
@@ -112,8 +115,6 @@ type Props = {
   // Redux state
   +viewerID: ?string,
   +draft: string,
-  +updateDraft: UpdateDraft,
-  +moveDraft: MoveDraft,
   +joinThreadLoadingStatus: LoadingStatus,
   +threadCreationInProgress: boolean,
   +calendarQuery: () => CalendarQuery,
@@ -312,10 +313,13 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       this.state.text &&
       this.props.threadInfo.id !== prevProps.threadInfo.id
     ) {
-      this.props.moveDraft(
-        draftKeyFromThreadID(prevProps.threadInfo.id),
-        draftKeyFromThreadID(this.props.threadInfo.id),
-      );
+      this.props.dispatch({
+        type: moveDraftActionType,
+        payload: {
+          oldKey: draftKeyFromThreadID(prevProps.threadInfo.id),
+          newKey: draftKeyFromThreadID(this.props.threadInfo.id),
+        },
+      });
     } else if (!this.state.textEdited && this.props.draft !== prevProps.draft) {
       this.setState({ text: this.props.draft });
     }
@@ -598,9 +602,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   saveDraft = _throttle(text => {
-    this.props.updateDraft({
-      key: draftKeyFromThreadID(this.props.threadInfo.id),
-      text,
+    this.props.dispatch({
+      type: updateDraftActionType,
+      payload: {
+        key: draftKeyFromThreadID(this.props.threadInfo.id),
+        text,
+      },
     });
   }, 400);
 
@@ -830,7 +837,10 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const { draft, updateDraft, moveDraft } = useDrafts(props.threadInfo.id);
+  const draft = useSelector(
+    state =>
+      state.draftStore.drafts[draftKeyFromThreadID(props.threadInfo.id)] ?? '',
+  );
   const joinThreadLoadingStatus = useSelector(joinThreadLoadingStatusSelector);
   const createThreadLoadingStatus = useSelector(
     createThreadLoadingStatusSelector,
@@ -862,8 +872,6 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       {...props}
       viewerID={viewerID}
       draft={draft}
-      updateDraft={updateDraft}
-      moveDraft={moveDraft}
       joinThreadLoadingStatus={joinThreadLoadingStatus}
       threadCreationInProgress={threadCreationInProgress}
       calendarQuery={calendarQuery}
