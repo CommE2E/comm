@@ -42,9 +42,9 @@ Next, you’ll want to ensure that the Comm project is configured with a valid T
 
 ### JDK
 
-We’ll need the Java Development Kit (JDK) for Android development. We’re using [SDKMAN!](https://sdkman.io/) to manage our JDK installation.
+We’ll need the Java Development Kit (JDK) for Android development. While the Nix development environment provides JDK 11 when you run `nix develop`, development with Android Studio occurs outside of the Nix environment, and as such will require a standalone install.
 
-Run the following to install SDKMAN!:
+We’re using [SDKMAN!](https://sdkman.io/) to manage our JDK installation. Run the following to install SDKMAN!:
 
 ```
 curl -s "https://get.sdkman.io" | bash
