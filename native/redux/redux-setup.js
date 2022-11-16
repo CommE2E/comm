@@ -349,7 +349,11 @@ function reducer(state: AppState = defaultState, action: Action) {
   state = baseReducerResult.state;
 
   const { storeOperations } = baseReducerResult;
-  const { threadStoreOperations, messageStoreOperations } = storeOperations;
+  const {
+    draftStoreOperations,
+    threadStoreOperations,
+    messageStoreOperations,
+  } = storeOperations;
 
   const fixUnreadActiveThreadResult = fixUnreadActiveThread(state, action);
   state = fixUnreadActiveThreadResult.state;
@@ -380,6 +384,11 @@ function reducer(state: AppState = defaultState, action: Action) {
           commCoreModule.processMessageStoreOperations(
             convertedMessageStoreOperations,
           ),
+        );
+      }
+      if (draftStoreOperations.length > 0) {
+        promises.push(
+          commCoreModule.processDraftStoreOperations(draftStoreOperations),
         );
       }
       await Promise.all(promises);
