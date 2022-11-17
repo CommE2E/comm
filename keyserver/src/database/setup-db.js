@@ -264,7 +264,8 @@ async function createTables() {
       ALTER TABLE messages
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY user_creation (user,creation),
-        ADD KEY thread (thread);
+        ADD KEY thread (thread),
+        ADD INDEX target_message (target_message);
 
       ALTER TABLE notifications
         ADD PRIMARY KEY (id),
