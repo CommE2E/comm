@@ -88,7 +88,8 @@ async function createTables() {
         type tinyint(3) UNSIGNED NOT NULL,
         content mediumtext COLLATE utf8mb4_bin,
         time bigint(20) NOT NULL,
-        creation varchar(255) COLLATE utf8mb4_bin DEFAULT NULL
+        creation varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
+        target_message bigint(20) DEFAULT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
       CREATE TABLE notifications (
@@ -263,7 +264,8 @@ async function createTables() {
       ALTER TABLE messages
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY user_creation (user,creation),
-        ADD KEY thread (thread);
+        ADD KEY thread (thread),
+        ADD INDEX target_message (target_message);
 
       ALTER TABLE notifications
         ADD PRIMARY KEY (id),
