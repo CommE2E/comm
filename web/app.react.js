@@ -162,6 +162,9 @@ class App extends React.PureComponent<Props> {
     );
   }
 
+  onHeaderDoubleClick = () => electron?.doubleClickTopBar();
+  stopDoubleClickPropagation = electron ? e => e.stopPropagation() : null;
+
   renderMainContent() {
     let mainContent;
     const { tab, settingsSection } = this.props.navInfo;
@@ -188,13 +191,14 @@ class App extends React.PureComponent<Props> {
       <div className={css.layout}>
         <DisconnectedBarVisibilityHandler />
         <DisconnectedBar />
-        <header className={css['header']}>
+        <header className={css.header} onDoubleClick={this.onHeaderDoubleClick}>
           <div className={css['main-header']}>
             <h1 className={css.wordmark}>
               <a
                 title="Comm Home"
                 aria-label="Go to Comm Home"
                 onClick={this.onWordmarkClicked}
+                onDoubleClick={this.stopDoubleClickPropagation}
               >
                 Comm
               </a>

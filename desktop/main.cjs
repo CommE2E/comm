@@ -1,4 +1,11 @@
-const { app, BrowserWindow, shell, Menu, ipcMain } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  shell,
+  Menu,
+  ipcMain,
+  systemPreferences,
+} = require('electron');
 const fs = require('fs');
 const path = require('path');
 
@@ -94,6 +101,31 @@ const createMainWindow = () => {
   ipcMain.on('clear-history', () => {
     win.webContents.clearHistory();
     updateNavigationState();
+  });
+
+  ipcMain.on('double-click-top-bar', () => {
+    if (isMac) {
+      // Possible values for AppleActionOnDoubleClick are Maximize,
+      // Minimize or None. We handle the last two inside this if.
+      // Maximize (which is the only behaviour for other platforms)
+      // is handled in the later block.
+      const action = systemPreferences.getUserDefault(
+        'AppleActionOnDoubleClick',
+        'string',
+      );
+      if (action === 'None') {
+        return;
+      } else if (action === 'Minimize') {
+        win.minimize();
+        return;
+      }
+    }
+
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
   });
 
   win.webContents.setWindowOpenHandler(({ url: openURL }) => {

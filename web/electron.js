@@ -11,6 +11,7 @@ const electron: null | {
   // Returns a callback that you can call to remove the listener
   +onNavigate: OnNavigateListener => () => void,
   +clearHistory: () => void,
+  +doubleClickTopBar: () => void,
 } = typeof electronContextBridge === 'undefined' ? null : electronContextBridge;
 
 export default electron;

@@ -7,6 +7,7 @@ const bridge = {
     return () => ipcRenderer.removeListener('on-navigate', withEvent);
   },
   clearHistory: () => ipcRenderer.send('clear-history'),
+  doubleClickTopBar: () => ipcRenderer.send('double-click-top-bar'),
 };
 
 contextBridge.exposeInMainWorld('electronContextBridge', bridge);

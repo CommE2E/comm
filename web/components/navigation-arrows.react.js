@@ -8,6 +8,8 @@ import history from '../router-history.js';
 import SWMansionIcon from '../SWMansionIcon.react.js';
 import css from './navigation-arrows.css';
 
+const stopDoubleClickPropagation = e => e.stopPropagation();
+
 function NavigationArrows(): React.Node {
   const goBack = React.useCallback(
     () => history.getHistoryObject().goBack(),
@@ -37,10 +39,18 @@ function NavigationArrows(): React.Node {
 
   return (
     <div className={css.container}>
-      <a className={goBackClasses} onClick={goBack}>
+      <a
+        className={goBackClasses}
+        onClick={goBack}
+        onDoubleClick={stopDoubleClickPropagation}
+      >
         <SWMansionIcon icon="arrow-left" size={24} />
       </a>
-      <a className={goForwardClasses} onClick={goForward}>
+      <a
+        className={goForwardClasses}
+        onClick={goForward}
+        onDoubleClick={stopDoubleClickPropagation}
+      >
         <SWMansionIcon icon="arrow-right" size={24} />
       </a>
     </div>
