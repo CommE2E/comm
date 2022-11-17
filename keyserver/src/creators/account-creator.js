@@ -6,6 +6,7 @@ import bcrypt from 'twin-bcrypt';
 import ashoat from 'lib/facts/ashoat';
 import bots from 'lib/facts/bots';
 import genesis from 'lib/facts/genesis';
+import { policyTypes } from 'lib/facts/policies.js';
 import {
   validUsernameRegex,
   oldValidUsernameRegex,
@@ -33,6 +34,7 @@ import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
 import { updateThread } from '../updaters/thread-updaters';
+import { userAcknowledgmentUpdater } from '../updaters/user-acknowledgment-updater.js';
 import createIDs from './id-creator';
 import createMessages from './message-creator';
 import {
@@ -108,6 +110,8 @@ async function createAccount(
     dbQuery(newUserQuery),
   ]);
   viewer.setNewCookie(userViewerData);
+
+  await userAcknowledgmentUpdater(viewer, policyTypes.tosAndPrivacyPolicy);
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, 0);
   }
