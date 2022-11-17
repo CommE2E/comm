@@ -156,3 +156,21 @@ SessionItem getSessionItem(rust::Str sessionID) {
       .deviceOS = sessionItem->getDeviceOs(),
       .isOnline = sessionItem->getIsOnline()};
 }
+
+rust::Vec<SessionItem> getSessionItemsByDeviceID(rust::Str deviceID) {
+  std::vector<std::shared_ptr<comm::network::database::DeviceSessionItem>>
+      sessionItems = comm::network::database::DatabaseManager::getInstance()
+                         .findSessionItemsByDeviceID(std::string{deviceID});
+  rust::Vec<SessionItem> result;
+  for (auto &sessionItem : sessionItems) {
+    result.push_back(SessionItem{
+        .deviceID = sessionItem->getDeviceID(),
+        .publicKey = sessionItem->getPubKey(),
+        .notifyToken = sessionItem->getNotifyToken(),
+        .deviceType = static_cast<int>(sessionItem->getDeviceType()),
+        .appVersion = sessionItem->getAppVersion(),
+        .deviceOS = sessionItem->getDeviceOs(),
+        .isOnline = sessionItem->getIsOnline()});
+  }
+  return result;
+}

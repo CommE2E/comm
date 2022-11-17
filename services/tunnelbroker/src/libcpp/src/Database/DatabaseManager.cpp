@@ -62,6 +62,33 @@ void DatabaseManager::putSessionItem(const DeviceSessionItem &item) {
   this->innerPutItem(std::make_shared<DeviceSessionItem>(item), request);
 }
 
+std::vector<std::shared_ptr<DeviceSessionItem>>
+DatabaseManager::findSessionItemsByDeviceID(const std::string &deviceID) {
+  std::vector<std::shared_ptr<DeviceSessionItem>> result;
+  Aws::DynamoDB::Model::QueryRequest req;
+
+  req.SetTableName(DeviceSessionItem().getTableName());
+  req.SetKeyConditionExpression(
+      DeviceSessionItem::FIELD_DEVICE_ID + " = :valueToMatch");
+
+  AttributeValues attributeValues;
+  attributeValues.emplace(":valueToMatch", deviceID);
+
+  req.SetExpressionAttributeValues(attributeValues);
+  req.SetIndexName(DeviceSessionItem::INDEX_DEVICE_ID);
+
+  const Aws::DynamoDB::Model::QueryOutcome &outcome =
+      getDynamoDBClient()->Query(req);
+  if (!outcome.IsSuccess()) {
+    throw std::runtime_error(outcome.GetError().GetMessage());
+  }
+  const Aws::Vector<AttributeValues> &items = outcome.GetResult().GetItems();
+  for (auto &item : items) {
+    result.push_back(std::make_shared<DeviceSessionItem>(item));
+  }
+  return result;
+}
+
 std::shared_ptr<DeviceSessionItem>
 DatabaseManager::findSessionItem(const std::string &sessionID) {
   Aws::DynamoDB::Model::GetItemRequest request;
