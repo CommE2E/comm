@@ -183,6 +183,11 @@
   --compose-subchannel-mark-color: var(--violet-light-100);
   --enum-option-icon-color: var(--violet-dark-100);
   --show-password-bg-hover: var(--shades-black-70);
+  --typeahead-overlay-light: var(--shades-black-80);
+  --typeahead-overlay-dark: var(--shades-black-90);
+  --typeahead-overlay-text: var(--shades-white-100);
+  --typeahead-overlay-shadow-primary: rgba(0, 0, 0, 0.25);
+  --typeahead-overlay-shadow-secondary: rgba(0, 0, 0, 0.4);
   --spoiler-text-color: var(--shades-black-80);
   --spoiler-background-color: var(--shades-black-80);
 }

@@ -1,0 +1,58 @@
+.suggestionsContainer {
+  position: fixed;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: 296px;
+  max-height: 268px;
+  padding: 8px;
+
+  background: var(--typeahead-overlay-dark);
+
+  border: 1px solid var(--typeahead-overlay-light);
+  box-shadow: 0px 1px 2px var(--typeahead-overlay-shadow-primary),
+    0px 4px 12px var(--typeahead-overlay-shadow-secondary);
+  border-radius: 8px;
+
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+.suggestion {
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: left;
+  padding: 8px;
+
+  width: 280px;
+  height: 40px;
+
+  background: var(--typeahead-overlay-dark);
+  border: 0;
+  border-radius: 4px;
+
+  color: var(--typeahead-overlay-text);
+
+  font-family: var(--font-stack);
+  font-size: var(--m-font-16);
+  font-weight: var(--normal);
+
+  line-height: var(--line-height-text);
+}
+
+.suggestion span {
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.suggestion:hover {
+  background-color: var(--typeahead-overlay-light);
+}
