@@ -32,6 +32,7 @@ public:
   static const std::string FIELD_CHECKPOINT_TIME;
   static const std::string FIELD_EXPIRE;
   static const std::string FIELD_IS_ONLINE;
+  static const std::string INDEX_DEVICE_ID;
 
   PrimaryKeyDescriptor getPrimaryKeyDescriptor() const override;
   PrimaryKeyValue getPrimaryKeyValue() const override;

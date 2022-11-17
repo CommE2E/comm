@@ -36,5 +36,8 @@ pub mod ffi {
       notifyToken: &str,
     ) -> NewSessionResult;
     pub fn getSessionItem(sessionID: &str) -> Result<SessionItem>;
+    pub fn getSessionItemsByDeviceID(
+      deviceID: &str,
+    ) -> Result<Vec<SessionItem>>;
   }
 }

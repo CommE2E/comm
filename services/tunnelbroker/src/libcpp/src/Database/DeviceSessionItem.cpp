@@ -18,6 +18,7 @@ const std::string DeviceSessionItem::FIELD_DEVICE_OS = "DeviceOS";
 const std::string DeviceSessionItem::FIELD_CHECKPOINT_TIME = "CheckpointTime";
 const std::string DeviceSessionItem::FIELD_EXPIRE = "Expire";
 const std::string DeviceSessionItem::FIELD_IS_ONLINE = "IsOnline";
+const std::string DeviceSessionItem::INDEX_DEVICE_ID = "DeviceID-index";
 
 DeviceSessionItem::DeviceSessionItem(
     const std::string sessionID,

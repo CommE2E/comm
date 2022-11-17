@@ -14,3 +14,4 @@ NewSessionResult newSessionHandler(
     rust::Str deviceOS,
     rust::Str notifyToken);
 SessionItem getSessionItem(rust::Str sessionID);
+rust::Vec<SessionItem> getSessionItemsByDeviceID(rust::Str deviceID);
