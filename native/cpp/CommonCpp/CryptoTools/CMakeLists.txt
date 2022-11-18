@@ -37,23 +37,27 @@ target_include_directories(comm-cryptotools
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-install(TARGETS comm-cryptotools EXPORT comm-cryptotools-export
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-cryptotools
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
-)
+if(NOT ANDROID_NDK)
+  install(TARGETS comm-cryptotools EXPORT comm-cryptotools-export
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-cryptotools
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
+  )
 
-install(FILES ${TOOLS_HDRS} DESTINATION include/Tools)
+  install(FILES ${TOOLS_HDRS} DESTINATION include/Tools)
 
-set(_builddir_export_path cmake/comm-cryptotools/comm-cryptotools-targets.cmake)
-export(TARGETS comm-cryptotools
-  NAMESPACE comm-cryptotools::
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/${_builddir_export_path}
-)
+  set(_builddir_export_path
+    cmake/comm-cryptotools/comm-cryptotools-targets.cmake
+  )
+  export(TARGETS comm-cryptotools
+    NAMESPACE comm-cryptotools::
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/${_builddir_export_path}
+  )
 
-# For installation
-install(EXPORT comm-cryptotools-export
-  FILE comm-cryptotools-targets.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-cryptotools
-  NAMESPACE comm-cryptotools::
-)
+  # For installation
+  install(EXPORT comm-cryptotools-export
+    FILE comm-cryptotools-targets.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-cryptotools
+    NAMESPACE comm-cryptotools::
+  )
+endif()

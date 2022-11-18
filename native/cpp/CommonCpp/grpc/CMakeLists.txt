@@ -46,23 +46,25 @@ target_include_directories(comm-client
   "../../../node_modules/react-native/ReactCommon/jsi"
 )
 
-install(TARGETS comm-client EXPORT comm-export
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-client
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
-)
+if(NOT ANDROID_NDK)
+  install(TARGETS comm-client EXPORT comm-export
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-client
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-client
+  )
 
-install(FILES ${CLIENT_HDRS} DESTINATION include/grpc)
+  install(FILES ${CLIENT_HDRS} DESTINATION include/grpc)
 
-# For development purposes, able to reference build directory
-export(TARGETS comm-client
-  NAMESPACE comm::
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm/comm-grpc-client-targets.cmake
-)
+  # For development purposes, able to reference build directory
+  export(TARGETS comm-client
+    NAMESPACE comm::
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm/comm-grpc-client-targets.cmake
+  )
 
-# For installation
-install(EXPORT comm-export
-  FILE comm-grpc-targets.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-grpc
-  NAMESPACE comm-grpc::
-)
+  # For installation
+  install(EXPORT comm-export
+    FILE comm-grpc-targets.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-grpc
+    NAMESPACE comm-grpc::
+  )
+endif()
