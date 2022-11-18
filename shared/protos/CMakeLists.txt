@@ -2,8 +2,9 @@ project(grpc-comm)
 cmake_minimum_required(VERSION 3.4)
 
 include(GNUInstallDirs)
-find_package(Protobuf REQUIRED)
-find_package(gRPC REQUIRED)
+
+find_package(Protobuf)
+find_package(gRPC)
 
 set(CMAKE_CXX_STANDARD 14)
 # Allow for tools on PATH to be found
@@ -55,6 +56,7 @@ foreach(component ${_components})
   )
 
   add_library(${LIB_NAME}
+    STATIC
     ${BIN_PROTO_HDRS} ${BIN_PROTO_SRCS}
   )
 
