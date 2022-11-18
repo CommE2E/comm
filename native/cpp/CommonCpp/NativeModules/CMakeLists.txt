@@ -95,33 +95,39 @@ target_include_directories(comm-modules-persistentstorage
   "../../../node_modules/react-native/ReactCommon/jsi"
 )
 
-set(_components internal native persistentstorage)
-foreach(component ${_components})
+if(NOT ANDROID_NDK)
+  set(_components internal native persistentstorage)
+  foreach(component ${_components})
 
-  install(TARGETS comm-modules-${component} EXPORT comm-modules-export
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-modules
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
+    install(TARGETS comm-modules-${component} EXPORT comm-modules-export
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-modules
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
+    )
+
+  endforeach()
+
+  install(FILES ${INTERNAL_HDRS} DESTINATION include/InternalModules)
+  install(FILES ${NATIVE_HDRS} DESTINATION include/NativeModules)
+  install(FILES ${MESSAGE_HDRS} DESTINATION include/PersistentStorageUtilities)
+  install(FILES ${MESSAGE_SPEC_HDRS}
+    DESTINATION include/PersistentStorageUtilities/MessageSpecs
+  )
+  install(FILES ${THREAD_OP_HDRS} DESTINATION include/ThreadOperationsUtilities)
+
+  set(_builddir_export_cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm-modules/comm-modules-targets.cmake
   )
 
-endforeach()
+  export(TARGETS comm-modules-internal comm-modules-native
+    NAMESPACE comm-modules::
+    FILE ${_builddir_export_cmake}
+  )
 
-install(FILES ${INTERNAL_HDRS} DESTINATION include/InternalModules)
-install(FILES ${NATIVE_HDRS} DESTINATION include/NativeModules)
-install(FILES ${MESSAGE_HDRS} DESTINATION include/PersistentStorageUtilities)
-install(FILES ${MESSAGE_SPEC_HDRS}
-  DESTINATION include/PersistentStorageUtilities/MessageSpecs
-)
-install(FILES ${THREAD_OP_HDRS} DESTINATION include/ThreadOperationsUtilities)
-
-export(TARGETS comm-modules-internal comm-modules-native
-  NAMESPACE comm-modules::
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm-modules/comm-modules-targets.cmake
-)
-
-# For installation
-install(EXPORT comm-modules-export
-  FILE comm-modules-targets.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-modules
-  NAMESPACE comm-modules::
-)
+  # For installation
+  install(EXPORT comm-modules-export
+    FILE comm-modules-targets.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-modules
+    NAMESPACE comm-modules::
+  )
+endif()
