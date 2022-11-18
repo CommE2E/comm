@@ -13,7 +13,6 @@ namespace comm {
 namespace network {
 
 using grpc::Channel;
-using tunnelbroker::CheckResponseType;
 using tunnelbroker::TunnelbrokerService;
 
 class Client {
@@ -29,10 +28,6 @@ public:
       std::shared_ptr<grpc::ChannelCredentials> credentials,
       const std::string id,
       const std::string deviceToken);
-
-  CheckResponseType checkIfPrimaryDeviceOnline();
-  bool becomeNewPrimaryDevice();
-  void sendPong();
 
   grpc::Status send(
       std::string sessionID,

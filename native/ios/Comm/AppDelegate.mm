@@ -152,17 +152,7 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 - (BOOL)handleBackgroundNotification:(NSDictionary *)notification
               fetchCompletionHandler:
                   (void (^)(UIBackgroundFetchResult))completionHandler {
-  if ([notification[backgroundNotificationTypeKey] isEqualToString:@"PING"]) {
-    comm::GlobalNetworkSingleton::instance.scheduleOrRun(
-        [=](comm::NetworkModule &networkModule) {
-          networkModule.sendPong();
-          dispatch_async(dispatch_get_main_queue(), ^{
-            completionHandler(UIBackgroundFetchResultNewData);
-          });
-        });
-    return YES;
-  } else if ([notification[backgroundNotificationTypeKey]
-                 isEqualToString:@"CLEAR"]) {
+  if ([notification[backgroundNotificationTypeKey] isEqualToString:@"CLEAR"]) {
     if (notification[setUnreadStatusKey] && notification[@"threadID"]) {
       std::string threadID =
           std::string([notification[@"threadID"] UTF8String]);

@@ -22,9 +22,6 @@
 namespace tunnelbroker {
 
 static const char* TunnelbrokerService_method_names[] = {
-  "/tunnelbroker.TunnelbrokerService/CheckIfPrimaryDeviceOnline",
-  "/tunnelbroker.TunnelbrokerService/BecomeNewPrimaryDevice",
-  "/tunnelbroker.TunnelbrokerService/SendPong",
   "/tunnelbroker.TunnelbrokerService/SessionSignature",
   "/tunnelbroker.TunnelbrokerService/NewSession",
   "/tunnelbroker.TunnelbrokerService/Send",
@@ -39,84 +36,12 @@ std::unique_ptr< TunnelbrokerService::Stub> TunnelbrokerService::NewStub(const s
 }
 
 TunnelbrokerService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
-  : channel_(channel), rpcmethod_CheckIfPrimaryDeviceOnline_(TunnelbrokerService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_BecomeNewPrimaryDevice_(TunnelbrokerService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_SendPong_(TunnelbrokerService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_SessionSignature_(TunnelbrokerService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_NewSession_(TunnelbrokerService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_Send_(TunnelbrokerService_method_names[5], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
-  , rpcmethod_Get_(TunnelbrokerService_method_names[6], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
-  , rpcmethod_MessagesStream_(TunnelbrokerService_method_names[7], options.suffix_for_stats(),::grpc::internal::RpcMethod::BIDI_STREAMING, channel)
+  : channel_(channel), rpcmethod_SessionSignature_(TunnelbrokerService_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_NewSession_(TunnelbrokerService_method_names[1], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_Send_(TunnelbrokerService_method_names[2], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  , rpcmethod_Get_(TunnelbrokerService_method_names[3], options.suffix_for_stats(),::grpc::internal::RpcMethod::SERVER_STREAMING, channel)
+  , rpcmethod_MessagesStream_(TunnelbrokerService_method_names[4], options.suffix_for_stats(),::grpc::internal::RpcMethod::BIDI_STREAMING, channel)
   {}
-
-::grpc::Status TunnelbrokerService::Stub::CheckIfPrimaryDeviceOnline(::grpc::ClientContext* context, const ::tunnelbroker::CheckRequest& request, ::tunnelbroker::CheckResponse* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::tunnelbroker::CheckRequest, ::tunnelbroker::CheckResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_CheckIfPrimaryDeviceOnline_, context, request, response);
-}
-
-void TunnelbrokerService::Stub::async::CheckIfPrimaryDeviceOnline(::grpc::ClientContext* context, const ::tunnelbroker::CheckRequest* request, ::tunnelbroker::CheckResponse* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::tunnelbroker::CheckRequest, ::tunnelbroker::CheckResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_CheckIfPrimaryDeviceOnline_, context, request, response, std::move(f));
-}
-
-void TunnelbrokerService::Stub::async::CheckIfPrimaryDeviceOnline(::grpc::ClientContext* context, const ::tunnelbroker::CheckRequest* request, ::tunnelbroker::CheckResponse* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_CheckIfPrimaryDeviceOnline_, context, request, response, reactor);
-}
-
-::grpc::ClientAsyncResponseReader< ::tunnelbroker::CheckResponse>* TunnelbrokerService::Stub::PrepareAsyncCheckIfPrimaryDeviceOnlineRaw(::grpc::ClientContext* context, const ::tunnelbroker::CheckRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::tunnelbroker::CheckResponse, ::tunnelbroker::CheckRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_CheckIfPrimaryDeviceOnline_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::tunnelbroker::CheckResponse>* TunnelbrokerService::Stub::AsyncCheckIfPrimaryDeviceOnlineRaw(::grpc::ClientContext* context, const ::tunnelbroker::CheckRequest& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncCheckIfPrimaryDeviceOnlineRaw(context, request, cq);
-  result->StartCall();
-  return result;
-}
-
-::grpc::Status TunnelbrokerService::Stub::BecomeNewPrimaryDevice(::grpc::ClientContext* context, const ::tunnelbroker::NewPrimaryRequest& request, ::tunnelbroker::NewPrimaryResponse* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::tunnelbroker::NewPrimaryRequest, ::tunnelbroker::NewPrimaryResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_BecomeNewPrimaryDevice_, context, request, response);
-}
-
-void TunnelbrokerService::Stub::async::BecomeNewPrimaryDevice(::grpc::ClientContext* context, const ::tunnelbroker::NewPrimaryRequest* request, ::tunnelbroker::NewPrimaryResponse* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::tunnelbroker::NewPrimaryRequest, ::tunnelbroker::NewPrimaryResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_BecomeNewPrimaryDevice_, context, request, response, std::move(f));
-}
-
-void TunnelbrokerService::Stub::async::BecomeNewPrimaryDevice(::grpc::ClientContext* context, const ::tunnelbroker::NewPrimaryRequest* request, ::tunnelbroker::NewPrimaryResponse* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_BecomeNewPrimaryDevice_, context, request, response, reactor);
-}
-
-::grpc::ClientAsyncResponseReader< ::tunnelbroker::NewPrimaryResponse>* TunnelbrokerService::Stub::PrepareAsyncBecomeNewPrimaryDeviceRaw(::grpc::ClientContext* context, const ::tunnelbroker::NewPrimaryRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::tunnelbroker::NewPrimaryResponse, ::tunnelbroker::NewPrimaryRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_BecomeNewPrimaryDevice_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::tunnelbroker::NewPrimaryResponse>* TunnelbrokerService::Stub::AsyncBecomeNewPrimaryDeviceRaw(::grpc::ClientContext* context, const ::tunnelbroker::NewPrimaryRequest& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncBecomeNewPrimaryDeviceRaw(context, request, cq);
-  result->StartCall();
-  return result;
-}
-
-::grpc::Status TunnelbrokerService::Stub::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::google::protobuf::Empty* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::tunnelbroker::PongRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_SendPong_, context, request, response);
-}
-
-void TunnelbrokerService::Stub::async::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest* request, ::google::protobuf::Empty* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::tunnelbroker::PongRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SendPong_, context, request, response, std::move(f));
-}
-
-void TunnelbrokerService::Stub::async::SendPong(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest* request, ::google::protobuf::Empty* response, ::grpc::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_SendPong_, context, request, response, reactor);
-}
-
-::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* TunnelbrokerService::Stub::PrepareAsyncSendPongRaw(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::google::protobuf::Empty, ::tunnelbroker::PongRequest, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_SendPong_, context, request);
-}
-
-::grpc::ClientAsyncResponseReader< ::google::protobuf::Empty>* TunnelbrokerService::Stub::AsyncSendPongRaw(::grpc::ClientContext* context, const ::tunnelbroker::PongRequest& request, ::grpc::CompletionQueue* cq) {
-  auto* result =
-    this->PrepareAsyncSendPongRaw(context, request, cq);
-  result->StartCall();
-  return result;
-}
 
 ::grpc::Status TunnelbrokerService::Stub::SessionSignature(::grpc::ClientContext* context, const ::tunnelbroker::SessionSignatureRequest& request, ::tunnelbroker::SessionSignatureResponse* response) {
   return ::grpc::internal::BlockingUnaryCall< ::tunnelbroker::SessionSignatureRequest, ::tunnelbroker::SessionSignatureResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_SessionSignature_, context, request, response);
@@ -223,36 +148,6 @@ TunnelbrokerService::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       TunnelbrokerService_method_names[0],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< TunnelbrokerService::Service, ::tunnelbroker::CheckRequest, ::tunnelbroker::CheckResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](TunnelbrokerService::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::tunnelbroker::CheckRequest* req,
-             ::tunnelbroker::CheckResponse* resp) {
-               return service->CheckIfPrimaryDeviceOnline(ctx, req, resp);
-             }, this)));
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      TunnelbrokerService_method_names[1],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< TunnelbrokerService::Service, ::tunnelbroker::NewPrimaryRequest, ::tunnelbroker::NewPrimaryResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](TunnelbrokerService::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::tunnelbroker::NewPrimaryRequest* req,
-             ::tunnelbroker::NewPrimaryResponse* resp) {
-               return service->BecomeNewPrimaryDevice(ctx, req, resp);
-             }, this)));
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      TunnelbrokerService_method_names[2],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< TunnelbrokerService::Service, ::tunnelbroker::PongRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
-          [](TunnelbrokerService::Service* service,
-             ::grpc::ServerContext* ctx,
-             const ::tunnelbroker::PongRequest* req,
-             ::google::protobuf::Empty* resp) {
-               return service->SendPong(ctx, req, resp);
-             }, this)));
-  AddMethod(new ::grpc::internal::RpcServiceMethod(
-      TunnelbrokerService_method_names[3],
-      ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< TunnelbrokerService::Service, ::tunnelbroker::SessionSignatureRequest, ::tunnelbroker::SessionSignatureResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](TunnelbrokerService::Service* service,
              ::grpc::ServerContext* ctx,
@@ -261,7 +156,7 @@ TunnelbrokerService::Service::Service() {
                return service->SessionSignature(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      TunnelbrokerService_method_names[4],
+      TunnelbrokerService_method_names[1],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< TunnelbrokerService::Service, ::tunnelbroker::NewSessionRequest, ::tunnelbroker::NewSessionResponse, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](TunnelbrokerService::Service* service,
@@ -271,7 +166,7 @@ TunnelbrokerService::Service::Service() {
                return service->NewSession(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      TunnelbrokerService_method_names[5],
+      TunnelbrokerService_method_names[2],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< TunnelbrokerService::Service, ::tunnelbroker::SendRequest, ::google::protobuf::Empty, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](TunnelbrokerService::Service* service,
@@ -281,7 +176,7 @@ TunnelbrokerService::Service::Service() {
                return service->Send(ctx, req, resp);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      TunnelbrokerService_method_names[6],
+      TunnelbrokerService_method_names[3],
       ::grpc::internal::RpcMethod::SERVER_STREAMING,
       new ::grpc::internal::ServerStreamingHandler< TunnelbrokerService::Service, ::tunnelbroker::GetRequest, ::tunnelbroker::GetResponse>(
           [](TunnelbrokerService::Service* service,
@@ -291,7 +186,7 @@ TunnelbrokerService::Service::Service() {
                return service->Get(ctx, req, writer);
              }, this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
-      TunnelbrokerService_method_names[7],
+      TunnelbrokerService_method_names[4],
       ::grpc::internal::RpcMethod::BIDI_STREAMING,
       new ::grpc::internal::BidiStreamingHandler< TunnelbrokerService::Service, ::tunnelbroker::MessageToTunnelbroker, ::tunnelbroker::MessageToClient>(
           [](TunnelbrokerService::Service* service,
@@ -303,27 +198,6 @@ TunnelbrokerService::Service::Service() {
 }
 
 TunnelbrokerService::Service::~Service() {
-}
-
-::grpc::Status TunnelbrokerService::Service::CheckIfPrimaryDeviceOnline(::grpc::ServerContext* context, const ::tunnelbroker::CheckRequest* request, ::tunnelbroker::CheckResponse* response) {
-  (void) context;
-  (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-}
-
-::grpc::Status TunnelbrokerService::Service::BecomeNewPrimaryDevice(::grpc::ServerContext* context, const ::tunnelbroker::NewPrimaryRequest* request, ::tunnelbroker::NewPrimaryResponse* response) {
-  (void) context;
-  (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
-}
-
-::grpc::Status TunnelbrokerService::Service::SendPong(::grpc::ServerContext* context, const ::tunnelbroker::PongRequest* request, ::google::protobuf::Empty* response) {
-  (void) context;
-  (void) request;
-  (void) response;
-  return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
 }
 
 ::grpc::Status TunnelbrokerService::Service::SessionSignature(::grpc::ServerContext* context, const ::tunnelbroker::SessionSignatureRequest* request, ::tunnelbroker::SessionSignatureResponse* response) {

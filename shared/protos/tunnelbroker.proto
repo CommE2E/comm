@@ -5,17 +5,6 @@ package tunnelbroker;
 import "google/protobuf/empty.proto";
 
 service TunnelbrokerService {
-
-  // The old API service methods
-  // to support the native client build
-  // until we switch to the new one
-  
-  rpc CheckIfPrimaryDeviceOnline(CheckRequest) returns (CheckResponse) {}
-  rpc BecomeNewPrimaryDevice(NewPrimaryRequest) returns (NewPrimaryResponse) {}
-  rpc SendPong (PongRequest) returns (google.protobuf.Empty) {}
-
-  // New API service methods
-
   rpc SessionSignature(SessionSignatureRequest) returns (SessionSignatureResponse) {}
   rpc NewSession(NewSessionRequest) returns (NewSessionResponse) {}
   rpc Send(SendRequest) returns (google.protobuf.Empty) {}
@@ -134,36 +123,4 @@ message MessageToClient {
     google.protobuf.Empty newNotifyTokenRequired = 3;
     google.protobuf.Empty ping = 4;
   }
-}
-
-// Old API structures
-
-enum CheckResponseType {
-  PRIMARY_DOESNT_EXIST = 0;
-  PRIMARY_ONLINE = 1;
-  PRIMARY_OFFLINE = 2;
-  CURRENT_IS_PRIMARY = 3;
-}
-
-message CheckRequest {
-  string userId = 1;
-  string deviceToken = 2;
-}
-
-message CheckResponse {
-  CheckResponseType checkResponseType = 1;
-}
-
-message NewPrimaryRequest {
-  string userId = 1;
-  string deviceToken = 2;
-}
-
-message NewPrimaryResponse {
-  bool success = 1;
-}
-
-message PongRequest {
-  string userId = 1;
-  string deviceToken = 2;
 }

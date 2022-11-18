@@ -19,10 +19,6 @@ void NetworkModule::initializeNetworkModule(
       new network::Client(host, "50051", credentials, userId, deviceToken));
 }
 
-void NetworkModule::sendPong() {
-  this->networkClient->sendPong();
-}
-
 void NetworkModule::get(std::string sessionID) {
   if (!this->networkClient) {
     return;

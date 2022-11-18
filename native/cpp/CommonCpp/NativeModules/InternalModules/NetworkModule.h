@@ -14,7 +14,6 @@ public:
       const std::string &userId,
       const std::string &deviceToken,
       const std::string &hostname = "");
-  void sendPong();
   grpc::Status send(
       std::string sessionID,
       std::string toDeviceID,

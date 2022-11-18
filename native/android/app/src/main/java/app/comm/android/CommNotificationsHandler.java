@@ -91,10 +91,6 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
 
     String backgroundNotifType =
         message.getData().get(BACKGROUND_NOTIF_TYPE_KEY);
-    if ("PING".equals(backgroundNotifType)) {
-      NetworkModule.sendPong();
-      return;
-    }
 
     String rawMessageInfosString = message.getData().get(MESSAGE_INFOS_KEY);
     File sqliteFile =

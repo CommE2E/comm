@@ -371,27 +371,6 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
 
   // These empty old API handlers are deprecated and should be removed.
   // They are implemented only to fix the building process.
-  async fn check_if_primary_device_online(
-    &self,
-    _request: Request<tunnelbroker::CheckRequest>,
-  ) -> Result<Response<tunnelbroker::CheckResponse>, Status> {
-    Err(Status::cancelled("Deprecated"))
-  }
-
-  async fn become_new_primary_device(
-    &self,
-    _request: Request<tunnelbroker::NewPrimaryRequest>,
-  ) -> Result<Response<tunnelbroker::NewPrimaryResponse>, Status> {
-    Err(Status::cancelled("Deprecated"))
-  }
-
-  async fn send_pong(
-    &self,
-    _request: Request<tunnelbroker::PongRequest>,
-  ) -> Result<Response<()>, Status> {
-    Err(Status::cancelled("Deprecated"))
-  }
-
   async fn send(
     &self,
     _request: Request<tunnelbroker::SendRequest>,
