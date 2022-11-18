@@ -20,7 +20,6 @@ import {
   invalidSessionRecovery,
 } from 'lib/shared/account-utils';
 import { isStaff } from 'lib/shared/user-utils';
-import { logInActionSources } from 'lib/types/account-types';
 import { defaultEnabledApps } from 'lib/types/enabled-apps';
 import { defaultCalendarFilters } from 'lib/types/filter-types';
 import type { Dispatch, BaseAction } from 'lib/types/redux-types';
@@ -387,24 +386,6 @@ function reducer(state: AppState = defaultState, action: Action) {
       if (isTaskCancelledError(e)) {
         return;
       }
-      dispatch({
-        type: setNewSessionActionType,
-        payload: {
-          sessionChange: {
-            cookie: null,
-            cookieInvalidated: false,
-            currentUserInfo: state.currentUserInfo,
-          },
-          preRequestUserState: {
-            currentUserInfo: state.currentUserInfo,
-            sessionID: undefined,
-            cookie: state.cookie,
-          },
-          error: null,
-          logInActionSource: logInActionSources.sqliteOpFailure,
-        },
-      });
-      await persistor.flush();
       ExitApp.exitApp();
     }
   })();
