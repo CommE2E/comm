@@ -11,7 +11,6 @@ import {
 } from '../redux/action-types';
 import { store, dispatch } from '../redux/redux-setup';
 import { getFirebase } from './firebase';
-import { saveMessageInfos } from './utils';
 
 const androidNotificationChannelID = 'default';
 const vibrationSpec = [500, 500];
@@ -26,11 +25,6 @@ function handleAndroidMessage(
 ) {
   const firebase = getFirebase();
   const { data } = message;
-
-  const { messageInfos } = data;
-  if (messageInfos) {
-    saveMessageInfos(messageInfos, updatesCurrentAsOf);
-  }
 
   const { rescind, rescindID } = data;
   if (rescind) {

@@ -12,12 +12,14 @@ import {
   setDeviceTokenActionTypes,
   setDeviceToken,
 } from 'lib/actions/device-actions';
+import { saveMessagesActionType } from 'lib/actions/message-actions';
 import {
   unreadCount,
   threadInfoSelector,
 } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
+import type { RawMessageInfo } from 'lib/types/message-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { type ConnectionInfo } from 'lib/types/socket-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
@@ -59,7 +61,6 @@ import {
   requestIOSPushPermissions,
   iosPushPermissionResponseReceived,
 } from './ios';
-import { saveMessageInfos } from './utils';
 
 LogBox.ignoreLogs([
   // react-native-firebase
@@ -442,8 +443,18 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   }
 
-  saveMessageInfos(messageInfosString: string) {
-    saveMessageInfos(messageInfosString, this.props.updatesCurrentAsOf);
+  saveMessageInfos(messageInfosString: ?string) {
+    if (!messageInfosString) {
+      return;
+    }
+    const rawMessageInfos: $ReadOnlyArray<RawMessageInfo> = JSON.parse(
+      messageInfosString,
+    );
+    const { updatesCurrentAsOf } = this.props;
+    this.props.dispatch({
+      type: saveMessagesActionType,
+      payload: { rawMessageInfos, updatesCurrentAsOf },
+    });
   }
 
   iosForegroundNotificationReceived = notification => {
@@ -471,9 +482,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     const messageInfos = notification.getData().messageInfos;
-    if (messageInfos) {
-      this.saveMessageInfos(messageInfos);
-    }
+    this.saveMessageInfos(messageInfos);
     let title = null;
     let body = notification.getMessage();
     if (notification.getData().title) {
@@ -501,9 +510,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     const messageInfos = notification.getData().messageInfos;
-    if (messageInfos) {
-      this.saveMessageInfos(messageInfos);
-    }
+    this.saveMessageInfos(messageInfos);
     this.onPressNotificationForThread(threadID, true);
     notification.finish(NotificationsIOS.FetchResult.NewData);
   };
@@ -538,6 +545,11 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   androidMessageReceived = async (message: RemoteMessage) => {
     this.onPushNotifBootsApp();
+
+    const { data } = message;
+    const { messageInfos } = data;
+    this.saveMessageInfos(messageInfos);
+
     handleAndroidMessage(
       message,
       this.props.updatesCurrentAsOf,
