@@ -71,24 +71,28 @@ foreach(component ${_components})
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 
-  install(TARGETS ${LIB_NAME} EXPORT comm-grpc-export
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${LIB_NAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_NAME}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_NAME}
-  )
+  if(NOT ANDROID_NDK)
+    install(TARGETS ${LIB_NAME} EXPORT comm-grpc-export
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${LIB_NAME}
+      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_NAME}
+      ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_NAME}
+    )
 
-  # ensure headers are also installed
-  install(FILES ${PROTO_HDRS} DESTINATION include/comm/grpc)
+    # ensure headers are also installed
+    install(FILES ${PROTO_HDRS} DESTINATION include/comm/grpc)
+  endif()
 endforeach()
 
-export(TARGETS ${TARGETS}
-  NAMESPACE comm::
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm/comm-grpc-targets.cmake
-)
+if(NOT ANDROID_NDK)
+  export(TARGETS ${TARGETS}
+    NAMESPACE comm::
+    FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm/comm-grpc-targets.cmake
+  )
 
-# For installation
-install(EXPORT comm-grpc-export
-  FILE comm-grpc-targets.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-grpc
-  NAMESPACE comm::
-)
+  # For installation
+  install(EXPORT comm-grpc-export
+    FILE comm-grpc-targets.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-grpc
+    NAMESPACE comm::
+  )
+endif()
