@@ -150,7 +150,12 @@ file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES
   "${_third_party_dir}/double-conversion/double-conversion/*.cc"
 )
-file(GLOB GRPC_CODE "../../../shared/protos/_generated/*.cc")
+
+add_library(gRPC::grpc++ ALIAS grpc++)
+add_subdirectory(../../../shared/protos
+  ${CMAKE_CURRENT_BINARY_DIR}/protos
+  EXCLUDE_FROM_ALL
+)
 
 add_library(
   # Sets the name of the library.
@@ -194,8 +199,6 @@ add_library(
 
   # double-conversion
   ${DOUBLE_CONVERSION_SOURCES}
-
-  ${GRPC_CODE}
 
   # comm code
   ${ANDROID_NATIVE_CODE}
@@ -259,6 +262,7 @@ target_link_libraries(
   grpc++
   libprotobuf
   comm::native_rust_library
+  comm-tunnelbroker-grpc
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java
