@@ -80,6 +80,7 @@ const light = Object.freeze({
   tabBarActiveTintColor: '#7E57C2',
   vibrantGreenButton: '#00C853',
   vibrantRedButton: '#F53100',
+  tooltipBackground: '#E0E0E0',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -153,6 +154,7 @@ const dark: Colors = Object.freeze({
   tabBarActiveTintColor: '#AE94DB',
   vibrantGreenButton: '#00C853',
   vibrantRedButton: '#F53100',
+  tooltipBackground: '#1F1F1F',
 });
 const colors = { light, dark };
 
