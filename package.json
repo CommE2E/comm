@@ -7,7 +7,8 @@
     "native",
     "keyserver",
     "landing",
-    "desktop"
+    "desktop",
+    "keyserver/addons/opaque-ke-node"
   ],
   "scripts": {
     "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace keyserver clean && yarn workspace landing clean && yarn workspace desktop clean && rm -rf node_modules/",
