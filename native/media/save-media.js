@@ -2,8 +2,10 @@
 
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
+import * as React from 'react';
 import { Platform, PermissionsAndroid } from 'react-native';
 import filesystem from 'react-native-fs';
+import { useDispatch } from 'react-redux';
 
 import { queueReportsActionType } from 'lib/actions/report-actions';
 import { readableFilename, pathFromURI } from 'lib/media/file-utils';
@@ -20,9 +22,9 @@ import {
 import { getConfig } from 'lib/utils/config';
 import { getMessageForException } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
+import { useIsReportEnabled } from 'lib/utils/report-utils';
 
 import { displayActionResultModal } from '../navigation/action-result-modal';
-import { dispatch } from '../redux/redux-setup';
 import { requestAndroidPermission } from '../utils/android-permissions';
 import { fetchBlob } from './blob-utils';
 import {
@@ -37,72 +39,85 @@ import {
 } from './file-utils';
 import { getMediaLibraryIdentifier } from './identifier-utils';
 
-async function intentionalSaveMedia(
+export type IntentionalSaveMedia = (
   uri: string,
   ids: {
     uploadID: string,
     messageServerID: ?string,
     messageLocalID: ?string,
   },
-  options: {
-    mediaReportsEnabled: boolean,
-  },
-): Promise<void> {
-  const start = Date.now();
-  const steps = [{ step: 'save_media', uri, time: start }];
+) => Promise<void>;
 
-  const { resultPromise, reportPromise } = saveMedia(uri, 'request');
-  const result = await resultPromise;
-  const userTime = Date.now() - start;
+function useIntentionalSaveMedia(): IntentionalSaveMedia {
+  const dispatch = useDispatch();
+  const mediaReportsEnabled = useIsReportEnabled('mediaReports');
+  return React.useCallback(
+    async (
+      uri: string,
+      ids: {
+        uploadID: string,
+        messageServerID: ?string,
+        messageLocalID: ?string,
+      },
+    ) => {
+      const start = Date.now();
+      const steps = [{ step: 'save_media', uri, time: start }];
 
-  let message;
-  if (result.success) {
-    message = 'saved!';
-  } else if (result.reason === 'save_unsupported') {
-    const os = Platform.select({
-      ios: 'iOS',
-      android: 'Android',
-      default: Platform.OS,
-    });
-    message = `saving media is unsupported on ${os}`;
-  } else if (result.reason === 'missing_permission') {
-    message = 'don’t have permission :(';
-  } else if (
-    result.reason === 'resolve_failed' ||
-    result.reason === 'data_uri_failed'
-  ) {
-    message = 'failed to resolve :(';
-  } else if (result.reason === 'fetch_failed') {
-    message = 'failed to download :(';
-  } else {
-    message = 'failed to save :(';
-  }
-  displayActionResultModal(message);
+      const { resultPromise, reportPromise } = saveMedia(uri, 'request');
+      const result = await resultPromise;
+      const userTime = Date.now() - start;
 
-  if (!options.mediaReportsEnabled) {
-    return;
-  }
-  const reportSteps = await reportPromise;
-  steps.push(...reportSteps);
-  const totalTime = Date.now() - start;
-  const mediaMission = { steps, result, userTime, totalTime };
+      let message;
+      if (result.success) {
+        message = 'saved!';
+      } else if (result.reason === 'save_unsupported') {
+        const os = Platform.select({
+          ios: 'iOS',
+          android: 'Android',
+          default: Platform.OS,
+        });
+        message = `saving media is unsupported on ${os}`;
+      } else if (result.reason === 'missing_permission') {
+        message = 'don’t have permission :(';
+      } else if (
+        result.reason === 'resolve_failed' ||
+        result.reason === 'data_uri_failed'
+      ) {
+        message = 'failed to resolve :(';
+      } else if (result.reason === 'fetch_failed') {
+        message = 'failed to download :(';
+      } else {
+        message = 'failed to save :(';
+      }
+      displayActionResultModal(message);
 
-  const { uploadID, messageServerID, messageLocalID } = ids;
-  const uploadIDIsLocal = isLocalUploadID(uploadID);
-  const report: MediaMissionReportCreationRequest = {
-    type: reportTypes.MEDIA_MISSION,
-    time: Date.now(),
-    platformDetails: getConfig().platformDetails,
-    mediaMission,
-    uploadServerID: uploadIDIsLocal ? undefined : uploadID,
-    uploadLocalID: uploadIDIsLocal ? uploadID : undefined,
-    messageServerID,
-    messageLocalID,
-  };
-  dispatch({
-    type: queueReportsActionType,
-    payload: { reports: [report] },
-  });
+      if (!mediaReportsEnabled) {
+        return;
+      }
+      const reportSteps = await reportPromise;
+      steps.push(...reportSteps);
+      const totalTime = Date.now() - start;
+      const mediaMission = { steps, result, userTime, totalTime };
+
+      const { uploadID, messageServerID, messageLocalID } = ids;
+      const uploadIDIsLocal = isLocalUploadID(uploadID);
+      const report: MediaMissionReportCreationRequest = {
+        type: reportTypes.MEDIA_MISSION,
+        time: Date.now(),
+        platformDetails: getConfig().platformDetails,
+        mediaMission,
+        uploadServerID: uploadIDIsLocal ? undefined : uploadID,
+        uploadLocalID: uploadIDIsLocal ? uploadID : undefined,
+        messageServerID,
+        messageLocalID,
+      };
+      dispatch({
+        type: queueReportsActionType,
+        payload: { reports: [report] },
+      });
+    },
+    [dispatch, mediaReportsEnabled],
+  );
 }
 
 type Permissions = 'check' | 'request';
@@ -451,4 +466,4 @@ async function copyToSortedDirectory(
   };
 }
 
-export { intentionalSaveMedia, saveMedia };
+export { useIntentionalSaveMedia, saveMedia };

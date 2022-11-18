@@ -20,7 +20,6 @@ import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
 
 import { type MediaInfo, type Dimensions } from 'lib/types/media-types';
-import { useIsReportEnabled } from 'lib/utils/report-utils';
 
 import SWMansionIcon from '../components/swmansion-icon.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
@@ -49,7 +48,10 @@ import {
   runTiming,
 } from '../utils/animation-utils';
 import Multimedia from './multimedia.react';
-import { intentionalSaveMedia } from './save-media';
+import {
+  useIntentionalSaveMedia,
+  type IntentionalSaveMedia,
+} from './save-media';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -162,9 +164,9 @@ type Props = {
   ...BaseProps,
   // Redux state
   +dimensions: DerivedDimensionsInfo,
+  +intentionalSaveMedia: IntentionalSaveMedia,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
-  +mediaReportsEnabled: boolean,
 };
 type State = {
   +closeButtonEnabled: boolean,
@@ -1138,9 +1140,7 @@ class ImageModal extends React.PureComponent<Props, State> {
     const { id: uploadID, uri } = mediaInfo;
     const { id: messageServerID, localID: messageLocalID } = item.messageInfo;
     const ids = { uploadID, messageServerID, messageLocalID };
-    return intentionalSaveMedia(uri, ids, {
-      mediaReportsEnabled: this.props.mediaReportsEnabled,
-    });
+    return this.props.intentionalSaveMedia(uri, ids);
   };
 
   copy = () => {
@@ -1265,13 +1265,13 @@ const ConnectedImageModal: React.ComponentType<BaseProps> = React.memo<BaseProps
   function ConnectedImageModal(props: BaseProps) {
     const dimensions = useSelector(derivedDimensionsInfoSelector);
     const overlayContext = React.useContext(OverlayContext);
-    const mediaReportsEnabled = useIsReportEnabled('mediaReports');
+    const intentionalSaveMedia = useIntentionalSaveMedia();
     return (
       <ImageModal
         {...props}
         dimensions={dimensions}
         overlayContext={overlayContext}
-        mediaReportsEnabled={mediaReportsEnabled}
+        intentionalSaveMedia={intentionalSaveMedia}
       />
     );
   },
