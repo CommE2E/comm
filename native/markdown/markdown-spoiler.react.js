@@ -6,7 +6,6 @@ import { Text } from 'react-native';
 import type { ReactElement } from 'lib/shared/markdown';
 
 import { MessageContext } from '../chat/message-context.react';
-import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
 import { useStyles } from '../themes/colors';
 import { MarkdownContext } from './markdown-context';
 
@@ -69,9 +68,9 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
 
   const memoizedSpoiler = React.useMemo(() => {
     return (
-      <GestureTouchableOpacity onPress={onSpoilerClick}>
-        <Text style={styleBasedOnSpoilerState}>{text}</Text>
-      </GestureTouchableOpacity>
+      <Text onPress={onSpoilerClick} style={styleBasedOnSpoilerState}>
+        {text}
+      </Text>
     );
   }, [onSpoilerClick, styleBasedOnSpoilerState, text]);
 
