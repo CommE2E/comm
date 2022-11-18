@@ -13,14 +13,10 @@ add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../../../shared/protos"
 
 set(CLIENT_HDRS
   "Client.h"
-  "ClientGetReadReactor.h"
-  "GRPCStreamHostObject.h"
 )
 
 set(CLIENT_SRCS
   "Client.cpp"
-  "ClientGetReadReactor.cpp"
-  "GRPCStreamHostObject.cpp"
 )
 
 add_library(comm-client

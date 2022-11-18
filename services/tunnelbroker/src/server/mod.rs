@@ -368,25 +368,6 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
       Box::pin(output_stream) as Self::MessagesStreamStream
     ))
   }
-
-  // These empty old API handlers are deprecated and should be removed.
-  // They are implemented only to fix the building process.
-  async fn send(
-    &self,
-    _request: Request<tunnelbroker::SendRequest>,
-  ) -> Result<Response<()>, Status> {
-    Err(Status::cancelled("Deprecated"))
-  }
-
-  type GetStream = Pin<
-    Box<dyn Stream<Item = Result<tunnelbroker::GetResponse, Status>> + Send>,
-  >;
-  async fn get(
-    &self,
-    _request: Request<tunnelbroker::GetRequest>,
-  ) -> Result<Response<Self::GetStream>, Status> {
-    Err(Status::cancelled("Deprecated"))
-  }
 }
 
 pub async fn run_grpc_server() -> Result<()> {

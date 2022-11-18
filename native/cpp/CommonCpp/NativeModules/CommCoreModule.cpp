@@ -2,7 +2,6 @@
 #include "../CryptoTools/DeviceID.h"
 #include "DatabaseManager.h"
 #include "DraftStoreOperations.h"
-#include "GRPCStreamHostObject.h"
 #include "InternalModules/GlobalDBSingleton.h"
 #include "InternalModules/GlobalNetworkSingleton.h"
 #include "MessageStoreOperations.h"
@@ -972,13 +971,6 @@ jsi::Value CommCoreModule::getUserOneTimeKeys(jsi::Runtime &rt) {
         };
         this->cryptoThread->scheduleTask(job);
       });
-}
-
-jsi::Object
-CommCoreModule::openSocket(jsi::Runtime &rt, const jsi::String &endpoint) {
-  auto hostObject =
-      std::make_shared<GRPCStreamHostObject>(rt, this->jsInvoker_);
-  return jsi::Object::createFromHostObject(rt, hostObject);
 }
 
 CommCoreModule::CommCoreModule(

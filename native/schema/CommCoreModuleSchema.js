@@ -46,7 +46,6 @@ export interface Spec extends TurboModule {
   +initializeCryptoAccount: (userId: string) => Promise<string>;
   +getUserPublicKey: () => Promise<string>;
   +getUserOneTimeKeys: () => Promise<string>;
-  +openSocket: (endpoint: string) => Object;
   +getCodeVersion: () => number;
   +setNotifyToken: (token: string) => Promise<void>;
   +clearNotifyToken: () => Promise<void>;

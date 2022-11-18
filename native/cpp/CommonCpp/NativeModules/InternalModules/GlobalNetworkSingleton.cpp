@@ -21,7 +21,6 @@ void GlobalNetworkSingleton::scheduleOrRun(
 void GlobalNetworkSingleton::enableMultithreading() {
   if (this->thread == nullptr) {
     this->thread = std::make_unique<WorkerThread>("network");
-    this->networkModule().close();
   }
 }
 } // namespace comm

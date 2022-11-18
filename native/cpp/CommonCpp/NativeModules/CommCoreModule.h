@@ -56,8 +56,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) override;
   jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
-  jsi::Object
-  openSocket(jsi::Runtime &rt, const jsi::String &endpoint) override;
   double getCodeVersion(jsi::Runtime &rt) override;
   jsi::Value
   setNotifyToken(jsi::Runtime &rt, const jsi::String &token) override;

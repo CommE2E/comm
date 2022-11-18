@@ -35,7 +35,6 @@ virtual void processThreadStoreOperationsSync(jsi::Runtime &rt, const jsi::Array
 virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt, const jsi::String &userId) = 0;
 virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
 virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) = 0;
-virtual jsi::Object openSocket(jsi::Runtime &rt, const jsi::String &endpoint) = 0;
 virtual double getCodeVersion(jsi::Runtime &rt) = 0;
 virtual jsi::Value setNotifyToken(jsi::Runtime &rt, const jsi::String &token) = 0;
 virtual jsi::Value clearNotifyToken(jsi::Runtime &rt) = 0;

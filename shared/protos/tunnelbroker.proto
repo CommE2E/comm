@@ -7,12 +7,6 @@ import "google/protobuf/empty.proto";
 service TunnelbrokerService {
   rpc SessionSignature(SessionSignatureRequest) returns (SessionSignatureResponse) {}
   rpc NewSession(NewSessionRequest) returns (NewSessionResponse) {}
-  rpc Send(SendRequest) returns (google.protobuf.Empty) {}
-  rpc Get(GetRequest) returns (stream GetResponse) {}
-
-  // Replacing Send and Get with a single bidirectional streaming RPC
-  // The client should provide the valid `sessionID` identifier 
-  // from the `NewSession` in the stream request metadata
   rpc MessagesStream(stream MessageToTunnelbroker) returns (stream MessageToClient) {}
 }
 
@@ -44,36 +38,6 @@ message NewSessionRequest {
 
 message NewSessionResponse {
   string sessionID = 1;
-}
-
-// Send payload to device
-
-message SendRequest {
-  string sessionID = 1;
-  string toDeviceID = 2;
-  bytes payload = 3;
-  repeated string blobHashes = 4;
-}
-
-// Get messages from devices
-
-message GetRequest {
-  string sessionID = 1;
-  optional string newNotifyToken = 2;
-}
-
-message GetResponseMessage {
-  string fromDeviceID = 1;
-  bytes payload = 2;
-  repeated string blobHashes = 3;
-}
-
-message GetResponse {
-  oneof data {
-    GetResponseMessage responseMessage = 1;
-    google.protobuf.Empty ping = 2;
-    google.protobuf.Empty newNotifyTokenRequired = 3;
-  }
 }
 
 // Common messages structures for the MessagesStream
