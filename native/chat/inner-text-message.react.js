@@ -8,6 +8,7 @@ import Animated from 'react-native-reanimated';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
+import { MarkdownContext } from '../markdown/markdown-context';
 import Markdown from '../markdown/markdown.react';
 import { useSelector } from '../redux/redux-utils';
 import { useColors, colors } from '../themes/colors';
@@ -108,11 +109,17 @@ function InnerTextMessage(props: Props): React.Node {
     };
   }, [item.messageInfo.id]);
 
+  //eslint-disable-next-line no-unused-vars
+  const markdownContext = React.useContext(MarkdownContext);
+  const innerMessagePress = () => {
+    props.onPress();
+  };
+
   const message = (
     <TouchableWithoutFeedback>
       <View>
         <GestureTouchableOpacity
-          onPress={props.onPress}
+          onPress={innerMessagePress}
           onLongPress={props.onPress}
           activeOpacity={0.6}
           style={[styles.message, cornerStyle]}
