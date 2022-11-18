@@ -18,6 +18,10 @@ type ClientDBDraftInfo = {
   +key: string,
   +text: string,
 };
+type ClientPublicKeys = {
+  +curve25519: string,
+  +ed25519: string,
+};
 
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
@@ -42,7 +46,7 @@ export interface Spec extends TurboModule {
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => void;
   +initializeCryptoAccount: (userId: string) => Promise<string>;
-  +getUserPublicKey: () => Promise<string>;
+  +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getUserOneTimeKeys: () => Promise<string>;
   +openSocket: (endpoint: string) => Object;
   +getCodeVersion: () => number;
