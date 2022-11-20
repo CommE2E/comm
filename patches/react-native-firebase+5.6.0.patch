@@ -47,6 +47,89 @@ index 04ee2d9..ba9fdcf 100644
  
  /*
   * Export Auth types
+diff --git a/node_modules/react-native-firebase/dist/modules/admob/AdMobComponent.js b/node_modules/react-native-firebase/dist/modules/admob/AdMobComponent.js
+index 1c40468..66e191c 100644
+--- a/node_modules/react-native-firebase/dist/modules/admob/AdMobComponent.js
++++ b/node_modules/react-native-firebase/dist/modules/admob/AdMobComponent.js
+@@ -1,26 +1,10 @@
+ import React from 'react';
+-import { ViewPropTypes, requireNativeComponent, Platform } from 'react-native';
++import { requireNativeComponent, Platform } from 'react-native';
+ import PropTypes from 'prop-types';
+ import EventTypes, { NativeExpressEventTypes } from './EventTypes';
+ import { nativeToJSError } from '../../utils';
+ import AdRequest from './AdRequest';
+ import VideoOptions from './VideoOptions';
+-const adMobPropTypes = { ...ViewPropTypes,
+-  size: PropTypes.string.isRequired,
+-  unitId: PropTypes.string.isRequired,
+-
+-  /* eslint-disable react/forbid-prop-types */
+-  request: PropTypes.object,
+-  video: PropTypes.object
+-  /* eslint-enable react/forbid-prop-types */
+-
+-};
+-Object.keys(EventTypes).forEach(eventType => {
+-  adMobPropTypes[eventType] = PropTypes.func;
+-});
+-Object.keys(NativeExpressEventTypes).forEach(eventType => {
+-  adMobPropTypes[eventType] = PropTypes.func;
+-});
+ const nativeComponents = {};
+ 
+ function getNativeComponent(name) {
+@@ -35,7 +19,6 @@ function getNativeComponent(name) {
+ }
+ 
+ class AdMobComponent extends React.Component {
+-  static propTypes = adMobPropTypes;
+   static defaultProps = {
+     request: new AdRequest().addTestDevice().build(),
+     video: new VideoOptions().build()
+diff --git a/node_modules/react-native-firebase/dist/modules/admob/AdMobComponent.js.flow b/node_modules/react-native-firebase/dist/modules/admob/AdMobComponent.js.flow
+index 4162bb1..f37c353 100644
+--- a/node_modules/react-native-firebase/dist/modules/admob/AdMobComponent.js.flow
++++ b/node_modules/react-native-firebase/dist/modules/admob/AdMobComponent.js.flow
+@@ -1,5 +1,5 @@
+ import React from 'react';
+-import { ViewPropTypes, requireNativeComponent, Platform } from 'react-native';
++import { requireNativeComponent, Platform } from 'react-native';
+ import PropTypes from 'prop-types';
+ import EventTypes, { NativeExpressEventTypes } from './EventTypes';
+ import { nativeToJSError } from '../../utils';
+@@ -7,22 +7,6 @@ import { nativeToJSError } from '../../utils';
+ import AdRequest from './AdRequest';
+ import VideoOptions from './VideoOptions';
+ 
+-const adMobPropTypes = {
+-  ...ViewPropTypes,
+-  size: PropTypes.string.isRequired,
+-  unitId: PropTypes.string.isRequired,
+-  /* eslint-disable react/forbid-prop-types */
+-  request: PropTypes.object,
+-  video: PropTypes.object,
+-  /* eslint-enable react/forbid-prop-types */
+-};
+-Object.keys(EventTypes).forEach(eventType => {
+-  adMobPropTypes[eventType] = PropTypes.func;
+-});
+-Object.keys(NativeExpressEventTypes).forEach(eventType => {
+-  adMobPropTypes[eventType] = PropTypes.func;
+-});
+-
+ const nativeComponents = {};
+ 
+ function getNativeComponent(name) {
+@@ -37,8 +21,6 @@ function getNativeComponent(name) {
+ }
+ 
+ class AdMobComponent extends React.Component {
+-  static propTypes = adMobPropTypes;
+-
+   static defaultProps = {
+     request: new AdRequest().addTestDevice().build(),
+     video: new VideoOptions().build(),
 diff --git a/node_modules/react-native-firebase/dist/modules/admob/AdRequest.js.flow b/node_modules/react-native-firebase/dist/modules/admob/AdRequest.js.flow
 index 41d2d5d..c2f5e0a 100644
 --- a/node_modules/react-native-firebase/dist/modules/admob/AdRequest.js.flow
