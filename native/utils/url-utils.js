@@ -14,7 +14,6 @@ const productionLandingURL = 'https://comm.app';
 const devIsEmulator: boolean = __DEV__ && DeviceInfo.isEmulatorSync();
 
 function getDevServerHostname(): string {
-  invariant(__DEV__, 'getDevServerHostname called from production');
   if (!devIsEmulator) {
     checkForMissingNatDevHostname();
     return natDevHostname;
