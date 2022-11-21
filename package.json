@@ -8,7 +8,8 @@
     "keyserver",
     "landing",
     "desktop",
-    "keyserver/addons/opaque-ke-napi"
+    "keyserver/addons/opaque-ke-napi",
+    "native/expo-modules/android-lifecycle"
   ],
   "scripts": {
     "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace keyserver clean && yarn workspace landing clean && yarn workspace desktop clean && yarn workspace opaque-ke-napi clean && rm -rf node_modules/",
@@ -41,6 +42,6 @@
     "prettier": "^2.1.2"
   },
   "resolutions": {
-		"react-native-flipper": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.0.2.tgz"
-	}
+    "react-native-flipper": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.0.2.tgz"
+  }
 }
