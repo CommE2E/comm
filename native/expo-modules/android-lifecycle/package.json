@@ -1,0 +1,16 @@
+{
+  "name": "@commapp/android-lifecycle",
+  "version": "0.0.1",
+  "private": true,
+  "license": "BSD-3-Clause",
+  "dependencies": {},
+  "devDependencies": {
+    "expo-module-scripts": "^3.0.3",
+    "expo-modules-core": "^1.0.3"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

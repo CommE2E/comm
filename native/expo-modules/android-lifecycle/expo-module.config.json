@@ -1,0 +1,6 @@
+{
+  "platforms": ["android"],
+  "android": {
+    "modules": ["app.comm.android.lifecycle.AndroidLifecycleModule"]
+  }
+}
