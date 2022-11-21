@@ -1077,7 +1077,6 @@
 				CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */,
 				CB3C621127CE4A320054F24C /* Logger.mm in Sources */,
 				724995D527B4103A00323FCE /* NotificationService.mm in Sources */,
-				8E43C32D291E5B4A009378F5 /* TerminateApp.mm in Sources */,
 				CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */,
 				1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */,
 			);
