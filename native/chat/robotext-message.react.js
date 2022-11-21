@@ -21,6 +21,7 @@ import { inlineSidebarCenterStyle } from './chat-constants';
 import type { ChatNavigationProp } from './chat.react';
 import { InlineSidebar } from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
+import { useCanCreateReactionFromMessage } from './reaction-message-utils';
 import { Timestamp } from './timestamp.react';
 import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils';
 
@@ -82,12 +83,29 @@ function RobotextMessage(props: Props): React.Node {
     item.threadInfo,
     item.messageInfo,
   );
+
+  const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
+    item.threadInfo,
+    item.messageInfo,
+  );
+
   const visibleEntryIDs = React.useMemo(() => {
+    const result = [];
+
     if (item.threadCreatedFromMessage || canCreateSidebarFromMessage) {
-      return ['sidebar'];
+      result.push('sidebar');
     }
-    return [];
-  }, [item.threadCreatedFromMessage, canCreateSidebarFromMessage]);
+
+    if (canCreateReactionFromMessage) {
+      result.push('react');
+    }
+
+    return result;
+  }, [
+    item.threadCreatedFromMessage,
+    canCreateSidebarFromMessage,
+    canCreateReactionFromMessage,
+  ]);
 
   const openRobotextTooltipModal = React.useCallback(
     (x, y, width, height, pageX, pageY) => {

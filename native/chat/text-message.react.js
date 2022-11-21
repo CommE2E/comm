@@ -29,6 +29,7 @@ import {
   MessagePressResponderContext,
   type MessagePressResponderContextType,
 } from './message-press-responder-context';
+import { useCanCreateReactionFromMessage } from './reaction-message-utils';
 import textMessageSendFailed from './text-message-send-failed';
 import { getMessageTooltipKey } from './utils';
 
@@ -45,6 +46,7 @@ type Props = {
   ...BaseProps,
   // Redux state
   +canCreateSidebarFromMessage: boolean,
+  +canCreateReactionFromMessage: boolean,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // ChatContext
@@ -75,6 +77,7 @@ class TextMessage extends React.PureComponent<Props> {
       chatContext,
       isLinkModalActive,
       canCreateSidebarFromMessage,
+      canCreateReactionFromMessage,
       ...viewProps
     } = this.props;
 
@@ -142,6 +145,10 @@ class TextMessage extends React.PureComponent<Props> {
       this.props.canCreateSidebarFromMessage
     ) {
       result.push('sidebar');
+    }
+
+    if (this.props.canCreateReactionFromMessage) {
+      result.push('react');
     }
 
     if (!this.props.item.messageInfo.creator.isViewer) {
@@ -238,6 +245,10 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
       props.item.threadInfo,
       props.item.messageInfo,
     );
+    const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
+      props.item.threadInfo,
+      props.item.messageInfo,
+    );
 
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
@@ -245,6 +256,7 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
       <TextMessage
         {...props}
         canCreateSidebarFromMessage={canCreateSidebarFromMessage}
+        canCreateReactionFromMessage={canCreateReactionFromMessage}
         overlayContext={overlayContext}
         chatContext={chatContext}
         isLinkModalActive={isLinkModalActive}

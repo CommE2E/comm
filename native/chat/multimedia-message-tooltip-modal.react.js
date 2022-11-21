@@ -11,6 +11,7 @@ import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import { onPressReport } from './message-report-utils';
 import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react';
+import { onPressReact } from './reaction-message-utils';
 import { navigateToSidebar } from './sidebar-navigation';
 
 export type MultimediaMessageTooltipModalParams = TooltipParams<{
@@ -24,6 +25,11 @@ const spec = {
       id: 'sidebar',
       text: 'Thread',
       onPress: navigateToSidebar,
+    },
+    {
+      id: 'react',
+      text: '👍',
+      onPress: onPressReact,
     },
     {
       id: 'report',
