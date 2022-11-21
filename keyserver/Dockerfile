@@ -109,6 +109,8 @@ COPY --chown=comm landing/package.json landing/.flowconfig landing/
 COPY --chown=comm desktop/package.json desktop/
 COPY --chown=comm keyserver/addons/opaque-ke-napi/package.json \
   keyserver/addons/opaque-ke-napi/
+COPY --chown=comm native/expo-modules/android-lifecycle/package.json \
+  native/expo-modules/android-lifecycle/
 
 # Create empty Rust library and copy in Cargo.toml file
 RUN cargo init keyserver/addons/opaque-ke-napi --lib
