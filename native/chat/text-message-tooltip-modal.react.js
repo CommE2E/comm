@@ -44,6 +44,10 @@ function onPressReply(
   inputState.addReply(createMessageReply(route.params.item.messageInfo.text));
 }
 
+function onPressReact() {
+  console.log('reacted!');
+}
+
 const spec = {
   entries: [
     { id: 'reply', text: 'Reply', onPress: onPressReply },
@@ -53,6 +57,11 @@ const spec = {
       onPress: navigateToSidebar,
     },
     { id: 'copy', text: 'Copy', onPress: onPressCopy },
+    {
+      id: 'react',
+      text: '👍',
+      onPress: onPressReact,
+    },
     {
       id: 'report',
       text: 'Report',
