@@ -15,15 +15,11 @@ function Markdown(props: Props): React.Node {
   const { children, rules } = props;
   const { simpleMarkdownRules, useDarkStyle } = rules;
 
-  const markdownClassName = React.useMemo(
-    () =>
-      classNames({
-        [css.markdown]: true,
-        [css.darkBackground]: useDarkStyle,
-        [css.lightBackground]: !useDarkStyle,
-      }),
-    [useDarkStyle],
-  );
+  const markdownClassName = classNames({
+    [css.markdown]: true,
+    [css.darkBackground]: useDarkStyle,
+    [css.lightBackground]: !useDarkStyle,
+  });
 
   const parser = React.useMemo(
     () => SimpleMarkdown.parserFor(simpleMarkdownRules),

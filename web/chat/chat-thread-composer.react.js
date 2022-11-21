@@ -156,13 +156,9 @@ function ChatThreadComposer(props: Props): React.Node {
     return () => inputState.unregisterSendCallback(hideSearch);
   }, [hideSearch, inputState]);
 
-  const threadSearchContainerStyles = React.useMemo(
-    () =>
-      classNames(css.threadSearchContainer, {
-        [css.fullHeight]: !userInfoInputArray.length,
-      }),
-    [userInfoInputArray.length],
-  );
+  const threadSearchContainerStyles = classNames(css.threadSearchContainer, {
+    [css.fullHeight]: !userInfoInputArray.length,
+  });
 
   return (
     <div className={threadSearchContainerStyles}>

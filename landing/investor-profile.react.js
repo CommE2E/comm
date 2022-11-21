@@ -33,23 +33,15 @@ function InvestorProfile(props: Props): React.Node {
     linkedinHandle,
   } = props;
 
-  const profileContainerClassName = React.useMemo(
-    () =>
-      classNames({
-        [css.profile]: true,
-        [css.profileModal]: isModalActive,
-      }),
-    [isModalActive],
-  );
+  const profileContainerClassName = classNames({
+    [css.profile]: true,
+    [css.profileModal]: isModalActive,
+  });
 
-  const descriptionClassName = React.useMemo(
-    () =>
-      classNames({
-        [css.description]: true,
-        [css.descriptionModal]: isModalActive,
-      }),
-    [isModalActive],
-  );
+  const descriptionClassName = classNames({
+    [css.description]: true,
+    [css.descriptionModal]: isModalActive,
+  });
 
   const stopPropagation = React.useCallback(e => e.stopPropagation(), []);
 

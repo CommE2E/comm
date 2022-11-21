@@ -93,15 +93,11 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
 
   const messageTooltipContainerStyle = React.useMemo(() => tooltipStyle, []);
 
-  const containerClassNames = React.useMemo(
-    () =>
-      classNames(css.messageTooltipContainer, {
-        [css.leftTooltipAlign]: alignment === 'left',
-        [css.centerTooltipAlign]: alignment === 'center',
-        [css.rightTooltipAlign]: alignment === 'right',
-      }),
-    [alignment],
-  );
+  const containerClassNames = classNames(css.messageTooltipContainer, {
+    [css.leftTooltipAlign]: alignment === 'left',
+    [css.centerTooltipAlign]: alignment === 'center',
+    [css.rightTooltipAlign]: alignment === 'right',
+  });
 
   return (
     <div className={containerClassNames} style={messageTooltipContainerStyle}>

@@ -56,41 +56,25 @@ function ChatThreadListItem(props: Props): React.Node {
     [isCreateMode, active, onClick],
   );
 
-  const containerClassName = React.useMemo(
-    () =>
-      classNames({
-        [css.thread]: true,
-        [css.activeThread]: active,
-      }),
-    [active],
-  );
+  const containerClassName = classNames({
+    [css.thread]: true,
+    [css.activeThread]: active,
+  });
 
   const { unread } = currentUser;
-  const titleClassName = React.useMemo(
-    () =>
-      classNames({
-        [css.title]: true,
-        [css.unread]: unread,
-      }),
-    [unread],
-  );
-  const lastActivityClassName = React.useMemo(
-    () =>
-      classNames({
-        [css.lastActivity]: true,
-        [css.unread]: unread,
-        [css.dark]: !unread,
-      }),
-    [unread],
-  );
+  const titleClassName = classNames({
+    [css.title]: true,
+    [css.unread]: unread,
+  });
+  const lastActivityClassName = classNames({
+    [css.lastActivity]: true,
+    [css.unread]: unread,
+    [css.dark]: !unread,
+  });
 
-  const breadCrumbsClassName = React.useMemo(
-    () =>
-      classNames(css.breadCrumbs, {
-        [css.unread]: unread,
-      }),
-    [unread],
-  );
+  const breadCrumbsClassName = classNames(css.breadCrumbs, {
+    [css.unread]: unread,
+  });
 
   let unreadDot;
   if (unread) {

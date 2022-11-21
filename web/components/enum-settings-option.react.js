@@ -71,17 +71,13 @@ function EnumSettingsOption(props: Props): React.Node {
     }
   }, [disabled, type, selected]);
 
-  const optionContainerClasses = React.useMemo(
-    () =>
-      classnames(css.optionContainer, {
-        [css.optionContainerSelected]: selected,
-      }),
-    [selected],
-  );
+  const optionContainerClasses = classnames(css.optionContainer, {
+    [css.optionContainerSelected]: selected,
+  });
 
-  const optionIconClasses = React.useMemo(
-    () => classnames(css.optionIcon, iconPositionClassnames[iconPosition]),
-    [iconPosition],
+  const optionIconClasses = classnames(
+    css.optionIcon,
+    iconPositionClassnames[iconPosition],
   );
 
   return (

@@ -34,14 +34,10 @@ function Modal(props: ModalProps): React.Node {
     withCloseButton = true,
   } = props;
 
-  const modalContainerClasses = React.useMemo(
-    () =>
-      classNames(css.modalContainer, {
-        [css.modalContainerLarge]: size === 'large',
-        [css.modalContainerSmall]: size === 'small',
-      }),
-    [size],
-  );
+  const modalContainerClasses = classNames(css.modalContainer, {
+    [css.modalContainerLarge]: size === 'large',
+    [css.modalContainerSmall]: size === 'small',
+  });
 
   const cornerCloseButton = React.useMemo(() => {
     if (!withCloseButton) {

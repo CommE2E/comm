@@ -26,14 +26,10 @@ function Menu(props: MenuProps): React.Node {
   } = useRenderMenu();
   const { icon, children, variant = 'thread-actions', onChange } = props;
   const ourSymbol = React.useRef(Symbol());
-  const menuActionListClasses = React.useMemo(
-    () =>
-      classnames(css.menuActionList, {
-        [css.menuActionListThreadActions]: variant === 'thread-actions',
-        [css.menuActionListMemberActions]: variant === 'member-actions',
-      }),
-    [variant],
-  );
+  const menuActionListClasses = classnames(css.menuActionList, {
+    [css.menuActionListThreadActions]: variant === 'thread-actions',
+    [css.menuActionListMemberActions]: variant === 'member-actions',
+  });
 
   const menuActionList = React.useMemo(
     () => <div className={menuActionListClasses}>{children}</div>,
