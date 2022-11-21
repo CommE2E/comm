@@ -17,6 +17,7 @@ import {
 } from '../navigation/tooltip.react';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import { onPressReport } from './message-report-utils';
+import { onPressReact } from './reaction-message-utils';
 import { navigateToSidebar } from './sidebar-navigation';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 
@@ -53,6 +54,11 @@ const spec = {
       onPress: navigateToSidebar,
     },
     { id: 'copy', text: 'Copy', onPress: onPressCopy },
+    {
+      id: 'react',
+      text: '👍',
+      onPress: onPressReact,
+    },
     {
       id: 'report',
       text: 'Report',

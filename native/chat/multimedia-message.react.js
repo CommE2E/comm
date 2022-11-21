@@ -83,7 +83,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
   };
 
   visibleEntryIDs() {
-    const result = [];
+    const result = ['react'];
 
     if (
       this.props.item.threadCreatedFromMessage ||

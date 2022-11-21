@@ -131,7 +131,7 @@ class TextMessage extends React.PureComponent<Props> {
   }
 
   visibleEntryIDs() {
-    const result = ['copy'];
+    const result = ['copy', 'react'];
 
     if (this.canReply()) {
       result.push('reply');
