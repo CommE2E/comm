@@ -64,13 +64,17 @@ if [[ ! -f "$font_dir/Droid Sans Mono for Powerline.otf" ]]; then
   if test "$(uname)" = "Darwin" ; then
 
     if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
+      echo ""
       echo "For glyph support, please:
   Select Terminal > Preferences > Text > Font > Change > \
 Select font with 'for Powerline' in the name" >&2
+      echo ""
     elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
+      echo ""
       echo "For glyph support, please:
   Select iTerm2 > Preferences > Profiles > Text > Font > \
 Select font with 'for Powerline' in the name" >&2
+      echo ""
     fi
 
   elif command -v fc-cache ; then
