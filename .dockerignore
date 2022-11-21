@@ -18,6 +18,7 @@ native
 !native/ios/Podfile
 !native/ios/pod-patch
 !native/cpp/CommonCpp/grpc
+!native/expo-modules/android-lifecycle/package.json
 
 web/node_modules
 web/dist
