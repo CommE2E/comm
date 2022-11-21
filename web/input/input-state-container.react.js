@@ -37,6 +37,7 @@ import {
 } from 'lib/shared/message-utils';
 import {
   createRealThreadFromPendingThread,
+  draftKeyFromThreadID,
   threadIsPending,
 } from 'lib/shared/thread-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
@@ -84,6 +85,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +activeChatThreadID: ?string,
+  +drafts: { +[key: string]: string },
   +viewerID: ?string,
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
   +exifRotate: boolean,
@@ -117,13 +119,16 @@ type State = {
   +pendingUploads: {
     [threadID: string]: { [localUploadID: string]: PendingMultimediaUpload },
   },
-  +drafts: { [threadID: string]: string },
   +textCursorPositions: { [threadID: string]: number },
+};
+
+type PropsAndState = {
+  ...Props,
+  ...State,
 };
 class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
-    drafts: {},
     textCursorPositions: {},
   };
   replyCallbacks: Array<(message: string) => void> = [];
@@ -147,10 +152,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   static getDerivedStateFromProps(props: Props, state: State) {
-    const drafts = InputStateContainer.reassignToRealizedThreads(
-      state.drafts,
-      props,
-    );
     const pendingUploads = InputStateContainer.reassignToRealizedThreads(
       state.pendingUploads,
       props,
@@ -160,14 +161,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       props,
     );
 
-    if (!drafts && !pendingUploads && !textCursorPositions) {
+    if (!pendingUploads && !textCursorPositions) {
       return null;
     }
 
     const stateUpdate = {};
-    if (drafts) {
-      stateUpdate.drafts = drafts;
-    }
     if (pendingUploads) {
       stateUpdate.pendingUploads = pendingUploads;
     }
@@ -458,9 +456,11 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   inputStateSelector = _memoize((threadID: string) =>
     createSelector(
-      (state: State) => state.pendingUploads[threadID],
-      (state: State) => state.drafts[threadID],
-      (state: State) => state.textCursorPositions[threadID],
+      (propsAndState: PropsAndState) => propsAndState.pendingUploads[threadID],
+      (propsAndState: PropsAndState) =>
+        propsAndState.drafts[draftKeyFromThreadID(threadID)],
+      (propsAndState: PropsAndState) =>
+        propsAndState.textCursorPositions[threadID],
       (
         pendingUploads: ?{ [localUploadID: string]: PendingMultimediaUpload },
         draft: ?string,
@@ -1069,14 +1069,13 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   }
 
   setDraft(threadID: string, draft: string) {
-    this.setState(prevState => {
-      const newThreadID = this.getRealizedOrPendingThreadID(threadID);
-      return {
-        drafts: {
-          ...prevState.drafts,
-          [newThreadID]: draft,
-        },
-      };
+    const newThreadID = this.getRealizedOrPendingThreadID(threadID);
+    this.props.dispatch({
+      type: 'UPDATE_DRAFT',
+      payload: {
+        key: draftKeyFromThreadID(newThreadID),
+        text: draft,
+      },
     });
   }
 
@@ -1238,7 +1237,10 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   render() {
     const { activeChatThreadID } = this.props;
     const inputState = activeChatThreadID
-      ? this.inputStateSelector(activeChatThreadID)(this.state)
+      ? this.inputStateSelector(activeChatThreadID)({
+          ...this.state,
+          ...this.props,
+        })
       : null;
     return (
       <InputStateContext.Provider value={inputState}>
@@ -1259,6 +1261,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
     const activeChatThreadID = useSelector(
       state => state.navInfo.activeChatThreadID,
     );
+    const drafts = useSelector(state => state.draftStore.drafts);
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
@@ -1299,6 +1302,7 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
       <InputStateContainer
         {...props}
         activeChatThreadID={activeChatThreadID}
+        drafts={drafts}
         viewerID={viewerID}
         messageStoreMessages={messageStoreMessages}
         exifRotate={exifRotate}

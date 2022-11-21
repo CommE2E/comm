@@ -2,12 +2,16 @@
 
 import * as React from 'react';
 
+import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react';
+import { isLoggedIn } from 'lib/selectors/user-selectors';
+
 import { useSelector } from '../redux/redux-utils';
 import ChatMessageListContainer from './chat-message-list-container.react';
 import ChatTabs from './chat-tabs.react';
 import { ThreadListProvider } from './thread-list-provider';
 
 function Chat(): React.Node {
+  const loggedIn = useSelector(isLoggedIn);
   const activeChatThreadID = useSelector(
     state => state.navInfo.activeChatThreadID,
   );
@@ -26,10 +30,15 @@ function Chat(): React.Node {
     return <ChatMessageListContainer activeChatThreadID={activeChatThreadID} />;
   }, [activeChatThreadID]);
 
+  let threadDraftUpdater = null;
+  if (loggedIn) {
+    threadDraftUpdater = <ThreadDraftUpdater />;
+  }
   return (
     <>
       {chatList}
       {messageList}
+      {threadDraftUpdater}
     </>
   );
 }
