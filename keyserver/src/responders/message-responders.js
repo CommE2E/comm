@@ -9,10 +9,12 @@ import {
   messageTypes,
   type SendTextMessageRequest,
   type SendMultimediaMessageRequest,
+  type SendReactionMessageRequest,
   type FetchMessageInfosResponse,
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
   type SendMessageResponse,
+  type ReactionMessageData,
 } from 'lib/types/message-types';
 import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';
@@ -179,8 +181,52 @@ async function multimediaMessageCreationResponder(
   return { newMessageInfo };
 }
 
+const sendReactionMessageRequestInputValidator = tShape({
+  threadID: t.String,
+  targetMessageID: t.String,
+  reaction: t.String,
+  action: t.enums.of(['add_reaction', 'remove_reaction']),
+});
+async function reactionMessageCreationResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<SendMessageResponse> {
+  const request: SendReactionMessageRequest = input;
+  await validateInput(viewer, sendReactionMessageRequestInputValidator, input);
+
+  const { threadID, targetMessageID, reaction, action } = request;
+
+  if (!targetMessageID || !reaction || !action) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const hasPermission = await checkThreadPermission(
+    viewer,
+    threadID,
+    threadPermissions.VOICED,
+  );
+  if (!hasPermission) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const messageData: ReactionMessageData = {
+    type: messageTypes.REACTION,
+    threadID,
+    creatorID: viewer.id,
+    time: Date.now(),
+    targetMessageID,
+    reaction,
+    action,
+  };
+
+  const rawMessageInfos = await createMessages(viewer, [messageData]);
+
+  return { newMessageInfo: rawMessageInfos[0] };
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
   multimediaMessageCreationResponder,
+  reactionMessageCreationResponder,
 };
