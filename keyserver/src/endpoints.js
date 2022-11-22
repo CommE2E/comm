@@ -24,6 +24,7 @@ import {
   textMessageCreationResponder,
   messageFetchResponder,
   multimediaMessageCreationResponder,
+  reactionMessageCreationResponder,
 } from './responders/message-responders';
 import { updateRelationshipsResponder } from './responders/relationship-responders';
 import {
@@ -79,6 +80,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   create_multimedia_message: {
     responder: multimediaMessageCreationResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  create_reaction_message: {
+    responder: reactionMessageCreationResponder,
     requiredPolicies: baseLegalPolicies,
   },
   create_report: {
