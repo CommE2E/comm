@@ -179,6 +179,13 @@ async function multimediaMessageCreationResponder(
   return { newMessageInfo };
 }
 
+// eslint-disable-next-line no-unused-vars
+const sendReactionMessageRequestInputValidator = tShape({
+  threadID: t.String,
+  targetMessageID: t.String,
+  reaction: t.maybe(t.String),
+});
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
