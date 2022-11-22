@@ -23,6 +23,7 @@ import {
   textMessageCreationResponder,
   messageFetchResponder,
   multimediaMessageCreationResponder,
+  reactionMessageCreationResponder,
 } from './responders/message-responders';
 import { updateRelationshipsResponder } from './responders/relationship-responders';
 import {
@@ -61,6 +62,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   create_error_report: reportCreationResponder,
   create_message_report: messageReportCreationResponder,
   create_multimedia_message: multimediaMessageCreationResponder,
+  create_reaction_message: reactionMessageCreationResponder,
   create_report: reportCreationResponder,
   create_reports: reportMultiCreationResponder,
   create_text_message: textMessageCreationResponder,
