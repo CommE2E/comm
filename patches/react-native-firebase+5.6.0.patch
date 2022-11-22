@@ -1,3 +1,16 @@
+diff --git a/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/DisplayNotificationTask.java b/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/DisplayNotificationTask.java
+index c9d63ff..ef725ad 100644
+--- a/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/DisplayNotificationTask.java
++++ b/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/DisplayNotificationTask.java
+@@ -475,7 +475,7 @@ public class DisplayNotificationTask extends AsyncTask<Void, Void, Void> {
+       context,
+       notificationId.hashCode(),
+       intent,
+-      PendingIntent.FLAG_UPDATE_CURRENT
++      PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
+     );
+   }
+ 
 diff --git a/node_modules/react-native-firebase/dist/common/commonTypes.flow.js.flow b/node_modules/react-native-firebase/dist/common/commonTypes.flow.js.flow
 index 228a72d..982a997 100644
 --- a/node_modules/react-native-firebase/dist/common/commonTypes.flow.js.flow
