@@ -7,6 +7,7 @@ import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
 
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions';
 import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
 import {
   logOutActionTypes,
@@ -351,6 +352,26 @@ function reducer(state: AppState = defaultState, action: Action) {
       ...state,
       storeLoaded: true,
     };
+  }
+  if (action.type === setClientDBStoreActionType) {
+    state = {
+      ...state,
+      storeLoaded: true,
+    };
+    const currentLoggedInUserID = state.currentUserInfo?.anonymous
+      ? undefined
+      : state.currentUserInfo?.id;
+    const actionCurrentLoggedInUserID = action.payload.currentUserID;
+    if (
+      !currentLoggedInUserID ||
+      !actionCurrentLoggedInUserID ||
+      actionCurrentLoggedInUserID !== currentLoggedInUserID
+    ) {
+      // If user is logged out now, was logged out at the time action was
+      // dispatched or their ID changed between action dispatch and a
+      // call to reducer we ignore the SQLite data since it is not valid
+      return state;
+    }
   }
 
   const baseReducerResult = baseReducer(state, (action: BaseAction));
