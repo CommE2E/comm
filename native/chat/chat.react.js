@@ -23,6 +23,7 @@ import * as React from 'react';
 import { Platform, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
+import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import {
   threadIsPending,
@@ -59,7 +60,6 @@ import MessageListHeaderTitle from './message-list-header-title.react';
 import MessageStorePruner from './message-store-pruner.react';
 import DeleteThread from './settings/delete-thread.react';
 import ThreadSettings from './settings/thread-settings.react';
-import ThreadDraftUpdater from './thread-draft-updater.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
 import ThreadSettingsButton from './thread-settings-button.react';
 
