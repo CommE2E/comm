@@ -5,7 +5,10 @@
 import { TurboModuleRegistry } from 'react-native';
 import type { TurboModule } from 'react-native/Libraries/TurboModule/RCTExport';
 
-import type { ClientDBDraftStoreOperation } from 'lib/types/draft-types';
+import type {
+  ClientDBDraftInfo,
+  ClientDBDraftStoreOperation,
+} from 'lib/types/draft-types';
 import type {
   ClientDBMessageInfo,
   ClientDBMessageStoreOperation,
@@ -14,11 +17,6 @@ import type {
   ClientDBThreadInfo,
   ClientDBThreadStoreOperation,
 } from 'lib/types/thread-types';
-
-type ClientDBDraftInfo = {
-  +key: string,
-  +text: string,
-};
 
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
