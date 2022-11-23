@@ -149,6 +149,21 @@ function validNavState(state: PossiblyStaleNavigationState): boolean {
   return true;
 }
 
+function getChildRouteFromNavigatorRoute(
+  parentRoute: PossiblyStaleRoute<>,
+  childRouteName: string,
+): PossiblyStaleRoute<> {
+  const parentState = getStateFromNavigatorRoute(parentRoute);
+  const childRoute = parentState.routes.find(
+    route => route.name === childRouteName,
+  );
+  invariant(
+    childRoute,
+    `parentRoute should contain route for ${childRouteName}`,
+  );
+  return childRoute;
+}
+
 export {
   getStateFromNavigatorRoute,
   getThreadIDFromParams,
@@ -157,4 +172,5 @@ export {
   findRouteIndexWithKey,
   removeScreensFromStack,
   validNavState,
+  getChildRouteFromNavigatorRoute,
 };

@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { Alert } from 'react-native';
 
@@ -11,7 +12,13 @@ import { NavContext } from '../navigation/navigation-context';
 import {
   getStateFromNavigatorRoute,
   getThreadIDFromRoute,
+  getChildRouteFromNavigatorRoute,
 } from '../navigation/navigation-utils';
+import {
+  AppRouteName,
+  ChatRouteName,
+  TabNavigatorRouteName,
+} from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import type { AppState } from '../redux/state-types';
 
@@ -23,29 +30,41 @@ const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}>(
 
     const navContext = React.useContext(NavContext);
 
-    const chatRoute = React.useMemo(() => {
+    const chatRouteState = React.useMemo(() => {
       if (!navContext) {
         return null;
       }
       const { state } = navContext;
-      const appState = getStateFromNavigatorRoute(state.routes[0]);
-      const tabState = getStateFromNavigatorRoute(appState.routes[0]);
-      return getStateFromNavigatorRoute(tabState.routes[1]);
+      const appRoute = state.routes.find(route => route.name === AppRouteName);
+      invariant(
+        appRoute,
+        'Navigation context should contain route for AppNavigator ' +
+          'when ThreadScreenPruner is rendered',
+      );
+      const tabRoute = getChildRouteFromNavigatorRoute(
+        appRoute,
+        TabNavigatorRouteName,
+      );
+      const chatRoute = getChildRouteFromNavigatorRoute(
+        tabRoute,
+        ChatRouteName,
+      );
+      return getStateFromNavigatorRoute(chatRoute);
     }, [navContext]);
 
     const inStackThreadIDs = React.useMemo(() => {
       const threadIDs = new Set();
-      if (!chatRoute) {
+      if (!chatRouteState) {
         return threadIDs;
       }
-      for (const route of chatRoute.routes) {
+      for (const route of chatRouteState.routes) {
         const threadID = getThreadIDFromRoute(route);
         if (threadID && !threadIsPending(threadID)) {
           threadIDs.add(threadID);
         }
       }
       return threadIDs;
-    }, [chatRoute]);
+    }, [chatRouteState]);
 
     const pruneThreadIDs = React.useMemo(() => {
       const threadIDs = [];
