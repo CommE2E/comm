@@ -11,7 +11,6 @@ use anyhow::Result;
 use futures::Stream;
 use std::pin::Pin;
 use tokio::sync::mpsc;
-use tokio::time::{sleep, Duration};
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tonic::{transport::Server, Request, Response, Status, Streaming};
 use tracing::{debug, error};
@@ -195,29 +194,6 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
       };
     }
 
-    // Spawning asynchronous Tokio task with the client pinging loop inside to
-    // make sure that the client is online
-    tokio::spawn({
-      let session_id = session_id.clone();
-      let tx = tx.clone();
-      async move {
-        loop {
-          sleep(Duration::from_millis(constants::GRPC_PING_INTERVAL_MS)).await;
-          let result = tx_writer(
-            &session_id,
-            &tx,
-            Ok(tunnelbroker::MessageToClient {
-              data: Some(tunnelbroker::message_to_client::Data::Ping(())),
-            }),
-          );
-          if let Err(err) = result.await {
-            debug!("Failed to write ping to a channel: {}", err);
-            break;
-          };
-        }
-      }
-    });
-
     // Spawning asynchronous Tokio task to deliver new messages
     // to the client from delivery broker
     tokio::spawn({
@@ -373,6 +349,8 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
 pub async fn run_grpc_server() -> Result<()> {
   let addr = format!("[::1]:{}", constants::GRPC_SERVER_PORT).parse()?;
   Server::builder()
+    .http2_keepalive_interval(Some(constants::GRPC_KEEP_ALIVE_PING_INTERVAL))
+    .http2_keepalive_timeout(Some(constants::GRPC_KEEP_ALIVE_PING_TIMEOUT))
     .add_service(TunnelbrokerServiceServer::new(
       TunnelbrokerServiceHandlers::default(),
     ))
