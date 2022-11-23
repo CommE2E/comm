@@ -5,9 +5,7 @@ import { Alert } from 'react-native';
 import ExitApp from 'react-native-exit-app';
 import { useDispatch } from 'react-redux';
 
-import { setDraftStoreDrafts } from 'lib/actions/draft-actions';
-import { setMessageStoreMessages } from 'lib/actions/message-actions.js';
-import { setThreadStoreActionType } from 'lib/actions/thread-actions';
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { logInActionSources } from 'lib/types/account-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
@@ -15,18 +13,14 @@ import { getMessageForException } from 'lib/utils/errors';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
 
 import { commCoreModule } from '../native-modules';
+import { setStoreLoadedActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { StaffContext } from '../staff/staff-context';
 import { isTaskCancelledError } from '../utils/error-handling';
 import { useStaffCanSee } from '../utils/staff-utils';
-import { SQLiteContext } from './sqlite-context';
 
-type Props = {
-  +children: React.Node,
-};
-
-function SQLiteContextProvider(props: Props): React.Node {
-  const [storeLoaded, setStoreLoaded] = React.useState<boolean>(false);
+function SQLiteDataHandler(): React.Node {
+  const storeLoaded = useSelector(state => state.storeLoaded);
 
   const dispatch = useDispatch();
   const rehydrateConcluded = useSelector(
@@ -88,7 +82,7 @@ function SQLiteContextProvider(props: Props): React.Node {
       return;
     }
     if (!loggedIn) {
-      setStoreLoaded(true);
+      dispatch({ type: setStoreLoadedActionType });
       return;
     }
     (async () => {
@@ -103,21 +97,17 @@ function SQLiteContextProvider(props: Props): React.Node {
           threads,
         );
         dispatch({
-          type: setThreadStoreActionType,
-          payload: { threadInfos: threadInfosFromDB },
+          type: setClientDBStoreActionType,
+          payload: {
+            drafts,
+            messages,
+            threadStore: { threadInfos: threadInfosFromDB },
+            currentUserID: currentLoggedInUserID,
+          },
         });
-        dispatch({
-          type: setMessageStoreMessages,
-          payload: messages,
-        });
-        dispatch({
-          type: setDraftStoreDrafts,
-          payload: drafts,
-        });
-        setStoreLoaded(true);
       } catch (setStoreException) {
         if (isTaskCancelledError(setStoreException)) {
-          setStoreLoaded(true);
+          dispatch({ type: setStoreLoadedActionType });
           return;
         }
         if (staffCanSee) {
@@ -135,7 +125,7 @@ function SQLiteContextProvider(props: Props): React.Node {
             urlPrefix,
             logInActionSources.sqliteLoadFailure,
           );
-          setStoreLoaded(true);
+          dispatch({ type: setStoreLoadedActionType });
         } catch (fetchCookieException) {
           if (staffCanSee) {
             Alert.alert(
@@ -151,6 +141,7 @@ function SQLiteContextProvider(props: Props): React.Node {
       }
     })();
   }, [
+    currentLoggedInUserID,
     handleSensitiveData,
     loggedIn,
     cookie,
@@ -161,18 +152,7 @@ function SQLiteContextProvider(props: Props): React.Node {
     urlPrefix,
   ]);
 
-  const contextValue = React.useMemo(
-    () => ({
-      storeLoaded,
-    }),
-    [storeLoaded],
-  );
-
-  return (
-    <SQLiteContext.Provider value={contextValue}>
-      {props.children}
-    </SQLiteContext.Provider>
-  );
+  return null;
 }
 
-export { SQLiteContextProvider };
+export { SQLiteDataHandler };

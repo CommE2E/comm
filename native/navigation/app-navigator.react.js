@@ -2,13 +2,13 @@
 
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
+import { useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import MultimediaMessageTooltipModal from '../chat/multimedia-message-tooltip-modal.react';
 import RobotextMessageTooltipModal from '../chat/robotext-message-tooltip-modal.react';
 import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import TextMessageTooltipModal from '../chat/text-message-tooltip-modal.react';
-import { type SQLiteContextType, SQLiteContext } from '../data/sqlite-context';
 import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
 import CameraModal from '../media/camera-modal.react';
 import ImageModal from '../media/image-modal.react';
@@ -60,10 +60,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
   const { navigation } = props;
 
   const rootContext = React.useContext(RootContext);
-  const localDatabaseContext: ?SQLiteContextType = React.useContext(
-    SQLiteContext,
-  );
-  const storeLoadedFromLocalDatabase = localDatabaseContext?.storeLoaded;
+  const storeLoadedFromLocalDatabase = useSelector(state => state.storeLoaded);
   const setNavStateInitialized =
     rootContext && rootContext.setNavStateInitialized;
   React.useEffect(() => {

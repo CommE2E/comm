@@ -22,7 +22,7 @@ import { actionLogger } from 'lib/utils/action-logger';
 import ChatContextProvider from './chat/chat-context-provider.react';
 import PersistedStateGate from './components/persisted-state-gate';
 import ConnectedStatusBar from './connected-status-bar.react';
-import { SQLiteContextProvider } from './data/sqlite-context-provider';
+import { SQLiteDataHandler } from './data/sqlite-data-handler';
 import ErrorBoundary from './error-boundary.react';
 import InputStateContainer from './input/input-state-container.react';
 import LifecycleHandler from './lifecycle/lifecycle-handler.react';
@@ -247,21 +247,20 @@ function Root() {
               <SafeAreaProvider initialMetrics={initialWindowMetrics}>
                 <ActionSheetProvider>
                   <ChatContextProvider>
-                    <SQLiteContextProvider>
-                      <ConnectedStatusBar />
-                      <ReduxPersistGate persistor={getPersistor()}>
-                        {gated}
-                      </ReduxPersistGate>
-                      <PersistedStateGate>
-                        <Socket
-                          detectUnsupervisedBackgroundRef={
-                            detectUnsupervisedBackgroundRef
-                          }
-                        />
-                      </PersistedStateGate>
-                      {navigation}
-                      <NavigationHandler />
-                    </SQLiteContextProvider>
+                    <SQLiteDataHandler />
+                    <ConnectedStatusBar />
+                    <ReduxPersistGate persistor={getPersistor()}>
+                      {gated}
+                    </ReduxPersistGate>
+                    <PersistedStateGate>
+                      <Socket
+                        detectUnsupervisedBackgroundRef={
+                          detectUnsupervisedBackgroundRef
+                        }
+                      />
+                    </PersistedStateGate>
+                    {navigation}
+                    <NavigationHandler />
                   </ChatContextProvider>
                 </ActionSheetProvider>
               </SafeAreaProvider>
