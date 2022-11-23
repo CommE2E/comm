@@ -1,38 +1,66 @@
 package app.comm.android.lifecycle
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.facebook.react.bridge.UiThreadUtil
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
 class AndroidLifecycleModule : Module() {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
+  private val lifecycleStates = mapOf(
+    "ACTIVE" to "active",
+    "BACKGROUND" to "background",
+  )
+  private val eventName = "LIFECYCLE_CHANGE"
+  private val statusKey = "status"
+
+  private val lifecycle: Lifecycle
+    get() = ProcessLifecycleOwner.get().getLifecycle()
+
+  private val observer = object : LifecycleObserver {
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun onStart() {
+      sendEvent(
+        eventName,
+        mapOf(statusKey to requireNotNull(lifecycleStates["ACTIVE"]))
+      )
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    fun onStop() {
+      sendEvent(
+        eventName,
+        mapOf(statusKey to requireNotNull(lifecycleStates["BACKGROUND"]))
+      )
+    }
+  }
+
   override fun definition() = ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('AndroidLifecycle')` in JavaScript.
     Name("AndroidLifecycle")
 
-    // Sets constant properties on the module. Can take a dictionary or a closure that returns a dictionary.
-    Constants(
-      "PI" to Math.PI
-    )
+    Constants({
+      val currentState =
+        if (lifecycle.getCurrentState() == Lifecycle.State.RESUMED)
+          requireNotNull(lifecycleStates["ACTIVE"])
+        else
+          requireNotNull(lifecycleStates["BACKGROUND"])
+      return@Constants lifecycleStates + ("initialStatus" to currentState)
+    })
 
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+    Events(eventName)
 
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      "Hello world! 👋"
-    }
+    OnStartObserving({
+      UiThreadUtil.runOnUiThread({
+        lifecycle.addObserver(observer)
+      })
+    })
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { value: String ->
-      // Send an event to JavaScript.
-      sendEvent("onChange", mapOf(
-        "value" to value
-      ))
-    }
+    OnStopObserving({
+      UiThreadUtil.runOnUiThread({
+        lifecycle.removeObserver(observer)
+      })
+    })
   }
 }
