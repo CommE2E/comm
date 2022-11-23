@@ -44,7 +44,6 @@ public class MainApplication
           packages.add(new RNFirebaseMessagingPackage());
           packages.add(new RNFirebaseNotificationsPackage());
           packages.add(new KeyboardInputPackage(this.getApplication()));
-          packages.add(new CommPackage());
           return packages;
         }
 
