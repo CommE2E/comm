@@ -489,6 +489,7 @@ const persistConfig = {
     'deviceOrientation',
     'frozen',
     'threadStore',
+    'storeLoaded',
   ],
   debug: __DEV__,
   version: 31,

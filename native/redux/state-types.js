@@ -30,6 +30,7 @@ export type AppState = {
   threadStore: ThreadStore,
   userStore: UserStore,
   messageStore: MessageStore,
+  storeLoaded: boolean,
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,

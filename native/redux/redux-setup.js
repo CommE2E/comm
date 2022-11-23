@@ -68,6 +68,7 @@ import {
   updateThreadLastNavigatedActionType,
   backgroundActionTypes,
   setReduxStateActionType,
+  setStoreLoadedActionType,
   type Action,
 } from './action-types';
 import { remoteReduxDevServerConfig } from './dev-tools';
@@ -97,6 +98,7 @@ const defaultState = ({
     local: {},
     currentAsOf: 0,
   },
+  storeLoaded: false,
   updatesCurrentAsOf: 0,
   loadingStatuses: {},
   calendarFilters: defaultCalendarFilters,
@@ -343,6 +345,12 @@ function reducer(state: AppState = defaultState, action: Action) {
         deviceToken: null,
       };
     }
+  }
+  if (action.type === setStoreLoadedActionType) {
+    return {
+      ...state,
+      storeLoaded: true,
+    };
   }
 
   const baseReducerResult = baseReducer(state, (action: BaseAction));
