@@ -5,32 +5,42 @@ import {
   NativeModulesProxy,
   EventEmitter,
 } from 'expo-modules-core';
+import invariant from 'invariant';
+import { Platform } from 'react-native';
 
 import type { EmitterSubscription } from '../types/react-native';
 
-const AndroidLifecycleModule: {
-  +PI: number,
-  +hello: () => string,
-  +setValueAsync: string => Promise<void>,
+type Active = 'active';
+type Background = 'background';
+type LifecycleStatus = Active | Background;
+
+let AndroidLifecycleModule: ?{
+  +ACTIVE: Active,
+  +BACKGROUND: Background,
+  +initialStatus: LifecycleStatus,
   ...
-} = requireNativeModule('AndroidLifecycle');
-
-export const PI = AndroidLifecycleModule.PI;
-
-export function hello(): string {
-  return AndroidLifecycleModule.hello();
+};
+let emitter;
+if (Platform.OS === 'android') {
+  AndroidLifecycleModule = requireNativeModule('AndroidLifecycle');
+  emitter = new EventEmitter(
+    AndroidLifecycleModule ?? NativeModulesProxy.AndroidLifecycle,
+  );
 }
 
-export async function setValueAsync(value: string): Promise<void> {
-  return await AndroidLifecycleModule.setValueAsync(value);
-}
+export const ACTIVE: ?Active = AndroidLifecycleModule?.ACTIVE;
+export const BACKGROUND: ?Background = AndroidLifecycleModule?.BACKGROUND;
+export const initialStatus: ?LifecycleStatus =
+  AndroidLifecycleModule?.initialStatus;
 
-const emitter = new EventEmitter(
-  AndroidLifecycleModule ?? NativeModulesProxy.AndroidLifecycle,
-);
-
-export function addChangeListener(
-  listener: ({ +value: string }) => mixed,
+export function addAndroidLifecycleListener(
+  listener: (state: LifecycleStatus) => mixed,
 ): EmitterSubscription {
-  return emitter.addListener('onChange', listener);
+  invariant(
+    Platform.OS === 'android' && emitter,
+    'Only Android should call addAndroidLifecycleListener',
+  );
+  return emitter.addListener('LIFECYCLE_CHANGE', ({ status }) =>
+    listener(status),
+  );
 }
