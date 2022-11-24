@@ -1,6 +1,5 @@
 // @flow
 
-import invariant from 'invariant';
 import * as React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import Animated from 'react-native-reanimated';
@@ -13,7 +12,7 @@ import { useSelector } from '../redux/redux-utils';
 import { useColors, colors } from '../themes/colors';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
 import { useComposedMessageMaxWidth } from './composed-message-width';
-import { MessageListContext } from './message-list-types';
+import { useTextMessageMarkdownRules } from './message-list-types';
 import {
   allCorners,
   filterCorners,
@@ -23,12 +22,6 @@ import {
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
 /* eslint-enable import/no-named-as-default-member */
-
-function useTextMessageMarkdownRules(useDarkStyle: boolean) {
-  const messageListContext = React.useContext(MessageListContext);
-  invariant(messageListContext, 'DummyTextNode should have MessageListContext');
-  return messageListContext.getTextMessageMarkdownRules(useDarkStyle);
-}
 
 function dummyNodeForTextMessageHeightMeasurement(
   text: string,

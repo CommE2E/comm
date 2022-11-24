@@ -1,6 +1,7 @@
 // @flow
 
 import { useNavigation } from '@react-navigation/native';
+import invariant from 'invariant';
 import * as React from 'react';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -70,9 +71,15 @@ function useNavigateToThread(): (params: MessageListParams) => void {
   );
 }
 
+function useTextMessageMarkdownRules(useDarkStyle: boolean): MarkdownRules {
+  const messageListContext = React.useContext(MessageListContext);
+  invariant(messageListContext, 'DummyTextNode should have MessageListContext');
+  return messageListContext.getTextMessageMarkdownRules(useDarkStyle);
+}
+
 export {
-  MessageListContext,
   MessageListContextProvider,
   createNavigateToThreadAction,
   useNavigateToThread,
+  useTextMessageMarkdownRules,
 };
