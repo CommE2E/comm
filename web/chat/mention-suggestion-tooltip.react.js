@@ -8,6 +8,7 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import type { InputState } from '../input/input-state';
+import { type TypeaheadMatchedStrings } from './chat-input-bar.react';
 import css from './mention-suggestion-tooltip.css';
 import {
   getTypeaheadTooltipActions,
@@ -21,9 +22,7 @@ export type MentionSuggestionTooltipProps = {
   +userSearchIndex: SearchIndex,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +viewerID: ?string,
-  +matchedText: string,
-  +matchedTextBeforeAtSymbol: string,
-  +matchedUsernamePrefix: string,
+  +matchedStrings: TypeaheadMatchedStrings,
 };
 
 function MentionSuggestionTooltip(
@@ -35,10 +34,14 @@ function MentionSuggestionTooltip(
     userSearchIndex,
     threadMembers,
     viewerID,
-    matchedText,
-    matchedTextBeforeAtSymbol,
-    matchedUsernamePrefix,
+    matchedStrings,
   } = props;
+
+  const {
+    entireText: matchedText,
+    textBeforeAtSymbol: matchedTextBeforeAtSymbol,
+    usernamePrefix: matchedUsernamePrefix,
+  } = matchedStrings;
 
   const typedPrefix = matchedUsernamePrefix ?? '';
 

@@ -10,7 +10,12 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  userStoreSearchIndex,
+  relativeMemberInfoSelectorForMembersOfThread,
+} from 'lib/selectors/user-selectors';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
+import SearchIndex from 'lib/shared/search-index';
 import {
   threadHasPermission,
   viewerIsMember,
@@ -27,6 +32,7 @@ import {
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
+import type { RelativeMemberInfo } from 'lib/types/thread-types';
 import { type UserInfos } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
@@ -46,7 +52,8 @@ import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-input-bar.css';
-
+import MentionSuggestionTooltip from './mention-suggestion-tooltip.react';
+import { mentionRegex } from './mention-utils';
 type BaseProps = {
   +threadInfo: ThreadInfo,
   +inputState: InputState,
@@ -65,6 +72,14 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
+  +userSearchIndex: SearchIndex,
+  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
+  +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
+};
+export type TypeaheadMatchedStrings = {
+  +entireText: string,
+  +textBeforeAtSymbol: string,
+  +usernamePrefix: string,
 };
 class ChatInputBar extends React.PureComponent<Props> {
   textarea: ?HTMLTextAreaElement;
@@ -118,8 +133,19 @@ class ChatInputBar extends React.PureComponent<Props> {
       return;
     }
 
-    if (this.props.threadInfo.id !== prevProps.threadInfo.id && this.textarea) {
+    if (
+      (this.props.threadInfo.id !== prevProps.threadInfo.id ||
+        (inputState.textCursorPosition !== prevInputState.textCursorPosition &&
+          this.textarea?.selectionStart === this.textarea?.selectionEnd)) &&
+      this.textarea
+    ) {
       this.textarea.focus();
+
+      this.textarea?.setSelectionRange(
+        inputState.textCursorPosition,
+        inputState.textCursorPosition,
+        'none',
+      );
     }
   }
 
@@ -264,6 +290,8 @@ class ChatInputBar extends React.PureComponent<Props> {
               value={this.props.inputState.draft}
               onChange={this.onChangeMessageText}
               onKeyDown={this.onKeyDown}
+              onClick={this.onClickTextarea}
+              onSelect={this.onSelectTextarea}
               ref={this.textareaRef}
               autoFocus
             />
@@ -300,11 +328,26 @@ class ChatInputBar extends React.PureComponent<Props> {
       );
     }
 
+    let typeaheadTooltip;
+    if (this.props.typeaheadMatchedStrings && this.textarea) {
+      typeaheadTooltip = (
+        <MentionSuggestionTooltip
+          inputState={this.props.inputState}
+          textarea={this.textarea}
+          userSearchIndex={this.props.userSearchIndex}
+          threadMembers={this.props.threadMembers}
+          viewerID={this.props.viewerID}
+          matchedStrings={this.props.typeaheadMatchedStrings}
+        />
+      );
+    }
+
     return (
       <div className={css.inputBar}>
         {joinButton}
         {previews}
         {content}
+        {typeaheadTooltip}
       </div>
     );
   }
@@ -318,6 +361,21 @@ class ChatInputBar extends React.PureComponent<Props> {
 
   onChangeMessageText = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     this.props.inputState.setDraft(event.currentTarget.value);
+    this.props.inputState.setTextCursorPosition(
+      event.currentTarget.selectionStart,
+    );
+  };
+
+  onClickTextarea = (event: SyntheticEvent<HTMLTextAreaElement>) => {
+    this.props.inputState.setTextCursorPosition(
+      event.currentTarget.selectionStart,
+    );
+  };
+
+  onSelectTextarea = (event: SyntheticEvent<HTMLTextAreaElement>) => {
+    this.props.inputState.setTextCursorPosition(
+      event.currentTarget.selectionStart,
+    );
   };
 
   focusAndUpdateText = (text: string) => {
@@ -361,8 +419,6 @@ class ChatInputBar extends React.PureComponent<Props> {
 
     const text = trimMessage(this.props.inputState.draft);
     if (text) {
-      // TODO we should make the send button appear dynamically
-      // iff trimmed text is nonempty, just like native
       this.dispatchTextMessageAction(text, nextLocalID);
       nextLocalID++;
     }
@@ -462,6 +518,41 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
     const calendarQuery = useSelector(nonThreadCalendarQuery);
     const dispatchActionPromise = useDispatchActionPromise();
     const callJoinThread = useServerCall(joinThread);
+    const userSearchIndex = useSelector(userStoreSearchIndex);
+    const threadMembers = useSelector(
+      relativeMemberInfoSelectorForMembersOfThread(props.threadInfo.id),
+    );
+
+    const inputSliceEndingAtCursor = React.useMemo(
+      () =>
+        props.inputState.draft.slice(0, props.inputState.textCursorPosition),
+      [props.inputState.draft, props.inputState.textCursorPosition],
+    );
+    // we only try to match if there is end of text or whitespace after cursor
+    const typeaheadRegexMatches = React.useMemo(
+      () =>
+        inputSliceEndingAtCursor.length === props.inputState.draft.length ||
+        /\s/.test(props.inputState.draft[props.inputState.textCursorPosition])
+          ? inputSliceEndingAtCursor.match(mentionRegex)
+          : null,
+      [
+        inputSliceEndingAtCursor,
+        props.inputState.textCursorPosition,
+        props.inputState.draft,
+      ],
+    );
+
+    const typeaheadMatchedStrings: ?TypeaheadMatchedStrings = React.useMemo(
+      () =>
+        typeaheadRegexMatches !== null
+          ? {
+              entireText: typeaheadRegexMatches[0],
+              textBeforeAtSymbol: typeaheadRegexMatches[1],
+              usernamePrefix: typeaheadRegexMatches[2],
+            }
+          : null,
+      [typeaheadRegexMatches],
+    );
 
     return (
       <ChatInputBar
@@ -475,6 +566,9 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
         userInfos={userInfos}
         dispatchActionPromise={dispatchActionPromise}
         joinThread={callJoinThread}
+        userSearchIndex={userSearchIndex}
+        threadMembers={threadMembers}
+        typeaheadMatchedStrings={typeaheadMatchedStrings}
       />
     );
   },
