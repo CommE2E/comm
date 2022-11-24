@@ -32,15 +32,6 @@ yarn codegen-jsi
 
 The input Flow schemas are located in `native/schema`.
 
-### Codegen for gRPC
-
-In order to generate the codegen files for gRPC, you should run the following command:
-
-```
-cd native
-yarn codegen-grpc
-```
-
 # Working with Phabricator
 
 ## Creating a new diff

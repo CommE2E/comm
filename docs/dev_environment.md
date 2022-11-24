@@ -843,15 +843,6 @@ yarn codegen-jsi
 
 The input Flow schemas are located in `native/schema`.
 
-### Codegen for gRPC
-
-In order to generate the codegen files for gRPC, you should run the following command:
-
-```
-cd shared
-yarn codegen-grpc
-```
-
 # Debugging
 
 ## React Developer Tools
