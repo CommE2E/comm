@@ -18,6 +18,10 @@ import {
   filterCorners,
   getRoundedContainerStyle,
 } from './rounded-corners';
+import {
+  TextMessageMarkdownContext,
+  useTextMessageMarkdown,
+} from './text-message-markdown-context';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;
@@ -83,6 +87,7 @@ function InnerTextMessage(props: Props): React.Node {
   }
 
   const rules = useTextMessageMarkdownRules(darkColor);
+  const textMessageMarkdown = useTextMessageMarkdown(item.messageInfo);
 
   const markdownStyles = React.useMemo(() => {
     const textStyle = {
@@ -95,21 +100,23 @@ function InnerTextMessage(props: Props): React.Node {
   }, [darkColor]);
 
   const message = (
-    <TouchableWithoutFeedback>
-      <View>
-        <GestureTouchableOpacity
-          onPress={props.onPress}
-          onLongPress={props.onPress}
-          activeOpacity={0.6}
-          style={[styles.message, cornerStyle]}
-          animatedStyle={messageStyle}
-        >
-          <Markdown style={markdownStyles} rules={rules}>
-            {text}
-          </Markdown>
-        </GestureTouchableOpacity>
-      </View>
-    </TouchableWithoutFeedback>
+    <TextMessageMarkdownContext.Provider value={textMessageMarkdown}>
+      <TouchableWithoutFeedback>
+        <View>
+          <GestureTouchableOpacity
+            onPress={props.onPress}
+            onLongPress={props.onPress}
+            activeOpacity={0.6}
+            style={[styles.message, cornerStyle]}
+            animatedStyle={messageStyle}
+          >
+            <Markdown style={markdownStyles} rules={rules}>
+              {text}
+            </Markdown>
+          </GestureTouchableOpacity>
+        </View>
+      </TouchableWithoutFeedback>
+    </TextMessageMarkdownContext.Provider>
   );
 
   // We need to set onLayout in order to allow .measure() to be on the ref

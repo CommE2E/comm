@@ -8,6 +8,7 @@ import * as SimpleMarkdown from 'simple-markdown';
 
 import { onlyEmojiRegex } from 'lib/shared/emojis';
 
+import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
 import type { TextStyle } from '../types/styles';
 import type { MarkdownRules } from './rules.react';
 
@@ -20,14 +21,18 @@ function Markdown(props: Props): React.Node {
   const { style, children, rules } = props;
   const { simpleMarkdownRules, emojiOnlyFactor, container } = rules;
 
-  const parser = React.useMemo(
-    () => SimpleMarkdown.parserFor(simpleMarkdownRules),
-    [simpleMarkdownRules],
+  const textMessageMarkdownContext = React.useContext(
+    TextMessageMarkdownContext,
   );
-  const ast = React.useMemo(
-    () => parser(children, { disableAutoBlockNewlines: true, container }),
-    [parser, children, container],
-  );
+  const textMessageMarkdownAST = textMessageMarkdownContext?.markdownAST;
+
+  const ast = React.useMemo(() => {
+    if (textMessageMarkdownAST) {
+      return textMessageMarkdownAST;
+    }
+    const parser = SimpleMarkdown.parserFor(simpleMarkdownRules);
+    return parser(children, { disableAutoBlockNewlines: true, container });
+  }, [textMessageMarkdownAST, simpleMarkdownRules, children, container]);
 
   const output = React.useMemo(
     () => SimpleMarkdown.outputFor(simpleMarkdownRules, 'react'),
