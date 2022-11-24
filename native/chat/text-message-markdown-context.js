@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import type { SingleASTNode } from 'lib/shared/markdown';
+import type { ASTNode, SingleASTNode } from 'lib/shared/markdown';
 import { messageKey } from 'lib/shared/message-utils';
 import type { TextMessageInfo } from 'lib/types/messages/text';
 
@@ -12,11 +12,27 @@ import { useTextMessageMarkdownRules } from '../chat/message-list-types';
 export type TextMessageMarkdownContextType = {
   +messageKey: string,
   +markdownAST: $ReadOnlyArray<SingleASTNode>,
+  +markdownHasPressable: boolean,
 };
 
 const TextMessageMarkdownContext: React.Context<?TextMessageMarkdownContextType> = React.createContext<?TextMessageMarkdownContextType>(
   null,
 );
+const pressableMarkdownTypes = new Set(['link']);
+const markdownASTHasPressable = (node: ASTNode): boolean => {
+  if (Array.isArray(node)) {
+    return node.some(markdownASTHasPressable);
+  }
+  const { type, content, items } = node;
+  if (pressableMarkdownTypes.has(type)) {
+    return true;
+  } else if (items) {
+    return markdownASTHasPressable(items);
+  } else if (content) {
+    return markdownASTHasPressable(content);
+  }
+  return false;
+};
 
 function useTextMessageMarkdown(
   messageInfo: TextMessageInfo,
@@ -37,6 +53,7 @@ function useTextMessageMarkdown(
     () => ({
       messageKey: key,
       markdownAST: ast,
+      markdownHasPressable: markdownASTHasPressable(ast),
     }),
     [key, ast],
   );
