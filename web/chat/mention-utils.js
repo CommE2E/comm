@@ -1,9 +1,9 @@
 // @flow
 
-import type { RelativeMemberInfo } from '../types/thread-types';
-import { oldValidUsernameRegexString } from './account-utils';
-import SearchIndex from './search-index';
-import { stringForUserExplicit } from './user-utils';
+import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
+import SearchIndex from 'lib/shared/search-index';
+import { stringForUserExplicit } from 'lib/shared/user-utils';
+import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 const mentionRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
