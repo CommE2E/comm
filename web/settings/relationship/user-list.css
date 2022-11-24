@@ -1,6 +1,7 @@
 .container {
   overflow: auto;
-  flex: 1;
+  flex-grow: 1;
+  flex-basis: 120px;
 }
 
 .noScroll {
