@@ -1,5 +1,7 @@
 // @flow
 
+import * as React from 'react';
+
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
 import SearchIndex from 'lib/shared/search-index';
 import { stringForUserExplicit } from 'lib/shared/user-utils';
@@ -8,6 +10,20 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 const mentionRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
 );
+
+import { type InputState } from '../input/input-state';
+import { typeaheadStyle } from './chat-constants';
+
+export type MentionSuggestionTooltipAction = {
+  +key: string,
+  +onClick: (SyntheticEvent<HTMLButtonElement>) => mixed,
+  +actionButtonContent: React.Node,
+};
+
+export type TooltipPosition = {
+  +top: number,
+  +left: number,
+};
 
 function getTypeaheadUserSuggestions(
   userSearchIndex: SearchIndex,
@@ -24,7 +40,7 @@ function getTypeaheadUserSuggestions(
 }
 
 function getCaretOffsets(
-  textarea: ?HTMLTextAreaElement,
+  textarea: HTMLTextAreaElement,
   text: string,
 ): { caretTopOffset: number, caretLeftOffset: number } {
   if (!textarea) {
@@ -58,10 +74,86 @@ function getCaretOffsets(
   const { offsetTop, offsetLeft } = span;
   document.body?.removeChild(div);
 
+  const textareaWidth = parseInt(textareaStyle.getPropertyValue('width'));
+
+  const caretLeftOffset =
+    offsetLeft + typeaheadStyle.tooltipWidth > textareaWidth
+      ? textareaWidth - typeaheadStyle.tooltipWidth
+      : offsetLeft;
+
   return {
     caretTopOffset: offsetTop - textarea.scrollTop,
-    caretLeftOffset: offsetLeft,
+    caretLeftOffset,
   };
 }
 
-export { mentionRegex, getTypeaheadUserSuggestions, getCaretOffsets };
+function getTypeaheadTooltipActions(
+  inputState: InputState,
+  textarea: HTMLTextAreaElement,
+  suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
+  matchedTextBefore: string,
+  wholeMatch: string,
+): $ReadOnlyArray<MentionSuggestionTooltipAction> {
+  return suggestedUsers
+    .filter(
+      suggestedUser => stringForUserExplicit(suggestedUser) !== 'anonymous',
+    )
+    .map(suggestedUser => ({
+      key: suggestedUser.id,
+      onClick: () => {
+        const newPrefixText = matchedTextBefore;
+
+        let newSuffixText = inputState.draft.slice(wholeMatch.length);
+        newSuffixText = (newSuffixText[0] !== ' ' ? ' ' : '') + newSuffixText;
+
+        const newText =
+          newPrefixText +
+          '@' +
+          stringForUserExplicit(suggestedUser) +
+          newSuffixText;
+
+        inputState.setDraft(newText);
+        inputState.setTextCursorPosition(
+          newText.length - newSuffixText.length + 1,
+        );
+      },
+      actionButtonContent: stringForUserExplicit(suggestedUser),
+    }));
+}
+function getTypeaheadTooltipPosition(
+  textarea: HTMLTextAreaElement,
+  actionsLength: number,
+  matchedTextBefore: string,
+): TooltipPosition {
+  const { caretTopOffset, caretLeftOffset } = getCaretOffsets(
+    textarea,
+    matchedTextBefore,
+  );
+
+  const textareaBoundingClientRect = textarea.getBoundingClientRect();
+
+  const top: number =
+    textareaBoundingClientRect.top -
+    Math.min(
+      typeaheadStyle.tooltipVerticalPadding +
+        actionsLength * typeaheadStyle.rowHeight,
+      typeaheadStyle.tooltipMaxHeight,
+    ) -
+    typeaheadStyle.tooltipTopOffset +
+    caretTopOffset;
+
+  const left: number =
+    textareaBoundingClientRect.left -
+    typeaheadStyle.tooltipLeftOffset +
+    caretLeftOffset;
+
+  return { top, left };
+}
+
+export {
+  mentionRegex,
+  getTypeaheadUserSuggestions,
+  getCaretOffsets,
+  getTypeaheadTooltipActions,
+  getTypeaheadTooltipPosition,
+};
