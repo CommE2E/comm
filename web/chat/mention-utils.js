@@ -92,7 +92,7 @@ function getTypeaheadTooltipActions(
   textarea: HTMLTextAreaElement,
   suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
   matchedTextBefore: string,
-  wholeMatch: string,
+  matchedText: string,
 ): $ReadOnlyArray<MentionSuggestionTooltipAction> {
   return suggestedUsers
     .filter(
@@ -103,7 +103,7 @@ function getTypeaheadTooltipActions(
       onClick: () => {
         const newPrefixText = matchedTextBefore;
 
-        let newSuffixText = inputState.draft.slice(wholeMatch.length);
+        let newSuffixText = inputState.draft.slice(matchedText.length);
         newSuffixText = (newSuffixText[0] !== ' ' ? ' ' : '') + newSuffixText;
 
         const newText =
