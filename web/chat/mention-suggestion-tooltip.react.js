@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import SearchIndex from 'lib/shared/search-index';
@@ -36,6 +37,13 @@ function MentionSuggestionTooltip(
     viewerID,
     matchedStrings,
   } = props;
+  const [isVisible, setIsVisible] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsVisible(true);
+
+    return () => setIsVisible(false);
+  }, [setIsVisible]);
 
   const {
     entireText: matchedText,
@@ -103,8 +111,13 @@ function MentionSuggestionTooltip(
     return null;
   }
 
+  const overlayClasses = classNames(css.suggestionsContainer, {
+    [css.notVisible]: !isVisible,
+    [css.visible]: isVisible,
+  });
+
   return (
-    <div className={css.suggestionsContainer} style={tooltipPositionStyle}>
+    <div className={overlayClasses} style={tooltipPositionStyle}>
       {tooltipButtons}
     </div>
   );

@@ -56,3 +56,12 @@
 .suggestion:hover {
   background-color: var(--typeahead-overlay-light);
 }
+
+.notVisible {
+  opacity: 0;
+}
+
+.visible {
+  opacity: 1;
+  transition: opacity 100ms ease-in;
+}
