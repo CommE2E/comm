@@ -33,6 +33,7 @@ services/tunnelbroker/Dockerfile
 services/identity/target
 services/identity/Dockerfile
 services/backup/Dockerfile
+services/blob/target
 services/blob/Dockerfile
 
 native/cpp/**/build
