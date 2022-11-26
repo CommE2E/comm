@@ -1,0 +1,18 @@
+[package]
+name = "blob"
+description = "Blob service"
+homepage = "https://comm.app"
+license = "BSD-3-Clause"
+version = "0.1.0"
+edition = "2021"
+links = "blob"
+
+[dependencies]
+anyhow = "1.0"
+prost = "0.11"
+tokio = { version = "1.21", features = ["rt-multi-thread"]}
+tokio-stream = "0.1"
+tonic = "0.8"
+
+[build-dependencies]
+tonic-build = "0.8"
