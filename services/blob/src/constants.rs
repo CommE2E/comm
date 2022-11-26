@@ -1,0 +1,1 @@
+pub const GRPC_SERVER_DEFAULT_PORT: u64 = 50051;
