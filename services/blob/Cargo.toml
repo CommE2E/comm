@@ -13,6 +13,7 @@ aws-config = "0.51.0"
 aws-sdk-dynamodb = "0.21.0"
 aws-sdk-s3 = "0.21.0"
 aws-types = "0.51.0"
+chrono = "0.4"
 prost = "0.11"
 tokio = { version = "1.21", features = ["rt-multi-thread"]}
 tokio-stream = "0.1"

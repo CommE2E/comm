@@ -1,4 +1,5 @@
 use anyhow::Result;
+use chrono::{DateTime, Utc};
 use std::sync::Arc;
 
 use crate::s3::S3Path;
@@ -7,7 +8,7 @@ use crate::s3::S3Path;
 pub struct BlobItem {
   pub blob_hash: String,
   pub s3_path: S3Path,
-  pub created: i64,
+  pub created: DateTime<Utc>,
 }
 
 #[derive(Clone, Debug)]
