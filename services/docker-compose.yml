@@ -50,7 +50,8 @@ services:
     ports:
       - "${COMM_SERVICES_PORT_BLOB}:50051"
     volumes:
-      - $HOME/.aws/credentials:/root/.aws/credentials:ro
+      - $HOME/.aws/config:/home/comm/.aws/config:ro
+      - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
   # identity
   identity-server:
     depends_on:
