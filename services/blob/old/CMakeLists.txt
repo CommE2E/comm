@@ -27,9 +27,11 @@ find_package(double-conversion REQUIRED)
 if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "^\/transferred.*")
   # Inside the docker build contex
   set(_proto_path "grpc")
+  set(_lib_path "../lib/src")
 else()
   # Inside repo
-  set(_proto_path "../../shared/protos")
+  set(_proto_path "../../../shared/protos")
+  set(_lib_path "../../lib/src")
 endif()
 
 # Shared Comm protos
@@ -39,7 +41,7 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${_proto_path}
 )
 
 # Reference native/cpp projects
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../lib/src
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${_lib_path}
   ${CMAKE_CURRENT_BINARY_DIR}/common # CMake's build directory
   EXCLUDE_FROM_ALL # Don't build everything, just what we need
 )

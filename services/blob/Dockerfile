@@ -13,7 +13,7 @@ ENV COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
 WORKDIR /transferred
 
 COPY services/lib/docker/ scripts/
-COPY services/blob/ blob
+COPY services/blob/old/ blob
 COPY services/lib/src lib/src/
 
 WORKDIR /transferred/blob
