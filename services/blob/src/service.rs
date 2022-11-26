@@ -1,15 +1,28 @@
 use anyhow::Result;
 use blob::blob_service_server::BlobService;
-use std::pin::Pin;
+use std::{pin::Pin, sync::Arc};
 use tokio_stream::Stream;
 use tonic::{Request, Response, Status};
+
+use crate::database::DatabaseClient;
 
 pub mod blob {
   tonic::include_proto!("blob");
 }
 
-#[derive(Default)]
-pub struct MyBlobService {}
+pub struct MyBlobService {
+  db: DatabaseClient,
+  s3: Arc<aws_sdk_s3::Client>,
+}
+
+impl MyBlobService {
+  pub fn new(db_client: DatabaseClient, s3_client: aws_sdk_s3::Client) -> Self {
+    MyBlobService {
+      db: db_client,
+      s3: Arc::new(s3_client),
+    }
+  }
+}
 
 // gRPC implementation
 #[tonic::async_trait]
