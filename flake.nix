@@ -13,6 +13,7 @@
       localOverlay = import ./nix/overlay.nix;
       overlays = [
         localOverlay
+        (_: _: { commSrc = toString self; })
       ];
 
       # Since we build for many systems (e.g. aarch64, x86_64-linux), we
