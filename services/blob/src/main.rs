@@ -1,4 +1,5 @@
 pub mod constants;
+pub mod database;
 pub mod s3;
 pub mod service;
 pub mod tools;
