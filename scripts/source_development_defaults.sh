@@ -19,3 +19,8 @@ export PATH="$PATH":"$ANDROID_HOME"/tools/bin:"$ANDROID_HOME"/platform-tools
 export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
 
 export PATH="$PATH":./node_modules/.bin
+
+# For cargo + rustup applications, ensure cargo user bin directory is on path
+if [[ ! "$PATH" =~ \.cargo/bin ]]; then
+  export PATH="$PATH":"$HOME/.cargo/bin"
+fi
