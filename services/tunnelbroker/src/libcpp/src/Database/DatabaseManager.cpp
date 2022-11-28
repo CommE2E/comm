@@ -49,10 +49,6 @@ void DatabaseManager::putSessionItem(const DeviceSessionItem &item) {
       DeviceSessionItem::FIELD_DEVICE_OS,
       Aws::DynamoDB::Model::AttributeValue(item.getDeviceOs()));
   request.AddItem(
-      DeviceSessionItem::FIELD_CHECKPOINT_TIME,
-      Aws::DynamoDB::Model::AttributeValue(
-          std::to_string(item.getCheckpointTime())));
-  request.AddItem(
       DeviceSessionItem::FIELD_EXPIRE,
       Aws::DynamoDB::Model::AttributeValue(std::to_string(
           static_cast<size_t>(std::time(0)) + SESSION_RECORD_TTL)));

@@ -15,7 +15,6 @@ const std::string DeviceSessionItem::FIELD_NOTIFY_TOKEN = "NotifyToken";
 const std::string DeviceSessionItem::FIELD_DEVICE_TYPE = "DeviceType";
 const std::string DeviceSessionItem::FIELD_APP_VERSION = "AppVersion";
 const std::string DeviceSessionItem::FIELD_DEVICE_OS = "DeviceOS";
-const std::string DeviceSessionItem::FIELD_CHECKPOINT_TIME = "CheckpointTime";
 const std::string DeviceSessionItem::FIELD_EXPIRE = "Expire";
 const std::string DeviceSessionItem::FIELD_IS_ONLINE = "IsOnline";
 
@@ -66,10 +65,6 @@ void DeviceSessionItem::assignItemFromDatabase(
     this->appVersion =
         itemFromDB.at(DeviceSessionItem::FIELD_APP_VERSION).GetS();
     this->deviceOs = itemFromDB.at(DeviceSessionItem::FIELD_DEVICE_OS).GetS();
-    this->checkpointTime = std::stoll(
-        std::string(
-            itemFromDB.at(DeviceSessionItem::FIELD_CHECKPOINT_TIME).GetS())
-            .c_str());
     this->isOnline =
         itemFromDB.at(DeviceSessionItem::FIELD_IS_ONLINE).GetBool();
   } catch (std::logic_error &e) {
@@ -118,10 +113,6 @@ std::string DeviceSessionItem::getAppVersion() const {
 
 std::string DeviceSessionItem::getDeviceOs() const {
   return this->deviceOs;
-}
-
-int64_t DeviceSessionItem::getCheckpointTime() const {
-  return this->checkpointTime;
 }
 
 bool DeviceSessionItem::getIsOnline() const {

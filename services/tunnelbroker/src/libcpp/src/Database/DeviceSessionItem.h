@@ -16,7 +16,6 @@ class DeviceSessionItem : public Item {
   size_t deviceType;
   std::string appVersion;
   std::string deviceOs;
-  int64_t checkpointTime = 0;
   bool isOnline = false;
 
   void validate() const override;
@@ -29,7 +28,6 @@ public:
   static const std::string FIELD_DEVICE_TYPE;
   static const std::string FIELD_APP_VERSION;
   static const std::string FIELD_DEVICE_OS;
-  static const std::string FIELD_CHECKPOINT_TIME;
   static const std::string FIELD_EXPIRE;
   static const std::string FIELD_IS_ONLINE;
 
@@ -45,7 +43,6 @@ public:
   size_t getDeviceType() const;
   std::string getAppVersion() const;
   std::string getDeviceOs() const;
-  int64_t getCheckpointTime() const;
   bool getIsOnline() const;
 
   DeviceSessionItem() {
