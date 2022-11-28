@@ -23,7 +23,7 @@ Go to the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835) to in
 
 Once Xcode is installed, open it up. If you are prompted, follow the instructions to install any “Additional Required Components”.
 
-Finally, you need to make sure that the Xcode “Command Line Tools” are installed. You can do this by running:
+Finally, you need to make sure that the Xcode “Command Line Tools” are installed. Run this command:
 
 ```
 xcode-select --install
@@ -476,7 +476,7 @@ Finally! It’s time to clone the repo from GitHub.
 git clone git@github.com:CommE2E/comm.git
 ```
 
-Once you have the repo cloned, you can run this command to pull in dependencies.
+Once you have the repo cloned, run this command to pull in dependencies.
 
 ```
 cd comm
