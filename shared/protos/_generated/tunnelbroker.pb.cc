@@ -298,7 +298,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::SessionSignatureResponse, tosign_),
-  PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, _has_bits_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -310,13 +310,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, devicetype_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, deviceappversion_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, deviceos_),
-  ~0u,
-  ~0u,
-  ~0u,
-  0,
-  ~0u,
-  ~0u,
-  ~0u,
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -332,15 +325,13 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::SendRequest, todeviceid_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::SendRequest, payload_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::SendRequest, blobhashes_),
-  PROTOBUF_FIELD_OFFSET(::tunnelbroker::GetRequest, _has_bits_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::GetRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::GetRequest, sessionid_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::GetRequest, newnotifytoken_),
-  ~0u,
-  0,
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::GetResponseMessage, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -450,24 +441,24 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::tunnelbroker::SessionSignatureRequest)},
   { 6, -1, sizeof(::tunnelbroker::SessionSignatureResponse)},
-  { 12, 24, sizeof(::tunnelbroker::NewSessionRequest)},
-  { 31, -1, sizeof(::tunnelbroker::NewSessionResponse)},
-  { 37, -1, sizeof(::tunnelbroker::SendRequest)},
-  { 46, 53, sizeof(::tunnelbroker::GetRequest)},
-  { 55, -1, sizeof(::tunnelbroker::GetResponseMessage)},
-  { 63, -1, sizeof(::tunnelbroker::GetResponse)},
-  { 72, -1, sizeof(::tunnelbroker::ProcessedMessages)},
-  { 78, -1, sizeof(::tunnelbroker::MessageToTunnelbrokerStruct)},
-  { 87, -1, sizeof(::tunnelbroker::MessagesToSend)},
-  { 93, -1, sizeof(::tunnelbroker::MessageToTunnelbroker)},
-  { 102, -1, sizeof(::tunnelbroker::MessageToClientStruct)},
-  { 111, -1, sizeof(::tunnelbroker::MessagesToDeliver)},
-  { 117, -1, sizeof(::tunnelbroker::MessageToClient)},
-  { 127, -1, sizeof(::tunnelbroker::CheckRequest)},
-  { 134, -1, sizeof(::tunnelbroker::CheckResponse)},
-  { 140, -1, sizeof(::tunnelbroker::NewPrimaryRequest)},
-  { 147, -1, sizeof(::tunnelbroker::NewPrimaryResponse)},
-  { 153, -1, sizeof(::tunnelbroker::PongRequest)},
+  { 12, -1, sizeof(::tunnelbroker::NewSessionRequest)},
+  { 24, -1, sizeof(::tunnelbroker::NewSessionResponse)},
+  { 30, -1, sizeof(::tunnelbroker::SendRequest)},
+  { 39, -1, sizeof(::tunnelbroker::GetRequest)},
+  { 46, -1, sizeof(::tunnelbroker::GetResponseMessage)},
+  { 54, -1, sizeof(::tunnelbroker::GetResponse)},
+  { 63, -1, sizeof(::tunnelbroker::ProcessedMessages)},
+  { 69, -1, sizeof(::tunnelbroker::MessageToTunnelbrokerStruct)},
+  { 78, -1, sizeof(::tunnelbroker::MessagesToSend)},
+  { 84, -1, sizeof(::tunnelbroker::MessageToTunnelbroker)},
+  { 93, -1, sizeof(::tunnelbroker::MessageToClientStruct)},
+  { 102, -1, sizeof(::tunnelbroker::MessagesToDeliver)},
+  { 108, -1, sizeof(::tunnelbroker::MessageToClient)},
+  { 118, -1, sizeof(::tunnelbroker::CheckRequest)},
+  { 125, -1, sizeof(::tunnelbroker::CheckResponse)},
+  { 131, -1, sizeof(::tunnelbroker::NewPrimaryRequest)},
+  { 138, -1, sizeof(::tunnelbroker::NewPrimaryResponse)},
+  { 144, -1, sizeof(::tunnelbroker::PongRequest)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -497,81 +488,80 @@ const char descriptor_table_protodef_tunnelbroker_2eproto[] PROTOBUF_SECTION_VAR
   "\n\022tunnelbroker.proto\022\014tunnelbroker\032\033goog"
   "le/protobuf/empty.proto\"+\n\027SessionSignat"
   "ureRequest\022\020\n\010deviceID\030\001 \001(\t\"*\n\030SessionS"
-  "ignatureResponse\022\016\n\006toSign\030\001 \001(\t\"\225\002\n\021New"
+  "ignatureResponse\022\016\n\006toSign\030\001 \001(\t\"\200\002\n\021New"
   "SessionRequest\022\020\n\010deviceID\030\001 \001(\t\022\021\n\tpubl"
-  "icKey\030\002 \001(\t\022\021\n\tsignature\030\003 \001(\t\022\030\n\013notify"
-  "Token\030\004 \001(\tH\000\210\001\001\022\?\n\ndeviceType\030\005 \001(\0162+.t"
-  "unnelbroker.NewSessionRequest.DeviceType"
-  "s\022\030\n\020deviceAppVersion\030\006 \001(\t\022\020\n\010deviceOS\030"
-  "\007 \001(\t\"1\n\013DeviceTypes\022\n\n\006MOBILE\020\000\022\007\n\003WEB\020"
-  "\001\022\r\n\tKEYSERVER\020\002B\016\n\014_notifyToken\"\'\n\022NewS"
-  "essionResponse\022\021\n\tsessionID\030\001 \001(\t\"Y\n\013Sen"
-  "dRequest\022\021\n\tsessionID\030\001 \001(\t\022\022\n\ntoDeviceI"
-  "D\030\002 \001(\t\022\017\n\007payload\030\003 \001(\014\022\022\n\nblobHashes\030\004"
-  " \003(\t\"O\n\nGetRequest\022\021\n\tsessionID\030\001 \001(\t\022\033\n"
-  "\016newNotifyToken\030\002 \001(\tH\000\210\001\001B\021\n\017_newNotify"
-  "Token\"O\n\022GetResponseMessage\022\024\n\014fromDevic"
-  "eID\030\001 \001(\t\022\017\n\007payload\030\002 \001(\014\022\022\n\nblobHashes"
-  "\030\003 \003(\t\"\264\001\n\013GetResponse\022;\n\017responseMessag"
-  "e\030\001 \001(\0132 .tunnelbroker.GetResponseMessag"
-  "eH\000\022&\n\004ping\030\002 \001(\0132\026.google.protobuf.Empt"
-  "yH\000\0228\n\026newNotifyTokenRequired\030\003 \001(\0132\026.go"
-  "ogle.protobuf.EmptyH\000B\006\n\004data\"&\n\021Process"
-  "edMessages\022\021\n\tmessageID\030\001 \003(\t\"i\n\033Message"
-  "ToTunnelbrokerStruct\022\021\n\tmessageID\030\001 \001(\t\022"
-  "\022\n\ntoDeviceID\030\002 \001(\t\022\017\n\007payload\030\003 \001(\t\022\022\n\n"
-  "blobHashes\030\004 \003(\t\"M\n\016MessagesToSend\022;\n\010me"
-  "ssages\030\001 \003(\0132).tunnelbroker.MessageToTun"
-  "nelbrokerStruct\"\257\001\n\025MessageToTunnelbroke"
-  "r\0226\n\016messagesToSend\030\001 \001(\0132\034.tunnelbroker"
-  ".MessagesToSendH\000\022<\n\021processedMessages\030\002"
-  " \001(\0132\037.tunnelbroker.ProcessedMessagesH\000\022"
-  "\030\n\016newNotifyToken\030\003 \001(\tH\000B\006\n\004data\"e\n\025Mes"
-  "sageToClientStruct\022\021\n\tmessageID\030\001 \001(\t\022\024\n"
-  "\014fromDeviceID\030\002 \001(\t\022\017\n\007payload\030\003 \001(\t\022\022\n\n"
-  "blobHashes\030\004 \003(\t\"J\n\021MessagesToDeliver\0225\n"
-  "\010messages\030\001 \003(\0132#.tunnelbroker.MessageTo"
-  "ClientStruct\"\367\001\n\017MessageToClient\022<\n\021mess"
-  "agesToDeliver\030\001 \001(\0132\037.tunnelbroker.Messa"
-  "gesToDeliverH\000\022<\n\021processedMessages\030\002 \001("
-  "\0132\037.tunnelbroker.ProcessedMessagesH\000\0228\n\026"
-  "newNotifyTokenRequired\030\003 \001(\0132\026.google.pr"
-  "otobuf.EmptyH\000\022&\n\004ping\030\004 \001(\0132\026.google.pr"
-  "otobuf.EmptyH\000B\006\n\004data\"3\n\014CheckRequest\022\016"
-  "\n\006userId\030\001 \001(\t\022\023\n\013deviceToken\030\002 \001(\t\"K\n\rC"
-  "heckResponse\022:\n\021checkResponseType\030\001 \001(\0162"
-  "\037.tunnelbroker.CheckResponseType\"8\n\021NewP"
-  "rimaryRequest\022\016\n\006userId\030\001 \001(\t\022\023\n\013deviceT"
-  "oken\030\002 \001(\t\"%\n\022NewPrimaryResponse\022\017\n\007succ"
-  "ess\030\001 \001(\010\"2\n\013PongRequest\022\016\n\006userId\030\001 \001(\t"
-  "\022\023\n\013deviceToken\030\002 \001(\t*n\n\021CheckResponseTy"
-  "pe\022\030\n\024PRIMARY_DOESNT_EXIST\020\000\022\022\n\016PRIMARY_"
-  "ONLINE\020\001\022\023\n\017PRIMARY_OFFLINE\020\002\022\026\n\022CURRENT"
-  "_IS_PRIMARY\020\0032\237\005\n\023TunnelbrokerService\022W\n"
-  "\032CheckIfPrimaryDeviceOnline\022\032.tunnelbrok"
-  "er.CheckRequest\032\033.tunnelbroker.CheckResp"
-  "onse\"\000\022]\n\026BecomeNewPrimaryDevice\022\037.tunne"
-  "lbroker.NewPrimaryRequest\032 .tunnelbroker"
-  ".NewPrimaryResponse\"\000\022\?\n\010SendPong\022\031.tunn"
-  "elbroker.PongRequest\032\026.google.protobuf.E"
-  "mpty\"\000\022c\n\020SessionSignature\022%.tunnelbroke"
-  "r.SessionSignatureRequest\032&.tunnelbroker"
-  ".SessionSignatureResponse\"\000\022Q\n\nNewSessio"
-  "n\022\037.tunnelbroker.NewSessionRequest\032 .tun"
-  "nelbroker.NewSessionResponse\"\000\022;\n\004Send\022\031"
-  ".tunnelbroker.SendRequest\032\026.google.proto"
-  "buf.Empty\"\000\022>\n\003Get\022\030.tunnelbroker.GetReq"
-  "uest\032\031.tunnelbroker.GetResponse\"\0000\001\022Z\n\016M"
-  "essagesStream\022#.tunnelbroker.MessageToTu"
-  "nnelbroker\032\035.tunnelbroker.MessageToClien"
-  "t\"\000(\0010\001b\006proto3"
+  "icKey\030\002 \001(\t\022\021\n\tsignature\030\003 \001(\t\022\023\n\013notify"
+  "Token\030\004 \001(\t\022\?\n\ndeviceType\030\005 \001(\0162+.tunnel"
+  "broker.NewSessionRequest.DeviceTypes\022\030\n\020"
+  "deviceAppVersion\030\006 \001(\t\022\020\n\010deviceOS\030\007 \001(\t"
+  "\"1\n\013DeviceTypes\022\n\n\006MOBILE\020\000\022\007\n\003WEB\020\001\022\r\n\t"
+  "KEYSERVER\020\002\"\'\n\022NewSessionResponse\022\021\n\tses"
+  "sionID\030\001 \001(\t\"Y\n\013SendRequest\022\021\n\tsessionID"
+  "\030\001 \001(\t\022\022\n\ntoDeviceID\030\002 \001(\t\022\017\n\007payload\030\003 "
+  "\001(\014\022\022\n\nblobHashes\030\004 \003(\t\"7\n\nGetRequest\022\021\n"
+  "\tsessionID\030\001 \001(\t\022\026\n\016newNotifyToken\030\002 \001(\t"
+  "\"O\n\022GetResponseMessage\022\024\n\014fromDeviceID\030\001"
+  " \001(\t\022\017\n\007payload\030\002 \001(\014\022\022\n\nblobHashes\030\003 \003("
+  "\t\"\264\001\n\013GetResponse\022;\n\017responseMessage\030\001 \001"
+  "(\0132 .tunnelbroker.GetResponseMessageH\000\022&"
+  "\n\004ping\030\002 \001(\0132\026.google.protobuf.EmptyH\000\0228"
+  "\n\026newNotifyTokenRequired\030\003 \001(\0132\026.google."
+  "protobuf.EmptyH\000B\006\n\004data\"&\n\021ProcessedMes"
+  "sages\022\021\n\tmessageID\030\001 \003(\t\"i\n\033MessageToTun"
+  "nelbrokerStruct\022\021\n\tmessageID\030\001 \001(\t\022\022\n\nto"
+  "DeviceID\030\002 \001(\t\022\017\n\007payload\030\003 \001(\t\022\022\n\nblobH"
+  "ashes\030\004 \003(\t\"M\n\016MessagesToSend\022;\n\010message"
+  "s\030\001 \003(\0132).tunnelbroker.MessageToTunnelbr"
+  "okerStruct\"\257\001\n\025MessageToTunnelbroker\0226\n\016"
+  "messagesToSend\030\001 \001(\0132\034.tunnelbroker.Mess"
+  "agesToSendH\000\022<\n\021processedMessages\030\002 \001(\0132"
+  "\037.tunnelbroker.ProcessedMessagesH\000\022\030\n\016ne"
+  "wNotifyToken\030\003 \001(\tH\000B\006\n\004data\"e\n\025MessageT"
+  "oClientStruct\022\021\n\tmessageID\030\001 \001(\t\022\024\n\014from"
+  "DeviceID\030\002 \001(\t\022\017\n\007payload\030\003 \001(\t\022\022\n\nblobH"
+  "ashes\030\004 \003(\t\"J\n\021MessagesToDeliver\0225\n\010mess"
+  "ages\030\001 \003(\0132#.tunnelbroker.MessageToClien"
+  "tStruct\"\367\001\n\017MessageToClient\022<\n\021messagesT"
+  "oDeliver\030\001 \001(\0132\037.tunnelbroker.MessagesTo"
+  "DeliverH\000\022<\n\021processedMessages\030\002 \001(\0132\037.t"
+  "unnelbroker.ProcessedMessagesH\000\0228\n\026newNo"
+  "tifyTokenRequired\030\003 \001(\0132\026.google.protobu"
+  "f.EmptyH\000\022&\n\004ping\030\004 \001(\0132\026.google.protobu"
+  "f.EmptyH\000B\006\n\004data\"3\n\014CheckRequest\022\016\n\006use"
+  "rId\030\001 \001(\t\022\023\n\013deviceToken\030\002 \001(\t\"K\n\rCheckR"
+  "esponse\022:\n\021checkResponseType\030\001 \001(\0162\037.tun"
+  "nelbroker.CheckResponseType\"8\n\021NewPrimar"
+  "yRequest\022\016\n\006userId\030\001 \001(\t\022\023\n\013deviceToken\030"
+  "\002 \001(\t\"%\n\022NewPrimaryResponse\022\017\n\007success\030\001"
+  " \001(\010\"2\n\013PongRequest\022\016\n\006userId\030\001 \001(\t\022\023\n\013d"
+  "eviceToken\030\002 \001(\t*n\n\021CheckResponseType\022\030\n"
+  "\024PRIMARY_DOESNT_EXIST\020\000\022\022\n\016PRIMARY_ONLIN"
+  "E\020\001\022\023\n\017PRIMARY_OFFLINE\020\002\022\026\n\022CURRENT_IS_P"
+  "RIMARY\020\0032\237\005\n\023TunnelbrokerService\022W\n\032Chec"
+  "kIfPrimaryDeviceOnline\022\032.tunnelbroker.Ch"
+  "eckRequest\032\033.tunnelbroker.CheckResponse\""
+  "\000\022]\n\026BecomeNewPrimaryDevice\022\037.tunnelbrok"
+  "er.NewPrimaryRequest\032 .tunnelbroker.NewP"
+  "rimaryResponse\"\000\022\?\n\010SendPong\022\031.tunnelbro"
+  "ker.PongRequest\032\026.google.protobuf.Empty\""
+  "\000\022c\n\020SessionSignature\022%.tunnelbroker.Ses"
+  "sionSignatureRequest\032&.tunnelbroker.Sess"
+  "ionSignatureResponse\"\000\022Q\n\nNewSession\022\037.t"
+  "unnelbroker.NewSessionRequest\032 .tunnelbr"
+  "oker.NewSessionResponse\"\000\022;\n\004Send\022\031.tunn"
+  "elbroker.SendRequest\032\026.google.protobuf.E"
+  "mpty\"\000\022>\n\003Get\022\030.tunnelbroker.GetRequest\032"
+  "\031.tunnelbroker.GetResponse\"\0000\001\022Z\n\016Messag"
+  "esStream\022#.tunnelbroker.MessageToTunnelb"
+  "roker\032\035.tunnelbroker.MessageToClient\"\000(\001"
+  "0\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_tunnelbroker_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_tunnelbroker_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_tunnelbroker_2eproto = {
-  false, false, 2815, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
+  false, false, 2770, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
   &descriptor_table_tunnelbroker_2eproto_once, descriptor_table_tunnelbroker_2eproto_deps, 1, 20,
   schemas, file_default_instances, TableStruct_tunnelbroker_2eproto::offsets,
   file_level_metadata_tunnelbroker_2eproto, file_level_enum_descriptors_tunnelbroker_2eproto, file_level_service_descriptors_tunnelbroker_2eproto,
@@ -1029,10 +1019,6 @@ void SessionSignatureResponse::InternalSwap(SessionSignatureResponse* other) {
 
 class NewSessionRequest::_Internal {
  public:
-  using HasBits = decltype(std::declval<NewSessionRequest>()._has_bits_);
-  static void set_has_notifytoken(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
 };
 
 NewSessionRequest::NewSessionRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
@@ -1042,8 +1028,7 @@ NewSessionRequest::NewSessionRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:tunnelbroker.NewSessionRequest)
 }
 NewSessionRequest::NewSessionRequest(const NewSessionRequest& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _has_bits_(from._has_bits_) {
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   deviceid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_deviceid().empty()) {
@@ -1061,7 +1046,7 @@ NewSessionRequest::NewSessionRequest(const NewSessionRequest& from)
       GetArena());
   }
   notifytoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (from._internal_has_notifytoken()) {
+  if (!from._internal_notifytoken().empty()) {
     notifytoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_notifytoken(), 
       GetArena());
   }
@@ -1124,20 +1109,15 @@ void NewSessionRequest::Clear() {
   deviceid_.ClearToEmpty();
   publickey_.ClearToEmpty();
   signature_.ClearToEmpty();
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    notifytoken_.ClearNonDefaultToEmpty();
-  }
+  notifytoken_.ClearToEmpty();
   deviceappversion_.ClearToEmpty();
   deviceos_.ClearToEmpty();
   devicetype_ = 0;
-  _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* NewSessionRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  _Internal::HasBits has_bits{};
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
@@ -1220,7 +1200,6 @@ const char* NewSessionRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
     }  // switch
   }  // while
 success:
-  _has_bits_.Or(has_bits);
   return ptr;
 failure:
   ptr = nullptr;
@@ -1265,7 +1244,7 @@ failure:
   }
 
   // string notifyToken = 4;
-  if (_internal_has_notifytoken()) {
+  if (this->notifytoken().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_notifytoken().data(), static_cast<int>(this->_internal_notifytoken().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -1339,8 +1318,7 @@ size_t NewSessionRequest::ByteSizeLong() const {
   }
 
   // string notifyToken = 4;
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if (this->notifytoken().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_notifytoken());
@@ -1406,7 +1384,7 @@ void NewSessionRequest::MergeFrom(const NewSessionRequest& from) {
   if (from.signature().size() > 0) {
     _internal_set_signature(from._internal_signature());
   }
-  if (from._internal_has_notifytoken()) {
+  if (from.notifytoken().size() > 0) {
     _internal_set_notifytoken(from._internal_notifytoken());
   }
   if (from.deviceappversion().size() > 0) {
@@ -1441,7 +1419,6 @@ bool NewSessionRequest::IsInitialized() const {
 void NewSessionRequest::InternalSwap(NewSessionRequest* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
   deviceid_.Swap(&other->deviceid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   publickey_.Swap(&other->publickey_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   signature_.Swap(&other->signature_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
@@ -1968,10 +1945,6 @@ void SendRequest::InternalSwap(SendRequest* other) {
 
 class GetRequest::_Internal {
  public:
-  using HasBits = decltype(std::declval<GetRequest>()._has_bits_);
-  static void set_has_newnotifytoken(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
 };
 
 GetRequest::GetRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
@@ -1981,8 +1954,7 @@ GetRequest::GetRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:tunnelbroker.GetRequest)
 }
 GetRequest::GetRequest(const GetRequest& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _has_bits_(from._has_bits_) {
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   sessionid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_sessionid().empty()) {
@@ -1990,7 +1962,7 @@ GetRequest::GetRequest(const GetRequest& from)
       GetArena());
   }
   newnotifytoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (from._internal_has_newnotifytoken()) {
+  if (!from._internal_newnotifytoken().empty()) {
     newnotifytoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_newnotifytoken(), 
       GetArena());
   }
@@ -2031,17 +2003,12 @@ void GetRequest::Clear() {
   (void) cached_has_bits;
 
   sessionid_.ClearToEmpty();
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    newnotifytoken_.ClearNonDefaultToEmpty();
-  }
-  _has_bits_.Clear();
+  newnotifytoken_.ClearToEmpty();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* GetRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  _Internal::HasBits has_bits{};
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
@@ -2080,7 +2047,6 @@ const char* GetRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
     }  // switch
   }  // while
 success:
-  _has_bits_.Or(has_bits);
   return ptr;
 failure:
   ptr = nullptr;
@@ -2105,7 +2071,7 @@ failure:
   }
 
   // string newNotifyToken = 2;
-  if (_internal_has_newnotifytoken()) {
+  if (this->newnotifytoken().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_newnotifytoken().data(), static_cast<int>(this->_internal_newnotifytoken().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -2138,8 +2104,7 @@ size_t GetRequest::ByteSizeLong() const {
   }
 
   // string newNotifyToken = 2;
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if (this->newnotifytoken().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_newnotifytoken());
@@ -2179,7 +2144,7 @@ void GetRequest::MergeFrom(const GetRequest& from) {
   if (from.sessionid().size() > 0) {
     _internal_set_sessionid(from._internal_sessionid());
   }
-  if (from._internal_has_newnotifytoken()) {
+  if (from.newnotifytoken().size() > 0) {
     _internal_set_newnotifytoken(from._internal_newnotifytoken());
   }
 }
@@ -2205,7 +2170,6 @@ bool GetRequest::IsInitialized() const {
 void GetRequest::InternalSwap(GetRequest* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
   sessionid_.Swap(&other->sessionid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   newnotifytoken_.Swap(&other->newnotifytoken_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }

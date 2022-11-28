@@ -9,7 +9,7 @@ service TunnelbrokerService {
   // The old API service methods
   // to support the native client build
   // until we switch to the new one
-  
+
   rpc CheckIfPrimaryDeviceOnline(CheckRequest) returns (CheckResponse) {}
   rpc BecomeNewPrimaryDevice(NewPrimaryRequest) returns (NewPrimaryResponse) {}
   rpc SendPong (PongRequest) returns (google.protobuf.Empty) {}
@@ -22,7 +22,7 @@ service TunnelbrokerService {
   rpc Get(GetRequest) returns (stream GetResponse) {}
 
   // Replacing Send and Get with a single bidirectional streaming RPC
-  // The client should provide the valid `sessionID` identifier 
+  // The client should provide the valid `sessionID` identifier
   // from the `NewSession` in the stream request metadata
   rpc MessagesStream(stream MessageToTunnelbroker) returns (stream MessageToClient) {}
 }
@@ -41,7 +41,7 @@ message NewSessionRequest {
   string deviceID = 1;
   string publicKey = 2;
   string signature = 3;
-  optional string notifyToken = 4;
+  string notifyToken = 4;
   DeviceTypes deviceType = 5;
   string deviceAppVersion = 6;
   string deviceOS = 7;
@@ -70,7 +70,7 @@ message SendRequest {
 
 message GetRequest {
   string sessionID = 1;
-  optional string newNotifyToken = 2;
+  string newNotifyToken = 2;
 }
 
 message GetResponseMessage {
