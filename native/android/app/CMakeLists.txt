@@ -130,17 +130,12 @@ file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES
   "${_third_party_dir}/double-conversion/double-conversion/*.cc"
 )
-<<<<<<< HEAD
-||||||| parent of 84a630acb ([Android] Use shared proto cmake project)
-file(GLOB GRPC_CODE "../../../shared/protos/_generated/*.cc")
-=======
 
 add_library(gRPC::grpc++ ALIAS grpc++)
 add_subdirectory(../../../shared/protos
   ${CMAKE_CURRENT_BINARY_DIR}/protos
   EXCLUDE_FROM_ALL
 )
->>>>>>> 84a630acb ([Android] Use shared proto cmake project)
 
 add_library(
   # Sets the name of the library.

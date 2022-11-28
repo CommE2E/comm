@@ -24,7 +24,7 @@ message NewSessionRequest {
   string deviceID = 1;
   string publicKey = 2;
   string signature = 3;
-  optional string notifyToken = 4;
+  string notifyToken = 4;
   DeviceTypes deviceType = 5;
   string deviceAppVersion = 6;
   string deviceOS = 7;

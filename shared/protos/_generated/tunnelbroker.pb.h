@@ -624,10 +624,6 @@ class NewSessionRequest PROTOBUF_FINAL :
   public:
 
   // string notifyToken = 4;
-  bool has_notifytoken() const;
-  private:
-  bool _internal_has_notifytoken() const;
-  public:
   void clear_notifytoken();
   const std::string& notifytoken() const;
   void set_notifytoken(const std::string& value);
@@ -691,8 +687,6 @@ class NewSessionRequest PROTOBUF_FINAL :
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
-  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr deviceid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr publickey_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr signature_;
@@ -700,6 +694,7 @@ class NewSessionRequest PROTOBUF_FINAL :
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr deviceappversion_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr deviceos_;
   int devicetype_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_tunnelbroker_2eproto;
 };
 // -------------------------------------------------------------------
@@ -2465,16 +2460,8 @@ inline void NewSessionRequest::set_allocated_signature(std::string* signature) {
 }
 
 // string notifyToken = 4;
-inline bool NewSessionRequest::_internal_has_notifytoken() const {
-  bool value = (_has_bits_[0] & 0x00000001u) != 0;
-  return value;
-}
-inline bool NewSessionRequest::has_notifytoken() const {
-  return _internal_has_notifytoken();
-}
 inline void NewSessionRequest::clear_notifytoken() {
   notifytoken_.ClearToEmpty();
-  _has_bits_[0] &= ~0x00000001u;
 }
 inline const std::string& NewSessionRequest::notifytoken() const {
   // @@protoc_insertion_point(field_get:tunnelbroker.NewSessionRequest.notifyToken)
@@ -2492,45 +2479,41 @@ inline const std::string& NewSessionRequest::_internal_notifytoken() const {
   return notifytoken_.Get();
 }
 inline void NewSessionRequest::_internal_set_notifytoken(const std::string& value) {
-  _has_bits_[0] |= 0x00000001u;
+  
   notifytoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
 }
 inline void NewSessionRequest::set_notifytoken(std::string&& value) {
-  _has_bits_[0] |= 0x00000001u;
+  
   notifytoken_.Set(
     ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
   // @@protoc_insertion_point(field_set_rvalue:tunnelbroker.NewSessionRequest.notifyToken)
 }
 inline void NewSessionRequest::set_notifytoken(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  _has_bits_[0] |= 0x00000001u;
+  
   notifytoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
   // @@protoc_insertion_point(field_set_char:tunnelbroker.NewSessionRequest.notifyToken)
 }
 inline void NewSessionRequest::set_notifytoken(const char* value,
     size_t size) {
-  _has_bits_[0] |= 0x00000001u;
+  
   notifytoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
       reinterpret_cast<const char*>(value), size), GetArena());
   // @@protoc_insertion_point(field_set_pointer:tunnelbroker.NewSessionRequest.notifyToken)
 }
 inline std::string* NewSessionRequest::_internal_mutable_notifytoken() {
-  _has_bits_[0] |= 0x00000001u;
+  
   return notifytoken_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
 }
 inline std::string* NewSessionRequest::release_notifytoken() {
   // @@protoc_insertion_point(field_release:tunnelbroker.NewSessionRequest.notifyToken)
-  if (!_internal_has_notifytoken()) {
-    return nullptr;
-  }
-  _has_bits_[0] &= ~0x00000001u;
-  return notifytoken_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  return notifytoken_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
 }
 inline void NewSessionRequest::set_allocated_notifytoken(std::string* notifytoken) {
   if (notifytoken != nullptr) {
-    _has_bits_[0] |= 0x00000001u;
+    
   } else {
-    _has_bits_[0] &= ~0x00000001u;
+    
   }
   notifytoken_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), notifytoken,
       GetArena());
