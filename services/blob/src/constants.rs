@@ -39,6 +39,8 @@ pub const BLOB_REVERSE_INDEX_TABLE_HASH_INDEX_NAME: &str = "blobHash-index";
 // Environment variables
 
 pub const SANDBOX_ENV_VAR: &str = "COMM_SERVICES_SANDBOX";
+pub const LOG_LEVEL_ENV_VAR: &str =
+  tracing_subscriber::filter::EnvFilter::DEFAULT_ENV;
 
 // S3 constants
 
