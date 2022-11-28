@@ -2,11 +2,15 @@ use argon2::Argon2;
 use digest::generic_array::GenericArray;
 use digest::Digest;
 use neon::prelude::*;
+use neon::types::buffer::TypedArray;
 use opaque_ke::ciphersuite::CipherSuite;
 use opaque_ke::errors::InternalPakeError;
 use opaque_ke::hash::Hash;
 use opaque_ke::slow_hash::SlowHash;
-use opaque_ke::{ClientRegistration, RegistrationRequest};
+use opaque_ke::{
+  ClientRegistration, ClientRegistrationFinishParameters, RegistrationRequest,
+  RegistrationResponse, RegistrationUpload,
+};
 use rand::rngs::OsRng;
 
 struct Cipher;
@@ -39,6 +43,12 @@ struct ClientRegistrationStartResult {
 }
 
 impl Finalize for ClientRegistrationStartResult {}
+
+struct ClientRegistrationFinishResult {
+  message: RegistrationUpload<Cipher>,
+}
+
+impl Finalize for ClientRegistrationFinishResult {}
 
 fn client_register_start(
   mut cx: FunctionContext,
@@ -78,6 +88,44 @@ fn get_registration_start_state_array(
   ))
 }
 
+fn client_register_finish(
+  mut cx: FunctionContext,
+) -> JsResult<JsBox<ClientRegistrationFinishResult>> {
+  let client_register_state = cx.argument::<JsTypedArray<u8>>(0)?;
+  let server_message = cx.argument::<JsTypedArray<u8>>(1)?;
+  let client_registration = ClientRegistration::<Cipher>::deserialize(
+    client_register_state.as_slice(&cx),
+  )
+  .or_else(|err| cx.throw_error(err.to_string()))?;
+  let registration_response =
+    RegistrationResponse::<Cipher>::deserialize(server_message.as_slice(&cx))
+      .or_else(|err| cx.throw_error(err.to_string()))?;
+
+  let mut client_rng = OsRng;
+  let client_registration_finish_result = ClientRegistrationFinishResult {
+    message: client_registration
+      .finish(
+        &mut client_rng,
+        registration_response,
+        ClientRegistrationFinishParameters::Default,
+      )
+      .or_else(|err| cx.throw_error(err.to_string()))?
+      .message,
+  };
+  Ok(cx.boxed(client_registration_finish_result))
+}
+
+fn get_registration_finish_message_array(
+  mut cx: FunctionContext,
+) -> JsResult<JsArrayBuffer> {
+  let client_registration_finish_result =
+    cx.argument::<JsBox<ClientRegistrationFinishResult>>(0)?;
+  Ok(JsArrayBuffer::external(
+    &mut cx,
+    client_registration_finish_result.message.serialize(),
+  ))
+}
+
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
   cx.export_function("clientRegisterStart", client_register_start)?;
@@ -88,6 +136,11 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
   cx.export_function(
     "getRegistrationStartStateArray",
     get_registration_start_state_array,
+  )?;
+  cx.export_function("clientRegisterFinish", client_register_finish)?;
+  cx.export_function(
+    "getRegistrationFinishMessageArray",
+    get_registration_finish_message_array,
   )?;
   Ok(())
 }
