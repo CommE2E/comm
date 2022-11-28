@@ -19,3 +19,13 @@ export PATH="$PATH":"$ANDROID_HOME"/tools/bin:"$ANDROID_HOME"/platform-tools
 export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
 
 export PATH="$PATH":./node_modules/.bin
+
+# mysql2 package wants stable prefixes for temporary directory paths
+# 'nix develop' will set TMP and related variables to something different each
+# invocation
+export TMP=/tmp/app.comm
+export TEMP="$TMP"
+export TMPDIR="$TMP"
+export TEMPDIR="$TMP"
+
+mkdir -p "$TMP"
