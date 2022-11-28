@@ -29,3 +29,8 @@ export TMPDIR="$TMP"
 export TEMPDIR="$TMP"
 
 mkdir -p "$TMP"
+
+# For cargo + rustup applications, ensure cargo user bin directory is on path
+if [[ ! "$PATH" =~ \.cargo/bin ]]; then
+  export PATH="$PATH":${HOME}/.cargo/bin
+fi
