@@ -42,6 +42,8 @@ cd comm
 ./scripts/install_nix.sh
 ```
 
+Now either close and reopen your terminal window or re-source your shell configuration file in order to have changes applied.
+
 ## Workflow prerequisites
 
 ### Download Yarn dependencies
