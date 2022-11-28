@@ -180,7 +180,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::SessionSignatureResponse, tosign_),
-  PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, _has_bits_),
+  ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -192,13 +192,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, devicetype_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, deviceappversion_),
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionRequest, deviceos_),
-  ~0u,
-  ~0u,
-  ~0u,
-  0,
-  ~0u,
-  ~0u,
-  ~0u,
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::NewSessionResponse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -264,15 +257,15 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::tunnelbroker::SessionSignatureRequest)},
   { 6, -1, sizeof(::tunnelbroker::SessionSignatureResponse)},
-  { 12, 24, sizeof(::tunnelbroker::NewSessionRequest)},
-  { 31, -1, sizeof(::tunnelbroker::NewSessionResponse)},
-  { 37, -1, sizeof(::tunnelbroker::ProcessedMessages)},
-  { 43, -1, sizeof(::tunnelbroker::MessageToTunnelbrokerStruct)},
-  { 52, -1, sizeof(::tunnelbroker::MessagesToSend)},
-  { 58, -1, sizeof(::tunnelbroker::MessageToTunnelbroker)},
-  { 67, -1, sizeof(::tunnelbroker::MessageToClientStruct)},
-  { 76, -1, sizeof(::tunnelbroker::MessagesToDeliver)},
-  { 82, -1, sizeof(::tunnelbroker::MessageToClient)},
+  { 12, -1, sizeof(::tunnelbroker::NewSessionRequest)},
+  { 24, -1, sizeof(::tunnelbroker::NewSessionResponse)},
+  { 30, -1, sizeof(::tunnelbroker::ProcessedMessages)},
+  { 36, -1, sizeof(::tunnelbroker::MessageToTunnelbrokerStruct)},
+  { 45, -1, sizeof(::tunnelbroker::MessagesToSend)},
+  { 51, -1, sizeof(::tunnelbroker::MessageToTunnelbroker)},
+  { 60, -1, sizeof(::tunnelbroker::MessageToClientStruct)},
+  { 69, -1, sizeof(::tunnelbroker::MessagesToDeliver)},
+  { 75, -1, sizeof(::tunnelbroker::MessageToClient)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -293,51 +286,50 @@ const char descriptor_table_protodef_tunnelbroker_2eproto[] PROTOBUF_SECTION_VAR
   "\n\022tunnelbroker.proto\022\014tunnelbroker\032\033goog"
   "le/protobuf/empty.proto\"+\n\027SessionSignat"
   "ureRequest\022\020\n\010deviceID\030\001 \001(\t\"*\n\030SessionS"
-  "ignatureResponse\022\016\n\006toSign\030\001 \001(\t\"\225\002\n\021New"
+  "ignatureResponse\022\016\n\006toSign\030\001 \001(\t\"\200\002\n\021New"
   "SessionRequest\022\020\n\010deviceID\030\001 \001(\t\022\021\n\tpubl"
-  "icKey\030\002 \001(\t\022\021\n\tsignature\030\003 \001(\t\022\030\n\013notify"
-  "Token\030\004 \001(\tH\000\210\001\001\022\?\n\ndeviceType\030\005 \001(\0162+.t"
-  "unnelbroker.NewSessionRequest.DeviceType"
-  "s\022\030\n\020deviceAppVersion\030\006 \001(\t\022\020\n\010deviceOS\030"
-  "\007 \001(\t\"1\n\013DeviceTypes\022\n\n\006MOBILE\020\000\022\007\n\003WEB\020"
-  "\001\022\r\n\tKEYSERVER\020\002B\016\n\014_notifyToken\"\'\n\022NewS"
-  "essionResponse\022\021\n\tsessionID\030\001 \001(\t\"&\n\021Pro"
-  "cessedMessages\022\021\n\tmessageID\030\001 \003(\t\"i\n\033Mes"
-  "sageToTunnelbrokerStruct\022\021\n\tmessageID\030\001 "
-  "\001(\t\022\022\n\ntoDeviceID\030\002 \001(\t\022\017\n\007payload\030\003 \001(\t"
-  "\022\022\n\nblobHashes\030\004 \003(\t\"M\n\016MessagesToSend\022;"
-  "\n\010messages\030\001 \003(\0132).tunnelbroker.MessageT"
-  "oTunnelbrokerStruct\"\257\001\n\025MessageToTunnelb"
-  "roker\0226\n\016messagesToSend\030\001 \001(\0132\034.tunnelbr"
-  "oker.MessagesToSendH\000\022<\n\021processedMessag"
-  "es\030\002 \001(\0132\037.tunnelbroker.ProcessedMessage"
-  "sH\000\022\030\n\016newNotifyToken\030\003 \001(\tH\000B\006\n\004data\"e\n"
-  "\025MessageToClientStruct\022\021\n\tmessageID\030\001 \001("
-  "\t\022\024\n\014fromDeviceID\030\002 \001(\t\022\017\n\007payload\030\003 \001(\t"
-  "\022\022\n\nblobHashes\030\004 \003(\t\"J\n\021MessagesToDelive"
-  "r\0225\n\010messages\030\001 \003(\0132#.tunnelbroker.Messa"
-  "geToClientStruct\"\367\001\n\017MessageToClient\022<\n\021"
-  "messagesToDeliver\030\001 \001(\0132\037.tunnelbroker.M"
-  "essagesToDeliverH\000\022<\n\021processedMessages\030"
-  "\002 \001(\0132\037.tunnelbroker.ProcessedMessagesH\000"
-  "\0228\n\026newNotifyTokenRequired\030\003 \001(\0132\026.googl"
-  "e.protobuf.EmptyH\000\022&\n\004ping\030\004 \001(\0132\026.googl"
-  "e.protobuf.EmptyH\000B\006\n\004data2\251\002\n\023Tunnelbro"
-  "kerService\022c\n\020SessionSignature\022%.tunnelb"
-  "roker.SessionSignatureRequest\032&.tunnelbr"
-  "oker.SessionSignatureResponse\"\000\022Q\n\nNewSe"
-  "ssion\022\037.tunnelbroker.NewSessionRequest\032 "
-  ".tunnelbroker.NewSessionResponse\"\000\022Z\n\016Me"
-  "ssagesStream\022#.tunnelbroker.MessageToTun"
-  "nelbroker\032\035.tunnelbroker.MessageToClient"
-  "\"\000(\0010\001b\006proto3"
+  "icKey\030\002 \001(\t\022\021\n\tsignature\030\003 \001(\t\022\023\n\013notify"
+  "Token\030\004 \001(\t\022\?\n\ndeviceType\030\005 \001(\0162+.tunnel"
+  "broker.NewSessionRequest.DeviceTypes\022\030\n\020"
+  "deviceAppVersion\030\006 \001(\t\022\020\n\010deviceOS\030\007 \001(\t"
+  "\"1\n\013DeviceTypes\022\n\n\006MOBILE\020\000\022\007\n\003WEB\020\001\022\r\n\t"
+  "KEYSERVER\020\002\"\'\n\022NewSessionResponse\022\021\n\tses"
+  "sionID\030\001 \001(\t\"&\n\021ProcessedMessages\022\021\n\tmes"
+  "sageID\030\001 \003(\t\"i\n\033MessageToTunnelbrokerStr"
+  "uct\022\021\n\tmessageID\030\001 \001(\t\022\022\n\ntoDeviceID\030\002 \001"
+  "(\t\022\017\n\007payload\030\003 \001(\t\022\022\n\nblobHashes\030\004 \003(\t\""
+  "M\n\016MessagesToSend\022;\n\010messages\030\001 \003(\0132).tu"
+  "nnelbroker.MessageToTunnelbrokerStruct\"\257"
+  "\001\n\025MessageToTunnelbroker\0226\n\016messagesToSe"
+  "nd\030\001 \001(\0132\034.tunnelbroker.MessagesToSendH\000"
+  "\022<\n\021processedMessages\030\002 \001(\0132\037.tunnelbrok"
+  "er.ProcessedMessagesH\000\022\030\n\016newNotifyToken"
+  "\030\003 \001(\tH\000B\006\n\004data\"e\n\025MessageToClientStruc"
+  "t\022\021\n\tmessageID\030\001 \001(\t\022\024\n\014fromDeviceID\030\002 \001"
+  "(\t\022\017\n\007payload\030\003 \001(\t\022\022\n\nblobHashes\030\004 \003(\t\""
+  "J\n\021MessagesToDeliver\0225\n\010messages\030\001 \003(\0132#"
+  ".tunnelbroker.MessageToClientStruct\"\367\001\n\017"
+  "MessageToClient\022<\n\021messagesToDeliver\030\001 \001"
+  "(\0132\037.tunnelbroker.MessagesToDeliverH\000\022<\n"
+  "\021processedMessages\030\002 \001(\0132\037.tunnelbroker."
+  "ProcessedMessagesH\000\0228\n\026newNotifyTokenReq"
+  "uired\030\003 \001(\0132\026.google.protobuf.EmptyH\000\022&\n"
+  "\004ping\030\004 \001(\0132\026.google.protobuf.EmptyH\000B\006\n"
+  "\004data2\251\002\n\023TunnelbrokerService\022c\n\020Session"
+  "Signature\022%.tunnelbroker.SessionSignatur"
+  "eRequest\032&.tunnelbroker.SessionSignature"
+  "Response\"\000\022Q\n\nNewSession\022\037.tunnelbroker."
+  "NewSessionRequest\032 .tunnelbroker.NewSess"
+  "ionResponse\"\000\022Z\n\016MessagesStream\022#.tunnel"
+  "broker.MessageToTunnelbroker\032\035.tunnelbro"
+  "ker.MessageToClient\"\000(\0010\001b\006proto3"
   ;
 static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_tunnelbroker_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_tunnelbroker_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_tunnelbroker_2eproto = {
-  false, false, 1614, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
+  false, false, 1593, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
   &descriptor_table_tunnelbroker_2eproto_once, descriptor_table_tunnelbroker_2eproto_deps, 1, 11,
   schemas, file_default_instances, TableStruct_tunnelbroker_2eproto::offsets,
   file_level_metadata_tunnelbroker_2eproto, file_level_enum_descriptors_tunnelbroker_2eproto, file_level_service_descriptors_tunnelbroker_2eproto,
@@ -779,10 +771,6 @@ void SessionSignatureResponse::InternalSwap(SessionSignatureResponse* other) {
 
 class NewSessionRequest::_Internal {
  public:
-  using HasBits = decltype(std::declval<NewSessionRequest>()._has_bits_);
-  static void set_has_notifytoken(HasBits* has_bits) {
-    (*has_bits)[0] |= 1u;
-  }
 };
 
 NewSessionRequest::NewSessionRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
@@ -792,8 +780,7 @@ NewSessionRequest::NewSessionRequest(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   // @@protoc_insertion_point(arena_constructor:tunnelbroker.NewSessionRequest)
 }
 NewSessionRequest::NewSessionRequest(const NewSessionRequest& from)
-  : ::PROTOBUF_NAMESPACE_ID::Message(),
-      _has_bits_(from._has_bits_) {
+  : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   deviceid_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   if (!from._internal_deviceid().empty()) {
@@ -811,7 +798,7 @@ NewSessionRequest::NewSessionRequest(const NewSessionRequest& from)
       GetArena());
   }
   notifytoken_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (from._internal_has_notifytoken()) {
+  if (!from._internal_notifytoken().empty()) {
     notifytoken_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_notifytoken(), 
       GetArena());
   }
@@ -874,20 +861,15 @@ void NewSessionRequest::Clear() {
   deviceid_.ClearToEmpty();
   publickey_.ClearToEmpty();
   signature_.ClearToEmpty();
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
-    notifytoken_.ClearNonDefaultToEmpty();
-  }
+  notifytoken_.ClearToEmpty();
   deviceappversion_.ClearToEmpty();
   deviceos_.ClearToEmpty();
   devicetype_ = 0;
-  _has_bits_.Clear();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 const char* NewSessionRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  _Internal::HasBits has_bits{};
   while (!ctx->Done(&ptr)) {
     ::PROTOBUF_NAMESPACE_ID::uint32 tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
@@ -970,7 +952,6 @@ const char* NewSessionRequest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
     }  // switch
   }  // while
 success:
-  _has_bits_.Or(has_bits);
   return ptr;
 failure:
   ptr = nullptr;
@@ -1015,7 +996,7 @@ failure:
   }
 
   // string notifyToken = 4;
-  if (_internal_has_notifytoken()) {
+  if (this->notifytoken().size() > 0) {
     ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
       this->_internal_notifytoken().data(), static_cast<int>(this->_internal_notifytoken().length()),
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
@@ -1089,8 +1070,7 @@ size_t NewSessionRequest::ByteSizeLong() const {
   }
 
   // string notifyToken = 4;
-  cached_has_bits = _has_bits_[0];
-  if (cached_has_bits & 0x00000001u) {
+  if (this->notifytoken().size() > 0) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::StringSize(
         this->_internal_notifytoken());
@@ -1156,7 +1136,7 @@ void NewSessionRequest::MergeFrom(const NewSessionRequest& from) {
   if (from.signature().size() > 0) {
     _internal_set_signature(from._internal_signature());
   }
-  if (from._internal_has_notifytoken()) {
+  if (from.notifytoken().size() > 0) {
     _internal_set_notifytoken(from._internal_notifytoken());
   }
   if (from.deviceappversion().size() > 0) {
@@ -1191,7 +1171,6 @@ bool NewSessionRequest::IsInitialized() const {
 void NewSessionRequest::InternalSwap(NewSessionRequest* other) {
   using std::swap;
   _internal_metadata_.Swap<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(&other->_internal_metadata_);
-  swap(_has_bits_[0], other->_has_bits_[0]);
   deviceid_.Swap(&other->deviceid_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   publickey_.Swap(&other->publickey_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
   signature_.Swap(&other->signature_, &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());

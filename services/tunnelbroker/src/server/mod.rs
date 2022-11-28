@@ -52,7 +52,7 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
     request: Request<tunnelbroker::NewSessionRequest>,
   ) -> Result<Response<tunnelbroker::NewSessionResponse>, Status> {
     let inner_request = request.into_inner();
-    let notify_token = inner_request.notify_token.unwrap_or(String::new());
+    let notify_token = inner_request.notify_token;
     if !tunnelbroker::new_session_request::DeviceTypes::is_valid(
       inner_request.device_type,
     ) {
