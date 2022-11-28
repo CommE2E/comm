@@ -8,7 +8,8 @@ use opaque_ke::errors::InternalPakeError;
 use opaque_ke::hash::Hash;
 use opaque_ke::slow_hash::SlowHash;
 use opaque_ke::{
-  ClientRegistration, ClientRegistrationFinishParameters, RegistrationRequest,
+  ClientLogin, ClientLoginStartParameters, ClientRegistration,
+  ClientRegistrationFinishParameters, CredentialRequest, RegistrationRequest,
   RegistrationResponse, RegistrationUpload,
 };
 use rand::rngs::OsRng;
@@ -49,6 +50,13 @@ struct ClientRegistrationFinishResult {
 }
 
 impl Finalize for ClientRegistrationFinishResult {}
+
+struct ClientLoginStartResult {
+  message: CredentialRequest<Cipher>,
+  state: ClientLogin<Cipher>,
+}
+
+impl Finalize for ClientLoginStartResult {}
 
 fn client_register_start(
   mut cx: FunctionContext,
@@ -126,6 +134,48 @@ fn get_registration_finish_message_array(
   ))
 }
 
+fn client_login_start(
+  mut cx: FunctionContext,
+) -> JsResult<JsBox<ClientLoginStartResult>> {
+  let password = cx.argument::<JsString>(0)?;
+  let mut client_rng = OsRng;
+  let client_login = ClientLogin::<Cipher>::start(
+    &mut client_rng,
+    password.value(&mut cx).as_bytes(),
+    ClientLoginStartParameters::default(),
+  )
+  .or_else(|err| cx.throw_error(err.to_string()))?;
+  Ok(cx.boxed(ClientLoginStartResult {
+    message: client_login.message,
+    state: client_login.state,
+  }))
+}
+
+fn get_login_start_message_array(
+  mut cx: FunctionContext,
+) -> JsResult<JsArrayBuffer> {
+  let client_login_start_result =
+    cx.argument::<JsBox<ClientLoginStartResult>>(0)?;
+  let login_start_message_vec =
+    client_login_start_result
+      .message
+      .serialize()
+      .or_else(|err| cx.throw_error(err.to_string()))?;
+  Ok(JsArrayBuffer::external(&mut cx, login_start_message_vec))
+}
+
+fn get_login_start_state_array(
+  mut cx: FunctionContext,
+) -> JsResult<JsArrayBuffer> {
+  let client_login_start_result =
+    cx.argument::<JsBox<ClientLoginStartResult>>(0)?;
+  let login_start_message_vec = client_login_start_result
+    .state
+    .serialize()
+    .or_else(|err| cx.throw_error(err.to_string()))?;
+  Ok(JsArrayBuffer::external(&mut cx, login_start_message_vec))
+}
+
 #[neon::main]
 fn main(mut cx: ModuleContext) -> NeonResult<()> {
   cx.export_function("clientRegisterStart", client_register_start)?;
@@ -142,5 +192,11 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
     "getRegistrationFinishMessageArray",
     get_registration_finish_message_array,
   )?;
+  cx.export_function("clientLoginStart", client_login_start)?;
+  cx.export_function(
+    "getLoginStartMessageArray",
+    get_login_start_message_array,
+  )?;
+  cx.export_function("getLoginStartStateArray", get_login_start_state_array)?;
   Ok(())
 }
