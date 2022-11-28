@@ -330,6 +330,12 @@ createDraftStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
   for (auto idx = 0; idx < operations.size(rt); idx++) {
     auto op = operations.getValueAtIndex(rt, idx).asObject(rt);
     auto op_type = op.getProperty(rt, "type").asString(rt).utf8(rt);
+
+    if (op_type == REMOVE_ALL_DRAFTS_OPERATION) {
+      draftStoreOps.push_back(std::make_unique<RemoveAllDraftsOperation>());
+      continue;
+    }
+
     auto payload_obj = op.getProperty(rt, "payload").asObject(rt);
     if (op_type == UPDATE_DRAFT_OPERATION) {
       draftStoreOps.push_back(
@@ -337,8 +343,6 @@ createDraftStoreOperations(jsi::Runtime &rt, const jsi::Array &operations) {
     } else if (op_type == MOVE_DRAFT_OPERATION) {
       draftStoreOps.push_back(
           std::make_unique<MoveDraftOperation>(rt, payload_obj));
-    } else if (op_type == REMOVE_ALL_DRAFTS_OPERATION) {
-      draftStoreOps.push_back(std::make_unique<RemoveAllDraftsOperation>());
     } else {
       throw std::runtime_error("unsupported operation: " + op_type);
     }
@@ -387,7 +391,8 @@ jsi::Value CommCoreModule::processDraftStoreOperations(
             }
           });
         };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(job);
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
       });
 }
 
