@@ -1,20 +1,20 @@
-const {
+import {
   app,
   BrowserWindow,
   shell,
   Menu,
   ipcMain,
   systemPreferences,
-} = require('electron');
-const fs = require('fs');
-const path = require('path');
+} from 'electron';
+import fs from 'fs';
+import path from 'path';
 
 const isDev = process.env.ENV === 'dev';
 const url = isDev ? 'http://localhost/comm/' : 'https://web.comm.app';
 const isMac = process.platform === 'darwin';
 
 const scrollbarCSS = fs.promises.readFile(
-  path.join(__dirname, 'scrollbar.css'),
+  path.resolve(__dirname, '../scrollbar.css'),
   'utf8',
 );
 
@@ -87,7 +87,7 @@ const createMainWindow = () => {
     trafficLightPosition: { x: 20, y: 24 },
     backgroundColor: '#0A0A0A',
     webPreferences: {
-      preload: path.join(__dirname, 'preload.cjs'),
+      preload: path.resolve(__dirname, 'preload.js'),
     },
   });
 
@@ -158,7 +158,7 @@ const createSplashWindow = () => {
     center: true,
     backgroundColor: '#111827',
   });
-  win.loadFile(path.join(__dirname, 'pages', 'splash.html'));
+  win.loadFile(path.resolve(__dirname, '../pages/splash.html'));
 
   return win;
 };
@@ -177,7 +177,7 @@ const createErrorWindow = () => {
   win.on('close', () => {
     app.quit();
   });
-  win.loadFile(path.join(__dirname, 'pages', 'error.html'));
+  win.loadFile(path.resolve(__dirname, '../pages/error.html'));
 
   return win;
 };

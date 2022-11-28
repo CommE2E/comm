@@ -1,21 +1,38 @@
 {
+  "workspaces": {
+    "nohoist": [
+      "**"
+    ]
+  },
   "name": "desktop",
   "version": "0.0.1",
-  "type": "commonjs",
-  "main": "main.cjs",
+  "type": "module",
+  "main": "./dist/main.js",
   "private": true,
   "license": "BSD-3-Clause",
   "scripts": {
     "dev": "ENV=dev electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "clean": "rm -rf assets/ && rm -rf out/ && rm -rf node_modules/"
+    "clean": "rm -rf assets/ && rm -rf dist/ && rm -rf out/ && rm -rf node_modules/"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.20.1"
   },
   "devDependencies": {
-    "@electron-forge/async-ora": "^6.0.0",
-    "@electron-forge/cli": "^6.0.0",
-    "@electron-forge/maker-zip": "^6.0.0",
-    "electron": "^21.2.2",
-    "fs-extra": "^10.1.0"
+    "@babel/core": "^7.13.14",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.13.8",
+    "@babel/plugin-proposal-object-rest-spread": "^7.13.8",
+    "@babel/plugin-proposal-optional-chaining": "^7.13.12",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-transform-runtime": "^7.13.10",
+    "@babel/preset-env": "^7.13.12",
+    "@electron-forge/cli": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
+    "@electron-forge/plugin-base": "^6.0.4",
+    "electron": "^22.0.0",
+    "fs-extra": "^10.1.0",
+    "klaw": "^4.0.1"
   }
 }
