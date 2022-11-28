@@ -43,3 +43,4 @@ pub const SANDBOX_ENV_VAR: &str = "COMM_SERVICES_SANDBOX";
 // S3 constants
 
 pub const BLOB_S3_BUCKET_NAME: &str = "commapp-blob";
+pub const S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE: u64 = 5 * 1024 * 1024;
