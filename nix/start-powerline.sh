@@ -66,7 +66,7 @@ if [[ ! -f "$font_dir/Droid Sans Mono for Powerline.otf" ]]; then
     if [[ "$TERM_PROGRAM" == "Apple_Terminal" ]]; then
       echo ""
       echo "For glyph support, please:
-  Select Terminal > Preferences > Text > Font > Change > \
+  Select Terminal > Settings > Profiles > Text > Font \
 Select font with 'for Powerline' in the name" >&2
       echo ""
     elif [[ "$TERM_PROGRAM" == "iTerm.app" ]]; then
