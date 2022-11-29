@@ -16,6 +16,7 @@ if [[ "$service_count" -eq "0" ]]; then
   # No service present, start our own
   # Launch in subshell so if the original terminal is closed, the process
   # will be inherited instead of also being forced closed
+  mkdir -p "$(dirname "${pidfile}")"
   ($entrypoint &
     echo "$!" > "$pidfile")
 

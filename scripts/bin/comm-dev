@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+# This is a command entrypoint so that the majority of the bash
+# code can be linted by shellcheck
+
+PRJ_ROOT=$(git rev-parse --show-toplevel)
+"$PRJ_ROOT"/scripts/comm-dev.sh $@

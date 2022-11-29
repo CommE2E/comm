@@ -32,6 +32,10 @@ export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
 
 export PATH="$PATH":./node_modules/.bin
 
+# Development helpers
+PRJ_ROOT="$(git rev-parse --show-toplevel)"
+export PATH="$PATH":${PRJ_ROOT}/scripts/bin
+
 # mysql2 package wants stable prefixes for temporary directory paths
 # 'nix develop' will set TMP and related variables to something different each
 # invocation
