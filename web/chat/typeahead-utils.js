@@ -7,14 +7,14 @@ import SearchIndex from 'lib/shared/search-index';
 import { stringForUserExplicit } from 'lib/shared/user-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
-const mentionRegex: RegExp = new RegExp(
+const typeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
 );
 
 import { type InputState } from '../input/input-state';
 import { typeaheadStyle } from './chat-constants';
 
-export type MentionSuggestionTooltipAction = {
+export type TypeaheadTooltipAction = {
   +key: string,
   +onClick: (SyntheticEvent<HTMLButtonElement>) => mixed,
   +actionButtonContent: React.Node,
@@ -93,7 +93,7 @@ function getTypeaheadTooltipActions(
   suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
   matchedTextBefore: string,
   matchedText: string,
-): $ReadOnlyArray<MentionSuggestionTooltipAction> {
+): $ReadOnlyArray<TypeaheadTooltipAction> {
   return suggestedUsers
     .filter(
       suggestedUser => stringForUserExplicit(suggestedUser) !== 'anonymous',
@@ -151,7 +151,7 @@ function getTypeaheadTooltipPosition(
 }
 
 export {
-  mentionRegex,
+  typeaheadRegex,
   getTypeaheadUserSuggestions,
   getCaretOffsets,
   getTypeaheadTooltipActions,

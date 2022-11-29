@@ -10,14 +10,14 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 import Button from '../components/button.react';
 import type { InputState } from '../input/input-state';
 import { type TypeaheadMatchedStrings } from './chat-input-bar.react';
-import css from './mention-suggestion-tooltip.css';
+import css from './typeahead-tooltip.css';
 import {
   getTypeaheadTooltipActions,
   getTypeaheadTooltipPosition,
   getTypeaheadUserSuggestions,
-} from './mention-utils';
+} from './typeahead-utils';
 
-export type MentionSuggestionTooltipProps = {
+export type TypeaheadTooltipProps = {
   +inputState: InputState,
   +textarea: HTMLTextAreaElement,
   +userSearchIndex: SearchIndex,
@@ -26,9 +26,7 @@ export type MentionSuggestionTooltipProps = {
   +matchedStrings: TypeaheadMatchedStrings,
 };
 
-function MentionSuggestionTooltip(
-  props: MentionSuggestionTooltipProps,
-): React.Node {
+function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   const {
     inputState,
     textarea,
@@ -123,4 +121,4 @@ function MentionSuggestionTooltip(
   );
 }
 
-export default MentionSuggestionTooltip;
+export default TypeaheadTooltip;
