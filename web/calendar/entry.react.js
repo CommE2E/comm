@@ -270,7 +270,7 @@ class Entry extends React.PureComponent<Props, State> {
   onKeyDown: (
     event: SyntheticKeyboardEvent<HTMLTextAreaElement>,
   ) => void = event => {
-    if (event.keyCode === 27) {
+    if (event.key === 'Escape') {
       invariant(
         this.textarea instanceof HTMLTextAreaElement,
         'textarea ref not set',

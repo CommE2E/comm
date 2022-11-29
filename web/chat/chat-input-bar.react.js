@@ -404,7 +404,7 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.keyCode === 13 && !event.shiftKey) {
+    if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.send();
     }

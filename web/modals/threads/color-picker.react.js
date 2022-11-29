@@ -57,8 +57,7 @@ class ColorPicker extends React.PureComponent<Props, State> {
   onPickerKeyDown: (
     event: SyntheticKeyboardEvent<HTMLTextAreaElement>,
   ) => void = event => {
-    if (event.keyCode === 27) {
-      // Esc
+    if (event.key === 'Escape') {
       this.setState({ pickerOpen: false });
     }
   };

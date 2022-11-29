@@ -58,7 +58,7 @@ class MultimediaModal extends React.PureComponent<Props> {
   onKeyDown: (
     event: SyntheticKeyboardEvent<HTMLDivElement>,
   ) => void = event => {
-    if (event.keyCode === 27) {
+    if (event.key === 'Escape') {
       this.props.popModal();
     }
   };
