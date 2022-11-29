@@ -19,7 +19,7 @@ import {
 import { messageKey } from 'lib/shared/message-utils';
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
@@ -190,8 +190,8 @@ class ChatMessageList extends React.PureComponent<Props> {
     invariant(inputState, 'InputState should be set');
     const messages = messageListData.map(this.renderItem);
 
-    let relationshipPrompt;
-    if (threadInfo) {
+    let relationshipPrompt = null;
+    if (threadInfo.type === threadTypes.PERSONAL) {
       relationshipPrompt = <RelationshipPrompt threadInfo={threadInfo} />;
     }
 
