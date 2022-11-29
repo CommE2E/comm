@@ -11,6 +11,7 @@ import {
 } from 'react-feather';
 
 import { useModalContext } from 'lib/components/modal-provider.react';
+import type { MediaType } from 'lib/types/media-types';
 
 import Button from '../components/button.react';
 import { type PendingMultimediaUpload } from '../input/input-state';
@@ -19,6 +20,7 @@ import MultimediaModal from './multimedia-modal.react';
 
 type BaseProps = {
   +uri: string,
+  +type: MediaType,
   +pendingUpload?: ?PendingMultimediaUpload,
   +remove?: (uploadID: string) => void,
   +multimediaCSSClass: string,
@@ -46,7 +48,14 @@ class Multimedia extends React.PureComponent<Props> {
   render(): React.Node {
     let progressIndicator, errorIndicator, removeButton;
 
-    const { pendingUpload, remove } = this.props;
+    const {
+      pendingUpload,
+      remove,
+      type,
+      uri,
+      multimediaImageCSSClass,
+      multimediaCSSClass,
+    } = this.props;
     if (pendingUpload) {
       const { progressPercent, failed } = pendingUpload;
 
@@ -81,20 +90,35 @@ class Multimedia extends React.PureComponent<Props> {
 
     const imageContainerClasses = [
       css.multimediaImage,
-      this.props.multimediaImageCSSClass,
+      multimediaImageCSSClass,
     ];
     imageContainerClasses.push(css.clickable);
 
-    const containerClasses = [css.multimedia, this.props.multimediaCSSClass];
-    return (
-      <span className={classNames(containerClasses)}>
+    let mediaNode;
+    if (type === 'photo') {
+      mediaNode = (
         <Button
           className={classNames(imageContainerClasses)}
           onClick={this.onClick}
         >
-          <img src={this.props.uri} />
+          <img src={uri} />
           {removeButton}
         </Button>
+      );
+    } else {
+      mediaNode = (
+        <div className={classNames(imageContainerClasses)}>
+          <video controls>
+            <source src={uri} />
+          </video>
+        </div>
+      );
+    }
+
+    const containerClasses = [css.multimedia, multimediaCSSClass];
+    return (
+      <span className={classNames(containerClasses)}>
+        {mediaNode}
         {progressIndicator}
         {errorIndicator}
       </span>

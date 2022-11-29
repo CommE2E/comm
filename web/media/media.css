@@ -14,7 +14,8 @@ span.multimedia > .multimediaImage {
   min-height: 50px;
   min-width: 50px;
 }
-span.multimedia > .multimediaImage > img {
+span.multimedia > .multimediaImage > img,
+span.multimedia > .multimediaImage > video {
   max-height: 200px;
   max-width: 100%;
 }
@@ -81,7 +82,8 @@ div.multimediaModalOverlay {
   display: flex;
   justify-content: center;
 }
-div.multimediaModalOverlay > img {
+div.multimediaModalOverlay > img,
+div.multimediaModalOverlay > video {
   object-fit: scale-down;
   width: auto;
   height: auto;

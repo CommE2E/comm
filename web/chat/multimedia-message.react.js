@@ -41,6 +41,7 @@ class MultimediaMessage extends React.PureComponent<Props> {
       multimedia.push(
         <Multimedia
           uri={singleMedia.uri}
+          type={singleMedia.type}
           pendingUpload={pendingUpload}
           multimediaCSSClass={css.multimedia}
           multimediaImageCSSClass={css.multimediaImage}

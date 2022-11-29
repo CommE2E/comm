@@ -227,6 +227,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     const multimediaPreviews = pendingUploads.map(pendingUpload => (
       <Multimedia
         uri={pendingUpload.uri}
+        type={pendingUpload.mediaType}
         pendingUpload={pendingUpload}
         remove={cancelPendingUpload}
         multimediaCSSClass={css.multimedia}
