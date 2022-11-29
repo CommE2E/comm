@@ -3,29 +3,6 @@ cmake_minimum_required(VERSION 3.4)
 
 include(GNUInstallDirs)
 
-set(INTERNAL_HDRS
-  "InternalModules/GlobalNetworkSingleton.h"
-  "InternalModules/GlobalNetworkSingletonJNIHelper.h"
-  "InternalModules/NetworkModule.h"
-  "InternalModules/SocketStatus.h"
-)
-
-set(INTERNAL_SRCS
-  "InternalModules/GlobalNetworkSingleton.cpp"
-  "InternalModules/NetworkModule.cpp"
-)
-
-add_library(comm-modules-internal
-  ${INTERNAL_HDRS}
-  ${INTERNAL_SRCS}
-)
-
-target_include_directories(comm-modules-internal
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
 set(NATIVE_HDRS
   "CommCoreModule.h"
   "MessageStoreOperations.h"
@@ -48,6 +25,7 @@ target_include_directories(comm-modules-native
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+
   # HACK
   PRIVATE
   "../../../../node_modules/react-native/ReactCommon/jsi"
@@ -91,19 +69,19 @@ target_include_directories(comm-modules-persistentstorage
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../Tools>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   PRIVATE
+
   # HACK
   "../../../node_modules/react-native/ReactCommon/jsi"
 )
 
-set(_components internal native persistentstorage)
-foreach(component ${_components})
+set(_components native persistentstorage)
 
+foreach(component ${_components})
   install(TARGETS comm-modules-${component} EXPORT comm-modules-export
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-modules
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-modules
   )
-
 endforeach()
 
 install(FILES ${INTERNAL_HDRS} DESTINATION include/InternalModules)
@@ -114,7 +92,7 @@ install(FILES ${MESSAGE_SPEC_HDRS}
 )
 install(FILES ${THREAD_OP_HDRS} DESTINATION include/ThreadOperationsUtilities)
 
-export(TARGETS comm-modules-internal comm-modules-native
+export(TARGETS comm-modules-native
   NAMESPACE comm-modules::
   FILE ${CMAKE_CURRENT_BINARY_DIR}/cmake/comm-modules/comm-modules-targets.cmake
 )

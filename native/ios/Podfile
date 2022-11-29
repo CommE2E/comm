@@ -8,10 +8,6 @@ require 'json'
 
 def common_comm_target_pods
   pod 'SQLCipher-Amalgamation', :path => '../../node_modules/@commapp/sqlcipher-amalgamation'
-  pod 'gRPC-C++', :podspec => './pod-patch/.patched/gRPC-C++/1.40.0/gRPC-C++.podspec.json'
-  pod 'gRPC-C++/Protobuf', :podspec => './pod-patch/.patched/gRPC-C++/1.40.0/gRPC-C++.podspec.json'
-  pod 'gRPC-Core', :podspec => './pod-patch/.patched/gRPC-Core/1.40.0/gRPC-Core.podspec.json'
-  pod 'Protobuf-C++', '3.15.8'
 end
 
 target 'Comm' do

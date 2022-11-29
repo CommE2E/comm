@@ -145,42 +145,6 @@ task createNativeDepsDirectories {
     thirdPartyNdkDir.mkdirs()
 }
 
-// GRPC
-task downloadGrpc(dependsOn: createNativeDepsDirectories, type: Download) {
-    src("https://github.com/grpc/grpc/archive/refs/tags/v${GRPC_VERSION}.tar.gz")
-    onlyIfNewer(true)
-    overwrite(false)
-    dest(new File(downloadsDir, "grpc-${GRPC_VERSION}.tar.gz"))
-}
-
-task copyGrpc(dependsOn: dependenciesPath ? [] : [downloadGrpc], type: Copy) {
-    from(tarTree(downloadGrpc.dest))
-    includeEmptyDirs = true
-    into("$thirdPartyNdkDir/grpc")
-}
-
-def grpcDir = "${thirdPartyNdkDir}/grpc/grpc-${GRPC_VERSION}"
-task prepareGrpc(dependsOn: copyGrpc, type: GitModules) {
-    gitmodulesFile(new File("${grpcDir}/.gitmodules"))
-    outputDir(new File("${grpcDir}"))
-    // Skip the boringSSL module as we use OpenSSL
-    skipModules([
-        "third_party/boringssl-with-bazel"
-    ])
-    // Needs to override/provide some module branches
-    // for the gRPC version compatibility
-    moduleBranch([
-        "third_party/cares/cares": "cares-1_13_0",
-        "third_party/abseil-cpp": "lts_2021_03_24",
-        "third_party/protobuf": "v3.15.8"
-    ])
-    // We need to move 'zconf.h' because it modifies on the compilation stage
-    // and makes the 'outputDir' not as UP-TO-DATE
-    runAfter([
-        "mv ${grpcDir}/third_party/zlib/zconf.h ${grpcDir}/third_party/zlib/zconf.h.included"
-    ])
-}
-
 // FOLLY
 task downloadFolly(dependsOn: createNativeDepsDirectories, type: Download) {
     src("https://github.com/facebook/folly/archive/v${FOLLY_VERSION}.tar.gz")
@@ -335,7 +299,6 @@ task prebuildOpenSSL(dependsOn: dependenciesPath ? [] : [prepareOpenSSL]) {
 
 // EXTERNAL LIBS
 task prepareExternalLibs {
-    dependsOn prepareGrpc
     dependsOn prepareFolly
     dependsOn prepareGlog
     dependsOn prepareBoost
@@ -509,7 +472,6 @@ android {
                 arguments "-DANDROID_STL=c++_shared",
                     "-DGLOG_VERSION=" + GLOG_VERSION,
                     "-DOPENSSL_VERSION=" + OPENSSL_VERSION,
-                    "-DGRPC_VERSION=" + GRPC_VERSION,
                     "-DNDK_VERSION=" + rootProject.ext.ndkVersion
                 targets "comm_jni_module", "turbomodulejsijni"
             }

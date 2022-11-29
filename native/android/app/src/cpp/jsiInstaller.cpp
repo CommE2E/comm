@@ -5,7 +5,6 @@
 
 #include <DatabaseManagers/SQLiteQueryExecutor.h>
 #include <InternalModules/GlobalDBSingletonJNIHelper.h>
-#include <InternalModules/GlobalNetworkSingletonJNIHelper.h>
 #include <NativeModules/CommCoreModule.h>
 #include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilitiesJNIHelper.h>
 #include <PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperationsJNIHelper.h>
@@ -55,7 +54,6 @@ private:
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *) {
   return jni::initialize(vm, [] {
     CommHybrid::registerNatives();
-    comm::GlobalNetworkSingletonJNIHelper::registerNatives();
     comm::ThreadOperationsJNIHelper::registerNatives();
     comm::MessageOperationsUtilitiesJNIHelper::registerNatives();
     comm::GlobalDBSingletonJNIHelper::registerNatives();

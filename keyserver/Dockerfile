@@ -99,10 +99,8 @@ COPY --chown=comm native/package.json native/.flowconfig native/
 COPY --chown=comm landing/package.json landing/.flowconfig landing/
 COPY --chown=comm desktop/package.json desktop/
 
-# Copy in files needed for patch-package and pod-patch
+# Copy in files needed for patch-package
 COPY --chown=comm patches patches/
-COPY --chown=comm native/ios/pod-patch native/ios/pod-patch/
-COPY --chown=comm native/ios/Podfile native/ios/
 
 # Actually run yarn
 RUN yarn cleaninstall

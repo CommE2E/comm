@@ -11,7 +11,6 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		1F537ACC7B60DC049C0ECFA7 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */; };
-		71009A7B26FDCD72002C8453 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7926FDCD71002C8453 /* Client.cpp */; };
 		71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		711B408425DA97F9005F8F06 /* dummy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F26E81B24440D87004049C6 /* dummy.swift */; };
 		713EE41126C66B80003D7C48 /* CryptoTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 713EE41026C66B80003D7C48 /* CryptoTest.mm */; };
@@ -29,8 +28,6 @@
 		724995D527B4103A00323FCE /* NotificationService.mm in Sources */ = {isa = PBXBuildFile; fileRef = 724995D427B4103A00323FCE /* NotificationService.mm */; };
 		724995D927B4103A00323FCE /* NotificationService.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 724995D127B4103A00323FCE /* NotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		724995FB27BA9E8D00323FCE /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 724995FA27BA9E8C00323FCE /* UserNotifications.framework */; };
-		726E5D752731A4790032361D /* NetworkModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D732731A4790032361D /* NetworkModule.cpp */; };
-		726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
 		75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 75291F0328F9A0AE00F4C80E /* DeviceID.cpp */; };
 		7F761E602201141E001B6FB7 /* JavaScriptCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7F761E292201141E001B6FB7 /* JavaScriptCore.framework */; };
 		7F788C2C248AA2140098F071 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7F788C2B248AA2130098F071 /* SplashScreen.storyboard */; };
@@ -57,23 +54,16 @@
 		CB3C621127CE4A320054F24C /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
 		CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
 		CB4821A527CF9F38001AB7E1 /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
-		CB4821A627CFB153001AB7E1 /* Client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71009A7926FDCD71002C8453 /* Client.cpp */; };
 		CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; };
 		CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
 		CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6F26B3FF0900EDE27D /* Session.cpp */; };
-		CB4821AD27CFB17C001AB7E1 /* NetworkModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D732731A4790032361D /* NetworkModule.cpp */; };
 		CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7326B401D300EDE27D /* Tools.cpp */; };
 		CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
-		CB4821B127CFB1FA001AB7E1 /* GlobalNetworkSingleton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */; };
 		CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
 		CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
 		CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFE58282885852B003B94C9 /* ThreadOperations.cpp */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
 		F02C296C528B51ADAB5AA19D /* libPods-NotificationService.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */; };
-		FC2DF95528BFCFE90017C4AF /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = FC2DF95128BFCFE90017C4AF /* tunnelbroker.grpc.pb.cc */; };
-		FC2DF95628BFCFE90017C4AF /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = FC2DF95328BFCFE90017C4AF /* tunnelbroker.pb.cc */; };
-		FC2DF95728BFD02A0017C4AF /* tunnelbroker.grpc.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = FC2DF95128BFCFE90017C4AF /* tunnelbroker.grpc.pb.cc */; };
-		FC2DF95828BFD0350017C4AF /* tunnelbroker.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = FC2DF95328BFCFE90017C4AF /* tunnelbroker.pb.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -930,7 +920,6 @@
 				"${PODS_ROOT}/../../../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf",
 				"${PODS_ROOT}/../../../node_modules/react-native-vector-icons/Fonts/Zocial.ttf",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/gRPC-C++/gRPCCertificates-Cpp.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -952,7 +941,6 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/SimpleLineIcons.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Zocial.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/gRPCCertificates-Cpp.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -968,13 +956,11 @@
 				"${PODS_ROOT}/Target Support Files/Pods-NotificationService/Pods-NotificationService-resources.sh",
 				"${PODS_CONFIGURATION_BUILD_DIR}/EXConstants/EXConstants.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
-				"${PODS_CONFIGURATION_BUILD_DIR}/gRPC-C++/gRPCCertificates-Cpp.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXConstants.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/gRPCCertificates-Cpp.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1009,7 +995,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */,
-				FC2DF95628BFCFE90017C4AF /* tunnelbroker.pb.cc in Sources */,
 				8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */,
 				CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48428771CAF00171182 /* EncryptedFileUtils.mm in Sources */,
@@ -1018,14 +1003,11 @@
 				718DE99E2653D41C00365824 /* WorkerThread.cpp in Sources */,
 				8B99BAAE28D511FF00EB5ADB /* lib.rs.cc in Sources */,
 				71CA4AEC262F236100835C89 /* Tools.mm in Sources */,
-				71009A7B26FDCD72002C8453 /* Client.cpp in Sources */,
 				71762A75270D8AAE00F565ED /* PlatformSpecificTools.mm in Sources */,
 				71BF5B7126B3FF0900EDE27D /* Session.cpp in Sources */,
-				726E5D752731A4790032361D /* NetworkModule.cpp in Sources */,
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
-				FC2DF95528BFCFE90017C4AF /* tunnelbroker.grpc.pb.cc in Sources */,
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
 				71BE84492636A944002849D2 /* NativeModules.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
@@ -1034,7 +1016,6 @@
 				71D4D7CC26C50B1000FCDBCD /* CommSecureStore.mm in Sources */,
 				711B408425DA97F9005F8F06 /* dummy.swift in Sources */,
 				CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */,
-				726E5D782731A5E10032361D /* GlobalNetworkSingleton.cpp in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
 			);
@@ -1058,13 +1039,8 @@
 				CB38F2C0286C6CDF0010535C /* MessageOperationsUtilities.cpp in Sources */,
 				CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */,
 				CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */,
-				CB4821B127CFB1FA001AB7E1 /* GlobalNetworkSingleton.cpp in Sources */,
 				CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */,
-				FC2DF95828BFD0350017C4AF /* tunnelbroker.pb.cc in Sources */,
-				FC2DF95728BFD02A0017C4AF /* tunnelbroker.grpc.pb.cc in Sources */,
 				CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */,
-				CB4821AD27CFB17C001AB7E1 /* NetworkModule.cpp in Sources */,
-				CB4821A627CFB153001AB7E1 /* Client.cpp in Sources */,
 				CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */,
 				CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */,
 				CB4821A527CF9F38001AB7E1 /* CommSecureStore.mm in Sources */,

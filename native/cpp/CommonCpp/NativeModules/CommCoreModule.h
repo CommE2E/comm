@@ -4,7 +4,6 @@
 #include "../Tools/CommSecureStore.h"
 #include "../Tools/WorkerThread.h"
 #include "../_generated/NativeModules.h"
-#include "../grpc/Client.h"
 #include <ReactCommon/TurboModuleUtils.h>
 #include <jsi/jsi.h>
 #include <memory>
@@ -20,8 +19,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   CommSecureStore secureStore;
   const std::string secureStoreAccountDataKey = "cryptoAccountDataKey";
   std::unique_ptr<crypto::CryptoModule> cryptoModule;
-
-  std::unique_ptr<network::Client> networkClient;
 
   template <class T>
   T runSyncOrThrowJSError(jsi::Runtime &rt, std::function<T()> task);
@@ -70,11 +67,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);
-
-  void initializeNetworkModule(
-      const std::string &userId,
-      const std::string &deviceToken,
-      const std::string &hostname = "");
 };
 
 } // namespace comm

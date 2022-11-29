@@ -3,7 +3,6 @@
 #include "DatabaseManager.h"
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
-#include "InternalModules/GlobalNetworkSingleton.h"
 #include "MessageStoreOperations.h"
 #include "ThreadStoreOperations.h"
 
@@ -917,16 +916,6 @@ jsi::Value CommCoreModule::initializeCryptoAccount(
       });
 }
 
-void CommCoreModule::initializeNetworkModule(
-    const std::string &userId,
-    const std::string &deviceToken,
-    const std::string &hostname) {
-  GlobalNetworkSingleton::instance.scheduleOrRun(
-      [=](NetworkModule &networkModule) {
-        networkModule.initializeNetworkModule(userId, deviceToken, hostname);
-      });
-}
-
 jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -978,7 +967,6 @@ CommCoreModule::CommCoreModule(
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
       cryptoThread(std::make_unique<WorkerThread>("crypto")) {
   GlobalDBSingleton::instance.enableMultithreading();
-  GlobalNetworkSingleton::instance.enableMultithreading();
 }
 
 double CommCoreModule::getCodeVersion(jsi::Runtime &rt) {

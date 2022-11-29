@@ -30,14 +30,6 @@ set(WITH_GFLAGS OFF CACHE BOOL "Use gflags" FORCE)
 set(_third_party_dir ${CMAKE_CURRENT_SOURCE_DIR}/build/third-party-ndk)
 set(_android_build_dir build/${CMAKE_ANDROID_ARCH_ABI})
 
-# Protobuf
-set(protobuf_BUILD_TESTS OFF)
-
-# gRPC building parameters
-set(gRPC_BUILD_CSHARP_EXT OFF)
-set(gRPC_SSL_PROVIDER "package" CACHE STRING "SSL library provider")
-
-# gRPC client
 include(FetchContent)
 
 if(CMAKE_ANDROID_ARCH_ABI STREQUAL arm64-v8a)
@@ -61,9 +53,9 @@ else()
 endif()
 
 FetchContent_Declare(
-    Corrosion
-    GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
-    GIT_TAG v0.2.1
+  Corrosion
+  GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
+  GIT_TAG v0.2.1
 )
 
 FetchContent_MakeAvailable(Corrosion)
@@ -72,22 +64,12 @@ include(../../../shared/cmake/corrosion-cxx.cmake)
 
 add_library_rust(PATH ../../native_rust_library NAMESPACE comm)
 
-# Disable unused plugins
-set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF)
-set(gRPC_BUILD_GRPC_RUBY_PLUGIN OFF)
-set(gRPC_BUILD_GRPC_PYTHON_PLUGIN OFF)
-set(gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF)
-
 # We're updating parameters below for Cmake's find_OpenSSL() function
 set(OPENSSL_ROOT_DIR
   "${_third_party_dir}/openssl/openssl-${OPENSSL_VERSION}/${_android_build_dir}"
 )
 list(APPEND CMAKE_FIND_ROOT_PATH "${OPENSSL_ROOT_DIR}")
 
-add_subdirectory(${_third_party_dir}/grpc/grpc-${GRPC_VERSION}/
-  ${CMAKE_CURRENT_BINARY_DIR}/grpc/
-  EXCLUDE_FROM_ALL
-)
 add_subdirectory(${_third_party_dir}/glog/glog-${GLOG_VERSION}/)
 add_subdirectory(../../node_modules/olm ./build)
 
@@ -134,8 +116,6 @@ include_directories(
   ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs
   ../../cpp/CommonCpp/DatabaseManagers
   ../../cpp/CommonCpp/Tools
-  ../../../shared/protos/_generated
-  ../../cpp/CommonCpp/grpc
 
   # native rust library
   ${native_rust_library_include_dir}
@@ -150,7 +130,6 @@ file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
 file(GLOB DOUBLE_CONVERSION_SOURCES
   "${_third_party_dir}/double-conversion/double-conversion/*.cc"
 )
-file(GLOB GRPC_CODE "../../../shared/protos/_generated/*.cc")
 
 add_library(
   # Sets the name of the library.
@@ -194,8 +173,6 @@ add_library(
 
   # double-conversion
   ${DOUBLE_CONVERSION_SOURCES}
-
-  ${GRPC_CODE}
 
   # comm code
   ${ANDROID_NATIVE_CODE}
@@ -256,8 +233,6 @@ target_link_libraries(
   olm
   openssl-crypto
   openssl-ssl
-  grpc++
-  libprotobuf
   comm::native_rust_library
 )
 

@@ -16,10 +16,8 @@
 
 #import "CommCoreModule.h"
 #import "GlobalDBSingleton.h"
-#import "GlobalNetworkSingleton.h"
 #import "Logger.h"
 #import "MessageOperationsUtilities.h"
-#import "NetworkModule.h"
 #import "SQLiteQueryExecutor.h"
 #import "TemporaryMessageStorage.h"
 #import "ThreadOperations.h"
