@@ -492,7 +492,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 31,
+  version: 32,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
