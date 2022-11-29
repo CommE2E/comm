@@ -1,11 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import tinycolor from 'tinycolor2';
 
 import { selectedThreadColors } from 'lib/shared/thread-utils';
 
+import { useStyles } from '../themes/colors';
 import ColorSelectorButton from './color-selector-button.react';
 
 type ColorSelectorProps = {
@@ -16,6 +17,7 @@ type ColorSelectorProps = {
 function ColorSelector(props: ColorSelectorProps): React.Node {
   const { currentColor, onColorSelected } = props;
   const [pendingColor, setPendingColor] = React.useState(currentColor);
+  const styles = useStyles(unboundStyles);
 
   const colorSelectorButtons = React.useMemo(
     () =>
@@ -49,7 +51,7 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
         width: 0.75 * props.windowWidth,
       },
     ],
-    [saveButtonDisabled, pendingColor, props.windowWidth],
+    [styles.saveButton, saveButtonDisabled, pendingColor, props.windowWidth],
   );
 
   const onColorSplotchSaved = React.useCallback(() => {
@@ -72,7 +74,7 @@ function ColorSelector(props: ColorSelectorProps): React.Node {
   );
 }
 
-const styles = StyleSheet.create({
+const unboundStyles = {
   colorButtons: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
@@ -98,6 +100,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
-});
+};
 
 export default ColorSelector;
