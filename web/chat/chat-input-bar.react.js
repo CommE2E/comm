@@ -52,8 +52,8 @@ import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-input-bar.css';
-import MentionSuggestionTooltip from './mention-suggestion-tooltip.react';
-import { mentionRegex } from './mention-utils';
+import TypeaheadTooltip from './typeahead-tooltip.react';
+import { typeaheadRegex } from './typeahead-utils';
 type BaseProps = {
   +threadInfo: ThreadInfo,
   +inputState: InputState,
@@ -332,7 +332,7 @@ class ChatInputBar extends React.PureComponent<Props> {
     let typeaheadTooltip;
     if (this.props.typeaheadMatchedStrings && this.textarea) {
       typeaheadTooltip = (
-        <MentionSuggestionTooltip
+        <TypeaheadTooltip
           inputState={this.props.inputState}
           textarea={this.textarea}
           userSearchIndex={this.props.userSearchIndex}
@@ -534,7 +534,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       () =>
         inputSliceEndingAtCursor.length === props.inputState.draft.length ||
         /\s/.test(props.inputState.draft[props.inputState.textCursorPosition])
-          ? inputSliceEndingAtCursor.match(mentionRegex)
+          ? inputSliceEndingAtCursor.match(typeaheadRegex)
           : null,
       [
         inputSliceEndingAtCursor,
