@@ -113,6 +113,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
         <Button
           onPress={this.submitDeletion}
           style={this.props.styles.deleteButton}
+          disabled={this.state.password.length === 0}
         >
           {buttonContent}
         </Button>
