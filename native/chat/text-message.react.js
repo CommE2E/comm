@@ -50,7 +50,6 @@ type Props = {
   // MarkdownLinkContext
   +chatContext: ?ChatContextType,
   +linkModalActive: boolean,
-  +linkIsBlockingPresses: boolean,
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
@@ -74,7 +73,6 @@ class TextMessage extends React.PureComponent<Props> {
       overlayContext,
       chatContext,
       linkModalActive,
-      linkIsBlockingPresses,
       canCreateSidebarFromMessage,
       ...viewProps
     } = this.props;
@@ -160,9 +158,9 @@ class TextMessage extends React.PureComponent<Props> {
 
     const {
       message,
-      props: { verticalBounds, linkIsBlockingPresses },
+      props: { verticalBounds, linkModalActive },
     } = this;
-    if (!message || !verticalBounds || linkIsBlockingPresses) {
+    if (!message || !verticalBounds || linkModalActive) {
       return;
     }
 
@@ -225,20 +223,17 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
     const chatContext = React.useContext(ChatContext);
 
     const [linkModalActive, setLinkModalActive] = React.useState(false);
-    const [linkPressActive, setLinkPressActive] = React.useState(false);
     const markdownLinkContext = React.useMemo(
       () => ({
         setLinkModalActive,
-        setLinkPressActive,
       }),
-      [setLinkModalActive, setLinkPressActive],
+      [setLinkModalActive],
     );
     const canCreateSidebarFromMessage = useCanCreateSidebarFromMessage(
       props.item.threadInfo,
       props.item.messageInfo,
     );
 
-    const linkIsBlockingPresses = linkModalActive || linkPressActive;
     return (
       <MarkdownLinkContext.Provider value={markdownLinkContext}>
         <TextMessage
@@ -247,7 +242,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
           overlayContext={overlayContext}
           chatContext={chatContext}
           linkModalActive={linkModalActive}
-          linkIsBlockingPresses={linkIsBlockingPresses}
         />
       </MarkdownLinkContext.Provider>
     );

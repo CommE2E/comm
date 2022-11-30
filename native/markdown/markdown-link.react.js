@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { Text, Linking, Alert, Platform } from 'react-native';
+import { Text, Linking, Alert } from 'react-native';
 
 import { normalizeURL } from 'lib/utils/url-utils';
 
@@ -50,42 +50,10 @@ type Props = {
   ...TextProps,
 };
 function MarkdownLink(props: Props): React.Node {
-  const markdownLinkContext = React.useContext(MarkdownLinkContext);
-
   const { target, ...rest } = props;
+  const markdownLinkContext = React.useContext(MarkdownLinkContext);
   const onPressLink = useDisplayLinkPrompt(target, markdownLinkContext);
-
-  const setLinkPressActive = markdownLinkContext?.setLinkPressActive;
-  const androidOnStartShouldSetResponderCapture = React.useCallback(() => {
-    setLinkPressActive?.(true);
-    return true;
-  }, [setLinkPressActive]);
-
-  const activePressHasMoved = React.useRef(false);
-  const androidOnResponderMove = React.useCallback(() => {
-    activePressHasMoved.current = true;
-  }, []);
-
-  const androidOnResponderTerminate = React.useCallback(() => {
-    if (!activePressHasMoved.current) {
-      onPressLink();
-    }
-    activePressHasMoved.current = false;
-    setLinkPressActive?.(false);
-  }, [onPressLink, setLinkPressActive]);
-
-  if (Platform.OS !== 'android') {
-    return <Text onPress={onPressLink} {...rest} />;
-  }
-
-  // The Flow type for Text's props is missing onStartShouldSetResponderCapture
-  const gestureProps: any = {
-    onStartShouldSetResponderCapture: androidOnStartShouldSetResponderCapture,
-    onResponderMove: androidOnResponderMove,
-    onResponderTerminate: androidOnResponderTerminate,
-  };
-
-  return <Text {...gestureProps} {...rest} />;
+  return <Text onPress={onPressLink} {...rest} />;
 }
 
 export default MarkdownLink;

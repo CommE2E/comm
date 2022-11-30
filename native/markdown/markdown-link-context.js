@@ -4,7 +4,6 @@ import * as React from 'react';
 
 export type MarkdownLinkContextType = {
   +setLinkModalActive: boolean => void,
-  +setLinkPressActive: boolean => void,
 };
 
 const MarkdownLinkContext: React.Context<?MarkdownLinkContextType> = React.createContext<?MarkdownLinkContextType>(
