@@ -25,6 +25,10 @@ import type { VerticalBounds } from '../types/layout-types';
 import type { ChatNavigationProp } from './chat.react';
 import ComposedMessage from './composed-message.react';
 import { InnerTextMessage } from './inner-text-message.react';
+import {
+  MessagePressResponderContext,
+  type MessagePressResponderContextType,
+} from './message-press-responder-context';
 import textMessageSendFailed from './text-message-send-failed';
 import { getMessageTooltipKey } from './utils';
 
@@ -50,6 +54,14 @@ type Props = {
 };
 class TextMessage extends React.PureComponent<Props> {
   message: ?React.ElementRef<typeof View>;
+  messagePressResponderContext: MessagePressResponderContextType;
+
+  constructor(props: Props) {
+    super(props);
+    this.messagePressResponderContext = {
+      onPressMessage: this.onPress,
+    };
+  }
 
   render() {
     const {
@@ -81,19 +93,23 @@ class TextMessage extends React.PureComponent<Props> {
     }
 
     return (
-      <ComposedMessage
-        item={item}
-        sendFailed={textMessageSendFailed(item)}
-        focused={focused}
-        swipeOptions={swipeOptions}
-        {...viewProps}
+      <MessagePressResponderContext.Provider
+        value={this.messagePressResponderContext}
       >
-        <InnerTextMessage
+        <ComposedMessage
           item={item}
-          onPress={this.onPress}
-          messageRef={this.messageRef}
-        />
-      </ComposedMessage>
+          sendFailed={textMessageSendFailed(item)}
+          focused={focused}
+          swipeOptions={swipeOptions}
+          {...viewProps}
+        >
+          <InnerTextMessage
+            item={item}
+            onPress={this.onPress}
+            messageRef={this.messageRef}
+          />
+        </ComposedMessage>
+      </MessagePressResponderContext.Provider>
     );
   }
 

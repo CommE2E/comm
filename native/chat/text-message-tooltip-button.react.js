@@ -10,6 +10,7 @@ import { TooltipInlineSidebar } from './inline-sidebar.react';
 import { InnerTextMessage } from './inner-text-message.react';
 import { MessageHeader } from './message-header.react';
 import { MessageListContextProvider } from './message-list-types';
+import { MessagePressResponderContext } from './message-press-responder-context';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react';
 import { useAnimatedMessageTooltipButton } from './utils';
 
@@ -67,6 +68,13 @@ function TextMessageTooltipButton(props: Props): React.Node {
   const threadID = item.threadInfo.id;
   const { navigation, isOpeningSidebar } = props;
 
+  const messagePressResponderContext = React.useMemo(
+    () => ({
+      onPressMessage: navigation.goBackOnce,
+    }),
+    [navigation.goBackOnce],
+  );
+
   const inlineSidebar = React.useMemo(() => {
     if (!item.threadCreatedFromMessage) {
       return null;
@@ -92,12 +100,16 @@ function TextMessageTooltipButton(props: Props): React.Node {
         <Animated.View style={headerStyle}>
           <MessageHeader item={item} focused={true} display="modal" />
         </Animated.View>
-        <InnerTextMessage
-          item={item}
-          onPress={navigation.goBackOnce}
-          threadColorOverride={threadColorOverride}
-          isThreadColorDarkOverride={isThreadColorDarkOverride}
-        />
+        <MessagePressResponderContext.Provider
+          value={messagePressResponderContext}
+        >
+          <InnerTextMessage
+            item={item}
+            onPress={navigation.goBackOnce}
+            threadColorOverride={threadColorOverride}
+            isThreadColorDarkOverride={isThreadColorDarkOverride}
+          />
+        </MessagePressResponderContext.Provider>
         {inlineSidebar}
       </Animated.View>
     </MessageListContextProvider>
