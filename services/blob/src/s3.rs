@@ -140,7 +140,8 @@ pub struct MultiPartUploadSession {
 
 impl MultiPartUploadSession {
   /// Starts a new upload session and returns its instance
-  pub async fn start(
+  /// Don't call this directly, use [`S3Client::start_upload_session()`] instead
+  async fn start(
     client: &Arc<aws_sdk_s3::Client>,
     s3_path: &S3Path,
   ) -> Result<Self> {
