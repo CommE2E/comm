@@ -88,11 +88,11 @@ function SQLiteDataHandler(): React.Node {
     (async () => {
       await sensitiveDataHandled;
       try {
-        const [threads, messages, drafts] = await Promise.all([
-          commCoreModule.getAllThreads(),
-          commCoreModule.getAllMessages(),
-          commCoreModule.getAllDrafts(),
-        ]);
+        const {
+          threads,
+          messages,
+          drafts,
+        } = await commCoreModule.getClientDBStore();
         const threadInfosFromDB = convertClientDBThreadInfosToRawThreadInfos(
           threads,
         );
