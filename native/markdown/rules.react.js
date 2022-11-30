@@ -12,6 +12,7 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { useSelector } from '../redux/redux-utils';
 import MarkdownLink from './markdown-link.react';
+import MarkdownParagraph from './markdown-paragraph.react';
 import { getMarkdownStyles } from './styles';
 
 export type MarkdownRules = {
@@ -96,9 +97,9 @@ const inlineMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
         output: SharedMarkdown.Output<SharedMarkdown.ReactElement>,
         state: SharedMarkdown.State,
       ) => (
-        <Text key={state.key} style={state.textStyle}>
+        <MarkdownParagraph key={state.key} style={state.textStyle}>
           {output(node.content, state)}
-        </Text>
+        </MarkdownParagraph>
       ),
     },
     // This is the leaf node in the AST returned by the parse phase
