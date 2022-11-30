@@ -190,6 +190,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         first: 20,
         after,
         mediaType: [MediaLibrary.MediaType.photo, MediaLibrary.MediaType.video],
+        sortBy: [MediaLibrary.SortBy.modificationTime],
       });
 
       let firstRemoved = false,
