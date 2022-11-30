@@ -15,7 +15,6 @@
 #import <reacthermes/HermesExecutorFactory.h>
 
 #import "CommCoreModule.h"
-#import "CommSecureStoreIOSWrapper.h"
 #import "GlobalDBSingleton.h"
 #import "Logger.h"
 #import "MessageOperationsUtilities.h"
@@ -68,12 +67,6 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 
 - (BOOL)application:(UIApplication *)application
     willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  NSString *secureStoreEncryptionKeyID = [NSString
-      stringWithUTF8String:
-          (comm::SQLiteQueryExecutor::secureStoreEncryptionKeyID.c_str())];
-  [[CommSecureStoreIOSWrapper sharedInstance]
-      migrateOptionsForKey:secureStoreEncryptionKeyID
-               withVersion:@"0"];
   [self attemptDatabaseInitialization];
   return YES;
 }
