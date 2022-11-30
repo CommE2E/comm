@@ -29,9 +29,7 @@ export interface Spec extends TurboModule {
   +updateDraft: (key: string, text: string) => Promise<boolean>;
   +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
   +getClientDBStore: () => Promise<ClientDBStore>;
-  +getAllDrafts: () => Promise<$ReadOnlyArray<ClientDBDraftInfo>>;
   +removeAllDrafts: () => Promise<void>;
-  +getAllMessages: () => Promise<$ReadOnlyArray<ClientDBMessageInfo>>;
   +getAllMessagesSync: () => $ReadOnlyArray<ClientDBMessageInfo>;
   +processDraftStoreOperations: (
     operations: $ReadOnlyArray<ClientDBDraftStoreOperation>,
@@ -42,7 +40,6 @@ export interface Spec extends TurboModule {
   +processMessageStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBMessageStoreOperation>,
   ) => void;
-  +getAllThreads: () => Promise<$ReadOnlyArray<ClientDBThreadInfo>>;
   +getAllThreadsSync: () => $ReadOnlyArray<ClientDBThreadInfo>;
   +processThreadStoreOperations: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,

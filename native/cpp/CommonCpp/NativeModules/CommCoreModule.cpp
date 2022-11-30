@@ -306,34 +306,6 @@ jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
       });
 }
 
-jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
-          std::string error;
-          std::vector<Draft> draftsVector;
-          try {
-            draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          auto draftsVectorPtr =
-              std::make_shared<std::vector<Draft>>(std::move(draftsVector));
-          this->jsInvoker_->invokeAsync(
-              [&innerRt, draftsVectorPtr, error, promise]() {
-                if (error.size()) {
-                  promise->reject(error);
-                  return;
-                }
-                jsi::Array jsiDrafts = parseDBDrafts(innerRt, draftsVectorPtr);
-                promise->resolve(std::move(jsiDrafts));
-              });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-}
-
 jsi::Value CommCoreModule::removeAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -367,37 +339,6 @@ jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
           std::move(messagesVector));
   jsi::Array jsiMessages = parseDBMessages(rt, messagesVectorPtr);
   return jsiMessages;
-}
-
-jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
-          std::string error;
-          std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
-          try {
-            messagesVector =
-                DatabaseManager::getQueryExecutor().getAllMessages();
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          auto messagesVectorPtr = std::make_shared<
-              std::vector<std::pair<Message, std::vector<Media>>>>(
-              std::move(messagesVector));
-          this->jsInvoker_->invokeAsync(
-              [messagesVectorPtr, &innerRt, promise, error]() {
-                if (error.size()) {
-                  promise->reject(error);
-                  return;
-                }
-                jsi::Array jsiMessages =
-                    parseDBMessages(innerRt, messagesVectorPtr);
-                promise->resolve(std::move(jsiMessages));
-              });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
 }
 
 const std::string UPDATE_DRAFT_OPERATION = "update";
@@ -593,34 +534,6 @@ void CommCoreModule::processMessageStoreOperationsSync(
     }
   });
 }
-
-jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
-  return createPromiseAsJSIValue(
-      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
-        taskType job = [=, &innerRt]() {
-          std::string error;
-          std::vector<Thread> threadsVector;
-          try {
-            threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
-          } catch (std::system_error &e) {
-            error = e.what();
-          }
-          auto threadsVectorPtr =
-              std::make_shared<std::vector<Thread>>(std::move(threadsVector));
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-
-            jsi::Array jsiThreads = parseDBThreads(innerRt, threadsVectorPtr);
-            promise->resolve(std::move(jsiThreads));
-          });
-        };
-        GlobalDBSingleton::instance.scheduleOrRunCancellable(
-            job, promise, this->jsInvoker_);
-      });
-};
 
 jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
   auto threadsVector = this->runSyncOrThrowJSError<std::vector<Thread>>(

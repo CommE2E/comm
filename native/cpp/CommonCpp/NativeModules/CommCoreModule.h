@@ -32,9 +32,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       const jsi::String &oldKey,
       const jsi::String &newKey) override;
   jsi::Value getClientDBStore(jsi::Runtime &rt) override;
-  jsi::Value getAllDrafts(jsi::Runtime &rt) override;
   jsi::Value removeAllDrafts(jsi::Runtime &rt) override;
-  jsi::Value getAllMessages(jsi::Runtime &rt) override;
   jsi::Array getAllMessagesSync(jsi::Runtime &rt) override;
   jsi::Value processDraftStoreOperations(
       jsi::Runtime &rt,
@@ -45,7 +43,6 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   void processMessageStoreOperationsSync(
       jsi::Runtime &rt,
       const jsi::Array &operations) override;
-  jsi::Value getAllThreads(jsi::Runtime &rt) override;
   jsi::Array getAllThreadsSync(jsi::Runtime &rt) override;
   jsi::Value processThreadStoreOperations(
       jsi::Runtime &rt,
