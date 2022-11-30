@@ -97,12 +97,18 @@ impl DatabaseClient {
         item: Some(mut item),
         ..
       } => {
-        let blob_hash =
-          parse_string_attribute(item.remove(BLOB_TABLE_BLOB_HASH_FIELD))?;
-        let s3_path =
-          parse_string_attribute(item.remove(BLOB_TABLE_S3_PATH_FIELD))?;
-        let created =
-          parse_datetime_attribute(item.remove(BLOB_TABLE_CREATED_FIELD))?;
+        let blob_hash = parse_string_attribute(
+          BLOB_TABLE_BLOB_HASH_FIELD,
+          item.remove(BLOB_TABLE_BLOB_HASH_FIELD),
+        )?;
+        let s3_path = parse_string_attribute(
+          BLOB_TABLE_S3_PATH_FIELD,
+          item.remove(BLOB_TABLE_S3_PATH_FIELD),
+        )?;
+        let created = parse_datetime_attribute(
+          BLOB_TABLE_CREATED_FIELD,
+          item.remove(BLOB_TABLE_CREATED_FIELD),
+        )?;
         Ok(Some(BlobItem {
           blob_hash,
           s3_path: S3Path::from_full_path(&s3_path)?,
@@ -194,9 +200,11 @@ impl DatabaseClient {
         ..
       } => {
         let holder = parse_string_attribute(
+          BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD,
           item.remove(BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD),
         )?;
         let blob_hash = parse_string_attribute(
+          BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD,
           item.remove(BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD),
         )?;
 
@@ -238,9 +246,11 @@ impl DatabaseClient {
       Vec::with_capacity(response.count() as usize);
     for mut item in response.items.unwrap_or_default() {
       let holder = parse_string_attribute(
+        BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD,
         item.remove(BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD),
       )?;
       let blob_hash = parse_string_attribute(
+        BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD,
         item.remove(BLOB_REVERSE_INDEX_TABLE_BLOB_HASH_FIELD),
       )?;
 
@@ -316,23 +326,43 @@ pub enum DBItemAttributeError {
   InvalidTimestamp(chrono::ParseError),
 }
 
-fn parse_string_attribute(attribute: Option<AttributeValue>) -> Result<String> {
-  match attribute {
-    Some(AttributeValue::S(str_value)) => Ok(str_value),
-    Some(_) => Err(anyhow!("Incorrect type")),
-    None => Err(anyhow!("Atrribute missing")),
+fn parse_string_attribute(
+  attribute_name: &'static str,
+  attribute_value: Option<AttributeValue>,
+) -> Result<String, DBItemError> {
+  match attribute_value {
+    Some(AttributeValue::S(value)) => Ok(value),
+    Some(_) => Err(DBItemError::new(
+      attribute_name,
+      attribute_value,
+      DBItemAttributeError::IncorrectType,
+    )),
+    None => Err(DBItemError::new(
+      attribute_name,
+      attribute_value,
+      DBItemAttributeError::Missing,
+    )),
   }
 }
 
 fn parse_datetime_attribute(
-  attribute: Option<AttributeValue>,
-) -> Result<DateTime<Utc>> {
-  if let Some(AttributeValue::S(datetime)) = &attribute {
+  attribute_name: &'static str,
+  attribute_value: Option<AttributeValue>,
+) -> Result<DateTime<Utc>, DBItemError> {
+  if let Some(AttributeValue::S(datetime)) = &attribute_value {
     // parse() accepts a relaxed RFC3339 string
-    datetime
-      .parse()
-      .with_context(|| format!("Invalid RFC 3339 DateTime: {}", datetime))
+    datetime.parse().map_err(|e| {
+      DBItemError::new(
+        attribute_name,
+        attribute_value,
+        DBItemAttributeError::InvalidTimestamp(e),
+      )
+    })
   } else {
-    Err(anyhow!("Atrribute missing"))
+    Err(DBItemError::new(
+      attribute_name,
+      attribute_value,
+      DBItemAttributeError::Missing,
+    ))
   }
 }
