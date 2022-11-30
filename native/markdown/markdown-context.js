@@ -7,6 +7,8 @@ import type { SetState } from 'lib/types/hook-types';
 export type MarkdownContextType = {
   +setLinkModalActive: SetState<{ [key: string]: boolean }>,
   +linkModalActive: { [key: string]: boolean },
+  +setSpoilerRevealed: SetState<{ [key: string]: { [key: number]: boolean } }>,
+  +spoilerRevealed: { [key: string]: { [key: number]: boolean } },
   +clearMarkdownContextData: () => void,
 };
 

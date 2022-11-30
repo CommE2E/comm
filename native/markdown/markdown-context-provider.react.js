@@ -13,17 +13,32 @@ function MarkdownContextProvider(props: Props): React.Node {
     [key: string]: boolean,
   }>({});
 
+  const [spoilerRevealed, setSpoilerRevealed] = React.useState<{
+    [key: string]: {
+      [key: number]: boolean,
+    },
+  }>({});
+
   const clearMarkdownContextData = React.useCallback(() => {
     setLinkModalActive({});
+    setSpoilerRevealed({});
   }, []);
 
   const contextValue = React.useMemo(
     () => ({
       setLinkModalActive,
       linkModalActive,
+      setSpoilerRevealed,
+      spoilerRevealed,
       clearMarkdownContextData,
     }),
-    [setLinkModalActive, linkModalActive, clearMarkdownContextData],
+    [
+      setLinkModalActive,
+      linkModalActive,
+      setSpoilerRevealed,
+      spoilerRevealed,
+      clearMarkdownContextData,
+    ],
   );
 
   return (
