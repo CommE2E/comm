@@ -125,41 +125,50 @@ jsi::Value CommCoreModule::moveDraft(
       });
 }
 
+jsi::Array parseDBDrafts(
+    jsi::Runtime &rt,
+    std::shared_ptr<std::vector<Draft>> draftsVectorPtr) {
+  size_t numDrafts = count_if(
+      draftsVectorPtr->begin(), draftsVectorPtr->end(), [](Draft draft) {
+        return !draft.text.empty();
+      });
+  jsi::Array jsiDrafts = jsi::Array(rt, numDrafts);
+
+  size_t writeIndex = 0;
+  for (Draft draft : *draftsVectorPtr) {
+    if (draft.text.empty()) {
+      continue;
+    }
+    auto jsiDraft = jsi::Object(rt);
+    jsiDraft.setProperty(rt, "key", draft.key);
+    jsiDraft.setProperty(rt, "text", draft.text);
+    jsiDrafts.setValueAtIndex(rt, writeIndex++, jsiDraft);
+  }
+  return jsiDrafts;
+}
+
 jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=, &innerRt]() {
           std::string error;
           std::vector<Draft> draftsVector;
-          size_t numDrafts;
           try {
             draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
-            numDrafts = count_if(
-                draftsVector.begin(), draftsVector.end(), [](Draft draft) {
-                  return !draft.text.empty();
-                });
           } catch (std::system_error &e) {
             error = e.what();
           }
-          this->jsInvoker_->invokeAsync([=, &innerRt]() {
-            if (error.size()) {
-              promise->reject(error);
-              return;
-            }
-            jsi::Array jsiDrafts = jsi::Array(innerRt, numDrafts);
-
-            size_t writeIndex = 0;
-            for (Draft draft : draftsVector) {
-              if (draft.text.empty()) {
-                continue;
-              }
-              auto jsiDraft = jsi::Object(innerRt);
-              jsiDraft.setProperty(innerRt, "key", draft.key);
-              jsiDraft.setProperty(innerRt, "text", draft.text);
-              jsiDrafts.setValueAtIndex(innerRt, writeIndex++, jsiDraft);
-            }
-            promise->resolve(std::move(jsiDrafts));
-          });
+          auto draftsVectorPtr =
+              std::make_shared<std::vector<Draft>>(std::move(draftsVector));
+          this->jsInvoker_->invokeAsync(
+              [&innerRt, draftsVectorPtr, error, promise]() {
+                if (error.size()) {
+                  promise->reject(error);
+                  return;
+                }
+                jsi::Array jsiDrafts = parseDBDrafts(innerRt, draftsVectorPtr);
+                promise->resolve(std::move(jsiDrafts));
+              });
         };
         GlobalDBSingleton::instance.scheduleOrRunCancellable(
             job, promise, this->jsInvoker_);
