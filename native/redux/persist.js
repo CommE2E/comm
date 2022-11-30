@@ -463,13 +463,29 @@ const messageStoreMessagesBlocklistTransform: Transform = createTransform(
     }
     return { ...messageStoreSansMessages, threads: threadsToPersist };
   },
-  (state: PersistedMessageStore): MessageStore => {
+  (state: MessageStore): MessageStore => {
     const { threads: persistedThreads, ...messageStore } = state;
     const threads = {};
     for (const threadID in persistedThreads) {
       threads[threadID] = { ...persistedThreads[threadID], messageIDs: [] };
     }
-    return { ...messageStore, threads, messages: {} };
+    // We typically expect `messageStore.messages` to be `undefined` because
+    // messages are persisted in the SQLite `messages` table rather than via
+    // `redux-persist`. In this case we want to set `messageStore.messages`
+    // to {} so we don't run into issues with `messageStore.messages` being
+    // `undefined` (https://phab.comm.dev/D5545).
+    //
+    // However, in the case that a user is upgrading from a client where
+    // `persistConfig.version` < 31, we expect `messageStore.messages` to
+    // contain messages stored via `redux-persist` that we need in order
+    // to correctly populate the SQLite `messages` table in migration 31
+    // (https://phab.comm.dev/D2600).
+    //
+    // However, because `messageStoreMessagesBlocklistTransform` modifies
+    // `messageStore` before migrations are run, we need to make sure we aren't
+    // inadvertently clearing `messageStore.messages` (by setting to {}) before
+    // messages are stored in SQLite (https://linear.app/comm/issue/ENG-2377).
+    return { ...messageStore, threads, messages: messageStore.messages ?? {} };
   },
   { whitelist: ['messageStore'] },
 );
