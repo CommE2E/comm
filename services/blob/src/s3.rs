@@ -4,7 +4,10 @@ use aws_sdk_s3::{
   output::CreateMultipartUploadOutput,
   types::ByteStream,
 };
-use std::{ops::RangeBounds, sync::Arc};
+use std::{
+  ops::{Bound, RangeBounds},
+  sync::Arc,
+};
 
 /// A helper structure representing an S3 object path
 #[derive(Clone, Debug)]
@@ -65,7 +68,15 @@ impl S3Client {
     &self,
     s3_path: &S3Path,
   ) -> Result<aws_sdk_s3::output::HeadObjectOutput> {
-    unimplemented!()
+    let response = self
+      .client
+      .head_object()
+      .bucket(s3_path.bucket_name.clone())
+      .key(s3_path.object_name.clone())
+      .send()
+      .await?;
+
+    Ok(response)
   }
 
   /// Downloads object and retrieves data bytes within provided range
@@ -76,12 +87,45 @@ impl S3Client {
     s3_path: &S3Path,
     range: impl RangeBounds<u64>,
   ) -> Result<Vec<u8>> {
-    unimplemented!()
+    let mut request = self
+      .client
+      .get_object()
+      .bucket(&s3_path.bucket_name)
+      .key(&s3_path.object_name);
+
+    if range.start_bound() != Bound::Unbounded
+      || range.end_bound() != Bound::Unbounded
+    {
+      // Create a valid HTTP Range header
+      let from = match range.start_bound() {
+        Bound::Included(start) => start.to_string(),
+        _ => "0".to_string(),
+      };
+      let to = match range.end_bound() {
+        Bound::Included(end) => end.to_string(),
+        Bound::Excluded(end) => (end - 1).to_string(),
+        _ => "".to_string(),
+      };
+      let range = format!("bytes={}-{}", from, to);
+      request = request.range(range);
+    }
+
+    let response = request.send().await?;
+    let data = response.body.collect().await?;
+    Ok(data.into_bytes().to_vec())
   }
 
   /// Deletes object at provided path
   pub async fn delete_object(&self, s3_path: &S3Path) -> Result<()> {
-    unimplemented!()
+    self
+      .client
+      .delete_object()
+      .bucket(&s3_path.bucket_name)
+      .key(&s3_path.object_name)
+      .send()
+      .await?;
+
+    Ok(())
   }
 }
 
