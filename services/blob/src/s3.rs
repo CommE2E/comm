@@ -1,11 +1,10 @@
 use anyhow::{anyhow, Result};
-use aws_sdk_s3::Client as S3Client;
 use aws_sdk_s3::{
   model::{CompletedMultipartUpload, CompletedPart},
   output::CreateMultipartUploadOutput,
   types::ByteStream,
 };
-use std::sync::Arc;
+use std::{ops::RangeBounds, sync::Arc};
 
 /// A helper structure representing an S3 object path
 #[derive(Clone, Debug)]
@@ -41,9 +40,54 @@ impl S3Path {
   }
 }
 
+#[derive(Clone)]
+pub struct S3Client {
+  client: Arc<aws_sdk_s3::Client>,
+}
+
+impl S3Client {
+  pub fn new(aws_config: &aws_types::SdkConfig) -> Self {
+    S3Client {
+      client: Arc::new(aws_sdk_s3::Client::new(aws_config)),
+    }
+  }
+
+  /// Creates a new [`MultiPartUploadSession`]
+  pub async fn start_upload_session(
+    &self,
+    s3_path: &S3Path,
+  ) -> Result<MultiPartUploadSession> {
+    MultiPartUploadSession::start(&self.client, s3_path).await
+  }
+
+  /// Returns object metadata (e.g. file size) without downloading the object itself
+  pub async fn get_object_metadata(
+    &self,
+    s3_path: &S3Path,
+  ) -> Result<aws_sdk_s3::output::HeadObjectOutput> {
+    unimplemented!()
+  }
+
+  /// Downloads object and retrieves data bytes within provided range
+  ///
+  /// * `range` - Range of object bytes to download.
+  pub async fn get_object_bytes(
+    &self,
+    s3_path: &S3Path,
+    range: impl RangeBounds<u64>,
+  ) -> Result<Vec<u8>> {
+    unimplemented!()
+  }
+
+  /// Deletes object at provided path
+  pub async fn delete_object(&self, s3_path: &S3Path) -> Result<()> {
+    unimplemented!()
+  }
+}
+
 /// Represents a multipart upload session to the AWS S3
 pub struct MultiPartUploadSession {
-  client: Arc<S3Client>,
+  client: Arc<aws_sdk_s3::Client>,
   bucket_name: String,
   object_name: String,
   upload_id: String,
@@ -52,7 +96,10 @@ pub struct MultiPartUploadSession {
 
 impl MultiPartUploadSession {
   /// Starts a new upload session and returns its instance
-  pub async fn start(client: &Arc<S3Client>, s3_path: &S3Path) -> Result<Self> {
+  pub async fn start(
+    client: &Arc<aws_sdk_s3::Client>,
+    s3_path: &S3Path,
+  ) -> Result<Self> {
     let multipart_upload_res: CreateMultipartUploadOutput = client
       .create_multipart_upload()
       .bucket(&s3_path.bucket_name)
