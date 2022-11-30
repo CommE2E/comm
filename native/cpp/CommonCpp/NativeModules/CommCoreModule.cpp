@@ -147,6 +147,57 @@ jsi::Array parseDBDrafts(
   return jsiDrafts;
 }
 
+jsi::Array parseDBMessages(
+    jsi::Runtime &rt,
+    std::shared_ptr<std::vector<std::pair<Message, std::vector<Media>>>>
+        messagesVectorPtr) {
+  size_t numMessages = messagesVectorPtr->size();
+  jsi::Array jsiMessages = jsi::Array(rt, numMessages);
+  size_t writeIndex = 0;
+  for (const auto &[message, media] : *messagesVectorPtr) {
+    auto jsiMessage = jsi::Object(rt);
+    jsiMessage.setProperty(rt, "id", message.id);
+
+    if (message.local_id) {
+      auto local_id = message.local_id.get();
+      jsiMessage.setProperty(rt, "local_id", *local_id);
+    }
+
+    jsiMessage.setProperty(rt, "thread", message.thread);
+    jsiMessage.setProperty(rt, "user", message.user);
+    jsiMessage.setProperty(rt, "type", std::to_string(message.type));
+
+    if (message.future_type) {
+      auto future_type = message.future_type.get();
+      jsiMessage.setProperty(rt, "future_type", std::to_string(*future_type));
+    }
+
+    if (message.content) {
+      auto content = message.content.get();
+      jsiMessage.setProperty(rt, "content", *content);
+    }
+
+    jsiMessage.setProperty(rt, "time", std::to_string(message.time));
+
+    size_t media_idx = 0;
+    jsi::Array jsiMediaArray = jsi::Array(rt, media.size());
+    for (const auto &media_info : media) {
+      auto jsiMedia = jsi::Object(rt);
+      jsiMedia.setProperty(rt, "id", media_info.id);
+      jsiMedia.setProperty(rt, "uri", media_info.uri);
+      jsiMedia.setProperty(rt, "type", media_info.type);
+      jsiMedia.setProperty(rt, "extras", media_info.extras);
+
+      jsiMediaArray.setValueAtIndex(rt, media_idx++, jsiMedia);
+    }
+
+    jsiMessage.setProperty(rt, "media_infos", jsiMediaArray);
+
+    jsiMessages.setValueAtIndex(rt, writeIndex++, jsiMessage);
+  }
+  return jsiMessages;
+}
+
 jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -203,50 +254,10 @@ jsi::Array CommCoreModule::getAllMessagesSync(jsi::Runtime &rt) {
       std::vector<std::pair<Message, std::vector<Media>>>>(rt, []() {
     return DatabaseManager::getQueryExecutor().getAllMessages();
   });
-  size_t numMessages{messagesVector.size()};
-  jsi::Array jsiMessages = jsi::Array(rt, numMessages);
-
-  size_t writeIndex = 0;
-  for (const auto &[message, media] : messagesVector) {
-    auto jsiMessage = jsi::Object(rt);
-    jsiMessage.setProperty(rt, "id", message.id);
-
-    if (message.local_id) {
-      auto local_id = message.local_id.get();
-      jsiMessage.setProperty(rt, "local_id", *local_id);
-    }
-
-    jsiMessage.setProperty(rt, "thread", message.thread);
-    jsiMessage.setProperty(rt, "user", message.user);
-    jsiMessage.setProperty(rt, "type", std::to_string(message.type));
-
-    if (message.future_type) {
-      auto future_type = message.future_type.get();
-      jsiMessage.setProperty(rt, "future_type", std::to_string(*future_type));
-    }
-
-    if (message.content) {
-      auto content = message.content.get();
-      jsiMessage.setProperty(rt, "content", *content);
-    }
-    jsiMessage.setProperty(rt, "time", std::to_string(message.time));
-
-    size_t media_idx = 0;
-    jsi::Array jsiMediaArray = jsi::Array(rt, media.size());
-    for (const auto &media_info : media) {
-      auto jsiMedia = jsi::Object(rt);
-      jsiMedia.setProperty(rt, "id", media_info.id);
-      jsiMedia.setProperty(rt, "uri", media_info.uri);
-      jsiMedia.setProperty(rt, "type", media_info.type);
-      jsiMedia.setProperty(rt, "extras", media_info.extras);
-
-      jsiMediaArray.setValueAtIndex(rt, media_idx++, jsiMedia);
-    }
-
-    jsiMessage.setProperty(rt, "media_infos", jsiMediaArray);
-    jsiMessages.setValueAtIndex(rt, writeIndex++, jsiMessage);
-  }
-
+  auto messagesVectorPtr =
+      std::make_shared<std::vector<std::pair<Message, std::vector<Media>>>>(
+          std::move(messagesVector));
+  jsi::Array jsiMessages = parseDBMessages(rt, messagesVectorPtr);
   return jsiMessages;
 }
 
@@ -256,11 +267,9 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
         taskType job = [=, &innerRt]() {
           std::string error;
           std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
-          size_t numMessages;
           try {
             messagesVector =
                 DatabaseManager::getQueryExecutor().getAllMessages();
-            numMessages = messagesVector.size();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -268,59 +277,13 @@ jsi::Value CommCoreModule::getAllMessages(jsi::Runtime &rt) {
               std::vector<std::pair<Message, std::vector<Media>>>>(
               std::move(messagesVector));
           this->jsInvoker_->invokeAsync(
-              [messagesVectorPtr, &innerRt, promise, error, numMessages]() {
+              [messagesVectorPtr, &innerRt, promise, error]() {
                 if (error.size()) {
                   promise->reject(error);
                   return;
                 }
-                jsi::Array jsiMessages = jsi::Array(innerRt, numMessages);
-                size_t writeIndex = 0;
-                for (const auto &[message, media] : *messagesVectorPtr) {
-                  auto jsiMessage = jsi::Object(innerRt);
-                  jsiMessage.setProperty(innerRt, "id", message.id);
-
-                  if (message.local_id) {
-                    auto local_id = message.local_id.get();
-                    jsiMessage.setProperty(innerRt, "local_id", *local_id);
-                  }
-
-                  jsiMessage.setProperty(innerRt, "thread", message.thread);
-                  jsiMessage.setProperty(innerRt, "user", message.user);
-                  jsiMessage.setProperty(
-                      innerRt, "type", std::to_string(message.type));
-
-                  if (message.future_type) {
-                    auto future_type = message.future_type.get();
-                    jsiMessage.setProperty(
-                        innerRt, "future_type", std::to_string(*future_type));
-                  }
-
-                  if (message.content) {
-                    auto content = message.content.get();
-                    jsiMessage.setProperty(innerRt, "content", *content);
-                  }
-
-                  jsiMessage.setProperty(
-                      innerRt, "time", std::to_string(message.time));
-
-                  size_t media_idx = 0;
-                  jsi::Array jsiMediaArray = jsi::Array(innerRt, media.size());
-                  for (const auto &media_info : media) {
-                    auto jsiMedia = jsi::Object(innerRt);
-                    jsiMedia.setProperty(innerRt, "id", media_info.id);
-                    jsiMedia.setProperty(innerRt, "uri", media_info.uri);
-                    jsiMedia.setProperty(innerRt, "type", media_info.type);
-                    jsiMedia.setProperty(innerRt, "extras", media_info.extras);
-
-                    jsiMediaArray.setValueAtIndex(
-                        innerRt, media_idx++, jsiMedia);
-                  }
-
-                  jsiMessage.setProperty(innerRt, "media_infos", jsiMediaArray);
-
-                  jsiMessages.setValueAtIndex(
-                      innerRt, writeIndex++, jsiMessage);
-                }
+                jsi::Array jsiMessages =
+                    parseDBMessages(innerRt, messagesVectorPtr);
                 promise->resolve(std::move(jsiMessages));
               });
         };
