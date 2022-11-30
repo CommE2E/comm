@@ -1,7 +1,13 @@
 use anyhow::{anyhow, Context, Result};
-use aws_sdk_dynamodb::{model::AttributeValue, output::GetItemOutput};
+use aws_sdk_dynamodb::{
+  model::AttributeValue, output::GetItemOutput, Error as DynamoDBError,
+};
 use chrono::{DateTime, Utc};
-use std::{collections::HashMap, sync::Arc};
+use std::{
+  collections::HashMap,
+  fmt::{Display, Formatter},
+  sync::Arc,
+};
 
 use crate::{
   constants::{
@@ -261,6 +267,53 @@ impl DatabaseClient {
 
     Ok(())
   }
+}
+
+#[derive(
+  Debug, derive_more::Display, derive_more::From, derive_more::Error,
+)]
+pub enum Error {
+  #[display(...)]
+  AwsSdk(DynamoDBError),
+  #[display(...)]
+  Attribute(DBItemError),
+}
+
+#[derive(Debug, derive_more::Error, derive_more::Constructor)]
+pub struct DBItemError {
+  attribute_name: &'static str,
+  attribute_value: Option<AttributeValue>,
+  attribute_error: DBItemAttributeError,
+}
+
+impl Display for DBItemError {
+  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+    match &self.attribute_error {
+      DBItemAttributeError::Missing => {
+        write!(f, "Attribute {} is missing", self.attribute_name)
+      }
+      DBItemAttributeError::IncorrectType => write!(
+        f,
+        "Value for attribute {} has incorrect type: {:?}",
+        self.attribute_name, self.attribute_value
+      ),
+      error => write!(
+        f,
+        "Error regarding attribute {} with value {:?}: {}",
+        self.attribute_name, self.attribute_value, error
+      ),
+    }
+  }
+}
+
+#[derive(Debug, derive_more::Display, derive_more::Error)]
+pub enum DBItemAttributeError {
+  #[display(...)]
+  Missing,
+  #[display(...)]
+  IncorrectType,
+  #[display(...)]
+  InvalidTimestamp(chrono::ParseError),
 }
 
 fn parse_string_attribute(attribute: Option<AttributeValue>) -> Result<String> {
