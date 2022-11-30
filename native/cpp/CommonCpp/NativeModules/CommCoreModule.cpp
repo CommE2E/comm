@@ -66,10 +66,12 @@ jsi::Value CommCoreModule::getDraft(jsi::Runtime &rt, const jsi::String &key) {
       });
 }
 
-jsi::Value
-CommCoreModule::updateDraft(jsi::Runtime &rt, const jsi::Object &draft) {
-  std::string keyStr = draft.getProperty(rt, "key").asString(rt).utf8(rt);
-  std::string textStr = draft.getProperty(rt, "text").asString(rt).utf8(rt);
+jsi::Value CommCoreModule::updateDraft(
+    jsi::Runtime &rt,
+    const jsi::String &key,
+    const jsi::String &text) {
+  std::string keyStr = key.utf8(rt);
+  std::string textStr = text.utf8(rt);
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
         taskType job = [=]() {

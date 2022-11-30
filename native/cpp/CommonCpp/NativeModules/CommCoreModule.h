@@ -23,7 +23,10 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   template <class T>
   T runSyncOrThrowJSError(jsi::Runtime &rt, std::function<T()> task);
   jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) override;
-  jsi::Value updateDraft(jsi::Runtime &rt, const jsi::Object &draft) override;
+  jsi::Value updateDraft(
+      jsi::Runtime &rt,
+      const jsi::String &key,
+      const jsi::String &text) override;
   jsi::Value moveDraft(
       jsi::Runtime &rt,
       const jsi::String &oldKey,

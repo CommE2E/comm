@@ -20,7 +20,7 @@ import type {
 
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
-  +updateDraft: (draft: ClientDBDraftInfo) => Promise<boolean>;
+  +updateDraft: (key: string, text: string) => Promise<boolean>;
   +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
   +getAllDrafts: () => Promise<$ReadOnlyArray<ClientDBDraftInfo>>;
   +removeAllDrafts: () => Promise<void>;

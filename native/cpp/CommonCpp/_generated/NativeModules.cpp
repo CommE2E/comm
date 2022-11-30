@@ -16,7 +16,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDraft(jsi::Ru
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getDraft(rt, args[0].getString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDraft(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
-  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->updateDraft(rt, args[0].getObject(rt));
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->updateDraft(rt, args[0].getString(rt), args[1].getString(rt));
 }
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_moveDraft(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->moveDraft(rt, args[0].getString(rt), args[1].getString(rt));
@@ -93,7 +93,7 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveDa
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
   methodMap_["getDraft"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDraft};
-  methodMap_["updateDraft"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDraft};
+  methodMap_["updateDraft"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDraft};
   methodMap_["moveDraft"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_moveDraft};
   methodMap_["getAllDrafts"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllDrafts};
   methodMap_["removeAllDrafts"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeAllDrafts};
