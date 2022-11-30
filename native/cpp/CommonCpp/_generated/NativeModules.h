@@ -21,6 +21,7 @@ public:
 virtual jsi::Value getDraft(jsi::Runtime &rt, const jsi::String &key) = 0;
 virtual jsi::Value updateDraft(jsi::Runtime &rt, const jsi::String &key, const jsi::String &text) = 0;
 virtual jsi::Value moveDraft(jsi::Runtime &rt, const jsi::String &oldKey, const jsi::String &newKey) = 0;
+virtual jsi::Value getClientDBStore(jsi::Runtime &rt) = 0;
 virtual jsi::Value getAllDrafts(jsi::Runtime &rt) = 0;
 virtual jsi::Value removeAllDrafts(jsi::Runtime &rt) = 0;
 virtual jsi::Value getAllMessages(jsi::Runtime &rt) = 0;

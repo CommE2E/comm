@@ -255,6 +255,57 @@ jsi::Array parseDBThreads(
   return jsiThreads;
 }
 
+jsi::Value CommCoreModule::getClientDBStore(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        taskType job = [=, &innerRt]() {
+          std::string error;
+          std::vector<Draft> draftsVector;
+          std::vector<Thread> threadsVector;
+          std::vector<std::pair<Message, std::vector<Media>>> messagesVector;
+          try {
+            draftsVector = DatabaseManager::getQueryExecutor().getAllDrafts();
+            messagesVector =
+                DatabaseManager::getQueryExecutor().getAllMessages();
+            threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
+          } catch (std::system_error &e) {
+            error = e.what();
+          }
+          auto draftsVectorPtr =
+              std::make_shared<std::vector<Draft>>(std::move(draftsVector));
+          auto messagesVectorPtr = std::make_shared<
+              std::vector<std::pair<Message, std::vector<Media>>>>(
+              std::move(messagesVector));
+          auto threadsVectorPtr =
+              std::make_shared<std::vector<Thread>>(std::move(threadsVector));
+          this->jsInvoker_->invokeAsync([&innerRt,
+                                         draftsVectorPtr,
+                                         messagesVectorPtr,
+                                         threadsVectorPtr,
+                                         error,
+                                         promise]() {
+            if (error.size()) {
+              promise->reject(error);
+              return;
+            }
+            jsi::Array jsiDrafts = parseDBDrafts(innerRt, draftsVectorPtr);
+            jsi::Array jsiMessages =
+                parseDBMessages(innerRt, messagesVectorPtr);
+            jsi::Array jsiThreads = parseDBThreads(innerRt, threadsVectorPtr);
+
+            auto jsiClientDBStore = jsi::Object(innerRt);
+            jsiClientDBStore.setProperty(innerRt, "messages", jsiMessages);
+            jsiClientDBStore.setProperty(innerRt, "threads", jsiThreads);
+            jsiClientDBStore.setProperty(innerRt, "drafts", jsiDrafts);
+
+            promise->resolve(std::move(jsiClientDBStore));
+          });
+        };
+        GlobalDBSingleton::instance.scheduleOrRunCancellable(
+            job, promise, this->jsInvoker_);
+      });
+}
+
 jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {

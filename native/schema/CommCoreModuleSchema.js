@@ -18,10 +18,17 @@ import type {
   ClientDBThreadStoreOperation,
 } from 'lib/types/thread-types';
 
+type ClientDBStore = {
+  +messages: $ReadOnlyArray<ClientDBMessageInfo>,
+  +drafts: $ReadOnlyArray<ClientDBDraftInfo>,
+  +threads: $ReadOnlyArray<ClientDBThreadInfo>,
+};
+
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
   +updateDraft: (key: string, text: string) => Promise<boolean>;
   +moveDraft: (oldKey: string, newKey: string) => Promise<boolean>;
+  +getClientDBStore: () => Promise<ClientDBStore>;
   +getAllDrafts: () => Promise<$ReadOnlyArray<ClientDBDraftInfo>>;
   +removeAllDrafts: () => Promise<void>;
   +getAllMessages: () => Promise<$ReadOnlyArray<ClientDBMessageInfo>>;

@@ -21,6 +21,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDraft(jsi:
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_moveDraft(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->moveDraft(rt, args[0].getString(rt), args[1].getString(rt));
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getClientDBStore(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getClientDBStore(rt);
+}
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllDrafts(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->getAllDrafts(rt);
 }
@@ -95,6 +98,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["getDraft"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDraft};
   methodMap_["updateDraft"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_updateDraft};
   methodMap_["moveDraft"] = MethodMetadata {2, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_moveDraft};
+  methodMap_["getClientDBStore"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getClientDBStore};
   methodMap_["getAllDrafts"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllDrafts};
   methodMap_["removeAllDrafts"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_removeAllDrafts};
   methodMap_["getAllMessages"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getAllMessages};

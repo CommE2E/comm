@@ -31,6 +31,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
       jsi::Runtime &rt,
       const jsi::String &oldKey,
       const jsi::String &newKey) override;
+  jsi::Value getClientDBStore(jsi::Runtime &rt) override;
   jsi::Value getAllDrafts(jsi::Runtime &rt) override;
   jsi::Value removeAllDrafts(jsi::Runtime &rt) override;
   jsi::Value getAllMessages(jsi::Runtime &rt) override;
