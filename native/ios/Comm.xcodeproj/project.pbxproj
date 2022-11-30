@@ -104,13 +104,9 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Comm/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.release.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.release.plist; path = Comm/Info.release.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Comm/main.m; sourceTree = "<group>"; };
-		2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientGetReadReactor.cpp; sourceTree = "<group>"; };
-		2DDA05D6D8D20D885F22F82C /* SocketStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketStatus.h; sourceTree = "<group>"; };
 		2DDA0A22FECC9DAA5C19C35D /* Metadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Metadata.h; sourceTree = "<group>"; };
 		3EE4DCB430B05EC9DE7D7B01 /* libPods-NotificationService.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-NotificationService.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Comm/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		71009A7926FDCD71002C8453 /* Client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Client.cpp; sourceTree = "<group>"; };
-		71009A7A26FDCD71002C8453 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
 		71142A7526C2650A0039DCBD /* CommSecureStoreIOSWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommSecureStoreIOSWrapper.h; path = Comm/CommSecureStoreIOSWrapper.h; sourceTree = "<group>"; };
 		71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommSecureStoreIOSWrapper.mm; path = Comm/CommSecureStoreIOSWrapper.mm; sourceTree = "<group>"; };
 		711CF80E25DC096000A00FBD /* libFolly.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFolly.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -149,10 +145,6 @@
 		724995D427B4103A00323FCE /* NotificationService.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NotificationService.mm; sourceTree = "<group>"; };
 		724995D627B4103A00323FCE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		724995FA27BA9E8C00323FCE /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
-		726E5D732731A4790032361D /* NetworkModule.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = NetworkModule.cpp; sourceTree = "<group>"; };
-		726E5D742731A4790032361D /* NetworkModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetworkModule.h; sourceTree = "<group>"; };
-		726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GlobalNetworkSingleton.cpp; sourceTree = "<group>"; };
-		726E5D772731A5E10032361D /* GlobalNetworkSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalNetworkSingleton.h; sourceTree = "<group>"; };
 		75291F0228F9A09E00F4C80E /* DeviceID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeviceID.h; sourceTree = "<group>"; };
 		75291F0328F9A0AE00F4C80E /* DeviceID.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DeviceID.cpp; sourceTree = "<group>"; };
 		769A87FB41BCE3FEF97FD59A /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-NotificationService/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
@@ -180,14 +172,11 @@
 		B70FBC1226B047050040F480 /* Message.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		B7162ABC28AAD461006588D3 /* CommIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = CommIcons.ttf; path = Resources/CommIcons.ttf; sourceTree = "<group>"; };
 		B71AFF1E265EDD8600B22352 /* IBMPlexSans-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "IBMPlexSans-Medium.ttf"; path = "Resources/IBMPlexSans-Medium.ttf"; sourceTree = "<group>"; };
-		B72879B827A865EF008A04CC /* ClientGetReadReactor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ClientGetReadReactor.h; sourceTree = "<group>"; };
 		B734D10F28ADD55200570D04 /* SWMansionIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = SWMansionIcons.ttf; path = Resources/SWMansionIcons.ttf; sourceTree = "<group>"; };
 		B7906F692720905A009BBBF5 /* ThreadStoreOperations.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ThreadStoreOperations.h; sourceTree = "<group>"; };
 		B7906F6A27209091009BBBF5 /* OlmPersistAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OlmPersistAccount.h; sourceTree = "<group>"; };
 		B7906F6B27209091009BBBF5 /* OlmPersistSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OlmPersistSession.h; sourceTree = "<group>"; };
 		B7906F6C27209091009BBBF5 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
-		B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GRPCStreamHostObject.cpp; sourceTree = "<group>"; };
-		B7BEE748279B3F2E009CCA35 /* GRPCStreamHostObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GRPCStreamHostObject.h; sourceTree = "<group>"; };
 		B7E937CA26F448E700022A7C /* Media.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Media.h; sourceTree = "<group>"; };
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
 		CB1648B027CFD07E00394D9D /* CommRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = CommRelease.entitlements; path = Comm/CommRelease.entitlements; sourceTree = "<group>"; };
@@ -308,19 +297,6 @@
 			path = CommTests;
 			sourceTree = "<group>";
 		};
-		718A3C0426F22BD100F04A8D /* grpc */ = {
-			isa = PBXGroup;
-			children = (
-				71009A7926FDCD71002C8453 /* Client.cpp */,
-				71009A7A26FDCD71002C8453 /* Client.h */,
-				B7BEE744279B3E20009CCA35 /* GRPCStreamHostObject.cpp */,
-				B7BEE748279B3F2E009CCA35 /* GRPCStreamHostObject.h */,
-				B72879B827A865EF008A04CC /* ClientGetReadReactor.h */,
-				2DDA00CA889DFF0ECB7E338D /* ClientGetReadReactor.cpp */,
-			);
-			path = grpc;
-			sourceTree = "<group>";
-		};
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
 			isa = PBXGroup;
 			children = (
@@ -353,7 +329,6 @@
 			isa = PBXGroup;
 			children = (
 				71F971B4270726C000DDC5BF /* _generated */,
-				718A3C0426F22BD100F04A8D /* grpc */,
 				71BF5B6A26B3FCFF00EDE27D /* CryptoTools */,
 				71BE84382636A944002849D2 /* Tools */,
 				71BE843A2636A944002849D2 /* NativeModules */,
@@ -469,11 +444,6 @@
 			isa = PBXGroup;
 			children = (
 				CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */,
-				726E5D732731A4790032361D /* NetworkModule.cpp */,
-				726E5D742731A4790032361D /* NetworkModule.h */,
-				726E5D762731A5E10032361D /* GlobalNetworkSingleton.cpp */,
-				726E5D772731A5E10032361D /* GlobalNetworkSingleton.h */,
-				2DDA05D6D8D20D885F22F82C /* SocketStatus.h */,
 			);
 			path = InternalModules;
 			sourceTree = "<group>";
