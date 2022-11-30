@@ -93,7 +93,9 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
                 buttonColor={buttonThemes.danger}
                 type="submit"
                 onClick={this.onDelete}
-                disabled={inputDisabled}
+                disabled={
+                  inputDisabled || this.state.currentPassword.length === 0
+                }
               >
                 Delete Account
               </Button>
