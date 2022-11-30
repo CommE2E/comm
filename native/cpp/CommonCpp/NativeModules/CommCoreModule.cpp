@@ -198,6 +198,63 @@ jsi::Array parseDBMessages(
   return jsiMessages;
 }
 
+jsi::Array parseDBThreads(
+    jsi::Runtime &rt,
+    std::shared_ptr<std::vector<Thread>> threadsVectorPtr) {
+  size_t numThreads = threadsVectorPtr->size();
+  jsi::Array jsiThreads = jsi::Array(rt, numThreads);
+  size_t writeIdx = 0;
+  for (const Thread &thread : *threadsVectorPtr) {
+    jsi::Object jsiThread = jsi::Object(rt);
+    jsiThread.setProperty(rt, "id", thread.id);
+    jsiThread.setProperty(rt, "type", thread.type);
+    jsiThread.setProperty(
+        rt,
+        "name",
+        thread.name ? jsi::String::createFromUtf8(rt, *thread.name)
+                    : jsi::Value::null());
+    jsiThread.setProperty(
+        rt,
+        "description",
+        thread.description
+            ? jsi::String::createFromUtf8(rt, *thread.description)
+            : jsi::Value::null());
+    jsiThread.setProperty(rt, "color", thread.color);
+    jsiThread.setProperty(
+        rt, "creationTime", std::to_string(thread.creation_time));
+    jsiThread.setProperty(
+        rt,
+        "parentThreadID",
+        thread.parent_thread_id
+            ? jsi::String::createFromUtf8(rt, *thread.parent_thread_id)
+            : jsi::Value::null());
+    jsiThread.setProperty(
+        rt,
+        "containingThreadID",
+        thread.containing_thread_id
+            ? jsi::String::createFromUtf8(rt, *thread.containing_thread_id)
+            : jsi::Value::null());
+    jsiThread.setProperty(
+        rt,
+        "community",
+        thread.community ? jsi::String::createFromUtf8(rt, *thread.community)
+                         : jsi::Value::null());
+    jsiThread.setProperty(rt, "members", thread.members);
+    jsiThread.setProperty(rt, "roles", thread.roles);
+    jsiThread.setProperty(rt, "currentUser", thread.current_user);
+    jsiThread.setProperty(
+        rt,
+        "sourceMessageID",
+        thread.source_message_id
+            ? jsi::String::createFromUtf8(rt, *thread.source_message_id)
+            : jsi::Value::null());
+    jsiThread.setProperty(rt, "repliesCount", thread.replies_count);
+
+    jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
+  }
+  return jsiThreads;
+}
+
 jsi::Value CommCoreModule::getAllDrafts(jsi::Runtime &rt) {
   return createPromiseAsJSIValue(
       rt, [=](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
@@ -492,10 +549,8 @@ jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
         taskType job = [=, &innerRt]() {
           std::string error;
           std::vector<Thread> threadsVector;
-          size_t numThreads;
           try {
             threadsVector = DatabaseManager::getQueryExecutor().getAllThreads();
-            numThreads = threadsVector.size();
           } catch (std::system_error &e) {
             error = e.what();
           }
@@ -507,65 +562,7 @@ jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
               return;
             }
 
-            jsi::Array jsiThreads = jsi::Array(innerRt, numThreads);
-            size_t writeIdx = 0;
-            for (const Thread &thread : *threadsVectorPtr) {
-              jsi::Object jsiThread = jsi::Object(innerRt);
-              jsiThread.setProperty(innerRt, "id", thread.id);
-              jsiThread.setProperty(innerRt, "type", thread.type);
-              jsiThread.setProperty(
-                  innerRt,
-                  "name",
-                  thread.name
-                      ? jsi::String::createFromUtf8(innerRt, *thread.name)
-                      : jsi::Value::null());
-              jsiThread.setProperty(
-                  innerRt,
-                  "description",
-                  thread.description ? jsi::String::createFromUtf8(
-                                           innerRt, *thread.description)
-                                     : jsi::Value::null());
-              jsiThread.setProperty(innerRt, "color", thread.color);
-              jsiThread.setProperty(
-                  innerRt,
-                  "creationTime",
-                  std::to_string(thread.creation_time));
-              jsiThread.setProperty(
-                  innerRt,
-                  "parentThreadID",
-                  thread.parent_thread_id
-                      ? jsi::String::createFromUtf8(
-                            innerRt, *thread.parent_thread_id)
-                      : jsi::Value::null());
-              jsiThread.setProperty(
-                  innerRt,
-                  "containingThreadID",
-                  thread.containing_thread_id
-                      ? jsi::String::createFromUtf8(
-                            innerRt, *thread.containing_thread_id)
-                      : jsi::Value::null());
-              jsiThread.setProperty(
-                  innerRt,
-                  "community",
-                  thread.community
-                      ? jsi::String::createFromUtf8(innerRt, *thread.community)
-                      : jsi::Value::null());
-              jsiThread.setProperty(innerRt, "members", thread.members);
-              jsiThread.setProperty(innerRt, "roles", thread.roles);
-              jsiThread.setProperty(
-                  innerRt, "currentUser", thread.current_user);
-              jsiThread.setProperty(
-                  innerRt,
-                  "sourceMessageID",
-                  thread.source_message_id
-                      ? jsi::String::createFromUtf8(
-                            innerRt, *thread.source_message_id)
-                      : jsi::Value::null());
-              jsiThread.setProperty(
-                  innerRt, "repliesCount", thread.replies_count);
-
-              jsiThreads.setValueAtIndex(innerRt, writeIdx++, jsiThread);
-            }
+            jsi::Array jsiThreads = parseDBThreads(innerRt, threadsVectorPtr);
             promise->resolve(std::move(jsiThreads));
           });
         };
@@ -577,58 +574,10 @@ jsi::Value CommCoreModule::getAllThreads(jsi::Runtime &rt) {
 jsi::Array CommCoreModule::getAllThreadsSync(jsi::Runtime &rt) {
   auto threadsVector = this->runSyncOrThrowJSError<std::vector<Thread>>(
       rt, []() { return DatabaseManager::getQueryExecutor().getAllThreads(); });
-  size_t numThreads{threadsVector.size()};
-  jsi::Array jsiThreads = jsi::Array(rt, numThreads);
 
-  size_t writeIdx = 0;
-  for (const Thread &thread : threadsVector) {
-    jsi::Object jsiThread = jsi::Object(rt);
-    jsiThread.setProperty(rt, "id", thread.id);
-    jsiThread.setProperty(rt, "type", thread.type);
-    jsiThread.setProperty(
-        rt,
-        "name",
-        thread.name ? jsi::String::createFromUtf8(rt, *thread.name)
-                    : jsi::Value::null());
-    jsiThread.setProperty(
-        rt,
-        "description",
-        thread.description
-            ? jsi::String::createFromUtf8(rt, *thread.description)
-            : jsi::Value::null());
-    jsiThread.setProperty(rt, "color", thread.color);
-    jsiThread.setProperty(
-        rt, "creationTime", std::to_string(thread.creation_time));
-    jsiThread.setProperty(
-        rt,
-        "parentThreadID",
-        thread.parent_thread_id
-            ? jsi::String::createFromUtf8(rt, *thread.parent_thread_id)
-            : jsi::Value::null());
-    jsiThread.setProperty(
-        rt,
-        "containingThreadID",
-        thread.containing_thread_id
-            ? jsi::String::createFromUtf8(rt, *thread.containing_thread_id)
-            : jsi::Value::null());
-    jsiThread.setProperty(
-        rt,
-        "community",
-        thread.community ? jsi::String::createFromUtf8(rt, *thread.community)
-                         : jsi::Value::null());
-    jsiThread.setProperty(rt, "members", thread.members);
-    jsiThread.setProperty(rt, "roles", thread.roles);
-    jsiThread.setProperty(rt, "currentUser", thread.current_user);
-    jsiThread.setProperty(
-        rt,
-        "sourceMessageID",
-        thread.source_message_id
-            ? jsi::String::createFromUtf8(rt, *thread.source_message_id)
-            : jsi::Value::null());
-    jsiThread.setProperty(rt, "repliesCount", thread.replies_count);
-
-    jsiThreads.setValueAtIndex(rt, writeIdx++, jsiThread);
-  }
+  auto threadsVectorPtr =
+      std::make_shared<std::vector<Thread>>(std::move(threadsVector));
+  jsi::Array jsiThreads = parseDBThreads(rt, threadsVectorPtr);
 
   return jsiThreads;
 }
