@@ -1,0 +1,13 @@
+steps:
+  - label: 'JSI Codegen'
+    command:
+      - '(pkill flow || true)'
+      - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
+      - 'cd native && yarn codegen-jsi && git diff --exit-code'
+    plugins:
+      - docker#v3.13.0:
+          image: 'node:16.13-bullseye'
+          always-pull: true
+          workdir: /comm
+    agents:
+      - 'autoscaling=true'
