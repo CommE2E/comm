@@ -210,10 +210,6 @@
 		CBFE58272885852B003B94C9 /* ThreadOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadOperations.h; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.h; sourceTree = "<group>"; };
 		CBFE58282885852B003B94C9 /* ThreadOperations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ThreadOperations.cpp; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.cpp; sourceTree = "<group>"; };
 		F53DA7B3F26C2798DCE74A94 /* Pods-Comm.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.debug.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.debug.xcconfig"; sourceTree = "<group>"; };
-		FC2DF95128BFCFE90017C4AF /* tunnelbroker.grpc.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.grpc.pb.cc; sourceTree = "<group>"; };
-		FC2DF95228BFCFE90017C4AF /* tunnelbroker.grpc.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.grpc.pb.h; sourceTree = "<group>"; };
-		FC2DF95328BFCFE90017C4AF /* tunnelbroker.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tunnelbroker.pb.cc; sourceTree = "<group>"; };
-		FC2DF95428BFCFE90017C4AF /* tunnelbroker.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tunnelbroker.pb.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -466,7 +462,6 @@
 			isa = PBXGroup;
 			children = (
 				8B99AF6B28D50D4800EB5ADB /* native_rust_library */,
-				FC2DF94E28BFCF5B0017C4AF /* shared */,
 				71BE84362636A944002849D2 /* cpp */,
 				13B07FAE1A68108700A75B9A /* Comm */,
 				713EE40726C6676B003D7C48 /* CommTests */,
@@ -591,34 +586,6 @@
 				3EEB3E70587B0ADAD05237B0 /* ExpoModulesProvider.swift */,
 			);
 			name = Comm;
-			sourceTree = "<group>";
-		};
-		FC2DF94E28BFCF5B0017C4AF /* shared */ = {
-			isa = PBXGroup;
-			children = (
-				FC2DF94F28BFCFA30017C4AF /* protos */,
-			);
-			name = shared;
-			path = ../../shared;
-			sourceTree = "<group>";
-		};
-		FC2DF94F28BFCFA30017C4AF /* protos */ = {
-			isa = PBXGroup;
-			children = (
-				FC2DF95028BFCFB80017C4AF /* _generated */,
-			);
-			path = protos;
-			sourceTree = "<group>";
-		};
-		FC2DF95028BFCFB80017C4AF /* _generated */ = {
-			isa = PBXGroup;
-			children = (
-				FC2DF95128BFCFE90017C4AF /* tunnelbroker.grpc.pb.cc */,
-				FC2DF95228BFCFE90017C4AF /* tunnelbroker.grpc.pb.h */,
-				FC2DF95328BFCFE90017C4AF /* tunnelbroker.pb.cc */,
-				FC2DF95428BFCFE90017C4AF /* tunnelbroker.pb.h */,
-			);
-			path = _generated;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
