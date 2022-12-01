@@ -71,7 +71,7 @@ This runs the same two processes as the web app, but for the landing page. Note 
 ## React Developer Tools
 
 - For web, you can access the React Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Components” or “Profiler” tabs. This should work in both our development environment and in production.
-- For iOS and Android, you can access the React Developer Tools through Flipper. First start a debug build of a React Native app. Next, just open up Flipper and you should be able to see an option for “React DevTools”. Flipper communicates with the app through the Metro bundler that gets started when you run `cd native && yarn dev`.
+- For iOS and Android, a later commit in this stack will add support via `expo-dev-client`.
 
 ## Redux Developer Tools
 
@@ -81,4 +81,4 @@ This runs the same two processes as the web app, but for the landing page. Note 
 ## Debugging JavaScript
 
 - For web, you can just use your browser of choice’s dev tools.
-- For iOS and Android, you should use Flipper. First start a debug build of a React Native app. Next, just open up Flipper and you should be able to see an option for “Hermes Debugger (RN)”. Flipper communicates with the app through the Metro bundler that gets started when you run `cd native && yarn dev`.
+- For iOS and Android, a later commit in this stack will add support via `expo-dev-client`.

@@ -526,13 +526,7 @@ function appBecameInactive() {
   appLastBecameInactive = Date.now();
 }
 
-const middlewares = [thunk, reduxLoggerMiddleware];
-if (__DEV__) {
-  const createDebugger = require('redux-flipper').default;
-  middlewares.push(createDebugger());
-}
-
-const middleware = applyMiddleware(...middlewares);
+const middleware = applyMiddleware(thunk, reduxLoggerMiddleware);
 
 let composeFunc = compose;
 if (__DEV__ && global.HermesInternal) {
