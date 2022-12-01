@@ -407,8 +407,8 @@ android {
         applicationId 'app.comm.android'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 160
-        versionName '1.0.160'
+        versionCode 161
+        versionName '1.0.161'
         missingDimensionStrategy 'react-native-camera', 'general'
         multiDexEnabled true
     }
