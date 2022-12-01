@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Text } from 'react-native';
 
 import { MessagePressResponderContext } from '../chat/message-press-responder-context';
+import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
 import type { TextStyle } from '../types/styles';
 
 type Props = {
@@ -11,10 +12,20 @@ type Props = {
   +children: React.Node,
 };
 function MarkdownParagraph(props: Props): React.Node {
+  const textMessageMarkdownContext = React.useContext(
+    TextMessageMarkdownContext,
+  );
+
   const messagePressResponderContext = React.useContext(
     MessagePressResponderContext,
   );
-  const onPressMessage = messagePressResponderContext?.onPressMessage;
+
+  // We only want to define the onPress handler if the message
+  // has any kind of pressable in it
+  const onPressMessage = textMessageMarkdownContext?.markdownHasPressable
+    ? messagePressResponderContext?.onPressMessage
+    : null;
+
   return (
     <Text
       style={props.style}
