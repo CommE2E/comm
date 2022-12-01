@@ -75,28 +75,39 @@ in writeShellApplication {
       while [[ ! -S "$MYSQL_UNIX_PORT" ]]; do sleep 1; done
     fi
 
+    # Assume this was run from git repository
+    PRJ_ROOT=$(git rev-parse --show-toplevel)
+    KEYSERVER_DB_CONFIG="$PRJ_ROOT"/keyserver/secrets/db_config.json
+
+    # Check if database exists
+    commDBCount=$("${lib.getBin mariadb}/bin/mariadb" -u "$USER" \
+      -Bse "SELECT COUNT(1) FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'comm';"
+    )
+    if [[ "$commDBCount" -eq 0 ]]; then
+      "${lib.getBin mariadb}/bin/mariadb" -u "$USER" \
+        -Bse "CREATE DATABASE comm"
+    fi
+
     # Initialize comm user, database, and secrets file for MariaDB
     # Connecting through socket doesn't require a password
     userCount=$("${lib.getBin mariadb}/bin/mariadb" -u "$USER" \
       -Bse "SELECT COUNT(1) FROM mysql.user WHERE user = 'comm';"
     )
     if [[ "$userCount" -eq 0 ]]; then
-      PASS=$("${lib.getBin openssl}/bin/openssl" rand -hex 6)
-
-      echo "Creating comm user and comm database" >&2
+      echo "Creating comm user" >&2
       "${lib.getBin mariadb}/bin/mariadb" -u "$USER" \
-        -Bse "CREATE DATABASE comm;
-              CREATE USER comm@localhost IDENTIFIED BY '$PASS';
+        -Bse "CREATE USER comm@localhost;
               GRANT ALL ON "'comm.*'" TO comm@localhost;"
-      echo "Comm user and database has been created!" >&2
+    fi
 
-      # Assume this was ran from git repository
-      PRJ_ROOT=$(git rev-parse --show-toplevel)
-      KEYSERVER_DB_CONFIG="$PRJ_ROOT"/keyserver/secrets/db_config.json
-
+    if [[ ! -f "$KEYSERVER_DB_CONFIG" ]]; then
       echo "Writing connection information to $KEYSERVER_DB_CONFIG" >&2
       mkdir -p "$(dirname "$KEYSERVER_DB_CONFIG")"
 
+      PASS=$("${lib.getBin openssl}/bin/openssl" rand -hex 6)
+
+      "${lib.getBin mariadb}/bin/mariadb" -u "$USER" \
+        -Bse "ALTER USER comm@localhost IDENTIFIED BY '$PASS'"
       # It's very difficult to write json from bash, just copy a nix
       # file then use sed to subsitute
       cp "${db_config_template}" "$KEYSERVER_DB_CONFIG"
