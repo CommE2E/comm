@@ -115,7 +115,12 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
                 type="submit"
                 variant="filled"
                 onClick={this.onSubmit}
-                disabled={inputDisabled}
+                disabled={
+                  inputDisabled ||
+                  this.state.currentPassword.length === 0 ||
+                  this.state.newPassword.length === 0 ||
+                  this.state.confirmNewPassword.length === 0
+                }
               >
                 Change Password
               </Button>
