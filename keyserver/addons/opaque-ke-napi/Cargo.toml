@@ -9,11 +9,26 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
-napi = { version = "2.10.1", default-features = false, features = ["napi4"] }
+napi = { version = "2.10.1", default-features = false, features = [
+  "napi4",
+  "tokio_rt",
+] }
 napi-derive = "2.9.1"
+argon2 = "0.3"
+opaque-ke = "1.2"
+curve25519-dalek = "3.2"
+rand = "0.8"
+sha2 = "0.9"
+digest = "0.9"
+tonic = "0.8"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tokio-stream = "0.1"
+tracing = "0.1"
+prost = "0.11"
 
 [build-dependencies]
 napi-build = "2.0.1"
+tonic-build = "0.8"
 
 [profile.release]
 lto = true

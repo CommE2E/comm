@@ -244,6 +244,7 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`);
 }
 
-const { sum } = nativeBinding;
+const { registerUser, sum } = nativeBinding;
 
+module.exports.registerUser = registerUser;
 module.exports.sum = sum;
