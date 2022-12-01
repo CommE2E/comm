@@ -59,9 +59,8 @@ const size_t DEVICE_ONLINE_PING_INTERVAL_MS = 3000;
 const std::string CONFIG_FILE_DIRECTORY_ENV_VARIABLE =
     "TUNNELBROKER_CONFIG_FILE_DIRECTORY";
 const std::string DEFAULT_CONFIG_FILE_DIRECTORY =
-    std::string(std::getenv("HOME")) + "/tunnelbroker";
+    std::string(std::getenv("HOME")) + "/.config";
 const std::string CONFIG_FILE_NAME = "tunnelbroker.ini";
-const std::string SANDBOX_CONFIG_FILE_NAME = "tunnelbroker-sandbox.ini";
 
 // DeliveryBroker
 const size_t DELIVERY_BROKER_MAX_QUEUE_SIZE = 100;

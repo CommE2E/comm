@@ -45,11 +45,7 @@ void ConfigManager::load() {
   if (configFileDirectoryFromEnvironment != nullptr) {
     configFilePath = std::string{configFileDirectoryFromEnvironment};
   }
-  if (comm::network::tools::isSandbox()) {
-    loadConfigFile(configFilePath + "/" + SANDBOX_CONFIG_FILE_NAME);
-  } else {
-    loadConfigFile(configFilePath + "/" + CONFIG_FILE_NAME);
-  }
+  loadConfigFile(configFilePath + "/" + CONFIG_FILE_NAME);
 }
 
 void ConfigManager::loadConfigFile(const std::string configFilePath) {

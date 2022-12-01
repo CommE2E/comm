@@ -39,11 +39,11 @@ rabbitmqctl add_user {username}
 You'll need to create a Tunnelbroker-specific configuration file.
 
 ```
-mkdir -p $HOME/tunnelbroker
-vim $HOME/tunnelbroker/tunnelbroker.ini
+mkdir -p $HOME/.config
+vim $HOME/.config/tunnelbroker.ini
 ```
 
-Provide a unique ID for each running instance of Tunnelbroker and a RabbitMQ URI in accordance with this [specification](https://www.rabbitmq.com/uri-spec.html).
+Provide a unique ID for each running instance of Tunnelbroker and a RabbitMQ URI in accordance with this [specification](https://www.rabbitmq.com/uri-spec.html):
 
 ```
 [tunnelbroker]
@@ -76,7 +76,7 @@ The sandbox also includes a [RabbitMQ](https://www.rabbitmq.com/) Docker contain
 
 ### Configuration changes in the sandbox
 
-In your sandbox, services will connect to a local cloud stack, ignoring the `~/.aws` connection settings. The `-test` suffix is applied for all DynamoDB table names in this mode. Tunnelbroker will use the `services/tunnelbroker/tunnelbroker-dev.ini` configuration file and connect to a local instance of the RabbitMQ server.
+In your sandbox, services will connect to a local cloud stack, ignoring the `~/.aws` connection settings. The `-test` suffix is applied for all DynamoDB table names in this mode.
 
 The log level in this mode is increased from ERROR to INFO.
 
