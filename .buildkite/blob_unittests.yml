@@ -2,8 +2,6 @@ steps:
   - label: ":nix: Blob Unittests"
     command:
       - 'cd services/blob'
-      - 'rm -rf build && mkdir build && cd build'
-      - 'nix develop --accept-flake-config --command bash -c "cmake .. && make -j"'
-      - './bin/runTests --gtest_filter=-DatabaseManager*:*Upload*:StorageManager*'
+      - 'nix develop --accept-flake-config --command cargo test'
     agents:
       - 'mac=true'
