@@ -61,7 +61,6 @@ On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for 
 - [Web prerequisites](./nix_web_setup.md#nix-web-requisities)
   - [React Dev Tools Chrome extension](./nix_web_setup.md#react-dev-tools-chrome-extension)
   - [Redux Dev Tools Chrome extension](./nix_web_setup.md#redux-dev-tools-chrome-extension)
-  - [Flipper (React Native Debugger)](./nix_mobile_setup.md#flipper)
 - [Mobile prerequisites](./nix_mobile_setup.md#nix-mobile-prerequisites)
   - [iOS development](./nix_mobile_setup.md#ios-development)
     - [Xcode](./nix_mobile_setup.md#xcode)
@@ -74,8 +73,6 @@ On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for 
   - [Debugging tools](./nix_mobile_setup.md#debugging-tools)
     - [Homebrew](./nix_mobile_setup.md#homebrew)
     - [Reactotron](./nix_mobile_setup.md#reactotron)
-    - [Flipper (React Native Debugger)](./nix_mobile_setup.md#flipper)
-    - [idb (iOS Development Bridge)](./nix_mobile_setup.md#idb)
 
 # Development environment
 
