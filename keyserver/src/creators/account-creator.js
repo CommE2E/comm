@@ -22,6 +22,7 @@ import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { reservedUsernamesSet } from 'lib/utils/reserved-users';
 
+import { registerUser } from '../../addons/opaque-ke-napi';
 import { dbQuery, SQL } from '../database/database';
 import { deleteCookie } from '../deleters/cookie-deleters';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -30,6 +31,7 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
+import { handleAsyncPromise } from '../responders/handlers';
 import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
@@ -109,6 +111,17 @@ async function createAccount(
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
   ]);
+  const deviceID = request.deviceID ?? 'placeholder';
+  const userPublicKey = request.userPublicKey ?? 'placeholder';
+  handleAsyncPromise(
+    registerUser(
+      id,
+      deviceID,
+      request.username,
+      request.password,
+      userPublicKey,
+    ),
+  );
   viewer.setNewCookie(userViewerData);
 
   if (calendarQuery) {
