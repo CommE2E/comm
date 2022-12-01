@@ -39,5 +39,8 @@
     "husky": "^7.0.0",
     "lint-staged": "^12.1.4",
     "prettier": "^2.1.2"
+  },
+  "resolutions": {
+    "react-native-flipper": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.0.2.tgz"
   }
 }

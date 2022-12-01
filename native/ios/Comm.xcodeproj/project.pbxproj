@@ -911,15 +911,11 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Comm/Pods-Comm-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-DoubleConversion/double-conversion.framework/double-conversion",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/Flipper-Glog/glog.framework/glog",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL-Universal/OpenSSL.framework/OpenSSL",
 				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/hermes.framework/hermes",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/double-conversion.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/glog.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
 			);
@@ -1061,15 +1057,6 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/EXSecureStore\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/ExpoModulesCore\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/FBReactNativeSpec\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-Boost-iOSX\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-DoubleConversion\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-Fmt\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-Folly\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-Glog\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-PeerTalk\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/Flipper-RSocket\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/FlipperKit\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/OLMKit\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf-C++\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/RCT-Folly\"",
@@ -1127,7 +1114,6 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-background-upload\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-camera\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-ffmpeg\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-flipper\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-in-app-message\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-netinfo\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-notifications\"",
@@ -1264,7 +1250,6 @@
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-background-upload\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-camera\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-ffmpeg\"",
-					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-flipper\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-in-app-message\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-netinfo\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/react-native-notifications\"",
