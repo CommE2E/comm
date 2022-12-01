@@ -346,72 +346,6 @@ Make sure to replace the `~/src` portion of the above with the location of the d
 
 # Configuration
 
-## Apache
-
-In both dev and prod environments we have Node configured to run on port 3000, with Apache proxying it across to port 80. The reason for Apache is so that we can use other tech stacks alongside Node.
-
-macOS comes with an Apache installation built in. We just need to configure it a little bit.
-
-First, we’ll edit the main Apache configuration file.
-
-```
-sudo vim /private/etc/apache2/httpd.conf
-```
-
-The following individual lines each need to be uncommented:
-
-```
-LoadModule proxy_module libexec/apache2/mod_proxy.so
-LoadModule proxy_http_module libexec/apache2/mod_proxy_http.so
-LoadModule proxy_wstunnel_module libexec/apache2/mod_proxy_wstunnel.so
-LoadModule userdir_module libexec/apache2/mod_userdir.so
-Include /private/etc/apache2/extra/httpd-userdir.conf
-```
-
-Next, we’ll edit the `http-userdir.conf` file.
-
-```
-sudo vim /private/etc/apache2/extra/httpd-userdir.conf
-```
-
-The following line needs to be uncommented:
-
-```
-Include /private/etc/apache2/users/*.conf
-```
-
-Now for the main course. We need to set up a configuration file for the current user.
-
-```
-sudo vim /private/etc/apache2/users/$USER.conf
-```
-
-```
-<VirtualHost *:80>
-  ProxyRequests on
-  ProxyPass /comm/ws ws://localhost:3000/ws
-  ProxyPass /comm/ http://localhost:3000/
-  ProxyPass /commlanding/ http://localhost:3000/commlanding/
-
-  RequestHeader set "X-Forwarded-Proto" expr=%{REQUEST_SCHEME}
-  RequestHeader set "X-Forwarded-SSL" expr=%{HTTPS}
-</VirtualHost>
-```
-
-You’ll want to make sure that Apache can read your new file.
-
-```
-sudo chmod 644 /private/etc/apache2/users/$USER.conf
-```
-
-Finally, let’s restart Apache so it picks up the changes.
-
-```
-sudo apachectl restart
-```
-
-If you end up installing a macOS update you should go through the Apache configuration section again, as your Apache config in `httpd.conf` may have been restored to the default.
-
 ## MariaDB
 
 Next we’ll set up a MariaDB user and a fresh database. We’ll start by opening up a console using the `mysql` command.
@@ -496,10 +430,11 @@ Your `commapp_url.json` file should look like this:
 
 ```json
 {
-  "baseDomain": "http://localhost",
+  "baseDomain": "http://localhost:3000",
   "basePath": "/comm/",
-  "baseRoutePath": "/",
-  "https": false
+  "baseRoutePath": "/comm/",
+  "https": false,
+  "proxy": "none"
 }
 ```
 
@@ -513,10 +448,11 @@ Your `landing_url.json` file should look like this:
 
 ```json
 {
-  "baseDomain": "http://localhost",
+  "baseDomain": "http://localhost:3000",
   "basePath": "/commlanding/",
   "baseRoutePath": "/commlanding/",
-  "https": false
+  "https": false,
+  "proxy": "none"
 }
 ```
 
