@@ -19,12 +19,11 @@ class SQLiteQueryExecutor : public DatabaseQueryExecutor {
 
   static std::once_flag initialized;
   static int sqlcipherEncryptionKeySize;
+  static std::string secureStoreEncryptionKeyID;
 
 public:
   static std::string sqliteFilePath;
   static std::string encryptionKey;
-
-  static std::string secureStoreEncryptionKeyID;
 
   SQLiteQueryExecutor();
   static void initialize(std::string &databasePath);
