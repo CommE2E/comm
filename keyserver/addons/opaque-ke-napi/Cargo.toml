@@ -1,0 +1,19 @@
+[package]
+edition = "2021"
+name = "opaque-ke-napi"
+version = "0.0.0"
+license = "BSD-3-Clause"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { version = "2.10.1", default-features = false, features = ["napi4"] }
+napi-derive = "2.9.1"
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[profile.release]
+lto = true
