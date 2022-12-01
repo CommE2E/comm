@@ -267,38 +267,6 @@ Now either close and reopen your terminal window or re-source your shell configu
 source ~/.bash_profile
 ```
 
-## Flipper
-
-Flipper is a debugging tool for mobile applications from Facebook. We use it for JavaScript debugging using the Hermes runtime, and also use several plugins such as the React Dev Tools. You can download the latest version of Flipper for MacOS [here](https://www.facebook.com/fbflipper/public/mac).
-
-### Flipper settings
-
-After opening Flipper, click the gear icon in the bottom left and navigate to “Settings”.
-
-Let’s set the Android SDK path. To find the path, open Android Studio and navigate to Preferences → Appearance & Behavior → System Settings → Android SDK. The explicit path of your Android SDK is defined in “Android SDK Location”. Use this path in Flipper Settings as the “Android SDK Location”.
-
-Also, enable the option for “React Native keyboard shortcuts” below.
-
-### Flipper plugins
-
-Flipper has a plugin system that allows teams to integrate additional debugging tools into Flipper. We currently only use one plugin, which is for monitoring Redux state.
-
-To install it, open Flipper and click on the Plugin Manager on the top left sidebar. Type in “redux-debugger“ in the Install Plugins search bar and install the Flipper plugin with that name.
-
-## idb
-
-Flipper relies on Facebook’s idb tool to debug iOS apps running on your device. We’ll need to install it:
-
-```
-brew tap facebook/fb
-brew install idb-companion
-pip3 install --user --upgrade fb-idb
-```
-
-Since we run `pip3 install` with `--user` instead of running it with `sudo`, the `idb` executable gets installed in your userdir. For me, running MacOS with Python 3.9, it got installed in `~/Library/Python/3.9/bin/idb`. For Flipper to be able to talk to `idb`, you’ll need to set the IDB Binary Location in the Flipper Settings.
-
-If you have trouble getting Flipper to work with a physical iOS device, it may be due to Python weirdness. The above steps have been tested with Python 3.9 sourced from Homebrew. Let @ashoat know if you have any trouble!
-
 ## Codegen for gRPC
 
 gRPC is a framework from Google for writing services. As a developer, you define your service’s API using Protobufs, and gRPC handles the networking and basic infrastructure for you.
@@ -848,7 +816,7 @@ The input Flow schemas are located in `native/schema`.
 ## React Developer Tools
 
 - For web, you can access the React Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Components” or “Profiler” tabs. This should work in both our development environment and in production.
-- For iOS and Android, you can access the React Developer Tools through Flipper. First start a debug build of a React Native app. Next, just open up Flipper and you should be able to see an option for “React DevTools”. Flipper communicates with the app through the Metro bundler that gets started when you run `cd native && yarn dev`.
+- For iOS and Android, a later commit in this stack will add support via `expo-dev-client`.
 
 ## Redux Developer Tools
 
@@ -858,7 +826,7 @@ The input Flow schemas are located in `native/schema`.
 ## Debugging JavaScript
 
 - For web, you can just use your browser of choice’s dev tools.
-- For iOS and Android, you should use Flipper. First start a debug build of a React Native app. Next, just open up Flipper and you should be able to see an option for “Hermes Debugger (RN)”. Flipper communicates with the app through the Metro bundler that gets started when you run `cd native && yarn dev`.
+- For iOS and Android, a later commit in this stack will add support via `expo-dev-client`.
 
 # Working with Phabricator
 
