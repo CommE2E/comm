@@ -59,7 +59,7 @@ function TermsAndPrivacyModal(): React.Node {
       <div className={css.container}>
         We recently updated our{' '}
         <a
-          href="https://comm.app/privacy"
+          href="https://comm.app/terms"
           target="_blank"
           rel="noreferrer"
           className={css.link}
@@ -68,7 +68,7 @@ function TermsAndPrivacyModal(): React.Node {
         </a>
         {' & '}
         <a
-          href="https://comm.app/terms"
+          href="https://comm.app/privacy"
           target="_blank"
           rel="noreferrer"
           className={css.link}
