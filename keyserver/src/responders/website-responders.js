@@ -341,6 +341,7 @@ async function websiteResponder(
     deviceToken: undefined,
     dataLoaded: viewer.loggedIn,
     windowActive: true,
+    userPolicies: {},
     _persist: null,
   };
 
