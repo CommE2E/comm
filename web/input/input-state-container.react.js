@@ -78,6 +78,7 @@ import InvalidUploadModal from '../modals/chat/invalid-upload.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { type PendingMultimediaUpload, InputStateContext } from './input-state';
+import type { InputState, TypeaheadState } from './input-state';
 
 type BaseProps = {
   +children: React.Node,
@@ -120,6 +121,7 @@ type State = {
     [threadID: string]: { [localUploadID: string]: PendingMultimediaUpload },
   },
   +textCursorPositions: { [threadID: string]: number },
+  +typeaheadState: TypeaheadState,
 };
 
 type PropsAndState = {
@@ -130,6 +132,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
     textCursorPositions: {},
+    typeaheadState: {
+      chosenButtonNumber: 0,
+      isVisible: false,
+      close: null,
+      accept: null,
+    },
   };
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
@@ -454,7 +462,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return threadCreationPromise;
   }
 
-  inputStateSelector = _memoize((threadID: string) =>
+  inputBaseStateSelector = _memoize((threadID: string) =>
     createSelector(
       (propsAndState: PropsAndState) => propsAndState.pendingUploads[threadID],
       (propsAndState: PropsAndState) =>
@@ -519,6 +527,30 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       },
     ),
   );
+
+  typeaheadStateSelector = _memoize(() =>
+    createSelector(
+      (propsAndState: PropsAndState) => propsAndState.typeaheadState,
+      (typeaheadState: TypeaheadState) => {
+        return {
+          typeaheadState,
+          setTypeaheadState: this.setTypeaheadState,
+        };
+      },
+    ),
+  );
+
+  inputStateSelector = _memoize(() =>
+    createSelector(
+      (inputState: InputState) => inputState,
+
+      inputState => {
+        return inputState;
+      },
+    ),
+  );
+
+  i;
 
   getRealizedOrPendingThreadID(threadID: string): string {
     return this.props.pendingRealizedThreadIDs.get(threadID) ?? threadID;
@@ -1091,6 +1123,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
+  setTypeaheadState = (newState: $Shape<TypeaheadState>) => {
+    this.setState(prevState => {
+      return {
+        typeaheadState: {
+          ...prevState.typeaheadState,
+          ...newState,
+        },
+      };
+    });
+  };
+
   setProgress(
     threadID: string,
     localUploadID: string,
@@ -1236,12 +1279,27 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { activeChatThreadID } = this.props;
-    const inputState = activeChatThreadID
-      ? this.inputStateSelector(activeChatThreadID)({
-          ...this.state,
-          ...this.props,
-        })
-      : null;
+
+    let inputState: ?InputState;
+    if (activeChatThreadID) {
+      const inputBaseState = this.inputBaseStateSelector(activeChatThreadID)({
+        ...this.state,
+        ...this.props,
+      });
+
+      const typeaheadState = this.typeaheadStateSelector()({
+        ...this.state,
+        ...this.props,
+      });
+
+      inputState = this.inputStateSelector()({
+        ...inputBaseState,
+        ...typeaheadState,
+      });
+    } else {
+      inputState = null;
+    }
+
     return (
       <InputStateContext.Provider value={inputState}>
         {this.props.children}
