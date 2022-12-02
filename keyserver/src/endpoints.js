@@ -51,6 +51,7 @@ import {
   logInResponder,
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
+  policyAcknowledgmentResponder,
 } from './responders/user-responders';
 import { codeVerificationResponder } from './responders/verification-responders';
 import { uploadDeletionResponder } from './uploads/uploads';
@@ -78,6 +79,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   leave_thread: threadLeaveResponder,
   log_in: logInResponder,
   log_out: logOutResponder,
+  policy_acknowledgment: policyAcknowledgmentResponder,
   remove_members: memberRemovalResponder,
   restore_entry: entryRestorationResponder,
   search_users: userSearchResponder,
