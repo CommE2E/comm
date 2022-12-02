@@ -42,6 +42,7 @@ import DeviceIDUpdater from './redux/device-id-updater';
 import DisconnectedBar from './redux/disconnected-bar';
 import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
 import FocusHandler from './redux/focus-handler.react';
+import PolicyAcknowledgmentHandler from './redux/policy-acknowledgment-handler.js';
 import { useSelector } from './redux/redux-utils';
 import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
@@ -155,6 +156,7 @@ class App extends React.PureComponent<Props> {
             <FocusHandler />
             <VisibilityHandler />
             <DeviceIDUpdater />
+            <PolicyAcknowledgmentHandler />
             {content}
             {this.props.modals}
           </MenuProvider>
