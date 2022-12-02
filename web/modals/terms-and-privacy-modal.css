@@ -1,0 +1,30 @@
+.container {
+  color: var(--modal-fg);
+  padding: 20px 32px;
+  text-align: center;
+}
+
+.button {
+  display: flex;
+  flex-direction: column;
+  width: 110px;
+  padding: 5px 0 16px;
+  margin: auto;
+  justify-content: space-around;
+}
+
+.link {
+  color: var(--purple-link);
+}
+
+.error {
+  margin-top: 16px;
+  font-size: var(--s-font-14);
+  color: var(--error);
+  font-style: italic;
+  text-align: center;
+}
+
+.buttonContent {
+  height: 20px;
+}
