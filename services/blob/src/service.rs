@@ -14,6 +14,7 @@ use crate::{
   },
   database::{BlobItem, DatabaseClient, ReverseIndexItem},
   s3::{MultiPartUploadSession, S3Client, S3Path},
+  tools::MemOps,
 };
 
 pub mod blob {
@@ -394,12 +395,11 @@ impl PutHandler {
     if self.current_chunk.len() as u64 > S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE
     {
       trace!("Chunk size exceeded, adding new S3 part");
-      if let Err(err) = uploader.add_part(self.current_chunk.clone()).await {
+      if let Err(err) = uploader.add_part(self.current_chunk.take_out()).await {
         self.should_close_stream = true;
         error!("Failed to upload S3 part: {:?}", err);
         return Err(Status::aborted("Internal error"));
       }
-      self.current_chunk.clear();
     }
 
     Ok(blob::PutResponse { data_exists: false })
