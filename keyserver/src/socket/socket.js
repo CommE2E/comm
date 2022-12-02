@@ -628,7 +628,7 @@ class Socket {
     const { viewer } = this;
     invariant(viewer, 'should be set');
     const responder = jsonEndpoints[message.payload.endpoint];
-    const response = await responder(viewer, message.payload.input);
+    const response = await responder.responder(viewer, message.payload.input);
     return [
       {
         type: serverSocketMessageTypes.API_RESPONSE,
