@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
+import { policies } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
@@ -15,6 +16,7 @@ import type {
   LogInRequest,
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
+  PolicyAcknowledgmentRequest,
 } from 'lib/types/account-types';
 import {
   userSettingsTypes,
@@ -63,6 +65,7 @@ import {
   updateUserSettings,
 } from '../updaters/account-updaters';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
+import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
 import { validateInput } from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
@@ -328,6 +331,23 @@ async function updateUserSettingsResponder(
   return await updateUserSettings(viewer, request);
 }
 
+const policyAcknowledgmentRequestInputValidator = tShape({
+  policy: t.maybe(t.enums.of(policies)),
+});
+
+async function policyAcknowledgmentResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<void> {
+  const request: PolicyAcknowledgmentRequest = input;
+  await validateInput(
+    viewer,
+    policyAcknowledgmentRequestInputValidator,
+    request,
+  );
+  await viewerAcknowledgmentUpdater(viewer, request.policy);
+}
+
 export {
   userSubscriptionUpdateResponder,
   passwordUpdateResponder,
@@ -339,4 +359,5 @@ export {
   logInResponder,
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
+  policyAcknowledgmentResponder,
 };
