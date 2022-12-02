@@ -77,6 +77,8 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
   InitializeFlipper(application);
 #endif
   [self moveMessagesToDatabase];
+  [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryAmbient
+                                         error:nil];
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self
                                             launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
