@@ -1,3 +1,4 @@
+use aws_sdk_dynamodb::output::GetItemOutput;
 use aws_sdk_dynamodb::Error as DynamoDBError;
 use chrono::Utc;
 use constant_time_eq::constant_time_eq;
@@ -97,6 +98,19 @@ impl IdentityService for MyIdentityService {
                 pake_registration_request_and_user_id,
               )),
           }) => {
+            match client
+              .get_item_from_users_table(
+                &pake_registration_request_and_user_id.user_id,
+              )
+              .await
+            {
+              Ok(GetItemOutput {
+                item: Some(_item), ..
+              }) => {
+                error!("user already exists");
+              }
+              _ => {}
+            };
             let registration_start_result = pake_registration_start(
               config.clone(),
               &mut OsRng,
@@ -706,12 +720,12 @@ async fn pake_registration_finish(
     })?;
 
   match client
-    .update_users_table(
+    .add_user_to_users_table(
       user_id.to_string(),
       device_id.to_string(),
-      Some(server_registration_finish_result),
-      Some(username.to_string()),
-      Some(user_public_key.to_string()),
+      server_registration_finish_result,
+      username.to_string(),
+      user_public_key.to_string(),
     )
     .await
   {

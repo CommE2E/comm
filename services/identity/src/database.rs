@@ -138,6 +138,49 @@ impl DatabaseClient {
       .map_err(|e| Error::AwsSdk(e.into()))
   }
 
+  pub async fn add_user_to_users_table(
+    &self,
+    user_id: String,
+    device_id: String,
+    registration: ServerRegistration<Cipher>,
+    username: String,
+    user_public_key: String,
+  ) -> Result<PutItemOutput, Error> {
+    let item = HashMap::from([
+      (
+        USERS_TABLE_PARTITION_KEY.to_string(),
+        AttributeValue::S(user_id),
+      ),
+      (
+        USERS_TABLE_USERNAME_ATTRIBUTE.to_string(),
+        AttributeValue::S(username),
+      ),
+      (
+        USERS_TABLE_REGISTRATION_ATTRIBUTE.to_string(),
+        AttributeValue::B(Blob::new(registration.serialize())),
+      ),
+      (
+        USERS_TABLE_DEVICES_ATTRIBUTE.to_string(),
+        AttributeValue::M(HashMap::from([(
+          device_id,
+          AttributeValue::M(HashMap::from([(
+            USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE.to_string(),
+            AttributeValue::S(user_public_key),
+          )])),
+        )])),
+      ),
+    ]);
+
+    self
+      .client
+      .put_item()
+      .table_name(USERS_TABLE)
+      .set_item(Some(item))
+      .send()
+      .await
+      .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
   pub async fn get_access_token_data(
     &self,
     user_id: String,
@@ -353,7 +396,7 @@ impl DatabaseClient {
     }
   }
 
-  async fn get_item_from_users_table(
+  pub async fn get_item_from_users_table(
     &self,
     user_id: &str,
   ) -> Result<GetItemOutput, SdkError<GetItemError>> {
