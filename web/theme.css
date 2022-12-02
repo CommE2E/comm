@@ -190,4 +190,5 @@
   --typeahead-overlay-shadow-secondary: rgba(0, 0, 0, 0.4);
   --spoiler-text-color: var(--shades-black-80);
   --spoiler-background-color: var(--shades-black-80);
+  --purple-link: var(--violet-light-100);
 }
