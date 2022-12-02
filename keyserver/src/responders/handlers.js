@@ -15,6 +15,7 @@ import {
 } from '../session/cookies';
 import type { Viewer } from '../session/viewer';
 import { type AppURLFacts, getAppURLFactsFromRequestURL } from '../utils/urls';
+import { policiesValidator } from '../utils/validation-utils.js';
 import { getMessageForException } from './utils';
 
 export type JSONResponder = {
@@ -42,6 +43,7 @@ function jsonHandler(
       }
       const { input } = req.body;
       viewer = await fetchViewerForJSONRequest(req);
+      await policiesValidator(viewer, responder.requiredPolicies);
       const responderResult = await responder.responder(viewer, input);
       if (res.headersSent) {
         return;
