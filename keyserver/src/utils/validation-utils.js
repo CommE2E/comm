@@ -1,5 +1,7 @@
 // @flow
 
+import type { PolicyType } from 'lib/facts/policies.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import { ServerError } from 'lib/utils/errors';
 import {
   tCookie,
@@ -8,6 +10,7 @@ import {
   tPlatformDetails,
 } from 'lib/utils/validation-utils';
 
+import { fetchPolicyAcknowledgments } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { verifyClientSupported } from '../session/version';
 import type { Viewer } from '../session/viewer';
 
@@ -153,4 +156,41 @@ function findFirstInputMatchingValidator(
   return null;
 }
 
-export { validateInput, checkInputValidator, checkClientSupported };
+async function policiesValidator(
+  viewer: Viewer,
+  policies: $ReadOnlyArray<PolicyType>,
+) {
+  if (!policies.length) {
+    return;
+  }
+  const viewerAcknowledgments = await fetchPolicyAcknowledgments(
+    viewer,
+    policies,
+  );
+  const notAcknowledgedPolicies = [];
+  policies.forEach(policy => {
+    const policyAcknowledgment = viewerAcknowledgments.find(
+      viewerAcknowledgment => viewerAcknowledgment.policy === policy,
+    );
+    if (!policyAcknowledgment?.confirmed) {
+      notAcknowledgedPolicies.push(policy);
+    }
+  });
+
+  if (!notAcknowledgedPolicies.length) {
+    return;
+  }
+
+  if (hasMinCodeVersion(viewer.platformDetails, 1000)) {
+    throw new ServerError('policies_not_accepted', {
+      notAcknowledgedPolicies,
+    });
+  }
+}
+
+export {
+  validateInput,
+  checkInputValidator,
+  checkClientSupported,
+  policiesValidator,
+};
