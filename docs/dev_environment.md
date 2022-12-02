@@ -725,7 +725,7 @@ The input Flow schemas are located in `native/schema`.
 ## React Developer Tools
 
 - For web, you can access the React Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Components” or “Profiler” tabs. This should work in both our development environment and in production.
-- For iOS and Android, a later commit in this stack will add support via `expo-dev-client`.
+- For iOS and Android, TODO
 
 ## Redux Developer Tools
 
@@ -735,7 +735,7 @@ The input Flow schemas are located in `native/schema`.
 ## Debugging JavaScript
 
 - For web, you can just use your browser of choice’s dev tools.
-- For iOS and Android, a later commit in this stack will add support via `expo-dev-client`.
+- For iOS and Android, you can use the dev menu in dev builds to open up a JS debugger, where you can set breakpoints via the `debugger` expression.
 
 # Working with Phabricator
 

@@ -70,8 +70,9 @@ post_install do |installer|
   # Excluding arm64 because ARM-based Mac simulator isn't supported yet
   # Excluding 32-bit x86 because nobody uses it and it causes compilation issues
   installer.pods_project.build_configurations.each do |config|
-    config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64 i386"
-    config.build_settings['OTHER_CPLUSPLUSFLAGS'] = '-DDONT_AUTOINSTALL_REANIMATED'
+    config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64 i386'
+    config.build_settings['OTHER_CPLUSPLUSFLAGS'] =
+      '-DDONT_AUTOINSTALL_REANIMATED -DFOLLY_NO_CONFIG -DRNVERSION=70'
   end
 
   # Lines below are only needed to compile and use Expo Secure Store in
