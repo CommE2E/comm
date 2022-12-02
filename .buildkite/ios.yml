@@ -2,7 +2,11 @@ steps:
   - label: ':ios: iOS Build'
     command:
       - 'pod repo update && yarn workspace native clean-ios'
-      - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
+      - 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
+      - 'source /Users/comm/.cargo/env'
+      - 'yarn cleaninstall --frozen-lockfile --skip-optional'
       - 'cd native/ios && xcodebuild -workspace Comm.xcworkspace -scheme Comm -destination generic/platform=iOS -allowProvisioningUpdates'
+    env:
+      PROTOC: "/opt/homebrew/bin/protoc"
     agents:
       - 'mac=true'

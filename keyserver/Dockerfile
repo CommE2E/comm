@@ -70,7 +70,16 @@ WORKDIR /home/comm/app
 RUN mkdir /home/comm/backups
 
 #-------------------------------------------------------------------------------
-# STEP 4: SET UP NVM
+# STEP 4: SET UP CARGO (RUST PACKAGE MANAGER)
+# We use Cargo to build pre-compiled Node.js addons in Rust
+#-------------------------------------------------------------------------------
+
+# Install Rust and add Cargo's bin directory to the $PATH environment variable
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+ENV PATH /home/comm/.cargo/bin:$PATH
+
+#-------------------------------------------------------------------------------
+# STEP 5: SET UP NVM
 # We use nvm to make sure we're running the right Node version
 #-------------------------------------------------------------------------------
 
@@ -86,7 +95,7 @@ COPY --chown=comm keyserver/bash/source-nvm.sh keyserver/bash/
 RUN cd keyserver && . bash/source-nvm.sh
 
 #-------------------------------------------------------------------------------
-# STEP 5: YARN CLEANINSTALL
+# STEP 6: YARN CLEANINSTALL
 # We run yarn cleaninstall before copying most of the files in for build caching
 #-------------------------------------------------------------------------------
 
@@ -98,6 +107,13 @@ COPY --chown=comm web/package.json web/.flowconfig web/
 COPY --chown=comm native/package.json native/.flowconfig native/
 COPY --chown=comm landing/package.json landing/.flowconfig landing/
 COPY --chown=comm desktop/package.json desktop/
+COPY --chown=comm keyserver/addons/opaque-ke-napi/package.json \
+  keyserver/addons/opaque-ke-napi/
+
+# Create empty Rust library and copy in Cargo.toml file
+RUN cargo init keyserver/addons/opaque-ke-napi --lib
+COPY --chown=comm keyserver/addons/opaque-ke-napi/Cargo.toml \
+  keyserver/addons/opaque-ke-napi/
 
 # Copy in files needed for patch-package
 COPY --chown=comm patches patches/
@@ -106,7 +122,7 @@ COPY --chown=comm patches patches/
 RUN yarn cleaninstall
 
 #-------------------------------------------------------------------------------
-# STEP 6: WEBPACK BUILD
+# STEP 7: WEBPACK BUILD
 # We do this first so Docker doesn't rebuild when only keyserver files change
 #-------------------------------------------------------------------------------
 
@@ -118,14 +134,21 @@ COPY --chown=comm web web/
 RUN yarn workspace web prod
 
 #-------------------------------------------------------------------------------
-# STEP 7: COPY IN SOURCE FILES
+# STEP 8: COPY IN SOURCE FILES
 # We run this later so the above layers are cached if only source files change
 #-------------------------------------------------------------------------------
 
 COPY --chown=comm . .
 
 #-------------------------------------------------------------------------------
-# STEP 8: RUN BUILD SCRIPTS
+# STEP 9: BUILD NODE ADDON
+# Now that source files have been copied in, build the opaque-ke-napi addon
+#-------------------------------------------------------------------------------
+
+RUN yarn workspace opaque-ke-napi build
+
+#-------------------------------------------------------------------------------
+# STEP 10: RUN BUILD SCRIPTS
 # We need to populate keyserver/dist, among other things
 #-------------------------------------------------------------------------------
 
@@ -133,7 +156,7 @@ COPY --chown=comm . .
 RUN yarn workspace keyserver prod-build
 
 #-------------------------------------------------------------------------------
-# STEP 9: RUN THE SERVER
+# STEP 11: RUN THE SERVER
 # Actually run the Node.js keyserver using nvm
 #-------------------------------------------------------------------------------
 

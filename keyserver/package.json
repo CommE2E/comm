@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rm -rf dist/ && rm -rf node_modules/ && mkdir dist",
     "babel-build": ". bash/source-nvm.sh && yarn --silent babel src/ --out-dir dist/ --config-file ./babel.config.cjs --verbose --ignore 'src/landing/flow-typed','src/landing/node_modules','src/landing/package.json','src/lib/flow-typed','src/lib/node_modules','src/lib/package.json','src/web/flow-typed','src/web/node_modules','src/web/package.json','src/web/dist','src/web/webpack.config.js','src/web/account-bar.react.js','src/web/app.react.js','src/web/calendar','src/web/chat','src/web/flow','src/web/loading-indicator.react.js','src/web/modals','src/web/root.js','src/web/router-history.js','src/web/script.js','src/web/selectors/chat-selectors.js','src/web/selectors/entry-selectors.js','src/web/splash','src/web/vector-utils.js','src/web/vectors.react.js'",
-    "rsync": "rsync -rLpmuv --exclude '*/package.json' --exclude '*/node_modules/*' --include '*.json' --include '*.cjs' --exclude '*.*' src/ dist/",
+    "rsync": "rsync -rLpmuv --exclude '*/package.json' --exclude '*/node_modules/*' --include '*.json' --include '*.cjs' --include '*.node' --exclude '*.*' src/ dist/",
     "prod-build": "yarn babel-build && yarn rsync && yarn update-geoip",
     "update-geoip": "yarn script dist/scripts/update-geoip.js",
     "prod": "node --trace-warnings --experimental-json-modules --loader=./loader.mjs --experimental-specifier-resolution=node dist/keyserver",
@@ -62,6 +62,7 @@
     "mysql2": "^2.3.3",
     "node-schedule": "^2.1.0",
     "nodemailer": "^6.6.1",
+    "opaque-ke-napi": "0.0.1",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-html-email": "^3.0.0",

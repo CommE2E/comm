@@ -1,0 +1,33 @@
+{
+  "name": "opaque-ke-napi",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "module",
+  "napi": {
+    "name": "opaque-ke-napi",
+    "triples": {
+      "defaults": false,
+      "additional": [
+        "x86_64-apple-darwin",
+        "aarch64-apple-darwin",
+        "x86_64-unknown-linux-gnu",
+        "aarch64-unknown-linux-gnu"
+      ]
+    }
+  },
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.13.0"
+  },
+  "engines": {
+    "node": ">= 16"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform napi --release",
+    "build:debug": "napi build --platform napi",
+    "version": "napi version",
+    "postinstall": "yarn build",
+    "clean": "rm -rf target/ && rm -rf napi/ && rm -rf node_modules/"
+  }
+}

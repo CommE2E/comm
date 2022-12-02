@@ -3106,6 +3106,11 @@
   resolved "https://registry.yarnpkg.com/@metamask/safe-event-emitter/-/safe-event-emitter-2.0.0.tgz#af577b477c683fad17c619a78208cede06f9605c"
   integrity sha512-/kSXhY692qiV1MXu6EeOZvg5nECLclxNXcKCxJ3cXQgYuRymRHpdx/t7JXfsK+JLjwA1e1c1/SBrlQYpusC29Q==
 
+"@napi-rs/cli@^2.13.0":
+  version "2.13.0"
+  resolved "https://registry.yarnpkg.com/@napi-rs/cli/-/cli-2.13.0.tgz#227f1b63edc6fb9364317e4719884b4451d147b6"
+  integrity sha512-8U6TLh2PYXM2SX7HnpRBCqlPU48M9tRe0TLlb4qgUx61bt6PT6Qtdeho3e0ila70fnrbqCA6dnJWrbgbJIopcQ==
+
 "@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents":
   version "2.1.8-no-fsevents"
   resolved "https://registry.yarnpkg.com/@nicolo-ribaudo/chokidar-2/-/chokidar-2-2.1.8-no-fsevents.tgz#da7c3996b8e6e19ebd14d82eaced2313e7769f9b"
@@ -6763,11 +6768,6 @@ capture-exit@^2.0.0:
   integrity sha512-PiT/hQmTonHhl/HFGN+Lx3JJUznrVYJ3+AQsnthneZbvW7x+f08Tk7yLJTLEOUvBTbduLeeBkxEaYXUOUrRq6g==
   dependencies:
     rsvp "^4.8.4"
-
-cargo-cp-artifact@^0.1:
-  version "0.1.7"
-  resolved "https://registry.yarnpkg.com/cargo-cp-artifact/-/cargo-cp-artifact-0.1.7.tgz#1181b9d6e71f00f17c068c05e3cd1b0864783341"
-  integrity sha512-pxEV9p1on8vu3BOKstVisF9TwMyGKCBRvzaVpQHuU2sLULCKrn3MJWx/4XlNzmG6xNCTPf78DJ7WCGgr2mOzjg==
 
 chainsaw@~0.1.0:
   version "0.1.0"
