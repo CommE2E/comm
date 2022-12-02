@@ -5,6 +5,7 @@ import type { $Response, $Request } from 'express';
 import { ServerError } from 'lib/utils/errors';
 
 import { deleteCookie } from '../deleters/cookie-deleters';
+import type { PolicyType } from '../lib/facts/policies.js';
 import {
   fetchViewerForJSONRequest,
   addCookieToJSONResponse,
@@ -16,7 +17,11 @@ import type { Viewer } from '../session/viewer';
 import { type AppURLFacts, getAppURLFactsFromRequestURL } from '../utils/urls';
 import { getMessageForException } from './utils';
 
-export type JSONResponder = (viewer: Viewer, input: any) => Promise<*>;
+export type JSONResponder = {
+  responder: (viewer: Viewer, input: any) => Promise<*>,
+  requiredPolicies: $ReadOnlyArray<PolicyType>,
+};
+
 export type DownloadResponder = (
   viewer: Viewer,
   req: $Request,
@@ -37,7 +42,7 @@ function jsonHandler(
       }
       const { input } = req.body;
       viewer = await fetchViewerForJSONRequest(req);
-      const responderResult = await responder(viewer, input);
+      const responderResult = await responder.responder(viewer, input);
       if (res.headersSent) {
         return;
       }
