@@ -19,6 +19,7 @@ import type { CalendarFilter } from 'lib/types/filter-types';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
+import type { UserPolicies } from 'lib/types/policy-types.js';
 import type { BaseAction } from 'lib/types/redux-types';
 import type { ReportStore } from 'lib/types/report-types';
 import type { ConnectionInfo } from 'lib/types/socket-types';
@@ -67,6 +68,7 @@ export type AppState = {
   userAgent: ?string,
   dataLoaded: boolean,
   windowActive: boolean,
+  userPolicies: UserPolicies,
   _persist: ?PersistState,
 };
 
