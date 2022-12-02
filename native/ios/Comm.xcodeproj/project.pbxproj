@@ -179,7 +179,6 @@
 		B7906F6C27209091009BBBF5 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
 		B7E937CA26F448E700022A7C /* Media.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Media.h; sourceTree = "<group>"; };
 		C562A7004903539402D988CE /* Pods-Comm.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Comm.release.xcconfig"; path = "Target Support Files/Pods-Comm/Pods-Comm.release.xcconfig"; sourceTree = "<group>"; };
-		CB1648B027CFD07E00394D9D /* CommRelease.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = CommRelease.entitlements; path = Comm/CommRelease.entitlements; sourceTree = "<group>"; };
 		CB30C12327D0ACF700FBE8DE /* NotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotificationService.entitlements; sourceTree = "<group>"; };
 		CB38B4792877179A00171182 /* NonBlockingLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NonBlockingLock.h; path = Comm/TemporaryMessageStorage/NonBlockingLock.h; sourceTree = "<group>"; };
 		CB38B47B287718A200171182 /* NonBlockingLock.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = NonBlockingLock.mm; path = Comm/TemporaryMessageStorage/NonBlockingLock.mm; sourceTree = "<group>"; };
@@ -245,7 +244,6 @@
 		13B07FAE1A68108700A75B9A /* Comm */ = {
 			isa = PBXGroup;
 			children = (
-				CB1648B027CFD07E00394D9D /* CommRelease.entitlements */,
 				71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */,
 				7F788C2B248AA2130098F071 /* SplashScreen.storyboard */,
 				7FCFD8BD1E81B8DF00629B0E /* Comm.entitlements */,
