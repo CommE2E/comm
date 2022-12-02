@@ -34,6 +34,14 @@ export type PendingMultimediaUpload = {
   selectTime: number,
 };
 
+export type TypeaheadState = {
+  +canBeVisible: boolean,
+  +moveChoiceUp: ?() => void,
+  +moveChoiceDown: ?() => void,
+  +close: ?() => void,
+  +accept: ?() => void,
+};
+
 // This type represents the input state for a particular thread
 export type InputState = {
   +pendingUploads: $ReadOnlyArray<PendingMultimediaUpload>,
@@ -42,6 +50,7 @@ export type InputState = {
   },
   +draft: string,
   +textCursorPosition: number,
+  +typeaheadState: TypeaheadState,
   +appendFiles: (files: $ReadOnlyArray<File>) => Promise<boolean>,
   +cancelPendingUpload: (localUploadID: string) => void,
   +sendTextMessage: (
@@ -51,6 +60,7 @@ export type InputState = {
   +createMultimediaMessage: (localID: number, threadInfo: ThreadInfo) => void,
   +setDraft: (draft: string) => void,
   +setTextCursorPosition: (newPosition: number) => void,
+  +setTypeaheadState: ($Shape<TypeaheadState>) => void,
   +messageHasUploadFailure: (localMessageID: string) => boolean,
   +retryMultimediaMessage: (
     localMessageID: string,
