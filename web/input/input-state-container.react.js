@@ -77,7 +77,12 @@ import { validateFile, preloadImage } from '../media/media-utils';
 import InvalidUploadModal from '../modals/chat/invalid-upload.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
-import { type PendingMultimediaUpload, InputStateContext } from './input-state';
+import {
+  type PendingMultimediaUpload,
+  type InputState,
+  type TypeaheadState,
+  InputStateContext,
+} from './input-state';
 
 type BaseProps = {
   +children: React.Node,
@@ -120,6 +125,7 @@ type State = {
     [threadID: string]: { [localUploadID: string]: PendingMultimediaUpload },
   },
   +textCursorPositions: { [threadID: string]: number },
+  +typeaheadState: TypeaheadState,
 };
 
 type PropsAndState = {
@@ -130,6 +136,12 @@ class InputStateContainer extends React.PureComponent<Props, State> {
   state: State = {
     pendingUploads: {},
     textCursorPositions: {},
+    typeaheadState: {
+      chosenButtonNumber: 0,
+      isVisible: false,
+      close: null,
+      accept: null,
+    },
   };
   replyCallbacks: Array<(message: string) => void> = [];
   pendingThreadCreations = new Map<string, Promise<string>>();
@@ -454,7 +466,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     return threadCreationPromise;
   }
 
-  inputStateSelector = _memoize((threadID: string) =>
+  inputBaseStateSelector = _memoize((threadID: string) =>
     createSelector(
       (propsAndState: PropsAndState) => propsAndState.pendingUploads[threadID],
       (propsAndState: PropsAndState) =>
@@ -518,6 +530,23 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         };
       },
     ),
+  );
+
+  typeaheadStateSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.typeaheadState,
+    (typeaheadState: TypeaheadState) => ({
+      typeaheadState,
+      setTypeaheadState: this.setTypeaheadState,
+    }),
+  );
+
+  inputStateSelector = createSelector(
+    state => state.inputBaseState,
+    state => state.typeaheadState,
+    (inputBaseState, typeaheadState) => ({
+      ...inputBaseState,
+      ...typeaheadState,
+    }),
   );
 
   getRealizedOrPendingThreadID(threadID: string): string {
@@ -1091,6 +1120,15 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     });
   }
 
+  setTypeaheadState = (newState: $Shape<TypeaheadState>) => {
+    this.setState(prevState => ({
+      typeaheadState: {
+        ...prevState.typeaheadState,
+        ...newState,
+      },
+    }));
+  };
+
   setProgress(
     threadID: string,
     localUploadID: string,
@@ -1236,12 +1274,27 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   render() {
     const { activeChatThreadID } = this.props;
-    const inputState = activeChatThreadID
-      ? this.inputStateSelector(activeChatThreadID)({
-          ...this.state,
-          ...this.props,
-        })
-      : null;
+
+    // we're going with two selectors as we want to avoid
+    // recreation of chat state setter functions on typeahead state updates
+    let inputState: ?InputState = null;
+    if (activeChatThreadID) {
+      const inputBaseState = this.inputBaseStateSelector(activeChatThreadID)({
+        ...this.state,
+        ...this.props,
+      });
+
+      const typeaheadState = this.typeaheadStateSelector({
+        ...this.state,
+        ...this.props,
+      });
+
+      inputState = this.inputStateSelector({
+        inputBaseState,
+        typeaheadState,
+      });
+    }
+
     return (
       <InputStateContext.Provider value={inputState}>
         {this.props.children}
