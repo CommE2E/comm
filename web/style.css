@@ -193,43 +193,6 @@ span.page-error {
   color: red;
 }
 
-div.color-picker-container {
-  outline: none;
-  position: relative;
-}
-div.color-picker-button {
-  margin: 6px 3px;
-  overflow: hidden;
-  cursor: pointer;
-  padding: 4px;
-  display: inline-block;
-  border: solid 1px darkgray;
-  background: #eee;
-  color: #333;
-  vertical-align: middle;
-  border-radius: 3px;
-}
-div.color-picker-preview {
-  width: 25px;
-  height: 16px;
-  border: solid 1px #222;
-  margin-right: 5px;
-  float: left;
-  z-index: 0;
-}
-div.color-picker-down-symbol {
-  padding: 1px 0;
-  height: 16px;
-  line-height: 16px;
-  float: left;
-  font-size: 10px;
-}
-div.color-picker-selector {
-  position: absolute;
-  left: 4px;
-  top: 34px;
-}
-
 @media only screen and (-webkit-min-device-pixel-ratio: 2),
   only screen and (min--moz-device-pixel-ratio: 2),
   only screen and (-o-min-device-pixel-ratio: 2/1),
