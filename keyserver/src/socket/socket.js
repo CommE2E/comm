@@ -75,6 +75,7 @@ import { assertSecureRequest } from '../utils/security-utils';
 import {
   checkInputValidator,
   checkClientSupported,
+  policiesValidator,
 } from '../utils/validation-utils';
 import { RedisSubscriber } from './redis';
 import {
@@ -628,6 +629,7 @@ class Socket {
     const { viewer } = this;
     invariant(viewer, 'should be set');
     const responder = jsonEndpoints[message.payload.endpoint];
+    await policiesValidator(viewer, responder.requiredPolicies);
     const response = await responder.responder(viewer, message.payload.input);
     return [
       {
