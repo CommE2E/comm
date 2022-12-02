@@ -17,6 +17,7 @@ export type ModalOverridableProps = {
   +onClose: () => void,
   +withCloseButton?: boolean,
   +size?: ModalSize,
+  +modalHeaderCentered?: boolean,
 };
 
 type ModalProps = {
@@ -32,11 +33,17 @@ function Modal(props: ModalProps): React.Node {
     name,
     icon,
     withCloseButton = true,
+    modalHeaderCentered = false,
   } = props;
 
   const modalContainerClasses = classNames(css.modalContainer, {
     [css.modalContainerLarge]: size === 'large',
     [css.modalContainerSmall]: size === 'small',
+  });
+
+  const modalHeader = classNames({
+    [css.modalHeader]: true,
+    [css.modalHeaderCentered]: modalHeaderCentered,
   });
 
   const cornerCloseButton = React.useMemo(() => {
@@ -60,7 +67,7 @@ function Modal(props: ModalProps): React.Node {
   return (
     <ModalOverlay onClose={onClose}>
       <div className={modalContainerClasses}>
-        <div className={css.modalHeader}>
+        <div className={modalHeader}>
           <h2 className={css.title}>
             {headerIcon}
             {name}
