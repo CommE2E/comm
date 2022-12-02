@@ -12,6 +12,7 @@ import {
   messageTypes,
   type MessageType,
   type ComposableMessageInfo,
+  type ReactionMessageInfo,
   type RobotextMessageInfo,
 } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
@@ -26,7 +27,10 @@ type Props = {
 };
 function MessagePreview(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
-  const messageInfo: ComposableMessageInfo | RobotextMessageInfo =
+  const messageInfo:
+    | ComposableMessageInfo
+    | RobotextMessageInfo
+    | ReactionMessageInfo =
     props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
       ? props.messageInfo.sourceMessage
       : props.messageInfo;

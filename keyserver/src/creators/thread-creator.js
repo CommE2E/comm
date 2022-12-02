@@ -192,6 +192,11 @@ async function createThread(
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
+  invariant(
+    sourceMessage && sourceMessage.type !== messageTypes.REACTION,
+    'Sidebars and new threads can not be created from REACTION',
+  );
+
   let { id } = request;
   if (id === null || id === undefined) {
     const ids = await createIDs('threads', 1);
