@@ -33,7 +33,7 @@ function ChatThreadListSeeMoreSidebars(props: Props): React.Node {
       style={styles.button}
       onPress={onPressButton}
     >
-      <Icon name="ios-more" size={28} style={styles.icon} />
+      <Icon name="ellipsis-horizontal" size={24} style={styles.icon} />
       <Text style={[styles.text, unreadStyle]}>See more...</Text>
     </Button>
   );

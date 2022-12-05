@@ -41,10 +41,10 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
     let icon, fakeIcon;
     if (Platform.OS === 'ios' && areSettingsEnabled) {
       icon = (
-        <Icon name="ios-arrow-forward" size={20} style={styles.forwardIcon} />
+        <Icon name="chevron-forward" size={20} style={styles.forwardIcon} />
       );
       fakeIcon = (
-        <Icon name="ios-arrow-forward" size={20} style={styles.fakeIcon} />
+        <Icon name="chevron-forward" size={20} style={styles.fakeIcon} />
       );
     }
 
@@ -87,14 +87,14 @@ const unboundStyles = {
     justifyContent: Platform.OS === 'android' ? 'flex-start' : 'center',
   },
   fakeIcon: {
-    paddingRight: 7,
+    paddingRight: 3,
     paddingTop: 3,
     flex: 1,
     minWidth: 25,
     opacity: 0,
   },
   forwardIcon: {
-    paddingLeft: 7,
+    paddingLeft: 3,
     paddingTop: 3,
     color: 'headerChevron',
     flex: 1,
