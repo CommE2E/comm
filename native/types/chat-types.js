@@ -1,5 +1,6 @@
 // @flow
 
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
 import type {
   LocalMessageInfo,
   MultimediaMessageInfo,
@@ -21,6 +22,7 @@ export type ChatRobotextMessageInfoItemWithHeight = {
   +robotext: string,
   +threadCreatedFromMessage: ?ThreadInfo,
   +contentHeight: number,
+  +reactions: $ReadOnlyMap<string, MessageReactionInfo>,
 };
 
 export type ChatTextMessageInfoItemWithHeight = {
@@ -34,6 +36,7 @@ export type ChatTextMessageInfoItemWithHeight = {
   +endsCluster: boolean,
   +contentHeight: number,
   +threadCreatedFromMessage: ?ThreadInfo,
+  +reactions: $ReadOnlyMap<string, MessageReactionInfo>,
 };
 
 export type MultimediaContentSizes = {
@@ -53,6 +56,7 @@ export type ChatMultimediaMessageInfoItem = {
   +endsCluster: boolean,
   +threadCreatedFromMessage: ?ThreadInfo,
   +pendingUploads: ?MessagePendingUploads,
+  +reactions: $ReadOnlyMap<string, MessageReactionInfo>,
 };
 
 export type ChatMessageInfoItemWithHeight =

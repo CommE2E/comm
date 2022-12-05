@@ -93,6 +93,7 @@ function ChatItemHeightMeasurer(props: Props) {
           endsCluster: item.endsCluster,
           threadCreatedFromMessage: item.threadCreatedFromMessage,
           pendingUploads,
+          reactions: item.reactions,
           ...sizes,
         };
       }
@@ -117,6 +118,7 @@ function ChatItemHeightMeasurer(props: Props) {
           endsCluster: item.endsCluster,
           threadCreatedFromMessage: item.threadCreatedFromMessage,
           contentHeight: height,
+          reactions: item.reactions,
         };
       } else {
         invariant(
@@ -134,6 +136,7 @@ function ChatItemHeightMeasurer(props: Props) {
           threadCreatedFromMessage: item.threadCreatedFromMessage,
           robotext: item.robotext,
           contentHeight: height,
+          reactions: item.reactions,
         };
       }
     },
