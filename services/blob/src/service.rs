@@ -1,4 +1,5 @@
 use anyhow::Result;
+use aws_sdk_dynamodb::Error as DynamoDBError;
 use blob::blob_service_server::BlobService;
 use chrono::Utc;
 use std::pin::Pin;
@@ -12,7 +13,7 @@ use crate::{
     BLOB_S3_BUCKET_NAME, GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE,
     MPSC_CHANNEL_BUFFER_CAPACITY, S3_MULTIPART_UPLOAD_MINIMUM_CHUNK_SIZE,
   },
-  database::{BlobItem, DatabaseClient, ReverseIndexItem},
+  database::{BlobItem, DatabaseClient, Error as DBError, ReverseIndexItem},
   s3::{MultiPartUploadSession, S3Client, S3Path},
   tools::MemOps,
 };
@@ -45,10 +46,7 @@ impl MyBlobService {
         debug!("No blob found for {:?}", reverse_index_item);
         Err(Status::not_found("blob not found"))
       }
-      Err(err) => {
-        error!("Failed to find blob item: {:?}", err);
-        Err(Status::aborted("internal error"))
-      }
+      Err(err) => Err(handle_db_error(err)),
     }
   }
 
@@ -64,10 +62,7 @@ impl MyBlobService {
         debug!("No db entry found for holder {:?}", holder);
         Err(Status::not_found("blob not found"))
       }
-      Err(err) => {
-        error!("Failed to find reverse index: {:?}", err);
-        Err(Status::aborted("internal error"))
-      }
+      Err(err) => Err(handle_db_error(err)),
     }
   }
 }
@@ -205,19 +200,18 @@ impl BlobService for MyBlobService {
       .db
       .find_reverse_index_by_holder(holder)
       .await
-      .map_err(|err| {
-        error!("Failed to find reverse index: {:?}", err);
-        Status::aborted("Internal error")
-      })?
+      .map_err(handle_db_error)?
       .ok_or_else(|| {
         debug!("Blob not found");
         Status::not_found("Blob not found")
       })?;
     let blob_hash = &reverse_index_item.blob_hash;
 
-    if self.db.remove_reverse_index_item(holder).await.is_err() {
-      return Err(Status::aborted("Internal error"));
-    }
+    self
+      .db
+      .remove_reverse_index_item(holder)
+      .await
+      .map_err(handle_db_error)?;
 
     // TODO handle cleanup here properly
     // for now the object's being removed right away
@@ -226,10 +220,7 @@ impl BlobService for MyBlobService {
       .db
       .find_reverse_index_by_hash(blob_hash)
       .await
-      .map_err(|err| {
-        error!("Failed to find reverse index: {:?}", err);
-        Status::aborted("Internal error")
-      })?
+      .map_err(handle_db_error)?
       .is_empty()
     {
       let s3_path = self
@@ -241,10 +232,11 @@ impl BlobService for MyBlobService {
         Status::aborted("Internal error")
       })?;
 
-      if let Err(err) = self.db.remove_blob_item(blob_hash).await {
-        error!("Failed to remove blob item from database: {:?}", err);
-        return Err(Status::aborted("Internal error"));
-      }
+      self
+        .db
+        .remove_blob_item(blob_hash)
+        .await
+        .map_err(handle_db_error)?;
     }
 
     Ok(Response::new(()))
@@ -349,11 +341,7 @@ impl PutHandler {
       }
       Err(db_err) => {
         self.should_close_stream = true;
-        error!(
-          "Error when finding BlobItem by hash {}: {:?}",
-          blob_hash, db_err
-        );
-        Err(Status::aborted("Internal error"))
+        Err(handle_db_error(db_err))
       }
     }
   }
@@ -447,10 +435,11 @@ impl PutHandler {
       return Err(Status::aborted("Internal error"));
     }
 
-    if let Err(err) = self.db.put_blob_item(blob_item).await {
-      error!("Failed to save BlobItem: {:?}", err);
-      return Err(Status::aborted("Internal error"));
-    }
+    self
+      .db
+      .put_blob_item(blob_item)
+      .await
+      .map_err(handle_db_error)?;
 
     assign_holder_to_blob(&self.db, holder, blob_hash).await?;
 
@@ -466,9 +455,28 @@ async fn assign_holder_to_blob(
 ) -> Result<(), Status> {
   let reverse_index_item = ReverseIndexItem { holder, blob_hash };
 
-  if let Err(err) = db.put_reverse_index_item(reverse_index_item).await {
-    error!("Failed to put reverse index: {:?}", err);
-    return Err(Status::aborted("Internal error"));
+  db.put_reverse_index_item(reverse_index_item)
+    .await
+    .map_err(handle_db_error)
+}
+
+fn handle_db_error(db_error: DBError) -> Status {
+  match db_error {
+    DBError::AwsSdk(DynamoDBError::InternalServerError(_))
+    | DBError::AwsSdk(DynamoDBError::ProvisionedThroughputExceededException(
+      _,
+    ))
+    | DBError::AwsSdk(DynamoDBError::RequestLimitExceeded(_)) => {
+      warn!("AWS transient error occurred");
+      Status::unavailable("please retry")
+    }
+    DBError::Blob(e) => {
+      error!("Encountered Blob database error: {}", e);
+      Status::failed_precondition("Internal error")
+    }
+    e => {
+      error!("Encountered an unexpected error: {}", e);
+      Status::failed_precondition("unexpected error")
+    }
   }
-  Ok(())
 }

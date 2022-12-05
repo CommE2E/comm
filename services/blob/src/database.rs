@@ -7,6 +7,7 @@ use std::{
   fmt::{Display, Formatter},
   sync::Arc,
 };
+use tracing::error;
 
 use crate::{
   constants::{
@@ -69,7 +70,10 @@ impl DatabaseClient {
       .set_item(Some(item))
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
+      .map_err(|e| {
+        error!("DynamoDB client failed to put blob item");
+        Error::AwsSdk(e.into())
+      })?;
 
     Ok(())
   }
@@ -89,8 +93,10 @@ impl DatabaseClient {
       .set_key(Some(item_key))
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?
-    {
+      .map_err(|e| {
+        error!("DynamoDB client failed to find blob item");
+        Error::AwsSdk(e.into())
+      })? {
       GetItemOutput {
         item: Some(mut item),
         ..
@@ -129,7 +135,10 @@ impl DatabaseClient {
       )
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
+      .map_err(|e| {
+        error!("DynamoDB client failed to remove blob item");
+        Error::AwsSdk(e.into())
+      })?;
 
     Ok(())
   }
@@ -142,6 +151,7 @@ impl DatabaseClient {
   ) -> Result<(), Error> {
     let holder = &reverse_index_item.holder;
     if self.find_reverse_index_by_holder(holder).await?.is_some() {
+      error!("Failed to put reverse index. Holder already exists.");
       return Err(Error::Blob(BlobDBError::HolderAlreadyExists(
         holder.to_string(),
       )));
@@ -164,7 +174,10 @@ impl DatabaseClient {
       .set_item(Some(item))
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
+      .map_err(|e| {
+        error!("DynamoDB client failed to put reverse index");
+        Error::AwsSdk(e.into())
+      })?;
 
     Ok(())
   }
@@ -185,8 +198,10 @@ impl DatabaseClient {
       .consistent_read(true)
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?
-    {
+      .map_err(|e| {
+        error!("DynamoDB client failed to find reverse index by holder");
+        Error::AwsSdk(e.into())
+      })? {
       GetItemOutput {
         item: Some(mut item),
         ..
@@ -226,7 +241,10 @@ impl DatabaseClient {
       )
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
+      .map_err(|e| {
+        error!("DynamoDB client failed to find reverse indexes by hash");
+        Error::AwsSdk(e.into())
+      })?;
 
     if response.count == 0 {
       return Ok(vec![]);
@@ -264,7 +282,10 @@ impl DatabaseClient {
       )
       .send()
       .await
-      .map_err(|e| Error::AwsSdk(e.into()))?;
+      .map_err(|e| {
+        error!("DynamoDB client failed to remove reverse index");
+        Error::AwsSdk(e.into())
+      })?;
 
     Ok(())
   }
