@@ -18,6 +18,7 @@ import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 
 import LoggedOutModal from '../account/logged-out-modal.react';
+import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import ImagePasteModal from '../chat/image-paste-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
@@ -43,6 +44,7 @@ import {
   SidebarListModalRouteName,
   type ScreenParamList,
   type RootParamList,
+  TermsAndPrivacyRouteName,
 } from './route-names';
 
 enableScreens();
@@ -181,6 +183,11 @@ function RootComponent(): React.Node {
         options={disableGesturesScreenOptions}
       />
       <Root.Screen name={AppRouteName} component={AppNavigator} />
+      <Root.Screen
+        name={TermsAndPrivacyRouteName}
+        component={TermsAndPrivacyModal}
+        options={modalOverlayScreenOptions}
+      />
       <Root.Screen
         name={ThreadPickerModalRouteName}
         component={ThreadPickerModal}
