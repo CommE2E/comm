@@ -44,9 +44,9 @@ import { useSelector } from './redux/redux-utils';
 import { RootContext } from './root-context';
 import Socket from './socket.react';
 import { StaffContextProvider } from './staff/staff-context.provider.react';
+import { useLoadCommFonts } from './themes/fonts';
 import { DarkTheme, LightTheme } from './themes/navigation';
 import ThemeHandler from './themes/theme-handler.react';
-import './themes/fonts';
 
 LogBox.ignoreLogs([
   // react-native-reanimated
@@ -67,6 +67,10 @@ function Root() {
   const navStateRef = React.useRef();
   const navDispatchRef = React.useRef();
   const navStateInitializedRef = React.useRef(false);
+
+  // We call this here to start the loading process
+  // We gate the UI on the fonts loading in AppNavigator
+  useLoadCommFonts();
 
   const [navContext, setNavContext] = React.useState(null);
   const updateNavContext = React.useCallback(() => {

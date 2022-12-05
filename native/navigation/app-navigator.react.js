@@ -17,6 +17,7 @@ import RelationshipListItemTooltipModal from '../profile/relationship-list-item-
 import PushHandler from '../push/push-handler.react';
 import { getPersistor } from '../redux/persist';
 import { RootContext } from '../root-context';
+import { useLoadCommFonts } from '../themes/fonts';
 import { waitForInteractions } from '../utils/timers';
 import ActionResultModal from './action-result-modal.react';
 import { createOverlayNavigator } from './overlay-navigator.react';
@@ -59,6 +60,8 @@ type AppNavigatorProps = {
 function AppNavigator(props: AppNavigatorProps): React.Node {
   const { navigation } = props;
 
+  const fontsLoaded = useLoadCommFonts();
+
   const rootContext = React.useContext(RootContext);
   const storeLoadedFromLocalDatabase = useSelector(state => state.storeLoaded);
   const setNavStateInitialized =
@@ -73,7 +76,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
   ] = React.useState(splashScreenHasHidden);
 
   React.useEffect(() => {
-    if (localSplashScreenHasHidden) {
+    if (localSplashScreenHasHidden || !fontsLoaded) {
       return;
     }
     splashScreenHasHidden = true;
@@ -85,7 +88,7 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
         setLocalSplashScreenHasHidden(true);
       }
     })();
-  }, [localSplashScreenHasHidden]);
+  }, [localSplashScreenHasHidden, fontsLoaded]);
 
   let pushHandler;
   if (localSplashScreenHasHidden) {
