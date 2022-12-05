@@ -13,7 +13,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import ExitApp from 'react-native-exit-app';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome';
 
 import { sendReportActionTypes, sendReport } from 'lib/actions/report-actions';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';

@@ -526,8 +526,6 @@ PODS:
     - React-RCTImage
   - RNSVG (12.3.0):
     - React-Core
-  - RNVectorIcons (6.6.0):
-    - React
   - SDWebImage (5.13.5):
     - SDWebImage/Core (= 5.13.5)
   - SDWebImage/Core (5.13.5)
@@ -630,7 +628,6 @@ DEPENDENCIES:
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
-  - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - "SQLCipher-Amalgamation (from `../../node_modules/@commapp/sqlcipher-amalgamation`)"
   - Yoga (from `../../node_modules/react-native/ReactCommon/yoga`)
 
@@ -811,8 +808,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   RNSVG:
     :path: "../node_modules/react-native-svg"
-  RNVectorIcons:
-    :path: "../node_modules/react-native-vector-icons"
   SQLCipher-Amalgamation:
     :path: "../../node_modules/@commapp/sqlcipher-amalgamation"
   Yoga:
@@ -907,7 +902,6 @@ SPEC CHECKSUMS:
   RNReanimated: 60e291d42c77752a0f6d6f358387bdf225a87c6e
   RNScreens: 6e1ea5787989f92b0671049b808aef64fa1ef98c
   RNSVG: 302bfc9905bd8122f08966dc2ce2d07b7b52b9f8
-  RNVectorIcons: 0bb4def82230be1333ddaeee9fcba45f0b288ed4
   SDWebImage: 23d714cd599354ee7906dbae26dff89b421c4370
   SDWebImageWebPCoder: d0dac55073088d24b2ac1b191a71a8f8d0adac21
   SPTPersistentCache: df36ea46762d7cf026502bbb86a8b79d0080dff4
