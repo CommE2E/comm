@@ -44,8 +44,8 @@ function ThreadSettingsSeeMore(props: SeeMoreProps): React.Node {
         <ThreadSettingsListAction
           onPress={props.onPress}
           text="See more..."
-          iconName="ios-more"
-          iconSize={36}
+          iconName="ellipsis-horizontal"
+          iconSize={24}
           iconStyle={styles.seeMoreIcon}
           buttonStyle={styles.seeMoreButton}
           styles={styles}
@@ -131,7 +131,7 @@ const unboundStyles = {
     color: 'link',
     position: 'absolute',
     right: 10,
-    top: Platform.OS === 'android' ? 17 : 15,
+    top: Platform.OS === 'android' ? 12 : 10,
   },
   seeMoreRow: {
     backgroundColor: 'panelForeground',

@@ -690,7 +690,7 @@ class CameraModal extends React.PureComponent<Props, State> {
           style={styles.switchCameraButton}
           ref={this.switchCameraButtonRef}
         >
-          <Icon name="ios-reverse-camera" style={styles.switchCameraIcon} />
+          <Icon name="ios-camera-reverse" style={styles.switchCameraIcon} />
         </TouchableOpacity>
       );
     }
