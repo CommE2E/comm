@@ -816,7 +816,7 @@ The input Flow schemas are located in `native/schema`.
 ## React Developer Tools
 
 - For web, you can access the React Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Components” or “Profiler” tabs. This should work in both our development environment and in production.
-- For iOS and Android, TODO
+- For iOS and Android, you can access the React Developer Tools by running `cd native && yarn react-devtools`. If you want to use it along with the JS debugger (see [Debugging JavaScript](#debugging-javascript)), you should open the JS debugger first, then open React Developer Tools, and finally refresh the app via the dev menu. More details on using React Developer Tools with React Native can be found [here](https://github.com/facebook/react/tree/main/packages/react-devtools#usage-with-react-native).
 
 ## Redux Developer Tools
 
