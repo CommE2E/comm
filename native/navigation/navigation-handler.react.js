@@ -1,10 +1,12 @@
 // @flow
 
 import * as React from 'react';
+import { PersistGate } from 'redux-persist/integration/react';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 
 import DevTools from '../redux/dev-tools.react';
+import { getPersistor } from '../redux/persist';
 import { useSelector } from '../redux/redux-utils';
 import type { AppState } from '../redux/state-types';
 import { usePersistedStateLoaded } from '../selectors/app-state-selectors';
@@ -13,6 +15,7 @@ import ModalPruner from './modal-pruner.react';
 import NavFromReduxHandler from './nav-from-redux-handler.react';
 import { useIsAppLoggedIn } from './nav-selectors';
 import { NavContext, type NavAction } from './navigation-context';
+import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react';
 import ThreadScreenTracker from './thread-screen-tracker.react';
 
 const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
@@ -41,6 +44,9 @@ const NavigationHandler: React.ComponentType<{}> = React.memo<{}>(
         <LogInHandler dispatch={dispatch} />
         <ThreadScreenTracker />
         <ModalPruner navContext={navContext} />
+        <PersistGate persistor={getPersistor()}>
+          <PolicyAcknowledgmentHandler />
+        </PersistGate>
         {devTools}
       </>
     );
