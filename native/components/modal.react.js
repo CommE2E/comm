@@ -14,14 +14,18 @@ type Props = $ReadOnly<{
   +containerStyle?: ViewStyle,
   +modalStyle?: ViewStyle,
   +safeAreaEdges?: $ReadOnlyArray<'top' | 'right' | 'bottom' | 'left'>,
+  +disableClosing?: boolean,
 }>;
 function Modal(props: Props): React.Node {
   const navigation = useNavigation();
   const close = React.useCallback(() => {
+    if (props.disableClosing) {
+      return;
+    }
     if (navigation.isFocused()) {
       navigation.goBack();
     }
-  }, [navigation]);
+  }, [navigation, props.disableClosing]);
 
   const styles = useStyles(unboundStyles);
   const { containerStyle, modalStyle, children, safeAreaEdges } = props;
