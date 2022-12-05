@@ -258,7 +258,6 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_tunnelbroker_2eproto::offsets[
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
-  ::PROTOBUF_NAMESPACE_ID::internal::kInvalidFieldOffsetTag,
   PROTOBUF_FIELD_OFFSET(::tunnelbroker::MessageToClient, data_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
@@ -316,12 +315,11 @@ const char descriptor_table_protodef_tunnelbroker_2eproto[] PROTOBUF_SECTION_VAR
   "\t\022\024\n\014fromDeviceID\030\002 \001(\t\022\017\n\007payload\030\003 \001(\t"
   "\022\022\n\nblobHashes\030\004 \003(\t\"J\n\021MessagesToDelive"
   "r\0225\n\010messages\030\001 \003(\0132#.tunnelbroker.Messa"
-  "geToClientStruct\"\367\001\n\017MessageToClient\022<\n\021"
+  "geToClientStruct\"\317\001\n\017MessageToClient\022<\n\021"
   "messagesToDeliver\030\001 \001(\0132\037.tunnelbroker.M"
   "essagesToDeliverH\000\022<\n\021processedMessages\030"
   "\002 \001(\0132\037.tunnelbroker.ProcessedMessagesH\000"
   "\0228\n\026newNotifyTokenRequired\030\003 \001(\0132\026.googl"
-  "e.protobuf.EmptyH\000\022&\n\004ping\030\004 \001(\0132\026.googl"
   "e.protobuf.EmptyH\000B\006\n\004data2\251\002\n\023Tunnelbro"
   "kerService\022c\n\020SessionSignature\022%.tunnelb"
   "roker.SessionSignatureRequest\032&.tunnelbr"
@@ -337,7 +335,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_tunnelbroker_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_tunnelbroker_2eproto = {
-  false, false, 1614, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
+  false, false, 1574, descriptor_table_protodef_tunnelbroker_2eproto, "tunnelbroker.proto", 
   &descriptor_table_tunnelbroker_2eproto_once, descriptor_table_tunnelbroker_2eproto_deps, 1, 11,
   schemas, file_default_instances, TableStruct_tunnelbroker_2eproto::offsets,
   file_level_metadata_tunnelbroker_2eproto, file_level_enum_descriptors_tunnelbroker_2eproto, file_level_service_descriptors_tunnelbroker_2eproto,
@@ -2972,7 +2970,6 @@ class MessageToClient::_Internal {
   static const ::tunnelbroker::MessagesToDeliver& messagestodeliver(const MessageToClient* msg);
   static const ::tunnelbroker::ProcessedMessages& processedmessages(const MessageToClient* msg);
   static const PROTOBUF_NAMESPACE_ID::Empty& newnotifytokenrequired(const MessageToClient* msg);
-  static const PROTOBUF_NAMESPACE_ID::Empty& ping(const MessageToClient* msg);
 };
 
 const ::tunnelbroker::MessagesToDeliver&
@@ -2986,10 +2983,6 @@ MessageToClient::_Internal::processedmessages(const MessageToClient* msg) {
 const PROTOBUF_NAMESPACE_ID::Empty&
 MessageToClient::_Internal::newnotifytokenrequired(const MessageToClient* msg) {
   return *msg->data_.newnotifytokenrequired_;
-}
-const PROTOBUF_NAMESPACE_ID::Empty&
-MessageToClient::_Internal::ping(const MessageToClient* msg) {
-  return *msg->data_.ping_;
 }
 void MessageToClient::set_allocated_messagestodeliver(::tunnelbroker::MessagesToDeliver* messagestodeliver) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
@@ -3044,29 +3037,6 @@ void MessageToClient::clear_newnotifytokenrequired() {
     clear_has_data();
   }
 }
-void MessageToClient::set_allocated_ping(PROTOBUF_NAMESPACE_ID::Empty* ping) {
-  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
-  clear_data();
-  if (ping) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(ping)->GetArena();
-    if (message_arena != submessage_arena) {
-      ping = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, ping, submessage_arena);
-    }
-    set_has_ping();
-    data_.ping_ = ping;
-  }
-  // @@protoc_insertion_point(field_set_allocated:tunnelbroker.MessageToClient.ping)
-}
-void MessageToClient::clear_ping() {
-  if (_internal_has_ping()) {
-    if (GetArena() == nullptr) {
-      delete data_.ping_;
-    }
-    clear_has_data();
-  }
-}
 MessageToClient::MessageToClient(::PROTOBUF_NAMESPACE_ID::Arena* arena)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena) {
   SharedCtor();
@@ -3088,10 +3058,6 @@ MessageToClient::MessageToClient(const MessageToClient& from)
     }
     case kNewNotifyTokenRequired: {
       _internal_mutable_newnotifytokenrequired()->PROTOBUF_NAMESPACE_ID::Empty::MergeFrom(from._internal_newnotifytokenrequired());
-      break;
-    }
-    case kPing: {
-      _internal_mutable_ping()->PROTOBUF_NAMESPACE_ID::Empty::MergeFrom(from._internal_ping());
       break;
     }
     case DATA_NOT_SET: {
@@ -3149,12 +3115,6 @@ void MessageToClient::clear_data() {
       }
       break;
     }
-    case kPing: {
-      if (GetArena() == nullptr) {
-        delete data_.ping_;
-      }
-      break;
-    }
     case DATA_NOT_SET: {
       break;
     }
@@ -3198,13 +3158,6 @@ const char* MessageToClient::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       case 3:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_newnotifytokenrequired(), ptr);
-          CHK_(ptr);
-        } else goto handle_unusual;
-        continue;
-      // .google.protobuf.Empty ping = 4;
-      case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 34)) {
-          ptr = ctx->ParseMessage(_internal_mutable_ping(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -3260,14 +3213,6 @@ failure:
         3, _Internal::newnotifytokenrequired(this), target, stream);
   }
 
-  // .google.protobuf.Empty ping = 4;
-  if (_internal_has_ping()) {
-    target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::ping(this), target, stream);
-  }
-
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -3304,13 +3249,6 @@ size_t MessageToClient::ByteSizeLong() const {
       total_size += 1 +
         ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
           *data_.newnotifytokenrequired_);
-      break;
-    }
-    // .google.protobuf.Empty ping = 4;
-    case kPing: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *data_.ping_);
       break;
     }
     case DATA_NOT_SET: {
@@ -3359,10 +3297,6 @@ void MessageToClient::MergeFrom(const MessageToClient& from) {
     }
     case kNewNotifyTokenRequired: {
       _internal_mutable_newnotifytokenrequired()->PROTOBUF_NAMESPACE_ID::Empty::MergeFrom(from._internal_newnotifytokenrequired());
-      break;
-    }
-    case kPing: {
-      _internal_mutable_ping()->PROTOBUF_NAMESPACE_ID::Empty::MergeFrom(from._internal_ping());
       break;
     }
     case DATA_NOT_SET: {

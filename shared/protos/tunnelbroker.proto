@@ -85,6 +85,5 @@ message MessageToClient {
     MessagesToDeliver messagesToDeliver = 1;
     ProcessedMessages processedMessages = 2;
     google.protobuf.Empty newNotifyTokenRequired = 3;
-    google.protobuf.Empty ping = 4;
   }
 }

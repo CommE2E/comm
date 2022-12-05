@@ -1955,7 +1955,6 @@ class MessageToClient PROTOBUF_FINAL :
     kMessagesToDeliver = 1,
     kProcessedMessages = 2,
     kNewNotifyTokenRequired = 3,
-    kPing = 4,
     DATA_NOT_SET = 0,
   };
 
@@ -2037,7 +2036,6 @@ class MessageToClient PROTOBUF_FINAL :
     kMessagesToDeliverFieldNumber = 1,
     kProcessedMessagesFieldNumber = 2,
     kNewNotifyTokenRequiredFieldNumber = 3,
-    kPingFieldNumber = 4,
   };
   // .tunnelbroker.MessagesToDeliver messagesToDeliver = 1;
   bool has_messagestodeliver() const;
@@ -2093,24 +2091,6 @@ class MessageToClient PROTOBUF_FINAL :
       PROTOBUF_NAMESPACE_ID::Empty* newnotifytokenrequired);
   PROTOBUF_NAMESPACE_ID::Empty* unsafe_arena_release_newnotifytokenrequired();
 
-  // .google.protobuf.Empty ping = 4;
-  bool has_ping() const;
-  private:
-  bool _internal_has_ping() const;
-  public:
-  void clear_ping();
-  const PROTOBUF_NAMESPACE_ID::Empty& ping() const;
-  PROTOBUF_NAMESPACE_ID::Empty* release_ping();
-  PROTOBUF_NAMESPACE_ID::Empty* mutable_ping();
-  void set_allocated_ping(PROTOBUF_NAMESPACE_ID::Empty* ping);
-  private:
-  const PROTOBUF_NAMESPACE_ID::Empty& _internal_ping() const;
-  PROTOBUF_NAMESPACE_ID::Empty* _internal_mutable_ping();
-  public:
-  void unsafe_arena_set_allocated_ping(
-      PROTOBUF_NAMESPACE_ID::Empty* ping);
-  PROTOBUF_NAMESPACE_ID::Empty* unsafe_arena_release_ping();
-
   void clear_data();
   DataCase data_case() const;
   // @@protoc_insertion_point(class_scope:tunnelbroker.MessageToClient)
@@ -2119,7 +2099,6 @@ class MessageToClient PROTOBUF_FINAL :
   void set_has_messagestodeliver();
   void set_has_processedmessages();
   void set_has_newnotifytokenrequired();
-  void set_has_ping();
 
   inline bool has_data() const;
   inline void clear_has_data();
@@ -2133,7 +2112,6 @@ class MessageToClient PROTOBUF_FINAL :
     ::tunnelbroker::MessagesToDeliver* messagestodeliver_;
     ::tunnelbroker::ProcessedMessages* processedmessages_;
     PROTOBUF_NAMESPACE_ID::Empty* newnotifytokenrequired_;
-    PROTOBUF_NAMESPACE_ID::Empty* ping_;
   } data_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   ::PROTOBUF_NAMESPACE_ID::uint32 _oneof_case_[1];
@@ -3912,71 +3890,6 @@ inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::_internal_mutable_newnotif
 inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::mutable_newnotifytokenrequired() {
   // @@protoc_insertion_point(field_mutable:tunnelbroker.MessageToClient.newNotifyTokenRequired)
   return _internal_mutable_newnotifytokenrequired();
-}
-
-// .google.protobuf.Empty ping = 4;
-inline bool MessageToClient::_internal_has_ping() const {
-  return data_case() == kPing;
-}
-inline bool MessageToClient::has_ping() const {
-  return _internal_has_ping();
-}
-inline void MessageToClient::set_has_ping() {
-  _oneof_case_[0] = kPing;
-}
-inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::release_ping() {
-  // @@protoc_insertion_point(field_release:tunnelbroker.MessageToClient.ping)
-  if (_internal_has_ping()) {
-    clear_has_data();
-      PROTOBUF_NAMESPACE_ID::Empty* temp = data_.ping_;
-    if (GetArena() != nullptr) {
-      temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-    }
-    data_.ping_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline const PROTOBUF_NAMESPACE_ID::Empty& MessageToClient::_internal_ping() const {
-  return _internal_has_ping()
-      ? *data_.ping_
-      : reinterpret_cast< PROTOBUF_NAMESPACE_ID::Empty&>(PROTOBUF_NAMESPACE_ID::_Empty_default_instance_);
-}
-inline const PROTOBUF_NAMESPACE_ID::Empty& MessageToClient::ping() const {
-  // @@protoc_insertion_point(field_get:tunnelbroker.MessageToClient.ping)
-  return _internal_ping();
-}
-inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::unsafe_arena_release_ping() {
-  // @@protoc_insertion_point(field_unsafe_arena_release:tunnelbroker.MessageToClient.ping)
-  if (_internal_has_ping()) {
-    clear_has_data();
-    PROTOBUF_NAMESPACE_ID::Empty* temp = data_.ping_;
-    data_.ping_ = nullptr;
-    return temp;
-  } else {
-    return nullptr;
-  }
-}
-inline void MessageToClient::unsafe_arena_set_allocated_ping(PROTOBUF_NAMESPACE_ID::Empty* ping) {
-  clear_data();
-  if (ping) {
-    set_has_ping();
-    data_.ping_ = ping;
-  }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:tunnelbroker.MessageToClient.ping)
-}
-inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::_internal_mutable_ping() {
-  if (!_internal_has_ping()) {
-    clear_data();
-    set_has_ping();
-    data_.ping_ = CreateMaybeMessage< PROTOBUF_NAMESPACE_ID::Empty >(GetArena());
-  }
-  return data_.ping_;
-}
-inline PROTOBUF_NAMESPACE_ID::Empty* MessageToClient::mutable_ping() {
-  // @@protoc_insertion_point(field_mutable:tunnelbroker.MessageToClient.ping)
-  return _internal_mutable_ping();
 }
 
 inline bool MessageToClient::has_data() const {
