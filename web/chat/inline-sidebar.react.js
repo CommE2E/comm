@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
+import type { ReactionMessageInfo } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../CommIcon.react';
@@ -12,7 +13,7 @@ import css from './inline-sidebar.css';
 
 type Props = {
   +threadInfo: ?ThreadInfo,
-  +reactions?: $ReadOnlyArray<string>,
+  +reactions?: $ReadOnlyArray<ReactionMessageInfo>,
   +positioning: 'left' | 'center' | 'right',
 };
 function InlineSidebar(props: Props): React.Node {
@@ -32,14 +33,13 @@ function InlineSidebar(props: Props): React.Node {
     if (!reactions || reactions.length === 0) {
       return null;
     }
-    const reactionsItems = reactions.map(reaction => {
-      return (
-        <div key={reaction} className={css.reactions}>
-          {reaction}
-        </div>
-      );
-    });
-    return <div className={css.reactionsContainer}>{reactionsItems}</div>;
+    let reactionText = reactions[0].reaction;
+    if (reactions.length > 1) {
+      reactionText += ` ${reactions.length}`;
+    }
+    const reactionItems = <div style={css.reactions}>{reactionText}</div>;
+
+    return <div className={css.reactionsContainer}>{reactionItems}</div>;
   }, [reactions]);
 
   const onClick = useOnClickThread(threadInfo);
