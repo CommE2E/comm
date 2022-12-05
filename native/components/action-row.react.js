@@ -2,9 +2,8 @@
 
 import * as React from 'react';
 import { View, Text as RawText } from 'react-native';
-import RawIcon, {
-  type IoniconsGlyphs,
-} from '@expo/vector-icons/Ionicons';
+import RawIcon from '@expo/vector-icons/Ionicons';
+import type { IoniconsGlyphs } from '@expo/vector-icons';
 
 import Button from '../components/button.react';
 import { useColors, useStyles } from '../themes/colors';
