@@ -2,17 +2,16 @@
 
 import * as React from 'react';
 import { View, Text as RawText } from 'react-native';
-import RawIcon, {
-  type IoniconsGlyphs,
-} from '@expo/vector-icons/Ionicons';
+import RawIcon from '@expo/vector-icons/Ionicons';
+import type { IoniconsGlyphs } from '@expo/vector-icons';
 
 import Button from '../components/button.react';
 import { useColors, useStyles } from '../themes/colors';
 
-type TextProps = {
+type TextProps = {|
   +content: string,
   +danger?: boolean,
-};
+|};
 
 function Text(props: TextProps): React.Node {
   const { content, danger } = props;
@@ -24,9 +23,9 @@ function Text(props: TextProps): React.Node {
   );
 }
 
-type IconProps = {
+type IconProps = {|
   +name: IoniconsGlyphs,
-};
+|};
 
 function Icon(props: IconProps): React.Node {
   const { name } = props;
@@ -34,10 +33,10 @@ function Icon(props: IconProps): React.Node {
   return <RawIcon name={name} size={20} color={colors.navigationChevron} />;
 }
 
-type RowProps = {
+type RowProps = {|
   +onPress?: () => void,
   +children: React.Node,
-};
+|};
 
 function Row(props: RowProps): React.Node {
   const { onPress, children } = props;

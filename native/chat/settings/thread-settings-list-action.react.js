@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
-import type { IoniconsGlyphs } from '@expo/vector-icons/Ionicons';
+import type { IoniconsGlyphs } from '@expo/vector-icons';
 import Icon from '@expo/vector-icons/Ionicons';
 
 import Button from '../../components/button.react';
