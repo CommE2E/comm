@@ -16,7 +16,7 @@ import Animated, {
   Extrapolate,
   type SharedValue,
 } from 'react-native-reanimated';
-import type { IconProps } from 'react-native-vector-icons';
+import type { IconProps } from '@expo/vector-icons';
 import tinycolor from 'tinycolor2';
 
 import CommIcon from '../components/comm-icon.react';

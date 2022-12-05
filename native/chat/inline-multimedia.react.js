@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import * as Progress from 'react-native-progress';
-import Icon from 'react-native-vector-icons/Feather';
-import IonIcon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Feather';
+import IonIcon from '@expo/vector-icons/Ionicons';
 import tinycolor from 'tinycolor2';
 
 import { isLocalUploadID } from 'lib/media/media-utils';

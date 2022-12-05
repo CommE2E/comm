@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import EntypoIcon from 'react-native-vector-icons/Entypo';
+import EntypoIcon from '@expo/vector-icons/Entypo';
 
 import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 
