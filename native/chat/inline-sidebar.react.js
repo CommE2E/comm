@@ -8,6 +8,8 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
+import { stringForReactionList } from 'lib/shared/reaction-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../components/comm-icon.react';
@@ -24,7 +26,7 @@ import { useNavigateToThread } from './message-list-types';
 
 type Props = {
   +threadInfo: ?ThreadInfo,
-  +reactions?: $ReadOnlyArray<string>,
+  +reactions?: $ReadOnlyMap<string, MessageReactionInfo>,
   +disabled?: boolean,
 };
 function InlineSidebar(props: Props): React.Node {
@@ -41,16 +43,13 @@ function InlineSidebar(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
   const reactionList = React.useMemo(() => {
-    if (!reactions || reactions.length === 0) {
+    if (!reactions || reactions.size === 0) {
       return null;
     }
-    const reactionItems = reactions.map(reaction => {
-      return (
-        <Text key={reaction} style={styles.reaction}>
-          {reaction}
-        </Text>
-      );
-    });
+
+    const reactionText = stringForReactionList(reactions);
+    const reactionItems = <Text style={styles.reaction}>{reactionText}</Text>;
+
     return <View style={styles.reactionsContainer}>{reactionItems}</View>;
   }, [reactions, styles.reaction, styles.reactionsContainer]);
 

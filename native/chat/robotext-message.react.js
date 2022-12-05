@@ -53,10 +53,13 @@ function RobotextMessage(props: Props): React.Node {
 
   const styles = useStyles(unboundStyles);
   let inlineSidebar = null;
-  if (item.threadCreatedFromMessage) {
+  if (item.threadCreatedFromMessage || item.reactions.size > 0) {
     inlineSidebar = (
       <View style={styles.sidebar}>
-        <InlineSidebar threadInfo={item.threadCreatedFromMessage} />
+        <InlineSidebar
+          threadInfo={item.threadCreatedFromMessage}
+          reactions={item.reactions}
+        />
       </View>
     );
   }
