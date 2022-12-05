@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react';
@@ -25,6 +26,13 @@ function Subchannel(props: Props): React.Node {
     mostRecentMessageInfo,
     lastUpdatedTimeIncludingSidebars,
   } = chatThreadItem;
+
+  const { unread } = threadInfo.currentUser;
+
+  const subchannelTitleClassName = classNames({
+    [css.subchannelInfo]: true,
+    [css.unread]: unread,
+  });
 
   const timeZone = useSelector(state => state.timeZone);
   const { popModal } = useModalContext();
@@ -65,7 +73,7 @@ function Subchannel(props: Props): React.Node {
   return (
     <Button className={css.subchannelContainer} onClick={onClickThread}>
       <SWMansionIcon icon="message-square" size={22} />
-      <div className={css.subchannelInfo}>
+      <div className={subchannelTitleClassName}>
         <div className={css.longTextEllipsis}>{threadInfo.uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>
       </div>

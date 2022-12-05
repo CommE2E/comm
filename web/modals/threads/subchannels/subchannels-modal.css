@@ -32,6 +32,11 @@ div.subchannelInfo {
   overflow: hidden;
 }
 
+div.unread {
+  color: var(--fg);
+  font-weight: var(--semi-bold);
+}
+
 div.longTextEllipsis {
   align-self: flex-start;
   text-overflow: ellipsis;
