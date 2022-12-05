@@ -3,6 +3,7 @@
 import type {
   LocalMessageInfo,
   MultimediaMessageInfo,
+  ReactionMessageInfo,
   RobotextMessageInfo,
 } from 'lib/types/message-types';
 import type { TextMessageInfo } from 'lib/types/messages/text';
@@ -21,6 +22,7 @@ export type ChatRobotextMessageInfoItemWithHeight = {
   +robotext: string,
   +threadCreatedFromMessage: ?ThreadInfo,
   +contentHeight: number,
+  +reactions?: $ReadOnlyArray<ReactionMessageInfo>,
 };
 
 export type ChatTextMessageInfoItemWithHeight = {
@@ -34,6 +36,7 @@ export type ChatTextMessageInfoItemWithHeight = {
   +endsCluster: boolean,
   +contentHeight: number,
   +threadCreatedFromMessage: ?ThreadInfo,
+  +reactions?: $ReadOnlyArray<ReactionMessageInfo>,
 };
 
 export type MultimediaContentSizes = {
@@ -53,6 +56,7 @@ export type ChatMultimediaMessageInfoItem = {
   +endsCluster: boolean,
   +threadCreatedFromMessage: ?ThreadInfo,
   +pendingUploads: ?MessagePendingUploads,
+  +reactions?: $ReadOnlyArray<ReactionMessageInfo>,
 };
 
 export type ChatMessageInfoItemWithHeight =
