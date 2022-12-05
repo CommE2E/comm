@@ -15,7 +15,10 @@ import {
   initialWindowMetrics,
 } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
-import { PersistGate as ReduxPersistGate } from 'redux-persist/integration/react';
+import {
+  PersistGate,
+  PersistGate as ReduxPersistGate,
+} from 'redux-persist/integration/react';
 
 import { actionLogger } from 'lib/utils/action-logger';
 
@@ -35,6 +38,7 @@ import NavigationHandler from './navigation/navigation-handler.react';
 import { validNavState } from './navigation/navigation-utils';
 import OrientationHandler from './navigation/orientation-handler.react';
 import { navStateAsyncStorageKey } from './navigation/persistance';
+import PolicyAcknowledgmentHandler from './navigation/policy-acknowledgment-handler.react';
 import RootNavigator from './navigation/root-navigator.react';
 import ConnectivityUpdater from './redux/connectivity-updater.react';
 import { DimensionsUpdater } from './redux/dimensions-updater.react';
@@ -236,6 +240,9 @@ function Root() {
         ref={containerRef}
       >
         <RootNavigator />
+        <PersistGate persistor={getPersistor()}>
+          <PolicyAcknowledgmentHandler />
+        </PersistGate>
       </NavigationContainer>
     );
   }
