@@ -22,7 +22,7 @@ RUN scripts/install_corrosion.sh
 ADD shared/protos /transferred/shared/protos/
 ADD shared/cmake /transferred/shared/cmake/
 
-COPY services/backup/ /transferred/services/backup/
+COPY services/backup/old/ /transferred/services/backup/
 COPY services/lib/src/ /transferred/services/lib/src/
 
 RUN scripts/build_service.sh
