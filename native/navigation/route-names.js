@@ -2,6 +2,7 @@
 
 import type { RouteProp } from '@react-navigation/native';
 
+import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react';
 import type { ImagePasteModalParams } from '../chat/image-paste-modal.react';
@@ -67,6 +68,7 @@ export const ThreadSettingsMemberTooltipModalRouteName =
   'ThreadSettingsMemberTooltipModal';
 export const ThreadSettingsRouteName = 'ThreadSettings';
 export const VideoPlaybackModalRouteName = 'VideoPlaybackModal';
+export const TermsAndPrivacyRouteName = 'TermsAndPrivacyModal';
 
 export type RootParamList = {
   +LoggedOutModal: void,
@@ -78,6 +80,7 @@ export type RootParamList = {
   +ComposeSubchannelModal: ComposeSubchannelModalParams,
   +SidebarListModal: SidebarListModalParams,
   +ImagePasteModal: ImagePasteModalParams,
+  +TermsAndPrivacyModal: TermsAndPrivacyModalParams,
 };
 
 export type MessageTooltipRouteNames =
