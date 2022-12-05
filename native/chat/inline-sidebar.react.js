@@ -8,6 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
+import type { ReactionMessageInfo } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../components/comm-icon.react';
@@ -24,7 +25,7 @@ import { useNavigateToThread } from './message-list-types';
 
 type Props = {
   +threadInfo: ?ThreadInfo,
-  +reactions?: $ReadOnlyArray<string>,
+  +reactions?: $ReadOnlyArray<ReactionMessageInfo>,
   +disabled?: boolean,
 };
 function InlineSidebar(props: Props): React.Node {
@@ -44,13 +45,12 @@ function InlineSidebar(props: Props): React.Node {
     if (!reactions || reactions.length === 0) {
       return null;
     }
-    const reactionItems = reactions.map(reaction => {
-      return (
-        <Text key={reaction} style={styles.reaction}>
-          {reaction}
-        </Text>
-      );
-    });
+    let reactionText = reactions[0].reaction;
+    if (reactions.length > 1) {
+      reactionText += ` ${reactions.length}`;
+    }
+    const reactionItems = <Text style={styles.reaction}>{reactionText}</Text>;
+
     return <View style={styles.reactionsContainer}>{reactionItems}</View>;
   }, [reactions, styles.reaction, styles.reactionsContainer]);
 
