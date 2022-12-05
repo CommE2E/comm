@@ -62,11 +62,33 @@ module.exports = {
     name: 'Comm',
     icon: 'icons/icon',
     ignore: ['src', '.*config\\.cjs', '\\.eslintrc\\.json'],
+    appBundleId: 'app.comm.macos',
+    osxSign: { identity: 'Developer ID Application' },
+    osxNotarize: {
+      tool: 'notarytool',
+      appleId: process.env?.APPLE_USER_NAME,
+      appleIdPassword: process.env?.APPLE_APP_SPECIFIC_PASSWORD,
+      teamId: process.env?.TEAM_ID,
+    },
   },
   makers: [
     {
-      name: '@electron-forge/maker-zip',
+      name: '@electron-forge/maker-dmg',
       platforms: ['darwin'],
+      config: {
+        icon: 'icons/icon.icns',
+        background: 'icons/dmg_background.png',
+        additionalDMGOptions: {
+          'code-sign': {
+            'signing-identity': 'Developer ID Application',
+            'identifier': 'app.comm.macos',
+          },
+        },
+        contents: opts => [
+          { x: 340, y: 100, type: 'link', path: '/Applications' },
+          { x: 100, y: 100, type: 'file', path: opts.appPath },
+        ],
+      },
     },
   ],
   plugins: [new BabelPlugin()],
