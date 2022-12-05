@@ -117,7 +117,7 @@ function multimediaMessageItemHeight(
   if (multimediaMessageSendFailed(item)) {
     height += failedSendHeight;
   }
-  if (item.threadCreatedFromMessage) {
+  if (item.threadCreatedFromMessage || item.reactions) {
     height +=
       inlineSidebarStyle.height +
       inlineSidebarStyle.marginTop +

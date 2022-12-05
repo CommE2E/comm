@@ -64,7 +64,7 @@ function textMessageItemHeight(
   if (textMessageSendFailed(item)) {
     height += failedSendHeight;
   }
-  if (item.threadCreatedFromMessage) {
+  if (item.threadCreatedFromMessage || item.reactions) {
     height +=
       inlineSidebarStyle.height +
       inlineSidebarStyle.marginTop +
@@ -76,7 +76,7 @@ function textMessageItemHeight(
 function robotextMessageItemHeight(
   item: ChatRobotextMessageInfoItemWithHeight,
 ): number {
-  if (item.threadCreatedFromMessage) {
+  if (item.threadCreatedFromMessage || item.reactions) {
     return item.contentHeight + inlineSidebarStyle.height;
   }
   return item.contentHeight;
