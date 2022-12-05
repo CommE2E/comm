@@ -1,4 +1,3 @@
-use anyhow::{anyhow, Context, Result};
 use aws_sdk_dynamodb::{
   model::AttributeValue, output::GetItemOutput, Error as DynamoDBError,
 };
@@ -47,7 +46,7 @@ impl DatabaseClient {
 
   // Blob item
 
-  pub async fn put_blob_item(&self, blob_item: BlobItem) -> Result<()> {
+  pub async fn put_blob_item(&self, blob_item: BlobItem) -> Result<(), Error> {
     let item = HashMap::from([
       (
         BLOB_TABLE_BLOB_HASH_FIELD.to_string(),
@@ -70,7 +69,7 @@ impl DatabaseClient {
       .set_item(Some(item))
       .send()
       .await
-      .context("Failed to put blob item")?;
+      .map_err(|e| Error::AwsSdk(e.into()))?;
 
     Ok(())
   }
@@ -78,7 +77,7 @@ impl DatabaseClient {
   pub async fn find_blob_item(
     &self,
     blob_hash: &str,
-  ) -> Result<Option<BlobItem>> {
+  ) -> Result<Option<BlobItem>, Error> {
     let item_key = HashMap::from([(
       BLOB_TABLE_BLOB_HASH_FIELD.to_string(),
       AttributeValue::S(blob_hash.to_string()),
@@ -90,9 +89,8 @@ impl DatabaseClient {
       .set_key(Some(item_key))
       .send()
       .await
-      .with_context(|| {
-        format!("Failed to find blob item with hash: [{}]", blob_hash)
-      })? {
+      .map_err(|e| Error::AwsSdk(e.into()))?
+    {
       GetItemOutput {
         item: Some(mut item),
         ..
@@ -111,7 +109,8 @@ impl DatabaseClient {
         )?;
         Ok(Some(BlobItem {
           blob_hash,
-          s3_path: S3Path::from_full_path(&s3_path)?,
+          s3_path: S3Path::from_full_path(&s3_path)
+            .map_err(|e| Error::Blob(BlobDBError::InvalidS3Path(e)))?,
           created,
         }))
       }
@@ -119,7 +118,7 @@ impl DatabaseClient {
     }
   }
 
-  pub async fn remove_blob_item(&self, blob_hash: &str) -> Result<()> {
+  pub async fn remove_blob_item(&self, blob_hash: &str) -> Result<(), Error> {
     self
       .client
       .delete_item()
@@ -130,9 +129,7 @@ impl DatabaseClient {
       )
       .send()
       .await
-      .with_context(|| {
-        format!("Failed to remove blob item with hash: [{}]", blob_hash)
-      })?;
+      .map_err(|e| Error::AwsSdk(e.into()))?;
 
     Ok(())
   }
@@ -142,16 +139,12 @@ impl DatabaseClient {
   pub async fn put_reverse_index_item(
     &self,
     reverse_index_item: ReverseIndexItem,
-  ) -> Result<()> {
-    if self
-      .find_reverse_index_by_holder(&reverse_index_item.holder)
-      .await?
-      .is_some()
-    {
-      return Err(anyhow!(
-        "An item for the given holder [{}] already exists",
-        reverse_index_item.holder
-      ));
+  ) -> Result<(), Error> {
+    let holder = &reverse_index_item.holder;
+    if self.find_reverse_index_by_holder(holder).await?.is_some() {
+      return Err(Error::Blob(BlobDBError::HolderAlreadyExists(
+        holder.to_string(),
+      )));
     }
 
     let item = HashMap::from([
@@ -171,7 +164,7 @@ impl DatabaseClient {
       .set_item(Some(item))
       .send()
       .await
-      .context("Failed to put reverse index item")?;
+      .map_err(|e| Error::AwsSdk(e.into()))?;
 
     Ok(())
   }
@@ -179,7 +172,7 @@ impl DatabaseClient {
   pub async fn find_reverse_index_by_holder(
     &self,
     holder: &str,
-  ) -> Result<Option<ReverseIndexItem>> {
+  ) -> Result<Option<ReverseIndexItem>, Error> {
     let item_key = HashMap::from([(
       BLOB_REVERSE_INDEX_TABLE_HOLDER_FIELD.to_string(),
       AttributeValue::S(holder.to_string()),
@@ -192,9 +185,8 @@ impl DatabaseClient {
       .consistent_read(true)
       .send()
       .await
-      .with_context(|| {
-        format!("Failed to find reverse index for holder: [{}]", holder)
-      })? {
+      .map_err(|e| Error::AwsSdk(e.into()))?
+    {
       GetItemOutput {
         item: Some(mut item),
         ..
@@ -217,7 +209,7 @@ impl DatabaseClient {
   pub async fn find_reverse_index_by_hash(
     &self,
     blob_hash: &str,
-  ) -> Result<Vec<ReverseIndexItem>> {
+  ) -> Result<Vec<ReverseIndexItem>, Error> {
     let response = self
       .client
       .query()
@@ -234,9 +226,7 @@ impl DatabaseClient {
       )
       .send()
       .await
-      .with_context(|| {
-        format!("Failed to find reverse index for hash: [{}]", blob_hash)
-      })?;
+      .map_err(|e| Error::AwsSdk(e.into()))?;
 
     if response.count == 0 {
       return Ok(vec![]);
@@ -260,7 +250,10 @@ impl DatabaseClient {
     return Ok(results);
   }
 
-  pub async fn remove_reverse_index_item(&self, holder: &str) -> Result<()> {
+  pub async fn remove_reverse_index_item(
+    &self,
+    holder: &str,
+  ) -> Result<(), Error> {
     self
       .client
       .delete_item()
@@ -271,9 +264,7 @@ impl DatabaseClient {
       )
       .send()
       .await
-      .with_context(|| {
-        format!("Failed to remove reverse index for holder: [{}]", holder)
-      })?;
+      .map_err(|e| Error::AwsSdk(e.into()))?;
 
     Ok(())
   }
@@ -287,7 +278,28 @@ pub enum Error {
   AwsSdk(DynamoDBError),
   #[display(...)]
   Attribute(DBItemError),
+  #[display(...)]
+  Blob(BlobDBError),
 }
+
+#[derive(Debug)]
+pub enum BlobDBError {
+  HolderAlreadyExists(String),
+  InvalidS3Path(anyhow::Error),
+}
+
+impl Display for BlobDBError {
+  fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+    match self {
+      BlobDBError::HolderAlreadyExists(holder) => {
+        write!(f, "Item for given holder [{}] already exists", holder)
+      }
+      BlobDBError::InvalidS3Path(err) => err.fmt(f),
+    }
+  }
+}
+
+impl std::error::Error for BlobDBError {}
 
 #[derive(Debug, derive_more::Error, derive_more::Constructor)]
 pub struct DBItemError {

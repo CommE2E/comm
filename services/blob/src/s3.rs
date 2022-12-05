@@ -21,7 +21,10 @@ impl S3Path {
   /// The path should be in the following format: `[bucket_name]/[object_name]`
   pub fn from_full_path(full_path: &str) -> Result<Self> {
     if !full_path.contains('/') {
-      return Err(anyhow!("S3 path should contain the '/' separator"));
+      return Err(anyhow!(
+        "S3 path [{}] should contain the '/' separator",
+        full_path
+      ));
     }
 
     let mut split = full_path.split('/');
