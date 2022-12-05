@@ -2,7 +2,7 @@
 
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
-import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcon from '@expo/vector-icons/MaterialCommunityIcons';
 
 import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status';
 import type { ThreadInfo } from 'lib/types/thread-types';

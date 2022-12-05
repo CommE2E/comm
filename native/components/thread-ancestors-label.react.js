@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Text, View } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import Icon from '@expo/vector-icons/FontAwesome5';
 
 import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { type ThreadInfo } from 'lib/types/thread-types';

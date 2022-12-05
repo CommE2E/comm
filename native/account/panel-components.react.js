@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome';
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 

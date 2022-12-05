@@ -14,7 +14,7 @@ import {
   LayoutAnimation,
   Keyboard,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 import shallowequal from 'shallowequal';
 import tinycolor from 'tinycolor2';

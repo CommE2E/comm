@@ -1,6 +1,6 @@
 // @flow
 
-import { createIconSetFromIcoMoon, type Icon } from 'react-native-vector-icons';
+import { createIconSetFromIcoMoon, type Icon } from '@expo/vector-icons';
 
 import icoMoonConfig from 'lib/shared/comm-icon-config.json';
 

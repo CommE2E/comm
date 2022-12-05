@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
 import Animated from 'react-native-reanimated';
-import IonIcon from 'react-native-vector-icons/Ionicons';
+import IonIcon from '@expo/vector-icons/Ionicons';
 import { createSelector } from 'reselect';
 
 import { searchUsers } from 'lib/actions/user-actions';

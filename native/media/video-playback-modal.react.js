@@ -7,7 +7,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { TapGestureHandler } from 'react-native-gesture-handler';
 import * as Progress from 'react-native-progress';
 import Animated from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from '@expo/vector-icons/MaterialCommunityIcons';
 import Video from 'react-native-video';
 
 import { useIsAppBackgroundedOrInactive } from 'lib/shared/lifecycle-utils';

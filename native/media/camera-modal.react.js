@@ -24,7 +24,7 @@ import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
   EasingNode as ReanimatedEasing,
 } from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
