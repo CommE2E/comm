@@ -42,6 +42,7 @@
     "metro-react-native-babel-preset": "^0.72.3",
     "patch-package": "^6.4.7",
     "postinstall-postinstall": "^2.0.0",
+    "react-devtools": "^4.27.0",
     "react-test-renderer": "18.1.0",
     "remote-redux-devtools": "git+https://git@github.com/zalmoxisus/remote-redux-devtools.git",
     "remotedev": "git+https://git@github.com/zalmoxisus/remotedev.git"
