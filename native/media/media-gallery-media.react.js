@@ -14,8 +14,8 @@ import {
 import Reanimated, {
   EasingNode as ReanimatedEasing,
 } from 'react-native-reanimated';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import Icon from '@expo/vector-icons/FontAwesome';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 
 import { type MediaLibrarySelection } from 'lib/types/media-types';

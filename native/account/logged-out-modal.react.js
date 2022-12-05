@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';

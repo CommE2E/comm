@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { TouchableOpacity, View, Text, Platform, Animated } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome';
 
 import { useStyles } from '../themes/colors';
 import type { ViewStyle } from '../types/styles';
