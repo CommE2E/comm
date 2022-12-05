@@ -9,6 +9,8 @@ import {
 } from 'lib/actions/message-actions';
 import type { BindServerCall, DispatchFunctions } from 'lib/utils/action-utils';
 
+import type { InputState } from '../input/input-state';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 
 function onPressReact(
@@ -17,7 +19,30 @@ function onPressReact(
     | TooltipRoute<'MultimediaMessageTooltipModal'>,
   dispatchFunctions: DispatchFunctions,
   bindServerCall: BindServerCall,
+  inputState: ?InputState,
+  navigation:
+    | AppNavigationProp<'TextMessageTooltipModal'>
+    | AppNavigationProp<'MultimediaMessageTooltipModal'>,
+  viewerID: ?string,
 ) {
+  if (route.params.item.reactions) {
+    const hasUserAlreadyLiked = route.params.item.reactions.some(
+      reaction => reaction.creator.id === viewerID,
+    );
+
+    if (hasUserAlreadyLiked) {
+      Alert.alert(
+        'Couldn’t send the reaction',
+        'You have already liked this message',
+        [{ text: 'OK' }],
+        {
+          cancelable: true,
+        },
+      );
+      return;
+    }
+  }
+
   const messageID = route.params.item.messageInfo.id;
   const threadID = route.params.item.threadInfo.id;
 
