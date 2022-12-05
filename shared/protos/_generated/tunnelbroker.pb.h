@@ -1113,12 +1113,11 @@ class MessageToTunnelbrokerStruct PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kBlobHashesFieldNumber = 4,
-    kMessageIDFieldNumber = 1,
-    kToDeviceIDFieldNumber = 2,
-    kPayloadFieldNumber = 3,
+    kBlobHashesFieldNumber = 3,
+    kToDeviceIDFieldNumber = 1,
+    kPayloadFieldNumber = 2,
   };
-  // repeated string blobHashes = 4;
+  // repeated string blobHashes = 3;
   int blobhashes_size() const;
   private:
   int _internal_blobhashes_size() const;
@@ -1142,23 +1141,7 @@ class MessageToTunnelbrokerStruct PROTOBUF_FINAL :
   std::string* _internal_add_blobhashes();
   public:
 
-  // string messageID = 1;
-  void clear_messageid();
-  const std::string& messageid() const;
-  void set_messageid(const std::string& value);
-  void set_messageid(std::string&& value);
-  void set_messageid(const char* value);
-  void set_messageid(const char* value, size_t size);
-  std::string* mutable_messageid();
-  std::string* release_messageid();
-  void set_allocated_messageid(std::string* messageid);
-  private:
-  const std::string& _internal_messageid() const;
-  void _internal_set_messageid(const std::string& value);
-  std::string* _internal_mutable_messageid();
-  public:
-
-  // string toDeviceID = 2;
+  // string toDeviceID = 1;
   void clear_todeviceid();
   const std::string& todeviceid() const;
   void set_todeviceid(const std::string& value);
@@ -1174,7 +1157,7 @@ class MessageToTunnelbrokerStruct PROTOBUF_FINAL :
   std::string* _internal_mutable_todeviceid();
   public:
 
-  // string payload = 3;
+  // string payload = 2;
   void clear_payload();
   const std::string& payload() const;
   void set_payload(const std::string& value);
@@ -1198,7 +1181,6 @@ class MessageToTunnelbrokerStruct PROTOBUF_FINAL :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> blobhashes_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr messageid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr todeviceid_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr payload_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -2804,68 +2786,7 @@ ProcessedMessages::mutable_messageid() {
 
 // MessageToTunnelbrokerStruct
 
-// string messageID = 1;
-inline void MessageToTunnelbrokerStruct::clear_messageid() {
-  messageid_.ClearToEmpty();
-}
-inline const std::string& MessageToTunnelbrokerStruct::messageid() const {
-  // @@protoc_insertion_point(field_get:tunnelbroker.MessageToTunnelbrokerStruct.messageID)
-  return _internal_messageid();
-}
-inline void MessageToTunnelbrokerStruct::set_messageid(const std::string& value) {
-  _internal_set_messageid(value);
-  // @@protoc_insertion_point(field_set:tunnelbroker.MessageToTunnelbrokerStruct.messageID)
-}
-inline std::string* MessageToTunnelbrokerStruct::mutable_messageid() {
-  // @@protoc_insertion_point(field_mutable:tunnelbroker.MessageToTunnelbrokerStruct.messageID)
-  return _internal_mutable_messageid();
-}
-inline const std::string& MessageToTunnelbrokerStruct::_internal_messageid() const {
-  return messageid_.Get();
-}
-inline void MessageToTunnelbrokerStruct::_internal_set_messageid(const std::string& value) {
-  
-  messageid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
-}
-inline void MessageToTunnelbrokerStruct::set_messageid(std::string&& value) {
-  
-  messageid_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:tunnelbroker.MessageToTunnelbrokerStruct.messageID)
-}
-inline void MessageToTunnelbrokerStruct::set_messageid(const char* value) {
-  GOOGLE_DCHECK(value != nullptr);
-  
-  messageid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:tunnelbroker.MessageToTunnelbrokerStruct.messageID)
-}
-inline void MessageToTunnelbrokerStruct::set_messageid(const char* value,
-    size_t size) {
-  
-  messageid_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:tunnelbroker.MessageToTunnelbrokerStruct.messageID)
-}
-inline std::string* MessageToTunnelbrokerStruct::_internal_mutable_messageid() {
-  
-  return messageid_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
-}
-inline std::string* MessageToTunnelbrokerStruct::release_messageid() {
-  // @@protoc_insertion_point(field_release:tunnelbroker.MessageToTunnelbrokerStruct.messageID)
-  return messageid_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
-}
-inline void MessageToTunnelbrokerStruct::set_allocated_messageid(std::string* messageid) {
-  if (messageid != nullptr) {
-    
-  } else {
-    
-  }
-  messageid_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), messageid,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:tunnelbroker.MessageToTunnelbrokerStruct.messageID)
-}
-
-// string toDeviceID = 2;
+// string toDeviceID = 1;
 inline void MessageToTunnelbrokerStruct::clear_todeviceid() {
   todeviceid_.ClearToEmpty();
 }
@@ -2926,7 +2847,7 @@ inline void MessageToTunnelbrokerStruct::set_allocated_todeviceid(std::string* t
   // @@protoc_insertion_point(field_set_allocated:tunnelbroker.MessageToTunnelbrokerStruct.toDeviceID)
 }
 
-// string payload = 3;
+// string payload = 2;
 inline void MessageToTunnelbrokerStruct::clear_payload() {
   payload_.ClearToEmpty();
 }
@@ -2987,7 +2908,7 @@ inline void MessageToTunnelbrokerStruct::set_allocated_payload(std::string* payl
   // @@protoc_insertion_point(field_set_allocated:tunnelbroker.MessageToTunnelbrokerStruct.payload)
 }
 
-// repeated string blobHashes = 4;
+// repeated string blobHashes = 3;
 inline int MessageToTunnelbrokerStruct::_internal_blobhashes_size() const {
   return blobhashes_.size();
 }

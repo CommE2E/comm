@@ -49,10 +49,9 @@ message ProcessedMessages {
 // The messages from the Client to the Tunnelbroker
 
 message MessageToTunnelbrokerStruct {
-  string messageID = 1;
-  string toDeviceID = 2;
-  string payload = 3;
-  repeated string blobHashes = 4;
+  string toDeviceID = 1;
+  string payload = 2;
+  repeated string blobHashes = 3;
 }
 
 message MessagesToSend {
