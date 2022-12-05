@@ -24,6 +24,7 @@ import type {
   OverlayNavigationProp,
   OverlayNavigationHelpers,
 } from './overlay-navigator.react';
+import PolicyAcknowledgmentHandler from './policy-acknowledgment-handler.react';
 import type { RootNavigationProp } from './root-navigator.react';
 import {
   TabNavigatorRouteName,
@@ -134,6 +135,9 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
         />
       </App.Navigator>
       {pushHandler}
+      <PersistGate persistor={getPersistor()}>
+        <PolicyAcknowledgmentHandler />
+      </PersistGate>
     </KeyboardStateContainer>
   );
 }
