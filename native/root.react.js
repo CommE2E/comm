@@ -236,6 +236,7 @@ function Root() {
         ref={containerRef}
       >
         <RootNavigator />
+        <NavigationHandler />
       </NavigationContainer>
     );
   }
@@ -262,7 +263,6 @@ function Root() {
                         />
                       </PersistedStateGate>
                       {navigation}
-                      <NavigationHandler />
                     </ChatContextProvider>
                   </MarkdownContextProvider>
                 </ActionSheetProvider>
