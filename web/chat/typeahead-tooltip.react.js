@@ -7,14 +7,16 @@ import SearchIndex from 'lib/shared/search-index';
 import { threadOtherMembers } from 'lib/shared/thread-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
-import Button from '../components/button.react';
 import type { InputState } from '../input/input-state';
 import { type TypeaheadMatchedStrings } from './chat-input-bar.react';
 import css from './typeahead-tooltip.css';
 import {
+  getTypeaheadOverlayScroll,
   getTypeaheadTooltipActions,
+  getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
   getTypeaheadUserSuggestions,
+  getTypeaheadChosenActionPosition,
 } from './typeahead-utils';
 
 export type TypeaheadTooltipProps = {
@@ -35,13 +37,6 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     viewerID,
     matchedStrings,
   } = props;
-  const [isVisible, setIsVisible] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsVisible(true);
-
-    return () => setIsVisible(false);
-  }, [setIsVisible]);
 
   const {
     entireText: matchedText,
@@ -51,28 +46,37 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
 
   const typedPrefix = matchedUsernamePrefix ?? '';
 
-  const suggestedUsers = React.useMemo(
-    () =>
-      getTypeaheadUserSuggestions(
-        userSearchIndex,
-        threadOtherMembers(threadMembers, viewerID),
-        typedPrefix,
-      ),
-    [userSearchIndex, threadMembers, viewerID, typedPrefix],
-  );
+  const [animation, setAnimation] = React.useState(false);
+  const overlayRef = React.useRef<?HTMLDivElement>();
+
+  React.useEffect(() => {
+    setAnimation(true);
+
+    return () => setAnimation(false);
+  }, [setAnimation]);
+
+  const suggestedUsers = React.useMemo(() => {
+    return getTypeaheadUserSuggestions(
+      userSearchIndex,
+      threadOtherMembers(threadMembers, viewerID),
+      typedPrefix,
+    );
+  }, [userSearchIndex, threadMembers, viewerID, typedPrefix]);
 
   const actions = React.useMemo(
     () =>
       getTypeaheadTooltipActions(
-        inputState,
-        textarea,
+        inputState.draft,
+        inputState.setDraft,
+        inputState.setTextCursorPosition,
         suggestedUsers,
         matchedTextBeforeAtSymbol,
         matchedText,
       ),
     [
-      inputState,
-      textarea,
+      inputState.draft,
+      inputState.setDraft,
+      inputState.setTextCursorPosition,
       suggestedUsers,
       matchedTextBeforeAtSymbol,
       matchedText,
@@ -97,25 +101,80 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     [tooltipPosition],
   );
 
+  const chosenActionPosition = React.useMemo(
+    () =>
+      getTypeaheadChosenActionPosition(
+        inputState.typeaheadState.chosenButtonNumber,
+        actions.length,
+      ),
+    [inputState.typeaheadState.chosenButtonNumber, actions.length],
+  );
+
   const tooltipButtons = React.useMemo(() => {
-    return actions.map(({ key, onClick, actionButtonContent }) => (
-      <Button key={key} onClick={onClick} className={css.suggestion}>
-        <span>@{actionButtonContent}</span>
-      </Button>
-    ));
-  }, [actions]);
+    return getTypeaheadTooltipButtons(
+      inputState.setTypeaheadState,
+      actions,
+      chosenActionPosition,
+    );
+  }, [inputState.setTypeaheadState, actions, chosenActionPosition]);
+
+  const close = React.useCallback(() => {
+    const setter = inputState.setTypeaheadState;
+    setter({
+      isVisible: false,
+      chosenButtonNumber: 0,
+      close: null,
+      accept: null,
+    });
+  }, [inputState.setTypeaheadState]);
+
+  const accept = React.useCallback(() => {
+    actions[chosenActionPosition].onClick();
+  }, [actions, chosenActionPosition]);
+
+  React.useEffect(() => {
+    const setter = inputState.setTypeaheadState;
+    setter({
+      close: close,
+      accept: accept,
+    });
+  }, [close, accept, inputState.setTypeaheadState]);
+
+  React.useEffect(() => {
+    const current = overlayRef.current;
+    if (current) {
+      current.scrollTop = getTypeaheadOverlayScroll(
+        current.scrollTop,
+        chosenActionPosition,
+      );
+    }
+  }, [chosenActionPosition]);
+
+  React.useEffect(() => {
+    const current = overlayRef.current;
+    if (current) {
+      current.scrollTop = getTypeaheadOverlayScroll(
+        current.scrollTop,
+        chosenActionPosition,
+      );
+    }
+  }, [chosenActionPosition]);
+
+  const overlayClasses = classNames(css.suggestionsContainer, {
+    [css.notVisible]: !animation,
+    [css.visible]: animation,
+  });
 
   if (!actions || actions.length === 0) {
     return null;
   }
 
-  const overlayClasses = classNames(css.suggestionsContainer, {
-    [css.notVisible]: !isVisible,
-    [css.visible]: isVisible,
-  });
-
   return (
-    <div className={overlayClasses} style={tooltipPositionStyle}>
+    <div
+      ref={overlayRef}
+      className={overlayClasses}
+      style={tooltipPositionStyle}
+    >
       {tooltipButtons}
     </div>
   );

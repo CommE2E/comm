@@ -53,7 +53,7 @@
   white-space: nowrap;
 }
 
-.suggestion:hover {
+.suggestionHover {
   background-color: var(--typeahead-overlay-light);
 }
 

@@ -110,6 +110,17 @@ class ChatInputBar extends React.PureComponent<Props> {
     if (inputState.draft !== prevInputState.draft) {
       this.updateHeight();
     }
+
+    if (
+      inputState.draft !== prevInputState.draft ||
+      inputState.textCursorPosition !== prevInputState.textCursorPosition
+    ) {
+      inputState.setTypeaheadState({
+        isVisible: true,
+        chosenButtonNumber: 0,
+      });
+    }
+
     const curUploadIDs = ChatInputBar.unassignedUploadIDs(
       inputState.pendingUploads,
     );
@@ -330,7 +341,11 @@ class ChatInputBar extends React.PureComponent<Props> {
     }
 
     let typeaheadTooltip;
-    if (this.props.typeaheadMatchedStrings && this.textarea) {
+    if (
+      this.props.typeaheadMatchedStrings &&
+      this.textarea &&
+      this.props.inputState.typeaheadState.isVisible
+    ) {
       typeaheadTooltip = (
         <TypeaheadTooltip
           inputState={this.props.inputState}
@@ -404,9 +419,34 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.send();
+    const accept = this.props.inputState.typeaheadState.accept;
+    const close = this.props.inputState.typeaheadState.close;
+    if (this.props.inputState.typeaheadState.isVisible && accept && close) {
+      if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
+        accept();
+        close();
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        this.props.inputState.setTypeaheadState({
+          chosenButtonNumber:
+            (this.props.inputState.typeaheadState.chosenButtonNumber ?? 0) + 1,
+        });
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        this.props.inputState.setTypeaheadState({
+          chosenButtonNumber:
+            (this.props.inputState.typeaheadState.chosenButtonNumber ?? 0) - 1,
+        });
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        close();
+      }
+    } else {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        this.send();
+      }
     }
   };
 
