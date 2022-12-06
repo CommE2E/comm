@@ -1,5 +1,6 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
@@ -7,16 +8,18 @@ import SearchIndex from 'lib/shared/search-index';
 import { stringForUserExplicit } from 'lib/shared/user-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
+import Button from '../components/button.react';
+import type { TypeaheadState } from '../input/input-state';
+import { typeaheadStyle } from './chat-constants';
+import css from './typeahead-tooltip.css';
+
 const typeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
 );
 
-import { type InputState } from '../input/input-state';
-import { typeaheadStyle } from './chat-constants';
-
 export type TypeaheadTooltipAction = {
   +key: string,
-  +onClick: (SyntheticEvent<HTMLButtonElement>) => mixed,
+  +onClick: () => mixed,
   +actionButtonContent: React.Node,
 };
 
@@ -86,14 +89,26 @@ function getCaretOffsets(
     caretLeftOffset,
   };
 }
+export type getTypeaheadTooltipActionsParams = {
+  inputStateDraft: string,
+  inputStateSetDraft: (draft: string) => void,
+  inputStateSetTextCursorPosition: (newPosition: number) => void,
+  suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
+  matchedTextBeforeAtSymbol: string,
+  matchedText: string,
+};
 
 function getTypeaheadTooltipActions(
-  inputState: InputState,
-  textarea: HTMLTextAreaElement,
-  suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
-  matchedTextBefore: string,
-  matchedText: string,
+  params: getTypeaheadTooltipActionsParams,
 ): $ReadOnlyArray<TypeaheadTooltipAction> {
+  const {
+    inputStateDraft,
+    inputStateSetDraft,
+    inputStateSetTextCursorPosition,
+    suggestedUsers,
+    matchedTextBeforeAtSymbol,
+    matchedText,
+  } = params;
   return suggestedUsers
     .filter(
       suggestedUser => stringForUserExplicit(suggestedUser) !== 'anonymous',
@@ -101,9 +116,9 @@ function getTypeaheadTooltipActions(
     .map(suggestedUser => ({
       key: suggestedUser.id,
       onClick: () => {
-        const newPrefixText = matchedTextBefore;
+        const newPrefixText = matchedTextBeforeAtSymbol;
 
-        let newSuffixText = inputState.draft.slice(matchedText.length);
+        let newSuffixText = inputStateDraft.slice(matchedText.length);
         newSuffixText = (newSuffixText[0] !== ' ' ? ' ' : '') + newSuffixText;
 
         const newText =
@@ -112,14 +127,71 @@ function getTypeaheadTooltipActions(
           stringForUserExplicit(suggestedUser) +
           newSuffixText;
 
-        inputState.setDraft(newText);
-        inputState.setTextCursorPosition(
+        inputStateSetDraft(newText);
+        inputStateSetTextCursorPosition(
           newText.length - newSuffixText.length + 1,
         );
       },
       actionButtonContent: stringForUserExplicit(suggestedUser),
     }));
 }
+
+function getTypeaheadTooltipButtons(
+  inputStateSetTypeaheadState: ($Shape<TypeaheadState>) => void,
+  actions: $ReadOnlyArray<TypeaheadTooltipAction>,
+  chosenActionPosition: number,
+): $ReadOnlyArray<React.Node> {
+  return actions.map(({ key, onClick, actionButtonContent }, idx) => {
+    const buttonClasses = classNames(css.suggestion, {
+      [css.suggestionHover]: idx === chosenActionPosition,
+    });
+
+    const onMouseMove: (
+      event: SyntheticEvent<HTMLButtonElement>,
+    ) => mixed = () => {
+      inputStateSetTypeaheadState({
+        chosenButtonNumber: idx,
+      });
+    };
+
+    return (
+      <Button
+        key={key}
+        onClick={onClick}
+        onMouseMove={onMouseMove}
+        className={buttonClasses}
+      >
+        <span>@{actionButtonContent}</span>
+      </Button>
+    );
+  });
+}
+
+function getTypeaheadOverlayScroll(
+  currentScrollTop: number,
+  chosenActionPosition: number,
+): number {
+  let newScrollTop = currentScrollTop;
+
+  const upperButtonBoundary = chosenActionPosition * typeaheadStyle.rowHeight;
+  const lowerButtonBoundary =
+    (chosenActionPosition + 1) * typeaheadStyle.rowHeight;
+
+  if (upperButtonBoundary < currentScrollTop) {
+    newScrollTop = upperButtonBoundary;
+  } else if (
+    lowerButtonBoundary - typeaheadStyle.tooltipMaxHeight >
+    currentScrollTop
+  ) {
+    newScrollTop =
+      lowerButtonBoundary +
+      typeaheadStyle.tooltipVerticalPadding -
+      typeaheadStyle.tooltipMaxHeight;
+  }
+
+  return newScrollTop;
+}
+
 function getTypeaheadTooltipPosition(
   textarea: HTMLTextAreaElement,
   actionsLength: number,
@@ -150,10 +222,26 @@ function getTypeaheadTooltipPosition(
   return { top, left };
 }
 
+function getTypeaheadChosenActionPosition(
+  chosenButtonNumber: number,
+  actionsLength: number,
+): number {
+  // Getting positive modulo of chosenButtonNumber
+  return (
+    (chosenButtonNumber +
+      Math.abs(Math.floor(chosenButtonNumber / actionsLength)) *
+        actionsLength) %
+    actionsLength
+  );
+}
+
 export {
   typeaheadRegex,
   getTypeaheadUserSuggestions,
   getCaretOffsets,
   getTypeaheadTooltipActions,
+  getTypeaheadTooltipButtons,
+  getTypeaheadOverlayScroll,
   getTypeaheadTooltipPosition,
+  getTypeaheadChosenActionPosition,
 };
