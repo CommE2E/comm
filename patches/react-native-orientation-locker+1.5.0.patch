@@ -1,13 +1,13 @@
 diff --git a/node_modules/react-native-orientation-locker/iOS/RCTOrientation/Orientation.m b/node_modules/react-native-orientation-locker/iOS/RCTOrientation/Orientation.m
-index 78e6fa4..6ff078b 100644
+index 6117764..e8bef37 100644
 --- a/node_modules/react-native-orientation-locker/iOS/RCTOrientation/Orientation.m
 +++ b/node_modules/react-native-orientation-locker/iOS/RCTOrientation/Orientation.m
 @@ -20,7 +20,7 @@ @implementation Orientation
  }
  
  #if (!TARGET_OS_TV)
--static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAll;
-+static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskPortrait;
+-static UIInterfaceOrientationMask _orientationMask = UIInterfaceOrientationMaskAll;
++static UIInterfaceOrientationMask _orientationMask = UIInterfaceOrientationMaskPortrait;
  
- + (void)setOrientation: (UIInterfaceOrientationMask)orientation {
-     
+ + (void)setOrientation: (UIInterfaceOrientationMask)orientationMask {
+     _orientationMask = orientationMask;
