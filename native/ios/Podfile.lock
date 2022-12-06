@@ -386,8 +386,8 @@ PODS:
     - React-Core
   - react-native-notifications (1.1.19):
     - React
-  - react-native-orientation-locker (1.1.6):
-    - React
+  - react-native-orientation-locker (1.5.0):
+    - React-Core
   - react-native-pager-view (6.0.1):
     - React-Core
   - react-native-safe-area-context (3.1.9):
@@ -868,7 +868,7 @@ SPEC CHECKSUMS:
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-netinfo: e849fc21ca2f4128a5726c801a82fc6f4a6db50d
   react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
-  react-native-orientation-locker: 23918c400376a7043e752c639c122fcf6bce8f1c
+  react-native-orientation-locker: 851f6510d8046ea2f14aa169b1e01fcd309a94ba
   react-native-pager-view: 3051346698a0ba0c4e13e40097cc11b00ee03cca
   react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
   react-native-video: 10f689069cb894d75030190a9bc62d9393e1f997
