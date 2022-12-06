@@ -27,31 +27,29 @@ export const buttonThemes: { [string]: ButtonColor } = {
 };
 
 export type ButtonProps = {
-  +onClick: ?(event: SyntheticEvent<HTMLButtonElement>) => mixed,
-  +children: React.Node,
+  ...React.ElementConfig<'button'>,
   +variant?: ButtonVariant,
   +buttonColor?: ButtonColor,
-  +type?: string,
-  +disabled?: boolean,
-  +className?: string,
 };
 
 function Button(props: ButtonProps): React.Node {
   const {
-    onClick,
-    children,
     variant = 'plain',
     buttonColor,
+    children,
     type = 'button',
-    disabled = false,
-    className = '',
+    className,
+    ...buttonProps
   } = props;
 
-  const btnCls = classnames({
-    [css.plain]: true,
-    [css.btn]: variant === 'filled' || variant === 'outline',
-    [css[variant]]: true,
-  });
+  const btnCls = classnames(
+    {
+      [css.plain]: true,
+      [css.btn]: variant === 'filled' || variant === 'outline',
+      [css[variant]]: true,
+    },
+    className,
+  );
 
   let style = {};
   if (buttonColor) {
@@ -70,13 +68,7 @@ function Button(props: ButtonProps): React.Node {
   });
 
   return (
-    <button
-      type={type}
-      className={`${btnCls} ${className}`}
-      onClick={onClick}
-      disabled={disabled}
-      style={style}
-    >
+    <button {...buttonProps} type={type} className={btnCls} style={style}>
       {wrappedChildren}
     </button>
   );
