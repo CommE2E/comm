@@ -312,7 +312,7 @@ function SwipeableMessage(props: Props): React.Node {
   snakes.push(
     <PanGestureHandler
       maxPointers={1}
-      minDist={4}
+      activeOffsetX={[-4, 4]}
       onGestureEvent={swipeEvent}
       failOffsetX={isViewer ? 5 : -5}
       failOffsetY={[-5, 5]}
