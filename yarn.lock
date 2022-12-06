@@ -18601,10 +18601,10 @@ react-native-codegen@^0.70.6:
     jscodeshift "^0.13.1"
     nullthrows "^1.1.1"
 
-react-native-device-info@^8.0.7:
-  version "8.0.7"
-  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-8.0.7.tgz#c04f5dd50a977da21305b99088c0b42b588d07f9"
-  integrity sha512-CSGosqvESXWKTfYa+6gYd3HRQOkJm6C+TSXfaipat4Q0BzUHWWNaS5M5z7x72hg6FRk25rJ4zxSmSCQvizHzzQ==
+react-native-device-info@^10.3.0:
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.3.0.tgz#6bab64d84d3415dd00cc446c73ec5e2e61fddbe7"
+  integrity sha512-/ziZN1sA1REbJTv5mQZ4tXggcTvSbct+u5kCaze8BmN//lbxcTvWsU6NQd4IihLt89VkbX+14IGc9sVApSxd/w==
 
 react-native-exit-app@^1.1.0:
   version "1.1.0"
