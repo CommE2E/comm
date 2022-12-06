@@ -408,8 +408,6 @@ declare module 'react-native-gesture-handler/GestureHandler' {
       maxDurationMs?: number,
       maxDelayMs?: number,
       numberOfTaps?: number,
-      maxDeltaX?: number,
-      maxDeltaY?: number,
       maxDist?: number,
       minPointers?: number,
       ...
@@ -622,6 +620,8 @@ declare module 'react-native-gesture-handler/GestureHandler' {
     ...$Exact<Config>,
     ...
   }>;
+
+  declare export var GestureHandlerRootView: React$ComponentType<{...}>;
 }
 
 declare module 'react-native-gesture-handler' {

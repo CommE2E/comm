@@ -8,7 +8,7 @@ import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, UIManager, View, StyleSheet, LogBox } from 'react-native';
+import { Platform, UIManager, StyleSheet, LogBox } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import {
   SafeAreaProvider,
@@ -16,6 +16,7 @@ import {
 } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/integration/react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { actionLogger } from 'lib/utils/action-logger';
 
@@ -245,7 +246,7 @@ function Root() {
     );
   }
   return (
-    <View style={styles.app}>
+    <GestureHandlerRootView style={styles.app}>
       <StaffContextProvider>
         <NavContext.Provider value={navContext}>
           <RootContext.Provider value={rootContext}>
@@ -275,7 +276,7 @@ function Root() {
           </RootContext.Provider>
         </NavContext.Provider>
       </StaffContextProvider>
-    </View>
+    </GestureHandlerRootView>
   );
 }
 
