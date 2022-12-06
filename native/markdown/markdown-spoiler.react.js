@@ -9,6 +9,7 @@ import type { ReactElement } from 'lib/shared/markdown';
 import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
 import { useStyles } from '../themes/colors';
 import { MarkdownContext } from './markdown-context';
+import { MarkdownSpoilerContext } from './markdown-spoiler-context';
 
 type MarkdownSpoilerProps = {
   +spoilerIdentifier: string | number | void,
@@ -35,7 +36,7 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
     : null;
 
   const isRevealed =
-    (messageKey &&
+    (!!messageKey &&
       parsedSpoilerIdentifier !== null &&
       spoilerRevealed[messageKey]?.[parsedSpoilerIdentifier]) ??
     false;
@@ -46,6 +47,13 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
     }
     return styles.spoilerHidden;
   }, [isRevealed, styles.spoilerHidden]);
+
+  const markdownSpoilerContextValue = React.useMemo(
+    () => ({
+      isRevealed,
+    }),
+    [isRevealed],
+  );
 
   const onSpoilerClick = React.useCallback(() => {
     if (isRevealed) {
@@ -71,11 +79,18 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
 
   const memoizedSpoiler = React.useMemo(() => {
     return (
-      <Text onPress={onSpoilerClick} style={styleBasedOnSpoilerState}>
-        {text}
-      </Text>
+      <MarkdownSpoilerContext.Provider value={markdownSpoilerContextValue}>
+        <Text onPress={onSpoilerClick} style={styleBasedOnSpoilerState}>
+          {text}
+        </Text>
+      </MarkdownSpoilerContext.Provider>
     );
-  }, [onSpoilerClick, styleBasedOnSpoilerState, text]);
+  }, [
+    markdownSpoilerContextValue,
+    onSpoilerClick,
+    styleBasedOnSpoilerState,
+    text,
+  ]);
 
   return memoizedSpoiler;
 }

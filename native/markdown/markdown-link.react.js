@@ -9,6 +9,7 @@ import { normalizeURL } from 'lib/utils/url-utils';
 import { MessagePressResponderContext } from '../chat/message-press-responder-context';
 import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
 import { MarkdownContext, type MarkdownContextType } from './markdown-context';
+import { MarkdownSpoilerContext } from './markdown-spoiler-context';
 
 function useDisplayLinkPrompt(
   inputURL: string,
@@ -56,6 +57,12 @@ function MarkdownLink(props: Props): React.Node {
   const markdownContext = React.useContext(MarkdownContext);
   invariant(markdownContext, 'MarkdownContext should be set');
 
+  const markdownSpoilerContext = React.useContext(MarkdownSpoilerContext);
+  // Since MarkdownSpoilerContext may not be set, we need
+  // to default isRevealed to true for when
+  // we use the ternary operator in the onPress
+  const isRevealed = markdownSpoilerContext?.isRevealed ?? true;
+
   const textMessageMarkdownContext = React.useContext(
     TextMessageMarkdownContext,
   );
@@ -69,7 +76,13 @@ function MarkdownLink(props: Props): React.Node {
 
   const onPressLink = useDisplayLinkPrompt(target, markdownContext, messageKey);
 
-  return <Text onPress={onPressLink} onLongPress={onPressMessage} {...rest} />;
+  return (
+    <Text
+      onPress={isRevealed ? onPressLink : null}
+      onLongPress={isRevealed ? onPressMessage : null}
+      {...rest}
+    />
+  );
 }
 
 export default MarkdownLink;
