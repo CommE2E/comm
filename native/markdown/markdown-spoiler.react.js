@@ -32,10 +32,12 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
 
   const parsedSpoilerIdentifier = spoilerIdentifier
     ? parseInt(spoilerIdentifier)
-    : -1;
+    : null;
 
   const isRevealed =
-    (messageKey && spoilerRevealed[messageKey]?.[parsedSpoilerIdentifier]) ??
+    (messageKey &&
+      parsedSpoilerIdentifier !== null &&
+      spoilerRevealed[messageKey]?.[parsedSpoilerIdentifier]) ??
     false;
 
   const styleBasedOnSpoilerState = React.useMemo(() => {
@@ -50,7 +52,7 @@ function MarkdownSpoiler(props: MarkdownSpoilerProps): React.Node {
       return;
     }
 
-    if (messageKey && parsedSpoilerIdentifier !== -1) {
+    if (messageKey && parsedSpoilerIdentifier !== null) {
       setSpoilerRevealed({
         ...spoilerRevealed,
         [messageKey]: {
