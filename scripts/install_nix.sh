@@ -41,8 +41,13 @@ add_if_missing_in_nix_conf() {
       "Appending '${key} = ${value}' to /etc/nix/nix.conf"
 
     # Make sure that user can write to file
-    if sudo test -w /etc/nix/nix.conf; then
-      echo "${key} = ${value}" | sudo tee -a /etc/nix/nix.conf &> /dev/null
+    local useSudo=
+    if [[ $UID != "0" ]]; then
+      useSudo=1
+    fi
+
+    if ${useSudo:+sudo} test -w /etc/nix/nix.conf; then
+      echo "${key} = ${value}" | ${useSudo:+sudo} tee -a /etc/nix/nix.conf &> /dev/null
     else
       # nix.conf is read only, which is true for NixOS
       echo "Unable to write '${key} = ${value}' to nix.conf, " \
@@ -62,16 +67,21 @@ append_value_in_nix_conf() {
     return $?
   fi
 
+  local useSudo=
+  if [[ $UID != "0" ]]; then
+    useSudo=1
+  fi
+
   # Check that key does not already contain the desired value
   if ! grep "$key" /etc/nix/nix.conf | grep "$value" &> /dev/null; then
     echo "/etc/nix/nix.conf is missing '${value}' for '${key}'. " \
       "Appending '${value}' to '${key}' in /etc/nix/nix.conf"
 
     # Make sure that user can write to file
-    if sudo test -w /etc/nix/nix.conf; then
+    if ${useSudo:+sudo} test -w /etc/nix/nix.conf; then
       # Find the line with the related setting, then append the new value
       # Values for nix.conf are space separated
-      sudo sed -i.bak  -e "/$key/s|\$| $value|" /etc/nix/nix.conf
+      ${useSudo:+sudo} sed -i.bak  -e "/$key/s|\$| $value|" /etc/nix/nix.conf
     else
       # nix.conf is read only, which is true for NixOS
       echo "Unable to write to nix.conf, please append '$value' to '$key'" \
