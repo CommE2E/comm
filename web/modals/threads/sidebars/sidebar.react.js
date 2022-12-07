@@ -1,5 +1,5 @@
 // @flow
-
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react';
@@ -21,6 +21,7 @@ type Props = {
 function Sidebar(props: Props): React.Node {
   const { sidebar, isLastItem } = props;
   const { threadInfo, lastUpdatedTime, mostRecentMessageInfo } = sidebar;
+  const { unread } = threadInfo.currentUser;
 
   const timeZone = useSelector(state => state.timeZone);
   const { popModal } = useModalContext();
@@ -34,6 +35,11 @@ function Sidebar(props: Props): React.Node {
     },
     [popModal, navigateToThread],
   );
+
+  const sidebarInfoClassName = classNames({
+    [css.sidebarInfo]: true,
+    [css.unread]: unread,
+  });
 
   const lastActivity = React.useMemo(
     () => shortAbsoluteDate(lastUpdatedTime, timeZone),
@@ -69,7 +75,7 @@ function Sidebar(props: Props): React.Node {
         }
         alt="sidebar arrow"
       />
-      <div className={css.sidebarInfo}>
+      <div className={sidebarInfoClassName}>
         <div className={css.longTextEllipsis}>{threadInfo.uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>
       </div>
