@@ -192,6 +192,10 @@ async function createThread(
     validateMembers: { initialMemberIDs, ghostMemberIDs },
   } = await promiseAll(checkPromises);
 
+  if (sourceMessage && sourceMessage.type === messageTypes.REACTION) {
+    throw new ServerError('invalid_parameters');
+  }
+
   let { id } = request;
   if (id === null || id === undefined) {
     const ids = await createIDs('threads', 1);

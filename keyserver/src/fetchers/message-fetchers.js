@@ -681,8 +681,9 @@ async function fetchDerivedMessages(
     const { rawMessageInfo } = message;
     if (rawMessageInfo.id) {
       invariant(
-        rawMessageInfo.type !== messageTypes.SIDEBAR_SOURCE,
-        'SIDEBAR_SOURCE should not point to a SIDEBAR_SOURCE',
+        rawMessageInfo.type !== messageTypes.SIDEBAR_SOURCE &&
+          rawMessageInfo.type !== messageTypes.REACTION,
+        'SIDEBAR_SOURCE should not point to a SIDEBAR_SOURCE or REACTION',
       );
       messagesByID.set(rawMessageInfo.id, rawMessageInfo);
     }
