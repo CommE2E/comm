@@ -10,7 +10,6 @@ import { clearThreadsActionType } from '../navigation/action-types';
 import { useActiveThread } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import {
-  getStateFromNavigatorRoute,
   getThreadIDFromRoute,
   getChildRouteFromNavigatorRoute,
 } from '../navigation/navigation-utils';
@@ -45,11 +44,17 @@ const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}>(
         appRoute,
         TabNavigatorRouteName,
       );
+      if (!tabRoute) {
+        return null;
+      }
       const chatRoute = getChildRouteFromNavigatorRoute(
         tabRoute,
         ChatRouteName,
       );
-      return getStateFromNavigatorRoute(chatRoute);
+      if (!chatRoute?.state) {
+        return null;
+      }
+      return chatRoute.state;
     }, [navContext]);
 
     const inStackThreadIDs = React.useMemo(() => {
