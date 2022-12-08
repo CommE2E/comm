@@ -117,6 +117,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       `);
     },
   ],
+  [
+    12,
+    async () => {
+      moveToNonApacheConfig('facts/squalcal_url.json', '/');
+      moveToNonApacheConfig('facts/commapp_url.json', '/comm/');
+      moveToNonApacheConfig('facts/landing.json', '/commlanding/');
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
@@ -172,6 +180,24 @@ async function fixBaseRoutePathForLocalhost(filePath: string): Promise<void> {
   console.warn(`updating ${filePath} to ${JSON.stringify(json)}`);
   const writeFile = await fs.promises.open(filePath, 'w');
   await writeFile.writeFile(JSON.stringify(json, null, '  '), 'utf8');
+  await writeFile.close();
+}
+
+async function moveToNonApacheConfig(
+  filePath: string,
+  routePath: string,
+): Promise<void> {
+  // Since the non-apache config is so opionated, just write expected config
+  const newJSON = {
+    baseDomain: 'http://localhost:3000',
+    basePath: routePath,
+    baseRoutePath: routePath,
+    https: false,
+    proxy: 'none',
+  };
+  console.warn(`updating ${filePath} to ${JSON.stringify(newJSON)}`);
+  const writeFile = await fs.promises.open(filePath, 'w');
+  await writeFile.writeFile(JSON.stringify(newJSON, null, '  '), 'utf8');
   await writeFile.close();
 }
 
