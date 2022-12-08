@@ -152,8 +152,11 @@ function validNavState(state: PossiblyStaleNavigationState): boolean {
 function getChildRouteFromNavigatorRoute(
   parentRoute: PossiblyStaleRoute<>,
   childRouteName: string,
-): PossiblyStaleRoute<> {
-  const parentState = getStateFromNavigatorRoute(parentRoute);
+): ?PossiblyStaleRoute<> {
+  if (!parentRoute.state) {
+    return null;
+  }
+  const parentState = parentRoute.state;
   const childRoute = parentState.routes.find(
     route => route.name === childRouteName,
   );
