@@ -7,6 +7,7 @@ import Animated from 'react-native-reanimated';
 import { colorIsDark } from 'lib/shared/thread-utils';
 
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
+import { MarkdownContext } from '../markdown/markdown-context';
 import Markdown from '../markdown/markdown.react';
 import { useSelector } from '../redux/redux-utils';
 import { useColors, colors } from '../themes/colors';
@@ -99,36 +100,18 @@ function InnerTextMessage(props: Props): React.Node {
     return [styles.text, textStyle];
   }, [darkColor]);
 
-  // If we need to render a Text with an onPress prop inside, we're going to
-  // have an issue: the GestureTouchableOpacity below will trigger too when the
-  // the onPress is pressed. We have to use a GestureTouchableOpacity in order
-  // for the message touch gesture to play nice with the message swipe gesture,
-  // so we need to find a way to disable the GestureTouchableOpacity.
-  //
-  // Our solution is to keep using the GestureTouchableOpacity for the padding
-  // around the text, and to have the Texts inside ALL implement an onPress prop
-  // that will default to the message touch gesture. Luckily, Text with onPress
-  // plays nice with the message swipe gesture.
-  let secondMessage;
-  if (textMessageMarkdown.markdownHasPressable) {
-    secondMessage = (
-      <View
-        style={[StyleSheet.absoluteFill, styles.message]}
-        pointerEvents="box-none"
-      >
-        <Markdown style={markdownStyles} rules={rules}>
-          {text}
-        </Markdown>
-      </View>
-    );
-  }
+  //eslint-disable-next-line no-unused-vars
+  const markdownContext = React.useContext(MarkdownContext);
+  const innerMessagePress = () => {
+    props.onPress();
+  };
 
   const message = (
     <TextMessageMarkdownContext.Provider value={textMessageMarkdown}>
       <TouchableWithoutFeedback>
         <View>
           <GestureTouchableOpacity
-            onPress={props.onPress}
+            onPress={innerMessagePress}
             onLongPress={props.onPress}
             activeOpacity={0.6}
             style={[styles.message, cornerStyle]}
@@ -138,7 +121,6 @@ function InnerTextMessage(props: Props): React.Node {
               {text}
             </Markdown>
           </GestureTouchableOpacity>
-          {secondMessage}
         </View>
       </TouchableWithoutFeedback>
     </TextMessageMarkdownContext.Provider>
