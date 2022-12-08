@@ -57,8 +57,8 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
           ALTER TABLE users
             DROP COLUMN IF EXISTS public_key,
             MODIFY hash char(60) COLLATE utf8mb4_bin DEFAULT NULL;
-    
-          ALTER TABLE sessions 
+
+          ALTER TABLE sessions
             DROP COLUMN IF EXISTS public_key;
         `,
         { multipleStatements: true },
@@ -110,11 +110,19 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
     async () => {
       const time = Date.now();
       await dbQuery(SQL`
-        INSERT IGNORE INTO policy_acknowledgments (policy, user, date, 
+        INSERT IGNORE INTO policy_acknowledgments (policy, user, date,
           confirmed)
         SELECT ${policyTypes.tosAndPrivacyPolicy}, id, ${time}, 1
         FROM users
       `);
+    },
+  ],
+  [
+    12,
+    async () => {
+      moveToNonApacheConfig('facts/squadcal_url.json', '/', 'apache');
+      moveToNonApacheConfig('facts/commapp_url.json', '/comm/', 'none');
+      moveToNonApacheConfig('facts/landing_url.json', '/commlanding/', 'none');
     },
   ],
 ]);
@@ -172,6 +180,31 @@ async function fixBaseRoutePathForLocalhost(filePath: string): Promise<void> {
   console.warn(`updating ${filePath} to ${JSON.stringify(json)}`);
   const writeFile = await fs.promises.open(filePath, 'w');
   await writeFile.writeFile(JSON.stringify(json, null, '  '), 'utf8');
+  await writeFile.close();
+}
+
+async function moveToNonApacheConfig(
+  filePath: string,
+  routePath: string,
+  proxy: string,
+): Promise<void> {
+  if (process.env.COMM_DATABASE_HOST) {
+    console.warn(
+      `production environment has been detected, avoid updating ${filePath}`,
+    );
+    return;
+  }
+  // Since the non-apache config is so opionated, just write expected config
+  const newJSON = {
+    baseDomain: 'http://localhost:3000',
+    basePath: routePath,
+    baseRoutePath: routePath,
+    https: false,
+    proxy: proxy,
+  };
+  console.warn(`updating ${filePath} to ${JSON.stringify(newJSON)}`);
+  const writeFile = await fs.promises.open(filePath, 'w');
+  await writeFile.writeFile(JSON.stringify(newJSON, null, '  '), 'utf8');
   await writeFile.close();
 }
 
