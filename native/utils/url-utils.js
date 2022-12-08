@@ -26,11 +26,11 @@ function getDevServerHostname(): string {
 }
 
 function getDevNodeServerURLFromHostname(hostname: string): string {
-  return `http://${hostname}/comm`;
+  return `http://${hostname}:3000/comm`;
 }
 
 function getDevLandingURLFromHostname(hostname: string): string {
-  return `http://${hostname}/commlanding`;
+  return `http://${hostname}:3000/commlanding`;
 }
 
 function getDevNodeServerURL(): string {

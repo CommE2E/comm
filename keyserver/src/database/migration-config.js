@@ -129,8 +129,25 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       `);
     },
   ],
+  [
+    13,
+    async () => {
+      await Promise.all([
+        writeSquadCalRoute('facts/squadcal_url.json'),
+        moveToNonApacheConfig('facts/commapp_url.json', '/comm/'),
+        moveToNonApacheConfig('facts/landing_url.json', '/commlanding/'),
+      ]);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
+
+async function writeJSONToFile(data: any, filePath: string): Promise<void> {
+  console.warn(`updating ${filePath} to ${JSON.stringify(data)}`);
+  const fileHandle = await fs.promises.open(filePath, 'w');
+  await fileHandle.writeFile(JSON.stringify(data, null, '  '), 'utf8');
+  await fileHandle.close();
+}
 
 async function makeSureBaseRoutePathExists(filePath: string): Promise<void> {
   let readFile, json;
@@ -158,9 +175,7 @@ async function makeSureBaseRoutePathExists(filePath: string): Promise<void> {
   }
   const newJSON = { ...json, baseRoutePath };
   console.warn(`updating ${filePath} to ${JSON.stringify(newJSON)}`);
-  const writeFile = await fs.promises.open(filePath, 'w');
-  await writeFile.writeFile(JSON.stringify(newJSON, null, '  '), 'utf8');
-  await writeFile.close();
+  await writeJSONToFile(newJSON, filePath);
 }
 
 async function fixBaseRoutePathForLocalhost(filePath: string): Promise<void> {
@@ -182,9 +197,42 @@ async function fixBaseRoutePathForLocalhost(filePath: string): Promise<void> {
   const baseRoutePath = '/';
   json = { ...json, baseRoutePath };
   console.warn(`updating ${filePath} to ${JSON.stringify(json)}`);
-  const writeFile = await fs.promises.open(filePath, 'w');
-  await writeFile.writeFile(JSON.stringify(json, null, '  '), 'utf8');
-  await writeFile.close();
+  await writeJSONToFile(json, filePath);
+}
+
+async function moveToNonApacheConfig(
+  filePath: string,
+  routePath: string,
+): Promise<void> {
+  if (process.env.COMM_DATABASE_HOST) {
+    return;
+  }
+  // Since the non-Apache config is so opinionated, just write expected config
+  const newJSON = {
+    baseDomain: 'http://localhost:3000',
+    basePath: routePath,
+    baseRoutePath: routePath,
+    https: false,
+    proxy: 'none',
+  };
+
+  await writeJSONToFile(newJSON, filePath);
+}
+
+async function writeSquadCalRoute(filePath: string): Promise<void> {
+  if (process.env.COMM_DATABASE_HOST) {
+    return;
+  }
+  // Since the non-Apache config is so opinionated, just write expected config
+  const newJSON = {
+    baseDomain: 'http://localhost:3000',
+    basePath: '/comm/',
+    baseRoutePath: '/',
+    https: false,
+    proxy: 'apache',
+  };
+
+  await writeJSONToFile(newJSON, filePath);
 }
 
 export { migrations, newDatabaseVersion };
