@@ -94,9 +94,9 @@ async function createAccount(
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
   const [id] = await createIDs('users', 1);
-  const newUserRow = [id, request.username, hash, time];
+  const newUserRow = [id, request.username, hash, time, request.address];
   const newUserQuery = SQL`
-    INSERT INTO users(id, username, hash, creation_time)
+    INSERT INTO users(id, username, hash, creation_time, ethereum_address)
     VALUES ${[newUserRow]}
   `;
   const [userViewerData] = await Promise.all([
@@ -178,8 +178,10 @@ async function createAccount(
 
   return {
     id,
+    isNewAccount: true,
     rawMessageInfos,
     currentUserInfo,
+    serverTime: Date.now(),
     cookieChange: {
       threadInfos: threadsResult.threadInfos,
       userInfos: values(userInfos),
