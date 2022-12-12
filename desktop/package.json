@@ -30,6 +30,7 @@
     "@babel/preset-env": "^7.13.12",
     "@electron-forge/cli": "^6.0.4",
     "@electron-forge/maker-dmg": "^6.0.4",
+    "@electron-forge/maker-squirrel": "^6.0.4",
     "@electron-forge/plugin-base": "^6.0.4",
     "electron": "^22.0.0",
     "fs-extra": "^10.1.0",

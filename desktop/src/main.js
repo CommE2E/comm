@@ -85,6 +85,11 @@ const createMainWindow = () => {
     minHeight: 600,
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 20, y: 24 },
+    titleBarOverlay: {
+      color: '#0A0A0A',
+      symbolColor: '#FFFFFF',
+      height: 64,
+    },
     backgroundColor: '#0A0A0A',
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
@@ -129,7 +134,9 @@ const createMainWindow = () => {
   });
 
   ipcMain.on('set-badge', (event, value) => {
-    app.dock.setBadge(value?.toString() ?? '');
+    if (isMac) {
+      app.dock.setBadge(value?.toString() ?? '');
+    }
   });
 
   win.webContents.setWindowOpenHandler(({ url: openURL }) => {

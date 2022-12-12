@@ -90,6 +90,13 @@ module.exports = {
         ],
       },
     },
+    {
+      name: '@electron-forge/maker-squirrel',
+      config: {
+        authors: 'WIP',
+        description: 'WIP',
+      },
+    },
   ],
   plugins: [new BabelPlugin()],
   hooks: {
