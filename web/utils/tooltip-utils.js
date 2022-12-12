@@ -9,7 +9,7 @@ import {
   threadHasPermission,
   useSidebarExistsOrCanBeCreated,
 } from 'lib/shared/thread-utils';
-import { isComposableMessageType } from 'lib/types/message-types';
+import { isComposableMessageType, messageTypes } from 'lib/types/message-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { longAbsoluteDate } from 'lib/utils/date-utils';
@@ -409,16 +409,37 @@ function useMessageTooltipReplyAction(
   }, [addReply, item.messageInfo.type, messageInfo, threadInfo]);
 }
 
+function useMessageCopyAction(
+  item: ChatMessageInfoItem,
+): ?MessageTooltipAction {
+  const { messageInfo } = item;
+  return React.useMemo(() => {
+    if (messageInfo.type !== messageTypes.TEXT) {
+      return null;
+    }
+    const buttonContent = <CommIcon icon="copy-filled" size={18} />;
+    const onClick = async () => {
+      await navigator.clipboard.writeText(messageInfo.text);
+    };
+    return {
+      actionButtonContent: buttonContent,
+      onClick,
+      label: 'Copy',
+    };
+  }, [messageInfo]);
+}
+
 function useMessageTooltipActions(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
 ): $ReadOnlyArray<MessageTooltipAction> {
   const sidebarAction = useMessageTooltipSidebarAction(item, threadInfo);
   const replyAction = useMessageTooltipReplyAction(item, threadInfo);
-  return React.useMemo(() => [replyAction, sidebarAction].filter(Boolean), [
-    replyAction,
-    sidebarAction,
-  ]);
+  const copyAction = useMessageCopyAction(item);
+  return React.useMemo(
+    () => [replyAction, sidebarAction, copyAction].filter(Boolean),
+    [replyAction, sidebarAction, copyAction],
+  );
 }
 
 type UseMessageTooltipArgs = {
