@@ -38,10 +38,9 @@ function FriendListModal(props: Props): React.Node {
   const { onClose } = props;
 
   const { pushModal } = useModalContext();
-  const openNewFriendsModal = React.useCallback(
-    () => pushModal(<AddFriendsModal onClose={onClose} />),
-    [onClose, pushModal],
-  );
+  const openNewFriendsModal = React.useCallback(() => {
+    pushModal(<AddFriendsModal onClose={onClose} />);
+  }, [onClose, pushModal]);
 
   return (
     <UserListModal

@@ -12,7 +12,10 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import Switch from 'react-switch';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
+import {
+  useModalContext,
+  type PushModal,
+} from 'lib/components/modal-provider.react';
 import {
   filteredThreadIDsSelector,
   includeDeletedSelector,
@@ -42,7 +45,7 @@ type Props = {
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: PushModal,
 };
 type State = {
   +query: string,
