@@ -2,12 +2,16 @@ steps:
   - label: ':robot_face: Android Build'
     command:
       - 'curl https://sh.rustup.rs -sSf | sh -s -- -y'
-      - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
+      - 'source /root/.cargo/env'
+      - 'rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android'
+      - 'apt update && apt install -y protobuf-compiler protobuf-compiler-grpc'
+      - 'yarn cleaninstall --frozen-lockfile --skip-optional'
       - 'cd native/android'
-      - './gradlew bundleRelease --no-daemon "-Dorg.gradle.jvmargs=-Xmx32g -XX:MaxPermSize=32g -XX:+HeapDumpOnOutOfMemoryError"'
+      - './gradlew clean && ./gradlew bundleRelease --no-daemon "-Dorg.gradle.jvmargs=-Xmx32g -XX:MaxPermSize=32g -XX:+HeapDumpOnOutOfMemoryError"'
     plugins:
       - docker#v3.13.0:
           image: 'reactnativecommunity/react-native-android:latest'
+          shell: ['/bin/bash', '-e', '-c']
           environment:
             - 'BUILDKITE=true'
     agents:
