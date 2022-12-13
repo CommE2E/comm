@@ -28,7 +28,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: (modal: React.Node) => string,
 };
 
 class Multimedia extends React.PureComponent<Props> {

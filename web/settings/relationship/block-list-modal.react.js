@@ -29,10 +29,9 @@ function BlockListModal(props: Props): React.Node {
   const { onClose } = props;
 
   const { pushModal } = useModalContext();
-  const openBlockUsersModal = React.useCallback(
-    () => pushModal(<BlockUsersModal onClose={onClose} />),
-    [onClose, pushModal],
-  );
+  const openBlockUsersModal = React.useCallback(() => {
+    pushModal(<BlockUsersModal onClose={onClose} />);
+  }, [onClose, pushModal]);
 
   return (
     <UserListModal
