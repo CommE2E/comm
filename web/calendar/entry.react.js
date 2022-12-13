@@ -68,7 +68,7 @@ type Props = {
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: (modal: React.Node) => string,
   +popModal: () => void,
 };
 type State = {

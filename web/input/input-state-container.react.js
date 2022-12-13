@@ -110,7 +110,7 @@ type Props = {
     text: string,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: (modal: React.Node) => string,
   +sendCallbacks: $ReadOnlyArray<() => mixed>,
   +registerSendCallback: (() => mixed) => void,
   +unregisterSendCallback: (() => mixed) => void,

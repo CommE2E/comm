@@ -45,7 +45,7 @@ type Props = {
   +nextLocalID: number,
   +timeZone: ?string,
   +dispatch: Dispatch,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: (modal: React.Node) => string,
   +popModal: () => void,
 };
 type State = {
