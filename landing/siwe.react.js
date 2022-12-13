@@ -52,7 +52,10 @@ function createSiweMessage(address, statement) {
 }
 
 async function signInWithEthereum(address, signer) {
-  const message = createSiweMessage(address, 'Sign in to Comm with Ethereum');
+  const message = createSiweMessage(
+    address,
+    'By continuing, I accept the Comm Terms of Service: https://comm.app/terms',
+  );
   const signature = await signer.signMessage(message);
   const messageToPost = JSON.stringify({ address, message, signature });
   window.ReactNativeWebView?.postMessage?.(messageToPost);
