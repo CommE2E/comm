@@ -28,7 +28,10 @@ import {
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
 } from 'lib/actions/upload-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
+import {
+  useModalContext,
+  type PushModal,
+} from 'lib/components/modal-provider.react';
 import { getNextLocalUploadID } from 'lib/media/media-utils';
 import { pendingToRealizedThreadIDsSelector } from 'lib/selectors/thread-selectors';
 import {
@@ -110,7 +113,7 @@ type Props = {
     text: string,
   ) => Promise<SendMessageResult>,
   +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: PushModal,
   +sendCallbacks: $ReadOnlyArray<() => mixed>,
   +registerSendCallback: (() => mixed) => void,
   +unregisterSendCallback: (() => mixed) => void,

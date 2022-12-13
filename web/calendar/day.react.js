@@ -10,7 +10,10 @@ import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
+import {
+  useModalContext,
+  type PushModal,
+} from 'lib/components/modal-provider.react';
 import { onScreenThreadInfos as onScreenThreadInfosSelector } from 'lib/selectors/thread-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import type { EntryInfo } from 'lib/types/entry-types';
@@ -45,7 +48,7 @@ type Props = {
   +nextLocalID: number,
   +timeZone: ?string,
   +dispatch: Dispatch,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: PushModal,
   +popModal: () => void,
 };
 type State = {

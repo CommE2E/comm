@@ -14,7 +14,10 @@ import {
   deleteEntry,
   concurrentModificationResetActionType,
 } from 'lib/actions/entry-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
+import {
+  useModalContext,
+  type PushModal,
+} from 'lib/components/modal-provider.react';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { entryKey } from 'lib/shared/entry-utils';
 import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
@@ -68,7 +71,7 @@ type Props = {
   +createEntry: (info: CreateEntryInfo) => Promise<CreateEntryPayload>,
   +saveEntry: (info: SaveEntryInfo) => Promise<SaveEntryResult>,
   +deleteEntry: (info: DeleteEntryInfo) => Promise<DeleteEntryResult>,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: PushModal,
   +popModal: () => void,
 };
 type State = {
