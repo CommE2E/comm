@@ -10,7 +10,10 @@ import {
   AlertCircle as AlertCircleIcon,
 } from 'react-feather';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
+import {
+  useModalContext,
+  type PushModal,
+} from 'lib/components/modal-provider.react';
 import type { MediaType } from 'lib/types/media-types';
 
 import Button from '../components/button.react';
@@ -28,7 +31,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: PushModal,
 };
 
 class Multimedia extends React.PureComponent<Props> {

@@ -13,7 +13,9 @@ function Investors(): React.Node {
   const { pushModal } = useModalContext();
 
   const onClickInvestorProfileCard = React.useCallback(
-    (id: string) => pushModal(<InvestorProfileModal investorID={id} />),
+    (id: string) => {
+      pushModal(<InvestorProfileModal investorID={id} />);
+    },
     [pushModal],
   );
 

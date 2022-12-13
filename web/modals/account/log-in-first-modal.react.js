@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
+import {
+  useModalContext,
+  type PushModal,
+} from 'lib/components/modal-provider.react';
 
 import css from '../../style.css';
 import Modal from '../modal.react';
@@ -14,7 +17,7 @@ type BaseProps = {
 
 type Props = {
   ...BaseProps,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: PushModal,
   +popModal: () => void,
 };
 
