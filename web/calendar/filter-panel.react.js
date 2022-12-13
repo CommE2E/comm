@@ -42,7 +42,7 @@ type Props = {
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
-  +pushModal: (modal: React.Node) => void,
+  +pushModal: (modal: React.Node) => string,
 };
 type State = {
   +query: string,
