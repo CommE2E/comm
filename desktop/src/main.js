@@ -103,12 +103,14 @@ const createMainWindow = () => {
     });
   };
   win.webContents.on('did-navigate-in-page', updateNavigationState);
-  ipcMain.on('clear-history', () => {
+
+  const clearHistory = () => {
     win.webContents.clearHistory();
     updateNavigationState();
-  });
+  };
+  ipcMain.on('clear-history', clearHistory);
 
-  ipcMain.on('double-click-top-bar', () => {
+  const doubleClickTopBar = () => {
     if (isMac) {
       // Possible values for AppleActionOnDoubleClick are Maximize,
       // Minimize or None. We handle the last two inside this if.
@@ -131,12 +133,20 @@ const createMainWindow = () => {
     } else {
       win.maximize();
     }
-  });
+  };
+  ipcMain.on('double-click-top-bar', doubleClickTopBar);
 
-  ipcMain.on('set-badge', (event, value) => {
+  const setBadge = (event, value) => {
     if (isMac) {
       app.dock.setBadge(value?.toString() ?? '');
     }
+  };
+  ipcMain.on('set-badge', setBadge);
+
+  win.on('closed', () => {
+    ipcMain.removeListener('clear-history', clearHistory);
+    ipcMain.removeListener('double-click-top-bar', doubleClickTopBar);
+    ipcMain.removeListener('set-badge', setBadge);
   });
 
   win.webContents.setWindowOpenHandler(({ url: openURL }) => {
