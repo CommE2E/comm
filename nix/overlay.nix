@@ -49,6 +49,8 @@ prev:
     nativeBuildInputs = (o.nativeBuildInputs or []) ++ [ prev.cmake ];
   });
 
+  comm-blob = final.callPackage ./blob.nix { };
+
   protobuf_3_15_cmake = prev.callPackage ./protobuf_3_15.nix { };
 
   devShells.default = final.callPackage ./dev-shell.nix { };
