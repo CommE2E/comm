@@ -100,5 +100,18 @@ module.exports = {
         fs.copy('../web/typography.css', './assets/typography.css'),
       ]);
     },
+    prePackage: async (forgeConfig, platform, arch) => {
+      if (
+        arch === 'universal' &&
+        (fs.existsSync('./out/Comm-darwin-x64') ||
+          fs.existsSync('./out/Comm-darwin-arm64'))
+      ) {
+        throw new Error(
+          'Due to a bug in @electron/universal, please first run ' +
+            '`yarn clean-build` or remove previous builds artifacts: ' +
+            '"out/Comm-darwin-x64" and/or "out/Comm-darwin-arm64"\n',
+        );
+      }
+    },
   },
 };
