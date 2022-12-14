@@ -63,13 +63,13 @@ module.exports = {
     icon: 'icons/icon',
     ignore: ['src', '.*config\\.cjs', '\\.eslintrc\\.json'],
     appBundleId: 'app.comm.macos',
-    osxSign: { identity: 'Developer ID Application' },
-    osxNotarize: {
-      tool: 'notarytool',
-      appleId: process.env?.APPLE_USER_NAME,
-      appleIdPassword: process.env?.APPLE_APP_SPECIFIC_PASSWORD,
-      teamId: process.env?.TEAM_ID,
-    },
+    // osxSign: { identity: 'Developer ID Application' },
+    // osxNotarize: {
+    //   tool: 'notarytool',
+    //   appleId: process.env?.APPLE_USER_NAME,
+    //   appleIdPassword: process.env?.APPLE_APP_SPECIFIC_PASSWORD,
+    //   teamId: process.env?.TEAM_ID,
+    // },
   },
   makers: [
     {
@@ -106,6 +106,20 @@ module.exports = {
         fs.copy('../web/theme.css', './assets/theme.css'),
         fs.copy('../web/typography.css', './assets/typography.css'),
       ]);
+    },
+    prePackage: async (forgeConfig, platform, arch) => {
+      if (
+        arch === 'universal' &&
+        (fs.existsSync('./out/Comm-darwin-x64') ||
+          fs.existsSync('./out/Comm-darwin-arm64'))
+      ) {
+        throw new Error(
+          'Due to a bug in @electron/universal, please first run ' +
+            '`yarn clean-build` or remove previous builds artifacts: ' +
+            '"out/Comm-darwin-x64" and/or "out/Comm-darwin-arm64"\n' +
+            'More info here: https://github.com/electron/universal/issues/51',
+        );
+      }
     },
   },
 };

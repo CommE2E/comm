@@ -14,7 +14,8 @@
     "dev": "ENV=dev electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "clean": "rm -rf assets/ && rm -rf dist/ && rm -rf out/ && rm -rf node_modules/"
+    "clean": "rm -rf assets/ && rm -rf dist/ && rm -rf out/ && rm -rf node_modules/",
+    "clean-build": "rm -rf out/"
   },
   "dependencies": {
     "@babel/runtime": "^7.20.1"
