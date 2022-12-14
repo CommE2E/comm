@@ -91,7 +91,7 @@
     "react-native-figma-squircle": "^0.1.2",
     "react-native-firebase": "^5.6.0",
     "react-native-floating-action": "^1.22.0",
-    "react-native-fs": "2.15.2",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.8.0",
     "react-native-in-app-message": "^1.0.2",
     "react-native-keyboard-input": "6.0.1",
