@@ -1,3 +1,22 @@
+diff --git a/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/messaging/RNFirebaseMessaging.java b/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/messaging/RNFirebaseMessaging.java
+index d0836e2..5917d97 100644
+--- a/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/messaging/RNFirebaseMessaging.java
++++ b/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/messaging/RNFirebaseMessaging.java
+@@ -213,4 +213,14 @@ public class RNFirebaseMessaging extends ReactContextBaseJavaModule {
+       }
+     }
+   }
++
++  @ReactMethod
++  public void addListener(String eventName) {
++   // Required by NativeEventEmitter
++  }
++
++  @ReactMethod
++  public void removeListeners(Integer count) {
++   // Required by NativeEventEmitter
++  }
+ }
 diff --git a/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/DisplayNotificationTask.java b/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/DisplayNotificationTask.java
 index c9d63ff..ef725ad 100644
 --- a/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/DisplayNotificationTask.java
@@ -11,6 +30,25 @@ index c9d63ff..ef725ad 100644
      );
    }
  
+diff --git a/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/RNFirebaseNotifications.java b/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/RNFirebaseNotifications.java
+index 7115b38..9f72acf 100644
+--- a/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/RNFirebaseNotifications.java
++++ b/node_modules/react-native-firebase/android/src/main/java/io/invertase/firebase/notifications/RNFirebaseNotifications.java
+@@ -480,4 +480,14 @@ public class RNFirebaseNotifications extends ReactContextBaseJavaModule implemen
+       }
+     }
+   }
++
++  @ReactMethod
++  public void addListener(String eventName) {
++   // Required by NativeEventEmitter
++  }
++
++  @ReactMethod
++  public void removeListeners(Integer count) {
++   // Required by NativeEventEmitter
++  }
+ }
 diff --git a/node_modules/react-native-firebase/dist/common/commonTypes.flow.js.flow b/node_modules/react-native-firebase/dist/common/commonTypes.flow.js.flow
 index 228a72d..982a997 100644
 --- a/node_modules/react-native-firebase/dist/common/commonTypes.flow.js.flow
