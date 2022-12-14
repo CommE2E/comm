@@ -4,9 +4,10 @@ steps:
       - 'curl https://sh.rustup.rs -sSf | sh -s -- -y'
       - 'source /root/.cargo/env'
       - 'rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android'
-      - 'apt update && apt install -y protobuf-compiler protobuf-compiler-grpc'
+      - 'apt update && apt install -y autoconf libtool build-essential cmake git libgtest-dev libssl-dev zlib1g-dev'
       - 'yarn cleaninstall --frozen-lockfile --skip-optional'
       - 'cd native/android'
+      - 'scripts/install_protobuf.sh'
       - './gradlew clean && ./gradlew bundleRelease --no-daemon "-Dorg.gradle.jvmargs=-Xmx32g -XX:MaxPermSize=32g -XX:+HeapDumpOnOutOfMemoryError"'
     plugins:
       - docker#v3.13.0:
