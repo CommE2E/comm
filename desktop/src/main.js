@@ -9,6 +9,8 @@ import {
 import fs from 'fs';
 import path from 'path';
 
+import { handleSquirrelEvent } from './handle-squirrel-event';
+
 const isDev = process.env.ENV === 'dev';
 const url = isDev ? 'http://localhost/comm/' : 'https://web.comm.app';
 const isMac = process.platform === 'darwin';
@@ -85,6 +87,11 @@ const createMainWindow = () => {
     minHeight: 600,
     titleBarStyle: 'hidden',
     trafficLightPosition: { x: 20, y: 24 },
+    titleBarOverlay: {
+      color: '#0A0A0A',
+      symbolColor: '#FFFFFF',
+      height: 64,
+    },
     backgroundColor: '#0A0A0A',
     webPreferences: {
       preload: path.resolve(__dirname, 'preload.js'),
@@ -221,27 +228,39 @@ const show = () => {
   });
 };
 
-app.setName('Comm');
-setApplicationMenu();
+const run = () => {
+  app.setName('Comm');
+  setApplicationMenu();
 
-(async () => {
-  await app.whenReady();
+  (async () => {
+    await app.whenReady();
 
-  ipcMain.on('set-badge', (event, value) => {
-    app.dock.setBadge(value?.toString() ?? '');
-  });
+    ipcMain.on('set-badge', (event, value) => {
+      if (isMac) {
+        app.dock.setBadge(value?.toString() ?? '');
+      }
+    });
 
-  show();
+    show();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      show();
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        show();
+      }
+    });
+  })();
+
+  app.on('window-all-closed', () => {
+    if (!isMac) {
+      app.quit();
     }
   });
-})();
+};
 
-app.on('window-all-closed', () => {
-  if (!isMac) {
-    app.quit();
+if (app.isPackaged && process.platform === 'win32') {
+  if (!handleSquirrelEvent()) {
+    run();
   }
-});
+} else {
+  run();
+}
