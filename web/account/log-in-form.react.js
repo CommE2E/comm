@@ -3,8 +3,9 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { logInActionTypes, logIn } from 'lib/actions/user-actions';
+import { logInActionTypes } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
+import { useLogInServerCall } from 'lib/hooks/log-in-call.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   oldValidUsernameRegex,
@@ -15,10 +16,7 @@ import {
   type LogInStartingPayload,
   logInActionSources,
 } from 'lib/types/account-types';
-import {
-  useDispatchActionPromise,
-  useServerCall,
-} from 'lib/utils/action-utils';
+import { useDispatchActionPromise } from 'lib/utils/action-utils';
 
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
@@ -32,7 +30,7 @@ const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function LoginForm(): React.Node {
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
-  const callLogIn = useServerCall(logIn);
+  const callLogIn = useLogInServerCall();
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 

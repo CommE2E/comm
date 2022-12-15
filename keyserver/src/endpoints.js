@@ -1,6 +1,6 @@
 // @flow
 
-import { policyTypes } from 'lib/facts/policies.js';
+import { baseLegalPolicies } from 'lib/facts/policies.js';
 import type { Endpoint } from 'lib/types/endpoints';
 
 import {
@@ -59,8 +59,6 @@ import {
 } from './responders/user-responders';
 import { codeVerificationResponder } from './responders/verification-responders';
 import { uploadDeletionResponder } from './uploads/uploads';
-
-const baseLegalPolicies = [policyTypes.tosAndPrivacyPolicy];
 
 const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   create_account: {

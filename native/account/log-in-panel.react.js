@@ -5,7 +5,8 @@ import * as React from 'react';
 import { View, StyleSheet, Alert, Keyboard, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { logInActionTypes, logIn } from 'lib/actions/user-actions';
+import { logInActionTypes } from 'lib/actions/user-actions';
+import { useLogInServerCall } from 'lib/hooks/log-in-call';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   validEmailRegex,
@@ -20,7 +21,6 @@ import {
 } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
-  useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
@@ -366,7 +366,7 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps
     );
 
     const dispatchActionPromise = useDispatchActionPromise();
-    const callLogIn = useServerCall(logIn);
+    const callLogIn = useLogInServerCall();
 
     return (
       <LogInPanel
