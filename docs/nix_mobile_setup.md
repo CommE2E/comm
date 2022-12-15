@@ -2,6 +2,20 @@
 
 ## iOS development
 
+### Homebrew
+
+Install [Homebrew](https://brew.sh/), a package manager for macOS. It’s necessary for some of the following steps.
+
+### Node
+
+Next, install [Node](https://nodejs.org/) using Homebrew. We’re going to use version 16 to avoid some possible issues that come up on Apple silicon when we install project dependencies.
+
+```
+brew install node@16 && brew upgrade node@16
+```
+
+The reason we use both `install` and `upgrade` is that there’s no single Homebrew command equivalent to “install if not installed, and upgrade if already installed”.
+
 ### Xcode
 
 Go to the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835) to install Xcode, or if you already have it, to update it to the latest version.
@@ -126,10 +140,6 @@ On the next screen you’ll be asked to select a system image. Go for the latest
 From there you can just hit Next and then Finish. You should then be able to start your new Android Virtual Device from the Virtual Device Manager.
 
 ## Debugging tools
-
-### Homebrew
-
-Install [Homebrew](https://brew.sh/), a package manager for macOS. It’s necessary for some of the following steps.
 
 ### Reactotron
 
