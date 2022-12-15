@@ -1,5 +1,5 @@
 div.modal_body {
-  padding: 20px;
+  padding: 24px 32px 32px 32px;
   color: var(--fg);
   background-color: var(--modal-bg);
   border-radius: 16px;
