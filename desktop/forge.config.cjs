@@ -90,6 +90,19 @@ module.exports = {
         ],
       },
     },
+    {
+      name: '@electron-forge/maker-squirrel',
+      platforms: ['win32'],
+      config: {
+        name: 'Comm',
+        title: 'Comm',
+        authors: 'Comm',
+        description: 'Comm is a private messaging app for communities!',
+        iconUrl: 'https://comm-external.s3.amazonaws.com/icon.ico',
+        setupIcon: 'icons/icon.ico',
+        loadingGif: 'icons/win_installer.gif',
+      },
+    },
   ],
   plugins: [new BabelPlugin()],
   hooks: {
