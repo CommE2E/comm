@@ -5,7 +5,7 @@ import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
-import { policies } from 'lib/facts/policies.js';
+import { baseLegalPolicies, policies } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
@@ -51,6 +51,7 @@ import { deleteCookie } from '../deleters/cookie-deleters';
 import { checkAndInvalidateSIWENonceEntry } from '../deleters/siwe-nonce-deleters.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchKnownUserInfos,
@@ -210,6 +211,31 @@ async function processSuccessfulLogin(
     deleteCookie(viewer.cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
+
+  const notAcknowledgedPolicies = await fetchNotAcknowledgedPolicies(
+    viewer,
+    baseLegalPolicies,
+  );
+  if (
+    notAcknowledgedPolicies.length &&
+    hasMinCodeVersion(viewer.platformDetails, 1000)
+  ) {
+    const currentUserInfo = await fetchLoggedInUserInfo(viewer);
+    return {
+      notAcknowledgedPolicies,
+      currentUserInfo: currentUserInfo,
+      rawMessageInfos: [],
+      truncationStatuses: [],
+      userInfos: [],
+      rawEntryInfos: [],
+      serverTime: 0,
+      cookieChange: {
+        threadInfos: {},
+        userInfos: [],
+      },
+    };
+  }
+
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, newServerTime);
   }
