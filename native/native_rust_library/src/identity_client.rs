@@ -34,7 +34,7 @@ use crate::identity::{
   VerifyUserTokenRequest, WalletLoginRequest as WalletLoginRequestStruct,
   WalletLoginResponse as WalletLoginResponseStruct,
 };
-use crate::opaque::Cipher;
+use comm_opaque::Cipher;
 use crate::Client;
 
 pub async fn get_user_id(

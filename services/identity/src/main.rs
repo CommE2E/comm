@@ -7,7 +7,6 @@ mod config;
 mod constants;
 mod database;
 mod keygen;
-mod opaque;
 mod service;
 mod token;
 

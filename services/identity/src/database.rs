@@ -25,7 +25,7 @@ use crate::constants::{
   USERS_TABLE_USERNAME_INDEX, USERS_TABLE_USER_PUBLIC_KEY_ATTRIBUTE,
   USERS_TABLE_WALLET_ADDRESS_ATTRIBUTE, USERS_TABLE_WALLET_ADDRESS_INDEX,
 };
-use crate::opaque::Cipher;
+use comm_opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
 
 #[derive(Clone)]

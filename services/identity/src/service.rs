@@ -16,10 +16,10 @@ use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tonic::{Request, Response, Status};
 use tracing::{error, info, instrument};
+use comm_opaque::Cipher;
 
 use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 use crate::database::DatabaseClient;
-use crate::opaque::Cipher;
 use crate::token::{AccessTokenData, AuthType};
 use crate::{config::Config, database::Error as DBError};
 

@@ -1,0 +1,13 @@
+[package]
+name = "comm-opaque"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+argon2 = "0.4"
+opaque-ke = "1.2"
+digest = "0.9"
+curve25519-dalek = "3.2"
+sha2 = "0.9"

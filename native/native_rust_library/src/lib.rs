@@ -6,7 +6,6 @@ use tracing::instrument;
 
 mod crypto_tools;
 mod identity_client;
-mod opaque;
 mod identity {
   tonic::include_proto!("identity");
 }

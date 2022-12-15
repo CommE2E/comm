@@ -28,9 +28,9 @@ checksum = "08f9b8508dccb7687a1d6c4ce66b2b0ecef467c94667de27d8d7fe1f8d2a9cdc"
 
 [[package]]
 name = "argon2"
-version = "0.3.4"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25df3c03f1040d0069fcd3907e24e36d59f9b6fa07ba49be0eb25a794f036ba7"
+checksum = "db4ce4441f99dbd377ca8a8f57b698c44d0d6e712d8329b5040da5a64aa1ce73"
 dependencies = [
  "base64ct",
  "blake2",
@@ -554,6 +554,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "comm-opaque"
+version = "0.1.0"
+dependencies = [
+ "argon2",
+ "curve25519-dalek",
+ "digest 0.9.0",
+ "opaque-ke",
+ "sha2",
+]
+
+[[package]]
 name = "constant_time_eq"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1034,22 +1045,20 @@ dependencies = [
 name = "identity"
 version = "0.1.0"
 dependencies = [
- "argon2",
  "aws-config",
  "aws-sdk-dynamodb",
  "aws-types",
  "bytes",
  "chrono",
  "clap",
+ "comm-opaque",
  "constant_time_eq 0.2.2",
  "curve25519-dalek",
  "derive_more",
- "digest 0.9.0",
  "futures-core",
  "opaque-ke",
  "prost",
  "rand",
- "sha2",
  "siwe",
  "tokio",
  "tokio-stream",
@@ -1311,9 +1320,9 @@ checksum = "8e22443d1643a904602595ba1cd8f7d896afe56d26712531c5ff73a15b2fbf64"
 
 [[package]]
 name = "password-hash"
-version = "0.3.2"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d791538a6dcc1e7cb7fe6f6b58aca40e7f79403c45b2bc274008b5e647af1d8"
+checksum = "7676374caaee8a325c9e7a2ae557f216c5563a171d6997b0ef8a65af35147700"
 dependencies = [
  "base64ct",
  "rand_core 0.6.3",

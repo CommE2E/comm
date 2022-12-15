@@ -7,8 +7,6 @@ landing/dist
 
 lib/node_modules
 
-native/cpp/CommonCpp/CryptoTools/opaque-ke-cxx/target
-
 web/node_modules
 web/dist
 
