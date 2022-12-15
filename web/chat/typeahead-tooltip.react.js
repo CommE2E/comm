@@ -4,20 +4,19 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import SearchIndex from 'lib/shared/search-index';
-import { threadOtherMembers } from 'lib/shared/thread-utils';
+import { getTypeaheadUserSuggestions } from 'lib/shared/typeahead-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import type { InputState } from '../input/input-state';
-import { type TypeaheadMatchedStrings } from './chat-input-bar.react';
-import css from './typeahead-tooltip.css';
 import {
   getTypeaheadOverlayScroll,
   getTypeaheadTooltipActions,
   getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
-  getTypeaheadUserSuggestions,
   getTypeaheadChosenActionPosition,
-} from './typeahead-utils';
+} from '../utils/typeahead-utils';
+import { type TypeaheadMatchedStrings } from './chat-input-bar.react';
+import css from './typeahead-tooltip.css';
 
 export type TypeaheadTooltipProps = {
   +inputState: InputState,
@@ -38,13 +37,9 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     matchedStrings,
   } = props;
 
-  const {
-    entireText: matchedText,
-    textBeforeAtSymbol: matchedTextBeforeAtSymbol,
-    usernamePrefix: matchedUsernamePrefix,
-  } = matchedStrings;
+  const { textBeforeAtSymbol, usernamePrefix } = matchedStrings;
 
-  const typedPrefix = matchedUsernamePrefix ?? '';
+  const typedUsernamePrefix = usernamePrefix ?? '';
 
   const [animation, setAnimation] = React.useState(false);
   const overlayRef = React.useRef<?HTMLDivElement>();
@@ -55,13 +50,16 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     return () => setAnimation(false);
   }, [setAnimation]);
 
-  const suggestedUsers = React.useMemo(() => {
-    return getTypeaheadUserSuggestions(
-      userSearchIndex,
-      threadOtherMembers(threadMembers, viewerID),
-      typedPrefix,
-    );
-  }, [userSearchIndex, threadMembers, viewerID, typedPrefix]);
+  const suggestedUsers = React.useMemo(
+    () =>
+      getTypeaheadUserSuggestions(
+        userSearchIndex,
+        threadMembers,
+        viewerID,
+        typedUsernamePrefix,
+      ),
+    [userSearchIndex, threadMembers, viewerID, typedUsernamePrefix],
+  );
 
   const actions = React.useMemo(
     () =>
@@ -70,27 +68,23 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
         inputStateSetDraft: inputState.setDraft,
         inputStateSetTextCursorPosition: inputState.setTextCursorPosition,
         suggestedUsers,
-        matchedTextBeforeAtSymbol,
-        matchedText,
+        textBeforeAtSymbol,
+        typedUsernamePrefix,
       }),
     [
       inputState.draft,
       inputState.setDraft,
       inputState.setTextCursorPosition,
       suggestedUsers,
-      matchedTextBeforeAtSymbol,
-      matchedText,
+      textBeforeAtSymbol,
+      typedUsernamePrefix,
     ],
   );
 
   const tooltipPosition = React.useMemo(
     () =>
-      getTypeaheadTooltipPosition(
-        textarea,
-        actions.length,
-        matchedTextBeforeAtSymbol,
-      ),
-    [textarea, actions.length, matchedTextBeforeAtSymbol],
+      getTypeaheadTooltipPosition(textarea, actions.length, textBeforeAtSymbol),
+    [textarea, actions.length, textBeforeAtSymbol],
   );
 
   const tooltipPositionStyle = React.useMemo(
