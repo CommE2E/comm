@@ -51,9 +51,10 @@ import Multimedia from '../media/multimedia.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
+import { webTypeaheadRegex } from '../utils/typeahead-utils';
 import css from './chat-input-bar.css';
 import TypeaheadTooltip from './typeahead-tooltip.react';
-import { typeaheadRegex } from './typeahead-utils';
+
 type BaseProps = {
   +threadInfo: ThreadInfo,
   +inputState: InputState,
@@ -77,7 +78,6 @@ type Props = {
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
 };
 export type TypeaheadMatchedStrings = {
-  +entireText: string,
   +textBeforeAtSymbol: string,
   +usernamePrefix: string,
 };
@@ -573,7 +573,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       () =>
         inputSliceEndingAtCursor.length === props.inputState.draft.length ||
         /\s/.test(props.inputState.draft[props.inputState.textCursorPosition])
-          ? inputSliceEndingAtCursor.match(typeaheadRegex)
+          ? inputSliceEndingAtCursor.match(webTypeaheadRegex)
           : null,
       [
         inputSliceEndingAtCursor,
@@ -586,9 +586,9 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       () =>
         typeaheadRegexMatches !== null
           ? {
-              entireText: typeaheadRegexMatches[0],
-              textBeforeAtSymbol: typeaheadRegexMatches[1],
-              usernamePrefix: typeaheadRegexMatches[2],
+              textBeforeAtSymbol:
+                typeaheadRegexMatches.groups?.textPrefix ?? '',
+              usernamePrefix: typeaheadRegexMatches.groups?.username ?? '',
             }
           : null,
       [typeaheadRegexMatches],
