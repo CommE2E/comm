@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
-import { policies } from 'lib/facts/policies.js';
+import { policies, policyTypes } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
@@ -66,7 +66,7 @@ import {
 } from '../updaters/account-updaters';
 import { userSubscriptionUpdater } from '../updaters/user-subscription-updaters';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import { validateInput } from '../utils/validation-utils';
+import { policiesValidator, validateInput } from '../utils/validation-utils';
 import {
   entryQueryInputValidator,
   newEntryQueryInputValidator,
@@ -290,6 +290,15 @@ async function logInResponder(
   if (rawEntryInfos) {
     response.rawEntryInfos = rawEntryInfos;
   }
+
+  try {
+    await policiesValidator(viewer, [policyTypes.tosAndPrivacyPolicy]);
+  } catch (error) {
+    if (error.message === 'policies_not_accepted') {
+      response.notAcknowledgedPolicies = error.payload.notAcknowledgedPolicies;
+    }
+  }
+
   return response;
 }
 
