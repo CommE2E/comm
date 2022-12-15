@@ -280,8 +280,9 @@ async function fetchMessageInfos(
   const viewerID = viewer.id;
   const query = SQL`
     WITH thread_window AS (
-      SELECT m.id, m.thread AS threadID, m.user AS creatorID, m.content,
-        m.time, m.type, m.creation, stm.permissions AS subthread_permissions,
+      SELECT m.id, m.thread AS threadID, m.user AS creatorID,
+        m.target_message as targetMessageID, m.content, m.time, m.type,
+        m.creation, stm.permissions AS subthread_permissions,
         ROW_NUMBER() OVER (
           PARTITION BY threadID ORDER BY m.time DESC, m.id DESC
         ) n
@@ -505,9 +506,9 @@ async function fetchMessageInfosSince(
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
-      m.creation, m.user AS creatorID, stm.permissions AS subthread_permissions,
-      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
-      up.extra AS uploadExtra
+      m.creation, m.user AS creatorID, m.target_message as targetMessageID,
+      stm.permissions AS subthread_permissions, up.id AS uploadID,
+      up.type AS uploadType, up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -587,9 +588,9 @@ async function fetchMessageInfoForLocalID(
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
-      m.user AS creatorID, stm.permissions AS subthread_permissions,
-      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
-      up.extra AS uploadExtra
+      m.user AS creatorID, m.target_message as targetMessageID,
+      stm.permissions AS subthread_permissions, up.id AS uploadID,
+      up.type AS uploadType, up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -617,8 +618,9 @@ async function fetchMessageInfoForEntryAction(
   const viewerID = viewer.id;
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation,
-      m.user AS creatorID, up.id AS uploadID, up.type AS uploadType,
-      up.secret AS uploadSecret, up.extra AS uploadExtra
+      m.user AS creatorID, m.target_message as targetMessageID,
+      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret,
+      up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships mm ON mm.thread = m.thread AND mm.user = ${viewerID}
@@ -639,9 +641,9 @@ async function fetchMessageInfoForEntryAction(
 async function fetchMessageRowsByIDs(messageIDs: $ReadOnlyArray<string>) {
   const query = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type, m.creation, 
-      m.user AS creatorID, stm.permissions AS subthread_permissions,
-      up.id AS uploadID, up.type AS uploadType, up.secret AS uploadSecret, 
-      up.extra AS uploadExtra
+      m.user AS creatorID, m.target_message as targetMessageID,
+      stm.permissions AS subthread_permissions, up.id AS uploadID,
+      up.type AS uploadType, up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM messages m
     LEFT JOIN uploads up ON up.container = m.id
     LEFT JOIN memberships stm ON m.type = ${messageTypes.CREATE_SUB_THREAD}
