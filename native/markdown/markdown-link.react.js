@@ -6,6 +6,7 @@ import { Text, Linking, Alert } from 'react-native';
 
 import { normalizeURL } from 'lib/utils/url-utils';
 
+import { MessagePressResponderContext } from '../chat/message-press-responder-context';
 import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
 import { MarkdownContext, type MarkdownContextType } from './markdown-context';
 
@@ -60,9 +61,15 @@ function MarkdownLink(props: Props): React.Node {
   );
   const messageKey = textMessageMarkdownContext?.messageKey;
 
+  const messagePressResponderContext = React.useContext(
+    MessagePressResponderContext,
+  );
+
+  const onPressMessage = messagePressResponderContext?.onPressMessage;
+
   const onPressLink = useDisplayLinkPrompt(target, markdownContext, messageKey);
 
-  return <Text onPress={onPressLink} {...rest} />;
+  return <Text onPress={onPressLink} onLongPress={onPressMessage} {...rest} />;
 }
 
 export default MarkdownLink;
