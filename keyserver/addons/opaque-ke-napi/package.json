@@ -29,5 +29,8 @@
     "version": "napi version",
     "postinstall": "yarn build",
     "clean": "rm -rf target/ && rm -rf napi/ && rm -rf node_modules/"
-  }
+  },
+  "os": [
+    "!win32"
+  ]
 }
