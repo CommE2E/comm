@@ -4,16 +4,15 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
-import SearchIndex from 'lib/shared/search-index';
 import { stringForUserExplicit } from 'lib/shared/user-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
+import { typeaheadStyle } from '../chat/chat-constants';
+import css from '../chat/typeahead-tooltip.css';
 import Button from '../components/button.react';
 import type { TypeaheadState } from '../input/input-state';
-import { typeaheadStyle } from './chat-constants';
-import css from './typeahead-tooltip.css';
 
-const typeaheadRegex: RegExp = new RegExp(
+const webTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
 );
 
@@ -27,20 +26,6 @@ export type TooltipPosition = {
   +top: number,
   +left: number,
 };
-
-function getTypeaheadUserSuggestions(
-  userSearchIndex: SearchIndex,
-  usersInThread: $ReadOnlyArray<RelativeMemberInfo>,
-  typedPrefix: string,
-): $ReadOnlyArray<RelativeMemberInfo> {
-  const userIDs = userSearchIndex.getSearchResults(typedPrefix);
-
-  return usersInThread
-    .filter(user => typedPrefix.length === 0 || userIDs.includes(user.id))
-    .sort((userA, userB) =>
-      stringForUserExplicit(userA).localeCompare(stringForUserExplicit(userB)),
-    );
-}
 
 function getCaretOffsets(
   textarea: HTMLTextAreaElement,
@@ -94,8 +79,8 @@ export type GetTypeaheadTooltipActionsParams = {
   inputStateSetDraft: (draft: string) => void,
   inputStateSetTextCursorPosition: (newPosition: number) => void,
   suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
-  matchedTextBeforeAtSymbol: string,
-  matchedText: string,
+  textBeforeAtSymbol: string,
+  typedUsernamePrefix: string,
 };
 
 function getTypeaheadTooltipActions(
@@ -106,8 +91,8 @@ function getTypeaheadTooltipActions(
     inputStateSetDraft,
     inputStateSetTextCursorPosition,
     suggestedUsers,
-    matchedTextBeforeAtSymbol,
-    matchedText,
+    textBeforeAtSymbol,
+    typedUsernamePrefix,
   } = params;
   return suggestedUsers
     .filter(
@@ -116,9 +101,12 @@ function getTypeaheadTooltipActions(
     .map(suggestedUser => ({
       key: suggestedUser.id,
       onClick: () => {
-        const newPrefixText = matchedTextBeforeAtSymbol;
+        const newPrefixText = textBeforeAtSymbol;
 
-        let newSuffixText = inputStateDraft.slice(matchedText.length);
+        const totalMatchLength =
+          textBeforeAtSymbol.length + typedUsernamePrefix.length + 1; // 1 for @ char
+
+        let newSuffixText = inputStateDraft.slice(totalMatchLength);
         newSuffixText = (newSuffixText[0] !== ' ' ? ' ' : '') + newSuffixText;
 
         const newText =
@@ -195,11 +183,11 @@ function getTypeaheadOverlayScroll(
 function getTypeaheadTooltipPosition(
   textarea: HTMLTextAreaElement,
   actionsLength: number,
-  matchedTextBefore: string,
+  textBeforeAtSymbol: string,
 ): TooltipPosition {
   const { caretTopOffset, caretLeftOffset } = getCaretOffsets(
     textarea,
-    matchedTextBefore,
+    textBeforeAtSymbol,
   );
 
   const textareaBoundingClientRect = textarea.getBoundingClientRect();
@@ -234,8 +222,7 @@ function getTypeaheadChosenActionPosition(
 }
 
 export {
-  typeaheadRegex,
-  getTypeaheadUserSuggestions,
+  webTypeaheadRegex,
   getCaretOffsets,
   getTypeaheadTooltipActions,
   getTypeaheadTooltipButtons,
