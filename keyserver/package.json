@@ -98,5 +98,8 @@
     "transformIgnorePatterns": [
       "/node_modules/(?!@babel/runtime)"
     ]
-  }
+  },
+  "os": [
+    "!win32"
+  ]
 }

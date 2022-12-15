@@ -100,7 +100,7 @@ RUN cd keyserver && . bash/source-nvm.sh
 #-------------------------------------------------------------------------------
 
 # Copy in package.json and yarn.lock files
-COPY --chown=comm package.json yarn.lock ./
+COPY --chown=comm package.json yarn.lock .yarnrc ./
 COPY --chown=comm keyserver/package.json keyserver/.flowconfig keyserver/
 COPY --chown=comm lib/package.json lib/.flowconfig lib/
 COPY --chown=comm web/package.json web/.flowconfig web/
