@@ -51,6 +51,8 @@
 
   --logo-bg: #111827;
 
+  --spoiler-color: #33332c;
+
   --bg: var(--shades-black-100);
   --fg: var(--shades-white-100);
   --color-disabled: var(--shades-black-60);
@@ -188,7 +190,7 @@
   --typeahead-overlay-text: var(--shades-white-100);
   --typeahead-overlay-shadow-primary: rgba(0, 0, 0, 0.25);
   --typeahead-overlay-shadow-secondary: rgba(0, 0, 0, 0.4);
-  --spoiler-text-color: #33332c;
-  --spoiler-background-color: #33332c;
+  --spoiler-text-color: var(--spoiler-color);
+  --spoiler-background-color: var(--spoiler-color);
   --purple-link: var(--violet-light-100);
 }
