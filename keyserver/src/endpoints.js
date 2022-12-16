@@ -32,6 +32,7 @@ import {
   errorReportFetchInfosResponder,
 } from './responders/report-responders';
 import { userSearchResponder } from './responders/search-responders';
+import { siweNonceResponder } from './responders/siwe-nonce-responders';
 import {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -223,6 +224,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   verify_code: {
     responder: codeVerificationResponder,
     requiredPolicies: baseLegalPolicies,
+  },
+  siwe_nonce: {
+    responder: siweNonceResponder,
+    requiredPolicies: [],
   },
 };
 
