@@ -19,19 +19,18 @@ function InAppNotif(props: Props): React.Node {
 
   let title = null;
   if (props.title) {
-    const titleStyles = [
-      styles.title,
-      useLightStyle ? styles.lightTitle : null,
-    ];
     title = (
       <>
-        <SingleLine style={titleStyles}>{props.title}</SingleLine>
+        <SingleLine style={styles.title}>{props.title}</SingleLine>
         {'\n'}
       </>
     );
   }
 
-  const textStyles = [styles.text, useLightStyle ? styles.lightText : null];
+  const textStyles = [
+    styles.text,
+    useLightStyle ? styles.lightText : styles.darkText,
+  ];
   const notificationContent = (
     <Text style={textStyles}>
       {title}
@@ -51,10 +50,10 @@ function InAppNotif(props: Props): React.Node {
 }
 
 const styles = StyleSheet.create({
-  lightText: {
-    color: 'white',
+  darkText: {
+    color: 'black',
   },
-  lightTitle: {
+  lightText: {
     color: 'white',
   },
   notif: {
@@ -79,7 +78,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 10,
   },
   title: {
-    color: 'black',
     fontWeight: 'bold',
   },
 });
