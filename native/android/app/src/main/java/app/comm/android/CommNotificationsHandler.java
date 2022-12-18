@@ -127,7 +127,8 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
     String rescindID = message.getData().get(RESCIND_ID_KEY);
     for (StatusBarNotification notification :
          notificationManager.getActiveNotifications()) {
-      if (notification.getTag().equals(rescindID)) {
+      String tag = notification.getTag();
+      if (tag != null && tag.equals(rescindID)) {
         notificationManager.cancel(notification.getTag(), notification.getId());
       }
     }
