@@ -442,7 +442,8 @@ class InternalEntry extends React.Component<Props, State> {
     this.setActive();
     this.props.onEnterEditMode(this.props.entryInfo);
     if (Platform.OS === 'android') {
-      // For some reason if we don't do this the scroll stops halfway through
+      // If we don't do this, the TextInput focuses
+      // but the soft keyboard doesn't come up
       await waitForInteractions();
       await sleep(15);
     }
