@@ -152,6 +152,7 @@ const disableGesturesScreenOptions = {
 };
 const modalOverlayScreenOptions = {
   cardOverlayEnabled: true,
+  presentation: 'transparentModal',
 };
 const termsAndPrivacyModalScreenOptions = {
   gestureEnabled: false,
