@@ -243,7 +243,7 @@ async function createTables() {
 
       CREATE TABLE siwe_nonces (
         nonce char(17) NOT NULL,
-        creation_time bigint(20) NOT NULL,
+        creation_time bigint(20) NOT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
       ALTER TABLE cookies
