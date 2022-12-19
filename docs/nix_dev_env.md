@@ -100,7 +100,6 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
   - [Inspect database with TablePlus](./nix_shared_workflows.md#inspect-database-with-tableplus)
   - [Codegen](./nix_shared_workflows.md#codegen)
     - [Codegen for JSI](./nix_shared_workflows.md#codegen-for-jsi)
-    - [Codegen for gRPC](./nix_shared_workflows.md#codegen-for-grpc)
   - [Working with Phabricator](./nix_shared_workflows.md#working-with-phabricator)
     - [Creating a new diff](./nix_shared_workflows.md#creating-a-new-diff)
     - [Updating a diff](./nix_shared_workflows.md#updating-a-diff)

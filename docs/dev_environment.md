@@ -299,33 +299,6 @@ Since we run `pip3 install` with `--user` instead of running it with `sudo`, the
 
 If you have trouble getting Flipper to work with a physical iOS device, it may be due to Python weirdness. The above steps have been tested with Python 3.9 sourced from Homebrew. Let @ashoat know if you have any trouble!
 
-## Codegen for gRPC
-
-gRPC is a framework from Google for writing services. As a developer, you define your service’s API using Protobufs, and gRPC handles the networking and basic infrastructure for you.
-
-The codegen for gRPC takes files written in the [protocol buffers language](https://developers.google.com/protocol-buffers/docs/proto3) as input and outputs C++ code that enables a developer to create a client and a server that use gRPC for communication.
-
-Because of C++ build dependencies, this could not be bundled as an npm package. `brew` also fails to install the required version so if you want to generate files in your local environment, you have to manually install Protobuf.
-
-If you find yourself needing to modify the Protobuf schema files, you’ll need to set up the tools to run the codegen. Follow the steps below:
-
-- `brew install autoconf automake libtool curl make unzip`
-- `curl -L https://github.com/protocolbuffers/protobuf/releases/download/v3.15.8/protobuf-cpp-3.15.8.tar.gz --output protobuf-cpp-3.15.8.tar.gz`
-- `tar xfzv protobuf-cpp-3.15.8.tar.gz`
-- `cd protobuf-3.15.8`
-- `./configure`
-- `make`
-- `make check`
-- `sudo make install`
-
-After installing, you should be able to check the version of Protobuf like this: `protoc --version`
-
-After installing Protobuf, you will also need to install gRPC using `brew install grpc`. This will install the `grpc_cpp_plugin` for `protoc` (the Protobuf compiler), which is necessary for compiling gRPC schemas.
-
-Please note that the order is crucial here - you have to first install Protobuf and only then gRPC. This is because otherwise gRPC will install Protobuf automatically from its dependency list, but the version of Protobuf will be incorrect.
-
-In the event that Homebrew installs Protobuf anyway, run `brew unlink protobuf` and `protoc --version` to ensure it matches the version above.
-
 ## Arcanist
 
 We use Phabricator for code review. To upload a “diff” to Phabricator, you’ll need to use a tool called Arcanist.
