@@ -1,4 +1,7 @@
 use crate::server::GRPCStatusCodes;
+use openssl::pkey::PKey;
+use openssl::sign::Verifier;
+use openssl::{error::ErrorStack, hash::MessageDigest};
 use tonic::{Code, Status};
 
 pub fn create_tonic_status(code: GRPCStatusCodes, text: &str) -> Status {
@@ -23,4 +26,18 @@ pub fn create_tonic_status(code: GRPCStatusCodes, text: &str) -> Status {
     _ => Code::Internal,
   };
   Status::new(status, text)
+}
+
+pub fn verify_signed_string(
+  public_key_pem: &str,
+  string_to_be_signed: &str,
+  base64_signature: &str,
+) -> Result<bool, ErrorStack> {
+  let public_key = PKey::public_key_from_pem(public_key_pem.as_bytes())?;
+  let mut verifier = Verifier::new(MessageDigest::sha256(), &public_key)?;
+  verifier.update(string_to_be_signed.as_bytes()).unwrap();
+  verifier.verify(
+    &base64::decode(base64_signature)
+      .expect("Error on decoding the signature from base64"),
+  )
 }
