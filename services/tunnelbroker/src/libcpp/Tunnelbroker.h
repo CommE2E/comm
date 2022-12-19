@@ -7,6 +7,7 @@ void initialize();
 rust::String getConfigParameter(rust::Str parameter);
 bool isSandbox();
 SessionSignatureResult sessionSignatureHandler(rust::Str deviceID);
+rust::String getSavedNonceToSign(rust::Str deviceID);
 NewSessionResult newSessionHandler(
     rust::Str deviceID,
     rust::Str publicKey,

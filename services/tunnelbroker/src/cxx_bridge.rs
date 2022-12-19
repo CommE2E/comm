@@ -55,6 +55,7 @@ pub mod ffi {
     pub fn getConfigParameter(parameter: &str) -> Result<String>;
     pub fn isSandbox() -> Result<bool>;
     pub fn sessionSignatureHandler(deviceID: &str) -> SessionSignatureResult;
+    pub fn getSavedNonceToSign(deviceID: &str) -> Result<String>;
     pub fn newSessionHandler(
       deviceID: &str,
       publicKey: &str,

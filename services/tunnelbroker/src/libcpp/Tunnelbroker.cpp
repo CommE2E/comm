@@ -72,6 +72,17 @@ SessionSignatureResult sessionSignatureHandler(rust::Str deviceID) {
       .toSign = toSign, .grpcStatus = {.statusCode = GRPCStatusCodes::Ok}};
 }
 
+rust::String getSavedNonceToSign(rust::Str deviceID) {
+  const auto sessionSignatureItem =
+      comm::network::database::DatabaseManager::getInstance()
+          .findSessionSignItem(std::string{deviceID});
+  if (sessionSignatureItem == nullptr) {
+    throw std::invalid_argument(
+        "No requests found for 'deviceID': " + std::string{deviceID});
+  };
+  return rust::String{sessionSignatureItem->getSign()};
+}
+
 NewSessionResult newSessionHandler(
     rust::Str deviceID,
     rust::Str publicKey,
