@@ -19,6 +19,7 @@ env_logger = "0.9"
 fcm = "0.9"
 anyhow = "1.0"
 openssl = { version = "0.10", features = ["vendored"] }
+base64 = "0.20"
 tonic = "0.8"
 prost = "0.11"
 prost-types = "0.11"
