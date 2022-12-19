@@ -1,6 +1,8 @@
+use super::tunnelbroker_utils::proto::new_session_request::DeviceTypes;
 use crate::tools::Error;
 use crate::tunnelbroker::tunnelbroker_utils::{
-  proto::SessionSignatureRequest, TunnelbrokerServiceClient,
+  proto::NewSessionRequest, proto::SessionSignatureRequest,
+  TunnelbrokerServiceClient,
 };
 use openssl::hash::MessageDigest;
 use openssl::pkey::PKey;
@@ -27,4 +29,29 @@ pub fn sign_string_with_private_key(
   signer.update(string_to_be_signed.as_bytes())?;
   let signature = signer.sign_to_vec()?;
   Ok(base64::encode(signature))
+}
+
+pub async fn create_new_session(
+  client: &mut TunnelbrokerServiceClient<tonic::transport::Channel>,
+  device_id: &str,
+  public_key: &str,
+  signature: &str,
+  notify_token: &str,
+  device_type: DeviceTypes,
+  device_app_version: &str,
+  device_os: &str,
+) -> Result<String, Error> {
+  let response = client
+    .new_session(Request::new(NewSessionRequest {
+      device_id: device_id.to_string(),
+      public_key: public_key.to_string(),
+      signature: signature.to_string(),
+      notify_token: Some(notify_token.to_string()),
+      device_type: device_type as i32,
+      device_app_version: device_app_version.to_string(),
+      device_os: device_os.to_string(),
+    }))
+    .await?;
+  let session_id = response.into_inner().session_id;
+  Ok(session_id)
 }
