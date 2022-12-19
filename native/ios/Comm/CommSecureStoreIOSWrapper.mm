@@ -37,7 +37,9 @@
   return shared;
 }
 
-- (void)set:(NSString *)key value:(NSString *)value {
+- (void)set:(NSString *)key
+          value:(NSString *)value
+    withOptions:(NSDictionary *)options {
   if ([self secureStore] == nil) {
     [NSException raise:@"secure store error"
                 format:@"secure store has not been initialized"];
@@ -45,7 +47,7 @@
   NSError *error;
   [[self secureStore] _setValue:value
                         withKey:key
-                    withOptions:[self options]
+                    withOptions:options
                           error:&error];
   if (error != nil) {
     [NSException raise:@"secure store error"
@@ -53,15 +55,30 @@
   }
 }
 
-- (NSString *)get:(NSString *)key {
+- (void)set:(NSString *)key value:(NSString *)value {
+  [self set:key
+            value:value
+      withOptions:@{
+        @"keychainAccessible" : @(EXSecureStoreAccessibleAfterFirstUnlock)
+      }];
+}
+
+- (NSString *)get:(NSString *)key withOptions:(NSDictionary *)options {
   if ([self secureStore] == nil) {
     [NSException raise:@"secure store error"
                 format:@"secure store has not been initialized"];
   }
   NSError *error;
   return [[self secureStore] _getValueWithKey:key
-                                  withOptions:[self options]
+                                  withOptions:options
                                         error:&error];
+}
+
+- (NSString *)get:(NSString *)key {
+  return [self get:key
+       withOptions:@{
+         @"keychainAccessible" : @(EXSecureStoreAccessibleAfterFirstUnlock)
+       }];
 }
 
 @end
