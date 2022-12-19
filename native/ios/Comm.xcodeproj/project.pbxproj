@@ -51,16 +51,14 @@
 		CB38B48628771CDD00171182 /* TemporaryMessageStorage.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47F28771A3B00171182 /* TemporaryMessageStorage.mm */; };
 		CB38B48728771CE500171182 /* TemporaryMessageStorage.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB38B47F28771A3B00171182 /* TemporaryMessageStorage.mm */; };
 		CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */; };
-		CB38F2C0286C6CDF0010535C /* MessageOperationsUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CB38F2AF286C6C870010535C /* MessageOperationsUtilities.cpp */; };
 		CB3C621127CE4A320054F24C /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4A63262DA8E500835C89 /* Logger.mm */; };
 		CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71142A7626C2650A0039DCBD /* CommSecureStoreIOSWrapper.mm */; };
-		CB4821A527CF9F38001AB7E1 /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
 		CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 718DE99C2653D41C00365824 /* WorkerThread.cpp */; };
 		CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71CA4AEB262F236100835C89 /* Tools.mm */; };
 		CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6F26B3FF0900EDE27D /* Session.cpp */; };
 		CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7326B401D300EDE27D /* Tools.cpp */; };
 		CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
-		CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
+		CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
 		CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
 		CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFE58282885852B003B94C9 /* ThreadOperations.cpp */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
@@ -948,17 +946,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */,
 				CB38B48728771CE500171182 /* TemporaryMessageStorage.mm in Sources */,
 				CB38B48528771CB800171182 /* EncryptedFileUtils.mm in Sources */,
 				CB38B48328771C8300171182 /* NonBlockingLock.mm in Sources */,
-				CB38F2C0286C6CDF0010535C /* MessageOperationsUtilities.cpp in Sources */,
 				CB1648AF27CFBE6A00394D9D /* CryptoModule.cpp in Sources */,
-				CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */,
 				CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */,
 				CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */,
 				CB4821A927CFB153001AB7E1 /* WorkerThread.cpp in Sources */,
 				CB4821AA27CFB153001AB7E1 /* Tools.mm in Sources */,
-				CB4821A527CF9F38001AB7E1 /* CommSecureStore.mm in Sources */,
 				CB3C621227CE65030054F24C /* CommSecureStoreIOSWrapper.mm in Sources */,
 				CB3C621127CE4A320054F24C /* Logger.mm in Sources */,
 				724995D527B4103A00323FCE /* NotificationService.mm in Sources */,
