@@ -466,12 +466,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     }
 
     if (this.state.mode === 'siwe') {
-      panel = (
-        <SIWEPanel
-          setActiveAlert={this.setActiveAlert}
-          opacityValue={this.panelOpacityValue}
-        />
-      );
+      panel = <SIWEPanel />;
     } else if (this.state.mode === 'log-in') {
       panel = (
         <LogInPanel

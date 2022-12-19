@@ -1,19 +1,13 @@
 // @flow
+
 import * as React from 'react';
-import Animated from 'react-native-reanimated';
 import WebView from 'react-native-webview';
 
 import { registerActionTypes, register } from 'lib/actions/user-actions';
-import type {
-  RegisterInfo,
-  LogInExtraInfo,
-  RegisterResult,
-  LogInStartingPayload,
-} from 'lib/types/account-types';
+import type { LogInStartingPayload } from 'lib/types/account-types';
 import {
   useServerCall,
   useDispatchActionPromise,
-  type DispatchActionPromise,
 } from 'lib/utils/action-utils';
 
 import { NavContext } from '../navigation/navigation-context';
@@ -24,25 +18,18 @@ import { setNativeCredentials } from './native-credentials';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 
-type BaseProps = {
-  +setActiveAlert: (activeAlert: boolean) => void,
-  +opacityValue: Animated.Node,
-};
-type Props = {
-  ...BaseProps,
-  // Redux state
-  +logInExtraInfo: () => LogInExtraInfo,
-  // Redux dispatch functions
-  +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  +registerAction: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
-};
+function SIWEPanel(): React.Node {
+  const navContext = React.useContext(NavContext);
+  const dispatchActionPromise = useDispatchActionPromise();
+  const registerAction = useServerCall(register);
 
-function SIWEPanel({
-  logInExtraInfo,
-  dispatchActionPromise,
-  registerAction,
-}: Props) {
+  const logInExtraInfo = useSelector(state =>
+    nativeLogInExtraInfoSelector({
+      redux: state,
+      navContext,
+    }),
+  );
+
   const handleSIWE = React.useCallback(
     ({ address, signature }) => {
       // this is all mocked from register-panel
@@ -73,31 +60,9 @@ function SIWEPanel({
     },
     [handleSIWE],
   );
+
   const source = React.useMemo(() => ({ uri: commSIWE }), []);
   return <WebView source={source} onMessage={handleMessage} />;
 }
-const ConnectedSIWEPanel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedRegisterPanel(props: BaseProps) {
-    const navContext = React.useContext(NavContext);
-    const logInExtraInfo = useSelector(state =>
-      nativeLogInExtraInfoSelector({
-        redux: state,
-        navContext,
-      }),
-    );
 
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callRegister = useServerCall(register);
-
-    return (
-      <SIWEPanel
-        {...props}
-        logInExtraInfo={logInExtraInfo}
-        dispatchActionPromise={dispatchActionPromise}
-        registerAction={callRegister}
-      />
-    );
-  },
-);
-
-export default ConnectedSIWEPanel;
+export default SIWEPanel;
