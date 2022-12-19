@@ -2,7 +2,6 @@
 #include "AmqpManager.h"
 #include "AwsTools.h"
 #include "ConfigManager.h"
-#include "CryptoTools.h"
 #include "DatabaseManager.h"
 #include "DeliveryBroker.h"
 #include "GlobalTools.h"
@@ -86,7 +85,6 @@ rust::String getSavedNonceToSign(rust::Str deviceID) {
 NewSessionResult newSessionHandler(
     rust::Str deviceID,
     rust::Str publicKey,
-    rust::Str signature,
     int32_t deviceType,
     rust::Str deviceAppVersion,
     rust::Str deviceOS,
@@ -104,14 +102,6 @@ NewSessionResult newSessionHandler(
   const std::string stringPublicKey{publicKey};
   const std::string newSessionID = comm::network::tools::generateUUID();
   try {
-    sessionSignItem = comm::network::database::DatabaseManager::getInstance()
-                          .findSessionSignItem(stringDeviceID);
-    if (sessionSignItem == nullptr) {
-      return NewSessionResult{
-          .grpcStatus = {
-              .statusCode = GRPCStatusCodes::NotFound,
-              .errorText = "Session signature request not found for deviceID"}};
-    }
     publicKeyItem = comm::network::database::DatabaseManager::getInstance()
                         .findPublicKeyItem(stringDeviceID);
     if (publicKeyItem == nullptr) {
@@ -125,15 +115,6 @@ NewSessionResult newSessionHandler(
           .grpcStatus = {
               .statusCode = GRPCStatusCodes::PermissionDenied,
               .errorText = "The public key doesn't match for deviceID"}};
-    }
-    const std::string verificationMessage = sessionSignItem->getSign();
-    if (!comm::network::crypto::rsaVerifyString(
-            stringPublicKey, verificationMessage, std::string{signature})) {
-      return NewSessionResult{
-          .grpcStatus = {
-              .statusCode = GRPCStatusCodes::PermissionDenied,
-              .errorText =
-                  "Signature for the verification message is not valid"}};
     }
     comm::network::database::DatabaseManager::getInstance()
         .removeSessionSignItem(stringDeviceID);

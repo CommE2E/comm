@@ -95,7 +95,6 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
     let result = newSessionHandler(
       &inner_request.device_id,
       &inner_request.public_key,
-      &inner_request.signature,
       inner_request.device_type,
       &inner_request.device_app_version,
       &inner_request.device_os,

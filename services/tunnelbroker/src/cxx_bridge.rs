@@ -59,7 +59,6 @@ pub mod ffi {
     pub fn newSessionHandler(
       deviceID: &str,
       publicKey: &str,
-      signature: &str,
       deviceType: i32,
       deviceAppVersion: &str,
       deviceOS: &str,
