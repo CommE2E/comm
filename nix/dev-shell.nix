@@ -12,7 +12,6 @@
 , cmake-format
 , cocoapods
 , corrosion
-, cryptopp
 , darwin
 , double-conversion
 , folly
@@ -73,7 +72,6 @@ mkShell {
     # Tunnelbroker + CMake
     amqp-cpp
     c-ares_cmake-config
-    cryptopp
     cmake
     cmake-format # linting
     libuv

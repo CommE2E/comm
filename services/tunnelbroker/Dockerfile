@@ -20,7 +20,6 @@ COPY services/tunnelbroker/docker .
 
 # Install SDKs
 RUN ./install_amqp_cpp.sh
-RUN ./install_cryptopp.sh
 RUN ./install_libuv.sh
 
 # Copying of the shared code

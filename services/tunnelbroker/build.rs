@@ -42,7 +42,6 @@ fn main() {
   println!("cargo:rustc-link-lib=gflags");
   println!("cargo:rustc-link-lib=amqpcpp");
   println!("cargo:rustc-link-lib=glog");
-  println!("cargo:rustc-link-lib=cryptopp");
   println!("cargo:rustc-link-lib=ssl");
   println!("cargo:rustc-link-lib=uv");
   println!("cargo:rustc-link-lib=aws-cpp-sdk-core");

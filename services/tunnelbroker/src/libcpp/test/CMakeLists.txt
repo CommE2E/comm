@@ -37,13 +37,6 @@ find_package(OpenSSL REQUIRED)
 find_package(glog REQUIRED)
 find_package(GTest REQUIRED)
 
-# Find Cryptopp installation
-pkg_check_modules(CRYPTOPP
-  REQUIRED
-  IMPORTED_TARGET
-  libcryptopp=8.6
-)
-
 # Find Libuv installation
 pkg_check_modules(LIBUV
   REQUIRED
@@ -72,7 +65,6 @@ set(
 
   ${AWSSDK_LINK_LIBRARIES}
   ${Boost_LIBRARIES}
-  PkgConfig::CRYPTOPP
   PkgConfig::LIBUV
   amqpcpp
   OpenSSL::SSL
