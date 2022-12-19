@@ -117,6 +117,18 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       `);
     },
   ],
+  [
+    12,
+    async () => {
+      await dbQuery(SQL`
+        CREATE TABLE IF NOT EXISTS siwe_nonces (
+          nonce char(17) NOT NULL,
+          creation_time bigint(20) NOT NULL,
+          PRIMARY KEY (nonce)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 

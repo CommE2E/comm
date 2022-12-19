@@ -241,6 +241,11 @@ async function createTables() {
         confirmed tinyint(1) UNSIGNED NOT NULL DEFAULT 0
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+      CREATE TABLE siwe_nonces (
+        nonce char(17) NOT NULL,
+        creation_time bigint(20) NOT NULL,
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
       ALTER TABLE cookies
         ADD PRIMARY KEY (id),
         ADD UNIQUE KEY device_token (device_token),
@@ -353,6 +358,9 @@ async function createTables() {
         
       ALTER TABLE policy_acknowledgments
         ADD PRIMARY KEY (user, policy);
+        
+      ALTER TABLE siwe_nonces
+        ADD PRIMARY KEY (nonce);
     `,
     { multipleStatements: true },
   );
