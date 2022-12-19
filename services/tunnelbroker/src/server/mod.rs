@@ -3,8 +3,8 @@ use crate::cxx_bridge::ffi::MessageItem;
 use super::constants;
 use super::cxx_bridge::ffi::{
   ackMessageFromAMQP, eraseMessagesFromAMQP, getMessagesFromDatabase,
-  getSessionItem, newSessionHandler, removeMessages, sendMessages,
-  sessionSignatureHandler, updateSessionItemDeviceToken,
+  getSavedNonceToSign, getSessionItem, newSessionHandler, removeMessages,
+  sendMessages, sessionSignatureHandler, updateSessionItemDeviceToken,
   updateSessionItemIsOnline, waitMessageFromDeliveryBroker, GRPCStatusCodes,
 };
 use anyhow::Result;
@@ -60,6 +60,37 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
         "Unsupported device type",
       ));
     };
+
+    let nonce_to_be_signed = match getSavedNonceToSign(&inner_request.device_id)
+    {
+      Ok(saved_nonce) => saved_nonce,
+      Err(err) => {
+        return Err(tools::create_tonic_status(
+          GRPCStatusCodes::Internal,
+          &err.what(),
+        ))
+      }
+    };
+    match tools::verify_signed_string(
+      &inner_request.public_key,
+      &nonce_to_be_signed,
+      &inner_request.signature,
+    ) {
+      Ok(verifying_result) => {
+        if !verifying_result {
+          return Err(tools::create_tonic_status(
+            GRPCStatusCodes::PermissionDenied,
+            "Signature for the verification message is not valid",
+          ));
+        }
+      }
+      Err(_) => {
+        return Err(tools::create_tonic_status(
+          GRPCStatusCodes::Internal,
+          "Error while verifying the signature",
+        ))
+      }
+    }
 
     let result = newSessionHandler(
       &inner_request.device_id,
