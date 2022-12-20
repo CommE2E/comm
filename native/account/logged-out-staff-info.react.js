@@ -98,8 +98,6 @@ const unboundStyles = {
     borderRadius: 6,
     justifyContent: 'flex-start',
     marginBottom: 10,
-    marginLeft: 40,
-    marginRight: 40,
     marginTop: 10,
     padding: 8,
   },

@@ -592,8 +592,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFFAA',
     borderRadius: 6,
     marginBottom: 10,
-    marginLeft: 40,
-    marginRight: 40,
     marginTop: 10,
     paddingBottom: 6,
     paddingLeft: 18,
@@ -603,6 +601,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     bottom: 0,
     left: 0,
+    marginLeft: 40,
+    marginRight: 40,
     paddingBottom: 20,
     position: 'absolute',
     right: 0,
