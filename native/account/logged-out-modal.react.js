@@ -5,7 +5,6 @@ import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import {
   View,
-  StyleSheet,
   Text,
   TouchableOpacity,
   Image,
@@ -41,6 +40,7 @@ import {
   derivedDimensionsInfoSelector,
 } from '../selectors/dimensions-selectors';
 import { splashStyleSelector } from '../splash';
+import { useStyles } from '../themes/colors';
 import type { EventSubscription, KeyboardEvent } from '../types/react-native';
 import type { ImageStyle } from '../types/styles';
 import {
@@ -113,6 +113,7 @@ type Props = {
   +loggedIn: boolean,
   +dimensions: DerivedDimensionsInfo,
   +splashStyle: ImageStyle,
+  +styles: typeof unboundStyles,
   // Redux dispatch functions
   +dispatch: Dispatch,
   ...
@@ -450,18 +451,27 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { styles } = this.props;
+
     let panel = null;
     let buttons = null;
     let siweButton = null;
     if (__DEV__) {
       siweButton = (
-        <TouchableOpacity
-          onPress={this.onPressSIWE}
-          style={styles.button}
-          activeOpacity={0.6}
-        >
-          <Text style={styles.buttonText}>SIWE</Text>
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            onPress={this.onPressSIWE}
+            style={styles.button}
+            activeOpacity={0.6}
+          >
+            <Text style={styles.buttonText}>SIWE</Text>
+          </TouchableOpacity>
+          <View style={styles.siweOr}>
+            <View style={styles.siweOrLeftHR} />
+            <Text style={styles.siweOrText}>or</Text>
+            <View style={styles.siweOrRightHR} />
+          </View>
+        </>
       );
     }
 
@@ -580,7 +590,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   };
 }
 
-const styles = StyleSheet.create({
+const unboundStyles = {
   animationContainer: {
     flex: 1,
   },
@@ -635,7 +645,32 @@ const styles = StyleSheet.create({
     right: 0,
     top: 0,
   },
-});
+  siweOr: {
+    flex: 1,
+    flexDirection: 'row',
+    marginBottom: 18,
+    marginTop: 14,
+  },
+  siweOrLeftHR: {
+    borderColor: 'logInSpacer',
+    borderTopWidth: 1,
+    flex: 1,
+    marginRight: 18,
+    marginTop: 10,
+  },
+  siweOrRightHR: {
+    borderColor: 'logInSpacer',
+    borderTopWidth: 1,
+    flex: 1,
+    marginLeft: 18,
+    marginTop: 10,
+  },
+  siweOrText: {
+    color: 'logInText',
+    fontSize: 17,
+    textAlign: 'center',
+  },
+};
 
 const isForegroundSelector = createIsForegroundSelector(
   LoggedOutModalRouteName,
@@ -656,6 +691,7 @@ const ConnectedLoggedOutModal: React.ComponentType<{ ... }> = React.memo<{
   const loggedIn = useSelector(isLoggedIn);
   const dimensions = useSelector(derivedDimensionsInfoSelector);
   const splashStyle = useSelector(splashStyleSelector);
+  const styles = useStyles(unboundStyles);
 
   const dispatch = useDispatch();
   return (
@@ -669,6 +705,7 @@ const ConnectedLoggedOutModal: React.ComponentType<{ ... }> = React.memo<{
       loggedIn={loggedIn}
       dimensions={dimensions}
       splashStyle={splashStyle}
+      styles={styles}
       dispatch={dispatch}
     />
   );

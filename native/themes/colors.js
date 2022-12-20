@@ -83,6 +83,8 @@ const light = Object.freeze({
   vibrantGreenButton: '#00C853',
   vibrantRedButton: '#F53100',
   tooltipBackground: '#E0E0E0',
+  logInSpacer: '#FFFFFF33',
+  logInText: 'white',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -159,6 +161,8 @@ const dark: Colors = Object.freeze({
   vibrantGreenButton: '#00C853',
   vibrantRedButton: '#F53100',
   tooltipBackground: '#1F1F1F',
+  logInSpacer: '#FFFFFF33',
+  logInText: 'white',
 });
 const colors = { light, dark };
 
