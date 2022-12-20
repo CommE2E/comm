@@ -8,7 +8,7 @@ import type { PossiblyStaleNavigationState } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, UIManager, StyleSheet, LogBox } from 'react-native';
+import { Platform, UIManager, StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import {
@@ -48,11 +48,6 @@ import { StaffContextProvider } from './staff/staff-context.provider.react';
 import { useLoadCommFonts } from './themes/fonts';
 import { DarkTheme, LightTheme } from './themes/navigation';
 import ThemeHandler from './themes/theme-handler.react';
-
-LogBox.ignoreLogs([
-  // react-native-reanimated
-  'Please report: Excessive number of pending callbacks',
-]);
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
