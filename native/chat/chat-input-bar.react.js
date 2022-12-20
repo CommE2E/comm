@@ -1,5 +1,6 @@
 // @flow
 
+import Icon from '@expo/vector-icons/Ionicons';
 import invariant from 'invariant';
 import _throttle from 'lodash/throttle';
 import * as React from 'react';
@@ -15,7 +16,6 @@ import {
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, { EasingNode } from 'react-native-reanimated';
-import Icon from '@expo/vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
 import {

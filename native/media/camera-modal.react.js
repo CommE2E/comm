@@ -1,5 +1,6 @@
 // @flow
 
+import Icon from '@expo/vector-icons/Ionicons';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
@@ -24,7 +25,6 @@ import type { Orientations } from 'react-native-orientation-locker';
 import Reanimated, {
   EasingNode as ReanimatedEasing,
 } from 'react-native-reanimated';
-import Icon from '@expo/vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
 
 import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';

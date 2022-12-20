@@ -1,5 +1,6 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome';
 import invariant from 'invariant';
 import _isEqual from 'lodash/fp/isEqual';
 import _omit from 'lodash/fp/omit';
@@ -14,7 +15,6 @@ import {
   LayoutAnimation,
   Keyboard,
 } from 'react-native';
-import Icon from '@expo/vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 import shallowequal from 'shallowequal';
 import tinycolor from 'tinycolor2';

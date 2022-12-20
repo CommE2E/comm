@@ -1,8 +1,8 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome';
 import * as React from 'react';
 import { TouchableHighlight, Alert } from 'react-native';
-import Icon from '@expo/vector-icons/FontAwesome';
 
 import {
   changeThreadSettingsActionTypes,

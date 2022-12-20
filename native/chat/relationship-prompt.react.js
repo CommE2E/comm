@@ -1,8 +1,8 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome5';
 import * as React from 'react';
 import { Alert, Text, View } from 'react-native';
-import Icon from '@expo/vector-icons/FontAwesome5';
 
 import { useRelationshipPrompt } from 'lib/hooks/relationship-prompt';
 import { userRelationshipStatus } from 'lib/types/relationship-types';

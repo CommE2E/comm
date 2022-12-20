@@ -1,8 +1,8 @@
 // @flow
 
+import Icon from '@expo/vector-icons/Feather';
 import * as React from 'react';
 import { ActivityIndicator, StyleSheet, Platform } from 'react-native';
-import Icon from '@expo/vector-icons/Feather';
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 

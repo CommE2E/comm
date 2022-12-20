@@ -1,10 +1,10 @@
 // @flow
 
+import Icon from '@expo/vector-icons/Feather';
 import invariant from 'invariant';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import Icon from '@expo/vector-icons/Feather';
 
 import { createMessageReply } from 'lib/shared/message-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';

@@ -1,9 +1,9 @@
 // @flow
 
+import type { IoniconsGlyphs } from '@expo/vector-icons';
+import RawIcon from '@expo/vector-icons/Ionicons';
 import * as React from 'react';
 import { View, Text as RawText } from 'react-native';
-import RawIcon from '@expo/vector-icons/Ionicons';
-import type { IoniconsGlyphs } from '@expo/vector-icons';
 
 import Button from '../components/button.react';
 import { useColors, useStyles } from '../themes/colors';

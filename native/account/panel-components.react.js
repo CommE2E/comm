@@ -1,5 +1,6 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome';
 import * as React from 'react';
 import {
   View,
@@ -9,7 +10,6 @@ import {
   ScrollView,
 } from 'react-native';
 import Animated from 'react-native-reanimated';
-import Icon from '@expo/vector-icons/FontAwesome';
 
 import type { LoadingStatus } from 'lib/types/loading-types';
 

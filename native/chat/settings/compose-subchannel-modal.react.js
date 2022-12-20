@@ -1,8 +1,8 @@
 // @flow
 
+import IonIcon from '@expo/vector-icons/Ionicons';
 import * as React from 'react';
 import { Text } from 'react-native';
-import IonIcon from '@expo/vector-icons/Ionicons';
 
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';

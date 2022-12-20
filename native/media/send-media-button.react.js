@@ -1,5 +1,6 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome';
 import * as React from 'react';
 import {
   TouchableOpacity,
@@ -9,7 +10,6 @@ import {
   Platform,
   Animated,
 } from 'react-native';
-import Icon from '@expo/vector-icons/FontAwesome';
 
 import type { ViewStyle } from '../types/styles';
 

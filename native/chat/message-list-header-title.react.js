@@ -1,12 +1,12 @@
 // @flow
 
+import Icon from '@expo/vector-icons/Ionicons';
 import {
   HeaderTitle,
   type StackHeaderTitleInputProps,
 } from '@react-navigation/elements';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
-import Icon from '@expo/vector-icons/Ionicons';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 import { firstLine } from 'lib/utils/string-utils';

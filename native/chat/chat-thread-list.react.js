@@ -1,5 +1,6 @@
 // @flow
 
+import IonIcon from '@expo/vector-icons/Ionicons';
 import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
 import * as React from 'react';
@@ -13,7 +14,6 @@ import {
 } from 'react-native';
 import { FloatingAction } from 'react-native-floating-action';
 import Animated from 'react-native-reanimated';
-import IonIcon from '@expo/vector-icons/Ionicons';
 import { createSelector } from 'reselect';
 
 import { searchUsers } from 'lib/actions/user-actions';

@@ -1,8 +1,8 @@
 // @flow
 
+import EntypoIcon from '@expo/vector-icons/Entypo';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
-import EntypoIcon from '@expo/vector-icons/Entypo';
 
 import { threadTypes, type ThreadType } from 'lib/types/thread-types';
 

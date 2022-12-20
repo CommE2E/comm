@@ -1,7 +1,7 @@
 // @flow
 
-import * as React from 'react';
 import Icon from '@expo/vector-icons/Ionicons';
+import * as React from 'react';
 
 import { type ThreadInfo } from 'lib/types/thread-types';
 

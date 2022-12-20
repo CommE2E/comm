@@ -1,8 +1,8 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome5';
 import * as React from 'react';
 import { View, ScrollView } from 'react-native';
-import Icon from '@expo/vector-icons/FontAwesome5';
 
 import { ancestorThreadInfos } from 'lib/selectors/thread-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';

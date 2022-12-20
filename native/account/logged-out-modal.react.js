@@ -1,5 +1,6 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome';
 import _isEqual from 'lodash/fp/isEqual';
 import * as React from 'react';
 import {
@@ -15,7 +16,6 @@ import {
 } from 'react-native';
 import Animated, { EasingNode } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from '@expo/vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 
 import { isLoggedIn } from 'lib/selectors/user-selectors';

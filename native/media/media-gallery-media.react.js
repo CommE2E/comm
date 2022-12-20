@@ -1,5 +1,7 @@
 // @flow
 
+import Icon from '@expo/vector-icons/FontAwesome';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import LottieView from 'lottie-react-native';
 import * as React from 'react';
 import {
@@ -14,8 +16,6 @@ import {
 import Reanimated, {
   EasingNode as ReanimatedEasing,
 } from 'react-native-reanimated';
-import Icon from '@expo/vector-icons/FontAwesome';
-import MaterialIcon from '@expo/vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 
 import { type MediaLibrarySelection } from 'lib/types/media-types';

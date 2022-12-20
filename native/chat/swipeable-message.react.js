@@ -1,5 +1,6 @@
 // @flow
 
+import type { IconProps } from '@expo/vector-icons';
 import { GestureHandlerRefContext } from '@react-navigation/stack';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
@@ -16,7 +17,6 @@ import Animated, {
   Extrapolate,
   type SharedValue,
 } from 'react-native-reanimated';
-import type { IconProps } from '@expo/vector-icons';
 import tinycolor from 'tinycolor2';
 
 import CommIcon from '../components/comm-icon.react';

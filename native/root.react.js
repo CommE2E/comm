@@ -9,6 +9,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import invariant from 'invariant';
 import * as React from 'react';
 import { Platform, UIManager, StyleSheet, LogBox } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Orientation from 'react-native-orientation-locker';
 import {
   SafeAreaProvider,
@@ -16,7 +17,6 @@ import {
 } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/integration/react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { actionLogger } from 'lib/utils/action-logger';
 
