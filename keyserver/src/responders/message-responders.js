@@ -4,31 +4,40 @@ import invariant from 'invariant';
 import t from 'tcomb';
 
 import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import type { Media } from 'lib/types/media-types.js';
 import {
   messageTypes,
   type SendTextMessageRequest,
   type SendMultimediaMessageRequest,
+  type SendReactionMessageRequest,
   type FetchMessageInfosResponse,
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
   type SendMessageResponse,
+  type ReactionMessageData,
 } from 'lib/types/message-types';
 import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
-import { tShape, tMediaMessageMedia } from 'lib/utils/validation-utils';
+import {
+  tString,
+  tShape,
+  tMediaMessageMedia,
+} from 'lib/utils/validation-utils';
 
 import createMessages from '../creators/message-creator';
 import {
   fetchMessageInfos,
   fetchMessageInfoForLocalID,
+  fetchMessageInfoByID,
 } from '../fetchers/message-fetchers';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import {
   fetchMedia,
   fetchMediaFromMediaMessageContent,
 } from '../fetchers/upload-fetchers';
+import { fetchKnownUserInfos } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
 import {
   assignMedia,
@@ -179,8 +188,68 @@ async function multimediaMessageCreationResponder(
   return { newMessageInfo };
 }
 
+const sendReactionMessageRequestInputValidator = tShape({
+  threadID: t.String,
+  targetMessageID: t.String,
+  reaction: tString('👍'),
+  action: t.enums.of(['add_reaction', 'remove_reaction']),
+});
+async function reactionMessageCreationResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<SendMessageResponse> {
+  const request: SendReactionMessageRequest = input;
+  await validateInput(viewer, sendReactionMessageRequestInputValidator, input);
+
+  const { threadID, targetMessageID, reaction, action } = request;
+
+  if (!targetMessageID || !reaction) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const targetMessageInfo = await fetchMessageInfoByID(viewer, targetMessageID);
+
+  if (!targetMessageInfo || !targetMessageInfo.id) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const [hasPermission, targetMessageUserInfos] = await Promise.all([
+    checkThreadPermission(viewer, threadID, threadPermissions.VOICED),
+    fetchKnownUserInfos(viewer, [targetMessageInfo.creatorID]),
+  ]);
+
+  const targetMessageCreator =
+    targetMessageUserInfos[targetMessageInfo.creatorID];
+
+  const targetMessageCreatorRelationship =
+    targetMessageCreator?.relationshipStatus;
+
+  const creatorRelationshipHasBlock =
+    targetMessageCreatorRelationship &&
+    relationshipBlockedInEitherDirection(targetMessageCreatorRelationship);
+
+  if (!hasPermission || creatorRelationshipHasBlock) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  const messageData: ReactionMessageData = {
+    type: messageTypes.REACTION,
+    threadID,
+    creatorID: viewer.id,
+    time: Date.now(),
+    targetMessageID,
+    reaction,
+    action,
+  };
+
+  const rawMessageInfos = await createMessages(viewer, [messageData]);
+
+  return { newMessageInfo: rawMessageInfos[0] };
+}
+
 export {
   textMessageCreationResponder,
   messageFetchResponder,
   multimediaMessageCreationResponder,
+  reactionMessageCreationResponder,
 };
