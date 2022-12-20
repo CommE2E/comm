@@ -85,6 +85,8 @@ const light = Object.freeze({
   tooltipBackground: '#E0E0E0',
   logInSpacer: '#FFFFFF33',
   logInText: 'white',
+  siweButton: 'white',
+  siweButtonText: '#1F1F1F',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -163,6 +165,8 @@ const dark: Colors = Object.freeze({
   tooltipBackground: '#1F1F1F',
   logInSpacer: '#FFFFFF33',
   logInText: 'white',
+  siweButton: 'white',
+  siweButtonText: '#1F1F1F',
 });
 const colors = { light, dark };
 

@@ -22,6 +22,7 @@ import { logInActionSources } from 'lib/types/account-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 
+import EthereumLogo from '../components/ethereum-logo.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import ConnectedStatusBar from '../connected-status-bar.react';
 import {
@@ -461,10 +462,15 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         <>
           <TouchableOpacity
             onPress={this.onPressSIWE}
-            style={styles.button}
+            style={[styles.button, styles.siweButton]}
             activeOpacity={0.6}
           >
-            <Text style={styles.buttonText}>SIWE</Text>
+            <View style={styles.siweIcon}>
+              <EthereumLogo />
+            </View>
+            <Text style={[styles.buttonText, styles.siweButtonText]}>
+              Sign In with Ethereum
+            </Text>
           </TouchableOpacity>
           <View style={styles.siweOr}>
             <View style={styles.siweOrLeftHR} />
@@ -501,17 +507,21 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
           {siweButton}
           <TouchableOpacity
             onPress={this.onPressLogIn}
-            style={styles.button}
+            style={[styles.button, styles.classicAuthButton]}
             activeOpacity={0.6}
           >
-            <Text style={styles.buttonText}>LOG IN</Text>
+            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+              Sign in
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={this.onPressRegister}
-            style={styles.button}
+            style={[styles.button, styles.classicAuthButton]}
             activeOpacity={0.6}
           >
-            <Text style={styles.buttonText}>SIGN UP</Text>
+            <Text style={[styles.buttonText, styles.classicAuthButtonText]}>
+              Register
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       );
@@ -599,29 +609,33 @@ const unboundStyles = {
     top: 13,
   },
   button: {
-    backgroundColor: '#FFFFFFAA',
-    borderRadius: 6,
-    marginBottom: 10,
-    marginTop: 10,
-    paddingBottom: 6,
+    borderRadius: 4,
+    marginBottom: 4,
+    marginTop: 4,
+    paddingBottom: 14,
     paddingLeft: 18,
     paddingRight: 18,
-    paddingTop: 6,
+    paddingTop: 14,
   },
   buttonContainer: {
     bottom: 0,
     left: 0,
-    marginLeft: 40,
-    marginRight: 40,
+    marginLeft: 30,
+    marginRight: 30,
     paddingBottom: 20,
     position: 'absolute',
     right: 0,
   },
   buttonText: {
-    color: '#000000FF',
     fontFamily: 'OpenSans-Semibold',
-    fontSize: 22,
+    fontSize: 17,
     textAlign: 'center',
+  },
+  classicAuthButton: {
+    backgroundColor: 'purpleButton',
+  },
+  classicAuthButtonText: {
+    color: 'logInText',
   },
   container: {
     backgroundColor: 'transparent',
@@ -644,6 +658,15 @@ const unboundStyles = {
     position: 'absolute',
     right: 0,
     top: 0,
+  },
+  siweButton: {
+    backgroundColor: 'siweButton',
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  siweButtonText: {
+    color: 'siweButtonText',
   },
   siweOr: {
     flex: 1,
@@ -669,6 +692,9 @@ const unboundStyles = {
     color: 'logInText',
     fontSize: 17,
     textAlign: 'center',
+  },
+  siweIcon: {
+    paddingRight: 10,
   },
 };
 
