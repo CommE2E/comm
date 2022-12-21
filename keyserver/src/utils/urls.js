@@ -83,14 +83,6 @@ function getAndAssertLandingURLFacts(): AppURLFacts {
   return urlFacts;
 }
 
-function clientPathFromRouterPath(
-  routerPath: string,
-  urlFacts: AppURLFacts,
-): string {
-  const { basePath } = urlFacts;
-  return basePath + routerPath;
-}
-
 export {
   prefetchAllURLFacts,
   getSquadCalURLFacts,
@@ -99,5 +91,4 @@ export {
   getLandingURLFacts,
   getAndAssertLandingURLFacts,
   getAppURLFactsFromRequestURL,
-  clientPathFromRouterPath,
 };

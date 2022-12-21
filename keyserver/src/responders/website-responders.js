@@ -46,10 +46,7 @@ import {
 import { setNewSession } from '../session/cookies';
 import { Viewer } from '../session/viewer';
 import { streamJSON, waitForStream } from '../utils/json-stream';
-import {
-  getAppURLFactsFromRequestURL,
-  clientPathFromRouterPath,
-} from '../utils/urls';
+import { getAppURLFactsFromRequestURL } from '../utils/urls';
 
 const { renderToNodeStream } = ReactDOMServer;
 
@@ -353,7 +350,7 @@ async function websiteResponder(
   const store: Store<AppState, Action> = createStore(reducer, state);
 
   const routerContext = {};
-  const clientPath = clientPathFromRouterPath(req.url, appURLFacts);
+  const clientPath = baseURL + req.url;
   const reactStream = renderToNodeStream(
     <Provider store={store}>
       <StaticRouter
