@@ -33,11 +33,17 @@ function onPressReact(
   const threadID = route.params.item.threadInfo.id;
   invariant(threadID, 'threadID should be set');
 
+  const reactionInput = '👍';
+  const viewerReacted = route.params.item.reactions.get(reactionInput)
+    ?.viewerReacted;
+
+  const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
+
   sendReaction(
     messageID,
     threadID,
-    '👍',
-    'add_reaction',
+    reactionInput,
+    action,
     dispatchFunctions,
     bindServerCall,
   );
