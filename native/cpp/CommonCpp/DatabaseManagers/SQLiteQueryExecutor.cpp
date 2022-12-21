@@ -1,5 +1,6 @@
 #include "SQLiteQueryExecutor.h"
 #include "CommSecureStore.h"
+#include "DatabaseManager.h"
 #include "Logger.h"
 #include "sqlite_orm.h"
 
@@ -715,6 +716,7 @@ void SQLiteQueryExecutor::migrate() {
     Logger::log("Database structure created.");
 
     sqlite3_close(db);
+    DatabaseManager::setDatabaseStatusAsWorkable();
     return;
   }
 
@@ -746,6 +748,7 @@ void SQLiteQueryExecutor::migrate() {
   }
 
   sqlite3_close(db);
+  DatabaseManager::setDatabaseStatusAsWorkable();
 }
 
 void SQLiteQueryExecutor::assign_encryption_key() {
