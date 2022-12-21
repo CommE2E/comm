@@ -65,7 +65,7 @@ public:
   std::string getCurrentUserID() const override;
   void setDeviceID(std::string deviceID) const override;
   std::string getDeviceID() const override;
-  void clearSensitiveData() const override;
+  static void clearSensitiveData();
 };
 
 } // namespace comm
