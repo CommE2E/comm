@@ -1060,4 +1060,8 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
       });
 }
 
+bool CommCoreModule::checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) {
+  return DatabaseManager::checkIfDatabaseNeedsDeletion();
+}
+
 } // namespace comm

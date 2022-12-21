@@ -62,4 +62,12 @@ void DatabaseManager::setDatabaseStatusAsWorkable() {
   commSecureStore.set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
 }
 
+bool DatabaseManager::checkIfDatabaseNeedsDeletion() {
+  comm::CommSecureStore commSecureStore{};
+  folly::Optional<std::string> databaseManagerStatus =
+      commSecureStore.get(DATABASE_MANAGER_STATUS_KEY);
+  return databaseManagerStatus.hasValue() &&
+      databaseManagerStatus.value() == DB_MANAGER_SECOND_FAILURE;
+}
+
 } // namespace comm
