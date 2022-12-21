@@ -12,10 +12,6 @@ mod identity {
 
 use crypto_tools::generate_device_id;
 use identity::identity_service_client::IdentityServiceClient;
-use identity_client::{
-  get_user_id, login_user_pake, login_user_wallet, register_user,
-  verify_user_token,
-};
 
 lazy_static! {
   pub static ref RUNTIME: Arc<Runtime> = Arc::new(
@@ -41,18 +37,18 @@ mod ffi {
     // Identity Service Client
     type IdentityClient;
     fn initialize_identity_client(addr: String) -> Box<IdentityClient>;
-    fn get_user_id_blocking(
+    fn identity_get_user_id_blocking(
       client: Box<IdentityClient>,
       auth_type: i32,
       user_info: String,
     ) -> Result<String>;
-    fn verify_user_token_blocking(
+    fn identity_verify_user_token_blocking(
       client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
       access_token: String,
     ) -> Result<bool>;
-    fn register_user_blocking(
+    fn identity_register_user_blocking(
       client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
@@ -60,14 +56,14 @@ mod ffi {
       password: String,
       user_public_key: String,
     ) -> Result<String>;
-    fn login_user_pake_blocking(
+    fn identity_login_user_pake_blocking(
       client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
       password: String,
       user_public_key: String,
     ) -> Result<String>;
-    fn login_user_wallet_blocking(
+    fn identity_login_user_wallet_blocking(
       client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
@@ -75,6 +71,7 @@ mod ffi {
       siwe_signature: Vec<u8>,
       user_public_key: String,
     ) -> Result<String>;
+
     // Crypto Tools
     fn generate_device_id(device_type: DeviceType) -> Result<String>;
   }
@@ -94,26 +91,31 @@ fn initialize_identity_client(addr: String) -> Box<IdentityClient> {
 }
 
 #[instrument]
-fn get_user_id_blocking(
+fn identity_get_user_id_blocking(
   client: Box<IdentityClient>,
   auth_type: i32,
   user_info: String,
 ) -> Result<String, Status> {
-  RUNTIME.block_on(get_user_id(client, auth_type, user_info))
+  RUNTIME.block_on(identity_client::get_user_id(client, auth_type, user_info))
 }
 
 #[instrument]
-fn verify_user_token_blocking(
+fn identity_verify_user_token_blocking(
   client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   access_token: String,
 ) -> Result<bool, Status> {
-  RUNTIME.block_on(verify_user_token(client, user_id, device_id, access_token))
+  RUNTIME.block_on(identity_client::verify_user_token(
+    client,
+    user_id,
+    device_id,
+    access_token,
+  ))
 }
 
 #[instrument]
-fn register_user_blocking(
+fn identity_register_user_blocking(
   client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
@@ -121,7 +123,7 @@ fn register_user_blocking(
   password: String,
   user_public_key: String,
 ) -> Result<String, Status> {
-  RUNTIME.block_on(register_user(
+  RUNTIME.block_on(identity_client::register_user(
     client,
     user_id,
     device_id,
@@ -132,14 +134,14 @@ fn register_user_blocking(
 }
 
 #[instrument]
-fn login_user_pake_blocking(
+fn identity_login_user_pake_blocking(
   client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   password: String,
   user_public_key: String,
 ) -> Result<String, Status> {
-  RUNTIME.block_on(login_user_pake(
+  RUNTIME.block_on(identity_client::login_user_pake(
     client,
     user_id,
     device_id,
@@ -149,7 +151,7 @@ fn login_user_pake_blocking(
 }
 
 #[instrument]
-fn login_user_wallet_blocking(
+fn identity_login_user_wallet_blocking(
   client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
@@ -157,7 +159,7 @@ fn login_user_wallet_blocking(
   siwe_signature: Vec<u8>,
   user_public_key: String,
 ) -> Result<String, Status> {
-  RUNTIME.block_on(login_user_wallet(
+  RUNTIME.block_on(identity_client::login_user_wallet(
     client,
     user_id,
     device_id,
