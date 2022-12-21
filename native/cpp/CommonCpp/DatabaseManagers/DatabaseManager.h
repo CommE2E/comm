@@ -10,6 +10,7 @@ class DatabaseManager {
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
   static void clearSensitiveData();
+  static void initializeQueryExecutor();
 };
 
 } // namespace comm
