@@ -1,3 +1,5 @@
+use crypto_tools::generate_device_id;
+use identity::identity_service_client::IdentityServiceClient;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
@@ -9,9 +11,6 @@ mod identity_client;
 mod identity {
   tonic::include_proto!("identity");
 }
-
-use crypto_tools::generate_device_id;
-use identity::identity_service_client::IdentityServiceClient;
 
 lazy_static! {
   pub static ref RUNTIME: Arc<Runtime> = Arc::new(
@@ -36,18 +35,26 @@ mod ffi {
   extern "Rust" {
     // Identity Service Client
     type IdentityClient;
+
+    #[cxx_name = "identityInitializeClient"]
     fn initialize_identity_client(addr: String) -> Box<IdentityClient>;
+
+    #[cxx_name = "identityGetUserIdBlocking"]
     fn identity_get_user_id_blocking(
       client: Box<IdentityClient>,
       auth_type: i32,
       user_info: String,
     ) -> Result<String>;
+
+    #[cxx_name = "identityVerifyUserTokenBlocking"]
     fn identity_verify_user_token_blocking(
       client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
       access_token: String,
     ) -> Result<bool>;
+
+    #[cxx_name = "identityRegisterUserBlocking"]
     fn identity_register_user_blocking(
       client: Box<IdentityClient>,
       user_id: String,
@@ -56,6 +63,8 @@ mod ffi {
       password: String,
       user_public_key: String,
     ) -> Result<String>;
+
+    #[cxx_name = "identityLoginUserPakeBlocking"]
     fn identity_login_user_pake_blocking(
       client: Box<IdentityClient>,
       user_id: String,
@@ -63,6 +72,8 @@ mod ffi {
       password: String,
       user_public_key: String,
     ) -> Result<String>;
+
+    #[cxx_name = "identityLoginUserWalletBlocking"]
     fn identity_login_user_wallet_blocking(
       client: Box<IdentityClient>,
       user_id: String,
