@@ -53,4 +53,9 @@ void DatabaseManager::initializeQueryExecutor() {
   }
 }
 
+void DatabaseManager::setDatabaseStatusAsWorkable() {
+  comm::CommSecureStore commSecureStore{};
+  commSecureStore.set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
+}
+
 } // namespace comm
