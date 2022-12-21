@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Provider } from 'react-redux';
+import { Router, Route } from 'react-router';
 import { createStore, applyMiddleware, type Store } from 'redux';
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 import { persistReducer, persistStore } from 'redux-persist';
@@ -11,9 +12,12 @@ import thunk from 'redux-thunk';
 
 import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 
-import HotRoot from './hot';
+import App from './app.react';
+import ErrorBoundary from './error-boundary.react';
 import { reducer } from './redux/redux-setup';
 import type { AppState, Action } from './redux/redux-setup';
+import history from './router-history';
+import Socket from './socket.react';
 
 const persistConfig = {
   key: 'root',
@@ -34,7 +38,12 @@ const persistor = persistStore(store);
 const RootProvider = (): React.Node => (
   <Provider store={store}>
     <PersistGate persistor={persistor}>
-      <HotRoot />
+      <ErrorBoundary>
+        <Router history={history.getHistoryObject()}>
+          <Route path="*" component={App} />
+        </Router>
+        <Socket />
+      </ErrorBoundary>
     </PersistGate>
   </Provider>
 );
