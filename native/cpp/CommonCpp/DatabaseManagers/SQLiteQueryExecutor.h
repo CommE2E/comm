@@ -10,7 +10,7 @@
 namespace comm {
 
 class SQLiteQueryExecutor : public DatabaseQueryExecutor {
-  void migrate() const;
+  static void migrate();
   static void assign_encryption_key();
   static auto &getStorage();
   void setMetadata(std::string entry_name, std::string data) const override;
