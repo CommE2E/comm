@@ -1,9 +1,15 @@
 // @flow
 
 import * as React from 'react';
+import { ActivityIndicator, Text } from 'react-native';
 import WebView from 'react-native-webview';
 
+import {
+  getSIWENonce,
+  getSIWENonceActionTypes,
+} from 'lib/actions/siwe-actions';
 import { registerActionTypes, register } from 'lib/actions/user-actions';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogInStartingPayload } from 'lib/types/account-types';
 import {
   useServerCall,
@@ -18,10 +24,15 @@ import { setNativeCredentials } from './native-credentials';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 
+const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
+  getSIWENonceActionTypes,
+);
+
 function SIWEPanel(): React.Node {
   const navContext = React.useContext(NavContext);
   const dispatchActionPromise = useDispatchActionPromise();
   const registerAction = useServerCall(register);
+  const getSIWENonceCall = useServerCall(getSIWENonce);
 
   const logInExtraInfo = useSelector(state =>
     nativeLogInExtraInfoSelector({
@@ -29,6 +40,24 @@ function SIWEPanel(): React.Node {
       navContext,
     }),
   );
+
+  const getSIWENonceCallFailed = useSelector(
+    state => getSIWENonceLoadingStatusSelector(state) === 'error',
+  );
+
+  const [nonce, setNonce] = React.useState<?string>(null);
+
+  React.useEffect(() => {
+    (async () => {
+      dispatchActionPromise(
+        getSIWENonceActionTypes,
+        (async () => {
+          const response = await getSIWENonceCall();
+          setNonce(response);
+        })(),
+      );
+    })();
+  }, [dispatchActionPromise, getSIWENonceCall]);
 
   const handleSIWE = React.useCallback(
     ({ address, signature }) => {
@@ -61,8 +90,23 @@ function SIWEPanel(): React.Node {
     [handleSIWE],
   );
 
-  const source = React.useMemo(() => ({ uri: commSIWE }), []);
-  return <WebView source={source} onMessage={handleMessage} />;
+  const source = React.useMemo(
+    () => ({
+      uri: commSIWE,
+      headers: {
+        'siwe-nonce': nonce,
+      },
+    }),
+    [nonce],
+  );
+
+  if (nonce) {
+    return <WebView source={source} onMessage={handleMessage} />;
+  } else if (getSIWENonceCallFailed) {
+    return <Text>Oops, try again later!</Text>;
+  } else {
+    return <ActivityIndicator size="large" />;
+  }
 }
 
 export default SIWEPanel;
