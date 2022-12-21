@@ -1,3 +1,5 @@
+env:
+  PATH: "$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
 steps:
   - label: ":nix: Identity Tests (Nix)"
     command:
