@@ -103,7 +103,8 @@ async function fetchCollapsableNotifs(
 
   const collapseQuery = SQL`
     SELECT m.id, m.thread AS threadID, m.content, m.time, m.type,
-      m.user AS creatorID, stm.permissions AS subthread_permissions, n.user,
+      m.user AS creatorID, m.target_message as targetMessageID,
+      stm.permissions AS subthread_permissions, n.user,
       n.collapse_key, up.id AS uploadID, up.type AS uploadType,
       up.secret AS uploadSecret, up.extra AS uploadExtra
     FROM notifications n
