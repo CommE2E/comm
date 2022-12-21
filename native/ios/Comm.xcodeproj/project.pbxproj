@@ -59,6 +59,9 @@
 		CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7326B401D300EDE27D /* Tools.cpp */; };
 		CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
 		CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
+		CB4821B227CFB20E001AB7E1 /* SQLiteQueryExecutor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BE84412636A944002849D2 /* SQLiteQueryExecutor.cpp */; };
+		CB90951C29531663002F2A7F /* CommIOSNotificationsBridgeQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB90951829531663002F2A7F /* CommIOSNotificationsBridgeQueue.mm */; };
+		CB90951D29531663002F2A7F /* CommIOSNotifications.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB90951B29531663002F2A7F /* CommIOSNotifications.mm */; };
 		CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
 		CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFE58282885852B003B94C9 /* ThreadOperations.cpp */; };
 		D7DB6E0F85B2DBE15B01EC21 /* libPods-Comm.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994BEBDD4E4959F69CEA0BC3 /* libPods-Comm.a */; };
@@ -203,6 +206,10 @@
 		CB38F2BE286C6C980010535C /* DeleteEntryMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeleteEntryMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/DeleteEntryMessageSpec.h; sourceTree = "<group>"; };
 		CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UpdateRelationshipMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/UpdateRelationshipMessageSpec.h; sourceTree = "<group>"; };
 		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB90951829531663002F2A7F /* CommIOSNotificationsBridgeQueue.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSNotificationsBridgeQueue.mm; path = Comm/CommIOSNotifications/CommIOSNotificationsBridgeQueue.mm; sourceTree = "<group>"; };
+		CB90951929531663002F2A7F /* CommIOSNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommIOSNotifications.h; path = Comm/CommIOSNotifications/CommIOSNotifications.h; sourceTree = "<group>"; };
+		CB90951A29531663002F2A7F /* CommIOSNotificationsBridgeQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommIOSNotificationsBridgeQueue.h; path = Comm/CommIOSNotifications/CommIOSNotificationsBridgeQueue.h; sourceTree = "<group>"; };
+		CB90951B29531663002F2A7F /* CommIOSNotifications.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSNotifications.mm; path = Comm/CommIOSNotifications/CommIOSNotifications.mm; sourceTree = "<group>"; };
 		CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalDBSingleton.h; sourceTree = "<group>"; };
 		CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlobalDBSingleton.mm; path = Comm/GlobalDBSingleton.mm; sourceTree = "<group>"; };
 		CBFE58272885852B003B94C9 /* ThreadOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadOperations.h; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.h; sourceTree = "<group>"; };
@@ -293,6 +300,7 @@
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
 			isa = PBXGroup;
 			children = (
+				CB90951729531647002F2A7F /* CommIOSNotifications */,
 				8E43C32E291E5B9D009378F5 /* TerminateApp.h */,
 				8E43C32B291E5B4A009378F5 /* TerminateApp.mm */,
 				CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */,
@@ -546,6 +554,17 @@
 				CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */,
 			);
 			name = MessageSpecs;
+			sourceTree = "<group>";
+		};
+		CB90951729531647002F2A7F /* CommIOSNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				CB90951929531663002F2A7F /* CommIOSNotifications.h */,
+				CB90951B29531663002F2A7F /* CommIOSNotifications.mm */,
+				CB90951A29531663002F2A7F /* CommIOSNotificationsBridgeQueue.h */,
+				CB90951829531663002F2A7F /* CommIOSNotificationsBridgeQueue.mm */,
+			);
+			name = CommIOSNotifications;
 			sourceTree = "<group>";
 		};
 		CBED0E2C284E086100CD3863 /* PersistentStorageUtilities */ = {
@@ -921,6 +940,7 @@
 				71BF5B7526B401D300EDE27D /* Tools.cpp in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				7FE4D9F5291DFE9300667BF6 /* commJSI-generated.cpp in Sources */,
+				CB90951D29531663002F2A7F /* CommIOSNotifications.mm in Sources */,
 				71142A7726C2650B0039DCBD /* CommSecureStoreIOSWrapper.mm in Sources */,
 				CB38F2B1286C6C870010535C /* MessageOperationsUtilities.cpp in Sources */,
 				71CA4A64262DA8E500835C89 /* Logger.mm in Sources */,
@@ -931,6 +951,7 @@
 				CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 				71BE844B2636A944002849D2 /* SQLiteQueryExecutor.cpp in Sources */,
+				CB90951C29531663002F2A7F /* CommIOSNotificationsBridgeQueue.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -994,6 +1015,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = H98Y8MH53M;
+				ENABLE_BITCODE = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1137,6 +1159,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = H98Y8MH53M;
+				ENABLE_BITCODE = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
