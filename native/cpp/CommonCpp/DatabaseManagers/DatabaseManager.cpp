@@ -5,10 +5,12 @@
 
 namespace comm {
 
-typedef std::string DatabaseManagerStatus;
-const DatabaseManagerStatus DB_MANAGER_WORKABLE = "WORKABLE";
-const DatabaseManagerStatus DB_MANAGER_FIRST_FAILURE = "FIRST_FAILURE";
-const DatabaseManagerStatus DB_MANAGER_SECOND_FAILURE = "SECOND_FAILURE";
+std::once_flag DatabaseManager::initialized;
+
+typedef const std::string DatabaseManagerStatus;
+DatabaseManagerStatus DB_MANAGER_WORKABLE = "WORKABLE";
+DatabaseManagerStatus DB_MANAGER_FIRST_FAILURE = "FIRST_FAILURE";
+DatabaseManagerStatus DB_MANAGER_SECOND_FAILURE = "SECOND_FAILURE";
 
 const std::string DATABASE_MANAGER_STATUS_KEY = "DATABASE_MANAGER_STATUS";
 
@@ -16,11 +18,18 @@ const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
   //  TODO: conditionally create desired type of db manager
   //  maybe basing on some preprocessor flag
   thread_local SQLiteQueryExecutor instance;
+
+  // creating an instance means that migration code was executed
+  // and finished without error and database is workable
+  std::call_once(DatabaseManager::initialized, []() {
+    DatabaseManager::setDatabaseStatusAsWorkable();
+  });
   return instance;
 }
 
 void DatabaseManager::clearSensitiveData() {
   SQLiteQueryExecutor::clearSensitiveData();
+  DatabaseManager::setDatabaseStatusAsWorkable();
 }
 
 void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
@@ -49,6 +58,11 @@ void DatabaseManager::initializeQueryExecutor(std::string &databasePath) {
       return;
     }
   }
+}
+
+void DatabaseManager::setDatabaseStatusAsWorkable() {
+  comm::CommSecureStore commSecureStore{};
+  commSecureStore.set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
 }
 
 } // namespace comm
