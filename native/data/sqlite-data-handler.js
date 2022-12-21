@@ -77,6 +77,45 @@ function SQLiteDataHandler(): React.Node {
     if (!rehydrateConcluded) {
       return;
     }
+
+    const databaseNeedsDeletion = commCoreModule.checkIfDatabaseNeedsDeletion();
+
+    if (databaseNeedsDeletion) {
+      (async () => {
+        if (staffCanSee || staffUserHasBeenLoggedIn) {
+          Alert.alert('Starting SQLite database deletion process');
+        }
+        await commCoreModule.clearSensitiveData();
+        if (staffCanSee || staffUserHasBeenLoggedIn) {
+          Alert.alert(
+            'SQLite database successfully deleted',
+            'SQLite database deletion was triggered by detecting malformed database',
+          );
+        }
+        try {
+          await fetchNewCookieFromNativeCredentials(
+            dispatch,
+            cookie,
+            urlPrefix,
+            logInActionSources.sqliteLoadFailure,
+          );
+          dispatch({ type: setStoreLoadedActionType });
+        } catch (fetchCookieException) {
+          if (staffCanSee) {
+            Alert.alert(
+              `Error fetching new cookie from native credentials: ${
+                getMessageForException(fetchCookieException) ??
+                '{no exception message}'
+              }. Please kill the app.`,
+            );
+          } else {
+            ExitApp.exitApp();
+          }
+        }
+      })();
+      return;
+    }
+
     const sensitiveDataHandled = handleSensitiveData();
     if (storeLoaded) {
       return;
@@ -150,6 +189,7 @@ function SQLiteDataHandler(): React.Node {
     staffCanSee,
     storeLoaded,
     urlPrefix,
+    staffUserHasBeenLoggedIn,
   ]);
 
   return null;
