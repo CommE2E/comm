@@ -6,6 +6,8 @@
 
 namespace comm {
 
+std::once_flag DatabaseManager::initialized;
+
 typedef const std::string DatabaseManagerStatus;
 DatabaseManagerStatus DB_MANAGER_WORKABLE = "WORKABLE";
 DatabaseManagerStatus DB_MANAGER_FIRST_FAILURE = "FIRST_FAILURE";
@@ -17,11 +19,15 @@ const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
   //  TODO: conditionally create desired type of db manager
   //  maybe basing on some preprocessor flag
   thread_local SQLiteQueryExecutor instance;
+  std::call_once(DatabaseManager::initialized, []() {
+    DatabaseManager::setDatabaseStatusAsWorkable();
+  });
   return instance;
 }
 
 void DatabaseManager::clearSensitiveData() {
   SQLiteQueryExecutor::clearSensitiveData();
+  DatabaseManager::setDatabaseStatusAsWorkable();
 }
 
 void DatabaseManager::initializeQueryExecutor() {
@@ -49,6 +55,11 @@ void DatabaseManager::initializeQueryExecutor() {
       return;
     }
   }
+}
+
+void DatabaseManager::setDatabaseStatusAsWorkable() {
+  comm::CommSecureStore commSecureStore{};
+  commSecureStore.set(DATABASE_MANAGER_STATUS_KEY, DB_MANAGER_WORKABLE);
 }
 
 } // namespace comm

@@ -1,5 +1,6 @@
 #include "SQLiteQueryExecutor.h"
 #include "CommSecureStore.h"
+#include "DatabaseManager.h"
 #include "Logger.h"
 #include "sqlite_orm.h"
 

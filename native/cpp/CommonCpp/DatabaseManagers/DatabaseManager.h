@@ -7,6 +7,10 @@
 namespace comm {
 
 class DatabaseManager {
+  static std::once_flag initialized;
+
+  static void setDatabaseStatusAsWorkable();
+
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
   static void clearSensitiveData();
