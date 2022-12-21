@@ -1,5 +1,5 @@
 diff --git a/node_modules/remotedev/src/devTools.js b/node_modules/remotedev/src/devTools.js
-index 743714b..bee0e3c 100644
+index 743714b..a94ff2d 100644
 --- a/node_modules/remotedev/src/devTools.js
 +++ b/node_modules/remotedev/src/devTools.js
 @@ -57,6 +57,9 @@ export function start(options) {
@@ -7,7 +7,7 @@ index 743714b..bee0e3c 100644
    }
    connectToServer(options);
 +  socket.on('error', e => {
-+    console.log('error from Redux dev server connection:', e);
++    // defining this handler suppresses errors if redux-devtools isn't open
 +  });
  }
  

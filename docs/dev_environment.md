@@ -730,7 +730,7 @@ The input Flow schemas are located in `native/schema`.
 ## Redux Developer Tools
 
 - For web, you can access the Redux Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Redux” tab. This should work in both our development environment and in production, although in production you won’t be able to see Redux actions from before you opened up the Redux dev tools.
-- For iOS and Android, you can access the Redux Developer Tools through the Chrome extension’s Remote DevTools functionality. First, to open the Remote DevTools, right click on any webpage, go into the “Redux DevTools” menu, and select “Open Remote DevTools”. Then hit “Settings”, select “Use custom (local) server”, and configure it to connect to `localhost` on port 8043. This will connect to the `remotedev-server` instance that you started when you ran `cd native && yarn dev`.
+- For iOS and Android, you can access the Redux Developer Tools by running `cd native && yarn redux-devtools`. On the first open, you’ll need to go to “Settings”, select “Use custom (local) server”, configure it to use port 8043, and then finally hit “Connect”. If you want to use it along with the JS debugger (see [Debugging JavaScript](#debugging-javascript)), you should open the JS debugger first, then open Redux Developer Tools, and finally refresh the app via the dev menu.
 
 ## Debugging JavaScript
 
