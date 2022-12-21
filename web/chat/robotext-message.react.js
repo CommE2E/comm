@@ -38,11 +38,15 @@ type Props = {
 class RobotextMessage extends React.PureComponent<Props> {
   render() {
     let inlineSidebar;
-    if (this.props.item.threadCreatedFromMessage) {
+    if (
+      this.props.item.threadCreatedFromMessage ||
+      this.props.item.reactions.size > 0
+    ) {
       inlineSidebar = (
         <div className={css.sidebarMarginTop}>
           <InlineSidebar
             threadInfo={this.props.item.threadCreatedFromMessage}
+            reactions={this.props.item.reactions}
             positioning="center"
           />
         </div>
