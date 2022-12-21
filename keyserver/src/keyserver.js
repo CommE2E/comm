@@ -160,9 +160,16 @@ import {
       server.use(squadCalBaseRoutePath, squadCalRouter);
     }
 
-    server.listen(
-      parseInt(process.env.PORT, 10) || 3000,
-      process.env.COMM_LISTEN_ADDR || 'localhost',
-    );
+    const listenAddress = (() => {
+      if (process.env.COMM_LISTEN_ADDR) {
+        return process.env.COMM_LISTEN_ADDR;
+      } else if (process.env.NODE_ENV === 'development') {
+        return undefined;
+      } else {
+        return 'localhost';
+      }
+    })();
+
+    server.listen(parseInt(process.env.PORT, 10) || 3000, listenAddress);
   }
 })();
