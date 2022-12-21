@@ -10,6 +10,7 @@ class DatabaseManager {
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
   static void initializeQueryExecutor();
+  static void setDatabaseStatusAsWorkable();
 };
 
 } // namespace comm
