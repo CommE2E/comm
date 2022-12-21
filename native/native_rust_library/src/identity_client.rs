@@ -35,10 +35,10 @@ use crate::identity::{
   WalletLoginResponse as WalletLoginResponseStruct,
 };
 use comm_opaque::Cipher;
-use crate::Client;
+use crate::IdentityClient;
 
 pub async fn get_user_id(
-  mut client: Box<Client>,
+  mut client: Box<IdentityClient>,
   auth_type: i32,
   user_info: String,
 ) -> Result<String, Status> {
@@ -56,7 +56,7 @@ pub async fn get_user_id(
 }
 
 pub async fn verify_user_token(
-  mut client: Box<Client>,
+  mut client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   access_token: String,
@@ -76,7 +76,7 @@ pub async fn verify_user_token(
 }
 
 pub async fn register_user(
-  mut client: Box<Client>,
+  mut client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   username: String,
@@ -138,7 +138,7 @@ pub async fn register_user(
 }
 
 pub async fn login_user_pake(
-  mut client: Box<Client>,
+  mut client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   password: String,
@@ -202,7 +202,7 @@ pub async fn login_user_pake(
 }
 
 pub async fn login_user_wallet(
-  mut client: Box<Client>,
+  mut client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   siwe_message: String,
