@@ -17,6 +17,7 @@ public:
   static const DatabaseQueryExecutor &getQueryExecutor();
   static void clearSensitiveData();
   static void initializeQueryExecutor(std::string &databasePath);
+  static bool checkIfDatabaseNeedsDeletion();
 };
 
 } // namespace comm
