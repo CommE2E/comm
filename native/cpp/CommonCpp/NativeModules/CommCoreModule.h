@@ -60,6 +60,7 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   setDeviceID(jsi::Runtime &rt, jsi::String deviceType) override;
   virtual jsi::Value getDeviceID(jsi::Runtime &rt) override;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) override;
+  virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) override;
 
 public:
   CommCoreModule(std::shared_ptr<facebook::react::CallInvoker> jsInvoker);

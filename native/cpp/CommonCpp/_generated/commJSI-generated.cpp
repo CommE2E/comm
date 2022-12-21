@@ -83,6 +83,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDeviceID(jsi:
 static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
   return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->clearSensitiveData(rt);
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_checkIfDatabaseNeedsDeletion(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->checkIfDatabaseNeedsDeletion(rt);
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -109,6 +112,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["setDeviceID"] = MethodMetadata {1, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_setDeviceID};
   methodMap_["getDeviceID"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_getDeviceID};
   methodMap_["clearSensitiveData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData};
+  methodMap_["checkIfDatabaseNeedsDeletion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_checkIfDatabaseNeedsDeletion};
 }
 
 
