@@ -694,7 +694,12 @@ void SQLiteQueryExecutor::migrate() {
   Logger::log(version_msg.str());
 
   if (db_version == 0) {
-    set_up_database(db);
+    auto db_created = set_up_database(db);
+    if (!db_created) {
+      sqlite3_close(db);
+      Logger::log("Database structure creation error.");
+      throw std::runtime_error("Database structure creation error");
+    }
     Logger::log("Database structure created.");
 
     sqlite3_close(db);
@@ -720,7 +725,8 @@ void SQLiteQueryExecutor::migrate() {
     if (migrationResult == MigrationResult::FAILURE) {
       migration_msg << "migration " << idx << " failed." << std::endl;
       Logger::log(migration_msg.str());
-      break;
+      sqlite3_close(db);
+      throw std::runtime_error(migration_msg.str());
     }
     if (migrationResult == MigrationResult::SUCCESS) {
       migration_msg << "migration " << idx << " succeeded." << std::endl;
