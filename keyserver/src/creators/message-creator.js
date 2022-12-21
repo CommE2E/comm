@@ -131,6 +131,10 @@ async function createMessages(
         ? creationString(viewer, messageData.localID)
         : null;
 
+    const targetMessageID = messageData.targetMessageID
+      ? messageData.targetMessageID
+      : null;
+
     messageInsertRows.push([
       ids[i],
       threadID,
@@ -139,6 +143,7 @@ async function createMessages(
       content,
       messageData.time,
       creation,
+      targetMessageID,
     ]);
     messageInfos.push(rawMessageInfoFromMessageData(messageData, ids[i]));
   }
@@ -166,7 +171,8 @@ async function createMessages(
   }
 
   const messageInsertQuery = SQL`
-    INSERT INTO messages(id, thread, user, type, content, time, creation)
+    INSERT INTO messages(id, thread, user, type, content, time,
+      creation, target_message)
     VALUES ${messageInsertRows}
   `;
   await Promise.all([
