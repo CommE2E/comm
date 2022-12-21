@@ -693,7 +693,7 @@ bool set_up_database(sqlite3 *db) {
   return true;
 }
 
-void SQLiteQueryExecutor::migrate() const {
+void SQLiteQueryExecutor::migrate() {
   validate_encryption();
 
   sqlite3 *db;
@@ -836,7 +836,7 @@ void SQLiteQueryExecutor::initialize(std::string &databasePath) {
 }
 
 SQLiteQueryExecutor::SQLiteQueryExecutor() {
-  this->migrate();
+  SQLiteQueryExecutor::migrate();
 }
 
 std::string SQLiteQueryExecutor::getDraft(std::string key) const {
@@ -1117,7 +1117,7 @@ void SQLiteQueryExecutor::clearSensitiveData() const {
     SQLiteQueryExecutor::assign_encryption_key();
   };
   run_with_native_accessible(native_dependent_task);
-  this->migrate();
+  SQLiteQueryExecutor::migrate();
 }
 
 } // namespace comm
