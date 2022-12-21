@@ -11,6 +11,7 @@ public:
   static const DatabaseQueryExecutor &getQueryExecutor();
   static void initializeQueryExecutor();
   static void setDatabaseStatusAsWorkable();
+  static bool checkIfDatabaseNeedsDeletion();
 };
 
 } // namespace comm

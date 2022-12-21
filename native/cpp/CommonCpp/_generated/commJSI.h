@@ -43,6 +43,7 @@ public:
   virtual jsi::Value setDeviceID(jsi::Runtime &rt, jsi::String deviceType) = 0;
   virtual jsi::Value getDeviceID(jsi::Runtime &rt) = 0;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
+  virtual bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) = 0;
 
 };
 
@@ -247,6 +248,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::clearSensitiveData, jsInvoker_, instance_);
+    }
+    bool checkIfDatabaseNeedsDeletion(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::checkIfDatabaseNeedsDeletion) == 1,
+          "Expected checkIfDatabaseNeedsDeletion(...) to have 1 parameters");
+
+      return bridging::callFromJs<bool>(
+          rt, &T::checkIfDatabaseNeedsDeletion, jsInvoker_, instance_);
     }
 
   private:
