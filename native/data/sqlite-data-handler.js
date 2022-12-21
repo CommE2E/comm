@@ -7,7 +7,10 @@ import { useDispatch } from 'react-redux';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { logInActionSources } from 'lib/types/account-types';
+import {
+  logInActionSources,
+  type LogInActionSource,
+} from 'lib/types/account-types';
 import { fetchNewCookieFromNativeCredentials } from 'lib/utils/action-utils';
 import { getMessageForException } from 'lib/utils/errors';
 import { convertClientDBThreadInfosToRawThreadInfos } from 'lib/utils/thread-ops-utils';
@@ -35,6 +38,48 @@ function SQLiteDataHandler(): React.Node {
     state.currentUserInfo?.anonymous ? undefined : state.currentUserInfo?.id,
   );
 
+  const callFetchNewCookieFromNativeCredentials = React.useCallback(
+    async (source: LogInActionSource) => {
+      try {
+        await fetchNewCookieFromNativeCredentials(
+          dispatch,
+          cookie,
+          urlPrefix,
+          source,
+        );
+        dispatch({ type: setStoreLoadedActionType });
+      } catch (fetchCookieException) {
+        if (staffCanSee) {
+          Alert.alert(
+            `Error fetching new cookie from native credentials: ${
+              getMessageForException(fetchCookieException) ??
+              '{no exception message}'
+            }. Please kill the app.`,
+          );
+        } else {
+          ExitApp.exitApp();
+        }
+      }
+    },
+    [cookie, dispatch, staffCanSee, urlPrefix],
+  );
+
+  const callClearSensitiveData = React.useCallback(
+    async (triggeredBy: string) => {
+      if (staffCanSee || staffUserHasBeenLoggedIn) {
+        Alert.alert('Starting SQLite database deletion process');
+      }
+      await commCoreModule.clearSensitiveData();
+      if (staffCanSee || staffUserHasBeenLoggedIn) {
+        Alert.alert(
+          'SQLite database successfully deleted',
+          `SQLite database deletion was triggered by ${triggeredBy}`,
+        );
+      }
+    },
+    [staffCanSee, staffUserHasBeenLoggedIn],
+  );
+
   const handleSensitiveData = React.useCallback(async () => {
     try {
       const databaseCurrentUserInfoID = await commCoreModule.getCurrentUserID();
@@ -42,16 +87,7 @@ function SQLiteDataHandler(): React.Node {
         databaseCurrentUserInfoID &&
         databaseCurrentUserInfoID !== currentLoggedInUserID
       ) {
-        if (staffCanSee || staffUserHasBeenLoggedIn) {
-          Alert.alert('Starting SQLite database deletion process');
-        }
-        await commCoreModule.clearSensitiveData();
-        if (staffCanSee || staffUserHasBeenLoggedIn) {
-          Alert.alert(
-            'SQLite database successfully deleted',
-            'SQLite database deletion was triggered by change in logged-in user credentials',
-          );
-        }
+        await callClearSensitiveData('change in logged-in user credentials');
       }
       if (currentLoggedInUserID) {
         await commCoreModule.setCurrentUserID(currentLoggedInUserID);
@@ -71,12 +107,33 @@ function SQLiteDataHandler(): React.Node {
         ExitApp.exitApp();
       }
     }
-  }, [currentLoggedInUserID, staffCanSee, staffUserHasBeenLoggedIn]);
+  }, [callClearSensitiveData, currentLoggedInUserID]);
 
   React.useEffect(() => {
     if (!rehydrateConcluded) {
       return;
     }
+
+    const databaseNeedsDeletion = commCoreModule.checkIfDatabaseNeedsDeletion();
+    if (databaseNeedsDeletion) {
+      (async () => {
+        try {
+          await callClearSensitiveData('detecting malformed database');
+        } catch (e) {
+          if (__DEV__) {
+            throw e;
+          } else {
+            console.log(e);
+            ExitApp.exitApp();
+          }
+        }
+        await callFetchNewCookieFromNativeCredentials(
+          logInActionSources.malformedDatabaseDeletion,
+        );
+      })();
+      return;
+    }
+
     const sensitiveDataHandled = handleSensitiveData();
     if (storeLoaded) {
       return;
@@ -118,26 +175,9 @@ function SQLiteDataHandler(): React.Node {
             }`,
           );
         }
-        try {
-          await fetchNewCookieFromNativeCredentials(
-            dispatch,
-            cookie,
-            urlPrefix,
-            logInActionSources.sqliteLoadFailure,
-          );
-          dispatch({ type: setStoreLoadedActionType });
-        } catch (fetchCookieException) {
-          if (staffCanSee) {
-            Alert.alert(
-              `Error fetching new cookie from native credentials: ${
-                getMessageForException(fetchCookieException) ??
-                '{no exception message}'
-              }. Please kill the app.`,
-            );
-          } else {
-            ExitApp.exitApp();
-          }
-        }
+        await callFetchNewCookieFromNativeCredentials(
+          logInActionSources.sqliteLoadFailure,
+        );
       }
     })();
   }, [
@@ -150,6 +190,9 @@ function SQLiteDataHandler(): React.Node {
     staffCanSee,
     storeLoaded,
     urlPrefix,
+    staffUserHasBeenLoggedIn,
+    callFetchNewCookieFromNativeCredentials,
+    callClearSensitiveData,
   ]);
 
   return null;
