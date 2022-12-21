@@ -1033,7 +1033,7 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
         taskType job = [this, promise]() {
           std::string error;
           try {
-            DatabaseManager::getQueryExecutor().clearSensitiveData();
+            SQLiteQueryExecutor::clearSensitiveData();
           } catch (const std::exception &e) {
             error = e.what();
           }

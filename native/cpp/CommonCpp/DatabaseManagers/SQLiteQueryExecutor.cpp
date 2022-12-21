@@ -1105,7 +1105,7 @@ std::string SQLiteQueryExecutor::getMetadata(std::string entry_name) const {
   return (entry == nullptr) ? "" : entry->data;
 }
 
-void SQLiteQueryExecutor::clearSensitiveData() const {
+void SQLiteQueryExecutor::clearSensitiveData() {
   if (file_exists(SQLiteQueryExecutor::sqliteFilePath) &&
       std::remove(SQLiteQueryExecutor::sqliteFilePath.c_str())) {
     std::ostringstream errorStream;
