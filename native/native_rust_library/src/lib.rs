@@ -17,8 +17,6 @@ use identity_client::{
   verify_user_token,
 };
 
-const IDENTITY_SERVICE_SOCKET_ADDR: &str = "https://[::1]:50051";
-
 lazy_static! {
   pub static ref RUNTIME: Arc<Runtime> = Arc::new(
     Builder::new_multi_thread()
@@ -41,21 +39,21 @@ mod ffi {
 
   extern "Rust" {
     // Identity Service Client
-    type Client;
-    fn initialize_client() -> Box<Client>;
+    type IdentityClient;
+    fn initialize_identity_client(addr: String) -> Box<IdentityClient>;
     fn get_user_id_blocking(
-      client: Box<Client>,
+      client: Box<IdentityClient>,
       auth_type: i32,
       user_info: String,
     ) -> Result<String>;
     fn verify_user_token_blocking(
-      client: Box<Client>,
+      client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
       access_token: String,
     ) -> Result<bool>;
     fn register_user_blocking(
-      client: Box<Client>,
+      client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
       username: String,
@@ -63,14 +61,14 @@ mod ffi {
       user_public_key: String,
     ) -> Result<String>;
     fn login_user_pake_blocking(
-      client: Box<Client>,
+      client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
       password: String,
       user_public_key: String,
     ) -> Result<String>;
     fn login_user_wallet_blocking(
-      client: Box<Client>,
+      client: Box<IdentityClient>,
       user_id: String,
       device_id: String,
       siwe_message: String,
@@ -83,21 +81,21 @@ mod ffi {
 }
 
 #[derive(Debug)]
-pub struct Client {
+pub struct IdentityClient {
   identity_client: IdentityServiceClient<Channel>,
 }
 
-fn initialize_client() -> Box<Client> {
-  Box::new(Client {
+fn initialize_identity_client(addr: String) -> Box<IdentityClient> {
+  Box::new(IdentityClient {
     identity_client: RUNTIME
-      .block_on(IdentityServiceClient::connect(IDENTITY_SERVICE_SOCKET_ADDR))
+      .block_on(IdentityServiceClient::connect(addr))
       .unwrap(),
   })
 }
 
 #[instrument]
 fn get_user_id_blocking(
-  client: Box<Client>,
+  client: Box<IdentityClient>,
   auth_type: i32,
   user_info: String,
 ) -> Result<String, Status> {
@@ -106,7 +104,7 @@ fn get_user_id_blocking(
 
 #[instrument]
 fn verify_user_token_blocking(
-  client: Box<Client>,
+  client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   access_token: String,
@@ -116,7 +114,7 @@ fn verify_user_token_blocking(
 
 #[instrument]
 fn register_user_blocking(
-  client: Box<Client>,
+  client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   username: String,
@@ -135,7 +133,7 @@ fn register_user_blocking(
 
 #[instrument]
 fn login_user_pake_blocking(
-  client: Box<Client>,
+  client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   password: String,
@@ -152,7 +150,7 @@ fn login_user_pake_blocking(
 
 #[instrument]
 fn login_user_wallet_blocking(
-  client: Box<Client>,
+  client: Box<IdentityClient>,
   user_id: String,
   device_id: String,
   siwe_message: String,
