@@ -109,6 +109,16 @@ class ChatInputBar extends React.PureComponent<Props> {
     if (inputState.draft !== prevInputState.draft) {
       this.updateHeight();
     }
+
+    if (
+      inputState.draft !== prevInputState.draft ||
+      inputState.textCursorPosition !== prevInputState.textCursorPosition
+    ) {
+      inputState.setTypeaheadState({
+        canBeVisible: true,
+      });
+    }
+
     const curUploadIDs = ChatInputBar.unassignedUploadIDs(
       inputState.pendingUploads,
     );
@@ -330,6 +340,7 @@ class ChatInputBar extends React.PureComponent<Props> {
 
     let typeaheadTooltip;
     if (
+      this.props.inputState.typeaheadState.canBeVisible &&
       this.props.suggestedUsers.length > 0 &&
       this.props.typeaheadMatchedStrings &&
       this.textarea
@@ -405,7 +416,28 @@ class ChatInputBar extends React.PureComponent<Props> {
   };
 
   onKeyDown = (event: SyntheticKeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
+    const {
+      accept,
+      close,
+      moveChoiceUp,
+      moveChoiceDown,
+    } = this.props.inputState.typeaheadState;
+
+    const actions = {
+      Enter: accept,
+      Tab: accept,
+      ArrowDown: moveChoiceDown,
+      ArrowUp: moveChoiceUp,
+      Escape: close,
+    };
+
+    if (
+      this.props.inputState.typeaheadState.canBeVisible &&
+      actions[event.key]
+    ) {
+      event.preventDefault();
+      actions[event.key]();
+    } else if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.send();
     }
