@@ -5,6 +5,7 @@ import * as React from 'react';
 
 import SearchIndex from 'lib/shared/search-index';
 import { threadOtherMembers } from 'lib/shared/thread-utils';
+import { getTypeaheadUserSuggestions } from 'lib/shared/typeahead-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
@@ -14,7 +15,6 @@ import css from './typeahead-tooltip.css';
 import {
   getTypeaheadTooltipActions,
   getTypeaheadTooltipPosition,
-  getTypeaheadUserSuggestions,
 } from './typeahead-utils';
 
 export type TypeaheadTooltipProps = {
