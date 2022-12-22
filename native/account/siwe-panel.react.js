@@ -1,7 +1,8 @@
 // @flow
 
+import BottomSheet from '@gorhom/bottom-sheet';
 import * as React from 'react';
-import { ActivityIndicator, Text } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 import WebView from 'react-native-webview';
 
 import {
@@ -100,13 +101,71 @@ function SIWEPanel(): React.Node {
     [nonce],
   );
 
+  const [isLoading, setLoading] = React.useState(true);
+
+  const snapPoints = React.useMemo(() => {
+    if (isLoading) {
+      return [1];
+    } else {
+      return [700];
+    }
+  }, [isLoading]);
+
+  const onWebViewLoaded = React.useCallback(() => {
+    setLoading(false);
+  }, []);
+
+  const handleStyle = React.useMemo(
+    () => ({
+      backgroundColor: '#242529',
+    }),
+    [],
+  );
+
+  const bottomSheetHandleIndicatorStyle = React.useMemo(
+    () => ({
+      backgroundColor: 'white',
+    }),
+    [],
+  );
+
+  let bottomSheet;
   if (nonce) {
-    return <WebView source={source} onMessage={handleMessage} />;
-  } else if (getSIWENonceCallFailed) {
-    return <Text>Oops, try again later!</Text>;
-  } else {
-    return <ActivityIndicator size="large" />;
+    bottomSheet = (
+      <BottomSheet
+        snapPoints={snapPoints}
+        backgroundStyle={handleStyle}
+        handleIndicatorStyle={bottomSheetHandleIndicatorStyle}
+      >
+        <WebView
+          source={source}
+          onMessage={handleMessage}
+          onLoad={onWebViewLoaded}
+        />
+      </BottomSheet>
+    );
   }
+
+  let activity;
+  if (getSIWENonceCallFailed) {
+    activity = <Text>Oops, try again later!</Text>;
+  } else if (isLoading) {
+    activity = <ActivityIndicator size="large" />;
+  }
+
+  const activityContainer = React.useMemo(
+    () => ({
+      flex: 1,
+    }),
+    [],
+  );
+
+  return (
+    <>
+      <View style={activityContainer}>{activity}</View>
+      {bottomSheet}
+    </>
+  );
 }
 
 export default SIWEPanel;
