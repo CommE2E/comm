@@ -154,6 +154,30 @@ function getTypeaheadTooltipButtons(
   });
 }
 
+function getTypeaheadOverlayScroll(
+  currentScrollTop: number,
+  chosenActionPosition: number,
+): number {
+  const upperButtonBoundary = chosenActionPosition * typeaheadStyle.rowHeight;
+  const lowerButtonBoundary =
+    (chosenActionPosition + 1) * typeaheadStyle.rowHeight;
+
+  if (upperButtonBoundary < currentScrollTop) {
+    return upperButtonBoundary;
+  } else if (
+    lowerButtonBoundary - typeaheadStyle.tooltipMaxHeight >
+    currentScrollTop
+  ) {
+    return (
+      lowerButtonBoundary +
+      typeaheadStyle.tooltipVerticalPadding -
+      typeaheadStyle.tooltipMaxHeight
+    );
+  }
+
+  return currentScrollTop;
+}
+
 function getTypeaheadTooltipPosition(
   textarea: HTMLTextAreaElement,
   actionsLength: number,
@@ -189,5 +213,6 @@ export {
   getCaretOffsets,
   getTypeaheadTooltipActions,
   getTypeaheadTooltipButtons,
+  getTypeaheadOverlayScroll,
   getTypeaheadTooltipPosition,
 };
