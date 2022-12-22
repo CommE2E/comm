@@ -1,5 +1,9 @@
 use crate::ffi::DeviceType;
+use openssl::hash::MessageDigest;
+use openssl::pkey::PKey;
+use openssl::sign::Signer;
 use rand::distributions::{Alphanumeric, DistString};
+
 #[cfg(test)]
 use regex::Regex;
 
@@ -31,6 +35,16 @@ pub fn generate_device_id(device_type: DeviceType) -> Result<String, String> {
     Alphanumeric.sample_string(&mut rng, DEVICE_ID_CHAR_LENGTH);
 
   Ok(format!("{}:{}", &prefix, &suffix))
+}
+
+pub fn sign_string_with_private_key(
+  private_key: &PKey<openssl::pkey::Private>,
+  nonce: &str,
+) -> anyhow::Result<String> {
+  let mut signer = Signer::new(MessageDigest::sha256(), &private_key)?;
+  signer.update(nonce.as_bytes())?;
+  let signature = signer.sign_to_vec()?;
+  Ok(base64::encode(signature))
 }
 
 #[cfg(test)]
