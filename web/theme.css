@@ -50,8 +50,8 @@
   --error-dark-90: #4f1203;
 
   --logo-bg: #111827;
-
   --spoiler-color: #33332c;
+  --loading-foreground: #1b0e38;
 
   --bg: var(--shades-black-100);
   --fg: var(--shades-white-100);

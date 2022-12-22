@@ -14,6 +14,7 @@ import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
 
 import App from './app.react';
 import ErrorBoundary from './error-boundary.react';
+import Loading from './loading.react';
 import { reducer } from './redux/redux-setup';
 import type { AppState, Action } from './redux/redux-setup';
 import history from './router-history';
@@ -37,7 +38,7 @@ const persistor = persistStore(store);
 
 const RootProvider = (): React.Node => (
   <Provider store={store}>
-    <PersistGate persistor={persistor}>
+    <PersistGate persistor={persistor} loading={<Loading />}>
       <ErrorBoundary>
         <Router history={history.getHistoryObject()}>
           <Route path="*" component={App} />
