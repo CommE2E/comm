@@ -41,7 +41,6 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 #import "GlobalDBSingleton.h"
 #import "Logger.h"
 #import "MessageOperationsUtilities.h"
-#import "SQLiteQueryExecutor.h"
 #import "TemporaryMessageStorage.h"
 #import "ThreadOperations.h"
 #import "Tools.h"
@@ -304,7 +303,9 @@ using Runtime = facebook::jsi::Runtime;
     throw std::runtime_error(
         "Failed to move SQLite database from app group to default location");
   }
-  comm::SQLiteQueryExecutor::initialize(sqliteFilePath);
+  comm::GlobalDBSingleton::instance.scheduleOrRun([&sqliteFilePath]() {
+    comm::DatabaseManager::initializeQueryExecutor(sqliteFilePath);
+  });
 }
 
 - (void)moveMessagesToDatabase {
