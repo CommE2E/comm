@@ -15,8 +15,8 @@ import {
   type FetchMessageInfosRequest,
   defaultNumberPerThread,
   type SendMessageResponse,
-  type ReactionMessageData,
 } from 'lib/types/message-types';
+import type { ReactionMessageData } from 'lib/types/messages/reaction';
 import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';

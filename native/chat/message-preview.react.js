@@ -12,9 +12,9 @@ import {
   messageTypes,
   type MessageType,
   type ComposableMessageInfo,
-  type ReactionMessageInfo,
   type RobotextMessageInfo,
 } from 'lib/types/message-types';
+import type { ReactionMessageInfo } from 'lib/types/messages/reaction';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { SingleLine } from '../components/single-line.react';
