@@ -5,6 +5,8 @@ use openssl::sign::Signer;
 use rand::distributions::{Alphanumeric, DistString};
 
 #[cfg(test)]
+use openssl::{rsa::Rsa, sign::Verifier};
+#[cfg(test)]
 use regex::Regex;
 
 // DEVICE_ID_CHAR_LENGTH has to be kept in sync with deviceIDCharLength
@@ -92,5 +94,31 @@ mod tests {
         &DEVICE_ID_FORMAT_REGEX
       );
     }
+  }
+
+  #[test]
+  fn verify_signed_string_with_private_key() {
+    const STRING_TO_BE_SIGNED: &str = "Test1ghTCoNquWbO2ST7G1c9";
+
+    // Generate a keypair
+    let keypair = Rsa::generate(1024).expect("Failed to generate RSA keypair");
+    let keypair = PKey::from_rsa(keypair).expect("Failed to get key from rsa");
+
+    // Sign the string to be signed with the private key
+    let string_signature_base64 =
+      sign_string_with_private_key(&keypair, STRING_TO_BE_SIGNED)
+        .expect("Error on calling the string signer function");
+
+    // Verify signature
+    let mut verifier =
+      Verifier::new(MessageDigest::sha256(), &keypair).unwrap();
+    verifier.update(STRING_TO_BE_SIGNED.as_bytes()).unwrap();
+
+    assert!(verifier
+      .verify(
+        &base64::decode(string_signature_base64)
+          .expect("Failed to decode base64"),
+      )
+      .expect("Error on calling OpenSSL string verifier"));
   }
 }
