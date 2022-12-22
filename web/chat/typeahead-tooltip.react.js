@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
+import { leastPositiveResidue } from 'lib/utils/math-utils';
 
 import type { InputState } from '../input/input-state';
 import {
@@ -29,6 +30,15 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   const [isVisibleForAnimation, setIsVisibleForAnimation] = React.useState(
     false,
   );
+
+  const [
+    chosenPositionInOverlay,
+    setChosenPositionInOverlay,
+  ] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    setChosenPositionInOverlay(0);
+  }, [suggestedUsers]);
 
   React.useEffect(() => {
     setIsVisibleForAnimation(true);
@@ -75,7 +85,61 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     [actions],
   );
 
-  if (!actions || actions.length === 0) {
+  const close = React.useCallback(() => {
+    const setter = inputState.setTypeaheadState;
+    setter({
+      canBeVisible: false,
+      moveChoiceUp: null,
+      moveChoiceDown: null,
+      close: null,
+      accept: null,
+    });
+  }, [inputState.setTypeaheadState]);
+
+  const accept = React.useCallback(() => {
+    actions[chosenPositionInOverlay].execute();
+    close();
+  }, [actions, chosenPositionInOverlay, close]);
+
+  const moveChoiceUp = React.useCallback(() => {
+    if (actions.length === 0) {
+      return;
+    }
+    setChosenPositionInOverlay(previousPosition =>
+      leastPositiveResidue(previousPosition - 1, actions.length),
+    );
+  }, [setChosenPositionInOverlay, actions.length]);
+
+  const moveChoiceDown = React.useCallback(() => {
+    if (actions.length === 0) {
+      return;
+    }
+    setChosenPositionInOverlay(previousPosition =>
+      leastPositiveResidue(previousPosition + 1, actions.length),
+    );
+  }, [setChosenPositionInOverlay, actions.length]);
+
+  React.useEffect(() => {
+    const setter = inputState.setTypeaheadState;
+    setter({
+      canBeVisible: true,
+      moveChoiceUp,
+      moveChoiceDown,
+      close,
+      accept,
+    });
+
+    return close;
+  }, [
+    close,
+    accept,
+    moveChoiceUp,
+    moveChoiceDown,
+    actions,
+    inputState.setTypeaheadState,
+  ]);
+
+  if (suggestedUsers.length === 0) {
     return null;
   }
 

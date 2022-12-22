@@ -16,7 +16,7 @@ const webTypeaheadRegex: RegExp = new RegExp(
 
 export type TypeaheadTooltipAction = {
   +key: string,
-  +onClick: (SyntheticEvent<HTMLButtonElement>) => mixed,
+  +execute: () => mixed,
   +actionButtonContent: React.Node,
 };
 
@@ -98,7 +98,7 @@ function getTypeaheadTooltipActions(
     )
     .map(suggestedUser => ({
       key: suggestedUser.id,
-      onClick: () => {
+      execute: () => {
         const newPrefixText = textBeforeAtSymbol;
 
         const totalMatchLength =
@@ -125,8 +125,8 @@ function getTypeaheadTooltipActions(
 function getTypeaheadTooltipButtons(
   actions: $ReadOnlyArray<TypeaheadTooltipAction>,
 ): $ReadOnlyArray<React.Node> {
-  return actions.map(({ key, onClick, actionButtonContent }) => (
-    <Button key={key} onClick={onClick} className={css.suggestion}>
+  return actions.map(({ key, execute, actionButtonContent }) => (
+    <Button key={key} onClick={execute} className={css.suggestion}>
       <span>@{actionButtonContent}</span>
     </Button>
   ));
