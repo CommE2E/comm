@@ -3,7 +3,6 @@
 import * as React from 'react';
 
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
-import SearchIndex from 'lib/shared/search-index';
 import { stringForUserExplicit } from 'lib/shared/user-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
@@ -24,20 +23,6 @@ export type TooltipPosition = {
   +top: number,
   +left: number,
 };
-
-function getTypeaheadUserSuggestions(
-  userSearchIndex: SearchIndex,
-  usersInThread: $ReadOnlyArray<RelativeMemberInfo>,
-  typedPrefix: string,
-): $ReadOnlyArray<RelativeMemberInfo> {
-  const userIDs = userSearchIndex.getSearchResults(typedPrefix);
-
-  return usersInThread
-    .filter(user => typedPrefix.length === 0 || userIDs.includes(user.id))
-    .sort((userA, userB) =>
-      stringForUserExplicit(userA).localeCompare(stringForUserExplicit(userB)),
-    );
-}
 
 function getCaretOffsets(
   textarea: HTMLTextAreaElement,
@@ -152,7 +137,6 @@ function getTypeaheadTooltipPosition(
 
 export {
   typeaheadRegex,
-  getTypeaheadUserSuggestions,
   getCaretOffsets,
   getTypeaheadTooltipActions,
   getTypeaheadTooltipPosition,
