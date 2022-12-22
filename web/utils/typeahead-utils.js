@@ -6,12 +6,12 @@ import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
 import { stringForUserExplicit } from 'lib/shared/user-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
+import { typeaheadStyle } from '../chat/chat-constants';
+import { type InputState } from '../input/input-state';
+
 const typeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
 );
-
-import { type InputState } from '../input/input-state';
-import { typeaheadStyle } from './chat-constants';
 
 export type TypeaheadTooltipAction = {
   +key: string,
