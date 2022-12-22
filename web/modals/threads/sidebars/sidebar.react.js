@@ -9,7 +9,6 @@ import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import Button from '../../../components/button.react';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react';
-import { useSelector } from '../../../redux/redux-utils';
 import { useOnClickThread } from '../../../selectors/thread-selectors';
 import css from './sidebars-modal.css';
 
@@ -23,7 +22,6 @@ function Sidebar(props: Props): React.Node {
   const { threadInfo, lastUpdatedTime, mostRecentMessageInfo } = sidebar;
   const { unread } = threadInfo.currentUser;
 
-  const timeZone = useSelector(state => state.timeZone);
   const { popModal } = useModalContext();
 
   const navigateToThread = useOnClickThread(threadInfo);
@@ -41,10 +39,9 @@ function Sidebar(props: Props): React.Node {
     [css.unread]: unread,
   });
 
-  const lastActivity = React.useMemo(
-    () => shortAbsoluteDate(lastUpdatedTime, timeZone),
-    [lastUpdatedTime, timeZone],
-  );
+  const lastActivity = React.useMemo(() => shortAbsoluteDate(lastUpdatedTime), [
+    lastUpdatedTime,
+  ]);
 
   const lastMessage = React.useMemo(() => {
     if (!mostRecentMessageInfo) {

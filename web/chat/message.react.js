@@ -16,16 +16,15 @@ import TextMessage from './text-message.react';
 type Props = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
-  +timeZone: ?string,
 };
 function Message(props: Props): React.Node {
-  const { item, timeZone } = props;
+  const { item } = props;
 
   let conversationHeader = null;
   if (item.startsConversation) {
     conversationHeader = (
       <div className={css.conversationHeader}>
-        {longAbsoluteDate(item.messageInfo.time, timeZone)}
+        {longAbsoluteDate(item.messageInfo.time)}
       </div>
     );
   }

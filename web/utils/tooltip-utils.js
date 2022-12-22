@@ -24,7 +24,6 @@ import type { PositionInfo } from '../chat/position-types';
 import { useTooltipContext } from '../chat/tooltip-provider';
 import CommIcon from '../CommIcon.react';
 import { InputStateContext } from '../input/input-state';
-import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
@@ -445,12 +444,10 @@ function useMessageTooltip({
 
   const containsInlineSidebar = !!item.threadCreatedFromMessage;
 
-  const timeZone = useSelector(state => state.timeZone);
-
   const messageTimestamp = React.useMemo(() => {
     const time = item.messageInfo.time;
-    return longAbsoluteDate(time, timeZone);
-  }, [item.messageInfo.time, timeZone]);
+    return longAbsoluteDate(time);
+  }, [item.messageInfo.time]);
 
   const tooltipSize = React.useMemo(() => {
     if (typeof document === 'undefined') {

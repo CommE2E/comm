@@ -19,11 +19,7 @@ import { entryKey } from 'lib/shared/entry-utils';
 import type { EntryInfo } from 'lib/types/entry-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
-import {
-  dateString,
-  dateFromString,
-  currentDateInTimeZone,
-} from 'lib/utils/date-utils';
+import { dateString, dateFromString } from 'lib/utils/date-utils';
 
 import LogInFirstModal from '../modals/account/log-in-first-modal.react';
 import HistoryModal from '../modals/history/history-modal.react';
@@ -46,7 +42,6 @@ type Props = {
   +viewerID: ?string,
   +loggedIn: boolean,
   +nextLocalID: number,
-  +timeZone: ?string,
   +dispatch: Dispatch,
   +pushModal: PushModal,
   +popModal: () => void,
@@ -71,7 +66,7 @@ class Day extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const now = currentDateInTimeZone(this.props.timeZone);
+    const now = new Date();
     const isToday = dateString(now) === this.props.dayString;
     const tdClasses = classNames(css.day, { [css.currentDay]: isToday });
 
@@ -242,7 +237,6 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
     );
     const nextLocalID = useSelector(state => state.nextLocalID);
-    const timeZone = useSelector(state => state.timeZone);
     const dispatch = useDispatch();
     const { pushModal, popModal } = useModalContext();
 
@@ -253,7 +247,6 @@ const ConnectedDay: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         viewerID={viewerID}
         loggedIn={loggedIn}
         nextLocalID={nextLocalID}
-        timeZone={timeZone}
         dispatch={dispatch}
         pushModal={pushModal}
         popModal={popModal}

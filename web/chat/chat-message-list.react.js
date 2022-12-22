@@ -46,7 +46,6 @@ type Props = {
   +activeChatThreadID: ?string,
   +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   +startReached: boolean,
-  +timeZone: ?string,
   +supportsReverseFlex: boolean,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
@@ -176,7 +175,6 @@ class ChatMessageList extends React.PureComponent<Props> {
       <Message
         item={item}
         threadInfo={threadInfo}
-        timeZone={this.props.timeZone}
         key={ChatMessageList.keyExtractor(item)}
       />
     );
@@ -289,8 +287,6 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<Base
       );
     }, [userAgent]);
 
-    const timeZone = useSelector(state => state.timeZone);
-
     const messageListData = useMessageListData({
       threadInfo,
       searching: false,
@@ -339,7 +335,6 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<Base
           threadInfo={threadInfo}
           messageListData={messageListData}
           startReached={startReached}
-          timeZone={timeZone}
           supportsReverseFlex={supportsReverseFlex}
           inputState={inputState}
           dispatchActionPromise={dispatchActionPromise}
