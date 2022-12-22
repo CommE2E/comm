@@ -469,7 +469,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
               <EthereumLogo />
             </View>
             <Text style={[styles.buttonText, styles.siweButtonText]}>
-              Sign In with Ethereum
+              Sign in with Ethereum
             </Text>
           </TouchableOpacity>
           <View style={styles.siweOr}>
