@@ -64,7 +64,6 @@ export type AppState = {
   enabledApps: EnabledApps,
   reportStore: ReportStore,
   nextLocalID: number,
-  userAgent: ?string,
   dataLoaded: boolean,
   windowActive: boolean,
   userPolicies: UserPolicies,

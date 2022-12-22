@@ -82,6 +82,10 @@ import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import { type PendingMultimediaUpload, InputStateContext } from './input-state';
 
+const browser = detectBrowser();
+const exifRotate =
+  !browser || (browser.name !== 'safari' && browser.name !== 'chrome');
+
 type BaseProps = {
   +children: React.Node,
 };
@@ -91,7 +95,6 @@ type Props = {
   +drafts: { +[key: string]: string },
   +viewerID: ?string,
   +messageStoreMessages: { +[id: string]: RawMessageInfo },
-  +exifRotate: boolean,
   +pendingRealizedThreadIDs: $ReadOnlyMap<string, string>,
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
@@ -606,7 +609,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
     let response;
     const validationStart = Date.now();
     try {
-      response = await validateFile(file, this.props.exifRotate);
+      response = await validateFile(file, exifRotate);
     } catch (e) {
       return {
         steps,
@@ -1255,12 +1258,6 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
 const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedInputStateContainer(props) {
-    const exifRotate = useSelector(state => {
-      const browser = detectBrowser(state.userAgent);
-      return (
-        !browser || (browser.name !== 'safari' && browser.name !== 'chrome')
-      );
-    });
     const activeChatThreadID = useSelector(
       state => state.navInfo.activeChatThreadID,
     );
@@ -1308,7 +1305,6 @@ const ConnectedInputStateContainer: React.ComponentType<BaseProps> = React.memo<
         drafts={drafts}
         viewerID={viewerID}
         messageStoreMessages={messageStoreMessages}
-        exifRotate={exifRotate}
         pendingRealizedThreadIDs={pendingToRealizedThreadIDs}
         calendarQuery={calendarQuery}
         uploadMultimedia={callUploadMultimedia}

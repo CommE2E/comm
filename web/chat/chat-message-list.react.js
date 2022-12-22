@@ -36,6 +36,10 @@ import Message from './message.react';
 import RelationshipPrompt from './relationship-prompt/relationship-prompt';
 import { useTooltipContext } from './tooltip-provider';
 
+const browser = detectBrowser();
+const supportsReverseFlex =
+  !browser || browser.name !== 'firefox' || parseInt(browser.version) >= 81;
+
 type BaseProps = {
   +threadInfo: ThreadInfo,
 };
@@ -46,7 +50,6 @@ type Props = {
   +activeChatThreadID: ?string,
   +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   +startReached: boolean,
-  +supportsReverseFlex: boolean,
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
@@ -139,7 +142,7 @@ class ChatMessageList extends React.PureComponent<Props> {
       ) {
         const newHeight = scrollHeight - snapshot.scrollHeight;
         const newScrollTop = Math.abs(scrollTop) + newHeight;
-        if (this.props.supportsReverseFlex) {
+        if (supportsReverseFlex) {
           messageContainer.scrollTop = -1 * newScrollTop;
         } else {
           messageContainer.scrollTop = newScrollTop;
@@ -195,7 +198,7 @@ class ChatMessageList extends React.PureComponent<Props> {
 
     const messageContainerStyle = classNames({
       [css.messageContainer]: true,
-      [css.mirroredMessageContainer]: !this.props.supportsReverseFlex,
+      [css.mirroredMessageContainer]: !supportsReverseFlex,
     });
     return (
       <div className={css.outerMessageContainer}>
@@ -277,16 +280,6 @@ registerFetchKey(fetchMostRecentMessagesActionTypes);
 const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedChatMessageList(props: BaseProps): React.Node {
     const { threadInfo } = props;
-    const userAgent = useSelector(state => state.userAgent);
-    const supportsReverseFlex = React.useMemo(() => {
-      const browser = detectBrowser(userAgent);
-      return (
-        !browser ||
-        browser.name !== 'firefox' ||
-        parseInt(browser.version) >= 81
-      );
-    }, [userAgent]);
-
     const messageListData = useMessageListData({
       threadInfo,
       searching: false,
@@ -335,7 +328,6 @@ const ConnectedChatMessageList: React.ComponentType<BaseProps> = React.memo<Base
           threadInfo={threadInfo}
           messageListData={messageListData}
           startReached={startReached}
-          supportsReverseFlex={supportsReverseFlex}
           inputState={inputState}
           dispatchActionPromise={dispatchActionPromise}
           fetchMessagesBeforeCursor={callFetchMessagesBeforeCursor}
