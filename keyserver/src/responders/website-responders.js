@@ -6,9 +6,6 @@ import fs from 'fs';
 import _keyBy from 'lodash/fp/keyBy';
 import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { Provider } from 'react-redux';
-import { Route, StaticRouter } from 'react-router';
-import { createStore, type Store } from 'redux';
 import { promisify } from 'util';
 
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
@@ -31,8 +28,6 @@ import type { CurrentUserInfo } from 'lib/types/user-types';
 import { currentDateInTimeZone } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
-import { reducer } from 'web/redux/redux-setup';
-import type { AppState, Action } from 'web/redux/redux-setup';
 import getTitle from 'web/title/getTitle';
 import { navInfoFromURL } from 'web/url-utils';
 
@@ -131,7 +126,7 @@ async function websiteResponder(
   const baseURL = basePath.replace(/\/$/, '');
   const baseHref = baseDomain + baseURL;
 
-  const appPromise = getWebpackCompiledRootComponentForSSR();
+  const loadingPromise = getWebpackCompiledRootComponentForSSR();
 
   let initialNavInfo;
   try {
@@ -303,7 +298,18 @@ async function websiteResponder(
         <div id="react-root">
   `);
 
-  const statePromises = {
+  const Loading = await loadingPromise;
+  const reactStream = renderToNodeStream(<Loading />);
+  reactStream.pipe(res, { end: false });
+
+  await waitForStream(reactStream);
+  res.write(html`
+    </div>
+    <script>
+      var preloadedState =
+  `);
+
+  const initialReduxState: any = await promiseAll({
     navInfo: navInfoPromise,
     deviceID: null,
     currentUserInfo: ((currentUserInfoPromise: any): Promise<CurrentUserInfo>),
@@ -332,53 +338,15 @@ async function websiteResponder(
       queuedReports: [],
     },
     nextLocalID: 0,
-    timeZone: viewer.timeZone,
-    userAgent: viewer.userAgent,
     cookie: undefined,
     deviceToken: undefined,
     dataLoaded: viewer.loggedIn,
     windowActive: true,
     userPolicies: {},
     _persist: null,
-  };
+  });
+  const jsonStream = streamJSON(res, initialReduxState);
 
-  const [stateResult, App] = await Promise.all([
-    promiseAll(statePromises),
-    appPromise,
-  ]);
-  const state: AppState = { ...stateResult };
-  const store: Store<AppState, Action> = createStore(reducer, state);
-
-  const routerContext = {};
-  const clientPath = baseURL + req.url;
-  const reactStream = renderToNodeStream(
-    <Provider store={store}>
-      <StaticRouter
-        location={clientPath}
-        basename={baseURL}
-        context={routerContext}
-      >
-        <Route path="*" component={App} />
-      </StaticRouter>
-    </Provider>,
-  );
-  if (routerContext.url) {
-    throw new ServerError('URL modified during server render!');
-  }
-  reactStream.pipe(res, { end: false });
-  await waitForStream(reactStream);
-  res.write(html`
-    </div>
-    <script>
-      var preloadedState =
-  `);
-
-  const filteredStatePromises = {
-    ...statePromises,
-    timeZone: null,
-    userAgent: null,
-  };
-  const jsonStream = streamJSON(res, filteredStatePromises);
   await waitForStream(jsonStream);
   res.end(html`
     ;

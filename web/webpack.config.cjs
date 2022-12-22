@@ -55,7 +55,7 @@ const baseProdBrowserConfig = {
 const baseNodeServerRenderingConfig = {
   externals: ['react', 'react-dom', 'react-redux'],
   entry: {
-    keyserver: ['./app.react.js'],
+    keyserver: ['./loading.react.js'],
   },
   output: {
     filename: 'app.build.cjs',
