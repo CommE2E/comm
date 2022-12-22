@@ -38,14 +38,22 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
 
   const actions = React.useMemo(
     () =>
-      getTypeaheadTooltipActions(
-        inputState,
-        textarea,
+      getTypeaheadTooltipActions({
+        inputStateDraft: inputState.draft,
+        inputStateSetDraft: inputState.setDraft,
+        inputStateSetTextCursorPosition: inputState.setTextCursorPosition,
         suggestedUsers,
         textBeforeAtSymbol,
         usernamePrefix,
-      ),
-    [inputState, textarea, suggestedUsers, textBeforeAtSymbol, usernamePrefix],
+      }),
+    [
+      inputState.draft,
+      inputState.setDraft,
+      inputState.setTextCursorPosition,
+      suggestedUsers,
+      textBeforeAtSymbol,
+      usernamePrefix,
+    ],
   );
 
   const tooltipPosition = React.useMemo(
