@@ -7,6 +7,8 @@ license = "BSD-3-Clause"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0"
+base64 = "0.20"
 cxx = "1.0"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1"
@@ -15,6 +17,7 @@ prost = "0.11"
 lazy_static = "1.4"
 rand = "0.8"
 opaque-ke = "1.2"
+openssl = { version = "0.10", features = ["vendored"] }
 tracing = "0.1"
 regex = "1.6"
 comm-opaque = {path = "../../shared/comm-opaque"}
