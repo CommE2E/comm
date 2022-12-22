@@ -1,9 +1,11 @@
 // @flow
 
+import classNames from 'classnames';
 import * as React from 'react';
 
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
 import { stringForUserExplicit } from 'lib/shared/user-utils';
+import type { SetState } from 'lib/types/hook-types';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { typeaheadStyle } from '../chat/chat-constants';
@@ -123,14 +125,35 @@ function getTypeaheadTooltipActions(
 }
 
 function getTypeaheadTooltipButtons(
+  setChosenPositionInOverlay: SetState<number>,
+  chosenPositionInOverlay: number,
   actions: $ReadOnlyArray<TypeaheadTooltipAction>,
 ): $ReadOnlyArray<React.Node> {
-  return actions.map(({ key, execute, actionButtonContent }) => (
-    <Button key={key} onClick={execute} className={css.suggestion}>
-      <span>@{actionButtonContent}</span>
-    </Button>
-  ));
+  return actions.map((action, idx) => {
+    const { key, execute, actionButtonContent } = action;
+    const buttonClasses = classNames(css.suggestion, {
+      [css.suggestionHover]: idx === chosenPositionInOverlay,
+    });
+
+    const onMouseMove: (
+      event: SyntheticEvent<HTMLButtonElement>,
+    ) => mixed = () => {
+      setChosenPositionInOverlay(idx);
+    };
+
+    return (
+      <Button
+        key={key}
+        onClick={execute}
+        onMouseMove={onMouseMove}
+        className={buttonClasses}
+      >
+        <span>@{actionButtonContent}</span>
+      </Button>
+    );
+  });
 }
+
 function getTypeaheadTooltipPosition(
   textarea: HTMLTextAreaElement,
   actionsLength: number,

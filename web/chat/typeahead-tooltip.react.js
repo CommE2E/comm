@@ -81,8 +81,13 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   );
 
   const tooltipButtons = React.useMemo(
-    () => getTypeaheadTooltipButtons(actions),
-    [actions],
+    () =>
+      getTypeaheadTooltipButtons(
+        setChosenPositionInOverlay,
+        chosenPositionInOverlay,
+        actions,
+      ),
+    [setChosenPositionInOverlay, actions, chosenPositionInOverlay],
   );
 
   const close = React.useCallback(() => {
