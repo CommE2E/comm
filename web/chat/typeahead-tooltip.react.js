@@ -35,13 +35,15 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     viewerID,
     matchedStrings,
   } = props;
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [isVisibleForAnimation, setIsVisibleForAnimation] = React.useState(
+    false,
+  );
 
   React.useEffect(() => {
-    setIsVisible(true);
+    setIsVisibleForAnimation(true);
 
-    return () => setIsVisible(false);
-  }, [setIsVisible]);
+    return () => setIsVisibleForAnimation(false);
+  }, []);
 
   const {
     entireText: matchedText,
@@ -110,8 +112,8 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   }
 
   const overlayClasses = classNames(css.suggestionsContainer, {
-    [css.notVisible]: !isVisible,
-    [css.visible]: isVisible,
+    [css.notVisible]: !isVisibleForAnimation,
+    [css.visible]: isVisibleForAnimation,
   });
 
   return (
