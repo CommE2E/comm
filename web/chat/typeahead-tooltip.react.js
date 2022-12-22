@@ -8,6 +8,7 @@ import { leastPositiveResidue } from 'lib/utils/math-utils';
 
 import type { InputState } from '../input/input-state';
 import {
+  getTypeaheadOverlayScroll,
   getTypeaheadTooltipActions,
   getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
@@ -35,6 +36,8 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     chosenPositionInOverlay,
     setChosenPositionInOverlay,
   ] = React.useState<number>(0);
+
+  const overlayRef = React.useRef<?HTMLDivElement>();
 
   React.useEffect(() => {
     setChosenPositionInOverlay(0);
@@ -144,6 +147,17 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     inputState.setTypeaheadState,
   ]);
 
+  React.useEffect(() => {
+    const current = overlayRef.current;
+    if (current) {
+      const newScrollTop = getTypeaheadOverlayScroll(
+        current.scrollTop,
+        chosenPositionInOverlay,
+      );
+      current.scrollTo(0, newScrollTop);
+    }
+  }, [chosenPositionInOverlay]);
+
   if (suggestedUsers.length === 0) {
     return null;
   }
@@ -154,7 +168,11 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   });
 
   return (
-    <div className={overlayClasses} style={tooltipPositionStyle}>
+    <div
+      ref={overlayRef}
+      className={overlayClasses}
+      style={tooltipPositionStyle}
+    >
       {tooltipButtons}
     </div>
   );
