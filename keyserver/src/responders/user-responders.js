@@ -296,7 +296,11 @@ async function logInResponder(
   }
   const username = request.username ?? request.usernameOrEmail;
   if (!username) {
-    throw new ServerError('invalid_parameters');
+    if (hasMinCodeVersion(viewer.platformDetails, 150)) {
+      throw new ServerError('invalid_credentials');
+    } else {
+      throw new ServerError('invalid_parameters');
+    }
   }
   const userQuery = SQL`
     SELECT id, hash, username
@@ -309,16 +313,19 @@ async function logInResponder(
   } = await promiseAll(promises);
 
   if (userResult.length === 0) {
-    throw new ServerError('invalid_parameters');
-  }
-  const userRow = userResult[0];
-  if (!userRow.hash || !bcrypt.compareSync(request.password, userRow.hash)) {
-    if (hasMinCodeVersion(viewer.platformDetails, 99999)) {
-      throw new ServerError('invalid_parameters');
-    } else {
+    if (hasMinCodeVersion(viewer.platformDetails, 150)) {
       throw new ServerError('invalid_credentials');
+    } else {
+      throw new ServerError('invalid_parameters');
     }
   }
+
+  const userRow = userResult[0];
+
+  if (!userRow.hash || !bcrypt.compareSync(request.password, userRow.hash)) {
+    throw new ServerError('invalid_credentials');
+  }
+
   const id = userRow.id.toString();
   return await processSuccessfulLogin(viewer, input, id, calendarQuery);
 }
