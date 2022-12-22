@@ -103,6 +103,7 @@ async function getWebpackCompiledRootComponentForSSR() {
 const { renderToNodeStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
+  const siweNonce = req.header('siwe-nonce');
   const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
     getWebpackCompiledRootComponentForSSR(),
@@ -159,14 +160,20 @@ async function landingResponder(req: $Request, res: $Response) {
   const routerBasename = basePath.replace(/\/$/, '');
   const clientPath = routerBasename + req.url;
   const reactStream = renderToNodeStream(
-    <LandingSSR url={clientPath} basename={routerBasename} />,
+    <LandingSSR
+      url={clientPath}
+      basename={routerBasename}
+      siweNonce={siweNonce}
+    />,
   );
   reactStream.pipe(res, { end: false });
   await waitForStream(reactStream);
 
+  const siweNonceString = siweNonce ? `"${siweNonce}"` : 'null';
   // prettier-ignore
   res.end(html`</div>
         <script>var routerBasename = "${routerBasename}";</script>
+        <script>var siweNonce = ${siweNonceString};</script>
         <script src="${jsURL}"></script>
       </body>
     </html>
