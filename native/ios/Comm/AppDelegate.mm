@@ -69,6 +69,8 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 - (BOOL)application:(UIApplication *)application
     willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [self attemptDatabaseInitialization];
+  comm::GlobalDBSingleton::instance.scheduleOrRun(
+      []() { comm::DatabaseManager::initializeQueryExecutor(); });
   return YES;
 }
 
@@ -199,7 +201,13 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
       // to initialize the database
       [self attemptDatabaseInitialization];
       comm::GlobalDBSingleton::instance.scheduleOrRun([threadID]() mutable {
-        comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+        try {
+          comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
+        } catch (std::runtime_error &e) {
+          comm::Logger::log(
+              "handling background notification error: " +
+              std::string(e.what()));
+        }
       });
     }
     [[UNUserNotificationCenter currentNotificationCenter]
