@@ -15,7 +15,6 @@ import {
   relativeMemberInfoSelectorForMembersOfThread,
 } from 'lib/selectors/user-selectors';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
-import SearchIndex from 'lib/shared/search-index';
 import {
   threadHasPermission,
   viewerIsMember,
@@ -23,6 +22,7 @@ import {
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
 } from 'lib/shared/thread-utils';
+import { getTypeaheadUserSuggestions } from 'lib/shared/typeahead-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { messageTypes } from 'lib/types/message-types';
@@ -73,9 +73,8 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
-  +userSearchIndex: SearchIndex,
-  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
+  +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
 };
 export type TypeaheadMatchedStrings = {
   +entireText: string,
@@ -331,15 +330,17 @@ class ChatInputBar extends React.PureComponent<Props> {
     }
 
     let typeaheadTooltip;
-    if (this.props.typeaheadMatchedStrings && this.textarea) {
+    if (
+      this.props.suggestedUsers.length > 0 &&
+      this.props.typeaheadMatchedStrings &&
+      this.textarea
+    ) {
       typeaheadTooltip = (
         <TypeaheadTooltip
           inputState={this.props.inputState}
           textarea={this.textarea}
-          userSearchIndex={this.props.userSearchIndex}
-          threadMembers={this.props.threadMembers}
-          viewerID={this.props.viewerID}
           matchedStrings={this.props.typeaheadMatchedStrings}
+          suggestedUsers={this.props.suggestedUsers}
         />
       );
     }
@@ -549,12 +550,25 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
         typeaheadRegexMatches !== null
           ? {
               entireText: typeaheadRegexMatches[0],
-              textBeforeAtSymbol: typeaheadRegexMatches[1],
-              usernamePrefix: typeaheadRegexMatches[2],
+              textBeforeAtSymbol:
+                typeaheadRegexMatches.groups?.textPrefix ?? '',
+              usernamePrefix: typeaheadRegexMatches.groups?.username ?? '',
             }
           : null,
       [typeaheadRegexMatches],
     );
+
+    const suggestedUsers: $ReadOnlyArray<RelativeMemberInfo> = React.useMemo(() => {
+      if (!typeaheadMatchedStrings) {
+        return [];
+      }
+      return getTypeaheadUserSuggestions(
+        userSearchIndex,
+        threadMembers,
+        viewerID,
+        typeaheadMatchedStrings.usernamePrefix,
+      );
+    }, [userSearchIndex, threadMembers, viewerID, typeaheadMatchedStrings]);
 
     return (
       <ChatInputBar
@@ -568,9 +582,8 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
         userInfos={userInfos}
         dispatchActionPromise={dispatchActionPromise}
         joinThread={callJoinThread}
-        userSearchIndex={userSearchIndex}
-        threadMembers={threadMembers}
         typeaheadMatchedStrings={typeaheadMatchedStrings}
+        suggestedUsers={suggestedUsers}
       />
     );
   },
