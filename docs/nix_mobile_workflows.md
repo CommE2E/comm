@@ -1,5 +1,31 @@
 # Mobile workflows
 
+## Flow typechecker
+
+It’s good to run the `flow` typechecker frequently to make sure you’re not introducing any type errors. Flow treats each Yarn Workspace as a separate environment, and as such runs a separate type-checking server for each.
+
+You should now be able to run `flow` in any of the Yarn workspaces:
+
+```
+cd native
+flow
+```
+
+## Running keyserver
+
+To work on the iOS or Android app, you’ll first need to run the keyserver locally.
+
+Open a new terminal and run:
+
+```
+cd keyserver
+yarn dev
+```
+
+This command runs three processes. The first two are to keep the `dist` folder updated whenever the `src` folder changes. They are “watch” versions of the same Babel and `rsync` commands we used to initially create the `dist` folder (before running the `generate-olm-config.js` script above). The final process is `nodemon`, which is similar to `node` except that it restarts whenever any of its source files (in the `dist` directory) changes.
+
+Note that if you run `yarn dev` in `keyserver` right after `yarn cleaninstall`, before Webpack is given a chance to build `app.build.cjs`/`landing.build.cjs` files, then Node will crash when it attempts to import those files. Just make sure to run `yarn dev` (or `yarn prod`) in `web` or `landing` before attempting to load the corresponding webpages.
+
 ## Running mobile app on iOS Simulator
 
 First, make sure that the keyserver is running. If you haven’t already, run:
@@ -95,3 +121,17 @@ Finally, we need to direct the mobile app to use your local keyserver instance. 
       Where `w.x.y.z` is the local IP address you found earlier.
 
 - Alternately, if you’re on a release build and option 2 above seems like too much of a hassle, you should be able to simply change the value of [`productionNodeServerURL` in the code](https://github.com/CommE2E/comm/blob/9e6a13f1569787b498a72c890b12ce0dd8323804/native/utils/url-utils.js#L12). Note that you’ll need to delete and reinstall the app for this change to take effect, as the default production URL is persisted in Redux.
+
+## Debugging
+
+### React Developer Tools
+
+You can access the React Developer Tools by running `cd native && yarn react-devtools`. If you want to use it along with the JS debugger (see [Debugging JavaScript](#debugging-javascript)), you should open the JS debugger first, then open React Developer Tools, and finally refresh the app via the dev menu. More details on using React Developer Tools with React Native can be found [here](https://github.com/facebook/react/tree/main/packages/react-devtools#usage-with-react-native).
+
+### Redux Developer Tools
+
+You can access the Redux Developer Tools by running `cd native && yarn redux-devtools`. On the first open, you’ll need to go to “Settings”, select “Use custom (local) server”, configure it to use port 8043, and then finally hit “Connect”. If you want to use it along with the JS debugger (see [Debugging JavaScript](#debugging-javascript)), you should open the JS debugger first, then open Redux Developer Tools, and finally refresh the app via the dev menu.
+
+### Debugging JavaScript
+
+You can use the dev menu in dev builds to open up a JS debugger, where you can set breakpoints via the `debugger` expression.

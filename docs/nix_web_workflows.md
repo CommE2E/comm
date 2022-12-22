@@ -13,7 +13,7 @@ flow
 
 ## Running keyserver
 
-To run the web app, landing page, or the mobile app on the iOS Simulator or Android Emulator, you’ll need to run the keyserver.
+To run the web app or the landing page, you’ll first need to run the keyserver locally.
 
 Open a new terminal and run:
 
@@ -66,19 +66,16 @@ You should now be able to load the landing page in your web browser at http://lo
 
 This runs the same two processes as the web app, but for the landing page. Note that the `landing.build.cjs` file (similar to the web app’s `app.build.cjs` file) is consumed by the Node server.
 
-# Debugging
+## Debugging
 
-## React Developer Tools
+### React Developer Tools
 
-- For web, you can access the React Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Components” or “Profiler” tabs. This should work in both our development environment and in production.
-- For iOS and Android, you can access the React Developer Tools by running `cd native && yarn react-devtools`. If you want to use it along with the JS debugger (see [Debugging JavaScript](#debugging-javascript)), you should open the JS debugger first, then open React Developer Tools, and finally refresh the app via the dev menu. More details on using React Developer Tools with React Native can be found [here](https://github.com/facebook/react/tree/main/packages/react-devtools#usage-with-react-native).
+You can access the React Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Components” or “Profiler” tabs. This should work in both our development environment and in production.
 
-## Redux Developer Tools
+### Redux Developer Tools
 
-- For web, you can access the Redux Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Redux” tab. This should work in both our development environment and in production, although in production you won’t be able to see Redux actions from before you opened up the Redux dev tools.
-- For iOS and Android, you can access the Redux Developer Tools through the Chrome extension’s Remote DevTools functionality. First, to open the Remote DevTools, right click on any webpage, go into the “Redux DevTools” menu, and select “Open Remote DevTools”. Then hit “Settings”, select “Use custom (local) server”, and configure it to connect to `localhost` on port 8043. This will connect to the `remotedev-server` instance that you started when you ran `cd native && yarn dev`.
+You can access the Redux Developer Tools through the Chrome extension by opening the Chrome Developer Tools and selecting the “Redux” tab. This should work in both our development environment and in production, although in production you won’t be able to see Redux actions from before you opened up the Redux dev tools.
 
-## Debugging JavaScript
+### Debugging JavaScript
 
-- For web, you can just use your browser of choice’s dev tools.
-- For iOS and Android, you can use the dev menu in dev builds to open up a JS debugger, where you can set breakpoints via the `debugger` expression.
+You can just use your browser of choice’s dev tools.
