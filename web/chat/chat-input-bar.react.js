@@ -77,7 +77,6 @@ type Props = {
   +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
 };
 export type TypeaheadMatchedStrings = {
-  +entireText: string,
   +textBeforeAtSymbol: string,
   +usernamePrefix: string,
 };
@@ -549,7 +548,6 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       () =>
         typeaheadRegexMatches !== null
           ? {
-              entireText: typeaheadRegexMatches[0],
               textBeforeAtSymbol:
                 typeaheadRegexMatches.groups?.textPrefix ?? '',
               usernamePrefix: typeaheadRegexMatches.groups?.username ?? '',

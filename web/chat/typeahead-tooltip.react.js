@@ -24,6 +24,8 @@ export type TypeaheadTooltipProps = {
 function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   const { inputState, textarea, matchedStrings, suggestedUsers } = props;
 
+  const { textBeforeAtSymbol, usernamePrefix } = matchedStrings;
+
   const [isVisibleForAnimation, setIsVisibleForAnimation] = React.useState(
     false,
   );
@@ -34,37 +36,22 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     return () => setIsVisibleForAnimation(false);
   }, []);
 
-  const {
-    entireText: matchedText,
-    textBeforeAtSymbol: matchedTextBeforeAtSymbol,
-  } = matchedStrings;
-
   const actions = React.useMemo(
     () =>
       getTypeaheadTooltipActions(
         inputState,
         textarea,
         suggestedUsers,
-        matchedTextBeforeAtSymbol,
-        matchedText,
+        textBeforeAtSymbol,
+        usernamePrefix,
       ),
-    [
-      inputState,
-      textarea,
-      suggestedUsers,
-      matchedTextBeforeAtSymbol,
-      matchedText,
-    ],
+    [inputState, textarea, suggestedUsers, textBeforeAtSymbol, usernamePrefix],
   );
 
   const tooltipPosition = React.useMemo(
     () =>
-      getTypeaheadTooltipPosition(
-        textarea,
-        actions.length,
-        matchedTextBeforeAtSymbol,
-      ),
-    [textarea, actions.length, matchedTextBeforeAtSymbol],
+      getTypeaheadTooltipPosition(textarea, actions.length, textBeforeAtSymbol),
+    [textarea, actions.length, textBeforeAtSymbol],
   );
 
   const tooltipPositionStyle = React.useMemo(

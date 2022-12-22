@@ -76,8 +76,8 @@ function getTypeaheadTooltipActions(
   inputState: InputState,
   textarea: HTMLTextAreaElement,
   suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
-  matchedTextBefore: string,
-  matchedText: string,
+  textBeforeAtSymbol: string,
+  usernamePrefix: string,
 ): $ReadOnlyArray<TypeaheadTooltipAction> {
   return suggestedUsers
     .filter(
@@ -86,9 +86,12 @@ function getTypeaheadTooltipActions(
     .map(suggestedUser => ({
       key: suggestedUser.id,
       onClick: () => {
-        const newPrefixText = matchedTextBefore;
+        const newPrefixText = textBeforeAtSymbol;
 
-        let newSuffixText = inputState.draft.slice(matchedText.length);
+        const totalMatchLength =
+          textBeforeAtSymbol.length + usernamePrefix.length + 1; // 1 for @ char
+
+        let newSuffixText = inputState.draft.slice(totalMatchLength);
         newSuffixText = (newSuffixText[0] !== ' ' ? ' ' : '') + newSuffixText;
 
         const newText =
@@ -108,11 +111,11 @@ function getTypeaheadTooltipActions(
 function getTypeaheadTooltipPosition(
   textarea: HTMLTextAreaElement,
   actionsLength: number,
-  matchedTextBefore: string,
+  textBeforeAtSymbol: string,
 ): TooltipPosition {
   const { caretTopOffset, caretLeftOffset } = getCaretOffsets(
     textarea,
-    matchedTextBefore,
+    textBeforeAtSymbol,
   );
 
   const textareaBoundingClientRect = textarea.getBoundingClientRect();
