@@ -16,6 +16,7 @@ import {
   deleteOrphanedSessions,
   deleteOldWebSessions,
 } from '../deleters/session-deleters';
+import { deleteStaleSIWENonceEntries } from '../deleters/siwe-nonce-deleters.js';
 import { deleteInaccessibleThreads } from '../deleters/thread-deleters';
 import { deleteExpiredUpdates } from '../deleters/update-deleters';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters';
@@ -43,6 +44,7 @@ if (cluster.isMaster) {
         await deleteOldWebSessions();
         await deleteExpiredUpdates();
         await deleteUnassignedUploads();
+        await deleteStaleSIWENonceEntries();
       } catch (e) {
         console.warn('encountered error while trying to clean database', e);
       }
