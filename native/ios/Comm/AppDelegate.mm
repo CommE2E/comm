@@ -69,6 +69,8 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 - (BOOL)application:(UIApplication *)application
     willFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [self attemptDatabaseInitialization];
+  comm::GlobalDBSingleton::instance.scheduleOrRun(
+      []() { comm::DatabaseManager::initializeQueryExecutor(); });
   return YES;
 }
 
