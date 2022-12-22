@@ -24,7 +24,6 @@ import { defaultNumberPerThread } from 'lib/types/message-types';
 import { defaultEnabledReports } from 'lib/types/report-types';
 import { defaultConnectionInfo } from 'lib/types/socket-types';
 import { threadPermissions, threadTypes } from 'lib/types/thread-types';
-import type { CurrentUserInfo } from 'lib/types/user-types';
 import { currentDateInTimeZone } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 import { promiseAll } from 'lib/utils/promises';
@@ -309,10 +308,10 @@ async function websiteResponder(
       var preloadedState =
   `);
 
-  const initialReduxState: any = await promiseAll({
+  const initialReduxState = await promiseAll({
     navInfo: navInfoPromise,
     deviceID: null,
-    currentUserInfo: ((currentUserInfoPromise: any): Promise<CurrentUserInfo>),
+    currentUserInfo: currentUserInfoPromise,
     draftStore: { drafts: {} },
     sessionID: sessionIDPromise,
     entryStore: entryStorePromise,

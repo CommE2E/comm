@@ -5,10 +5,9 @@ import JSONStream from 'JSONStream';
 import replaceStream from 'replacestream';
 import Combine from 'stream-combiner';
 
-type Promisable<T> = Promise<T> | T;
-function streamJSON<T: { [key: string]: Promisable<*> }>(
+function streamJSON(
   res: $Response,
-  input: T,
+  input: { +[key: string]: mixed },
 ): stream$Readable {
   const jsonStream = Combine(
     JSONStream.stringifyObject('{', ',', '}'),
@@ -19,9 +18,9 @@ function streamJSON<T: { [key: string]: Promisable<*> }>(
   return jsonStream;
 }
 
-function resolvePromisesToStream<T: { [key: string]: Promisable<*> }>(
+function resolvePromisesToStream(
   stream: { +write: ([string, mixed]) => mixed, +end: () => mixed, ... },
-  input: T,
+  input: { +[key: string]: mixed },
 ) {
   const blocking = [];
   for (const key in input) {
