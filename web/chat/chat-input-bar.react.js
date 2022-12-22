@@ -51,9 +51,10 @@ import Multimedia from '../media/multimedia.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
-import { typeaheadRegex } from '../utils/typeahead-utils';
+import { webTypeaheadRegex } from '../utils/typeahead-utils';
 import css from './chat-input-bar.css';
 import TypeaheadTooltip from './typeahead-tooltip.react';
+
 type BaseProps = {
   +threadInfo: ThreadInfo,
   +inputState: InputState,
@@ -534,7 +535,7 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       () =>
         inputSliceEndingAtCursor.length === props.inputState.draft.length ||
         /\s/.test(props.inputState.draft[props.inputState.textCursorPosition])
-          ? inputSliceEndingAtCursor.match(typeaheadRegex)
+          ? inputSliceEndingAtCursor.match(webTypeaheadRegex)
           : null,
       [
         inputSliceEndingAtCursor,

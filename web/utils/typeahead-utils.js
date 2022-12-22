@@ -9,7 +9,7 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 import { typeaheadStyle } from '../chat/chat-constants';
 import { type InputState } from '../input/input-state';
 
-const typeaheadRegex: RegExp = new RegExp(
+const webTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
 );
 
@@ -136,7 +136,7 @@ function getTypeaheadTooltipPosition(
 }
 
 export {
-  typeaheadRegex,
+  webTypeaheadRegex,
   getCaretOffsets,
   getTypeaheadTooltipActions,
   getTypeaheadTooltipPosition,
