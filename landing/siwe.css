@@ -24,9 +24,21 @@ body {
   }
 }
 
+body > div > :global(div.iekbcc0) {
+  word-break: initial;
+}
 body > div > :global(div.iekbcc0) > div {
   bottom: initial !important;
 }
 body > div > :global(div.iekbcc0) > div > div > div > div {
   border: 0 !important;
+}
+
+:global(div#walletconnect-wrapper) {
+  word-break: initial;
+  color: initial;
+}
+:global(div.walletconnect-modal__footer) {
+  overflow: hidden;
+  justify-content: flex-start;
 }
