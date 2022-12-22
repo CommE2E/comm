@@ -10,12 +10,12 @@ import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import type { InputState } from '../input/input-state';
-import { type TypeaheadMatchedStrings } from './chat-input-bar.react';
-import css from './typeahead-tooltip.css';
 import {
   getTypeaheadTooltipActions,
   getTypeaheadTooltipPosition,
-} from './typeahead-utils';
+} from '../utils/typeahead-utils';
+import type { TypeaheadMatchedStrings } from './chat-input-bar.react';
+import css from './typeahead-tooltip.css';
 
 export type TypeaheadTooltipProps = {
   +inputState: InputState,

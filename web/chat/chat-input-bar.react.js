@@ -51,9 +51,9 @@ import Multimedia from '../media/multimedia.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
 import SWMansionIcon from '../SWMansionIcon.react';
+import { typeaheadRegex } from '../utils/typeahead-utils';
 import css from './chat-input-bar.css';
 import TypeaheadTooltip from './typeahead-tooltip.react';
-import { typeaheadRegex } from './typeahead-utils';
 type BaseProps = {
   +threadInfo: ThreadInfo,
   +inputState: InputState,
