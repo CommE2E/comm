@@ -7,6 +7,8 @@ import { stringForUserExplicit } from 'lib/shared/user-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { typeaheadStyle } from '../chat/chat-constants';
+import css from '../chat/typeahead-tooltip.css';
+import Button from '../components/button.react';
 
 const webTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
@@ -119,6 +121,16 @@ function getTypeaheadTooltipActions(
       actionButtonContent: stringForUserExplicit(suggestedUser),
     }));
 }
+
+function getTypeaheadTooltipButtons(
+  actions: $ReadOnlyArray<TypeaheadTooltipAction>,
+): $ReadOnlyArray<React.Node> {
+  return actions.map(({ key, onClick, actionButtonContent }) => (
+    <Button key={key} onClick={onClick} className={css.suggestion}>
+      <span>@{actionButtonContent}</span>
+    </Button>
+  ));
+}
 function getTypeaheadTooltipPosition(
   textarea: HTMLTextAreaElement,
   actionsLength: number,
@@ -153,5 +165,6 @@ export {
   webTypeaheadRegex,
   getCaretOffsets,
   getTypeaheadTooltipActions,
+  getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
 };

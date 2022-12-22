@@ -5,10 +5,10 @@ import * as React from 'react';
 
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
-import Button from '../components/button.react';
 import type { InputState } from '../input/input-state';
 import {
   getTypeaheadTooltipActions,
+  getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
 } from '../utils/typeahead-utils';
 import type { TypeaheadMatchedStrings } from './chat-input-bar.react';
@@ -70,13 +70,10 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
     [tooltipPosition],
   );
 
-  const tooltipButtons = React.useMemo(() => {
-    return actions.map(({ key, onClick, actionButtonContent }) => (
-      <Button key={key} onClick={onClick} className={css.suggestion}>
-        <span>@{actionButtonContent}</span>
-      </Button>
-    ));
-  }, [actions]);
+  const tooltipButtons = React.useMemo(
+    () => getTypeaheadTooltipButtons(actions),
+    [actions],
+  );
 
   if (!actions || actions.length === 0) {
     return null;
