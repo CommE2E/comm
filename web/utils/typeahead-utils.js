@@ -7,7 +7,6 @@ import { stringForUserExplicit } from 'lib/shared/user-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import { typeaheadStyle } from '../chat/chat-constants';
-import { type InputState } from '../input/input-state';
 
 const webTypeaheadRegex: RegExp = new RegExp(
   `(?<textPrefix>(?:^(?:.|\n)*\\s+)|^)@(?<username>${oldValidUsernameRegexString})?$`,
@@ -71,14 +70,26 @@ function getCaretOffsets(
     caretLeftOffset,
   };
 }
+export type GetTypeaheadTooltipActionsParams = {
+  +inputStateDraft: string,
+  +inputStateSetDraft: (draft: string) => mixed,
+  +inputStateSetTextCursorPosition: (newPosition: number) => mixed,
+  +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
+  +textBeforeAtSymbol: string,
+  +usernamePrefix: string,
+};
 
 function getTypeaheadTooltipActions(
-  inputState: InputState,
-  textarea: HTMLTextAreaElement,
-  suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
-  textBeforeAtSymbol: string,
-  usernamePrefix: string,
+  params: GetTypeaheadTooltipActionsParams,
 ): $ReadOnlyArray<TypeaheadTooltipAction> {
+  const {
+    inputStateDraft,
+    inputStateSetDraft,
+    inputStateSetTextCursorPosition,
+    suggestedUsers,
+    textBeforeAtSymbol,
+    usernamePrefix,
+  } = params;
   return suggestedUsers
     .filter(
       suggestedUser => stringForUserExplicit(suggestedUser) !== 'anonymous',
@@ -91,7 +102,7 @@ function getTypeaheadTooltipActions(
         const totalMatchLength =
           textBeforeAtSymbol.length + usernamePrefix.length + 1; // 1 for @ char
 
-        let newSuffixText = inputState.draft.slice(totalMatchLength);
+        let newSuffixText = inputStateDraft.slice(totalMatchLength);
         newSuffixText = (newSuffixText[0] !== ' ' ? ' ' : '') + newSuffixText;
 
         const newText =
@@ -100,8 +111,8 @@ function getTypeaheadTooltipActions(
           stringForUserExplicit(suggestedUser) +
           newSuffixText;
 
-        inputState.setDraft(newText);
-        inputState.setTextCursorPosition(
+        inputStateSetDraft(newText);
+        inputStateSetTextCursorPosition(
           newText.length - newSuffixText.length + 1,
         );
       },
