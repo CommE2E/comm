@@ -1,11 +1,13 @@
 // @flow
 
 import {
-  ConnectButton,
+  useConnectModal,
   getDefaultWallets,
   RainbowKitProvider,
+  darkTheme,
 } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
+import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 import { SiweMessage } from 'siwe';
 import '@rainbow-me/rainbowkit/dist/index.css';
@@ -77,33 +79,47 @@ function SIWE(): React.Node {
     signInWithEthereum(address, signer, siweNonce);
   }, [address, signer, siweNonce]);
 
-  if (siweNonce === null || siweNonce === undefined) {
+  const { openConnectModal } = useConnectModal();
+  const hasNonce = siweNonce !== null && siweNonce !== undefined;
+  React.useEffect(() => {
+    if (hasNonce) {
+      openConnectModal();
+    }
+  }, [hasNonce, openConnectModal]);
+
+  if (!hasNonce) {
     return (
       <div className={css.wrapper}>
         <h1 className={css.h1}>Unable to proceed: nonce not found.</h1>
       </div>
     );
+  } else if (!signer) {
+    return null;
+  } else {
+    return (
+      <div className={css.button} onClick={onClick}>
+        <img src="images/ethereum_icon.svg" style={ethIconStyle} />
+        sign in
+      </div>
+    );
   }
-
-  const SignInButton = !signer ? null : (
-    <div className={css.button} onClick={onClick}>
-      <img src="images/ethereum_icon.svg" style={ethIconStyle} />
-      sign in
-    </div>
-  );
-  return (
-    <div className={css.wrapper}>
-      <h1 className={css.h1}>SIWE</h1>
-      <ConnectButton />
-      <div className={css.spacer} />
-      {SignInButton}
-    </div>
-  );
 }
+
 function SIWEWrapper(): React.Node {
+  const theme = React.useMemo(() => {
+    return _merge(darkTheme())({
+      radii: {
+        modal: 0,
+        modalMobile: 0,
+      },
+      colors: {
+        modalBackdrop: '#242529',
+      },
+    });
+  }, []);
   return (
     <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains}>
+      <RainbowKitProvider theme={theme} modalSize="compact" chains={chains}>
         <SIWE />
       </RainbowKitProvider>
     </WagmiConfig>
