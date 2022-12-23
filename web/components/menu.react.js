@@ -93,9 +93,13 @@ function Menu(props: MenuProps): React.Node {
     return () => closeMenu(ourSymbolValue);
   }, [closeMenu]);
 
-  const onClickMenuCallback = React.useCallback(() => {
-    setCurrentOpenMenu(ourSymbol.current);
-  }, [setCurrentOpenMenu]);
+  const onClickMenuCallback = React.useCallback(
+    e => {
+      e.stopPropagation();
+      setCurrentOpenMenu(ourSymbol.current);
+    },
+    [setCurrentOpenMenu],
+  );
 
   if (React.Children.count(children) === 0) {
     return null;
