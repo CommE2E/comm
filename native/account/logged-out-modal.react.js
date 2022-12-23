@@ -328,12 +328,14 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
     const promptButtonsSize = Platform.OS === 'ios' ? 40 : 61;
     const logInContainerSize = 140;
     const registerPanelSize = Platform.OS === 'ios' ? 181 : 180;
+    const siwePanelSize = 250;
 
     const containerSize = add(
       headerHeight,
       cond(not(isPastPrompt(this.modeValue)), promptButtonsSize, 0),
       cond(eq(this.modeValue, modeNumbers['log-in']), logInContainerSize, 0),
       cond(eq(this.modeValue, modeNumbers['register']), registerPanelSize, 0),
+      cond(eq(this.modeValue, modeNumbers['siwe']), siwePanelSize, 0),
     );
     const potentialPanelPaddingTop = divide(
       max(sub(this.contentHeight, this.keyboardHeightValue, containerSize), 0),
