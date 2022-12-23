@@ -11,7 +11,7 @@ index 275c804..ca20931 100644
 +  useModalState,
  };
 diff --git a/node_modules/@rainbow-me/rainbowkit/dist/index.js b/node_modules/@rainbow-me/rainbowkit/dist/index.js
-index 8630ea1..a6fac1c 100644
+index 8630ea1..230328e 100644
 --- a/node_modules/@rainbow-me/rainbowkit/dist/index.js
 +++ b/node_modules/@rainbow-me/rainbowkit/dist/index.js
 @@ -22,7 +22,8 @@ import {
@@ -24,6 +24,33 @@ index 8630ea1..a6fac1c 100644
  } from "./chunk-R7UVC5N6.js";
  import {
    lightTheme
+@@ -336,7 +337,7 @@ var metaMask = ({
+       });
+       const getUri = async () => {
+         const { uri } = (await connector.getProvider()).connector;
+-        return isAndroid() ? uri : `https://metamask.app.link/wc?uri=${encodeURIComponent(uri)}`;
++        return `https://metamask.app.link/wc?uri=${encodeURIComponent(uri)}`;
+       };
+       return {
+         connector,
+@@ -460,7 +461,7 @@ var rainbow = ({ chains }) => ({
+       mobile: {
+         getUri: async () => {
+           const { uri } = (await connector.getProvider()).connector;
+-          return isAndroid() ? uri : `https://rnbwapp.com/wc?uri=${encodeURIComponent(uri)}`;
++          return `https://rnbwapp.com/wc?uri=${encodeURIComponent(uri)}`;
+         }
+       },
+       qrCode: {
+@@ -564,7 +565,7 @@ var walletConnect = ({ chains }) => ({
+     const getUri = async () => (await connector.getProvider()).connector.uri;
+     return {
+       connector,
+-      ...ios ? {} : {
++      ...ios || isAndroid() ? {} : {
+         mobile: { getUri },
+         qrCode: { getUri }
+       }
 @@ -701,5 +702,6 @@ export {
    useAddRecentTransaction,
    useChainModal,
