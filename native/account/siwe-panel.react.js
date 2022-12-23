@@ -29,7 +29,10 @@ const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
 
-function SIWEPanel(): React.Node {
+type Props = {
+  +onClose: () => mixed,
+};
+function SIWEPanel(props: Props): React.Node {
   const navContext = React.useContext(NavContext);
   const dispatchActionPromise = useDispatchActionPromise();
   const registerAction = useServerCall(register);
@@ -129,6 +132,16 @@ function SIWEPanel(): React.Node {
     [],
   );
 
+  const { onClose } = props;
+  const onBottomSheetChange = React.useCallback(
+    (index: number) => {
+      if (index === -1) {
+        onClose();
+      }
+    },
+    [onClose],
+  );
+
   let bottomSheet;
   if (nonce) {
     bottomSheet = (
@@ -136,6 +149,8 @@ function SIWEPanel(): React.Node {
         snapPoints={snapPoints}
         backgroundStyle={handleStyle}
         handleIndicatorStyle={bottomSheetHandleIndicatorStyle}
+        enablePanDownToClose={true}
+        onChange={onBottomSheetChange}
       >
         <WebView
           source={source}

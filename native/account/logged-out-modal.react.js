@@ -556,7 +556,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     let siwePanel;
     if (this.state.mode === 'siwe') {
-      siwePanel = <SIWEPanel />;
+      siwePanel = <SIWEPanel onClose={this.goBackToPrompt} />;
     }
 
     const backgroundSource = { uri: splashBackgroundURI };
