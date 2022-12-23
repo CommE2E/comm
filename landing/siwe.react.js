@@ -5,6 +5,7 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
   darkTheme,
+  useModalState,
 } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
@@ -96,6 +97,16 @@ function SIWE(): React.Node {
       openConnectModal();
     }
   }, [hasNonce, openConnectModal]);
+
+  const prevConnectModalOpen = React.useRef(false);
+  const modalState = useModalState();
+  const { connectModalOpen } = modalState;
+  React.useEffect(() => {
+    if (!connectModalOpen && prevConnectModalOpen.current) {
+      postMessageToNativeWebView({ type: 'siwe_closed' });
+    }
+    prevConnectModalOpen.current = connectModalOpen;
+  }, [connectModalOpen]);
 
   if (!hasNonce) {
     return (

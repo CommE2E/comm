@@ -82,6 +82,9 @@ function SIWEPanel(props: Props): React.Node {
     },
     [logInExtraInfo, dispatchActionPromise, registerAction],
   );
+  const bottomSheetRef = React.useRef();
+  const closeBottomSheet = bottomSheetRef.current?.close;
+  const { onClose } = props;
   const handleMessage = React.useCallback(
     event => {
       const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
@@ -90,9 +93,12 @@ function SIWEPanel(props: Props): React.Node {
         if (address && signature) {
           handleSIWE({ address, signature });
         }
+      } else if (data.type === 'siwe_closed') {
+        onClose();
+        closeBottomSheet?.();
       }
     },
-    [handleSIWE],
+    [handleSIWE, onClose, closeBottomSheet],
   );
 
   const source = React.useMemo(
@@ -133,7 +139,6 @@ function SIWEPanel(props: Props): React.Node {
     [],
   );
 
-  const { onClose } = props;
   const onBottomSheetChange = React.useCallback(
     (index: number) => {
       if (index === -1) {
@@ -152,6 +157,7 @@ function SIWEPanel(props: Props): React.Node {
         handleIndicatorStyle={bottomSheetHandleIndicatorStyle}
         enablePanDownToClose={true}
         onChange={onBottomSheetChange}
+        ref={bottomSheetRef}
       >
         <WebView
           source={source}
