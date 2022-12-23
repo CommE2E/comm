@@ -481,9 +481,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       );
     }
 
-    if (this.state.mode === 'siwe') {
-      panel = <SIWEPanel />;
-    } else if (this.state.mode === 'log-in') {
+    if (this.state.mode === 'log-in') {
       panel = (
         <LogInPanel
           setActiveAlert={this.setActiveAlert}
@@ -556,6 +554,11 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       </Animated.View>
     );
 
+    let siwePanel;
+    if (this.state.mode === 'siwe') {
+      siwePanel = <SIWEPanel />;
+    }
+
     const backgroundSource = { uri: splashBackgroundURI };
     return (
       <React.Fragment>
@@ -570,6 +573,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
             {buttons}
           </KeyboardAvoidingView>
         </SafeAreaView>
+        {siwePanel}
       </React.Fragment>
     );
   }
