@@ -24,6 +24,7 @@ body {
   }
 }
 
+/* Classes from node_modules/@rainbow-me/rainbowkit/dist/components/index.css */
 body > div > :global(div.iekbcc0) {
   word-break: initial;
 }
