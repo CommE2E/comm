@@ -23,6 +23,7 @@ import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import { defaultLandingURLPrefix } from '../utils/url-utils';
+import type { LoggedOutMode } from './logged-out-modal.react';
 import { setNativeCredentials } from './native-credentials';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
@@ -33,6 +34,7 @@ const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 
 type Props = {
   +onClose: () => mixed,
+  +nextMode: LoggedOutMode,
 };
 function SIWEPanel(props: Props): React.Node {
   const navContext = React.useContext(NavContext);
@@ -108,7 +110,7 @@ function SIWEPanel(props: Props): React.Node {
     [logInExtraInfo, dispatchActionPromise, registerAction],
   );
   const closeBottomSheet = bottomSheetRef.current?.close;
-  const { onClose } = props;
+  const { onClose, nextMode } = props;
   const handleMessage = React.useCallback(
     event => {
       const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
@@ -126,6 +128,13 @@ function SIWEPanel(props: Props): React.Node {
     },
     [handleSIWE, onClose, closeBottomSheet],
   );
+  const prevNextModeRef = React.useRef();
+  React.useEffect(() => {
+    if (nextMode === 'prompt' && prevNextModeRef.current === 'siwe') {
+      closeBottomSheet?.();
+    }
+    prevNextModeRef.current = nextMode;
+  }, [nextMode, closeBottomSheet]);
 
   const source = React.useMemo(
     () => ({

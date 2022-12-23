@@ -88,7 +88,12 @@ const {
 } = Animated;
 /* eslint-enable import/no-named-as-default-member */
 
-type LoggedOutMode = 'loading' | 'prompt' | 'log-in' | 'register' | 'siwe';
+export type LoggedOutMode =
+  | 'loading'
+  | 'prompt'
+  | 'log-in'
+  | 'register'
+  | 'siwe';
 const modeNumbers: { [LoggedOutMode]: number } = {
   'loading': 0,
   'prompt': 1,
@@ -121,6 +126,7 @@ type Props = {
 };
 type State = {
   +mode: LoggedOutMode,
+  +nextMode: LoggedOutMode,
   +logInState: StateContainer<LogInState>,
   +registerState: StateContainer<RegisterState>,
 };
@@ -164,8 +170,10 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
       }),
     );
 
+    const initialMode = props.persistedStateLoaded ? 'prompt' : 'loading';
     this.state = {
-      mode: props.persistedStateLoaded ? 'prompt' : 'loading',
+      mode: initialMode,
+      nextMode: initialMode,
       logInState: {
         state: {
           usernameInputText: null,
@@ -182,9 +190,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
         setState: setRegisterState,
       },
     };
-    if (props.persistedStateLoaded) {
-      this.nextMode = 'prompt';
-    }
+    this.nextMode = initialMode;
 
     this.contentHeight = new Value(props.dimensions.safeAreaHeight);
     this.modeValue = new Value(modeNumbers[this.nextMode]);
@@ -202,7 +208,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   setMode(newMode: LoggedOutMode) {
     this.nextMode = newMode;
-    this.guardedSetState({ mode: newMode });
+    this.guardedSetState({ mode: newMode, nextMode: newMode });
     this.modeValue.setValue(modeNumbers[newMode]);
   }
 
@@ -446,6 +452,7 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
   goBackToPrompt = () => {
     this.nextMode = 'prompt';
+    this.guardedSetState({ nextMode: 'prompt' });
     this.keyboardHeightValue.setValue(0);
     this.modeValue.setValue(modeNumbers['prompt']);
     Keyboard.dismiss();
@@ -556,7 +563,12 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
 
     let siwePanel;
     if (this.state.mode === 'siwe') {
-      siwePanel = <SIWEPanel onClose={this.goBackToPrompt} />;
+      siwePanel = (
+        <SIWEPanel
+          onClose={this.goBackToPrompt}
+          nextMode={this.state.nextMode}
+        />
+      );
     }
 
     const backgroundSource = { uri: splashBackgroundURI };
