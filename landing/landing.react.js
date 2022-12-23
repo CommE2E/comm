@@ -13,6 +13,7 @@ import Footer from './footer.react';
 import Header from './header.react';
 import Investors from './investors.react';
 import Keyservers from './keyservers.react';
+import css from './landing.css';
 import Privacy from './privacy.react';
 import QR from './qr.react';
 import SIWE from './siwe.react';
@@ -24,6 +25,18 @@ import './reset.css';
 import './global.css';
 
 function Landing(): React.Node {
+  const onSIWE = useRouteMatch({ path: '/siwe' });
+  if (onSIWE) {
+    return <SIWE />;
+  }
+  return (
+    <ModalProvider>
+      <LandingSite />
+    </ModalProvider>
+  );
+}
+
+function LandingSite(): React.Node {
   const modalContext = useModalContext();
 
   const modals = React.useMemo(
@@ -42,7 +55,6 @@ function Landing(): React.Node {
   const onQR = useRouteMatch({ path: '/qr' });
   const onTeam = useRouteMatch({ path: '/team' });
   const onInvestors = useRouteMatch({ path: '/investors' });
-  const onSIWE = useRouteMatch({ path: '/siwe' });
 
   const activePage = React.useMemo(() => {
     if (onPrivacy) {
@@ -55,8 +67,6 @@ function Landing(): React.Node {
       return <Keyservers />;
     } else if (onQR) {
       return <QR />;
-    } else if (onSIWE) {
-      return <SIWE />;
     } else if (onTeam) {
       return <Team />;
     } else if (onInvestors) {
@@ -64,43 +74,28 @@ function Landing(): React.Node {
     } else {
       return <AppLanding />;
     }
-  }, [
-    onKeyservers,
-    onPrivacy,
-    onSupport,
-    onTerms,
-    onTeam,
-    onInvestors,
-    onQR,
-    onSIWE,
-  ]);
+  }, [onKeyservers, onPrivacy, onSupport, onTerms, onTeam, onInvestors, onQR]);
 
   let header = <Header />;
-  if (onQR || onSIWE) {
+  if (onQR) {
     header = null;
   }
 
   let footer = <Footer />;
-  if (onQR || onSIWE) {
+  if (onQR) {
     footer = null;
   }
 
   return (
-    <>
-      {header}
-      {activePage}
-      {footer}
-      {modals}
-    </>
+    <div className={css.container}>
+      <div className={css.innerContainer}>
+        {header}
+        {activePage}
+        {footer}
+        {modals}
+      </div>
+    </div>
   );
 }
 
-function LandingWithProvider(): React.Node {
-  return (
-    <ModalProvider>
-      <Landing />
-    </ModalProvider>
-  );
-}
-
-export default LandingWithProvider;
+export default Landing;

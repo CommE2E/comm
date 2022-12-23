@@ -12,25 +12,6 @@
 }
 
 /* ===== GENERAL PAGE STYLES ===== */
-html {
-  background: radial-gradient(ellipse at bottom, #1f252e, #111827) fixed;
-  font-family: var(--sans-serif);
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  color: white;
-  word-break: break-word;
-}
-
-/* Override browser default to achieve edge-to-edge footer translucency effect */
-body {
-  background-image: radial-gradient(
-    circle at top left,
-    #2d008888 0%,
-    #ffffff00 50%
-  );
-  margin: 0;
-  padding: 0;
-}
 
 html,
 body,
