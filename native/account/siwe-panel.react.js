@@ -3,6 +3,7 @@
 import BottomSheet from '@gorhom/bottom-sheet';
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
 
 import {
@@ -64,6 +65,30 @@ function SIWEPanel(props: Props): React.Node {
     })();
   }, [dispatchActionPromise, getSIWENonceCall]);
 
+  const [isLoading, setLoading] = React.useState(true);
+  const [isWalletConnectModalOpen, setWalletConnectModalOpen] = React.useState(
+    false,
+  );
+  const insets = useSafeAreaInsets();
+  const bottomInset = insets.bottom;
+  const snapPoints = React.useMemo(() => {
+    if (isLoading) {
+      return [1];
+    } else if (isWalletConnectModalOpen) {
+      return [bottomInset + 600];
+    } else {
+      return [bottomInset + 435, bottomInset + 600];
+    }
+  }, [isLoading, isWalletConnectModalOpen, bottomInset]);
+
+  const bottomSheetRef = React.useRef();
+  const snapToIndex = bottomSheetRef.current?.snapToIndex;
+  React.useEffect(() => {
+    // When the snapPoints change, always reset to the first one
+    // Without this, when we close the WalletConnect modal we don't resize
+    snapToIndex?.(0);
+  }, [snapToIndex, snapPoints]);
+
   const handleSIWE = React.useCallback(
     ({ address, signature }) => {
       // this is all mocked from register-panel
@@ -82,7 +107,6 @@ function SIWEPanel(props: Props): React.Node {
     },
     [logInExtraInfo, dispatchActionPromise, registerAction],
   );
-  const bottomSheetRef = React.useRef();
   const closeBottomSheet = bottomSheetRef.current?.close;
   const { onClose } = props;
   const handleMessage = React.useCallback(
@@ -96,6 +120,8 @@ function SIWEPanel(props: Props): React.Node {
       } else if (data.type === 'siwe_closed') {
         onClose();
         closeBottomSheet?.();
+      } else if (data.type === 'walletconnect_modal_update') {
+        setWalletConnectModalOpen(data.state === 'open');
       }
     },
     [handleSIWE, onClose, closeBottomSheet],
@@ -110,16 +136,6 @@ function SIWEPanel(props: Props): React.Node {
     }),
     [nonce],
   );
-
-  const [isLoading, setLoading] = React.useState(true);
-
-  const snapPoints = React.useMemo(() => {
-    if (isLoading) {
-      return [1];
-    } else {
-      return [700];
-    }
-  }, [isLoading]);
 
   const onWebViewLoaded = React.useCallback(() => {
     setLoading(false);
