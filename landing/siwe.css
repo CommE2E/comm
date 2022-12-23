@@ -27,6 +27,10 @@ body {
 body > div > :global(div.iekbcc0) {
   word-break: initial;
 }
+[data-rk] :global(._9pm4ki5) {
+  animation: initial !important;
+  -webkit-animation: initial !important;
+}
 body > div > :global(div.iekbcc0) > div {
   bottom: initial !important;
 }
