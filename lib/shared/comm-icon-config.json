@@ -15,14 +15,14 @@
       },
       "attrs": [{}],
       "properties": {
-        "order": 3,
-        "id": 5,
+        "order": 361,
+        "id": 0,
         "name": "cloud-filled",
         "prevSize": 32,
         "code": 59648
       },
-      "setIdx": 0,
-      "setId": 3,
+      "setIdx": 1,
+      "setId": 10,
       "iconIdx": 0
     },
     {
@@ -41,14 +41,14 @@
       },
       "attrs": [{}, {}, {}],
       "properties": {
-        "order": 4,
-        "id": 4,
+        "order": 362,
+        "id": 1,
         "name": "megaphone",
         "prevSize": 32,
         "code": 59649
       },
-      "setIdx": 0,
-      "setId": 3,
+      "setIdx": 1,
+      "setId": 10,
       "iconIdx": 1
     },
     {
@@ -65,14 +65,14 @@
       },
       "attrs": [{}],
       "properties": {
-        "order": 5,
-        "id": 3,
+        "order": 363,
+        "id": 2,
         "name": "reply-filled",
         "prevSize": 32,
         "code": 59650
       },
-      "setIdx": 0,
-      "setId": 3,
+      "setIdx": 1,
+      "setId": 10,
       "iconIdx": 2
     },
     {
@@ -89,14 +89,14 @@
       },
       "attrs": [{}],
       "properties": {
-        "order": 6,
-        "id": 2,
+        "order": 364,
+        "id": 3,
         "name": "reply",
         "prevSize": 32,
         "code": 59651
       },
-      "setIdx": 0,
-      "setId": 3,
+      "setIdx": 1,
+      "setId": 10,
       "iconIdx": 3
     },
     {
@@ -112,14 +112,14 @@
       },
       "attrs": [{}],
       "properties": {
-        "order": 7,
-        "id": 1,
+        "order": 365,
+        "id": 4,
         "name": "sidebar-filled",
         "prevSize": 32,
         "code": 59652
       },
-      "setIdx": 0,
-      "setId": 3,
+      "setIdx": 1,
+      "setId": 10,
       "iconIdx": 4
     },
     {
@@ -137,15 +137,41 @@
       },
       "attrs": [{}, {}, {}],
       "properties": {
-        "order": 8,
-        "id": 0,
+        "order": 366,
+        "id": 5,
         "name": "sidebar",
         "prevSize": 32,
         "code": 59653
       },
-      "setIdx": 0,
-      "setId": 3,
+      "setIdx": 1,
+      "setId": 10,
       "iconIdx": 5
+    },
+    {
+      "icon": {
+        "paths": [
+          "M579.231 341.333h-362.019c-57.125 0-103.434 46.309-103.434 103.434v362.019c0 57.128 46.309 103.435 103.434 103.435h362.019c57.128 0 103.435-46.308 103.435-103.435v-362.019c0-57.125-46.308-103.434-103.435-103.434z",
+          "M444.768 113.778h362.019c57.128 0 103.435 46.309 103.435 103.434v362.019c0 57.128-46.308 103.435-103.435 103.435h-10.342v-341.333c0-57.125-56.65-113.778-113.778-113.778h-341.333v-10.344c0-57.125 46.309-103.434 103.434-103.434z",
+          "M227.556 341.333h341.333c62.838 0 113.778 50.94 113.778 113.778v341.333c0 62.838-50.94 113.778-113.778 113.778h-341.333c-62.838 0-113.778-50.94-113.778-113.778v-341.333c0-62.838 50.94-113.778 113.778-113.778z",
+          "M455.111 113.778c-62.838 0-113.778 50.94-113.778 113.778h227.556c125.673 0 227.556 101.88 227.556 227.556v227.556c62.839 0 113.778-50.938 113.778-113.778v-341.333c0-62.838-50.938-113.778-113.778-113.778h-341.333z"
+        ],
+        "attrs": [],
+        "isMulticolor": false,
+        "isMulticolor2": false,
+        "grid": 0,
+        "tags": ["copy-filled"],
+        "colorPermutations": {}
+      },
+      "attrs": [],
+      "properties": {
+        "order": 376,
+        "id": 7,
+        "name": "copy-filled",
+        "prevSize": 32
+      },
+      "setIdx": 1,
+      "setId": 10,
+      "iconIdx": 6
     }
   ],
   "height": 1024,
