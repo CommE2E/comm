@@ -11,7 +11,8 @@ export type CommIcons =
   | 'sidebar-filled'
   | 'reply'
   | 'reply-filled'
-  | 'megaphone';
+  | 'megaphone'
+  | 'copy-filled';
 
 type CommIconProps = {
   +icon: CommIcons,
