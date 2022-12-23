@@ -12,6 +12,7 @@ import {
 import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogInStartingPayload } from 'lib/types/account-types';
+import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -83,12 +84,12 @@ function SIWEPanel(props: Props): React.Node {
   );
   const handleMessage = React.useCallback(
     event => {
-      const {
-        nativeEvent: { data },
-      } = event;
-      const { address, signature } = JSON.parse(data);
-      if (address && signature) {
-        handleSIWE({ address, signature });
+      const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
+      if (data.type === 'siwe_success') {
+        const { address, signature } = data;
+        if (address && signature) {
+          handleSIWE({ address, signature });
+        }
       }
     },
     [handleSIWE],

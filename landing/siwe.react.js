@@ -21,6 +21,8 @@ import {
 } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 
+import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
+
 import { SIWENonceContext } from './siwe-nonce-context.js';
 import css from './siwe.css';
 
@@ -57,6 +59,10 @@ function createSiweMessage(address: string, statement: string, nonce: string) {
   return message.prepareMessage();
 }
 
+function postMessageToNativeWebView(message: SIWEWebViewMessage) {
+  window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
+}
+
 async function signInWithEthereum(address: string, signer, nonce: string) {
   invariant(nonce, 'nonce must be present in signInWithEthereum');
   const message = createSiweMessage(
@@ -65,8 +71,12 @@ async function signInWithEthereum(address: string, signer, nonce: string) {
     nonce,
   );
   const signature = await signer.signMessage(message);
-  const messageToPost = JSON.stringify({ address, message, signature });
-  window.ReactNativeWebView?.postMessage?.(messageToPost);
+  postMessageToNativeWebView({
+    type: 'siwe_success',
+    address,
+    message,
+    signature,
+  });
   return signature;
 }
 
