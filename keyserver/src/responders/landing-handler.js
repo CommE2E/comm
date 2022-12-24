@@ -7,6 +7,8 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
+import { isValidSIWENonce } from 'lib/utils/siwe-utils.js';
+
 import { type LandingSSRProps } from '../landing/landing-ssr.react';
 import { waitForStream } from '../utils/json-stream';
 import { getAndAssertLandingURLFacts } from '../utils/urls';
@@ -104,6 +106,16 @@ const { renderToNodeStream } = ReactDOMServer;
 
 async function landingResponder(req: $Request, res: $Response) {
   const siweNonce = req.header('siwe-nonce');
+  if (
+    siweNonce !== null &&
+    siweNonce !== undefined &&
+    !isValidSIWENonce(siweNonce)
+  ) {
+    res.status(400).send({
+      message: 'Invalid nonce in siwe-nonce header.',
+    });
+    return;
+  }
   const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
     getWebpackCompiledRootComponentForSSR(),
