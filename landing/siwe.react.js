@@ -93,7 +93,7 @@ function SIWE(): React.Node {
   const { openConnectModal } = useConnectModal();
   const hasNonce = siweNonce !== null && siweNonce !== undefined;
   React.useEffect(() => {
-    if (hasNonce) {
+    if (hasNonce && openConnectModal) {
       openConnectModal();
     }
   }, [hasNonce, openConnectModal]);
