@@ -78,7 +78,6 @@ async function signInWithEthereum(address: string, signer, nonce: string) {
     message,
     signature,
   });
-  return signature;
 }
 
 function SIWE(): React.Node {
@@ -102,11 +101,11 @@ function SIWE(): React.Node {
   const modalState = useModalState();
   const { connectModalOpen } = modalState;
   React.useEffect(() => {
-    if (!connectModalOpen && prevConnectModalOpen.current) {
+    if (!connectModalOpen && prevConnectModalOpen.current && !signer) {
       postMessageToNativeWebView({ type: 'siwe_closed' });
     }
     prevConnectModalOpen.current = connectModalOpen;
-  }, [connectModalOpen]);
+  }, [connectModalOpen, signer]);
 
   const newModalAppeared = React.useCallback(mutationList => {
     for (const mutation of mutationList) {
