@@ -188,6 +188,7 @@ function SIWEPanel(props: Props): React.Node {
           source={source}
           onMessage={handleMessage}
           onLoad={onWebViewLoaded}
+          incognito={true}
         />
       </BottomSheet>
     );
