@@ -148,7 +148,7 @@ function SIWEPanel(props: Props): React.Node {
     setLoading(false);
   }, []);
 
-  const handleStyle = React.useMemo(
+  const backgroundStyle = React.useMemo(
     () => ({
       backgroundColor: '#242529',
     }),
@@ -176,7 +176,7 @@ function SIWEPanel(props: Props): React.Node {
     bottomSheet = (
       <BottomSheet
         snapPoints={snapPoints}
-        backgroundStyle={handleStyle}
+        backgroundStyle={backgroundStyle}
         handleIndicatorStyle={bottomSheetHandleIndicatorStyle}
         enablePanDownToClose={true}
         onChange={onBottomSheetChange}
@@ -186,6 +186,7 @@ function SIWEPanel(props: Props): React.Node {
           source={source}
           onMessage={handleMessage}
           onLoad={onWebViewLoaded}
+          style={backgroundStyle}
           incognito={true}
         />
       </BottomSheet>
