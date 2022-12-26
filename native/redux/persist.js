@@ -425,6 +425,48 @@ const migrations = {
 
     return state;
   },
+  [33]: (state: AppState) => {
+    // 1. Get messages from SQLite `messages` table.
+    const clientDBMessageInfos = commCoreModule.getAllMessagesSync();
+
+    // 2. Translate `ClientDBMessageInfo`s to `RawMessageInfo`s.
+    const rawMessageInfos = clientDBMessageInfos.map(
+      translateClientDBMessageInfoToRawMessageInfo,
+    );
+
+    // 3. "Unshim" translated `RawMessageInfo`s.
+    const unshimmedRawMessageInfos = rawMessageInfos.map(messageInfo =>
+      unshimFunc(messageInfo, new Set([messageTypes.REACTION])),
+    );
+
+    // 4. Translate unshimmed `RawMessageInfo`s back to `ClientDBMessageInfo`s.
+    const unshimmedClientDBMessageInfos = unshimmedRawMessageInfos.map(
+      translateRawMessageInfoToClientDBMessageInfo,
+    );
+
+    // 5. Construct `ClientDBMessageStoreOperation`s to clear SQLite `messages`
+    //    table and repopulate with unshimmed `ClientDBMessageInfo`s.
+    const operations: $ReadOnlyArray<ClientDBMessageStoreOperation> = [
+      {
+        type: 'remove_all',
+      },
+      ...unshimmedClientDBMessageInfos.map((message: ClientDBMessageInfo) => ({
+        type: 'replace',
+        payload: message,
+      })),
+    ];
+
+    // 6. Try processing `ClientDBMessageStoreOperation`s and log out if
+    //    `processMessageStoreOperationsSync(...)` throws an exception.
+    try {
+      commCoreModule.processMessageStoreOperationsSync(operations);
+    } catch (exception) {
+      console.log(exception);
+      return { ...state, cookie: null };
+    }
+
+    return state;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -505,7 +547,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 32,
+  version: 33,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),
