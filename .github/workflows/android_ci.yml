@@ -24,11 +24,16 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
 
-      - name: rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android
+      - name: Rustup Targets
         run: rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android
 
-      - name: sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y protobuf-compiler
-        run: sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get install -y protobuf-compiler
+      - name: Instal Dependencies
+        run: |
+          sudo apt-get update
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install -y autoconf libtool build-essential cmake git libgtest-dev libssl-dev zlib1g-dev
+
+      - name: Install Protobuf
+        run: ./native/android/scripts/install_protobuf.sh
 
       - name: Install Yarn
         run: npm install -g yarn

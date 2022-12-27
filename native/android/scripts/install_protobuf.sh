@@ -12,7 +12,7 @@ mkdir build
 pushd build || exit
 
 cmake ../cmake -Dprotobuf_BUILD_SHARED_LIBS=ON -Dprotobuf_ABSL_PROVIDER=package
-make install -j "$(nproc)" -l "$(nproc)"
+sudo make install -j "$(nproc)" -l "$(nproc)"
 
 popd || exit # build
 popd || exit # protobuf
