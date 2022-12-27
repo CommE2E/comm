@@ -302,10 +302,10 @@ const siweAuthRequestInputValidator = tShape({
   watchedIDs: t.list(t.String),
 });
 
-async function siweAuthResponder(viewer: Viewer, input: any): Promise<string> {
+async function siweAuthResponder(viewer: Viewer, input: any): Promise<boolean> {
   await validateInput(viewer, siweAuthRequestInputValidator, input);
 
-  return 'UNIMPLEMENTED';
+  return false;
 }
 
 const updatePasswordRequestInputValidator = tShape({
