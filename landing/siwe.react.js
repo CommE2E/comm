@@ -23,6 +23,7 @@ import {
 import { publicProvider } from 'wagmi/providers/public';
 
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
+import { siweStatement } from 'lib/utils/siwe-utils.js';
 
 import { SIWENonceContext } from './siwe-nonce-context.js';
 import css from './siwe.css';
@@ -66,11 +67,7 @@ function postMessageToNativeWebView(message: SIWEWebViewMessage) {
 
 async function signInWithEthereum(address: string, signer, nonce: string) {
   invariant(nonce, 'nonce must be present in signInWithEthereum');
-  const message = createSiweMessage(
-    address,
-    'By continuing, I accept the Comm Terms of Service: https://comm.app/terms',
-    nonce,
-  );
+  const message = createSiweMessage(address, siweStatement, nonce);
   const signature = await signer.signMessage(message);
   postMessageToNativeWebView({
     type: 'siwe_success',

@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
@@ -24,6 +25,7 @@ import {
   logInActionSources,
 } from 'lib/types/account-types';
 import { defaultNumberPerThread } from 'lib/types/message-types';
+import type { SIWEAuthRequest, SIWEMessage } from 'lib/types/siwe-types.js';
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
@@ -32,6 +34,7 @@ import type { PasswordUpdate } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
+import { isValidSIWEMessage } from 'lib/utils/siwe-utils.js';
 import {
   tShape,
   tPlatformDetails,
@@ -304,6 +307,14 @@ const siweAuthRequestInputValidator = tShape({
 
 async function siweAuthResponder(viewer: Viewer, input: any): Promise<boolean> {
   await validateInput(viewer, siweAuthRequestInputValidator, input);
+  const request: SIWEAuthRequest = input;
+  const { message } = request;
+
+  // 1. Ensure that `message` is a well formed Comm SIWE Auth message.
+  const siweMessage: SIWEMessage = new SiweMessage(message);
+  if (!isValidSIWEMessage(siweMessage)) {
+    throw new ServerError('invalid_parameters');
+  }
 
   return false;
 }
