@@ -47,6 +47,7 @@ import createAccount from '../creators/account-creator';
 import { dbQuery, SQL } from '../database/database';
 import { deleteAccount } from '../deleters/account-deleters';
 import { deleteCookie } from '../deleters/cookie-deleters';
+import { checkAndInvalidateSIWENonceEntry } from '../deleters/siwe-nonce-deleters.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
@@ -313,6 +314,16 @@ async function siweAuthResponder(viewer: Viewer, input: any): Promise<boolean> {
   // 1. Ensure that `message` is a well formed Comm SIWE Auth message.
   const siweMessage: SIWEMessage = new SiweMessage(message);
   if (!isValidSIWEMessage(siweMessage)) {
+    throw new ServerError('invalid_parameters');
+  }
+
+  // 2. Ensure that the `nonce` exists in the `siwe_nonces` table
+  //    AND hasn't expired. If those conditions are met, delete the entry to
+  //    ensure that the same `nonce` can't be re-used in a future request.
+  const wasNonceCheckedAndInvalidated = await checkAndInvalidateSIWENonceEntry(
+    siweMessage.nonce,
+  );
+  if (!wasNonceCheckedAndInvalidated) {
     throw new ServerError('invalid_parameters');
   }
 
