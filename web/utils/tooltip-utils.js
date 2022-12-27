@@ -6,6 +6,7 @@ import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { createMessageReply } from 'lib/shared/message-utils';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import {
   threadHasPermission,
   useSidebarExistsOrCanBeCreated,
@@ -20,8 +21,10 @@ import {
   tooltipLabelStyle,
   tooltipStyle,
 } from '../chat/chat-constants';
+import MessageLikeTooltipButton from '../chat/message-like-tooltip-button.react';
 import MessageTooltip from '../chat/message-tooltip.react';
 import type { PositionInfo } from '../chat/position-types';
+import { useOnClickReact } from '../chat/reaction-message-utils';
 import { useTooltipContext } from '../chat/tooltip-provider';
 import CommIcon from '../CommIcon.react';
 import { InputStateContext } from '../input/input-state';
@@ -449,6 +452,45 @@ function useMessageCopyAction(
   }, [messageInfo.text, messageInfo.type, onSuccess, successful]);
 }
 
+function useMessageReactAction(
+  item: ChatMessageInfoItem,
+  threadInfo: ThreadInfo,
+): ?MessageTooltipAction {
+  const { messageInfo, reactions } = item;
+
+  const reactionInput = '👍';
+  const viewerReacted = !!reactions.get(reactionInput)?.viewerReacted;
+  const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
+
+  const onClickReact = useOnClickReact(
+    messageInfo.id,
+    threadInfo.id,
+    reactionInput,
+    action,
+  );
+
+  const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
+    threadInfo,
+    messageInfo,
+  );
+
+  return React.useMemo(() => {
+    if (!canCreateReactionFromMessage) {
+      return null;
+    }
+
+    const buttonContent = (
+      <MessageLikeTooltipButton viewerReacted={viewerReacted} />
+    );
+
+    return {
+      actionButtonContent: buttonContent,
+      onClick: onClickReact,
+      label: viewerReacted ? 'Unlike' : 'Like',
+    };
+  }, [canCreateReactionFromMessage, onClickReact, viewerReacted]);
+}
+
 function useMessageTooltipActions(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
@@ -456,9 +498,10 @@ function useMessageTooltipActions(
   const sidebarAction = useMessageTooltipSidebarAction(item, threadInfo);
   const replyAction = useMessageTooltipReplyAction(item, threadInfo);
   const copyAction = useMessageCopyAction(item);
+  const reactAction = useMessageReactAction(item, threadInfo);
   return React.useMemo(
-    () => [replyAction, sidebarAction, copyAction].filter(Boolean),
-    [replyAction, sidebarAction, copyAction],
+    () => [replyAction, sidebarAction, copyAction, reactAction].filter(Boolean),
+    [replyAction, sidebarAction, copyAction, reactAction],
   );
 }
 
@@ -640,6 +683,7 @@ export {
   getMessageActionTooltipStyle,
   useMessageTooltipSidebarAction,
   useMessageTooltipReplyAction,
+  useMessageReactAction,
   useMessageTooltipActions,
   useMessageTooltip,
 };

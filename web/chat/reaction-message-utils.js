@@ -19,7 +19,7 @@ function useOnClickReact(
   threadID: string,
   reaction: string,
   action: 'add_reaction' | 'remove_reaction',
-): (event: SyntheticEvent<HTMLElement>) => void {
+): (event: SyntheticEvent<HTMLElement>) => mixed {
   const { pushModal } = useModalContext();
 
   const callSendReactionMessage = useServerCall(sendReactionMessage);
