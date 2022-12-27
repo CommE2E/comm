@@ -293,6 +293,10 @@ async function logInResponder(
   return response;
 }
 
+async function siweAuthResponder(): Promise<string> {
+  return 'UNIMPLEMENTED';
+}
+
 const updatePasswordRequestInputValidator = tShape({
   code: t.String,
   password: tPassword,
@@ -357,6 +361,7 @@ export {
   accountDeletionResponder,
   accountCreationResponder,
   logInResponder,
+  siweAuthResponder,
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,

@@ -52,6 +52,7 @@ import {
   accountDeletionResponder,
   accountCreationResponder,
   logInResponder,
+  siweAuthResponder,
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,
@@ -232,6 +233,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   siwe_nonce: {
     responder: siweNonceResponder,
+    requiredPolicies: [],
+  },
+  siwe_auth: {
+    responder: siweAuthResponder,
     requiredPolicies: [],
   },
 };
