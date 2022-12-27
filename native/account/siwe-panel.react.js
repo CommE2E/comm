@@ -9,8 +9,9 @@ import WebView from 'react-native-webview';
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
+  siweAuth,
+  siweAuthActionTypes,
 } from 'lib/actions/siwe-actions';
-import { registerActionTypes, register } from 'lib/actions/user-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogInStartingPayload } from 'lib/types/account-types';
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
@@ -24,7 +25,6 @@ import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
 import { defaultLandingURLPrefix } from '../utils/url-utils';
 import type { LoggedOutMode } from './logged-out-modal.react';
-import { setNativeCredentials } from './native-credentials';
 
 const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 
@@ -39,8 +39,8 @@ type Props = {
 function SIWEPanel(props: Props): React.Node {
   const navContext = React.useContext(NavContext);
   const dispatchActionPromise = useDispatchActionPromise();
-  const registerAction = useServerCall(register);
   const getSIWENonceCall = useServerCall(getSIWENonce);
+  const siweAuthCall = useServerCall(siweAuth);
 
   const logInExtraInfo = useSelector(state =>
     nativeLogInExtraInfoSelector({
@@ -92,22 +92,20 @@ function SIWEPanel(props: Props): React.Node {
   }, [snapToIndex, snapPoints]);
 
   const handleSIWE = React.useCallback(
-    ({ address, signature }) => {
-      // this is all mocked from register-panel
+    ({ message, signature }) => {
       const extraInfo = logInExtraInfo();
       dispatchActionPromise(
-        registerActionTypes,
-        registerAction({
-          username: address,
-          password: signature,
+        siweAuthActionTypes,
+        siweAuthCall({
+          message,
+          signature,
           ...extraInfo,
         }),
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
-      setNativeCredentials({ username: address, password: signature });
     },
-    [logInExtraInfo, dispatchActionPromise, registerAction],
+    [logInExtraInfo, dispatchActionPromise, siweAuthCall],
   );
   const closeBottomSheet = bottomSheetRef.current?.close;
   const { onClose, nextMode } = props;
@@ -115,9 +113,9 @@ function SIWEPanel(props: Props): React.Node {
     event => {
       const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
       if (data.type === 'siwe_success') {
-        const { address, signature } = data;
+        const { address, message, signature } = data;
         if (address && signature) {
-          handleSIWE({ address, signature });
+          handleSIWE({ message, signature });
         }
       } else if (data.type === 'siwe_closed') {
         onClose();
