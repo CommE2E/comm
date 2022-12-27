@@ -3,8 +3,10 @@
 #include "DatabaseManager.h"
 #include "DraftStoreOperations.h"
 #include "InternalModules/GlobalDBSingleton.h"
+#include "InternalModules/RustNetworkingSingleton.h"
 #include "MessageStoreOperations.h"
 #include "ThreadStoreOperations.h"
+#include "lib.rs.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
 #include <future>
@@ -853,6 +855,7 @@ CommCoreModule::CommCoreModule(
     : facebook::react::CommCoreModuleSchemaCxxSpecJSI(jsInvoker),
       cryptoThread(std::make_unique<WorkerThread>("crypto")) {
   GlobalDBSingleton::instance.enableMultithreading();
+  RustNetworkingSingleton::instance.enableMultithreading();
 }
 
 double CommCoreModule::getCodeVersion(jsi::Runtime &rt) {
@@ -1048,6 +1051,23 @@ jsi::Value CommCoreModule::clearSensitiveData(jsi::Runtime &rt) {
               []() { GlobalDBSingleton::instance.setTasksCancelled(false); });
         };
         GlobalDBSingleton::instance.scheduleOrRun(job);
+      });
+}
+
+jsi::Value CommCoreModule::get42(jsi::Runtime &rt) {
+  return createPromiseAsJSIValue(
+      rt, [this](jsi::Runtime &innerRt, std::shared_ptr<Promise> promise) {
+        RustNetworkingSingleton::instance.scheduleOrRun([this, promise]() {
+          std::string error;
+          try {
+            uint32_t currentID = RustNetworkingSingleton::instance.getNextID();
+            RustNetworkingSingleton::instance.promises.insert(
+                {currentID, promise});
+            get_42(currentID);
+          } catch (const std::exception &e) {
+            error = e.what();
+          }
+        });
       });
 }
 

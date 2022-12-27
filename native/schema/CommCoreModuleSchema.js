@@ -58,6 +58,7 @@ export interface Spec extends TurboModule {
   +setDeviceID: (deviceType: string) => Promise<string>;
   +getDeviceID: () => Promise<string>;
   +clearSensitiveData: () => Promise<void>;
+  +get42: () => Promise<number>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

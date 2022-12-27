@@ -52,6 +52,20 @@ function SQLiteDataHandler(): React.Node {
             'SQLite database deletion was triggered by change in logged-in user credentials',
           );
         }
+        Alert.alert(new Date().toISOString());
+        const foo = commCoreModule.get42();
+        const bar = commCoreModule.get42();
+        Alert.alert(new Date().toISOString());
+        const x = await foo;
+        Alert.alert(new Date().toISOString());
+        if (x) {
+          Alert.alert('Got back ' + x);
+        }
+        const y = await bar;
+        Alert.alert(new Date().toISOString());
+        if (y) {
+          Alert.alert('Got back' + y);
+        }
       }
       if (currentLoggedInUserID) {
         await commCoreModule.setCurrentUserID(currentLoggedInUserID);

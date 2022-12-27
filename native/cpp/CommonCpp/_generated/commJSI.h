@@ -43,6 +43,7 @@ public:
   virtual jsi::Value setDeviceID(jsi::Runtime &rt, jsi::String deviceType) = 0;
   virtual jsi::Value getDeviceID(jsi::Runtime &rt) = 0;
   virtual jsi::Value clearSensitiveData(jsi::Runtime &rt) = 0;
+  virtual jsi::Value get42(jsi::Runtime &rt) = 0;
 
 };
 
@@ -247,6 +248,14 @@ private:
 
       return bridging::callFromJs<jsi::Value>(
           rt, &T::clearSensitiveData, jsInvoker_, instance_);
+    }
+    jsi::Value get42(jsi::Runtime &rt) override {
+      static_assert(
+          bridging::getParameterCount(&T::get42) == 1,
+          "Expected get42(...) to have 1 parameters");
+
+      return bridging::callFromJs<jsi::Value>(
+          rt, &T::get42, jsInvoker_, instance_);
     }
 
   private:
