@@ -1,7 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
-import { SiweMessage } from 'siwe';
+import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
@@ -309,7 +309,7 @@ const siweAuthRequestInputValidator = tShape({
 async function siweAuthResponder(viewer: Viewer, input: any): Promise<boolean> {
   await validateInput(viewer, siweAuthRequestInputValidator, input);
   const request: SIWEAuthRequest = input;
-  const { message } = request;
+  const { message, signature } = request;
 
   // 1. Ensure that `message` is a well formed Comm SIWE Auth message.
   const siweMessage: SIWEMessage = new SiweMessage(message);
@@ -325,6 +325,24 @@ async function siweAuthResponder(viewer: Viewer, input: any): Promise<boolean> {
   );
   if (!wasNonceCheckedAndInvalidated) {
     throw new ServerError('invalid_parameters');
+  }
+
+  // 3. Validate SIWEMessage signature and handle possible errors.
+  try {
+    await siweMessage.validate(signature);
+  } catch (error) {
+    if (error === ErrorTypes.EXPIRED_MESSAGE) {
+      // Thrown when the `expirationTime` is present and in the past.
+      throw new ServerError('expired_message', { status: 400 });
+    } else if (error === ErrorTypes.INVALID_SIGNATURE) {
+      // Thrown when the `validate()` function can't verify the message.
+      throw new ServerError('invalid_signature', { status: 400 });
+    } else if (error === ErrorTypes.MALFORMED_SESSION) {
+      // Thrown when some required field is missing.
+      throw new ServerError('malformed_session', { status: 400 });
+    } else {
+      throw new ServerError('unknown_error', { status: 500 });
+    }
   }
 
   return false;
