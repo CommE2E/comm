@@ -9,6 +9,7 @@ use tunnelbroker::tunnelbroker_service_client::TunnelbrokerServiceClient;
 
 mod crypto_tools;
 mod identity_client;
+mod tunnelbroker_client;
 mod identity {
   tonic::include_proto!("identity");
 }
