@@ -74,6 +74,7 @@ export interface Spec extends TurboModule {
   +clearSensitiveData: () => Promise<void>;
   +checkIfDatabaseNeedsDeletion: () => boolean;
   +reportDBOperationsFailure: () => void;
+  +get42: () => Promise<number>;
 }
 
 export default (TurboModuleRegistry.getEnforcing<Spec>(

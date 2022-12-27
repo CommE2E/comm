@@ -94,6 +94,9 @@ static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_reportDBOperatio
   static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->reportDBOperationsFailure(rt);
   return jsi::Value::undefined();
 }
+static jsi::Value __hostFunction_CommCoreModuleSchemaCxxSpecJSI_get42(jsi::Runtime &rt, TurboModule &turboModule, const jsi::Value* args, size_t count) {
+  return static_cast<CommCoreModuleSchemaCxxSpecJSI *>(&turboModule)->get42(rt);
+}
 
 CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<CallInvoker> jsInvoker)
   : TurboModule("CommTurboModule", jsInvoker) {
@@ -123,6 +126,7 @@ CommCoreModuleSchemaCxxSpecJSI::CommCoreModuleSchemaCxxSpecJSI(std::shared_ptr<C
   methodMap_["clearSensitiveData"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_clearSensitiveData};
   methodMap_["checkIfDatabaseNeedsDeletion"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_checkIfDatabaseNeedsDeletion};
   methodMap_["reportDBOperationsFailure"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_reportDBOperationsFailure};
+  methodMap_["get42"] = MethodMetadata {0, __hostFunction_CommCoreModuleSchemaCxxSpecJSI_get42};
 }
 
 
