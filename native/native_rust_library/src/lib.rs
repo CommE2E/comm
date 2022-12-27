@@ -1,6 +1,10 @@
+use crate::ffi::get42Callback;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
+use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::Mutex;
+use tokio::time::{sleep, Duration};
 use tonic::{transport::Channel, Status};
 use tracing::instrument;
 use tunnelbroker::tunnelbroker_service_client::TunnelbrokerServiceClient;
@@ -26,6 +30,8 @@ lazy_static! {
       .build()
       .unwrap()
   );
+  pub static ref CHANNEL: Mutex<(Sender<(f64, u32)>, Receiver<(f64, u32)>)> =
+    Mutex::new(tokio::sync::mpsc::channel(100));
 }
 
 #[cxx::bridge]
@@ -93,7 +99,28 @@ mod ffi {
 
     // Crypto Tools
     fn generate_device_id(device_type: DeviceType) -> Result<String>;
+    // Test
+    fn get_42(counter: u32);
   }
+
+  unsafe extern "C++" {
+    include!("RustCallback.h");
+    #[namespace = "comm"]
+    fn get42Callback(error: String, counter: u32, ret: f64);
+  }
+}
+
+fn get_42(counter: u32) {
+  println!("I SEE YOU!!!");
+  get_42_helper(counter);
+}
+
+fn get_42_helper(counter: u32) {
+  RUNTIME.spawn(async move {
+    sleep(Duration::from_secs(10)).await;
+    println!("awake now!");
+    get42Callback("".to_string(), counter, 42.0);
+  });
 }
 
 #[derive(Debug)]
