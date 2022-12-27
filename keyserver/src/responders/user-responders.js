@@ -293,7 +293,18 @@ async function logInResponder(
   return response;
 }
 
-async function siweAuthResponder(): Promise<string> {
+const siweAuthRequestInputValidator = tShape({
+  signature: t.String,
+  message: t.String,
+  calendarQuery: t.maybe(entryQueryInputValidator),
+  deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
+  platformDetails: tPlatformDetails,
+  watchedIDs: t.list(t.String),
+});
+
+async function siweAuthResponder(viewer: Viewer, input: any): Promise<string> {
+  await validateInput(viewer, siweAuthRequestInputValidator, input);
+
   return 'UNIMPLEMENTED';
 }
 
