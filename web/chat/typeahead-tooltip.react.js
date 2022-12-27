@@ -45,9 +45,18 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
 
   React.useEffect(() => {
     setIsVisibleForAnimation(true);
+    const setter = inputState.setTypeaheadState;
+    setter({
+      keepUpdatingThreadMembers: false,
+    });
 
-    return () => setIsVisibleForAnimation(false);
-  }, []);
+    return () => {
+      setter({
+        keepUpdatingThreadMembers: true,
+      });
+      setIsVisibleForAnimation(false);
+    };
+  }, [inputState.setTypeaheadState]);
 
   const actions = React.useMemo(
     () =>
