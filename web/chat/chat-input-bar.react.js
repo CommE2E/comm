@@ -588,17 +588,35 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       [typeaheadRegexMatches],
     );
 
+    React.useEffect(() => {
+      if (props.inputState.typeaheadState.keepUpdatingThreadMembers) {
+        const setter = props.inputState.setTypeaheadState;
+        setter({
+          frozenThreadMembers: threadMembers,
+        });
+      }
+    }, [
+      threadMembers,
+      props.inputState.setTypeaheadState,
+      props.inputState.typeaheadState.keepUpdatingThreadMembers,
+    ]);
+
     const suggestedUsers: $ReadOnlyArray<RelativeMemberInfo> = React.useMemo(() => {
       if (!typeaheadMatchedStrings) {
         return [];
       }
       return getTypeaheadUserSuggestions(
         userSearchIndex,
-        threadMembers,
+        props.inputState.typeaheadState.frozenThreadMembers,
         viewerID,
         typeaheadMatchedStrings.usernamePrefix,
       );
-    }, [userSearchIndex, threadMembers, viewerID, typeaheadMatchedStrings]);
+    }, [
+      userSearchIndex,
+      props.inputState.typeaheadState.frozenThreadMembers,
+      viewerID,
+      typeaheadMatchedStrings,
+    ]);
 
     return (
       <ChatInputBar

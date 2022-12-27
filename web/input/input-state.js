@@ -8,7 +8,7 @@ import {
   type MediaMissionStep,
 } from 'lib/types/media-types';
 import type { RawTextMessageInfo } from 'lib/types/messages/text';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
 
 export type PendingMultimediaUpload = {
   localID: string,
@@ -36,6 +36,8 @@ export type PendingMultimediaUpload = {
 
 export type TypeaheadState = {
   +canBeVisible: boolean,
+  +keepUpdatingThreadMembers: boolean,
+  +frozenThreadMembers: $ReadOnlyArray<RelativeMemberInfo>,
   +moveChoiceUp: ?() => void,
   +moveChoiceDown: ?() => void,
   +close: ?() => void,
