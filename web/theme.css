@@ -113,6 +113,7 @@
   --thread-ancestor-separator-color: var(--shades-white-60);
   --text-message-default-background: var(--shades-black-80);
   --message-action-tooltip-bg: var(--shades-black-90);
+  --message-action-tooltip-bg-light: var(--shades-black-80);
   --menu-bg: var(--shades-black-90);
   --menu-bg-light: var(--shades-black-80);
   --menu-separator-color: var(--shades-black-80);

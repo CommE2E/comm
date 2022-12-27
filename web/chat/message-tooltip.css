@@ -25,7 +25,8 @@ div.messageActionButtons svg {
   color: var(--color-disabled);
 }
 
-div.messageActionButtons svg:hover {
+div.messageActionButtons svg:hover,
+div.messageActionButtons span:hover {
   cursor: pointer;
   color: var(--fg);
 }
