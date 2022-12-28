@@ -26,8 +26,8 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 @end
 #endif
 
+#import "CommIOSNotifications.h"
 #import "Orientation.h"
-#import "RNNotifications.h"
 #import <React/RCTConvert.h>
 
 #import <React/RCTBridge+Private.h>
@@ -158,13 +158,13 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
 
 - (void)application:(UIApplication *)application
     didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-  [RNNotifications
+  [CommIOSNotifications
       didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
 - (void)application:(UIApplication *)application
     didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-  [RNNotifications didFailToRegisterForRemoteNotificationsWithError:error];
+  [CommIOSNotifications didFailToRegisterForRemoteNotificationsWithError:error];
 }
 
 // Required for the notification event. You must call the completion handler
@@ -184,8 +184,8 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
     return;
   }
 
-  [RNNotifications didReceiveRemoteNotification:notification
-                         fetchCompletionHandler:completionHandler];
+  [CommIOSNotifications didReceiveRemoteNotification:notification
+                              fetchCompletionHandler:completionHandler];
 }
 
 - (BOOL)handleBackgroundNotification:(NSDictionary *)notification
@@ -202,31 +202,12 @@ NSString *const setUnreadStatusKey = @"setUnreadStatus";
         comm::ThreadOperations::updateSQLiteUnreadStatus(threadID, false);
       });
     }
-    [[UNUserNotificationCenter currentNotificationCenter]
-        getDeliveredNotificationsWithCompletionHandler:^(
-            NSArray<UNNotification *> *notifications) {
-          for (UNNotification *notif in notifications) {
-            if ([notification[@"notificationId"]
-                    isEqual:notif.request.content.userInfo[@"id"]]) {
-              NSArray *identifiers =
-                  [NSArray arrayWithObjects:notif.request.identifier, nil];
-              [[UNUserNotificationCenter currentNotificationCenter]
-                  removeDeliveredNotificationsWithIdentifiers:identifiers];
-            }
-          }
-          dispatch_async(dispatch_get_main_queue(), ^{
-            completionHandler(UIBackgroundFetchResultNewData);
-          });
-        }];
+    [CommIOSNotifications
+        clearNotificationFromNotificationsCenter:notification[@"notificationId"]
+                               completionHandler:completionHandler];
     return YES;
   }
   return NO;
-}
-
-// Required for the localNotification event.
-- (void)application:(UIApplication *)application
-    didReceiveLocalNotification:(UILocalNotification *)notification {
-  [RNNotifications didReceiveLocalNotification:notification];
 }
 
 - (UIInterfaceOrientationMask)application:(UIApplication *)application

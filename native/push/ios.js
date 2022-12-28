@@ -1,8 +1,36 @@
 // @flow
 
-import NotificationsIOS from 'react-native-notifications';
+import { NativeModules, NativeEventEmitter } from 'react-native';
+
+import type {
+  CoreIOSNotificationData,
+  CoreIOSNotificationDataWithRequestIdentifier,
+} from './comm-ios-notification';
 
 type PushPermissions = { alert?: boolean, badge?: boolean, sound?: boolean };
+
+type CommIOSNotificationsModuleType = {
+  +requestPermissions: () => void,
+  +checkPermissions: () => PushPermissions,
+  +consumeBackgroundQueue: () => void,
+  +setBadgesCount: (count: number) => void,
+  +removeAllDeliveredNotifications: () => void,
+  +removeDeliveredNotifications: (identifiers: $ReadOnlyArray<string>) => void,
+  +getDeliveredNotifications: (
+    callback: (
+      notifications: $ReadOnlyArray<CoreIOSNotificationDataWithRequestIdentifier>,
+    ) => void,
+  ) => void,
+  +completeNotif: (id: string, fetchResult: string) => void,
+  +getConstants: () => { [string]: string },
+  // required since CommIOSNotifications subclasses RCTEventEmitter
+  +addListener: (eventName: string) => void,
+  +removeListeners: (count: number) => void,
+  ...
+};
+
+const CommIOSNotifications: CommIOSNotificationsModuleType =
+  NativeModules.CommIOSNotifications;
 
 let currentlyActive = false;
 let firstRun = true;
@@ -12,7 +40,7 @@ async function requestIOSPushPermissions(missingDeviceToken: boolean) {
   firstRun = false;
 
   if (!permissionNeeded) {
-    const permissions: PushPermissions = await NotificationsIOS.checkPermissions();
+    const permissions: PushPermissions = await CommIOSNotifications.checkPermissions();
     permissionNeeded = permissionMissing(permissions);
   }
 
@@ -21,10 +49,10 @@ async function requestIOSPushPermissions(missingDeviceToken: boolean) {
       return;
     }
     currentlyActive = true;
-    await NotificationsIOS.requestPermissions();
+    await CommIOSNotifications.requestPermissions();
   }
 
-  NotificationsIOS.consumeBackgroundQueue();
+  CommIOSNotifications.consumeBackgroundQueue();
 }
 
 function iosPushPermissionResponseReceived() {
@@ -35,4 +63,20 @@ function permissionMissing(permissions: PushPermissions) {
   return !permissions.alert || !permissions.badge || !permissions.sound;
 }
 
-export { requestIOSPushPermissions, iosPushPermissionResponseReceived };
+function getCommIOSNotificationsEventEmitter(): NativeEventEmitter<
+  $ReadOnly<{
+    remoteNotificationsRegistered: [{ +deviceToken: ?string }],
+    remoteNotificationsRegistrationFailed: [void],
+    notificationReceivedForeground: [CoreIOSNotificationData],
+    notificationOpened: [CoreIOSNotificationData],
+  }>,
+> {
+  return new NativeEventEmitter(CommIOSNotifications);
+}
+
+export {
+  requestIOSPushPermissions,
+  iosPushPermissionResponseReceived,
+  CommIOSNotifications,
+  getCommIOSNotificationsEventEmitter,
+};

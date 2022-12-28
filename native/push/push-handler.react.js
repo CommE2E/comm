@@ -55,11 +55,16 @@ import {
   handleAndroidMessage,
   androidBackgroundMessageTask,
 } from './android';
+import {
+  CommIOSNotification,
+  type CoreIOSNotificationData,
+} from './comm-ios-notification';
 import { getFirebase } from './firebase';
 import InAppNotif from './in-app-notif.react';
 import {
   requestIOSPushPermissions,
   iosPushPermissionResponseReceived,
+  getCommIOSNotificationsEventEmitter,
 } from './ios';
 
 LogBox.ignoreLogs([
@@ -103,6 +108,7 @@ type State = {
     +onPress: () => void,
   },
 };
+
 class PushHandler extends React.PureComponent<Props, State> {
   state: State = {
     inAppNotifProps: null,
@@ -115,6 +121,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
   lifecycleSubscription: ?EventSubscription;
+  iosNotificationEventSubscriptions: Array<EventSubscription> = [];
 
   componentDidMount() {
     this.appStarted = Date.now();
@@ -123,21 +130,25 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
     this.onForeground();
     if (Platform.OS === 'ios') {
-      NotificationsIOS.addEventListener(
-        'remoteNotificationsRegistered',
-        this.registerPushPermissions,
-      );
-      NotificationsIOS.addEventListener(
-        'remoteNotificationsRegistrationFailed',
-        this.failedToRegisterPushPermissions,
-      );
-      NotificationsIOS.addEventListener(
-        'notificationReceivedForeground',
-        this.iosForegroundNotificationReceived,
-      );
-      NotificationsIOS.addEventListener(
-        'notificationOpened',
-        this.iosNotificationOpened,
+      const commIOSNotificationsEventEmitter = getCommIOSNotificationsEventEmitter();
+      this.iosNotificationEventSubscriptions.push(
+        commIOSNotificationsEventEmitter.addListener(
+          'remoteNotificationsRegistered',
+          registration =>
+            this.registerPushPermissions(registration?.deviceToken),
+        ),
+        commIOSNotificationsEventEmitter.addListener(
+          'remoteNotificationsRegistrationFailed',
+          this.failedToRegisterPushPermissions,
+        ),
+        commIOSNotificationsEventEmitter.addListener(
+          'notificationReceivedForeground',
+          this.iosForegroundNotificationReceived,
+        ),
+        commIOSNotificationsEventEmitter.addListener(
+          'notificationOpened',
+          this.iosNotificationOpened,
+        ),
       );
     } else if (Platform.OS === 'android') {
       const firebase = getFirebase();
@@ -168,22 +179,10 @@ class PushHandler extends React.PureComponent<Props, State> {
       this.lifecycleSubscription.remove();
     }
     if (Platform.OS === 'ios') {
-      NotificationsIOS.removeEventListener(
-        'remoteNotificationsRegistered',
-        this.registerPushPermissions,
-      );
-      NotificationsIOS.removeEventListener(
-        'remoteNotificationsRegistrationFailed',
-        this.failedToRegisterPushPermissions,
-      );
-      NotificationsIOS.removeEventListener(
-        'notificationReceivedForeground',
-        this.iosForegroundNotificationReceived,
-      );
-      NotificationsIOS.removeEventListener(
-        'notificationOpened',
-        this.iosNotificationOpened,
-      );
+      for (const iosNotificationEventSubscription of this
+        .iosNotificationEventSubscriptions) {
+        iosNotificationEventSubscription.remove();
+      }
     } else if (Platform.OS === 'android') {
       if (this.androidTokenListener) {
         this.androidTokenListener();
@@ -457,15 +456,10 @@ class PushHandler extends React.PureComponent<Props, State> {
     });
   }
 
-  iosForegroundNotificationReceived = notification => {
-    if (
-      notification.getData() &&
-      notification.getData().managedAps &&
-      notification.getData().managedAps.action === 'CLEAR'
-    ) {
-      notification.finish(NotificationsIOS.FetchResult.NoData);
-      return;
-    }
+  iosForegroundNotificationReceived = (
+    rawNotification: CoreIOSNotificationData,
+  ) => {
+    const notification = new CommIOSNotification(rawNotification);
     if (Date.now() < this.appStarted + 1500) {
       // On iOS, when the app is opened from a notif press, for some reason this
       // callback gets triggered before iosNotificationOpened. In fact this
@@ -476,19 +470,25 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     const threadID = notification.getData().threadID;
-    if (!threadID) {
-      console.log('Notification with missing threadID received!');
-      notification.finish(NotificationsIOS.FetchResult.NoData);
-      return;
-    }
     const messageInfos = notification.getData().messageInfos;
     this.saveMessageInfos(messageInfos);
-    let title = null;
-    let body = notification.getMessage();
-    if (notification.getData().title) {
-      ({ title, body } = mergePrefixIntoBody(notification.getData()));
+
+    let title = notification.getData().title;
+    let body = notification.getData().body;
+
+    if (title && body) {
+      ({ title, body } = mergePrefixIntoBody({ title, body }));
+    } else {
+      body = notification.getMessage();
     }
-    this.showInAppNotification(threadID, body, title);
+
+    if (body) {
+      this.showInAppNotification(threadID, body, title);
+    } else {
+      console.log(
+        'Non-rescind foreground notification without alert received!',
+      );
+    }
     notification.finish(NotificationsIOS.FetchResult.NewData);
   };
 
@@ -501,14 +501,10 @@ class PushHandler extends React.PureComponent<Props, State> {
     }
   }
 
-  iosNotificationOpened = notification => {
+  iosNotificationOpened = (rawNotification: CoreIOSNotificationData) => {
+    const notification = new CommIOSNotification(rawNotification);
     this.onPushNotifBootsApp();
     const threadID = notification.getData().threadID;
-    if (!threadID) {
-      console.log('Notification with missing threadID received!');
-      notification.finish(NotificationsIOS.FetchResult.NoData);
-      return;
-    }
     const messageInfos = notification.getData().messageInfos;
     this.saveMessageInfos(messageInfos);
     this.onPressNotificationForThread(threadID, true);
