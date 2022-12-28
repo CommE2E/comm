@@ -6,6 +6,7 @@ import {
   RainbowKitProvider,
   darkTheme,
   useModalState,
+  ConnectButton,
 } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
@@ -150,9 +151,22 @@ function SIWE(): React.Node {
     return null;
   } else {
     return (
-      <div className={css.button} onClick={onClick}>
-        <img src="images/ethereum_icon.svg" style={ethIconStyle} />
-        sign in
+      <div className={css.wrapper}>
+        <div className={css.walletDisplay}>
+          <span className={css.walletDisplayText}>Wallet Connected:</span>
+          <ConnectButton />
+        </div>
+        <p>
+          To complete the login process, you&apos;ll now be asked to sign a
+          message using your wallet.
+        </p>
+        <p>
+          This signature will attest that your Ethereum identity is represented
+          by your new Comm identity.
+        </p>
+        <div className={css.button} onClick={onClick}>
+          Sign in
+        </div>
       </div>
     );
   }
@@ -178,7 +192,5 @@ function SIWEWrapper(): React.Node {
     </WagmiConfig>
   );
 }
-
-const ethIconStyle = { height: 25, paddingRight: 10 };
 
 export default SIWEWrapper;
