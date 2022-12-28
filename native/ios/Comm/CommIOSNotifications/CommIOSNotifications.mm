@@ -265,4 +265,83 @@ RCT_EXPORT_MODULE()
   return jsReadableNotification;
 }
 
+/*
+ React Native exported methods
+*/
+RCT_EXPORT_METHOD(requestPermissions) {
+  UNAuthorizationOptions options = UNAuthorizationOptionAlert +
+      UNAuthorizationOptionSound + UNAuthorizationOptionBadge;
+  void (^authorizationRequestCompletionHandler)(BOOL, NSError *) =
+      ^(BOOL granted, NSError *_Nullable error) {
+        if (granted &&
+            [UIApplication instancesRespondToSelector:@selector
+                           (registerForRemoteNotifications)]) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+          });
+          return;
+        }
+
+        NSDictionary *errorInfo = @{};
+        if (error) {
+          errorInfo = @{
+            @"code" : [NSNumber numberWithInteger:error.code],
+            @"domain" : error.domain,
+            @"localizedDescription" : error.localizedDescription
+          };
+        }
+
+        [NSNotificationCenter.defaultCenter
+            postNotificationName:CommIOSNotificationsRegistrationFailed
+                          object:self
+                        userInfo:errorInfo];
+      };
+  [UNUserNotificationCenter.currentNotificationCenter
+      requestAuthorizationWithOptions:options
+                    completionHandler:authorizationRequestCompletionHandler];
+}
+
+RCT_EXPORT_METHOD(consumeBackgroundQueue) {
+  CommIOSNotificationsBridgeQueue.sharedInstance.jsReady = YES;
+
+  // Push background notifications to JS
+  [CommIOSNotificationsBridgeQueue.sharedInstance
+      processNotifications:^(NSDictionary *notifInfo) {
+        NSDictionary *notification = notifInfo[@"notification"];
+        RCTRemoteNotificationCallback completionHandler =
+            notifInfo[@"completionHandler"];
+        [CommIOSNotifications didReceiveRemoteNotification:notification
+                                    fetchCompletionHandler:completionHandler];
+      }];
+
+  // Push opened remote notifications
+  NSDictionary *openedRemoteNotification = [_bridge.launchOptions
+      objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+  if (openedRemoteNotification) {
+    CommIOSNotificationsBridgeQueue.sharedInstance.openedRemoteNotification =
+        nil;
+    NSDictionary *notifInfo = @{@"notification" : openedRemoteNotification};
+    [NSNotificationCenter.defaultCenter
+        postNotificationName:CommIOSNotificationsOpened
+                      object:self
+                    userInfo:notifInfo];
+  }
+}
+
+RCT_EXPORT_METHOD(checkPermissions
+                  : (RCTPromiseResolveBlock)resolve reject
+                  : (RCTPromiseRejectBlock)reject) {
+  __block NSDictionary *permissions;
+  [UNUserNotificationCenter.currentNotificationCenter
+      getNotificationSettingsWithCompletionHandler:^(
+          UNNotificationSettings *_Nonnull settings) {
+        permissions = @{
+          @"badge" : @(settings.badgeSetting == UNNotificationSettingEnabled),
+          @"sound" : @(settings.soundSetting == UNNotificationSettingEnabled),
+          @"alert" : @(settings.alertSetting == UNNotificationSettingEnabled)
+        };
+        resolve(permissions);
+      }];
+}
+
 @end
