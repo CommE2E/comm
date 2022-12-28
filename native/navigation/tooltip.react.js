@@ -245,7 +245,26 @@ function createTooltip<
         return entries;
       }
       const visibleSet = new Set(visibleEntryIDs);
-      return entries.filter(entry => visibleSet.has(entry.id));
+      const filteredEntries = entries.filter(entry => visibleSet.has(entry.id));
+
+      // this is a temporary change and will be reverted once we go from
+      // message liking to message reactions
+      return filteredEntries.map(entry => {
+        if (entry.id !== 'react') {
+          return entry;
+        }
+
+        const messageLikes = this.props.route.params.item?.reactions.get('👍');
+        let reactionEntryText = entry.text;
+        if (messageLikes && messageLikes.viewerReacted) {
+          reactionEntryText = 'Unlike';
+        }
+
+        return {
+          ...entry,
+          text: reactionEntryText,
+        };
+      });
     }
 
     get tooltipHeight(): number {
@@ -635,7 +654,13 @@ function createTooltip<
     };
 
     getPlatformSpecificButtonIndices = (options: Array<string>) => {
-      const destructiveButtonIndex = Platform.OS === 'ios' ? 1 : undefined;
+      let destructiveButtonIndex;
+      if (Platform.OS === 'ios') {
+        const reportIndex = options.findIndex(option => option === 'Report');
+        destructiveButtonIndex =
+          reportIndex !== -1 ? options.length - reportIndex : undefined;
+      }
+
       const cancelButtonIndex = Platform.OS === 'ios' ? 0 : -1;
 
       // The "Cancel" action is iOS-specific
