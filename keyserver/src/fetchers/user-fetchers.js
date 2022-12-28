@@ -290,18 +290,6 @@ async function fetchKeyserverAdminID(): Promise<?string> {
   return result[0].user;
 }
 
-async function fetchUserIDForEthereumAddress(
-  address: string,
-): Promise<?string> {
-  const query = SQL`
-    SELECT id
-    FROM users
-    WHERE LCASE(ethereum_address) = LCASE(${address})
-  `;
-  const [result] = await dbQuery(query);
-  return result.length === 0 ? null : result[0].id;
-}
-
 export {
   fetchUserInfos,
   fetchLoggedInUserInfo,
@@ -312,5 +300,4 @@ export {
   fetchUsername,
   fetchKnownUserInfos,
   fetchKeyserverAdminID,
-  fetchUserIDForEthereumAddress,
 };
