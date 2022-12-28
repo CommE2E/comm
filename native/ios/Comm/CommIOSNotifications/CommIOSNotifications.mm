@@ -86,6 +86,82 @@ RCT_EXPORT_MODULE()
 }
 
 /*
+ Public methods
+*/
++ (void)didRegisterForRemoteNotificationsWithDeviceToken:(id)deviceToken {
+  NSString *token = [deviceToken isKindOfClass:[NSString class]]
+      ? deviceToken
+      : [self deviceTokenToString:deviceToken];
+  [NSNotificationCenter.defaultCenter
+      postNotificationName:CommIOSNotificationsRegistered
+                    object:self
+                  userInfo:@{@"deviceToken" : token}];
+}
+
++ (void)didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+  [NSNotificationCenter.defaultCenter
+      postNotificationName:CommIOSNotificationsRegistrationFailed
+                    object:self
+                  userInfo:@{
+                    @"code" : [NSNumber numberWithInteger:error.code],
+                    @"domain" : error.domain,
+                    @"localizedDescription" : error.localizedDescription
+                  }];
+}
+
++ (void)didReceiveRemoteNotification:(NSDictionary *)notification
+              fetchCompletionHandler:
+                  (void (^)(UIBackgroundFetchResult))completionHandler {
+
+  NSDictionary *notifInfo = @{
+    @"notification" : notification,
+    @"completionHandler" : completionHandler
+  };
+  UIApplicationState state = [UIApplication sharedApplication].applicationState;
+
+  if (!CommIOSNotificationsBridgeQueue.sharedInstance.jsReady) {
+    [CommIOSNotificationsBridgeQueue.sharedInstance putNotification:notifInfo];
+    return;
+  }
+
+  if (state == UIApplicationStateActive) {
+    [NSNotificationCenter.defaultCenter
+        postNotificationName:CommIOSNotificationsReceivedForeground
+                      object:self
+                    userInfo:notifInfo];
+  } else if (state == UIApplicationStateInactive) {
+    [NSNotificationCenter.defaultCenter
+        postNotificationName:CommIOSNotificationsOpened
+                      object:self
+                    userInfo:notifInfo];
+  }
+}
+
++ (void)clearNotificationFromNotificationsCenter:(NSString *)notificationId
+                               completionHandler:
+                                   (void (^)(UIBackgroundFetchResult))
+                                       completionHandler {
+  [UNUserNotificationCenter.currentNotificationCenter
+      getDeliveredNotificationsWithCompletionHandler:^(
+          NSArray<UNNotification *> *_Nonnull notifications) {
+        for (UNNotification *notif in notifications) {
+          if ([notificationId isEqual:notif.request.content.userInfo[@"id"]]) {
+            NSArray *identifiers =
+                [NSArray arrayWithObjects:notif.request.identifier, nil];
+            [UNUserNotificationCenter.currentNotificationCenter
+                removeDeliveredNotificationsWithIdentifiers:identifiers];
+          }
+        }
+        if (completionHandler) {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            completionHandler(UIBackgroundFetchResultNewData);
+          });
+        }
+      }];
+  return;
+}
+
+/*
  JavaScript Events
  */
 - (void)handleNotificationsRegistered:(NSNotification *)notification {
@@ -142,6 +218,15 @@ RCT_EXPORT_MODULE()
 /*
  Helper methods
 */
++ (NSString *)deviceTokenToString:(NSData *)deviceToken {
+  NSMutableString *result = [NSMutableString string];
+  const unsigned char *bytes = (const unsigned char *)deviceToken.bytes;
+  for (NSUInteger i = 0; i < deviceToken.length; i++) {
+    [result appendFormat:@"%02x", bytes[i]];
+  }
+  return [result copy];
+}
+
 + (NSDictionary *)parseNotificationToJSReadableObject:
                       (NSDictionary *)notification
                                 withRequestIdentifier:(NSString *)identifier {
