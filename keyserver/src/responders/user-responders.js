@@ -55,6 +55,7 @@ import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchKnownUserInfos,
   fetchLoggedInUserInfo,
+  fetchUserIDForEthereumAddress,
 } from '../fetchers/user-fetchers';
 import {
   createNewAnonymousCookie,
@@ -195,7 +196,7 @@ async function processSuccessfulLogin(
   input: any,
   userID: string,
   calendarQuery: ?CalendarQuery,
-) {
+): Promise<LogInResponse> {
   const request: LogInRequest = input;
   const newServerTime = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
@@ -316,7 +317,10 @@ const siweAuthRequestInputValidator = tShape({
   watchedIDs: t.list(t.String),
 });
 
-async function siweAuthResponder(viewer: Viewer, input: any): Promise<boolean> {
+async function siweAuthResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<LogInResponse> {
   await validateInput(viewer, siweAuthRequestInputValidator, input);
   const request: SIWEAuthRequest = input;
   const { message, signature } = request;
@@ -355,7 +359,13 @@ async function siweAuthResponder(viewer: Viewer, input: any): Promise<boolean> {
     }
   }
 
-  return false;
+  // 4. Complete login with call to `successfulLogInQueries(...)`
+  //    if `address` corresponds to an existing user.
+  const userID = await fetchUserIDForEthereumAddress(siweMessage.address);
+  if (!userID) {
+    throw ServerError('placeholder_error');
+  }
+  return await processSuccessfulLogin(viewer, input, userID);
 }
 
 const updatePasswordRequestInputValidator = tShape({
