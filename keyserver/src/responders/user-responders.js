@@ -24,6 +24,7 @@ import {
   notificationTypeValues,
   logInActionSources,
 } from 'lib/types/account-types';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types';
 import type { SIWEAuthRequest, SIWEMessage } from 'lib/types/siwe-types.js';
 import type {
@@ -189,6 +190,67 @@ async function accountCreationResponder(
   return await createAccount(viewer, request);
 }
 
+async function processSuccessfulLogin(
+  viewer: Viewer,
+  input: any,
+  userID: string,
+  calendarQuery: ?CalendarQuery,
+) {
+  const request: LogInRequest = input;
+  const newServerTime = Date.now();
+  const deviceToken = request.deviceTokenUpdateRequest
+    ? request.deviceTokenUpdateRequest.deviceToken
+    : viewer.deviceToken;
+  const [userViewerData] = await Promise.all([
+    createNewUserCookie(userID, {
+      platformDetails: request.platformDetails,
+      deviceToken,
+    }),
+    deleteCookie(viewer.cookieID),
+  ]);
+  viewer.setNewCookie(userViewerData);
+  if (calendarQuery) {
+    await setNewSession(viewer, calendarQuery, newServerTime);
+  }
+
+  const threadCursors = {};
+  for (const watchedThreadID of request.watchedIDs) {
+    threadCursors[watchedThreadID] = null;
+  }
+  const messageSelectionCriteria = { threadCursors, joinedThreads: true };
+
+  const [
+    threadsResult,
+    messagesResult,
+    entriesResult,
+    userInfos,
+    currentUserInfo,
+  ] = await Promise.all([
+    fetchThreadInfos(viewer),
+    fetchMessageInfos(viewer, messageSelectionCriteria, defaultNumberPerThread),
+    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
+    fetchKnownUserInfos(viewer),
+    fetchLoggedInUserInfo(viewer),
+  ]);
+
+  const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
+  const response: LogInResponse = {
+    currentUserInfo,
+    rawMessageInfos: messagesResult.rawMessageInfos,
+    truncationStatuses: messagesResult.truncationStatuses,
+    serverTime: newServerTime,
+    userInfos: values(userInfos),
+    cookieChange: {
+      threadInfos: threadsResult.threadInfos,
+      userInfos: [],
+    },
+  };
+  if (rawEntryInfos) {
+    response.rawEntryInfos = rawEntryInfos;
+  }
+  return response;
+}
+
 const logInRequestInputValidator = tShape({
   username: t.maybe(t.String),
   usernameOrEmail: t.maybe(t.union([tEmail, tOldValidUsername])),
@@ -242,59 +304,7 @@ async function logInResponder(
     }
   }
   const id = userRow.id.toString();
-
-  const newServerTime = Date.now();
-  const deviceToken = request.deviceTokenUpdateRequest
-    ? request.deviceTokenUpdateRequest.deviceToken
-    : viewer.deviceToken;
-  const [userViewerData] = await Promise.all([
-    createNewUserCookie(id, {
-      platformDetails: request.platformDetails,
-      deviceToken,
-    }),
-    deleteCookie(viewer.cookieID),
-  ]);
-  viewer.setNewCookie(userViewerData);
-  if (calendarQuery) {
-    await setNewSession(viewer, calendarQuery, newServerTime);
-  }
-
-  const threadCursors = {};
-  for (const watchedThreadID of request.watchedIDs) {
-    threadCursors[watchedThreadID] = null;
-  }
-  const messageSelectionCriteria = { threadCursors, joinedThreads: true };
-
-  const [
-    threadsResult,
-    messagesResult,
-    entriesResult,
-    userInfos,
-    currentUserInfo,
-  ] = await Promise.all([
-    fetchThreadInfos(viewer),
-    fetchMessageInfos(viewer, messageSelectionCriteria, defaultNumberPerThread),
-    calendarQuery ? fetchEntryInfos(viewer, [calendarQuery]) : undefined,
-    fetchKnownUserInfos(viewer),
-    fetchLoggedInUserInfo(viewer),
-  ]);
-
-  const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
-  const response: LogInResponse = {
-    currentUserInfo,
-    rawMessageInfos: messagesResult.rawMessageInfos,
-    truncationStatuses: messagesResult.truncationStatuses,
-    serverTime: newServerTime,
-    userInfos: values(userInfos),
-    cookieChange: {
-      threadInfos: threadsResult.threadInfos,
-      userInfos: [],
-    },
-  };
-  if (rawEntryInfos) {
-    response.rawEntryInfos = rawEntryInfos;
-  }
-  return response;
+  return await processSuccessfulLogin(viewer, input, id, calendarQuery);
 }
 
 const siweAuthRequestInputValidator = tShape({
