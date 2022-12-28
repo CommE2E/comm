@@ -205,6 +205,7 @@
 		CB38F2BE286C6C980010535C /* DeleteEntryMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeleteEntryMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/DeleteEntryMessageSpec.h; sourceTree = "<group>"; };
 		CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UpdateRelationshipMessageSpec.h; path = PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs/UpdateRelationshipMessageSpec.h; sourceTree = "<group>"; };
 		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB90951929531663002F2A7F /* CommIOSNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommIOSNotifications.h; path = Comm/CommIOSNotifications/CommIOSNotifications.h; sourceTree = "<group>"; };
 		CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalDBSingleton.h; sourceTree = "<group>"; };
 		CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlobalDBSingleton.mm; path = Comm/GlobalDBSingleton.mm; sourceTree = "<group>"; };
 		CBFE58272885852B003B94C9 /* ThreadOperations.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ThreadOperations.h; path = PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.h; sourceTree = "<group>"; };
@@ -295,6 +296,7 @@
 		71B8CCB626BD30EC0040C0A2 /* CommCoreImplementations */ = {
 			isa = PBXGroup;
 			children = (
+				CB90951729531647002F2A7F /* CommIOSNotifications */,
 				8E43C32E291E5B9D009378F5 /* TerminateApp.h */,
 				8E43C32B291E5B4A009378F5 /* TerminateApp.mm */,
 				CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */,
@@ -549,6 +551,14 @@
 				CB38F2BF286C6C980010535C /* UpdateRelationshipMessageSpec.h */,
 			);
 			name = MessageSpecs;
+			sourceTree = "<group>";
+		};
+		CB90951729531647002F2A7F /* CommIOSNotifications */ = {
+			isa = PBXGroup;
+			children = (
+				CB90951929531663002F2A7F /* CommIOSNotifications.h */,
+			);
+			name = CommIOSNotifications;
 			sourceTree = "<group>";
 		};
 		CBED0E2C284E086100CD3863 /* PersistentStorageUtilities */ = {
