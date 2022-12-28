@@ -2,7 +2,7 @@
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import * as React from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
 
@@ -97,24 +97,42 @@ function SIWEPanel(props: Props): React.Node {
     snapToIndex?.(0);
   }, [snapToIndex, snapPoints]);
 
+  const { onClose } = props;
+  const callSIWE = React.useCallback(
+    async (message, signature, extraInfo) => {
+      try {
+        return await siweAuthCall({
+          message,
+          signature,
+          ...extraInfo,
+        });
+      } catch (e) {
+        Alert.alert(
+          'Unknown error',
+          'Uhh... try again?',
+          [{ text: 'OK', onPress: onClose }],
+          { cancelable: false },
+        );
+        throw e;
+      }
+    },
+    [onClose, siweAuthCall],
+  );
+
   const handleSIWE = React.useCallback(
     ({ message, signature }) => {
       const extraInfo = logInExtraInfo();
       dispatchActionPromise(
         siweAuthActionTypes,
-        siweAuthCall({
-          message,
-          signature,
-          ...extraInfo,
-        }),
+        callSIWE(message, signature, extraInfo),
         undefined,
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
-    [logInExtraInfo, dispatchActionPromise, siweAuthCall],
+    [logInExtraInfo, dispatchActionPromise, callSIWE],
   );
   const closeBottomSheet = bottomSheetRef.current?.close;
-  const { onClose, nextMode } = props;
+  const { nextMode } = props;
   const disableOnClose = React.useRef(false);
   const handleMessage = React.useCallback(
     event => {
