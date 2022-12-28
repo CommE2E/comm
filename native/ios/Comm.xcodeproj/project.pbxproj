@@ -59,6 +59,8 @@
 		CB4821AC27CFB17C001AB7E1 /* Session.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B6F26B3FF0900EDE27D /* Session.cpp */; };
 		CB4821AE27CFB187001AB7E1 /* Tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 71BF5B7326B401D300EDE27D /* Tools.cpp */; };
 		CB4821AF27CFB19D001AB7E1 /* PlatformSpecificTools.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71762A74270D8AAE00F565ED /* PlatformSpecificTools.mm */; };
+		CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */; };
+		CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB7EF17B295C580500B17035 /* CommIOSNotificationsBridgeQueue.mm */; };
 		CB90951F29534B32002F2A7F /* CommSecureStore.mm in Sources */ = {isa = PBXBuildFile; fileRef = 71D4D7CB26C50B1000FCDBCD /* CommSecureStore.mm */; };
 		CBDEC69B28ED867000C17588 /* GlobalDBSingleton.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */; };
 		CBFE58292885852B003B94C9 /* ThreadOperations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CBFE58282885852B003B94C9 /* ThreadOperations.cpp */; };
@@ -207,6 +209,7 @@
 		CB3C621327CE66540054F24C /* libEXSecureStore.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libEXSecureStore.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB7EF17B295C580500B17035 /* CommIOSNotificationsBridgeQueue.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSNotificationsBridgeQueue.mm; path = Comm/CommIOSNotifications/CommIOSNotificationsBridgeQueue.mm; sourceTree = "<group>"; };
 		CB7EF17C295C580500B17035 /* CommIOSNotificationsBridgeQueue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = CommIOSNotificationsBridgeQueue.h; path = Comm/CommIOSNotifications/CommIOSNotificationsBridgeQueue.h; sourceTree = "<group>"; };
+		CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = CommIOSNotifications.mm; path = Comm/CommIOSNotifications/CommIOSNotifications.mm; sourceTree = "<group>"; };
 		CB90951929531663002F2A7F /* CommIOSNotifications.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommIOSNotifications.h; path = Comm/CommIOSNotifications/CommIOSNotifications.h; sourceTree = "<group>"; };
 		CBDEC69928ED859600C17588 /* GlobalDBSingleton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GlobalDBSingleton.h; sourceTree = "<group>"; };
 		CBDEC69A28ED867000C17588 /* GlobalDBSingleton.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = GlobalDBSingleton.mm; path = Comm/GlobalDBSingleton.mm; sourceTree = "<group>"; };
@@ -558,6 +561,7 @@
 		CB90951729531647002F2A7F /* CommIOSNotifications */ = {
 			isa = PBXGroup;
 			children = (
+				CB7EF17D295C5D1800B17035 /* CommIOSNotifications.mm */,
 				CB7EF17C295C580500B17035 /* CommIOSNotificationsBridgeQueue.h */,
 				CB7EF17B295C580500B17035 /* CommIOSNotificationsBridgeQueue.mm */,
 				CB90951929531663002F2A7F /* CommIOSNotifications.h */,
@@ -923,6 +927,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB7EF17E295C674300B17035 /* CommIOSNotifications.mm in Sources */,
+				CB7EF180295C674300B17035 /* CommIOSNotificationsBridgeQueue.mm in Sources */,
 				7F0C6E31291C4468002AA2D9 /* ExpoModulesProvider.swift in Sources */,
 				75291F0428F9A0D400F4C80E /* DeviceID.cpp in Sources */,
 				8E43C32C291E5B4A009378F5 /* TerminateApp.mm in Sources */,
