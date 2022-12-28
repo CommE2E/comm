@@ -40,17 +40,12 @@ type Props = {
 };
 function TooltipProvider(props: Props): React.Node {
   const { children } = props;
-  // eslint-disable-next-line no-unused-vars
   const tooltipSymbol = React.useRef<?symbol>(null);
-  // eslint-disable-next-line no-unused-vars
   const tooltipCancelTimer = React.useRef<?TimeoutID>(null);
 
-  // eslint-disable-next-line no-unused-vars
   const [tooltipNode, setTooltipNode] = React.useState<React.Node>(null);
   const [
-    // eslint-disable-next-line no-unused-vars
     tooltipPosition,
-    // eslint-disable-next-line no-unused-vars
     setTooltipPosition,
   ] = React.useState<?TooltipPositionStyle>(null);
 
@@ -98,14 +93,12 @@ function TooltipProvider(props: Props): React.Node {
     [clearTooltip],
   );
 
-  // eslint-disable-next-line no-unused-vars
   const onMouseEnterTooltip = React.useCallback(() => {
     if (tooltipSymbol.current) {
       clearTimeout(tooltipCancelTimer.current);
     }
   }, []);
 
-  // eslint-disable-next-line no-unused-vars
   const onMouseLeaveTooltip = React.useCallback(() => {
     const timer = setTimeout(
       clearCurrentTooltip,
