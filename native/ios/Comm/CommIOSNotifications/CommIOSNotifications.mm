@@ -301,6 +301,25 @@ RCT_EXPORT_METHOD(requestPermissions) {
                     completionHandler:authorizationRequestCompletionHandler];
 }
 
+RCT_EXPORT_METHOD(completeNotif
+                  : (NSString *)completionKey fetchResult
+                  : (UIBackgroundFetchResult)result) {
+  RCTRemoteNotificationCallback completionHandler =
+      self.remoteNotificationCallbacks[completionKey];
+  if (!completionHandler) {
+    NSLog(@"There is no completion handler with key: %@", completionKey);
+    return;
+  }
+  completionHandler(result);
+  [self.remoteNotificationCallbacks removeObjectForKey:completionKey];
+}
+
+RCT_EXPORT_METHOD(setBadgesCount : (int)count) {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [[UIApplication sharedApplication] setApplicationIconBadgeNumber:count];
+  });
+}
+
 RCT_EXPORT_METHOD(consumeBackgroundQueue) {
   CommIOSNotificationsBridgeQueue.sharedInstance.jsReady = YES;
 
@@ -341,6 +360,39 @@ RCT_EXPORT_METHOD(checkPermissions
           @"alert" : @(settings.alertSetting == UNNotificationSettingEnabled)
         };
         resolve(permissions);
+      }];
+}
+
+RCT_EXPORT_METHOD(removeAllDeliveredNotifications) {
+  [UNUserNotificationCenter
+          .currentNotificationCenter removeAllDeliveredNotifications];
+}
+
+RCT_EXPORT_METHOD(removeDeliveredNotifications
+                  : (NSArray<NSString *> *)identifiers) {
+  [UNUserNotificationCenter.currentNotificationCenter
+      removeDeliveredNotificationsWithIdentifiers:identifiers];
+}
+RCT_EXPORT_METHOD(getDeliveredNotifications
+                  : (RCTResponseSenderBlock)callback) {
+  [UNUserNotificationCenter.currentNotificationCenter
+      getDeliveredNotificationsWithCompletionHandler:^(
+          NSArray<UNNotification *> *_Nonnull notifications) {
+        NSMutableArray<NSDictionary *> *formattedNotifications =
+            [NSMutableArray new];
+
+        for (UNNotification *notification in notifications) {
+          NSDictionary *jsReadableNotification = [CommIOSNotifications
+              parseNotificationToJSReadableObject:notification.request.content
+                                                      .userInfo
+                            withRequestIdentifier:notification.request
+                                                      .identifier];
+          if (!jsReadableNotification) {
+            continue;
+          }
+          [formattedNotifications addObject:jsReadableNotification];
+        }
+        callback(@[ formattedNotifications ]);
       }];
 }
 
