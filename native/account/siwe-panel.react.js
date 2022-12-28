@@ -31,6 +31,9 @@ const commSIWE = `${defaultLandingURLPrefix}/siwe`;
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
+const siweAuthLoadingStatusSelector = createLoadingStatusSelector(
+  siweAuthActionTypes,
+);
 
 type Props = {
   +onClose: () => mixed,
@@ -51,6 +54,9 @@ function SIWEPanel(props: Props): React.Node {
 
   const getSIWENonceCallFailed = useSelector(
     state => getSIWENonceLoadingStatusSelector(state) === 'error',
+  );
+  const siweAuthCallLoading = useSelector(
+    state => siweAuthLoadingStatusSelector(state) === 'loading',
   );
 
   const [nonce, setNonce] = React.useState<?string>(null);
@@ -109,12 +115,15 @@ function SIWEPanel(props: Props): React.Node {
   );
   const closeBottomSheet = bottomSheetRef.current?.close;
   const { onClose, nextMode } = props;
+  const disableOnClose = React.useRef(false);
   const handleMessage = React.useCallback(
     event => {
       const data: SIWEWebViewMessage = JSON.parse(event.nativeEvent.data);
       if (data.type === 'siwe_success') {
         const { address, message, signature } = data;
         if (address && signature) {
+          disableOnClose.current = true;
+          closeBottomSheet?.();
           handleSIWE({ message, signature });
         }
       } else if (data.type === 'siwe_closed') {
@@ -164,6 +173,10 @@ function SIWEPanel(props: Props): React.Node {
 
   const onBottomSheetChange = React.useCallback(
     (index: number) => {
+      if (disableOnClose.current) {
+        disableOnClose.current = false;
+        return;
+      }
       if (index === -1) {
         onClose();
       }
@@ -196,7 +209,7 @@ function SIWEPanel(props: Props): React.Node {
   let activity;
   if (getSIWENonceCallFailed) {
     activity = <Text>Oops, try again later!</Text>;
-  } else if (isLoading) {
+  } else if (isLoading || siweAuthCallLoading) {
     activity = <ActivityIndicator size="large" />;
   }
 
