@@ -18,6 +18,7 @@ export type RenderTooltipParams = {
 export type RenderTooltipResult = {
   +onMouseLeaveCallback: () => mixed,
   +clearTooltip: () => mixed,
+  +updateTooltip: React.Node => mixed,
 };
 
 type TooltipContextType = {
@@ -30,6 +31,7 @@ const TooltipContext: React.Context<TooltipContextType> = React.createContext<To
     renderTooltip: () => ({
       onMouseLeaveCallback: () => {},
       clearTooltip: () => {},
+      updateTooltip: () => {},
     }),
     clearTooltip: () => {},
   },
@@ -88,6 +90,11 @@ function TooltipProvider(props: Props): React.Node {
           tooltipCancelTimer.current = newTimer;
         },
         clearTooltip: () => clearTooltip(newNodeSymbol),
+        updateTooltip: (node: React.Node) => {
+          if (newNodeSymbol === tooltipSymbol.current) {
+            setTooltipNode(node);
+          }
+        },
       };
     },
     [clearTooltip],
