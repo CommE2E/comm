@@ -347,15 +347,15 @@ async function siweAuthResponder(
   } catch (error) {
     if (error === ErrorTypes.EXPIRED_MESSAGE) {
       // Thrown when the `expirationTime` is present and in the past.
-      throw new ServerError('expired_message', { status: 400 });
+      throw new ServerError('expired_message');
     } else if (error === ErrorTypes.INVALID_SIGNATURE) {
       // Thrown when the `validate()` function can't verify the message.
-      throw new ServerError('invalid_signature', { status: 400 });
+      throw new ServerError('invalid_signature');
     } else if (error === ErrorTypes.MALFORMED_SESSION) {
       // Thrown when some required field is missing.
-      throw new ServerError('malformed_session', { status: 400 });
+      throw new ServerError('malformed_session');
     } else {
-      throw new ServerError('unknown_error', { status: 500 });
+      throw new ServerError('unknown_error');
     }
   }
 
