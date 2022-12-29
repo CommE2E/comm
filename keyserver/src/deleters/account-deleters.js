@@ -35,7 +35,13 @@ async function deleteAccount(
       throw new ServerError('internal_error');
     }
     const row = result[0];
-    if (!bcrypt.compareSync(request.password, row.hash)) {
+    const requestPasswordConsistentWithDB = !!row.hash === !!request.password;
+    const shouldValidatePassword = !!row.hash;
+    if (
+      !requestPasswordConsistentWithDB ||
+      (shouldValidatePassword &&
+        !bcrypt.compareSync(request.password, row.hash))
+    ) {
       throw new ServerError('invalid_credentials');
     }
   }
