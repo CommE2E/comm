@@ -27,11 +27,13 @@ import {
 } from 'lib/utils/validation-utils';
 
 import createMessages from '../creators/message-creator';
+import { SQL } from '../database/database';
 import {
   fetchMessageInfos,
   fetchMessageInfoForLocalID,
   fetchMessageInfoByID,
 } from '../fetchers/message-fetchers';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { checkThreadPermission } from '../fetchers/thread-permission-fetchers';
 import {
   fetchMedia,
@@ -213,10 +215,20 @@ async function reactionMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const [hasPermission, targetMessageUserInfos] = await Promise.all([
+  const [
+    serverThreadInfos,
+    hasPermission,
+    targetMessageUserInfos,
+  ] = await Promise.all([
+    fetchServerThreadInfos(SQL`t.id = ${threadID}`),
     checkThreadPermission(viewer, threadID, threadPermissions.VOICED),
     fetchKnownUserInfos(viewer, [targetMessageInfo.creatorID]),
   ]);
+
+  const targetMessageThreadInfo = serverThreadInfos.threadInfos[threadID];
+  if (targetMessageThreadInfo.sourceMessageID === targetMessageID) {
+    throw new ServerError('invalid_parameters');
+  }
 
   const targetMessageCreator =
     targetMessageUserInfos[targetMessageInfo.creatorID];

@@ -102,7 +102,10 @@ function useCanCreateReactionFromMessage(
         ?.relationshipStatus,
   );
 
-  if (!targetMessageInfo.id) {
+  if (
+    !targetMessageInfo.id ||
+    threadInfo.sourceMessageID === targetMessageInfo.id
+  ) {
     return false;
   }
 
