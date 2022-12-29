@@ -8,6 +8,7 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
+import { baseLegalPolicies } from 'lib/facts/policies.js';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors';
@@ -32,6 +33,7 @@ import { navInfoFromURL } from 'web/url-utils';
 
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { hasAnyNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchCurrentUserInfo,
@@ -126,6 +128,10 @@ async function websiteResponder(
   const baseHref = baseDomain + baseURL;
 
   const loadingPromise = getWebpackCompiledRootComponentForSSR();
+  const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
+    viewer,
+    baseLegalPolicies,
+  );
 
   let initialNavInfo;
   try {
@@ -163,10 +169,23 @@ async function websiteResponder(
   })();
 
   const threadStorePromise = (async () => {
+    const hasNotAcknowledgedPolicies = await hasNotAcknowledgedPoliciesPromise;
+    if (hasNotAcknowledgedPolicies) {
+      return { threadInfos: {} };
+    }
     const { threadInfos } = await threadInfoPromise;
     return { threadInfos };
   })();
   const messageStorePromise = (async () => {
+    const hasNotAcknowledgedPolicies = await hasNotAcknowledgedPoliciesPromise;
+    if (hasNotAcknowledgedPolicies) {
+      return {
+        messages: {},
+        threads: {},
+        local: {},
+        currentAsOf: 0,
+      };
+    }
     const [
       { threadInfos },
       { rawMessageInfos, truncationStatuses },
@@ -180,6 +199,14 @@ async function websiteResponder(
     return freshStore;
   })();
   const entryStorePromise = (async () => {
+    const hasNotAcknowledgedPolicies = await hasNotAcknowledgedPoliciesPromise;
+    if (hasNotAcknowledgedPolicies) {
+      return {
+        entryInfos: {},
+        daysToEntries: {},
+        lastUserInteractionCalendar: 0,
+      };
+    }
     const { rawEntryInfos } = await entryInfoPromise;
     return {
       entryInfos: _keyBy('id')(rawEntryInfos),
@@ -188,6 +215,13 @@ async function websiteResponder(
     };
   })();
   const userStorePromise = (async () => {
+    const hasNotAcknowledgedPolicies = await hasNotAcknowledgedPoliciesPromise;
+    if (hasNotAcknowledgedPolicies) {
+      return {
+        userInfos: {},
+        inconsistencyReports: [],
+      };
+    }
     const userInfos = await userInfoPromise;
     return { userInfos, inconsistencyReports: [] };
   })();
@@ -308,6 +342,8 @@ async function websiteResponder(
       var preloadedState =
   `);
 
+  const hasNotAcknowledgedPolicies = await hasNotAcknowledgedPoliciesPromise;
+
   const initialReduxState = await promiseAll({
     navInfo: navInfoPromise,
     deviceID: null,
@@ -318,7 +354,7 @@ async function websiteResponder(
     threadStore: threadStorePromise,
     userStore: userStorePromise,
     messageStore: messageStorePromise,
-    updatesCurrentAsOf: initialTime,
+    updatesCurrentAsOf: hasNotAcknowledgedPolicies ? 0 : initialTime,
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
     // We can use paths local to the <base href> on web
