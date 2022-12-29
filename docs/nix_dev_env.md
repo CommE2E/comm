@@ -29,6 +29,14 @@ To set up a dev environment using Nix, you will need a macOS or Linux machine.
 
 # Prerequisites
 
+## Xcode Command Line Tools
+
+For developers using macOS, you need to make sure that the Xcode “Command Line Tools” are installed. You can do this by running:
+
+```
+xcode-select --install
+```
+
 ## Nix package manager
 
 To install and configure the [Nix package manager](https://nixos.org), please run:

@@ -8,12 +8,6 @@ Go to the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835) to in
 
 Once Xcode is installed, open it up. If you are prompted, follow the instructions to install any “Additional Required Components”.
 
-Finally, you need to make sure that the Xcode “Command Line Tools” are installed. You can do this by running:
-
-```
-xcode-select --install
-```
-
 ### Xcode settings
 
 First, in Xcode, open the Comm workspace `native/ios/Comm.xcworkspace`. Make sure that you’re signed into Xcode with an Apple Developer account (either the Comm developer team’s or your own). You can see any accounts currently associated with Xcode by navigating to Xcode → Preferences → Accounts.
