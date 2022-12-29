@@ -10,7 +10,7 @@
     "clean-android": "rm -rf android/build android/app/build android/app/.cxx",
     "clean-ios": "rm -rf ios/Pods/",
     "clean-all": "yarn clean && rm -rf ~/Library/Developer/Xcode/DerivedData/Comm-*; cd android && (./gradlew clean || true)",
-    "postinstall": "cd ../ && echo '{\"name\": \"olm\", \"version\": \"3.2.4\"}' > ./node_modules/olm/package.json && yarn patch-package && yarn flow-mono create-symlinks native && cd native && yarn jetify && ((cd ios && PATH=/usr/bin:\"$PATH\" pod install) || true)",
+    "postinstall": "bash ./postinstall.sh",
     "start": "yarn expo start --dev-client",
     "dev": "yarn start",
     "test": "yarn jest",

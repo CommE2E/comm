@@ -15,6 +15,7 @@ lib/node_modules
 native
 !native/package.json
 !native/.flowconfig
+!native/postinstall.sh
 !native/ios/Podfile
 !native/ios/pod-patch
 !native/cpp/CommonCpp/grpc
