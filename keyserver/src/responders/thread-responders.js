@@ -43,7 +43,7 @@ import {
 
 const threadDeletionRequestInputValidator = tShape({
   threadID: t.String,
-  accountPassword: tPassword,
+  accountPassword: t.maybe(tPassword),
 });
 
 async function threadDeletionResponder(
