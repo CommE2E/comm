@@ -311,7 +311,7 @@ async function logInResponder(
 const siweAuthRequestInputValidator = tShape({
   signature: t.String,
   message: t.String,
-  calendarQuery: t.maybe(entryQueryInputValidator),
+  calendarQuery: entryQueryInputValidator,
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
   watchedIDs: t.list(t.String),
@@ -324,6 +324,7 @@ async function siweAuthResponder(
   await validateInput(viewer, siweAuthRequestInputValidator, input);
   const request: SIWEAuthRequest = input;
   const { message, signature } = request;
+  const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
   // 1. Ensure that `message` is a well formed Comm SIWE Auth message.
   const siweMessage: SIWEMessage = new SiweMessage(message);
@@ -365,7 +366,7 @@ async function siweAuthResponder(
   if (!userID) {
     throw new ServerError('placeholder_error');
   }
-  return await processSuccessfulLogin(viewer, input, userID);
+  return await processSuccessfulLogin(viewer, input, userID, calendarQuery);
 }
 
 const updatePasswordRequestInputValidator = tShape({
