@@ -20,4 +20,20 @@ async function fetchPolicyAcknowledgments(
   return data;
 }
 
-export { fetchPolicyAcknowledgments };
+async function fetchNotAcknowledgedPolicies(
+  viewer: Viewer,
+  policies: $ReadOnlyArray<PolicyType>,
+): Promise<$ReadOnlyArray<PolicyType>> {
+  const viewerAcknowledgments = await fetchPolicyAcknowledgments(
+    viewer,
+    policies,
+  );
+  return policies.filter(policy => {
+    const policyAcknowledgment = viewerAcknowledgments.find(
+      viewerAcknowledgment => viewerAcknowledgment.policy === policy,
+    );
+    return !policyAcknowledgment?.confirmed;
+  });
+}
+
+export { fetchPolicyAcknowledgments, fetchNotAcknowledgedPolicies };
