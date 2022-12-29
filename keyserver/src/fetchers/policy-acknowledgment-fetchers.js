@@ -35,4 +35,19 @@ async function fetchNotAcknowledgedPolicies(
   });
 }
 
-export { fetchPolicyAcknowledgments, fetchNotAcknowledgedPolicies };
+async function hasAnyNotAcknowledgedPolicies(
+  userID: string,
+  policies: $ReadOnlyArray<PolicyType>,
+): Promise<boolean> {
+  const notAcknowledgedPolicies = await fetchNotAcknowledgedPolicies(
+    userID,
+    policies,
+  );
+  return !!notAcknowledgedPolicies.length;
+}
+
+export {
+  fetchPolicyAcknowledgments,
+  fetchNotAcknowledgedPolicies,
+  hasAnyNotAcknowledgedPolicies,
+};
