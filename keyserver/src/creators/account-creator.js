@@ -26,6 +26,7 @@ import { threadTypes } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { reservedUsernamesSet } from 'lib/utils/reserved-users';
+import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
 import { dbQuery, SQL } from '../database/database';
 import { deleteCookie } from '../deleters/cookie-deleters';
@@ -84,7 +85,10 @@ async function createAccount(
   }
 
   const [[usernameResult]] = await Promise.all(promises);
-  if (reservedUsernamesSet.has(request.username.toLowerCase())) {
+  if (
+    reservedUsernamesSet.has(request.username.toLowerCase()) ||
+    isValidEthereumAddress(request.username.toLowerCase())
+  ) {
     if (hasMinCodeVersion(viewer.platformDetails, 120)) {
       throw new ServerError('username_reserved');
     } else {
