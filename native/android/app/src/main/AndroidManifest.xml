@@ -66,4 +66,10 @@
     />
     <meta-data android:name="google_analytics_adid_collection_enabled" android:value="false" />
   </application>
+  <queries>
+    <intent>
+      <action android:name="android.intent.action.VIEW" />
+      <data android:scheme="rainbow" />
+    </intent>
+  </queries>
 </manifest>
