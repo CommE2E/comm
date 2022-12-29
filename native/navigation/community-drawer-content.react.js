@@ -9,6 +9,7 @@ import {
   childThreadInfos,
   communityThreadSelector,
 } from 'lib/selectors/thread-selectors';
+import { threadIsChannel } from 'lib/shared/thread-utils';
 import { type ThreadInfo, communitySubthreads } from 'lib/types/thread-types';
 
 import { useNavigateToThread } from '../chat/message-list-types';
@@ -43,6 +44,7 @@ function CommunityDrawerContent(): React.Node {
         threadInfo: item.threadInfo,
         itemChildren: item.itemChildren,
         labelStyle: item.labelStyle,
+        hasSubchannelsButton: item.subchannelsButton,
       };
       return (
         <CommunityDrawerItemCommunity
@@ -94,6 +96,7 @@ function createRecursiveDrawerItemsData(
     threadInfo: community,
     itemChildren: [],
     labelStyle: labelStyles[0],
+    subchannelsButton: false,
   }));
   let queue = result.map(item => [item, 0]);
 
@@ -108,6 +111,9 @@ function createRecursiveDrawerItemsData(
           threadInfo: childItem,
           itemChildren: [],
           labelStyle: labelStyles[Math.min(lvl + 1, labelStyles.length - 1)],
+          hasSubchannelsButton:
+            lvl + 1 === maxDepth &&
+            threadHasSubchannels(childItem, childThreadInfosMap),
         }));
       queue = queue.concat(
         item.itemChildren.map(childItem => [childItem, lvl + 1]),
@@ -115,6 +121,18 @@ function createRecursiveDrawerItemsData(
     }
   }
   return result;
+}
+
+function threadHasSubchannels(
+  threadInfo: ThreadInfo,
+  childThreadInfosMap: { +[id: string]: $ReadOnlyArray<ThreadInfo> },
+) {
+  if (!childThreadInfosMap[threadInfo.id]?.length) {
+    return false;
+  }
+  return childThreadInfosMap[threadInfo.id].some(thread =>
+    threadIsChannel(thread),
+  );
 }
 
 function appendSuffix(chats: $ReadOnlyArray<ThreadInfo>): ThreadInfo[] {

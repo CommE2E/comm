@@ -10,11 +10,13 @@ import { SingleLine } from '../components/single-line.react';
 import { useStyles } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react';
+import SubchannelsButton from './subchannels-button.react';
 
 export type CommunityDrawerItemData = {
   +threadInfo: ThreadInfo,
   +itemChildren?: $ReadOnlyArray<CommunityDrawerItemData>,
   +labelStyle: TextStyle,
+  +hasSubchannelsButton: boolean,
 };
 
 export type DrawerItemProps = {
@@ -26,7 +28,7 @@ export type DrawerItemProps = {
 
 function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const {
-    itemData: { threadInfo, itemChildren, labelStyle },
+    itemData: { threadInfo, itemChildren, labelStyle, hasSubchannelsButton },
     navigateToThread,
     expanded,
     toggleExpanded,
@@ -49,19 +51,33 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     if (!expanded) {
       return null;
     }
+    if (hasSubchannelsButton) {
+      return (
+        <View style={styles.subchannelsButton}>
+          <SubchannelsButton threadInfo={threadInfo} />
+        </View>
+      );
+    }
     return <FlatList data={itemChildren} renderItem={renderItem} />;
-  }, [expanded, itemChildren, renderItem]);
+  }, [
+    expanded,
+    itemChildren,
+    renderItem,
+    hasSubchannelsButton,
+    styles.subchannelsButton,
+    threadInfo,
+  ]);
 
   const onExpandToggled = React.useCallback(() => {
     toggleExpanded(threadInfo.id);
   }, [toggleExpanded, threadInfo.id]);
 
   const itemExpandButton = React.useMemo(() => {
-    if (!itemChildren?.length) {
+    if (!itemChildren?.length && !hasSubchannelsButton) {
       return <ExpandButtonDisabled />;
     }
     return <ExpandButton onPress={onExpandToggled} expanded={expanded} />;
-  }, [itemChildren?.length, expanded, onExpandToggled]);
+  }, [itemChildren?.length, hasSubchannelsButton, onExpandToggled, expanded]);
 
   const onPress = React.useCallback(() => {
     navigateToThread({ threadInfo });
@@ -94,6 +110,10 @@ const unboundStyles = {
   },
   textTouchableWrapper: {
     flex: 1,
+  },
+  subchannelsButton: {
+    marginLeft: 24,
+    marginBottom: 6,
   },
 };
 
