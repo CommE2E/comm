@@ -16,6 +16,11 @@ import type {
   RegisterResponse,
   RegisterRequest,
 } from 'lib/types/account-types';
+import type {
+  PlatformDetails,
+  DeviceTokenUpdateRequest,
+} from 'lib/types/device-types.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types';
 import { threadTypes } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
@@ -193,52 +198,33 @@ async function createAccount(
   };
 }
 
-async function createSIWEAccount(
+export type ProcessSIWEAccountCreationRequest = {
+  +address: string,
+  +calendarQuery?: ?CalendarQuery,
+  +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
+  +platformDetails: PlatformDetails,
+};
+// Note: `processSIWEAccountCreation(...)` assumes that the validity of
+//       `ProcessSIWEAccountCreationRequest` was checked at call site.
+async function processSIWEAccountCreation(
   viewer: Viewer,
-  request: RegisterRequest,
-): Promise<RegisterResponse> {
-  if (request.password.trim() === '') {
-    throw new ServerError('empty_password');
-  }
-  const usernameRegex = hasMinCodeVersion(viewer.platformDetails, 69)
-    ? validUsernameRegex
-    : oldValidUsernameRegex;
-  if (request.username.search(usernameRegex) === -1) {
-    throw new ServerError('invalid_username');
-  }
+  request: ProcessSIWEAccountCreationRequest,
+): Promise<string> {
+  const promises = [];
 
-  const usernameQuery = SQL`
-    SELECT COUNT(id) AS count
-    FROM users
-    WHERE LCASE(username) = LCASE(${request.username})
-  `;
-  const promises = [dbQuery(usernameQuery)];
   const { calendarQuery } = request;
   if (calendarQuery) {
     promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
   }
 
-  const [[usernameResult]] = await Promise.all(promises);
-  if (reservedUsernamesSet.has(request.username.toLowerCase())) {
-    if (hasMinCodeVersion(viewer.platformDetails, 120)) {
-      throw new ServerError('username_reserved');
-    } else {
-      throw new ServerError('username_taken');
-    }
-  }
-  if (usernameResult[0].count !== 0) {
-    throw new ServerError('username_taken');
-  }
-
-  const hash = bcrypt.hashSync(request.password);
   const time = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
   const [id] = await createIDs('users', 1);
-  const newUserRow = [id, request.username, hash, time];
+  const newUserRow = [id, request.address, request.address, time];
   const newUserQuery = SQL`
-    INSERT INTO users(id, username, hash, creation_time)
+    INSERT INTO users(id, username, ethereum_address, creation_time)
     VALUES ${[newUserRow]}
   `;
   const [userViewerData] = await Promise.all([
@@ -268,7 +254,7 @@ async function createSIWEAccount(
   ]);
 
   const [privateThreadResult, ashoatThreadResult] = await Promise.all([
-    createPrivateThread(viewer, request.username),
+    createPrivateThread(viewer, request.address),
     createThread(
       viewer,
       {
@@ -305,32 +291,8 @@ async function createSIWEAccount(
     text: message,
   }));
   const messageDatas = [...ashoatMessageDatas, ...privateMessageDatas];
-  const [
-    messageInfos,
-    threadsResult,
-    userInfos,
-    currentUserInfo,
-  ] = await Promise.all([
-    createMessages(viewer, messageDatas),
-    fetchThreadInfos(viewer),
-    fetchKnownUserInfos(viewer),
-    fetchLoggedInUserInfo(viewer),
-  ]);
-  const rawMessageInfos = [
-    ...ashoatThreadResult.newMessageInfos,
-    ...privateThreadResult.newMessageInfos,
-    ...messageInfos,
-  ];
-
-  return {
-    id,
-    rawMessageInfos,
-    currentUserInfo,
-    cookieChange: {
-      threadInfos: threadsResult.threadInfos,
-      userInfos: values(userInfos),
-    },
-  };
+  await Promise.all([createMessages(viewer, messageDatas)]);
+  return id;
 }
 
-export { createAccount, createSIWEAccount };
+export { createAccount, processSIWEAccountCreation };

@@ -44,7 +44,10 @@ import {
   tOldValidUsername,
 } from 'lib/utils/validation-utils';
 
-import { createAccount } from '../creators/account-creator';
+import {
+  createAccount,
+  processSIWEAccountCreation,
+} from '../creators/account-creator';
 import { dbQuery, SQL } from '../database/database';
 import { deleteAccount } from '../deleters/account-deleters';
 import { deleteCookie } from '../deleters/cookie-deleters';
@@ -323,7 +326,12 @@ async function siweAuthResponder(
 ): Promise<LogInResponse> {
   await validateInput(viewer, siweAuthRequestInputValidator, input);
   const request: SIWEAuthRequest = input;
-  const { message, signature } = request;
+  const {
+    message,
+    signature,
+    deviceTokenUpdateRequest,
+    platformDetails,
+  } = request;
   const calendarQuery = normalizeCalendarQuery(request.calendarQuery);
 
   // 1. Ensure that `message` is a well formed Comm SIWE Auth message.
@@ -360,12 +368,22 @@ async function siweAuthResponder(
     }
   }
 
-  // 4. Complete login with call to `successfulLogInQueries(...)`
-  //    if `address` corresponds to an existing user.
-  const userID = await fetchUserIDForEthereumAddress(siweMessage.address);
+  // 4. Create account with call to `processSIWEAccountCreation(...)`
+  //    if address does not correspond to an existing user.
+  let userID = await fetchUserIDForEthereumAddress(siweMessage.address);
   if (!userID) {
-    throw new ServerError('placeholder_error');
+    const siweAccountCreationRequest = {
+      address: siweMessage.address,
+      deviceTokenUpdateRequest: deviceTokenUpdateRequest,
+      platformDetails,
+    };
+    userID = await processSIWEAccountCreation(
+      viewer,
+      siweAccountCreationRequest,
+    );
   }
+
+  // 5. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin(viewer, input, userID, calendarQuery);
 }
 
