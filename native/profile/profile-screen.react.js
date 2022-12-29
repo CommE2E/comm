@@ -6,6 +6,7 @@ import { View, Text, Alert, Platform, ScrollView } from 'react-native';
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { accountHasPassword } from 'lib/shared/account-utils';
 import type { LogOutResult } from 'lib/types/account-types';
 import { type PreRequestUserState } from 'lib/types/session-types';
 import { type CurrentUserInfo } from 'lib/types/user-types';
@@ -100,6 +101,26 @@ class ProfileScreen extends React.PureComponent<Props> {
       );
     }
 
+    let passwordEditionUI;
+    if (accountHasPassword(this.props.currentUserInfo)) {
+      passwordEditionUI = (
+        <Action.Row>
+          <Text style={this.props.styles.label}>Password</Text>
+          <Text
+            style={[this.props.styles.content, this.props.styles.value]}
+            numberOfLines={1}
+          >
+            ••••••••••••••••
+          </Text>
+          <EditSettingButton
+            onPress={this.onPressEditPassword}
+            canChangeSettings={true}
+            style={this.props.styles.editPasswordButton}
+          />
+        </Action.Row>
+      );
+    }
+
     return (
       <View style={this.props.styles.container}>
         <ScrollView
@@ -122,20 +143,7 @@ class ProfileScreen extends React.PureComponent<Props> {
                 <Text style={this.props.styles.logOutText}>Log out</Text>
               </Button>
             </Action.Row>
-            <Action.Row>
-              <Text style={this.props.styles.label}>Password</Text>
-              <Text
-                style={[this.props.styles.content, this.props.styles.value]}
-                numberOfLines={1}
-              >
-                ••••••••••••••••
-              </Text>
-              <EditSettingButton
-                onPress={this.onPressEditPassword}
-                canChangeSettings={true}
-                style={this.props.styles.editPasswordButton}
-              />
-            </Action.Row>
+            {passwordEditionUI}
           </View>
           <View style={this.props.styles.section}>
             <ProfileRow
