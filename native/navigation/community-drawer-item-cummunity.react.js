@@ -27,7 +27,7 @@ function CommunityDrawerItemCommunity(props: DrawerItemProps): React.Node {
 
 const unboundStyles = {
   communityBase: {
-    paddingVertical: 8,
+    paddingVertical: 2,
     paddingRight: 24,
     paddingLeft: 8,
     overflow: 'hidden',

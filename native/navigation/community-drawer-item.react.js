@@ -8,11 +8,13 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import type { MessageListParams } from '../chat/message-list-types';
 import { SingleLine } from '../components/single-line.react';
 import { useStyles } from '../themes/colors';
+import type { TextStyle } from '../types/styles';
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react';
 
 export type CommunityDrawerItemData = {
   +threadInfo: ThreadInfo,
   +itemChildren?: $ReadOnlyArray<CommunityDrawerItemData>,
+  +labelStyle: TextStyle,
 };
 
 export type DrawerItemProps = {
@@ -24,7 +26,7 @@ export type DrawerItemProps = {
 
 function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const {
-    itemData: { threadInfo, itemChildren },
+    itemData: { threadInfo, itemChildren, labelStyle },
     navigateToThread,
     expanded,
     toggleExpanded,
@@ -74,7 +76,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           style={styles.textTouchableWrapper}
           onLongPress={onExpandToggled}
         >
-          <SingleLine style={styles.title}>{threadInfo.uiName}</SingleLine>
+          <SingleLine style={labelStyle}>{threadInfo.uiName}</SingleLine>
         </TouchableOpacity>
       </View>
       {children}
@@ -85,16 +87,10 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
 const unboundStyles = {
   chatView: {
     marginLeft: 16,
-    marginVertical: 6,
   },
   threadEntry: {
     flexDirection: 'row',
-  },
-  title: {
-    color: 'drawerItemLabel',
-    fontSize: 16,
-    lineHeight: 24,
-    fontWeight: '500',
+    marginVertical: 6,
   },
   textTouchableWrapper: {
     flex: 1,

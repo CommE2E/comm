@@ -13,6 +13,7 @@ import { type ThreadInfo, communitySubthreads } from 'lib/types/thread-types';
 
 import { useNavigateToThread } from '../chat/message-list-types';
 import { useStyles } from '../themes/colors';
+import type { TextStyle } from '../types/styles';
 import CommunityDrawerItemCommunity from './community-drawer-item-cummunity.react';
 
 const maxDepth = 2;
@@ -41,6 +42,7 @@ function CommunityDrawerContent(): React.Node {
       const itemData = {
         threadInfo: item.threadInfo,
         itemChildren: item.itemChildren,
+        labelStyle: item.labelStyle,
       };
       return (
         <CommunityDrawerItemCommunity
@@ -55,10 +57,24 @@ function CommunityDrawerContent(): React.Node {
     [navigateToThread, openCommunity, setOpenCommunnityOrClose],
   );
 
+  const labelStylesObj = useStyles(labelUnboundStyles);
+  const labelStyles = React.useMemo(
+    () => [
+      labelStylesObj.level0Label,
+      labelStylesObj.level1Label,
+      labelStylesObj.level2Label,
+    ],
+    [labelStylesObj],
+  );
+
   const drawerItemsData = React.useMemo(
     () =>
-      createRecursiveDrawerItemsData(childThreadInfosMap, communitiesSuffixed),
-    [childThreadInfosMap, communitiesSuffixed],
+      createRecursiveDrawerItemsData(
+        childThreadInfosMap,
+        communitiesSuffixed,
+        labelStyles,
+      ),
+    [childThreadInfosMap, communitiesSuffixed, labelStyles],
   );
 
   return (
@@ -71,11 +87,13 @@ function CommunityDrawerContent(): React.Node {
 function createRecursiveDrawerItemsData(
   childThreadInfosMap: { +[id: string]: $ReadOnlyArray<ThreadInfo> },
   communities: $ReadOnlyArray<ThreadInfo>,
+  labelStyles: $ReadOnlyArray<TextStyle>,
 ) {
   const result = communities.map(community => ({
     key: community.id,
     threadInfo: community,
     itemChildren: [],
+    labelStyle: labelStyles[0],
   }));
   let queue = result.map(item => [item, 0]);
 
@@ -89,6 +107,7 @@ function createRecursiveDrawerItemsData(
         .map(childItem => ({
           threadInfo: childItem,
           itemChildren: [],
+          labelStyle: labelStyles[Math.min(lvl + 1, labelStyles.length - 1)],
         }));
       queue = queue.concat(
         item.itemChildren.map(childItem => [childItem, lvl + 1]),
@@ -120,6 +139,26 @@ const unboundStyles = {
     paddingRight: 8,
     paddingTop: 8,
     backgroundColor: 'drawerBackgroud',
+  },
+};
+const labelUnboundStyles = {
+  level0Label: {
+    color: 'drawerItemLabelLevel0',
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '500',
+  },
+  level1Label: {
+    color: 'drawerItemLabelLevel1',
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '500',
+  },
+  level2Label: {
+    color: 'drawerItemLabelLevel2',
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '400',
   },
 };
 

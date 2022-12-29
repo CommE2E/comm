@@ -89,7 +89,9 @@ const light = Object.freeze({
   siweButtonText: '#1F1F1F',
   drawerExpandButton: '#808080',
   drawerExpandButtonDisabled: '#CCCCCC',
-  drawerItemLabel: '#0A0A0A',
+  drawerItemLabelLevel0: '#0A0A0A',
+  drawerItemLabelLevel1: '#0A0A0A',
+  drawerItemLabelLevel2: '#1F1F1F',
   drawerOpenCommunityBackground: '#F5F5F5',
   drawerBackgroud: '#FFFFFF',
 });
@@ -174,7 +176,9 @@ const dark: Colors = Object.freeze({
   siweButtonText: '#1F1F1F',
   drawerExpandButton: '#808080',
   drawerExpandButtonDisabled: '#404040',
-  drawerItemLabel: '#CCCCCC',
+  drawerItemLabelLevel0: '#CCCCCC',
+  drawerItemLabelLevel1: '#CCCCCC',
+  drawerItemLabelLevel2: '#F5F5F5',
   drawerOpenCommunityBackground: '#191919',
   drawerBackgroud: '#1F1F1F',
 });
