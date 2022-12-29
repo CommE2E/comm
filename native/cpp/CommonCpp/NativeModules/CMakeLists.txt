@@ -1,6 +1,10 @@
 project(comm-modules)
 cmake_minimum_required(VERSION 3.4)
 
+# For C++17 on MacOS, we must set minimum target to 10.14+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
+
 include(GNUInstallDirs)
 
 set(NATIVE_HDRS
@@ -19,6 +23,7 @@ add_library(comm-modules-native
 )
 
 set_target_properties(comm-modules-native PROPERTIES LINKER_LANGUAGE CXX)
+target_compile_options(comm-modules-native PRIVATE -Wc++17-extensions)
 
 # reference local directory when building, use installation path when installing
 target_include_directories(comm-modules-native
@@ -31,6 +36,8 @@ target_include_directories(comm-modules-native
   "../../../../node_modules/react-native/ReactCommon/jsi"
   "../../../../node_modules/react-native/ReactCommon/react/nativemodule/core"
   "../../../../node_modules/react-native/ReactCommon/callinvoker"
+  "../../../../node_modules/react-native/ReactCommon"
+  "../../../native_rust_library"
 )
 
 set(_message_path ./PersistentStorageUtilities/MessageOperationsUtilities)
