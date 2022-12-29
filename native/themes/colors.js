@@ -87,6 +87,8 @@ const light = Object.freeze({
   logInText: 'white',
   siweButton: 'white',
   siweButtonText: '#1F1F1F',
+  drawerExpandButton: '#808080',
+  drawerExpandButtonDisabled: '#404040',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -167,6 +169,8 @@ const dark: Colors = Object.freeze({
   logInText: 'white',
   siweButton: 'white',
   siweButtonText: '#1F1F1F',
+  drawerExpandButton: '#808080',
+  drawerExpandButtonDisabled: '#404040',
 });
 const colors = { light, dark };
 
