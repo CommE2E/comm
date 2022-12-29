@@ -413,20 +413,28 @@ function useMessageCopyAction(
   item: ChatMessageInfoItem,
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
+
+  const [successful, setSuccessful] = React.useState(false);
+
   return React.useMemo(() => {
     if (messageInfo.type !== messageTypes.TEXT) {
       return null;
     }
     const buttonContent = <CommIcon icon="copy-filled" size={18} />;
     const onClick = async () => {
-      await navigator.clipboard.writeText(messageInfo.text);
+      try {
+        await navigator.clipboard.writeText(messageInfo.text);
+        setSuccessful(true);
+      } catch (e) {
+        setSuccessful(false);
+      }
     };
     return {
       actionButtonContent: buttonContent,
       onClick,
-      label: 'Copy',
+      label: successful ? 'Copied!' : 'Copy',
     };
-  }, [messageInfo]);
+  }, [messageInfo.text, messageInfo.type, successful]);
 }
 
 function useMessageTooltipActions(
