@@ -1,6 +1,10 @@
 // @flow
 
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import {
+  createDrawerNavigator,
+  type DrawerNavigationHelpers,
+  type DrawerNavigationProp,
+} from '@react-navigation/drawer';
 import * as React from 'react';
 import { Dimensions, View } from 'react-native';
 
@@ -8,12 +12,24 @@ import { useStyles } from '../themes/colors';
 import type { AppNavigationProp } from './app-navigator.react';
 import CommunityDrawerContent from './community-drawer-content.react';
 import { TabNavigatorRouteName } from './route-names';
-import type { NavigationRoute } from './route-names';
+import type {
+  NavigationRoute,
+  ScreenParamList,
+  CommunityDrawerParamList,
+} from './route-names';
 import TabNavigator from './tab-navigator.react';
 
-const Drawer = createDrawerNavigator();
-
 const communityDrawerContent = () => <CommunityDrawerContent />;
+
+export type CommunityDrawerNavigationProp<
+  RouteName: $Keys<CommunityDrawerParamList> = $Keys<CommunityDrawerParamList>,
+> = DrawerNavigationProp<ScreenParamList, RouteName>;
+
+const Drawer = createDrawerNavigator<
+  ScreenParamList,
+  CommunityDrawerParamList,
+  DrawerNavigationHelpers<ScreenParamList>,
+>();
 
 type Props = {
   +navigation: AppNavigationProp<'CommunityDrawerNavigator'>,

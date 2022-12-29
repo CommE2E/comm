@@ -16,6 +16,7 @@ import {
   HomeChatThreadListRouteName,
   BackgroundChatThreadListRouteName,
   AppsRouteName,
+  CommunityDrawerNavigatorRouteName,
 } from './route-names';
 
 export type NavInfo = $Exact<BaseNavInfo>;
@@ -31,40 +32,49 @@ const defaultNavigationState: StaleNavigationState = {
         index: 0,
         routes: [
           {
-            name: TabNavigatorRouteName,
+            name: CommunityDrawerNavigatorRouteName,
             state: {
-              type: 'tab',
+              type: 'drawer',
               index: 0,
               routes: [
                 {
-                  name: ChatRouteName,
+                  name: TabNavigatorRouteName,
                   state: {
-                    type: 'stack',
+                    type: 'tab',
                     index: 0,
                     routes: [
                       {
-                        name: ChatThreadListRouteName,
+                        name: ChatRouteName,
                         state: {
-                          type: 'tab',
+                          type: 'stack',
                           index: 0,
                           routes: [
-                            { name: HomeChatThreadListRouteName },
-                            { name: BackgroundChatThreadListRouteName },
+                            {
+                              name: ChatThreadListRouteName,
+                              state: {
+                                type: 'tab',
+                                index: 0,
+                                routes: [
+                                  { name: HomeChatThreadListRouteName },
+                                  { name: BackgroundChatThreadListRouteName },
+                                ],
+                              },
+                            },
                           ],
                         },
                       },
+                      {
+                        name: ProfileRouteName,
+                        state: {
+                          type: 'stack',
+                          index: 0,
+                          routes: [{ name: ProfileScreenRouteName }],
+                        },
+                      },
+                      { name: AppsRouteName },
                     ],
                   },
                 },
-                {
-                  name: ProfileRouteName,
-                  state: {
-                    type: 'stack',
-                    index: 0,
-                    routes: [{ name: ProfileScreenRouteName }],
-                  },
-                },
-                { name: AppsRouteName },
               ],
             },
           },

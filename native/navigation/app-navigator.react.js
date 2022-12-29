@@ -20,6 +20,7 @@ import { RootContext } from '../root-context';
 import { useLoadCommFonts } from '../themes/fonts';
 import { waitForInteractions } from '../utils/timers';
 import ActionResultModal from './action-result-modal.react';
+import { CommunityDrawerNavigator } from './community-drawer-navigator.react';
 import { createOverlayNavigator } from './overlay-navigator.react';
 import type {
   OverlayNavigationProp,
@@ -27,7 +28,6 @@ import type {
 } from './overlay-navigator.react';
 import type { RootNavigationProp } from './root-navigator.react';
 import {
-  TabNavigatorRouteName,
   ImageModalRouteName,
   MultimediaMessageTooltipModalRouteName,
   ActionResultModalRouteName,
@@ -37,10 +37,10 @@ import {
   RobotextMessageTooltipModalRouteName,
   CameraModalRouteName,
   VideoPlaybackModalRouteName,
+  CommunityDrawerNavigatorRouteName,
   type ScreenParamList,
   type OverlayParamList,
 } from './route-names';
-import TabNavigator from './tab-navigator.react';
 
 let splashScreenHasHidden = false;
 
@@ -104,7 +104,10 @@ function AppNavigator(props: AppNavigatorProps): React.Node {
   return (
     <KeyboardStateContainer>
       <App.Navigator>
-        <App.Screen name={TabNavigatorRouteName} component={TabNavigator} />
+        <App.Screen
+          name={CommunityDrawerNavigatorRouteName}
+          component={CommunityDrawerNavigator}
+        />
         <App.Screen name={ImageModalRouteName} component={ImageModal} />
         <App.Screen
           name={MultimediaMessageTooltipModalRouteName}

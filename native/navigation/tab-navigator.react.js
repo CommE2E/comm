@@ -16,6 +16,7 @@ import SWMansionIcon from '../components/swmansion-icon.react';
 import Profile from '../profile/profile.react';
 import { useSelector } from '../redux/redux-utils';
 import { useColors } from '../themes/colors';
+import type { CommunityDrawerNavigationProp } from './community-drawer-navigator.react';
 import {
   CalendarRouteName,
   ChatRouteName,
@@ -67,7 +68,7 @@ const Tab = createBottomTabNavigator<
   BottomTabNavigationHelpers<ScreenParamList>,
 >();
 type Props = {
-  +navigation: TabNavigationProp<'TabNavigator'>,
+  +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
   +route: NavigationRoute<'TabNavigator'>,
 };
 // eslint-disable-next-line no-unused-vars

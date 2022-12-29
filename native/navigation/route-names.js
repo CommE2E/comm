@@ -39,6 +39,7 @@ export const ChatThreadListRouteName = 'ChatThreadList';
 export const ColorSelectorModalRouteName = 'ColorSelectorModal';
 export const ComposeSubchannelModalRouteName = 'ComposeSubchannelModal';
 export const ComposeSubchannelRouteName = 'ComposeSubchannel';
+export const CommunityDrawerNavigatorRouteName = 'CommunityDrawerNavigator';
 export const CustomServerModalRouteName = 'CustomServerModal';
 export const DefaultNotificationsPreferencesRouteName = 'DefaultNotifications';
 export const DeleteAccountRouteName = 'DeleteAccount';
@@ -97,7 +98,7 @@ export type TooltipModalParamList = {
 };
 
 export type OverlayParamList = {
-  +TabNavigator: void,
+  +CommunityDrawerNavigator: void,
   +ImageModal: ImageModalParams,
   +ActionResultModal: ActionResultModalParams,
   +CameraModal: CameraModalParams,
@@ -138,6 +139,8 @@ export type ProfileParamList = {
   +BlockList: void,
 };
 
+export type CommunityDrawerParamList = { +TabNavigator: void };
+
 export type ScreenParamList = {
   ...RootParamList,
   ...OverlayParamList,
@@ -145,6 +148,7 @@ export type ScreenParamList = {
   ...ChatParamList,
   ...ChatTopTabsParamList,
   ...ProfileParamList,
+  ...CommunityDrawerParamList,
 };
 
 export type NavigationRoute<

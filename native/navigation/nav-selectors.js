@@ -31,6 +31,7 @@ import {
   scrollBlockingModals,
   chatRootModals,
   threadRoutes,
+  CommunityDrawerNavigatorRouteName,
 } from './route-names';
 
 const baseCreateIsForegroundSelector = (routeName: string) =>
@@ -73,10 +74,15 @@ const baseCreateActiveTabSelector = (routeName: string) =>
       }
       const appState = getStateFromNavigatorRoute(currentRootSubroute);
       const [firstAppSubroute] = appState.routes;
-      if (firstAppSubroute.name !== TabNavigatorRouteName) {
+      if (firstAppSubroute.name !== CommunityDrawerNavigatorRouteName) {
         return false;
       }
-      const tabState = getStateFromNavigatorRoute(firstAppSubroute);
+      const communityDrawerState = getStateFromNavigatorRoute(firstAppSubroute);
+      const [firstCommunityDrawerSubroute] = communityDrawerState.routes;
+      if (firstCommunityDrawerSubroute.name !== TabNavigatorRouteName) {
+        return false;
+      }
+      const tabState = getStateFromNavigatorRoute(firstCommunityDrawerSubroute);
       return tabState.routes[tabState.index].name === routeName;
     },
   );
@@ -155,10 +161,15 @@ function activeThread(
   }
   const appState = getStateFromNavigatorRoute(currentRootSubroute);
   const [firstAppSubroute] = appState.routes;
-  if (firstAppSubroute.name !== TabNavigatorRouteName) {
+  if (firstAppSubroute.name !== CommunityDrawerNavigatorRouteName) {
     return null;
   }
-  const tabState = getStateFromNavigatorRoute(firstAppSubroute);
+  const communityDrawerState = getStateFromNavigatorRoute(firstAppSubroute);
+  const [firstCommunityDrawerSubroute] = communityDrawerState.routes;
+  if (firstCommunityDrawerSubroute.name !== TabNavigatorRouteName) {
+    return null;
+  }
+  const tabState = getStateFromNavigatorRoute(firstCommunityDrawerSubroute);
   const currentTabSubroute = tabState.routes[tabState.index];
   if (currentTabSubroute.name !== ChatRouteName) {
     return null;

@@ -16,6 +16,7 @@ import {
 import {
   AppRouteName,
   ChatRouteName,
+  CommunityDrawerNavigatorRouteName,
   TabNavigatorRouteName,
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
@@ -40,8 +41,15 @@ const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}>(
         'Navigation context should contain route for AppNavigator ' +
           'when ThreadScreenPruner is rendered',
       );
-      const tabRoute = getChildRouteFromNavigatorRoute(
+      const communityDrawerRoute = getChildRouteFromNavigatorRoute(
         appRoute,
+        CommunityDrawerNavigatorRouteName,
+      );
+      if (!communityDrawerRoute) {
+        return null;
+      }
+      const tabRoute = getChildRouteFromNavigatorRoute(
+        communityDrawerRoute,
         TabNavigatorRouteName,
       );
       if (!tabRoute) {
