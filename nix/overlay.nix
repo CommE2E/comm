@@ -81,16 +81,6 @@ prev:
     '';
   });
 
-  corrosion = prev.corrosion.overrideAttrs(_: {
-    patches = [
-      # Fix logic around finding cargo and rustc when not managed by rustup
-      (prev.fetchpatch {
-        url = "https://github.com/corrosion-rs/corrosion/commit/d5330b3f03c7abb4e4da71e35654fa03ecb778bb.patch";
-        sha256 = "sha256-jrA30bWNWprkqCiedf+xL7GlR9+9jgOyKAoTPVKkB9c=";
-      })
-    ];
-  });
-
   rabbitmq-up = prev.callPackage ./rabbitmq-up-mac.nix { };
 
   # Ensure that yarn is using the pinned version
