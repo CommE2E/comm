@@ -157,7 +157,7 @@ async function logOutResponder(viewer: Viewer): Promise<LogOutResponse> {
 }
 
 const deleteAccountRequestInputValidator = tShape({
-  password: tPassword,
+  password: t.maybe(tPassword),
 });
 
 async function accountDeletionResponder(
