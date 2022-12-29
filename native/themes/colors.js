@@ -91,6 +91,7 @@ const light = Object.freeze({
   drawerExpandButtonDisabled: '#404040',
   drawerItemLabel: '#CCCCCC',
   drawerOpenCommunityBackground: '#333333',
+  drawerBackgroud: '#404040',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -175,6 +176,7 @@ const dark: Colors = Object.freeze({
   drawerExpandButtonDisabled: '#404040',
   drawerItemLabel: '#CCCCCC',
   drawerOpenCommunityBackground: '#333333',
+  drawerBackgroud: '#404040',
 });
 const colors = { light, dark };
 
