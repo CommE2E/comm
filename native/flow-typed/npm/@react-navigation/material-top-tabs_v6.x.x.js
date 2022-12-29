@@ -1311,6 +1311,73 @@ declare module '@react-navigation/material-top-tabs' {
   |};
 
   /**
+   * Header common options
+   */
+  
+  declare export type SceneProgress = {|
+    +current: AnimatedInterpolation,
+    +next?: AnimatedInterpolation,
+    +previous?: AnimatedInterpolation,
+  |};
+
+  declare export type HeaderProps<NavProp, ScreenOptions: {...},> = {|
+    +navigation: NavProp,
+    +route: RouteProp<>,
+    +options: ScreenOptions,
+    +layout: {| +width: number, +height: number |},
+  |};
+
+  declare export type HeaderButtonProps = $Partial<{|
+    +tintColor: string,
+    +pressColor: string,
+    +pressOpacity: number,
+  |}>;
+
+  declare export type HeaderLeftButtonProps = $Partial<{|
+    ...HeaderButtonProps,
+    +labelVisible: boolean,
+  |}>;
+
+  declare type HeaderTitleInputBase = {
+    +onLayout: LayoutEvent => void,
+    +children: string,
+    +allowFontScaling: ?boolean,
+    +tintColor: ?string,
+    +style: ?AnimatedTextStyleProp,
+    ...
+  };
+
+  declare export type HeaderTitleInputProps =
+    $Exact<HeaderTitleInputBase>;
+
+  declare export type HeaderCommonOptions<
+    NavHeaderProps,
+    NavHeaderLeftProps,
+    NavHeaderRightProps,
+  > = $Partial<{|
+    +header: NavHeaderProps => React$Node,
+    +headerShown: boolean,
+    +headerTitle: string | ( HeaderTitleInputProps => React$Node),
+    +headerTitleAlign: 'left' | 'center',
+    +headerTitleStyle: AnimatedTextStyleProp,
+    +headerTitleContainerStyle: AnimatedViewStyleProp,
+    +headerTintColor: string,
+    +headerTitleAllowFontScaling: boolean,
+    +headerLeft: NavHeaderLeftProps => React$Node,
+    +headerLeftContainerStyle: AnimatedViewStyleProp,
+    +headerRight: NavHeaderRightProps => React$Node,
+    +headerRightContainerStyle: AnimatedViewStyleProp,
+    +headerBackground: ({| style: AnimatedViewStyleProp |}) => React$Node,
+    +headerStyle: AnimatedViewStyleProp,
+    +headerTransparent: boolean,
+    +headerStatusBarHeight: number,
+    +headerShadowVisible: boolean,
+    +headerBackgroundContainerStyle: AnimatedViewStyleProp,
+    +headerPressColor: string,
+    +headerPressOpacity: number,
+  |}>;
+
+  /**
    * Stack options
    */
 
@@ -1322,28 +1389,25 @@ declare module '@react-navigation/material-top-tabs' {
   declare type Scene<T> = {|
     +route: T,
     +descriptor: StackDescriptor,
-    +progress: {|
-      +current: AnimatedInterpolation,
-      +next?: AnimatedInterpolation,
-      +previous?: AnimatedInterpolation,
-    |},
+    +progress: SceneProgress,
   |};
 
   declare export type StackHeaderProps = {|
-    +navigation: StackNavigationHelpers<>,
-    +route: RouteProp<>,
-    +options: StackOptions,
-    +layout: {| +width: number, +height: number |},
-    +progress: AnimatedInterpolation,
+    ...HeaderProps<StackNavigationProp<>, StackOptions>,
+    +progress: SceneProgress,
     +back?: {| +title: string |},
     +styleInterpolator: StackHeaderStyleInterpolator,
   |};
 
+  declare export type StackHeaderButtonProps = $Partial<{|
+    ...HeaderButtonProps,
+    +canGoBack: boolean,
+  |}>;
+
   declare export type StackHeaderLeftButtonProps = $Partial<{|
+    ...StackHeaderButtonProps,
     +onPress: (() => void),
-    +pressColorAndroid: string;
     +backImage: (props: {| tintColor: string |}) => React$Node,
-    +tintColor: string,
     +label: string,
     +truncatedLabel: string,
     +labelVisible: boolean,
@@ -1352,20 +1416,10 @@ declare module '@react-navigation/material-top-tabs' {
     +onLabelLayout: LayoutEvent => void,
     +screenLayout: {| +width: number, +height: number |},
     +titleLayout: {| +width: number, +height: number |},
-    +canGoBack: boolean,
+    +disabled: boolean,
+    +accessibilityLabel: string,
+    +style: ViewStyleProp,
   |}>;
-
-  declare type StackHeaderTitleInputBase = {
-    +onLayout: LayoutEvent => void,
-    +children: string,
-    +allowFontScaling: ?boolean,
-    +tintColor: ?string,
-    +style: ?AnimatedTextStyleProp,
-    ...
-  };
-
-  declare export type StackHeaderTitleInputProps =
-    $Exact<StackHeaderTitleInputBase>;
 
   declare export type StackOptions = $Partial<{|
     +title: string,
@@ -1384,30 +1438,19 @@ declare module '@react-navigation/material-top-tabs' {
     // Transition
     ...TransitionPreset,
     // Header
-    +header: StackHeaderProps => React$Node,
-    +headerShown: boolean,
+    ...HeaderCommonOptions<
+      StackHeaderProps,  
+      StackHeaderLeftButtonProps,
+      StackHeaderButtonProps,
+    >,
     +headerMode: 'float' | 'screen',
-    +headerTitle: string | (StackHeaderTitleInputProps => React$Node),
-    +headerTitleAlign: 'left' | 'center',
-    +headerTitleStyle: AnimatedTextStyleProp,
-    +headerTitleContainerStyle: ViewStyleProp,
-    +headerTintColor: string,
-    +headerTitleAllowFontScaling: boolean,
     +headerBackAllowFontScaling: boolean,
     +headerBackTitle: string | null,
     +headerBackTitleStyle: TextStyleProp,
     +headerBackTitleVisible: boolean,
     +headerTruncatedBackTitle: string,
-    +headerLeft: StackHeaderLeftButtonProps => React$Node,
-    +headerLeftContainerStyle: ViewStyleProp,
-    +headerRight: {| tintColor?: string |} => React$Node,
-    +headerRightContainerStyle: ViewStyleProp,
     +headerBackImage: $PropertyType<StackHeaderLeftButtonProps, 'backImage'>,
-    +headerPressColorAndroid: string,
-    +headerBackground: ({| style: ViewStyleProp |}) => React$Node,
-    +headerStyle: ViewStyleProp,
-    +headerTransparent: boolean,
-    +headerStatusBarHeight: number,
+    +headerBackAccessibilityLabel: string,
   |}>;
 
   /**
@@ -1553,8 +1596,12 @@ declare module '@react-navigation/material-top-tabs' {
     +tabBarLabelPosition: 'beside-icon' | 'below-icon',
     +tabBarStyle: ViewStyleProp,
     +unmountOnBlur: boolean,
-    +headerShown: boolean,
     +lazy: boolean,
+    ...HeaderCommonOptions<
+      HeaderProps<BottomTabNavigationProp<>, BottomTabOptions>,
+      HeaderLeftButtonProps,
+      HeaderButtonProps,
+    >,
   |}>;
 
   /**
@@ -2002,7 +2049,11 @@ declare module '@react-navigation/material-top-tabs' {
     +swipeMinDistance: number,
     +keyboardDismissMode: 'on-drag' | 'none',
     +unmountOnBlur: boolean,
-    +headerShown: boolean,
+    ...HeaderCommonOptions<
+      HeaderProps<DrawerNavigationProp<>, DrawerOptions>,
+      HeaderLeftButtonProps,
+      HeaderButtonProps,
+    >,
   |}>;
 
   /**

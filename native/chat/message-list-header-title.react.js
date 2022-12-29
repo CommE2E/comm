@@ -3,7 +3,7 @@
 import Icon from '@expo/vector-icons/Ionicons';
 import {
   HeaderTitle,
-  type StackHeaderTitleInputProps,
+  type HeaderTitleInputProps,
 } from '@react-navigation/elements';
 import * as React from 'react';
 import { View, Platform } from 'react-native';
@@ -21,7 +21,7 @@ type BaseProps = {
   +navigate: $PropertyType<ChatNavigationProp<'MessageList'>, 'navigate'>,
   +isSearchEmpty: boolean,
   +areSettingsEnabled: boolean,
-  ...StackHeaderTitleInputProps,
+  ...HeaderTitleInputProps,
 };
 type Props = {
   ...BaseProps,
