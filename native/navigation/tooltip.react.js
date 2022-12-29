@@ -28,6 +28,7 @@ import {
   type ServerCallState,
   serverCallStateSelector,
 } from 'lib/selectors/server-calls';
+import { localIDPrefix } from 'lib/shared/message-utils';
 import type { Dispatch } from 'lib/types/redux-types';
 import {
   createBoundServerCallsSelector,
@@ -71,6 +72,7 @@ export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {
     navigation: AppNavigationProp<RouteName>,
     viewerID: ?string,
     chatContext: ?ChatContextType,
+    reactionMessageLocalID: ?string,
   ) => mixed,
 };
 type TooltipItemProps<RouteName> = {
@@ -115,6 +117,7 @@ type TooltipProps<Base> = {
   +dimensions: DimensionsInfo,
   +serverCallState: ServerCallState,
   +viewerID: ?string,
+  +nextReactionMessageLocalID: number,
   // Redux dispatch functions
   +dispatch: Dispatch,
   +dispatchActionPromise: DispatchActionPromise,
@@ -406,6 +409,7 @@ function createTooltip<
         dimensions,
         serverCallState,
         viewerID,
+        nextReactionMessageLocalID,
         dispatch,
         dispatchActionPromise,
         overlayContext,
@@ -567,6 +571,11 @@ function createTooltip<
         this.props.setHideTooltip(true);
       }
 
+      let reactionMessageLocalID;
+      if (entry.id === 'react') {
+        reactionMessageLocalID = `${localIDPrefix}${this.props.nextReactionMessageLocalID}`;
+      }
+
       const dispatchFunctions = {
         dispatch: this.props.dispatch,
         dispatchActionPromise: this.props.dispatchActionPromise,
@@ -579,6 +588,7 @@ function createTooltip<
         this.props.navigation,
         this.props.viewerID,
         this.props.chatContext,
+        reactionMessageLocalID,
       );
     };
 
@@ -716,6 +726,7 @@ function createTooltip<
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
+    const nextReactionMessageLocalID = useSelector(state => state.nextLocalID);
     const dispatch = useDispatch();
     const dispatchActionPromise = useDispatchActionPromise();
     const overlayContext = React.useContext(OverlayContext);
@@ -749,6 +760,7 @@ function createTooltip<
         dimensions={dimensions}
         serverCallState={serverCallState}
         viewerID={viewerID}
+        nextReactionMessageLocalID={nextReactionMessageLocalID}
         dispatch={dispatch}
         dispatchActionPromise={dispatchActionPromise}
         overlayContext={overlayContext}
