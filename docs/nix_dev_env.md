@@ -52,17 +52,19 @@ cd comm
 
 Now either close and reopen your terminal window or re-source your shell configuration file in order to have changes applied.
 
-## Workflow prerequisites
-
-### Download Yarn dependencies
+## Install development dependencies
 
 As a first step, you’ll want to set up the JavaScript environment and pull in all necessary NPM packages. Run the following command:
 
 ```
+# Create development shell with NPM tooling
+nix develop
+
+# Install yarn dependencies
 yarn cleaninstall
 ```
 
-### Workflow specific prerequisites
+## Workflow specific prerequisites
 
 On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for all workflows.
 
