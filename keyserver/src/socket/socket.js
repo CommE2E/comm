@@ -6,6 +6,7 @@ import _debounce from 'lodash/debounce';
 import t from 'tcomb';
 import WebSocket from 'ws';
 
+import { baseLegalPolicies } from 'lib/facts/policies.js';
 import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
 import {
   serverRequestSocketTimeout,
@@ -224,6 +225,8 @@ class Socket {
         clientSocketMessageInputValidator,
         clientSocketMessage,
       );
+      await policiesValidator(viewer, baseLegalPolicies);
+
       const serverResponses = await this.handleClientSocketMessage(
         clientSocketMessage,
       );
