@@ -473,6 +473,56 @@ type UseMessageTooltipResult = {
   onMouseLeave: ?() => mixed,
 };
 
+type CreateTooltipParams = {
+  +tooltipMessagePosition: ?PositionInfo,
+  +tooltipSize: TooltipSize,
+  +availablePositions: $ReadOnlyArray<TooltipPosition>,
+  +containsInlineSidebar: boolean,
+  +tooltipActions: $ReadOnlyArray<MessageTooltipAction>,
+  +messageTimestamp: string,
+};
+
+function createTooltip(params: CreateTooltipParams) {
+  const {
+    tooltipMessagePosition,
+    tooltipSize,
+    availablePositions,
+    containsInlineSidebar,
+    tooltipActions,
+    messageTimestamp,
+  } = params;
+  if (!tooltipMessagePosition) {
+    return;
+  }
+  const tooltipPosition = findTooltipPosition({
+    sourcePositionInfo: tooltipMessagePosition,
+    tooltipSize,
+    availablePositions,
+    defaultPosition: availablePositions[0],
+    preventDisplayingBelowSource: containsInlineSidebar,
+  });
+  if (!tooltipPosition) {
+    return;
+  }
+
+  const tooltipPositionStyle = getMessageActionTooltipStyle({
+    tooltipPosition,
+    sourcePositionInfo: tooltipMessagePosition,
+    tooltipSize,
+  });
+
+  const { alignment } = tooltipPositionStyle;
+
+  const tooltip = (
+    <MessageTooltip
+      actions={tooltipActions}
+      messageTimestamp={messageTimestamp}
+      alignment={alignment}
+    />
+  );
+  return { tooltip, tooltipPositionStyle };
+}
+
 function useMessageTooltip({
   availablePositions,
   item,
@@ -504,6 +554,9 @@ function useMessageTooltip({
     });
   }, [messageTimestamp, tooltipActions]);
 
+  const updateTooltip = React.useRef();
+  const [tooltipMessagePosition, setTooltipMessagePosition] = React.useState();
+
   const onMouseEnter = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
       if (!renderTooltip) {
@@ -512,34 +565,21 @@ function useMessageTooltip({
       const rect = event.currentTarget.getBoundingClientRect();
       const { top, bottom, left, right, height, width } = rect;
       const messagePosition = { top, bottom, left, right, height, width };
+      setTooltipMessagePosition(messagePosition);
 
-      const tooltipPosition = findTooltipPosition({
-        sourcePositionInfo: messagePosition,
+      const tooltipResult = createTooltip({
+        tooltipMessagePosition,
         tooltipSize,
         availablePositions,
-        defaultPosition: availablePositions[0],
-        preventDisplayingBelowSource: containsInlineSidebar,
+        containsInlineSidebar,
+        tooltipActions,
+        messageTimestamp,
       });
-      if (!tooltipPosition) {
+      if (!tooltipResult) {
         return;
       }
 
-      const tooltipPositionStyle = getMessageActionTooltipStyle({
-        tooltipPosition,
-        sourcePositionInfo: messagePosition,
-        tooltipSize: tooltipSize,
-      });
-
-      const { alignment } = tooltipPositionStyle;
-
-      const tooltip = (
-        <MessageTooltip
-          actions={tooltipActions}
-          messageTimestamp={messageTimestamp}
-          alignment={alignment}
-        />
-      );
-
+      const { tooltip, tooltipPositionStyle } = tooltipResult;
       const renderTooltipResult = renderTooltip({
         newNode: tooltip,
         tooltipPositionStyle,
@@ -547,6 +587,7 @@ function useMessageTooltip({
       if (renderTooltipResult) {
         const { onMouseLeaveCallback: callback } = renderTooltipResult;
         setOnMouseLeave((() => callback: () => () => mixed));
+        updateTooltip.current = renderTooltipResult.updateTooltip;
       }
     },
     [
@@ -555,9 +596,37 @@ function useMessageTooltip({
       messageTimestamp,
       renderTooltip,
       tooltipActions,
+      tooltipMessagePosition,
       tooltipSize,
     ],
   );
+
+  React.useEffect(() => {
+    if (!updateTooltip.current) {
+      return;
+    }
+
+    const tooltipResult = createTooltip({
+      tooltipMessagePosition,
+      tooltipSize,
+      availablePositions,
+      containsInlineSidebar,
+      tooltipActions,
+      messageTimestamp,
+    });
+    if (!tooltipResult) {
+      return;
+    }
+
+    updateTooltip.current?.(tooltipResult.tooltip);
+  }, [
+    availablePositions,
+    containsInlineSidebar,
+    messageTimestamp,
+    tooltipActions,
+    tooltipMessagePosition,
+    tooltipSize,
+  ]);
 
   return {
     onMouseEnter,
