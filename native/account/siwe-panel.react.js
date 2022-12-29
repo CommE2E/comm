@@ -2,7 +2,7 @@
 
 import BottomSheet from '@gorhom/bottom-sheet';
 import * as React from 'react';
-import { ActivityIndicator, Text, View, Alert } from 'react-native';
+import { ActivityIndicator, View, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WebView from 'react-native-webview';
 
@@ -55,6 +55,19 @@ function SIWEPanel(props: Props): React.Node {
   const getSIWENonceCallFailed = useSelector(
     state => getSIWENonceLoadingStatusSelector(state) === 'error',
   );
+
+  const { onClose } = props;
+  React.useEffect(() => {
+    if (getSIWENonceCallFailed) {
+      Alert.alert(
+        'Unknown error',
+        'Uhh... try again?',
+        [{ text: 'OK', onPress: onClose }],
+        { cancelable: false },
+      );
+    }
+  }, [getSIWENonceCallFailed, onClose]);
+
   const siweAuthCallLoading = useSelector(
     state => siweAuthLoadingStatusSelector(state) === 'loading',
   );
@@ -97,7 +110,6 @@ function SIWEPanel(props: Props): React.Node {
     snapToIndex?.(0);
   }, [snapToIndex, snapPoints]);
 
-  const { onClose } = props;
   const callSIWE = React.useCallback(
     async (message, signature, extraInfo) => {
       try {
@@ -225,9 +237,7 @@ function SIWEPanel(props: Props): React.Node {
   }
 
   let activity;
-  if (getSIWENonceCallFailed) {
-    activity = <Text>Oops, try again later!</Text>;
-  } else if (isLoading || siweAuthCallLoading) {
+  if (!getSIWENonceCallFailed && (isLoading || siweAuthCallLoading)) {
     activity = <ActivityIndicator size="large" />;
   }
 
