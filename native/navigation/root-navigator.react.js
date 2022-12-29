@@ -25,6 +25,7 @@ import AddUsersModal from '../chat/settings/add-users-modal.react';
 import ColorSelectorModal from '../chat/settings/color-selector-modal.react';
 import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.react';
 import SidebarListModal from '../chat/sidebar-list-modal.react';
+import SubchannelsListModal from '../chat/subchannels-list-modal.react';
 import CustomServerModal from '../profile/custom-server-modal.react';
 import AppNavigator from './app-navigator.react';
 import { defaultStackScreenOptions } from './options';
@@ -42,6 +43,7 @@ import {
   ColorSelectorModalRouteName,
   ComposeSubchannelModalRouteName,
   SidebarListModalRouteName,
+  SubchannelsListModalRouteName,
   type ScreenParamList,
   type RootParamList,
   TermsAndPrivacyRouteName,
@@ -226,6 +228,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={SidebarListModalRouteName}
         component={SidebarListModal}
+        options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={SubchannelsListModalRouteName}
+        component={SubchannelsListModal}
         options={modalOverlayScreenOptions}
       />
     </Root.Navigator>

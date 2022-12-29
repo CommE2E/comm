@@ -16,6 +16,7 @@ import type { DeleteThreadParams } from '../chat/settings/delete-thread.react';
 import type { ThreadSettingsMemberTooltipModalParams } from '../chat/settings/thread-settings-member-tooltip-modal.react';
 import type { ThreadSettingsParams } from '../chat/settings/thread-settings.react';
 import type { SidebarListModalParams } from '../chat/sidebar-list-modal.react';
+import type { SubchannelListModalParams } from '../chat/subchannels-list-modal.react';
 import type { TextMessageTooltipModalParams } from '../chat/text-message-tooltip-modal.react';
 import type { CameraModalParams } from '../media/camera-modal.react';
 import type { ImageModalParams } from '../media/image-modal.react';
@@ -62,6 +63,7 @@ export const RelationshipListItemTooltipModalRouteName =
 export const RobotextMessageTooltipModalRouteName =
   'RobotextMessageTooltipModal';
 export const SidebarListModalRouteName = 'SidebarListModal';
+export const SubchannelsListModalRouteName = 'SubchannelsListModal';
 export const TabNavigatorRouteName = 'TabNavigator';
 export const TextMessageTooltipModalRouteName = 'TextMessageTooltipModal';
 export const ThreadPickerModalRouteName = 'ThreadPickerModal';
@@ -82,6 +84,7 @@ export type RootParamList = {
   +SidebarListModal: SidebarListModalParams,
   +ImagePasteModal: ImagePasteModalParams,
   +TermsAndPrivacyModal: TermsAndPrivacyModalParams,
+  +SubchannelsListModal: SubchannelListModalParams,
 };
 
 export type MessageTooltipRouteNames =
