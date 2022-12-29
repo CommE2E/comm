@@ -5,6 +5,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import {
   threadHasPermission,
   useCanCreateSidebarFromMessage,
@@ -29,7 +30,6 @@ import {
   MessagePressResponderContext,
   type MessagePressResponderContextType,
 } from './message-press-responder-context';
-import { useCanCreateReactionFromMessage } from './reaction-message-utils';
 import textMessageSendFailed from './text-message-send-failed';
 import { getMessageTooltipKey } from './utils';
 

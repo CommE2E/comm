@@ -10,6 +10,7 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
 import type { MediaInfo } from 'lib/types/media-types';
 
@@ -31,7 +32,6 @@ import {
   getMediaKey,
   multimediaMessageSendFailed,
 } from './multimedia-message-utils';
-import { useCanCreateReactionFromMessage } from './reaction-message-utils';
 import { getMessageTooltipKey } from './utils';
 
 type BaseProps = {

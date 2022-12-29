@@ -7,15 +7,7 @@ import {
   sendReactionMessage,
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions';
-import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
-import { threadHasPermission } from 'lib/shared/thread-utils';
-import type {
-  RobotextMessageInfo,
-  ComposableMessageInfo,
-} from 'lib/types/message-types';
-import { threadPermissions, type ThreadInfo } from 'lib/types/thread-types';
 import type { BindServerCall, DispatchFunctions } from 'lib/utils/action-utils';
-import { useSelector } from 'lib/utils/redux-utils';
 
 import type { TooltipRoute } from '../navigation/tooltip.react';
 
@@ -92,33 +84,4 @@ function sendReaction(
   );
 }
 
-function useCanCreateReactionFromMessage(
-  threadInfo: ThreadInfo,
-  targetMessageInfo: ComposableMessageInfo | RobotextMessageInfo,
-): boolean {
-  const targetMessageCreatorRelationship = useSelector(
-    state =>
-      state.userStore.userInfos[targetMessageInfo.creator.id]
-        ?.relationshipStatus,
-  );
-
-  if (
-    !targetMessageInfo.id ||
-    threadInfo.sourceMessageID === targetMessageInfo.id
-  ) {
-    return false;
-  }
-
-  const creatorRelationshipHasBlock =
-    targetMessageCreatorRelationship &&
-    relationshipBlockedInEitherDirection(targetMessageCreatorRelationship);
-
-  const hasPermission = threadHasPermission(
-    threadInfo,
-    threadPermissions.VOICED,
-  );
-
-  return hasPermission && !creatorRelationshipHasBlock;
-}
-
-export { onPressReact, useCanCreateReactionFromMessage };
+export { onPressReact };

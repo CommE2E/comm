@@ -5,6 +5,7 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
 
 import { ChatContext } from '../chat/chat-context';
@@ -21,7 +22,6 @@ import { inlineSidebarCenterStyle } from './chat-constants';
 import type { ChatNavigationProp } from './chat.react';
 import { InlineSidebar } from './inline-sidebar.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
-import { useCanCreateReactionFromMessage } from './reaction-message-utils';
 import { Timestamp } from './timestamp.react';
 import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils';
 
