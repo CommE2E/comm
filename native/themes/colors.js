@@ -94,6 +94,9 @@ const light = Object.freeze({
   drawerItemLabelLevel2: '#1F1F1F',
   drawerOpenCommunityBackground: '#F5F5F5',
   drawerBackgroud: '#FFFFFF',
+  subthreadsModalClose: '#808080',
+  subthreadsModalBackgroud: '#EEEEEE',
+  subthreadsModalSearch: 'rgba(0, 0, 0, 0.08)',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -181,6 +184,9 @@ const dark: Colors = Object.freeze({
   drawerItemLabelLevel2: '#F5F5F5',
   drawerOpenCommunityBackground: '#191919',
   drawerBackgroud: '#1F1F1F',
+  subthreadsModalClose: '#808080',
+  subthreadsModalBackgroud: '#1F1F1F',
+  subthreadsModalSearch: 'rgba(255, 255, 255, 0.04)',
 });
 const colors = { light, dark };
 

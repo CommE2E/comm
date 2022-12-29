@@ -62,6 +62,7 @@ function SidebarListModal(props: Props): React.Node {
       onChangeSearchInputText={onChangeSearchInputText}
       threadInfo={props.route.params.threadInfo}
       searchPlaceholder="Search threads"
+      modalTitle="Threads"
     />
   );
 }
@@ -128,6 +129,7 @@ const unboundStyles = {
   sidebar: {
     paddingLeft: 0,
     paddingRight: 5,
+    height: 38,
   },
   sidebarItemContainer: {
     flex: 1,

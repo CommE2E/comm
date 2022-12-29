@@ -38,7 +38,8 @@ function SubchannelListModal(props: Props): React.Node {
       setSearchState={setSearchState}
       onChangeSearchInputText={onChangeSearchInputText}
       threadInfo={props.route.params.threadInfo}
-      searchPlaceholder="Search Subchannels"
+      searchPlaceholder="Search subchannels"
+      modalTitle="Subchannels"
     />
   );
 }

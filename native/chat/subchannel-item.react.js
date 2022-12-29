@@ -62,19 +62,18 @@ function SubchannelItem(props: Props): React.Node {
     </View>
   );
 }
-
+const fontSize = 14;
 const unboundStyles = {
   outerView: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     height: 60,
   },
   itemRowContainer: {
     flexDirection: 'row',
-    height: 24,
     alignItems: 'center',
   },
   unread: {
@@ -85,12 +84,11 @@ const unboundStyles = {
     color: 'listForegroundSecondaryLabel',
     flex: 1,
     fontSize: 16,
-    paddingLeft: 3,
-    paddingBottom: 2,
+    paddingBottom: 8,
   },
   lastActivity: {
     color: 'listForegroundTertiaryLabel',
-    fontSize: 14,
+    fontSize,
     marginLeft: 10,
   },
   iconWrapper: {
@@ -106,7 +104,7 @@ const unboundStyles = {
   noMessages: {
     color: 'listForegroundTertiaryLabel',
     flex: 1,
-    fontSize: 14,
+    fontSize,
     fontStyle: 'italic',
   },
 };
