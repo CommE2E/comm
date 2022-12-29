@@ -43,6 +43,7 @@ function CommunityDrawerNavigator(props: Props): React.Node {
   const screenOptions = React.useMemo(
     () => ({
       drawerStyle: styles.drawerStyle,
+      headerShown: false,
     }),
     [styles.drawerStyle],
   );

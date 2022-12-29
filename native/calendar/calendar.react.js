@@ -19,7 +19,6 @@ import {
   LayoutAnimation,
   TouchableWithoutFeedback,
 } from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
 
 import {
   updateCalendarQueryActionTypes,
@@ -114,11 +113,6 @@ type CalendarItemWithHeight =
 type ExtraData = {
   +activeEntries: { +[key: string]: boolean },
   +visibleEntries: { +[key: string]: boolean },
-};
-
-const safeAreaViewForceInset = {
-  top: 'always',
-  bottom: 'never',
 };
 
 type BaseProps = {
@@ -591,14 +585,11 @@ class Calendar extends React.PureComponent<Props, State> {
           mergeItemWithHeight={this.heightMeasurerMergeItem}
           allHeightsMeasured={this.allHeightsMeasured}
         />
-        <SafeAreaView
-          style={this.props.styles.container}
-          forceInset={safeAreaViewForceInset}
-        >
+        <View style={this.props.styles.container}>
           <DisconnectedBar visible={this.props.calendarActive} />
           {loadingIndicator}
           {flatList}
-        </SafeAreaView>
+        </View>
         <KeyboardAvoidingView
           behavior="position"
           style={this.props.styles.keyboardAvoidingViewContainer}

@@ -34,6 +34,8 @@ import { firstLine } from 'lib/utils/string-utils';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { InputStateContext } from '../input/input-state';
+import CommunityDrawerButton from '../navigation/community-drawer-button.react';
+import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import { defaultStackScreenOptions } from '../navigation/options';
 import {
@@ -198,7 +200,6 @@ const header = (props: CoreStackHeaderProps) => {
   const castProps: StackHeaderProps = (props: any);
   return <ChatHeader {...castProps} />;
 };
-const headerBackButton = props => <HeaderBackButton {...props} />;
 
 const messageListOptions = ({ navigation, route }) => {
   const isSearchEmpty =
@@ -259,8 +260,12 @@ const Chat = createChatNavigator<
   ChatParamList,
   ChatNavigationHelpers<ScreenParamList>,
 >();
-// eslint-disable-next-line no-unused-vars
-export default function ChatComponent(props: { ... }): React.Node {
+
+type Props = {
+  +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
+  ...
+};
+export default function ChatComponent(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
   const loggedIn = useSelector(isLoggedIn);
@@ -269,17 +274,27 @@ export default function ChatComponent(props: { ... }): React.Node {
     draftUpdater = <ThreadDraftUpdater />;
   }
 
+  const headerLeftButton = React.useCallback(
+    headerProps => {
+      if (headerProps.canGoBack) {
+        return <HeaderBackButton {...headerProps} />;
+      }
+      return <CommunityDrawerButton navigation={props.navigation} />;
+    },
+    [props.navigation],
+  );
+
   const screenOptions = React.useMemo(
     () => ({
       ...defaultStackScreenOptions,
       header,
-      headerLeft: headerBackButton,
+      headerLeft: headerLeftButton,
       headerStyle: {
         backgroundColor: colors.tabBarBackground,
         borderBottomWidth: 1,
       },
     }),
-    [colors.tabBarBackground],
+    [colors.tabBarBackground, headerLeftButton],
   );
 
   const chatThreadListOptions = React.useCallback(

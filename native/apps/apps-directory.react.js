@@ -1,14 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { Text, FlatList } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, FlatList, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import { useStyles } from '../themes/colors';
 import AppListing from './app-listing.react';
 
-const safeAreaEdges = ['top', 'bottom'];
 const APP_DIRECTORY_DATA = [
   {
     id: 'chat',
@@ -47,14 +45,14 @@ function AppsDirectory(props: { ... }): React.Node {
   const getItemID = React.useCallback(item => item.id, []);
 
   return (
-    <SafeAreaView style={styles.view} edges={safeAreaEdges}>
+    <View style={styles.view}>
       <Text style={styles.title}>Choose Apps</Text>
       <FlatList
         data={APP_DIRECTORY_DATA}
         renderItem={renderAppCell}
         keyExtractor={getItemID}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 

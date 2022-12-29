@@ -16,6 +16,7 @@ import SWMansionIcon from '../components/swmansion-icon.react';
 import Profile from '../profile/profile.react';
 import { useSelector } from '../redux/redux-utils';
 import { useColors } from '../themes/colors';
+import CommunityDrawerButton from './community-drawer-button.react';
 import type { CommunityDrawerNavigationProp } from './community-drawer-navigator.react';
 import {
   CalendarRouteName,
@@ -71,11 +72,32 @@ type Props = {
   +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
   +route: NavigationRoute<'TabNavigator'>,
 };
-// eslint-disable-next-line no-unused-vars
 function TabNavigator(props: Props): React.Node {
   const colors = useColors();
   const chatBadge = useSelector(unreadCount);
   const isCalendarEnabled = useSelector(state => state.enabledApps.calendar);
+
+  const headerLeft = React.useCallback(
+    () => <CommunityDrawerButton navigation={props.navigation} />,
+    [props.navigation],
+  );
+
+  const headerCommonOptions = React.useMemo(
+    () => ({
+      headerShown: true,
+      headerLeft,
+      headerStyle: {
+        backgroundColor: colors.tabBarBackground,
+      },
+      headerShadowVisible: false,
+    }),
+    [colors.tabBarBackground, headerLeft],
+  );
+
+  const calendarOptions = React.useMemo(
+    () => ({ ...calendarTabOptions, ...headerCommonOptions }),
+    [headerCommonOptions],
+  );
 
   let calendarTab;
   if (isCalendarEnabled) {
@@ -83,10 +105,15 @@ function TabNavigator(props: Props): React.Node {
       <Tab.Screen
         name={CalendarRouteName}
         component={Calendar}
-        options={calendarTabOptions}
+        options={calendarOptions}
       />
     );
   }
+
+  const appsOptions = React.useMemo(
+    () => ({ ...appsTabOptions, ...headerCommonOptions }),
+    [headerCommonOptions],
+  );
 
   const tabBarScreenOptions = React.useMemo(
     () => ({
@@ -123,7 +150,7 @@ function TabNavigator(props: Props): React.Node {
       <Tab.Screen
         name={AppsRouteName}
         component={AppsDirectory}
-        options={appsTabOptions}
+        options={appsOptions}
       />
     </Tab.Navigator>
   );

@@ -10,6 +10,8 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
+import CommunityDrawerButton from '../navigation/community-drawer-button.react';
+import type { CommunityDrawerNavigationProp } from '../navigation/community-drawer-navigator.react';
 import HeaderBackButton from '../navigation/header-back-button.react';
 import {
   ProfileScreenRouteName,
@@ -38,7 +40,6 @@ import ProfileScreen from './profile-screen.react';
 import RelationshipList from './relationship-list.react';
 
 const header = (props: StackHeaderProps) => <ProfileHeader {...props} />;
-const headerBackButton = props => <HeaderBackButton {...props} />;
 const profileScreenOptions = { headerTitle: 'Profile' };
 const editPasswordOptions = { headerTitle: 'Change password' };
 const deleteAccountOptions = { headerTitle: 'Delete account' };
@@ -59,21 +60,34 @@ const Profile = createStackNavigator<
   ProfileParamList,
   StackNavigationHelpers<ScreenParamList>,
 >();
-// eslint-disable-next-line no-unused-vars
-function ProfileComponent(props: { ... }): React.Node {
+type Props = {
+  +navigation: CommunityDrawerNavigationProp<'TabNavigator'>,
+  ...
+};
+function ProfileComponent(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
   const colors = useColors();
+
+  const headerLeftButton = React.useCallback(
+    headerProps =>
+      headerProps.canGoBack ? (
+        <HeaderBackButton {...headerProps} />
+      ) : (
+        <CommunityDrawerButton navigation={props.navigation} />
+      ),
+    [props.navigation],
+  );
 
   const screenOptions = React.useMemo(
     () => ({
       header,
-      headerLeft: headerBackButton,
+      headerLeft: headerLeftButton,
       headerStyle: {
         backgroundColor: colors.tabBarBackground,
         shadowOpacity: 0,
       },
     }),
-    [colors.tabBarBackground],
+    [colors.tabBarBackground, headerLeftButton],
   );
 
   return (
