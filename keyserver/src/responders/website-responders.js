@@ -8,6 +8,7 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
+import { baseLegalPolicies } from 'lib/facts/policies.js';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors';
@@ -32,6 +33,7 @@ import { navInfoFromURL } from 'web/url-utils';
 
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchCurrentUserInfo,
@@ -308,17 +310,41 @@ async function websiteResponder(
       var preloadedState =
   `);
 
+  const notAcknowledgedPolicies = await fetchNotAcknowledgedPolicies(
+    viewer,
+    baseLegalPolicies,
+  );
+  const policiesAccepted = !notAcknowledgedPolicies.length;
+
   const initialReduxState = await promiseAll({
     navInfo: navInfoPromise,
     deviceID: null,
     currentUserInfo: currentUserInfoPromise,
     draftStore: { drafts: {} },
     sessionID: sessionIDPromise,
-    entryStore: entryStorePromise,
-    threadStore: threadStorePromise,
-    userStore: userStorePromise,
-    messageStore: messageStorePromise,
-    updatesCurrentAsOf: initialTime,
+    entryStore: policiesAccepted
+      ? entryStorePromise
+      : {
+          entryInfos: {},
+          daysToEntries: {},
+          lastUserInteractionCalendar: 0,
+        },
+    threadStore: policiesAccepted ? threadStorePromise : { threadInfos: {} },
+    userStore: policiesAccepted
+      ? userStorePromise
+      : {
+          userInfos: {},
+          inconsistencyReports: [],
+        },
+    messageStore: policiesAccepted
+      ? messageStorePromise
+      : {
+          messages: {},
+          threads: {},
+          local: {},
+          currentAsOf: 0,
+        },
+    updatesCurrentAsOf: policiesAccepted ? initialTime : 0,
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
     // We can use paths local to the <base href> on web
