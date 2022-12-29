@@ -9,6 +9,7 @@ import thunk from 'redux-thunk';
 
 import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions';
 import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
+import { siweAuthActionTypes } from 'lib/actions/siwe-actions';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
@@ -215,7 +216,8 @@ function reducer(state: AppState = defaultState, action: Action) {
         action.payload.sessionChange.currentUserInfo,
         action.payload.logInActionSource,
       )) ||
-    (action.type === logInActionTypes.success &&
+    ((action.type === logInActionTypes.success ||
+      action.type === siweAuthActionTypes.success) &&
       invalidSessionRecovery(
         state,
         action.payload.currentUserInfo,
