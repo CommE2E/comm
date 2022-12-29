@@ -17,6 +17,7 @@ import {
 } from 'lib/actions/user-actions';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { accountHasPassword } from 'lib/shared/account-utils';
 import type { LogOutResult } from 'lib/types/account-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { PreRequestUserState } from 'lib/types/session-types';
@@ -35,6 +36,7 @@ import type { GlobalTheme } from '../types/themes';
 
 type Props = {
   // Redux state
+  +isAccountWithPassword: boolean,
   +loadingStatus: LoadingStatus,
   +preRequestUserState: PreRequestUserState,
   +activeTheme: ?GlobalTheme,
@@ -44,16 +46,16 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
   +deleteAccount: (
-    password: string,
+    password: ?string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
 };
 type State = {
-  +password: string,
+  +password: ?string,
 };
 class DeleteAccount extends React.PureComponent<Props, State> {
   state: State = {
-    password: '',
+    password: null,
   };
   mounted = false;
   passwordInput: ?React.ElementRef<typeof BaseTextInput>;
@@ -74,6 +76,30 @@ class DeleteAccount extends React.PureComponent<Props, State> {
         <Text style={this.props.styles.saveText}>Delete account</Text>
       );
     const { panelForegroundTertiaryLabel } = this.props.colors;
+
+    let inputPasswordPrompt;
+    if (this.props.isAccountWithPassword) {
+      inputPasswordPrompt = (
+        <>
+          <Text style={this.props.styles.header}>PASSWORD</Text>
+          <View style={this.props.styles.section}>
+            <TextInput
+              style={this.props.styles.input}
+              value={this.state.password}
+              onChangeText={this.onChangePasswordText}
+              placeholder="Password"
+              placeholderTextColor={panelForegroundTertiaryLabel}
+              secureTextEntry={true}
+              textContentType="password"
+              autoComplete="password"
+              returnKeyType="go"
+              onSubmitEditing={this.submitDeletion}
+              ref={this.passwordInputRef}
+            />
+          </View>
+        </>
+      );
+    }
     return (
       <ScrollView
         contentContainerStyle={this.props.styles.scrollViewContentContainer}
@@ -94,26 +120,11 @@ class DeleteAccount extends React.PureComponent<Props, State> {
             There is no way to reverse this.
           </Text>
         </View>
-        <Text style={this.props.styles.header}>PASSWORD</Text>
-        <View style={this.props.styles.section}>
-          <TextInput
-            style={this.props.styles.input}
-            value={this.state.password}
-            onChangeText={this.onChangePasswordText}
-            placeholder="Password"
-            placeholderTextColor={panelForegroundTertiaryLabel}
-            secureTextEntry={true}
-            textContentType="password"
-            autoComplete="password"
-            returnKeyType="go"
-            onSubmitEditing={this.submitDeletion}
-            ref={this.passwordInputRef}
-          />
-        </View>
+        {inputPasswordPrompt}
         <Button
           onPress={this.submitDeletion}
           style={this.props.styles.deleteButton}
-          disabled={this.state.password.length === 0}
+          disabled={this.props.isAccountWithPassword && !this.state.password}
         >
           {buttonContent}
         </Button>
@@ -239,6 +250,9 @@ const loadingStatusSelector = createLoadingStatusSelector(
 const ConnectedDeleteAccount: React.ComponentType<{ ... }> = React.memo<{
   ...
 }>(function ConnectedDeleteAccount() {
+  const isAccountWithPassword = useSelector(state =>
+    accountHasPassword(state.currentUserInfo),
+  );
   const loadingStatus = useSelector(loadingStatusSelector);
   const preRequestUserState = useSelector(preRequestUserStateSelector);
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
@@ -250,6 +264,7 @@ const ConnectedDeleteAccount: React.ComponentType<{ ... }> = React.memo<{
 
   return (
     <DeleteAccount
+      isAccountWithPassword={isAccountWithPassword}
       loadingStatus={loadingStatus}
       preRequestUserState={preRequestUserState}
       activeTheme={activeTheme}
