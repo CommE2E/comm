@@ -8,6 +8,7 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
+import { baseLegalPolicies } from 'lib/facts/policies.js';
 import { daysToEntriesFromEntryInfos } from 'lib/reducers/entry-reducer';
 import { freshMessageStore } from 'lib/reducers/message-reducer';
 import { mostRecentlyReadThread } from 'lib/selectors/thread-selectors';
@@ -32,6 +33,7 @@ import { navInfoFromURL } from 'web/url-utils';
 
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { hasAnyNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchCurrentUserInfo,
@@ -126,6 +128,10 @@ async function websiteResponder(
   const baseHref = baseDomain + baseURL;
 
   const loadingPromise = getWebpackCompiledRootComponentForSSR();
+  const hasNotAcknowledgedPoliciesPromise = hasAnyNotAcknowledgedPolicies(
+    viewer,
+    baseLegalPolicies,
+  );
 
   let initialNavInfo;
   try {
@@ -163,14 +169,30 @@ async function websiteResponder(
   })();
 
   const threadStorePromise = (async () => {
-    const { threadInfos } = await threadInfoPromise;
-    return { threadInfos };
+    const [{ threadInfos }, hasNotAcknowledgedPolicies] = await Promise.all([
+      threadInfoPromise,
+      hasNotAcknowledgedPoliciesPromise,
+    ]);
+    return { threadInfos: hasNotAcknowledgedPolicies ? {} : threadInfos };
   })();
   const messageStorePromise = (async () => {
     const [
       { threadInfos },
       { rawMessageInfos, truncationStatuses },
-    ] = await Promise.all([threadInfoPromise, messageInfoPromise]);
+      hasNotAcknowledgedPolicies,
+    ] = await Promise.all([
+      threadInfoPromise,
+      messageInfoPromise,
+      hasNotAcknowledgedPoliciesPromise,
+    ]);
+    if (hasNotAcknowledgedPolicies) {
+      return {
+        messages: {},
+        threads: {},
+        local: {},
+        currentAsOf: 0,
+      };
+    }
     const { messageStore: freshStore } = freshMessageStore(
       rawMessageInfos,
       truncationStatuses,
@@ -180,7 +202,17 @@ async function websiteResponder(
     return freshStore;
   })();
   const entryStorePromise = (async () => {
-    const { rawEntryInfos } = await entryInfoPromise;
+    const [{ rawEntryInfos }, hasNotAcknowledgedPolicies] = await Promise.all([
+      entryInfoPromise,
+      hasNotAcknowledgedPoliciesPromise,
+    ]);
+    if (hasNotAcknowledgedPolicies) {
+      return {
+        entryInfos: {},
+        daysToEntries: {},
+        lastUserInteractionCalendar: 0,
+      };
+    }
     return {
       entryInfos: _keyBy('id')(rawEntryInfos),
       daysToEntries: daysToEntriesFromEntryInfos(rawEntryInfos),
@@ -188,8 +220,14 @@ async function websiteResponder(
     };
   })();
   const userStorePromise = (async () => {
-    const userInfos = await userInfoPromise;
-    return { userInfos, inconsistencyReports: [] };
+    const [userInfos, hasNotAcknowledgedPolicies] = await Promise.all([
+      userInfoPromise,
+      hasNotAcknowledgedPoliciesPromise,
+    ]);
+    return {
+      userInfos: hasNotAcknowledgedPolicies ? {} : userInfos,
+      inconsistencyReports: [],
+    };
   })();
 
   const navInfoPromise = (async () => {
@@ -257,6 +295,10 @@ async function websiteResponder(
 
     return finalNavInfo;
   })();
+  const currentAsOfPromise = (async () => {
+    const hasNotAcknowledgedPolicies = await hasNotAcknowledgedPoliciesPromise;
+    return hasNotAcknowledgedPolicies ? 0 : initialTime;
+  })();
 
   const { jsURL, fontsURL, cssInclude } = await assetInfoPromise;
 
@@ -318,7 +360,7 @@ async function websiteResponder(
     threadStore: threadStorePromise,
     userStore: userStorePromise,
     messageStore: messageStorePromise,
-    updatesCurrentAsOf: initialTime,
+    updatesCurrentAsOf: currentAsOfPromise,
     loadingStatuses: {},
     calendarFilters: defaultCalendarFilters,
     // We can use paths local to the <base href> on web
