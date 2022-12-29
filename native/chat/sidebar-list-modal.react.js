@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { TextInput, FlatList, View } from 'react-native';
 
-import { useSearchSidebars } from 'lib/hooks/search-sidebars';
+import { useSearchSidebars } from 'lib/hooks/search-threads';
 import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 
 import ExtendedArrow from '../components/arrow-extended.react';
