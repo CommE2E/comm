@@ -5,7 +5,7 @@ import _debounce from 'lodash/debounce';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { createMessageReply } from 'lib/shared/message-utils';
+import { localIDPrefix, createMessageReply } from 'lib/shared/message-utils';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import {
   threadHasPermission,
@@ -28,6 +28,7 @@ import { useOnClickReact } from '../chat/reaction-message-utils';
 import { useTooltipContext } from '../chat/tooltip-provider';
 import CommIcon from '../CommIcon.react';
 import { InputStateContext } from '../input/input-state';
+import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
@@ -458,12 +459,16 @@ function useMessageReactAction(
 ): ?MessageTooltipAction {
   const { messageInfo, reactions } = item;
 
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const localID = `${localIDPrefix}${nextLocalID}`;
+
   const reactionInput = '👍';
   const viewerReacted = !!reactions.get(reactionInput)?.viewerReacted;
   const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
 
   const onClickReact = useOnClickReact(
     messageInfo.id,
+    localID,
     threadInfo.id,
     reactionInput,
     action,

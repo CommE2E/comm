@@ -16,6 +16,7 @@ import Alert from '../modals/alert.react';
 
 function useOnClickReact(
   messageID: ?string,
+  localID: string,
   threadID: string,
   reaction: string,
   action: 'add_reaction' | 'remove_reaction',
@@ -37,6 +38,7 @@ function useOnClickReact(
         try {
           const result = await callSendReactionMessage({
             threadID,
+            localID,
             targetMessageID: messageID,
             reaction,
             action,
@@ -70,6 +72,7 @@ function useOnClickReact(
       pushModal,
       reaction,
       threadID,
+      localID,
     ],
   );
 }
