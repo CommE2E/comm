@@ -44,7 +44,7 @@ import {
   tOldValidUsername,
 } from 'lib/utils/validation-utils';
 
-import createAccount from '../creators/account-creator';
+import { createAccount } from '../creators/account-creator';
 import { dbQuery, SQL } from '../database/database';
 import { deleteAccount } from '../deleters/account-deleters';
 import { deleteCookie } from '../deleters/cookie-deleters';
