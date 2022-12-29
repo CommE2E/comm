@@ -16,7 +16,6 @@ import {
 
 import { buttonThemes } from '../../../components/button.react';
 import SWMansionIcon from '../../../SWMansionIcon.react';
-import Input from '../../input.react';
 import SubmitSection from './submit-section.react';
 import css from './thread-settings-delete-tab.css';
 
@@ -41,41 +40,21 @@ function ThreadSettingsDeleteTab(
   const dispatchActionPromise = useDispatchActionPromise();
   const callDeleteThread = useServerCall(deleteThread);
 
-  const accountPasswordInputRef = React.useRef();
-  const [accountPassword, setAccountPassword] = React.useState('');
-
-  const onChangeAccountPassword = React.useCallback(
-    (event: SyntheticEvent<HTMLInputElement>) => {
-      const target = event.currentTarget;
-      setAccountPassword(target.value);
-    },
-    [],
-  );
-
   const deleteThreadAction = React.useCallback(async () => {
     try {
       setErrorMessage('');
-      const response = await callDeleteThread(threadInfo.id, accountPassword);
+      const response = await callDeleteThread(threadInfo.id);
       modalContext.popModal();
       return response;
     } catch (e) {
       setErrorMessage(
         e.message === 'invalid_credentials'
-          ? 'wrong password'
+          ? 'permission not granted'
           : 'unknown error',
       );
-      setAccountPassword('');
-      accountPasswordInputRef.current?.focus();
       throw e;
     }
-  }, [
-    accountPassword,
-    callDeleteThread,
-    modalContext,
-    setAccountPassword,
-    setErrorMessage,
-    threadInfo.id,
-  ]);
+  }, [callDeleteThread, modalContext, setErrorMessage, threadInfo.id]);
 
   const onDelete = React.useCallback(
     (event: SyntheticEvent<HTMLElement>) => {
@@ -100,30 +79,12 @@ function ThreadSettingsDeleteTab(
           </p>
         </div>
       </div>
-      <div>
-        <p className={css.confirm_account_password}>
-          Please enter your account password to confirm your identity.
-        </p>
-        <div className={css.form_title}>Account password</div>
-        <div className={css.form_content}>
-          <Input
-            type="password"
-            placeholder="Password"
-            value={accountPassword}
-            onChange={onChangeAccountPassword}
-            disabled={threadSettingsOperationInProgress}
-            ref={accountPasswordInputRef}
-          />
-        </div>
-      </div>
       <SubmitSection
         errorMessage={errorMessage}
         onClick={onDelete}
         variant="filled"
         buttonColor={buttonThemes.danger}
-        disabled={
-          threadSettingsOperationInProgress || accountPassword.length === 0
-        }
+        disabled={threadSettingsOperationInProgress}
       >
         Delete
       </SubmitSection>
