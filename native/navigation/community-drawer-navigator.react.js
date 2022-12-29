@@ -6,7 +6,7 @@ import {
   type DrawerNavigationProp,
 } from '@react-navigation/drawer';
 import * as React from 'react';
-import { Dimensions, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useStyles } from '../themes/colors';
 import type { AppNavigationProp } from './app-navigator.react';
@@ -65,7 +65,7 @@ const unboundStyles = {
     flex: 1,
   },
   drawerStyle: {
-    width: Dimensions.get('window').width - 36,
+    width: '80%',
   },
 };
 

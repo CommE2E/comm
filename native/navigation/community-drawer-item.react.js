@@ -1,11 +1,12 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, FlatList, TouchableOpacity } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import type { MessageListParams } from '../chat/message-list-types';
+import { SingleLine } from '../components/single-line.react';
 import { useStyles } from '../themes/colors';
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react';
 
@@ -68,8 +69,12 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     <View>
       <View style={styles.threadEntry}>
         {itemExpandButton}
-        <TouchableOpacity onPress={onPress}>
-          <Text style={styles.title}>{threadInfo.uiName}</Text>
+        <TouchableOpacity
+          onPress={onPress}
+          style={styles.textTouchableWrapper}
+          onLongPress={onExpandToggled}
+        >
+          <SingleLine style={styles.title}>{threadInfo.uiName}</SingleLine>
         </TouchableOpacity>
       </View>
       {children}
@@ -81,7 +86,6 @@ const unboundStyles = {
   chatView: {
     marginLeft: 16,
     marginVertical: 6,
-    overflow: 'hidden',
   },
   threadEntry: {
     flexDirection: 'row',
@@ -90,6 +94,10 @@ const unboundStyles = {
     color: 'drawerItemLabel',
     fontSize: 16,
     lineHeight: 24,
+    fontWeight: '500',
+  },
+  textTouchableWrapper: {
+    flex: 1,
   },
 };
 

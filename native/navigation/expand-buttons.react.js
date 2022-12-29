@@ -2,12 +2,21 @@
 
 import Icon from '@expo/vector-icons/FontAwesome';
 import * as React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 
 import { useStyles } from '../themes/colors';
 
-const ICON_SIZE = 20;
-const PADDING_HORIZONTAL = 7.5;
+const iconSize = 12;
+const buttonSize = 24;
+const hitSlopValue = 6;
+const padding = (buttonSize - iconSize) / 2;
+
+const hitSlop = {
+  bottom: hitSlopValue,
+  left: hitSlopValue,
+  right: hitSlopValue,
+  top: hitSlopValue,
+};
 
 type Props = {
   +onPress: () => void,
@@ -20,9 +29,14 @@ function ExpandButton(props: Props): React.Node {
     ? styles.expandButtonExpanded
     : styles.expandButton;
   const icon = props.expanded ? 'caret-down' : 'caret-right';
+
   return (
-    <TouchableOpacity onPress={props.onPress}>
-      <Icon name={icon} size={ICON_SIZE} style={style} />
+    <TouchableOpacity
+      onPress={props.onPress}
+      hitSlop={hitSlop}
+      style={styles.wrapper}
+    >
+      <Icon name={icon} size={iconSize} style={style} />
     </TouchableOpacity>
   );
 }
@@ -30,26 +44,30 @@ function ExpandButton(props: Props): React.Node {
 function ExpandButtonDisabled(): React.Node {
   const styles = useStyles(unboundStyles);
   return (
-    <Icon
-      name="caret-right"
-      size={ICON_SIZE}
-      style={styles.expandButtonDisabled}
-    />
+    <View style={styles.wrapper}>
+      <Icon
+        name="caret-right"
+        size={iconSize}
+        style={styles.expandButtonDisabled}
+      />
+    </View>
   );
 }
 
 const unboundStyles = {
   expandButton: {
     color: 'drawerExpandButton',
-    paddingHorizontal: PADDING_HORIZONTAL,
   },
   expandButtonDisabled: {
     color: 'drawerExpandButtonDisabled',
-    paddingHorizontal: PADDING_HORIZONTAL,
   },
   expandButtonExpanded: {
     color: 'drawerExpandButton',
-    paddingHorizontal: PADDING_HORIZONTAL,
+  },
+  wrapper: {
+    width: buttonSize,
+    alignItems: 'center',
+    padding: padding,
   },
 };
 

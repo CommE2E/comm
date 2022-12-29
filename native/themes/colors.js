@@ -88,10 +88,10 @@ const light = Object.freeze({
   siweButton: 'white',
   siweButtonText: '#1F1F1F',
   drawerExpandButton: '#808080',
-  drawerExpandButtonDisabled: '#404040',
-  drawerItemLabel: '#CCCCCC',
-  drawerOpenCommunityBackground: '#333333',
-  drawerBackgroud: '#404040',
+  drawerExpandButtonDisabled: '#CCCCCC',
+  drawerItemLabel: '#0A0A0A',
+  drawerOpenCommunityBackground: '#F5F5F5',
+  drawerBackgroud: '#FFFFFF',
 });
 export type Colors = $Exact<typeof light>;
 
@@ -175,8 +175,8 @@ const dark: Colors = Object.freeze({
   drawerExpandButton: '#808080',
   drawerExpandButtonDisabled: '#404040',
   drawerItemLabel: '#CCCCCC',
-  drawerOpenCommunityBackground: '#333333',
-  drawerBackgroud: '#404040',
+  drawerOpenCommunityBackground: '#191919',
+  drawerBackgroud: '#1F1F1F',
 });
 const colors = { light, dark };
 

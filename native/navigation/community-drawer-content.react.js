@@ -1,7 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { View, FlatList } from 'react-native';
+import { FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
 import {
@@ -15,6 +16,7 @@ import { useStyles } from '../themes/colors';
 import CommunityDrawerItemCommunity from './community-drawer-item-cummunity.react';
 
 const maxDepth = 2;
+const safeAreaEdges = ['top'];
 
 function CommunityDrawerContent(): React.Node {
   const communities = useSelector(communityThreadSelector);
@@ -60,9 +62,9 @@ function CommunityDrawerContent(): React.Node {
   );
 
   return (
-    <View style={styles.drawerContent}>
+    <SafeAreaView style={styles.drawerContent} edges={safeAreaEdges}>
       <FlatList data={drawerItemsData} renderItem={renderItem} />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -116,7 +118,7 @@ const unboundStyles = {
   drawerContent: {
     flex: 1,
     paddingRight: 8,
-    paddingTop: 52,
+    paddingTop: 8,
     backgroundColor: 'drawerBackgroud',
   },
 };
