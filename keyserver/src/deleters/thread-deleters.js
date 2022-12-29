@@ -1,7 +1,5 @@
 // @flow
 
-import bcrypt from 'twin-bcrypt';
-
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import {
@@ -34,11 +32,9 @@ async function deleteThread(
 
   const [
     permissionsBlob,
-    [hashResult],
     { threadInfos: serverThreadInfos },
   ] = await Promise.all([
     fetchThreadPermissionsBlob(viewer, threadID),
-    dbQuery(SQL`SELECT hash FROM users WHERE id = ${viewer.userID}`),
     fetchServerThreadInfos(SQL`t.id = ${threadID}`),
   ]);
 
@@ -63,13 +59,6 @@ async function deleteThread(
     threadPermissions.DELETE_THREAD,
   );
   if (!hasPermission) {
-    throw new ServerError('invalid_credentials');
-  }
-  if (hashResult.length === 0) {
-    throw new ServerError('invalid_parameters');
-  }
-  const row = hashResult[0];
-  if (!bcrypt.compareSync(threadDeletionRequest.accountPassword, row.hash)) {
     throw new ServerError('invalid_credentials');
   }
 
