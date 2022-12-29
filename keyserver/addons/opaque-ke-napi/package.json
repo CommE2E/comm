@@ -1,4 +1,10 @@
 {
+  "workspaces": {
+    "nohoist": [
+      "@napi-rs/cli"
+    ]
+  },
+  "private": true,
   "name": "opaque-ke-napi",
   "version": "0.0.1",
   "main": "index.js",
