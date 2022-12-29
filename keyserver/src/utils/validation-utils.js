@@ -10,7 +10,7 @@ import {
   tPlatformDetails,
 } from 'lib/utils/validation-utils';
 
-import { fetchPolicyAcknowledgments } from '../fetchers/policy-acknowledgment-fetchers.js';
+import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { verifyClientSupported } from '../session/version';
 import type { Viewer } from '../session/viewer';
 
@@ -167,16 +167,10 @@ async function policiesValidator(
     return;
   }
 
-  const viewerAcknowledgments = await fetchPolicyAcknowledgments(
+  const notAcknowledgedPolicies = await fetchNotAcknowledgedPolicies(
     viewer,
     policies,
   );
-  const notAcknowledgedPolicies = policies.filter(policy => {
-    const policyAcknowledgment = viewerAcknowledgments.find(
-      viewerAcknowledgment => viewerAcknowledgment.policy === policy,
-    );
-    return !policyAcknowledgment?.confirmed;
-  });
 
   if (notAcknowledgedPolicies.length) {
     throw new ServerError('policies_not_accepted', {
