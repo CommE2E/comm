@@ -1,11 +1,5 @@
 use crate::ffi::DeviceType;
-use openssl::hash::MessageDigest;
-use openssl::pkey::PKey;
-use openssl::sign::Signer;
 use rand::distributions::{Alphanumeric, DistString};
-
-#[cfg(test)]
-use openssl::{rsa::Rsa, sign::Verifier};
 #[cfg(test)]
 use regex::Regex;
 
@@ -37,16 +31,6 @@ pub fn generate_device_id(device_type: DeviceType) -> Result<String, String> {
     Alphanumeric.sample_string(&mut rng, DEVICE_ID_CHAR_LENGTH);
 
   Ok(format!("{}:{}", &prefix, &suffix))
-}
-
-pub fn sign_string_with_private_key(
-  private_key: &PKey<openssl::pkey::Private>,
-  nonce: &str,
-) -> anyhow::Result<String> {
-  let mut signer = Signer::new(MessageDigest::sha256(), &private_key)?;
-  signer.update(nonce.as_bytes())?;
-  let signature = signer.sign_to_vec()?;
-  Ok(base64::encode(signature))
 }
 
 #[cfg(test)]
@@ -94,30 +78,5 @@ mod tests {
         &DEVICE_ID_FORMAT_REGEX
       );
     }
-  }
-
-  #[test]
-  fn verify_signed_string_with_private_key() {
-    const NONCE: &str = "Test1ghTCoNquWbO2ST7G1c9";
-
-    // Generate a keypair
-    let keypair = Rsa::generate(1024).expect("Failed to generate RSA keypair");
-    let keypair = PKey::from_rsa(keypair).expect("Failed to get key from rsa");
-
-    // Sign the string to be signed with the private key
-    let string_signature_base64 = sign_string_with_private_key(&keypair, NONCE)
-      .expect("Error on calling the string signer function");
-
-    // Verify signature
-    let mut verifier =
-      Verifier::new(MessageDigest::sha256(), &keypair).unwrap();
-    verifier.update(NONCE.as_bytes()).unwrap();
-
-    assert!(verifier
-      .verify(
-        &base64::decode(string_signature_base64)
-          .expect("Failed to decode base64"),
-      )
-      .expect("Error on calling OpenSSL string verifier"));
   }
 }
