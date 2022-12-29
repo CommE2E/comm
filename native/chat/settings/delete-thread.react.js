@@ -27,7 +27,6 @@ import {
 } from 'lib/utils/action-utils';
 
 import Button from '../../components/button.react';
-import TextInput from '../../components/text-input.react';
 import { clearThreadsActionType } from '../../navigation/action-types';
 import {
   NavContext,
@@ -58,20 +57,11 @@ type Props = {
   // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
   // async functions that hit server APIs
-  +deleteThread: (
-    threadID: string,
-    currentAccountPassword: string,
-  ) => Promise<LeaveThreadPayload>,
+  +deleteThread: (threadID: string) => Promise<LeaveThreadPayload>,
   // withNavContext
   +navDispatch: (action: NavAction) => void,
 };
-type State = {
-  +password: string,
-};
-class DeleteThread extends React.PureComponent<Props, State> {
-  state: State = {
-    password: '',
-  };
+class DeleteThread extends React.PureComponent<Props> {
   mounted = false;
   passwordInput: ?React.ElementRef<typeof BaseTextInput>;
 
@@ -113,7 +103,6 @@ class DeleteThread extends React.PureComponent<Props, State> {
         <Text style={this.props.styles.deleteText}>Delete chat</Text>
       );
     const threadInfo = DeleteThread.getThreadInfo(this.props);
-    const { panelForegroundTertiaryLabel } = this.props.colors;
     return (
       <ScrollView
         contentContainerStyle={this.props.styles.scrollViewContentContainer}
@@ -125,41 +114,15 @@ class DeleteThread extends React.PureComponent<Props, State> {
             There is no way to reverse this.
           </Text>
         </View>
-        <Text style={this.props.styles.header}>PASSWORD</Text>
-        <View style={this.props.styles.section}>
-          <TextInput
-            style={this.props.styles.input}
-            value={this.state.password}
-            onChangeText={this.onChangePasswordText}
-            placeholder="Password"
-            placeholderTextColor={panelForegroundTertiaryLabel}
-            secureTextEntry={true}
-            textContentType="password"
-            autoComplete="password"
-            returnKeyType="go"
-            onSubmitEditing={this.submitDeletion}
-            ref={this.passwordInputRef}
-          />
-        </View>
         <Button
           onPress={this.submitDeletion}
-          style={[
-            this.props.styles.baseDeleteButton,
-            this.state.password === ''
-              ? this.props.styles.deleteButtonDisabled
-              : this.props.styles.deleteButtonEnabled,
-          ]}
-          disabled={this.state.password === ''}
+          style={this.props.styles.deleteButton}
         >
           {buttonContent}
         </Button>
       </ScrollView>
     );
   }
-
-  onChangePasswordText = (newPassword: string) => {
-    this.guardedSetState({ password: newPassword });
-  };
 
   passwordInputRef = (
     passwordInput: ?React.ElementRef<typeof BaseTextInput>,
@@ -173,10 +136,6 @@ class DeleteThread extends React.PureComponent<Props, State> {
   };
 
   submitDeletion = () => {
-    if (this.state.password === '') {
-      return;
-    }
-
     this.props.dispatchActionPromise(
       deleteThreadActionTypes,
       this.deleteThread(),
@@ -191,10 +150,7 @@ class DeleteThread extends React.PureComponent<Props, State> {
       payload: { threadIDs: [threadInfo.id] },
     });
     try {
-      const result = await this.props.deleteThread(
-        threadInfo.id,
-        this.state.password,
-      );
+      const result = await this.props.deleteThread(threadInfo.id);
       const invalidated = identifyInvalidatedThreads(
         result.updatesResult.newUpdates,
       );
@@ -204,45 +160,30 @@ class DeleteThread extends React.PureComponent<Props, State> {
       });
       return result;
     } catch (e) {
-      if (
-        e.message === 'invalid_credentials' ||
-        e.message === 'invalid_parameters'
-      ) {
+      if (e.message === 'invalid_credentials') {
         Alert.alert(
-          'Incorrect password',
-          'The password you entered is incorrect',
-          [{ text: 'OK', onPress: this.onErrorAlertAcknowledged }],
+          'Permission not granted',
+          'You do not have permission to delete this thread',
+          [{ text: 'OK' }],
           { cancelable: false },
         );
       } else {
-        Alert.alert(
-          'Unknown error',
-          'Uhh... try again?',
-          [{ text: 'OK', onPress: this.onErrorAlertAcknowledged }],
-          { cancelable: false },
-        );
+        Alert.alert('Unknown error', 'Uhh... try again?', [{ text: 'OK' }], {
+          cancelable: false,
+        });
       }
     }
   }
-
-  onErrorAlertAcknowledged = () => {
-    this.guardedSetState({ password: '' }, this.focusPasswordInput);
-  };
 }
 
 const unboundStyles = {
-  baseDeleteButton: {
+  deleteButton: {
+    backgroundColor: 'redButton',
     borderRadius: 5,
     flex: 1,
     marginHorizontal: 24,
     marginVertical: 12,
     padding: 12,
-  },
-  deleteButtonEnabled: {
-    backgroundColor: 'redButton',
-  },
-  deleteButtonDisabled: {
-    backgroundColor: 'disabledButton',
   },
   deleteText: {
     color: 'white',
