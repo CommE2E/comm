@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import _debounce from 'lodash/debounce';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
@@ -409,12 +410,23 @@ function useMessageTooltipReplyAction(
   }, [addReply, item.messageInfo.type, messageInfo, threadInfo]);
 }
 
+const copiedMessageDurationMs = 2000;
 function useMessageCopyAction(
   item: ChatMessageInfoItem,
 ): ?MessageTooltipAction {
   const { messageInfo } = item;
 
   const [successful, setSuccessful] = React.useState(false);
+  const resetStatusAfterTimeout = React.useRef(
+    _debounce(() => setSuccessful(false), copiedMessageDurationMs),
+  );
+
+  const onSuccess = React.useCallback(() => {
+    setSuccessful(true);
+    resetStatusAfterTimeout.current();
+  }, []);
+
+  React.useEffect(() => resetStatusAfterTimeout.current.cancel, []);
 
   return React.useMemo(() => {
     if (messageInfo.type !== messageTypes.TEXT) {
@@ -424,7 +436,7 @@ function useMessageCopyAction(
     const onClick = async () => {
       try {
         await navigator.clipboard.writeText(messageInfo.text);
-        setSuccessful(true);
+        onSuccess();
       } catch (e) {
         setSuccessful(false);
       }
@@ -434,7 +446,7 @@ function useMessageCopyAction(
       onClick,
       label: successful ? 'Copied!' : 'Copy',
     };
-  }, [messageInfo.text, messageInfo.type, successful]);
+  }, [messageInfo.text, messageInfo.type, onSuccess, successful]);
 }
 
 function useMessageTooltipActions(
