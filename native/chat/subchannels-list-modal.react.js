@@ -84,7 +84,6 @@ function Item(props: {
 
 const unboundStyles = {
   subchannel: {
-    backgroundColor: 'listBackground',
     paddingLeft: 0,
     paddingRight: 5,
   },

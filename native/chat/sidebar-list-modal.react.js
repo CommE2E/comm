@@ -126,7 +126,6 @@ const unboundStyles = {
     top: -6,
   },
   sidebar: {
-    backgroundColor: 'listBackground',
     paddingLeft: 0,
     paddingRight: 5,
   },
