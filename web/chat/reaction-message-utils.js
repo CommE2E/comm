@@ -14,6 +14,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
+import { cloneError } from 'lib/utils/errors';
 
 import Alert from '../modals/alert.react';
 import { useSelector } from '../redux/redux-utils';
@@ -66,7 +67,11 @@ function useOnClickReact(
               Please try again later
             </Alert>,
           );
-          throw e;
+
+          const copy = cloneError(e);
+          copy.localID = localID;
+          copy.threadID = threadID;
+          throw copy;
         }
       })();
 

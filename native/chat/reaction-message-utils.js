@@ -10,6 +10,7 @@ import {
 import { messageTypes } from 'lib/types/message-types';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction';
 import type { BindServerCall, DispatchFunctions } from 'lib/utils/action-utils';
+import { cloneError } from 'lib/utils/errors';
 
 import type { InputState } from '../input/input-state';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
@@ -91,7 +92,11 @@ function sendReaction(
           cancelable: true,
         },
       );
-      throw e;
+
+      const copy = cloneError(e);
+      copy.localID = localID;
+      copy.threadID = threadID;
+      throw copy;
     }
   })();
 
