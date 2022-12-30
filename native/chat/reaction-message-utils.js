@@ -76,10 +76,11 @@ function sendReaction(
         action,
       });
       return {
+        localID,
         serverID: result.id,
         threadID,
-        time: result.newMessageInfo.time,
-        newMessageInfos: [result.newMessageInfo],
+        time: result.time,
+        interface: result.interface,
       };
     } catch (e) {
       Alert.alert(
