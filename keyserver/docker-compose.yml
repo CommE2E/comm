@@ -7,6 +7,7 @@ services:
       args:
         - HOST_UID=${HOST_UID}
         - HOST_GID=${HOST_GID}
+        - COMM_ALCHEMY_KEY=${COMM_ALCHEMY_KEY}
     image: commapp/node-keyserver:1.0
     restart: always
     ports:

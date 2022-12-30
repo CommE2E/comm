@@ -1,5 +1,6 @@
 const AssetsPlugin = require('assets-webpack-plugin');
 const path = require('path');
+const webpack = require('webpack');
 
 const {
   createProdBrowserConfig,
@@ -65,18 +66,39 @@ const baseNodeServerRenderingConfig = {
   },
 };
 
+const alchemyKey = process.env.COMM_ALCHEMY_KEY;
+
 module.exports = function (env) {
-  const browserConfig =
+  const rawBrowserConfig =
     env === 'prod'
       ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
       : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
-  const nodeConfig = createNodeServerRenderingConfig(
+  const browserConfig = {
+    ...rawBrowserConfig,
+    plugins: [
+      ...rawBrowserConfig.plugins,
+      new webpack.DefinePlugin({
+        'process.env': {
+          COMM_ALCHEMY_KEY: JSON.stringify(alchemyKey),
+        },
+      }),
+    ],
+  };
+  const baseNodeConfig = createNodeServerRenderingConfig(
     baseNodeServerRenderingConfig,
     babelConfig,
   );
-  const nodeServerRenderingConfig = {
-    ...nodeConfig,
+  const nodeConfig = {
+    ...baseNodeConfig,
     mode: env === 'prod' ? 'production' : 'development',
+    plugins: [
+      ...baseNodeConfig.plugins,
+      new webpack.DefinePlugin({
+        'process.env': {
+          COMM_ALCHEMY_KEY: JSON.stringify(alchemyKey),
+        },
+      }),
+    ],
   };
-  return [browserConfig, nodeServerRenderingConfig];
+  return [browserConfig, nodeConfig];
 };
