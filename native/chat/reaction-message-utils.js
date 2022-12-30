@@ -7,6 +7,8 @@ import {
   sendReactionMessage,
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions';
+import { messageTypes } from 'lib/types/message-types';
+import type { RawReactionMessageInfo } from 'lib/types/messages/reaction';
 import type { BindServerCall, DispatchFunctions } from 'lib/utils/action-utils';
 
 import type { InputState } from '../input/input-state';
@@ -31,6 +33,7 @@ function onPressReact<RouteName: MessageTooltipRouteNames>(
   const threadID = route.params.item.threadInfo.id;
   invariant(threadID, 'threadID should be set');
 
+  invariant(viewerID, 'viewerID should be set');
   invariant(reactionMessageLocalID, 'reactionMessageLocalID should be set');
 
   const reactionInput = '👍';
@@ -47,6 +50,7 @@ function onPressReact<RouteName: MessageTooltipRouteNames>(
     action,
     dispatchFunctions,
     bindServerCall,
+    viewerID,
   );
 }
 
@@ -58,6 +62,7 @@ function sendReaction(
   action: 'add_reaction' | 'remove_reaction',
   dispatchFunctions: DispatchFunctions,
   bindServerCall: BindServerCall,
+  viewerID: string,
 ) {
   const callSendReactionMessage = bindServerCall(sendReactionMessage);
 
@@ -89,9 +94,22 @@ function sendReaction(
     }
   })();
 
+  const startingPayload: RawReactionMessageInfo = {
+    type: messageTypes.REACTION,
+    threadID,
+    localID,
+    creatorID: viewerID,
+    time: Date.now(),
+    targetMessageID: messageID,
+    reaction,
+    action,
+  };
+
   dispatchFunctions.dispatchActionPromise(
     sendReactionMessageActionTypes,
     reactionMessagePromise,
+    undefined,
+    startingPayload,
   );
 }
 
