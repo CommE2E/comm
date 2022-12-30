@@ -24,6 +24,11 @@ type ClientDBStore = {
   +threads: $ReadOnlyArray<ClientDBThreadInfo>,
 };
 
+type ClientPublicKeys = {
+  +curve25519: string,
+  +ed25519: string,
+};
+
 export interface Spec extends TurboModule {
   +getDraft: (key: string) => Promise<string>;
   +updateDraft: (key: string, text: string) => Promise<boolean>;
@@ -48,7 +53,7 @@ export interface Spec extends TurboModule {
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => void;
   +initializeCryptoAccount: (userId: string) => Promise<string>;
-  +getUserPublicKey: () => Promise<string>;
+  +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getUserOneTimeKeys: () => Promise<string>;
   +getCodeVersion: () => number;
   +setNotifyToken: (token: string) => Promise<void>;

@@ -7,6 +7,8 @@
 #include "ThreadStoreOperations.h"
 
 #include <ReactCommon/TurboModuleUtils.h>
+#include <folly/dynamic.h>
+#include <folly/json.h>
 #include <future>
 
 namespace comm {
@@ -818,7 +820,16 @@ jsi::Value CommCoreModule::getUserPublicKey(jsi::Runtime &rt) {
               promise->reject(error);
               return;
             }
-            promise->resolve(jsi::String::createFromUtf8(innerRt, result));
+            folly::dynamic parsed = folly::parseJson(result);
+            auto curve25519{jsi::String::createFromUtf8(
+                innerRt, parsed["curve25519"].asString())};
+            auto ed25519{jsi::String::createFromUtf8(
+                innerRt, parsed["ed25519"].asString())};
+
+            auto jsiClientPublicKeys = jsi::Object(innerRt);
+            jsiClientPublicKeys.setProperty(innerRt, "curve25519", curve25519);
+            jsiClientPublicKeys.setProperty(innerRt, "ed25519", ed25519);
+            promise->resolve(std::move(jsiClientPublicKeys));
           });
         };
         this->cryptoThread->scheduleTask(job);
