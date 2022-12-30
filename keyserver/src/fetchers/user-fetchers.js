@@ -299,7 +299,7 @@ async function fetchUserIDForEthereumAddress(
     WHERE LCASE(ethereum_address) = LCASE(${address})
   `;
   const [result] = await dbQuery(query);
-  return result.length === 0 ? null : result[0].id;
+  return result.length === 0 ? null : result[0].id.toString();
 }
 
 export {
