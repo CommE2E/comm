@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 
 import {
@@ -7,12 +8,15 @@ import {
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
+import { messageTypes } from 'lib/types/message-types';
+import type { RawReactionMessageInfo } from 'lib/types/messages/reaction';
 import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
 
 import Alert from '../modals/alert.react';
+import { useSelector } from '../redux/redux-utils';
 
 function useOnClickReact(
   messageID: ?string,
@@ -22,6 +26,10 @@ function useOnClickReact(
   action: 'add_reaction' | 'remove_reaction',
 ): (event: SyntheticEvent<HTMLElement>) => mixed {
   const { pushModal } = useModalContext();
+
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
 
   const callSendReactionMessage = useServerCall(sendReactionMessage);
   const dispatchActionPromise = useDispatchActionPromise();
@@ -33,6 +41,8 @@ function useOnClickReact(
       if (!messageID) {
         return;
       }
+
+      invariant(viewerID, 'viewerID should be set');
 
       const reactionMessagePromise = (async () => {
         try {
@@ -59,20 +69,34 @@ function useOnClickReact(
         }
       })();
 
+      const startingPayload: RawReactionMessageInfo = {
+        type: messageTypes.REACTION,
+        threadID,
+        localID,
+        creatorID: viewerID,
+        time: Date.now(),
+        targetMessageID: messageID,
+        reaction,
+        action,
+      };
+
       dispatchActionPromise(
         sendReactionMessageActionTypes,
         reactionMessagePromise,
+        undefined,
+        startingPayload,
       );
     },
     [
-      action,
-      callSendReactionMessage,
-      dispatchActionPromise,
       messageID,
-      pushModal,
-      reaction,
       threadID,
       localID,
+      viewerID,
+      reaction,
+      action,
+      dispatchActionPromise,
+      callSendReactionMessage,
+      pushModal,
     ],
   );
 }
