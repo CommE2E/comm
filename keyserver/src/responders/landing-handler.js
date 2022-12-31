@@ -7,7 +7,10 @@ import * as React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { promisify } from 'util';
 
-import { isValidSIWENonce } from 'lib/utils/siwe-utils.js';
+import {
+  isValidPrimaryIdentityPublicKey,
+  isValidSIWENonce,
+} from 'lib/utils/siwe-utils.js';
 
 import { type LandingSSRProps } from '../landing/landing-ssr.react';
 import { waitForStream } from '../utils/json-stream';
@@ -116,6 +119,21 @@ async function landingResponder(req: $Request, res: $Response) {
     });
     return;
   }
+  const siwePrimaryIdentityPublicKey = req.header(
+    'siwe-primary-identity-public-key',
+  );
+  if (
+    siwePrimaryIdentityPublicKey !== null &&
+    siwePrimaryIdentityPublicKey !== undefined &&
+    !isValidPrimaryIdentityPublicKey(siwePrimaryIdentityPublicKey)
+  ) {
+    res.status(400).send({
+      message:
+        'Invalid primary identity public key in siwe-primary-identity-public-key header.',
+    });
+    return;
+  }
+
   const [{ jsURL, fontURLs, cssInclude }, LandingSSR] = await Promise.all([
     getAssetInfo(),
     getWebpackCompiledRootComponentForSSR(),
@@ -182,10 +200,14 @@ async function landingResponder(req: $Request, res: $Response) {
   await waitForStream(reactStream);
 
   const siweNonceString = siweNonce ? `"${siweNonce}"` : 'null';
+  const siwePrimaryIdentityPublicKeyString = siwePrimaryIdentityPublicKey
+    ? `"${siwePrimaryIdentityPublicKey}"`
+    : 'null';
   // prettier-ignore
   res.end(html`</div>
         <script>var routerBasename = "${routerBasename}";</script>
         <script>var siweNonce = ${siweNonceString};</script>
+        <script>var siwePrimaryIdentityPublicKey = ${siwePrimaryIdentityPublicKeyString};</script>
         <script src="${jsURL}"></script>
       </body>
     </html>
