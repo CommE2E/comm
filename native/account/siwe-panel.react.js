@@ -20,6 +20,7 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
+import { commCoreModule } from '../native-modules';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
@@ -73,6 +74,10 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   const [nonce, setNonce] = React.useState<?string>(null);
+  const [
+    primaryIdentityPublicKey,
+    setPrimaryIdentityPublicKey,
+  ] = React.useState<?string>(null);
 
   React.useEffect(() => {
     (async () => {
@@ -83,6 +88,9 @@ function SIWEPanel(props: Props): React.Node {
           setNonce(response);
         })(),
       );
+      await commCoreModule.initializeCryptoAccount('PLACEHOLDER');
+      const { ed25519 } = await commCoreModule.getUserPublicKey();
+      setPrimaryIdentityPublicKey(ed25519);
     })();
   }, [dispatchActionPromise, getSIWENonceCall]);
 
@@ -178,9 +186,10 @@ function SIWEPanel(props: Props): React.Node {
       uri: commSIWE,
       headers: {
         'siwe-nonce': nonce,
+        'siwe-primary-identity-public-key': primaryIdentityPublicKey,
       },
     }),
-    [nonce],
+    [nonce, primaryIdentityPublicKey],
   );
 
   const onWebViewLoaded = React.useCallback(() => {
@@ -215,7 +224,7 @@ function SIWEPanel(props: Props): React.Node {
   );
 
   let bottomSheet;
-  if (nonce) {
+  if (nonce && primaryIdentityPublicKey) {
     bottomSheet = (
       <BottomSheet
         snapPoints={snapPoints}
