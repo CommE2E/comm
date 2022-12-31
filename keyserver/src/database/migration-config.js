@@ -139,6 +139,14 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       ]);
     },
   ],
+  [
+    14,
+    async () => {
+      await dbQuery(SQL`
+        ALTER TABLE cookies MODIFY COLUMN social_proof mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL;
+      `);
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 

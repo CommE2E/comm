@@ -35,7 +35,7 @@ async function createTables() {
         versions json DEFAULT NULL,
         device_id varchar(255) DEFAULT NULL,
         public_key varchar(255) DEFAULT NULL,
-        social_proof varchar(255) DEFAULT NULL,
+        social_proof mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
         \`primary\` TINYINT(1) DEFAULT NULL
       ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
