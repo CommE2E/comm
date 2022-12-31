@@ -26,7 +26,11 @@ import {
 } from 'lib/types/account-types';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { defaultNumberPerThread } from 'lib/types/message-types';
-import type { SIWEAuthRequest, SIWEMessage } from 'lib/types/siwe-types.js';
+import type {
+  SIWEAuthRequest,
+  SIWEMessage,
+  SIWESocialProof,
+} from 'lib/types/siwe-types.js';
 import type {
   SubscriptionUpdateRequest,
   SubscriptionUpdateResponse,
@@ -204,6 +208,7 @@ async function processSuccessfulLogin(
   userID: string,
   calendarQuery: ?CalendarQuery,
   primaryIdentityPublicKey?: ?string,
+  socialProof?: ?SIWESocialProof,
 ): Promise<LogInResponse> {
   const request: LogInRequest = input;
   const newServerTime = Date.now();
@@ -215,6 +220,7 @@ async function processSuccessfulLogin(
       platformDetails: request.platformDetails,
       deviceToken,
       primaryIdentityPublicKey,
+      socialProof,
     }),
     deleteCookie(viewer.cookieID),
   ]);
@@ -383,7 +389,14 @@ async function siweAuthResponder(
       ? getPublicKeyFromSIWEStatement(statement)
       : null;
 
-  // 5. Create account with call to `processSIWEAccountCreation(...)`
+  // 5. Construct `SIWESocialProof` object with the stringified
+  //    SIWEMessage and the corresponding signature.
+  const socialProof: SIWESocialProof = {
+    siweMessage: siweMessage.toMessage(),
+    siweMessageSignature: signature,
+  };
+
+  // 6. Create account with call to `processSIWEAccountCreation(...)`
   //    if address does not correspond to an existing user.
   let userID = await fetchUserIDForEthereumAddress(siweMessage.address);
   if (!userID) {
@@ -392,6 +405,7 @@ async function siweAuthResponder(
       deviceTokenUpdateRequest: deviceTokenUpdateRequest,
       platformDetails,
       primaryIdentityPublicKey: primaryIdentityPublicKey,
+      socialProof: socialProof,
     };
     userID = await processSIWEAccountCreation(
       viewer,
@@ -399,13 +413,14 @@ async function siweAuthResponder(
     );
   }
 
-  // 6. Complete login with call to `processSuccessfulLogin(...)`.
+  // 7. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin(
     viewer,
     input,
     userID,
     calendarQuery,
     primaryIdentityPublicKey,
+    socialProof,
   );
 }
 

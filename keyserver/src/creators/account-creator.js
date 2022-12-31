@@ -22,6 +22,7 @@ import type {
 } from 'lib/types/device-types.js';
 import type { CalendarQuery } from 'lib/types/entry-types.js';
 import { messageTypes } from 'lib/types/message-types';
+import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import { threadTypes } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
@@ -208,6 +209,7 @@ export type ProcessSIWEAccountCreationRequest = {
   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
   +platformDetails: PlatformDetails,
   +primaryIdentityPublicKey: ?string,
+  +socialProof: SIWESocialProof,
 };
 // Note: `processSIWEAccountCreation(...)` assumes that the validity of
 //       `ProcessSIWEAccountCreationRequest` was checked at call site.
@@ -237,6 +239,7 @@ async function processSIWEAccountCreation(
       platformDetails: request.platformDetails,
       deviceToken,
       primaryIdentityPublicKey: request.primaryIdentityPublicKey,
+      socialProof: request.socialProof,
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),

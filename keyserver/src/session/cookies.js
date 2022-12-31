@@ -19,6 +19,7 @@ import {
   sessionIdentifierTypes,
   type SessionIdentifierType,
 } from 'lib/types/session-types';
+import type { SIWESocialProof } from 'lib/types/siwe-types.js';
 import type { InitialClientSocketMessage } from 'lib/types/socket-types';
 import type { UserInfo } from 'lib/types/user-types';
 import { values } from 'lib/utils/objects';
@@ -645,6 +646,7 @@ type UserCookieCreationParams = {
   platformDetails: PlatformDetails,
   deviceToken?: ?string,
   primaryIdentityPublicKey?: ?string,
+  socialProof?: ?SIWESocialProof,
 };
 
 // The result of this function should never be passed directly to the Viewer
@@ -658,7 +660,12 @@ async function createNewUserCookie(
   userID: string,
   params: UserCookieCreationParams,
 ): Promise<UserViewerData> {
-  const { platformDetails, deviceToken, primaryIdentityPublicKey } = params;
+  const {
+    platformDetails,
+    deviceToken,
+    primaryIdentityPublicKey,
+    socialProof,
+  } = params;
   const { platform, ...versions } = platformDetails || defaultPlatformDetails;
   const versionsString =
     Object.keys(versions).length > 0 ? JSON.stringify(versions) : null;
@@ -681,10 +688,11 @@ async function createNewUserCookie(
     deviceToken,
     versionsString,
     primaryIdentityPublicKey,
+    JSON.stringify(socialProof),
   ];
   const query = SQL`
     INSERT INTO cookies(id, hash, user, platform, creation_time, last_used,
-      device_token, versions, public_key)
+      device_token, versions, public_key, social_proof)
     VALUES ${[cookieRow]}
   `;
   await dbQuery(query);
