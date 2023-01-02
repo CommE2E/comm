@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 
@@ -18,7 +18,10 @@ import type { TextStyle } from '../types/styles';
 import CommunityDrawerItemCommunity from './community-drawer-item-cummunity.react';
 
 const maxDepth = 2;
-const safeAreaEdges = ['top'];
+const safeAreaEdges = Platform.select({
+  ios: ['top'],
+  default: ['top', 'bottom'],
+});
 
 function CommunityDrawerContent(): React.Node {
   const communities = useSelector(communityThreadSelector);
