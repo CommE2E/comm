@@ -386,8 +386,6 @@ PODS:
     - React
   - react-native-netinfo (9.3.7):
     - React-Core
-  - react-native-notifications (1.1.19):
-    - React
   - react-native-orientation-locker (1.5.0):
     - React-Core
   - react-native-pager-view (6.0.1):
@@ -601,7 +599,6 @@ DEPENDENCIES:
   - react-native-ffmpeg/min-lts (from `../node_modules/react-native-ffmpeg`)
   - react-native-in-app-message (from `../node_modules/react-native-in-app-message`)
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
-  - react-native-notifications (from `../node_modules/react-native-notifications`)
   - react-native-orientation-locker (from `../node_modules/react-native-orientation-locker`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -749,8 +746,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-in-app-message"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
-  react-native-notifications:
-    :path: "../node_modules/react-native-notifications"
   react-native-orientation-locker:
     :path: "../node_modules/react-native-orientation-locker"
   react-native-pager-view:
@@ -877,7 +872,6 @@ SPEC CHECKSUMS:
   react-native-ffmpeg: f9a60452aaa5d478aac205b248224994f3bde416
   react-native-in-app-message: f91de5009620af01456531118264c93e249b83ec
   react-native-netinfo: 2517ad504b3d303e90d7a431b0fcaef76d207983
-  react-native-notifications: bb042206ac7eab9323d528c780b3d6fe796c1f5e
   react-native-orientation-locker: 851f6510d8046ea2f14aa169b1e01fcd309a94ba
   react-native-pager-view: 3051346698a0ba0c4e13e40097cc11b00ee03cca
   react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
