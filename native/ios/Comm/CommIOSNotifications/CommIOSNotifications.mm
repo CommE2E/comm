@@ -2,6 +2,7 @@
 #import "CommIOSNotificationsBridgeQueue.h"
 #import "Logger.h"
 #import <React/RCTBridge.h>
+#import <React/RCTConvert.h>
 #import <React/RCTEventDispatcher.h>
 #import <React/RCTUtils.h>
 #import <UIKit/UIKit.h>
@@ -17,6 +18,24 @@ NSString *const CommIOSNotificationsRegistrationFailed =
 NSString *const CommIOSNotificationsReceivedForeground =
     @"CommIOSNotificationsReceivedForeground";
 NSString *const CommIOSNotificationsOpened = @"CommIOSNotificationsOpened";
+
+/*
+ UIBackgroundFetchResult enum converter to pass fetch result value
+ between Objective - C and JavaScript
+*/
+@implementation RCTConvert (UIBackgroundFetchResult)
+
+RCT_ENUM_CONVERTER(
+    UIBackgroundFetchResult,
+    (@{
+      @"UIBackgroundFetchResultNewData" : @(UIBackgroundFetchResultNewData),
+      @"UIBackgroundFetchResultNoData" : @(UIBackgroundFetchResultNoData),
+      @"UIBackgroundFetchResultFailed" : @(UIBackgroundFetchResultFailed),
+    }),
+    UIBackgroundFetchResultNoData,
+    integerValue)
+
+@end
 
 @implementation CommIOSNotifications
 
@@ -83,6 +102,21 @@ RCT_EXPORT_MODULE()
     @"notificationReceivedForeground",
     @"notificationOpened"
   ];
+}
+
+/*
+ Constants used un JavaScript
+*/
+- (NSDictionary *)constantsToExport {
+  return @{
+    @"FETCH_RESULT_NEW_DATA" : @"UIBackgroundFetchResultNewData",
+    @"FETCH_RESULT_NO_DATA" : @"UIBackgroundFetchResultNoData",
+    @"FETCH_RESULT_FAILED" : @"UIBackgroundFetchResultFailed"
+  };
+}
+
++ (BOOL)requiresMainQueueSetup {
+  return YES;
 }
 
 /*
