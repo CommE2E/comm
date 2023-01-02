@@ -5,7 +5,6 @@ import * as React from 'react';
 import { AppRegistry, Platform, Alert, LogBox } from 'react-native';
 import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
-import NotificationsIOS from 'react-native-notifications';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -58,12 +57,14 @@ import {
 import {
   CommIOSNotification,
   type CoreIOSNotificationData,
+  type CoreIOSNotificationDataWithRequestIdentifier,
 } from './comm-ios-notification';
 import { getFirebase } from './firebase';
 import InAppNotif from './in-app-notif.react';
 import {
   requestIOSPushPermissions,
   iosPushPermissionResponseReceived,
+  CommIOSNotifications,
   getCommIOSNotificationsEventEmitter,
 } from './ios';
 
@@ -266,7 +267,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   updateBadgeCount() {
     const curUnreadCount = this.props.unreadCount;
     if (Platform.OS === 'ios') {
-      NotificationsIOS.setBadgesCount(curUnreadCount);
+      CommIOSNotifications.setBadgesCount(curUnreadCount);
     } else if (Platform.OS === 'android') {
       getFirebase().notifications().setBadge(curUnreadCount);
     }
@@ -274,7 +275,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   clearAllNotifs() {
     if (Platform.OS === 'ios') {
-      NotificationsIOS.removeAllDeliveredNotifications();
+      CommIOSNotifications.removeAllDeliveredNotifications();
     } else if (Platform.OS === 'android') {
       getFirebase().notifications().removeAllDeliveredNotifications();
     }
@@ -286,7 +287,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     if (Platform.OS === 'ios') {
-      NotificationsIOS.getDeliveredNotifications(notifications =>
+      CommIOSNotifications.getDeliveredNotifications(notifications =>
         PushHandler.clearDeliveredIOSNotificationsForThread(
           activeThread,
           notifications,
@@ -302,16 +303,16 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   static clearDeliveredIOSNotificationsForThread(
     threadID: string,
-    notifications: Object[],
+    notifications: $ReadOnlyArray<CoreIOSNotificationDataWithRequestIdentifier>,
   ) {
     const identifiersToClear = [];
     for (const notification of notifications) {
-      if (notification['thread-id'] === threadID) {
+      if (notification.threadID === threadID) {
         identifiersToClear.push(notification.identifier);
       }
     }
     if (identifiersToClear) {
-      NotificationsIOS.removeDeliveredNotifications(identifiersToClear);
+      CommIOSNotifications.removeDeliveredNotifications(identifiersToClear);
     }
   }
 
@@ -466,7 +467,9 @@ class PushHandler extends React.PureComponent<Props, State> {
       // callback shouldn't be triggered at all. To avoid weirdness we are
       // ignoring any foreground notification received within the first second
       // of the app being started, since they are most likely to be erroneous.
-      notification.finish(NotificationsIOS.FetchResult.NoData);
+      notification.finish(
+        CommIOSNotifications.getConstants().FETCH_RESULT_NO_DATA,
+      );
       return;
     }
     const threadID = notification.getData().threadID;
@@ -489,7 +492,9 @@ class PushHandler extends React.PureComponent<Props, State> {
         'Non-rescind foreground notification without alert received!',
       );
     }
-    notification.finish(NotificationsIOS.FetchResult.NewData);
+    notification.finish(
+      CommIOSNotifications.getConstants().FETCH_RESULT_NEW_DATA,
+    );
   };
 
   onPushNotifBootsApp() {
@@ -508,7 +513,9 @@ class PushHandler extends React.PureComponent<Props, State> {
     const messageInfos = notification.getData().messageInfos;
     this.saveMessageInfos(messageInfos);
     this.onPressNotificationForThread(threadID, true);
-    notification.finish(NotificationsIOS.FetchResult.NewData);
+    notification.finish(
+      CommIOSNotifications.getConstants().FETCH_RESULT_NEW_DATA,
+    );
   };
 
   showInAppNotification(threadID: string, message: string, title?: ?string) {
