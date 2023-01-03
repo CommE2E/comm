@@ -1,0 +1,40 @@
+name: Windows build CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'landing/**'
+      - 'docs/**'
+      - 'keyserver/**'
+      - 'native/**'
+      - 'shared/**'
+
+jobs:
+  build:
+    name: Build Windows app
+    runs-on: windows-2022
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: yarn --frozen-lockfile --network-timeout 180000
+        run: yarn --frozen-lockfile --network-timeout 180000
+
+      - name: Save WINDOWS_CERTIFICATE_B64 to file
+        env:
+          WINDOWS_CERTIFICATE_B64: ${{secrets.WINDOWS_CERTIFICATE_B64}}
+        run: echo "$env:WINDOWS_CERTIFICATE_B64" > WINDOWS_CERTIFICATE_B64.b64
+
+      - name: Decode Windows certificate
+        run: certutil -decode WINDOWS_CERTIFICATE_B64.b64 windows_certificate.pfx
+
+      - name: Build App
+        env:
+          WINDOWS_CERTIFICATE: ${{github.workspace}}\windows_certificate.pfx
+          WINDOWS_PASSWORD: ${{secrets.WINDOWS_PASSWORD}}
+        working-directory: './desktop'
+        run: yarn make

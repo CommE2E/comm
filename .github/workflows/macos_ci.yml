@@ -1,0 +1,60 @@
+name: macOS Build CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'landing/**'
+      - 'docs/**'
+      - 'keyserver/**'
+      - 'native/**'
+      - 'shared/**'
+
+jobs:
+  build:
+    name: Build macOS app
+    runs-on: macos-12
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Developer certificate
+        env:
+          MACOS_BUILD_CERTIFICATE_BASE64: ${{ secrets.MACOS_BUILD_CERTIFICATE_BASE64 }}
+          MACOS_BUILD_P12_PASSWORD: ${{ secrets.MACOS_BUILD_P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          # create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate from secrets
+          echo -n "$MACOS_BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+
+          # create temporary keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$MACOS_BUILD_P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+      - name: npm install -g yarn
+        run: npm install -g yarn
+
+      - name: yarn --frozen-lockfile --network-timeout 180000
+        run: yarn --frozen-lockfile --network-timeout 180000
+
+      - name: Build App
+        env:
+          APPLE_USER_NAME: ${{secrets.APPLE_USER_NAME}}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_SPECIFIC_PASSWORD}}
+          TEAM_ID: ${{secrets.TEAM_ID}}
+        working-directory: './desktop'
+        run: yarn make --arch universal
+
+      - name: Clean up keychain
+        if: ${{ always() }}
+        run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
