@@ -207,6 +207,7 @@ export type ProcessSIWEAccountCreationRequest = {
   +calendarQuery?: ?CalendarQuery,
   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
   +platformDetails: PlatformDetails,
+  +primaryIdentityPublicKey: ?string,
 };
 // Note: `processSIWEAccountCreation(...)` assumes that the validity of
 //       `ProcessSIWEAccountCreationRequest` was checked at call site.

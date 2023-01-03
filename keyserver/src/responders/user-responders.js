@@ -35,7 +35,11 @@ import type { PasswordUpdate } from 'lib/types/user-types';
 import { ServerError } from 'lib/utils/errors';
 import { values } from 'lib/utils/objects';
 import { promiseAll } from 'lib/utils/promises';
-import { isValidSIWEMessage } from 'lib/utils/siwe-utils.js';
+import {
+  getPublicKeyFromSIWEStatement,
+  isValidSIWEMessage,
+  isValidSIWEStatementWithPublicKey,
+} from 'lib/utils/siwe-utils.js';
 import {
   tShape,
   tPlatformDetails,
@@ -368,7 +372,16 @@ async function siweAuthResponder(
     }
   }
 
-  // 4. Create account with call to `processSIWEAccountCreation(...)`
+  // 4. Pull `primaryIdentityPublicKey` out from SIWEMessage `statement`
+  //    if it was included. We expect it to be included for native clients,
+  //    and we expect it to be EXCLUDED for web clients.
+  const { statement } = siweMessage;
+  const primaryIdentityPublicKey =
+    statement && isValidSIWEStatementWithPublicKey(statement)
+      ? getPublicKeyFromSIWEStatement(statement)
+      : null;
+
+  // 5. Create account with call to `processSIWEAccountCreation(...)`
   //    if address does not correspond to an existing user.
   let userID = await fetchUserIDForEthereumAddress(siweMessage.address);
   if (!userID) {
@@ -376,6 +389,7 @@ async function siweAuthResponder(
       address: siweMessage.address,
       deviceTokenUpdateRequest: deviceTokenUpdateRequest,
       platformDetails,
+      primaryIdentityPublicKey: primaryIdentityPublicKey,
     };
     userID = await processSIWEAccountCreation(
       viewer,
@@ -383,7 +397,7 @@ async function siweAuthResponder(
     );
   }
 
-  // 5. Complete login with call to `processSuccessfulLogin(...)`.
+  // 6. Complete login with call to `processSuccessfulLogin(...)`.
   return await processSuccessfulLogin(viewer, input, userID, calendarQuery);
 }
 
