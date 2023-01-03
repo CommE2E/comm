@@ -12,6 +12,28 @@ if ! command -v nix > /dev/null; then
   fi
 fi
 
+write_nix_path_to_file() {
+  target_file="$1"
+
+  # Only write to files if they are missing the entry and writeable
+  if ! grep nix-profile "$target_file" 2>/dev/null \
+      && [ -w "$target_file" ] || [ ! -f "$target_file" ]; then
+    echo "Adding Nix path entry to $target_file" >&2
+    # We want this to output $PATH without expansion
+    # shellcheck disable=SC2016
+    echo 'export PATH="$HOME"/.nix-profile/bin:/nix/var/nix/profiles/default/bin:"${PATH}"' >> "$target_file"
+  fi
+}
+
+# Apple may reset /etc/*rc on system updates which is how Nix exposes itself
+# Add user entries to avoid Nix "disappearing" from PATH
+if [[ "$OSTYPE" == 'darwin'* ]]; then
+  write_nix_path_to_file "$HOME/.zshenv"
+  write_nix_path_to_file "$HOME/.bashrc"
+  write_nix_path_to_file "$HOME/.bash_profile"
+  write_nix_path_to_file "$HOME/.profile"
+fi
+
 # Figure out how many cores the system has, and set cache default
 if [[ "$OSTYPE" == 'darwin'* ]]; then
   NPROC=$(sysctl -n hw.physicalcpu)
