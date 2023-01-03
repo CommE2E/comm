@@ -811,7 +811,7 @@ const unboundStyles = {
     marginRight: 4,
     marginTop: 6,
     marginBottom: 8,
-    maxHeight: 250,
+    maxHeight: 110,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
