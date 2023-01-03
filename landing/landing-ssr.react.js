@@ -4,7 +4,7 @@ import * as React from 'react';
 import { StaticRouter } from 'react-router';
 
 import Landing from './landing.react';
-import { SIWENonceContext } from './siwe-nonce-context';
+import { SIWEContext } from './siwe-context.js';
 
 export type LandingSSRProps = {
   +url: string,
@@ -14,7 +14,7 @@ export type LandingSSRProps = {
 function LandingSSR(props: LandingSSRProps): React.Node {
   const { url, basename, siweNonce } = props;
 
-  const siweNonceContextValue = React.useMemo(
+  const siweContextValue = React.useMemo(
     () => ({
       siweNonce,
     }),
@@ -23,9 +23,9 @@ function LandingSSR(props: LandingSSRProps): React.Node {
   const routerContext = React.useMemo(() => ({}), []);
   return (
     <StaticRouter location={url} basename={basename} context={routerContext}>
-      <SIWENonceContext.Provider value={siweNonceContextValue}>
+      <SIWEContext.Provider value={siweContextValue}>
         <Landing />
-      </SIWENonceContext.Provider>
+      </SIWEContext.Provider>
     </StaticRouter>
   );
 }

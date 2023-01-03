@@ -27,7 +27,7 @@ import { publicProvider } from 'wagmi/providers/public';
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
 import { siweStatement } from 'lib/utils/siwe-utils.js';
 
-import { SIWENonceContext } from './siwe-nonce-context.js';
+import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
 
 // details can be found https://0.6.x.wagmi.sh/docs/providers/configuring-chains
@@ -85,7 +85,7 @@ async function signInWithEthereum(address: string, signer, nonce: string) {
 function SIWE(): React.Node {
   const { address } = useAccount();
   const { data: signer } = useSigner();
-  const { siweNonce } = React.useContext(SIWENonceContext);
+  const { siweNonce } = React.useContext(SIWEContext);
   const onClick = React.useCallback(() => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
     signInWithEthereum(address, signer, siweNonce);
