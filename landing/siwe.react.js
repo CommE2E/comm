@@ -25,7 +25,10 @@ import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
-import { siweStatement } from 'lib/utils/siwe-utils.js';
+import {
+  getSIWEStatementForPublicKey,
+  siweStatementWithoutPublicKey,
+} from 'lib/utils/siwe-utils.js';
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
@@ -70,9 +73,14 @@ function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
 }
 
-async function signInWithEthereum(address: string, signer, nonce: string) {
+async function signInWithEthereum(
+  address: string,
+  signer,
+  nonce: string,
+  statement: string,
+) {
   invariant(nonce, 'nonce must be present in signInWithEthereum');
-  const message = createSiweMessage(address, siweStatement, nonce);
+  const message = createSiweMessage(address, statement, nonce);
   const signature = await signer.signMessage(message);
   postMessageToNativeWebView({
     type: 'siwe_success',
@@ -85,11 +93,16 @@ async function signInWithEthereum(address: string, signer, nonce: string) {
 function SIWE(): React.Node {
   const { address } = useAccount();
   const { data: signer } = useSigner();
-  const { siweNonce } = React.useContext(SIWEContext);
+  const { siweNonce, siwePrimaryIdentityPublicKey } = React.useContext(
+    SIWEContext,
+  );
   const onClick = React.useCallback(() => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
-    signInWithEthereum(address, signer, siweNonce);
-  }, [address, signer, siweNonce]);
+    const statement = siwePrimaryIdentityPublicKey
+      ? getSIWEStatementForPublicKey(siwePrimaryIdentityPublicKey)
+      : siweStatementWithoutPublicKey;
+    signInWithEthereum(address, signer, siweNonce, statement);
+  }, [address, signer, siweNonce, siwePrimaryIdentityPublicKey]);
 
   const { openConnectModal } = useConnectModal();
   const hasNonce = siweNonce !== null && siweNonce !== undefined;
