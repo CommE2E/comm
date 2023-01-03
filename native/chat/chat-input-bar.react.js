@@ -28,7 +28,12 @@ import {
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import {
+  relativeMemberInfoSelectorForMembersOfThread,
+  userStoreSearchIndex,
+} from 'lib/selectors/user-selectors';
 import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
+import SearchIndex from 'lib/shared/search-index';
 import {
   threadHasPermission,
   viewerIsMember,
@@ -49,6 +54,7 @@ import {
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
 } from 'lib/types/thread-types';
+import type { RelativeMemberInfo } from 'lib/types/thread-types';
 import { type UserInfos } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
@@ -135,6 +141,8 @@ type Props = {
   +joinThread: (request: ClientThreadJoinRequest) => Promise<ThreadJoinPayload>,
   // withInputState
   +inputState: ?InputState,
+  +userSearchIndex: SearchIndex,
+  +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 };
 type State = {
   +text: string,
@@ -867,6 +875,11 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
   const dispatchActionPromise = useDispatchActionPromise();
   const callJoinThread = useServerCall(joinThread);
 
+  const userSearchIndex = useSelector(userStoreSearchIndex);
+  const threadMembers = useSelector(
+    relativeMemberInfoSelectorForMembersOfThread(props.threadInfo.id),
+  );
+
   return (
     <ChatInputBar
       {...props}
@@ -885,6 +898,8 @@ function ConnectedChatInputBarBase(props: ConnectedChatInputBarBaseProps) {
       dispatchActionPromise={dispatchActionPromise}
       joinThread={callJoinThread}
       inputState={inputState}
+      userSearchIndex={userSearchIndex}
+      threadMembers={threadMembers}
     />
   );
 }
