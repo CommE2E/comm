@@ -8,11 +8,13 @@ import { SIWEContext } from './siwe-context.js';
 
 declare var routerBasename: string;
 declare var siweNonce: ?string;
+declare var siwePrimaryIdentityPublicKey: ?string;
 
 function RootComponent(): React.Node {
   const siweContextValue = React.useMemo(
     () => ({
       siweNonce,
+      siwePrimaryIdentityPublicKey,
     }),
     [],
   );

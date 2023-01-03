@@ -194,6 +194,7 @@ async function landingResponder(req: $Request, res: $Response) {
       url={clientPath}
       basename={routerBasename}
       siweNonce={siweNonce}
+      siwePrimaryIdentityPublicKey={siwePrimaryIdentityPublicKey}
     />,
   );
   reactStream.pipe(res, { end: false });

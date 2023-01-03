@@ -10,15 +10,17 @@ export type LandingSSRProps = {
   +url: string,
   +basename: string,
   +siweNonce: ?string,
+  +siwePrimaryIdentityPublicKey: ?string,
 };
 function LandingSSR(props: LandingSSRProps): React.Node {
-  const { url, basename, siweNonce } = props;
+  const { url, basename, siweNonce, siwePrimaryIdentityPublicKey } = props;
 
   const siweContextValue = React.useMemo(
     () => ({
       siweNonce,
+      siwePrimaryIdentityPublicKey,
     }),
-    [siweNonce],
+    [siweNonce, siwePrimaryIdentityPublicKey],
   );
   const routerContext = React.useMemo(() => ({}), []);
   return (
