@@ -203,6 +203,7 @@ async function processSuccessfulLogin(
   input: any,
   userID: string,
   calendarQuery: ?CalendarQuery,
+  primaryIdentityPublicKey?: ?string,
 ): Promise<LogInResponse> {
   const request: LogInRequest = input;
   const newServerTime = Date.now();
@@ -213,6 +214,7 @@ async function processSuccessfulLogin(
     createNewUserCookie(userID, {
       platformDetails: request.platformDetails,
       deviceToken,
+      primaryIdentityPublicKey,
     }),
     deleteCookie(viewer.cookieID),
   ]);
@@ -398,7 +400,13 @@ async function siweAuthResponder(
   }
 
   // 6. Complete login with call to `processSuccessfulLogin(...)`.
-  return await processSuccessfulLogin(viewer, input, userID, calendarQuery);
+  return await processSuccessfulLogin(
+    viewer,
+    input,
+    userID,
+    calendarQuery,
+    primaryIdentityPublicKey,
+  );
 }
 
 const updatePasswordRequestInputValidator = tShape({

@@ -236,6 +236,7 @@ async function processSIWEAccountCreation(
     createNewUserCookie(id, {
       platformDetails: request.platformDetails,
       deviceToken,
+      primaryIdentityPublicKey: request.primaryIdentityPublicKey,
     }),
     deleteCookie(viewer.cookieID),
     dbQuery(newUserQuery),
