@@ -1,0 +1,22 @@
+.wrapper {
+  align-self: flex-start;
+}
+
+.iconWrapper {
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  margin-right: 2px;
+}
+
+.icon {
+  color: var(--drawer-expand-button);
+}
+
+.text {
+  color: var(--drawer-expand-button);
+  font-size: 14px;
+  font-weight: 500;
+}
