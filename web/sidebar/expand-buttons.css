@@ -1,0 +1,22 @@
+.wrapper {
+  width: 24px;
+  justify-content: center;
+  display: flex;
+}
+
+.button {
+  color: var(--drawer-expand-button);
+}
+
+.disabledButton {
+  color: var(--drawer-expand-button-disabled);
+}
+
+.sizeContainer {
+  font-size: 12px;
+  width: 24px;
+  height: 24px;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
