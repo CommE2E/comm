@@ -1,0 +1,71 @@
+div.threadEntry {
+  display: flex;
+  flex-direction: row;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+div.threadListContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.titleWrapper {
+  overflow: hidden;
+}
+
+div.title {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--drawer-item-color);
+  line-height: 24px;
+}
+
+div.titleLevel0 {
+  font-size: var(--l-font-18);
+  font-weight: var(--semi-bold);
+}
+
+div.titleLevel1 {
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
+}
+
+div.titleLevel2 {
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
+}
+
+div.buttonContainer {
+  width: 20px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+div.chatItem {
+  margin-left: 16px;
+}
+
+.communityBase {
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-right: 24px;
+  padding-left: 8px;
+  overflow: hidden;
+}
+
+.communityExpanded {
+  background-color: var(--drawer-open-community-bg);
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+div.subchannelsButton {
+  margin-left: 24px;
+  margin-bottom: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+}
