@@ -10,16 +10,16 @@ async function getRustAPI(): Promise<RustAPI> {
   let nativeBinding = null;
   if (platform === 'darwin' && arch === 'x64') {
     // $FlowFixMe
-    nativeBinding = await import('./napi/opaque-ke-napi.darwin-x64.node');
+    nativeBinding = await import('./napi/rust-node-addon.darwin-x64.node');
   } else if (platform === 'darwin' && arch === 'arm64') {
     // $FlowFixMe
-    nativeBinding = await import('./napi/opaque-ke-napi.darwin-arm64.node');
+    nativeBinding = await import('./napi/rust-node-addon.darwin-arm64.node');
   } else if (platform === 'linux' && arch === 'x64') {
     // $FlowFixMe
-    nativeBinding = await import('./napi/opaque-ke-napi.linux-x64-gnu.node');
+    nativeBinding = await import('./napi/rust-node-addon.linux-x64-gnu.node');
   } else if (platform === 'linux' && arch === 'arm64') {
     // $FlowFixMe
-    nativeBinding = await import('./napi/opaque-ke-napi.linux-arm64-gnu.node');
+    nativeBinding = await import('./napi/rust-node-addon.linux-arm64-gnu.node');
   } else {
     throw new Error(`Unsupported OS: ${platform}, architecture: ${arch}`);
   }

@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "opaque-ke-napi"
+name = "rust-node-addon"
 version = "0.1.0"
 license = "BSD-3-Clause"
 

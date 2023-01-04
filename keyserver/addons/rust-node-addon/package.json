@@ -5,12 +5,12 @@
     ]
   },
   "private": true,
-  "name": "opaque-ke-napi",
+  "name": "rust-node-addon",
   "version": "0.0.1",
   "main": "index.js",
   "type": "module",
   "napi": {
-    "name": "opaque-ke-napi",
+    "name": "rust-node-addon",
     "triples": {
       "defaults": false,
       "additional": [

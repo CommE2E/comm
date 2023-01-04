@@ -4,7 +4,7 @@ const localPackages = {
   landing: 'landing',
   lib: 'lib',
   web: 'web',
-  ['opaque-ke-napi']: 'keyserver/addons/opaque-ke-napi',
+  ['rust-node-addon']: 'keyserver/addons/rust-node-addon',
 };
 
 async function resolve(specifier, context, nextResolve) {

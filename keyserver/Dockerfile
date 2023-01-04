@@ -108,15 +108,15 @@ COPY --chown=comm web/package.json web/.flowconfig web/
 COPY --chown=comm native/package.json native/.flowconfig native/postinstall.sh native/
 COPY --chown=comm landing/package.json landing/.flowconfig landing/
 COPY --chown=comm desktop/package.json desktop/
-COPY --chown=comm keyserver/addons/opaque-ke-napi/package.json \
-  keyserver/addons/opaque-ke-napi/
+COPY --chown=comm keyserver/addons/rust-node-addon/package.json \
+  keyserver/addons/rust-node-addon/
 COPY --chown=comm native/expo-modules/android-lifecycle/package.json \
   native/expo-modules/android-lifecycle/
 
 # Create empty Rust library and copy in Cargo.toml file
-RUN cargo init keyserver/addons/opaque-ke-napi --lib
-COPY --chown=comm keyserver/addons/opaque-ke-napi/Cargo.toml \
-  keyserver/addons/opaque-ke-napi/
+RUN cargo init keyserver/addons/rust-node-addon --lib
+COPY --chown=comm keyserver/addons/rust-node-addon/Cargo.toml \
+  keyserver/addons/rust-node-addon/
 
 # Copy in files needed for patch-package
 COPY --chown=comm patches patches/
@@ -145,10 +145,10 @@ COPY --chown=comm . .
 
 #-------------------------------------------------------------------------------
 # STEP 9: BUILD NODE ADDON
-# Now that source files have been copied in, build the opaque-ke-napi addon
+# Now that source files have been copied in, build rust-node-addon
 #-------------------------------------------------------------------------------
 
-RUN yarn workspace opaque-ke-napi build
+RUN yarn workspace rust-node-addon build
 
 #-------------------------------------------------------------------------------
 # STEP 10: RUN BUILD SCRIPTS
