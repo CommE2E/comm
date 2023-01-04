@@ -17,7 +17,9 @@ export function handleSquirrelEvent(): boolean {
   const commExeName = path.basename(process.execPath);
 
   const spawnUpdate = args => {
-    return spawn(updateExe, args, { detached: true }).on('close', app.quit);
+    return spawn(updateExe, args, { detached: true }).on('close', () =>
+      app.quit(),
+    );
   };
 
   const squirrelEvent = process.argv[1];
