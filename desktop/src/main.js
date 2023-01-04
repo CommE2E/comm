@@ -7,7 +7,7 @@ import {
   Menu,
   ipcMain,
   systemPreferences,
-} from 'electron';
+} from 'electron/main';
 import fs from 'fs';
 import path from 'path';
 

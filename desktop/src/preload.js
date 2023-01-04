@@ -1,6 +1,6 @@
 // @flow
 
-import { contextBridge, ipcRenderer } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron/renderer';
 
 import type { ElectronBridge } from 'lib/types/electron-types';
 
