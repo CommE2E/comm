@@ -1,3 +1,7 @@
+// Assorted constants
+
+pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
+
 // Configuration defaults
 
 pub const DEFAULT_GRPC_SERVER_PORT: u64 = 50051;
