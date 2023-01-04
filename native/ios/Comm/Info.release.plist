@@ -41,6 +41,8 @@
 	<string>Allow $(PRODUCT_NAME) to save images to your photo library.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow $(PRODUCT_NAME) to access the camera so you can capture and send photos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow $(PRODUCT_NAME) to access the microphone so you can capture videos with audio.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>OpenSans-Semibold.ttf</string>
@@ -66,7 +68,7 @@
 		<string>IBMPlexSans-Medium.ttf</string>
 		<string>IBMPlexSans-Bold.ttf</string>
 		<string>SWMansionIcons.ttf</string>
-    <string>CommIcons.ttf</string>
+		<string>CommIcons.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
