@@ -6,8 +6,12 @@ use tracing_subscriber::EnvFilter;
 
 use crate::service::{BackupServiceServer, MyBackupService};
 
+pub mod config;
 pub mod constants;
 pub mod service;
+
+// re-export this to be available as crate::CONFIG
+pub use config::CONFIG;
 
 fn configure_logging() -> Result<()> {
   let filter = EnvFilter::builder()
@@ -21,8 +25,7 @@ fn configure_logging() -> Result<()> {
 }
 
 async fn run_grpc_server() -> Result<()> {
-  let addr: SocketAddr =
-    format!("[::]:{}", constants::DEFAULT_GRPC_SERVER_PORT).parse()?;
+  let addr: SocketAddr = format!("[::]:{}", CONFIG.listening_port).parse()?;
   let backup_service = MyBackupService::default();
 
   info!("Starting gRPC server listening at {}", addr.to_string());
@@ -36,6 +39,7 @@ async fn run_grpc_server() -> Result<()> {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+  config::parse_cmdline_args();
   configure_logging()?;
 
   run_grpc_server().await
