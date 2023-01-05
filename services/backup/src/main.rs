@@ -9,6 +9,7 @@ use crate::service::{BackupServiceServer, MyBackupService};
 pub mod blob;
 pub mod config;
 pub mod constants;
+pub mod database;
 pub mod service;
 
 // re-export this to be available as crate::CONFIG
