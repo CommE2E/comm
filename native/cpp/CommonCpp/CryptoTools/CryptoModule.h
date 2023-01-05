@@ -30,8 +30,8 @@ class CryptoModule {
 
 public:
   const std::string id;
-  CryptoModule(std::string id);
-  CryptoModule(std::string id, std::string secretKey, Persist persist);
+  CryptoModule();
+  CryptoModule(std::string secretKey, Persist persist);
 
   static Keys keysFromStrings(
       const std::string &identityKeys,
