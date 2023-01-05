@@ -1,21 +1,10 @@
 // @flow
 
-type ElectronContextBridge = {
-  // Returns a callback that you can call to remove the listener
-  +onNavigate: OnNavigateListener => () => void,
-  +clearHistory: () => void,
-  +doubleClickTopBar: () => void,
-  +setBadge: (value: string | number | null) => void,
-};
+import type { ElectronBridge } from 'lib/types/electron-types';
 
-type OnNavigateListener = ({
-  +canGoBack: boolean,
-  +canGoForward: boolean,
-}) => void;
+declare var electronContextBridge: void | ElectronBridge;
 
-declare var electronContextBridge: ?ElectronContextBridge;
-
-const electron: null | ElectronContextBridge =
+const electron: ?ElectronBridge =
   typeof electronContextBridge === 'undefined' ? null : electronContextBridge;
 
 export default electron;
