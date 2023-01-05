@@ -26,9 +26,9 @@ fn configure_logging() -> Result<()> {
   Ok(())
 }
 
-async fn run_grpc_server() -> Result<()> {
+async fn run_grpc_server(db: database::DatabaseClient) -> Result<()> {
   let addr: SocketAddr = format!("[::]:{}", CONFIG.listening_port).parse()?;
-  let backup_service = MyBackupService::default();
+  let backup_service = MyBackupService::new(db);
 
   info!("Starting gRPC server listening at {}", addr.to_string());
   Server::builder()
@@ -44,5 +44,8 @@ async fn main() -> Result<()> {
   config::parse_cmdline_args();
   configure_logging()?;
 
-  run_grpc_server().await
+  let aws_config = config::load_aws_config().await;
+  let db = database::DatabaseClient::new(&aws_config);
+
+  run_grpc_server(db).await
 }

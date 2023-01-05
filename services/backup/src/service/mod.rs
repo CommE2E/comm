@@ -4,13 +4,22 @@ use tokio_stream::Stream;
 use tonic::{Request, Response, Status};
 use tracing::instrument;
 
+use crate::database::DatabaseClient;
+
 mod proto {
   tonic::include_proto!("backup");
 }
 pub use proto::backup_service_server::BackupServiceServer;
 
-#[derive(Default)]
-pub struct MyBackupService {}
+pub struct MyBackupService {
+  db: DatabaseClient,
+}
+
+impl MyBackupService {
+  pub fn new(db_client: DatabaseClient) -> Self {
+    MyBackupService { db: db_client }
+  }
+}
 
 // gRPC implementation
 #[tonic::async_trait]

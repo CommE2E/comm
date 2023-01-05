@@ -1,9 +1,12 @@
+use aws_sdk_dynamodb::{Endpoint, Region};
 use clap::{builder::FalseyValueParser, Parser};
 use once_cell::sync::Lazy;
+use tonic::transport::Uri;
+use tracing::info;
 
 use crate::constants::{
-  DEFAULT_BLOB_SERVICE_URL, DEFAULT_GRPC_SERVER_PORT, DEFAULT_LOCALSTACK_URL,
-  SANDBOX_ENV_VAR,
+  AWS_REGION, DEFAULT_BLOB_SERVICE_URL, DEFAULT_GRPC_SERVER_PORT,
+  DEFAULT_LOCALSTACK_URL, SANDBOX_ENV_VAR,
 };
 
 #[derive(Parser)]
@@ -35,4 +38,22 @@ pub static CONFIG: Lazy<AppConfig> = Lazy::new(|| AppConfig::parse());
 pub(super) fn parse_cmdline_args() {
   // force evaluation of the lazy initialized config
   Lazy::force(&CONFIG);
+}
+
+/// Provides region/credentials configuration for AWS SDKs
+pub async fn load_aws_config() -> aws_types::SdkConfig {
+  let mut config_builder =
+    aws_config::from_env().region(Region::new(AWS_REGION));
+
+  if CONFIG.is_sandbox {
+    info!(
+      "Running in sandbox environment. Localstack URL: {}",
+      &CONFIG.localstack_url
+    );
+    config_builder = config_builder.endpoint_resolver(Endpoint::immutable(
+      Uri::from_static(&CONFIG.localstack_url),
+    ));
+  }
+
+  config_builder.load().await
 }
