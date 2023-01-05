@@ -98,8 +98,6 @@ PODS:
   - ExpoImageManipulator (11.0.0):
     - EXImageLoader
     - ExpoModulesCore
-  - ExpoImagePicker (14.0.2):
-    - ExpoModulesCore
   - ExpoKeepAwake (11.0.1):
     - ExpoModulesCore
   - ExpoModulesCore (1.0.3):
@@ -567,7 +565,6 @@ DEPENDENCIES:
   - expo-dev-menu-interface (from `../../node_modules/expo-dev-menu-interface/ios`)
   - ExpoHaptics (from `../../node_modules/expo-haptics/ios`)
   - ExpoImageManipulator (from `../../node_modules/expo-image-manipulator/ios`)
-  - ExpoImagePicker (from `../../node_modules/expo-image-picker/ios`)
   - ExpoKeepAwake (from `../../node_modules/expo-keep-awake/ios`)
   - ExpoModulesCore (from `../../node_modules/expo-modules-core`)
   - EXSecureStore (from `../../node_modules/expo-secure-store/ios`)
@@ -685,8 +682,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/expo-haptics/ios"
   ExpoImageManipulator:
     :path: "../../node_modules/expo-image-manipulator/ios"
-  ExpoImagePicker:
-    :path: "../../node_modules/expo-image-picker/ios"
   ExpoKeepAwake:
     :path: "../../node_modules/expo-keep-awake/ios"
   ExpoModulesCore:
@@ -839,7 +834,6 @@ SPEC CHECKSUMS:
   expo-dev-menu-interface: 45581093393dacd51ce5e7f641cf9ed5064a2e3f
   ExpoHaptics: 5a56d30a87ea213dd00b09566dc4b441a4dff97f
   ExpoImageManipulator: 5f3c1ab8dd81de11491b5051bb925abc91fe57e4
-  ExpoImagePicker: d2a1cea4023008ae2fb0d95f33422b80772cc76e
   ExpoKeepAwake: 69b59d0a8d2b24de9f82759c39b3821fec030318
   ExpoModulesCore: b5d21c8880afda6fb6ee95469f9ac2ec9b98e995
   EXSecureStore: daec0117c922a67c658cb229152a9e252e5c1750
