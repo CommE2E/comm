@@ -31,7 +31,7 @@ type Props = {
 };
 function InlineSidebar(props: Props): React.Node {
   const { disabled = false, reactions, threadInfo } = props;
-  const { repliesText } = useInlineSidebarText(threadInfo);
+  const repliesText = useInlineSidebarText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
   const onPress = React.useCallback(() => {

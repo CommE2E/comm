@@ -19,7 +19,7 @@ type Props = {
 };
 function InlineSidebar(props: Props): React.Node {
   const { threadInfo, positioning, reactions } = props;
-  const inlineSidebarText = useInlineSidebarText(threadInfo);
+  const repliesText = useInlineSidebarText(threadInfo);
 
   const containerClasses = classNames([
     css.inlineSidebarContainer,
@@ -45,17 +45,17 @@ function InlineSidebar(props: Props): React.Node {
   const threadInfoExists = !!threadInfo;
 
   const sidebarItem = React.useMemo(() => {
-    if (!threadInfoExists || !inlineSidebarText) {
+    if (!threadInfoExists || !repliesText) {
       return null;
     }
 
     return (
       <div className={css.replies}>
         <CommIcon size={14} icon="sidebar-filled" />
-        {inlineSidebarText.repliesText}
+        {repliesText}
       </div>
     );
-  }, [threadInfoExists, inlineSidebarText]);
+  }, [threadInfoExists, repliesText]);
 
   return (
     <div className={containerClasses}>
