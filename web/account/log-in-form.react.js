@@ -171,6 +171,10 @@ function LoginForm(): React.Node {
         setErrorMessage('alphanumeric usernames only');
         usernameInputRef.current?.focus();
         return;
+      } else if (password === '') {
+        setErrorMessage('password is empty');
+        usernameInputRef.current?.focus();
+        return;
       }
 
       const extraInfo = loginExtraInfo();
@@ -181,7 +185,7 @@ function LoginForm(): React.Node {
         ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
       );
     },
-    [dispatchActionPromise, logInAction, loginExtraInfo, username],
+    [dispatchActionPromise, logInAction, loginExtraInfo, username, password],
   );
 
   const loginButtonContent = React.useMemo(() => {
