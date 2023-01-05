@@ -1,8 +1,19 @@
-use aws_sdk_dynamodb::{model::AttributeValue, Error as DynamoDBError};
+use aws_sdk_dynamodb::{
+  model::AttributeValue, output::GetItemOutput, Error as DynamoDBError,
+};
 use chrono::{DateTime, Utc};
 use std::{
+  collections::HashMap,
   fmt::{Display, Formatter},
   sync::Arc,
+};
+use tracing::error;
+
+use crate::constants::{
+  BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS, BACKUP_TABLE_FIELD_BACKUP_ID,
+  BACKUP_TABLE_FIELD_COMPACTION_HOLDER, BACKUP_TABLE_FIELD_CREATED,
+  BACKUP_TABLE_FIELD_RECOVERY_DATA, BACKUP_TABLE_FIELD_USER_ID,
+  BACKUP_TABLE_INDEX_USERID_CREATED, BACKUP_TABLE_NAME,
 };
 
 #[derive(Clone, Debug)]
@@ -42,7 +53,46 @@ impl DatabaseClient {
     &self,
     backup_item: BackupItem,
   ) -> Result<(), Error> {
-    unimplemented!()
+    let item = HashMap::from([
+      (
+        BACKUP_TABLE_FIELD_USER_ID.to_string(),
+        AttributeValue::S(backup_item.user_id),
+      ),
+      (
+        BACKUP_TABLE_FIELD_CREATED.to_string(),
+        AttributeValue::S(backup_item.created.to_rfc3339()),
+      ),
+      (
+        BACKUP_TABLE_FIELD_BACKUP_ID.to_string(),
+        AttributeValue::S(backup_item.backup_id),
+      ),
+      (
+        BACKUP_TABLE_FIELD_RECOVERY_DATA.to_string(),
+        AttributeValue::S(backup_item.recovery_data),
+      ),
+      (
+        BACKUP_TABLE_FIELD_COMPACTION_HOLDER.to_string(),
+        AttributeValue::S(backup_item.compaction_holder),
+      ),
+      (
+        BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS.to_string(),
+        AttributeValue::S(backup_item.attachment_holders),
+      ),
+    ]);
+
+    self
+      .client
+      .put_item()
+      .table_name(BACKUP_TABLE_NAME)
+      .set_item(Some(item))
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to put backup item");
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
   }
 
   pub async fn find_backup_item(
@@ -50,18 +100,88 @@ impl DatabaseClient {
     user_id: &str,
     backup_id: &str,
   ) -> Result<Option<BackupItem>, Error> {
-    unimplemented!()
+    let item_key = HashMap::from([
+      (
+        BACKUP_TABLE_FIELD_USER_ID.to_string(),
+        AttributeValue::S(user_id.to_string()),
+      ),
+      (
+        BACKUP_TABLE_FIELD_BACKUP_ID.to_string(),
+        AttributeValue::S(backup_id.to_string()),
+      ),
+    ]);
+
+    match self
+      .client
+      .get_item()
+      .table_name(BACKUP_TABLE_NAME)
+      .set_key(Some(item_key))
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to find backup item");
+        Error::AwsSdk(e.into())
+      })? {
+      GetItemOutput {
+        item: Some(item), ..
+      } => {
+        let backup_item = parse_backup_item(item)?;
+        Ok(Some(backup_item))
+      }
+      _ => Ok(None),
+    }
   }
 
   pub async fn find_last_backup_item(
     &self,
     user_id: &str,
   ) -> Result<Option<BackupItem>, Error> {
-    unimplemented!()
+    let response = self
+      .client
+      .query()
+      .table_name(BACKUP_TABLE_NAME)
+      .index_name(BACKUP_TABLE_INDEX_USERID_CREATED)
+      .key_condition_expression("#userID = :valueToMatch")
+      .expression_attribute_names("#userID", BACKUP_TABLE_FIELD_USER_ID)
+      .expression_attribute_values(
+        ":valueToMatch",
+        AttributeValue::S(user_id.to_string()),
+      )
+      .limit(1)
+      .scan_index_forward(false)
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to find last backup");
+        Error::AwsSdk(e.into())
+      })?;
+
+    match response.items.unwrap_or_default().pop() {
+      Some(item) => {
+        let backup_item = parse_backup_item(item)?;
+        Ok(Some(backup_item))
+      }
+      None => Ok(None),
+    }
   }
 
   pub async fn remove_backup_item(&self, backup_id: &str) -> Result<(), Error> {
-    unimplemented!()
+    self
+      .client
+      .delete_item()
+      .table_name(BACKUP_TABLE_NAME)
+      .key(
+        BACKUP_TABLE_FIELD_BACKUP_ID,
+        AttributeValue::S(backup_id.to_string()),
+      )
+      .send()
+      .await
+      .map_err(|e| {
+        error!("DynamoDB client failed to remove backup item");
+        Error::AwsSdk(e.into())
+      })?;
+
+    Ok(())
   }
 
   // log item
@@ -194,4 +314,41 @@ fn parse_datetime_attribute(
       DBItemAttributeError::Missing,
     ))
   }
+}
+
+fn parse_backup_item(
+  mut item: HashMap<String, AttributeValue>,
+) -> Result<BackupItem, DBItemError> {
+  let user_id = parse_string_attribute(
+    BACKUP_TABLE_FIELD_USER_ID,
+    item.remove(BACKUP_TABLE_FIELD_USER_ID),
+  )?;
+  let backup_id = parse_string_attribute(
+    BACKUP_TABLE_FIELD_BACKUP_ID,
+    item.remove(BACKUP_TABLE_FIELD_BACKUP_ID),
+  )?;
+  let created = parse_datetime_attribute(
+    BACKUP_TABLE_FIELD_CREATED,
+    item.remove(BACKUP_TABLE_FIELD_CREATED),
+  )?;
+  let recovery_data = parse_string_attribute(
+    BACKUP_TABLE_FIELD_RECOVERY_DATA,
+    item.remove(BACKUP_TABLE_FIELD_RECOVERY_DATA),
+  )?;
+  let compaction_holder = parse_string_attribute(
+    BACKUP_TABLE_FIELD_COMPACTION_HOLDER,
+    item.remove(BACKUP_TABLE_FIELD_COMPACTION_HOLDER),
+  )?;
+  let attachment_holders = parse_string_attribute(
+    BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS,
+    item.remove(BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS),
+  )?;
+  Ok(BackupItem {
+    user_id,
+    backup_id,
+    created,
+    recovery_data,
+    compaction_holder,
+    attachment_holders,
+  })
 }
