@@ -38,6 +38,9 @@ module.exports = {
   '{landing,lib}/**/*.js': function landingFlow(files) {
     return 'yarn workspace landing flow --quiet';
   },
+  '{desktop,lib}/**/*.js': function desktopFlow(files) {
+    return 'yarn workspace desktop flow --quiet';
+  },
   'services/identity/**/*.rs': function testIdentity(files) {
     return 'bash -c "cd services/identity && cargo test"';
   },

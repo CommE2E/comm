@@ -41,6 +41,10 @@ jobs:
         working-directory: ./native
         run: ./node_modules/.bin/flow
 
+      - name: '[desktop] flow'
+        working-directory: ./desktop
+        run: ./node_modules/.bin/flow
+
       - name: '[lib] test'
         working-directory: ./lib
         run: yarn test

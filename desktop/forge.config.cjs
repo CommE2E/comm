@@ -61,7 +61,13 @@ module.exports = {
   packagerConfig: {
     name: 'Comm',
     icon: 'icons/icon',
-    ignore: ['src', '.*config\\.cjs', '\\.eslintrc\\.json'],
+    ignore: [
+      'src',
+      '.*config\\.cjs',
+      '\\.eslintrc\\.json',
+      '\\.flowconfig',
+      'flow-typed',
+    ],
     appBundleId: 'app.comm.macos',
     osxSign: { identity: 'Developer ID Application' },
     osxNotarize: {

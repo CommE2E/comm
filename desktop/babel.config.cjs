@@ -1,6 +1,7 @@
 module.exports = {
   presets: [
     ['@babel/preset-env', { targets: { electron: 22 }, modules: 'commonjs' }],
+    '@babel/preset-flow',
   ],
   plugins: [
     '@babel/plugin-proposal-class-properties',

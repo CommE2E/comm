@@ -34,6 +34,8 @@
     "@electron-forge/maker-squirrel": "^6.0.4",
     "@electron-forge/plugin-base": "^6.0.4",
     "electron": "^22.0.0",
+    "flow-bin": "^0.182.0",
+    "flow-typed": "^3.2.1",
     "fs-extra": "^10.1.0",
     "klaw": "^4.0.1"
   }
