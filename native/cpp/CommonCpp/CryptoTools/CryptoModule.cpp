@@ -7,15 +7,11 @@
 namespace comm {
 namespace crypto {
 
-CryptoModule::CryptoModule(std::string id) : id{id} {
+CryptoModule::CryptoModule() {
   this->createAccount();
 }
 
-CryptoModule::CryptoModule(
-    std::string id,
-    std::string secretKey,
-    Persist persist)
-    : id{id} {
+CryptoModule::CryptoModule(std::string secretKey, Persist persist) : id{id} {
   if (persist.isEmpty()) {
     this->createAccount();
   } else {
