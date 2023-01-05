@@ -1,3 +1,5 @@
+// @flow
+
 import { contextBridge, ipcRenderer } from 'electron';
 
 const bridge = {

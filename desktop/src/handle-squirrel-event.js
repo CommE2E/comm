@@ -1,3 +1,5 @@
+// @flow
+
 import { spawn } from 'child_process';
 import { app } from 'electron';
 import path from 'path';
@@ -6,7 +8,7 @@ import path from 'path';
 // uninstalling and updating so we can for example create or delete shortcuts.
 // After handling some of these events the app will be closed. If this function
 // returns false, the app should start normally.
-export function handleSquirrelEvent() {
+export function handleSquirrelEvent(): boolean {
   if (process.argv.length === 1) {
     return false;
   }
