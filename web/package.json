@@ -46,6 +46,7 @@
     "@fortawesome/free-regular-svg-icons": "5.11.2",
     "@fortawesome/free-solid-svg-icons": "5.11.2",
     "@fortawesome/react-fontawesome": "0.1.5",
+    "@rainbow-me/rainbowkit": "^0.5.0",
     "basscss": "8.0.2",
     "classnames": "^2.2.5",
     "core-js": "^3.6.5",
@@ -53,6 +54,7 @@
     "detect-browser": "^4.0.4",
     "exif-js": "^2.3.0",
     "history": "^4.6.3",
+    "ethers": "^5.7.0",
     "invariant": "^2.2.4",
     "is-svg": "^4.3.0",
     "isomorphic-fetch": "^3.0.0",
@@ -78,8 +80,10 @@
     "redux-thunk": "^2.2.0",
     "reselect": "^4.0.0",
     "simple-markdown": "^0.7.2",
+    "siwe": "^1.1.6",
     "tinycolor2": "^1.4.1",
-    "visibilityjs": "^2.0.2"
+    "visibilityjs": "^2.0.2",
+    "wagmi": "^0.6.0"
   },
   "jest": {
     "roots": [
