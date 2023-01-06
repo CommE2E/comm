@@ -57,13 +57,6 @@ function Team(): React.Node {
             imageURL={`${assetsCacheURLPrefix}/max.jpeg`}
           />
           <TeamProfile
-            name="Derek Nelson"
-            role="Software Engineer"
-            githubHandle="dereknelson"
-            twitterHandle="prodigynelson"
-            imageURL={`${assetsCacheURLPrefix}/derek.jpeg`}
-          />
-          <TeamProfile
             name="Jon Ringer"
             role="Software Engineer"
             githubHandle="jonringer"
@@ -91,11 +84,6 @@ function Team(): React.Node {
             githubHandle="ginsueddy"
             twitterHandle="ginsueddy"
             imageURL={`${assetsCacheURLPrefix}/ginsu.jpg`}
-          />
-          <TeamProfile
-            name="Steven Cherucheril"
-            role="Chief of Staff"
-            imageURL={`${assetsCacheURLPrefix}/steven.jpg`}
           />
         </div>
       </section>
