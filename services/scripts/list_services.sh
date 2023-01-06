@@ -3,6 +3,7 @@
 set -e
 
 find . -maxdepth 1 \
+  -type d \
   ! -name "base-image" \
   ! -name "docker-compose.yml" \
   ! -name "package.json" \
@@ -12,5 +13,5 @@ find . -maxdepth 1 \
   ! -name "lib" \
   ! -name "terraform" \
   ! -name ".*" \
-  -execdir echo {} ';'
+  -print0 | xargs -0 -n1 basename
 
