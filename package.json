@@ -42,6 +42,6 @@
     "prettier": "^2.1.2"
   },
   "resolutions": {
-    "react-native-flipper": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.0.2.tgz"
+    "react-native-flipper": "https://registry.yarnpkg.com/@favware/skip-dependency/-/skip-dependency-1.1.1.tgz"
   }
 }
