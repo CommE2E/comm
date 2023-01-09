@@ -1,13 +1,83 @@
 use tonic::Status;
+use tracing::debug;
 
+use super::handle_db_error;
 use super::proto;
-use crate::{constants::ATTACHMENT_HOLDER_SEPARATOR, database::DatabaseClient};
+use crate::{
+  constants::{ATTACHMENT_HOLDER_SEPARATOR, LOG_DATA_SIZE_DATABASE_LIMIT},
+  database::{DatabaseClient, LogItem},
+};
 
 pub async fn handle_add_attachments(
   db: &DatabaseClient,
   request: proto::AddAttachmentsRequest,
 ) -> Result<(), Status> {
-  unimplemented!()
+  let proto::AddAttachmentsRequest {
+    user_id,
+    backup_id,
+    log_id,
+    holders,
+  } = request;
+
+  if user_id.is_empty() {
+    return Err(Status::invalid_argument(
+      "user id required but not provided",
+    ));
+  }
+  if backup_id.is_empty() {
+    return Err(Status::invalid_argument(
+      "backup id required but not provided",
+    ));
+  }
+  if holders.is_empty() {
+    return Err(Status::invalid_argument(
+      "holders required but not provided",
+    ));
+  }
+
+  if log_id.is_empty() {
+    let backup_item_result = db
+      .find_backup_item(&user_id, &backup_id)
+      .await
+      .map_err(handle_db_error)?;
+    let mut backup_item = backup_item_result.ok_or_else(|| {
+      debug!("Backup item not found");
+      Status::not_found("Backup item not found")
+    })?;
+
+    add_new_attachments(&mut backup_item.attachment_holders, &holders);
+
+    db.put_backup_item(backup_item)
+      .await
+      .map_err(handle_db_error)?;
+  } else {
+    let log_item_result = db
+      .find_log_item(&backup_id, &log_id)
+      .await
+      .map_err(handle_db_error)?;
+    let mut log_item = log_item_result.ok_or_else(|| {
+      debug!("Log item not found");
+      Status::not_found("Log item not found")
+    })?;
+
+    add_new_attachments(&mut log_item.attachment_holders, &holders);
+
+    // log item too large for database, move it to blob-service stroage
+    if !log_item.persisted_in_blob
+      && log_item.total_size() > LOG_DATA_SIZE_DATABASE_LIMIT
+    {
+      debug!("Log item too large. Persisting in blob service...");
+      log_item = move_to_blob(log_item).await?;
+    }
+
+    db.put_log_item(log_item).await.map_err(handle_db_error)?;
+  }
+
+  Ok(())
+}
+
+async fn move_to_blob(log_item: LogItem) -> Result<LogItem, Status> {
+  todo!()
 }
 
 /// Modifies the [`current_holders_str`] by appending attachment holders
