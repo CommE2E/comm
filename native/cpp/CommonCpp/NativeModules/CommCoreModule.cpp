@@ -721,7 +721,9 @@ void CommCoreModule::processThreadStoreOperationsSync(
   });
 }
 
-jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
+jsi::Value
+CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) {
+  std::string userIdStr = userId.utf8(rt);
   folly::Optional<std::string> storedSecretKey =
       this->secureStore.get(this->secureStoreAccountDataKey);
   if (!storedSecretKey.hasValue()) {
@@ -759,8 +761,8 @@ jsi::Value CommCoreModule::initializeCryptoAccount(jsi::Runtime &rt) {
 
           this->cryptoThread->scheduleTask([=]() {
             std::string error;
-            this->cryptoModule.reset(
-                new crypto::CryptoModule(storedSecretKey.value(), persist));
+            this->cryptoModule.reset(new crypto::CryptoModule(
+                userIdStr, storedSecretKey.value(), persist));
             if (persist.isEmpty()) {
               crypto::Persist newPersist =
                   this->cryptoModule->storeAsB64(storedSecretKey.value());

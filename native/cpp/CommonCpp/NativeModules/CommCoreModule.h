@@ -45,7 +45,8 @@ class CommCoreModule : public facebook::react::CommCoreModuleSchemaCxxSpecJSI {
   virtual void processThreadStoreOperationsSync(
       jsi::Runtime &rt,
       jsi::Array operations) override;
-  virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override;
+  virtual jsi::Value
+  initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) override;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) override;
   virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) override;
   virtual double getCodeVersion(jsi::Runtime &rt) override;

@@ -52,7 +52,7 @@ export interface Spec extends TurboModule {
   +processThreadStoreOperationsSync: (
     operations: $ReadOnlyArray<ClientDBThreadStoreOperation>,
   ) => void;
-  +initializeCryptoAccount: () => Promise<string>;
+  +initializeCryptoAccount: (userId: string) => Promise<string>;
   +getUserPublicKey: () => Promise<ClientPublicKeys>;
   +getUserOneTimeKeys: () => Promise<string>;
   +getCodeVersion: () => number;

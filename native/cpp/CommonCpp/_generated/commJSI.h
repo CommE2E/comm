@@ -32,7 +32,7 @@ public:
   virtual jsi::Array getAllThreadsSync(jsi::Runtime &rt) = 0;
   virtual jsi::Value processThreadStoreOperations(jsi::Runtime &rt, jsi::Array operations) = 0;
   virtual void processThreadStoreOperationsSync(jsi::Runtime &rt, jsi::Array operations) = 0;
-  virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt) = 0;
+  virtual jsi::Value initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) = 0;
   virtual jsi::Value getUserPublicKey(jsi::Runtime &rt) = 0;
   virtual jsi::Value getUserOneTimeKeys(jsi::Runtime &rt) = 0;
   virtual double getCodeVersion(jsi::Runtime &rt) = 0;
@@ -160,13 +160,13 @@ private:
       return bridging::callFromJs<void>(
           rt, &T::processThreadStoreOperationsSync, jsInvoker_, instance_, std::move(operations));
     }
-    jsi::Value initializeCryptoAccount(jsi::Runtime &rt) override {
+    jsi::Value initializeCryptoAccount(jsi::Runtime &rt, jsi::String userId) override {
       static_assert(
-          bridging::getParameterCount(&T::initializeCryptoAccount) == 1,
-          "Expected initializeCryptoAccount(...) to have 1 parameters");
+          bridging::getParameterCount(&T::initializeCryptoAccount) == 2,
+          "Expected initializeCryptoAccount(...) to have 2 parameters");
 
       return bridging::callFromJs<jsi::Value>(
-          rt, &T::initializeCryptoAccount, jsInvoker_, instance_);
+          rt, &T::initializeCryptoAccount, jsInvoker_, instance_, std::move(userId));
     }
     jsi::Value getUserPublicKey(jsi::Runtime &rt) override {
       static_assert(
