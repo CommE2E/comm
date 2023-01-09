@@ -57,6 +57,33 @@ class BabelPlugin extends PluginBase {
   }
 }
 
+const signingOptions = {
+  packagerMacos: {},
+  makerMacos: {},
+  makerWindows: {},
+};
+if (process.env?.ENV !== 'dev') {
+  signingOptions.packagerMacos = {
+    osxSign: { identity: 'Developer ID Application' },
+    osxNotarize: {
+      tool: 'notarytool',
+      appleId: process.env?.APPLE_USER_NAME,
+      appleIdPassword: process.env?.APPLE_APP_SPECIFIC_PASSWORD,
+      teamId: process.env?.TEAM_ID,
+    },
+  };
+  signingOptions.makerMacos = {
+    'code-sign': {
+      'signing-identity': 'Developer ID Application',
+      'identifier': 'app.comm.macos',
+    },
+  };
+  signingOptions.makerWindows = {
+    certificateFile: process.env?.WINDOWS_CERTIFICATE,
+    certificatePassword: process.env?.WINDOWS_PASSWORD,
+  };
+}
+
 module.exports = {
   packagerConfig: {
     name: 'Comm',
@@ -69,13 +96,7 @@ module.exports = {
       'flow-typed',
     ],
     appBundleId: 'app.comm.macos',
-    osxSign: { identity: 'Developer ID Application' },
-    osxNotarize: {
-      tool: 'notarytool',
-      appleId: process.env?.APPLE_USER_NAME,
-      appleIdPassword: process.env?.APPLE_APP_SPECIFIC_PASSWORD,
-      teamId: process.env?.TEAM_ID,
-    },
+    ...signingOptions.packagerMacos,
   },
   makers: [
     {
@@ -84,12 +105,7 @@ module.exports = {
       config: {
         icon: 'icons/icon.icns',
         background: 'icons/dmg_background.png',
-        additionalDMGOptions: {
-          'code-sign': {
-            'signing-identity': 'Developer ID Application',
-            'identifier': 'app.comm.macos',
-          },
-        },
+        additionalDMGOptions: { ...signingOptions.makerMacos },
         contents: opts => [
           { x: 340, y: 100, type: 'link', path: '/Applications' },
           { x: 100, y: 100, type: 'file', path: opts.appPath },
@@ -107,8 +123,7 @@ module.exports = {
         iconUrl: 'https://comm-external.s3.amazonaws.com/icon.ico',
         setupIcon: 'icons/icon.ico',
         loadingGif: 'icons/win_installer.gif',
-        certificateFile: process.env?.WINDOWS_CERTIFICATE,
-        certificatePassword: process.env?.WINDOWS_PASSWORD,
+        ...signingOptions.makerWindows,
       },
     },
   ],
