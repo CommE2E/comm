@@ -1,0 +1,7 @@
+steps:
+  - label: ':macos: macOS Build'
+    command:
+      - 'yarn cleaninstall --frozen-lockfile --skip-optional'
+      - 'cd desktop && yarn make-dev --arch universal'
+    agents:
+      - 'mac=true'
