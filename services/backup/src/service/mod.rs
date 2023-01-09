@@ -18,6 +18,7 @@ pub use proto::backup_service_server::BackupServiceServer;
 
 /// submodule containing gRPC endpoint handler implementations
 mod handlers {
+  pub(super) mod add_attachments;
   pub(super) mod create_backup;
 
   // re-exports for convenient usage in handlers
@@ -139,12 +140,28 @@ impl BackupService for MyBackupService {
     Err(Status::unimplemented("unimplemented"))
   }
 
-  #[instrument(skip(self))]
+  #[instrument(skip_all,
+    fields(
+      backup_id = &request.get_ref().backup_id,
+      log_id = &request.get_ref().log_id)
+    )]
   async fn add_attachments(
     &self,
-    _request: Request<proto::AddAttachmentsRequest>,
+    request: Request<proto::AddAttachmentsRequest>,
   ) -> Result<Response<()>, Status> {
-    Err(Status::unimplemented("unimplemented"))
+    info!(
+      "AddAttachment request. New holders: {}",
+      &request.get_ref().holders
+    );
+
+    handlers::add_attachments::handle_add_attachments(
+      &self.db,
+      request.into_inner(),
+    )
+    .await?;
+
+    info!("Request processed successfully");
+    Ok(Response::new(()))
   }
 }
 
