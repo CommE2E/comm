@@ -1,4 +1,4 @@
-div.modal-body {
+div.modal_body {
   display: flex;
   flex-direction: column;
   padding: 20px 40px;
@@ -7,32 +7,32 @@ div.modal-body {
   box-shadow: 0 0 40px rgba(126, 87, 194, 0.5);
 }
 
-div.form-title {
+div.form_title {
   padding: 6px 6px 0 0;
   font-size: var(--s-font-14);
   font-weight: var(--bold);
   color: var(--fg);
 }
 
-div.form-content {
+div.form_content {
   margin-top: 4px;
   margin-bottom: 8px;
   font-family: var(--font-stack);
   color: var(--fg);
 }
 
-div.form-footer {
+div.form_footer {
   display: flex;
   flex-direction: column;
   margin-top: 16px;
 }
 
-div.form-footer > button:disabled {
+div.form_footer > button:disabled {
   min-height: 48px;
   opacity: 0.5;
 }
 
-div.modal-form-error {
+div.modal_form_error {
   margin-top: 16px;
   font-size: 14px;
   color: var(--error);

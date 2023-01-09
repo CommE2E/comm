@@ -121,11 +121,11 @@ function LoginForm(): React.Node {
   }, [inputDisabled]);
 
   return (
-    <div className={css['modal-body']}>
+    <div className={css.modal_body}>
       <form method="POST">
         <div>
-          <div className={css['form-title']}>Username</div>
-          <div className={css['form-content']}>
+          <div className={css.form_title}>Username</div>
+          <div className={css.form_content}>
             <Input
               type="text"
               placeholder="Username"
@@ -138,8 +138,8 @@ function LoginForm(): React.Node {
           </div>
         </div>
         <div>
-          <div className={css['form-title']}>Password</div>
-          <div className={css['form-content']}>
+          <div className={css.form_title}>Password</div>
+          <div className={css.form_content}>
             <PasswordInput
               value={password}
               onChange={onPasswordChange}
@@ -147,7 +147,7 @@ function LoginForm(): React.Node {
             />
           </div>
         </div>
-        <div className={css['form-footer']}>
+        <div className={css.form_footer}>
           <Button
             variant="filled"
             type="submit"
@@ -156,7 +156,7 @@ function LoginForm(): React.Node {
           >
             {loginButtonContent}
           </Button>
-          <div className={css['modal-form-error']}>{errorMessage}</div>
+          <div className={css.modal_form_error}>{errorMessage}</div>
         </div>
       </form>
     </div>
