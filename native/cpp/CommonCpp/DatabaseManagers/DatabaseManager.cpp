@@ -10,4 +10,8 @@ const DatabaseQueryExecutor &DatabaseManager::getQueryExecutor() {
   return instance;
 }
 
+void DatabaseManager::clearSensitiveData() {
+  SQLiteQueryExecutor::clearSensitiveData();
+}
+
 } // namespace comm
