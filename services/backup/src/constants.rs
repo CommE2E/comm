@@ -4,6 +4,11 @@ pub const AWS_REGION: &str = "us-east-2";
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
 pub const ID_SEPARATOR: &str = ":";
 
+// 400KiB limit (in docs there is KB but they mean KiB) -
+// https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ServiceQuotas.html
+// This includes both attribute names' and values' lengths
+pub const LOG_DATA_SIZE_DATABASE_LIMIT: usize = 1024 * 400;
+
 // Configuration defaults
 
 pub const DEFAULT_GRPC_SERVER_PORT: u64 = 50051;
