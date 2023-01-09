@@ -3,6 +3,7 @@
 pub const AWS_REGION: &str = "us-east-2";
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
 pub const ID_SEPARATOR: &str = ":";
+pub const ATTACHMENT_HOLDER_SEPARATOR: &str = ";";
 
 // 400KiB limit (in docs there is KB but they mean KiB) -
 // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ServiceQuotas.html
