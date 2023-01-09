@@ -9,6 +9,7 @@ namespace comm {
 class DatabaseManager {
 public:
   static const DatabaseQueryExecutor &getQueryExecutor();
+  static void clearSensitiveData();
 };
 
 } // namespace comm
