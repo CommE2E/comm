@@ -11,6 +11,7 @@ pub mod config;
 pub mod constants;
 pub mod database;
 pub mod service;
+pub mod utils;
 
 // re-export this to be available as crate::CONFIG
 pub use config::CONFIG;

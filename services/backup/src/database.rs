@@ -29,6 +29,27 @@ pub struct BackupItem {
   pub attachment_holders: String,
 }
 
+impl BackupItem {
+  pub fn new(
+    user_id: String,
+    backup_id: String,
+    compaction_holder: String,
+  ) -> Self {
+    BackupItem {
+      user_id,
+      backup_id,
+      compaction_holder,
+      created: chrono::Utc::now(),
+      // TODO: Recovery data is mocked with random string
+      recovery_data: crate::utils::generate_random_string(
+        20,
+        &mut rand::thread_rng(),
+      ),
+      attachment_holders: String::new(),
+    }
+  }
+}
+
 #[derive(Clone, Debug)]
 pub struct LogItem {
   pub backup_id: String,

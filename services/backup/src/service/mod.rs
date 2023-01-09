@@ -1,12 +1,14 @@
+use aws_sdk_dynamodb::Error as DynamoDBError;
 use proto::backup_service_server::BackupService;
 use std::pin::Pin;
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{Request, Response, Status};
-use tracing::{debug, error, info, instrument, trace, Instrument};
+use tracing::{debug, error, info, instrument, trace, warn, Instrument};
 
 use crate::{
-  constants::MPSC_CHANNEL_BUFFER_CAPACITY, database::DatabaseClient,
+  constants::MPSC_CHANNEL_BUFFER_CAPACITY,
+  database::{DatabaseClient, Error as DBError},
 };
 
 mod proto {
@@ -19,6 +21,7 @@ mod handlers {
   pub(super) mod create_backup;
 
   // re-exports for convenient usage in handlers
+  pub(self) use super::handle_db_error;
   pub(self) use super::proto;
 }
 use self::handlers::create_backup::CreateBackupHandler;
@@ -142,5 +145,23 @@ impl BackupService for MyBackupService {
     _request: Request<proto::AddAttachmentsRequest>,
   ) -> Result<Response<()>, Status> {
     Err(Status::unimplemented("unimplemented"))
+  }
+}
+
+/// A helper converting our Database errors into gRPC responses
+fn handle_db_error(db_error: DBError) -> Status {
+  match db_error {
+    DBError::AwsSdk(DynamoDBError::InternalServerError(_))
+    | DBError::AwsSdk(DynamoDBError::ProvisionedThroughputExceededException(
+      _,
+    ))
+    | DBError::AwsSdk(DynamoDBError::RequestLimitExceeded(_)) => {
+      warn!("AWS transient error occurred");
+      Status::unavailable("please retry")
+    }
+    e => {
+      error!("Encountered an unexpected error: {}", e);
+      Status::failed_precondition("unexpected error")
+    }
   }
 }

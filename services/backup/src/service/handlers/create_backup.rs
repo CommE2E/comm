@@ -85,3 +85,12 @@ impl CreateBackupHandler {
     unimplemented!()
   }
 }
+
+/// Generates ID for a new backup
+fn generate_backup_id(device_id: &str) -> String {
+  format!(
+    "{device_id}_{timestamp}",
+    device_id = device_id,
+    timestamp = chrono::Utc::now().timestamp_millis()
+  )
+}

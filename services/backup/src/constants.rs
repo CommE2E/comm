@@ -2,6 +2,7 @@
 
 pub const AWS_REGION: &str = "us-east-2";
 pub const MPSC_CHANNEL_BUFFER_CAPACITY: usize = 1;
+pub const ID_SEPARATOR: &str = ":";
 
 // Configuration defaults
 
