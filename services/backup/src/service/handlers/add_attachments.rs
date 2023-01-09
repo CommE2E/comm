@@ -1,5 +1,6 @@
 use tonic::Status;
 use tracing::debug;
+use tracing::error;
 
 use super::handle_db_error;
 use super::proto;
@@ -77,7 +78,34 @@ pub async fn handle_add_attachments(
 }
 
 async fn move_to_blob(log_item: LogItem) -> Result<LogItem, Status> {
-  todo!()
+  let holder = crate::utils::generate_blob_holder(
+    &log_item.data_hash,
+    &log_item.backup_id,
+    Some(&log_item.log_id),
+  );
+
+  if let Some(mut blob_client) =
+    crate::blob::start_simple_put_client(&holder, &log_item.data_hash).await?
+  {
+    let blob_chunk = log_item.value.into_bytes();
+    blob_client.put_data(blob_chunk).await.map_err(|err| {
+      error!("Failed to upload data chunk: {:?}", err);
+      Status::aborted("Internal error")
+    })?;
+
+    blob_client.terminate().await.map_err(|err| {
+      error!("Put client task closed with error: {:?}", err);
+      Status::aborted("Internal error")
+    })?;
+  } else {
+    debug!("Blob holder for log ID={} already exists", &log_item.log_id);
+  }
+
+  Ok(LogItem {
+    persisted_in_blob: true,
+    value: holder,
+    ..log_item
+  })
 }
 
 /// Modifies the [`current_holders_str`] by appending attachment holders
