@@ -1,4 +1,4 @@
-#include <DatabaseManagers/SQLiteQueryExecutor.h>
+#include <DatabaseManagers/DatabaseManager.h>
 #include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilities.h>
 #include <PersistentStorageUtilities/MessageOperationsUtilities/MessageOperationsUtilitiesJNIHelper.h>
 
@@ -9,7 +9,7 @@ void MessageOperationsUtilitiesJNIHelper::storeMessageInfos(
     facebook::jni::JString rawMessageInfosString) {
   std::string sqliteFilePathCpp = sqliteFilePath.toStdString();
   std::string rawMessageInfosStringCpp = rawMessageInfosString.toStdString();
-  SQLiteQueryExecutor::initialize(sqliteFilePathCpp);
+  DatabaseManager::initializeQueryExecutor(sqliteFilePathCpp);
   MessageOperationsUtilities::storeMessageInfos(rawMessageInfosStringCpp);
 }
 
