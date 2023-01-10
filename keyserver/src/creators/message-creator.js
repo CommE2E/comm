@@ -49,7 +49,7 @@ type UserThreadInfo = {
   >,
   +threadIDs: Set<string>,
   +notFocusedThreadIDs: Set<string>,
-  +subthreadsCanNotify: Set<string>,
+  +userNotMemberOfSubthreads: Set<string>,
   +subthreadsCanSetToUnread: Set<string>,
 };
 
@@ -319,7 +319,7 @@ async function postMessageSend(
         devices: new Map(),
         threadIDs: new Set(),
         notFocusedThreadIDs: new Set(),
-        subthreadsCanNotify: new Set(),
+        userNotMemberOfSubthreads: new Set(),
         subthreadsCanSetToUnread: new Set(),
       };
       perUserInfo.set(userID, thisUserInfo);
@@ -344,7 +344,7 @@ async function postMessageSend(
           !isSubthreadMember ||
           !permissionLookup(subthreadPermissions, threadPermissions.VISIBLE)
         ) {
-          thisUserInfo.subthreadsCanNotify.add(subthread);
+          thisUserInfo.userNotMemberOfSubthreads.add(subthread);
         }
       }
     }
@@ -366,7 +366,7 @@ async function postMessageSend(
   const latestMessagesPerUser: LatestMessagesPerUser = new Map();
   for (const pair of perUserInfo) {
     const [userID, preUserPushInfo] = pair;
-    const { subthreadsCanNotify } = preUserPushInfo;
+    const { userNotMemberOfSubthreads } = preUserPushInfo;
     const userPushInfo = {
       devices: [...preUserPushInfo.devices.values()],
       messageInfos: [],
@@ -380,7 +380,7 @@ async function postMessageSend(
         const { type } = messageInfo;
         if (
           (messageInfo.type !== messageTypes.CREATE_SUB_THREAD ||
-            subthreadsCanNotify.has(messageInfo.childThreadID)) &&
+            userNotMemberOfSubthreads.has(messageInfo.childThreadID)) &&
           messageSpecs[type].generatesNotifs &&
           messageInfo.creatorID !== userID
         ) {
