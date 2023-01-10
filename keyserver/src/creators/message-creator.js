@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
   rawMessageInfoFromMessageData,
-  messageTypeGeneratesNotifs,
   shimUnsupportedRawMessageInfos,
   stripLocalIDs,
 } from 'lib/shared/message-utils';
@@ -378,10 +377,11 @@ async function postMessageSend(
       invariant(messageIndices, `indices should exist for thread ${threadID}`);
       for (const messageIndex of messageIndices) {
         const messageInfo = messageInfos[messageIndex];
+        const { type } = messageInfo;
         if (
           (messageInfo.type !== messageTypes.CREATE_SUB_THREAD ||
             subthreadsCanNotify.has(messageInfo.childThreadID)) &&
-          messageTypeGeneratesNotifs(messageInfo.type) &&
+          messageSpecs[type].generatesNotifs &&
           messageInfo.creatorID !== userID
         ) {
           userPushInfo.messageInfos.push(messageInfo);
