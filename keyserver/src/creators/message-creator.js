@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import _pickBy from 'lodash/fp/pickBy';
 
 import { permissionLookup } from 'lib/permissions/thread-permissions';
 import {
@@ -18,6 +19,7 @@ import {
 import { redisMessageTypes } from 'lib/types/redis-types';
 import { threadPermissions } from 'lib/types/thread-types';
 import { updateTypes } from 'lib/types/update-types';
+import { promiseAll } from 'lib/utils/promises';
 
 import {
   dbQuery,
@@ -361,39 +363,51 @@ async function postMessageSend(
     }
   }
 
-  const pushInfo = {};
   const messageInfosPerUser = {};
   const latestMessagesPerUser: LatestMessagesPerUser = new Map();
+  const userPushInfoPromises = {};
   for (const pair of perUserInfo) {
     const [userID, preUserPushInfo] = pair;
     const { userNotMemberOfSubthreads } = preUserPushInfo;
-    const userPushInfo = {
-      devices: [...preUserPushInfo.devices.values()],
-      messageInfos: [],
-    };
+    const userDevices = [...preUserPushInfo.devices.values()];
+    if (userDevices.length === 0) {
+      continue;
+    }
 
+    const userPushInfoMessageInfoPromises = [];
     for (const threadID of preUserPushInfo.notFocusedThreadIDs) {
       const messageIndices = threadsToMessageIndices.get(threadID);
       invariant(messageIndices, `indices should exist for thread ${threadID}`);
-      for (const messageIndex of messageIndices) {
-        const messageInfo = messageInfos[messageIndex];
-        const { type } = messageInfo;
-        if (messageInfo.creatorID === userID) {
-          // We never send a user notifs about their own activity
-          continue;
-        }
-        const { generatesNotifs } = messageSpecs[type];
-        if (generatesNotifs(messageInfo, { userNotMemberOfSubthreads })) {
-          userPushInfo.messageInfos.push(messageInfo);
-        }
+      userPushInfoMessageInfoPromises.push(
+        ...messageIndices.map(async messageIndex => {
+          const messageInfo = messageInfos[messageIndex];
+          const { type } = messageInfo;
+          if (messageInfo.creatorID === userID) {
+            // We never send a user notifs about their own activity
+            return undefined;
+          }
+          const { generatesNotifs } = messageSpecs[type];
+          const doesGenerateNotif = await generatesNotifs(messageInfo, {
+            userNotMemberOfSubthreads,
+          });
+          return doesGenerateNotif ? messageInfo : undefined;
+        }),
+      );
+    }
+    const userPushInfoPromise = (async () => {
+      const userMessageInfos = await Promise.all(
+        userPushInfoMessageInfoPromises,
+      );
+      const filteredMessageInfos = userMessageInfos.filter(Boolean);
+      if (filteredMessageInfos.length === 0) {
+        return undefined;
       }
-    }
-    if (
-      userPushInfo.devices.length > 0 &&
-      userPushInfo.messageInfos.length > 0
-    ) {
-      pushInfo[userID] = userPushInfo;
-    }
+      return {
+        devices: userDevices,
+        messageInfos: filteredMessageInfos,
+      };
+    })();
+    userPushInfoPromises[userID] = userPushInfoPromise;
     const userMessageInfos = [];
     for (const threadID of preUserPushInfo.threadIDs) {
       const messageIndices = threadsToMessageIndices.get(threadID);
@@ -420,13 +434,14 @@ async function postMessageSend(
 
   const latestMessages = flattenLatestMessagesPerUser(latestMessagesPerUser);
 
-  await Promise.all([
+  const [pushInfo] = await Promise.all([
+    promiseAll(userPushInfoPromises),
     createReadStatusUpdates(latestMessages),
     redisPublish(viewer, messageInfosPerUser, updatesForCurrentSession),
     updateLatestMessages(latestMessages),
   ]);
 
-  await sendPushNotifs(pushInfo);
+  await sendPushNotifs(_pickBy(Boolean)(pushInfo));
 }
 
 async function redisPublish(
