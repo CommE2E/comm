@@ -11,6 +11,8 @@ import { View } from 'react-native';
 import { useStyles } from '../themes/colors';
 import type { AppNavigationProp } from './app-navigator.react';
 import CommunityDrawerContent from './community-drawer-content.react';
+import { drawerSwipeEnabledSelector } from './nav-selectors';
+import { NavContext } from './navigation-context';
 import { TabNavigatorRouteName } from './route-names';
 import type {
   NavigationRoute,
@@ -40,12 +42,19 @@ type Props = {
 function CommunityDrawerNavigator(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
 
+  const navContext = React.useContext(NavContext);
+  const swipeEnabled = React.useMemo(
+    () => drawerSwipeEnabledSelector(navContext),
+    [navContext],
+  );
+
   const screenOptions = React.useMemo(
     () => ({
       drawerStyle: styles.drawerStyle,
       headerShown: false,
+      swipeEnabled,
     }),
-    [styles.drawerStyle],
+    [styles.drawerStyle, swipeEnabled],
   );
 
   return (
