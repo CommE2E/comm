@@ -2,6 +2,7 @@ use tonic::Status;
 use tracing::{debug, error, trace, warn};
 use uuid::Uuid;
 
+use super::handle_db_error;
 use crate::{
   blob::PutClient,
   constants::{ID_SEPARATOR, LOG_DATA_SIZE_DATABASE_LIMIT},
@@ -130,7 +131,61 @@ impl SendLogHandler {
   }
 
   pub async fn finish(self) -> Result<SendLogResponse, Status> {
-    unimplemented!()
+    if let Some(client) = self.blob_client {
+      client.terminate().await.map_err(|err| {
+        error!("Put client task closed with error: {:?}", err);
+        Status::aborted("Internal error")
+      })?;
+    } else {
+      trace!("No blob client initialized. Skipping termination");
+    }
+
+    if !self.should_receive_data {
+      // client probably aborted early
+      trace!("Nothing to store in database. Finishing early");
+      return Ok(SendLogResponse {
+        log_checkpoint: "".to_string(),
+      });
+    }
+
+    let (Some(backup_id), Some(log_id), Some(data_hash)) = (
+      self.backup_id,
+      self.log_id,
+      self.log_hash
+    ) else {
+      error!("Log info absent in data mode. This should never happen!");
+      return Err(Status::failed_precondition("Internal error"));
+     };
+
+    let (log_value, persisted_in_blob) = match self.persistence_method {
+      LogPersistence::BLOB { holder } => (holder, true),
+      LogPersistence::DB => {
+        let contents = String::from_utf8(self.log_buffer).map_err(|err| {
+          error!("Failed to convert log contents data into string: {:?}", err);
+          Status::aborted("Unexpected error")
+        })?;
+        (contents, false)
+      }
+    };
+
+    let log_item = LogItem {
+      backup_id,
+      log_id: log_id.clone(),
+      persisted_in_blob,
+      value: log_value,
+      attachment_holders: String::new(),
+      data_hash,
+    };
+
+    self
+      .db
+      .put_log_item(log_item)
+      .await
+      .map_err(handle_db_error)?;
+
+    Ok(SendLogResponse {
+      log_checkpoint: log_id,
+    })
   }
 
   // internal param handler helper
