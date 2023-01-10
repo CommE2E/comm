@@ -378,12 +378,12 @@ async function postMessageSend(
       for (const messageIndex of messageIndices) {
         const messageInfo = messageInfos[messageIndex];
         const { type } = messageInfo;
-        if (
-          (messageInfo.type !== messageTypes.CREATE_SUB_THREAD ||
-            userNotMemberOfSubthreads.has(messageInfo.childThreadID)) &&
-          messageSpecs[type].generatesNotifs &&
-          messageInfo.creatorID !== userID
-        ) {
+        if (messageInfo.creatorID === userID) {
+          // We never send a user notifs about their own activity
+          continue;
+        }
+        const { generatesNotifs } = messageSpecs[type];
+        if (generatesNotifs(messageInfo, { userNotMemberOfSubthreads })) {
           userPushInfo.messageInfos.push(messageInfo);
         }
       }
