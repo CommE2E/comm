@@ -20,12 +20,14 @@ pub use proto::backup_service_server::BackupServiceServer;
 mod handlers {
   pub(super) mod add_attachments;
   pub(super) mod create_backup;
+  pub(super) mod send_log;
 
   // re-exports for convenient usage in handlers
   pub(self) use super::handle_db_error;
   pub(self) use super::proto;
 }
 use self::handlers::create_backup::CreateBackupHandler;
+use self::handlers::send_log::SendLogHandler;
 
 pub struct MyBackupService {
   db: DatabaseClient,
@@ -106,12 +108,50 @@ impl BackupService for MyBackupService {
     ))
   }
 
-  #[instrument(skip(self))]
+  #[instrument(skip_all, fields(backup_id, log_hash, log_id))]
   async fn send_log(
     &self,
-    _request: Request<tonic::Streaming<proto::SendLogRequest>>,
+    request: Request<tonic::Streaming<proto::SendLogRequest>>,
   ) -> Result<Response<proto::SendLogResponse>, Status> {
-    Err(Status::unimplemented("unimplemented"))
+    use proto::send_log_request::Data::*;
+
+    info!("SendLog request: {:?}", request);
+    let mut handler = SendLogHandler::new(&self.db);
+
+    let mut in_stream = request.into_inner();
+    while let Some(message) = in_stream.next().await {
+      let result = match message {
+        Ok(proto::SendLogRequest {
+          data: Some(UserId(user_id)),
+        }) => handler.handle_user_id(user_id).await,
+        Ok(proto::SendLogRequest {
+          data: Some(BackupId(backup_id)),
+        }) => handler.handle_backup_id(backup_id).await,
+        Ok(proto::SendLogRequest {
+          data: Some(LogHash(log_hash)),
+        }) => handler.handle_log_hash(log_hash).await,
+        Ok(proto::SendLogRequest {
+          data: Some(LogData(chunk)),
+        }) => handler.handle_log_data(chunk).await,
+        unexpected => {
+          error!("Received an unexpected request: {:?}", unexpected);
+          Err(Status::unknown("unknown error"))
+        }
+      };
+
+      if let Err(err) = result {
+        error!("An error occurred when processing request: {:?}", err);
+        return Err(err);
+      }
+      if handler.should_close_stream {
+        trace!("Handler requested to close request stream");
+        break;
+      }
+    }
+
+    let response = handler.finish().await;
+    debug!("Finished. Sending response: {:?}", response);
+    response.map(|response_body| Response::new(response_body))
   }
 
   type RecoverBackupKeyStream = Pin<
