@@ -1,4 +1,4 @@
-#include <DatabaseManagers/SQLiteQueryExecutor.h>
+#include <DatabaseManagers/DatabaseManager.h>
 #include <PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperations.h>
 #include <PersistentStorageUtilities/ThreadOperationsUtilities/ThreadOperationsJNIHelper.h>
 
@@ -8,7 +8,7 @@ void ThreadOperationsJNIHelper::updateSQLiteUnreadStatus(
     std::string sqliteFilePath,
     std::string threadID,
     bool unread) {
-  SQLiteQueryExecutor::initialize(sqliteFilePath);
+  DatabaseManager::initializeQueryExecutor(sqliteFilePath);
   ThreadOperations::updateSQLiteUnreadStatus(threadID, unread);
 }
 

@@ -5,6 +5,9 @@ import android.content.res.Configuration;
 import android.database.CursorWindow;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
+import app.comm.android.fbjni.CommSecureStore;
+import app.comm.android.fbjni.DatabaseInitializer;
+import app.comm.android.fbjni.GlobalDBSingleton;
 import app.comm.android.newarchitecture.MainApplicationReactNativeHost;
 import app.comm.android.notifications.CommAndroidNotificationsPackage;
 import com.facebook.react.PackageList;
@@ -18,6 +21,9 @@ import com.facebook.soloader.SoLoader;
 import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
 import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
+import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
+import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.security.Security;
@@ -81,6 +87,7 @@ public class MainApplication
     Security.insertProviderAt(new org.conscrypt.OpenSSLProvider(), 1);
 
     SoLoader.init(this, /* native exopackage */ false);
+    this.initializeDatabase();
     ApplicationLifecycleDispatcher.onApplicationCreate(this);
     try {
       Field field = CursorWindow.class.getDeclaredField("sCursorWindowSize");
@@ -97,5 +104,16 @@ public class MainApplication
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig);
+  }
+
+  private void initializeDatabase() {
+    File sqliteFile =
+        this.getApplicationContext().getDatabasePath("comm.sqlite");
+    CommSecureStore.getInstance().initialize(
+        ExpoUtils.createExpoSecureStoreSupplier(this.getApplicationContext()));
+
+    GlobalDBSingleton.scheduleOrRun(() -> {
+      DatabaseInitializer.initializeDatabaseManager(sqliteFile.getPath());
+    });
   }
 }
