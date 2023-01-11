@@ -43,7 +43,6 @@ import { defaultNavInfo } from '../navigation/default-state';
 import { getGlobalNavContext } from '../navigation/icky-global';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
 import { defaultNotifPermissionAlertInfo } from '../push/alerts';
-import { reduceThreadIDsToNotifIDs } from '../push/reducer';
 import reactotron from '../reactotron';
 import { defaultDeviceCameraInfo } from '../types/camera';
 import { defaultConnectivityInfo } from '../types/connectivity';
@@ -59,9 +58,6 @@ import {
 import {
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,
-  recordAndroidNotificationActionType,
-  clearAndroidNotificationsActionType,
-  rescindAndroidNotificationActionType,
   updateDimensionsActiveType,
   updateConnectivityActiveType,
   updateThemeInfoActionType,
@@ -109,7 +105,6 @@ const defaultState = ({
   dataLoaded: false,
   urlPrefix: defaultURLPrefix,
   customServer: natNodeServer,
-  threadIDsToNotifIDs: {},
   notifPermissionAlertInfo: defaultNotifPermissionAlertInfo,
   connection: defaultConnectionInfo(Platform.OS),
   watchedThreadIDs: [],
@@ -223,19 +218,6 @@ function reducer(state: AppState = defaultState, action: Action) {
         action.payload.currentUserInfo,
         action.payload.logInActionSource,
       ))
-  ) {
-    return state;
-  }
-
-  const threadIDsToNotifIDs = reduceThreadIDsToNotifIDs(
-    state.threadIDsToNotifIDs,
-    action,
-  );
-  state = { ...state, threadIDsToNotifIDs };
-  if (
-    action.type === recordAndroidNotificationActionType ||
-    action.type === clearAndroidNotificationsActionType ||
-    action.type === rescindAndroidNotificationActionType
   ) {
     return state;
   }

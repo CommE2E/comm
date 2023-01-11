@@ -6,11 +6,7 @@ import type { RemoteMessage } from 'react-native-firebase';
 
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
 
-import {
-  recordAndroidNotificationActionType,
-  rescindAndroidNotificationActionType,
-} from '../redux/action-types';
-import { store, dispatch } from '../redux/redux-setup';
+import { store } from '../redux/redux-setup';
 import { getFirebase } from './firebase';
 
 type CommAndroidNotificationsModuleType = {
@@ -37,10 +33,6 @@ function handleAndroidMessage(
   const { rescind, rescindID } = data;
   if (rescind) {
     invariant(rescindID, 'rescind message without notifID');
-    dispatch({
-      type: rescindAndroidNotificationActionType,
-      payload: { notifID: rescindID, threadID: data.threadID },
-    });
     return;
   }
 
@@ -71,15 +63,6 @@ function handleAndroidMessage(
     notification.setTitle(title);
   }
   firebase.notifications().displayNotification(notification);
-
-  // We keep track of what notifs have been rendered for a given thread so
-  // that we can clear them immediately (without waiting for the rescind)
-  // when the user navigates to that thread. Since we can't do this while
-  // the app is closed, we rely on the rescind notif in that case.
-  dispatch({
-    type: recordAndroidNotificationActionType,
-    payload: { threadID, notifID: id },
-  });
 }
 
 async function androidBackgroundMessageTask(message: RemoteMessage) {
