@@ -58,7 +58,6 @@ const migrations = {
     deviceToken: state.deviceToken,
     urlPrefix: state.urlPrefix,
     customServer: state.customServer,
-    threadIDsToNotifIDs: state.threadIDsToNotifIDs,
     notifPermissionAlertInfo: state.notifPermissionAlertInfo,
     messageSentFromRoute: state.messageSentFromRoute,
     _persist: state._persist,
@@ -467,6 +466,10 @@ const migrations = {
 
     return state;
   },
+  [34]: state => {
+    const { threadIDsToNotifIDs, ...stateSansThreadIDsToNotifIDs } = state;
+    return stateSansThreadIDsToNotifIDs;
+  },
 };
 
 // After migration 31, we'll no longer want to persist `messageStore.messages`
@@ -547,7 +550,7 @@ const persistConfig = {
     'storeLoaded',
   ],
   debug: __DEV__,
-  version: 33,
+  version: 34,
   transforms: [messageStoreMessagesBlocklistTransform],
   migrate: (createMigrate(migrations, { debug: __DEV__ }): any),
   timeout: ((__DEV__ ? 0 : undefined): number | void),

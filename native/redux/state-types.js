@@ -40,7 +40,6 @@ export type AppState = {
   dataLoaded: boolean,
   urlPrefix: string,
   customServer: ?string,
-  threadIDsToNotifIDs: { [threadID: string]: string[] },
   notifPermissionAlertInfo: NotifPermissionAlertInfo,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,

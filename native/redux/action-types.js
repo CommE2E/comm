@@ -6,7 +6,6 @@ import { saveMessagesActionType } from 'lib/actions/message-actions';
 import type { Shape } from 'lib/types/core';
 import type { BaseAction } from 'lib/types/redux-types';
 
-import type { AndroidNotificationActions } from '../push/reducer';
 import type { DeviceCameraInfo } from '../types/camera';
 import type { ConnectivityInfo } from '../types/connectivity';
 import type { GlobalThemeInfo } from '../types/themes';
@@ -16,12 +15,6 @@ import type { AppState } from './state-types';
 export const resetUserStateActionType = 'RESET_USER_STATE';
 export const recordNotifPermissionAlertActionType =
   'RECORD_NOTIF_PERMISSION_ALERT';
-export const recordAndroidNotificationActionType =
-  'RECORD_ANDROID_NOTIFICATION';
-export const clearAndroidNotificationsActionType =
-  'CLEAR_ANDROID_NOTIFICATIONS';
-export const rescindAndroidNotificationActionType =
-  'RESCIND_ANDROID_NOTIFICATION';
 export const updateDimensionsActiveType = 'UPDATE_DIMENSIONS';
 export const updateConnectivityActiveType = 'UPDATE_CONNECTIVITY';
 export const updateThemeInfoActionType = 'UPDATE_THEME_INFO';
@@ -34,13 +27,10 @@ export const setReduxStateActionType = 'SET_REDUX_STATE';
 
 export const backgroundActionTypes: Set<string> = new Set([
   saveMessagesActionType,
-  recordAndroidNotificationActionType,
-  rescindAndroidNotificationActionType,
 ]);
 
 export type Action =
   | BaseAction
-  | AndroidNotificationActions
   | {
       +type: 'SET_REDUX_STATE',
       +payload: { +state: AppState, +hideFromMonitor: boolean },
