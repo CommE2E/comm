@@ -1,9 +1,10 @@
-package app.comm.android;
+package app.comm.android.notifications;
 
 import android.app.NotificationManager;
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+import app.comm.android.ExpoUtils;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.GlobalDBSingleton;
 import app.comm.android.fbjni.MessageOperationsUtilities;

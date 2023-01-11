@@ -24,7 +24,7 @@
     android:requestLegacyExternalStorage="true"
   >
     <service
-        android:name=".CommNotificationsHandler"
+        android:name=".notifications.CommNotificationsHandler"
         android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
