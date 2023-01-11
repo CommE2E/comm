@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
+
 git clone \
   --recurse-submodules \
   --single-branch \
@@ -11,7 +13,11 @@ pushd protobuf || exit
 mkdir build
 pushd build || exit
 
-cmake ../cmake -Dprotobuf_BUILD_SHARED_LIBS=ON -Dprotobuf_ABSL_PROVIDER=package
+cmake ../cmake \
+  -Dprotobuf_BUILD_SHARED_LIBS=ON \
+  -Dprotobuf_ABSL_PROVIDER=package \
+  -DBUILD_TESTING=OFF
+
 make install -j "$(nproc)" -l "$(nproc)"
 
 popd || exit # build
