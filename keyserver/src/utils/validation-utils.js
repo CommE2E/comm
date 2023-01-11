@@ -168,7 +168,7 @@ async function policiesValidator(
   }
 
   const notAcknowledgedPolicies = await fetchNotAcknowledgedPolicies(
-    viewer,
+    viewer.id,
     policies,
   );
 
