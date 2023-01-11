@@ -6,6 +6,7 @@ import android.database.CursorWindow;
 import androidx.annotation.NonNull;
 import androidx.multidex.MultiDexApplication;
 import app.comm.android.newarchitecture.MainApplicationReactNativeHost;
+import app.comm.android.notifications.CommAndroidNotificationsPackage;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
 import com.facebook.react.ReactInstanceManager;
@@ -44,6 +45,7 @@ public class MainApplication
           packages.add(new RNFirebaseMessagingPackage());
           packages.add(new RNFirebaseNotificationsPackage());
           packages.add(new KeyboardInputPackage(this.getApplication()));
+          packages.add(new CommAndroidNotificationsPackage());
           return packages;
         }
 
