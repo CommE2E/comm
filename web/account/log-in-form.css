@@ -65,3 +65,10 @@ hr:after {
   content: 'or';
   background-color: #1f1f1fff;
 }
+
+div.connectButtonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}

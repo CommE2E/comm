@@ -3,15 +3,23 @@
 import '@rainbow-me/rainbowkit/dist/index.css';
 
 import {
+  ConnectButton,
   darkTheme,
   getDefaultWallets,
   RainbowKitProvider,
+  useConnectModal,
 } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 import { FaEthereum } from 'react-icons/fa';
-import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
+import {
+  chain,
+  configureChains,
+  createClient,
+  WagmiConfig,
+  useSigner,
+} from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 
@@ -63,6 +71,8 @@ const wagmiClient = createClient({
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function LoginForm(): React.Node {
+  const { openConnectModal } = useConnectModal();
+  const { data: signer } = useSigner();
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
   const callLogIn = useServerCall(logIn);
@@ -158,13 +168,30 @@ function LoginForm(): React.Node {
     [],
   );
 
-  let siweButton;
+  let siweSeparator;
   if (isDev) {
+    siweSeparator = <hr />;
+  }
+
+  let siweConnectButton;
+  if (isDev && signer) {
+    siweConnectButton = (
+      <div className={css.connectButtonContainer}>
+        <ConnectButton />
+      </div>
+    );
+  }
+
+  const onSIWEButtonClick = React.useCallback(() => {
+    openConnectModal && openConnectModal();
+  }, [openConnectModal]);
+
+  let siweButton;
+  if (isDev && openConnectModal) {
     siweButton = (
       <>
-        <hr />
         <Button
-          onClick={undefined}
+          onClick={onSIWEButtonClick}
           variant="filled"
           buttonColor={siweButtonColor}
         >
@@ -213,6 +240,8 @@ function LoginForm(): React.Node {
           >
             {loginButtonContent}
           </Button>
+          {siweSeparator}
+          {siweConnectButton}
           {siweButton}
           <div className={css.modal_form_error}>{errorMessage}</div>
         </div>
