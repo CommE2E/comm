@@ -161,16 +161,19 @@ function LoginForm(): React.Node {
   let siweButton;
   if (isDev) {
     siweButton = (
-      <Button
-        onClick={undefined}
-        variant="filled"
-        buttonColor={siweButtonColor}
-      >
-        <div className={css.ethereum_logo_container}>
-          <FaEthereum />
-        </div>
-        Sign in with Ethereum
-      </Button>
+      <>
+        <hr />
+        <Button
+          onClick={undefined}
+          variant="filled"
+          buttonColor={siweButtonColor}
+        >
+          <div className={css.ethereum_logo_container}>
+            <FaEthereum />
+          </div>
+          Sign in with Ethereum
+        </Button>
+      </>
     );
   }
 
