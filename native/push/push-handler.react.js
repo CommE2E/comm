@@ -40,10 +40,7 @@ import { replaceWithThreadActionType } from '../navigation/action-types';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import {
-  recordNotifPermissionAlertActionType,
-  clearAndroidNotificationsActionType,
-} from '../redux/action-types';
+import { recordNotifPermissionAlertActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { RootContext, type RootContextType } from '../root-context';
 import type { EventSubscription } from '../types/react-native';
@@ -53,6 +50,7 @@ import {
   androidNotificationChannelID,
   handleAndroidMessage,
   androidBackgroundMessageTask,
+  CommAndroidNotifications,
 } from './android';
 import {
   CommIOSNotification,
@@ -294,10 +292,9 @@ class PushHandler extends React.PureComponent<Props, State> {
         ),
       );
     } else if (Platform.OS === 'android') {
-      this.props.dispatch({
-        type: clearAndroidNotificationsActionType,
-        payload: { threadID: activeThread },
-      });
+      CommAndroidNotifications.removeAllActiveNotificationsForThread(
+        activeThread,
+      );
     }
   }
 
