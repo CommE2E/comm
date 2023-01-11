@@ -6,7 +6,11 @@ use tracing::{debug, trace, warn};
 use super::handle_db_error;
 use super::proto::{self, PullBackupResponse};
 use crate::{
-  constants::{GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE},
+  constants::{
+    BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS, BACKUP_TABLE_FIELD_BACKUP_ID,
+    GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE,
+    LOG_TABLE_FIELD_ATTACHMENT_HOLDERS, LOG_TABLE_FIELD_LOG_ID,
+  },
   database::{BackupItem, DatabaseClient, LogItem},
 };
 
@@ -103,6 +107,94 @@ fn log_stream(
 ) -> impl Stream<Item = Result<proto::PullBackupResponse, Status>> + '_ {
   async_stream::stream! {
     yield Err(Status::unimplemented("Not implemented yet"));
+  }
+}
+
+/// Represents downloadable item stored in Blob service
+trait BlobStoredItem {
+  // Blob holder representing this item
+  fn get_holder(&self) -> &str;
+
+  /// Generates a gRPC response for given `data_chunk`.
+  /// The response may be in extended version, with `include_extra_info`,
+  /// ususally sent with first chunk
+  fn to_response(
+    &self,
+    data_chunk: Vec<u8>,
+    include_extra_info: bool,
+  ) -> proto::PullBackupResponse;
+
+  /// Size in bytes of non-data fields contained in response message.
+  fn metadata_size(&self, include_extra_info: bool) -> usize;
+}
+
+impl BlobStoredItem for BackupItem {
+  fn get_holder(&self) -> &str {
+    &self.compaction_holder
+  }
+
+  fn to_response(
+    &self,
+    data_chunk: Vec<u8>,
+    include_extra_info: bool,
+  ) -> proto::PullBackupResponse {
+    use proto::pull_backup_response::*;
+    let attachment_holders = if include_extra_info {
+      Some(self.attachment_holders.clone())
+    } else {
+      None
+    };
+    proto::PullBackupResponse {
+      id: Some(Id::BackupId(self.backup_id.clone())),
+      data: Some(Data::CompactionChunk(data_chunk)),
+      attachment_holders,
+    }
+  }
+
+  fn metadata_size(&self, include_extra_info: bool) -> usize {
+    let mut extra_bytes: usize = 0;
+    extra_bytes += BACKUP_TABLE_FIELD_BACKUP_ID.as_bytes().len();
+    extra_bytes += self.backup_id.as_bytes().len();
+    if include_extra_info {
+      extra_bytes += BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS.as_bytes().len();
+      extra_bytes += self.attachment_holders.as_bytes().len();
+    }
+    extra_bytes
+  }
+}
+
+impl BlobStoredItem for LogItem {
+  fn get_holder(&self) -> &str {
+    &self.value
+  }
+
+  fn to_response(
+    &self,
+    data_chunk: Vec<u8>,
+    include_extra_info: bool,
+  ) -> proto::PullBackupResponse {
+    use proto::pull_backup_response::*;
+    let attachment_holders = if include_extra_info {
+      Some(self.attachment_holders.clone())
+    } else {
+      None
+    };
+    proto::PullBackupResponse {
+      id: Some(Id::LogId(self.log_id.clone())),
+      data: Some(Data::LogChunk(data_chunk)),
+      attachment_holders,
+    }
+  }
+
+  fn metadata_size(&self, include_extra_info: bool) -> usize {
+    let mut extra_bytes: usize = 0;
+    extra_bytes += LOG_TABLE_FIELD_LOG_ID.as_bytes().len();
+    extra_bytes += self.log_id.as_bytes().len();
+    if include_extra_info {
+      extra_bytes += LOG_TABLE_FIELD_ATTACHMENT_HOLDERS.as_bytes().len();
+      extra_bytes += self.attachment_holders.as_bytes().len();
+    }
+    extra_bytes
   }
 }
 
