@@ -8,7 +8,28 @@ pub const ATTACHMENT_HOLDER_SEPARATOR: &str = ";";
 // 400KiB limit (in docs there is KB but they mean KiB) -
 // https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ServiceQuotas.html
 // This includes both attribute names' and values' lengths
+//
+// This has to be smaller than GRPC_CHUNK_SIZE_LIMIT because we need to
+// recognize if we may receive multiple chunks or just one. If it was larger
+// than the chunk limit, once we get the amount of data of size equal to the
+// limit, we wouldn't know if we should put this in the database right away or
+// wait for more data.
 pub const LOG_DATA_SIZE_DATABASE_LIMIT: usize = 1024 * 400;
+
+// 4MB limit
+// WARNING: use keeping in mind that grpc adds its own headers to messages
+// https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md
+// so the message that actually is being sent over the network looks like this
+// [Compressed-Flag] [Message-Length] [Message]
+//    [Compressed-Flag]   1 byte  - added by grpc
+//    [Message-Length]    4 bytes - added by grpc
+//    [Message]           N bytes - actual data
+// so for every message we get 5 additional bytes of data
+// as mentioned here
+// https://github.com/grpc/grpc/issues/15734#issuecomment-396962671
+// grpc stream may contain more than one message
+pub const GRPC_CHUNK_SIZE_LIMIT: usize = 4 * 1024 * 1024;
+pub const GRPC_METADATA_SIZE_PER_MESSAGE: usize = 5;
 
 // Configuration defaults
 

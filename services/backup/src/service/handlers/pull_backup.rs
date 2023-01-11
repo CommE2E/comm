@@ -1,11 +1,14 @@
 use async_stream::try_stream;
 use tokio_stream::{Stream, StreamExt};
 use tonic::Status;
-use tracing::{debug, trace};
+use tracing::{debug, trace, warn};
 
 use super::handle_db_error;
 use super::proto::{self, PullBackupResponse};
-use crate::database::{BackupItem, DatabaseClient, LogItem};
+use crate::{
+  constants::{GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE},
+  database::{BackupItem, DatabaseClient, LogItem},
+};
 
 pub struct PullBackupHandler {
   backup_item: BackupItem,
@@ -100,5 +103,97 @@ fn log_stream(
 ) -> impl Stream<Item = Result<proto::PullBackupResponse, Status>> + '_ {
   async_stream::stream! {
     yield Err(Status::unimplemented("Not implemented yet"));
+  }
+}
+
+/// A utility structure that buffers downloaded data and allows to retrieve it
+/// as chunks of arbitrary size, not greater than provided `limit`.
+struct ResponseBuffer {
+  buf: Vec<u8>,
+  limit: usize,
+}
+
+impl Default for ResponseBuffer {
+  /// Buffer size defaults to max usable gRPC message size
+  fn default() -> Self {
+    ResponseBuffer::new(GRPC_CHUNK_SIZE_LIMIT - GRPC_METADATA_SIZE_PER_MESSAGE)
+  }
+}
+
+impl ResponseBuffer {
+  pub fn new(limit: usize) -> Self {
+    ResponseBuffer {
+      buf: Vec::new(),
+      limit,
+    }
+  }
+
+  pub fn put(&mut self, data: Vec<u8>) {
+    if data.len() > self.limit {
+      warn!("Data saved to buffer is larger than chunk limit.");
+    }
+
+    self.buf.extend(data);
+  }
+
+  /// Gets chunk of size `limit - padding` and leaves remainder in buffer
+  pub fn get_chunk(&mut self, padding: usize) -> Vec<u8> {
+    let mut chunk = std::mem::take(&mut self.buf);
+
+    let target_size = self.limit - padding;
+    if chunk.len() > target_size {
+      // after this operation, chunk=0..target_size, self.buf=target_size..end
+      self.buf = chunk.split_off(target_size);
+    }
+    return chunk;
+  }
+
+  /// Does buffer length exceed given limit
+  pub fn is_saturated(&self) -> bool {
+    self.buf.len() >= self.limit
+  }
+
+  pub fn is_empty(&self) -> bool {
+    self.buf.is_empty()
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  const LIMIT: usize = 100;
+
+  #[test]
+  fn test_response_buffer() {
+    let mut buffer = ResponseBuffer::new(LIMIT);
+    assert_eq!(buffer.is_empty(), true);
+
+    // put 80 bytes of data
+    buffer.put(vec![0u8; 80]);
+    assert_eq!(buffer.is_empty(), false);
+    assert_eq!(buffer.is_saturated(), false);
+
+    // put next 80 bytes, should be saturated as 160 > 100
+    buffer.put(vec![0u8; 80]);
+    let buf_size = buffer.buf.len();
+    assert_eq!(buffer.is_saturated(), true);
+    assert_eq!(buf_size, 160);
+
+    // get one chunk
+    let padding: usize = 10;
+    let expected_chunk_size = LIMIT - padding;
+    let chunk = buffer.get_chunk(padding);
+    assert_eq!(chunk.len(), expected_chunk_size); // 90
+
+    // buffer should not be saturated now (160 - 90 < 100)
+    let remaining_buf_size = buffer.buf.len();
+    assert_eq!(remaining_buf_size, buf_size - expected_chunk_size);
+    assert_eq!(buffer.is_saturated(), false);
+
+    // get last chunk
+    let chunk = buffer.get_chunk(padding);
+    assert_eq!(chunk.len(), remaining_buf_size);
+    assert_eq!(buffer.is_empty(), true);
   }
 }
