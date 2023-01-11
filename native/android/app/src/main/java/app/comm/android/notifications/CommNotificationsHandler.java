@@ -1,10 +1,18 @@
 package app.comm.android.notifications;
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import app.comm.android.ExpoUtils;
+import app.comm.android.R;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.GlobalDBSingleton;
 import app.comm.android.fbjni.MessageOperationsUtilities;
@@ -49,6 +57,14 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
   private static final String THREAD_ID_KEY = "threadID";
   private static final String SET_UNREAD_STATUS_KEY = "setUnreadStatus";
   private static final String MESSAGE_INFOS_KEY = "messageInfos";
+  private static final String NOTIF_ID_KEY = "id";
+  private static final String TITLE_KEY = "title";
+  private static final String PREFIX_KEY = "prefix";
+  private static final String BODY_KEY = "body";
+
+  private static final String CHANNEL_ID = "default";
+  private static final long[] VIBRATION_SPEC = {500, 500};
+  private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
 
   @Override
@@ -58,6 +74,8 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
         ExpoUtils.createExpoSecureStoreSupplier(this.getApplicationContext()));
     notificationManager = (NotificationManager)this.getSystemService(
         Context.NOTIFICATION_SERVICE);
+    displayableNotificationLargeIcon = BitmapFactory.decodeResource(
+        this.getApplicationContext().getResources(), R.mipmap.ic_launcher);
   }
 
   @Override
@@ -102,7 +120,16 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
       Log.w("COMM", "Database not existing yet. Skipping notification");
     }
 
-    super.onMessageReceived(message);
+    if (this.isAppInForeground()) {
+      super.onMessageReceived(message);
+      return;
+    }
+    this.displayNotification(message);
+  }
+
+  private boolean isAppInForeground() {
+    return ProcessLifecycleOwner.get().getLifecycle().getCurrentState() ==
+        Lifecycle.State.RESUMED;
   }
 
   private void handleNotificationRescind(RemoteMessage message) {
@@ -130,5 +157,39 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
         notificationManager.cancel(notification.getTag(), notification.getId());
       }
     }
+  }
+
+  private void displayNotification(RemoteMessage message) {
+    if (message.getData().get(RESCIND_KEY) != null) {
+      // don't attempt to display rescinds
+      return;
+    }
+    String id = message.getData().get(NOTIF_ID_KEY);
+    String title = message.getData().get(TITLE_KEY);
+    String prefix = message.getData().get(PREFIX_KEY);
+    String body = message.getData().get(BODY_KEY);
+    String threadID = message.getData().get(THREAD_ID_KEY);
+
+    if (prefix != null) {
+      body = prefix + " " + body;
+    }
+
+    Bundle data = new Bundle();
+    data.putString(THREAD_ID_KEY, threadID);
+
+    NotificationCompat.Builder notificationBuilder =
+        new NotificationCompat.Builder(this.getApplicationContext())
+            .setDefaults(Notification.DEFAULT_ALL)
+            .setContentText(body)
+            .setExtras(data)
+            .setChannelId(CHANNEL_ID)
+            .setVibrate(VIBRATION_SPEC)
+            .setSmallIcon(R.drawable.notif_icon)
+            .setLargeIcon(displayableNotificationLargeIcon)
+            .setAutoCancel(true);
+    if (title != null) {
+      notificationBuilder = notificationBuilder.setContentTitle(title);
+    }
+    notificationManager.notify(id, id.hashCode(), notificationBuilder.build());
   }
 }
