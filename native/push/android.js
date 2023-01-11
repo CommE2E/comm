@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { NativeModules } from 'react-native';
 import type { RemoteMessage } from 'react-native-firebase';
 
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
@@ -12,6 +13,13 @@ import {
 import { store, dispatch } from '../redux/redux-setup';
 import { getFirebase } from './firebase';
 
+type CommAndroidNotificationsModuleType = {
+  +removeAllActiveNotificationsForThread: (threadID: string) => void,
+  ...
+};
+
+const CommAndroidNotifications: CommAndroidNotificationsModuleType =
+  NativeModules.CommAndroidNotifications;
 const androidNotificationChannelID = 'default';
 const vibrationSpec = [500, 500];
 
@@ -83,4 +91,5 @@ export {
   androidNotificationChannelID,
   handleAndroidMessage,
   androidBackgroundMessageTask,
+  CommAndroidNotifications,
 };

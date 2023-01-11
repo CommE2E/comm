@@ -12,7 +12,6 @@ import {
   rescindAndroidNotificationActionType,
   type Action,
 } from '../redux/action-types';
-import { getFirebase } from './firebase';
 
 type RecordAndroidNotificationPayload = {
   +threadID: string,
@@ -61,11 +60,6 @@ function reduceThreadIDsToNotifIDs(
   } else if (action.type === clearAndroidNotificationsActionType) {
     if (!state[action.payload.threadID]) {
       return state;
-    }
-    for (const notifID of state[action.payload.threadID]) {
-      getFirebase()
-        .notifications()
-        .android.removeDeliveredNotificationsByTag(notifID);
     }
     return {
       ...state,
