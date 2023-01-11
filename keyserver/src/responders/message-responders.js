@@ -192,7 +192,6 @@ async function multimediaMessageCreationResponder(
 
 const sendReactionMessageRequestInputValidator = tShape({
   threadID: t.String,
-  localID: t.String,
   targetMessageID: t.String,
   reaction: tString('👍'),
   action: t.enums.of(['add_reaction', 'remove_reaction']),
@@ -204,7 +203,7 @@ async function reactionMessageCreationResponder(
   const request: SendReactionMessageRequest = input;
   await validateInput(viewer, sendReactionMessageRequestInputValidator, input);
 
-  const { threadID, localID, targetMessageID, reaction, action } = request;
+  const { threadID, targetMessageID, reaction, action } = request;
 
   if (!targetMessageID || !reaction) {
     throw new ServerError('invalid_parameters');
@@ -248,7 +247,6 @@ async function reactionMessageCreationResponder(
   const messageData: ReactionMessageData = {
     type: messageTypes.REACTION,
     threadID,
-    localID,
     creatorID: viewer.id,
     time: Date.now(),
     targetMessageID,
