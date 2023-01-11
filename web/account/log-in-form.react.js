@@ -1,7 +1,18 @@
 // @flow
 
+import '@rainbow-me/rainbowkit/dist/index.css';
+
+import {
+  darkTheme,
+  getDefaultWallets,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
+import _merge from 'lodash/fp/merge';
 import * as React from 'react';
+import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { publicProvider } from 'wagmi/providers/public';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
@@ -27,6 +38,26 @@ import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors';
 import css from './log-in-form.css';
 import PasswordInput from './password-input.react';
+
+// details can be found https://0.6.x.wagmi.sh/docs/providers/configuring-chains
+const availableProviders = process.env.COMM_ALCHEMY_KEY
+  ? [alchemyProvider({ apiKey: process.env.COMM_ALCHEMY_KEY })]
+  : [publicProvider()];
+const { chains, provider } = configureChains(
+  [chain.mainnet],
+  availableProviders,
+);
+
+const { connectors } = getDefaultWallets({
+  appName: 'comm',
+  chains,
+});
+
+const wagmiClient = createClient({
+  autoConnect: true,
+  connectors,
+  provider,
+});
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function LoginForm(): React.Node {
@@ -163,4 +194,25 @@ function LoginForm(): React.Node {
   );
 }
 
-export default LoginForm;
+function LoginFormWrapper(): React.Node {
+  const theme = React.useMemo(() => {
+    return _merge(darkTheme())({
+      radii: {
+        modal: 0,
+        modalMobile: 0,
+      },
+      colors: {
+        modalBackdrop: '#242529',
+      },
+    });
+  }, []);
+  return (
+    <WagmiConfig client={wagmiClient}>
+      <RainbowKitProvider chains={chains} theme={theme} modalSize="compact">
+        <LoginForm />
+      </RainbowKitProvider>
+    </WagmiConfig>
+  );
+}
+
+export default LoginFormWrapper;
