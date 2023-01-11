@@ -114,6 +114,21 @@ Run `nix develop` to create a dev environment. Nix will handle the installation 
     - [Committing a diff](./nix_shared_workflows.md#committing-a-diff)
   - [Final notes](./nix_shared_workflows.md#final-notes)
 
+## Using alternate shells with Nix
+
+Alternate shells such as zsh or fish can also be used with Nix. To use an alternate shell, run:
+
+```sh
+nix develop -c $SHELL
+```
+
+You may also replace the bash shell with the shell of your preference.
+
+```sh
+nix develop
+exec zsh # or fish
+```
+
 ## How Nix introduces dependencies to a development environment
 
 Nix installs packages in the Nix store at package-specific paths (e.g. `/nix/store/x7kdiasp...-clang/bin/clang`). When you run `nix develop`, Nix sets environment variables such as `PATH` to expose the binary dependencies to your shell. This model can be extended through shell hooks to support other build toolchains such as `pkg-config`, `cmake`, and many other language specific package managers by simply adding the respective toolchain to `nativeBuildInputs`.
