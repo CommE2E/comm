@@ -27,7 +27,10 @@ import {
   appendSQLArray,
   mergeOrConditions,
 } from '../database/database';
-import { fetchMessageInfoForLocalID } from '../fetchers/message-fetchers';
+import {
+  fetchMessageInfoForLocalID,
+  fetchMessageInfoByID,
+} from '../fetchers/message-fetchers';
 import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { sendPushNotifs } from '../push/send';
@@ -388,7 +391,10 @@ async function postMessageSend(
           }
           const { generatesNotifs } = messageSpecs[type];
           const doesGenerateNotif = await generatesNotifs(messageInfo, {
+            notifTargetUserID: userID,
             userNotMemberOfSubthreads,
+            fetchMessageInfoByID: (messageID: string) =>
+              fetchMessageInfoByID(viewer, messageID),
           });
           return doesGenerateNotif ? messageInfo : undefined;
         }),
