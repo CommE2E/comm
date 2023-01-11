@@ -4,16 +4,15 @@ import type { PolicyType } from 'lib/facts/policies.js';
 import { type UserPolicyConfirmationType } from 'lib/types/policy-types.js';
 
 import { dbQuery, SQL } from '../database/database.js';
-import { Viewer } from '../session/viewer.js';
 
 async function fetchPolicyAcknowledgments(
-  viewer: Viewer,
+  userID: string,
   policies: $ReadOnlyArray<PolicyType>,
 ): Promise<$ReadOnlyArray<UserPolicyConfirmationType>> {
   const query = SQL`
     SELECT policy, confirmed
     FROM policy_acknowledgments
-    WHERE user=${viewer.id}
+    WHERE user=${userID}
       AND policy IN (${policies})
   `;
   const [data] = await dbQuery(query);
@@ -21,11 +20,11 @@ async function fetchPolicyAcknowledgments(
 }
 
 async function fetchNotAcknowledgedPolicies(
-  viewer: Viewer,
+  userID: string,
   policies: $ReadOnlyArray<PolicyType>,
 ): Promise<$ReadOnlyArray<PolicyType>> {
   const viewerAcknowledgments = await fetchPolicyAcknowledgments(
-    viewer,
+    userID,
     policies,
   );
   return policies.filter(policy => {
