@@ -22,6 +22,7 @@ tokio = { version = "1.23", features = ["rt-multi-thread"]}
 tokio-stream = "0.1"
 tonic = "0.8"
 tracing = "0.1"
+tracing-futures =  { version = "0.2", features = ["futures-03"] }
 tracing-subscriber = { version = "0.3", features = ["env-filter"]}
 uuid = { version = "1.2", features = ["v4"] }
 

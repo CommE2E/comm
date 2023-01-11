@@ -4,7 +4,8 @@ use std::pin::Pin;
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 use tonic::{Request, Response, Status};
-use tracing::{debug, error, info, instrument, trace, warn, Instrument};
+use tracing::{debug, error, info, instrument, trace, warn};
+use tracing_futures::Instrument;
 
 use crate::{
   constants::MPSC_CHANNEL_BUFFER_CAPACITY,
@@ -184,7 +185,7 @@ impl BackupService for MyBackupService {
     let handler =
       PullBackupHandler::new(&self.db, request.into_inner()).await?;
 
-    let stream = handler.into_response_stream();
+    let stream = handler.into_response_stream().in_current_span();
     Ok(Response::new(Box::pin(stream) as Self::PullBackupStream))
   }
 

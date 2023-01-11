@@ -2,6 +2,7 @@ use async_stream::try_stream;
 use tokio_stream::{Stream, StreamExt};
 use tonic::Status;
 use tracing::{debug, error, trace, warn};
+use tracing_futures::Instrument;
 
 use super::handle_db_error;
 use super::proto::{self, PullBackupResponse};
@@ -74,15 +75,17 @@ impl PullBackupHandler {
       debug!("Pulling logs...");
       for log in self.logs {
         trace!("Pulling log ID={}", &log.log_id);
+        let span = tracing::trace_span!("log", log_id = &log.log_id);
 
         if log.persisted_in_blob {
-          trace!("Log persisted in blob");
-          let log_data_stream = data_stream(&log);
+          trace!(parent: &span, "Log persisted in blob");
+          let log_data_stream = data_stream(&log).instrument(span);
           tokio::pin!(log_data_stream);
           while let Some(response) = log_data_stream.try_next().await? {
             yield response;
           }
         } else {
+          trace!(parent: &span, "Log persisted in database");
           yield proto::PullBackupResponse {
             attachment_holders: Some(log.attachment_holders),
             id: Some(Id::LogId(log.log_id)),
