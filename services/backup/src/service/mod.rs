@@ -20,6 +20,7 @@ pub use proto::backup_service_server::BackupServiceServer;
 mod handlers {
   pub(super) mod add_attachments;
   pub(super) mod create_backup;
+  pub(super) mod pull_backup;
   pub(super) mod send_log;
 
   // re-exports for convenient usage in handlers
@@ -27,6 +28,7 @@ mod handlers {
   pub(self) use super::proto;
 }
 use self::handlers::create_backup::CreateBackupHandler;
+use self::handlers::pull_backup::PullBackupHandler;
 use self::handlers::send_log::SendLogHandler;
 
 pub struct MyBackupService {
@@ -172,12 +174,18 @@ impl BackupService for MyBackupService {
     Box<dyn Stream<Item = Result<proto::PullBackupResponse, Status>> + Send>,
   >;
 
-  #[instrument(skip(self))]
+  #[instrument(skip_all, fields(backup_id = &request.get_ref().backup_id))]
   async fn pull_backup(
     &self,
-    _request: Request<proto::PullBackupRequest>,
+    request: Request<proto::PullBackupRequest>,
   ) -> Result<Response<Self::PullBackupStream>, Status> {
-    Err(Status::unimplemented("unimplemented"))
+    info!("PullBackup request: {:?}", request);
+
+    let handler =
+      PullBackupHandler::new(&self.db, request.into_inner()).await?;
+
+    let stream = handler.into_response_stream();
+    Ok(Response::new(Box::pin(stream) as Self::PullBackupStream))
   }
 
   #[instrument(skip_all,
