@@ -1,7 +1,18 @@
 diff --git a/node_modules/@rainbow-me/rainbowkit/dist/chunk-R7UVC5N6.js b/node_modules/@rainbow-me/rainbowkit/dist/chunk-R7UVC5N6.js
-index 275c804..ca20931 100644
+index 275c804..eab512c 100644
 --- a/node_modules/@rainbow-me/rainbowkit/dist/chunk-R7UVC5N6.js
 +++ b/node_modules/@rainbow-me/rainbowkit/dist/chunk-R7UVC5N6.js
+@@ -1625,8 +1625,8 @@ function abbreviateETHBalance(number) {
+ 
+ // src/components/ConnectButton/formatAddress.ts
+ function formatAddress(address) {
+-  const leadingChars = 4;
+-  const trailingChars = 4;
++  const leadingChars = 8;
++  const trailingChars = 10;
+   return address.length < leadingChars + trailingChars ? address : `${address.substring(0, leadingChars)}\u2026${address.substring(address.length - trailingChars)}`;
+ }
+ 
 @@ -4590,5 +4590,6 @@ export {
    useAccountModal,
    useChainModal,
