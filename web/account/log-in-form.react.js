@@ -10,6 +10,7 @@ import {
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
+import { FaEthereum } from 'react-icons/fa';
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
@@ -30,6 +31,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
+import { isDev } from 'lib/utils/dev-utils.js';
 
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
@@ -151,6 +153,27 @@ function LoginForm(): React.Node {
     return 'Log in';
   }, [inputDisabled]);
 
+  const siweButtonColor = React.useMemo(
+    () => ({ backgroundColor: 'white', color: 'black' }),
+    [],
+  );
+
+  let siweButton;
+  if (isDev) {
+    siweButton = (
+      <Button
+        onClick={undefined}
+        variant="filled"
+        buttonColor={siweButtonColor}
+      >
+        <div className={css.ethereum_logo_container}>
+          <FaEthereum />
+        </div>
+        Sign in with Ethereum
+      </Button>
+    );
+  }
+
   return (
     <div className={css.modal_body}>
       <form method="POST">
@@ -187,6 +210,7 @@ function LoginForm(): React.Node {
           >
             {loginButtonContent}
           </Button>
+          {siweButton}
           <div className={css.modal_form_error}>{errorMessage}</div>
         </div>
       </form>

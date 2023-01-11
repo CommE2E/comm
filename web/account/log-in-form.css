@@ -40,3 +40,10 @@ div.modal_form_error {
   padding-left: 6px;
   align-self: center;
 }
+
+div.ethereum_logo_container {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  margin: 0 4px;
+}
