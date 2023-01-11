@@ -5,7 +5,7 @@ import { ErrorTypes, SiweMessage } from 'siwe';
 import t from 'tcomb';
 import bcrypt from 'twin-bcrypt';
 
-import { policies } from 'lib/facts/policies.js';
+import { baseLegalPolicies, policies } from 'lib/facts/policies.js';
 import { hasMinCodeVersion } from 'lib/shared/version-utils';
 import type {
   ResetPasswordRequest,
@@ -62,6 +62,7 @@ import { deleteCookie } from '../deleters/cookie-deleters';
 import { checkAndInvalidateSIWENonceEntry } from '../deleters/siwe-nonce-deleters.js';
 import { fetchEntryInfos } from '../fetchers/entry-fetchers';
 import { fetchMessageInfos } from '../fetchers/message-fetchers';
+import { fetchNotAcknowledgedPolicies } from '../fetchers/policy-acknowledgment-fetchers.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers';
 import {
   fetchKnownUserInfos,
@@ -215,16 +216,38 @@ async function processSuccessfulLogin(
   const deviceToken = request.deviceTokenUpdateRequest
     ? request.deviceTokenUpdateRequest.deviceToken
     : viewer.deviceToken;
-  const [userViewerData] = await Promise.all([
+  const [userViewerData, notAcknowledgedPolicies] = await Promise.all([
     createNewUserCookie(userID, {
       platformDetails: request.platformDetails,
       deviceToken,
       primaryIdentityPublicKey,
       socialProof,
     }),
+    fetchNotAcknowledgedPolicies(viewer, baseLegalPolicies),
     deleteCookie(viewer.cookieID),
   ]);
   viewer.setNewCookie(userViewerData);
+
+  if (
+    notAcknowledgedPolicies.length &&
+    hasMinCodeVersion(viewer.platformDetails, 1000)
+  ) {
+    const currentUserInfo = await fetchLoggedInUserInfo(viewer);
+    return {
+      notAcknowledgedPolicies,
+      currentUserInfo: currentUserInfo,
+      rawMessageInfos: [],
+      truncationStatuses: {},
+      userInfos: [],
+      rawEntryInfos: [],
+      serverTime: 0,
+      cookieChange: {
+        threadInfos: {},
+        userInfos: [],
+      },
+    };
+  }
+
   if (calendarQuery) {
     await setNewSession(viewer, calendarQuery, newServerTime);
   }
@@ -249,8 +272,8 @@ async function processSuccessfulLogin(
     fetchLoggedInUserInfo(viewer),
   ]);
 
-  const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : null;
-  const response: LogInResponse = {
+  const rawEntryInfos = entriesResult ? entriesResult.rawEntryInfos : undefined;
+  return {
     currentUserInfo,
     rawMessageInfos: messagesResult.rawMessageInfos,
     truncationStatuses: messagesResult.truncationStatuses,
@@ -260,11 +283,8 @@ async function processSuccessfulLogin(
       threadInfos: threadsResult.threadInfos,
       userInfos: [],
     },
+    rawEntryInfos,
   };
-  if (rawEntryInfos) {
-    response.rawEntryInfos = rawEntryInfos;
-  }
-  return response;
 }
 
 const logInRequestInputValidator = tShape({
