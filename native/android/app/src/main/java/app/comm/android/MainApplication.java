@@ -28,6 +28,7 @@ public class MainApplication
     extends MultiDexApplication implements ReactApplication {
 
   static {
+    System.loadLibrary("fbjni");
     System.loadLibrary("comm_jni_module");
   }
 

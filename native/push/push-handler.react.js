@@ -2,7 +2,7 @@
 
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
-import { AppRegistry, Platform, Alert, LogBox } from 'react-native';
+import { Platform, Alert, LogBox } from 'react-native';
 import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 import { useDispatch } from 'react-redux';
@@ -49,7 +49,6 @@ import { type NotifPermissionAlertInfo } from './alerts';
 import {
   androidNotificationChannelID,
   handleAndroidMessage,
-  androidBackgroundMessageTask,
   CommAndroidNotifications,
 } from './android';
 import {
@@ -577,11 +576,6 @@ class PushHandler extends React.PureComponent<Props, State> {
     );
   }
 }
-
-AppRegistry.registerHeadlessTask(
-  'RNFirebaseBackgroundMessage',
-  () => androidBackgroundMessageTask,
-);
 
 const ConnectedPushHandler: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedPushHandler(props: BaseProps) {
