@@ -9,6 +9,7 @@ import {
   shimUnsupportedRawMessageInfos,
   stripLocalIDs,
 } from 'lib/shared/message-utils';
+import { pushTypes } from 'lib/shared/messages/message-spec';
 import { messageSpecs } from 'lib/shared/messages/message-specs';
 import {
   messageTypes,
@@ -396,7 +397,9 @@ async function postMessageSend(
             fetchMessageInfoByID: (messageID: string) =>
               fetchMessageInfoByID(viewer, messageID),
           });
-          return doesGenerateNotif ? messageInfo : undefined;
+          return doesGenerateNotif === pushTypes.NOTIF
+            ? messageInfo
+            : undefined;
         }),
       );
     }
