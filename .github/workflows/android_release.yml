@@ -20,7 +20,7 @@ jobs:
         run: rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android
 
       - name: Install Protobuf compiler
-        working-directory: ./native/android/scripts
+        working-directory: ./scripts
         run: sudo ./install_protobuf.sh
 
       - name: Install Yarn
