@@ -118,6 +118,9 @@ RUN cargo init keyserver/addons/rust-node-addon --lib
 COPY --chown=comm keyserver/addons/rust-node-addon/Cargo.toml \
   keyserver/addons/rust-node-addon/
 
+# Copy in comm-opaque library, a dependency of rust-node-addon
+COPY --chown=comm shared/comm-opaque shared/comm-opaque/
+
 # Copy in files needed for patch-package
 COPY --chown=comm patches patches/
 

@@ -4,6 +4,7 @@ steps:
       - '(pkill flow || true)'
       - 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
       - '. /root/.cargo/env'
+      - 'scripts/install_protobuf.sh'
       - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
       - 'yarn eslint --max-warnings=0 && yarn workspace lib flow && yarn workspace web flow && yarn workspace landing flow && yarn workspace native flow && yarn workspace keyserver flow && yarn workspace desktop flow'
       - 'yarn workspace lib test && yarn workspace keyserver test'

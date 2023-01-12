@@ -2,6 +2,7 @@ steps:
   - label: 'JSI Codegen'
     command:
       - '(pkill flow || true)'
+      - 'scripts/install_protobuf.sh'
       - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
       - 'cd native && yarn codegen-jsi && git diff --exit-code'
     plugins:
