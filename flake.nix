@@ -34,5 +34,12 @@
       # devShell.aarch64-darwin), thus should be system agnostic such as
       # overlays or utility functions.
       overlays.default = localOverlay;
+
+      nixConfig = {
+        substitutors = "https://comm.cachix.org";
+        extra-trusted-substitutors = "https://comm.cachix.org";
+        trusted-public-keys = "comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4=";
+        extra-trusted-public-keys = "comm.cachix.org-1:70RF31rkmCEhQ9HrXA2uXcpqQKGcUK3TxLJdgcUCaA4=";
+      };
     };
 }
