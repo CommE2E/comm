@@ -192,6 +192,7 @@ async function multimediaMessageCreationResponder(
 
 const sendReactionMessageRequestInputValidator = tShape({
   threadID: t.String,
+  localID: t.maybe(t.String),
   targetMessageID: t.String,
   reaction: tString('👍'),
   action: t.enums.of(['add_reaction', 'remove_reaction']),
@@ -203,7 +204,7 @@ async function reactionMessageCreationResponder(
   const request: SendReactionMessageRequest = input;
   await validateInput(viewer, sendReactionMessageRequestInputValidator, input);
 
-  const { threadID, targetMessageID, reaction, action } = request;
+  const { threadID, localID, targetMessageID, reaction, action } = request;
 
   if (!targetMessageID || !reaction) {
     throw new ServerError('invalid_parameters');
@@ -244,7 +245,7 @@ async function reactionMessageCreationResponder(
     throw new ServerError('invalid_parameters');
   }
 
-  const messageData: ReactionMessageData = {
+  let messageData: ReactionMessageData = {
     type: messageTypes.REACTION,
     threadID,
     creatorID: viewer.id,
@@ -253,6 +254,9 @@ async function reactionMessageCreationResponder(
     reaction,
     action,
   };
+  if (localID) {
+    messageData = { ...messageData, localID };
+  }
 
   const rawMessageInfos = await createMessages(viewer, [messageData]);
 
