@@ -24,6 +24,7 @@ import {
   checkIfDefaultMembersAreVoiced,
 } from 'lib/shared/thread-utils';
 import { getTypeaheadUserSuggestions } from 'lib/shared/typeahead-utils';
+import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import { messageTypes } from 'lib/types/message-types';
@@ -76,10 +77,7 @@ type Props = {
   +typeaheadMatchedStrings: ?TypeaheadMatchedStrings,
   +suggestedUsers: $ReadOnlyArray<RelativeMemberInfo>,
 };
-export type TypeaheadMatchedStrings = {
-  +textBeforeAtSymbol: string,
-  +usernamePrefix: string,
-};
+
 class ChatInputBar extends React.PureComponent<Props> {
   textarea: ?HTMLTextAreaElement;
   multimediaInput: ?HTMLInputElement;
