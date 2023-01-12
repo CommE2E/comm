@@ -1,0 +1,28 @@
+diff --git a/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js b/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
+index 0a601bd..2c0a210 100644
+--- a/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
++++ b/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
+@@ -255,6 +255,23 @@ class BundlerDevServer {
+             return `${location.protocol}://localhost:${location.port}`;
+         }
+         var _url;
++        if (location.host === 'localhost') {
++          // try autodetect IP
++          try {
++            const ip = require("../../utils/ip").getIpAddress();
++            if (ip !== "127.0.0.1") {
++              return `${location.protocol}://${ip}:${location.port}`;
++            }
++          } catch(e) {}
++          // fall back to facts/network.json
++          try {
++            const { natDevHostname } = require('../../../../../../../native/facts/network.json');
++            if (natDevHostname != null) {
++              return `${location.protocol}://${natDevHostname}:${location.port}`;
++            }            
++          } catch(e) {}
++          // if everithing else fails, fall back to localhost
++        }
+         return (_url = location.url) != null ? _url : null;
+     }
+     /** Get the base URL for JS inspector */ getJsInspectorBaseUrl() {
