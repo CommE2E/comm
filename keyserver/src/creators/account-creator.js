@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import { getRustAPI } from 'rust-node-addon';
 import bcrypt from 'twin-bcrypt';
 
 import ashoat from 'lib/facts/ashoat';
@@ -37,6 +38,7 @@ import {
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers';
 import { verifyCalendarQueryThreadIDs } from '../responders/entry-responders';
+import { handleAsyncPromise } from '../responders/handlers';
 import { createNewUserCookie, setNewSession } from '../session/cookies';
 import { createScriptViewer } from '../session/scripts';
 import type { Viewer } from '../session/viewer';
@@ -180,17 +182,31 @@ async function createAccount(
     threadsResult,
     userInfos,
     currentUserInfo,
+    rustAPI,
   ] = await Promise.all([
     createMessages(viewer, messageDatas),
     fetchThreadInfos(viewer),
     fetchKnownUserInfos(viewer),
     fetchLoggedInUserInfo(viewer),
+    getRustAPI(),
   ]);
   const rawMessageInfos = [
     ...ashoatThreadResult.newMessageInfos,
     ...privateThreadResult.newMessageInfos,
     ...messageInfos,
   ];
+
+  const deviceID = request.deviceID ?? 'placeholder';
+  const userPublicKey = request.userPublicKey ?? 'placeholder';
+  handleAsyncPromise(
+    rustAPI.registerUser(
+      id,
+      deviceID,
+      request.username,
+      request.password,
+      userPublicKey,
+    ),
+  );
 
   return {
     id,
