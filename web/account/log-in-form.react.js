@@ -23,10 +23,6 @@ import {
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 
-import {
-  getSIWENonce,
-  getSIWENonceActionTypes,
-} from 'lib/actions/siwe-actions.js';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -73,9 +69,6 @@ const wagmiClient = createClient({
   provider,
 });
 
-const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
-  getSIWENonceActionTypes,
-);
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function LoginForm(): React.Node {
   const { openConnectModal } = useConnectModal();
@@ -83,19 +76,12 @@ function LoginForm(): React.Node {
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
   const callLogIn = useServerCall(logIn);
-
-  const getSIWENonceCall = useServerCall(getSIWENonce);
-  const getSIWENonceCallLoadingStatus = useSelector(
-    getSIWENonceLoadingStatusSelector,
-  );
-
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
 
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
   const [errorMessage, setErrorMessage] = React.useState<string>('');
-  const [siweNonce, setSIWENonce] = React.useState<?string>(null);
 
   const usernameInputRef = React.useRef();
 
@@ -188,16 +174,7 @@ function LoginForm(): React.Node {
   }
 
   let siweConnectButton;
-  if (isDev && signer && !siweNonce) {
-    siweConnectButton = (
-      <div className={css.connectButtonContainer}>
-        <LoadingIndicator
-          status={getSIWENonceCallLoadingStatus}
-          size="medium"
-        />
-      </div>
-    );
-  } else if (isDev && signer) {
+  if (isDev && signer) {
     siweConnectButton = (
       <div className={css.connectButtonContainer}>
         <ConnectButton />
@@ -207,14 +184,7 @@ function LoginForm(): React.Node {
 
   const onSIWEButtonClick = React.useCallback(() => {
     openConnectModal && openConnectModal();
-    dispatchActionPromise(
-      getSIWENonceActionTypes,
-      (async () => {
-        const response = await getSIWENonceCall();
-        setSIWENonce(response);
-      })(),
-    );
-  }, [dispatchActionPromise, getSIWENonceCall, openConnectModal]);
+  }, [openConnectModal]);
 
   let siweButton;
   if (isDev && openConnectModal) {
