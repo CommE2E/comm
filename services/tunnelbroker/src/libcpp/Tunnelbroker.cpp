@@ -177,6 +177,11 @@ void updateSessionItemIsOnline(rust::Str sessionID, bool isOnline) {
 void updateSessionItemDeviceToken(
     rust::Str sessionID,
     rust::Str newNotifToken) {
+  if (comm::network::config::ConfigManager::getInstance().isParameterSet(
+          comm::network::config::ConfigManager::
+              OPTION_SESSIONS_SKIP_AUTH_KEY)) {
+    return;
+  }
   comm::network::database::DatabaseManager::getInstance()
       .updateSessionItemDeviceToken(
           std::string{sessionID}, std::string{newNotifToken});

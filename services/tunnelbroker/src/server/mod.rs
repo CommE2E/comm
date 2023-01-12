@@ -1,11 +1,12 @@
-use crate::cxx_bridge::ffi::MessageItem;
+use crate::cxx_bridge::ffi::{MessageItem, SessionItem};
 
 use super::constants;
 use super::cxx_bridge::ffi::{
   ackMessageFromAMQP, eraseMessagesFromAMQP, getMessagesFromDatabase,
-  getSavedNonceToSign, getSessionItem, newSessionHandler, removeMessages,
-  sendMessages, sessionSignatureHandler, updateSessionItemDeviceToken,
-  updateSessionItemIsOnline, waitMessageFromDeliveryBroker, GRPCStatusCodes,
+  getSavedNonceToSign, getSessionItem, isConfigParameterSet, newSessionHandler,
+  removeMessages, sendMessages, sessionSignatureHandler,
+  updateSessionItemDeviceToken, updateSessionItemIsOnline,
+  waitMessageFromDeliveryBroker, GRPCStatusCodes,
 };
 use anyhow::Result;
 use futures::Stream;
@@ -121,22 +122,45 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
     &self,
     request: Request<Streaming<tunnelbroker::MessageToTunnelbroker>>,
   ) -> Result<Response<Self::MessagesStreamStream>, Status> {
-    let session_id = match request.metadata().get("sessionID") {
-      Some(metadata_session_id) => metadata_session_id
+    let session_id: String;
+    let session_item: SessionItem;
+    if isConfigParameterSet("sessions.skip_authentication").expect(
+      "Error while checking the skip_authentication config file parameter",
+    ) {
+      session_id = String::new();
+      let device_id = request
+        .metadata()
+        .get("deviceID")
+        .expect("Expected 'deviceID' value in metadata is not provided")
         .to_str()
-        .expect("metadata session id was not valid UTF8")
-        .to_string(),
-      None => {
-        return Err(Status::invalid_argument(
-          "No 'sessionID' in metadata was provided",
-        ))
-      }
-    };
-    let session_item = match getSessionItem(&session_id) {
-      Ok(database_item) => database_item,
-      Err(err) => return Err(Status::unauthenticated(err.what())),
-    };
-
+        .expect("Metadata 'deviceID' value is not a valid UTF8")
+        .to_string();
+      session_item = SessionItem {
+        deviceID: device_id,
+        publicKey: String::new(),
+        notifyToken: String::new(),
+        deviceType: 0,
+        appVersion: String::new(),
+        deviceOS: String::new(),
+        isOnline: true,
+      };
+    } else {
+      session_id = match request.metadata().get("sessionID") {
+        Some(metadata_session_id) => metadata_session_id
+          .to_str()
+          .expect("metadata session id was not valid UTF8")
+          .to_string(),
+        None => {
+          return Err(Status::invalid_argument(
+            "No 'sessionID' in metadata was provided",
+          ));
+        }
+      };
+      session_item = match getSessionItem(&session_id) {
+        Ok(database_item) => database_item,
+        Err(err) => return Err(Status::unauthenticated(err.what())),
+      };
+    }
     let (tx, rx) = mpsc::channel(constants::GRPC_TX_QUEUE_SIZE);
 
     // Through this function, we will write to the output stream from different Tokio
