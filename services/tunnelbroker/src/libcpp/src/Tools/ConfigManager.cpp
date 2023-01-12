@@ -31,6 +31,8 @@ const std::string ConfigManager::OPTION_NOTIFS_APNS_TOPIC =
     "notifications.apns_topic";
 const std::string ConfigManager::OPTION_NOTIFS_FCM_SERVER_KEY =
     "notifications.fcm_server_key";
+const std::string ConfigManager::OPTION_SESSIONS_SKIP_AUTH_KEY =
+    "sessions.skip_authentication";
 
 ConfigManager &ConfigManager::getInstance() {
   static ConfigManager instance;
@@ -113,6 +115,10 @@ void ConfigManager::loadConfigFile(const std::string configFilePath) {
         boost::program_options::value<std::string>()->required(),
         "Firebase Cloud Messaging server key for Android notifications");
 
+    description.add_options()(
+        this->OPTION_SESSIONS_SKIP_AUTH_KEY.c_str(),
+        "Skip sessions authentication mechanism");
+
     boost::program_options::parsed_options parsedDescription =
         boost::program_options::parse_config_file(
             fileStream, description, true);
@@ -139,6 +145,10 @@ std::string ConfigManager::getParameter(std::string param) {
         " can not be empty.");
   }
   return parameterValue;
+}
+
+bool ConfigManager::isParameterSet(std::string param) {
+  return this->variablesMap.count(param) != 0;
 }
 
 } // namespace config

@@ -26,10 +26,12 @@ public:
   static const std::string OPTION_NOTIFS_APNS_P12_CERT_PASSWORD;
   static const std::string OPTION_NOTIFS_APNS_TOPIC;
   static const std::string OPTION_NOTIFS_FCM_SERVER_KEY;
+  static const std::string OPTION_SESSIONS_SKIP_AUTH_KEY;
 
   static ConfigManager &getInstance();
   void load();
   std::string getParameter(std::string param);
+  bool isParameterSet(std::string param);
 };
 
 } // namespace config
