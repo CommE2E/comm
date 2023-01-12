@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 import { leastPositiveResidue } from 'lib/utils/math-utils';
 
@@ -13,7 +14,6 @@ import {
   getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
 } from '../utils/typeahead-utils';
-import type { TypeaheadMatchedStrings } from './chat-input-bar.react';
 import css from './typeahead-tooltip.css';
 
 export type TypeaheadTooltipProps = {
