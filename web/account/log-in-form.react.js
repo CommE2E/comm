@@ -1,32 +1,8 @@
 // @flow
 
-import '@rainbow-me/rainbowkit/dist/index.css';
-
-import {
-  ConnectButton,
-  darkTheme,
-  getDefaultWallets,
-  RainbowKitProvider,
-  useConnectModal,
-} from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
-import _merge from 'lodash/fp/merge';
 import * as React from 'react';
-import { FaEthereum } from 'react-icons/fa';
-import {
-  chain,
-  configureChains,
-  createClient,
-  WagmiConfig,
-  useSigner,
-} from 'wagmi';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
 
-import {
-  getSIWENonce,
-  getSIWENonceActionTypes,
-} from 'lib/actions/siwe-actions.js';
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
@@ -43,7 +19,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
-import { isDev } from 'lib/utils/dev-utils.js';
+import { isDev } from 'lib/utils/dev-utils';
 
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
@@ -52,42 +28,13 @@ import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors';
 import css from './log-in-form.css';
 import PasswordInput from './password-input.react';
+import SIWE from './siwe.react.js';
 
-// details can be found https://0.6.x.wagmi.sh/docs/providers/configuring-chains
-const availableProviders = process.env.COMM_ALCHEMY_KEY
-  ? [alchemyProvider({ apiKey: process.env.COMM_ALCHEMY_KEY })]
-  : [publicProvider()];
-const { chains, provider } = configureChains(
-  [chain.mainnet],
-  availableProviders,
-);
-
-const { connectors } = getDefaultWallets({
-  appName: 'comm',
-  chains,
-});
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
-
-const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
-  getSIWENonceActionTypes,
-);
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function LoginForm(): React.Node {
-  const { openConnectModal } = useConnectModal();
-  const { data: signer } = useSigner();
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
   const callLogIn = useServerCall(logIn);
-
-  const getSIWENonceCall = useServerCall(getSIWENonce);
-  const getSIWENonceCallLoadingStatus = useSelector(
-    getSIWENonceLoadingStatusSelector,
-  );
 
   const dispatchActionPromise = useDispatchActionPromise();
   const modalContext = useModalContext();
@@ -95,27 +42,12 @@ function LoginForm(): React.Node {
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
   const [errorMessage, setErrorMessage] = React.useState<string>('');
-  const [siweNonce, setSIWENonce] = React.useState<?string>(null);
 
   const usernameInputRef = React.useRef();
 
   React.useEffect(() => {
     usernameInputRef.current?.focus();
   }, []);
-
-  React.useEffect(() => {
-    if (!signer || !isDev) {
-      setSIWENonce(null);
-      return;
-    }
-    dispatchActionPromise(
-      getSIWENonceActionTypes,
-      (async () => {
-        const response = await getSIWENonceCall();
-        setSIWENonce(response);
-      })(),
-    );
-  }, [dispatchActionPromise, getSIWENonceCall, signer]);
 
   const onUsernameChange = React.useCallback(e => {
     invariant(e.target instanceof HTMLInputElement, 'target not input');
@@ -195,54 +127,9 @@ function LoginForm(): React.Node {
     return 'Log in';
   }, [inputDisabled]);
 
-  const siweButtonColor = React.useMemo(
-    () => ({ backgroundColor: 'white', color: 'black' }),
-    [],
-  );
-
-  let siweSeparator;
+  let siwe;
   if (isDev) {
-    siweSeparator = <hr />;
-  }
-
-  let siweConnectButton;
-  if (isDev && signer && !siweNonce) {
-    siweConnectButton = (
-      <div className={css.connectButtonContainer}>
-        <LoadingIndicator
-          status={getSIWENonceCallLoadingStatus}
-          size="medium"
-        />
-      </div>
-    );
-  } else if (isDev && signer) {
-    siweConnectButton = (
-      <div className={css.connectButtonContainer}>
-        <ConnectButton />
-      </div>
-    );
-  }
-
-  const onSIWEButtonClick = React.useCallback(() => {
-    openConnectModal && openConnectModal();
-  }, [openConnectModal]);
-
-  let siweButton;
-  if (isDev && openConnectModal) {
-    siweButton = (
-      <>
-        <Button
-          onClick={onSIWEButtonClick}
-          variant="filled"
-          buttonColor={siweButtonColor}
-        >
-          <div className={css.ethereum_logo_container}>
-            <FaEthereum />
-          </div>
-          Sign in with Ethereum
-        </Button>
-      </>
-    );
+    siwe = <SIWE />;
   }
 
   return (
@@ -281,9 +168,7 @@ function LoginForm(): React.Node {
           >
             {loginButtonContent}
           </Button>
-          {siweSeparator}
-          {siweConnectButton}
-          {siweButton}
+          {siwe}
           <div className={css.modal_form_error}>{errorMessage}</div>
         </div>
       </form>
@@ -291,25 +176,4 @@ function LoginForm(): React.Node {
   );
 }
 
-function LoginFormWrapper(): React.Node {
-  const theme = React.useMemo(() => {
-    return _merge(darkTheme())({
-      radii: {
-        modal: 0,
-        modalMobile: 0,
-      },
-      colors: {
-        modalBackdrop: '#242529',
-      },
-    });
-  }, []);
-  return (
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains} theme={theme} modalSize="compact">
-        <LoginForm />
-      </RainbowKitProvider>
-    </WagmiConfig>
-  );
-}
-
-export default LoginFormWrapper;
+export default LoginForm;

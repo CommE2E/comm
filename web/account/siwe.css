@@ -1,0 +1,36 @@
+div.ethereumLogoContainer {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  margin: 0 4px;
+}
+
+hr {
+  margin: 20px 0;
+  height: 0;
+  overflow: visible;
+  text-align: center;
+  border: none;
+  border-top: #ffffff33 solid 1px;
+}
+
+hr:after {
+  position: relative;
+  top: -12px;
+  padding: 0 8px;
+  color: white;
+  content: 'or';
+  background-color: #1f1f1fff;
+}
+
+div.connectButtonContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+div.siweContainer {
+  display: flex;
+  flex-direction: column;
+}
