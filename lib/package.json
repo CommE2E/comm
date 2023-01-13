@@ -27,6 +27,8 @@
   "dependencies": {
     "dateformat": "^3.0.3",
     "emoji-regex": "^9.2.0",
+    "eth-ens-namehash": "^2.0.8",
+    "ethers": "^5.7.2",
     "fast-json-stable-stringify": "^2.0.0",
     "file-type": "^12.3.0",
     "invariant": "^2.2.4",

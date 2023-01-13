@@ -47,6 +47,8 @@ jobs:
 
       - name: '[lib] test'
         working-directory: ./lib
+        env:
+          ALCHEMY_API_KEY: ${{secrets.ALCHEMY_API_KEY}}
         run: yarn test
 
       - name: '[keyserver] test'
