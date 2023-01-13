@@ -44,6 +44,7 @@ import {
   draftKeyFromThreadID,
   colorIsDark,
 } from 'lib/shared/thread-utils';
+import { getTypeaheadUserSuggestions } from 'lib/shared/typeahead-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { PhotoPaste } from 'lib/types/media-types';
@@ -88,8 +89,10 @@ import { type Colors, useStyles, useColors } from '../themes/colors';
 import type { LayoutEvent } from '../types/react-native';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
+import { nativeTypeaheadRegex } from '../utils/typeahead-utils';
 import { ChatContext } from './chat-context';
 import type { ChatNavigationProp } from './chat.react';
+import TypeaheadTooltip from './typeahead-tooltip.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -472,6 +475,47 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
     }
 
+    const inputSliceEndingAtCursor = this.state.text.slice(
+      0,
+      this.state.selection.start,
+    );
+
+    // we only try to match if there is end of text or whitespace after cursor
+    const typeaheadRegexMatches =
+      inputSliceEndingAtCursor.length === this.state.text.length ||
+      /\s/.test(this.state.text[this.state.selection.start])
+        ? inputSliceEndingAtCursor.match(nativeTypeaheadRegex)
+        : null;
+
+    const typeaheadMatchedStrings =
+      typeaheadRegexMatches !== null
+        ? {
+            textBeforeAtSymbol: typeaheadRegexMatches[1] ?? '',
+            usernamePrefix: typeaheadRegexMatches[4] ?? '',
+          }
+        : null;
+
+    const typedUsernamePrefix = typeaheadMatchedStrings?.usernamePrefix ?? '';
+
+    const suggestedUsers = typeaheadMatchedStrings
+      ? getTypeaheadUserSuggestions(
+          this.props.userSearchIndex,
+          this.props.threadMembers,
+          this.props.viewerID,
+          typedUsernamePrefix,
+        )
+      : [];
+
+    const typeaheadTooltip =
+      suggestedUsers.length > 0 && typeaheadMatchedStrings ? (
+        <TypeaheadTooltip
+          text={this.state.text}
+          matchedStrings={typeaheadMatchedStrings}
+          suggestedUsers={suggestedUsers}
+          focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
+        />
+      ) : null;
+
     let content;
     const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
       this.props.threadInfo,
@@ -517,6 +561,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
         style={this.props.styles.container}
         onLayout={this.props.onInputBarLayout}
       >
+        {typeaheadTooltip}
         {joinButton}
         {content}
         {keyboardInputHost}
