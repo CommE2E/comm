@@ -2,6 +2,7 @@
 
 import Icon from '@expo/vector-icons/Ionicons';
 import invariant from 'invariant';
+import _omit from 'lodash/fp/omit';
 import _throttle from 'lodash/throttle';
 import * as React from 'react';
 import {
@@ -16,7 +17,9 @@ import {
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, { EasingNode } from 'react-native-reanimated';
+import type { SelectionChangeEvent } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { useDispatch } from 'react-redux';
+import shallowequal from 'shallowequal';
 
 import {
   moveDraftActionType,
@@ -144,12 +147,20 @@ type Props = {
   +userSearchIndex: SearchIndex,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 };
+
+export type Selection = {
+  +start: number,
+  +end: number,
+};
+
 type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
+  +selection: Selection,
+  +controlSelection: boolean,
 };
-class ChatInputBar extends React.PureComponent<Props, State> {
+class ChatInputBar extends React.Component<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
   clearableTextInput: ?ClearableTextInput;
 
@@ -164,16 +175,49 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   targetSendButtonContainerOpen: Value;
   sendButtonContainerStyle: AnimatedViewStyle;
 
+  // Refs are needed for hacks used to display typeahead properly
+  // There was a problem with the typeahead flickering.
+  // There are two events coming from TextInput: text change
+  // and selection change. Those two events triggered two rerenders
+  // which caused flickering of typeahead as regex wasn't matched
+  // after just one of those. They also come in different order
+  // based on platform. SelectionChange happens first on iOS
+  // but TextChange happens first on Android. That is the reason
+  // we need separate workarounds for two platforms
+  // iOS hack:
+  // Introduce iosKeyWasPressed ref and set it to true on onKeyPress event.
+  // It happens before the other two events
+  // (on iOS, it happens in the end on Android)
+  // Then we only rerender the ChatInputBar on selection change
+  // if iosKeyWasPressed is set to false, e.g. when user moves cursor.
+  // If it's set to true, we skip rerender if other props/state haven't
+  // changed
+  iosKeyWasPressed: boolean;
+  // Android hack:
+  // Because an order of events is different, we can't use the previous
+  // method. Setting flag on text change and then setting state
+  // on selection change caused extra events being emitted from native
+  // side. It was probably a reaction to setting text state and trying to
+  // control component. I used a different approach. We perform two rerenders
+  // but use androidPreviousText when creating typeahead.
+  // This way, already updated text is not processed along with old selection
+  // We set it to null, when new selection is set.
+  androidPreviousText: ?string;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       text: props.draft,
       textEdited: false,
       buttonsExpanded: true,
+      selection: { start: 0, end: 0 },
+      controlSelection: false,
     };
 
     this.setUpActionIconAnimations();
     this.setUpSendIconAnimations();
+    this.iosKeyWasPressed = false;
+    this.androidPreviousText = null;
   }
 
   setUpActionIconAnimations() {
@@ -313,6 +357,28 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     if (this.props.isActive) {
       this.removeReplyListener();
     }
+  }
+
+  shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
+    if (Platform.OS !== 'ios') {
+      return (
+        !shallowequal(nextState, this.state) ||
+        !shallowequal(nextProps, this.props)
+      );
+    }
+
+    // we want to rerender only when selection changed, but key was not pressed
+    const selectionChangedWithoutKeyPress =
+      !this.iosKeyWasPressed && nextState.selection !== this.state.selection;
+
+    return (
+      !shallowequal(
+        _omit(['selection'])(nextState),
+        _omit(['selection'])(this.state),
+      ) ||
+      !shallowequal(nextProps, this.props) ||
+      selectionChangedWithoutKeyPress
+    );
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -568,6 +634,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.state.text}
             onChangeText={this.updateText}
+            selection={
+              this.state.controlSelection ? this.state.selection : undefined
+            }
+            onSelectionChange={this.updateSelection}
+            onKeyPress={this.onKeyPress}
             placeholder="Send a message..."
             placeholderTextColor={this.props.colors.listInputButton}
             multiline={true}
@@ -604,9 +675,41 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.clearableTextInput = clearableTextInput;
   };
 
+  onKeyPress = () => {
+    if (Platform.OS === 'ios') {
+      this.iosKeyWasPressed = true;
+    }
+  };
+
   updateText = (text: string) => {
-    this.setState({ text, textEdited: true });
+    if (Platform.OS === 'ios') {
+      this.iosKeyWasPressed = false;
+    }
+    if (Platform.OS === 'android') {
+      this.androidPreviousText = this.state.text;
+    }
+
+    this.setState({ text, textEdited: true, controlSelection: false });
     this.saveDraft(text);
+  };
+
+  updateSelection: (event: SelectionChangeEvent) => void = event => {
+    // we introduced controlSelection state to avoid flickering of selection
+    // it is workaround that allow as only control selection in concrete
+    // situations, like clicking into typeahead button
+    // in other situations it is handled by native side, and we don't control it
+
+    if (Platform.OS === 'android') {
+      this.androidPreviousText = null;
+    }
+
+    this.setState({
+      selection: {
+        start: event.nativeEvent.selection.start,
+        end: event.nativeEvent.selection.end,
+      },
+      controlSelection: false,
+    });
   };
 
   saveDraft = _throttle(text => {

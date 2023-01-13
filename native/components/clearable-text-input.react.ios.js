@@ -154,6 +154,7 @@ class ClearableTextInput extends React.PureComponent<
           {...props}
           style={[props.style, styles.invisibleTextInput]}
           onChangeText={this.onOldInputChangeText}
+          onSelectionChange={this.props.onSelectionChange}
           onKeyPress={this.onOldInputKeyPress}
           onBlur={this.onOldInputBlur}
           onFocus={this.onOldInputFocus}
@@ -167,6 +168,7 @@ class ClearableTextInput extends React.PureComponent<
         onFocus={this.onFocus}
         onBlur={this.onBlur}
         onChangeText={this.props.onChangeText}
+        onSelectionChange={this.props.onSelectionChange}
         key={this.state.textInputKey}
         ref={this.textInputRef}
       />,
