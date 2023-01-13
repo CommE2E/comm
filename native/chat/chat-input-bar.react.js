@@ -64,6 +64,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
+import sleep from 'lib/utils/sleep';
 
 import Button from '../components/button.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
@@ -722,20 +723,54 @@ class ChatInputBar extends React.Component<Props, State> {
     });
   }, 400);
 
+  focusAndUpdateTextAndSelection = (text: string, selection: Selection) => {
+    // On iOS, the update of text below will trigger a selection change which
+    // will overwrite our update of selection.
+    // To address this, we schedule the second update of selection
+    // after waiting for 100ms.
+    // We tried waiting for the animation frame to flush,
+    // but it turned out to be unreliable and nondeterministic.
+    this.setState(
+      {
+        text,
+        textEdited: true,
+        selection,
+        controlSelection: true,
+      },
+      async () => {
+        if (Platform.OS !== 'ios') {
+          return;
+        }
+        await sleep(100);
+        this.setState({
+          selection,
+          controlSelection: true,
+        });
+      },
+    );
+    this.saveDraft(text);
+
+    this.focusAndUpdateButtonsVisibility();
+  };
+
   focusAndUpdateText = (text: string) => {
+    const currentText = this.state.text;
+    if (!currentText.startsWith(text)) {
+      const prependedText = text.concat(currentText);
+      this.updateText(prependedText);
+    }
+
+    this.focusAndUpdateButtonsVisibility();
+  };
+
+  focusAndUpdateButtonsVisibility = () => {
     const { textInput } = this;
     if (!textInput) {
       return;
     }
 
-    const currentText = this.state.text;
-    if (!currentText.startsWith(text)) {
-      const prependedText = text.concat(currentText);
-      this.updateText(prependedText);
-      this.immediatelyShowSendButton();
-      this.immediatelyHideButtons();
-    }
-
+    this.immediatelyShowSendButton();
+    this.immediatelyHideButtons();
     textInput.focus();
   };
 
