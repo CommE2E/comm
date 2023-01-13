@@ -187,6 +187,9 @@ const dark: Colors = Object.freeze({
   subthreadsModalClose: '#808080',
   subthreadsModalBackgroud: '#1F1F1F',
   subthreadsModalSearch: 'rgba(255, 255, 255, 0.04)',
+  typeaheadTooltipBackground: '#1F1F1f',
+  typeaheadTooltipBorder: '#404040',
+  typeaheadTooltipText: 'white',
 });
 const colors = { light, dark };
 
