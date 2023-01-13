@@ -25,17 +25,20 @@ services:
   backup-server:
     depends_on:
       - localstack
+      - blob-server
     build:
       dockerfile: services/backup/Dockerfile
       context: ../
       args:
         - COMM_TEST_SERVICES=${COMM_TEST_SERVICES}
         - COMM_SERVICES_SANDBOX=${COMM_SERVICES_SANDBOX}
+        - LOCALSTACK_URL=http://localstack:4566
+        - BLOB_SERVICE_URL=http://blob-server:50051
     image: commapp/backup-server:0.1
     ports:
       - "${COMM_SERVICES_PORT_BACKUP}:50051"
     volumes:
-      - $HOME/.aws/credentials:/root/.aws/credentials:ro
+      - $HOME/.aws/credentials:/home/comm/.aws/credentials:ro
   # blob
   blob-server:
     depends_on:
