@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, { EasingNode } from 'react-native-reanimated';
+import type { SelectionChangeEvent } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -43,6 +44,7 @@ import {
   draftKeyFromThreadID,
   colorIsDark,
 } from 'lib/shared/thread-utils';
+import type { Selection } from 'lib/shared/typeahead-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { PhotoPaste } from 'lib/types/media-types';
@@ -144,10 +146,13 @@ type Props = {
   +userSearchIndex: SearchIndex,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 };
+
 type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
+  +selection: Selection,
+  +controlSelection: boolean,
 };
 class ChatInputBar extends React.PureComponent<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
@@ -164,16 +169,50 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   targetSendButtonContainerOpen: Value;
   sendButtonContainerStyle: AnimatedViewStyle;
 
+  // Refs are needed for hacks used to display typeahead properly.
+  // We had a problem with the typeahead flickering when
+  // the typeahead was already visible and user was typing
+  // another character (e.g. @a was typed and the user adds another letter)
+
+  // There are two events coming from TextInput: text change
+  // and selection change events.
+  // A rerender was triggered after both of them.
+  // That caused a situation in which text and selection state were
+  // out of sync, e.g. text state was already updated, but selection was not.
+  // That caused flickering of typeahead, because regex wasn't matched
+  // after the first event.
+
+  // Another gimmick is those events come in different order
+  // based on platform. Selection change event happens first on iOS
+  // and text change event happens first on Android. That is the reason
+  // we need separate refs for two platforms.
+
+  // Workaround:
+  // Because an order of events is different, we can't use the previous
+  // method. Setting flag on text change and then setting state
+  // on selection change caused extra events being emitted from native
+  // side. It was probably a reaction to setting text state and trying to
+  // control component. I used a different approach. We perform two rerenders
+  // but use androidPreviousText when creating typeahead.
+  // This way, already updated text is not processed along with old selection
+  // We set it to null, when new selection is set.
+  androidPreviousText: ?string;
+  iosPreviousSelection: ?Selection;
+
   constructor(props: Props) {
     super(props);
     this.state = {
       text: props.draft,
       textEdited: false,
       buttonsExpanded: true,
+      selection: { start: 0, end: 0 },
+      controlSelection: false,
     };
 
     this.setUpActionIconAnimations();
     this.setUpSendIconAnimations();
+    this.androidPreviousText = null;
+    this.iosPreviousSelection = null;
   }
 
   setUpActionIconAnimations() {
@@ -568,6 +607,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.state.text}
             onChangeText={this.updateText}
+            selection={
+              this.state.controlSelection ? this.state.selection : undefined
+            }
+            onSelectionChange={this.updateSelection}
             placeholder="Send a message..."
             placeholderTextColor={this.props.colors.listInputButton}
             multiline={true}
@@ -605,8 +648,33 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   updateText = (text: string) => {
-    this.setState({ text, textEdited: true });
+    if (Platform.OS === 'android') {
+      this.androidPreviousText = this.state.text;
+    }
+    if (Platform.OS === 'ios') {
+      this.iosPreviousSelection = null;
+    }
+
+    this.setState({ text, textEdited: true, controlSelection: false });
     this.saveDraft(text);
+  };
+
+  updateSelection: (event: SelectionChangeEvent) => void = event => {
+    if (Platform.OS === 'android') {
+      this.androidPreviousText = null;
+    }
+    if (Platform.OS === 'ios') {
+      this.iosPreviousSelection = this.state.selection;
+    }
+
+    // we introduced controlSelection state to avoid flickering of selection
+    // it is workaround that allow as only control selection in concrete
+    // situations, like clicking into typeahead button
+    // in other situations it is handled by native side, and we don't control it
+    this.setState({
+      selection: event.nativeEvent.selection,
+      controlSelection: false,
+    });
   };
 
   saveDraft = _throttle(text => {
