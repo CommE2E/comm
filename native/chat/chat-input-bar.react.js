@@ -639,20 +639,35 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }, 400);
 
+  focusAndUpdateTextAndSelection = (text: string, selection: Selection) => {
+    this.setState({
+      selection,
+      text,
+      textEdited: true,
+    });
+    this.saveDraft(text);
+
+    this.focusAndHandleButtons();
+  };
+
   focusAndUpdateText = (text: string) => {
+    const currentText = this.state.text;
+    if (!currentText.startsWith(text)) {
+      const prependedText = text.concat(currentText);
+      this.updateText(prependedText);
+    }
+
+    this.focusAndHandleButtons();
+  };
+
+  focusAndHandleButtons = () => {
     const { textInput } = this;
     if (!textInput) {
       return;
     }
 
-    const currentText = this.state.text;
-    if (!currentText.startsWith(text)) {
-      const prependedText = text.concat(currentText);
-      this.updateText(prependedText);
-      this.immediatelyShowSendButton();
-      this.immediatelyHideButtons();
-    }
-
+    this.immediatelyShowSendButton();
+    this.immediatelyHideButtons();
     textInput.focus();
   };
 
