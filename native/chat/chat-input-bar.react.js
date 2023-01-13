@@ -43,6 +43,7 @@ import {
   draftKeyFromThreadID,
   colorIsDark,
 } from 'lib/shared/thread-utils';
+import type { Selection } from 'lib/shared/typeahead-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { PhotoPaste } from 'lib/types/media-types';
@@ -84,7 +85,7 @@ import {
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../themes/colors';
-import type { LayoutEvent } from '../types/react-native';
+import type { LayoutEvent, SelectionChangeEvent } from '../types/react-native';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
 import { ChatContext } from './chat-context';
@@ -144,10 +145,12 @@ type Props = {
   +userSearchIndex: SearchIndex,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 };
+
 type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
+  +selection: Selection,
 };
 class ChatInputBar extends React.PureComponent<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
@@ -170,6 +173,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       text: props.draft,
       textEdited: false,
       buttonsExpanded: true,
+      selection: { start: 0, end: 0 },
     };
 
     this.setUpActionIconAnimations();
@@ -568,6 +572,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.state.text}
             onChangeText={this.updateText}
+            selection={this.state.selection}
+            onSelectionChange={this.updateSelection}
             placeholder="Send a message..."
             placeholderTextColor={this.props.colors.listInputButton}
             multiline={true}
@@ -607,6 +613,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   updateText = (text: string) => {
     this.setState({ text, textEdited: true });
     this.saveDraft(text);
+  };
+
+  updateSelection: (event: SelectionChangeEvent) => void = event => {
+    this.setState({ selection: event.nativeEvent.selection });
   };
 
   saveDraft = _throttle(text => {
