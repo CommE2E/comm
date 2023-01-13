@@ -60,6 +60,7 @@ class ClearableTextInput extends React.PureComponent<ClearableTextInputProps> {
         <TextInput
           {...props}
           onChangeText={this.onChangeText}
+          onSelectionChange={this.props.onSelectionChange}
           ref={this.textInputRef}
         />
       </View>
