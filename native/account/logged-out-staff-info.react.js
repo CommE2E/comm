@@ -8,6 +8,13 @@ import { StaffContext } from '../staff/staff-context';
 import { useStyles, useColors } from '../themes/colors';
 import { isStaffRelease, useStaffCanSee } from '../utils/staff-utils';
 
+let alchemyAPIKey = 'NULL';
+try {
+  // $FlowExpectedError file may not exist
+  const apiKey: string = require('../facts/alchemy').key;
+  alchemyAPIKey = apiKey;
+} catch (e) {}
+
 function LoggedOutStaffInfo(): React.Node {
   const staffCanSee = useStaffCanSee();
   const { staffUserHasBeenLoggedIn } = React.useContext(StaffContext);
@@ -61,6 +68,13 @@ function LoggedOutStaffInfo(): React.Node {
     styles.infoTextTrue,
   ]);
 
+  const alchemyAPIKeyStyle = React.useMemo(() => {
+    return [
+      styles.infoText,
+      alchemyAPIKey ? styles.infoTextTrue : styles.infoTextFalse,
+    ];
+  }, [styles.infoText, styles.infoTextFalse, styles.infoTextTrue]);
+
   let loggedOutStaffInfo = null;
   if (staffCanSee || staffUserHasBeenLoggedIn) {
     loggedOutStaffInfo = (
@@ -79,6 +93,10 @@ function LoggedOutStaffInfo(): React.Node {
             <Text style={hasStaffUserLoggedInStyle}>
               staffUserHasBeenLoggedIn
             </Text>
+          </View>
+          <View style={styles.cell}>
+            {alchemyAPIKey ? checkIcon : crossIcon}
+            <Text style={alchemyAPIKeyStyle}>{alchemyAPIKey}</Text>
           </View>
         </View>
       </View>
