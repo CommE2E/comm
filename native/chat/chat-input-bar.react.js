@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { TextInputKeyboardMangerIOS } from 'react-native-keyboard-input';
 import Animated, { EasingNode } from 'react-native-reanimated';
+import type { SelectionChangeEvent } from 'react-native/Libraries/Components/TextInput/TextInput';
 import { useDispatch } from 'react-redux';
 
 import {
@@ -144,10 +145,18 @@ type Props = {
   +userSearchIndex: SearchIndex,
   +threadMembers: $ReadOnlyArray<RelativeMemberInfo>,
 };
+
+export type Selection = {
+  +start: number,
+  +end: number,
+};
+
 type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
+  +selection: Selection,
+  +controlSelection: boolean,
 };
 class ChatInputBar extends React.PureComponent<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
@@ -170,6 +179,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       text: props.draft,
       textEdited: false,
       buttonsExpanded: true,
+      selection: { start: 0, end: 0 },
+      controlSelection: false,
     };
 
     this.setUpActionIconAnimations();
@@ -568,6 +579,10 @@ class ChatInputBar extends React.PureComponent<Props, State> {
             allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.state.text}
             onChangeText={this.updateText}
+            selection={
+              this.state.controlSelection ? this.state.selection : undefined
+            }
+            onSelectionChange={this.updateSelection}
             placeholder="Send a message..."
             placeholderTextColor={this.props.colors.listInputButton}
             multiline={true}
@@ -605,8 +620,18 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   updateText = (text: string) => {
-    this.setState({ text, textEdited: true });
+    this.setState({ text, textEdited: true, controlSelection: false });
     this.saveDraft(text);
+  };
+
+  updateSelection: (event: SelectionChangeEvent) => void = event => {
+    this.setState({
+      selection: {
+        start: event.nativeEvent.selection.start,
+        end: event.nativeEvent.selection.end,
+      },
+      controlSelection: false,
+    });
   };
 
   saveDraft = _throttle(text => {
