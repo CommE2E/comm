@@ -13,7 +13,6 @@ steps:
       - docker#v3.13.0:
           image: 'reactnativecommunity/react-native-android:latest'
           shell: ['/bin/bash', '-e', '-c']
-          environment:
-            - 'BUILDKITE=true'
+          propagate-environment: true
     agents:
       - 'autoscaling=true'

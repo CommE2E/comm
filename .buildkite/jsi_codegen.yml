@@ -9,5 +9,6 @@ steps:
           image: 'node:16.13-bullseye'
           always-pull: true
           workdir: /comm
+          propagate-environment: true
     agents:
       - 'autoscaling=true'
