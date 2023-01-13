@@ -44,6 +44,12 @@ jobs:
       - name: yarn --frozen-lockfile --network-timeout 180000
         run: yarn --frozen-lockfile --network-timeout 180000
 
+      - name: Save ALCHEMY_API_KEY to file
+        working-directory: ./native/facts
+        env:
+          ALCHEMY_API_KEY: ${{secrets.ALCHEMY_API_KEY}}
+        run: echo '{"key":"'"$ALCHEMY_API_KEY"'"}' > alchemy.json
+
       - name: Save auth_key to file
         working-directory: ./native/ios
         env:
