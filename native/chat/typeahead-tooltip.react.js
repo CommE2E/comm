@@ -6,13 +6,13 @@ import { PanGestureHandler, FlatList } from 'react-native-gesture-handler';
 
 import {
   type TypeaheadMatchedStrings,
+  type Selection,
   getNewTextAndSelection,
 } from 'lib/shared/typeahead-utils';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import { useStyles } from '../themes/colors';
-import type { Selection } from './chat-input-bar.react';
 
 export type TypeaheadTooltipProps = {
   +text: string,
