@@ -8,5 +8,6 @@ steps:
       - docker#v3.13.0:
           image: 'python:bullseye'
           shell: ['/bin/bash', '-e', '-c']
+          propagate-environment: true
     agents:
       - 'autoscaling=true'

@@ -1,5 +1,5 @@
 steps:
-  - label: ":shell: ShellCheck"
+  - label: ':shell: ShellCheck'
     command:
       - 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y shellcheck'
       - 'shopt -s globstar'
@@ -7,6 +7,7 @@ steps:
     plugins:
       - docker#v3.13.0:
           image: 'debian:stable'
-          shell: ["/bin/bash", "-e", "-c"]
+          shell: ['/bin/bash', '-e', '-c']
+          propagate-environment: true
     agents:
       - 'autoscaling=true'
