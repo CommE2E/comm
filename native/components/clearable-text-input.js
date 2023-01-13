@@ -9,4 +9,6 @@ export type ClearableTextInputProps = {
   textInputRef: (textInput: ?React.ElementRef<typeof BaseTextInput>) => mixed,
   onChangeText: $NonMaybeType<$PropertyType<TextInputProps, 'onChangeText'>>,
   value: $NonMaybeType<$PropertyType<TextInputProps, 'value'>>,
+  onSelectionChange: $PropertyType<TextInputProps, 'onSelectionChange'>,
+  selection: $NonMaybeType<$PropertyType<TextInputProps, 'selection'>>,
 };
