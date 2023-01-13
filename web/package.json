@@ -55,7 +55,7 @@
     "detect-browser": "^4.0.4",
     "exif-js": "^2.3.0",
     "history": "^4.6.3",
-    "ethers": "^5.7.0",
+    "ethers": "^5.7.2",
     "invariant": "^2.2.4",
     "is-svg": "^4.3.0",
     "isomorphic-fetch": "^3.0.0",
