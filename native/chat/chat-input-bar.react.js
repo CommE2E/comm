@@ -196,6 +196,14 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   androidPreviousText: ?string;
   iosPreviousSelection: ?Selection;
 
+  // On iOS, the update of text will trigger a selection change which
+  // will overwrite our update of selection.
+  // To address this, we schedule the second update of selection
+  // after waiting for 100ms.
+  // We tried waiting for the animation frame to flush,
+  // but it turned out to be unreliable and nondeterministic.
+  iosDelayedSelectionTimeout: ?TimeoutID;
+
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -210,6 +218,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.setUpSendIconAnimations();
     this.androidPreviousText = null;
     this.iosPreviousSelection = null;
+    this.iosDelayedSelectionTimeout = null;
   }
 
   setUpActionIconAnimations() {
@@ -684,21 +693,58 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     });
   }, 400);
 
+  focusAndUpdateTextAndSelection = (text: string, selection: Selection) => {
+    this.setState(
+      {
+        text,
+        textEdited: true,
+        selection,
+        controlSelection: true,
+      },
+      () => {
+        this.refreshIOSSelection(selection);
+      },
+    );
+    this.saveDraft(text);
+
+    this.focusAndUpdateButtonsVisibility();
+  };
+
   focusAndUpdateText = (text: string) => {
+    const currentText = this.state.text;
+    if (!currentText.startsWith(text)) {
+      const prependedText = text.concat(currentText);
+      this.updateText(prependedText);
+    }
+
+    this.focusAndUpdateButtonsVisibility();
+  };
+
+  focusAndUpdateButtonsVisibility = () => {
     const { textInput } = this;
     if (!textInput) {
       return;
     }
 
-    const currentText = this.state.text;
-    if (!currentText.startsWith(text)) {
-      const prependedText = text.concat(currentText);
-      this.updateText(prependedText);
-      this.immediatelyShowSendButton();
-      this.immediatelyHideButtons();
+    this.immediatelyShowSendButton();
+    this.immediatelyHideButtons();
+    textInput.focus();
+  };
+
+  refreshIOSSelection = (selection: Selection) => {
+    if (Platform.OS !== 'ios') {
+      return;
     }
 
-    textInput.focus();
+    if (this.iosDelayedSelectionTimeout) {
+      clearTimeout(this.iosDelayedSelectionTimeout);
+    }
+    this.iosDelayedSelectionTimeout = setTimeout(() => {
+      this.setState({
+        selection,
+        controlSelection: true,
+      });
+    }, 100);
   };
 
   onSend = async () => {
