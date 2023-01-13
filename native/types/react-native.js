@@ -15,6 +15,8 @@ export type {
   BlurEvent,
 } from 'react-native/Libraries/Components/TextInput/TextInput';
 
+export type { SelectionChangeEvent } from 'react-native/Libraries/Components/TextInput/TextInput';
+
 export type { NativeMethods } from 'react-native/Libraries/Renderer/shims/ReactNativeTypes';
 
 export type { KeyboardEvent } from 'react-native/Libraries/Components/Keyboard/Keyboard';
