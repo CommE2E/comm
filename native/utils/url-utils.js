@@ -45,14 +45,10 @@ function getDevLandingURL(): string {
   return getDevLandingURLFromHostname(hostname);
 }
 
-const nodeServerOptions = [productionNodeServerURL];
-if (Platform.OS === 'android') {
-  nodeServerOptions.push(
-    getDevNodeServerURLFromHostname(localhostHostnameFromAndroidEmulator),
-  );
-} else {
-  nodeServerOptions.push(getDevNodeServerURLFromHostname(localhostHostname));
-}
+const nodeServerOptions: string[] = [
+  productionNodeServerURL,
+  getDevNodeServerURL(),
+];
 
 const defaultURLPrefix: string = __DEV__
   ? getDevNodeServerURL()
