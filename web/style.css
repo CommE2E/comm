@@ -58,7 +58,7 @@ div.layout {
   grid-template-rows: 65px calc(100vh - 65px);
   grid-template-areas:
     'nav nav nav nav nav nav nav nav nav nav nav nav nav'
-    'sBar app app app app app app app app app app app app';
+    'sBar sBar app app app app app app app app app app app';
 }
 
 header.header {
