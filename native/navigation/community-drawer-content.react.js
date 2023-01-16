@@ -37,7 +37,7 @@ function CommunityDrawerContent(): React.Node {
   const navigateToThread = useNavigateToThread();
   const childThreadInfosMap = useSelector(childThreadInfos);
 
-  const setOpenCommunnityOrClose = React.useCallback((index: string) => {
+  const setOpenCommunityOrClose = React.useCallback((index: string) => {
     setOpenCommunity(open => (open === index ? null : index));
   }, []);
 
@@ -53,13 +53,13 @@ function CommunityDrawerContent(): React.Node {
         <CommunityDrawerItemCommunity
           key={item.key}
           itemData={itemData}
-          toggleExpanded={setOpenCommunnityOrClose}
+          toggleExpanded={setOpenCommunityOrClose}
           expanded={itemData.threadInfo.id === openCommunity}
           navigateToThread={navigateToThread}
         />
       );
     },
-    [navigateToThread, openCommunity, setOpenCommunnityOrClose],
+    [navigateToThread, openCommunity, setOpenCommunityOrClose],
   );
 
   const labelStylesObj = useStyles(labelUnboundStyles);
