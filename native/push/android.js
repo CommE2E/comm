@@ -1,7 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
-import { NativeModules } from 'react-native';
+import { NativeModules, NativeEventEmitter } from 'react-native';
 import type { RemoteMessage } from 'react-native-firebase';
 
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
@@ -11,6 +11,7 @@ type CommAndroidNotificationsModuleType = {
   ...
 };
 
+const { CommAndroidNotificationsEventEmitter } = NativeModules;
 const CommAndroidNotifications: CommAndroidNotificationsModuleType =
   NativeModules.CommAndroidNotifications;
 const androidNotificationChannelID = 'default';
@@ -43,9 +44,15 @@ function handleAndroidMessage(
     }
   }
 }
+function getCommAndroidNotificationsEventEmitter(): NativeEventEmitter<{
+  commAndroidNotificationsToken: [string],
+}> {
+  return new NativeEventEmitter(CommAndroidNotificationsEventEmitter);
+}
 
 export {
   androidNotificationChannelID,
   handleAndroidMessage,
+  getCommAndroidNotificationsEventEmitter,
   CommAndroidNotifications,
 };

@@ -3,6 +3,7 @@ package app.comm.android.notifications;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import app.comm.android.ExpoUtils;
 import app.comm.android.R;
 import app.comm.android.fbjni.CommSecureStore;
@@ -66,6 +68,7 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
   private static final long[] VIBRATION_SPEC = {500, 500};
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
+  private LocalBroadcastManager localBroadcastManager;
 
   public static final String TOKEN_EVENT = "TOKEN_EVENT";
 
@@ -76,8 +79,16 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
         ExpoUtils.createExpoSecureStoreSupplier(this.getApplicationContext()));
     notificationManager = (NotificationManager)this.getSystemService(
         Context.NOTIFICATION_SERVICE);
+    localBroadcastManager = LocalBroadcastManager.getInstance(this);
     displayableNotificationLargeIcon = BitmapFactory.decodeResource(
         this.getApplicationContext().getResources(), R.mipmap.ic_launcher);
+  }
+
+  @Override
+  public void onNewToken(String token) {
+    Intent intent = new Intent(TOKEN_EVENT);
+    intent.putExtra("token", token);
+    localBroadcastManager.sendBroadcast(intent);
   }
 
   @Override

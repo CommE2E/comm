@@ -49,6 +49,7 @@ import { type NotifPermissionAlertInfo } from './alerts';
 import {
   androidNotificationChannelID,
   handleAndroidMessage,
+  getCommAndroidNotificationsEventEmitter,
   CommAndroidNotifications,
 } from './android';
 import {
@@ -113,7 +114,7 @@ class PushHandler extends React.PureComponent<Props, State> {
   };
   currentState: ?string = getCurrentLifecycleState();
   appStarted = 0;
-  androidTokenListener: ?() => void = null;
+  androidNotificationsEventSubscriptions: Array<EventSubscription> = [];
   androidMessageListener: ?() => void = null;
   androidNotifOpenListener: ?() => void = null;
   initialAndroidNotifHandled = false;
@@ -156,9 +157,13 @@ class PushHandler extends React.PureComponent<Props, State> {
         firebase.notifications.Android.Importance.Max,
       ).setDescription('Comm notifications channel');
       firebase.notifications().android.createChannel(channel);
-      this.androidTokenListener = firebase
-        .messaging()
-        .onTokenRefresh(this.handleAndroidDeviceToken);
+      const commAndroidNotificationsEventEmitter = getCommAndroidNotificationsEventEmitter();
+      this.androidNotificationsEventSubscriptions.push(
+        commAndroidNotificationsEventEmitter.addListener(
+          'commAndroidNotificationsToken',
+          this.handleAndroidDeviceToken,
+        ),
+      );
       this.androidMessageListener = firebase
         .messaging()
         .onMessage(this.androidMessageReceived);
@@ -182,10 +187,11 @@ class PushHandler extends React.PureComponent<Props, State> {
         iosNotificationEventSubscription.remove();
       }
     } else if (Platform.OS === 'android') {
-      if (this.androidTokenListener) {
-        this.androidTokenListener();
-        this.androidTokenListener = null;
+      for (const androidNotificationsEventSubscription of this
+        .androidNotificationsEventSubscriptions) {
+        androidNotificationsEventSubscription.remove();
       }
+      this.androidNotificationsEventSubscriptions = [];
       if (this.androidMessageListener) {
         this.androidMessageListener();
         this.androidMessageListener = null;
