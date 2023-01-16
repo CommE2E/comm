@@ -51,18 +51,11 @@ import me.leolin.shortcutbadger.ShortcutBadger;
  * the easiest in terms of making it safe.
  */
 public class CommNotificationsHandler extends RNFirebaseMessagingService {
-  private static final String RESCIND_KEY = "rescind";
-  private static final String RESCIND_ID_KEY = "rescindID";
   private static final String BADGE_KEY = "badge";
   private static final String BADGE_ONLY_KEY = "badgeOnly";
   private static final String BACKGROUND_NOTIF_TYPE_KEY = "backgroundNotifType";
-  private static final String THREAD_ID_KEY = "threadID";
   private static final String SET_UNREAD_STATUS_KEY = "setUnreadStatus";
-  private static final String MESSAGE_INFOS_KEY = "messageInfos";
   private static final String NOTIF_ID_KEY = "id";
-  private static final String TITLE_KEY = "title";
-  private static final String PREFIX_KEY = "prefix";
-  private static final String BODY_KEY = "body";
 
   private static final String CHANNEL_ID = "default";
   private static final long[] VIBRATION_SPEC = {500, 500};
@@ -70,7 +63,17 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
   private NotificationManager notificationManager;
   private LocalBroadcastManager localBroadcastManager;
 
+  public static final String RESCIND_KEY = "rescind";
+  public static final String RESCIND_ID_KEY = "rescindID";
+  public static final String TITLE_KEY = "title";
+  public static final String PREFIX_KEY = "prefix";
+  public static final String BODY_KEY = "body";
+  public static final String MESSAGE_INFOS_KEY = "messageInfos";
+  public static final String THREAD_ID_KEY = "threadID";
+
   public static final String TOKEN_EVENT = "TOKEN_EVENT";
+  public static final String FOREGROUND_MESSAGE_EVENT =
+      "FOREGROUND_MESSAGE_EVENT";
 
   @Override
   public void onCreate() {
