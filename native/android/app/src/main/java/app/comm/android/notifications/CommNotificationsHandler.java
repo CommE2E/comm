@@ -137,7 +137,9 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
     }
 
     if (this.isAppInForeground()) {
-      super.onMessageReceived(message);
+      Intent intent = new Intent(FOREGROUND_MESSAGE_EVENT);
+      intent.putExtra("message", message);
+      localBroadcastManager.sendBroadcast(intent);
       return;
     }
     this.displayNotification(message);

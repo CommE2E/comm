@@ -1,14 +1,19 @@
 // @flow
 
-import invariant from 'invariant';
 import { NativeModules, NativeEventEmitter } from 'react-native';
-import type { RemoteMessage } from 'react-native-firebase';
 
 import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
 
 type CommAndroidNotificationsModuleType = {
   +removeAllActiveNotificationsForThread: (threadID: string) => void,
   ...
+};
+export type AndroidForegroundMessage = {
+  +body: string,
+  +title: string,
+  +threadID: string,
+  +prefix?: string,
+  +messageInfos: ?string,
 };
 
 const { CommAndroidNotificationsEventEmitter } = NativeModules;
@@ -17,23 +22,15 @@ const CommAndroidNotifications: CommAndroidNotificationsModuleType =
 const androidNotificationChannelID = 'default';
 
 function handleAndroidMessage(
-  message: RemoteMessage,
+  message: AndroidForegroundMessage,
   updatesCurrentAsOf: number,
   handleIfActive?: (
     threadID: string,
     texts: { body: string, title: ?string },
   ) => boolean,
 ) {
-  const { data } = message;
-
-  const { rescind, rescindID } = data;
-  if (rescind) {
-    invariant(rescindID, 'rescind message without notifID');
-    return;
-  }
-
-  const { title, prefix, threadID } = data;
-  let { body } = data;
+  const { title, prefix, threadID } = message;
+  let { body } = message;
   ({ body } = mergePrefixIntoBody({ body, title, prefix }));
 
   if (handleIfActive) {
@@ -44,8 +41,10 @@ function handleAndroidMessage(
     }
   }
 }
+
 function getCommAndroidNotificationsEventEmitter(): NativeEventEmitter<{
   commAndroidNotificationsToken: [string],
+  commAndroidNotificationsForegroundMessage: [AndroidForegroundMessage],
 }> {
   return new NativeEventEmitter(CommAndroidNotificationsEventEmitter);
 }
