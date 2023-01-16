@@ -67,6 +67,8 @@ public class CommNotificationsHandler extends RNFirebaseMessagingService {
   private Bitmap displayableNotificationLargeIcon;
   private NotificationManager notificationManager;
 
+  public static final String TOKEN_EVENT = "TOKEN_EVENT";
+
   @Override
   public void onCreate() {
     super.onCreate();
