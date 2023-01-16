@@ -22,6 +22,7 @@ public class CommAndroidNotificationsPackage implements ReactPackage {
     List<NativeModule> modules = new ArrayList<>();
 
     modules.add(new CommAndroidNotifications(reactContext));
+    modules.add(new CommAndroidNotificationsEventEmitter(reactContext));
 
     return modules;
   }
