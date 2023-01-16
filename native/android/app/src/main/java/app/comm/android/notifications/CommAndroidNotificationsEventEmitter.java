@@ -10,8 +10,9 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
-import java.util.Map;
+import com.google.firebase.messaging.RemoteMessage;
 
 public class CommAndroidNotificationsEventEmitter
     extends ReactContextBaseJavaModule {
@@ -25,6 +26,9 @@ public class CommAndroidNotificationsEventEmitter
     localBroadcastManager.registerReceiver(
         new CommAndroidNotificationsTokenReceiver(),
         new IntentFilter(CommNotificationsHandler.TOKEN_EVENT));
+    localBroadcastManager.registerReceiver(
+        new CommAndroidNotificationsForegroundMessageReceiver(),
+        new IntentFilter(CommNotificationsHandler.FOREGROUND_MESSAGE_EVENT));
   }
 
   @Override
@@ -57,6 +61,21 @@ public class CommAndroidNotificationsEventEmitter
     public void onReceive(Context context, Intent intent) {
       String token = intent.getStringExtra("token");
       sendEventToJS("commAndroidNotificationsToken", token);
+    }
+  }
+
+  private class CommAndroidNotificationsForegroundMessageReceiver
+      extends BroadcastReceiver {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      RemoteMessage message = intent.getParcelableExtra("message");
+      WritableMap jsForegroundMessage =
+          CommAndroidNotificationParser.parseRemoteMessageToJSForegroundMessage(
+              message);
+      if (jsForegroundMessage != null) {
+        sendEventToJS(
+            "commAndroidNotificationsForegroundMessage", jsForegroundMessage);
+      }
     }
   }
 }
