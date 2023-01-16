@@ -30,7 +30,6 @@
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
       </intent-filter>
     </service>
-    <service android:name="io.invertase.firebase.messaging.RNFirebaseBackgroundMessagingService" />
     <activity
       android:name=".MainActivity"
       android:launchMode="singleTask"
