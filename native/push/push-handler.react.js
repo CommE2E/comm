@@ -3,7 +3,7 @@
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
 import { Platform, Alert, LogBox } from 'react-native';
-import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
+import type { NotificationOpen } from 'react-native-firebase';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 import { useDispatch } from 'react-redux';
 
@@ -50,6 +50,7 @@ import {
   androidNotificationChannelID,
   handleAndroidMessage,
   getCommAndroidNotificationsEventEmitter,
+  type AndroidForegroundMessage,
   CommAndroidNotifications,
 } from './android';
 import {
@@ -115,7 +116,6 @@ class PushHandler extends React.PureComponent<Props, State> {
   currentState: ?string = getCurrentLifecycleState();
   appStarted = 0;
   androidNotificationsEventSubscriptions: Array<EventSubscription> = [];
-  androidMessageListener: ?() => void = null;
   androidNotifOpenListener: ?() => void = null;
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
@@ -163,10 +163,12 @@ class PushHandler extends React.PureComponent<Props, State> {
           'commAndroidNotificationsToken',
           this.handleAndroidDeviceToken,
         ),
+        commAndroidNotificationsEventEmitter.addListener(
+          'commAndroidNotificationsForegroundMessage',
+          this.androidMessageReceived,
+        ),
       );
-      this.androidMessageListener = firebase
-        .messaging()
-        .onMessage(this.androidMessageReceived);
+
       this.androidNotifOpenListener = firebase
         .notifications()
         .onNotificationOpened(this.androidNotificationOpened);
@@ -192,10 +194,6 @@ class PushHandler extends React.PureComponent<Props, State> {
         androidNotificationsEventSubscription.remove();
       }
       this.androidNotificationsEventSubscriptions = [];
-      if (this.androidMessageListener) {
-        this.androidMessageListener();
-        this.androidMessageListener = null;
-      }
       if (this.androidNotifOpenListener) {
         this.androidNotifOpenListener();
         this.androidNotifOpenListener = null;
@@ -548,11 +546,10 @@ class PushHandler extends React.PureComponent<Props, State> {
     this.onPressNotificationForThread(threadID, true);
   };
 
-  androidMessageReceived = async (message: RemoteMessage) => {
+  androidMessageReceived = async (message: AndroidForegroundMessage) => {
     this.onPushNotifBootsApp();
 
-    const { data } = message;
-    const { messageInfos } = data;
+    const { messageInfos } = message;
     this.saveMessageInfos(messageInfos);
 
     handleAndroidMessage(
