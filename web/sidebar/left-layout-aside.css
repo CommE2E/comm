@@ -3,6 +3,7 @@
   background: var(--bg);
   border-right: 1px solid var(--border-color);
   display: flex;
+  width: 560px;
 }
 
 .navigationPanelContainer {
