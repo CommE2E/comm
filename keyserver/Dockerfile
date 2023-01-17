@@ -49,11 +49,9 @@ RUN wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup \
 
 # We need rsync in the prod-build yarn script
 # We need mariadb-client so we can use mysqldump for backups
-# We need protobuf-compiler to build rust-node-addon
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rsync \
   mariadb-client \
-  protobuf-compiler \
   && rm -rf /var/lib/apt/lists/*
 
 #-------------------------------------------------------------------------------
@@ -115,14 +113,19 @@ COPY --chown=comm keyserver/addons/rust-node-addon/package.json \
   keyserver/addons/rust-node-addon/
 COPY --chown=comm native/expo-modules/android-lifecycle/package.json \
   native/expo-modules/android-lifecycle/
+COPY --chown=comm scripts/install_protobuf.sh scripts/
 
 # Create empty Rust library and copy in Cargo.toml file
 RUN cargo init keyserver/addons/rust-node-addon --lib
 COPY --chown=comm keyserver/addons/rust-node-addon/Cargo.toml \
   keyserver/addons/rust-node-addon/
 
-# Copy in comm-opaque library, a dependency of rust-node-addon
+# Copy comm-opaque and tunnelbroker-client shared libraries for rust-node-addon
 COPY --chown=comm shared/comm-opaque shared/comm-opaque/
+COPY --chown=comm shared/tunnelbroker-client shared/tunnelbroker-client/
+
+# Copy protobuf files as a dependency for the shared client libraries
+COPY --chown=comm shared/protos shared/protos/
 
 # Copy in files needed for patch-package
 COPY --chown=comm patches patches/
