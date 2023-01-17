@@ -10,7 +10,7 @@ links = "tunnelbroker"
 [dependencies]
 cxx = "1.0"
 tracing = "0.1"
-tokio = { version = "1.21", features = ["rt-multi-thread"]}
+tokio = { version = "1.23", features = ["rt-multi-thread"]}
 tokio-stream = "0.1"
 lazy_static = "1.4"
 a2 = "0.6"
