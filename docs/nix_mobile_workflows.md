@@ -90,13 +90,15 @@ yarn dev
 
 You should finally be ready to build and deploy the app in Xcode! Select your physical device from ”run destinations” in the Workspace Toolbar. Then hit the Run button to build and run the project.
 
+On the launcher screen choose your development server. If this is the first build you’re deploying to the target device, choose the “Enter URL manually” option, and type `http://w.x.y.z:8081`, where `w.x.y.z` is your machine’s local IP address.
+
+Your machine’s local IP address is displayed below the QR code, in the terminal window running the Metro bundler. Try visiting this IP address at port 80, using a browser on your device. It should display an “It works!” message if your iOS device can reach your machine.
+
 If you’re connecting to a local keyserver instance, you’ll want to “Allow Comm to Access” the “Local Network” in your device Settings. This toggle can be found from Settings → Comm. Note that this setting is not enabled by default, and you may have to re-enable it on subsequent build deployments.
 
 ### Connecting to local keyserver
 
-If you want your custom build of the app to connect to your local instance of the Node.js server (the `keyserver` subdirectory of the repo), you’ll need to do some additional work. First, confirm that your computer and physical iOS device are on the same network. If you’re running a local keyserver instance, you’ll need to be able to reach it with your device. Local keyservers run on the local IP address at port 8043.
-
-To find your machine’s local IP address, navigate to System Preferences → Network, and select the hardware interface you’re currently using to connect to the internet (Wi-Fi, or potentially a Thunderbolt port for ethernet connections). Next, click “Advanced” and go to the “TCP/IP” tab. Your local IP address is listed as the “IPv4 Address”. Try visiting this IP address using a browser on your device. It should display an “It works!” message if your iOS device can reach your machine.
+If you want your custom build of the app to connect to your local instance of the Node.js server (the `keyserver` subdirectory of the repo), you’ll need to do some additional work. First, confirm that your computer and physical iOS device are on the same network. If you’re running a local keyserver instance, you’ll need to be able to reach it with your device. Local keyservers run on the local IP address at port 3000.
 
 Finally, we need to direct the mobile app to use your local keyserver instance. There are a few different ways to do this, depending on your situation:
 
