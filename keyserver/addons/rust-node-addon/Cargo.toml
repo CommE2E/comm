@@ -23,6 +23,7 @@ tracing = "0.1"
 prost = "0.11"
 comm-opaque = {path = "../../../shared/comm-opaque"}
 lazy_static = "1.4"
+tunnelbroker-client = {path = "../../../shared/tunnelbroker-client"}
 
 [build-dependencies]
 napi-build = "2.0.1"
