@@ -16,7 +16,7 @@ pushd build || exit
 cmake ../cmake \
   -Dprotobuf_BUILD_SHARED_LIBS=ON \
   -Dprotobuf_ABSL_PROVIDER=package \
-  -DBUILD_TESTING=OFF
+  -Dprotobuf_BUILD_TESTS=OFF
 
 make install -j "$(nproc)" -l "$(nproc)"
 
