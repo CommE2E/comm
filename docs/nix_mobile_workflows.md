@@ -75,6 +75,23 @@ yarn react-native run-android
 
 There are a few things you’ll need to do before you can deploy the app to a physical iOS device.
 
+### Building and deploying the app
+
+When you plug your iOS device into your machine for the first time, you’ll be prompted to enter your device passcode to enable debugging and deployment. Click the “Register” button in the dialog that Xcode displays if your device needs to be added to your Provisioning Profile.
+
+Make sure to pull the latest changes and clean the build folder before trying to deploy a build to your device. In Xcode, run Product → Clean Build Folder.
+
+If you’re running a debug build, you’ll need to check that the Metro bundler is running. If you haven’t already, open a new terminal and run:
+
+```
+cd native
+yarn dev
+```
+
+You should finally be ready to build and deploy the app in Xcode! Select your physical device from ”run destinations” in the Workspace Toolbar. Then hit the Run button to build and run the project.
+
+If you’re connecting to a local keyserver instance, you’ll want to “Allow Comm to Access” the “Local Network” in your device Settings. This toggle can be found from Settings → Comm. Note that this setting is not enabled by default, and you may have to re-enable it on subsequent build deployments.
+
 ### Connecting to local keyserver
 
 If you want your custom build of the app to connect to your local instance of the Node.js server (the `keyserver` subdirectory of the repo), you’ll need to do some additional work. First, confirm that your computer and physical iOS device are on the same network. If you’re running a local keyserver instance, you’ll need to be able to reach it with your device. Local keyservers run on the local IP address at port 8043.
