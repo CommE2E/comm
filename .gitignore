@@ -31,6 +31,9 @@ services/build
 services/lib/src/build
 shared/protos/build
 
+# Shared libraries
+shared/tunnelbroker-client/target
+
 # Nix
 result*
 .direnv
