@@ -2,6 +2,7 @@
 , stdenv
 , lib
 , amqp-cpp
+, awscli2
 , arcanist
 , aws-sdk-cpp
 , better-prompt
@@ -49,6 +50,7 @@ mkShell {
   nativeBuildInputs = [
     # generic development or tools
     arcanist
+    awscli2
     shellcheck
     terraform
 
