@@ -6,10 +6,8 @@ import { useSelector } from 'react-redux';
 
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react';
 
-import {
-  useOnClickThread,
-  useThreadIsActive,
-} from '../selectors/thread-selectors';
+import { useThreadIsActive } from '../selectors/thread-selectors';
+import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.react';
 import css from './community-drawer-item.css';
 import { ExpandButton } from './expand-buttons.react';
 import SubchannelsButton from './subchannels-button.react';
@@ -72,23 +70,33 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
   const isCreateMode = useSelector(
     state => state.navInfo.chatMode === 'create',
   );
-  const onClick = useOnClickThread(threadInfo);
-  const selectItemIfNotActiveCreation = React.useCallback(
+  const tab = useSelector(state => state.navInfo.tab);
+  const Handler = React.useMemo(() => getCommunityDrawerItemHandler(tab), [
+    tab,
+  ]);
+
+  const [handler, setHandler] = React.useState({
+    // eslint-disable-next-line no-unused-vars
+    onClick: event => {},
+  });
+
+  const onClick = React.useCallback(
     (event: SyntheticEvent<HTMLAnchorElement>) => {
       if (!isCreateMode || !active) {
-        onClick(event);
+        handler.onClick(event);
       }
     },
-    [isCreateMode, active, onClick],
+    [isCreateMode, active, handler],
   );
 
   const titleLabel = classnames(css.title, css[labelStyle]);
 
   return (
     <>
+      <Handler setHandler={setHandler} threadInfo={threadInfo} />
       <div className={css.threadEntry}>
         {itemExpandButton}
-        <a onClick={selectItemIfNotActiveCreation} className={css.titleWrapper}>
+        <a onClick={onClick} className={css.titleWrapper}>
           <div className={titleLabel}>{threadInfo.uiName}</div>
         </a>
       </div>
