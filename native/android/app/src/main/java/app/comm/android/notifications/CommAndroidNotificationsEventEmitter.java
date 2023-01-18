@@ -1,10 +1,13 @@
 package app.comm.android.notifications;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
@@ -21,6 +24,8 @@ public class CommAndroidNotificationsEventEmitter
 
   CommAndroidNotificationsEventEmitter(ReactApplicationContext reactContext) {
     super(reactContext);
+    reactContext.addActivityEventListener(
+        new CommAndroidNotificationsActivityEventListener());
     LocalBroadcastManager localBroadcastManager =
         LocalBroadcastManager.getInstance(reactContext);
     localBroadcastManager.registerReceiver(
@@ -39,6 +44,12 @@ public class CommAndroidNotificationsEventEmitter
   @ReactMethod
   public void addListener(String eventName) {
     this.listenersCount += 1;
+
+    // This is for the edge case that the app was started by tapping
+    // on notification in notification center. We want to open the app
+    // and navigate to relevant thread. We need to parse notification
+    // so that JS can get its threadID.
+    sendInitialNotificationFromIntentToJS(getCurrentActivity().getIntent());
   }
 
   @ReactMethod
@@ -53,6 +64,20 @@ public class CommAndroidNotificationsEventEmitter
     getReactApplicationContext()
         .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
         .emit(eventName, body);
+  }
+
+  private void sendInitialNotificationFromIntentToJS(Intent intent) {
+    RemoteMessage initialNotification = intent.getParcelableExtra("message");
+    if (initialNotification == null) {
+      return;
+    }
+    WritableMap jsReadableNotification =
+        CommAndroidNotificationParser.parseRemoteMessageToJSForegroundMessage(
+            initialNotification);
+    if (jsReadableNotification != null) {
+      sendEventToJS(
+          "commAndroidNotificationsNotificationOpened", jsReadableNotification);
+    }
   }
 
   private class CommAndroidNotificationsTokenReceiver
@@ -76,6 +101,23 @@ public class CommAndroidNotificationsEventEmitter
         sendEventToJS(
             "commAndroidNotificationsForegroundMessage", jsForegroundMessage);
       }
+    }
+  }
+
+  private class CommAndroidNotificationsActivityEventListener
+      implements ActivityEventListener {
+    @Override
+    public void onNewIntent(Intent intent) {
+      sendInitialNotificationFromIntentToJS(intent);
+    }
+
+    @Override
+    public void onActivityResult(
+        Activity activity,
+        int requestCode,
+        int resultCode,
+        Intent data) {
+      // Required by ActivityEventListener, but not needed for this project
     }
   }
 }
