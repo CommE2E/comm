@@ -45,6 +45,7 @@ function handleAndroidMessage(
 function getCommAndroidNotificationsEventEmitter(): NativeEventEmitter<{
   commAndroidNotificationsToken: [string],
   commAndroidNotificationsForegroundMessage: [AndroidForegroundMessage],
+  commAndroidNotificationsNotificationOpened: [AndroidForegroundMessage],
 }> {
   return new NativeEventEmitter(CommAndroidNotificationsEventEmitter);
 }

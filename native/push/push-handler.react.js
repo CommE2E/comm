@@ -3,7 +3,6 @@
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
 import { Platform, Alert, LogBox } from 'react-native';
-import type { NotificationOpen } from 'react-native-firebase';
 import { Notification as InAppNotification } from 'react-native-in-app-message';
 import { useDispatch } from 'react-redux';
 
@@ -116,7 +115,6 @@ class PushHandler extends React.PureComponent<Props, State> {
   currentState: ?string = getCurrentLifecycleState();
   appStarted = 0;
   androidNotificationsEventSubscriptions: Array<EventSubscription> = [];
-  androidNotifOpenListener: ?() => void = null;
   initialAndroidNotifHandled = false;
   openThreadOnceReceived: Set<string> = new Set();
   lifecycleSubscription: ?EventSubscription;
@@ -167,11 +165,11 @@ class PushHandler extends React.PureComponent<Props, State> {
           'commAndroidNotificationsForegroundMessage',
           this.androidMessageReceived,
         ),
+        commAndroidNotificationsEventEmitter.addListener(
+          'commAndroidNotificationsNotificationOpened',
+          this.androidNotificationOpened,
+        ),
       );
-
-      this.androidNotifOpenListener = firebase
-        .notifications()
-        .onNotificationOpened(this.androidNotificationOpened);
     }
 
     if (this.props.connection.status === 'connected') {
@@ -194,10 +192,6 @@ class PushHandler extends React.PureComponent<Props, State> {
         androidNotificationsEventSubscription.remove();
       }
       this.androidNotificationsEventSubscriptions = [];
-      if (this.androidNotifOpenListener) {
-        this.androidNotifOpenListener();
-        this.androidNotifOpenListener = null;
-      }
     }
   }
 
@@ -540,9 +534,11 @@ class PushHandler extends React.PureComponent<Props, State> {
     });
   }
 
-  androidNotificationOpened = async (notificationOpen: NotificationOpen) => {
+  androidNotificationOpened = async (
+    notificationOpen: AndroidForegroundMessage,
+  ) => {
     this.onPushNotifBootsApp();
-    const { threadID } = notificationOpen.notification.data;
+    const { threadID } = notificationOpen;
     this.onPressNotificationForThread(threadID, true);
   };
 
