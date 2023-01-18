@@ -11,7 +11,7 @@
     "clean-ios": "rm -rf ios/Pods/",
     "clean-all": "yarn clean && rm -rf ~/Library/Developer/Xcode/DerivedData/Comm-*; cd android && (./gradlew clean || true)",
     "postinstall": "bash ./postinstall.sh",
-    "start": "yarn expo start --dev-client",
+    "start": "COMM_DEV=1 yarn expo start --dev-client",
     "dev": "yarn start",
     "test": "yarn jest",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'",
