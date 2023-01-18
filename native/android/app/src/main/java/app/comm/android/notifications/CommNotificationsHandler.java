@@ -2,6 +2,7 @@ package app.comm.android.notifications;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import app.comm.android.ExpoUtils;
+import app.comm.android.MainActivity;
 import app.comm.android.R;
 import app.comm.android.fbjni.CommSecureStore;
 import app.comm.android.fbjni.GlobalDBSingleton;
@@ -170,6 +172,9 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
     Bundle data = new Bundle();
     data.putString(THREAD_ID_KEY, threadID);
 
+    PendingIntent startMainActivityAction =
+        this.createStartMainActivityAction(message);
+
     NotificationCompat.Builder notificationBuilder =
         new NotificationCompat.Builder(this.getApplicationContext())
             .setDefaults(Notification.DEFAULT_ALL)
@@ -179,10 +184,25 @@ public class CommNotificationsHandler extends FirebaseMessagingService {
             .setVibrate(VIBRATION_SPEC)
             .setSmallIcon(R.drawable.notif_icon)
             .setLargeIcon(displayableNotificationLargeIcon)
-            .setAutoCancel(true);
+            .setAutoCancel(true)
+            .setContentIntent(startMainActivityAction);
+
     if (title != null) {
       notificationBuilder = notificationBuilder.setContentTitle(title);
     }
     notificationManager.notify(id, id.hashCode(), notificationBuilder.build());
+  }
+
+  private PendingIntent createStartMainActivityAction(RemoteMessage message) {
+    Intent intent =
+        new Intent(this.getApplicationContext(), MainActivity.class);
+    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+    intent.putExtra("message", message);
+
+    return PendingIntent.getActivity(
+        this.getApplicationContext(),
+        message.getData().get(NOTIF_ID_KEY).hashCode(),
+        intent,
+        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
   }
 }
