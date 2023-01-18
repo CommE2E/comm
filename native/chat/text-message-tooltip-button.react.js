@@ -6,7 +6,7 @@ import Animated from 'react-native-reanimated';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
-import { TooltipInlineSidebar } from './inline-sidebar.react';
+import { TooltipInlineEngagement } from './inline-engagement.react';
 import { InnerTextMessage } from './inner-text-message.react';
 import { MessageHeader } from './message-header.react';
 import { MessageListContextProvider } from './message-list-types';
@@ -75,12 +75,12 @@ function TextMessageTooltipButton(props: Props): React.Node {
     [navigation.goBackOnce],
   );
 
-  const inlineSidebar = React.useMemo(() => {
+  const inlineEngagement = React.useMemo(() => {
     if (!item.threadCreatedFromMessage) {
       return null;
     }
     return (
-      <TooltipInlineSidebar
+      <TooltipInlineEngagement
         item={item}
         positioning={item.messageInfo.creator.isViewer ? 'right' : 'left'}
         isOpeningSidebar={isOpeningSidebar}
@@ -110,7 +110,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
             isThreadColorDarkOverride={isThreadColorDarkOverride}
           />
         </MessagePressResponderContext.Provider>
-        {inlineSidebar}
+        {inlineEngagement}
       </Animated.View>
     </MessageListContextProvider>
   );

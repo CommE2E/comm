@@ -10,7 +10,7 @@ import type {
   ChatMultimediaMessageInfoItem,
   MultimediaContentSizes,
 } from '../types/chat-types';
-import { inlineSidebarStyle, clusterEndHeight } from './chat-constants';
+import { inlineEngagementStyle, clusterEndHeight } from './chat-constants';
 import { failedSendHeight } from './failed-send.react';
 import { authorNameHeight } from './message-header.react';
 
@@ -119,9 +119,9 @@ function multimediaMessageItemHeight(
   }
   if (item.threadCreatedFromMessage || item.reactions.size > 0) {
     height +=
-      inlineSidebarStyle.height +
-      inlineSidebarStyle.marginTop +
-      inlineSidebarStyle.marginBottom;
+      inlineEngagementStyle.height +
+      inlineEngagementStyle.marginTop +
+      inlineEngagementStyle.marginBottom;
   }
   return height;
 }

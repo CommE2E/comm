@@ -17,7 +17,7 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils';
 import css from './chat-message-list.css';
 import FailedSend from './failed-send.react';
-import InlineSidebar from './inline-sidebar.react';
+import InlineEngagement from './inline-engagement.react';
 
 const availableTooltipPositionsForViewerMessage = [
   tooltipPositions.LEFT,
@@ -55,7 +55,7 @@ type Props = {
   +inputState: ?InputState,
   +onMouseLeave: ?() => mixed,
   +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
-  +containsInlineSidebar: boolean,
+  +containsInlineEngagement: boolean,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   static defaultProps: { +borderRadius: number } = {
@@ -120,15 +120,15 @@ class ComposedMessage extends React.PureComponent<Props> {
       );
     }
 
-    let inlineSidebar = null;
+    let inlineEngagement = null;
     if (
-      (this.props.containsInlineSidebar && item.threadCreatedFromMessage) ||
+      (this.props.containsInlineEngagement && item.threadCreatedFromMessage) ||
       item.reactions.size > 0
     ) {
       const positioning = isViewer ? 'right' : 'left';
-      inlineSidebar = (
+      inlineEngagement = (
         <div className={css.sidebarMarginBottom}>
-          <InlineSidebar
+          <InlineEngagement
             threadInfo={item.threadCreatedFromMessage}
             reactions={item.reactions}
             positioning={positioning}
@@ -153,7 +153,7 @@ class ComposedMessage extends React.PureComponent<Props> {
           {deliveryIcon}
         </div>
         {failedSendInfo}
-        {inlineSidebar}
+        {inlineEngagement}
       </React.Fragment>
     );
   }
@@ -171,7 +171,7 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.mem
     const availablePositions = isViewer
       ? availableTooltipPositionsForViewerMessage
       : availableTooltipPositionsForNonViewerMessage;
-    const containsInlineSidebar = !!item.threadCreatedFromMessage;
+    const containsInlineEngagement = !!item.threadCreatedFromMessage;
 
     const { onMouseLeave, onMouseEnter } = useMessageTooltip({
       item,
@@ -185,7 +185,7 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.mem
         inputState={inputState}
         onMouseLeave={onMouseLeave}
         onMouseEnter={onMouseEnter}
-        containsInlineSidebar={containsInlineSidebar}
+        containsInlineEngagement={containsInlineEngagement}
       />
     );
   },

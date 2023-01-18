@@ -3,26 +3,26 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
+import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react';
 import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
 import { stringForReactionList } from 'lib/shared/reaction-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../CommIcon.react';
 import { useOnClickThread } from '../selectors/thread-selectors';
-import css from './inline-sidebar.css';
+import css from './inline-engagement.css';
 
 type Props = {
   +threadInfo: ?ThreadInfo,
   +reactions?: $ReadOnlyMap<string, MessageReactionInfo>,
   +positioning: 'left' | 'center' | 'right',
 };
-function InlineSidebar(props: Props): React.Node {
+function InlineEngagement(props: Props): React.Node {
   const { threadInfo, positioning, reactions } = props;
-  const repliesText = useInlineSidebarText(threadInfo);
+  const repliesText = useInlineEngagementText(threadInfo);
 
   const containerClasses = classNames([
-    css.inlineSidebarContainer,
+    css.inlineEngagementContainer,
     {
       [css.leftContainer]: positioning === 'left',
       [css.centerContainer]: positioning === 'center',
@@ -60,7 +60,7 @@ function InlineSidebar(props: Props): React.Node {
   return (
     <div className={containerClasses}>
       <a
-        className={css.inlineSidebarContent}
+        className={css.inlineEngagementContent}
         onClick={threadInfoExists ? onClick : null}
       >
         {sidebarItem}
@@ -70,4 +70,4 @@ function InlineSidebar(props: Props): React.Node {
   );
 }
 
-export default InlineSidebar;
+export default InlineEngagement;

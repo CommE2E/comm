@@ -6,7 +6,7 @@ import Animated from 'react-native-reanimated';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
-import { TooltipInlineSidebar } from './inline-sidebar.react';
+import { TooltipInlineEngagement } from './inline-engagement.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react';
 import { Timestamp } from './timestamp.react';
@@ -61,12 +61,12 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
 
   const { navigation, isOpeningSidebar } = props;
 
-  const inlineSidebar = React.useMemo(() => {
+  const inlineEngagement = React.useMemo(() => {
     if (!item.threadCreatedFromMessage) {
       return null;
     }
     return (
-      <TooltipInlineSidebar
+      <TooltipInlineEngagement
         item={item}
         positioning="center"
         isOpeningSidebar={isOpeningSidebar}
@@ -87,7 +87,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
         <Timestamp time={item.messageInfo.time} display="modal" />
       </Animated.View>
       <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
-      {inlineSidebar}
+      {inlineEngagement}
     </Animated.View>
   );
 }

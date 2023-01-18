@@ -210,6 +210,6 @@ div.imageGrid > span.multimedia:nth-last-child(n + 5):first-child ~ * {
 div.sidebarMarginBottom {
   margin-bottom: 2px;
 }
-svg.inlineSidebarIcon {
+svg.inlineEngagementIcon {
   color: #666666;
 }

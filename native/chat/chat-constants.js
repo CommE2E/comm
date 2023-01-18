@@ -5,20 +5,20 @@ export const composedMessageStyle = {
   marginRight: 7,
 };
 
-export const inlineSidebarStyle = {
+export const inlineEngagementStyle = {
   height: 38,
   marginTop: 5,
   marginBottom: 3,
 };
-export const inlineSidebarLeftStyle = {
+export const inlineEngagementLeftStyle = {
   topOffset: -10,
 };
 
-export const inlineSidebarCenterStyle = {
+export const inlineEngagementCenterStyle = {
   topOffset: -5,
 };
 
-export const inlineSidebarRightStyle = {
+export const inlineEngagementRightStyle = {
   marginRight: 22,
   topOffset: -10,
 };

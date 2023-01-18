@@ -14,7 +14,7 @@ import { linkRules } from '../markdown/rules.react';
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { tooltipPositions, useMessageTooltip } from '../utils/tooltip-utils';
-import InlineSidebar from './inline-sidebar.react';
+import InlineEngagement from './inline-engagement.react';
 import css from './robotext-message.css';
 
 const availableTooltipPositionsForRobotext = [
@@ -37,14 +37,14 @@ type Props = {
 };
 class RobotextMessage extends React.PureComponent<Props> {
   render() {
-    let inlineSidebar;
+    let inlineEngagement;
     if (
       this.props.item.threadCreatedFromMessage ||
       this.props.item.reactions.size > 0
     ) {
-      inlineSidebar = (
+      inlineEngagement = (
         <div className={css.sidebarMarginTop}>
-          <InlineSidebar
+          <InlineEngagement
             threadInfo={this.props.item.threadCreatedFromMessage}
             reactions={this.props.item.reactions}
             positioning="center"
@@ -62,7 +62,7 @@ class RobotextMessage extends React.PureComponent<Props> {
         >
           <span>{this.linkedRobotext()}</span>
         </div>
-        {inlineSidebar}
+        {inlineEngagement}
       </div>
     );
   }

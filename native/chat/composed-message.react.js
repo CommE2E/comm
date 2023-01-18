@@ -15,14 +15,14 @@ import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { type AnimatedStyleObj, AnimatedView } from '../types/styles';
 import {
   clusterEndHeight,
-  inlineSidebarStyle,
-  inlineSidebarLeftStyle,
-  inlineSidebarRightStyle,
+  inlineEngagementStyle,
+  inlineEngagementLeftStyle,
+  inlineEngagementRightStyle,
   composedMessageStyle,
 } from './chat-constants';
 import { useComposedMessageMaxWidth } from './composed-message-width';
 import { FailedSend } from './failed-send.react';
-import { InlineSidebar } from './inline-sidebar.react';
+import { InlineEngagement } from './inline-engagement.react';
 import { MessageHeader } from './message-header.react';
 import { useNavigateToSidebar } from './sidebar-navigation';
 import SwipeableMessage from './swipeable-message.react';
@@ -137,16 +137,16 @@ class ComposedMessage extends React.PureComponent<Props> {
       </View>
     );
 
-    let inlineSidebar = null;
+    let inlineEngagement = null;
     if (item.threadCreatedFromMessage || item.reactions.size > 0) {
       const positioning = isViewer ? 'right' : 'left';
-      const inlineSidebarPositionStyle =
+      const inlineEngagementPositionStyle =
         positioning === 'left'
-          ? styles.leftInlineSidebar
-          : styles.rightInlineSidebar;
-      inlineSidebar = (
-        <View style={[styles.inlineSidebar, inlineSidebarPositionStyle]}>
-          <InlineSidebar
+          ? styles.leftInlineEngagement
+          : styles.rightInlineEngagement;
+      inlineEngagement = (
+        <View style={[styles.inlineEngagement, inlineEngagementPositionStyle]}>
+          <InlineEngagement
             threadInfo={item.threadCreatedFromMessage}
             reactions={item.reactions}
           />
@@ -165,7 +165,7 @@ class ComposedMessage extends React.PureComponent<Props> {
             {messageBox}
           </View>
           {failedSendInfo}
-          {inlineSidebar}
+          {inlineEngagement}
         </View>
       </View>
     );
@@ -196,17 +196,17 @@ const styles = StyleSheet.create({
     marginLeft: 2,
     width: 16,
   },
-  inlineSidebar: {
-    marginBottom: inlineSidebarStyle.marginBottom,
-    marginTop: inlineSidebarStyle.marginTop,
+  inlineEngagement: {
+    marginBottom: inlineEngagementStyle.marginBottom,
+    marginTop: inlineEngagementStyle.marginTop,
   },
   leftChatBubble: {
     justifyContent: 'flex-end',
   },
-  leftInlineSidebar: {
+  leftInlineEngagement: {
     justifyContent: 'flex-start',
     position: 'relative',
-    top: inlineSidebarLeftStyle.topOffset,
+    top: inlineEngagementLeftStyle.topOffset,
   },
   messageBox: {
     marginRight: 5,
@@ -214,11 +214,11 @@ const styles = StyleSheet.create({
   rightChatBubble: {
     justifyContent: 'flex-start',
   },
-  rightInlineSidebar: {
+  rightInlineEngagement: {
     alignSelf: 'flex-end',
     position: 'relative',
-    right: inlineSidebarRightStyle.marginRight,
-    top: inlineSidebarRightStyle.topOffset,
+    right: inlineEngagementRightStyle.marginRight,
+    top: inlineEngagementRightStyle.topOffset,
   },
 });
 

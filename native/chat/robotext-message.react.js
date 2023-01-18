@@ -18,9 +18,9 @@ import { useStyles } from '../themes/colors';
 import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
 import type { VerticalBounds } from '../types/layout-types';
 import { AnimatedView } from '../types/styles';
-import { inlineSidebarCenterStyle } from './chat-constants';
+import { inlineEngagementCenterStyle } from './chat-constants';
 import type { ChatNavigationProp } from './chat.react';
-import { InlineSidebar } from './inline-sidebar.react';
+import { InlineEngagement } from './inline-engagement.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
 import { Timestamp } from './timestamp.react';
 import { getMessageTooltipKey, useContentAndHeaderOpacity } from './utils';
@@ -53,11 +53,11 @@ function RobotextMessage(props: Props): React.Node {
   }
 
   const styles = useStyles(unboundStyles);
-  let inlineSidebar = null;
+  let inlineEngagement = null;
   if (item.threadCreatedFromMessage || item.reactions.size > 0) {
-    inlineSidebar = (
+    inlineEngagement = (
       <View style={styles.sidebar}>
-        <InlineSidebar
+        <InlineEngagement
           threadInfo={item.threadCreatedFromMessage}
           reactions={item.reactions}
         />
@@ -212,15 +212,15 @@ function RobotextMessage(props: Props): React.Node {
           />
         </AnimatedView>
       </View>
-      {inlineSidebar}
+      {inlineEngagement}
     </View>
   );
 }
 
 const unboundStyles = {
   sidebar: {
-    marginTop: inlineSidebarCenterStyle.topOffset,
-    marginBottom: -inlineSidebarCenterStyle.topOffset,
+    marginTop: inlineEngagementCenterStyle.topOffset,
+    marginBottom: -inlineEngagementCenterStyle.topOffset,
     alignSelf: 'center',
   },
 };

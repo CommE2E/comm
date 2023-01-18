@@ -525,7 +525,7 @@ type CreateTooltipParams = {
   +tooltipMessagePosition: ?PositionInfo,
   +tooltipSize: TooltipSize,
   +availablePositions: $ReadOnlyArray<TooltipPosition>,
-  +containsInlineSidebar: boolean,
+  +containsInlineEngagement: boolean,
   +tooltipActions: $ReadOnlyArray<MessageTooltipAction>,
   +messageTimestamp: string,
 };
@@ -535,7 +535,7 @@ function createTooltip(params: CreateTooltipParams) {
     tooltipMessagePosition,
     tooltipSize,
     availablePositions,
-    containsInlineSidebar,
+    containsInlineEngagement,
     tooltipActions,
     messageTimestamp,
   } = params;
@@ -547,7 +547,7 @@ function createTooltip(params: CreateTooltipParams) {
     tooltipSize,
     availablePositions,
     defaultPosition: availablePositions[0],
-    preventDisplayingBelowSource: containsInlineSidebar,
+    preventDisplayingBelowSource: containsInlineEngagement,
   });
   if (!tooltipPosition) {
     return;
@@ -581,7 +581,7 @@ function useMessageTooltip({
   const { renderTooltip } = useTooltipContext();
   const tooltipActions = useMessageTooltipActions(item, threadInfo);
 
-  const containsInlineSidebar = !!item.threadCreatedFromMessage;
+  const containsInlineEngagement = !!item.threadCreatedFromMessage;
 
   const messageTimestamp = React.useMemo(() => {
     const time = item.messageInfo.time;
@@ -619,7 +619,7 @@ function useMessageTooltip({
         tooltipMessagePosition,
         tooltipSize,
         availablePositions,
-        containsInlineSidebar,
+        containsInlineEngagement,
         tooltipActions,
         messageTimestamp,
       });
@@ -640,7 +640,7 @@ function useMessageTooltip({
     },
     [
       availablePositions,
-      containsInlineSidebar,
+      containsInlineEngagement,
       messageTimestamp,
       renderTooltip,
       tooltipActions,
@@ -658,7 +658,7 @@ function useMessageTooltip({
       tooltipMessagePosition,
       tooltipSize,
       availablePositions,
-      containsInlineSidebar,
+      containsInlineEngagement,
       tooltipActions,
       messageTimestamp,
     });
@@ -669,7 +669,7 @@ function useMessageTooltip({
     updateTooltip.current?.(tooltipResult.tooltip);
   }, [
     availablePositions,
-    containsInlineSidebar,
+    containsInlineEngagement,
     messageTimestamp,
     tooltipActions,
     tooltipMessagePosition,

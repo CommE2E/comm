@@ -7,7 +7,7 @@ import Animated, {
   interpolateNode,
 } from 'react-native-reanimated';
 
-import useInlineSidebarText from 'lib/hooks/inline-sidebar-text.react';
+import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react';
 import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
 import { stringForReactionList } from 'lib/shared/reaction-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
@@ -17,9 +17,9 @@ import GestureTouchableOpacity from '../components/gesture-touchable-opacity.rea
 import { useStyles } from '../themes/colors';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import {
-  inlineSidebarStyle,
-  inlineSidebarCenterStyle,
-  inlineSidebarRightStyle,
+  inlineEngagementStyle,
+  inlineEngagementCenterStyle,
+  inlineEngagementRightStyle,
   composedMessageStyle,
 } from './chat-constants';
 import { useNavigateToThread } from './message-list-types';
@@ -29,9 +29,9 @@ type Props = {
   +reactions?: $ReadOnlyMap<string, MessageReactionInfo>,
   +disabled?: boolean,
 };
-function InlineSidebar(props: Props): React.Node {
+function InlineEngagement(props: Props): React.Node {
   const { disabled = false, reactions, threadInfo } = props;
-  const repliesText = useInlineSidebarText(threadInfo);
+  const repliesText = useInlineEngagementText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
   const onPress = React.useCallback(() => {
@@ -88,7 +88,7 @@ function InlineSidebar(props: Props): React.Node {
 const unboundStyles = {
   container: {
     flexDirection: 'row',
-    height: inlineSidebarStyle.height,
+    height: inlineEngagementStyle.height,
     display: 'flex',
     borderRadius: 16,
   },
@@ -101,17 +101,17 @@ const unboundStyles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'inlineSidebarBackground',
+    backgroundColor: 'inlineEngagementBackground',
     padding: 8,
     borderRadius: 16,
-    height: inlineSidebarStyle.height,
+    height: inlineEngagementStyle.height,
   },
   icon: {
-    color: 'inlineSidebarLabel',
+    color: 'inlineEngagementLabel',
     marginRight: 4,
   },
   repliesText: {
-    color: 'inlineSidebarLabel',
+    color: 'inlineEngagementLabel',
     fontSize: 14,
     lineHeight: 22,
   },
@@ -120,7 +120,7 @@ const unboundStyles = {
   },
   reaction: {
     marginLeft: 4,
-    color: 'inlineSidebarLabel',
+    color: 'inlineEngagementLabel',
   },
   reactionsContainer: {
     display: 'flex',
@@ -129,7 +129,7 @@ const unboundStyles = {
   },
 };
 
-type TooltipInlineSidebarProps = {
+type TooltipInlineEngagementProps = {
   +item: ChatMessageInfoItemWithHeight,
   +isOpeningSidebar: boolean,
   +progress: Animated.Node,
@@ -143,7 +143,9 @@ type TooltipInlineSidebarProps = {
   },
 };
 
-function TooltipInlineSidebar(props: TooltipInlineSidebarProps): React.Node {
+function TooltipInlineEngagement(
+  props: TooltipInlineEngagementProps,
+): React.Node {
   const {
     item,
     isOpeningSidebar,
@@ -152,29 +154,33 @@ function TooltipInlineSidebar(props: TooltipInlineSidebarProps): React.Node {
     initialCoordinates,
     positioning,
   } = props;
-  const inlineSidebarStyles = React.useMemo(() => {
+  const inlineEngagementStyles = React.useMemo(() => {
     if (positioning === 'left') {
       return {
         position: 'absolute',
-        top: inlineSidebarStyle.marginTop + inlineSidebarRightStyle.topOffset,
+        top:
+          inlineEngagementStyle.marginTop +
+          inlineEngagementRightStyle.topOffset,
         left: composedMessageStyle.marginLeft,
       };
     } else if (positioning === 'right') {
       return {
         position: 'absolute',
         right:
-          inlineSidebarRightStyle.marginRight +
+          inlineEngagementRightStyle.marginRight +
           composedMessageStyle.marginRight,
-        top: inlineSidebarStyle.marginTop + inlineSidebarRightStyle.topOffset,
+        top:
+          inlineEngagementStyle.marginTop +
+          inlineEngagementRightStyle.topOffset,
       };
     } else if (positioning === 'center') {
       return {
         alignSelf: 'center',
-        top: inlineSidebarCenterStyle.topOffset,
+        top: inlineEngagementCenterStyle.topOffset,
       };
     }
   }, [positioning]);
-  const inlineSidebarContainer = React.useMemo(() => {
+  const inlineEngagementContainer = React.useMemo(() => {
     const opacity = isOpeningSidebar
       ? 0
       : interpolateNode(progress, {
@@ -197,12 +203,12 @@ function TooltipInlineSidebar(props: TooltipInlineSidebarProps): React.Node {
     windowWidth,
   ]);
   return (
-    <Animated.View style={inlineSidebarContainer}>
-      <Animated.View style={inlineSidebarStyles}>
-        <InlineSidebar threadInfo={item.threadCreatedFromMessage} disabled />
+    <Animated.View style={inlineEngagementContainer}>
+      <Animated.View style={inlineEngagementStyles}>
+        <InlineEngagement threadInfo={item.threadCreatedFromMessage} disabled />
       </Animated.View>
     </Animated.View>
   );
 }
 
-export { InlineSidebar, TooltipInlineSidebar };
+export { InlineEngagement, TooltipInlineEngagement };

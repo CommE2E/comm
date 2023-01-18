@@ -26,7 +26,7 @@ import type {
 } from '../types/chat-types';
 import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
 import type { AnimatedViewStyle } from '../types/styles';
-import { clusterEndHeight, inlineSidebarStyle } from './chat-constants';
+import { clusterEndHeight, inlineEngagementStyle } from './chat-constants';
 import { ChatContext, useHeightMeasurer } from './chat-context';
 import { failedSendHeight } from './failed-send.react';
 import { authorNameHeight } from './message-header.react';
@@ -66,9 +66,9 @@ function textMessageItemHeight(
   }
   if (item.threadCreatedFromMessage || item.reactions.size > 0) {
     height +=
-      inlineSidebarStyle.height +
-      inlineSidebarStyle.marginTop +
-      inlineSidebarStyle.marginBottom;
+      inlineEngagementStyle.height +
+      inlineEngagementStyle.marginTop +
+      inlineEngagementStyle.marginBottom;
   }
   return height;
 }
@@ -77,7 +77,7 @@ function robotextMessageItemHeight(
   item: ChatRobotextMessageInfoItemWithHeight,
 ): number {
   if (item.threadCreatedFromMessage || item.reactions.size > 0) {
-    return item.contentHeight + inlineSidebarStyle.height;
+    return item.contentHeight + inlineEngagementStyle.height;
   }
   return item.contentHeight;
 }

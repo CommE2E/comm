@@ -1,4 +1,4 @@
-div.inlineSidebarContainer {
+div.inlineEngagementContainer {
   display: flex;
 }
 div.centerContainer {
@@ -18,9 +18,9 @@ div.rightContainer {
   right: 31px;
   margin-left: 31px;
 }
-.inlineSidebarContent {
-  background: var(--inline-sidebar-bg);
-  color: var(--inline-sidebar-color);
+.inlineEngagementContent {
+  background: var(--inline-engagement-bg);
+  color: var(--inline-engagement-color);
   font-size: var(--s-font-14);
   line-height: var(--line-height-text);
   flex-direction: row;
@@ -33,8 +33,8 @@ div.rightContainer {
   transition: background 0.2s ease-in-out;
 }
 
-.inlineSidebarContent:hover {
-  background: var(--inline-sidebar-bg-hover);
+.inlineEngagementContent:hover {
+  background: var(--inline-engagement-bg-hover);
 }
 
 div.reactionsContainer {
@@ -52,6 +52,6 @@ div.unread {
   font-weight: bold;
 }
 
-svg.inlineSidebarIcon {
+svg.inlineEngagementIcon {
   color: #666666;
 }

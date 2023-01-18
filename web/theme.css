@@ -177,9 +177,9 @@
   --chat-message-list-active-border: #5989d6;
   --sidebars-modal-color: var(--shades-black-60);
   --sidebars-modal-color-hover: var(--shades-white-100);
-  --inline-sidebar-bg: var(--shades-black-70);
-  --inline-sidebar-bg-hover: var(--shades-black-80);
-  --inline-sidebar-color: var(--fg);
+  --inline-engagement-bg: var(--shades-black-70);
+  --inline-engagement-bg-hover: var(--shades-black-80);
+  --inline-engagement-color: var(--fg);
   --compose-subchannel-header-fg: var(--shades-black-60);
   --compose-subchannel-header-bg: var(--shades-black-80);
   --compose-subchannel-label-color: var(--shades-black-60);
