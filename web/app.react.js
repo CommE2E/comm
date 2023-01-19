@@ -38,6 +38,7 @@ import electron from './electron';
 import InputStateContainer from './input/input-state-container.react';
 import LoadingIndicator from './loading-indicator.react';
 import { MenuProvider } from './menu-provider.react';
+import UpdateModalHandler from './modals/update-modal.react';
 import { updateNavInfoActionType } from './redux/action-types';
 import DeviceIDUpdater from './redux/device-id-updater';
 import DisconnectedBar from './redux/disconnected-bar';
@@ -210,6 +211,7 @@ class App extends React.PureComponent<Props> {
       <div className={css.layout}>
         <DisconnectedBarVisibilityHandler />
         <DisconnectedBar />
+        <UpdateModalHandler />
         <header
           className={headerClasses}
           onDoubleClick={this.onHeaderDoubleClick}
