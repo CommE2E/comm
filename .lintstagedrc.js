@@ -1,5 +1,6 @@
 const { CLIEngine } = require('eslint');
 const { getClangPaths } = require('./scripts/get_clang_paths');
+const { findRustProjectPath } = require('./scripts/get_cargo_path');
 
 const cli = new CLIEngine({});
 
@@ -58,8 +59,9 @@ module.exports = {
     });
     return 'clang-format -i ' + files.join(' ');
   },
-  'services/commtest/**/*.rs': function rustFormat(files) {
-    return 'yarn rust-pre-commit';
+  '*.rs': function rustFormat(files) {
+    const paths = new Set(files.map(findRustProjectPath).filter(Boolean));
+    return `yarn rust-pre-commit ${Array.from(paths).join(' ')}`;
   },
   'services/terraform/*.tf': function checkTerraform(files) {
     return 'yarn terraform-pre-commit';
