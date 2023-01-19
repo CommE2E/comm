@@ -1,0 +1,38 @@
+diff --git a/node_modules/hazel-server/lib/cache.js b/node_modules/hazel-server/lib/cache.js
+index 65e9d30..f95f58d 100644
+--- a/node_modules/hazel-server/lib/cache.js
++++ b/node_modules/hazel-server/lib/cache.js
+@@ -105,16 +105,18 @@ module.exports = class Cache {
+       return
+     }
+ 
++    const desktopTagPrefix = 'desktop-';
++
+     const release = data.find(item => {
+       const isPre = Boolean(pre) === Boolean(item.prerelease)
+-      return !item.draft && isPre
++      return !item.draft && isPre && item.tag_name.startsWith(desktopTagPrefix)
+     })
+ 
+     if (!release || !release.assets || !Array.isArray(release.assets)) {
+       return
+     }
+ 
+-    const { tag_name } = release
++    const tag_name = release.tag_name.slice(desktopTagPrefix.length);
+ 
+     if (this.latest.version === tag_name) {
+       console.log('Cached version is the same as latest')
+diff --git a/node_modules/hazel-server/lib/routes.js b/node_modules/hazel-server/lib/routes.js
+index bbd6f14..28b7f72 100644
+--- a/node_modules/hazel-server/lib/routes.js
++++ b/node_modules/hazel-server/lib/routes.js
+@@ -210,7 +210,7 @@ module.exports = ({ cache, config }) => {
+         version: latest.version,
+         releaseNotes: `https://github.com/${config.account}/${
+           config.repository
+-        }/releases/tag/${latest.version}`,
++        }/releases/tag/desktop-${latest.version}`,
+         allReleases: `https://github.com/${config.account}/${
+           config.repository
+         }/releases`,
