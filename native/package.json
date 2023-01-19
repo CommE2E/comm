@@ -14,10 +14,13 @@
     "start": "COMM_DEV=1 yarn expo start --dev-client",
     "dev": "yarn start",
     "test": "yarn jest",
+    "run-ios": "COMM_DEV=1 yarn expo run:ios",
+    "run-android": "COMM_DEV=1 yarn expo run:android",
     "logfirebase": "adb shell logcat | grep -E -i 'FIRMessagingModule|firebase'",
     "redux-devtools": "redux-devtools --port=8043 --open",
     "codegen-jsi": "flow && babel codegen/src/ -d codegen/dist/ && node codegen/dist",
-    "react-native": "PATH=/usr/bin:\"$PATH\" react-native"
+    "react-native": "PATH=/usr/bin:\"$PATH\" react-native",
+    "expo": "PATH=/usr/bin:\"$PATH\" expo"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
