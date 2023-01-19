@@ -23,3 +23,4 @@ native/codegen/dist
 native/android/app/build
 desktop/out
 desktop/dist
+services/electron-update-server/flow-typed

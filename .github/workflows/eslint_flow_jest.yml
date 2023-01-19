@@ -45,6 +45,10 @@ jobs:
         working-directory: ./desktop
         run: ./node_modules/.bin/flow
 
+      - name: '[electron-update-server] flow'
+        working-directory: ./services/electron-update-server
+        run: ./node_modules/.bin/flow
+
       - name: '[lib] test'
         working-directory: ./lib
         env:
