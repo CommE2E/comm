@@ -90,9 +90,9 @@ function SIWE(): React.Node {
     [],
   );
 
-  let siweConnectButton;
+  let siweLoginForm;
   if (signer && !siweNonce) {
-    siweConnectButton = (
+    siweLoginForm = (
       <div className={css.connectButtonContainer}>
         <LoadingIndicator
           status={getSIWENonceCallLoadingStatus}
@@ -101,7 +101,7 @@ function SIWE(): React.Node {
       </div>
     );
   } else if (signer) {
-    siweConnectButton = (
+    siweLoginForm = (
       <div className={css.connectButtonContainer}>
         <ConnectButton />
       </div>
@@ -132,7 +132,7 @@ function SIWE(): React.Node {
   return (
     <div className={css.siweContainer}>
       <hr />
-      {siweConnectButton}
+      {siweLoginForm}
       {siweButton}
     </div>
   );
