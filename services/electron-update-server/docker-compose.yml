@@ -1,0 +1,6 @@
+services:
+  electron-update-server:
+    image: electron-update-server
+    build:
+      context: ../..
+      dockerfile: services/electron-update-server/Dockerfile
