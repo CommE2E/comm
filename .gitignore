@@ -33,7 +33,6 @@ shared/protos/build
 
 # Nix
 result*
-services/backup/old/blob_client/target/
 .direnv
 
 # Electron
