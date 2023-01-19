@@ -37,6 +37,12 @@ For developers using macOS, you need to make sure that the Xcode “Command Line
 xcode-select --install
 ```
 
+### Xcode
+
+For developers using macOS, go to the [Mac App Store](https://apps.apple.com/us/app/xcode/id497799835) to install Xcode; or if you already have it, update it to the latest version.
+
+Once Xcode is installed, open it up. If you are prompted, follow the instructions to install any [“Additional Required Components”](./nix_mobile_setup.md#xcode-settings)
+
 ## Nix package manager
 
 To install and configure the [Nix package manager](https://nixos.org), please run:
@@ -73,7 +79,6 @@ On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for 
   - [Redux Dev Tools Chrome extension](./nix_web_setup.md#redux-dev-tools-chrome-extension)
 - [Mobile prerequisites](./nix_mobile_setup.md#nix-mobile-prerequisites)
   - [iOS development](./nix_mobile_setup.md#ios-development)
-    - [Xcode](./nix_mobile_setup.md#xcode)
     - [Xcode settings](./nix_mobile_setup.md#xcode-settings)
   - [Android development](./nix_mobile_setup.md#android-development)
     - [JDK (Java Development Kit)](./nix_mobile_setup.md#jdk)
