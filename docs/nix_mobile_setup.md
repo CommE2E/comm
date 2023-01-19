@@ -121,10 +121,6 @@ From there you can just hit Next and then Finish. You should then be able to sta
 
 ## Debugging tools
 
-### Homebrew
-
-Install [Homebrew](https://brew.sh/), a package manager for macOS. It’s necessary for some of the following steps.
-
 ### Reactotron
 
 Reactotron is an event tracker and logger that can be used to aid in debugging on React Native.
