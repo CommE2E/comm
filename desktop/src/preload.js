@@ -13,6 +13,14 @@ const bridge: ElectronBridge = {
   clearHistory: () => ipcRenderer.send('clear-history'),
   doubleClickTopBar: () => ipcRenderer.send('double-click-top-bar'),
   setBadge: value => ipcRenderer.send('set-badge', value),
+  version: ipcRenderer.sendSync('get-version'),
+  onNewVersionAvailable: callback => {
+    const withEvent = (event, ...args) => callback(...args);
+    ipcRenderer.on('on-new-version-available', withEvent);
+    return () =>
+      ipcRenderer.removeListener('on-new-version-available', withEvent);
+  },
+  updateToNewVersion: () => ipcRenderer.send('update-to-new-version'),
 };
 
 contextBridge.exposeInMainWorld('electronContextBridge', bridge);

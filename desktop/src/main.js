@@ -7,10 +7,12 @@ import {
   Menu,
   ipcMain,
   systemPreferences,
+  autoUpdater,
 } from 'electron/main';
 import fs from 'fs';
 import path from 'path';
 
+import { initAutoUpdate } from './auto-update';
 import { handleSquirrelEvent } from './handle-squirrel-event';
 
 const isDev = process.env.ENV === 'dev';
@@ -140,9 +142,15 @@ const createMainWindow = () => {
   };
   ipcMain.on('double-click-top-bar', doubleClickTopBar);
 
+  const updateDownloaded = (event, releaseNotes, releaseName) => {
+    win.webContents.send('on-new-version-available', releaseName);
+  };
+  autoUpdater.on('update-downloaded', updateDownloaded);
+
   win.on('closed', () => {
     ipcMain.removeListener('clear-history', clearHistory);
     ipcMain.removeListener('double-click-top-bar', doubleClickTopBar);
+    autoUpdater.removeListener('update-downloaded', updateDownloaded);
   });
 
   win.webContents.setWindowOpenHandler(({ url: openURL }) => {
@@ -237,10 +245,21 @@ const run = () => {
   (async () => {
     await app.whenReady();
 
+    if (app.isPackaged) {
+      try {
+        initAutoUpdate();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
     ipcMain.on('set-badge', (event, value) => {
       if (isMac) {
         app.dock.setBadge(value?.toString() ?? '');
       }
+    });
+    ipcMain.on('get-version', event => {
+      event.returnValue = app.getVersion().toString();
     });
 
     show();
