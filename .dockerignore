@@ -37,6 +37,7 @@ services/identity/Dockerfile
 services/backup/Dockerfile
 services/blob/target
 services/blob/Dockerfile
+services/electron-update-server/node_modules
 
 native/cpp/**/build
 services/*/build

@@ -1,0 +1,25 @@
+{
+  "name": "electron-update-server",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "module",
+  "license": "BSD-3-Clause",
+  "private": true,
+  "scripts": {
+    "dev": "nodemon index.js",
+    "prod": "node --trace-warnings index.js",
+    "clean": "rm -rf node_modules/"
+  },
+  "dependencies": {
+    "express": "^4.17.3",
+    "hazel-server": "^5.1.1"
+  },
+  "devDependencies": {
+    "flow-bin": "^0.182.0",
+    "flow-typed": "^3.2.1",
+    "nodemon": "^2.0.4"
+  },
+  "nodemonConfig": {
+    "delay": "200"
+  }
+}

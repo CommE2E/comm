@@ -112,6 +112,8 @@ COPY --chown=comm keyserver/addons/rust-node-addon/package.json \
   keyserver/addons/rust-node-addon/
 COPY --chown=comm native/expo-modules/android-lifecycle/package.json \
   native/expo-modules/android-lifecycle/
+COPY --chown=comm services/electron-update-server/package.json \
+  services/electron-update-server/
 
 # Create empty Rust library and copy in Cargo.toml file
 RUN cargo init keyserver/addons/rust-node-addon --lib

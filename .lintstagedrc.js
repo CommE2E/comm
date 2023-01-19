@@ -42,6 +42,9 @@ module.exports = {
   '{desktop,lib}/**/*.js': function desktopFlow(files) {
     return 'yarn workspace desktop flow --quiet';
   },
+  'services/electron-update-server/**/*.js': function desktopFlow(files) {
+    return 'yarn workspace electron-update-server flow --quiet';
+  },
   'services/identity/**/*.rs': function testIdentity(files) {
     return 'bash -c "cd services/identity && cargo test"';
   },
