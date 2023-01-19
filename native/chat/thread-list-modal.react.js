@@ -18,6 +18,7 @@ import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
 import Modal from '../components/modal.react';
 import Search from '../components/search.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
+import ThreadPill from '../components/thread-pill.react';
 import { useIndicatorStyle, useStyles } from '../themes/colors';
 import { waitForModalInputFocus } from '../utils/timers';
 import { useNavigateToThread } from './message-list-types';
@@ -52,6 +53,7 @@ function ThreadListModal<U: SidebarInfo | ChatThreadItem>(
   props: Props<U>,
 ): React.Node {
   const {
+    threadInfo: parentThreadInfo,
     searchState,
     setSearchState,
     onChangeSearchInputText,
@@ -103,17 +105,22 @@ function ThreadListModal<U: SidebarInfo | ChatThreadItem>(
   return (
     <Modal modalStyle={styles.modal}>
       <View style={styles.header}>
-        <Text style={styles.title}>{modalTitle}</Text>
-        <TouchableOpacity
-          onPress={navigation.goBack}
-          style={styles.closeButton}
-        >
-          <SWMansionIcon
-            name="cross"
-            size={24}
-            color={styles.closeIcon.color}
-          />
-        </TouchableOpacity>
+        <View style={styles.headerTopRow}>
+          <Text style={styles.title}>{modalTitle}</Text>
+          <TouchableOpacity
+            onPress={navigation.goBack}
+            style={styles.closeButton}
+          >
+            <SWMansionIcon
+              name="cross"
+              size={24}
+              color={styles.closeIcon.color}
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.parentNameWrapper}>
+          <ThreadPill fontSize={12} threadInfo={parentThreadInfo} />
+        </View>
       </View>
       <View style={styles.body}>
         <Search
@@ -138,16 +145,24 @@ function ThreadListModal<U: SidebarInfo | ChatThreadItem>(
 }
 
 const unboundStyles = {
+  parentNameWrapper: {
+    alignItems: 'flex-start',
+  },
   body: {
     paddingHorizontal: 16,
     flex: 1,
   },
+  headerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: 32,
+    alignItems: 'center',
+  },
   header: {
     borderBottomColor: 'subthreadsModalSearch',
     borderBottomWidth: 1,
-    height: 72,
+    height: 94,
     padding: 16,
-    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   modal: {
