@@ -135,6 +135,8 @@ mkShell {
     redis_pid=$!
 
     wait "$mariadb_pid" "$redis_pid"
+
+    ${../scripts}/install_homebrew_macos.sh
   '' + ''
 
     # Render default configuration for keyserver

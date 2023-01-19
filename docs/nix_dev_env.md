@@ -86,7 +86,6 @@ On macOS, [installing Xcode](./nix_mobile_setup.md#xcode) is a prerequisite for 
     - [Android SDK](./nix_mobile_setup.md#android-sdk)
     - [Android emulator](./nix_mobile_setup.md#android-emulator)
   - [Debugging tools](./nix_mobile_setup.md#debugging-tools)
-    - [Homebrew](./nix_mobile_setup.md#homebrew)
     - [Reactotron](./nix_mobile_setup.md#reactotron)
 
 # Development environment
