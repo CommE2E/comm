@@ -102,22 +102,18 @@ If you want your custom build of the app to connect to your local instance of th
 
 Finally, we need to direct the mobile app to use your local keyserver instance. There are a few different ways to do this, depending on your situation:
 
-- As long as you’re deploying a debug build, this strategy should work for you. You can create a `network.json` file in `native/facts` that will override the default.
+- As long as you’re deploying a debug build, your local machine’s IP address should automatically be propagated to the native app when running the Metro bundler. This is the same IP that was discussed in the previous section.
 
-  ```
-  mkdir -p native/facts
-  vim native/facts/network.json
-  ```
+  If for whatever reason this value is incorrect, you can override it by setting the `COMM_NAT_DEV_HOSTNAME` environment variable and restarting the Metro bundler:
 
-  Your `network.json` file should look like the following, where `w.x.y.z` is the local IP address you found earlier:
-
-  ```json
-  {
-    "natDevHostname": "w.x.y.z"
-  }
+  ```sh
+  cd native
+  COMM_NAT_DEV_HOSTNAME=w.x.y.z yarn dev
   ```
 
-  You’ll need to delete and reinstall the app for changes to `native/facts/network.json` to take effect, as the default production URL is persisted in Redux.
+  Where `w.x.y.z` is the hostname you want to use.
+
+  You’ll need to delete and reinstall the app for changes to developer’s machine hostname to take effect, as the default keyserver URL is persisted in Redux.
 
 - If you’re deploying a release build, the above strategy won’t work. Your best bet to override the server URL is to get to the secret “Developer tools” menu option in the app.
 
