@@ -10,6 +10,7 @@ declare module 'electron' {
     hide(): void,
     show(): void,
     setName: (name: string) => void,
+    getVersion: () => string,
     dock: Dock,
     isPackaged: boolean,
     name: string,
@@ -161,6 +162,37 @@ declare module 'electron' {
     exposeInMainWorld(apiKey: string, api: mixed): void,
   };
 
+  declare export var autoUpdater: AutoUpdater;
+  declare type AutoUpdater = {
+    setFeedURL(options: {
+      +url: string,
+      +headers?: { +[string]: string },
+      +serverType?: 'json' | 'default',
+    }): void,
+    getFeedURL(): string,
+    checkForUpdates(): void,
+    quitAndInstall(): void,
+
+    on<T: $Keys<AutoUpdaterEvents>>(
+      event: T,
+      listener: $ElementType<AutoUpdaterEvents, T>,
+    ): void,
+    removeListener<T: $Keys<AutoUpdaterEvents>>(
+      event: T,
+      listener: $ElementType<AutoUpdaterEvents, T>,
+    ): void,
+  };
+
+  declare type AutoUpdaterEvents = {
+    'update-downloaded': (
+      event: Event,
+      releaseNotes: string,
+      releaseName: string,
+      releaseDate: Date,
+      updateURL: string,
+    ) => void,
+  };
+
   declare class Dock {
     setBadge(text: string): void;
     getBadge(): string;
@@ -182,7 +214,7 @@ declare module 'electron' {
   declare export type IpcMainEvent = {
     +processId: number,
     +frameId: number,
-    +returnValue: mixed,
+    returnValue: mixed,
     +sender: WebContents,
     +reply: (channel: string, ...args: $ReadOnlyArray<any>) => void,
   };
@@ -198,6 +230,7 @@ declare module 'electron' {
       listener: (...args: $ReadOnlyArray<any>) => void,
     ): void,
     send(channel: string, ...args: $ReadOnlyArray<mixed>): void,
+    sendSync(channel: string, ...args: $ReadOnlyArray<mixed>): any,
   };
 
   declare export type MenuItemConstructorOptions = {
@@ -365,6 +398,7 @@ declare module 'electron/main' {
     Menu,
     ipcMain,
     systemPreferences,
+    autoUpdater,
   } from 'electron';
 }
 
