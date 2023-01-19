@@ -11,6 +11,7 @@ type Props = {
   +backgroundColor: string,
   +icon?: React.Node,
   +roundCorners?: { +left: boolean, +right: boolean },
+  +fontSize?: number,
 };
 function Pill(props: Props): React.Node {
   const styles = useStyles(unboundStyles);
@@ -38,9 +39,11 @@ function Pill(props: Props): React.Node {
     [props.backgroundColor],
   );
 
+  const fontSize = props.fontSize ?? 16;
+
   const combinedTextStyles = React.useMemo(
-    () => [styles.label, { color: textColor }],
-    [styles.label, textColor],
+    () => [styles.label, { color: textColor, fontSize }],
+    [fontSize, styles.label, textColor],
   );
 
   const icon = props.icon ? (
@@ -66,7 +69,6 @@ const unboundStyles = {
     paddingVertical: 4,
   },
   label: {
-    fontSize: 16,
     fontWeight: 'bold',
   },
   icon: {
