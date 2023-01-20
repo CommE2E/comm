@@ -89,7 +89,15 @@ file(GLOB SQLCIPHER
   "${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src/*.c"
 )
 file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
-file(GLOB_RECURSE COMMON_NATIVE_CODE "../../cpp/CommonCpp/**/*.cpp")
+
+set(GENERATED_NATIVE_CODE "../../cpp/CommonCpp/_generated/commJSI-generated.cpp")
+file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
+file(GLOB DB_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/*.cpp")
+file(GLOB DB_ENTITIES_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/entities/*.cpp")
+file(GLOB_RECURSE MODULE_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/**/*.cpp")
+file(GLOB MODULE_ROOT_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/*.cpp")
+file(GLOB TOOLS_NATIVE_CODE "../../cpp/CommonCpp/Tools/*.cpp")
+
 add_library(
   # Sets the name of the library
   ${PACKAGE_NAME}
@@ -109,7 +117,13 @@ add_library(
 
   # comm code
   ${ANDROID_NATIVE_CODE}
-  ${COMMON_NATIVE_CODE}
+  ${GENERATED_NATIVE_CODE}
+  ${CRYPTO_NATIVE_CODE}
+  ${DB_NATIVE_CODE}
+  ${DB_ENTITIES_NATIVE_CODE}
+  ${MODULE_NATIVE_CODE}
+  ${MODULE_ROOT_NATIVE_CODE}
+  ${TOOLS_NATIVE_CODE}
 )
 
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
