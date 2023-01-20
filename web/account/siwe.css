@@ -23,6 +23,14 @@ hr:after {
   background-color: #1f1f1fff;
 }
 
+div.siweLoginFormContainer p {
+  color: white;
+  font-family: sans-serif;
+  text-align: center;
+  padding-top: 14px;
+  font-size: 14px;
+}
+
 div.connectButtonContainer {
   width: 100%;
   display: flex;

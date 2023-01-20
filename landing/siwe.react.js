@@ -28,6 +28,7 @@ import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
 import {
   getSIWEStatementForPublicKey,
   siweStatementWithoutPublicKey,
+  siweMessageSigningExplanationStatements,
 } from 'lib/utils/siwe-utils.js';
 
 import { SIWEContext } from './siwe-context.js';
@@ -173,14 +174,8 @@ function SIWE(): React.Node {
           <span className={css.walletDisplayText}>Wallet Connected:</span>
           <ConnectButton />
         </div>
-        <p>
-          To complete the login process, you&apos;ll now be asked to sign a
-          message using your wallet.
-        </p>
-        <p>
-          This signature will attest that your Ethereum identity is represented
-          by your new Comm identity.
-        </p>
+        <p>{siweMessageSigningExplanationStatements[0]}</p>
+        <p>{siweMessageSigningExplanationStatements[1]}</p>
         <div className={css.button} onClick={onClick}>
           Sign in
         </div>

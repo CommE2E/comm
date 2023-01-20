@@ -31,6 +31,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
+import { siweMessageSigningExplanationStatements } from 'lib/utils/siwe-utils.js';
 
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
@@ -102,8 +103,12 @@ function SIWE(): React.Node {
     );
   } else if (signer) {
     siweLoginForm = (
-      <div className={css.connectButtonContainer}>
-        <ConnectButton />
+      <div className={css.siweLoginFormContainer}>
+        <div className={css.connectButtonContainer}>
+          <ConnectButton />
+        </div>
+        <p>{siweMessageSigningExplanationStatements[0]}</p>
+        <p>{siweMessageSigningExplanationStatements[1]}</p>
       </div>
     );
   }
