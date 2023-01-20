@@ -1,5 +1,7 @@
 div.inlineEngagementContainer {
   display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 div.centerContainer {
   justify-content: center;
@@ -18,36 +20,41 @@ div.rightContainer {
   right: 31px;
   margin-left: 31px;
 }
-.inlineEngagementContent {
+
+a.threadsContainer,
+a.threadsSplitContainer,
+a.reactionsContainer,
+a.reactionsSplitContainer {
   background: var(--inline-engagement-bg);
   color: var(--inline-engagement-color);
   font-size: var(--s-font-14);
   line-height: var(--line-height-text);
+  transition: background 0.2s ease-in-out;
+  padding: 8px;
+  gap: 4px;
   flex-direction: row;
   display: flex;
-  border-radius: 16px;
-  padding: 8px;
-  cursor: pointer;
-  gap: 12px;
   align-items: center;
-  transition: background 0.2s ease-in-out;
 }
 
-.inlineEngagementContent:hover {
+a.threadsContainer,
+a.reactionsContainer {
+  border-radius: 16px;
+}
+a.threadsSplitContainer {
+  border-radius: 16px 0 0 16px;
+}
+a.reactionsSplitContainer {
+  border-radius: 0 16px 16px 0;
+}
+
+a.threadsContainer:hover,
+a.threadsSplitContainer:hover,
+a.reactionsContainer:hover,
+a.reactionsSplitContainer:hover {
   background: var(--inline-engagement-bg-hover);
 }
 
-div.reactionsContainer {
-  flex-direction: row;
-  display: flex;
-  gap: 4px;
-}
-div.replies {
-  flex-direction: row;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
 div.unread {
   font-weight: bold;
 }

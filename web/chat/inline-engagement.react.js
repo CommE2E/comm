@@ -3,12 +3,14 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import { useModalContext } from 'lib/components/modal-provider.react';
 import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react';
 import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
 import { stringForReactionList } from 'lib/shared/reaction-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../CommIcon.react';
+import MessageReactionsModal from '../modals/chat/message-reactions-modal.react';
 import { useOnClickThread } from '../selectors/thread-selectors';
 import css from './inline-engagement.css';
 
@@ -18,7 +20,8 @@ type Props = {
   +positioning: 'left' | 'center' | 'right',
 };
 function InlineEngagement(props: Props): React.Node {
-  const { threadInfo, positioning, reactions } = props;
+  const { threadInfo, reactions, positioning } = props;
+  const { pushModal, popModal } = useModalContext();
   const repliesText = useInlineEngagementText(threadInfo);
 
   const containerClasses = classNames([
@@ -30,6 +33,46 @@ function InlineEngagement(props: Props): React.Node {
     },
   ]);
 
+  const reactionsExist = reactions && reactions.size > 0;
+
+  const threadsContainerClasses = classNames({
+    [css.threadsContainer]: threadInfo && !reactionsExist,
+    [css.threadsSplitContainer]: threadInfo && reactionsExist,
+  });
+
+  const reactionsContainerClasses = classNames({
+    [css.reactionsContainer]: reactionsExist && !threadInfo,
+    [css.reactionsSplitContainer]: reactionsExist && threadInfo,
+  });
+
+  const onClickThread = useOnClickThread(threadInfo);
+
+  const sidebarItem = React.useMemo(() => {
+    if (!threadInfo || !repliesText) {
+      return null;
+    }
+
+    return (
+      <a onClick={onClickThread} className={threadsContainerClasses}>
+        <CommIcon size={14} icon="sidebar-filled" />
+        {repliesText}
+      </a>
+    );
+  }, [threadInfo, repliesText, onClickThread, threadsContainerClasses]);
+
+  const onClickReactions = React.useCallback(
+    (event: SyntheticEvent<HTMLElement>) => {
+      event.preventDefault();
+      if (!reactions) {
+        return;
+      }
+      pushModal(
+        <MessageReactionsModal onClose={popModal} reactions={reactions} />,
+      );
+    },
+    [popModal, pushModal, reactions],
+  );
+
   const reactionsList = React.useMemo(() => {
     if (!reactions || reactions.size === 0) {
       return null;
@@ -37,35 +80,17 @@ function InlineEngagement(props: Props): React.Node {
 
     const reactionText = stringForReactionList(reactions);
 
-    return <div className={css.reactionsContainer}>{reactionText}</div>;
-  }, [reactions]);
-
-  const onClick = useOnClickThread(threadInfo);
-
-  const threadInfoExists = !!threadInfo;
-
-  const sidebarItem = React.useMemo(() => {
-    if (!threadInfoExists || !repliesText) {
-      return null;
-    }
-
     return (
-      <div className={css.replies}>
-        <CommIcon size={14} icon="sidebar-filled" />
-        {repliesText}
-      </div>
+      <a onClick={onClickReactions} className={reactionsContainerClasses}>
+        {reactionText}
+      </a>
     );
-  }, [threadInfoExists, repliesText]);
+  }, [reactions, onClickReactions, reactionsContainerClasses]);
 
   return (
     <div className={containerClasses}>
-      <a
-        className={css.inlineEngagementContent}
-        onClick={threadInfoExists ? onClick : null}
-      >
-        {sidebarItem}
-        {reactionsList}
-      </a>
+      {sidebarItem}
+      {reactionsList}
     </div>
   );
 }
