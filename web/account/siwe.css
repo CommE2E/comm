@@ -27,8 +27,13 @@ div.siweLoginFormContainer p {
   color: white;
   font-family: sans-serif;
   text-align: center;
-  padding-top: 14px;
+  padding-bottom: 20px;
   font-size: 14px;
+}
+
+div.siweLoginFormContainer {
+  display: flex;
+  flex-direction: column;
 }
 
 div.connectButtonContainer {
@@ -36,6 +41,7 @@ div.connectButtonContainer {
   display: flex;
   justify-content: center;
   align-content: center;
+  padding-bottom: 20px;
 }
 
 div.siweContainer {

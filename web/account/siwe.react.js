@@ -109,6 +109,9 @@ function SIWE(): React.Node {
         </div>
         <p>{siweMessageSigningExplanationStatements[0]}</p>
         <p>{siweMessageSigningExplanationStatements[1]}</p>
+        <Button variant="filled" type="submit" onClick={undefined}>
+          Sign in
+        </Button>
       </div>
     );
   }
