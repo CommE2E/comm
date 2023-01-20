@@ -11,7 +11,6 @@ import {
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
-import { SiweMessage } from 'siwe';
 import '@rainbow-me/rainbowkit/dist/index.css';
 import {
   useAccount,
@@ -29,6 +28,7 @@ import {
   getSIWEStatementForPublicKey,
   siweStatementWithoutPublicKey,
   siweMessageSigningExplanationStatements,
+  createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
 
 import { SIWEContext } from './siwe-context.js';
@@ -54,22 +54,6 @@ const wagmiClient = createClient({
   provider,
 });
 
-function createSiweMessage(address: string, statement: string, nonce: string) {
-  invariant(nonce, 'nonce must be present in createSiweMessage');
-  const domain = window.location.host;
-  const origin = window.location.origin;
-  const message = new SiweMessage({
-    domain,
-    address,
-    statement,
-    uri: origin,
-    version: '1',
-    chainId: '1',
-    nonce,
-  });
-  return message.prepareMessage();
-}
-
 function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
 }
@@ -81,7 +65,7 @@ async function signInWithEthereum(
   statement: string,
 ) {
   invariant(nonce, 'nonce must be present in signInWithEthereum');
-  const message = createSiweMessage(address, statement, nonce);
+  const message = createSIWEMessage(address, statement, nonce);
   const signature = await signer.signMessage(message);
   postMessageToNativeWebView({
     type: 'siwe_success',

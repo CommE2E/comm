@@ -59,7 +59,6 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-text-loop": "^2.3.0",
-    "siwe": "^1.1.6",
     "wagmi": "^0.6.0"
   }
 }
