@@ -10,5 +10,19 @@
         tools:targetApi="28"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false" />
+        <!-- this is configured according to
+        https://github.com/expo/fyi/blob/main/setup-android-uri-scheme.md
+        -->
+        <activity
+          android:name=".MainActivity"
+          android:exported="true"
+          android:launchMode="singleTask">
+            <intent-filter>
+              <action android:name="android.intent.action.VIEW" />
+              <category android:name="android.intent.category.BROWSABLE" />
+              <category android:name="android.intent.category.DEFAULT" />
+              <data android:scheme="comm"/>
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
