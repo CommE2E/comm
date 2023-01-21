@@ -1,7 +1,6 @@
 // @flow
 
 import classNames from 'classnames';
-import dateFormat from 'dateformat';
 import invariant from 'invariant';
 import _filter from 'lodash/fp/filter';
 import _flow from 'lodash/fp/flow';
@@ -31,7 +30,7 @@ import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
-import { dateFromString } from 'lib/utils/date-utils';
+import { prettyDateWithoutDay } from 'lib/utils/date-utils';
 
 import LoadingIndicator from '../../loading-indicator.react';
 import { useSelector } from '../../redux/redux-utils';
@@ -101,8 +100,7 @@ class HistoryModal extends React.PureComponent<Props, State> {
         </a>
       );
     }
-    const historyDate = dateFromString(this.props.dayString);
-    const prettyDate = dateFormat(historyDate, 'mmmm dS, yyyy');
+    const prettyDate = prettyDateWithoutDay(this.props.dayString);
     const loadingStatus =
       this.state.mode === 'day'
         ? this.props.dayLoadingStatus
