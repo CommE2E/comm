@@ -1,3 +1,25 @@
+diff --git a/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js b/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
+index 9ab8961..ab012c0 100644
+--- a/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
++++ b/node_modules/@expo/cli/build/src/start/interface/interactiveActions.js
+@@ -45,12 +45,17 @@ class DevServerManagerActions {
+         if (this.devServerManager.getNativeDevServerPort()) {
+             const devServer = this.devServerManager.getDefaultDevServer();
+             try {
++                const devServerUrl = devServer.getDevServerUrl();
+                 const nativeRuntimeUrl = devServer.getNativeRuntimeUrl();
+                 const interstitialPageUrl = devServer.getRedirectUrl();
+                 (0, _commandsTable).printQRCode(interstitialPageUrl != null ? interstitialPageUrl : nativeRuntimeUrl);
+                 if (interstitialPageUrl) {
+                     Log.log((0, _commandsTable).printItem(_chalk.default`Choose an app to open your project at {underline ${interstitialPageUrl}}`));
+                 }
++                if (nativeRuntimeUrl !== devServerUrl) {
++                  // When using a custom scheme, the IP in the deep link URL is difficult to read, so we print the LAN address too.
++                  Log.log((0, _commandsTable).printItem(_chalk.default`Dev server LAN address: {underline ${devServerUrl}}`));
++                }
+                 Log.log((0, _commandsTable).printItem(_chalk.default`Metro waiting on {underline ${nativeRuntimeUrl}}`));
+                 // TODO: if development build, change this message!
+                 Log.log((0, _commandsTable).printItem("Scan the QR code above with Expo Go (Android) or the Camera app (iOS)"));
 diff --git a/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js b/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
 index 0a601bd..2c0a210 100644
 --- a/node_modules/@expo/cli/build/src/start/server/BundlerDevServer.js
@@ -26,3 +48,33 @@ index 0a601bd..2c0a210 100644
          return (_url = location.url) != null ? _url : null;
      }
      /** Get the base URL for JS inspector */ getJsInspectorBaseUrl() {
+diff --git a/node_modules/@expo/cli/build/src/utils/scheme.js b/node_modules/@expo/cli/build/src/utils/scheme.js
+index 0d1b9dd..3b0402b 100644
+--- a/node_modules/@expo/cli/build/src/utils/scheme.js
++++ b/node_modules/@expo/cli/build/src/utils/scheme.js
+@@ -50,7 +50,9 @@ function sortLongest(obj) {
+ }
+ async function getSchemesForIosAsync(projectRoot) {
+     try {
+-        const infoPlistBuildProperty = (0, _getInfoPlistPath).getInfoPlistPathFromPbxproj(projectRoot);
++        // see https://github.com/expo/expo/discussions/20875 for details on this patch
++        // if this patch ever breaks, it can be worked around by adding a --scheme flag to the expo start command
++        const infoPlistBuildProperty = (0, _getInfoPlistPath).getInfoPlistPathFromPbxproj(projectRoot, { buildConfiguration: 'Debug' });
+         debug(`ios application Info.plist path:`, infoPlistBuildProperty);
+         if (infoPlistBuildProperty) {
+             const configPath = _path.default.join(projectRoot, "ios", infoPlistBuildProperty);
+@@ -71,6 +73,14 @@ async function getSchemesForAndroidAsync(projectRoot) {
+         const configPath = await _configPlugins.AndroidConfig.Paths.getAndroidManifestAsync(projectRoot);
+         const manifest = await _configPlugins.AndroidConfig.Manifest.readAndroidManifestAsync(configPath);
+         const schemes = await _configPlugins.AndroidConfig.Scheme.getSchemesFromManifest(manifest);
++        // see https://github.com/expo/expo/discussions/20875 for details on this patch
++        // if this patch ever breaks, it can be worked around by adding a --scheme flag to the expo start command
++        if (schemes.length < 1) {
++          const debugManifestPath = _path.default.join(projectRoot, 'android/app/src/debug/AndroidManifest.xml');
++          const debugManifest = await _configPlugins.AndroidConfig.Manifest.readAndroidManifestAsync(debugManifestPath);
++          const debugSchemes = await _configPlugins.AndroidConfig.Scheme.getSchemesFromManifest(debugManifest);
++          schemes.push(...debugSchemes);
++        }
+         debug(`android application schemes:`, schemes);
+         return sortLongest(schemes);
+     } catch (error) {
