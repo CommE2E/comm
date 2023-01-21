@@ -15,7 +15,7 @@ import { type ThreadInfo, communitySubthreads } from 'lib/types/thread-types';
 import { useNavigateToThread } from '../chat/message-list-types';
 import { useStyles } from '../themes/colors';
 import type { TextStyle } from '../types/styles';
-import CommunityDrawerItemCommunity from './community-drawer-item-cummunity.react';
+import CommunityDrawerItemCommunity from './community-drawer-item-community.react';
 
 const maxDepth = 2;
 const safeAreaEdges = Platform.select({
