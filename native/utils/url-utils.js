@@ -34,13 +34,11 @@ function getDevLandingURLFromHostname(hostname: string): string {
 }
 
 function getDevNodeServerURL(): string {
-  invariant(__DEV__, 'getDevNodeServerURL called from production');
   const hostname = getDevServerHostname();
   return getDevNodeServerURLFromHostname(hostname);
 }
 
 function getDevLandingURL(): string {
-  invariant(__DEV__, 'getDevLandingURL called from production');
   const hostname = getDevServerHostname();
   return getDevLandingURLFromHostname(hostname);
 }
