@@ -6,7 +6,7 @@ import {
   type DrawerNavigationProp,
 } from '@react-navigation/drawer';
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { useStyles } from '../themes/colors';
 import type { AppNavigationProp } from './app-navigator.react';
@@ -48,13 +48,15 @@ function CommunityDrawerNavigator(props: Props): React.Node {
     [navContext],
   );
 
+  const { width: screenWidth } = useWindowDimensions();
   const screenOptions = React.useMemo(
     () => ({
       drawerStyle: styles.drawerStyle,
       headerShown: false,
       swipeEnabled,
+      swipeEdgeWidth: screenWidth,
     }),
-    [styles.drawerStyle, swipeEnabled],
+    [styles.drawerStyle, swipeEnabled, screenWidth],
   );
 
   return (

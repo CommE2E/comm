@@ -7,7 +7,7 @@ import {
   type StackHeaderProps,
 } from '@react-navigation/stack';
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import CommunityDrawerButton from '../navigation/community-drawer-button.react';
@@ -78,6 +78,7 @@ function ProfileComponent(props: Props): React.Node {
     [props.navigation],
   );
 
+  const { width: screenWidth } = useWindowDimensions();
   const screenOptions = React.useMemo(
     () => ({
       header,
@@ -86,8 +87,10 @@ function ProfileComponent(props: Props): React.Node {
         backgroundColor: colors.tabBarBackground,
         shadowOpacity: 0,
       },
+      gestureEnabled: true,
+      gestureResponseDistance: screenWidth,
     }),
-    [colors.tabBarBackground, headerLeftButton],
+    [colors.tabBarBackground, headerLeftButton, screenWidth],
   );
 
   return (

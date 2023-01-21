@@ -20,7 +20,7 @@ import {
 import { StackView, type StackHeaderProps } from '@react-navigation/stack';
 import invariant from 'invariant';
 import * as React from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, View, useWindowDimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 
 import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react';
@@ -284,6 +284,7 @@ export default function ChatComponent(props: Props): React.Node {
     [props.navigation],
   );
 
+  const { width: screenWidth } = useWindowDimensions();
   const screenOptions = React.useMemo(
     () => ({
       ...defaultStackScreenOptions,
@@ -293,8 +294,10 @@ export default function ChatComponent(props: Props): React.Node {
         backgroundColor: colors.tabBarBackground,
         borderBottomWidth: 1,
       },
+      gestureEnabled: true,
+      gestureResponseDistance: screenWidth,
     }),
-    [colors.tabBarBackground, headerLeftButton],
+    [colors.tabBarBackground, headerLeftButton, screenWidth],
   );
 
   const chatThreadListOptions = React.useCallback(

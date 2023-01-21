@@ -1,7 +1,6 @@
 // @flow
 
 import type { IconProps } from '@expo/vector-icons';
-import { GestureHandlerRefContext } from '@react-navigation/stack';
 import * as Haptics from 'expo-haptics';
 import * as React from 'react';
 import { View } from 'react-native';
@@ -243,8 +242,6 @@ function SwipeableMessage(props: Props): React.Node {
   );
 
   const { messageBoxStyle, children } = props;
-  const reactNavGestureHandlerRef = React.useContext(GestureHandlerRefContext);
-  const waitFor = reactNavGestureHandlerRef ?? undefined;
 
   if (!triggerReply && !triggerSidebar) {
     return (
@@ -316,7 +313,6 @@ function SwipeableMessage(props: Props): React.Node {
       onGestureEvent={swipeEvent}
       failOffsetX={isViewer ? 5 : -5}
       failOffsetY={[-5, 5]}
-      waitFor={waitFor}
       key="gesture"
     >
       <Animated.View style={[messageBoxStyle, transformMessageBoxStyle]}>
