@@ -159,6 +159,7 @@ const modalOverlayScreenOptions = {
 const termsAndPrivacyModalScreenOptions = {
   gestureEnabled: false,
   cardOverlayEnabled: true,
+  presentation: 'transparentModal',
 };
 
 export type RootRouterNavigationProp<
