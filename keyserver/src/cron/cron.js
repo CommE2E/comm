@@ -21,6 +21,7 @@ import { deleteInaccessibleThreads } from '../deleters/thread-deleters';
 import { deleteExpiredUpdates } from '../deleters/update-deleters';
 import { deleteUnassignedUploads } from '../deleters/upload-deleters';
 import { backupDB } from './backups';
+import { createDailyUpdatesThread } from './daily-updates';
 import { updateAndReloadGeoipDB } from './update-geoip-db';
 
 if (cluster.isMaster) {
@@ -61,13 +62,29 @@ if (cluster.isMaster) {
     },
   );
   schedule.scheduleJob(
-    '0 3 ? * 0', // every Sunday at 3:00 AM Pacific Time
+    '0 3 ? * 0', // every Sunday at 3:00 AM GMT
     async () => {
       try {
         await updateAndReloadGeoipDB();
       } catch (e) {
         console.warn(
           'encountered error while trying to update GeoIP database',
+          e,
+        );
+      }
+    },
+  );
+  schedule.scheduleJob(
+    '0 0 * * *', // every day at midnight GMT
+    async () => {
+      try {
+        if (process.env.RUN_COMM_TEAM_DEV_SCRIPTS) {
+          // This is a job that the Comm internal team uses
+          await createDailyUpdatesThread();
+        }
+      } catch (e) {
+        console.warn(
+          'encountered error while trying to create daily updates thread',
           e,
         );
       }

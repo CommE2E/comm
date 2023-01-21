@@ -21,6 +21,7 @@ import {
   threadPermissions,
   type ThreadPermission,
 } from 'lib/types/thread-types';
+import { dateString } from 'lib/utils/date-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import {
@@ -317,6 +318,30 @@ async function fetchEntryInfoForLocalID(
   return rawEntryInfoFromRow(result[0]);
 }
 
+function getSunday(weeksFromLastSunday: number) {
+  const date = new Date();
+  const today = date.getDate();
+  const currentDay = date.getDay();
+  const newDate = date.setDate(today - currentDay + 7 * weeksFromLastSunday);
+  return new Date(newDate);
+}
+
+async function fetchEntryInfosForThreadThisWeek(
+  viewer: Viewer,
+  threadID: string,
+): Promise<$ReadOnlyArray<RawEntryInfo>> {
+  const startDate = dateString(getSunday(0));
+  const endDate = dateString(getSunday(1));
+  const filters = [
+    { type: 'not_deleted' },
+    { type: 'threads', threadIDs: [threadID] },
+  ];
+  const { rawEntryInfos } = await fetchEntryInfos(viewer, [
+    { startDate, endDate, filters },
+  ]);
+  return rawEntryInfos;
+}
+
 export {
   fetchEntryInfo,
   fetchEntryInfosByID,
@@ -325,4 +350,5 @@ export {
   fetchEntryRevisionInfo,
   fetchEntriesForSession,
   fetchEntryInfoForLocalID,
+  fetchEntryInfosForThreadThisWeek,
 };
