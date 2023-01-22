@@ -48,7 +48,9 @@ import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
 import AccountSettings from './settings/account-settings.react';
 import DangerZone from './settings/danger-zone.react';
+import AppSwitcher from './sidebar/app-switcher.react';
 import LeftLayoutAside from './sidebar/left-layout-aside.react';
+import SettingsSwitcher from './sidebar/settings-switcher.react';
 import Splash from './splash/splash.react';
 import './typography.css';
 import css from './style.css';
@@ -200,6 +202,13 @@ class App extends React.PureComponent<Props> {
       [css['electron-non-draggable']]: electron,
     });
 
+    let navigationPanel;
+    if (tab === 'settings') {
+      navigationPanel = <SettingsSwitcher />;
+    } else {
+      navigationPanel = <AppSwitcher />;
+    }
+
     return (
       <div className={css.layout}>
         <DisconnectedBarVisibilityHandler />
@@ -232,6 +241,7 @@ class App extends React.PureComponent<Props> {
         </header>
         <InputStateContainer>
           <div className={css['main-content-container']}>
+            <div className={css['topBar']}>{navigationPanel}</div>
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
