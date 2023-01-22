@@ -49,7 +49,7 @@ import history from './router-history';
 import AccountSettings from './settings/account-settings.react';
 import DangerZone from './settings/danger-zone.react';
 import AppSwitcher from './sidebar/app-switcher.react';
-import LeftLayoutAside from './sidebar/left-layout-aside.react';
+import CommunityPicker from './sidebar/community-picker.react';
 import SettingsSwitcher from './sidebar/settings-switcher.react';
 import Splash from './splash/splash.react';
 import './typography.css';
@@ -245,7 +245,9 @@ class App extends React.PureComponent<Props> {
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>
-        <LeftLayoutAside />
+        <div className={css.sidebar}>
+          <CommunityPicker />
+        </div>
       </div>
     );
   }
