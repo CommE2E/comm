@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils';
-import css from './left-layout-aside.css';
+import css from './topbar.css';
 
 type NavigationPanelItemProps = {
   +tab: string,
