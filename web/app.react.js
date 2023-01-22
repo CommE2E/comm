@@ -48,13 +48,13 @@ import VisibilityHandler from './redux/visibility-handler.react';
 import history from './router-history';
 import AccountSettings from './settings/account-settings.react';
 import DangerZone from './settings/danger-zone.react';
-import AppSwitcher from './sidebar/app-switcher.react';
 import CommunityPicker from './sidebar/community-picker.react';
-import SettingsSwitcher from './sidebar/settings-switcher.react';
 import Splash from './splash/splash.react';
 import './typography.css';
 import css from './style.css';
 import getTitle from './title/getTitle';
+import AppSwitcher from './topbar/app-switcher.react';
+import SettingsSwitcher from './topbar/settings-switcher.react';
 import { type NavInfo } from './types/nav-types';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
