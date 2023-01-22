@@ -7,6 +7,7 @@ import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.re
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react';
 import type { ImagePasteModalParams } from '../chat/image-paste-modal.react';
 import type { MessageListParams } from '../chat/message-list-types';
+import type { MessageReactionsModalParams } from '../chat/message-reactions-modal.react';
 import type { MultimediaMessageTooltipModalParams } from '../chat/multimedia-message-tooltip-modal.react';
 import type { RobotextMessageTooltipModalParams } from '../chat/robotext-message-tooltip-modal.react';
 import type { AddUsersModalParams } from '../chat/settings/add-users-modal.react';
@@ -53,6 +54,7 @@ export const ImageModalRouteName = 'ImageModal';
 export const ImagePasteModalRouteName = 'ImagePasteModal';
 export const LoggedOutModalRouteName = 'LoggedOutModal';
 export const MessageListRouteName = 'MessageList';
+export const MessageReactionsModalRouteName = 'MessageReactionsModal';
 export const MultimediaMessageTooltipModalRouteName =
   'MultimediaMessageTooltipModal';
 export const PrivacyPreferencesRouteName = 'PrivacyPreferences';
@@ -85,6 +87,7 @@ export type RootParamList = {
   +ImagePasteModal: ImagePasteModalParams,
   +TermsAndPrivacyModal: TermsAndPrivacyModalParams,
   +SubchannelsListModal: SubchannelListModalParams,
+  +MessageReactionsModal: MessageReactionsModalParams,
 };
 
 export type MessageTooltipRouteNames =
