@@ -111,6 +111,13 @@ div.upper-right {
   right: 0;
   padding: 15px 16px;
 }
+
+.sidebar {
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  grid-area: sBar;
+}
+
 .topBar {
   border-bottom: 1px solid var(--border);
   height: 60px;
