@@ -9,7 +9,6 @@ import {
   RainbowKitProvider,
   useConnectModal,
 } from '@rainbow-me/rainbowkit';
-import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 import { FaEthereum } from 'react-icons/fa';
@@ -17,7 +16,6 @@ import {
   chain,
   configureChains,
   createClient,
-  useAccount,
   useSigner,
   WagmiConfig,
 } from 'wagmi';
@@ -27,25 +25,17 @@ import { publicProvider } from 'wagmi/providers/public';
 import {
   getSIWENonce,
   getSIWENonceActionTypes,
-  siweAuth,
-  siweAuthActionTypes,
 } from 'lib/actions/siwe-actions';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
-import {
-  createSIWEMessage,
-  siweMessageSigningExplanationStatements,
-  siweStatementWithoutPublicKey,
-} from 'lib/utils/siwe-utils.js';
+import { siweMessageSigningExplanationStatements } from 'lib/utils/siwe-utils.js';
 
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
 import { useSelector } from '../redux/redux-utils';
-import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import css from './siwe.css';
 
 // details can be found https://0.6.x.wagmi.sh/docs/providers/configuring-chains
@@ -73,15 +63,12 @@ const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
 );
 function SIWE(): React.Node {
   const { openConnectModal } = useConnectModal();
-  const { address } = useAccount();
   const { data: signer } = useSigner();
   const dispatchActionPromise = useDispatchActionPromise();
   const getSIWENonceCall = useServerCall(getSIWENonce);
   const getSIWENonceCallLoadingStatus = useSelector(
     getSIWENonceLoadingStatusSelector,
   );
-  const siweAuthCall = useServerCall(siweAuth);
-  const logInExtraInfo = useSelector(webLogInExtraInfoSelector);
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
 
@@ -104,40 +91,6 @@ function SIWE(): React.Node {
     [],
   );
 
-  const callSIWEAuthEndpoint = React.useCallback(
-    async (message: string, signature: string, extraInfo) =>
-      siweAuthCall({
-        message,
-        signature,
-        ...extraInfo,
-      }),
-    [siweAuthCall],
-  );
-
-  const attemptSIWEAuth = React.useCallback(
-    (message: string, signature: string) => {
-      const extraInfo = logInExtraInfo();
-      dispatchActionPromise(
-        siweAuthActionTypes,
-        callSIWEAuthEndpoint(message, signature, extraInfo),
-        undefined,
-        ({ calendarQuery: extraInfo.calendarQuery }: LogInStartingPayload),
-      );
-    },
-    [callSIWEAuthEndpoint, dispatchActionPromise, logInExtraInfo],
-  );
-
-  const onSignInButtonClick = React.useCallback(async () => {
-    invariant(siweNonce, 'nonce must be present during SIWE attempt');
-    const message = createSIWEMessage(
-      address,
-      siweStatementWithoutPublicKey,
-      siweNonce,
-    );
-    const signature = await signer.signMessage(message);
-    attemptSIWEAuth(message, signature);
-  }, [address, attemptSIWEAuth, signer, siweNonce]);
-
   let siweLoginForm;
   if (signer && !siweNonce) {
     siweLoginForm = (
@@ -156,7 +109,7 @@ function SIWE(): React.Node {
         </div>
         <p>{siweMessageSigningExplanationStatements[0]}</p>
         <p>{siweMessageSigningExplanationStatements[1]}</p>
-        <Button variant="filled" onClick={onSignInButtonClick}>
+        <Button variant="filled" type="submit" onClick={undefined}>
           Sign in
         </Button>
       </div>
