@@ -26,8 +26,8 @@ services_usage() {
   echo ""
   echo "Commands:"
   echo "  restart - restart services"
-  echo "  start   - start rabbitmq"
-  echo "  stop    - stop rabbitmq"
+  echo "  start   - start localstack and rabbitmq"
+  echo "  stop    - stop localstack and rabbitmq"
   echo ""
 
   exit 1
@@ -41,9 +41,11 @@ services_command() {
       ;;
     start)
       nix run "$COMM_ROOT"#rabbitmq-up
+      nix run "$COMM_ROOT"#localstack-up
       ;;
     stop)
       log "Stopping services"
+      nix run "$COMM_ROOT"#localstack-down
       pkill rabbitmq-server beam.smp
       ;;
     *)
