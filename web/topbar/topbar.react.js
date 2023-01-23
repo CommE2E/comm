@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import type { NavInfo } from '../types/nav-types';
+import AppSwitcher from './app-switcher.react';
 import css from './topbar.css';
 
 type Props = {
@@ -14,7 +15,11 @@ function Topbar(props: Props): React.Node {
     return null;
   }
 
-  return <div className={css.container}>dummy</div>;
+  return (
+    <div className={css.container}>
+      <AppSwitcher />
+    </div>
+  );
 }
 
 const MemoizedTopbar: React.ComponentType<Props> = React.memo<Props>(Topbar);
