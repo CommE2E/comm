@@ -21,6 +21,7 @@ import LoggedOutModal from '../account/logged-out-modal.react';
 import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react';
 import ThreadPickerModal from '../calendar/thread-picker-modal.react';
 import ImagePasteModal from '../chat/image-paste-modal.react';
+import MessageReactionsModal from '../chat/message-reactions-modal.react';
 import AddUsersModal from '../chat/settings/add-users-modal.react';
 import ColorSelectorModal from '../chat/settings/color-selector-modal.react';
 import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.react';
@@ -44,6 +45,7 @@ import {
   ComposeSubchannelModalRouteName,
   SidebarListModalRouteName,
   SubchannelsListModalRouteName,
+  MessageReactionsModalRouteName,
   type ScreenParamList,
   type RootParamList,
   TermsAndPrivacyRouteName,
@@ -234,6 +236,11 @@ function RootComponent(): React.Node {
       <Root.Screen
         name={SubchannelsListModalRouteName}
         component={SubchannelsListModal}
+        options={modalOverlayScreenOptions}
+      />
+      <Root.Screen
+        name={MessageReactionsModalRouteName}
+        component={MessageReactionsModal}
         options={modalOverlayScreenOptions}
       />
     </Root.Navigator>

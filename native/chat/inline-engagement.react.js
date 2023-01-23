@@ -1,5 +1,6 @@
 // @flow
 
+import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import Animated, {
@@ -14,6 +15,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../components/comm-icon.react';
 import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
+import { MessageReactionsModalRouteName } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import {
@@ -34,13 +36,56 @@ function InlineEngagement(props: Props): React.Node {
   const repliesText = useInlineEngagementText(threadInfo);
 
   const navigateToThread = useNavigateToThread();
-  const onPress = React.useCallback(() => {
+  const { navigate } = useNavigation();
+
+  const styles = useStyles(unboundStyles);
+
+  const unreadStyle = threadInfo?.currentUser.unread ? styles.unread : null;
+  const repliesStyles = React.useMemo(() => [styles.repliesText, unreadStyle], [
+    styles.repliesText,
+    unreadStyle,
+  ]);
+
+  const onPressThread = React.useCallback(() => {
     if (threadInfo && !disabled) {
       navigateToThread({ threadInfo });
     }
   }, [disabled, navigateToThread, threadInfo]);
 
-  const styles = useStyles(unboundStyles);
+  const sidebarItem = React.useMemo(() => {
+    if (!threadInfo) {
+      return null;
+    }
+    return (
+      <GestureTouchableOpacity
+        onPress={onPressThread}
+        activeOpacity={0.7}
+        style={styles.sidebar}
+      >
+        <CommIcon style={styles.icon} size={14} name="sidebar-filled" />
+        <Text style={repliesStyles}>{repliesText}</Text>
+      </GestureTouchableOpacity>
+    );
+  }, [
+    threadInfo,
+    onPressThread,
+    styles.sidebar,
+    styles.icon,
+    repliesStyles,
+    repliesText,
+  ]);
+
+  const onPressReactions = React.useCallback(() => {
+    navigate<'MessageReactionsModal'>({
+      name: MessageReactionsModalRouteName,
+      params: { reactions },
+    });
+  }, [navigate, reactions]);
+
+  const marginLeft = React.useMemo(
+    () => (sidebarItem ? styles.reactionMarginLeft : null),
+    [sidebarItem, styles.reactionMarginLeft],
+  );
 
   const reactionList = React.useMemo(() => {
     if (!reactions || reactions.size === 0) {
@@ -50,37 +95,27 @@ function InlineEngagement(props: Props): React.Node {
     const reactionText = stringForReactionList(reactions);
     const reactionItems = <Text style={styles.reaction}>{reactionText}</Text>;
 
-    return <View style={styles.reactionsContainer}>{reactionItems}</View>;
-  }, [reactions, styles.reaction, styles.reactionsContainer]);
-
-  const unreadStyle = threadInfo?.currentUser.unread ? styles.unread : null;
-  const marginRight = reactionList ? styles.repliesMarginRight : null;
-  const repliesStyles = React.useMemo(
-    () => [marginRight, styles.repliesText, unreadStyle],
-    [marginRight, styles.repliesText, unreadStyle],
-  );
-  const noThreadInfo = !threadInfo;
-  const sidebarInfo = React.useMemo(() => {
-    if (noThreadInfo) {
-      return null;
-    }
     return (
-      <>
-        <CommIcon style={styles.icon} size={14} name="sidebar-filled" />
-        <Text style={repliesStyles}>{repliesText}</Text>
-      </>
+      <GestureTouchableOpacity
+        style={[styles.reactionsContainer, marginLeft]}
+        onPress={onPressReactions}
+        activeOpacity={0.7}
+      >
+        {reactionItems}
+      </GestureTouchableOpacity>
     );
-  }, [noThreadInfo, styles.icon, repliesStyles, repliesText]);
+  }, [
+    marginLeft,
+    onPressReactions,
+    reactions,
+    styles.reaction,
+    styles.reactionsContainer,
+  ]);
+
   return (
     <View style={styles.container}>
-      <GestureTouchableOpacity
-        onPress={onPress}
-        activeOpacity={0.7}
-        style={styles.sidebar}
-      >
-        {sidebarInfo}
-        {reactionList}
-      </GestureTouchableOpacity>
+      {sidebarItem}
+      {reactionList}
     </View>
   );
 }
@@ -89,8 +124,11 @@ const unboundStyles = {
   container: {
     flexDirection: 'row',
     height: inlineEngagementStyle.height,
-    display: 'flex',
     borderRadius: 16,
+    backgroundColor: 'inlineEngagementBackground',
+    alignSelf: 'baseline',
+    alignItems: 'center',
+    padding: 8,
   },
   unread: {
     color: 'listForegroundLabel',
@@ -98,13 +136,7 @@ const unboundStyles = {
   },
   sidebar: {
     flexDirection: 'row',
-    display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'inlineEngagementBackground',
-    padding: 8,
-    borderRadius: 16,
-    height: inlineEngagementStyle.height,
   },
   icon: {
     color: 'inlineEngagementLabel',
@@ -115,17 +147,18 @@ const unboundStyles = {
     fontSize: 14,
     lineHeight: 22,
   },
-  repliesMarginRight: {
-    marginRight: 12,
-  },
   reaction: {
-    marginLeft: 4,
     color: 'inlineEngagementLabel',
+    fontSize: 14,
+    lineHeight: 22,
+  },
+  reactionMarginLeft: {
+    marginLeft: 12,
   },
   reactionsContainer: {
     display: 'flex',
     flexDirection: 'row',
-    marginLeft: -4,
+    alignItems: 'center',
   },
 };
 
