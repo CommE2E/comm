@@ -24,11 +24,7 @@
   background: var(--thread-active-bg);
 }
 
-.activeThread :is(div.dark, .lastMessage span.read, .title) {
-  color: var(--chat-thread-list-color-active);
-}
-
-.activeThread .lastMessage.read {
+.activeThread :is(.title, .lastMessage, .lastMessage *) {
   color: var(--chat-thread-list-color-active);
 }
 
@@ -116,30 +112,26 @@ div.lastActivity {
 }
 
 div.lastMessage {
-  font-size: 16px;
+  font-size: var(--s-font-14);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: var(--line-height-text);
   padding-bottom: 8px;
 }
-div.threadRow > .lastMessage {
-  color: var(--thread-last-message-color-read);
-  font-size: var(--s-font-14);
-}
 div.unread {
   color: var(--fg);
   font-weight: var(--semi-bold);
-}
-div.lastMessage.unread {
-  color: var(--fg);
 }
 div.dark {
   color: var(--thread-color-read);
   padding-right: 16px;
 }
-.read {
-  color: var(--thread-from-color-read);
+.messagePreviewPrimary {
+  color: var(--thread-color-read);
+}
+.messagePreviewSecondary {
+  color: var(--thread-preview-secondary);
 }
 div.dotContainer {
   display: flex;

@@ -95,8 +95,7 @@
   --breadcrumb-color-unread: var(--shades-white-60);
   --btn-outline-border: var(--shades-black-60);
   --thread-color-read: var(--shades-black-60);
-  --thread-from-color-read: var(--shades-black-80);
-  --thread-last-message-color-read: var(--shades-black-60);
+  --thread-preview-secondary: var(--shades-black-80);
   --relationship-button-green: var(--success-dark-50);
   --relationship-button-red: var(--error-primary);
   --relationship-button-text: var(--fg);

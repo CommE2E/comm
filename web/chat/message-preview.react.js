@@ -1,6 +1,7 @@
 // @flow
 
 import classNames from 'classnames';
+import invariant from 'invariant';
 import * as React from 'react';
 
 import { getMessagePreview } from 'lib/shared/message-utils';
@@ -15,15 +16,9 @@ type Props = {
   +threadInfo: ThreadInfo,
 };
 function MessagePreview(props: Props): React.Node {
-  const {
-    messageInfo: originalMessageInfo,
-    threadInfo,
-    threadInfo: {
-      currentUser: { unread },
-    },
-  } = props;
+  const { messageInfo, threadInfo } = props;
 
-  if (!originalMessageInfo) {
+  if (!messageInfo) {
     return (
       <div className={classNames(css.lastMessage, css.dark, css.italic)}>
         No messages
@@ -32,19 +27,45 @@ function MessagePreview(props: Props): React.Node {
   }
 
   const { message, username } = getMessagePreview(
-    originalMessageInfo,
+    messageInfo,
     threadInfo,
     getDefaultTextMessageRules().simpleMarkdownRules,
   );
 
   let usernameText = null;
-  const colorStyle = unread ? css.unread : css.read;
   if (username) {
-    usernameText = <span className={colorStyle}>{`${username.text}: `}</span>;
+    let usernameStyle;
+    if (username.style === 'unread') {
+      usernameStyle = css.unread;
+    } else if (username.style === 'secondary') {
+      usernameStyle = css.messagePreviewSecondary;
+    }
+    invariant(
+      usernameStyle,
+      `MessagePreview doesn't support ${username.style} style for username, ` +
+        'only unread and secondary',
+    );
+    usernameText = (
+      <span className={usernameStyle}>{`${username.text}: `}</span>
+    );
   }
 
+  let messageStyle;
+  if (message.style === 'unread') {
+    messageStyle = css.unread;
+  } else if (message.style === 'primary') {
+    messageStyle = css.messagePreviewPrimary;
+  } else if (message.style === 'secondary') {
+    messageStyle = css.messagePreviewSecondary;
+  }
+  invariant(
+    messageStyle,
+    `MessagePreview doesn't support ${message.style} style for message, ` +
+      'only unread, primary, and secondary',
+  );
+
   return (
-    <div className={classNames(css.lastMessage, colorStyle)}>
+    <div className={classNames(css.lastMessage, messageStyle)}>
       {usernameText}
       {message.text}
     </div>
