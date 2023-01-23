@@ -23,7 +23,6 @@ function MessagePreview(props: Props): React.Node {
     },
   } = props;
 
-  const colorStyle = unread ? css.unread : css.read;
   if (!originalMessageInfo) {
     return (
       <div className={classNames(css.lastMessage, css.dark, css.italic)}>
@@ -32,21 +31,22 @@ function MessagePreview(props: Props): React.Node {
     );
   }
 
-  const { message: messageTitle, username } = getMessagePreview(
+  const { message, username } = getMessagePreview(
     originalMessageInfo,
     threadInfo,
     getDefaultTextMessageRules().simpleMarkdownRules,
   );
 
   let usernameText = null;
+  const colorStyle = unread ? css.unread : css.read;
   if (username) {
-    usernameText = <span className={colorStyle}>{`${username}: `}</span>;
+    usernameText = <span className={colorStyle}>{`${username.text}: `}</span>;
   }
 
   return (
     <div className={classNames(css.lastMessage, colorStyle)}>
       {usernameText}
-      {messageTitle}
+      {message.text}
     </div>
   );
 }

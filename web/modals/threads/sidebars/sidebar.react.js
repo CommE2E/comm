@@ -52,7 +52,9 @@ function Sidebar(props: Props): React.Node {
       threadInfo,
       getDefaultTextMessageRules().simpleMarkdownRules,
     );
-    const previewText = username ? `${username}: ${message}` : message;
+    const previewText = username
+      ? `${username.text}: ${message.text}`
+      : message.text;
     return (
       <>
         <div className={css.longTextEllipsis}>{previewText}</div>
