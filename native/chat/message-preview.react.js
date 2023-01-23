@@ -4,17 +4,8 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text } from 'react-native';
 
-import { getMessageTitle } from 'lib/shared/message-utils';
-import { threadIsGroupChat } from 'lib/shared/thread-utils';
-import { stringForUser } from 'lib/shared/user-utils';
-import {
-  type MessageInfo,
-  messageTypes,
-  type MessageType,
-  type ComposableMessageInfo,
-  type RobotextMessageInfo,
-} from 'lib/types/message-types';
-import type { ReactionMessageInfo } from 'lib/types/messages/reaction';
+import { getMessagePreview } from 'lib/shared/message-utils';
+import { type MessageInfo } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
 import { SingleLine } from '../components/single-line.react';
@@ -26,69 +17,68 @@ type Props = {
   +threadInfo: ThreadInfo,
 };
 function MessagePreview(props: Props): React.Node {
-  const styles = useStyles(unboundStyles);
-  const messageInfo:
-    | ComposableMessageInfo
-    | RobotextMessageInfo
-    | ReactionMessageInfo =
-    props.messageInfo.type === messageTypes.SIDEBAR_SOURCE
-      ? props.messageInfo.sourceMessage
-      : props.messageInfo;
-  const unreadStyle = props.threadInfo.currentUser.unread
-    ? styles.unread
-    : null;
-  const messageTitle = getMessageTitle(
+  const { messageInfo, threadInfo } = props;
+  const { message, username } = getMessagePreview(
     messageInfo,
-    props.threadInfo,
+    threadInfo,
     getDefaultTextMessageRules().simpleMarkdownRules,
   );
-  if (messageInfo.type === messageTypes.TEXT) {
-    let usernameText = null;
-    if (
-      threadIsGroupChat(props.threadInfo) ||
-      props.threadInfo.name !== '' ||
-      messageInfo.creator.isViewer
-    ) {
-      const userString = stringForUser(messageInfo.creator);
-      const username = `${userString}: `;
-      usernameText = (
-        <Text style={[styles.username, unreadStyle]}>{username}</Text>
-      );
-    }
+
+  let messageStyle;
+  const styles = useStyles(unboundStyles);
+  if (message.style === 'unread') {
+    messageStyle = styles.unread;
+  } else if (message.style === 'primary') {
+    messageStyle = styles.primary;
+  } else if (message.style === 'secondary') {
+    messageStyle = styles.secondary;
+  }
+  invariant(
+    messageStyle,
+    `MessagePreview doesn't support ${message.style} style for message, ` +
+      'only unread, primary, and secondary',
+  );
+
+  if (!username) {
     return (
-      <Text style={[styles.lastMessage, unreadStyle]} numberOfLines={1}>
-        {usernameText}
-        {messageTitle}
-      </Text>
-    );
-  } else {
-    const messageType: MessageType = messageInfo.type;
-    invariant(
-      messageType !== messageTypes.SIDEBAR_SOURCE,
-      'Sidebar source should not be handled here',
-    );
-    return (
-      <SingleLine style={[styles.lastMessage, styles.preview, unreadStyle]}>
-        {messageTitle}
+      <SingleLine style={[styles.lastMessage, messageStyle]}>
+        {message.text}
       </SingleLine>
     );
   }
+
+  let usernameStyle;
+  if (username.style === 'unread') {
+    usernameStyle = styles.unread;
+  } else if (username.style === 'secondary') {
+    usernameStyle = styles.secondary;
+  }
+  invariant(
+    usernameStyle,
+    `MessagePreview doesn't support ${username.style} style for username, ` +
+      'only unread and secondary',
+  );
+  return (
+    <Text style={[styles.lastMessage, messageStyle]} numberOfLines={1}>
+      <Text style={usernameStyle}>{`${username.text}: `}</Text>
+      {message.text}
+    </Text>
+  );
 }
 
 const unboundStyles = {
   lastMessage: {
-    color: 'listForegroundTertiaryLabel',
     flex: 1,
     fontSize: 14,
   },
-  preview: {
+  primary: {
+    color: 'listForegroundTertiaryLabel',
+  },
+  secondary: {
     color: 'listForegroundQuaternaryLabel',
   },
   unread: {
     color: 'listForegroundLabel',
-  },
-  username: {
-    color: 'listForegroundQuaternaryLabel',
   },
 };
 
