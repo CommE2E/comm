@@ -5,7 +5,8 @@ import * as React from 'react';
 
 import type { AppState } from '../redux/redux-setup.js';
 import { useSelector } from '../redux/redux-utils';
-import css from './left-layout-aside.css';
+import horizontalCSS from '../topbar/topbar.css';
+import verticalCSS from './left-layout-aside.css';
 
 type NavigationPanelItemProps = {
   +tab: string,
@@ -20,13 +21,15 @@ function NavigationPanelItem(props: NavigationPanelItemProps): React.Node {
 type NavigationPanelContainerProps<T> = {
   +tabSelector: AppState => T,
   +children: React.ChildrenArray<?React.Element<typeof NavigationPanelItem>>,
+  +horizontal?: boolean,
 };
 
 function NavigationPanelContainer<T>(
   props: NavigationPanelContainerProps<T>,
 ): React.Node {
-  const { children, tabSelector } = props;
+  const { children, tabSelector, horizontal = false } = props;
   const currentTab = useSelector(tabSelector);
+  const css = horizontal ? horizontalCSS : verticalCSS;
 
   const items = React.useMemo(
     () =>
@@ -45,7 +48,7 @@ function NavigationPanelContainer<T>(
           </div>
         );
       }),
-    [children, currentTab],
+    [children, css.current_tab, currentTab],
   );
 
   return <div className={css.navigationPanelContainer}>{items}</div>;
