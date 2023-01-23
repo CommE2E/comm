@@ -84,10 +84,18 @@ function SIWE(): React.Node {
   const logInExtraInfo = useSelector(webLogInExtraInfoSelector);
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
+  const [
+    hasSIWEButtonBeenClicked,
+    setHasSIWEButtonBeenClicked,
+  ] = React.useState<boolean>(false);
+
+  const siweNonceShouldBeFetched =
+    !siweNonce &&
+    getSIWENonceCallLoadingStatus !== 'loading' &&
+    (signer || hasSIWEButtonBeenClicked);
 
   React.useEffect(() => {
-    if (!signer) {
-      setSIWENonce(null);
+    if (!siweNonceShouldBeFetched) {
       return;
     }
     dispatchActionPromise(
@@ -97,7 +105,7 @@ function SIWE(): React.Node {
         setSIWENonce(response);
       })(),
     );
-  }, [dispatchActionPromise, getSIWENonceCall, signer]);
+  }, [dispatchActionPromise, getSIWENonceCall, siweNonceShouldBeFetched]);
 
   const siweButtonColor = React.useMemo(
     () => ({ backgroundColor: 'white', color: 'black' }),
@@ -164,6 +172,7 @@ function SIWE(): React.Node {
   }
 
   const onSIWEButtonClick = React.useCallback(() => {
+    setHasSIWEButtonBeenClicked(true);
     openConnectModal && openConnectModal();
   }, [openConnectModal]);
 
