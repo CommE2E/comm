@@ -39,7 +39,6 @@
 , shellcheck
 , sqlite
 , terraform
-, watchman
 , rustfmt
 , yarn
 }:
@@ -61,7 +60,6 @@ mkShell {
     mariadb
     nodejs-16_x-openssl_1_1
     yarn
-    watchman # react native
     python3
     redis
 
