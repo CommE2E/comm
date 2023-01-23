@@ -39,7 +39,6 @@
 , shellcheck
 , sqlite
 , terraform
-, watchman
 , rustfmt
 , yarn
 }:
@@ -61,7 +60,6 @@ mkShell {
     mariadb
     nodejs-16_x-openssl_1_1
     yarn
-    watchman # react native
     python3
     redis
 
@@ -137,6 +135,8 @@ mkShell {
     wait "$mariadb_pid" "$redis_pid"
 
     ${../scripts}/install_homebrew_macos.sh
+
+    ${../scripts}/install_homebrew_deps.sh watchman
 
     ${../scripts}/prompt_direnv_macos.sh
   '' + ''
