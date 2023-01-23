@@ -205,7 +205,7 @@ async function createAccount(
 
 export type ProcessSIWEAccountCreationRequest = {
   +address: string,
-  +calendarQuery?: ?CalendarQuery,
+  +calendarQuery: CalendarQuery,
   +deviceTokenUpdateRequest?: ?DeviceTokenUpdateRequest,
   +platformDetails: PlatformDetails,
   +primaryIdentityPublicKey: ?string,
@@ -217,12 +217,8 @@ async function processSIWEAccountCreation(
   viewer: Viewer,
   request: ProcessSIWEAccountCreationRequest,
 ): Promise<string> {
-  const promises = [];
-
   const { calendarQuery } = request;
-  if (calendarQuery) {
-    promises.push(verifyCalendarQueryThreadIDs(calendarQuery));
-  }
+  await verifyCalendarQueryThreadIDs(calendarQuery);
 
   const time = Date.now();
   const deviceToken = request.deviceTokenUpdateRequest
@@ -246,9 +242,7 @@ async function processSIWEAccountCreation(
   ]);
   viewer.setNewCookie(userViewerData);
 
-  if (calendarQuery) {
-    await setNewSession(viewer, calendarQuery, 0);
-  }
+  await setNewSession(viewer, calendarQuery, 0);
 
   await Promise.all([
     updateThread(

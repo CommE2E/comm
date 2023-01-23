@@ -409,10 +409,11 @@ async function siweAuthResponder(
   if (!userID) {
     const siweAccountCreationRequest = {
       address: siweMessage.address,
-      deviceTokenUpdateRequest: deviceTokenUpdateRequest,
+      calendarQuery,
+      deviceTokenUpdateRequest,
       platformDetails,
-      primaryIdentityPublicKey: primaryIdentityPublicKey,
-      socialProof: socialProof,
+      primaryIdentityPublicKey,
+      socialProof,
     };
     userID = await processSIWEAccountCreation(
       viewer,
