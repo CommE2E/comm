@@ -53,6 +53,7 @@ import Splash from './splash/splash.react';
 import './typography.css';
 import css from './style.css';
 import getTitle from './title/getTitle';
+import Topbar from './topbar/topbar.react';
 import { type NavInfo } from './types/nav-types';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
 
@@ -232,6 +233,7 @@ class App extends React.PureComponent<Props> {
         </header>
         <InputStateContainer>
           <div className={css['main-content-container']}>
+            <Topbar navInfo={this.props.navInfo} />
             <div className={css['main-content']}>{mainContent}</div>
           </div>
         </InputStateContainer>

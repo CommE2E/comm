@@ -97,6 +97,7 @@ div.main-content-container {
   grid-area: app;
   display: flex;
   overflow: hidden;
+  flex-direction: column;
 }
 div.main-content {
   display: flex;
