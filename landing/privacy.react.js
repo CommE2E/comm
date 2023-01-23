@@ -10,7 +10,7 @@ function Privacy(): React.Node {
       <h1>Privacy Policy</h1>
 
       <p>
-        Effective date: <strong>June 29, 2021</strong>
+        Effective date: <strong>February 2, 2023</strong>
       </p>
 
       <h2>Introduction</h2>
@@ -22,9 +22,9 @@ function Privacy(): React.Node {
         messages transmitted through the platform are encrypted, preventing us
         from being able to access their contents. While Comm does collect a
         minimal amount of information as necessary to power and maintain the
-        Services, Comm will never be able to access or view your messages or
-        content. This Privacy Policy describes the limited ways in which Comm
-        uses information in connection with its Services.
+        Services, Comm will never be able to access or view the substance of
+        your Content. This Privacy Policy describes the limited ways in which
+        Comm uses information in connection with its Services.
       </p>
 
       <p>
@@ -39,6 +39,9 @@ function Privacy(): React.Node {
       <ul>
         <li>
           <strong>Information We Collect</strong>
+        </li>
+        <li>
+          <strong>Public Blockchain Information</strong>
         </li>
         <li>
           <strong>How We May Share Your Information</strong>
@@ -73,18 +76,50 @@ function Privacy(): React.Node {
       <ol>
         <li>
           <strong>Account Information.</strong> In order to use Comm, you will
-          be required to create an account, and in doing so, will be required to
+          be required to create an account, and in doing so, may be required to
           provide a username and password to us. We only store salted and hashed
           versions of your password – we never store the plaintext version. No
           other information is required to create an account and we do not want
           you to provide any other information.
         </li>
         <li>
+          <strong>Blockchain Account Information.</strong> You may instead
+          choose to log into Comm using a third-party blockchain provider (such
+          as, Sign-In with Ethereum or similar functionality), in which case you
+          will be required to provide your blockchain address to us. The only
+          information we collect as part of this process is information that is
+          already publicly available.
+        </li>
+        <li>
+          <strong>Backup Service.</strong> You have the option to back up your
+          Content on Comm’s hosted servers, allowing you to recover any
+          backed-up Content. If you do not opt out of the backup service, your
+          Content will be stored in our automated backup service.{' '}
+          <strong>
+            Your Content will always remain end-to-end encrypted, even when
+            stored through our backup service.
+          </strong>{' '}
+          You may recover your backed-up Content through an automatic recovery
+          process available through your account. If you request your Content,
+          Comm will verify your identity cryptographically to verify that the
+          Content you are requesting belongs to you; however, such request will
+          not allow Comm to collect or view any information that is not already
+          outlined in this Privacy Policy and your backed-up Content will only
+          be associated with your account. The backup service only allows Comm
+          to collect encrypted versions of your Content – at no point will Comm
+          have the ability to access or view the substance of your Content nor
+          will Comm ever have the ability to decrypt your Content collected
+          through the backup service. You may opt-out of this backup service at
+          any time by doing so within the app.
+        </li>
+        <li>
           <strong>Updates About the Services.</strong> If you choose to receive
           updates on Comm’s progress, you will be required to provide your email
-          address to us. These email addresses will not be associated with any
-          accounts, and will not be used for any purpose other than to provide
-          updates on Comm.
+          address to us. If you choose to send any emails to us in response to
+          such updates or otherwise, we may collect the content of such emails.
+          These email addresses, and any emails received from you, will not be
+          associated with any accounts, and will not be used for any purpose
+          other than to provide updates on Comm and to otherwise respond to you.
         </li>
         <li>
           <strong>Time Zone Detection.</strong> When responding to a web
@@ -104,6 +139,15 @@ function Privacy(): React.Node {
           export control laws and regulations.
         </li>
         <li>
+          <strong>Optimizing the Services.</strong> In order to optimize the
+          Services provided to you, we keep track of which version of Comm’s
+          code you are running as well as the platform that you are using to run
+          Comm’s code (e.g., iOS, Android, web server, keyserver). We only
+          collect this information to provide the Services to you, and are not
+          able to access or view the substance of your Content in connection
+          with such collection.
+        </li>
+        <li>
           <strong>Crash Reports.</strong> If you choose to send us a crash
           report, we may collect data from such reports for purposes of
           debugging and system maintenance. These reports contain operational
@@ -117,10 +161,9 @@ function Privacy(): React.Node {
           <strong>Push Notifications.</strong> If you choose to allow push
           notifications to your device, your device’s operating system’s
           provider will know that you are using the Services and may be able to
-          see the content of the messages you transmit using the Services. We
-          only collect push tokens required to send you such notifications and
-          these tokens do not permit us to access or view the content of your
-          messages.
+          see the Content you transmit using the Services. We only collect push
+          tokens required to send you such notifications and these tokens do not
+          permit us to access or view your Content.
         </li>
         <li>
           <strong>Contact List.</strong> If you allow us to do so, we can
@@ -140,11 +183,19 @@ function Privacy(): React.Node {
           cookies, you will not be able to stay logged into Comm.
         </li>
         <li>
-          <strong>Content.</strong> Other Comm users may have access to all or
-          some of the Content owned by you.{' '}
+          <strong>Bots.</strong> We may communicate with you through the
+          Services by using bots, and we will have access to any information you
+          voluntarily provide in response to those bots. We only collect this
+          information to provide the Services to you, and are not able to access
+          or view the substance of any other Content in connection with such
+          collection.
+        </li>
+        <li>
+          <strong>Content.</strong> Other Comm users may have access to, and
+          have the ability to store, all or some of the Content owned by you.{' '}
           <strong>
             However, as this Content is end-to-end encrypted, we have no ability
-            to access, view or control your Content.
+            to access or view the substance of your Content.
           </strong>{' '}
           For more information on how Comm works, please{' '}
           <a href="https://www.notion.so/How-Comm-works-d6217941db7c4237b9d08b427aef3234">
@@ -164,14 +215,43 @@ function Privacy(): React.Node {
         </li>
       </ol>
 
+      <h2>Public Blockchain Information</h2>
+
+      <p>
+        Information posted on a blockchain is publicly available and auditable.
+        When you and other users use the Services, Comm’s applications will
+        automatically make calls to third-party blockchain providers using
+        users’ blockchain addresses (including yours) to access publicly
+        available information about those blockchain addresses (e.g., ENS name,
+        ENS avatar). Such publicly available information will then be displayed
+        through the Services to you and/or other Comm users. This information is
+        not shared or stored by Comm, and the only information accessible and
+        displayed is information that is publicly available on the blockchain.
+      </p>
+
+      <p>
+        Additionally, if you choose to use Comm’s applications, third-party
+        blockchain providers may also have access to your IP address. While your
+        IP address is not shared by Comm, it is automatically accessible by such
+        providers through your use of Comm’s applications, regardless of whether
+        you intend to make such information available. This access is required
+        in order to allow Comm users to make calls to third-party blockchain
+        providers, and Comm has no control over what such third-party blockchain
+        provider may do with your IP address.
+      </p>
+
       <h2>How We May Share Your Information</h2>
 
       <p>
-        We have no access to your Content and therefore have no ability to share
-        it. As for the very limited information we do collect, we would{' '}
-        <strong>never</strong> sell, rent or monetize that information. However,
-        we may share this information with third parties for the following
-        reasons:
+        We may share the information we collect with third parties for the
+        reasons listed below.{' '}
+        <strong>
+          However, your Content will always remain end-to-end encrypted, even
+          when stored in the backup service, and Comm has no ability to decrypt
+          that information for any third party.{' '}
+        </strong>
+        Moreover, we will <strong>never</strong> sell, rent or monetize your
+        information.
       </p>
 
       <ol>
@@ -191,12 +271,32 @@ function Privacy(): React.Node {
         </li>
       </ol>
 
+      <p>
+        While sharing your email address is entirely optional, if you do choose
+        to share it, we may share that email address, and the contents of any
+        email sent by us or you, with our third-party service providers who may
+        assist us in providing updates to you. Such information would be shared
+        with such third-party service providers for the sole purpose of
+        providing you updates on Comm, and will never be associated with your
+        account or sold, rented or otherwise monetized.
+      </p>
+
+      <p>
+        Additionally, Comm uses third-party hosting providers to host its
+        central cloud servers, therefore we may share the information we collect
+        with such hosting providers in order for them to host this information.
+        This information will be shared with such hosting providers for the sole
+        purpose of providing the Services to you, and your Content will always
+        remain end-to-end encrypted when shared with such hosting providers,
+        even when stored in the backup service.
+      </p>
+
       <h2>Retention of Information</h2>
 
       <p>
         For any of your personal information that we collect, we retain such
         personal information for as long as you have an open account with us or,
-        only with respect to the association between your username and public
+        only with respect to the association between your account and public
         key, as otherwise necessary to provide our Services.
       </p>
 
@@ -211,7 +311,7 @@ function Privacy(): React.Node {
 
       <ol>
         <li>
-          <strong>Access.</strong> You can request more information about the
+          <strong>Access.</strong> YYou can request more information about the
           personal data we hold about you and request a copy of such personal
           data.
         </li>
@@ -272,6 +372,11 @@ function Privacy(): React.Node {
         Termination of your account may or may not result in destruction of
         Content associated with your account, and other Comm users may continue
         to have access to and control over your Content.
+      </p>
+
+      <p>
+        If you would like to delete any backed-up Content from our backup
+        service, you may do so at any time by making a request within the app.
       </p>
 
       <h2>Changes to this Privacy Policy</h2>
