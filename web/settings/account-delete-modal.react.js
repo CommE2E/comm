@@ -10,6 +10,7 @@ import {
 import { useModalContext } from 'lib/components/modal-provider.react';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { accountHasPassword } from 'lib/shared/account-utils.js';
 import type { LogOutResult } from 'lib/types/account-types';
 import type { PreRequestUserState } from 'lib/types/session-types';
 import type { DispatchActionPromise } from 'lib/utils/action-utils';
@@ -26,17 +27,18 @@ import SWMansionIcon from '../SWMansionIcon.react.js';
 import css from './account-delete-modal.css';
 
 type Props = {
+  +isAccountWithPassword: boolean,
   +preRequestUserState: PreRequestUserState,
   +inputDisabled: boolean,
   +dispatchActionPromise: DispatchActionPromise,
   +deleteAccount: (
-    password: string,
+    password: ?string,
     preRequestUserState: PreRequestUserState,
   ) => Promise<LogOutResult>,
   +popModal: () => void,
 };
 type State = {
-  +currentPassword: string,
+  +currentPassword: ?string,
   +errorMessage: string,
 };
 
@@ -46,14 +48,17 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      currentPassword: '',
+      currentPassword: props.isAccountWithPassword ? '' : null,
       errorMessage: '',
     };
   }
 
   componentDidMount() {
-    invariant(this.currentPasswordInput, 'newPasswordInput ref unset');
-    this.currentPasswordInput.focus();
+    invariant(
+      !this.props.isAccountWithPassword || this.currentPasswordInput,
+      'newPasswordInput ref unset',
+    );
+    this.currentPasswordInput?.focus();
   }
 
   render() {
@@ -66,6 +71,31 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
       );
     }
 
+    let passwordConfirmation;
+    if (this.props.isAccountWithPassword) {
+      invariant(
+        this.state.currentPassword !== null &&
+          this.state.currentPassword !== undefined,
+        'currentPassword must be set if isAccountWithPassword',
+      );
+      passwordConfirmation = (
+        <>
+          <p className={css.confirm_password}>
+            Please enter your account password to confirm your identity.
+          </p>
+          <p className={css.form_title}>Account password</p>
+          <Input
+            type="password"
+            placeholder="Password"
+            value={this.state.currentPassword}
+            onChange={this.onChangeCurrentPassword}
+            disabled={inputDisabled}
+            ref={this.currentPasswordInputRef}
+          />
+        </>
+      );
+    }
+
     return (
       <Modal name="Delete Account" onClose={this.props.popModal} size="large">
         <div className={css.modal_body}>
@@ -75,18 +105,9 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
               Your account will be permanently deleted. There is no way to
               reverse this.
             </p>
-            <p className={css.confirm_password}>
-              Please enter your account password to confirm your identity.
-            </p>
-            <p className={css.form_title}>Account password</p>
-            <Input
-              type="password"
-              placeholder="Password"
-              value={this.state.currentPassword}
-              onChange={this.onChangeCurrentPassword}
-              disabled={inputDisabled}
-              ref={this.currentPasswordInputRef}
-            />
+
+            {passwordConfirmation}
+
             <div className={css.form_footer}>
               <Button
                 variant="filled"
@@ -94,7 +115,9 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
                 type="submit"
                 onClick={this.onDelete}
                 disabled={
-                  inputDisabled || this.state.currentPassword.length === 0
+                  inputDisabled ||
+                  (this.props.isAccountWithPassword &&
+                    this.state.currentPassword?.length === 0)
                 }
               >
                 Delete Account
@@ -140,15 +163,15 @@ class AccountDeleteModal extends React.PureComponent<Props, State> {
           : 'unknown error';
       this.setState(
         {
-          currentPassword: '',
+          currentPassword: this.props.isAccountWithPassword ? '' : null,
           errorMessage: errorMessage,
         },
         () => {
           invariant(
-            this.currentPasswordInput,
+            !this.props.isAccountWithPassword || this.currentPasswordInput,
             'currentPasswordInput ref unset',
           );
-          this.currentPasswordInput.focus();
+          this.currentPasswordInput?.focus();
         },
       );
       throw e;
@@ -162,6 +185,9 @@ const deleteAccountLoadingStatusSelector = createLoadingStatusSelector(
 
 const ConnectedAccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
   function ConnectedAccountDeleteModal(): React.Node {
+    const isAccountWithPassword = useSelector(state =>
+      accountHasPassword(state.currentUserInfo),
+    );
     const preRequestUserState = useSelector(preRequestUserStateSelector);
     const inputDisabled = useSelector(
       state => deleteAccountLoadingStatusSelector(state) === 'loading',
@@ -173,6 +199,7 @@ const ConnectedAccountDeleteModal: React.ComponentType<{}> = React.memo<{}>(
 
     return (
       <AccountDeleteModal
+        isAccountWithPassword={isAccountWithPassword}
         preRequestUserState={preRequestUserState}
         inputDisabled={inputDisabled}
         deleteAccount={callDeleteAccount}
