@@ -185,9 +185,11 @@ class Socket {
     let clientSocketMessage: ?ClientSocketMessage;
     try {
       this.resetTimeout();
-      const message = JSON.parse(messageString);
-      checkInputValidator(clientSocketMessageInputValidator, message);
-      clientSocketMessage = message;
+      clientSocketMessage = JSON.parse(messageString);
+      checkInputValidator(
+        clientSocketMessageInputValidator,
+        clientSocketMessage,
+      );
       if (clientSocketMessage.type === clientSocketMessageTypes.INITIAL) {
         if (this.viewer) {
           // This indicates that the user sent multiple INITIAL messages.
