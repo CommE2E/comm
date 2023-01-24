@@ -46,7 +46,8 @@
     "tokenize-text": "^1.1.3",
     "url-parse-lax": "^3.0.0",
     "util-inspect": "^0.1.8",
-    "utils-copy-error": "^1.0.1"
+    "utils-copy-error": "^1.0.1",
+    "wagmi": "^0.6.0"
   },
   "jest": {
     "transform": {

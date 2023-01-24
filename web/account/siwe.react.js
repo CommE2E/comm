@@ -13,16 +13,7 @@ import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 import { FaEthereum } from 'react-icons/fa';
-import {
-  chain,
-  configureChains,
-  createClient,
-  useAccount,
-  useSigner,
-  WagmiConfig,
-} from 'wagmi';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
+import { useAccount, useSigner, WagmiConfig } from 'wagmi';
 
 import {
   getSIWENonce,
@@ -41,6 +32,7 @@ import {
   siweMessageSigningExplanationStatements,
   siweStatementWithoutPublicKey,
 } from 'lib/utils/siwe-utils.js';
+import { configureWagmiChains, createWagmiClient } from 'lib/utils/wagmi-utils';
 
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
@@ -48,25 +40,9 @@ import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import css from './siwe.css';
 
-// details can be found https://0.6.x.wagmi.sh/docs/providers/configuring-chains
-const availableProviders = process.env.COMM_ALCHEMY_KEY
-  ? [alchemyProvider({ apiKey: process.env.COMM_ALCHEMY_KEY })]
-  : [publicProvider()];
-const { chains, provider } = configureChains(
-  [chain.mainnet],
-  availableProviders,
-);
-
-const { connectors } = getDefaultWallets({
-  appName: 'comm',
-  chains,
-});
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
+const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
+const { connectors } = getDefaultWallets({ appName: 'comm', chains });
+const wagmiClient = createWagmiClient({ connectors, provider });
 
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,

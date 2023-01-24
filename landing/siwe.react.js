@@ -12,16 +12,7 @@ import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 import '@rainbow-me/rainbowkit/dist/index.css';
-import {
-  useAccount,
-  useSigner,
-  chain,
-  configureChains,
-  createClient,
-  WagmiConfig,
-} from 'wagmi';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
-import { publicProvider } from 'wagmi/providers/public';
+import { useAccount, useSigner, WagmiConfig } from 'wagmi';
 
 import type { SIWEWebViewMessage } from 'lib/types/siwe-types';
 import {
@@ -30,29 +21,14 @@ import {
   siweMessageSigningExplanationStatements,
   createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
+import { configureWagmiChains, createWagmiClient } from 'lib/utils/wagmi-utils';
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
 
-// details can be found https://0.6.x.wagmi.sh/docs/providers/configuring-chains
-const availableProviders = process.env.COMM_ALCHEMY_KEY
-  ? [alchemyProvider({ apiKey: process.env.COMM_ALCHEMY_KEY })]
-  : [publicProvider()];
-const { chains, provider } = configureChains(
-  [chain.mainnet],
-  availableProviders,
-);
-
-const { connectors } = getDefaultWallets({
-  appName: 'comm',
-  chains,
-});
-
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors,
-  provider,
-});
+const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
+const { connectors } = getDefaultWallets({ appName: 'comm', chains });
+const wagmiClient = createWagmiClient({ connectors, provider });
 
 function postMessageToNativeWebView(message: SIWEWebViewMessage) {
   window.ReactNativeWebView?.postMessage?.(JSON.stringify(message));
