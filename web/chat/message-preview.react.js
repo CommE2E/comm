@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { getMessagePreview } from 'lib/shared/message-utils';
+import { useMessagePreview } from 'lib/shared/message-utils';
 import { type MessageInfo } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
@@ -17,6 +17,11 @@ type Props = {
 };
 function MessagePreview(props: Props): React.Node {
   const { messageInfo, threadInfo } = props;
+  const messagePreviewResult = useMessagePreview(
+    messageInfo,
+    threadInfo,
+    getDefaultTextMessageRules().simpleMarkdownRules,
+  );
 
   if (!messageInfo) {
     return (
@@ -25,12 +30,11 @@ function MessagePreview(props: Props): React.Node {
       </div>
     );
   }
-
-  const { message, username } = getMessagePreview(
-    messageInfo,
-    threadInfo,
-    getDefaultTextMessageRules().simpleMarkdownRules,
+  invariant(
+    messagePreviewResult,
+    'useMessagePreview should only return falsey if pass null or undefined',
   );
+  const { message, username } = messagePreviewResult;
 
   let usernameText = null;
   if (username) {

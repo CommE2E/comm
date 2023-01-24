@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react';
 import { type ChatThreadItem } from 'lib/selectors/chat-selectors';
-import { getMessagePreview } from 'lib/shared/message-utils';
+import { useMessagePreview } from 'lib/shared/message-utils';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
 
 import Button from '../../../components/button.react';
@@ -50,15 +50,17 @@ function Subchannel(props: Props): React.Node {
     [lastUpdatedTimeIncludingSidebars],
   );
 
+  const messagePreviewResult = useMessagePreview(
+    mostRecentMessageInfo,
+    threadInfo,
+    getDefaultTextMessageRules().simpleMarkdownRules,
+  );
+
   const lastMessage = React.useMemo(() => {
-    if (!mostRecentMessageInfo) {
+    if (!messagePreviewResult) {
       return <div className={css.noMessage}>No messages</div>;
     }
-    const { message, username } = getMessagePreview(
-      mostRecentMessageInfo,
-      threadInfo,
-      getDefaultTextMessageRules().simpleMarkdownRules,
-    );
+    const { message, username } = messagePreviewResult;
     const previewText = username
       ? `${username.text}: ${message.text}`
       : message.text;
@@ -68,7 +70,7 @@ function Subchannel(props: Props): React.Node {
         <div className={css.lastActivity}>{lastActivity}</div>
       </>
     );
-  }, [lastActivity, mostRecentMessageInfo, threadInfo]);
+  }, [lastActivity, messagePreviewResult]);
 
   return (
     <Button className={css.subchannelContainer} onClick={onClickThread}>
