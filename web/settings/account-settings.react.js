@@ -5,6 +5,7 @@ import * as React from 'react';
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { accountHasPassword } from 'lib/shared/account-utils.js';
 import {
   useDispatchActionPromise,
   useServerCall,
@@ -47,11 +48,30 @@ function AccountSettings(): React.Node {
     [popModal, pushModal],
   );
 
+  const isAccountWithPassword = useSelector(state =>
+    accountHasPassword(state.currentUserInfo),
+  );
+
   const currentUserInfo = useSelector(state => state.currentUserInfo);
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
   }
   const { username } = currentUserInfo;
+
+  let changePasswordSection;
+  if (isAccountWithPassword) {
+    changePasswordSection = (
+      <li>
+        <span>Password</span>
+        <span className={css.passwordContainer}>
+          <span className={css.password}>******</span>
+          <a className={css.editPasswordLink} onClick={showPasswordChangeModal}>
+            <SWMansionIcon icon="edit-1" size={22} />
+          </a>
+        </span>
+      </li>
+    );
+  }
 
   return (
     <div className={css.container}>
@@ -67,18 +87,7 @@ function AccountSettings(): React.Node {
               <p className={css.buttonText}>Log out</p>
             </Button>
           </li>
-          <li>
-            <span>Password</span>
-            <span className={css.passwordContainer}>
-              <span className={css.password}>******</span>
-              <a
-                className={css.editPasswordLink}
-                onClick={showPasswordChangeModal}
-              >
-                <SWMansionIcon icon="edit-1" size={22} />
-              </a>
-            </span>
-          </li>
+          {changePasswordSection}
           <li>
             <span>Friend List</span>
             <Button variant="text" onClick={openFriendList}>
