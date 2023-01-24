@@ -6,6 +6,7 @@ import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
 
 type CommAndroidNotificationsModuleType = {
   +removeAllActiveNotificationsForThread: (threadID: string) => void,
+  +getInitialNotification: () => Promise<?AndroidForegroundMessage>,
   ...
 };
 export type AndroidForegroundMessage = {
