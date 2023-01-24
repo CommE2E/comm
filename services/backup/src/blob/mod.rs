@@ -4,7 +4,7 @@ mod proto {
 pub use proto::put_request::Data as PutRequestData;
 pub use proto::{PutRequest, PutResponse};
 
-mod get_client;
+mod downloader;
 mod put_client;
-pub use get_client::*;
+pub use downloader::*;
 pub use put_client::*;

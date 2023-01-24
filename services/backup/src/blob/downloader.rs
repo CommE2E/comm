@@ -11,7 +11,7 @@ use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 pub use proto::put_request::Data as PutRequestData;
 pub use proto::{PutRequest, PutResponse};
 
-/// The GetClient instance is a handle holder of a Tokio task running the
+/// The BlobDownloader instance is a handle holder of a Tokio task running the
 /// actual blob client instance. The communication is done via a MPSC channel
 /// and is one-sided - the data is transmitted from the client task to the
 /// caller. Blob chunks received in response stream are waiting
@@ -19,15 +19,15 @@ pub use proto::{PutRequest, PutResponse};
 /// to make room for more.
 /// The client task can be stopped and awaited for result via the `terminate()`
 /// method.
-pub struct GetClient {
+pub struct BlobDownloader {
   rx: Receiver<Vec<u8>>,
   handle: JoinHandle<anyhow::Result<()>>,
 }
 
-impl GetClient {
+impl BlobDownloader {
   /// Connects to the Blob service and keeps the client connection open
   /// in a separate Tokio task.
-  #[instrument(name = "get_client")]
+  #[instrument(name = "blob_downloader")]
   pub async fn start(holder: String) -> Result<Self> {
     let service_url = &crate::CONFIG.blob_service_url;
     let mut blob_client =
@@ -56,7 +56,7 @@ impl GetClient {
     };
     let handle = tokio::spawn(client_thread.in_current_span());
 
-    Ok(GetClient {
+    Ok(BlobDownloader {
       rx: blob_res_rx,
       handle,
     })
@@ -69,7 +69,7 @@ impl GetClient {
   /// determine if it was successful. After receiving `None`, the client
   /// should be consumed by calling [`GetClient::terminate`] to handle
   /// possible errors.
-  pub async fn get(&mut self) -> Option<Vec<u8>> {
+  pub async fn next_chunk(&mut self) -> Option<Vec<u8>> {
     self.rx.recv().await
   }
 

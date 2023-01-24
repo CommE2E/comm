@@ -7,7 +7,7 @@ use tracing_futures::Instrument;
 use super::handle_db_error;
 use super::proto::{self, PullBackupResponse};
 use crate::{
-  blob::GetClient,
+  blob::BlobDownloader,
   constants::{
     BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS, BACKUP_TABLE_FIELD_BACKUP_ID,
     GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE,
@@ -108,10 +108,10 @@ where
 {
   try_stream! {
     let mut buffer = ResponseBuffer::default();
-    let mut client =
-      GetClient::start(item.get_holder().to_string()).await.map_err(|err| {
+    let mut downloader =
+      BlobDownloader::start(item.get_holder().to_string()).await.map_err(|err| {
         error!(
-          "Failed to start blob client: {:?}", err
+          "Failed to start blob downloader: {:?}", err
         );
         Status::aborted("Internal error")
       })?;
@@ -119,7 +119,7 @@ where
     let mut is_first_chunk = true;
     loop {
       if !buffer.is_saturated() {
-        if let Some(data) = client.get().await {
+        if let Some(data) = downloader.next_chunk().await {
           buffer.put(data);
         }
       }
@@ -140,8 +140,8 @@ where
       is_first_chunk = false;
     }
 
-    client.terminate().await.map_err(|err| {
-      error!("Blob client failed: {:?}", err);
+    downloader.terminate().await.map_err(|err| {
+      error!("Blob downloader failed: {:?}", err);
       Status::aborted("Internal error")
     })?;
   }
