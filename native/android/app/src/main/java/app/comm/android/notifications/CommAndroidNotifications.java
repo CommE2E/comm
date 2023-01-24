@@ -5,10 +5,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableMap;
+import com.google.firebase.messaging.RemoteMessage;
 
 public class CommAndroidNotifications extends ReactContextBaseJavaModule {
   private NotificationManager notificationManager;
@@ -45,5 +48,19 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
         notificationManager.cancel(notification.getTag(), notification.getId());
       }
     }
+  }
+
+  @ReactMethod
+  public void getInitialNotification(Promise promise) {
+    RemoteMessage initialNotification =
+        getCurrentActivity().getIntent().getParcelableExtra("message");
+    if (initialNotification == null) {
+      promise.resolve(null);
+      return;
+    }
+    WritableMap jsReadableNotification =
+        CommAndroidNotificationParser.parseRemoteMessageToJSForegroundMessage(
+            initialNotification);
+    promise.resolve(jsReadableNotification);
   }
 }

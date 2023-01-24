@@ -349,9 +349,7 @@ class PushHandler extends React.PureComponent<Props, State> {
       return;
     }
     this.initialAndroidNotifHandled = true;
-    const initialNotif = await getFirebase()
-      .notifications()
-      .getInitialNotification();
+    const initialNotif = await CommAndroidNotifications.getInitialNotification();
     if (initialNotif) {
       await this.androidNotificationOpened(initialNotif);
     }
