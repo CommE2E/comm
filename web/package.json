@@ -43,6 +43,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.13.10",
+    "@emoji-mart/data": "^1.1.2",
+    "@emoji-mart/react": "^1.1.1",
     "@fortawesome/fontawesome-svg-core": "1.2.25",
     "@fortawesome/free-regular-svg-icons": "5.11.2",
     "@fortawesome/free-solid-svg-icons": "5.11.2",
@@ -53,6 +55,7 @@
     "core-js": "^3.6.5",
     "dateformat": "^3.0.3",
     "detect-browser": "^4.0.4",
+    "emoji-mart": "^5.5.2",
     "exif-js": "^2.3.0",
     "history": "^4.6.3",
     "ethers": "^5.7.2",
