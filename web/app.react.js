@@ -9,6 +9,7 @@ import * as React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useDispatch } from 'react-redux';
+import { WagmiConfig } from 'wagmi';
 
 import {
   fetchEntriesActionTypes,
@@ -55,6 +56,7 @@ import css from './style.css';
 import getTitle from './title/getTitle';
 import { type NavInfo } from './types/nav-types';
 import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
+import { WagmiENSCacheProvider, wagmiClient } from './utils/wagmi-utils';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every
@@ -153,12 +155,16 @@ class App extends React.PureComponent<Props> {
       <DndProvider backend={HTML5Backend}>
         <TooltipProvider>
           <MenuProvider>
-            <FocusHandler />
-            <VisibilityHandler />
-            <DeviceIDUpdater />
-            <PolicyAcknowledgmentHandler />
-            {content}
-            {this.props.modals}
+            <WagmiConfig client={wagmiClient}>
+              <WagmiENSCacheProvider>
+                <FocusHandler />
+                <VisibilityHandler />
+                <DeviceIDUpdater />
+                <PolicyAcknowledgmentHandler />
+                {content}
+                {this.props.modals}
+              </WagmiENSCacheProvider>
+            </WagmiConfig>
           </MenuProvider>
         </TooltipProvider>
       </DndProvider>

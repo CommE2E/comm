@@ -5,7 +5,6 @@ import '@rainbow-me/rainbowkit/dist/index.css';
 import {
   ConnectButton,
   darkTheme,
-  getDefaultWallets,
   RainbowKitProvider,
   useConnectModal,
 } from '@rainbow-me/rainbowkit';
@@ -13,7 +12,7 @@ import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 import { FaEthereum } from 'react-icons/fa';
-import { useAccount, useSigner, WagmiConfig } from 'wagmi';
+import { useAccount, useSigner } from 'wagmi';
 
 import {
   getSIWENonce,
@@ -32,17 +31,13 @@ import {
   siweMessageSigningExplanationStatements,
   siweStatementWithoutPublicKey,
 } from 'lib/utils/siwe-utils.js';
-import { configureWagmiChains, createWagmiClient } from 'lib/utils/wagmi-utils';
 
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import { wagmiChains } from '../utils/wagmi-utils';
 import css from './siwe.css';
-
-const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
-const { connectors } = getDefaultWallets({ appName: 'comm', chains });
-const wagmiClient = createWagmiClient({ connectors, provider });
 
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
@@ -191,11 +186,9 @@ function SIWEWrapper(): React.Node {
     });
   }, []);
   return (
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains} theme={theme} modalSize="compact">
-        <SIWE />
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <RainbowKitProvider chains={wagmiChains} theme={theme} modalSize="compact">
+      <SIWE />
+    </RainbowKitProvider>
   );
 }
 
