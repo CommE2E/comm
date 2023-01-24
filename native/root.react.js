@@ -18,6 +18,7 @@ import {
 import { Provider } from 'react-redux';
 import { PersistGate as ReduxPersistGate } from 'redux-persist/integration/react';
 
+import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react';
 import { actionLogger } from 'lib/utils/action-logger';
 
 import ChatContextProvider from './chat/chat-context-provider.react';
@@ -48,6 +49,7 @@ import { StaffContextProvider } from './staff/staff-context.provider.react';
 import { useLoadCommFonts } from './themes/fonts';
 import { DarkTheme, LightTheme } from './themes/navigation';
 import ThemeHandler from './themes/theme-handler.react';
+import { provider } from './utils/ethers-utils';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -248,23 +250,25 @@ function Root() {
             <InputStateContainer>
               <SafeAreaProvider initialMetrics={initialWindowMetrics}>
                 <ActionSheetProvider>
-                  <MarkdownContextProvider>
-                    <ChatContextProvider>
-                      <SQLiteDataHandler />
-                      <ConnectedStatusBar />
-                      <ReduxPersistGate persistor={getPersistor()}>
-                        {gated}
-                      </ReduxPersistGate>
-                      <PersistedStateGate>
-                        <Socket
-                          detectUnsupervisedBackgroundRef={
-                            detectUnsupervisedBackgroundRef
-                          }
-                        />
-                      </PersistedStateGate>
-                      {navigation}
-                    </ChatContextProvider>
-                  </MarkdownContextProvider>
+                  <ENSCacheProvider provider={provider}>
+                    <MarkdownContextProvider>
+                      <ChatContextProvider>
+                        <SQLiteDataHandler />
+                        <ConnectedStatusBar />
+                        <ReduxPersistGate persistor={getPersistor()}>
+                          {gated}
+                        </ReduxPersistGate>
+                        <PersistedStateGate>
+                          <Socket
+                            detectUnsupervisedBackgroundRef={
+                              detectUnsupervisedBackgroundRef
+                            }
+                          />
+                        </PersistedStateGate>
+                        {navigation}
+                      </ChatContextProvider>
+                    </MarkdownContextProvider>
+                  </ENSCacheProvider>
                 </ActionSheetProvider>
               </SafeAreaProvider>
             </InputStateContainer>

@@ -51,6 +51,7 @@
   "dependencies": {
     "@commapp/android-lifecycle": "0.0.1",
     "@commapp/sqlcipher-amalgamation": "^4.4.3-a",
+    "@ethersproject/shims": "^5.7.0",
     "@expo/react-native-action-sheet": "^3.14.0",
     "@expo/vector-icons": "^13.0.0",
     "@gorhom/bottom-sheet": "^4.4.5",
@@ -67,6 +68,7 @@
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/stack": "^6.3.2",
     "base-64": "^0.1.0",
+    "ethers": "^5.7.2",
     "expo": "47.0.8",
     "expo-dev-client": "~2.0.1",
     "expo-font": "~11.0.1",
