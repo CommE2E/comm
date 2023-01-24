@@ -2,7 +2,7 @@ use tonic::Status;
 use tracing::{debug, error, trace, warn};
 
 use crate::{
-  blob::{start_simple_put_client, PutClient},
+  blob::{start_simple_uploader, BlobUploader},
   database::{BackupItem, DatabaseClient},
   service::proto,
 };
@@ -15,7 +15,7 @@ enum HandlerState {
   /// Initial state. Handler is receiving non-data inputs
   ReceivingParams,
   /// Handler is receiving data chunks
-  ReceivingData { blob_client: PutClient },
+  ReceivingData { uploader: BlobUploader },
   /// A special case when Blob service claims that a blob with given
   /// [`CreateBackupHandler::data_hash`] already exists
   DataAlreadyExists,
@@ -110,7 +110,7 @@ impl CreateBackupHandler {
     &mut self,
     data_chunk: Vec<u8>,
   ) -> CreateBackupResult {
-    let HandlerState::ReceivingData { ref mut blob_client } = self.state else {
+    let HandlerState::ReceivingData { ref mut uploader } = self.state else {
       self.should_close_stream = true;
       error!("Data chunk sent before other inputs");
       return Err(Status::invalid_argument(
@@ -127,7 +127,7 @@ impl CreateBackupHandler {
     }
 
     trace!("Received {} bytes of data", data_chunk.len());
-    blob_client.put_data(data_chunk).await.map_err(|err| {
+    uploader.put_data(data_chunk).await.map_err(|err| {
       error!("Failed to upload data chunk: {:?}", err);
       Status::aborted("Internal error")
     })?;
@@ -147,9 +147,9 @@ impl CreateBackupHandler {
         trace!("Nothing to store in database. Finishing early");
         return Ok(());
       }
-      HandlerState::ReceivingData { blob_client } => {
-        blob_client.terminate().await.map_err(|err| {
-          error!("Put client task closed with error: {:?}", err);
+      HandlerState::ReceivingData { uploader } => {
+        uploader.terminate().await.map_err(|err| {
+          error!("Uploader task closed with error: {:?}", err);
           Status::aborted("Internal error")
         })?;
       }
@@ -203,9 +203,9 @@ impl CreateBackupHandler {
     tracing::Span::current().record("backup_id", &backup_id);
     tracing::Span::current().record("blob_holder", &holder);
 
-    match start_simple_put_client(&holder, data_hash).await? {
-      Some(blob_client) => {
-        self.state = HandlerState::ReceivingData { blob_client };
+    match start_simple_uploader(&holder, data_hash).await? {
+      Some(uploader) => {
+        self.state = HandlerState::ReceivingData { uploader };
         trace!("Everything prepared, waiting for data...");
       }
       None => {

@@ -13,23 +13,23 @@ use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 pub use proto::put_request::Data as PutRequestData;
 pub use proto::{PutRequest, PutResponse};
 
-pub struct PutClient {
+pub struct BlobUploader {
   req_tx: Sender<proto::PutRequest>,
   res_rx: Receiver<proto::PutResponse>,
   handle: JoinHandle<anyhow::Result<()>>,
 }
 
-/// The PutClient instance is a handle holder of a Tokio task running the
+/// The BlobUploader instance is a handle holder of a Tokio task running the
 /// actual blob client instance. The communication is done via two MPSC
 /// channels - one sending requests to the client task, and another for sending
 /// responses back to the caller. These messages should go in pairs
 /// - one request for one response.
 /// The client task can be stopped and awaited for result via the `terminate()`
 /// method.
-impl PutClient {
+impl BlobUploader {
   /// Connects to the Blob service and keeps the client connection open
   /// in a separate Tokio task.
-  #[instrument(name = "put_client")]
+  #[instrument(name = "blob_uploader")]
   pub async fn start() -> Result<Self> {
     let service_url = &crate::CONFIG.blob_service_url;
     let mut blob_client =
@@ -74,7 +74,7 @@ impl PutClient {
     };
     let handle = tokio::spawn(client_thread.in_current_span());
 
-    Ok(PutClient {
+    Ok(BlobUploader {
       req_tx: blob_req_tx,
       res_rx: blob_res_rx,
       handle,
@@ -122,25 +122,25 @@ impl PutClient {
 /// ## Example
 /// ```
 /// if let Some(mut client) =
-///   start_simple_put_client("my_holder", "my_hash").await? {
+///   start_simple_uploader("my_holder", "my_hash").await? {
 ///   let my_data = vec![1,2,3,4];
 ///   let _ = client.put_data(my_data).await;
 ///
 ///   let status = client.terminate().await;
 /// }
 /// ```
-pub async fn start_simple_put_client(
+pub async fn start_simple_uploader(
   holder: &str,
   blob_hash: &str,
-) -> Result<Option<PutClient>, Status> {
+) -> Result<Option<BlobUploader>, Status> {
   // start client
-  let mut put_client = PutClient::start().await.map_err(|err| {
-    error!("Failed to instantiate blob client: {:?}", err);
+  let mut uploader = BlobUploader::start().await.map_err(|err| {
+    error!("Failed to instantiate uploader: {:?}", err);
     Status::aborted("Internal error")
   })?;
 
   // send holder
-  put_client
+  uploader
     .put(PutRequest {
       data: Some(PutRequestData::Holder(holder.to_string())),
     })
@@ -151,7 +151,7 @@ pub async fn start_simple_put_client(
     })?;
 
   // send hash
-  let PutResponse { data_exists } = put_client
+  let PutResponse { data_exists } = uploader
     .put(PutRequest {
       data: Some(PutRequestData::BlobHash(blob_hash.to_string())),
     })
@@ -165,11 +165,11 @@ pub async fn start_simple_put_client(
   if data_exists {
     // the connection is already terminated by server,
     // but it's good to await it anyway
-    put_client.terminate().await.map_err(|err| {
+    uploader.terminate().await.map_err(|err| {
       error!("Put client task closed with error: {:?}", err);
       Status::aborted("Internal error")
     })?;
     return Ok(None);
   }
-  Ok(Some(put_client))
+  Ok(Some(uploader))
 }

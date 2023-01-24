@@ -84,16 +84,16 @@ async fn move_to_blob(log_item: LogItem) -> Result<LogItem, Status> {
     Some(&log_item.log_id),
   );
 
-  if let Some(mut blob_client) =
-    crate::blob::start_simple_put_client(&holder, &log_item.data_hash).await?
+  if let Some(mut uploader) =
+    crate::blob::start_simple_uploader(&holder, &log_item.data_hash).await?
   {
     let blob_chunk = log_item.value.into_bytes();
-    blob_client.put_data(blob_chunk).await.map_err(|err| {
+    uploader.put_data(blob_chunk).await.map_err(|err| {
       error!("Failed to upload data chunk: {:?}", err);
       Status::aborted("Internal error")
     })?;
 
-    blob_client.terminate().await.map_err(|err| {
+    uploader.terminate().await.map_err(|err| {
       error!("Put client task closed with error: {:?}", err);
       Status::aborted("Internal error")
     })?;

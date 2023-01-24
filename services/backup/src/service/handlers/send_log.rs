@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use super::handle_db_error;
 use crate::{
-  blob::PutClient,
+  blob::BlobUploader,
   constants::{ID_SEPARATOR, LOG_DATA_SIZE_DATABASE_LIMIT},
   database::{DatabaseClient, LogItem},
   service::proto::SendLogResponse,
@@ -34,14 +34,14 @@ pub struct SendLogHandler {
 
   // client instances
   db: DatabaseClient,
-  blob_client: Option<PutClient>,
+  uploader: Option<BlobUploader>,
 }
 
 impl SendLogHandler {
   pub fn new(db: &DatabaseClient) -> Self {
     SendLogHandler {
       db: db.clone(),
-      blob_client: None,
+      uploader: None,
       user_id: None,
       backup_id: None,
       log_hash: None,
@@ -116,7 +116,7 @@ impl SendLogHandler {
         self.ensure_size_constraints().await?;
       }
       LogPersistence::BLOB { .. } => {
-        let Some(client) = self.blob_client.as_mut() else {
+        let Some(client) = self.uploader.as_mut() else {
           self.should_close_stream = true;
           error!("Put client uninitialized. This should never happen!");
           return Err(Status::failed_precondition("Internal error"));
@@ -131,13 +131,13 @@ impl SendLogHandler {
   }
 
   pub async fn finish(self) -> Result<SendLogResponse, Status> {
-    if let Some(client) = self.blob_client {
+    if let Some(client) = self.uploader {
       client.terminate().await.map_err(|err| {
         error!("Put client task closed with error: {:?}", err);
         Status::aborted("Internal error")
       })?;
     } else {
-      trace!("No blob client initialized. Skipping termination");
+      trace!("No uploader initialized. Skipping termination");
     }
 
     if !self.should_receive_data {
@@ -234,14 +234,14 @@ impl SendLogHandler {
       debug!("Log too large, switching persistence to Blob");
       let holder =
         crate::utils::generate_blob_holder(log_hash, backup_id, Some(log_id));
-      match crate::blob::start_simple_put_client(&holder, &log_hash).await? {
-        Some(mut put_client) => {
+      match crate::blob::start_simple_uploader(&holder, &log_hash).await? {
+        Some(mut uploader) => {
           let blob_chunk = std::mem::take(&mut self.log_buffer);
-          put_client.put_data(blob_chunk).await.map_err(|err| {
+          uploader.put_data(blob_chunk).await.map_err(|err| {
             error!("Failed to upload data chunk: {:?}", err);
             Status::aborted("Internal error")
           })?;
-          self.blob_client = Some(put_client);
+          self.uploader = Some(uploader);
         }
         None => {
           debug!("Log hash already exists");

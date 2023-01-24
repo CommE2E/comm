@@ -5,6 +5,6 @@ pub use proto::put_request::Data as PutRequestData;
 pub use proto::{PutRequest, PutResponse};
 
 mod downloader;
-mod put_client;
+mod uploader;
 pub use downloader::*;
-pub use put_client::*;
+pub use uploader::*;
