@@ -8,6 +8,7 @@ use tracing::{debug, error, info, instrument, trace, warn};
 use tracing_futures::Instrument;
 
 use crate::{
+  blob::BlobClient,
   constants::MPSC_CHANNEL_BUFFER_CAPACITY,
   database::{DatabaseClient, Error as DBError},
 };
@@ -34,11 +35,15 @@ use self::handlers::send_log::SendLogHandler;
 
 pub struct MyBackupService {
   db: DatabaseClient,
+  blob_client: BlobClient,
 }
 
 impl MyBackupService {
-  pub fn new(db_client: DatabaseClient) -> Self {
-    MyBackupService { db: db_client }
+  pub fn new(db_client: DatabaseClient, blob_client: BlobClient) -> Self {
+    MyBackupService {
+      db: db_client,
+      blob_client,
+    }
   }
 }
 
@@ -62,8 +67,9 @@ impl BackupService for MyBackupService {
     let mut in_stream = request.into_inner();
     let (tx, rx) = mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let db = self.db.clone();
+    let blob_client = self.blob_client.clone();
     let worker = async move {
-      let mut handler = CreateBackupHandler::new(&db);
+      let mut handler = CreateBackupHandler::new(db, blob_client);
       while let Some(message) = in_stream.next().await {
         let response = match message {
           Ok(proto::CreateNewBackupRequest {
@@ -119,7 +125,7 @@ impl BackupService for MyBackupService {
     use proto::send_log_request::Data::*;
 
     info!("SendLog request: {:?}", request);
-    let mut handler = SendLogHandler::new(&self.db);
+    let mut handler = SendLogHandler::new(&self.db, &self.blob_client);
 
     let mut in_stream = request.into_inner();
     while let Some(message) = in_stream.next().await {
@@ -183,7 +189,8 @@ impl BackupService for MyBackupService {
     info!("PullBackup request: {:?}", request);
 
     let handler =
-      PullBackupHandler::new(&self.db, request.into_inner()).await?;
+      PullBackupHandler::new(&self.db, &self.blob_client, request.into_inner())
+        .await?;
 
     let stream = handler.into_response_stream().in_current_span();
     Ok(Response::new(Box::pin(stream) as Self::PullBackupStream))
@@ -205,6 +212,7 @@ impl BackupService for MyBackupService {
 
     handlers::add_attachments::handle_add_attachments(
       &self.db,
+      &self.blob_client,
       request.into_inner(),
     )
     .await?;

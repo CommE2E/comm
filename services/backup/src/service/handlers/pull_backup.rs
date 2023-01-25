@@ -7,7 +7,7 @@ use tracing_futures::Instrument;
 use super::handle_db_error;
 use super::proto::{self, PullBackupResponse};
 use crate::{
-  blob::BlobDownloader,
+  blob::{BlobClient, BlobDownloader},
   constants::{
     BACKUP_TABLE_FIELD_ATTACHMENT_HOLDERS, BACKUP_TABLE_FIELD_BACKUP_ID,
     GRPC_CHUNK_SIZE_LIMIT, GRPC_METADATA_SIZE_PER_MESSAGE,
@@ -17,6 +17,7 @@ use crate::{
 };
 
 pub struct PullBackupHandler {
+  blob_client: BlobClient,
   backup_item: BackupItem,
   logs: Vec<LogItem>,
 }
@@ -24,6 +25,7 @@ pub struct PullBackupHandler {
 impl PullBackupHandler {
   pub async fn new(
     db: &DatabaseClient,
+    blob_client: &BlobClient,
     request: proto::PullBackupRequest,
   ) -> Result<Self, Status> {
     let proto::PullBackupRequest { user_id, backup_id } = request;
@@ -42,7 +44,11 @@ impl PullBackupHandler {
       .await
       .map_err(handle_db_error)?;
 
-    Ok(PullBackupHandler { backup_item, logs })
+    Ok(PullBackupHandler {
+      backup_item,
+      logs,
+      blob_client: blob_client.clone(),
+    })
   }
 
   /// Consumes the handler and provides a response `Stream`. The stream will
@@ -59,7 +65,7 @@ impl PullBackupHandler {
     try_stream! {
       debug!("Pulling backup...");
       {
-        let compaction_stream = data_stream(&self.backup_item);
+        let compaction_stream = data_stream(&self.backup_item, self.blob_client.clone());
         tokio::pin!(compaction_stream);
         while let Some(response) = compaction_stream.try_next().await? {
           yield response;
@@ -79,7 +85,7 @@ impl PullBackupHandler {
 
         if log.persisted_in_blob {
           trace!(parent: &span, "Log persisted in blob");
-          let log_data_stream = data_stream(&log).instrument(span);
+          let log_data_stream = data_stream(&log, self.blob_client.clone()).instrument(span);
           tokio::pin!(log_data_stream);
           while let Some(response) = log_data_stream.try_next().await? {
             yield response;
@@ -102,6 +108,7 @@ impl PullBackupHandler {
 /// stream of [`PullBackupResponse`] objects, handles gRPC message size details.
 fn data_stream<Item>(
   item: &Item,
+  blob_client: BlobClient,
 ) -> impl Stream<Item = Result<PullBackupResponse, Status>> + '_
 where
   Item: BlobStoredItem,

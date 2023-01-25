@@ -2,7 +2,7 @@ use tonic::Status;
 use tracing::{debug, error, trace, warn};
 
 use crate::{
-  blob::{start_simple_uploader, BlobUploader},
+  blob::{start_simple_uploader, BlobClient, BlobUploader},
   database::{BackupItem, DatabaseClient},
   service::proto,
 };
@@ -33,6 +33,7 @@ pub struct CreateBackupHandler {
 
   // client instances
   db: DatabaseClient,
+  blob_client: BlobClient,
 
   // internal state
   state: HandlerState,
@@ -41,14 +42,15 @@ pub struct CreateBackupHandler {
 }
 
 impl CreateBackupHandler {
-  pub fn new(db: &DatabaseClient) -> Self {
+  pub fn new(db: DatabaseClient, blob_client: BlobClient) -> Self {
     CreateBackupHandler {
       should_close_stream: false,
       user_id: None,
       device_id: None,
       key_entropy: None,
       data_hash: None,
-      db: db.clone(),
+      db,
+      blob_client,
       state: HandlerState::ReceivingParams,
       backup_id: String::new(),
       holder: None,

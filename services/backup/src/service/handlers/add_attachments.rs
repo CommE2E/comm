@@ -5,12 +5,14 @@ use tracing::error;
 use super::handle_db_error;
 use super::proto;
 use crate::{
+  blob::BlobClient,
   constants::{ATTACHMENT_HOLDER_SEPARATOR, LOG_DATA_SIZE_DATABASE_LIMIT},
   database::{DatabaseClient, LogItem},
 };
 
 pub async fn handle_add_attachments(
   db: &DatabaseClient,
+  blob_client: &BlobClient,
   request: proto::AddAttachmentsRequest,
 ) -> Result<(), Status> {
   let proto::AddAttachmentsRequest {
@@ -68,7 +70,7 @@ pub async fn handle_add_attachments(
       && log_item.total_size() > LOG_DATA_SIZE_DATABASE_LIMIT
     {
       debug!("Log item too large. Persisting in blob service...");
-      log_item = move_to_blob(log_item).await?;
+      log_item = move_to_blob(log_item, blob_client).await?;
     }
 
     db.put_log_item(log_item).await.map_err(handle_db_error)?;
@@ -77,7 +79,10 @@ pub async fn handle_add_attachments(
   Ok(())
 }
 
-async fn move_to_blob(log_item: LogItem) -> Result<LogItem, Status> {
+async fn move_to_blob(
+  log_item: LogItem,
+  blob_client: &BlobClient,
+) -> Result<LogItem, Status> {
   let holder = crate::utils::generate_blob_holder(
     &log_item.data_hash,
     &log_item.backup_id,

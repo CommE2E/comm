@@ -4,6 +4,7 @@ use tonic::transport::Server;
 use tracing::{info, Level};
 use tracing_subscriber::EnvFilter;
 
+use crate::blob::BlobClient;
 use crate::service::{BackupServiceServer, MyBackupService};
 
 pub mod blob;
@@ -27,9 +28,12 @@ fn configure_logging() -> Result<()> {
   Ok(())
 }
 
-async fn run_grpc_server(db: database::DatabaseClient) -> Result<()> {
+async fn run_grpc_server(
+  db: database::DatabaseClient,
+  blob_client: BlobClient,
+) -> Result<()> {
   let addr: SocketAddr = format!("[::]:{}", CONFIG.listening_port).parse()?;
-  let backup_service = MyBackupService::new(db);
+  let backup_service = MyBackupService::new(db, blob_client);
 
   info!("Starting gRPC server listening at {}", addr.to_string());
   Server::builder()
@@ -47,6 +51,7 @@ async fn main() -> Result<()> {
 
   let aws_config = config::load_aws_config().await;
   let db = database::DatabaseClient::new(&aws_config);
+  let blob_client = blob::init_blob_client();
 
-  run_grpc_server(db).await
+  run_grpc_server(db, blob_client).await
 }

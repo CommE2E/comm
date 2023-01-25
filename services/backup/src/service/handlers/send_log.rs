@@ -4,7 +4,7 @@ use uuid::Uuid;
 
 use super::handle_db_error;
 use crate::{
-  blob::BlobUploader,
+  blob::{BlobClient, BlobUploader},
   constants::{ID_SEPARATOR, LOG_DATA_SIZE_DATABASE_LIMIT},
   database::{DatabaseClient, LogItem},
   service::proto::SendLogResponse,
@@ -34,13 +34,15 @@ pub struct SendLogHandler {
 
   // client instances
   db: DatabaseClient,
+  blob_client: BlobClient,
   uploader: Option<BlobUploader>,
 }
 
 impl SendLogHandler {
-  pub fn new(db: &DatabaseClient) -> Self {
+  pub fn new(db: &DatabaseClient, blob_client: &BlobClient) -> Self {
     SendLogHandler {
       db: db.clone(),
+      blob_client: blob_client.clone(),
       uploader: None,
       user_id: None,
       backup_id: None,
