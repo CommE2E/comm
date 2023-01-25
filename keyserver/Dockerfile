@@ -101,11 +101,11 @@ RUN cd keyserver && . bash/source-nvm.sh
 #-------------------------------------------------------------------------------
 
 # Copy in package.json and yarn.lock files
-COPY --chown=comm package.json yarn.lock ./
+COPY --chown=comm package.json yarn.lock postinstall.sh ./
 COPY --chown=comm keyserver/package.json keyserver/.flowconfig keyserver/
 COPY --chown=comm lib/package.json lib/.flowconfig lib/
 COPY --chown=comm web/package.json web/.flowconfig web/
-COPY --chown=comm native/package.json native/.flowconfig native/postinstall.sh native/
+COPY --chown=comm native/package.json native/.flowconfig native/
 COPY --chown=comm landing/package.json landing/.flowconfig landing/
 COPY --chown=comm desktop/package.json desktop/
 COPY --chown=comm keyserver/addons/rust-node-addon/package.json \
