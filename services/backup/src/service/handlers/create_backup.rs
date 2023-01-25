@@ -205,7 +205,9 @@ impl CreateBackupHandler {
     tracing::Span::current().record("backup_id", &backup_id);
     tracing::Span::current().record("blob_holder", &holder);
 
-    match start_simple_uploader(&holder, data_hash).await? {
+    match start_simple_uploader(&holder, data_hash, self.blob_client.clone())
+      .await?
+    {
       Some(uploader) => {
         self.state = HandlerState::ReceivingData { uploader };
         trace!("Everything prepared, waiting for data...");

@@ -89,8 +89,12 @@ async fn move_to_blob(
     Some(&log_item.log_id),
   );
 
-  if let Some(mut uploader) =
-    crate::blob::start_simple_uploader(&holder, &log_item.data_hash).await?
+  if let Some(mut uploader) = crate::blob::start_simple_uploader(
+    &holder,
+    &log_item.data_hash,
+    blob_client.clone(),
+  )
+  .await?
   {
     let blob_chunk = log_item.value.into_bytes();
     uploader.put_data(blob_chunk).await.map_err(|err| {

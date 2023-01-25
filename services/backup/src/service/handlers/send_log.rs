@@ -236,7 +236,13 @@ impl SendLogHandler {
       debug!("Log too large, switching persistence to Blob");
       let holder =
         crate::utils::generate_blob_holder(log_hash, backup_id, Some(log_id));
-      match crate::blob::start_simple_uploader(&holder, &log_hash).await? {
+      match crate::blob::start_simple_uploader(
+        &holder,
+        &log_hash,
+        self.blob_client.clone(),
+      )
+      .await?
+      {
         Some(mut uploader) => {
           let blob_chunk = std::mem::take(&mut self.log_buffer);
           uploader.put_data(blob_chunk).await.map_err(|err| {

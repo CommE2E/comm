@@ -116,7 +116,7 @@ where
   try_stream! {
     let mut buffer = ResponseBuffer::default();
     let mut downloader =
-      BlobDownloader::start(item.get_holder().to_string()).await.map_err(|err| {
+      BlobDownloader::start(item.get_holder().to_string(), blob_client).await.map_err(|err| {
         error!(
           "Failed to start blob downloader: {:?}", err
         );

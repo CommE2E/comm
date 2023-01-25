@@ -7,7 +7,7 @@ use tokio_stream::wrappers::ReceiverStream;
 use tonic::Status;
 use tracing::{error, instrument, Instrument};
 
-use super::proto;
+use super::{proto, BlobClient};
 use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 
 pub use proto::put_request::Data as PutRequestData;
@@ -30,13 +30,7 @@ impl BlobUploader {
   /// Connects to the Blob service and keeps the client connection open
   /// in a separate Tokio task.
   #[instrument(name = "blob_uploader")]
-  pub async fn start() -> Result<Self> {
-    let service_url = &crate::CONFIG.blob_service_url;
-    let mut blob_client =
-      proto::blob_service_client::BlobServiceClient::connect(
-        service_url.to_string(),
-      )
-      .await?;
+  pub async fn start(mut blob_client: BlobClient) -> Result<Self> {
     let (blob_req_tx, blob_req_rx) =
       mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let (blob_res_tx, blob_res_rx) =
@@ -132,9 +126,10 @@ impl BlobUploader {
 pub async fn start_simple_uploader(
   holder: &str,
   blob_hash: &str,
+  blob_client: BlobClient,
 ) -> Result<Option<BlobUploader>, Status> {
   // start client
-  let mut uploader = BlobUploader::start().await.map_err(|err| {
+  let mut uploader = BlobUploader::start(blob_client).await.map_err(|err| {
     error!("Failed to instantiate uploader: {:?}", err);
     Status::aborted("Internal error")
   })?;

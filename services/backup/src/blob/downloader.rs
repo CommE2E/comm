@@ -5,7 +5,7 @@ use tokio::{
 };
 use tracing::{instrument, Instrument};
 
-use super::proto;
+use super::{proto, BlobClient};
 use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 
 pub use proto::put_request::Data as PutRequestData;
@@ -28,13 +28,10 @@ impl BlobDownloader {
   /// Connects to the Blob service and keeps the client connection open
   /// in a separate Tokio task.
   #[instrument(name = "blob_downloader")]
-  pub async fn start(holder: String) -> Result<Self> {
-    let service_url = &crate::CONFIG.blob_service_url;
-    let mut blob_client =
-      proto::blob_service_client::BlobServiceClient::connect(
-        service_url.to_string(),
-      )
-      .await?;
+  pub async fn start(
+    holder: String,
+    mut blob_client: BlobClient,
+  ) -> Result<Self> {
     let (blob_res_tx, blob_res_rx) =
       mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let client_thread = async move {
