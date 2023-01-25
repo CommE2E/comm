@@ -56,7 +56,7 @@ impl BackupService for MyBackupService {
     >,
   >;
 
-  #[instrument(skip_all, fields(device_id, data_hash, backup_id, blob_holder))]
+  #[instrument(skip_all, fields(device_id, backup_id, blob_holder))]
   async fn create_new_backup(
     &self,
     request: Request<tonic::Streaming<proto::CreateNewBackupRequest>>,
@@ -117,7 +117,7 @@ impl BackupService for MyBackupService {
     ))
   }
 
-  #[instrument(skip_all, fields(backup_id, log_hash, log_id))]
+  #[instrument(skip_all, fields(backup_id, log_id))]
   async fn send_log(
     &self,
     request: Request<tonic::Streaming<proto::SendLogRequest>>,

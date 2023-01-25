@@ -103,7 +103,7 @@ impl CreateBackupHandler {
       error!("Failed to convert data_hash into string: {:?}", err);
       Status::aborted("Unexpected error")
     })?;
-    tracing::Span::current().record("data_hash", &hash_str);
+    debug!("Received data hash: {}", &hash_str);
     self.data_hash = Some(hash_str);
     self.handle_internal().await
   }

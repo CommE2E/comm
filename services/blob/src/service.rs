@@ -73,7 +73,7 @@ impl BlobService for MyBlobService {
   type PutStream =
     Pin<Box<dyn Stream<Item = Result<blob::PutResponse, Status>> + Send>>;
 
-  #[instrument(skip_all, fields(holder, blob_hash))]
+  #[instrument(skip_all, fields(holder))]
   async fn put(
     &self,
     request: Request<tonic::Streaming<blob::PutRequest>>,
@@ -294,7 +294,7 @@ impl PutHandler {
       warn!("Blob hash already provided");
       return Err(Status::invalid_argument("Blob hash already provided"));
     }
-    tracing::Span::current().record("blob_hash", &new_hash);
+    debug!("Blob hash: {}", new_hash);
     self.blob_hash = Some(new_hash);
     self.determine_action().await
   }
