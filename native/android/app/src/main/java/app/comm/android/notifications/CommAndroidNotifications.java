@@ -96,6 +96,11 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
     }
   }
 
+  @ReactMethod
+  public void removeAllDeliveredNotifications() {
+    notificationManager.cancelAll();
+  }
+
   @Override
   public Map<String, Object> getConstants() {
     final Map<String, Object> constants = new HashMap<>();
