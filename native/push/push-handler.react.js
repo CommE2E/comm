@@ -324,7 +324,7 @@ class PushHandler extends React.PureComponent<Props, State> {
 
   async ensureAndroidPushNotifsEnabled() {
     const firebase = getFirebase();
-    const hasPermission = await firebase.messaging().hasPermission();
+    const hasPermission = await CommAndroidNotifications.hasPermission();
     if (!hasPermission) {
       this.failedToRegisterPushPermissions();
       return;
