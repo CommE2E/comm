@@ -116,12 +116,7 @@ where
   try_stream! {
     let mut buffer = ResponseBuffer::default();
     let mut downloader =
-      BlobDownloader::start(item.get_holder().to_string(), blob_client).await.map_err(|err| {
-        error!(
-          "Failed to start blob downloader: {:?}", err
-        );
-        Status::aborted("Internal error")
-      })?;
+      BlobDownloader::start(item.get_holder().to_string(), blob_client);
 
     let mut is_first_chunk = true;
     loop {

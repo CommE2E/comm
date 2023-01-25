@@ -30,7 +30,7 @@ impl BlobUploader {
   /// Connects to the Blob service and keeps the client connection open
   /// in a separate Tokio task.
   #[instrument(name = "blob_uploader")]
-  pub async fn start(mut blob_client: BlobClient) -> Result<Self> {
+  pub fn start(mut blob_client: BlobClient) -> Self {
     let (blob_req_tx, blob_req_rx) =
       mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let (blob_res_tx, blob_res_rx) =
@@ -61,6 +61,7 @@ impl BlobUploader {
           }
         }
         Err(err) => {
+          error!("Put request failed: {:?}", err);
           bail!(err.to_string());
         }
       };
@@ -68,11 +69,11 @@ impl BlobUploader {
     };
     let handle = tokio::spawn(client_thread.in_current_span());
 
-    Ok(BlobUploader {
+    BlobUploader {
       req_tx: blob_req_tx,
       res_rx: blob_res_rx,
       handle,
-    })
+    }
   }
 
   /// Sends a [`PutRequest`] to the stream and waits for blob service
@@ -128,11 +129,8 @@ pub async fn start_simple_uploader(
   blob_hash: &str,
   blob_client: BlobClient,
 ) -> Result<Option<BlobUploader>, Status> {
-  // start client
-  let mut uploader = BlobUploader::start(blob_client).await.map_err(|err| {
-    error!("Failed to instantiate uploader: {:?}", err);
-    Status::aborted("Internal error")
-  })?;
+  // start upload request
+  let mut uploader = BlobUploader::start(blob_client);
 
   // send holder
   uploader

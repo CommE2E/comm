@@ -3,7 +3,7 @@ use tokio::{
   sync::mpsc::{self, Receiver},
   task::JoinHandle,
 };
-use tracing::{instrument, Instrument};
+use tracing::{error, instrument, Instrument};
 
 use super::{proto, BlobClient};
 use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
@@ -28,14 +28,17 @@ impl BlobDownloader {
   /// Connects to the Blob service and keeps the client connection open
   /// in a separate Tokio task.
   #[instrument(name = "blob_downloader")]
-  pub async fn start(
-    holder: String,
-    mut blob_client: BlobClient,
-  ) -> Result<Self> {
+  pub fn start(holder: String, mut blob_client: BlobClient) -> Self {
     let (blob_res_tx, blob_res_rx) =
       mpsc::channel(MPSC_CHANNEL_BUFFER_CAPACITY);
     let client_thread = async move {
-      let response = blob_client.get(proto::GetRequest { holder }).await?;
+      let response = blob_client
+        .get(proto::GetRequest { holder })
+        .await
+        .map_err(|err| {
+          error!("Get request failed: {:?}", err);
+          err
+        })?;
       let mut inner_response = response.into_inner();
       loop {
         match inner_response.message().await? {
@@ -53,10 +56,10 @@ impl BlobDownloader {
     };
     let handle = tokio::spawn(client_thread.in_current_span());
 
-    Ok(BlobDownloader {
+    BlobDownloader {
       rx: blob_res_rx,
       handle,
-    })
+    }
   }
 
   /// Receives the next chunk of blob data if ready or sleeps
