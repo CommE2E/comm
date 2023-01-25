@@ -271,7 +271,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (Platform.OS === 'ios') {
       CommIOSNotifications.removeAllDeliveredNotifications();
     } else if (Platform.OS === 'android') {
-      getFirebase().notifications().removeAllDeliveredNotifications();
+      CommAndroidNotifications.removeAllDeliveredNotifications();
     }
   }
 
