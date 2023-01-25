@@ -263,7 +263,7 @@ class PushHandler extends React.PureComponent<Props, State> {
     if (Platform.OS === 'ios') {
       CommIOSNotifications.setBadgesCount(curUnreadCount);
     } else if (Platform.OS === 'android') {
-      getFirebase().notifications().setBadge(curUnreadCount);
+      CommAndroidNotifications.setBadge(curUnreadCount);
     }
   }
 

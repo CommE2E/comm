@@ -14,6 +14,7 @@ type CommAndroidNotificationsModuleType = {
     description: ?string,
   ) => void,
   +getConstants: () => { +NOTIFICATIONS_IMPORTANCE_HIGH: number, ... },
+  +setBadge: (count: number) => void,
   ...
 };
 export type AndroidForegroundMessage = {
