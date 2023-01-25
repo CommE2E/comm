@@ -15,6 +15,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.google.firebase.messaging.RemoteMessage;
 import java.util.HashMap;
 import java.util.Map;
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 public class CommAndroidNotifications extends ReactContextBaseJavaModule {
   private NotificationManager notificationManager;
@@ -84,6 +85,15 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
       channel.setDescription(description);
     }
     notificationManager.createNotificationChannel(channel);
+  }
+
+  @ReactMethod
+  public void setBadge(int count) {
+    if (count == 0) {
+      ShortcutBadger.removeCount(this.getReactApplicationContext());
+    } else {
+      ShortcutBadger.applyCount(this.getReactApplicationContext(), count);
+    }
   }
 
   @Override
