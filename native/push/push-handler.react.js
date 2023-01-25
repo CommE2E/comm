@@ -57,7 +57,6 @@ import {
   type CoreIOSNotificationData,
   type CoreIOSNotificationDataWithRequestIdentifier,
 } from './comm-ios-notification';
-import { getFirebase } from './firebase';
 import InAppNotif from './in-app-notif.react';
 import {
   requestIOSPushPermissions,
@@ -67,8 +66,6 @@ import {
 } from './ios';
 
 LogBox.ignoreLogs([
-  // react-native-firebase
-  'Require cycle: ../node_modules/react-native-firebase',
   // react-native-in-app-message
   'ForceTouchGestureHandler is not available',
 ]);
@@ -323,22 +320,21 @@ class PushHandler extends React.PureComponent<Props, State> {
   }
 
   async ensureAndroidPushNotifsEnabled() {
-    const firebase = getFirebase();
     const hasPermission = await CommAndroidNotifications.hasPermission();
     if (!hasPermission) {
       this.failedToRegisterPushPermissions();
       return;
     }
 
-    const fcmToken = await firebase.messaging().getToken();
-    if (fcmToken) {
+    try {
+      const fcmToken = await CommAndroidNotifications.getToken();
       await this.handleAndroidDeviceToken(fcmToken);
-    } else {
+    } catch (e) {
       this.failedToRegisterPushPermissions();
     }
   }
 
-  handleAndroidDeviceToken = async (deviceToken: ?string) => {
+  handleAndroidDeviceToken = async (deviceToken: string) => {
     this.registerPushPermissions(deviceToken);
     await this.handleInitialAndroidNotification();
   };

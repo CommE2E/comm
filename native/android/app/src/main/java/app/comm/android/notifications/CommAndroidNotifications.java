@@ -13,6 +13,7 @@ import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,6 +109,17 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
         NotificationManagerCompat.from(getReactApplicationContext())
             .areNotificationsEnabled();
     promise.resolve(enabled);
+  }
+
+  @ReactMethod
+  public void getToken(Promise promise) {
+    FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+      if (task.isSuccessful()) {
+        promise.resolve(task.getResult());
+      } else {
+        promise.reject(task.getException());
+      }
+    });
   }
 
   @Override

@@ -665,8 +665,8 @@ dependencies {
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
     implementation "com.google.android.gms:play-services-base:16.1.0"
-    implementation "com.google.firebase:firebase-core:16.0.9"
-    implementation "com.google.firebase:firebase-messaging:18.0.0"
+    implementation "com.google.firebase:firebase-core:21.1.0"
+    implementation "com.google.firebase:firebase-messaging:21.1.0"
     implementation "me.leolin:ShortcutBadger:1.1.21@aar"
     implementation project(':reactnativekeyboardinput')
     implementation "androidx.multidex:multidex:2.0.1"

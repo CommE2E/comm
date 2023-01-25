@@ -17,6 +17,7 @@ type CommAndroidNotificationsModuleType = {
   +setBadge: (count: number) => void,
   +removeAllDeliveredNotifications: () => void,
   +hasPermission: () => Promise<boolean>,
+  +getToken: () => Promise<string>,
   ...
 };
 export type AndroidForegroundMessage = {
