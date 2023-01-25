@@ -16,6 +16,7 @@ type CommAndroidNotificationsModuleType = {
   +getConstants: () => { +NOTIFICATIONS_IMPORTANCE_HIGH: number, ... },
   +setBadge: (count: number) => void,
   +removeAllDeliveredNotifications: () => void,
+  +hasPermission: () => Promise<boolean>,
   ...
 };
 export type AndroidForegroundMessage = {

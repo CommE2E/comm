@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import androidx.core.app.NotificationManagerCompat;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -99,6 +100,14 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
   @ReactMethod
   public void removeAllDeliveredNotifications() {
     notificationManager.cancelAll();
+  }
+
+  @ReactMethod
+  public void hasPermission(Promise promise) {
+    boolean enabled =
+        NotificationManagerCompat.from(getReactApplicationContext())
+            .areNotificationsEnabled();
+    promise.resolve(enabled);
   }
 
   @Override
