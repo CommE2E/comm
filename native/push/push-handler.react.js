@@ -148,13 +148,12 @@ class PushHandler extends React.PureComponent<Props, State> {
         ),
       );
     } else if (Platform.OS === 'android') {
-      const firebase = getFirebase();
-      const channel = new firebase.notifications.Android.Channel(
+      CommAndroidNotifications.createChannel(
         androidNotificationChannelID,
         'Default',
-        firebase.notifications.Android.Importance.Max,
-      ).setDescription('Comm notifications channel');
-      firebase.notifications().android.createChannel(channel);
+        CommAndroidNotifications.getConstants().NOTIFICATIONS_IMPORTANCE_HIGH,
+        'Comm notifications channel',
+      );
       const commAndroidNotificationsEventEmitter = getCommAndroidNotificationsEventEmitter();
       this.androidNotificationsEventSubscriptions.push(
         commAndroidNotificationsEventEmitter.addListener(

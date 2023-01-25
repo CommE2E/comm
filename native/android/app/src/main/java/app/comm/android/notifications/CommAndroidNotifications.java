@@ -1,5 +1,6 @@
 package app.comm.android.notifications;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.google.firebase.messaging.RemoteMessage;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommAndroidNotifications extends ReactContextBaseJavaModule {
   private NotificationManager notificationManager;
@@ -62,5 +65,32 @@ public class CommAndroidNotifications extends ReactContextBaseJavaModule {
         CommAndroidNotificationParser.parseRemoteMessageToJSForegroundMessage(
             initialNotification);
     promise.resolve(jsReadableNotification);
+  }
+
+  @ReactMethod
+  public void createChannel(
+      String channelID,
+      String name,
+      int importance,
+      String description) {
+    if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.O) {
+      // Method used below appeared in API level 26. Details:
+      // https://developer.android.com/develop/ui/views/notifications/channels#CreateChannel
+      return;
+    }
+    NotificationChannel channel =
+        new NotificationChannel(channelID, name, importance);
+    if (description != null) {
+      channel.setDescription(description);
+    }
+    notificationManager.createNotificationChannel(channel);
+  }
+
+  @Override
+  public Map<String, Object> getConstants() {
+    final Map<String, Object> constants = new HashMap<>();
+    constants.put(
+        "NOTIFICATIONS_IMPORTANCE_HIGH", NotificationManager.IMPORTANCE_HIGH);
+    return constants;
   }
 }
