@@ -21,7 +21,8 @@
     "rust-pre-commit": "./scripts/rust_pre_commit.sh",
     "terraform-pre-commit": "./scripts/terraform_pre_commit.sh",
     "prepare": "husky install",
-    "arcpatch": "git pull --all --tags && arc patch"
+    "arcpatch": "git pull --all --tags && arc patch",
+    "postinstall": "bash ./postinstall.sh"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
@@ -41,6 +42,8 @@
     "gaxios": "^4.3.2",
     "husky": "^7.0.0",
     "lint-staged": "^12.1.4",
+    "patch-package": "^6.4.7",
+    "postinstall-postinstall": "^2.0.0",
     "prettier": "^2.1.2"
   },
   "resolutions": {
