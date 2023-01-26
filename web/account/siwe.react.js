@@ -135,6 +135,11 @@ function SIWE(): React.Node {
         </div>
         <p>{siweMessageSigningExplanationStatements[0]}</p>
         <p>{siweMessageSigningExplanationStatements[1]}</p>
+        <p>
+          By signing up, you agree to our{' '}
+          <a href="https://comm.app/terms">Terms of Use</a> &{' '}
+          <a href="https://comm.app/privacy">Privacy Policy</a>.
+        </p>
         <Button variant="filled" onClick={onSignInButtonClick}>
           Sign in
         </Button>
