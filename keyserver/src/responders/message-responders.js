@@ -3,6 +3,7 @@
 import invariant from 'invariant';
 import t from 'tcomb';
 
+import { onlyOneEmojiRegex } from 'lib/shared/emojis';
 import { createMediaMessageData, trimMessage } from 'lib/shared/message-utils';
 import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
 import type { Media } from 'lib/types/media-types.js';
@@ -20,11 +21,7 @@ import type { ReactionMessageData } from 'lib/types/messages/reaction';
 import type { TextMessageData } from 'lib/types/messages/text';
 import { threadPermissions } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
-import {
-  tString,
-  tShape,
-  tMediaMessageMedia,
-} from 'lib/utils/validation-utils';
+import { tRegex, tShape, tMediaMessageMedia } from 'lib/utils/validation-utils';
 
 import createMessages from '../creators/message-creator';
 import { SQL } from '../database/database';
@@ -194,7 +191,7 @@ const sendReactionMessageRequestInputValidator = tShape({
   threadID: t.String,
   localID: t.maybe(t.String),
   targetMessageID: t.String,
-  reaction: tString('👍'),
+  reaction: tRegex(onlyOneEmojiRegex),
   action: t.enums.of(['add_reaction', 'remove_reaction']),
 });
 async function reactionMessageCreationResponder(
