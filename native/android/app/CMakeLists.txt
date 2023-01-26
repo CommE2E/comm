@@ -80,6 +80,15 @@ endif()
 
 add_subdirectory(${_third_party_dir}/glog/glog-${GLOG_VERSION}/)
 
+file(GLOB LIBRN_DIR "${REACT_NATIVE_SO_DIR}/${ANDROID_ABI}")
+if (NOT LIBRN_DIR)
+  # If /${ANDROID_ABI} dir not found, then ${REACT_NATIVE_SO_DIR} is probably:
+  # ReactAndroid/build/react-ndk/exported
+  file(GLOB LIBRN_DIR "${REACT_NATIVE_SO_DIR}")
+endif ()
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/folly-target.cmake)
+
 add_subdirectory(../../node_modules/olm ./build)
 
 set(_node_modules_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../node_modules)
@@ -152,11 +161,6 @@ target_include_directories(
   # symlinked React Native headers
   ../headers
 
-  # external libs
-  ${_third_party_dir}/folly
-  ${_third_party_dir}/boost/boost_${BOOST_VERSION}
-  ${_third_party_dir}/double-conversion
-
   # comm android specific code
   ./src/cpp
 
@@ -173,29 +177,6 @@ target_include_directories(
 
   # native rust library
   ${native_rust_library_include_dir}
-)
-
-file(GLOB LIBRN_DIR "${REACT_NATIVE_SO_DIR}/${ANDROID_ABI}")
-if (NOT LIBRN_DIR)
-  # If /${ANDROID_ABI} dir not found, then ${REACT_NATIVE_SO_DIR} is probably:
-  # ReactAndroid/build/react-ndk/exported
-  file(GLOB LIBRN_DIR "${REACT_NATIVE_SO_DIR}")
-endif ()
-
-find_library(
-  folly-lib
-  folly_runtime
-  PATHS ${LIBRN_DIR}
-  NO_CMAKE_FIND_ROOT_PATH
-)
-
-target_compile_options(
-  ${PACKAGE_NAME}
-  PRIVATE -DFOLLY_NO_CONFIG=1
-  -DFOLLY_HAVE_CLOCK_GETTIME=1
-  -DFOLLY_HAVE_MEMRCHR=1
-  -DFOLLY_USE_LIBCPP=1
-  -DFOLLY_MOBILE=1
 )
 
 add_definitions(
@@ -241,7 +222,7 @@ target_link_libraries(
   fbjni::fbjni
   android
   ${log-lib}
-  ${folly-lib}
+  Folly::folly
   glog::glog
   olm
   openssl-crypto
