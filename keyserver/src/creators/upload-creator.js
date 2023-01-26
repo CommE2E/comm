@@ -22,6 +22,7 @@ export type UploadInput = {
   buffer: Buffer,
   dimensions: Dimensions,
   loop: boolean,
+  thread: string,
 };
 async function createUploads(
   viewer: Viewer,
@@ -35,10 +36,11 @@ async function createUploads(
   const uploadRows = uploadInfos.map(uploadInfo => {
     const id = ids.shift();
     const secret = crypto.randomBytes(8).toString('hex');
-    const { dimensions, mediaType, loop } = uploadInfo;
+    const { dimensions, mediaType, loop, thread } = uploadInfo;
     return {
       uploadResult: {
         id,
+        thread,
         uri: shimUploadURI(getUploadURL(id, secret), viewer.platformDetails),
         dimensions,
         mediaType,
@@ -46,6 +48,7 @@ async function createUploads(
       },
       insert: [
         id,
+        thread,
         viewer.userID,
         mediaType,
         uploadInfo.name,
@@ -59,7 +62,7 @@ async function createUploads(
   });
 
   const insertQuery = SQL`
-    INSERT INTO uploads(id, uploader, type, filename,
+    INSERT INTO uploads(id, thread, uploader, type, filename,
       mime, content, secret, creation_time, extra)
     VALUES ${uploadRows.map(({ insert }) => insert)}
   `;

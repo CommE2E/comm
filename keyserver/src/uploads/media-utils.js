@@ -35,6 +35,7 @@ async function validateAndConvert(
   inputDimensions: ?Dimensions,
   inputLoop: boolean,
   size: number, // in bytes
+  thread: string,
 ): Promise<?UploadInput> {
   const { mime, mediaType } = deepFileInfoFromData(initialBuffer);
   if (!mime || !mediaType) {
@@ -57,6 +58,7 @@ async function validateAndConvert(
       buffer: initialBuffer,
       dimensions: inputDimensions,
       loop: inputLoop,
+      thread: thread,
     };
   }
 
@@ -72,6 +74,7 @@ async function validateAndConvert(
     inputDimensions,
     inputLoop,
     size,
+    thread,
   );
 }
 
@@ -82,6 +85,7 @@ async function convertImage(
   inputDimensions: ?Dimensions,
   inputLoop: boolean,
   size: number,
+  thread: string,
 ): Promise<?UploadInput> {
   let sharpImage, metadata;
   try {
@@ -116,6 +120,7 @@ async function convertImage(
       buffer: initialBuffer,
       dimensions: initialDimensions,
       loop: inputLoop,
+      thread,
     };
   }
   console.log(`processing image with ${JSON.stringify(plan)}`);
@@ -168,6 +173,7 @@ async function convertImage(
     buffer: convertedBuffer,
     dimensions: convertedDimensions,
     loop: inputLoop,
+    thread,
   };
 }
 
