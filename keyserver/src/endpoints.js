@@ -199,7 +199,7 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   update_device_token: {
     responder: deviceTokenUpdateResponder,
-    requiredPolicies: baseLegalPolicies,
+    requiredPolicies: [],
   },
   update_entry: {
     responder: entryUpdateResponder,
