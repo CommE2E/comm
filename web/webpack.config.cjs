@@ -1,4 +1,5 @@
 const AssetsPlugin = require('assets-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
 const {
@@ -10,6 +11,16 @@ const {
 const babelConfig = require('./babel.config.cjs');
 
 const baseBrowserConfig = {
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'node_modules/@matrix-org/olm/olm.wasm',
+          to: path.join(__dirname, 'dist'),
+        },
+      ],
+    }),
+  ],
   entry: {
     browser: ['./script.js'],
   },
@@ -21,6 +32,9 @@ const baseBrowserConfig = {
     alias: {
       '../images': path.resolve('../keyserver/images'),
     },
+  },
+  node: {
+    fs: 'empty',
   },
 };
 
@@ -45,6 +59,7 @@ const baseDevBrowserConfig = {
 const baseProdBrowserConfig = {
   ...baseBrowserConfig,
   plugins: [
+    ...baseBrowserConfig.plugins,
     new AssetsPlugin({
       filename: 'assets.json',
       path: path.join(__dirname, 'dist'),
