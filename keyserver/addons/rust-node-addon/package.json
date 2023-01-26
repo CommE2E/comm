@@ -30,11 +30,11 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "yarn install-ci-deps && napi build --platform napi --release",
+    "build": "yarn install-external-deps && napi build --platform napi --release",
     "build:debug": "napi build --platform napi",
     "version": "napi version",
-    "postinstall": "bash ./postinstall.sh",
+    "postinstall": "yarn build",
     "clean": "rm -rf target/ && rm -rf napi/ && rm -rf node_modules/",
-    "install-ci-deps": "bash ./install_ci_deps.sh"
+    "install-external-deps": "bash ./install_external_deps.sh"
   }
 }
