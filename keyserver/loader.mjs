@@ -15,7 +15,7 @@ async function resolve(specifier, context, nextResolve) {
       continue;
     }
     const path = localPackages[pkg];
-    const url = defaultResult.url.replace(path, `keyserver/dist/${pkg}`);
+    const url = defaultResult.url.replace(`comm/${path}`, `comm/keyserver/dist/${pkg}`);
     return { url };
   }
 
