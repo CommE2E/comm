@@ -19,7 +19,7 @@ import { cloneError } from 'lib/utils/errors';
 import Alert from '../modals/alert.react';
 import { useSelector } from '../redux/redux-utils';
 
-function useOnClickReact(
+function useSendReaction(
   messageID: ?string,
   localID: string,
   threadID: string,
@@ -101,4 +101,4 @@ function useOnClickReact(
   );
 }
 
-export { useOnClickReact };
+export { useSendReaction };

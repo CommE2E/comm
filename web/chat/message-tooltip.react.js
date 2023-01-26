@@ -1,8 +1,15 @@
 // @flow
 
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 import classNames from 'classnames';
 import * as React from 'react';
 
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
+import { localIDPrefix } from 'lib/shared/message-utils';
+import type { ThreadInfo } from 'lib/types/thread-types';
+
+import { useSelector } from '../redux/redux-utils';
 import { type MessageTooltipAction } from '../utils/tooltip-utils';
 import {
   tooltipButtonStyle,
@@ -10,15 +17,30 @@ import {
   tooltipStyle,
 } from './chat-constants';
 import css from './message-tooltip.css';
+import { useSendReaction } from './reaction-message-utils';
+import { useTooltipContext } from './tooltip-provider';
 
 type MessageTooltipProps = {
   +actions: $ReadOnlyArray<MessageTooltipAction>,
   +messageTimestamp: string,
   +alignment?: 'left' | 'center' | 'right',
+  +item: ChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
 };
 function MessageTooltip(props: MessageTooltipProps): React.Node {
-  const { actions, messageTimestamp, alignment = 'left' } = props;
+  const {
+    actions,
+    messageTimestamp,
+    alignment = 'left',
+    item,
+    threadInfo,
+  } = props;
+  const { messageInfo, reactions } = item;
+
   const [activeTooltipLabel, setActiveTooltipLabel] = React.useState<?string>();
+
+  const { renderEmojiKeyboard } = useTooltipContext();
+
   const messageActionButtonsContainerClassName = classNames(
     css.messageActionContainer,
     css.messageActionButtons,
@@ -91,19 +113,55 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     );
   }, [messageTimestamp, messageTooltipLabelStyle]);
 
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const localID = `${localIDPrefix}${nextLocalID}`;
+
+  const sendReaction = useSendReaction(messageInfo.id, localID, threadInfo.id);
+
+  const onEmojiSelect = React.useCallback(
+    emoji => {
+      const reactionInput = emoji.native;
+      const viewerReacted = !!reactions.get(reactionInput)?.viewerReacted;
+      const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
+
+      sendReaction(reactionInput, action);
+    },
+    [sendReaction, reactions],
+  );
+
+  const emojiKeyboard = React.useMemo(() => {
+    if (!renderEmojiKeyboard) {
+      return null;
+    }
+    return <Picker data={data} onEmojiSelect={onEmojiSelect} />;
+  }, [onEmojiSelect, renderEmojiKeyboard]);
+
   const messageTooltipContainerStyle = React.useMemo(() => tooltipStyle, []);
 
-  const containerClassNames = classNames(css.messageTooltipContainer, {
+  const containerClassName = classNames({
+    [css.container]: true,
+    [css.containerLeftAlign]: alignment === 'left',
+    [css.containerCenterAlign]: alignment === 'center',
+  });
+
+  const messageTooltipContainerClassNames = classNames({
+    [css.messageTooltipContainer]: true,
     [css.leftTooltipAlign]: alignment === 'left',
     [css.centerTooltipAlign]: alignment === 'center',
     [css.rightTooltipAlign]: alignment === 'right',
   });
 
   return (
-    <div className={containerClassNames} style={messageTooltipContainerStyle}>
-      <div style={messageTooltipTopLabelStyle}>{tooltipLabel}</div>
-      {tooltipButtons}
-      {tooltipTimestamp}
+    <div className={containerClassName}>
+      {emojiKeyboard}
+      <div
+        className={messageTooltipContainerClassNames}
+        style={messageTooltipContainerStyle}
+      >
+        <div style={messageTooltipTopLabelStyle}>{tooltipLabel}</div>
+        {tooltipButtons}
+        {tooltipTimestamp}
+      </div>
     </div>
   );
 }

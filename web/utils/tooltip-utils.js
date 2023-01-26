@@ -5,7 +5,7 @@ import _debounce from 'lodash/debounce';
 import * as React from 'react';
 
 import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { localIDPrefix, createMessageReply } from 'lib/shared/message-utils';
+import { createMessageReply } from 'lib/shared/message-utils';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import {
   threadHasPermission,
@@ -21,18 +21,16 @@ import {
   tooltipLabelStyle,
   tooltipStyle,
 } from '../chat/chat-constants';
-import MessageLikeTooltipButton from '../chat/message-like-tooltip-button.react';
 import MessageTooltip from '../chat/message-tooltip.react';
 import type { PositionInfo } from '../chat/position-types';
-import { useOnClickReact } from '../chat/reaction-message-utils';
 import { useTooltipContext } from '../chat/tooltip-provider';
 import CommIcon from '../CommIcon.react';
 import { InputStateContext } from '../input/input-state';
-import { useSelector } from '../redux/redux-utils';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
 } from '../selectors/thread-selectors';
+import SWMansionIcon from '../SWMansionIcon.react';
 import { calculateMaxTextWidth } from '../utils/text-utils';
 
 export const tooltipPositions = Object.freeze({
@@ -457,21 +455,9 @@ function useMessageReactAction(
   item: ChatMessageInfoItem,
   threadInfo: ThreadInfo,
 ): ?MessageTooltipAction {
-  const { messageInfo, reactions } = item;
+  const { messageInfo } = item;
 
-  const nextLocalID = useSelector(state => state.nextLocalID);
-  const localID = `${localIDPrefix}${nextLocalID}`;
-
-  const reactionInput = '👍';
-  const viewerReacted = !!reactions.get(reactionInput)?.viewerReacted;
-  const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
-
-  const onClickReact = useOnClickReact(messageInfo.id, localID, threadInfo.id);
-
-  const onClick = React.useCallback(() => onClickReact(reactionInput, action), [
-    action,
-    onClickReact,
-  ]);
+  const { setRenderEmojiKeyboard } = useTooltipContext();
 
   const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
     threadInfo,
@@ -483,16 +469,21 @@ function useMessageReactAction(
       return null;
     }
 
-    const buttonContent = (
-      <MessageLikeTooltipButton viewerReacted={viewerReacted} />
-    );
+    const buttonContent = <SWMansionIcon icon="emote-smile" size={18} />;
+
+    const onClickReact = () => {
+      if (!setRenderEmojiKeyboard) {
+        return;
+      }
+      setRenderEmojiKeyboard(true);
+    };
 
     return {
       actionButtonContent: buttonContent,
-      onClick,
-      label: viewerReacted ? 'Unlike' : 'Like',
+      onClick: onClickReact,
+      label: 'React',
     };
-  }, [canCreateReactionFromMessage, onClick, viewerReacted]);
+  }, [canCreateReactionFromMessage, setRenderEmojiKeyboard]);
 }
 
 function useMessageTooltipActions(
@@ -527,6 +518,8 @@ type CreateTooltipParams = {
   +containsInlineEngagement: boolean,
   +tooltipActions: $ReadOnlyArray<MessageTooltipAction>,
   +messageTimestamp: string,
+  +item: ChatMessageInfoItem,
+  +threadInfo: ThreadInfo,
 };
 
 function createTooltip(params: CreateTooltipParams) {
@@ -537,6 +530,8 @@ function createTooltip(params: CreateTooltipParams) {
     containsInlineEngagement,
     tooltipActions,
     messageTimestamp,
+    item,
+    threadInfo,
   } = params;
   if (!tooltipMessagePosition) {
     return;
@@ -565,6 +560,8 @@ function createTooltip(params: CreateTooltipParams) {
       actions={tooltipActions}
       messageTimestamp={messageTimestamp}
       alignment={alignment}
+      item={item}
+      threadInfo={threadInfo}
     />
   );
   return { tooltip, tooltipPositionStyle };
@@ -621,6 +618,8 @@ function useMessageTooltip({
         containsInlineEngagement,
         tooltipActions,
         messageTimestamp,
+        item,
+        threadInfo,
       });
       if (!tooltipResult) {
         return;
@@ -640,8 +639,10 @@ function useMessageTooltip({
     [
       availablePositions,
       containsInlineEngagement,
+      item,
       messageTimestamp,
       renderTooltip,
+      threadInfo,
       tooltipActions,
       tooltipMessagePosition,
       tooltipSize,
@@ -660,6 +661,8 @@ function useMessageTooltip({
       containsInlineEngagement,
       tooltipActions,
       messageTimestamp,
+      item,
+      threadInfo,
     });
     if (!tooltipResult) {
       return;
@@ -669,7 +672,9 @@ function useMessageTooltip({
   }, [
     availablePositions,
     containsInlineEngagement,
+    item,
     messageTimestamp,
+    threadInfo,
     tooltipActions,
     tooltipMessagePosition,
     tooltipSize,
