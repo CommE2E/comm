@@ -13,9 +13,9 @@ try {
   alchemyKey = key;
 } catch {}
 
-const provider: EthersProvider = new ethers.providers.AlchemyProvider(
-  'mainnet',
-  alchemyKey,
-);
+let provider: ?EthersProvider;
+if (alchemyKey) {
+  provider = new ethers.providers.AlchemyProvider('mainnet', alchemyKey);
+}
 
 export { provider };
