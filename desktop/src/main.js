@@ -14,7 +14,7 @@ import path from 'path';
 import { handleSquirrelEvent } from './handle-squirrel-event';
 
 const isDev = process.env.ENV === 'dev';
-const url = isDev ? 'http://localhost/comm/' : 'https://web.comm.app';
+const url = isDev ? 'http://localhost:3000/comm/' : 'https://web.comm.app';
 const isMac = process.platform === 'darwin';
 
 const scrollbarCSS = fs.promises.readFile(
