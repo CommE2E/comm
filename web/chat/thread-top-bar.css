@@ -11,19 +11,27 @@ div.topBarContainer {
 div.topBarThreadInfo {
   height: 24px;
   display: flex;
+  justify-content: flex-start;
   align-items: center;
   column-gap: 8px;
+  overflow: hidden;
+  flex: 1;
 }
 
 div.threadColorSquare {
   width: 24px;
   height: 24px;
   border-radius: 4px;
+  flex: 0 0 auto;
 }
 
-p.threadTitle {
+div.threadTitle {
   font-size: var(--m-font-16);
   font-weight: var(--bold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 auto;
 }
 
 button.topBarMenu {

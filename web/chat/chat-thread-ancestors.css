@@ -3,11 +3,11 @@ div.ancestorThreadsContainer {
   display: flex;
   align-items: center;
   column-gap: 5px;
+  flex: 0 0.75 auto;
+  overflow: hidden;
 }
 
 div.ancestorName {
-  display: flex;
-  align-items: center;
   padding: 2px 6px;
   border-radius: 2px;
   box-sizing: border-box;
@@ -23,14 +23,11 @@ button.seeFullStructure {
 div.ancestorKeyserver {
   display: flex;
   align-items: center;
+  flex: 0 1 auto;
 }
 
 div.ancestorKeyserverName {
   border-radius: 0 2px 2px 0;
-}
-
-svg.ancestorSeparator {
-  color: var(--thread-ancestor-separator-color);
 }
 
 div.ancestorKeyserverOperator {
@@ -42,6 +39,24 @@ div.ancestorKeyserverOperator {
   border-radius: 2px 0 0 2px;
   height: 22px;
   box-sizing: border-box;
+}
+
+div.middle {
+  flex: 0 0 auto;
+}
+
+div.currentThreadName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+svg.ancestorSeparator {
+  color: var(--thread-ancestor-separator-color);
+  flex: 0 0 auto;
 }
 
 button.seeFullAncestor {

@@ -74,7 +74,10 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
           icon="chevron-right"
           size={12}
         />
-        <div style={threadColorStyle} className={css.ancestorName}>
+        <div
+          style={threadColorStyle}
+          className={classNames(css.ancestorName, css.middle)}
+        >
           &hellip;
         </div>
       </>
@@ -94,7 +97,10 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
           icon="chevron-right"
           size={12}
         />
-        <div style={threadColorStyle} className={css.ancestorName}>
+        <div
+          style={threadColorStyle}
+          className={classNames(css.ancestorName, css.currentThreadName)}
+        >
           {threadInfo.uiName}
         </div>
       </>
