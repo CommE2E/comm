@@ -466,13 +466,12 @@ function useMessageReactAction(
   const viewerReacted = !!reactions.get(reactionInput)?.viewerReacted;
   const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
 
-  const onClickReact = useOnClickReact(
-    messageInfo.id,
-    localID,
-    threadInfo.id,
-    reactionInput,
+  const onClickReact = useOnClickReact(messageInfo.id, localID, threadInfo.id);
+
+  const onClick = React.useCallback(() => onClickReact(reactionInput, action), [
     action,
-  );
+    onClickReact,
+  ]);
 
   const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
     threadInfo,
@@ -490,10 +489,10 @@ function useMessageReactAction(
 
     return {
       actionButtonContent: buttonContent,
-      onClick: onClickReact,
+      onClick,
       label: viewerReacted ? 'Unlike' : 'Like',
     };
-  }, [canCreateReactionFromMessage, onClickReact, viewerReacted]);
+  }, [canCreateReactionFromMessage, onClick, viewerReacted]);
 }
 
 function useMessageTooltipActions(

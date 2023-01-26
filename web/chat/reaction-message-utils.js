@@ -23,9 +23,7 @@ function useOnClickReact(
   messageID: ?string,
   localID: string,
   threadID: string,
-  reaction: string,
-  action: 'add_reaction' | 'remove_reaction',
-): (event: SyntheticEvent<HTMLElement>) => mixed {
+): (reaction: string, action: 'add_reaction' | 'remove_reaction') => mixed {
   const { pushModal } = useModalContext();
 
   const viewerID = useSelector(
@@ -36,9 +34,7 @@ function useOnClickReact(
   const dispatchActionPromise = useDispatchActionPromise();
 
   return React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
-      event.preventDefault();
-
+    (reaction, action) => {
       if (!messageID) {
         return;
       }
@@ -95,11 +91,9 @@ function useOnClickReact(
     },
     [
       messageID,
+      viewerID,
       threadID,
       localID,
-      viewerID,
-      reaction,
-      action,
       dispatchActionPromise,
       callSendReactionMessage,
       pushModal,
