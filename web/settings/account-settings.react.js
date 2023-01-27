@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
+import { useStringForUser } from 'lib/hooks/ens-cache';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import {
@@ -53,10 +54,10 @@ function AccountSettings(): React.Node {
   );
 
   const currentUserInfo = useSelector(state => state.currentUserInfo);
+  const stringForUser = useStringForUser(currentUserInfo);
   if (!currentUserInfo || currentUserInfo.anonymous) {
     return null;
   }
-  const { username } = currentUserInfo;
 
   let changePasswordSection;
   if (isAccountWithPassword) {
@@ -81,7 +82,7 @@ function AccountSettings(): React.Node {
           <li>
             <p className={css.logoutContainer}>
               <span className={css.logoutLabel}>{'Logged in as '}</span>
-              <span className={css.username}>{username}</span>
+              <span className={css.username}>{stringForUser}</span>
             </p>
             <Button variant="text" onClick={logOutUser}>
               <p className={css.buttonText}>Log out</p>
