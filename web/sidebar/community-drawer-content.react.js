@@ -46,6 +46,7 @@ function CommunityDrawerContent(): React.Node {
       key={item.threadInfo.id}
       toggleExpanded={setOpenCommunityOrClose}
       expanded={item.threadInfo.id === openCommunity}
+      paddingLeft={10}
     />
   ));
 
