@@ -28,4 +28,14 @@ struct Runnable : public jni::JavaClass<Runnable> {
   }
 };
 
+struct NativeAndroidAccessible {
+  static void runTask(std::function<void()> &&task) {
+    // Some methods are meant to be executed on auxiliary threads. In case they
+    // require access to native Java API we need to temporarily attach the
+    // thread to JVM This function attaches thread to JVM for the time lambda
+    // passed to this function will be executing.
+    jni::ThreadScope::WithClassLoader(std::move(task));
+  }
+};
+
 } // namespace comm
