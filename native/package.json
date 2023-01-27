@@ -118,6 +118,7 @@
     "redux-persist": "^6.0.0",
     "redux-thunk": "^2.2.0",
     "reselect": "^4.0.0",
+    "rn-emoji-keyboard": "^1.2.0",
     "shallowequal": "^1.0.2",
     "simple-markdown": "^0.7.2",
     "tinycolor2": "^1.4.1"
