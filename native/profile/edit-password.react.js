@@ -7,10 +7,10 @@ import {
   Text,
   View,
   TextInput as BaseTextInput,
-  ScrollView,
   Alert,
   ActivityIndicator,
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import {
   changeUserPasswordActionTypes,

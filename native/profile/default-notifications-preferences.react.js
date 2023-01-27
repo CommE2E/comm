@@ -1,7 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, ScrollView, Platform, Alert } from 'react-native';
+import { View, Text, Platform, Alert } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import {
   setUserSettings,

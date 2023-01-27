@@ -1,7 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, ScrollView, Platform } from 'react-native';
+import { View, Text, Platform } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 
 import type { Dispatch } from 'lib/types/redux-types';

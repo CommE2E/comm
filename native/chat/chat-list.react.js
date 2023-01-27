@@ -4,13 +4,14 @@ import invariant from 'invariant';
 import _sum from 'lodash/fp/sum';
 import * as React from 'react';
 import {
-  FlatList,
   Animated,
   Easing,
   StyleSheet,
   TouchableWithoutFeedback,
   View,
+  FlatList as ReactNativeFlatList,
 } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 
 import { localIDPrefix } from 'lib/shared/message-utils';
 
@@ -27,13 +28,16 @@ import type { ChatNavigationProp } from './chat.react';
 import NewMessagesPill from './new-messages-pill.react';
 import { chatMessageItemHeight, chatMessageItemKey } from './utils';
 
+type FlatListElementRef = React.ElementRef<typeof ReactNativeFlatList>;
+type FlatListProps = React.ElementConfig<typeof ReactNativeFlatList>;
+
 const animationSpec = {
   duration: 150,
   useNativeDriver: true,
 };
 
 type BaseProps = {
-  ...React.ElementConfig<typeof FlatList>,
+  ...FlatListProps,
   +navigation: ChatNavigationProp<'MessageList'>,
   +data: $ReadOnlyArray<ChatMessageItemWithHeight>,
   ...
@@ -54,7 +58,7 @@ class ChatList extends React.PureComponent<Props, State> {
     newMessageCount: 0,
   };
 
-  flatList: ?React.ElementRef<typeof FlatList>;
+  flatList: ?FlatListElementRef;
   scrollPos = 0;
 
   newMessagesPillProgress = new Animated.Value(0);
@@ -211,7 +215,7 @@ class ChatList extends React.PureComponent<Props, State> {
     );
   }
 
-  flatListRef = (flatList: ?React.ElementRef<typeof FlatList>) => {
+  flatListRef = (flatList: any) => {
     this.flatList = flatList;
   };
 

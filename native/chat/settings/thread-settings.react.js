@@ -2,7 +2,8 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, FlatList, Platform } from 'react-native';
+import { View, Platform } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 import { createSelector } from 'reselect';
 import tinycolor from 'tinycolor2';
 
