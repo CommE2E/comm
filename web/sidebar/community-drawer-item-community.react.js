@@ -10,7 +10,7 @@ import type { DrawerItemProps } from './community-drawer-item.react';
 function CommunityDrawerItemCommunity(props: DrawerItemProps): React.Node {
   const classes = classnames({
     [css.communityBase]: true,
-    [css.communityExpanded]: props.expanded,
+    [css.communityExpanded]: props.expanded && props.allowExpanding,
   });
   return (
     <div className={classes}>

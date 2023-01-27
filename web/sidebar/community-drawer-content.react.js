@@ -15,10 +15,11 @@ import {
 import css from './community-drawer-content.css';
 import CommunityDrawerItemCommunity from './community-drawer-item-community.react';
 
-const maxDepth = 2;
 const labelStyles = ['titleLevel0', 'titleLevel1', 'titleLevel2'];
 
 function CommunityDrawerContent(): React.Node {
+  const tab = useSelector(state => state.navInfo.tab);
+  const maxDepth = tab === 'calendar' ? 0 : 2;
   const childThreadInfosMap = useSelector(childThreadInfos);
   const communities = useSelector(communityThreadSelector);
   const communitiesSuffixed = React.useMemo(() => appendSuffix(communities), [
@@ -47,6 +48,7 @@ function CommunityDrawerContent(): React.Node {
       toggleExpanded={setOpenCommunityOrClose}
       expanded={item.threadInfo.id === openCommunity}
       paddingLeft={10}
+      allowExpanding={maxDepth > 0}
     />
   ));
 
