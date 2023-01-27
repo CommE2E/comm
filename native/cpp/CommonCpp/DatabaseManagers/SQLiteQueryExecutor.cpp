@@ -8,10 +8,6 @@
 #include <iostream>
 #include <thread>
 
-#ifdef __ANDROID__
-#include <fbjni/fbjni.h>
-#endif
-
 #define ACCOUNT_ID 1
 
 namespace comm {
@@ -499,19 +495,6 @@ bool is_database_queryable(sqlite3 *db, bool use_encryption_key) {
       db, "SELECT COUNT(*) FROM sqlite_master;", nullptr, nullptr, &err_msg);
   sqlite3_close(db);
   return !err_msg;
-}
-
-void run_with_native_accessible(std::function<void()> &&task) {
-  // Some methods of SQLiteQueryExecutor are meant to be executed on
-  // auxiliary threads. In case they require access to native Java
-  // API we need to temporarily attach the thread to JVM
-  // This function attaches thread to JVM for the time
-  // lambda passed to this function will be executing.
-#ifdef __ANDROID__
-  facebook::jni::ThreadScope::WithClassLoader(std::move(task));
-#else
-  task();
-#endif
 }
 
 void validate_encryption() {
@@ -1113,10 +1096,7 @@ void SQLiteQueryExecutor::clearSensitiveData() {
                 << strerror(errno);
     throw std::system_error(errno, std::generic_category(), errorStream.str());
   }
-  auto native_dependent_task = []() {
-    SQLiteQueryExecutor::assign_encryption_key();
-  };
-  run_with_native_accessible(native_dependent_task);
+  SQLiteQueryExecutor::assign_encryption_key();
   SQLiteQueryExecutor::migrate();
 }
 

@@ -1,3 +1,4 @@
+#include "jniHelpers.h"
 #include <Tools/Logger.h>
 #include <Tools/PlatformSpecificTools.h>
 #include <fbjni/fbjni.h>
@@ -30,7 +31,9 @@ namespace comm {
 void PlatformSpecificTools::generateSecureRandomBytes(
     crypto::OlmBuffer &buffer,
     size_t size) {
-  buffer = PlatformSpecificToolsJavaClass::generateSecureRandomBytes(size);
+  NativeAndroidAccessible::runTask([&buffer, size]() {
+    buffer = PlatformSpecificToolsJavaClass::generateSecureRandomBytes(size);
+  });
 }
 
 std::string PlatformSpecificTools::getDeviceOS() {
