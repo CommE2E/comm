@@ -1,3 +1,4 @@
+#include "jniHelpers.h"
 #include <Tools/CommSecureStore.h>
 #include <fbjni/fbjni.h>
 
@@ -29,7 +30,8 @@ namespace comm {
 
 void CommSecureStore::set(const std::string key, const std::string value)
     const {
-  CommSecureStoreJavaClass::set(key, value);
+  NativeAndroidAccessProvider::runTask(
+      [=]() { CommSecureStoreJavaClass::set(key, value); });
 }
 
 folly::Optional<std::string> CommSecureStore::get(const std::string key) const {
