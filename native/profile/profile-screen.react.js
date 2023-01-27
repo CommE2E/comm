@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, Text, Alert, Platform, ScrollView } from 'react-native';
 
 import { logOutActionTypes, logOut } from 'lib/actions/user-actions';
+import { useStringForUser } from 'lib/hooks/ens-cache';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { accountHasPassword } from 'lib/shared/account-utils';
@@ -68,15 +69,10 @@ type Props = {
   +dispatchActionPromise: DispatchActionPromise,
   +logOut: (preRequestUserState: PreRequestUserState) => Promise<LogOutResult>,
   +staffCanSee: boolean,
+  +stringForUser: ?string,
 };
 
 class ProfileScreen extends React.PureComponent<Props> {
-  get username() {
-    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
-      ? this.props.currentUserInfo.username
-      : undefined;
-  }
-
   get loggedOutOrLoggingOut() {
     return (
       !this.props.currentUserInfo ||
@@ -134,7 +130,7 @@ class ProfileScreen extends React.PureComponent<Props> {
               <SingleLine
                 style={[this.props.styles.label, this.props.styles.username]}
               >
-                {this.username}
+                {this.props.stringForUser}
               </SingleLine>
               <Button
                 onPress={this.onPressLogOut}
@@ -360,6 +356,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo<BasePr
     const callLogOut = useServerCall(logOut);
     const dispatchActionPromise = useDispatchActionPromise();
     const staffCanSee = useStaffCanSee();
+    const stringForUser = useStringForUser(currentUserInfo);
 
     return (
       <ProfileScreen
@@ -372,6 +369,7 @@ const ConnectedProfileScreen: React.ComponentType<BaseProps> = React.memo<BasePr
         logOut={callLogOut}
         dispatchActionPromise={dispatchActionPromise}
         staffCanSee={staffCanSee}
+        stringForUser={stringForUser}
       />
     );
   },
