@@ -2,6 +2,7 @@
 
 import '@rainbow-me/rainbowkit/dist/index.css';
 
+import olm from '@matrix-org/olm';
 import {
   ConnectButton,
   darkTheme,
@@ -28,8 +29,8 @@ import {
 } from 'lib/utils/action-utils';
 import {
   createSIWEMessage,
+  getSIWEStatementForPublicKey,
   siweMessageSigningExplanationStatements,
-  siweStatementWithoutPublicKey,
 } from 'lib/utils/siwe-utils.js';
 
 import Button from '../components/button.react';
@@ -56,6 +57,10 @@ function SIWE(): React.Node {
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
   const [
+    primaryIdentityPublicKey,
+    setPrimaryIdentityPublicKey,
+  ] = React.useState<?string>(null);
+  const [
     hasSIWEButtonBeenClicked,
     setHasSIWEButtonBeenClicked,
   ] = React.useState<boolean>(false);
@@ -77,6 +82,16 @@ function SIWE(): React.Node {
       })(),
     );
   }, [dispatchActionPromise, getSIWENonceCall, siweNonceShouldBeFetched]);
+
+  React.useEffect(() => {
+    (async () => {
+      await olm.init();
+      const account = new olm.Account();
+      account.create();
+      const { ed25519 } = JSON.parse(account.identity_keys());
+      setPrimaryIdentityPublicKey(ed25519);
+    })();
+  }, []);
 
   const siweButtonColor = React.useMemo(
     () => ({ backgroundColor: 'white', color: 'black' }),
@@ -108,23 +123,21 @@ function SIWE(): React.Node {
 
   const onSignInButtonClick = React.useCallback(async () => {
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
-    const message = createSIWEMessage(
-      address,
-      siweStatementWithoutPublicKey,
-      siweNonce,
+    invariant(
+      primaryIdentityPublicKey,
+      'primaryIdentityPublicKey must be present during SIWE attempt',
     );
+    const statement = getSIWEStatementForPublicKey(primaryIdentityPublicKey);
+    const message = createSIWEMessage(address, statement, siweNonce);
     const signature = await signer.signMessage(message);
     attemptSIWEAuth(message, signature);
-  }, [address, attemptSIWEAuth, signer, siweNonce]);
+  }, [address, attemptSIWEAuth, primaryIdentityPublicKey, signer, siweNonce]);
 
   let siweLoginForm;
-  if (signer && !siweNonce) {
+  if (signer && (!siweNonce || !primaryIdentityPublicKey)) {
     siweLoginForm = (
       <div className={css.connectButtonContainer}>
-        <LoadingIndicator
-          status={getSIWENonceCallLoadingStatus}
-          size="medium"
-        />
+        <LoadingIndicator status="loading" size="medium" />
       </div>
     );
   } else if (signer) {
