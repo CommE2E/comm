@@ -23,7 +23,6 @@
 
 [declarations]
 .*/node_modules/react-native-camera/*
-.*/node_modules/react-native-firebase/*
 
 [include]
 ../node_modules

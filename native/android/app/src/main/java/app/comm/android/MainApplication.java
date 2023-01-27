@@ -18,8 +18,6 @@ import com.facebook.soloader.SoLoader;
 import com.wix.reactnativekeyboardinput.KeyboardInputPackage;
 import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
-import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
-import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.security.Security;
@@ -43,8 +41,6 @@ public class MainApplication
         protected List<ReactPackage> getPackages() {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
-          packages.add(new RNFirebaseMessagingPackage());
-          packages.add(new RNFirebaseNotificationsPackage());
           packages.add(new KeyboardInputPackage(this.getApplication()));
           packages.add(new CommAndroidNotificationsPackage());
           return packages;
