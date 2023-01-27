@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import { oldValidUsernameRegexString } from 'lib/shared/account-utils';
+import { getNewTextAndSelection } from 'lib/shared/typeahead-utils';
 import { stringForUserExplicit } from 'lib/shared/user-utils';
 import type { SetState } from 'lib/types/hook-types';
 import type { RelativeMemberInfo } from 'lib/types/thread-types';
@@ -101,24 +102,15 @@ function getTypeaheadTooltipActions(
     .map(suggestedUser => ({
       key: suggestedUser.id,
       execute: () => {
-        const newPrefixText = textBeforeAtSymbol;
-
-        const totalMatchLength =
-          textBeforeAtSymbol.length + usernamePrefix.length + 1; // 1 for @ char
-
-        let newSuffixText = inputStateDraft.slice(totalMatchLength);
-        newSuffixText = (newSuffixText[0] !== ' ' ? ' ' : '') + newSuffixText;
-
-        const newText =
-          newPrefixText +
-          '@' +
-          stringForUserExplicit(suggestedUser) +
-          newSuffixText;
+        const { newText, newSelectionStart } = getNewTextAndSelection(
+          textBeforeAtSymbol,
+          inputStateDraft,
+          usernamePrefix,
+          suggestedUser,
+        );
 
         inputStateSetDraft(newText);
-        inputStateSetTextCursorPosition(
-          newText.length - newSuffixText.length + 1,
-        );
+        inputStateSetTextCursorPosition(newSelectionStart);
       },
       actionButtonContent: stringForUserExplicit(suggestedUser),
     }));
