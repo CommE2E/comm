@@ -3,13 +3,7 @@
 const { platform, arch } = process;
 
 type RustAPI = {
-  +registerUser: (
-    userId: string,
-    deviceId: string,
-    username: string,
-    password: string,
-    userPublicKey: string,
-  ) => Promise<string>,
+  +sum: (a: number, b: number) => number,
 };
 
 async function getRustAPI(): Promise<RustAPI> {
@@ -34,8 +28,8 @@ async function getRustAPI(): Promise<RustAPI> {
     throw new Error('Failed to load native binding');
   }
 
-  const { registerUser } = nativeBinding.default;
-  return { registerUser };
+  const { sum } = nativeBinding.default;
+  return { sum };
 }
 
 export { getRustAPI };
