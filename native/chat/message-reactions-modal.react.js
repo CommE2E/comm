@@ -6,7 +6,7 @@ import * as React from 'react';
 import { View, Text, FlatList, TouchableHighlight } from 'react-native';
 
 import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
-import { createMessageReactionsList } from 'lib/shared/reaction-utils';
+import { useMessageReactionsList } from 'lib/shared/reaction-utils';
 
 import Modal from '../components/modal.react';
 import type { RootNavigationProp } from '../navigation/root-navigator.react';
@@ -32,10 +32,7 @@ function MessageReactionsModal(props: Props): React.Node {
 
   const close = React.useCallback(() => navigation.goBack(), [navigation]);
 
-  const reactionsListData = React.useMemo(
-    () => createMessageReactionsList(reactions),
-    [reactions],
-  );
+  const reactionsListData = useMessageReactionsList(reactions);
 
   const renderItem = React.useCallback(
     ({ item }) => {

@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
-import { createMessageReactionsList } from 'lib/shared/reaction-utils';
+import { useMessageReactionsList } from 'lib/shared/reaction-utils';
 
 import Modal from '../modal.react';
 import css from './message-reactions-modal.css';
@@ -16,16 +16,18 @@ type Props = {
 function MessageReactionsModal(props: Props): React.Node {
   const { onClose, reactions } = props;
 
-  const reactionsList = React.useMemo(() => {
-    const messageReactionsList = createMessageReactionsList(reactions);
+  const messageReactionsList = useMessageReactionsList(reactions);
 
-    return messageReactionsList.map(messageReactionUser => (
-      <div key={messageReactionUser.id} className={css.userRowContainer}>
-        <div>{messageReactionUser.username}</div>
-        <div>{messageReactionUser.reaction}</div>
-      </div>
-    ));
-  }, [reactions]);
+  const reactionsList = React.useMemo(
+    () =>
+      messageReactionsList.map(messageReactionUser => (
+        <div key={messageReactionUser.id} className={css.userRowContainer}>
+          <div>{messageReactionUser.username}</div>
+          <div>{messageReactionUser.reaction}</div>
+        </div>
+      )),
+    [messageReactionsList],
+  );
 
   return (
     <Modal size="large" name="Reactions" onClose={onClose}>
