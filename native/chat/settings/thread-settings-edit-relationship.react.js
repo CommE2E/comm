@@ -8,6 +8,7 @@ import {
   updateRelationships as serverUpdateRelationships,
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions';
+import { useENSNames } from 'lib/hooks/ens-cache';
 import {
   getRelationshipActionText,
   getRelationshipDispatchAction,
@@ -36,7 +37,7 @@ type Props = {
 
 const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo<Props>(
   function ThreadSettingsEditRelationship(props: Props) {
-    const otherUserInfo = useSelector(state => {
+    const otherUserInfoFromRedux = useSelector(state => {
       const currentUserID = state.currentUserInfo?.id;
       const otherUserID = getSingleOtherUser(props.threadInfo, currentUserID);
       invariant(otherUserID, 'Other user should be specified');
@@ -44,7 +45,9 @@ const ThreadSettingsEditRelationship: React.ComponentType<Props> = React.memo<Pr
       const { userInfos } = state.userStore;
       return userInfos[otherUserID];
     });
-    invariant(otherUserInfo, 'Other user info should be specified');
+    invariant(otherUserInfoFromRedux, 'Other user info should be specified');
+
+    const [otherUserInfo] = useENSNames([otherUserInfoFromRedux]);
 
     const callUpdateRelationships = useServerCall(serverUpdateRelationships);
     const updateRelationship = React.useCallback(

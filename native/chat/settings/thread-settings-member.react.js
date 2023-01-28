@@ -14,6 +14,7 @@ import {
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
 } from 'lib/actions/thread-actions';
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   memberIsAdmin,
@@ -264,6 +265,8 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> = React.memo
       )(state),
     );
 
+    const [memberInfo] = useENSNames([props.memberInfo]);
+
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const keyboardState = React.useContext(KeyboardContext);
@@ -271,6 +274,7 @@ const ConnectedThreadSettingsMember: React.ComponentType<BaseProps> = React.memo
     return (
       <ThreadSettingsMember
         {...props}
+        memberInfo={memberInfo}
         removeUserLoadingStatus={removeUserLoadingStatus}
         changeRoleLoadingStatus={changeRoleLoadingStatus}
         colors={colors}
