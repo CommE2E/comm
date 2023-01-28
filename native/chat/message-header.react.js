@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { stringForUser } from 'lib/shared/user-utils';
+import { useStringForUser } from 'lib/hooks/ens-cache';
 
 import { SingleLine } from '../components/single-line.react';
 import { useStyles } from '../themes/colors';
@@ -24,15 +24,16 @@ function MessageHeader(props: Props): React.Node {
   const { isViewer } = creator;
   const modalDisplay = display === 'modal';
 
+  const shouldShowUsername = !isViewer && (modalDisplay || item.startsCluster);
+  const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
+
   let authorName = null;
-  if (!isViewer && (modalDisplay || item.startsCluster)) {
+  if (stringForUser) {
     const style = [styles.authorName];
     if (modalDisplay) {
       style.push(styles.modal);
     }
-    authorName = (
-      <SingleLine style={style}>{stringForUser(creator)}</SingleLine>
-    );
+    authorName = <SingleLine style={style}>{stringForUser}</SingleLine>;
   }
 
   const timestamp =

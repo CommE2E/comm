@@ -8,8 +8,8 @@ import {
   XCircle as XCircleIcon,
 } from 'react-feather';
 
+import { useStringForUser } from 'lib/hooks/ens-cache';
 import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { stringForUser } from 'lib/shared/user-utils';
 import { assertComposableMessageType } from 'lib/types/message-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
 
@@ -56,6 +56,7 @@ type Props = {
   +onMouseLeave: ?() => mixed,
   +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
   +containsInlineEngagement: boolean,
+  +stringForUser: ?string,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   static defaultProps: { +borderRadius: number } = {
@@ -90,10 +91,9 @@ class ComposedMessage extends React.PureComponent<Props> {
     };
 
     let authorName = null;
-    if (!isViewer && item.startsCluster) {
-      authorName = (
-        <span className={css.authorName}>{stringForUser(creator)}</span>
-      );
+    const { stringForUser } = this.props;
+    if (stringForUser) {
+      authorName = <span className={css.authorName}>{stringForUser}</span>;
     }
 
     let deliveryIcon = null;
@@ -167,7 +167,8 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.mem
   function ConnectedComposedMessage(props) {
     const { item, threadInfo } = props;
     const inputState = React.useContext(InputStateContext);
-    const isViewer = props.item.messageInfo.creator.isViewer;
+    const { creator } = props.item.messageInfo;
+    const { isViewer } = creator;
     const availablePositions = isViewer
       ? availableTooltipPositionsForViewerMessage
       : availableTooltipPositionsForNonViewerMessage;
@@ -179,6 +180,9 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.mem
       availablePositions,
     });
 
+    const shouldShowUsername = !isViewer && item.startsCluster;
+    const stringForUser = useStringForUser(shouldShowUsername ? creator : null);
+
     return (
       <ComposedMessage
         {...props}
@@ -186,6 +190,7 @@ const ConnectedComposedMessage: React.ComponentType<ConnectedConfig> = React.mem
         onMouseLeave={onMouseLeave}
         onMouseEnter={onMouseEnter}
         containsInlineEngagement={containsInlineEngagement}
+        stringForUser={stringForUser}
       />
     );
   },
