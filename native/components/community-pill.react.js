@@ -3,10 +3,9 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { getKeyserverAdmin } from 'lib/shared/user-utils';
+import { useKeyserverAdmin } from 'lib/shared/user-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
-import { useSelector } from '../redux/redux-utils';
 import { useColors } from '../themes/colors';
 import CommIcon from './comm-icon.react';
 import Pill from './pill.react';
@@ -18,11 +17,8 @@ type Props = {
 function CommunityPill(props: Props): React.Node {
   const { community } = props;
 
-  const userInfos = useSelector(state => state.userStore.userInfos);
-  const keyserverOperatorUsername: ?string = React.useMemo(
-    () => getKeyserverAdmin(community, userInfos)?.username,
-    [community, userInfos],
-  );
+  const keyserverAdmin = useKeyserverAdmin(community);
+  const keyserverOperatorUsername = keyserverAdmin?.username;
 
   const colors = useColors();
   const keyserverOperatorLabel: ?React.Node = React.useMemo(() => {
