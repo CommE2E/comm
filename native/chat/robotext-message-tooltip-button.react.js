@@ -3,11 +3,20 @@
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
+import { localIDPrefix } from 'lib/shared/message-utils';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
+import type { SetState } from 'lib/types/hook-types';
+
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
 import { TooltipInlineEngagement } from './inline-engagement.react';
 import { InnerRobotextMessage } from './inner-robotext-message.react';
+import {
+  useSendReaction,
+  useReactionSelectionPopoverPosition,
+} from './reaction-message-utils';
+import ReactionSelectionPopover from './reaction-selection-popover.react';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react';
 import { Timestamp } from './timestamp.react';
 import { useAnimatedMessageTooltipButton } from './utils';
@@ -21,9 +30,11 @@ type Props = {
   +route: TooltipRoute<'RobotextMessageTooltipModal'>,
   +progress: Node,
   +isOpeningSidebar: boolean,
+  +setHideTooltip: SetState<boolean>,
 };
 function RobotextMessageTooltipButton(props: Props): React.Node {
-  const { progress } = props;
+  const { navigation, progress, isOpeningSidebar, setHideTooltip } = props;
+
   const windowWidth = useSelector(state => state.dimensions.width);
 
   const [
@@ -34,7 +45,13 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     setSidebarInputBarHeight(height);
   }, []);
 
-  const { item, verticalBounds, initialCoordinates } = props.route.params;
+  const {
+    item,
+    verticalBounds,
+    initialCoordinates,
+    margin,
+  } = props.route.params;
+
   const { style: messageContainerStyle } = useAnimatedMessageTooltipButton({
     sourceMessage: item,
     initialCoordinates,
@@ -59,8 +76,6 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     };
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
-  const { navigation, isOpeningSidebar } = props;
-
   const inlineEngagement = React.useMemo(() => {
     if (!item.threadCreatedFromMessage) {
       return null;
@@ -77,6 +92,49 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
     );
   }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
 
+  const { messageInfo, threadInfo, reactions } = item;
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const localID = `${localIDPrefix}${nextLocalID}`;
+
+  const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
+    threadInfo,
+    messageInfo,
+  );
+
+  const sendReaction = useSendReaction(
+    messageInfo.id,
+    localID,
+    threadInfo.id,
+    reactions,
+  );
+
+  const reactionSelectionPopoverPosition = useReactionSelectionPopoverPosition({
+    initialCoordinates,
+    verticalBounds,
+    margin,
+  });
+
+  const reactionSelectionPopover = React.useMemo(() => {
+    if (!canCreateReactionFromMessage) {
+      return null;
+    }
+
+    return (
+      <ReactionSelectionPopover
+        setHideTooltip={setHideTooltip}
+        reactionSelectionPopoverContainerStyle={
+          reactionSelectionPopoverPosition
+        }
+        sendReaction={sendReaction}
+      />
+    );
+  }, [
+    canCreateReactionFromMessage,
+    reactionSelectionPopoverPosition,
+    sendReaction,
+    setHideTooltip,
+  ]);
+
   return (
     <Animated.View style={messageContainerStyle}>
       <SidebarInputBarHeightMeasurer
@@ -86,6 +144,7 @@ function RobotextMessageTooltipButton(props: Props): React.Node {
       <Animated.View style={headerStyle}>
         <Timestamp time={item.messageInfo.time} display="modal" />
       </Animated.View>
+      {reactionSelectionPopover}
       <InnerRobotextMessage item={item} onPress={navigation.goBackOnce} />
       {inlineEngagement}
     </Animated.View>
