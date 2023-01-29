@@ -5,7 +5,6 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
 
 import { ChatContext } from '../chat/chat-context';
@@ -84,11 +83,6 @@ function RobotextMessage(props: Props): React.Node {
     item.messageInfo,
   );
 
-  const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
-    item.threadInfo,
-    item.messageInfo,
-  );
-
   const visibleEntryIDs = React.useMemo(() => {
     const result = [];
 
@@ -96,16 +90,8 @@ function RobotextMessage(props: Props): React.Node {
       result.push('sidebar');
     }
 
-    if (canCreateReactionFromMessage) {
-      result.push('react');
-    }
-
     return result;
-  }, [
-    item.threadCreatedFromMessage,
-    canCreateSidebarFromMessage,
-    canCreateReactionFromMessage,
-  ]);
+  }, [item.threadCreatedFromMessage, canCreateSidebarFromMessage]);
 
   const openRobotextTooltipModal = React.useCallback(
     (x, y, width, height, pageX, pageY) => {

@@ -28,7 +28,6 @@ import {
   type ServerCallState,
   serverCallStateSelector,
 } from 'lib/selectors/server-calls';
-import { localIDPrefix } from 'lib/shared/message-utils';
 import type { SetState } from 'lib/types/hook-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import {
@@ -73,7 +72,6 @@ export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {
     navigation: AppNavigationProp<RouteName>,
     viewerID: ?string,
     chatContext: ?ChatContextType,
-    reactionMessageLocalID: ?string,
   ) => mixed,
 };
 type TooltipItemProps<RouteName> = {
@@ -252,26 +250,7 @@ function createTooltip<
         return entries;
       }
       const visibleSet = new Set(visibleEntryIDs);
-      const filteredEntries = entries.filter(entry => visibleSet.has(entry.id));
-
-      // this is a temporary change and will be reverted once we go from
-      // message liking to message reactions
-      return filteredEntries.map(entry => {
-        if (entry.id !== 'react') {
-          return entry;
-        }
-
-        const messageLikes = this.props.route.params.item?.reactions.get('👍');
-        let reactionEntryText = entry.text;
-        if (messageLikes && messageLikes.viewerReacted) {
-          reactionEntryText = 'Unlike';
-        }
-
-        return {
-          ...entry,
-          text: reactionEntryText,
-        };
-      });
+      return entries.filter(entry => visibleSet.has(entry.id));
     }
 
     get tooltipHeight(): number {
@@ -586,11 +565,6 @@ function createTooltip<
         this.props.setHideTooltip(true);
       }
 
-      let reactionMessageLocalID;
-      if (entry.id === 'react') {
-        reactionMessageLocalID = `${localIDPrefix}${this.props.nextReactionMessageLocalID}`;
-      }
-
       const dispatchFunctions = {
         dispatch: this.props.dispatch,
         dispatchActionPromise: this.props.dispatchActionPromise,
@@ -603,7 +577,6 @@ function createTooltip<
         this.props.navigation,
         this.props.viewerID,
         this.props.chatContext,
-        reactionMessageLocalID,
       );
     };
 

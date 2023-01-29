@@ -5,7 +5,6 @@ import * as React from 'react';
 import { View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import {
   threadHasPermission,
   useCanCreateSidebarFromMessage,
@@ -46,7 +45,6 @@ type Props = {
   ...BaseProps,
   // Redux state
   +canCreateSidebarFromMessage: boolean,
-  +canCreateReactionFromMessage: boolean,
   // withOverlayContext
   +overlayContext: ?OverlayContextType,
   // ChatContext
@@ -77,7 +75,6 @@ class TextMessage extends React.PureComponent<Props> {
       chatContext,
       isLinkModalActive,
       canCreateSidebarFromMessage,
-      canCreateReactionFromMessage,
       ...viewProps
     } = this.props;
 
@@ -145,10 +142,6 @@ class TextMessage extends React.PureComponent<Props> {
       this.props.canCreateSidebarFromMessage
     ) {
       result.push('sidebar');
-    }
-
-    if (this.props.canCreateReactionFromMessage) {
-      result.push('react');
     }
 
     if (!this.props.item.messageInfo.creator.isViewer) {
@@ -245,10 +238,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
       props.item.threadInfo,
       props.item.messageInfo,
     );
-    const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
-      props.item.threadInfo,
-      props.item.messageInfo,
-    );
 
     React.useEffect(() => clearMarkdownContextData, [clearMarkdownContextData]);
 
@@ -256,7 +245,6 @@ const ConnectedTextMessage: React.ComponentType<BaseProps> = React.memo<BaseProp
       <TextMessage
         {...props}
         canCreateSidebarFromMessage={canCreateSidebarFromMessage}
-        canCreateReactionFromMessage={canCreateReactionFromMessage}
         overlayContext={overlayContext}
         chatContext={chatContext}
         isLinkModalActive={isLinkModalActive}

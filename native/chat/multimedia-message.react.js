@@ -10,7 +10,6 @@ import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { messageKey } from 'lib/shared/message-utils';
-import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
 import type { MediaInfo } from 'lib/types/media-types';
 
@@ -48,7 +47,6 @@ type Props = {
   +overlayContext: ?OverlayContextType,
   +chatContext: ?ChatContextType,
   +canCreateSidebarFromMessage: boolean,
-  +canCreateReactionFromMessage: boolean,
 };
 type State = {
   +clickable: boolean,
@@ -92,10 +90,6 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       this.props.canCreateSidebarFromMessage
     ) {
       result.push('sidebar');
-    }
-
-    if (this.props.canCreateReactionFromMessage) {
-      result.push('react');
     }
 
     if (!this.props.item.messageInfo.creator.isViewer) {
@@ -198,7 +192,6 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
       overlayContext,
       chatContext,
       canCreateSidebarFromMessage,
-      canCreateReactionFromMessage,
       ...viewProps
     } = this.props;
     return (
@@ -240,10 +233,6 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo<Ba
       props.item.threadInfo,
       props.item.messageInfo,
     );
-    const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
-      props.item.threadInfo,
-      props.item.messageInfo,
-    );
 
     return (
       <MultimediaMessage
@@ -253,7 +242,6 @@ const ConnectedMultimediaMessage: React.ComponentType<BaseProps> = React.memo<Ba
         overlayContext={overlayContext}
         chatContext={chatContext}
         canCreateSidebarFromMessage={canCreateSidebarFromMessage}
-        canCreateReactionFromMessage={canCreateReactionFromMessage}
       />
     );
   },
