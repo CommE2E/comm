@@ -3,8 +3,10 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { stringForUser } from 'lib/shared/user-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { UserListItem } from 'lib/types/user-types';
 
 import AddMembersList from '../../../components/add-members-list.react';
 
@@ -17,7 +19,7 @@ type Props = {
   +toggleUserSelection: (userID: string) => void,
 };
 
-function Memberlist(props: Props): React.Node {
+function SubchannelMembersList(props: Props): React.Node {
   const {
     searchText,
     searchResult,
@@ -41,7 +43,7 @@ function Memberlist(props: Props): React.Node {
     [parentThreadInfo],
   );
 
-  const parentMemberList = React.useMemo(
+  const parentMemberListWithoutENSNames = React.useMemo(
     () =>
       parentMembers
         .filter(
@@ -53,8 +55,11 @@ function Memberlist(props: Props): React.Node {
 
     [parentMembers, currentUserId, searchResult, searchText],
   );
+  const parentMemberList = useENSNames<UserListItem>(
+    parentMemberListWithoutENSNames,
+  );
 
-  const otherMemberList = React.useMemo(
+  const otherMemberListWithoutENSNames = React.useMemo(
     () =>
       communityMembers
         .filter(
@@ -71,6 +76,9 @@ function Memberlist(props: Props): React.Node {
       searchResult,
       searchText,
     ],
+  );
+  const otherMemberList = useENSNames<UserListItem>(
+    otherMemberListWithoutENSNames,
   );
 
   const sortedGroupedUserList = React.useMemo(
@@ -94,4 +102,4 @@ function Memberlist(props: Props): React.Node {
   );
 }
 
-export default Memberlist;
+export default SubchannelMembersList;
