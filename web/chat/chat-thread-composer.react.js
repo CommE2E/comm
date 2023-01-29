@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadIsPending } from 'lib/shared/thread-utils';
@@ -51,6 +52,7 @@ function ChatThreadComposer(props: Props): React.Node {
       ),
     [usernameInputText, otherUserInfos, userSearchIndex, userInfoInputIDs],
   );
+  const userListItemsWithENSNames = useENSNames(userListItems);
 
   const onSelectUserFromSearch = React.useCallback(
     (id: string) => {
@@ -84,7 +86,7 @@ function ChatThreadComposer(props: Props): React.Node {
 
   const userSearchResultList = React.useMemo(() => {
     if (
-      !userListItems.length ||
+      !userListItemsWithENSNames.length ||
       (!usernameInputText && userInfoInputArray.length)
     ) {
       return null;
@@ -92,7 +94,7 @@ function ChatThreadComposer(props: Props): React.Node {
 
     return (
       <ul className={css.searchResultsContainer}>
-        {userListItems.map((userSearchResult: UserListItem) => (
+        {userListItemsWithENSNames.map((userSearchResult: UserListItem) => (
           <li key={userSearchResult.id} className={css.searchResultsItem}>
             <Button
               variant="text"
@@ -109,7 +111,7 @@ function ChatThreadComposer(props: Props): React.Node {
   }, [
     onSelectUserFromSearch,
     userInfoInputArray.length,
-    userListItems,
+    userListItemsWithENSNames,
     usernameInputText,
   ]);
 
@@ -134,11 +136,12 @@ function ChatThreadComposer(props: Props): React.Node {
     hideSearch('reset-active-thread-if-pending');
   }, [hideSearch]);
 
+  const userInfoInputArrayWithENSNames = useENSNames(userInfoInputArray);
   const tagsList = React.useMemo(() => {
-    if (!userInfoInputArray?.length) {
+    if (!userInfoInputArrayWithENSNames?.length) {
       return null;
     }
-    const labels = userInfoInputArray.map(user => {
+    const labels = userInfoInputArrayWithENSNames.map(user => {
       return (
         <Label key={user.id} onClose={() => onRemoveUserFromSelected(user.id)}>
           {user.username}
@@ -146,7 +149,7 @@ function ChatThreadComposer(props: Props): React.Node {
       );
     });
     return <div className={css.userSelectedTags}>{labels}</div>;
-  }, [userInfoInputArray, onRemoveUserFromSelected]);
+  }, [userInfoInputArrayWithENSNames, onRemoveUserFromSelected]);
 
   React.useEffect(() => {
     if (!inputState) {
