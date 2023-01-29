@@ -112,6 +112,7 @@ type ButtonProps<Base> = {
   +progress: Node,
   +isOpeningSidebar: boolean,
   +setHideTooltip: SetState<boolean>,
+  +showEmojiKeyboard: SharedValue<boolean>,
 };
 type TooltipProps<Base> = {
   ...Base,
@@ -512,6 +513,7 @@ function createTooltip<
         progress: position,
         isOpeningSidebar,
         setHideTooltip,
+        showEmojiKeyboard,
       };
 
       const itemsStyles = [styles.items, styles.itemsFixed];
@@ -571,6 +573,7 @@ function createTooltip<
       } else {
         this.props.setHideTooltip(true);
       }
+      this.props.showEmojiKeyboard.value = false;
     };
 
     onPressEntry = (entry: TooltipEntry<RouteName>) => {

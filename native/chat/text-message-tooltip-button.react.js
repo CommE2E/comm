@@ -1,7 +1,8 @@
 // @flow
 
 import * as React from 'react';
-import Animated from 'react-native-reanimated';
+import Animated, { type SharedValue } from 'react-native-reanimated';
+import EmojiPicker from 'rn-emoji-keyboard';
 
 import { localIDPrefix } from 'lib/shared/message-utils';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
@@ -33,9 +34,16 @@ type Props = {
   +progress: Node,
   +isOpeningSidebar: boolean,
   +setHideTooltip: SetState<boolean>,
+  +showEmojiKeyboard: SharedValue<boolean>,
 };
 function TextMessageTooltipButton(props: Props): React.Node {
-  const { navigation, progress, isOpeningSidebar, setHideTooltip } = props;
+  const {
+    navigation,
+    progress,
+    isOpeningSidebar,
+    setHideTooltip,
+    showEmojiKeyboard,
+  } = props;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -137,6 +145,7 @@ function TextMessageTooltipButton(props: Props): React.Node {
     return (
       <ReactionSelectionPopover
         setHideTooltip={setHideTooltip}
+        showEmojiKeyboard={showEmojiKeyboard}
         reactionSelectionPopoverContainerStyle={
           reactionSelectionPopoverPosition
         }
@@ -148,7 +157,21 @@ function TextMessageTooltipButton(props: Props): React.Node {
     reactionSelectionPopoverPosition,
     sendReaction,
     setHideTooltip,
+    showEmojiKeyboard,
   ]);
+
+  const onEmojiSelected = React.useCallback(
+    emoji => {
+      sendReaction(emoji.emoji);
+      setHideTooltip(true);
+    },
+    [sendReaction, setHideTooltip],
+  );
+
+  const onCloseEmojiPicker = React.useCallback(() => {
+    showEmojiKeyboard.value = false;
+    navigation.goBackOnce();
+  }, [navigation, showEmojiKeyboard]);
 
   return (
     <MessageListContextProvider threadID={threadID}>
@@ -173,6 +196,11 @@ function TextMessageTooltipButton(props: Props): React.Node {
         </MessagePressResponderContext.Provider>
         {inlineEngagement}
       </Animated.View>
+      <EmojiPicker
+        onEmojiSelected={onEmojiSelected}
+        open={showEmojiKeyboard.value}
+        onClose={onCloseEmojiPicker}
+      />
     </MessageListContextProvider>
   );
 }
