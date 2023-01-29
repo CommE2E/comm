@@ -308,6 +308,30 @@ function createTooltip<
       return 'below';
     }
 
+    get reactionSelectionPopoverLocation(): 'above' | 'below' {
+      const { params } = this.props.route;
+
+      const { initialCoordinates, verticalBounds } = params;
+      const { y, height } = initialCoordinates;
+      const contentTop = y;
+      const contentBottom = y + height;
+      const boundsTop = verticalBounds.y;
+      const boundsBottom = verticalBounds.y + verticalBounds.height;
+
+      const { margin } = this;
+      const curTooltipHeight = reactionSelectionPopoverHeight;
+      const fullHeight = curTooltipHeight + margin;
+
+      if (
+        contentBottom + fullHeight > boundsBottom &&
+        contentTop - fullHeight > boundsTop
+      ) {
+        return 'above';
+      }
+
+      return 'below';
+    }
+
     get opacityStyle() {
       return {
         ...this.props.styles.backdrop,
@@ -894,5 +918,6 @@ function tooltipHeight(numEntries: number): number {
 }
 
 const fixedTooltipHeight: number = 53;
+const reactionSelectionPopoverHeight: number = 56;
 
 export { createTooltip, fixedTooltipHeight };
