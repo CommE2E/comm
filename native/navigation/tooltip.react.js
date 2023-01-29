@@ -29,6 +29,7 @@ import {
   serverCallStateSelector,
 } from 'lib/selectors/server-calls';
 import { localIDPrefix } from 'lib/shared/message-utils';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import type { SetState } from 'lib/types/hook-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import {
@@ -131,6 +132,7 @@ type TooltipProps<Base> = {
   +actionSheetShown: SharedValue<boolean>,
   +hideTooltip: boolean,
   +setHideTooltip: SetState<boolean>,
+  +canCreateReactionFromMessage: boolean,
   +showEmojiKeyboard: SharedValue<boolean>,
   +exitAnimationWorklet: (finished: boolean) => void,
   +styles: typeof unboundStyles,
@@ -421,6 +423,7 @@ function createTooltip<
         actionSheetShown,
         hideTooltip,
         setHideTooltip,
+        canCreateReactionFromMessage,
         showEmojiKeyboard,
         exitAnimationWorklet,
         styles,
@@ -746,6 +749,15 @@ function createTooltip<
     const actionSheetShown = useSharedValue(false);
     const [hideTooltip, setHideTooltip] = React.useState<boolean>(false);
 
+    const threadInfo = props.route.params.item?.threadInfo;
+    invariant(threadInfo, 'threadInfo should be set');
+    const messageInfo = props.route.params.item?.messageInfo;
+    invariant(messageInfo, 'messageInfo should be set');
+    const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
+      threadInfo,
+      messageInfo,
+    );
+
     const showEmojiKeyboard = useSharedValue(false);
 
     const goBackCallback = React.useCallback(() => {
@@ -782,6 +794,7 @@ function createTooltip<
         actionSheetShown={actionSheetShown}
         hideTooltip={hideTooltip}
         setHideTooltip={setHideTooltip}
+        canCreateReactionFromMessage={canCreateReactionFromMessage}
         showEmojiKeyboard={showEmojiKeyboard}
         exitAnimationWorklet={exitAnimationWorklet}
         styles={styles}
