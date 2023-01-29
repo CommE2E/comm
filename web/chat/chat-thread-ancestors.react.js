@@ -5,11 +5,10 @@ import * as React from 'react';
 
 import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { colorIsDark } from 'lib/shared/thread-utils';
-import { getKeyserverAdmin } from 'lib/shared/user-utils';
+import { useKeyserverAdmin } from 'lib/shared/user-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
 import CommIcon from '../CommIcon.react';
-import { useSelector } from '../redux/redux-utils';
 import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-ancestors.css';
 
@@ -38,12 +37,9 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
 
   const ancestorThreads = useAncestorThreads(threadInfo);
 
-  const userInfos = useSelector(state => state.userStore.userInfos);
   const community = ancestorThreads[0] ?? threadInfo;
-  const keyserverOwnerUsername: ?string = React.useMemo(
-    () => getKeyserverAdmin(community, userInfos)?.username,
-    [community, userInfos],
-  );
+  const keyserverAdmin = useKeyserverAdmin(community);
+  const keyserverOwnerUsername = keyserverAdmin?.username;
 
   const keyserverInfo = React.useMemo(
     () => (
