@@ -93,7 +93,7 @@ export type TooltipParams<CustomProps> = {
   +presentedFrom: string,
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
-  +location?: 'above' | 'below' | 'fixed',
+  +tooltipLocation?: 'above' | 'below' | 'fixed',
   +margin?: number,
   +visibleEntryIDs?: $ReadOnlyArray<string>,
   +chatInputBarHeight?: number,
@@ -273,18 +273,18 @@ function createTooltip<
     }
 
     get tooltipHeight(): number {
-      if (this.props.route.params.location === 'fixed') {
+      if (this.props.route.params.tooltipLocation === 'fixed') {
         return fixedTooltipHeight;
       } else {
         return tooltipHeight(this.entries.length);
       }
     }
 
-    get location(): 'above' | 'below' | 'fixed' {
+    get tooltipLocation(): 'above' | 'below' | 'fixed' {
       const { params } = this.props.route;
-      const { location } = params;
-      if (location) {
-        return location;
+      const { tooltipLocation } = params;
+      if (tooltipLocation) {
+        return tooltipLocation;
       }
 
       const { initialCoordinates, verticalBounds } = params;
@@ -353,14 +353,14 @@ function createTooltip<
         chatInputBarHeight,
       } = route.params;
       const { x, y, width, height } = initialCoordinates;
-      const { margin, location } = this;
+      const { margin, tooltipLocation } = this;
 
       const style = {};
       style.position = 'absolute';
       (style.alignItems = 'center'),
         (style.opacity = this.tooltipContainerOpacity);
 
-      if (location !== 'fixed') {
+      if (tooltipLocation !== 'fixed') {
         style.transform = [{ translateX: this.tooltipHorizontal }];
       }
 
@@ -376,7 +376,7 @@ function createTooltip<
 
       const inputBarHeight = chatInputBarHeight ?? 0;
 
-      if (location === 'fixed') {
+      if (tooltipLocation === 'fixed') {
         const padding = 8;
 
         style.minWidth = dimensions.width - 16;
@@ -388,7 +388,7 @@ function createTooltip<
           verticalBounds.y -
           inputBarHeight +
           padding;
-      } else if (location === 'above') {
+      } else if (tooltipLocation === 'above') {
         style.bottom =
           dimensions.height - Math.max(y, verticalBounds.y) + margin;
         style.transform.push({ translateY: this.tooltipVerticalAbove });
@@ -399,7 +399,7 @@ function createTooltip<
         style.transform.push({ translateY: this.tooltipVerticalBelow });
       }
 
-      if (location !== 'fixed') {
+      if (tooltipLocation !== 'fixed') {
         style.transform.push({ scale: this.tooltipScale });
       }
 
@@ -429,14 +429,14 @@ function createTooltip<
 
       const tooltipContainerStyle = [styles.itemContainer];
 
-      if (this.location === 'fixed') {
+      if (this.tooltipLocation === 'fixed') {
         tooltipContainerStyle.push(styles.itemContainerFixed);
       }
 
       const { entries } = this;
       const items = entries.map((entry, index) => {
         let style;
-        if (this.location === 'fixed') {
+        if (this.tooltipLocation === 'fixed') {
           style = index !== entries.length - 1 ? styles.itemMarginFixed : null;
         } else {
           style = index !== entries.length - 1 ? styles.itemMargin : null;
@@ -453,7 +453,7 @@ function createTooltip<
         );
       });
 
-      if (this.location === 'fixed' && entries.length > 3) {
+      if (this.tooltipLocation === 'fixed' && entries.length > 3) {
         items.splice(3);
 
         const moreSpec = {
@@ -495,10 +495,10 @@ function createTooltip<
 
       let triangleDown = null;
       let triangleUp = null;
-      const { location } = this;
-      if (location === 'above') {
+      const { tooltipLocation } = this;
+      if (tooltipLocation === 'above') {
         triangleDown = <View style={[styles.triangleDown, triangleStyle]} />;
-      } else if (location === 'below') {
+      } else if (tooltipLocation === 'below') {
         triangleUp = <View style={[styles.triangleUp, triangleStyle]} />;
       }
 
@@ -521,7 +521,7 @@ function createTooltip<
 
       let tooltip = null;
 
-      if (this.location !== 'fixed') {
+      if (this.tooltipLocation !== 'fixed') {
         tooltip = (
           <AnimatedView
             style={this.tooltipContainerStyle}
@@ -533,7 +533,7 @@ function createTooltip<
           </AnimatedView>
         );
       } else if (
-        this.location === 'fixed' &&
+        this.tooltipLocation === 'fixed' &&
         !hideTooltip &&
         !showEmojiKeyboard.value
       ) {
@@ -564,7 +564,7 @@ function createTooltip<
     }
 
     onPressBackdrop = () => {
-      if (this.location !== 'fixed') {
+      if (this.tooltipLocation !== 'fixed') {
         this.props.navigation.goBackOnce();
       } else {
         this.props.setHideTooltip(true);
@@ -572,7 +572,10 @@ function createTooltip<
     };
 
     onPressEntry = (entry: TooltipEntry<RouteName>) => {
-      if (this.location !== 'fixed' || this.props.actionSheetShown.value) {
+      if (
+        this.tooltipLocation !== 'fixed' ||
+        this.props.actionSheetShown.value
+      ) {
         this.props.navigation.goBackOnce();
       } else {
         this.props.setHideTooltip(true);

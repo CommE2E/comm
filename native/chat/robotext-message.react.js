@@ -144,7 +144,7 @@ function RobotextMessage(props: Props): React.Node {
           initialCoordinates: coordinates,
           verticalBounds,
           visibleEntryIDs,
-          location: 'fixed',
+          tooltipLocation: 'fixed',
           margin,
           item,
           chatInputBarHeight: currentInputBarHeight,
