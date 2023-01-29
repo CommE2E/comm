@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { notFriendNotice } from 'lib/shared/search-utils';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
 
@@ -97,16 +98,21 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
     let separator = null;
     let userList = null;
     let userSelectionAdditionalStyles = styles.userSelectionLimitedHeight;
+    const userListItemsWithENSNames = useENSNames(userListItems);
     if (isSearchResultVisible) {
       userList = (
         <View style={styles.userList}>
-          <UserList userInfos={userListItems} onSelect={onUserSelect} />
+          <UserList
+            userInfos={userListItemsWithENSNames}
+            onSelect={onUserSelect}
+          />
         </View>
       );
       separator = <View style={styles.separator} />;
       userSelectionAdditionalStyles = null;
     }
 
+    const userInfoInputArrayWithENSNames = useENSNames(userInfoInputArray);
     return (
       <>
         <View style={[styles.userSelection, userSelectionAdditionalStyles]}>
@@ -114,7 +120,7 @@ const MessageListThreadSearch: React.ComponentType<Props> = React.memo<Props>(
             <Text style={styles.tagInputLabel}>To: </Text>
             <View style={styles.tagInput}>
               <TagInput
-                value={userInfoInputArray}
+                value={userInfoInputArrayWithENSNames}
                 onChange={updateTagInput}
                 text={usernameInputText}
                 onChangeText={updateUsernameInput}
