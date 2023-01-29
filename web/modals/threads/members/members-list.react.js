@@ -5,6 +5,7 @@ import _groupBy from 'lodash/fp/groupBy';
 import _toPairs from 'lodash/fp/toPairs';
 import * as React from 'react';
 
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { stringForUser } from 'lib/shared/user-utils';
 import {
   type ThreadInfo,
@@ -24,10 +25,14 @@ function ThreadMembersList(props: Props): React.Node {
   const [openMenu, setOpenMenu] = React.useState(null);
   const hasMembers = threadMembers.length > 0;
 
+  const threadMembersWithENSNames = useENSNames(threadMembers);
+
   const groupedByFirstLetterMembers = React.useMemo(
     () =>
-      _groupBy(member => stringForUser(member)[0].toLowerCase())(threadMembers),
-    [threadMembers],
+      _groupBy(member => stringForUser(member)[0].toLowerCase())(
+        threadMembersWithENSNames,
+      ),
+    [threadMembersWithENSNames],
   );
 
   const groupedMembersList = React.useMemo(
