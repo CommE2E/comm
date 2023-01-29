@@ -6,6 +6,7 @@ import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   userSearchIndexForPotentialMembers,
@@ -77,6 +78,7 @@ function AddMembersModalContent(props: ContentProps): React.Node {
       userSearchIndex,
     ],
   );
+  const userSearchResultsWithENSNames = useENSNames(userSearchResults);
 
   const onSwitchUser = React.useCallback(
     userID =>
@@ -112,35 +114,39 @@ function AddMembersModalContent(props: ContentProps): React.Node {
     threadID,
   ]);
 
-  const pendingUsersWithNames = React.useMemo(
+  const pendingUserInfos = React.useMemo(
     () =>
       Array.from(pendingUsersToAdd)
-        .map(userID => [userID, otherUserInfos[userID].username])
-        .sort((a, b) => a[1].localeCompare(b[1])),
+        .map(userID => ({
+          id: userID,
+          username: otherUserInfos[userID].username,
+        }))
+        .sort((a, b) => a.username.localeCompare(b.username)),
     [otherUserInfos, pendingUsersToAdd],
   );
+  const pendingUserInfosWithENSNames = useENSNames(pendingUserInfos);
 
   const labelItems = React.useMemo(() => {
-    if (!pendingUsersWithNames.length) {
+    if (!pendingUserInfosWithENSNames.length) {
       return null;
     }
     return (
       <div className={css.addMembersPendingList}>
-        {pendingUsersWithNames.map(([userID, username]) => (
-          <Label key={userID} onClose={() => onSwitchUser(userID)}>
-            {username}
+        {pendingUserInfosWithENSNames.map(userInfo => (
+          <Label key={userInfo.id} onClose={() => onSwitchUser(userInfo.id)}>
+            {userInfo.username}
           </Label>
         ))}
       </div>
     );
-  }, [onSwitchUser, pendingUsersWithNames]);
+  }, [onSwitchUser, pendingUserInfosWithENSNames]);
 
   return (
     <div className={css.addMembersContent}>
       {labelItems}
       <div className={css.addMembersListContainer}>
         <AddMembersListContent
-          userListItems={userSearchResults}
+          userListItems={userSearchResultsWithENSNames}
           switchUser={onSwitchUser}
           pendingUsersToAdd={pendingUsersToAdd}
           hasParentThread={!!threadInfo.parentThreadID}
