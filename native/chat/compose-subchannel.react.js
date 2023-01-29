@@ -8,6 +8,7 @@ import * as React from 'react';
 import { View, Text, Alert } from 'react-native';
 
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   userInfoSelectorForPotentialMembers,
@@ -292,6 +293,8 @@ function ComposeSubchannel(props: Props): React.Node {
     }),
     [onPressCreateThread],
   );
+  const userSearchResultWithENSNames = useENSNames(userSearchResults);
+  const userInfoInputArrayWithENSNames = useENSNames(userInfoInputArray);
   return (
     <View style={styles.container}>
       <ParentThreadHeader
@@ -302,7 +305,7 @@ function ComposeSubchannel(props: Props): React.Node {
         <Text style={styles.tagInputLabel}>To: </Text>
         <View style={styles.tagInputContainer}>
           <TagInput
-            value={userInfoInputArray}
+            value={userInfoInputArrayWithENSNames}
             onChange={setUserInfoInputArray}
             text={usernameInputText}
             onChangeText={setUsernameInputText}
@@ -314,7 +317,7 @@ function ComposeSubchannel(props: Props): React.Node {
       </View>
       <View style={styles.userList}>
         <UserList
-          userInfos={userSearchResults}
+          userInfos={userSearchResultWithENSNames}
           onSelect={onUserSelect}
           itemTextStyle={styles.listItem}
         />
