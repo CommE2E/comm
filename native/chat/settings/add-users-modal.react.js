@@ -8,6 +8,7 @@ import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
 } from 'lib/actions/thread-actions';
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
@@ -234,10 +235,12 @@ function AddUsersModal(props: Props): React.Node {
     }),
     [onPressAdd],
   );
+  const userSearchResultWithENSNames = useENSNames(userSearchResults);
+  const userInfoInputArrayWithENSNames = useENSNames(userInfoInputArray);
   return (
     <Modal>
       <TagInput
-        value={userInfoInputArray}
+        value={userInfoInputArrayWithENSNames}
         onChange={onChangeTagInput}
         text={usernameInputText}
         onChangeText={onChangeTagInputText}
@@ -247,7 +250,10 @@ function AddUsersModal(props: Props): React.Node {
         inputProps={inputProps}
         ref={tagInputRef}
       />
-      <UserList userInfos={userSearchResults} onSelect={onUserSelect} />
+      <UserList
+        userInfos={userSearchResultWithENSNames}
+        onSelect={onUserSelect}
+      />
       <View style={styles.buttons}>
         {cancelButton}
         {addButton}
