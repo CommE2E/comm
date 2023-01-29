@@ -29,6 +29,7 @@ import {
   serverCallStateSelector,
 } from 'lib/selectors/server-calls';
 import { localIDPrefix } from 'lib/shared/message-utils';
+import type { SetState } from 'lib/types/hook-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import {
   createBoundServerCallsSelector,
@@ -129,7 +130,8 @@ type TooltipProps<Base> = {
   +showActionSheetWithOptions: ShowActionSheetWithOptions,
   +actionSheetShown: SharedValue<boolean>,
   +hideTooltip: boolean,
-  +setHideTooltip: (hideTooltip: boolean) => void,
+  +setHideTooltip: SetState<boolean>,
+  +showEmojiKeyboard: SharedValue<boolean>,
   +exitAnimationWorklet: (finished: boolean) => void,
   +styles: typeof unboundStyles,
 };
@@ -419,6 +421,7 @@ function createTooltip<
         actionSheetShown,
         hideTooltip,
         setHideTooltip,
+        showEmojiKeyboard,
         exitAnimationWorklet,
         styles,
         ...navAndRouteForFlow
@@ -529,7 +532,11 @@ function createTooltip<
             {triangleDown}
           </AnimatedView>
         );
-      } else if (this.location === 'fixed' && !this.props.hideTooltip) {
+      } else if (
+        this.location === 'fixed' &&
+        !hideTooltip &&
+        !showEmojiKeyboard.value
+      ) {
         tooltip = (
           <AnimatedView
             style={this.tooltipContainerStyle}
@@ -736,11 +743,13 @@ function createTooltip<
     const actionSheetShown = useSharedValue(false);
     const [hideTooltip, setHideTooltip] = React.useState<boolean>(false);
 
+    const showEmojiKeyboard = useSharedValue(false);
+
     const goBackCallback = React.useCallback(() => {
-      if (!actionSheetShown.value) {
+      if (!actionSheetShown.value && !showEmojiKeyboard.value) {
         props.navigation.goBackOnce();
       }
-    }, [actionSheetShown.value, props.navigation]);
+    }, [actionSheetShown.value, props.navigation, showEmojiKeyboard.value]);
 
     const exitAnimationWorklet = React.useCallback(
       finished => {
@@ -770,6 +779,7 @@ function createTooltip<
         actionSheetShown={actionSheetShown}
         hideTooltip={hideTooltip}
         setHideTooltip={setHideTooltip}
+        showEmojiKeyboard={showEmojiKeyboard}
         exitAnimationWorklet={exitAnimationWorklet}
         styles={styles}
       />
