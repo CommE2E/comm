@@ -3,7 +3,6 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
-import { createSelector } from 'reselect';
 
 import {
   changeThreadSettingsActionTypes,
@@ -15,17 +14,10 @@ import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors';
-import SearchIndex from 'lib/shared/search-index';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadActualMembers } from 'lib/shared/thread-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import {
-  type ThreadInfo,
-  type ChangeThreadSettingsPayload,
-  type UpdateThreadRequest,
-} from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types';
 import { type AccountUserInfo } from 'lib/types/user-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   useServerCall,
   useDispatchActionPromise,
@@ -33,7 +25,7 @@ import {
 
 import Button from '../../components/button.react';
 import Modal from '../../components/modal.react';
-import { createTagInput, BaseTagInput } from '../../components/tag-input.react';
+import { createTagInput } from '../../components/tag-input.react';
 import UserList from '../../components/user-list.react';
 import type { RootNavigationProp } from '../../navigation/root-navigator.react';
 import type { NavigationRoute } from '../../navigation/route-names';
@@ -48,234 +40,220 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
+const tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
+
 export type AddUsersModalParams = {
   +presentedFrom: string,
   +threadInfo: ThreadInfo,
 };
 
-type BaseProps = {
+type Props = {
   +navigation: RootNavigationProp<'AddUsersModal'>,
   +route: NavigationRoute<'AddUsersModal'>,
 };
-type Props = {
-  ...BaseProps,
-  // Redux state
-  +parentThreadInfo: ?ThreadInfo,
-  +communityThreadInfo: ?ThreadInfo,
-  +otherUserInfos: { [id: string]: AccountUserInfo },
-  +userSearchIndex: SearchIndex,
-  +changeThreadSettingsLoadingStatus: LoadingStatus,
-  +styles: typeof unboundStyles,
-  // Redux dispatch functions
-  +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  +changeThreadSettings: (
-    request: UpdateThreadRequest,
-  ) => Promise<ChangeThreadSettingsPayload>,
-};
-type State = {
-  +usernameInputText: string,
-  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-};
-type PropsAndState = { ...Props, ...State };
-class AddUsersModal extends React.PureComponent<Props, State> {
-  state: State = {
-    usernameInputText: '',
-    userInfoInputArray: [],
-  };
-  tagInput: ?BaseTagInput<AccountUserInfo> = null;
+function AddUsersModal(props: Props): React.Node {
+  const [usernameInputText, setUsernameInputText] = React.useState<string>('');
+  const [userInfoInputArray, setUserInfoInputArray] = React.useState<
+    $ReadOnlyArray<AccountUserInfo>,
+  >([]);
 
-  userSearchResultsSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.usernameInputText,
-    (propsAndState: PropsAndState) => propsAndState.otherUserInfos,
-    (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
-    (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
-    (propsAndState: PropsAndState) => propsAndState.route.params.threadInfo,
-    (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
-    (propsAndState: PropsAndState) => propsAndState.communityThreadInfo,
-    (
-      text: string,
-      userInfos: { [id: string]: AccountUserInfo },
-      searchIndex: SearchIndex,
-      userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-      threadInfo: ThreadInfo,
-      parentThreadInfo: ?ThreadInfo,
-      communityThreadInfo: ?ThreadInfo,
-    ) => {
-      const excludeUserIDs = userInfoInputArray
-        .map(userInfo => userInfo.id)
-        .concat(threadActualMembers(threadInfo.members));
+  const tagInputRef = React.useRef();
+  const onUnknownErrorAlertAcknowledged = React.useCallback(() => {
+    setUsernameInputText('');
+    setUserInfoInputArray([]);
+    invariant(tagInputRef.current, 'tagInput should be set');
+    tagInputRef.current.focus();
+  }, []);
 
-      return getPotentialMemberItems(
-        text,
-        userInfos,
-        searchIndex,
-        excludeUserIDs,
-        parentThreadInfo,
-        communityThreadInfo,
-        threadInfo.type,
-      );
-    },
-  );
+  const { navigation } = props;
+  const { goBackOnce } = navigation;
+  const close = React.useCallback(() => {
+    goBackOnce();
+  }, [goBackOnce]);
 
-  get userSearchResults() {
-    return this.userSearchResultsSelector({ ...this.props, ...this.state });
-  }
-
-  render() {
-    let addButton = null;
-    const inputLength = this.state.userInfoInputArray.length;
-    if (inputLength > 0) {
-      let activityIndicator = null;
-      if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
-        activityIndicator = (
-          <View style={this.props.styles.activityIndicator}>
-            <ActivityIndicator color="white" />
-          </View>
-        );
-      }
-      const addButtonText = `Add (${inputLength})`;
-      addButton = (
-        <Button
-          onPress={this.onPressAdd}
-          style={this.props.styles.addButton}
-          disabled={this.props.changeThreadSettingsLoadingStatus === 'loading'}
-        >
-          {activityIndicator}
-          <Text style={this.props.styles.addText}>{addButtonText}</Text>
-        </Button>
-      );
-    }
-
-    let cancelButton;
-    if (this.props.changeThreadSettingsLoadingStatus !== 'loading') {
-      cancelButton = (
-        <Button onPress={this.close} style={this.props.styles.cancelButton}>
-          <Text style={this.props.styles.cancelText}>Cancel</Text>
-        </Button>
-      );
-    } else {
-      cancelButton = <View />;
-    }
-
-    const inputProps = {
-      ...tagInputProps,
-      onSubmitEditing: this.onPressAdd,
-    };
-    return (
-      <Modal>
-        <TagInput
-          value={this.state.userInfoInputArray}
-          onChange={this.onChangeTagInput}
-          text={this.state.usernameInputText}
-          onChangeText={this.setUsernameInputText}
-          labelExtractor={this.tagDataLabelExtractor}
-          defaultInputWidth={160}
-          maxHeight={36}
-          inputProps={inputProps}
-          ref={this.tagInputRef}
-        />
-        <UserList
-          userInfos={this.userSearchResults}
-          onSelect={this.onUserSelect}
-        />
-        <View style={this.props.styles.buttons}>
-          {cancelButton}
-          {addButton}
-        </View>
-      </Modal>
-    );
-  }
-
-  close = () => {
-    this.props.navigation.goBackOnce();
-  };
-
-  tagInputRef = (tagInput: ?BaseTagInput<AccountUserInfo>) => {
-    this.tagInput = tagInput;
-  };
-
-  onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
-    if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
-      return;
-    }
-    this.setState({ userInfoInputArray });
-  };
-
-  tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
-
-  setUsernameInputText = (text: string) => {
-    if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
-      return;
-    }
-    this.setState({ usernameInputText: text });
-  };
-
-  onUserSelect = (userID: string) => {
-    if (this.props.changeThreadSettingsLoadingStatus === 'loading') {
-      return;
-    }
-    for (const existingUserInfo of this.state.userInfoInputArray) {
-      if (userID === existingUserInfo.id) {
-        return;
-      }
-    }
-    const userInfoInputArray = [
-      ...this.state.userInfoInputArray,
-      this.props.otherUserInfos[userID],
-    ];
-    this.setState({
-      userInfoInputArray,
-      usernameInputText: '',
-    });
-  };
-
-  onPressAdd = () => {
-    if (this.state.userInfoInputArray.length === 0) {
-      return;
-    }
-    this.props.dispatchActionPromise(
-      changeThreadSettingsActionTypes,
-      this.addUsersToThread(),
-    );
-  };
-
-  async addUsersToThread() {
+  const callChangeThreadSettings = useServerCall(changeThreadSettings);
+  const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
+  const { route } = props;
+  const { threadInfo } = route.params;
+  const threadID = threadInfo.id;
+  const addUsersToThread = React.useCallback(async () => {
     try {
-      const newMemberIDs = this.state.userInfoInputArray.map(
-        userInfo => userInfo.id,
-      );
-      const result = await this.props.changeThreadSettings({
-        threadID: this.props.route.params.threadInfo.id,
-        changes: { newMemberIDs },
+      const result = await callChangeThreadSettings({
+        threadID: threadID,
+        changes: { newMemberIDs: userInfoInputIDs },
       });
-      this.close();
+      close();
       return result;
     } catch (e) {
       Alert.alert(
         'Unknown error',
         'Uhh... try again?',
-        [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
+        [{ text: 'OK', onPress: onUnknownErrorAlertAcknowledged }],
         { cancelable: false },
       );
       throw e;
     }
+  }, [
+    callChangeThreadSettings,
+    threadID,
+    userInfoInputIDs,
+    close,
+    onUnknownErrorAlertAcknowledged,
+  ]);
+
+  const inputLength = userInfoInputArray.length;
+  const userInfoInputArrayEmpty = inputLength === 0;
+  const dispatchActionPromise = useDispatchActionPromise();
+  const onPressAdd = React.useCallback(() => {
+    if (userInfoInputArrayEmpty) {
+      return;
+    }
+    dispatchActionPromise(changeThreadSettingsActionTypes, addUsersToThread());
+  }, [userInfoInputArrayEmpty, dispatchActionPromise, addUsersToThread]);
+
+  const changeThreadSettingsLoadingStatus = useSelector(
+    createLoadingStatusSelector(changeThreadSettingsActionTypes),
+  );
+  const isLoading = changeThreadSettingsLoadingStatus === 'loading';
+
+  const styles = useStyles(unboundStyles);
+
+  let addButton = null;
+  if (inputLength > 0) {
+    let activityIndicator = null;
+    if (isLoading) {
+      activityIndicator = (
+        <View style={styles.activityIndicator}>
+          <ActivityIndicator color="white" />
+        </View>
+      );
+    }
+    const addButtonText = `Add (${inputLength})`;
+    addButton = (
+      <Button
+        onPress={onPressAdd}
+        style={styles.addButton}
+        disabled={isLoading}
+      >
+        {activityIndicator}
+        <Text style={styles.addText}>{addButtonText}</Text>
+      </Button>
+    );
   }
 
-  onErrorAcknowledged = () => {
-    invariant(this.tagInput, 'nameInput should be set');
-    this.tagInput.focus();
-  };
-
-  onUnknownErrorAlertAcknowledged = () => {
-    this.setState(
-      {
-        userInfoInputArray: [],
-        usernameInputText: '',
-      },
-      this.onErrorAcknowledged,
+  let cancelButton;
+  if (!isLoading) {
+    cancelButton = (
+      <Button onPress={close} style={styles.cancelButton}>
+        <Text style={styles.cancelText}>Cancel</Text>
+      </Button>
     );
-  };
+  } else {
+    cancelButton = <View />;
+  }
+
+  const threadMemberIDs = React.useMemo(
+    () => threadActualMembers(threadInfo.members),
+    [threadInfo.members],
+  );
+  const excludeUserIDs = React.useMemo(
+    () => userInfoInputIDs.concat(threadMemberIDs),
+    [userInfoInputIDs, threadMemberIDs],
+  );
+
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
+  const { parentThreadID, community } = props.route.params.threadInfo;
+  const parentThreadInfo = useSelector(state =>
+    parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
+  );
+  const communityThreadInfo = useSelector(state =>
+    community ? threadInfoSelector(state)[community] : null,
+  );
+  const userSearchResults = React.useMemo(
+    () =>
+      getPotentialMemberItems(
+        usernameInputText,
+        otherUserInfos,
+        userSearchIndex,
+        excludeUserIDs,
+        parentThreadInfo,
+        communityThreadInfo,
+        threadInfo.type,
+      ),
+    [
+      usernameInputText,
+      otherUserInfos,
+      userSearchIndex,
+      excludeUserIDs,
+      parentThreadInfo,
+      communityThreadInfo,
+      threadInfo.type,
+    ],
+  );
+
+  const onChangeTagInput = React.useCallback(
+    (newUserInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
+      if (!isLoading) {
+        setUserInfoInputArray(newUserInfoInputArray);
+      }
+    },
+    [isLoading],
+  );
+
+  const onChangeTagInputText = React.useCallback(
+    (text: string) => {
+      if (!isLoading) {
+        setUsernameInputText(text);
+      }
+    },
+    [isLoading],
+  );
+
+  const onUserSelect = React.useCallback(
+    (userID: string) => {
+      if (isLoading) {
+        return;
+      }
+      if (userInfoInputIDs.some(existingUserID => userID === existingUserID)) {
+        return;
+      }
+      setUserInfoInputArray(oldUserInfoInputArray => [
+        ...oldUserInfoInputArray,
+        otherUserInfos[userID],
+      ]);
+      setUsernameInputText('');
+    },
+    [isLoading, userInfoInputIDs, otherUserInfos],
+  );
+
+  const inputProps = React.useMemo(
+    () => ({
+      ...tagInputProps,
+      onSubmitEditing: onPressAdd,
+    }),
+    [onPressAdd],
+  );
+  return (
+    <Modal>
+      <TagInput
+        value={userInfoInputArray}
+        onChange={onChangeTagInput}
+        text={usernameInputText}
+        onChangeText={onChangeTagInputText}
+        labelExtractor={tagDataLabelExtractor}
+        defaultInputWidth={160}
+        maxHeight={36}
+        inputProps={inputProps}
+        ref={tagInputRef}
+      />
+      <UserList userInfos={userSearchResults} onSelect={onUserSelect} />
+      <View style={styles.buttons}>
+        {cancelButton}
+        {addButton}
+      </View>
+    </Modal>
+  );
 }
 
 const unboundStyles = {
@@ -310,38 +288,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedAddUsersModal: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedAddUsersModal(props: BaseProps) {
-    const { parentThreadID, community } = props.route.params.threadInfo;
-
-    const parentThreadInfo = useSelector(state =>
-      parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
-    );
-    const communityThreadInfo = useSelector(state =>
-      community ? threadInfoSelector(state)[community] : null,
-    );
-    const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-    const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
-    const changeThreadSettingsLoadingStatus = useSelector(
-      createLoadingStatusSelector(changeThreadSettingsActionTypes),
-    );
-    const styles = useStyles(unboundStyles);
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callChangeThreadSettings = useServerCall(changeThreadSettings);
-    return (
-      <AddUsersModal
-        {...props}
-        parentThreadInfo={parentThreadInfo}
-        communityThreadInfo={communityThreadInfo}
-        otherUserInfos={otherUserInfos}
-        userSearchIndex={userSearchIndex}
-        changeThreadSettingsLoadingStatus={changeThreadSettingsLoadingStatus}
-        styles={styles}
-        dispatchActionPromise={dispatchActionPromise}
-        changeThreadSettings={callChangeThreadSettings}
-      />
-    );
-  },
+const MemoizedAddUsersModal: React.ComponentType<Props> = React.memo<Props>(
+  AddUsersModal,
 );
 
-export default ConnectedAddUsersModal;
+export default MemoizedAddUsersModal;
