@@ -6,36 +6,28 @@ import _flow from 'lodash/fp/flow';
 import _sortBy from 'lodash/fp/sortBy';
 import * as React from 'react';
 import { View, Text, Alert } from 'react-native';
-import { createSelector } from 'reselect';
 
 import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
 } from 'lib/selectors/user-selectors';
-import SearchIndex from 'lib/shared/search-index';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
 import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
-import type { CalendarQuery } from 'lib/types/entry-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
 import {
   type ThreadInfo,
   type ThreadType,
   threadTypes,
-  type ClientNewThreadRequest,
-  type NewThreadResult,
 } from 'lib/types/thread-types';
 import { type AccountUserInfo } from 'lib/types/user-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
 import {
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 
 import LinkButton from '../components/link-button.react';
-import { createTagInput, BaseTagInput } from '../components/tag-input.react';
+import { createTagInput } from '../components/tag-input.react';
 import ThreadList from '../components/thread-list.react';
 import UserList from '../components/user-list.react';
 import { useCalendarQuery } from '../navigation/nav-selectors';
@@ -43,10 +35,7 @@ import type { NavigationRoute } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
 import type { ChatNavigationProp } from './chat.react';
-import {
-  type MessageListParams,
-  useNavigateToThread,
-} from './message-list-types';
+import { useNavigateToThread } from './message-list-types';
 import ParentThreadHeader from './parent-thread-header.react';
 
 const TagInput = createTagInput<AccountUserInfo>();
@@ -57,329 +46,282 @@ const tagInputProps = {
   returnKeyType: 'go',
 };
 
+const tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
+
 export type ComposeSubchannelParams = {
   +threadType: ThreadType,
   +parentThreadInfo: ThreadInfo,
 };
 
-type BaseProps = {
+type Props = {
   +navigation: ChatNavigationProp<'ComposeSubchannel'>,
   +route: NavigationRoute<'ComposeSubchannel'>,
 };
-type Props = {
-  ...BaseProps,
-  // Redux state
-  +parentThreadInfo: ?ThreadInfo,
-  +communityThreadInfo: ?ThreadInfo,
-  +loadingStatus: LoadingStatus,
-  +otherUserInfos: { +[id: string]: AccountUserInfo },
-  +userSearchIndex: SearchIndex,
-  +threadInfos: { +[id: string]: ThreadInfo },
-  +styles: typeof unboundStyles,
-  +calendarQuery: () => CalendarQuery,
-  +navigateToThread: (params: MessageListParams) => void,
-  // Redux dispatch functions
-  +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
-  +newThread: (request: ClientNewThreadRequest) => Promise<NewThreadResult>,
-};
-type State = {
-  +usernameInputText: string,
-  +userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-};
-type PropsAndState = { ...Props, ...State };
-class ComposeSubchannel extends React.PureComponent<Props, State> {
-  state: State = {
-    usernameInputText: '',
-    userInfoInputArray: [],
-  };
-  tagInput: ?BaseTagInput<AccountUserInfo>;
-  createThreadPressed = false;
-  waitingOnThreadID: ?string;
-
-  componentDidMount() {
-    this.setLinkButton(true);
-  }
-
-  setLinkButton(enabled: boolean) {
-    this.props.navigation.setOptions({
-      headerRight: () => (
-        <LinkButton
-          text="Create"
-          onPress={this.onPressCreateThread}
-          disabled={!enabled}
-        />
-      ),
-    });
-  }
-
-  componentDidUpdate(prevProps: Props) {
-    const oldReduxParentThreadInfo = prevProps.parentThreadInfo;
-    const newReduxParentThreadInfo = this.props.parentThreadInfo;
-    if (
-      newReduxParentThreadInfo &&
-      newReduxParentThreadInfo !== oldReduxParentThreadInfo
-    ) {
-      this.props.navigation.setParams({
-        parentThreadInfo: newReduxParentThreadInfo,
-      });
-    }
-
-    if (
-      this.waitingOnThreadID &&
-      this.props.threadInfos[this.waitingOnThreadID] &&
-      !prevProps.threadInfos[this.waitingOnThreadID]
-    ) {
-      const threadInfo = this.props.threadInfos[this.waitingOnThreadID];
-      this.props.navigation.pushNewThread(threadInfo);
-    }
-  }
-
-  static getParentThreadInfo(props: {
-    route: NavigationRoute<'ComposeSubchannel'>,
-    ...
-  }): ThreadInfo {
-    return props.route.params.parentThreadInfo;
-  }
-
-  userSearchResultsSelector = createSelector(
-    (propsAndState: PropsAndState) => propsAndState.usernameInputText,
-    (propsAndState: PropsAndState) => propsAndState.otherUserInfos,
-    (propsAndState: PropsAndState) => propsAndState.userSearchIndex,
-    (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
-    (propsAndState: PropsAndState) =>
-      ComposeSubchannel.getParentThreadInfo(propsAndState),
-    (propsAndState: PropsAndState) => propsAndState.communityThreadInfo,
-    (propsAndState: PropsAndState) => propsAndState.route.params.threadType,
-    (
-      text: string,
-      userInfos: { +[id: string]: AccountUserInfo },
-      searchIndex: SearchIndex,
-      userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-      parentThreadInfo: ThreadInfo,
-      communityThreadInfo: ?ThreadInfo,
-      threadType: ?ThreadType,
-    ) =>
-      getPotentialMemberItems(
-        text,
-        userInfos,
-        searchIndex,
-        userInfoInputArray.map(userInfo => userInfo.id),
-        parentThreadInfo,
-        communityThreadInfo,
-        threadType,
-      ),
+function ComposeSubchannel(props: Props): React.Node {
+  const [usernameInputText, setUsernameInputText] = React.useState<string>('');
+  const [userInfoInputArray, setUserInfoInputArray] = React.useState<
+    $ReadOnlyArray<AccountUserInfo>,
+  >([]);
+  const [createButtonEnabled, setCreateButtonEnabled] = React.useState<boolean>(
+    true,
   );
 
-  get userSearchResults() {
-    return this.userSearchResultsSelector({ ...this.props, ...this.state });
-  }
+  const tagInputRef = React.useRef();
+  const onUnknownErrorAlertAcknowledged = React.useCallback(() => {
+    setUsernameInputText('');
+    invariant(tagInputRef.current, 'tagInput should be set');
+    tagInputRef.current.focus();
+  }, []);
 
-  existingThreadsSelector = createSelector(
-    (propsAndState: PropsAndState) =>
-      ComposeSubchannel.getParentThreadInfo(propsAndState),
-    (propsAndState: PropsAndState) => propsAndState.threadInfos,
-    (propsAndState: PropsAndState) => propsAndState.userInfoInputArray,
-    (
-      parentThreadInfo: ThreadInfo,
-      threadInfos: { +[id: string]: ThreadInfo },
-      userInfoInputArray: $ReadOnlyArray<AccountUserInfo>,
-    ) => {
-      const userIDs = userInfoInputArray.map(userInfo => userInfo.id);
-      if (userIDs.length === 0) {
-        return [];
-      }
-      return _flow(
-        _filter(
-          (threadInfo: ThreadInfo) =>
-            threadInFilterList(threadInfo) &&
-            threadInfo.parentThreadID === parentThreadInfo.id &&
-            userIDs.every(userID => userIsMember(threadInfo, userID)),
-        ),
-        _sortBy(
-          ([
-            'members.length',
-            (threadInfo: ThreadInfo) => (threadInfo.name ? 1 : 0),
-          ]: $ReadOnlyArray<string | ((threadInfo: ThreadInfo) => mixed)>),
-        ),
-      )(threadInfos);
-    },
-  );
+  const waitingOnThreadIDRef = React.useRef<?string>();
 
-  get existingThreads() {
-    return this.existingThreadsSelector({ ...this.props, ...this.state });
-  }
-
-  render() {
-    let existingThreadsSection = null;
-    const { existingThreads, userSearchResults } = this;
-    if (existingThreads.length > 0) {
-      existingThreadsSection = (
-        <View style={this.props.styles.existingThreads}>
-          <View style={this.props.styles.existingThreadsRow}>
-            <Text style={this.props.styles.existingThreadsLabel}>
-              Existing channels
-            </Text>
-          </View>
-          <View style={this.props.styles.existingThreadList}>
-            <ThreadList
-              threadInfos={existingThreads}
-              onSelect={this.onSelectExistingThread}
-              itemTextStyle={this.props.styles.listItem}
-            />
-          </View>
-        </View>
+  const { threadType, parentThreadInfo } = props.route.params;
+  const userInfoInputIDs = userInfoInputArray.map(userInfo => userInfo.id);
+  const callNewThread = useServerCall(newThread);
+  const calendarQuery = useCalendarQuery();
+  const newChatThreadAction = React.useCallback(async () => {
+    try {
+      const assumedThreadType =
+        threadType ?? threadTypes.COMMUNITY_SECRET_SUBTHREAD;
+      const query = calendarQuery();
+      invariant(
+        assumedThreadType === 3 ||
+          assumedThreadType === 4 ||
+          assumedThreadType === 6 ||
+          assumedThreadType === 7,
+        "Sidebars and communities can't be created from the thread composer",
       );
+      const result = await callNewThread({
+        type: assumedThreadType,
+        parentThreadID: parentThreadInfo.id,
+        initialMemberIDs: userInfoInputIDs,
+        color: parentThreadInfo.color,
+        calendarQuery: query,
+      });
+      waitingOnThreadIDRef.current = result.newThreadID;
+      return result;
+    } catch (e) {
+      setCreateButtonEnabled(true);
+      Alert.alert(
+        'Unknown error',
+        'Uhh... try again?',
+        [{ text: 'OK', onPress: onUnknownErrorAlertAcknowledged }],
+        { cancelable: false },
+      );
+      throw e;
     }
-    const parentThreadInfo = ComposeSubchannel.getParentThreadInfo(this.props);
-    const inputProps = {
-      ...tagInputProps,
-      onSubmitEditing: this.onPressCreateThread,
-    };
-    return (
-      <View style={this.props.styles.container}>
-        <ParentThreadHeader
-          parentThreadInfo={parentThreadInfo}
-          childThreadType={this.props.route.params.threadType}
-        />
-        <View style={this.props.styles.userSelectionRow}>
-          <Text style={this.props.styles.tagInputLabel}>To: </Text>
-          <View style={this.props.styles.tagInputContainer}>
-            <TagInput
-              value={this.state.userInfoInputArray}
-              onChange={this.onChangeTagInput}
-              text={this.state.usernameInputText}
-              onChangeText={this.setUsernameInputText}
-              labelExtractor={this.tagDataLabelExtractor}
-              inputProps={inputProps}
-              ref={this.tagInputRef}
-            />
-          </View>
-        </View>
-        <View style={this.props.styles.userList}>
-          <UserList
-            userInfos={userSearchResults}
-            onSelect={this.onUserSelect}
-            itemTextStyle={this.props.styles.listItem}
-          />
-        </View>
-        {existingThreadsSection}
-      </View>
-    );
-  }
+  }, [
+    threadType,
+    userInfoInputIDs,
+    calendarQuery,
+    parentThreadInfo,
+    callNewThread,
+    onUnknownErrorAlertAcknowledged,
+  ]);
 
-  tagInputRef = (tagInput: ?BaseTagInput<AccountUserInfo>) => {
-    this.tagInput = tagInput;
-  };
+  const dispatchActionPromise = useDispatchActionPromise();
+  const dispatchNewChatThreadAction = React.useCallback(() => {
+    setCreateButtonEnabled(false);
+    dispatchActionPromise(newThreadActionTypes, newChatThreadAction());
+  }, [dispatchActionPromise, newChatThreadAction]);
 
-  onChangeTagInput = (userInfoInputArray: $ReadOnlyArray<AccountUserInfo>) => {
-    this.setState({ userInfoInputArray });
-  };
-
-  tagDataLabelExtractor = (userInfo: AccountUserInfo) => userInfo.username;
-
-  setUsernameInputText = (text: string) => {
-    this.setState({ usernameInputText: text });
-  };
-
-  onUserSelect = (userID: string) => {
-    for (const existingUserInfo of this.state.userInfoInputArray) {
-      if (userID === existingUserInfo.id) {
-        return;
-      }
-    }
-    const userInfoInputArray = [
-      ...this.state.userInfoInputArray,
-      this.props.otherUserInfos[userID],
-    ];
-    this.setState({
-      userInfoInputArray,
-      usernameInputText: '',
-    });
-  };
-
-  onPressCreateThread = () => {
-    if (this.createThreadPressed) {
+  const userInfoInputArrayEmpty = userInfoInputArray.length === 0;
+  const onPressCreateThread = React.useCallback(() => {
+    if (!createButtonEnabled) {
       return;
     }
-    if (this.state.userInfoInputArray.length === 0) {
+    if (userInfoInputArrayEmpty) {
       Alert.alert(
         'Chatting to yourself?',
         'Are you sure you want to create a channel containing only yourself?',
         [
           { text: 'Cancel', style: 'cancel' },
-          { text: 'Confirm', onPress: this.dispatchNewChatThreadAction },
+          { text: 'Confirm', onPress: dispatchNewChatThreadAction },
         ],
         { cancelable: true },
       );
     } else {
-      this.dispatchNewChatThreadAction();
+      dispatchNewChatThreadAction();
     }
-  };
+  }, [
+    createButtonEnabled,
+    userInfoInputArrayEmpty,
+    dispatchNewChatThreadAction,
+  ]);
 
-  dispatchNewChatThreadAction = async () => {
-    this.createThreadPressed = true;
-    this.props.dispatchActionPromise(
-      newThreadActionTypes,
-      this.newChatThreadAction(),
+  const { navigation } = props;
+  const { setOptions } = navigation;
+  React.useEffect(() => {
+    setOptions({
+      // eslint-disable-next-line react/display-name
+      headerRight: () => (
+        <LinkButton
+          text="Create"
+          onPress={onPressCreateThread}
+          disabled={!createButtonEnabled}
+        />
+      ),
+    });
+  }, [setOptions, onPressCreateThread, createButtonEnabled]);
+
+  const { setParams } = navigation;
+  const parentThreadInfoID = parentThreadInfo.id;
+  const reduxParentThreadInfo = useSelector(
+    state => threadInfoSelector(state)[parentThreadInfoID],
+  );
+  React.useEffect(() => {
+    if (reduxParentThreadInfo) {
+      setParams({ parentThreadInfo: reduxParentThreadInfo });
+    }
+  }, [reduxParentThreadInfo, setParams]);
+
+  const threadInfos = useSelector(threadInfoSelector);
+  const newlyCreatedThreadInfo = waitingOnThreadIDRef.current
+    ? threadInfos[waitingOnThreadIDRef.current]
+    : null;
+  const { pushNewThread } = navigation;
+  React.useEffect(() => {
+    if (!newlyCreatedThreadInfo) {
+      return;
+    }
+
+    const waitingOnThreadID = waitingOnThreadIDRef.current;
+    if (waitingOnThreadID === null || waitingOnThreadID === undefined) {
+      return;
+    }
+    waitingOnThreadIDRef.current = undefined;
+
+    pushNewThread(newlyCreatedThreadInfo);
+  }, [newlyCreatedThreadInfo, pushNewThread]);
+
+  const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
+  const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
+  const { community } = parentThreadInfo;
+  const communityThreadInfo = useSelector(state =>
+    community ? threadInfoSelector(state)[community] : null,
+  );
+  const userSearchResults = React.useMemo(
+    () =>
+      getPotentialMemberItems(
+        usernameInputText,
+        otherUserInfos,
+        userSearchIndex,
+        userInfoInputIDs,
+        parentThreadInfo,
+        communityThreadInfo,
+        threadType,
+      ),
+    [
+      usernameInputText,
+      otherUserInfos,
+      userSearchIndex,
+      userInfoInputIDs,
+      parentThreadInfo,
+      communityThreadInfo,
+      threadType,
+    ],
+  );
+
+  const existingThreads = React.useMemo(() => {
+    if (userInfoInputIDs.length === 0) {
+      return [];
+    }
+    return _flow(
+      _filter(
+        (threadInfo: ThreadInfo) =>
+          threadInFilterList(threadInfo) &&
+          threadInfo.parentThreadID === parentThreadInfo.id &&
+          userInfoInputIDs.every(userID => userIsMember(threadInfo, userID)),
+      ),
+      _sortBy(
+        ([
+          'members.length',
+          (threadInfo: ThreadInfo) => (threadInfo.name ? 1 : 0),
+        ]: $ReadOnlyArray<string | ((threadInfo: ThreadInfo) => mixed)>),
+      ),
+    )(threadInfos);
+  }, [userInfoInputIDs, threadInfos, parentThreadInfo]);
+
+  const navigateToThread = useNavigateToThread();
+  const onSelectExistingThread = React.useCallback(
+    (threadID: string) => {
+      const threadInfo = threadInfos[threadID];
+      navigateToThread({ threadInfo });
+    },
+    [threadInfos, navigateToThread],
+  );
+
+  const onUserSelect = React.useCallback(
+    (userID: string) => {
+      if (userInfoInputIDs.some(existingUserID => userID === existingUserID)) {
+        return;
+      }
+      setUserInfoInputArray(oldUserInfoInputArray => [
+        ...oldUserInfoInputArray,
+        otherUserInfos[userID],
+      ]);
+      setUsernameInputText('');
+    },
+    [userInfoInputIDs, otherUserInfos],
+  );
+
+  const styles = useStyles(unboundStyles);
+
+  let existingThreadsSection = null;
+  if (existingThreads.length > 0) {
+    existingThreadsSection = (
+      <View style={styles.existingThreads}>
+        <View style={styles.existingThreadsRow}>
+          <Text style={styles.existingThreadsLabel}>Existing channels</Text>
+        </View>
+        <View style={styles.existingThreadList}>
+          <ThreadList
+            threadInfos={existingThreads}
+            onSelect={onSelectExistingThread}
+            itemTextStyle={styles.listItem}
+          />
+        </View>
+      </View>
     );
-  };
-
-  async newChatThreadAction() {
-    this.setLinkButton(false);
-    try {
-      const threadTypeParam = this.props.route.params.threadType;
-      const threadType =
-        threadTypeParam ?? threadTypes.COMMUNITY_SECRET_SUBTHREAD;
-      const initialMemberIDs = this.state.userInfoInputArray.map(
-        (userInfo: AccountUserInfo) => userInfo.id,
-      );
-      const parentThreadInfo = ComposeSubchannel.getParentThreadInfo(
-        this.props,
-      );
-      const query = this.props.calendarQuery();
-      invariant(
-        threadType === 3 ||
-          threadType === 4 ||
-          threadType === 6 ||
-          threadType === 7,
-        "Sidebars and communities can't be created from the thread composer",
-      );
-      const result = await this.props.newThread({
-        type: threadType,
-        parentThreadID: parentThreadInfo.id,
-        initialMemberIDs,
-        color: parentThreadInfo.color,
-        calendarQuery: query,
-      });
-      this.waitingOnThreadID = result.newThreadID;
-      return result;
-    } catch (e) {
-      this.createThreadPressed = false;
-      this.setLinkButton(true);
-      Alert.alert(
-        'Unknown error',
-        'Uhh... try again?',
-        [{ text: 'OK', onPress: this.onUnknownErrorAlertAcknowledged }],
-        { cancelable: false },
-      );
-      throw e;
-    }
   }
 
-  onErrorAcknowledged = () => {
-    invariant(this.tagInput, 'tagInput should be set');
-    this.tagInput.focus();
-  };
-
-  onUnknownErrorAlertAcknowledged = () => {
-    this.setState({ usernameInputText: '' }, this.onErrorAcknowledged);
-  };
-
-  onSelectExistingThread = (threadID: string) => {
-    const threadInfo = this.props.threadInfos[threadID];
-    this.props.navigateToThread({ threadInfo });
-  };
+  const inputProps = React.useMemo(
+    () => ({
+      ...tagInputProps,
+      onSubmitEditing: onPressCreateThread,
+    }),
+    [onPressCreateThread],
+  );
+  return (
+    <View style={styles.container}>
+      <ParentThreadHeader
+        parentThreadInfo={parentThreadInfo}
+        childThreadType={threadType}
+      />
+      <View style={styles.userSelectionRow}>
+        <Text style={styles.tagInputLabel}>To: </Text>
+        <View style={styles.tagInputContainer}>
+          <TagInput
+            value={userInfoInputArray}
+            onChange={setUserInfoInputArray}
+            text={usernameInputText}
+            onChangeText={setUsernameInputText}
+            labelExtractor={tagDataLabelExtractor}
+            inputProps={inputProps}
+            ref={tagInputRef}
+          />
+        </View>
+      </View>
+      <View style={styles.userList}>
+        <UserList
+          userInfos={userSearchResults}
+          onSelect={onUserSelect}
+          itemTextStyle={styles.listItem}
+        />
+      </View>
+      {existingThreadsSection}
+    </View>
+  );
 }
 
 const unboundStyles = {
@@ -436,47 +378,8 @@ const unboundStyles = {
   },
 };
 
-const ConnectedComposeSubchannel: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedComposeSubchannel(props: BaseProps) {
-    const parentThreadInfoID = props.route.params.parentThreadInfo.id;
-
-    const reduxParentThreadInfo = useSelector(
-      state => threadInfoSelector(state)[parentThreadInfoID],
-    );
-    const { community } = props.route.params.parentThreadInfo;
-    const communityThreadInfo = useSelector(state =>
-      community ? threadInfoSelector(state)[community] : null,
-    );
-    const loadingStatus = useSelector(
-      createLoadingStatusSelector(newThreadActionTypes),
-    );
-    const otherUserInfos = useSelector(userInfoSelectorForPotentialMembers);
-    const userSearchIndex = useSelector(userSearchIndexForPotentialMembers);
-    const threadInfos = useSelector(threadInfoSelector);
-    const styles = useStyles(unboundStyles);
-
-    const calendarQuery = useCalendarQuery();
-    const navigateToThread = useNavigateToThread();
-
-    const dispatchActionPromise = useDispatchActionPromise();
-    const callNewThread = useServerCall(newThread);
-    return (
-      <ComposeSubchannel
-        {...props}
-        parentThreadInfo={reduxParentThreadInfo}
-        communityThreadInfo={communityThreadInfo}
-        loadingStatus={loadingStatus}
-        otherUserInfos={otherUserInfos}
-        userSearchIndex={userSearchIndex}
-        threadInfos={threadInfos}
-        styles={styles}
-        calendarQuery={calendarQuery}
-        navigateToThread={navigateToThread}
-        dispatchActionPromise={dispatchActionPromise}
-        newThread={callNewThread}
-      />
-    );
-  },
+const MemoizedComposeSubchannel: React.ComponentType<Props> = React.memo<Props>(
+  ComposeSubchannel,
 );
 
-export default ConnectedComposeSubchannel;
+export default MemoizedComposeSubchannel;
