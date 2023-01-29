@@ -9,6 +9,7 @@ import {
   updateRelationships,
 } from 'lib/actions/relationship-actions';
 import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { registerFetchKey } from 'lib/reducers/loading-reducer';
 import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors';
@@ -319,57 +320,66 @@ function RelationshipList(props: Props): React.Node {
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const listData = React.useMemo(() => {
-    const defaultUsers = {
-      [FriendListRouteName]: relationships.friends,
-      [BlockListRouteName]: relationships.blocked,
-    }[routeName];
+  const usersWithoutENSNames = React.useMemo(() => {
+    if (searchInputText === '') {
+      return {
+        [FriendListRouteName]: relationships.friends,
+        [BlockListRouteName]: relationships.blocked,
+      }[routeName];
+    }
+
+    const mergedUserInfos: { [id: string]: AccountUserInfo } = {};
+    for (const userInfo of serverSearchResults) {
+      mergedUserInfos[userInfo.id] = userInfo;
+    }
+    for (const id of userStoreSearchResults) {
+      const { username, relationshipStatus } = userInfos[id];
+      if (username) {
+        mergedUserInfos[id] = { id, username, relationshipStatus };
+      }
+    }
 
     const excludeUserIDsArray = currentTags
       .map(userInfo => userInfo.id)
       .concat(viewerID || []);
-
     const excludeUserIDs = new Set(excludeUserIDsArray);
 
-    let displayUsers = defaultUsers;
-
-    if (searchInputText !== '') {
-      const mergedUserInfos: { [id: string]: AccountUserInfo } = {};
-      for (const userInfo of serverSearchResults) {
-        mergedUserInfos[userInfo.id] = userInfo;
-      }
-      for (const id of userStoreSearchResults) {
-        const { username, relationshipStatus } = userInfos[id];
-        if (username) {
-          mergedUserInfos[id] = { id, username, relationshipStatus };
-        }
-      }
-
-      const sortToEnd = [];
-      const userSearchResults = [];
-      const sortRelationshipTypesToEnd = {
-        [FriendListRouteName]: [userRelationshipStatus.FRIEND],
-        [BlockListRouteName]: [
-          userRelationshipStatus.BLOCKED_BY_VIEWER,
-          userRelationshipStatus.BOTH_BLOCKED,
-        ],
-      }[routeName];
-      for (const userID in mergedUserInfos) {
-        if (excludeUserIDs.has(userID)) {
-          continue;
-        }
-
-        const userInfo = mergedUserInfos[userID];
-        if (sortRelationshipTypesToEnd.includes(userInfo.relationshipStatus)) {
-          sortToEnd.push(userInfo);
-        } else {
-          userSearchResults.push(userInfo);
-        }
+    const sortToEnd = [];
+    const userSearchResults = [];
+    const sortRelationshipTypesToEnd = {
+      [FriendListRouteName]: [userRelationshipStatus.FRIEND],
+      [BlockListRouteName]: [
+        userRelationshipStatus.BLOCKED_BY_VIEWER,
+        userRelationshipStatus.BOTH_BLOCKED,
+      ],
+    }[routeName];
+    for (const userID in mergedUserInfos) {
+      if (excludeUserIDs.has(userID)) {
+        continue;
       }
 
-      displayUsers = userSearchResults.concat(sortToEnd);
+      const userInfo = mergedUserInfos[userID];
+      if (sortRelationshipTypesToEnd.includes(userInfo.relationshipStatus)) {
+        sortToEnd.push(userInfo);
+      } else {
+        userSearchResults.push(userInfo);
+      }
     }
 
+    return userSearchResults.concat(sortToEnd);
+  }, [
+    searchInputText,
+    relationships,
+    routeName,
+    viewerID,
+    currentTags,
+    serverSearchResults,
+    userStoreSearchResults,
+    userInfos,
+  ]);
+
+  const displayUsers = useENSNames(usersWithoutENSNames);
+  const listData = React.useMemo(() => {
     let emptyItem;
     if (displayUsers.length === 0 && searchInputText === '') {
       emptyItem = { type: 'empty', because: 'no-relationships' };
@@ -389,26 +399,17 @@ function RelationshipList(props: Props): React.Node {
       .concat(emptyItem ? [] : { type: 'header' })
       .concat(mappedUsers)
       .concat(emptyItem ? [] : { type: 'footer' });
-  }, [
-    routeName,
-    relationships,
-    verticalBounds,
-    searchInputText,
-    serverSearchResults,
-    userStoreSearchResults,
-    userInfos,
-    viewerID,
-    currentTags,
-  ]);
+  }, [displayUsers, verticalBounds, searchInputText]);
 
   const indicatorStyle = useIndicatorStyle();
+  const currentTagsWithENSNames = useENSNames(currentTags);
   return (
     <View style={styles.container}>
       <View style={styles.tagInputContainer}>
         <Text style={styles.tagInputLabel}>Search:</Text>
         <View style={styles.tagInput}>
           <TagInput
-            value={currentTags}
+            value={currentTagsWithENSNames}
             onChange={setCurrentTags}
             text={searchInputText}
             onChangeText={onChangeSearchText}
