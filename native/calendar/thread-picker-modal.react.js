@@ -9,7 +9,7 @@ import {
   createLocalEntry,
   createLocalEntryActionType,
 } from 'lib/actions/entry-actions';
-import { threadSearchIndex } from 'lib/selectors/nav-selectors';
+import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 
 import Modal from '../components/modal.react';
@@ -72,7 +72,7 @@ function ThreadPickerModal(props: Props): React.Node {
     [navigation, rootNavigatorContext],
   );
 
-  const index = useSelector(state => threadSearchIndex(state));
+  const index = useGlobalThreadSearchIndex();
   const onScreenThreadInfos = useSelector(state =>
     onScreenEntryEditableThreadInfos(state),
   );
