@@ -58,4 +58,18 @@ impl TunnelbrokerClient {
     });
     TunnelbrokerClient { tx }
   }
+
+  #[napi]
+  pub async unsafe fn publish(
+    &mut self,
+    to_device_id: String,
+    payload: String,
+  ) -> napi::Result<()> {
+    if let Err(_) =
+      tunnelbroker::publish_message(&self.tx, to_device_id, payload).await
+    {
+      return Err(napi::Error::from_status(napi::Status::GenericFailure));
+    }
+    Ok(())
+  }
 }
