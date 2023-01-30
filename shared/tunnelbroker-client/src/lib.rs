@@ -1,6 +1,8 @@
+use anyhow::Result;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 use tokio::runtime::{Builder, Runtime};
+use tokio::sync::mpsc;
 use tonic::transport::Channel;
 
 pub mod protobuff {
@@ -25,4 +27,24 @@ pub fn initialize_client<T>(
   RUNTIME
     .block_on(TunnelbrokerServiceClient::connect(addr))
     .expect("Failed to connect ot the Tunnelbroker Service")
+}
+
+pub async fn publish_message(
+  tx: &mpsc::Sender<protobuff::MessageToTunnelbroker>,
+  to_device_id: String,
+  payload: String,
+) -> Result<()> {
+  let messages = protobuff::MessageToTunnelbroker {
+    data: Some(protobuff::message_to_tunnelbroker::Data::MessagesToSend(
+      protobuff::MessagesToSend {
+        messages: vec![protobuff::MessageToTunnelbrokerStruct {
+          to_device_id,
+          payload,
+          blob_hashes: vec![],
+        }],
+      },
+    )),
+  };
+  tx.send(messages).await?;
+  Ok(())
 }
