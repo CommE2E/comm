@@ -8,11 +8,9 @@ import {
   changeUserPassword,
 } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
+import { useStringForUser } from 'lib/hooks/ens-cache';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import {
-  type PasswordUpdate,
-  type CurrentUserInfo,
-} from 'lib/types/user-types';
+import { type PasswordUpdate } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -26,11 +24,11 @@ import { useSelector } from '../redux/redux-utils';
 import css from './password-change-modal.css';
 
 type Props = {
-  +currentUserInfo: ?CurrentUserInfo,
   +inputDisabled: boolean,
   +dispatchActionPromise: DispatchActionPromise,
   +changeUserPassword: (passwordUpdate: PasswordUpdate) => Promise<void>,
   +popModal: () => void,
+  +stringForUser: ?string,
 };
 type State = {
   +newPassword: string,
@@ -58,12 +56,6 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
     this.newPasswordInput.focus();
   }
 
-  get username() {
-    return this.props.currentUserInfo && !this.props.currentUserInfo.anonymous
-      ? this.props.currentUserInfo.username
-      : undefined;
-  }
-
   render() {
     let errorMsg;
     if (this.state.errorMessage) {
@@ -80,7 +72,9 @@ class PasswordChangeModal extends React.PureComponent<Props, State> {
             <div className={css['form-content']}>
               <p className={css['username-container']}>
                 <span className={css['username-label']}>{'Logged in as '}</span>
-                <span className={css['username']}>{this.username}</span>
+                <span className={css['username']}>
+                  {this.props.stringForUser}
+                </span>
               </p>
               <div className={css['form-content']}>
                 <Input
@@ -242,7 +236,6 @@ const changeUserPasswordLoadingStatusSelector = createLoadingStatusSelector(
 );
 const ConnectedPasswordChangeModal: React.ComponentType<{}> = React.memo<{}>(
   function ConnectedPasswordChangeModal(): React.Node {
-    const currentUserInfo = useSelector(state => state.currentUserInfo);
     const inputDisabled = useSelector(
       state => changeUserPasswordLoadingStatusSelector(state) === 'loading',
     );
@@ -251,13 +244,16 @@ const ConnectedPasswordChangeModal: React.ComponentType<{}> = React.memo<{}>(
 
     const modalContext = useModalContext();
 
+    const currentUserInfo = useSelector(state => state.currentUserInfo);
+    const stringForUser = useStringForUser(currentUserInfo);
+
     return (
       <PasswordChangeModal
-        currentUserInfo={currentUserInfo}
         inputDisabled={inputDisabled}
         changeUserPassword={callChangeUserPassword}
         dispatchActionPromise={dispatchActionPromise}
         popModal={modalContext.popModal}
+        stringForUser={stringForUser}
       />
     );
   },
