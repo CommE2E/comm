@@ -5,6 +5,7 @@ import dateFormat from 'dateformat';
 import * as React from 'react';
 import TimeAgo from 'react-timeago';
 
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { colorIsDark } from 'lib/shared/thread-utils';
 import type { HistoryRevisionInfo } from 'lib/types/history-types';
@@ -39,12 +40,17 @@ export default function HistoryRevision(props: Props): React.Node {
     );
   }
 
-  const author =
-    props.revisionInfo.author === null ? (
-      'Anonymous'
-    ) : (
-      <span className={css.entryUsername}>{props.revisionInfo.author}</span>
-    );
+  const { authorID } = props.revisionInfo;
+  const authorUserInfo = useSelector(
+    state => state.userStore.userInfos[authorID],
+  );
+  const [authorWithENSName] = useENSNames([authorUserInfo]);
+
+  const author = authorWithENSName?.username ? (
+    <span className={css.entryUsername}>{authorWithENSName.username}</span>
+  ) : (
+    'anonymous'
+  );
 
   const date = new Date(props.revisionInfo.lastUpdate);
   const hovertext = dateFormat(date, "dddd, mmmm dS, yyyy 'at' h:MM TT");

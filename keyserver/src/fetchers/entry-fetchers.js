@@ -191,10 +191,9 @@ async function fetchEntryRevisionInfo(
   }
 
   const query = SQL`
-    SELECT r.id, u.username AS author, r.text, r.last_update AS lastUpdate,
+    SELECT r.id, r.author AS authorID, r.text, r.last_update AS lastUpdate,
       r.deleted, d.thread AS threadID, r.entry AS entryID
     FROM revisions r
-    LEFT JOIN users u ON u.id = r.author
     LEFT JOIN entries e ON e.id = r.entry
     LEFT JOIN days d ON d.id = e.day
     WHERE r.entry = ${entryID}
@@ -206,7 +205,7 @@ async function fetchEntryRevisionInfo(
   for (const row of result) {
     revisions.push({
       id: row.id.toString(),
-      author: row.author,
+      authorID: row.authorID.toString(),
       text: row.text,
       lastUpdate: row.lastUpdate,
       deleted: !!row.deleted,
