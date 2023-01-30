@@ -13,6 +13,7 @@ import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 import { FaEthereum } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
 import { useAccount, useSigner } from 'wagmi';
 
 import {
@@ -35,6 +36,7 @@ import {
 
 import Button from '../components/button.react';
 import LoadingIndicator from '../loading-indicator.react';
+import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import { wagmiChains } from '../utils/wagmi-utils';
@@ -47,6 +49,7 @@ function SIWE(): React.Node {
   const { openConnectModal } = useConnectModal();
   const { address } = useAccount();
   const { data: signer } = useSigner();
+  const dispatch = useDispatch();
   const dispatchActionPromise = useDispatchActionPromise();
   const getSIWENonceCall = useServerCall(getSIWENonce);
   const getSIWENonceCallLoadingStatus = useSelector(
@@ -56,10 +59,6 @@ function SIWE(): React.Node {
   const logInExtraInfo = useSelector(webLogInExtraInfoSelector);
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
-  const [
-    primaryIdentityPublicKey,
-    setPrimaryIdentityPublicKey,
-  ] = React.useState<?string>(null);
   const [
     hasSIWEButtonBeenClicked,
     setHasSIWEButtonBeenClicked,
@@ -83,15 +82,21 @@ function SIWE(): React.Node {
     );
   }, [dispatchActionPromise, getSIWENonceCall, siweNonceShouldBeFetched]);
 
+  const primaryIdentityPublicKey = useSelector(
+    state => state.primaryIdentityPublicKey,
+  );
   React.useEffect(() => {
     (async () => {
       await olm.init();
       const account = new olm.Account();
       account.create();
       const { ed25519 } = JSON.parse(account.identity_keys());
-      setPrimaryIdentityPublicKey(ed25519);
+      dispatch({
+        type: setPrimaryIdentityPublicKey,
+        payload: ed25519,
+      });
     })();
-  }, []);
+  }, [dispatch]);
 
   const siweButtonColor = React.useMemo(
     () => ({ backgroundColor: 'white', color: 'black' }),
