@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { createSelector } from 'reselect';
 
-import { threadSearchIndex } from 'lib/selectors/nav-selectors';
+import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
@@ -57,7 +57,7 @@ function ThreadPickerModal(props: Props): React.Node {
   const { createNewEntry, ...modalProps } = props;
 
   const onScreenThreadInfos = useSelector(onScreenEntryEditableThreadInfos);
-  const searchIndex = useSelector(state => threadSearchIndex(state));
+  const searchIndex = useGlobalThreadSearchIndex();
 
   invariant(
     onScreenThreadInfos.length > 0,

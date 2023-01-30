@@ -21,7 +21,7 @@ import {
   type ChatThreadItem,
   useFlattenedChatListData,
 } from 'lib/selectors/chat-selectors';
-import { threadSearchIndex as threadSearchIndexSelector } from 'lib/selectors/nav-selectors';
+import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors';
 import { usersWithPersonalThreadSelector } from 'lib/selectors/user-selectors';
 import SearchIndex from 'lib/shared/search-index';
 import {
@@ -618,7 +618,7 @@ const ConnectedChatThreadList: React.ComponentType<BaseProps> = React.memo<BaseP
     const viewerID = useSelector(
       state => state.currentUserInfo && state.currentUserInfo.id,
     );
-    const threadSearchIndex = useSelector(threadSearchIndexSelector);
+    const threadSearchIndex = useGlobalThreadSearchIndex();
     const styles = useStyles(unboundStyles);
     const indicatorStyle = useSelector(indicatorStyleSelector);
     const callSearchUsers = useServerCall(searchUsers);
