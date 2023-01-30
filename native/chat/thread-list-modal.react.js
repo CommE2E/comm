@@ -168,7 +168,7 @@ const unboundStyles = {
   modal: {
     borderRadius: 8,
     paddingHorizontal: 0,
-    backgroundColor: 'subthreadsModalBackgroud',
+    backgroundColor: 'subthreadsModalBackground',
     paddingTop: 0,
     justifyContent: 'flex-start',
   },

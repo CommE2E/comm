@@ -159,7 +159,7 @@ const unboundStyles = {
     flex: 1,
     paddingRight: 8,
     paddingTop: 8,
-    backgroundColor: 'drawerBackgroud',
+    backgroundColor: 'drawerBackground',
   },
 };
 const labelUnboundStyles = {

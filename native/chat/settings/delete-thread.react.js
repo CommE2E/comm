@@ -178,7 +178,7 @@ class DeleteThread extends React.PureComponent<Props> {
 
 const unboundStyles = {
   deleteButton: {
-    backgroundColor: 'redButton',
+    backgroundColor: 'vibrantRedButton',
     borderRadius: 5,
     flex: 1,
     marginHorizontal: 24,

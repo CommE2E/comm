@@ -267,7 +267,7 @@ const unboundStyles = {
     paddingRight: 6,
   },
   addButton: {
-    backgroundColor: 'greenButton',
+    backgroundColor: 'vibrantGreenButton',
     borderRadius: 3,
     flexDirection: 'row',
     paddingHorizontal: 10,

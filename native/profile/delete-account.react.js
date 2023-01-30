@@ -188,7 +188,7 @@ class DeleteAccount extends React.PureComponent<Props, State> {
 
 const unboundStyles = {
   deleteButton: {
-    backgroundColor: 'redButton',
+    backgroundColor: 'vibrantRedButton',
     borderRadius: 5,
     flex: 1,
     marginHorizontal: 24,

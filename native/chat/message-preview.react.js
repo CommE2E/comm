@@ -80,7 +80,7 @@ const unboundStyles = {
     color: 'listForegroundTertiaryLabel',
   },
   secondary: {
-    color: 'listForegroundQuaternaryLabel',
+    color: 'listForegroundTertiaryLabel',
   },
   unread: {
     color: 'listForegroundLabel',

@@ -310,7 +310,7 @@ const unboundStyles = {
     paddingVertical: 9,
   },
   saveButton: {
-    backgroundColor: 'greenButton',
+    backgroundColor: 'vibrantGreenButton',
     borderRadius: 5,
     flex: 1,
     marginHorizontal: 24,

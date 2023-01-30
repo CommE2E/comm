@@ -86,7 +86,7 @@ class CustomServerModal extends React.PureComponent<Props, State> {
 
 const unboundStyles = {
   button: {
-    backgroundColor: 'greenButton',
+    backgroundColor: 'vibrantGreenButton',
     borderRadius: 5,
     marginHorizontal: 2,
     marginVertical: 2,
