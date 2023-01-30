@@ -80,6 +80,7 @@ import {
   ThreadSettingsAddMember,
   ThreadSettingsAddSubchannel,
 } from './thread-settings-list-action.react';
+import ThreadSettingsMediaGallery from './thread-settings-media-gallery.react';
 import ThreadSettingsMember from './thread-settings-member.react';
 import ThreadSettingsName from './thread-settings-name.react';
 import ThreadSettingsParent from './thread-settings-parent.react';
@@ -186,6 +187,11 @@ type ChatSettingsItem =
   | {
       +itemType: 'addMember',
       +key: string,
+    }
+  | {
+      +itemType: 'mediaGallery',
+      +key: string,
+      +threadInfo: ThreadInfo,
     }
   | {
       +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
@@ -611,6 +617,34 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     },
   );
 
+  mediaGalleryListDataSelector = createSelector(
+    (propsAndState: PropsAndState) => propsAndState.threadInfo,
+    (threadInfo: ThreadInfo) => {
+      const listData: ChatSettingsItem[] = [];
+
+      listData.push({
+        itemType: 'header',
+        key: 'mediaGalleryHeader',
+        title: 'Media Gallery',
+        categoryType: 'outline',
+      });
+
+      listData.push({
+        itemType: 'mediaGallery',
+        key: 'mediaGallery',
+        threadInfo,
+      });
+
+      listData.push({
+        itemType: 'footer',
+        key: 'mediaGalleryFooter',
+        categoryType: 'outline',
+      });
+
+      return listData;
+    },
+  );
+
   actionsListDataSelector = createSelector(
     (propsAndState: PropsAndState) => propsAndState.threadInfo,
     (propsAndState: PropsAndState) => propsAndState.parentThreadInfo,
@@ -731,18 +765,21 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     this.subchannelsListDataSelector,
     this.sidebarsListDataSelector,
     this.threadMembersListDataSelector,
+    this.mediaGalleryListDataSelector,
     this.actionsListDataSelector,
     (
       threadBasicsListData: ChatSettingsItem[],
       subchannelsListData: ChatSettingsItem[],
       sidebarsListData: ChatSettingsItem[],
       threadMembersListData: ChatSettingsItem[],
+      mediaGalleryListData: ChatSettingsItem[],
       actionsListData: ChatSettingsItem[],
     ) => [
       ...threadBasicsListData,
       ...subchannelsListData,
       ...sidebarsListData,
       ...threadMembersListData,
+      ...mediaGalleryListData,
       ...actionsListData,
     ],
   );
@@ -885,6 +922,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       );
     } else if (item.itemType === 'addMember') {
       return <ThreadSettingsAddMember onPress={this.onPressAddMember} />;
+    } else if (item.itemType === 'mediaGallery') {
+      return <ThreadSettingsMediaGallery />;
     } else if (item.itemType === 'leaveThread') {
       return (
         <ThreadSettingsLeaveThread
