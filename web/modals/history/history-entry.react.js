@@ -8,6 +8,7 @@ import {
   restoreEntryActionTypes,
   restoreEntry,
 } from 'lib/actions/entry-actions';
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { colorIsDark } from 'lib/shared/thread-utils';
@@ -19,6 +20,7 @@ import {
 } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { UserInfo } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
@@ -43,6 +45,7 @@ type Props = {
   +calendarQuery: () => CalendarQuery,
   +dispatchActionPromise: DispatchActionPromise,
   +restoreEntry: (info: RestoreEntryInfo) => Promise<RestoreEntryResult>,
+  +creator: ?UserInfo,
 };
 
 class HistoryEntry extends React.PureComponent<Props> {
@@ -82,14 +85,11 @@ class HistoryEntry extends React.PureComponent<Props> {
       [css.darkEntry]: colorIsDark(this.props.threadInfo.color),
     });
     const textStyle = { backgroundColor: '#' + this.props.threadInfo.color };
-    const creator =
-      this.props.entryInfo.creator === null ? (
-        'Anonymous'
-      ) : (
-        <span className={css.entryUsername}>
-          {this.props.entryInfo.creator}
-        </span>
-      );
+    const creator = this.props.creator?.username ? (
+      <span className={css.entryUsername}>{this.props.creator.username}</span>
+    ) : (
+      'anonymous'
+    );
 
     return (
       <li>
@@ -162,9 +162,12 @@ const ConnectedHistoryEntry: React.ComponentType<BaseProps> = React.memo<BasePro
         `${restoreEntryActionTypes.started}:${entryID}`,
       ),
     );
-    const calanderQuery = useSelector(nonThreadCalendarQuery);
+    const calenderQuery = useSelector(nonThreadCalendarQuery);
     const callRestoreEntry = useServerCall(restoreEntry);
     const dispatchActionPromise = useDispatchActionPromise();
+
+    const { creator } = props.entryInfo;
+    const [creatorWithENSName] = useENSNames([creator]);
 
     return (
       <HistoryEntry
@@ -172,9 +175,10 @@ const ConnectedHistoryEntry: React.ComponentType<BaseProps> = React.memo<BasePro
         threadInfo={threadInfo}
         loggedIn={loggedIn}
         restoreLoadingStatus={restoreLoadingStatus}
-        calendarQuery={calanderQuery}
-        restoreEntry={callRestoreEntry}
+        calendarQuery={calenderQuery}
         dispatchActionPromise={dispatchActionPromise}
+        restoreEntry={callRestoreEntry}
+        creator={creatorWithENSName}
       />
     );
   },
