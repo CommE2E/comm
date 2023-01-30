@@ -64,4 +64,23 @@ impl TunnelbrokerClient {
     });
     TunnelbrokerClient { tx }
   }
+
+  #[napi]
+  pub async fn publish(
+    &self,
+    to_device_id: String,
+    payload: String,
+  ) -> napi::Result<()> {
+    let messages =
+      vec![tunnelbroker::tunnelbroker_pb::MessageToTunnelbrokerStruct {
+        to_device_id,
+        payload,
+        blob_hashes: vec![],
+      }];
+
+    if let Err(_) = tunnelbroker::publish_messages(&self.tx, messages).await {
+      return Err(napi::Error::from_status(napi::Status::GenericFailure));
+    }
+    Ok(())
+  }
 }
