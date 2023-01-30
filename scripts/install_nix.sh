@@ -2,7 +2,13 @@
 
 # Do initial nix install if nix is not available in PATH
 if ! command -v nix > /dev/null; then
+  # Stop script if install fails
+  set -eo pipefail
+
   sh <(curl -L https://nixos.org/nix/install) --daemon
+
+  # Rest of script is considered a best try depending on user setup
+  set +eo pipefail
 
   # Source nix-daemon.sh to add nix to PATH
   if [[ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]]; then
