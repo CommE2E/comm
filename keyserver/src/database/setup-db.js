@@ -170,6 +170,7 @@ async function createTables() {
 
       CREATE TABLE uploads (
         id bigint(20) NOT NULL,
+        thread bigint(20) DEFAULT NULL,
         uploader bigint(20) NOT NULL,
         container bigint(20) DEFAULT NULL,
         type varchar(255) NOT NULL,
