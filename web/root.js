@@ -23,7 +23,12 @@ import Socket from './socket.react';
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['enabledApps', 'deviceID', 'draftStore'],
+  whitelist: [
+    'enabledApps',
+    'deviceID',
+    'draftStore',
+    'primaryIdentityPublicKey',
+  ],
   version: 0,
 };
 

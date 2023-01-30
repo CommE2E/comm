@@ -67,6 +67,7 @@ export type AppState = {
   dataLoaded: boolean,
   windowActive: boolean,
   userPolicies: UserPolicies,
+  primaryIdentityPublicKey: ?string,
   _persist: ?PersistState,
 };
 
