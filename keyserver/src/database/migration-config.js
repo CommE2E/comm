@@ -147,6 +147,25 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       `);
     },
   ],
+  [
+    15,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE uploads 
+            ADD COLUMN IF NOT EXISTS thread bigint(20) DEFAULT NULL,
+            ADD INDEX IF NOT EXISTS thread (thread);
+          
+          UPDATE uploads 
+            SET thread = (
+              SELECT thread FROM messages 
+              WHERE messages.id = uploads.container
+            );
+        `,
+        { multipleStatements: true },
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
