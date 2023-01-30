@@ -7,6 +7,7 @@ import {
   updateRelationshipsActionTypes,
 } from 'lib/actions/relationship-actions.js';
 import { searchUsers } from 'lib/actions/user-actions.js';
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
 import type {
@@ -161,33 +162,35 @@ function AddUsersList(props: Props): React.Node {
     [pendingUsersToAdd],
   );
 
+  const pendingUsersWithENSNames = useENSNames(pendingUsersToAdd);
   const userTags = React.useMemo(() => {
-    if (pendingUsersToAdd.length === 0) {
+    if (pendingUsersWithENSNames.length === 0) {
       return null;
     }
-    const tags = pendingUsersToAdd.map(userInfo => (
+    const tags = pendingUsersWithENSNames.map(userInfo => (
       <Label key={userInfo.id} onClose={() => deselectUser(userInfo.id)}>
         {userInfo.username}
       </Label>
     ));
     return <div className={css.userTagsContainer}>{tags}</div>;
-  }, [deselectUser, pendingUsersToAdd]);
+  }, [deselectUser, pendingUsersWithENSNames]);
 
   const filteredUsers = React.useMemo(
     () => sortedUsers.filter(userInfo => !pendingUserIDs.has(userInfo.id)),
     [pendingUserIDs, sortedUsers],
   );
+  const filteredUsersWithENSNames = useENSNames(filteredUsers);
 
   const userRows = React.useMemo(
     () =>
-      filteredUsers.map(userInfo => (
+      filteredUsersWithENSNames.map(userInfo => (
         <AddUsersListItem
           userInfo={userInfo}
           key={userInfo.id}
           selectUser={selectUser}
         />
       )),
-    [filteredUsers, selectUser],
+    [filteredUsersWithENSNames, selectUser],
   );
 
   const [errorMessage, setErrorMessage] = React.useState('');

@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import { useENSNames } from 'lib/hooks/ens-cache';
 import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors';
 import type { AccountUserInfo } from 'lib/types/user-types';
 
@@ -53,17 +54,18 @@ export function UserList(props: UserListProps): React.Node {
     }
     return unfilteredUserInfos.filter(filterUser).sort(usersComparator);
   }, [filterUser, searchResult, searchText, userInfos, usersComparator]);
+  const usersWithENSNames = useENSNames<AccountUserInfo>(users);
 
   const userRows = React.useMemo(() => {
     const UserRow = userRowComponent;
-    return users.map(user => (
+    return usersWithENSNames.map(user => (
       <UserRow
         userInfo={user}
         key={user.id}
         onMenuVisibilityChange={onMenuVisibilityChange}
       />
     ));
-  }, [userRowComponent, users, onMenuVisibilityChange]);
+  }, [userRowComponent, usersWithENSNames, onMenuVisibilityChange]);
 
   const containerClasses = classNames(css.container, {
     [css.noScroll]: isMenuVisible,
