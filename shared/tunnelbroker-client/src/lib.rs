@@ -41,3 +41,18 @@ pub async fn publish_messages(
   tx.send(messages).await?;
   Ok(())
 }
+
+pub async fn publish_messages(
+  tx: &mpsc::Sender<tunnelbroker_pb::MessageToTunnelbroker>,
+  messages: Vec<tunnelbroker_pb::MessageToTunnelbrokerStruct>,
+) -> Result<()> {
+  let messages = tunnelbroker_pb::MessageToTunnelbroker {
+    data: Some(
+      tunnelbroker_pb::message_to_tunnelbroker::Data::MessagesToSend(
+        tunnelbroker_pb::MessagesToSend { messages },
+      ),
+    ),
+  };
+  tx.send(messages).await?;
+  Ok(())
+}
