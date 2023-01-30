@@ -37,6 +37,10 @@ import {
 } from './action-types';
 import { reduceDeviceID } from './device-id-reducer';
 import reduceNavInfo from './nav-reducer';
+import {
+  reducePrimaryIdentityPublicKey,
+  setPrimaryIdentityPublicKey,
+} from './primary-identity-public-key-reducer';
 import { getVisibility } from './visibility';
 
 export type WindowDimensions = { width: number, height: number };
@@ -85,7 +89,8 @@ export type Action =
   | {
       type: 'SET_DEVICE_ID',
       payload: string,
-    };
+    }
+  | { +type: 'SET_PRIMARY_IDENTITY_PUBLIC_KEY', payload: ?string };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
@@ -134,7 +139,8 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
 
   if (
     action.type !== updateNavInfoActionType &&
-    action.type !== setDeviceIDActionType
+    action.type !== setDeviceIDActionType &&
+    action.type !== setPrimaryIdentityPublicKey
   ) {
     state = baseReducer(state, action).state;
   }
@@ -147,6 +153,10 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       state.threadStore.threadInfos,
     ),
     deviceID: reduceDeviceID(state.deviceID, action),
+    primaryIdentityPublicKey: reducePrimaryIdentityPublicKey(
+      state.primaryIdentityPublicKey,
+      action,
+    ),
   };
 
   return validateState(oldState, state);
