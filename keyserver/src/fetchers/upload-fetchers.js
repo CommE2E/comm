@@ -116,6 +116,22 @@ async function fetchMedia(
   return result.map(mediaFromRow);
 }
 
+async function fetchMediaForThread(
+  threadID: string,
+  limit?: number,
+): Promise<$ReadOnlyArray<Media>> {
+  const limitQuery = limit ? SQL`LIMIT ${limit}` : SQL``;
+  const query = SQL`
+    SELECT id AS uploadID, secret AS uploadSecret,
+      type AS uploadType, extra AS uploadExtra
+    FROM uploads
+    WHERE thread = ${threadID} AND filename NOT LIKE 'thumb%'
+    ORDER BY creation_time DESC
+  `.append(limitQuery);
+  const [uploads] = await dbQuery(query);
+  return uploads.map(mediaFromRow);
+}
+
 async function fetchUploadsForMessage(
   viewer: Viewer,
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
@@ -204,6 +220,7 @@ export {
   getUploadURL,
   mediaFromRow,
   fetchMedia,
+  fetchMediaForThread,
   fetchMediaFromMediaMessageContent,
   constructMediaFromMediaMessageContentsAndUploadRows,
 };
