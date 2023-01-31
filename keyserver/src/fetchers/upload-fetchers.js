@@ -3,8 +3,14 @@
 import _keyBy from 'lodash/fp/keyBy.js';
 
 import type { Media } from 'lib/types/media-types.js';
+import { messageTypes } from 'lib/types/message-types.js';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
+import type {
+  ThreadFetchMediaResult,
+  ThreadFetchMediaRequest,
+} from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import { dbQuery, SQL } from '../database/database.js';
@@ -116,6 +122,84 @@ async function fetchMedia(
   return result.map(mediaFromRow);
 }
 
+async function fetchMediaForThread(
+  viewer: Viewer,
+  request: ThreadFetchMediaRequest,
+): Promise<ThreadFetchMediaResult> {
+  const visibleExtractString = `$.${threadPermissions.VISIBLE}.value`;
+  const query = SQL`
+    SELECT content.photo AS uploadID,
+      u.secret AS uploadSecret,
+      u.type AS uploadType, u.extra AS uploadExtra,
+      u.container, u.creation_time,
+      NULL AS thumbnailID,
+      NULL AS thumbnailUploadSecret
+    FROM messages m
+    LEFT JOIN JSON_TABLE(
+      m.content,
+      "$[*]" COLUMNS(photo INT PATH "$")
+    ) content ON 1
+    LEFT JOIN uploads u ON u.id = content.photo
+    LEFT JOIN memberships mm ON mm.thread = ${request.threadID} 
+      AND mm.user = ${viewer.id}
+    WHERE m.thread = ${request.threadID} AND m.type = ${messageTypes.IMAGES}
+      AND JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
+    UNION SELECT content.media AS uploadID,
+      uv.secret AS uploadSecret,
+      uv.type AS uploadType, uv.extra AS uploadExtra,
+      uv.container, uv.creation_time,
+      content.thumbnail AS thumbnailID,
+      ut.secret AS thumbnailUploadSecret
+    FROM messages m
+    LEFT JOIN JSON_TABLE(
+      m.content,
+      "$[*]" COLUMNS(
+        media INT PATH "$.uploadID",
+        thumbnail INT PATH "$.thumbnailUploadID"
+      )
+    ) content ON 1
+    LEFT JOIN uploads uv ON uv.id = content.media
+    LEFT JOIN uploads ut ON ut.id = content.thumbnail
+    LEFT JOIN memberships mm ON mm.thread = ${request.threadID} 
+      AND mm.user = ${viewer.id}
+    WHERE m.thread = ${request.threadID} 
+      AND m.type = ${messageTypes.MULTIMEDIA}
+      AND JSON_EXTRACT(mm.permissions, ${visibleExtractString}) IS TRUE
+    ORDER BY creation_time DESC
+    LIMIT ${request.limit} OFFSET ${request.offset}
+  `;
+
+  const [uploads] = await dbQuery(query);
+
+  const media = uploads.map(upload => {
+    const { uploadID, uploadType, uploadSecret, uploadExtra } = upload;
+    const { width, height } = JSON.parse(uploadExtra);
+    const dimensions = { width, height };
+
+    if (uploadType === 'photo') {
+      return {
+        type: 'photo',
+        id: uploadID,
+        uri: getUploadURL(uploadID, uploadSecret),
+        dimensions,
+      };
+    }
+
+    const { thumbnailID, thumbnailUploadSecret } = upload;
+
+    return {
+      type: 'video',
+      id: uploadID,
+      uri: getUploadURL(uploadID, uploadSecret),
+      dimensions,
+      thumbnailID,
+      thumbnailURI: getUploadURL(thumbnailID, thumbnailUploadSecret),
+    };
+  });
+
+  return { media };
+}
+
 async function fetchUploadsForMessage(
   viewer: Viewer,
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
@@ -203,6 +287,7 @@ export {
   getUploadURL,
   mediaFromRow,
   fetchMedia,
+  fetchMediaForThread,
   fetchMediaFromMediaMessageContent,
   constructMediaFromMediaMessageContentsAndUploadRows,
 };
