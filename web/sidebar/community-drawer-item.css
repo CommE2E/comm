@@ -1,0 +1,66 @@
+.threadEntry {
+  display: flex;
+  flex-direction: row;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+.threadListContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.titleWrapper {
+  overflow: hidden;
+}
+
+.title {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  color: var(--drawer-item-color);
+  line-height: 24px;
+}
+
+.titleLevel0 {
+  font-size: var(--l-font-18);
+  font-weight: var(--semi-bold);
+}
+
+.titleLevel1,
+.titleLevel2 {
+  font-size: var(--m-font-16);
+  font-weight: var(--semi-bold);
+}
+
+.buttonContainer {
+  width: 24px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.chatItem {
+  margin-left: 16px;
+}
+
+.communityBase {
+  padding: 2px;
+  padding-right: 24px;
+  padding-left: 8px;
+  overflow: hidden;
+}
+
+.communityExpanded {
+  background-color: var(--drawer-open-community-bg);
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+.subchannelsButton {
+  margin-left: 24px;
+  margin-bottom: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+}
