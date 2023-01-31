@@ -127,6 +127,13 @@ function LoginForm(): React.Node {
     return 'Log in';
   }, [inputDisabled]);
 
+  const loginButtonColor = React.useMemo(
+    () => ({
+      backgroundColor: '#6A20E3',
+    }),
+    [],
+  );
+
   let siwe;
   if (isDev) {
     siwe = <SIWE />;
@@ -165,6 +172,7 @@ function LoginForm(): React.Node {
             type="submit"
             disabled={inputDisabled}
             onClick={onSubmit}
+            buttonColor={loginButtonColor}
           >
             {loginButtonContent}
           </Button>

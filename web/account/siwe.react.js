@@ -138,6 +138,13 @@ function SIWE(): React.Node {
     attemptSIWEAuth(message, signature);
   }, [address, attemptSIWEAuth, primaryIdentityPublicKey, signer, siweNonce]);
 
+  const signInButtonColor = React.useMemo(
+    () => ({
+      backgroundColor: '#6A20E3',
+    }),
+    [],
+  );
+
   let siweLoginForm;
   if (signer && (!siweNonce || !primaryIdentityPublicKey)) {
     siweLoginForm = (
@@ -158,7 +165,11 @@ function SIWE(): React.Node {
           <a href="https://comm.app/terms">Terms of Use</a> &{' '}
           <a href="https://comm.app/privacy">Privacy Policy</a>.
         </p>
-        <Button variant="filled" onClick={onSignInButtonClick}>
+        <Button
+          variant="filled"
+          onClick={onSignInButtonClick}
+          buttonColor={signInButtonColor}
+        >
           Sign in
         </Button>
       </div>
