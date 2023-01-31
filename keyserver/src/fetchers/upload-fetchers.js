@@ -116,6 +116,138 @@ async function fetchMedia(
   return result.map(mediaFromRow);
 }
 
+async function fetchMediaForThread(request: any): Promise<any> {
+  // These are the paginated uploads that will be returned. We fetch
+  // twice as many as the limit to account for the worst situation of
+  // `limit` uploads being videos, which will each require their adjacent
+  // thumbnails to be fetched as well. 6 videos = 6 thumbnails = 12 uploads.
+  const paginatedUploadsQuery = SQL`
+    SELECT id AS uploadID, secret AS uploadSecret,
+      type AS uploadType, extra AS uploadExtra,
+      container
+    FROM uploads
+    WHERE thread = ${request.threadID}
+    ORDER BY creation_time DESC
+    LIMIT ${request.limit * 2} OFFSET ${request.offset}
+  `;
+  const [paginatedUploads] = await dbQuery(paginatedUploadsQuery);
+
+  // If there are no uploads, return early with an empty array
+  if (paginatedUploads.length === 0) {
+    return {
+      media: [],
+      adjustedOffset: request.limit + request.offset,
+    };
+  }
+
+  // Retrieve all of the containers for the uploads
+  const uploadContainers = paginatedUploads.map(upload => upload.container);
+
+  // Get the messages.content for each of the uploadContainers
+  const messageQuery = SQL`
+    SELECT content
+    FROM messages
+    WHERE id IN (${uploadContainers})
+    ORDER BY time DESC
+  `;
+  const [uploadMessages] = await dbQuery(messageQuery);
+
+  // Potential cases of uploadMessages (results may be grouped since
+  // one upload container / message id may contain multiple media):
+  // 1. Videos
+  //   - { content: {"type":"video",
+  //                 "uploadID":"107022",
+  //                 "thumbnailUploadID":"107023"}
+  //     }
+  //   - For multiple videos, the content will be an array of the above
+  // 2. Photos
+  //   - { content: '[107071]' }
+  //   - { content: '[107052,107051]' }
+  // 4. Mix of videos and photos
+  //   - { content: '[
+  //                  {"type":"video",
+  //                   "uploadID":"107022",
+  //                   "thumbnailUploadID":"107023"},
+  //                  {"type":"photo",
+  //                   "uploadID":"107025"},
+  //                  {"type":"photo",
+  //                   "uploadID":"107024"}
+  //                 ]'
+  //     }
+
+  const mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent> = uploadMessages
+    .map(message => {
+      const content = JSON.parse(message.content);
+      return content.map(mediaMessageContent => {
+        if (mediaMessageContent.type && mediaMessageContent.uploadID) {
+          return mediaMessageContent;
+        }
+        return {
+          type: 'photo',
+          uploadID: mediaMessageContent,
+        };
+      });
+    })
+    .flat();
+
+  // We fetched request.limit * 2 media to account for the worst case scenario
+  // with `limit` videos, meaning `limit` thumbnails needed to be fetched
+  // alongside. Now that we can guarentee that the first `limit` media will
+  // definitely have thumbnails if they are videos, we can only process what
+  // is necessary. We also need to filter out
+  const adjustedMediaMessageContents = mediaMessageContents
+    // Filter out any media that is already rendered on the client
+    .filter(mediaMessageContent => {
+      return !request.currentMediaIDs.some(currentMediaID => {
+        return String(currentMediaID) === String(mediaMessageContent.uploadID);
+      });
+    })
+    .slice(0, request.limit);
+
+  // To create the uploadMap in
+  // constructMediaFromMediaMessageContentsAndUploadRows, we need to
+  // get the uploads for each of the IDs in the mediaMessageContents array.
+  // This will include all photos, videos, and thumbnails. Doing this here
+  // allows us to be selective about which uploads we fetch from the database
+  // and avoid fetching unnecessary data.
+  const uploadIDs = adjustedMediaMessageContents
+    .map(mediaMessageContent => {
+      if (mediaMessageContent.type === 'video') {
+        return [
+          mediaMessageContent.uploadID,
+          mediaMessageContent.thumbnailUploadID,
+        ];
+      }
+      return mediaMessageContent.uploadID;
+    })
+    .flat();
+
+  const uploadsQuery = SQL`
+    SELECT id AS uploadID, secret AS uploadSecret,
+    type AS uploadType, extra AS uploadExtra
+    FROM uploads
+    WHERE thread = ${request.threadID} AND id IN (${uploadIDs})
+    ORDER BY creation_time DESC
+  `;
+  const [uploads] = await dbQuery(uploadsQuery);
+
+  // Since we may have fetched additional media (i.e. the adjacent thumbnails),
+  // we should return to the client the appropriate offset to use for the next
+  // request, so we don't return the same media twice.
+  const numVideos = adjustedMediaMessageContents.filter(mediaMessageContent => {
+    return mediaMessageContent.type === 'video';
+  }).length;
+
+  const adjustedOffset = request.offset + request.limit + numVideos;
+
+  const media = await constructMediaFromMediaMessageContentsAndUploadRows(
+    adjustedMediaMessageContents,
+    uploads,
+  );
+
+  return { media, adjustedOffset };
+}
+
 async function fetchUploadsForMessage(
   viewer: Viewer,
   mediaMessageContents: $ReadOnlyArray<MediaMessageServerDBContent>,
@@ -203,6 +335,7 @@ export {
   getUploadURL,
   mediaFromRow,
   fetchMedia,
+  fetchMediaForThread,
   fetchMediaFromMediaMessageContent,
   constructMediaFromMediaMessageContentsAndUploadRows,
 };
