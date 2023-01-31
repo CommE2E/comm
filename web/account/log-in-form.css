@@ -3,8 +3,8 @@ div.modal_body {
   flex-direction: column;
   padding: 20px 40px;
   border-radius: 16px;
-  background-color: var(--modal-bg);
-  box-shadow: 0 0 40px rgba(126, 87, 194, 0.5);
+  background-color: #191723;
+  outline: #282537 solid 1px;
 }
 
 div.form_title {
