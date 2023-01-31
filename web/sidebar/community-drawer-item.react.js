@@ -16,6 +16,7 @@ export type DrawerItemProps = {
   +toggleExpanded: (threadID: string) => void,
   +expanded: boolean,
   +paddingLeft: number,
+  +expandable?: boolean,
 };
 
 const indentation = 14;
@@ -27,6 +28,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     expanded,
     toggleExpanded,
     paddingLeft,
+    expandable = true,
   } = props;
 
   const children = React.useMemo(() => {
@@ -52,15 +54,26 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         itemData={item}
         key={item.threadInfo.id}
         paddingLeft={paddingLeft + indentation}
+        expandable={expandable}
       />
     ));
-  }, [expanded, hasSubchannelsButton, itemChildren, paddingLeft, threadInfo]);
+  }, [
+    expanded,
+    hasSubchannelsButton,
+    itemChildren,
+    paddingLeft,
+    expandable,
+    threadInfo,
+  ]);
 
   const onExpandToggled = React.useCallback(() => {
     toggleExpanded(threadInfo.id);
   }, [toggleExpanded, threadInfo.id]);
 
   const itemExpandButton = React.useMemo(() => {
+    if (!expandable) {
+      return null;
+    }
     if (!itemChildren?.length && !hasSubchannelsButton) {
       return (
         <div className={css.buttonContainer}>
@@ -73,7 +86,13 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         <ExpandButton onClick={onExpandToggled} expanded={expanded} />
       </div>
     );
-  }, [itemChildren?.length, hasSubchannelsButton, onExpandToggled, expanded]);
+  }, [
+    expandable,
+    itemChildren?.length,
+    hasSubchannelsButton,
+    onExpandToggled,
+    expanded,
+  ]);
 
   const Handler = useSelector(state =>
     getCommunityDrawerItemHandler(state.navInfo.tab),
@@ -105,6 +124,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
 export type CommunityDrawerItemChatProps = {
   +itemData: CommunityDrawerItemData<string>,
   +paddingLeft: number,
+  +expandable?: boolean,
 };
 
 function CommunityDrawerItemChat(
