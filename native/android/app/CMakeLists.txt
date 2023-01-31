@@ -94,6 +94,11 @@ add_subdirectory(../../node_modules/olm ./build)
 set(_node_modules_dir ${CMAKE_CURRENT_SOURCE_DIR}/../../node_modules)
 set(_react_native_dir ${_node_modules_dir}/react-native)
 
+add_subdirectory(../../cpp/CommonCpp/
+  ${CMAKE_CURRENT_BINARY_DIR}/build/CommonCpp
+  EXCLUDE_FROM_ALL
+)
+
 file(GLOB SQLCIPHER
   "${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src/*.c"
 )

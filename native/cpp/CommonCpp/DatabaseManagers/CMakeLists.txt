@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 3.4)
 
 include(GNUInstallDirs)
 
-find_package(Folly REQUIRED)
-
 set(DBM_HDRS
   "DatabaseManager.h"
   "DatabaseQueryExecutor.h"
@@ -43,24 +41,4 @@ target_include_directories(comm-databasemanagers
 
 target_link_libraries(comm-databasemanagers
   Folly::folly
-)
-
-install(TARGETS comm-databasemanagers EXPORT comm-databasemanagers-export
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-databasemanagers
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-databasemanagers
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-databasemanagers
-)
-
-install(FILES ${TOOLS_HDRS} DESTINATION include/comm/DatabaseManagers)
-
-set(_builddir_export_path cmake/comm-tools/comm-databasemanagers-targets.cmake)
-export(TARGETS comm-databasemanagers
-  NAMESPACE comm-databasemanagers::
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/${_builddir_export_path}
-)
-
-# For installation
-install(EXPORT comm-databasemanagers-export
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-databasemanagers
-  NAMESPACE comm-tools::
 )

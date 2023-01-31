@@ -23,8 +23,6 @@ add_library(comm-cryptotools
   ${CRYPTO_SRCS}
 )
 
-find_package(Olm)
-
 target_link_libraries(comm-cryptotools
   Olm::Olm
 )
@@ -35,25 +33,4 @@ target_include_directories(comm-cryptotools
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
-
-install(TARGETS comm-cryptotools EXPORT comm-cryptotools-export
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT comm-cryptotools
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT comm-cryptotools
-)
-
-install(FILES ${TOOLS_HDRS} DESTINATION include/Tools)
-
-set(_builddir_export_path cmake/comm-cryptotools/comm-cryptotools-targets.cmake)
-export(TARGETS comm-cryptotools
-  NAMESPACE comm-cryptotools::
-  FILE ${CMAKE_CURRENT_BINARY_DIR}/${_builddir_export_path}
-)
-
-# For installation
-install(EXPORT comm-cryptotools-export
-  FILE comm-cryptotools-targets.cmake
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/comm-cryptotools
-  NAMESPACE comm-cryptotools::
 )
