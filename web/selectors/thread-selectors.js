@@ -34,11 +34,13 @@ function useOnClickThread(
           chatMode: 'view',
           activeChatThreadID: threadID,
           pendingThread: thread,
+          tab: 'chat',
         };
       } else {
         payload = {
           chatMode: 'view',
           activeChatThreadID: threadID,
+          tab: 'chat',
         };
       }
 
