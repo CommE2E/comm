@@ -12,7 +12,8 @@ export type CommIcons =
   | 'reply'
   | 'reply-filled'
   | 'megaphone'
-  | 'copy-filled';
+  | 'copy-filled'
+  | 'emote-smile-filled';
 
 type CommIconProps = {
   +icon: CommIcons,

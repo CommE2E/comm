@@ -30,7 +30,6 @@ import {
   useOnClickPendingSidebar,
   useOnClickThread,
 } from '../selectors/thread-selectors';
-import SWMansionIcon from '../SWMansionIcon.react';
 import { calculateMaxTextWidth } from '../utils/text-utils';
 
 export const tooltipPositions = Object.freeze({
@@ -469,7 +468,7 @@ function useMessageReactAction(
       return null;
     }
 
-    const buttonContent = <SWMansionIcon icon="emote-smile" size={18} />;
+    const buttonContent = <CommIcon icon="emote-smile-filled" size={18} />;
 
     const onClickReact = () => {
       if (!setRenderEmojiKeyboard) {
