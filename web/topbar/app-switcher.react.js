@@ -11,9 +11,9 @@ import {
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { navTabSelector } from '../selectors/nav-selectors.js';
-import css from '../sidebar/left-layout-aside.css';
 import NavigationPanel from '../sidebar/navigation-panel.react';
 import SWMansionIcon from '../SWMansionIcon.react';
+import css from './topbar.css';
 
 function AppSwitcher(): React.Node {
   const activeChatThreadID = useSelector(
@@ -123,7 +123,7 @@ function AppSwitcher(): React.Node {
   );
 
   return (
-    <NavigationPanel.Container tabSelector={navTabSelector}>
+    <NavigationPanel.Container tabSelector={navTabSelector} horizontal={true}>
       {chatNavigationItem}
       {calendarNavigationItem}
       {appNavigationItem}

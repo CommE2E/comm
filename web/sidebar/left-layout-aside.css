@@ -17,21 +17,12 @@
   cursor: pointer;
 }
 
-.navigationPanelTab svg {
-  padding-right: 12px;
-  color: var(--color-disabled);
-  stroke: var(--color-disabled);
-  fill: var(--color-disabled);
-}
-
 .navigationPanelTab p {
   color: var(--color-disabled);
 }
 
 .navigationPanelTab:hover p,
-.navigationPanelTab:hover svg,
-div.current_tab p,
-div.current_tab svg {
+div.current_tab p {
   color: var(--fg);
   stroke: var(--fg);
   fill: var(--fg);
@@ -40,25 +31,4 @@ div.current_tab svg {
 .container p {
   display: flex;
   align-content: center;
-}
-
-.chatIconWrapper {
-  position: relative;
-}
-
-span.chatBadge {
-  position: absolute;
-  top: -4px;
-  left: 13px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  color: var(--fg);
-  background: var(--unread-bg);
-  border-radius: 13px;
-  font-size: 8px;
-  line-height: 1.25;
 }
