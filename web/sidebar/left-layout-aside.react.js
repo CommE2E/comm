@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import { useSelector } from '../redux/redux-utils';
-import AppSwitcher from './app-switcher.react';
+import AppSwitcher from '../topbar/app-switcher.react';
 import CommunityPicker from './community-picker.react';
 import css from './left-layout-aside.css';
 import SettingsSwitcher from './settings-switcher.react';
