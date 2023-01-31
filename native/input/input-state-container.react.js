@@ -569,16 +569,17 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       },
     );
 
-    await this.uploadFiles(localMessageID, uploadFileInputs);
+    await this.uploadFiles(localMessageID, threadInfo.id, uploadFileInputs);
   };
 
   async uploadFiles(
     localMessageID: string,
+    threadID: string,
     uploadFileInputs: $ReadOnlyArray<UploadFileInput>,
   ) {
     const results = await Promise.all(
       uploadFileInputs.map(uploadFileInput =>
-        this.uploadFile(localMessageID, uploadFileInput),
+        this.uploadFile(localMessageID, threadID, uploadFileInput),
       ),
     );
     const errors = [...new Set(results.filter(Boolean))];
@@ -589,6 +590,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
 
   async uploadFile(
     localMessageID: string,
+    threadID: string,
     uploadFileInput: UploadFileInput,
   ): Promise<?string> {
     const { ids, selection } = uploadFileInput;
@@ -665,6 +667,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
         this.props.uploadMultimedia(
           { uri: uploadURI, name: filename, type: mime },
           {
+            thread: threadID,
             ...processedMedia.dimensions,
             loop:
               processedMedia.mediaType === 'video'
@@ -693,6 +696,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
               type: 'image/jpeg',
             },
             {
+              thread: threadID,
               ...processedMedia.dimensions,
               loop: false,
             },
@@ -1266,7 +1270,7 @@ class InputStateContainer extends React.PureComponent<Props, State> {
       };
     });
 
-    await this.uploadFiles(localMessageID, uploadFileInputs);
+    await this.uploadFiles(localMessageID, threadInfo.id, uploadFileInputs);
   };
 
   retryMessage = async (localMessageID: string, threadInfo: ThreadInfo) => {

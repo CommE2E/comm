@@ -57,6 +57,11 @@ async function multimediaUploadResponder(
 
   const inputLoop = !!(files.length === 1 && body.loop);
 
+  let thread;
+  if (files.length === 1 && typeof body.thread === 'string') {
+    thread = body.thread;
+  }
+
   const validationResults = await Promise.all(
     files.map(({ buffer, size, originalname }) =>
       validateAndConvert(
@@ -65,6 +70,7 @@ async function multimediaUploadResponder(
         inputDimensions,
         inputLoop,
         size,
+        thread,
       ),
     ),
   );
