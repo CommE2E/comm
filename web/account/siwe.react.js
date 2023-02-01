@@ -6,7 +6,6 @@ import olm from '@matrix-org/olm';
 import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
 import * as React from 'react';
-import { FaEthereum } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { useAccount, useSigner } from 'wagmi';
 
@@ -33,6 +32,7 @@ import LoadingIndicator from '../loading-indicator.react';
 import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import SIWEButton from './siwe-button.react.js';
 import css from './siwe.css';
 
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
@@ -90,11 +90,6 @@ function SIWE(): React.Node {
       });
     })();
   }, [dispatch]);
-
-  const siweButtonColor = React.useMemo(
-    () => ({ backgroundColor: 'white', color: 'black' }),
-    [],
-  );
 
   const callSIWEAuthEndpoint = React.useCallback(
     (message: string, signature: string, extraInfo) =>
@@ -165,20 +160,7 @@ function SIWE(): React.Node {
 
   let siweButton;
   if (openConnectModal) {
-    siweButton = (
-      <>
-        <Button
-          onClick={onSIWEButtonClick}
-          variant="filled"
-          buttonColor={siweButtonColor}
-        >
-          <div className={css.ethereumLogoContainer}>
-            <FaEthereum />
-          </div>
-          Sign in with Ethereum
-        </Button>
-      </>
-    );
+    siweButton = <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />;
   }
   return (
     <div className={css.siweContainer}>
