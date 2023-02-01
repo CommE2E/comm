@@ -120,25 +120,30 @@ function ChatItemHeightMeasurer(props: Props) {
           contentHeight: height,
           reactions: item.reactions,
         };
-      } else {
-        invariant(
-          typeof item.robotext === 'string',
-          "Flow can't handle our fancy types :(",
-        );
-        return {
-          itemType: 'message',
-          messageShapeType: 'robotext',
-          messageInfo,
-          threadInfo,
-          startsConversation: item.startsConversation,
-          startsCluster: item.startsCluster,
-          endsCluster: item.endsCluster,
-          threadCreatedFromMessage: item.threadCreatedFromMessage,
-          robotext: item.robotext,
-          contentHeight: height,
-          reactions: item.reactions,
-        };
       }
+      invariant(
+        item.messageInfoType !== 'composable',
+        'ChatItemHeightMeasurer was handed a messageInfoType=composable, but ' +
+          `does not know how to handle MessageType ${messageInfo.type}`,
+      );
+      invariant(
+        item.messageInfoType === 'robotext',
+        'ChatItemHeightMeasurer was handed a messageInfoType that it does ' +
+          `not recognize: ${item.messageInfoType}`,
+      );
+      return {
+        itemType: 'message',
+        messageShapeType: 'robotext',
+        messageInfo,
+        threadInfo,
+        startsConversation: item.startsConversation,
+        startsCluster: item.startsCluster,
+        endsCluster: item.endsCluster,
+        threadCreatedFromMessage: item.threadCreatedFromMessage,
+        robotext: item.robotext,
+        contentHeight: height,
+        reactions: item.reactions,
+      };
     },
     [composedMessageMaxWidth, inputStatePendingUploads, threadInfo],
   );
