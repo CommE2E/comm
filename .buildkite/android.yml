@@ -9,6 +9,8 @@ steps:
       - 'yarn cleaninstall --frozen-lockfile --skip-optional'
       - 'cd native/android'
       - './gradlew clean && ./gradlew bundleRelease --no-daemon "-Dorg.gradle.jvmargs=-Xmx32g -XX:MaxPermSize=32g -XX:+HeapDumpOnOutOfMemoryError"'
+    retry:
+      automatic: true
     plugins:
       - docker#v3.13.0:
           image: 'reactnativecommunity/react-native-android:latest'

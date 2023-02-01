@@ -4,6 +4,8 @@ steps:
       - 'pip install cmakelang'
       - 'shopt -s globstar'
       - 'cmake-lint **/CMakeLists.txt **/*.cmake'
+    retry:
+      automatic: true
     plugins:
       - docker#v3.13.0:
           image: 'python:bullseye'

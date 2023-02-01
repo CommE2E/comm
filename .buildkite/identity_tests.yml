@@ -1,9 +1,11 @@
 env:
-  PATH: "$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH"
+  PATH: '$HOME/.nix-profile/bin:/nix/var/nix/profiles/default/bin:$PATH'
 steps:
-  - label: ":nix: Identity Tests (Nix)"
+  - label: ':nix: Identity Tests (Nix)'
     command:
       - 'cd services/identity'
       - 'nix develop --accept-flake-config --command cargo test'
+    retry:
+      automatic: true
     agents:
       - 'mac=true'

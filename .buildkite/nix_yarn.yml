@@ -1,5 +1,7 @@
 steps:
   - label: 'nix develop -c yarn cleaninstall --network-timeout 180000'
     command: 'nix develop --accept-flake-config -c yarn cleaninstall --network-timeout 180000'
+    retry:
+      automatic: true
     agents:
       - 'nixdarwin=true'

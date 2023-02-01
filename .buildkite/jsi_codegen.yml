@@ -4,6 +4,8 @@ steps:
       - '(pkill flow || true)'
       - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
       - 'cd native && yarn codegen-jsi && git diff --exit-code'
+    retry:
+      automatic: true
     plugins:
       - docker#v3.13.0:
           image: 'node:16.13-bullseye'

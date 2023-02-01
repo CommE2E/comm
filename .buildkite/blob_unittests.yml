@@ -1,7 +1,9 @@
 steps:
-  - label: ":nix: Blob Unittests"
+  - label: ':nix: Blob Unittests'
     command:
       - 'cd services/blob'
       - 'nix develop --accept-flake-config --command cargo test'
+    retry:
+      automatic: true
     agents:
       - 'mac=true'

@@ -1,5 +1,7 @@
 steps:
-  - label: ":docker: Tunnelbroker Build (Docker)"
+  - label: ':docker: Tunnelbroker Build (Docker)'
     command: 'cd services && docker-compose build --no-cache tunnelbroker-server'
+    retry:
+      automatic: true
     agents:
       - 'autoscaling=true'

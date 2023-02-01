@@ -4,6 +4,8 @@ steps:
       - 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y shellcheck'
       - 'shopt -s globstar'
       - 'shellcheck -x -P SCRIPTDIR **/*.sh'
+    retry:
+      automatic: true
     plugins:
       - docker#v3.13.0:
           image: 'debian:stable'
