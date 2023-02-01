@@ -34,10 +34,14 @@ import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import css from './siwe.css';
 
+type SIWELoginFormProps = {
+  +cancelSIWEAuthFlow: () => void,
+};
+
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
-function SIWELoginForm(): React.Node {
+function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   const { address } = useAccount();
   const { data: signer } = useSigner();
   const dispatch = useDispatch();
@@ -119,6 +123,8 @@ function SIWELoginForm(): React.Node {
     attemptSIWEAuth(message, signature);
   }, [address, attemptSIWEAuth, primaryIdentityPublicKey, signer, siweNonce]);
 
+  const { cancelSIWEAuthFlow } = props;
+
   if (!siweNonce || !primaryIdentityPublicKey) {
     return (
       <div className={css.connectButtonContainer}>
@@ -141,6 +147,10 @@ function SIWELoginForm(): React.Node {
       </p>
       <Button variant="filled" onClick={onSignInButtonClick}>
         Sign in
+      </Button>
+      <hr />
+      <Button variant="filled" onClick={cancelSIWEAuthFlow}>
+        Go back
       </Button>
     </div>
   );

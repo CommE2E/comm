@@ -25,9 +25,13 @@ function LoginForm(): React.Node {
     openConnectModal && openConnectModal();
   }, [openConnectModal]);
 
+  const cancelSIWEAuthFlow = React.useCallback(() => {
+    setSIWEAuthFlowSelected(false);
+  }, []);
+
   let siweSection;
   if (isDev && siweAuthFlowSelected && signer) {
-    siweSection = <SIWELoginForm />;
+    siweSection = <SIWELoginForm cancelSIWEAuthFlow={cancelSIWEAuthFlow} />;
   } else if (isDev) {
     siweSection = <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />;
   }
