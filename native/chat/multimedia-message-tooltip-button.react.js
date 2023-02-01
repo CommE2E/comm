@@ -3,12 +3,21 @@
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
+import { localIDPrefix } from 'lib/shared/message-utils';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
+import type { SetState } from 'lib/types/hook-types';
+
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
 import { TooltipInlineEngagement } from './inline-engagement.react';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react';
 import { MessageHeader } from './message-header.react';
+import {
+  useSendReaction,
+  useReactionSelectionPopoverPosition,
+} from './reaction-message-utils';
+import ReactionSelectionPopover from './reaction-selection-popover.react';
 import SidebarInputBarHeightMeasurer from './sidebar-input-bar-height-measurer.react';
 import { useAnimatedMessageTooltipButton } from './utils';
 
@@ -23,10 +32,12 @@ type Props = {
   +route: TooltipRoute<'MultimediaMessageTooltipModal'>,
   +progress: Node,
   +isOpeningSidebar: boolean,
+  +setHideTooltip: SetState<boolean>,
 };
 function MultimediaMessageTooltipButton(props: Props): React.Node {
+  const { navigation, progress, isOpeningSidebar, setHideTooltip } = props;
+
   const windowWidth = useSelector(state => state.dimensions.width);
-  const { progress } = props;
 
   const [
     sidebarInputBarHeight,
@@ -36,7 +47,13 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     setSidebarInputBarHeight(height);
   }, []);
 
-  const { item, verticalBounds, initialCoordinates } = props.route.params;
+  const {
+    item,
+    verticalBounds,
+    initialCoordinates,
+    margin,
+  } = props.route.params;
+
   const { style: messageContainerStyle } = useAnimatedMessageTooltipButton({
     sourceMessage: item,
     initialCoordinates,
@@ -61,8 +78,6 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     };
   }, [initialCoordinates.height, initialCoordinates.x, progress, windowWidth]);
 
-  const { navigation, isOpeningSidebar } = props;
-
   const inlineEngagement = React.useMemo(() => {
     if (!item.threadCreatedFromMessage) {
       return null;
@@ -79,6 +94,49 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     );
   }, [initialCoordinates, isOpeningSidebar, item, progress, windowWidth]);
 
+  const { messageInfo, threadInfo, reactions } = item;
+  const nextLocalID = useSelector(state => state.nextLocalID);
+  const localID = `${localIDPrefix}${nextLocalID}`;
+
+  const canCreateReactionFromMessage = useCanCreateReactionFromMessage(
+    threadInfo,
+    messageInfo,
+  );
+
+  const sendReaction = useSendReaction(
+    messageInfo.id,
+    localID,
+    threadInfo.id,
+    reactions,
+  );
+
+  const reactionSelectionPopoverPosition = useReactionSelectionPopoverPosition({
+    initialCoordinates,
+    verticalBounds,
+    margin,
+  });
+
+  const reactionSelectionPopover = React.useMemo(() => {
+    if (!canCreateReactionFromMessage) {
+      return null;
+    }
+
+    return (
+      <ReactionSelectionPopover
+        setHideTooltip={setHideTooltip}
+        reactionSelectionPopoverContainerStyle={
+          reactionSelectionPopoverPosition
+        }
+        sendReaction={sendReaction}
+      />
+    );
+  }, [
+    canCreateReactionFromMessage,
+    reactionSelectionPopoverPosition,
+    sendReaction,
+    setHideTooltip,
+  ]);
+
   return (
     <Animated.View style={messageContainerStyle}>
       <SidebarInputBarHeightMeasurer
@@ -88,6 +146,7 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
       <Animated.View style={headerStyle}>
         <MessageHeader item={item} focused={true} display="modal" />
       </Animated.View>
+      {reactionSelectionPopover}
       <InnerMultimediaMessage
         item={item}
         verticalBounds={verticalBounds}

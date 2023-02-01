@@ -111,6 +111,7 @@ type ButtonProps<Base> = {
   ...Base,
   +progress: Node,
   +isOpeningSidebar: boolean,
+  +setHideTooltip: SetState<boolean>,
 };
 type TooltipProps<Base> = {
   ...Base,
@@ -510,6 +511,7 @@ function createTooltip<
         ...navAndRouteForFlow,
         progress: position,
         isOpeningSidebar,
+        setHideTooltip,
       };
 
       const itemsStyles = [styles.items, styles.itemsFixed];
