@@ -15,6 +15,7 @@ set(TOOLS_SRCS
 )
 
 add_library(comm-tools
+  STATIC
   ${TOOLS_HDRS}
   ${TOOLS_SRCS}
 )

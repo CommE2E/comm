@@ -18,6 +18,7 @@ set(NATIVE_SRCS
 )
 
 add_library(comm-modules-native
+  STATIC
   ${NATIVE_HDRS}
   ${NATIVE_SRCS}
 )
@@ -37,7 +38,6 @@ target_include_directories(comm-modules-native
   "../../../../node_modules/react-native/ReactCommon/react/nativemodule/core"
   "../../../../node_modules/react-native/ReactCommon/callinvoker"
   "../../../../node_modules/react-native/ReactCommon"
-  "../../../native_rust_library"
 )
 
 set(_message_path ./PersistentStorageUtilities/MessageOperationsUtilities)
@@ -62,6 +62,7 @@ set(THREAD_OP_SRCS
 )
 
 add_library(comm-modules-persistentstorage
+  STATIC
   ${MESSAGE_HDRS}
   ${MESSAGE_SRCS}
   ${MESSAGE_SPEC_HDRS}
