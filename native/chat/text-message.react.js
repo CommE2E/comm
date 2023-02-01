@@ -214,7 +214,7 @@ class TextMessage extends React.PureComponent<Props> {
           initialCoordinates: coordinates,
           verticalBounds,
           visibleEntryIDs,
-          location: 'fixed',
+          tooltipLocation: 'fixed',
           margin,
           item,
           chatInputBarHeight: currentInputBarHeight,

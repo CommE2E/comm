@@ -170,7 +170,7 @@ class MultimediaMessage extends React.PureComponent<Props, State> {
           item,
           initialCoordinates: coordinates,
           verticalBounds,
-          location: 'fixed',
+          tooltipLocation: 'fixed',
           margin,
           visibleEntryIDs,
           chatInputBarHeight: currentInputBarHeight,
