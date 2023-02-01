@@ -1,5 +1,6 @@
 // @flow
 
+import * as ImagePicker from 'expo-image-picker';
 import * as MediaLibrary from 'expo-media-library';
 import invariant from 'invariant';
 import * as React from 'react';
@@ -15,7 +16,10 @@ import {
 import { KeyboardRegistry } from 'react-native-keyboard-input';
 import { Provider } from 'react-redux';
 
-import { extensionFromFilename } from 'lib/media/file-utils';
+import {
+  extensionFromFilename,
+  filenameFromPathOrURI,
+} from 'lib/media/file-utils';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
 
@@ -277,6 +281,85 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     }
     this.fetchingPhotos = false;
   }
+
+  openNativePicker = async () => {
+    try {
+      const { assets, canceled } = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: false,
+        allowsMultipleSelection: true,
+        // maximum quality is 1 - it disables compression
+        quality: 1,
+        // we don't want to compress videos at this point
+        videoExportPreset: ImagePicker.VideoExportPreset.Passthrough,
+      });
+
+      if (canceled || assets.length === 0) {
+        return;
+      }
+
+      const selections = assets.map(asset => {
+        const {
+          width,
+          height,
+          fileName,
+          type,
+          duration,
+          assetId: mediaNativeID,
+        } = asset;
+        const isVideo = type === 'video';
+        const filename = fileName || filenameFromPathOrURI(asset.uri) || '';
+        const uri = getCompatibleMediaURI(
+          asset.uri,
+          extensionFromFilename(filename),
+        );
+
+        if (isVideo) {
+          return {
+            step: 'video_library',
+            dimensions: { height, width },
+            uri,
+            filename,
+            mediaNativeID,
+            duration,
+            selectTime: 0,
+            sendTime: 0,
+            retries: 0,
+          };
+        } else {
+          return {
+            step: 'photo_library',
+            dimensions: { height, width },
+            uri,
+            filename,
+            mediaNativeID,
+            selectTime: 0,
+            sendTime: 0,
+            retries: 0,
+          };
+        }
+      });
+
+      const selectionURIs = selections.map(({ uri }) => uri);
+      this.guardedSetState(prevState => ({
+        error: null,
+        selections: [...selections, ...(prevState.selections ?? [])],
+        queuedMediaURIs: new Set([
+          ...selectionURIs,
+          ...(prevState.queuedMediaURIs ?? []),
+        ]),
+        focusedMediaURI: null,
+      }));
+    } catch (e) {
+      if (__DEV__) {
+        console.warn(e);
+      }
+      this.guardedSetState({
+        selections: null,
+        error: 'something went wrong :(',
+      });
+    }
+  };
 
   async getPermissions(): Promise<boolean> {
     const { granted } = await MediaLibrary.requestPermissionsAsync();
