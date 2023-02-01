@@ -10,6 +10,7 @@ import {
   parseRobotextEntity,
   robotextToRawString,
 } from 'lib/shared/message-utils';
+import { entityTextToReact, type EntityText } from 'lib/utils/entity-text';
 
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
@@ -19,7 +20,7 @@ import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types'
 import { useNavigateToThread } from './message-list-types';
 
 function dummyNodeForRobotextMessageHeightMeasurement(
-  robotext: string,
+  robotext: string | EntityText,
 ): React.Element<typeof View> {
   return (
     <View style={unboundStyles.robotextContainer}>
@@ -43,6 +44,26 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   const { messageInfo, robotext } = item;
   const { threadID } = messageInfo;
   const textParts = React.useMemo(() => {
+    const darkColor = activeTheme === 'dark';
+
+    if (typeof robotext !== 'string') {
+      return entityTextToReact(robotext, threadID, {
+        // eslint-disable-next-line react/display-name
+        renderText: ({ text }) => (
+          <Markdown
+            style={styles.robotext}
+            rules={inlineMarkdownRules(darkColor)}
+          >
+            {text}
+          </Markdown>
+        ),
+        // eslint-disable-next-line react/display-name
+        renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
+        // eslint-disable-next-line react/display-name
+        renderColor: ({ hex }) => <ColorEntity color={hex} />,
+      });
+    }
+
     const robotextParts = splitRobotext(robotext);
     const result = [];
     let keyIndex = 0;
@@ -53,7 +74,6 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
       }
       const key = `text${keyIndex++}`;
       if (splitPart.charAt(0) !== '<') {
-        const darkColor = activeTheme === 'dark';
         result.push(
           <Markdown
             style={styles.robotext}

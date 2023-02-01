@@ -8,6 +8,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
 import type { Dispatch } from 'lib/types/redux-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
+import { type EntityText, entityTextToReact } from 'lib/utils/entity-text';
 
 import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
@@ -70,6 +71,15 @@ class RobotextMessage extends React.PureComponent<Props> {
   linkedRobotext() {
     const { item } = this.props;
     const { robotext } = item;
+    const { threadID } = item.messageInfo;
+    if (typeof robotext === 'string') {
+      return this.renderStringRobotext(robotext, threadID);
+    } else {
+      return this.renderEntityText(robotext, threadID);
+    }
+  }
+
+  renderStringRobotext(robotext: string, threadID: string): React.Node {
     const robotextParts = splitRobotext(robotext);
     const textParts = [];
     let keyIndex = 0;
@@ -89,7 +99,7 @@ class RobotextMessage extends React.PureComponent<Props> {
 
       const { rawText, entityType, id } = parseRobotextEntity(splitPart);
 
-      if (entityType === 't' && id !== item.messageInfo.threadID) {
+      if (entityType === 't' && id !== threadID) {
         textParts.push(<ThreadEntity key={key} id={id} name={rawText} />);
       } else if (entityType === 'c') {
         textParts.push(<ColorEntity key={key} color={rawText} />);
@@ -99,6 +109,16 @@ class RobotextMessage extends React.PureComponent<Props> {
     }
 
     return textParts;
+  }
+
+  renderEntityText(entityText: EntityText, threadID: string): React.Node {
+    return entityTextToReact(entityText, threadID, {
+      renderText: ({ text }) => (
+        <Markdown rules={linkRules(false)}>{text}</Markdown>
+      ),
+      renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
+      renderColor: ({ hex }) => <ColorEntity color={hex} />,
+    });
   }
 }
 type BaseInnerThreadEntityProps = {
