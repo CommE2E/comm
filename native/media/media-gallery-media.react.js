@@ -87,6 +87,28 @@ class MediaGalleryMedia extends React.PureComponent<Props> {
     return props.isFocused || props.isQueued;
   }
 
+  componentDidMount() {
+    const isActive = MediaGalleryMedia.isActive(this.props);
+    if (isActive) {
+      // eslint-disable-next-line import/no-named-as-default-member
+      Reanimated.timing(this.focusProgress, {
+        ...reanimatedSpec,
+        toValue: 1,
+      }).start();
+    }
+
+    if (this.props.isQueued) {
+      // When I updated to React Native 0.60, I also updated Lottie. At that
+      // time, on iOS the last frame of the animation drops the circle outlining
+      // the checkmark. This is a hack to get around that
+      const maxValue = Platform.OS === 'ios' ? 0.99 : 1;
+      Animated.timing(this.checkProgress, {
+        ...animatedSpec,
+        toValue: maxValue,
+      }).start();
+    }
+  }
+
   componentDidUpdate(prevProps: Props) {
     const isActive = MediaGalleryMedia.isActive(this.props);
     const wasActive = MediaGalleryMedia.isActive(prevProps);
