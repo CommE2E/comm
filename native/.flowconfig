@@ -1,7 +1,4 @@
 [ignore]
-; We fork some components by platform
-.*/*[.]android.js
-
 .*/node_modules/react-native-fast-image/src/index.js.flow
 .*/node_modules/react-native-fs/FS.common.js
 .*/node_modules/react-native-gesture-handler/Swipeable.js
@@ -43,6 +40,7 @@ format.bracket_spacing=false
 module.file_ext=.js
 module.file_ext=.json
 module.file_ext=.ios.js
+module.file_ext=.android.js
 
 munge_underscores=true
 
