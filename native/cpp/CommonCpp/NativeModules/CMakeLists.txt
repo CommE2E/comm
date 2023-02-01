@@ -37,7 +37,6 @@ target_include_directories(comm-modules-native
   "../../../../node_modules/react-native/ReactCommon/react/nativemodule/core"
   "../../../../node_modules/react-native/ReactCommon/callinvoker"
   "../../../../node_modules/react-native/ReactCommon"
-  "../../../native_rust_library"
 )
 
 set(_message_path ./PersistentStorageUtilities/MessageOperationsUtilities)

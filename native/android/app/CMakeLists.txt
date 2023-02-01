@@ -99,19 +99,6 @@ add_subdirectory(../../cpp/CommonCpp/
   EXCLUDE_FROM_ALL
 )
 
-file(GLOB SQLCIPHER
-  "${_node_modules_dir}/@commapp/sqlcipher-amalgamation/src/*.c"
-)
-file(GLOB ANDROID_NATIVE_CODE "./src/cpp/*.cpp")
-
-set(GENERATED_NATIVE_CODE "../../cpp/CommonCpp/_generated/commJSI-generated.cpp")
-file(GLOB CRYPTO_NATIVE_CODE "../../cpp/CommonCpp/CryptoTools/*.cpp")
-file(GLOB DB_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/*.cpp")
-file(GLOB DB_ENTITIES_NATIVE_CODE "../../cpp/CommonCpp/DatabaseManagers/entities/*.cpp")
-file(GLOB_RECURSE MODULE_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/**/*.cpp")
-file(GLOB MODULE_ROOT_NATIVE_CODE "../../cpp/CommonCpp/NativeModules/*.cpp")
-file(GLOB TOOLS_NATIVE_CODE "../../cpp/CommonCpp/Tools/*.cpp")
-
 add_library(
   # Sets the name of the library
   ${PACKAGE_NAME}
@@ -128,16 +115,6 @@ add_library(
 
   # Third party dependencies
   ${SQLCIPHER}
-
-  # comm code
-  ${ANDROID_NATIVE_CODE}
-  ${GENERATED_NATIVE_CODE}
-  ${CRYPTO_NATIVE_CODE}
-  ${DB_NATIVE_CODE}
-  ${DB_ENTITIES_NATIVE_CODE}
-  ${MODULE_NATIVE_CODE}
-  ${MODULE_ROOT_NATIVE_CODE}
-  ${TOOLS_NATIVE_CODE}
 )
 
 set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
@@ -168,17 +145,6 @@ target_include_directories(
 
   # comm android specific code
   ./src/cpp
-
-  # comm native mutual code
-  ../../cpp/CommonCpp/
-  ../../cpp/CommonCpp/NativeModules
-  ../../cpp/CommonCpp/NativeModules/InternalModules
-  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities
-  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/ThreadOperationsUtilities
-  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities
-  ../../cpp/CommonCpp/NativeModules/PersistentStorageUtilities/MessageOperationsUtilities/MessageSpecs
-  ../../cpp/CommonCpp/DatabaseManagers
-  ../../cpp/CommonCpp/Tools
 
   # native rust library
   ${native_rust_library_include_dir}
@@ -222,6 +188,15 @@ set_target_properties(
   "${_third_party_dir}/openssl/openssl-${OPENSSL_VERSION}/build/${CMAKE_ANDROID_ARCH_ABI}/lib/libssl.a"
 )
 
+# Ensure that the bindings are available before building modules
+add_dependencies(comm-modules-native
+  comm::native_rust_library
+)
+target_include_directories(comm-modules-native
+  PUBLIC
+  ${native_rust_library_include_dir}
+)
+
 target_link_libraries(
   ${PACKAGE_NAME}
   fbjni::fbjni
@@ -233,6 +208,7 @@ target_link_libraries(
   openssl-crypto
   openssl-ssl
   comm::native_rust_library
+  comm-modules-native
 )
 
 # add a dummy library which is required by CallInvokerHolderImpl.java
