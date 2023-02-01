@@ -16,7 +16,6 @@ target_link_libraries(comm-cryptotools
 )
 
 target_link_libraries(comm-modules-native
-  comm-client
   comm-cryptotools
   comm-databasemanagers
   comm-tools

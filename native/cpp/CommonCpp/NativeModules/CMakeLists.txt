@@ -30,6 +30,7 @@ target_include_directories(comm-modules-native
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  "../../../native_rust_library"
 
   # HACK
   PRIVATE
@@ -37,7 +38,6 @@ target_include_directories(comm-modules-native
   "../../../../node_modules/react-native/ReactCommon/react/nativemodule/core"
   "../../../../node_modules/react-native/ReactCommon/callinvoker"
   "../../../../node_modules/react-native/ReactCommon"
-  "../../../native_rust_library"
 )
 
 set(_message_path ./PersistentStorageUtilities/MessageOperationsUtilities)
