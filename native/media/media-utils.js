@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import { Image } from 'react-native';
 
-import { pathFromURI, readableFilename } from 'lib/media/file-utils';
+import { pathFromURI, sanitizeFilename } from 'lib/media/file-utils';
 import type {
   Dimensions,
   MediaMissionStep,
@@ -89,8 +89,7 @@ async function innerProcessMedia(
     );
     const shouldDisposePath =
       initialURI !== uploadURI ? pathFromURI(uploadURI) : null;
-    const filename = readableFilename(selection.filename, mime);
-    invariant(filename, `could not construct filename for ${mime}`);
+    const filename = sanitizeFilename(selection.filename, mime);
     if (mediaType === 'video') {
       invariant(uploadThumbnailURI, 'video should have uploadThumbnailURI');
       sendResult({

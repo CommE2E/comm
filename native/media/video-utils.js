@@ -31,7 +31,7 @@ const clientTranscodeSpeed = 1.15; // in seconds of video transcoded per second
 type ProcessVideoInfo = {
   +uri: string,
   +mime: string,
-  +filename: string,
+  +filename: ?string,
   +fileSize: number,
   +dimensions: Dimensions,
   +hasWiFi: boolean,
@@ -73,6 +73,7 @@ async function processVideo(
     inputHasCorrectContainerAndCodec: validFormat,
     inputFileSize: input.fileSize,
     inputFilename: input.filename,
+    inputMimeType: input.mime,
     inputDuration: duration,
     inputDimensions: input.dimensions,
     outputDirectory: temporaryDirectoryPath,
