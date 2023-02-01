@@ -8,9 +8,14 @@ import {
   sendReactionMessage,
   sendReactionMessageActionTypes,
 } from 'lib/actions/message-actions';
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
 import { messageTypes } from 'lib/types/message-types';
 import type { RawReactionMessageInfo } from 'lib/types/messages/reaction';
 import type { BindServerCall, DispatchFunctions } from 'lib/utils/action-utils';
+import {
+  useDispatchActionPromise,
+  useServerCall,
+} from 'lib/utils/action-utils';
 import { cloneError } from 'lib/utils/errors';
 
 import type { InputState } from '../input/input-state';
@@ -123,6 +128,93 @@ function sendReaction(
   );
 }
 
+function useSendReaction(
+  messageID: ?string,
+  localID: string,
+  threadID: string,
+  reactions: $ReadOnlyMap<string, MessageReactionInfo>,
+): (reaction: string) => mixed {
+  const viewerID = useSelector(
+    state => state.currentUserInfo && state.currentUserInfo.id,
+  );
+
+  const callSendReactionMessage = useServerCall(sendReactionMessage);
+  const dispatchActionPromise = useDispatchActionPromise();
+
+  return React.useCallback(
+    reaction => {
+      if (!messageID) {
+        return;
+      }
+
+      invariant(viewerID, 'viewerID should be set');
+
+      const viewerReacted = reactions.get(reaction)?.viewerReacted;
+      const action = viewerReacted ? 'remove_reaction' : 'add_reaction';
+
+      const reactionMessagePromise = (async () => {
+        try {
+          const result = await callSendReactionMessage({
+            threadID,
+            localID,
+            targetMessageID: messageID,
+            reaction,
+            action,
+          });
+          return {
+            localID,
+            serverID: result.id,
+            threadID,
+            time: result.time,
+            interface: result.interface,
+          };
+        } catch (e) {
+          Alert.alert(
+            'Couldn’t send the reaction',
+            'Please try again later',
+            [{ text: 'OK' }],
+            {
+              cancelable: true,
+            },
+          );
+
+          const copy = cloneError(e);
+          copy.localID = localID;
+          copy.threadID = threadID;
+          throw copy;
+        }
+      })();
+
+      const startingPayload: RawReactionMessageInfo = {
+        type: messageTypes.REACTION,
+        threadID,
+        localID,
+        creatorID: viewerID,
+        time: Date.now(),
+        targetMessageID: messageID,
+        reaction,
+        action,
+      };
+
+      dispatchActionPromise(
+        sendReactionMessageActionTypes,
+        reactionMessagePromise,
+        undefined,
+        startingPayload,
+      );
+    },
+    [
+      messageID,
+      viewerID,
+      reactions,
+      threadID,
+      localID,
+      dispatchActionPromise,
+      callSendReactionMessage,
+    ],
+  );
+}
+
 type ReactionSelectionPopoverPositionArgs = {
   +initialCoordinates: LayoutCoordinates,
   +verticalBounds: VerticalBounds,
@@ -189,4 +281,4 @@ function useReactionSelectionPopoverPosition({
   ]);
 }
 
-export { onPressReact, useReactionSelectionPopoverPosition };
+export { onPressReact, useSendReaction, useReactionSelectionPopoverPosition };
