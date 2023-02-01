@@ -18,9 +18,11 @@ set(DBM_HDRS
 
 set(DBM_SRCS
   "SQLiteQueryExecutor.cpp"
+  "DatabaseManager.cpp"
 )
 
 add_library(comm-databasemanagers
+  STATIC
   ${DBM_HDRS}
   ${DBM_SRCS}
 )
@@ -37,8 +39,10 @@ target_include_directories(comm-databasemanagers
   # HACK
   "../../../node_modules/react-native/ReactCommon/jsi"
   "../../../node_modules/olm/include"
+  "../../../node_modules/@commapp/sqlcipher-amalgamation/src/"
 )
 
 target_link_libraries(comm-databasemanagers
   Folly::folly
+  fbjni::fbjni
 )

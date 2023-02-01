@@ -19,6 +19,7 @@ set(CRYPTO_SRCS
 )
 
 add_library(comm-cryptotools
+  STATIC
   ${CRYPTO_HDRS}
   ${CRYPTO_SRCS}
 )
