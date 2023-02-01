@@ -230,7 +230,7 @@ async function processSuccessfulLogin(
 
   if (
     notAcknowledgedPolicies.length &&
-    hasMinCodeVersion(viewer.platformDetails, 1000)
+    hasMinCodeVersion(viewer.platformDetails, 182)
   ) {
     const currentUserInfo = await fetchLoggedInUserInfo(viewer);
     return {

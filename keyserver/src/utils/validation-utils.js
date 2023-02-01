@@ -163,7 +163,7 @@ async function policiesValidator(
   if (!policies.length) {
     return;
   }
-  if (!hasMinCodeVersion(viewer.platformDetails, 1000)) {
+  if (!hasMinCodeVersion(viewer.platformDetails, 182)) {
     return;
   }
 
