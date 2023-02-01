@@ -3,14 +3,8 @@
 import '@rainbow-me/rainbowkit/dist/index.css';
 
 import olm from '@matrix-org/olm';
-import {
-  ConnectButton,
-  darkTheme,
-  RainbowKitProvider,
-  useConnectModal,
-} from '@rainbow-me/rainbowkit';
+import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
-import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 import { FaEthereum } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
@@ -39,7 +33,6 @@ import LoadingIndicator from '../loading-indicator.react';
 import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import { wagmiChains } from '../utils/wagmi-utils';
 import css from './siwe.css';
 
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
@@ -196,23 +189,4 @@ function SIWE(): React.Node {
   );
 }
 
-function SIWEWrapper(): React.Node {
-  const theme = React.useMemo(() => {
-    return _merge(darkTheme())({
-      radii: {
-        modal: 0,
-        modalMobile: 0,
-      },
-      colors: {
-        modalBackdrop: '#242529',
-      },
-    });
-  }, []);
-  return (
-    <RainbowKitProvider chains={wagmiChains} theme={theme} modalSize="compact">
-      <SIWE />
-    </RainbowKitProvider>
-  );
-}
-
-export default SIWEWrapper;
+export default SIWE;
