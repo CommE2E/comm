@@ -29,6 +29,7 @@ public:
   static const std::string OPTION_SESSIONS_SKIP_AUTH_KEY;
   static const std::string OPTION_DISABLE_DEVICEID_VALIDATION;
   static const std::string OPTION_MESSAGES_SKIP_PERSISTENCE;
+  static const std::string OPTION_DISABLE_NOTIFS_KEY;
 
   static ConfigManager &getInstance();
   void load();

@@ -37,6 +37,8 @@ const std::string ConfigManager::OPTION_DISABLE_DEVICEID_VALIDATION =
     "sessions.disable_deviceid_validation";
 const std::string ConfigManager::OPTION_MESSAGES_SKIP_PERSISTENCE =
     "messages.skip_persistence";
+const std::string ConfigManager::OPTION_DISABLE_NOTIFS_KEY =
+    "notifications.disable";
 
 ConfigManager &ConfigManager::getInstance() {
   static ConfigManager instance;
@@ -118,6 +120,10 @@ void ConfigManager::loadConfigFile(const std::string configFilePath) {
         this->OPTION_NOTIFS_FCM_SERVER_KEY.c_str(),
         boost::program_options::value<std::string>()->required(),
         "Firebase Cloud Messaging server key for Android notifications");
+    description.add_options()(
+        this->OPTION_DISABLE_NOTIFS_KEY.c_str(),
+        boost::program_options::value<bool>()->default_value(false),
+        "Disable push notifications mechanism");
 
     description.add_options()(
         this->OPTION_SESSIONS_SKIP_AUTH_KEY.c_str(),
