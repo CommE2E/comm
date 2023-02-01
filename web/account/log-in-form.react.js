@@ -1,7 +1,9 @@
 // @flow
 
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
 import * as React from 'react';
+import { useSigner } from 'wagmi';
 
 import { logInActionTypes, logIn } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
@@ -28,10 +30,13 @@ import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors';
 import css from './log-in-form.css';
 import PasswordInput from './password-input.react';
+import SIWEButton from './siwe-button.react.js';
 import SIWE from './siwe.react.js';
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function LoginForm(): React.Node {
+  const { openConnectModal } = useConnectModal();
+  const { data: signer } = useSigner();
   const inputDisabled = useSelector(loadingStatusSelector) === 'loading';
   const loginExtraInfo = useSelector(webLogInExtraInfoSelector);
   const callLogIn = useServerCall(logIn);
@@ -42,6 +47,10 @@ function LoginForm(): React.Node {
   const [username, setUsername] = React.useState<string>('');
   const [password, setPassword] = React.useState<string>('');
   const [errorMessage, setErrorMessage] = React.useState<string>('');
+  const [
+    siweAuthFlowSelected,
+    setSIWEAuthFlowSelected,
+  ] = React.useState<boolean>(false);
 
   const usernameInputRef = React.useRef();
 
@@ -127,9 +136,16 @@ function LoginForm(): React.Node {
     return 'Log in';
   }, [inputDisabled]);
 
+  const onSIWEButtonClick = React.useCallback(() => {
+    setSIWEAuthFlowSelected(true);
+    openConnectModal && openConnectModal();
+  }, [openConnectModal]);
+
   let siwe;
-  if (isDev) {
+  if (isDev && siweAuthFlowSelected && signer) {
     siwe = <SIWE />;
+  } else if (isDev) {
+    siwe = <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />;
   }
 
   return (
@@ -168,6 +184,7 @@ function LoginForm(): React.Node {
           >
             {loginButtonContent}
           </Button>
+          <hr />
           {siwe}
           <div className={css.modal_form_error}>{errorMessage}</div>
         </div>

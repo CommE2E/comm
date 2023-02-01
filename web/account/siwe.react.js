@@ -3,7 +3,7 @@
 import '@rainbow-me/rainbowkit/dist/index.css';
 
 import olm from '@matrix-org/olm';
-import { ConnectButton, useConnectModal } from '@rainbow-me/rainbowkit';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
@@ -32,14 +32,12 @@ import LoadingIndicator from '../loading-indicator.react';
 import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import SIWEButton from './siwe-button.react.js';
 import css from './siwe.css';
 
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
 function SIWE(): React.Node {
-  const { openConnectModal } = useConnectModal();
   const { address } = useAccount();
   const { data: signer } = useSigner();
   const dispatch = useDispatch();
@@ -52,15 +50,9 @@ function SIWE(): React.Node {
   const logInExtraInfo = useSelector(webLogInExtraInfoSelector);
 
   const [siweNonce, setSIWENonce] = React.useState<?string>(null);
-  const [
-    hasSIWEButtonBeenClicked,
-    setHasSIWEButtonBeenClicked,
-  ] = React.useState<boolean>(false);
 
   const siweNonceShouldBeFetched =
-    !siweNonce &&
-    getSIWENonceCallLoadingStatus !== 'loading' &&
-    (signer || hasSIWEButtonBeenClicked);
+    !siweNonce && getSIWENonceCallLoadingStatus !== 'loading';
 
   React.useEffect(() => {
     if (!siweNonceShouldBeFetched) {
@@ -115,6 +107,7 @@ function SIWE(): React.Node {
   );
 
   const onSignInButtonClick = React.useCallback(async () => {
+    invariant(signer, 'signer must be present during SIWE attempt');
     invariant(siweNonce, 'nonce must be present during SIWE attempt');
     invariant(
       primaryIdentityPublicKey,
@@ -126,47 +119,29 @@ function SIWE(): React.Node {
     attemptSIWEAuth(message, signature);
   }, [address, attemptSIWEAuth, primaryIdentityPublicKey, signer, siweNonce]);
 
-  let siweLoginForm;
-  if (signer && (!siweNonce || !primaryIdentityPublicKey)) {
-    siweLoginForm = (
+  if (!siweNonce || !primaryIdentityPublicKey) {
+    return (
       <div className={css.connectButtonContainer}>
         <LoadingIndicator status="loading" size="medium" />
       </div>
     );
-  } else if (signer) {
-    siweLoginForm = (
-      <div className={css.siweLoginFormContainer}>
-        <div className={css.connectButtonContainer}>
-          <ConnectButton />
-        </div>
-        <p>{siweMessageSigningExplanationStatements[0]}</p>
-        <p>{siweMessageSigningExplanationStatements[1]}</p>
-        <p>
-          By signing up, you agree to our{' '}
-          <a href="https://comm.app/terms">Terms of Use</a> &{' '}
-          <a href="https://comm.app/privacy">Privacy Policy</a>.
-        </p>
-        <Button variant="filled" onClick={onSignInButtonClick}>
-          Sign in
-        </Button>
-      </div>
-    );
   }
 
-  const onSIWEButtonClick = React.useCallback(() => {
-    setHasSIWEButtonBeenClicked(true);
-    openConnectModal && openConnectModal();
-  }, [openConnectModal]);
-
-  let siweButton;
-  if (openConnectModal) {
-    siweButton = <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />;
-  }
   return (
-    <div className={css.siweContainer}>
-      <hr />
-      {siweLoginForm}
-      {siweButton}
+    <div className={css.siweLoginFormContainer}>
+      <div className={css.connectButtonContainer}>
+        <ConnectButton />
+      </div>
+      <p>{siweMessageSigningExplanationStatements[0]}</p>
+      <p>{siweMessageSigningExplanationStatements[1]}</p>
+      <p>
+        By signing up, you agree to our{' '}
+        <a href="https://comm.app/terms">Terms of Use</a> &{' '}
+        <a href="https://comm.app/privacy">Privacy Policy</a>.
+      </p>
+      <Button variant="filled" onClick={onSignInButtonClick}>
+        Sign in
+      </Button>
     </div>
   );
 }
