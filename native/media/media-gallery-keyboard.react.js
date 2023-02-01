@@ -23,6 +23,7 @@ import {
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
 
+import Button from '../components/button.react';
 import type { DimensionsInfo } from '../redux/dimensions-updater.react';
 import { store } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
@@ -402,6 +403,20 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     return item.uri;
   };
 
+  GalleryHeader = () => (
+    <View style={this.props.styles.galleryHeader}>
+      <Text style={this.props.styles.galleryHeaderTitle}>Photos</Text>
+      <Button
+        onPress={this.openNativePicker}
+        style={this.props.styles.nativePickerButton}
+      >
+        <Text style={this.props.styles.nativePickerButtonLabel}>
+          Browse all Photos
+        </Text>
+      </Button>
+    </View>
+  );
+
   render() {
     let content;
     const { selections, error, containerHeight } = this.state;
@@ -455,21 +470,24 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     });
     const containerStyle = { bottom: bottomInset };
     return (
-      <View
-        style={[this.props.styles.container, containerStyle]}
-        onLayout={this.onContainerLayout}
-      >
-        {content}
-        <SendMediaButton
-          onPress={this.sendQueuedMedia}
-          queueCount={queueCount}
-          pointerEvents={queuedMediaURIs ? 'auto' : 'none'}
-          containerStyle={[
-            this.props.styles.sendButtonContainer,
-            bottomOffsetStyle,
-          ]}
-          style={this.sendButtonStyle}
-        />
+      <View style={[this.props.styles.container, containerStyle]}>
+        <this.GalleryHeader />
+        <View
+          style={this.props.styles.galleryContainer}
+          onLayout={this.onContainerLayout}
+        >
+          {content}
+          <SendMediaButton
+            onPress={this.sendQueuedMedia}
+            queueCount={queueCount}
+            pointerEvents={queuedMediaURIs ? 'auto' : 'none'}
+            containerStyle={[
+              this.props.styles.sendButtonContainer,
+              bottomOffsetStyle,
+            ]}
+            style={this.sendButtonStyle}
+          />
+        </View>
       </View>
     );
   }
@@ -580,13 +598,41 @@ const mediaGalleryKeyboardName = 'MediaGalleryKeyboard';
 
 const unboundStyles = {
   container: {
-    alignItems: 'center',
     backgroundColor: 'listBackground',
-    flexDirection: 'row',
-    left: 0,
     position: 'absolute',
+    left: 0,
     right: 0,
     top: 0,
+  },
+  galleryHeader: {
+    height: 56,
+    borderTopWidth: 1,
+    borderColor: 'modalForegroundBorder',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+  },
+  galleryHeaderTitle: {
+    color: 'modalForegroundLabel',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  nativePickerButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  nativePickerButtonLabel: {
+    color: 'modalButtonLabel',
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  galleryContainer: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   error: {
     color: 'listBackgroundLabel',
