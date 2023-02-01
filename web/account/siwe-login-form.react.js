@@ -37,7 +37,7 @@ import css from './siwe.css';
 const getSIWENonceLoadingStatusSelector = createLoadingStatusSelector(
   getSIWENonceActionTypes,
 );
-function SIWE(): React.Node {
+function SIWELoginForm(): React.Node {
   const { address } = useAccount();
   const { data: signer } = useSigner();
   const dispatch = useDispatch();
@@ -146,4 +146,4 @@ function SIWE(): React.Node {
   );
 }
 
-export default SIWE;
+export default SIWELoginForm;
