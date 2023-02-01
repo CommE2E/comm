@@ -8,6 +8,7 @@ import type {
 } from 'lib/types/message-types';
 import type { TextMessageInfo } from 'lib/types/messages/text';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import type { EntityText } from 'lib/utils/entity-text';
 
 import type { MessagePendingUploads } from '../input/input-state';
 
@@ -19,7 +20,7 @@ export type ChatRobotextMessageInfoItemWithHeight = {
   +startsConversation: boolean,
   +startsCluster: boolean,
   +endsCluster: boolean,
-  +robotext: string,
+  +robotext: string | EntityText,
   +threadCreatedFromMessage: ?ThreadInfo,
   +contentHeight: number,
   +reactions: $ReadOnlyMap<string, MessageReactionInfo>,

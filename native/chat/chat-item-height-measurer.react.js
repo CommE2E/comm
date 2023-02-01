@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
-import { messageID } from 'lib/shared/message-utils';
+import { messageID, robotextToRawString } from 'lib/shared/message-utils';
 import { messageTypes, type MessageType } from 'lib/types/message-types';
 
 import NodeHeightMeasurer from '../components/node-height-measurer.react';
@@ -28,8 +28,8 @@ const heightMeasurerKey = (item: ChatMessageItem) => {
   const { messageInfo } = item;
   if (messageInfo.type === messageTypes.TEXT) {
     return messageInfo.text;
-  } else if (item.robotext && typeof item.robotext === 'string') {
-    return item.robotext;
+  } else if (item.robotext) {
+    return robotextToRawString(item.robotext);
   }
   return null;
 };
@@ -42,7 +42,7 @@ const heightMeasurerDummy = (item: ChatMessageItem) => {
   const { messageInfo } = item;
   if (messageInfo.type === messageTypes.TEXT) {
     return dummyNodeForTextMessageHeightMeasurement(messageInfo.text);
-  } else if (item.robotext && typeof item.robotext === 'string') {
+  } else if (item.robotext) {
     return dummyNodeForRobotextMessageHeightMeasurement(item.robotext);
   }
   invariant(false, 'NodeHeightMeasurer asked for dummy for non-text message');
