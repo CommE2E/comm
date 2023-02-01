@@ -53,6 +53,7 @@ pub mod ffi {
     include!("tunnelbroker/src/libcpp/Tunnelbroker.h");
     pub fn initialize();
     pub fn getConfigParameter(parameter: &str) -> Result<String>;
+    pub fn isConfigParameterSet(parameter: &str) -> Result<bool>;
     pub fn isSandbox() -> Result<bool>;
     pub fn sessionSignatureHandler(deviceID: &str) -> SessionSignatureResult;
     pub fn getSavedNonceToSign(deviceID: &str) -> Result<String>;

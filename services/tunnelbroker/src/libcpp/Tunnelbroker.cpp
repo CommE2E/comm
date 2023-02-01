@@ -46,6 +46,11 @@ rust::String getConfigParameter(rust::Str parameter) {
           std::string{parameter})};
 }
 
+bool isConfigParameterSet(rust::Str parameter) {
+  return comm::network::config::ConfigManager::getInstance().isParameterSet(
+      std::string{parameter});
+}
+
 bool isSandbox() {
   return comm::network::tools::isSandbox();
 }
