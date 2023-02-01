@@ -12,6 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: sudo ./install_protobuf.sh
+        working-directory: ./scripts
+        run: sudo ./install_protobuf.sh
+
       - name: npm install -g yarn
         run: npm install -g yarn
 

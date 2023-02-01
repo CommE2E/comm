@@ -41,6 +41,10 @@ jobs:
           security import $CERTIFICATE_PATH -P "$MACOS_BUILD_P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
 
+      - name: sudo ./install_protobuf.sh
+        working-directory: ./scripts
+        run: sudo ./install_protobuf.sh
+
       - name: npm install -g yarn
         run: npm install -g yarn
 

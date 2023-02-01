@@ -22,3 +22,5 @@ make install -j "$(nproc)" -l "$(nproc)"
 
 popd || exit # build
 popd || exit # protobuf
+
+rm -rf protobuf

@@ -49,10 +49,16 @@ RUN wget https://downloads.mariadb.com/MariaDB/mariadb_repo_setup \
 
 # We need rsync in the prod-build yarn script
 # We need mariadb-client so we can use mysqldump for backups
+# We need cmake to install protobuf (prereq for rust-node-addon)
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
   rsync \
   mariadb-client \
+  cmake \
   && rm -rf /var/lib/apt/lists/*
+
+# Install protobuf manually to ensure that we have the correct version
+COPY scripts/install_protobuf.sh scripts/
+RUN cd scripts && ./install_protobuf.sh
 
 #-------------------------------------------------------------------------------
 # STEP 2: DEVOLVE PRIVILEGES
@@ -100,7 +106,7 @@ RUN cd keyserver && . bash/source-nvm.sh
 # We run yarn cleaninstall before copying most of the files in for build caching
 #-------------------------------------------------------------------------------
 
-# Copy in package.json and yarn.lock files
+# Copy in package.json files, yarn.lock files, and relevant installation scripts
 COPY --chown=comm package.json yarn.lock postinstall.sh ./
 COPY --chown=comm keyserver/package.json keyserver/.flowconfig keyserver/
 COPY --chown=comm lib/package.json lib/.flowconfig lib/
@@ -109,6 +115,8 @@ COPY --chown=comm native/package.json native/.flowconfig native/
 COPY --chown=comm landing/package.json landing/.flowconfig landing/
 COPY --chown=comm desktop/package.json desktop/
 COPY --chown=comm keyserver/addons/rust-node-addon/package.json \
+  keyserver/addons/rust-node-addon/install_ci_deps.sh \
+  keyserver/addons/rust-node-addon/postinstall.sh \
   keyserver/addons/rust-node-addon/
 COPY --chown=comm native/expo-modules/android-lifecycle/package.json \
   native/expo-modules/android-lifecycle/
@@ -119,6 +127,9 @@ COPY --chown=comm services/electron-update-server/package.json \
 RUN cargo init keyserver/addons/rust-node-addon --lib
 COPY --chown=comm keyserver/addons/rust-node-addon/Cargo.toml \
   keyserver/addons/rust-node-addon/
+
+# Copy in comm-opaque library, a dependency of rust-node-addon
+COPY --chown=comm shared/comm-opaque shared/comm-opaque/
 
 # Copy in files needed for patch-package
 COPY --chown=comm patches patches/
