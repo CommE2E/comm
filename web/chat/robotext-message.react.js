@@ -77,8 +77,8 @@ class RobotextMessage extends React.PureComponent<Props> {
       if (splitPart === '') {
         continue;
       }
+      const key = `text${keyIndex++}`;
       if (splitPart.charAt(0) !== '<') {
-        const key = `text${keyIndex++}`;
         textParts.push(
           <Markdown key={key} rules={linkRules(false)}>
             {decodeURI(splitPart)}
@@ -90,9 +90,9 @@ class RobotextMessage extends React.PureComponent<Props> {
       const { rawText, entityType, id } = parseRobotextEntity(splitPart);
 
       if (entityType === 't' && id !== item.messageInfo.threadID) {
-        textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
+        textParts.push(<ThreadEntity key={key} id={id} name={rawText} />);
       } else if (entityType === 'c') {
-        textParts.push(<ColorEntity key={id} color={rawText} />);
+        textParts.push(<ColorEntity key={key} color={rawText} />);
       } else {
         textParts.push(rawText);
       }

@@ -51,9 +51,9 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
       if (splitPart === '') {
         continue;
       }
+      const key = `text${keyIndex++}`;
       if (splitPart.charAt(0) !== '<') {
         const darkColor = activeTheme === 'dark';
-        const key = `text${keyIndex++}`;
         result.push(
           <Markdown
             style={styles.robotext}
@@ -69,9 +69,9 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
       const { rawText, entityType, id } = parseRobotextEntity(splitPart);
 
       if (entityType === 't' && id !== threadID) {
-        result.push(<ThreadEntity key={id} id={id} name={rawText} />);
+        result.push(<ThreadEntity key={key} id={id} name={rawText} />);
       } else if (entityType === 'c') {
-        result.push(<ColorEntity key={id} color={rawText} />);
+        result.push(<ColorEntity key={key} color={rawText} />);
       } else {
         result.push(rawText);
       }
