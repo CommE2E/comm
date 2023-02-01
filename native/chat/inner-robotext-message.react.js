@@ -39,40 +39,46 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   const { item, onLongPress, onPress } = props;
   const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
   const styles = useOverlayStyles(unboundStyles);
-  const { robotext } = item;
-  const robotextParts = splitRobotext(robotext);
-  const textParts = [];
-  let keyIndex = 0;
 
-  for (const splitPart of robotextParts) {
-    if (splitPart === '') {
-      continue;
-    }
-    if (splitPart.charAt(0) !== '<') {
-      const darkColor = activeTheme === 'dark';
-      const key = `text${keyIndex++}`;
-      textParts.push(
-        <Markdown
-          style={styles.robotext}
-          key={key}
-          rules={inlineMarkdownRules(darkColor)}
-        >
-          {decodeURI(splitPart)}
-        </Markdown>,
-      );
-      continue;
+  const { messageInfo, robotext } = item;
+  const { threadID } = messageInfo;
+  const textParts = React.useMemo(() => {
+    const robotextParts = splitRobotext(robotext);
+    const result = [];
+    let keyIndex = 0;
+
+    for (const splitPart of robotextParts) {
+      if (splitPart === '') {
+        continue;
+      }
+      if (splitPart.charAt(0) !== '<') {
+        const darkColor = activeTheme === 'dark';
+        const key = `text${keyIndex++}`;
+        result.push(
+          <Markdown
+            style={styles.robotext}
+            key={key}
+            rules={inlineMarkdownRules(darkColor)}
+          >
+            {decodeURI(splitPart)}
+          </Markdown>,
+        );
+        continue;
+      }
+
+      const { rawText, entityType, id } = parseRobotextEntity(splitPart);
+
+      if (entityType === 't' && id !== threadID) {
+        result.push(<ThreadEntity key={id} id={id} name={rawText} />);
+      } else if (entityType === 'c') {
+        result.push(<ColorEntity key={id} color={rawText} />);
+      } else {
+        result.push(rawText);
+      }
     }
 
-    const { rawText, entityType, id } = parseRobotextEntity(splitPart);
-
-    if (entityType === 't' && id !== item.messageInfo.threadID) {
-      textParts.push(<ThreadEntity key={id} id={id} name={rawText} />);
-    } else if (entityType === 'c') {
-      textParts.push(<ColorEntity key={id} color={rawText} />);
-    } else {
-      textParts.push(rawText);
-    }
-  }
+    return result;
+  }, [robotext, activeTheme, threadID, styles.robotext]);
 
   const viewStyle = [styles.robotextContainer];
   if (!__DEV__) {
@@ -143,4 +149,11 @@ const unboundStyles = {
   },
 };
 
-export { dummyNodeForRobotextMessageHeightMeasurement, InnerRobotextMessage };
+const MemoizedInnerRobotextMessage: React.ComponentType<InnerRobotextMessageProps> = React.memo<InnerRobotextMessageProps>(
+  InnerRobotextMessage,
+);
+
+export {
+  dummyNodeForRobotextMessageHeightMeasurement,
+  MemoizedInnerRobotextMessage as InnerRobotextMessage,
+};
