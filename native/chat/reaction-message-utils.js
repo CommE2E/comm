@@ -1,6 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
+import * as React from 'react';
 import Alert from 'react-native/Libraries/Alert/Alert';
 
 import {
@@ -16,6 +17,9 @@ import type { InputState } from '../input/input-state';
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import type { MessageTooltipRouteNames } from '../navigation/route-names';
 import type { TooltipRoute } from '../navigation/tooltip.react';
+import { useSelector } from '../redux/redux-utils';
+import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
+import type { ViewStyle } from '../types/styles';
 import type { ChatContextType } from './chat-context';
 
 function onPressReact<RouteName: MessageTooltipRouteNames>(
@@ -119,4 +123,70 @@ function sendReaction(
   );
 }
 
-export { onPressReact };
+type ReactionSelectionPopoverPositionArgs = {
+  +initialCoordinates: LayoutCoordinates,
+  +verticalBounds: VerticalBounds,
+  +margin: ?number,
+};
+
+function useReactionSelectionPopoverPosition({
+  initialCoordinates,
+  verticalBounds,
+  margin,
+}: ReactionSelectionPopoverPositionArgs): ViewStyle {
+  const reactionSelectionPopoverHeight = 56;
+
+  const calculatedMargin = margin ?? 16;
+
+  const windowWidth = useSelector(state => state.dimensions.width);
+
+  const reactionSelectionPopoverLocation: 'above' | 'below' = (() => {
+    const { y, height } = initialCoordinates;
+    const contentTop = y;
+    const contentBottom = y + height;
+    const boundsTop = verticalBounds.y;
+    const boundsBottom = verticalBounds.y + verticalBounds.height;
+
+    const fullHeight = reactionSelectionPopoverHeight + calculatedMargin;
+
+    if (
+      contentBottom + fullHeight > boundsBottom &&
+      contentTop - fullHeight > boundsTop
+    ) {
+      return 'above';
+    }
+
+    return 'below';
+  })();
+
+  return React.useMemo(() => {
+    const { x, width, height } = initialCoordinates;
+
+    const style = {};
+
+    style.position = 'absolute';
+
+    const extraLeftSpace = x;
+    const extraRightSpace = windowWidth - width - x;
+    if (extraLeftSpace < extraRightSpace) {
+      style.left = 0;
+    } else {
+      style.right = 0;
+    }
+
+    if (reactionSelectionPopoverLocation === 'above') {
+      style.bottom = height + calculatedMargin / 2;
+    } else {
+      style.top = height + calculatedMargin / 2;
+    }
+
+    return style;
+  }, [
+    calculatedMargin,
+    initialCoordinates,
+    reactionSelectionPopoverLocation,
+    windowWidth,
+  ]);
+}
+
+export { onPressReact, useReactionSelectionPopoverPosition };
