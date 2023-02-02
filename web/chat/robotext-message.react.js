@@ -1,5 +1,6 @@
 // @flow
 
+import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -52,6 +53,10 @@ function RobotextMessage(props: Props): React.Node {
   const { messageInfo, robotext } = item;
   const { threadID } = messageInfo;
   const robotextWithENSNames = useENSNamesForEntityText(robotext);
+  invariant(
+    robotextWithENSNames,
+    'useENSNamesForEntityText only returns falsey when passed falsey',
+  );
   const textParts = React.useMemo(() => {
     return entityTextToReact(robotextWithENSNames, threadID, {
       // eslint-disable-next-line react/display-name

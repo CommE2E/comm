@@ -45,6 +45,10 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   const { messageInfo, robotext } = item;
   const { threadID } = messageInfo;
   const robotextWithENSNames = useENSNamesForEntityText(robotext);
+  invariant(
+    robotextWithENSNames,
+    'useENSNamesForEntityText only returns falsey when passed falsey',
+  );
   const textParts = React.useMemo(() => {
     const darkColor = activeTheme === 'dark';
     return entityTextToReact(robotextWithENSNames, threadID, {
