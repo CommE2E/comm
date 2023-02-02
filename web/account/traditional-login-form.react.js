@@ -25,6 +25,7 @@ import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import HeaderSeparator from './header-separator.react.js';
 import css from './log-in-form.css';
 import PasswordInput from './password-input.react.js';
 
@@ -126,6 +127,8 @@ function TraditionalLoginForm(): React.Node {
   return (
     <form method="POST">
       <div>
+        <h4>Sign in to Comm</h4>
+        <HeaderSeparator />
         <div className={css.form_title}>Username</div>
         <div className={css.form_content}>
           <Input
