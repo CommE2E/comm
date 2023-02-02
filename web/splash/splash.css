@@ -3,6 +3,7 @@ div.splashContainer {
   justify-content: center;
   align-items: center;
   height: 100%;
+  background-color: #100e16;
 }
 
 div.loginContainer {
