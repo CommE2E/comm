@@ -98,10 +98,17 @@ div.main-content-container {
   display: flex;
   overflow: hidden;
 }
+div.main-content-container-column {
+  flex-direction: column;
+}
 div.main-content {
   display: flex;
   flex: 1;
   overflow: hidden;
+}
+
+.switcher {
+  border-right: 1px solid var(--border-color);
 }
 
 div.upper-right {
