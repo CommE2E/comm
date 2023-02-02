@@ -29,7 +29,7 @@ const heightMeasurerKey = (item: ChatMessageItem) => {
   if (messageInfo.type === messageTypes.TEXT) {
     return messageInfo.text;
   } else if (item.robotext) {
-    return robotextToRawString(item.robotext);
+    return robotextToRawString(item.robotext, item.messageInfo.threadID);
   }
   return null;
 };
@@ -43,7 +43,10 @@ const heightMeasurerDummy = (item: ChatMessageItem) => {
   if (messageInfo.type === messageTypes.TEXT) {
     return dummyNodeForTextMessageHeightMeasurement(messageInfo.text);
   } else if (item.robotext) {
-    return dummyNodeForRobotextMessageHeightMeasurement(item.robotext);
+    return dummyNodeForRobotextMessageHeightMeasurement(
+      item.robotext,
+      item.messageInfo.threadID,
+    );
   }
   invariant(false, 'NodeHeightMeasurer asked for dummy for non-text message');
 };
