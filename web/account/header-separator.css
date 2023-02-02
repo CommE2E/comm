@@ -1,0 +1,5 @@
+div.headerSeparator hr {
+  margin: 8px 0;
+  border: none;
+  border-top: #282537 solid 1px;
+}
