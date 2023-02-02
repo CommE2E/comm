@@ -7,7 +7,10 @@ import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import type { Dispatch } from 'lib/types/redux-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
-import { entityTextToReact } from 'lib/utils/entity-text';
+import {
+  entityTextToReact,
+  useENSNamesForEntityText,
+} from 'lib/utils/entity-text';
 
 import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
@@ -48,8 +51,9 @@ function RobotextMessage(props: Props): React.Node {
 
   const { messageInfo, robotext } = item;
   const { threadID } = messageInfo;
+  const robotextWithENSNames = useENSNamesForEntityText(robotext);
   const textParts = React.useMemo(() => {
-    return entityTextToReact(robotext, threadID, {
+    return entityTextToReact(robotextWithENSNames, threadID, {
       // eslint-disable-next-line react/display-name
       renderText: ({ text }) => (
         <Markdown rules={linkRules(false)}>{text}</Markdown>
@@ -59,7 +63,7 @@ function RobotextMessage(props: Props): React.Node {
       // eslint-disable-next-line react/display-name
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
-  }, [robotext, threadID]);
+  }, [robotextWithENSNames, threadID]);
 
   const { threadInfo } = props;
   const { onMouseEnter, onMouseLeave } = useMessageTooltip({

@@ -8,6 +8,7 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
   entityTextToReact,
   entityTextToRawString,
+  useENSNamesForEntityText,
   type EntityText,
 } from 'lib/utils/entity-text';
 
@@ -43,9 +44,10 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
 
   const { messageInfo, robotext } = item;
   const { threadID } = messageInfo;
+  const robotextWithENSNames = useENSNamesForEntityText(robotext);
   const textParts = React.useMemo(() => {
     const darkColor = activeTheme === 'dark';
-    return entityTextToReact(robotext, threadID, {
+    return entityTextToReact(robotextWithENSNames, threadID, {
       // eslint-disable-next-line react/display-name
       renderText: ({ text }) => (
         <Markdown
@@ -60,7 +62,7 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
       // eslint-disable-next-line react/display-name
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
-  }, [robotext, activeTheme, threadID, styles.robotext]);
+  }, [robotextWithENSNames, activeTheme, threadID, styles.robotext]);
 
   const viewStyle = [styles.robotextContainer];
   if (!__DEV__) {
