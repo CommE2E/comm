@@ -35,4 +35,16 @@ async function assignMessageContainerToMedia(
   await dbQuery(query);
 }
 
-export { assignMedia, assignMessageContainerToMedia };
+async function assignThreadToMedia(viewer: Viewer): Promise<void> {
+  const query = SQL`
+    UPDATE uploads 
+    SET thread = (
+      SELECT thread FROM messages 
+      WHERE messages.id = uploads.container
+    )
+    WHERE uploader = ${viewer.id} AND thread IS NULL
+  `;
+  await dbQuery(query);
+}
+
+export { assignMedia, assignMessageContainerToMedia, assignThreadToMedia };

@@ -41,6 +41,7 @@ import type { Viewer } from '../session/viewer';
 import {
   assignMedia,
   assignMessageContainerToMedia,
+  assignThreadToMedia,
 } from '../updaters/upload-updaters';
 import { validateInput } from '../utils/validation-utils';
 
@@ -183,6 +184,8 @@ async function multimediaMessageCreationResponder(
       id,
     );
   }
+
+  await assignThreadToMedia(viewer);
 
   return { newMessageInfo };
 }
