@@ -182,12 +182,13 @@ async function multimediaMessageCreationResponder(
   );
 
   if (request.mediaIDs) {
-    await assignMedia(viewer, request.mediaIDs, id);
+    await assignMedia(viewer, request.mediaIDs, id, threadID);
   } else {
     await assignMessageContainerToMedia(
       viewer,
       request.mediaMessageContents,
       id,
+      threadID,
     );
   }
 
