@@ -127,6 +127,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
 
   const { cancelSIWEAuthFlow } = props;
 
+  const backButtonColor = React.useMemo(
+    () => ({ backgroundColor: '#211E2D' }),
+    [],
+  );
+
   if (!siweNonce || !primaryIdentityPublicKey) {
     return (
       <div className={css.loadingIndicator}>
@@ -154,7 +159,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         Sign in using this wallet
       </Button>
       <OrBreak />
-      <Button variant="filled" onClick={cancelSIWEAuthFlow}>
+      <Button
+        variant="filled"
+        onClick={cancelSIWEAuthFlow}
+        buttonColor={backButtonColor}
+      >
         <SWMansionIcon icon="chevron-left" size={18} />
         Back to sign in with username
       </Button>
