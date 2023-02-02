@@ -134,8 +134,7 @@ function SIWE(): React.Node {
           <span className={css.walletDisplayText}>Wallet Connected:</span>
           <ConnectButton />
         </div>
-        <p>{siweMessageSigningExplanationStatements[0]}</p>
-        <p>{siweMessageSigningExplanationStatements[1]}</p>
+        <p>{siweMessageSigningExplanationStatements}</p>
         <p>
           By signing up, you agree to our{' '}
           <a href="https://comm.app/terms">Terms of Use</a> &{' '}

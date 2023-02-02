@@ -144,8 +144,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       <div className={css.connectButtonContainer}>
         <ConnectButton />
       </div>
-      <p>{siweMessageSigningExplanationStatements[0]}</p>
-      <p>{siweMessageSigningExplanationStatements[1]}</p>
+      <p>{siweMessageSigningExplanationStatements}</p>
       <p>
         By signing up, you agree to our{' '}
         <a href="https://comm.app/terms">Terms of Use</a> &{' '}
