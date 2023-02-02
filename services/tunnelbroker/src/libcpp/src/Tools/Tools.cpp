@@ -25,6 +25,10 @@ std::string generateRandomString(std::size_t length) {
 }
 
 bool validateDeviceID(std::string deviceID) {
+  if (config::ConfigManager::getInstance().isParameterSet(
+          config::ConfigManager::OPTION_DISABLE_DEVICEID_VALIDATION)) {
+    return true;
+  }
   try {
     static const std::regex deviceIDKeyserverRegexp("^ks:.*");
     if (std::regex_match(deviceID, deviceIDKeyserverRegexp)) {
