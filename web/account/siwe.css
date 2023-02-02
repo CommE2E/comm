@@ -44,6 +44,11 @@ div.connectButtonContainer {
   padding-bottom: 20px;
 }
 
+div.loadingIndicator {
+  display: flex;
+  justify-content: center;
+}
+
 div.siweContainer {
   display: flex;
   flex-direction: column;

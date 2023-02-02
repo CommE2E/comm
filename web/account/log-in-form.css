@@ -1,6 +1,9 @@
 div.modal_body {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  min-height: 324px;
+  min-width: 320px;
   padding: 20px 40px;
   border-radius: 16px;
   background-color: var(--modal-bg);

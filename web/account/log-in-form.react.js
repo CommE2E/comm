@@ -29,18 +29,30 @@ function LoginForm(): React.Node {
     setSIWEAuthFlowSelected(false);
   }, []);
 
-  let siweSection;
+  let siweLoginForm, siweButton;
   if (isDev && siweAuthFlowSelected && signer) {
-    siweSection = <SIWELoginForm cancelSIWEAuthFlow={cancelSIWEAuthFlow} />;
+    siweLoginForm = <SIWELoginForm cancelSIWEAuthFlow={cancelSIWEAuthFlow} />;
   } else if (isDev) {
-    siweSection = <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />;
+    siweButton = <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />;
+  }
+
+  if (siweLoginForm) {
+    return <div className={css.modal_body}>{siweLoginForm}</div>;
+  }
+
+  if (siweButton) {
+    return (
+      <div className={css.modal_body}>
+        <TraditionalLoginForm />
+        <hr />
+        {siweButton}
+      </div>
+    );
   }
 
   return (
     <div className={css.modal_body}>
       <TraditionalLoginForm />
-      {siweSection ? <hr /> : null}
-      {siweSection}
     </div>
   );
 }

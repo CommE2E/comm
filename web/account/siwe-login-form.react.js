@@ -127,8 +127,8 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
 
   if (!siweNonce || !primaryIdentityPublicKey) {
     return (
-      <div className={css.connectButtonContainer}>
-        <LoadingIndicator status="loading" size="medium" />
+      <div className={css.loadingIndicator}>
+        <LoadingIndicator status="loading" size="large" />
       </div>
     );
   }
