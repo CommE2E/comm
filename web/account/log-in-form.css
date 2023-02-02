@@ -36,7 +36,6 @@ div.form_footer > button:disabled {
 }
 
 div.modal_form_error {
-  margin-top: 16px;
   font-size: 14px;
   color: var(--error);
   font-style: italic;
