@@ -18,7 +18,7 @@ cmake ../cmake \
   -Dprotobuf_ABSL_PROVIDER=package \
   -Dprotobuf_BUILD_TESTS=OFF
 
-make install -j "$(nproc)" -l "$(nproc)"
+make install -j "$(nproc || sysctl -n hw.physicalcpu)"
 
 popd || exit # cmake-build
 popd || exit # protobuf
