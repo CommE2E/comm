@@ -30,7 +30,8 @@ const heightMeasurerKey = (item: ChatMessageItem) => {
   if (messageInfo.type === messageTypes.TEXT) {
     return messageInfo.text;
   } else if (item.robotext) {
-    return entityTextToRawString(item.robotext, item.messageInfo.threadID);
+    const { threadID } = item.messageInfo;
+    return entityTextToRawString(item.robotext, { threadID });
   }
   return null;
 };

@@ -26,7 +26,7 @@ function dummyNodeForRobotextMessageHeightMeasurement(
   return (
     <View style={unboundStyles.robotextContainer}>
       <Text style={unboundStyles.dummyRobotext}>
-        {entityTextToRawString(robotext, threadID)}
+        {entityTextToRawString(robotext, { threadID })}
       </Text>
     </View>
   );
