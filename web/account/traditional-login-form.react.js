@@ -132,6 +132,7 @@ function TraditionalLoginForm(): React.Node {
         <div className={css.form_title}>Username</div>
         <div className={css.form_content}>
           <Input
+            className={css.input}
             type="text"
             placeholder="Username"
             value={username}
@@ -146,6 +147,7 @@ function TraditionalLoginForm(): React.Node {
         <div className={css.form_title}>Password</div>
         <div className={css.form_content}>
           <PasswordInput
+            className={css.input}
             value={password}
             onChange={onPasswordChange}
             disabled={inputDisabled}

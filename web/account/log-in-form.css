@@ -47,3 +47,23 @@ div.modal_form_error {
   padding-left: 6px;
   align-self: center;
 }
+
+div.modal_body .input[type='text'],
+div.modal_body .input[type='password'] {
+  background: #282537;
+  border: 1px solid #211e2d;
+  transition: border 0.35s ease;
+  border-radius: 8px;
+}
+
+div.modal_body .input[type='text']::placeholder,
+div.modal_body .input[type='password']::placeholder {
+  color: #8c889b;
+}
+
+div.modal_body .input[type='text']:focus,
+div.modal_body .input[type='password']:focus {
+  outline: none;
+  border: #6a20e399 solid 1px;
+  transition: border 0.35s ease;
+}
