@@ -21,7 +21,7 @@ fi
 # `test -t` tests if a file descriptor is open, 0 being stdin
 # Normally, a non-interactive shell will not have 0 FD bound
 # However, Buildkite still has 0 FD bound, so check if PS1 is empty
-if [[ ! -t 0 ]] || [[ -z "${PS1-}" ]]; then
+if [[ ! -t 0 ]]; then
   exit 0
 fi
 

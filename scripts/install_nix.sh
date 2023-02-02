@@ -121,6 +121,11 @@ append_value_in_nix_conf "trusted-public-keys" \
 
 # Ask user if they would like to use Powerline for bash prompt
 SCRIPT_DIR=$(cd "$(dirname "$0")" || true; pwd -P)
+
+if [[ "$OSTYPE" == 'darwin'* ]]; then
+  "$SCRIPT_DIR"/prompt_direnv_macos.sh
+fi
+
 # Build the nixified script which is aware of Powerline and dependencies
 nix build "$SCRIPT_DIR"'/..#better-prompt'
 # Source file to apply Powerline bootstrap logic

@@ -137,8 +137,6 @@ mkShell {
     ${../scripts}/install_homebrew_macos.sh
 
     ${../scripts}/install_homebrew_deps.sh watchman
-
-    ${../scripts}/prompt_direnv_macos.sh
   '' + ''
 
     # Render default configuration for keyserver
