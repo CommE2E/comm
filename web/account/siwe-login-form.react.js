@@ -34,6 +34,7 @@ import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-ke
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import SWMansionIcon from '../SWMansionIcon.react.js';
+import HeaderSeparator from './header-separator.react.js';
 import css from './siwe.css';
 
 type SIWELoginFormProps = {
@@ -143,9 +144,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
   return (
     <div className={css.siweLoginFormContainer}>
       <h4>Sign in with Ethereum</h4>
-      <div className={css.headerSeparator}>
-        <hr />
-      </div>
+      <HeaderSeparator />
       <div className={css.connectButtonContainer}>
         <ConnectButton />
       </div>
