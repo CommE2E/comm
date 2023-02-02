@@ -33,6 +33,7 @@ import LoadingIndicator from '../loading-indicator.react';
 import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import SWMansionIcon from '../SWMansionIcon.react.js';
 import css from './siwe.css';
 
 type SIWELoginFormProps = {
@@ -151,7 +152,8 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       </Button>
       <OrBreak />
       <Button variant="filled" onClick={cancelSIWEAuthFlow}>
-        Go back
+        <SWMansionIcon icon="chevron-left" size={18} />
+        Back to sign in with username
       </Button>
     </div>
   );
