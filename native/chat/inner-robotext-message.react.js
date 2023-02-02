@@ -21,11 +21,12 @@ import { useNavigateToThread } from './message-list-types';
 
 function dummyNodeForRobotextMessageHeightMeasurement(
   robotext: string | EntityText,
+  threadID: string,
 ): React.Element<typeof View> {
   return (
     <View style={unboundStyles.robotextContainer}>
       <Text style={unboundStyles.dummyRobotext}>
-        {robotextToRawString(robotext)}
+        {robotextToRawString(robotext, threadID)}
       </Text>
     </View>
   );
