@@ -10,8 +10,8 @@ git clone \
 
 pushd protobuf || exit
 
-mkdir build
-pushd build || exit
+mkdir cmake-build
+pushd cmake-build || exit
 
 cmake ../cmake \
   -Dprotobuf_BUILD_SHARED_LIBS=ON \
@@ -20,7 +20,7 @@ cmake ../cmake \
 
 make install -j "$(nproc)" -l "$(nproc)"
 
-popd || exit # build
+popd || exit # cmake-build
 popd || exit # protobuf
 
 rm -rf protobuf
