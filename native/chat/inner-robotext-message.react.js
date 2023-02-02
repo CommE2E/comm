@@ -6,11 +6,10 @@ import { Text, TouchableWithoutFeedback, View } from 'react-native';
 
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import {
-  splitRobotext,
-  parseRobotextEntity,
-  robotextToRawString,
-} from 'lib/shared/message-utils';
-import { entityTextToReact, type EntityText } from 'lib/utils/entity-text';
+  entityTextToReact,
+  entityTextToRawString,
+  type EntityText,
+} from 'lib/utils/entity-text';
 
 import Markdown from '../markdown/markdown.react';
 import { inlineMarkdownRules } from '../markdown/rules.react';
@@ -20,13 +19,13 @@ import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types'
 import { useNavigateToThread } from './message-list-types';
 
 function dummyNodeForRobotextMessageHeightMeasurement(
-  robotext: string | EntityText,
+  robotext: EntityText,
   threadID: string,
 ): React.Element<typeof View> {
   return (
     <View style={unboundStyles.robotextContainer}>
       <Text style={unboundStyles.dummyRobotext}>
-        {robotextToRawString(robotext, threadID)}
+        {entityTextToRawString(robotext, threadID)}
       </Text>
     </View>
   );
@@ -46,59 +45,21 @@ function InnerRobotextMessage(props: InnerRobotextMessageProps): React.Node {
   const { threadID } = messageInfo;
   const textParts = React.useMemo(() => {
     const darkColor = activeTheme === 'dark';
-
-    if (typeof robotext !== 'string') {
-      return entityTextToReact(robotext, threadID, {
-        // eslint-disable-next-line react/display-name
-        renderText: ({ text }) => (
-          <Markdown
-            style={styles.robotext}
-            rules={inlineMarkdownRules(darkColor)}
-          >
-            {text}
-          </Markdown>
-        ),
-        // eslint-disable-next-line react/display-name
-        renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
-        // eslint-disable-next-line react/display-name
-        renderColor: ({ hex }) => <ColorEntity color={hex} />,
-      });
-    }
-
-    const robotextParts = splitRobotext(robotext);
-    const result = [];
-    let keyIndex = 0;
-
-    for (const splitPart of robotextParts) {
-      if (splitPart === '') {
-        continue;
-      }
-      const key = `text${keyIndex++}`;
-      if (splitPart.charAt(0) !== '<') {
-        result.push(
-          <Markdown
-            style={styles.robotext}
-            key={key}
-            rules={inlineMarkdownRules(darkColor)}
-          >
-            {decodeURI(splitPart)}
-          </Markdown>,
-        );
-        continue;
-      }
-
-      const { rawText, entityType, id } = parseRobotextEntity(splitPart);
-
-      if (entityType === 't' && id !== threadID) {
-        result.push(<ThreadEntity key={key} id={id} name={rawText} />);
-      } else if (entityType === 'c') {
-        result.push(<ColorEntity key={key} color={rawText} />);
-      } else {
-        result.push(rawText);
-      }
-    }
-
-    return result;
+    return entityTextToReact(robotext, threadID, {
+      // eslint-disable-next-line react/display-name
+      renderText: ({ text }) => (
+        <Markdown
+          style={styles.robotext}
+          rules={inlineMarkdownRules(darkColor)}
+        >
+          {text}
+        </Markdown>
+      ),
+      // eslint-disable-next-line react/display-name
+      renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
+      // eslint-disable-next-line react/display-name
+      renderColor: ({ hex }) => <ColorEntity color={hex} />,
+    });
   }, [robotext, activeTheme, threadID, styles.robotext]);
 
   const viewStyle = [styles.robotextContainer];

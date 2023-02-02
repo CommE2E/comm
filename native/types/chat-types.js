@@ -20,7 +20,7 @@ export type ChatRobotextMessageInfoItemWithHeight = {
   +startsConversation: boolean,
   +startsCluster: boolean,
   +endsCluster: boolean,
-  +robotext: string | EntityText,
+  +robotext: EntityText,
   +threadCreatedFromMessage: ?ThreadInfo,
   +contentHeight: number,
   +reactions: $ReadOnlyMap<string, MessageReactionInfo>,

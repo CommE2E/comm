@@ -5,10 +5,9 @@ import { useDispatch } from 'react-redux';
 
 import { type RobotextChatMessageInfoItem } from 'lib/selectors/chat-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { splitRobotext, parseRobotextEntity } from 'lib/shared/message-utils';
 import type { Dispatch } from 'lib/types/redux-types';
 import { type ThreadInfo } from 'lib/types/thread-types';
-import { type EntityText, entityTextToReact } from 'lib/utils/entity-text';
+import { entityTextToReact } from 'lib/utils/entity-text';
 
 import Markdown from '../markdown/markdown.react';
 import { linkRules } from '../markdown/rules.react';
@@ -72,47 +71,7 @@ class RobotextMessage extends React.PureComponent<Props> {
     const { item } = this.props;
     const { robotext } = item;
     const { threadID } = item.messageInfo;
-    if (typeof robotext === 'string') {
-      return this.renderStringRobotext(robotext, threadID);
-    } else {
-      return this.renderEntityText(robotext, threadID);
-    }
-  }
-
-  renderStringRobotext(robotext: string, threadID: string): React.Node {
-    const robotextParts = splitRobotext(robotext);
-    const textParts = [];
-    let keyIndex = 0;
-    for (const splitPart of robotextParts) {
-      if (splitPart === '') {
-        continue;
-      }
-      const key = `text${keyIndex++}`;
-      if (splitPart.charAt(0) !== '<') {
-        textParts.push(
-          <Markdown key={key} rules={linkRules(false)}>
-            {decodeURI(splitPart)}
-          </Markdown>,
-        );
-        continue;
-      }
-
-      const { rawText, entityType, id } = parseRobotextEntity(splitPart);
-
-      if (entityType === 't' && id !== threadID) {
-        textParts.push(<ThreadEntity key={key} id={id} name={rawText} />);
-      } else if (entityType === 'c') {
-        textParts.push(<ColorEntity key={key} color={rawText} />);
-      } else {
-        textParts.push(rawText);
-      }
-    }
-
-    return textParts;
-  }
-
-  renderEntityText(entityText: EntityText, threadID: string): React.Node {
-    return entityTextToReact(entityText, threadID, {
+    return entityTextToReact(robotext, threadID, {
       renderText: ({ text }) => (
         <Markdown rules={linkRules(false)}>{text}</Markdown>
       ),
