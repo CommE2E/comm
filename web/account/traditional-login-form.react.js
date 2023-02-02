@@ -120,7 +120,7 @@ function TraditionalLoginForm(): React.Node {
     if (inputDisabled) {
       return <LoadingIndicator status="loading" />;
     }
-    return 'Log in';
+    return 'Sign in';
   }, [inputDisabled]);
 
   return (
