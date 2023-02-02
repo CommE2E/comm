@@ -117,6 +117,7 @@ async function fetchMedia(
 }
 
 async function fetchMediaForThread(
+  viewer: Viewer,
   threadID: string,
 ): Promise<$ReadOnlyArray<Media>> {
   const query = SQL`
