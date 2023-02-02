@@ -12,11 +12,6 @@ div.siweLoginFormContainer p {
   font-size: 15px;
 }
 
-div.siweLoginFormContainer h4 {
-  color: white;
-  font-family: sans-serif;
-}
-
 div.siweLoginFormContainer {
   display: flex;
   flex-direction: column;

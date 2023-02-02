@@ -10,6 +10,11 @@ div.modal_body {
   outline: #282537 solid 1px;
 }
 
+div.modal_body h4 {
+  color: white;
+  font-family: sans-serif;
+}
+
 div.form_title {
   padding: 6px 6px 0 0;
   font-size: var(--s-font-14);
