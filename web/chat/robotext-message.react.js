@@ -26,60 +26,62 @@ const availableTooltipPositionsForRobotext = [
   tooltipPositions.RIGHT_BOTTOM,
 ];
 
-type BaseProps = {
+type Props = {
   +item: RobotextChatMessageInfoItem,
   +threadInfo: ThreadInfo,
 };
-type Props = {
-  ...BaseProps,
-  +onMouseLeave: ?() => mixed,
-  +onMouseEnter: (event: SyntheticEvent<HTMLDivElement>) => mixed,
-};
-class RobotextMessage extends React.PureComponent<Props> {
-  render() {
-    let inlineEngagement;
-    if (
-      this.props.item.threadCreatedFromMessage ||
-      this.props.item.reactions.size > 0
-    ) {
-      inlineEngagement = (
-        <div className={css.sidebarMarginTop}>
-          <InlineEngagement
-            threadInfo={this.props.item.threadCreatedFromMessage}
-            reactions={this.props.item.reactions}
-            positioning="center"
-          />
-        </div>
-      );
-    }
-
-    return (
-      <div className={css.robotextContainer}>
-        <div
-          className={css.innerRobotextContainer}
-          onMouseEnter={this.props.onMouseEnter}
-          onMouseLeave={this.props.onMouseLeave}
-        >
-          <span>{this.linkedRobotext()}</span>
-        </div>
-        {inlineEngagement}
+function RobotextMessage(props: Props): React.Node {
+  let inlineEngagement;
+  const { item } = props;
+  const { threadCreatedFromMessage, reactions } = item;
+  if (threadCreatedFromMessage || reactions.size > 0) {
+    inlineEngagement = (
+      <div className={css.sidebarMarginTop}>
+        <InlineEngagement
+          threadInfo={threadCreatedFromMessage}
+          reactions={reactions}
+          positioning="center"
+        />
       </div>
     );
   }
 
-  linkedRobotext() {
-    const { item } = this.props;
-    const { robotext } = item;
-    const { threadID } = item.messageInfo;
+  const { messageInfo, robotext } = item;
+  const { threadID } = messageInfo;
+  const textParts = React.useMemo(() => {
     return entityTextToReact(robotext, threadID, {
+      // eslint-disable-next-line react/display-name
       renderText: ({ text }) => (
         <Markdown rules={linkRules(false)}>{text}</Markdown>
       ),
+      // eslint-disable-next-line react/display-name
       renderThread: ({ id, name }) => <ThreadEntity id={id} name={name} />,
+      // eslint-disable-next-line react/display-name
       renderColor: ({ hex }) => <ColorEntity color={hex} />,
     });
-  }
+  }, [robotext, threadID]);
+
+  const { threadInfo } = props;
+  const { onMouseEnter, onMouseLeave } = useMessageTooltip({
+    item,
+    threadInfo,
+    availablePositions: availableTooltipPositionsForRobotext,
+  });
+
+  return (
+    <div className={css.robotextContainer}>
+      <div
+        className={css.innerRobotextContainer}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
+        <span>{textParts}</span>
+      </div>
+      {inlineEngagement}
+    </div>
+  );
 }
+
 type BaseInnerThreadEntityProps = {
   +id: string,
   +name: string,
@@ -126,24 +128,8 @@ function ColorEntity(props: { color: string }) {
   return <span style={colorStyle}>{props.color}</span>;
 }
 
-const ConnectedRobotextMessage: React.ComponentType<BaseProps> = React.memo<BaseProps>(
-  function ConnectedRobotextMessage(props) {
-    const { item, threadInfo } = props;
-
-    const { onMouseLeave, onMouseEnter } = useMessageTooltip({
-      item,
-      threadInfo,
-      availablePositions: availableTooltipPositionsForRobotext,
-    });
-
-    return (
-      <RobotextMessage
-        {...props}
-        onMouseLeave={onMouseLeave}
-        onMouseEnter={onMouseEnter}
-      />
-    );
-  },
+const MemoizedRobotextMessage: React.ComponentType<Props> = React.memo<Props>(
+  RobotextMessage,
 );
 
-export default ConnectedRobotextMessage;
+export default MemoizedRobotextMessage;
