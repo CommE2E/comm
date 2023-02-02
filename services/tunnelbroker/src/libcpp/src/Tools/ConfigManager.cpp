@@ -33,6 +33,8 @@ const std::string ConfigManager::OPTION_NOTIFS_FCM_SERVER_KEY =
     "notifications.fcm_server_key";
 const std::string ConfigManager::OPTION_SESSIONS_SKIP_AUTH_KEY =
     "sessions.skip_authentication";
+const std::string ConfigManager::OPTION_DISABLE_DEVICEID_VALIDATION =
+    "sessions.disable_deviceid_validation";
 
 ConfigManager &ConfigManager::getInstance() {
   static ConfigManager instance;
@@ -118,6 +120,9 @@ void ConfigManager::loadConfigFile(const std::string configFilePath) {
     description.add_options()(
         this->OPTION_SESSIONS_SKIP_AUTH_KEY.c_str(),
         "Skip sessions authentication mechanism");
+    description.add_options()(
+        this->OPTION_DISABLE_DEVICEID_VALIDATION.c_str(),
+        "Disable deviceID format validation");
 
     boost::program_options::parsed_options parsedDescription =
         boost::program_options::parse_config_file(
