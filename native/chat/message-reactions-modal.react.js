@@ -4,6 +4,7 @@ import Icon from '@expo/vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, Text, FlatList, TouchableHighlight } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
 import { useMessageReactionsList } from 'lib/shared/reaction-utils';
@@ -28,7 +29,8 @@ function MessageReactionsModal(props: Props): React.Node {
   const colors = useColors();
   const navigation = useNavigation();
 
-  const safeAreaEdges = React.useMemo(() => ['top'], []);
+  const modalSafeAreaEdges = React.useMemo(() => ['top'], []);
+  const modalContainerSafeAreaEdges = React.useMemo(() => ['bottom'], []);
 
   const close = React.useCallback(() => navigation.goBack(), [navigation]);
 
@@ -58,24 +60,26 @@ function MessageReactionsModal(props: Props): React.Node {
     <Modal
       modalStyle={styles.modalStyle}
       containerStyle={styles.modalContainerStyle}
-      safeAreaEdges={safeAreaEdges}
+      safeAreaEdges={modalSafeAreaEdges}
     >
-      <View style={styles.modalContentContainer}>
-        <Text style={styles.reactionsListTitleText}>Reactions</Text>
-        <TouchableHighlight
-          onPress={close}
-          style={styles.closeButton}
-          underlayColor={colors.modalIosHighlightUnderlay}
-        >
-          <Icon name="close" size={16} style={styles.closeIcon} />
-        </TouchableHighlight>
-      </View>
-      <FlatList
-        data={reactionsListData}
-        renderItem={renderItem}
-        ItemSeparatorComponent={itemSeperator}
-        contentContainerStyle={styles.reactionsListContentContainer}
-      />
+      <SafeAreaView edges={modalContainerSafeAreaEdges}>
+        <View style={styles.modalContentContainer}>
+          <Text style={styles.reactionsListTitleText}>Reactions</Text>
+          <TouchableHighlight
+            onPress={close}
+            style={styles.closeButton}
+            underlayColor={colors.modalIosHighlightUnderlay}
+          >
+            <Icon name="close" size={16} style={styles.closeIcon} />
+          </TouchableHighlight>
+        </View>
+        <FlatList
+          data={reactionsListData}
+          renderItem={renderItem}
+          ItemSeparatorComponent={itemSeperator}
+          contentContainerStyle={styles.reactionsListContentContainer}
+        />
+      </SafeAreaView>
     </Modal>
   );
 }
