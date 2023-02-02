@@ -15,6 +15,8 @@ import {
   type NewThreadResponse,
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
+  type ThreadFetchMediaResult,
+  type ThreadFetchMediaRequest,
   threadTypes,
 } from 'lib/types/thread-types';
 import { values } from 'lib/utils/objects';
@@ -27,6 +29,7 @@ import {
 
 import { createThread } from '../creators/thread-creator';
 import { deleteThread } from '../deleters/thread-deleters';
+import { fetchMediaForThread } from '../fetchers/upload-fetchers';
 import type { Viewer } from '../session/viewer';
 import {
   updateRole,
@@ -176,6 +179,18 @@ async function threadJoinResponder(
   return await joinThread(viewer, request);
 }
 
+const threadFetchMediaRequestInputValidator = tShape({
+  threadID: t.String,
+});
+async function threadFetchMediaResponder(
+  viewer: Viewer,
+  input: any,
+): Promise<ThreadFetchMediaResult> {
+  const request: ThreadFetchMediaRequest = input;
+  await validateInput(viewer, threadFetchMediaRequestInputValidator, request);
+  return await fetchMediaForThread(request.threadID);
+}
+
 export {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -184,5 +199,6 @@ export {
   threadUpdateResponder,
   threadCreationResponder,
   threadJoinResponder,
+  threadFetchMediaResponder,
   newThreadRequestInputValidator,
 };
