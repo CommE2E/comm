@@ -219,31 +219,25 @@ function useAnimatedMessageTooltipButton({
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const sidebarThreadInfo = React.useMemo(() => {
-    return getSidebarThreadInfo(sourceMessage, viewerID);
-  }, [sourceMessage, viewerID]);
+  const sidebarThreadInfo = React.useMemo(
+    () => getSidebarThreadInfo(sourceMessage, viewerID),
+    [sourceMessage, viewerID],
+  );
 
   const currentInputBarHeight =
     chatInputBarHeights.get(sourceMessage.threadInfo.id) ?? 0;
   const keyboardState = React.useContext(KeyboardContext);
-  const viewerIsSidebarMember = viewerIsMember(sidebarThreadInfo);
+
+  const newSidebarAnimationType =
+    !currentInputBarHeight ||
+    !targetInputBarHeight ||
+    keyboardState?.keyboardShowing ||
+    !viewerIsMember(sidebarThreadInfo)
+      ? 'fade_source_message'
+      : 'move_source_message';
   React.useEffect(() => {
-    const newSidebarAnimationType =
-      !currentInputBarHeight ||
-      !targetInputBarHeight ||
-      keyboardState?.keyboardShowing ||
-      !viewerIsSidebarMember
-        ? 'fade_source_message'
-        : 'move_source_message';
     setSidebarAnimationType(newSidebarAnimationType);
-  }, [
-    currentInputBarHeight,
-    keyboardState?.keyboardShowing,
-    setSidebarAnimationType,
-    sidebarThreadInfo,
-    targetInputBarHeight,
-    viewerIsSidebarMember,
-  ]);
+  }, [setSidebarAnimationType, newSidebarAnimationType]);
 
   const {
     position: targetPosition,
