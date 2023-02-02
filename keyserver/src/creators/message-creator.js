@@ -372,6 +372,30 @@ async function postMessageSend(
   const userPushInfoPromises = {};
   for (const pair of perUserInfo) {
     const [userID, preUserPushInfo] = pair;
+
+    const userMessageInfos = [];
+    for (const threadID of preUserPushInfo.threadIDs) {
+      const messageIndices = threadsToMessageIndices.get(threadID);
+      invariant(messageIndices, `indices should exist for thread ${threadID}`);
+      for (const messageIndex of messageIndices) {
+        const messageInfo = messageInfos[messageIndex];
+        userMessageInfos.push(messageInfo);
+      }
+    }
+    if (userMessageInfos.length > 0) {
+      messageInfosPerUser[userID] = userMessageInfos;
+    }
+
+    latestMessagesPerUser.set(
+      userID,
+      determineLatestMessagesPerThread(
+        preUserPushInfo,
+        userID,
+        threadsToMessageIndices,
+        messageInfos,
+      ),
+    );
+
     const { userNotMemberOfSubthreads } = preUserPushInfo;
     const userDevices = [...preUserPushInfo.devices.values()];
     if (userDevices.length === 0) {
@@ -404,10 +428,10 @@ async function postMessageSend(
       );
     }
     const userPushInfoPromise = (async () => {
-      const userMessageInfos = await Promise.all(
+      const pushMessageInfos = await Promise.all(
         userPushInfoMessageInfoPromises,
       );
-      const filteredMessageInfos = userMessageInfos.filter(Boolean);
+      const filteredMessageInfos = pushMessageInfos.filter(Boolean);
       if (filteredMessageInfos.length === 0) {
         return undefined;
       }
@@ -417,28 +441,6 @@ async function postMessageSend(
       };
     })();
     userPushInfoPromises[userID] = userPushInfoPromise;
-    const userMessageInfos = [];
-    for (const threadID of preUserPushInfo.threadIDs) {
-      const messageIndices = threadsToMessageIndices.get(threadID);
-      invariant(messageIndices, `indices should exist for thread ${threadID}`);
-      for (const messageIndex of messageIndices) {
-        const messageInfo = messageInfos[messageIndex];
-        userMessageInfos.push(messageInfo);
-      }
-    }
-    if (userMessageInfos.length > 0) {
-      messageInfosPerUser[userID] = userMessageInfos;
-    }
-
-    latestMessagesPerUser.set(
-      userID,
-      determineLatestMessagesPerThread(
-        preUserPushInfo,
-        userID,
-        threadsToMessageIndices,
-        messageInfos,
-      ),
-    );
   }
 
   const latestMessages = flattenLatestMessagesPerUser(latestMessagesPerUser);
