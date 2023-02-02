@@ -923,7 +923,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     } else if (item.itemType === 'addMember') {
       return <ThreadSettingsAddMember onPress={this.onPressAddMember} />;
     } else if (item.itemType === 'mediaGallery') {
-      return <ThreadSettingsMediaGallery />;
+      return <ThreadSettingsMediaGallery threadID={item.threadInfo.id} />;
     } else if (item.itemType === 'leaveThread') {
       return (
         <ThreadSettingsLeaveThread
