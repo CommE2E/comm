@@ -11,8 +11,8 @@ import {
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { navTabSelector } from '../selectors/nav-selectors.js';
-import NavigationPanel from '../sidebar/navigation-panel.react';
 import SWMansionIcon from '../SWMansionIcon.react';
+import NavigationPanel from './navigation-panel.react';
 import css from './topbar.css';
 
 function AppSwitcher(): React.Node {
