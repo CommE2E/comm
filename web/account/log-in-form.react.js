@@ -6,6 +6,7 @@ import { useSigner } from 'wagmi';
 
 import { isDev } from 'lib/utils/dev-utils';
 
+import OrBreak from '../components/or-break.react.js';
 import css from './log-in-form.css';
 import SIWEButton from './siwe-button.react.js';
 import SIWELoginForm from './siwe-login-form.react.js';
@@ -44,7 +45,7 @@ function LoginForm(): React.Node {
     return (
       <div className={css.modal_body}>
         <TraditionalLoginForm />
-        <hr />
+        <OrBreak />
         {siweButton}
       </div>
     );
