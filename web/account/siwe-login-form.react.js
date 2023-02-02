@@ -28,6 +28,7 @@ import {
 } from 'lib/utils/siwe-utils.js';
 
 import Button from '../components/button.react';
+import OrBreak from '../components/or-break.react.js';
 import LoadingIndicator from '../loading-indicator.react';
 import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer';
 import { useSelector } from '../redux/redux-utils';
@@ -148,7 +149,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
       <Button variant="filled" onClick={onSignInButtonClick}>
         Sign in using this wallet
       </Button>
-      <hr />
+      <OrBreak />
       <Button variant="filled" onClick={cancelSIWEAuthFlow}>
         Go back
       </Button>
