@@ -137,6 +137,10 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
 
   return (
     <div className={css.siweLoginFormContainer}>
+      <h4>Sign in with Ethereum</h4>
+      <div className={css.headerSeparator}>
+        <hr />
+      </div>
       <div className={css.connectButtonContainer}>
         <ConnectButton />
       </div>

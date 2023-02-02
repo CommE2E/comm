@@ -13,6 +13,17 @@ div.siweLoginFormContainer p {
   font-size: 14px;
 }
 
+div.siweLoginFormContainer h4 {
+  color: white;
+  font-family: sans-serif;
+}
+
+div.headerSeparator hr {
+  margin: 8px 0;
+  border: none;
+  border-top: #282537 solid 1px;
+}
+
 div.siweLoginFormContainer {
   display: flex;
   flex-direction: column;
