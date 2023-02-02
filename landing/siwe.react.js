@@ -142,7 +142,7 @@ function SIWE(): React.Node {
           <a href="https://comm.app/privacy">Privacy Policy</a>.
         </p>
         <div className={css.button} onClick={onClick}>
-          Sign in
+          Sign in using this wallet
         </div>
       </div>
     );

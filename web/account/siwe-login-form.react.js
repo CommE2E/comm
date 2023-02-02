@@ -146,7 +146,7 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
         <a href="https://comm.app/privacy">Privacy Policy</a>.
       </p>
       <Button variant="filled" onClick={onSignInButtonClick}>
-        Sign in
+        Sign in using this wallet
       </Button>
       <hr />
       <Button variant="filled" onClick={cancelSIWEAuthFlow}>
