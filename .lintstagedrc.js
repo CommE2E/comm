@@ -27,8 +27,14 @@ module.exports = {
   '{web,lib}/**/*.js': function webFlow(files) {
     return 'yarn workspace web flow --quiet';
   },
+  'web/**/*.js': function webTest(files) {
+    return 'yarn workspace web test';
+  },
   '{native,lib}/**/*.js': function nativeFlow(files) {
     return 'yarn workspace native flow --quiet';
+  },
+  'native/**/*.js': function nativeTest(files) {
+    return 'yarn workspace native test';
   },
   '{keyserver,web,lib}/**/*.js': function keyserverFlow(files) {
     return 'yarn workspace keyserver flow --quiet';
@@ -44,6 +50,9 @@ module.exports = {
   },
   'services/electron-update-server/**/*.js': function desktopFlow(files) {
     return 'yarn workspace electron-update-server flow --quiet';
+  },
+  'desktop/**/*.js': function desktopTest(files) {
+    return 'yarn workspace desktop test';
   },
   'services/identity/**/*.rs': function testIdentity(files) {
     return 'bash -c "cd services/identity && cargo test"';
