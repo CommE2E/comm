@@ -7,7 +7,7 @@ import { useSelector } from '../redux/redux-utils';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
 import { DummyChatInputBar } from './chat-input-bar.react';
 import { useMessageListScreenWidth } from './composed-message-width';
-import { getSidebarThreadInfo } from './sidebar-navigation';
+import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation';
 
 type Props = {
   +sourceMessage: ChatMessageInfoItemWithHeight,
@@ -23,7 +23,7 @@ function SidebarInputBarHeightMeasurer(props: Props): React.Node {
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
   const sidebarThreadInfo = React.useMemo(() => {
-    return getSidebarThreadInfo(sourceMessage, viewerID);
+    return getUnresolvedSidebarThreadInfo({ sourceMessage, viewerID });
   }, [sourceMessage, viewerID]);
   if (!sidebarThreadInfo) {
     return null;

@@ -4,6 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import { ENSCacheContext } from 'lib/components/ens-cache-provider.react';
 import { createPendingSidebar } from 'lib/shared/thread-utils';
 import type {
   ComposableMessageInfo,
@@ -55,20 +56,25 @@ function useThreadIsActive(threadID: string): boolean {
 function useOnClickPendingSidebar(
   messageInfo: ComposableMessageInfo | RobotextMessageInfo,
   threadInfo: ThreadInfo,
-): (event: SyntheticEvent<HTMLElement>) => void {
+): (event: SyntheticEvent<HTMLElement>) => mixed {
   const dispatch = useDispatch();
   const viewerID = useSelector(state => state.currentUserInfo?.id);
+
+  const cacheContext = React.useContext(ENSCacheContext);
+  const { getENSNames } = cacheContext;
+
   return React.useCallback(
-    (event: SyntheticEvent<HTMLElement>) => {
+    async (event: SyntheticEvent<HTMLElement>) => {
       event.preventDefault();
       if (!viewerID) {
         return;
       }
-      const pendingSidebarInfo = createPendingSidebar({
+      const pendingSidebarInfo = await createPendingSidebar({
         sourceMessageInfo: messageInfo,
         parentThreadInfo: threadInfo,
         viewerID,
         markdownRules: getDefaultTextMessageRules().simpleMarkdownRules,
+        getENSNames,
       });
       dispatch({
         type: updateNavInfoActionType,
@@ -78,7 +84,7 @@ function useOnClickPendingSidebar(
         },
       });
     },
-    [viewerID, messageInfo, threadInfo, dispatch],
+    [viewerID, messageInfo, threadInfo, dispatch, getENSNames],
   );
 }
 

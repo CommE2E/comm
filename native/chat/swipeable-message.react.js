@@ -146,8 +146,8 @@ function SwipeSnake<IconGlyphs: string>(
 }
 
 type Props = {
-  +triggerReply?: () => void,
-  +triggerSidebar?: () => void,
+  +triggerReply?: () => mixed,
+  +triggerSidebar?: () => mixed,
   +isViewer: boolean,
   +messageBoxStyle: ViewStyle,
   +threadColor: string,

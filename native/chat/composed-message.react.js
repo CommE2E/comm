@@ -50,7 +50,7 @@ type Props = {
   +deliveryIconOpacity: number | Node,
   // withInputState
   +inputState: ?InputState,
-  +navigateToSidebar: () => void,
+  +navigateToSidebar: () => mixed,
 };
 class ComposedMessage extends React.PureComponent<Props> {
   render() {

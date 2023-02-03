@@ -31,7 +31,7 @@ import { ChatContext, useHeightMeasurer } from './chat-context';
 import { failedSendHeight } from './failed-send.react';
 import { authorNameHeight } from './message-header.react';
 import { multimediaMessageItemHeight } from './multimedia-message-utils';
-import { getSidebarThreadInfo } from './sidebar-navigation';
+import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation';
 import textMessageSendFailed from './text-message-send-failed';
 import { timestampHeight } from './timestamp.react';
 
@@ -219,9 +219,10 @@ function useAnimatedMessageTooltipButton({
   const viewerID = useSelector(
     state => state.currentUserInfo && state.currentUserInfo.id,
   );
-  const sidebarThreadInfo = React.useMemo(() => {
-    return getSidebarThreadInfo(sourceMessage, viewerID);
-  }, [sourceMessage, viewerID]);
+  const sidebarThreadInfo = React.useMemo(
+    () => getUnresolvedSidebarThreadInfo({ sourceMessage, viewerID }),
+    [sourceMessage, viewerID],
+  );
 
   const currentInputBarHeight =
     chatInputBarHeights.get(sourceMessage.threadInfo.id) ?? 0;
