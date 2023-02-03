@@ -1,9 +1,5 @@
 // @flow
 
-import {
-  useActionSheet,
-  type ShowActionSheetWithOptions,
-} from '@expo/react-native-action-sheet';
 import type { RouteProp } from '@react-navigation/native';
 import * as Haptics from 'expo-haptics';
 import invariant from 'invariant';
@@ -12,7 +8,6 @@ import {
   View,
   TouchableWithoutFeedback,
   Platform,
-  TouchableOpacity,
   Keyboard,
 } from 'react-native';
 import Animated, {
@@ -22,28 +17,17 @@ import Animated, {
   useSharedValue,
   type SharedValue,
 } from 'react-native-reanimated';
-import { useDispatch } from 'react-redux';
 
-import {
-  type ServerCallState,
-  serverCallStateSelector,
-} from 'lib/selectors/server-calls';
 import type { SetState } from 'lib/types/hook-types';
-import type { Dispatch } from 'lib/types/redux-types';
-import {
-  createBoundServerCallsSelector,
-  useDispatchActionPromise,
-  type DispatchActionPromise,
-  type ActionFunc,
-  type BindServerCall,
-  type DispatchFunctions,
-} from 'lib/utils/action-utils';
 
 import { ChatContext, type ChatContextType } from '../chat/chat-context';
-import CommIcon from '../components/comm-icon.react';
-import { SingleLine } from '../components/single-line.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
-import { type InputState, InputStateContext } from '../input/input-state';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import {
+  OverlayContext,
+  type OverlayContextType,
+} from '../navigation/overlay-context';
+import type { TooltipModalParamList } from '../navigation/route-names';
 import { type DimensionsInfo } from '../redux/dimensions-updater.react';
 import { useSelector } from '../redux/redux-utils';
 import { useStyles } from '../themes/colors';
@@ -52,39 +36,19 @@ import {
   type LayoutCoordinates,
 } from '../types/layout-types';
 import type { LayoutEvent } from '../types/react-native';
-import { AnimatedView, type ViewStyle, type TextStyle } from '../types/styles';
-import type { AppNavigationProp } from './app-navigator.react';
-import { OverlayContext, type OverlayContextType } from './overlay-context';
-import type { TooltipModalParamList } from './route-names';
+import { AnimatedView } from '../types/styles';
+import {
+  TooltipContextProvider,
+  TooltipContext,
+  type TooltipContextType,
+} from './tooltip-context.react';
+import BaseTooltipItem, {
+  type TooltipItemBaseProps,
+} from './tooltip-item.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;
 /* eslint-enable import/no-named-as-default-member */
-
-export type TooltipEntry<RouteName: $Keys<TooltipModalParamList>> = {
-  +id: string,
-  +text: string,
-  +onPress: (
-    route: TooltipRoute<RouteName>,
-    dispatchFunctions: DispatchFunctions,
-    bindServerCall: BindServerCall,
-    inputState: ?InputState,
-    navigation: AppNavigationProp<RouteName>,
-    viewerID: ?string,
-    chatContext: ?ChatContextType,
-  ) => mixed,
-};
-type TooltipItemProps<RouteName> = {
-  +spec: TooltipEntry<RouteName>,
-  +onPress: (entry: TooltipEntry<RouteName>) => void,
-  +containerStyle?: ViewStyle,
-  +labelStyle?: TextStyle,
-  +styles: typeof unboundStyles,
-};
-type TooltipSpec<RouteName> = {
-  +entries: $ReadOnlyArray<TooltipEntry<RouteName>>,
-  +labelStyle?: ViewStyle,
-};
 
 export type TooltipParams<CustomProps> = {
   ...CustomProps,
@@ -116,24 +80,22 @@ type TooltipProps<Base> = {
   ...Base,
   // Redux state
   +dimensions: DimensionsInfo,
-  +serverCallState: ServerCallState,
-  +viewerID: ?string,
-  +nextReactionMessageLocalID: number,
-  // Redux dispatch functions
-  +dispatch: Dispatch,
-  +dispatchActionPromise: DispatchActionPromise,
-  // withOverlayContext
   +overlayContext: ?OverlayContextType,
-  // withInputState
-  +inputState: ?InputState,
   +chatContext: ?ChatContextType,
-  +showActionSheetWithOptions: ShowActionSheetWithOptions,
   +actionSheetShown: SharedValue<boolean>,
   +hideTooltip: boolean,
   +setHideTooltip: SetState<boolean>,
   +showEmojiKeyboard: SharedValue<boolean>,
   +exitAnimationWorklet: (finished: boolean) => void,
   +styles: typeof unboundStyles,
+  +tooltipContext: TooltipContextType,
+  +closeTooltip: () => mixed,
+  +boundTooltipItem: React.ComponentType<TooltipItemBaseProps>,
+};
+
+export type TooltipMenuProps<RouteName> = {
+  ...BaseTooltipProps<RouteName>,
+  +tooltipItem: React.ComponentType<TooltipItemBaseProps>,
 };
 
 function createTooltip<
@@ -141,51 +103,8 @@ function createTooltip<
   BaseTooltipPropsType: BaseTooltipProps<RouteName> = BaseTooltipProps<RouteName>,
 >(
   ButtonComponent: React.ComponentType<ButtonProps<BaseTooltipPropsType>>,
-  tooltipSpec: TooltipSpec<RouteName>,
+  MenuComponent: React.ComponentType<TooltipMenuProps<RouteName>>,
 ): React.ComponentType<BaseTooltipPropsType> {
-  class TooltipItem extends React.PureComponent<TooltipItemProps<RouteName>> {
-    render() {
-      let icon;
-      const { styles } = this.props;
-      if (this.props.spec.id === 'copy') {
-        icon = <SWMansionIcon name="copy" style={styles.icon} size={16} />;
-      } else if (this.props.spec.id === 'reply') {
-        icon = <CommIcon name="reply" style={styles.icon} size={12} />;
-      } else if (this.props.spec.id === 'report') {
-        icon = (
-          <SWMansionIcon name="warning-circle" style={styles.icon} size={16} />
-        );
-      } else if (this.props.spec.id === 'sidebar') {
-        icon = (
-          <SWMansionIcon
-            name="message-circle-lines"
-            style={styles.icon}
-            size={16}
-          />
-        );
-      } else if (this.props.spec.id === 'more') {
-        icon = (
-          <SWMansionIcon name="menu-vertical" style={styles.icon} size={16} />
-        );
-      }
-
-      return (
-        <TouchableOpacity
-          onPress={this.onPress}
-          style={this.props.containerStyle}
-        >
-          {icon}
-          <SingleLine style={[styles.label, this.props.labelStyle]}>
-            {this.props.spec.text}
-          </SingleLine>
-        </TouchableOpacity>
-      );
-    }
-
-    onPress = () => {
-      this.props.onPress(this.props.spec);
-    };
-  }
   class Tooltip extends React.PureComponent<
     TooltipProps<BaseTooltipPropsType>,
   > {
@@ -243,21 +162,11 @@ function createTooltip<
       Haptics.impactAsync();
     }
 
-    get entries(): $ReadOnlyArray<TooltipEntry<RouteName>> {
-      const { entries } = tooltipSpec;
-      const { visibleEntryIDs } = this.props.route.params;
-      if (!visibleEntryIDs) {
-        return entries;
-      }
-      const visibleSet = new Set(visibleEntryIDs);
-      return entries.filter(entry => visibleSet.has(entry.id));
-    }
-
     get tooltipHeight(): number {
       if (this.props.route.params.tooltipLocation === 'fixed') {
         return fixedTooltipHeight;
       } else {
-        return tooltipHeight(this.entries.length);
+        return tooltipHeight(this.props.tooltipContext.getNumVisibleEntries());
       }
     }
 
@@ -390,21 +299,17 @@ function createTooltip<
     render() {
       const {
         dimensions,
-        serverCallState,
-        viewerID,
-        nextReactionMessageLocalID,
-        dispatch,
-        dispatchActionPromise,
         overlayContext,
-        inputState,
         chatContext,
-        showActionSheetWithOptions,
         actionSheetShown,
         hideTooltip,
         setHideTooltip,
         showEmojiKeyboard,
         exitAnimationWorklet,
         styles,
+        tooltipContext,
+        closeTooltip,
+        boundTooltipItem,
         ...navAndRouteForFlow
       } = this.props;
 
@@ -414,46 +319,26 @@ function createTooltip<
         tooltipContainerStyle.push(styles.itemContainerFixed);
       }
 
-      const { entries } = this;
-      const items = entries.map((entry, index) => {
-        let style;
-        if (this.tooltipLocation === 'fixed') {
-          style = index !== entries.length - 1 ? styles.itemMarginFixed : null;
-        } else {
-          style = index !== entries.length - 1 ? styles.itemMargin : null;
-        }
-        return (
-          <TooltipItem
-            key={index}
-            spec={entry}
-            onPress={this.onPressEntry}
-            containerStyle={[...tooltipContainerStyle, style]}
-            labelStyle={tooltipSpec.labelStyle}
-            styles={styles}
-          />
-        );
-      });
+      const items = [
+        <MenuComponent
+          {...navAndRouteForFlow}
+          tooltipItem={this.getTooltipItem()}
+          key="menu"
+        />,
+      ];
 
-      if (this.tooltipLocation === 'fixed' && entries.length > 3) {
-        items.splice(3);
-
-        const moreSpec = {
-          id: 'more',
-          text: 'More',
-          onPress: this.onPressMore,
-        };
-
-        const moreTooltipItem = (
-          <TooltipItem
-            key={entries.length}
-            spec={moreSpec}
-            onPress={moreSpec.onPress}
+      if (this.props.tooltipContext.shouldShowMore()) {
+        items.push(
+          <BaseTooltipItem
+            id="more"
+            text="More"
+            onPress={this.onPressMore}
+            renderIcon={this.renderMoreIcon}
             containerStyle={tooltipContainerStyle}
-            styles={styles}
-          />
+            closeTooltip={this.props.closeTooltip}
+            key="more"
+          />,
         );
-
-        items.push(moreTooltipItem);
       }
 
       let triangleStyle;
@@ -532,7 +417,7 @@ function createTooltip<
       }
 
       return (
-        <TouchableWithoutFeedback onPress={this.onPressBackdrop}>
+        <TouchableWithoutFeedback onPress={this.props.closeTooltip}>
           <View style={styles.container}>
             <AnimatedView style={this.opacityStyle} />
             <View style={this.contentContainerStyle}>
@@ -546,145 +431,23 @@ function createTooltip<
       );
     }
 
-    onPressBackdrop = () => {
-      if (this.tooltipLocation !== 'fixed') {
-        this.props.navigation.goBackOnce();
-      } else {
-        this.props.setHideTooltip(true);
-      }
-      this.props.showEmojiKeyboard.value = false;
-    };
-
-    onPressEntry = (entry: TooltipEntry<RouteName>) => {
-      if (
-        this.tooltipLocation !== 'fixed' ||
-        this.props.actionSheetShown.value
-      ) {
-        this.props.navigation.goBackOnce();
-      } else {
-        this.props.setHideTooltip(true);
-      }
-
-      const dispatchFunctions = {
-        dispatch: this.props.dispatch,
-        dispatchActionPromise: this.props.dispatchActionPromise,
-      };
-      entry.onPress(
-        this.props.route,
-        dispatchFunctions,
-        this.bindServerCall,
-        this.props.inputState,
-        this.props.navigation,
-        this.props.viewerID,
-        this.props.chatContext,
-      );
-    };
+    getTooltipItem() {
+      const BoundTooltipItem = this.props.boundTooltipItem;
+      return BoundTooltipItem;
+    }
 
     onPressMore = () => {
       Keyboard.dismiss();
       this.props.actionSheetShown.value = true;
       this.props.setHideTooltip(true);
+      this.props.tooltipContext.showActionSheet();
+    };
 
-      const { entries } = this;
-      const options = entries.map(entry => entry.text);
-
-      const {
-        destructiveButtonIndex,
-        cancelButtonIndex,
-      } = this.getPlatformSpecificButtonIndices(options);
-
-      // We're reversing options to populate the action sheet from bottom to
-      // top instead of the default (top to bottom) ordering.
-      options.reverse();
-
-      const containerStyle = {
-        paddingBottom: 24,
-      };
-
+    renderMoreIcon = () => {
       const { styles } = this.props;
-      const icons = [
-        <SWMansionIcon
-          key="report"
-          name="warning-circle"
-          style={styles.bottomSheetIcon}
-          size={16}
-        />,
-        <SWMansionIcon
-          key="copy"
-          name="copy"
-          style={styles.bottomSheetIcon}
-          size={16}
-        />,
-        <SWMansionIcon
-          key="thread"
-          name="message-circle-lines"
-          style={styles.bottomSheetIcon}
-          size={16}
-        />,
-        <CommIcon
-          key="reply"
-          name="reply"
-          style={styles.bottomSheetIcon}
-          size={12}
-        />,
-      ];
-
-      const onPressAction = (selectedIndex?: number) => {
-        if (selectedIndex === cancelButtonIndex) {
-          this.props.navigation.goBackOnce();
-          return;
-        }
-        const index = entries.length - (selectedIndex ?? 0);
-        const entry = entries[Platform.OS === 'ios' ? index : index - 1];
-        this.onPressEntry(entry);
-      };
-
-      this.props.showActionSheetWithOptions(
-        {
-          options,
-          cancelButtonIndex,
-          destructiveButtonIndex,
-          containerStyle,
-          icons,
-        },
-        onPressAction,
+      return (
+        <SWMansionIcon name="menu-vertical" style={styles.icon} size={16} />
       );
-    };
-
-    getPlatformSpecificButtonIndices = (options: Array<string>) => {
-      let destructiveButtonIndex;
-      if (Platform.OS === 'ios') {
-        const reportIndex = options.findIndex(option => option === 'Report');
-        destructiveButtonIndex =
-          reportIndex !== -1 ? options.length - reportIndex : undefined;
-      }
-
-      const cancelButtonIndex = Platform.OS === 'ios' ? 0 : -1;
-
-      // The "Cancel" action is iOS-specific
-      if (Platform.OS === 'ios') {
-        options.push('Cancel');
-      }
-
-      return { destructiveButtonIndex, cancelButtonIndex };
-    };
-
-    bindServerCall = <F>(serverCall: ActionFunc<F>): F => {
-      const {
-        cookie,
-        urlPrefix,
-        sessionID,
-        currentUserInfo,
-        connectionStatus,
-      } = this.props.serverCallState;
-      return createBoundServerCallsSelector(serverCall)({
-        dispatch: this.props.dispatch,
-        cookie,
-        urlPrefix,
-        sessionID,
-        currentUserInfo,
-        connectionStatus,
-      });
     };
 
     onTooltipContainerLayout = (event: LayoutEvent) => {
@@ -704,21 +467,9 @@ function createTooltip<
       }
     };
   }
-  return React.memo<BaseTooltipPropsType>(function ConnectedTooltip(
-    props: BaseTooltipPropsType,
-  ) {
-    const { showActionSheetWithOptions } = useActionSheet();
-
+  function ConnectedTooltip(props: BaseTooltipPropsType) {
     const dimensions = useSelector(state => state.dimensions);
-    const serverCallState = useSelector(serverCallStateSelector);
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    const nextReactionMessageLocalID = useSelector(state => state.nextLocalID);
-    const dispatch = useDispatch();
-    const dispatchActionPromise = useDispatchActionPromise();
     const overlayContext = React.useContext(OverlayContext);
-    const inputState = React.useContext(InputStateContext);
     const chatContext = React.useContext(ChatContext);
 
     const actionSheetShown = useSharedValue(false);
@@ -726,11 +477,12 @@ function createTooltip<
 
     const showEmojiKeyboard = useSharedValue(false);
 
+    const { goBackOnce } = props.navigation;
     const goBackCallback = React.useCallback(() => {
-      if (!actionSheetShown.value && !showEmojiKeyboard.value) {
-        props.navigation.goBackOnce();
+      if (!actionSheetShown.value) {
+        goBackOnce();
       }
-    }, [actionSheetShown.value, props.navigation, showEmojiKeyboard.value]);
+    }, [actionSheetShown.value, goBackOnce]);
 
     const exitAnimationWorklet = React.useCallback(
       finished => {
@@ -742,30 +494,70 @@ function createTooltip<
       [goBackCallback],
     );
 
-    const styles = useStyles(unboundStyles);
+    const { params } = props.route;
+    const { tooltipLocation } = params;
+    const isFixed = tooltipLocation === 'fixed';
 
+    const closeTooltip = React.useCallback(() => {
+      if (isFixed && !actionSheetShown.value) {
+        setHideTooltip(true);
+      } else {
+        goBackOnce();
+      }
+      showEmojiKeyboard.value = false;
+    }, [isFixed, actionSheetShown.value, goBackOnce, showEmojiKeyboard]);
+
+    const styles = useStyles(unboundStyles);
+    const boundTooltipItem = React.useCallback(
+      innerProps => {
+        const containerStyle = isFixed
+          ? [styles.itemContainer, styles.itemContainerFixed]
+          : styles.itemContainer;
+        return (
+          <BaseTooltipItem
+            {...innerProps}
+            containerStyle={containerStyle}
+            closeTooltip={closeTooltip}
+          />
+        );
+      },
+      [isFixed, styles, closeTooltip],
+    );
+
+    const tooltipContext = React.useContext(TooltipContext);
+    invariant(tooltipContext, 'TooltipContext should be set in Tooltip');
     return (
       <Tooltip
         {...props}
         dimensions={dimensions}
-        serverCallState={serverCallState}
-        viewerID={viewerID}
-        nextReactionMessageLocalID={nextReactionMessageLocalID}
-        dispatch={dispatch}
-        dispatchActionPromise={dispatchActionPromise}
         overlayContext={overlayContext}
-        inputState={inputState}
         chatContext={chatContext}
-        showActionSheetWithOptions={showActionSheetWithOptions}
         actionSheetShown={actionSheetShown}
         hideTooltip={hideTooltip}
         setHideTooltip={setHideTooltip}
         showEmojiKeyboard={showEmojiKeyboard}
         exitAnimationWorklet={exitAnimationWorklet}
         styles={styles}
+        tooltipContext={tooltipContext}
+        closeTooltip={closeTooltip}
+        boundTooltipItem={boundTooltipItem}
       />
     );
-  });
+  }
+  function MemoizedTooltip(props: BaseTooltipPropsType) {
+    const { visibleEntryIDs } = props.route.params;
+    const { goBackOnce } = props.navigation;
+    return (
+      <TooltipContextProvider
+        maxOptionsToDisplay={4}
+        visibleEntryIDs={visibleEntryIDs}
+        cancel={goBackOnce}
+      >
+        <ConnectedTooltip {...props} />
+      </TooltipContextProvider>
+    );
+  }
+  return React.memo<BaseTooltipPropsType>(MemoizedTooltip);
 }
 
 const unboundStyles = {
@@ -776,9 +568,6 @@ const unboundStyles = {
     position: 'absolute',
     right: 0,
     top: 0,
-  },
-  bottomSheetIcon: {
-    color: '#000000',
   },
   container: {
     flex: 1,
@@ -800,14 +589,6 @@ const unboundStyles = {
   itemContainerFixed: {
     flexDirection: 'column',
   },
-  itemMargin: {
-    borderBottomColor: '#404040',
-    borderBottomWidth: 1,
-  },
-  itemMarginFixed: {
-    borderRightColor: 'panelForegroundBorder',
-    borderRightWidth: 1,
-  },
   items: {
     backgroundColor: 'tooltipBackground',
     borderRadius: 5,
@@ -816,12 +597,6 @@ const unboundStyles = {
   itemsFixed: {
     flex: 1,
     flexDirection: 'row',
-  },
-  label: {
-    color: 'modalForegroundLabel',
-    fontSize: 14,
-    lineHeight: 17,
-    textAlign: 'center',
   },
   triangleDown: {
     borderBottomColor: 'transparent',
