@@ -512,7 +512,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
     }
 
-    // we only try to match if there is end of text or whitespace after cursor
     let typeaheadRegexMatches = null;
 
     if (this.androidPreviousText) {

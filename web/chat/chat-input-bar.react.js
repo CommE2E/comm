@@ -22,7 +22,10 @@ import {
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
 } from 'lib/shared/thread-utils';
-import { getTypeaheadUserSuggestions } from 'lib/shared/typeahead-utils';
+import {
+  getTypeaheadUserSuggestions,
+  getTypeaheadRegexMatches,
+} from 'lib/shared/typeahead-utils';
 import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -555,23 +558,17 @@ const ConnectedChatInputBar: React.ComponentType<BaseProps> = React.memo<BasePro
       relativeMemberInfoSelectorForMembersOfThread(props.threadInfo.id),
     );
 
-    const inputSliceEndingAtCursor = React.useMemo(
-      () =>
-        props.inputState.draft.slice(0, props.inputState.textCursorPosition),
-      [props.inputState.draft, props.inputState.textCursorPosition],
-    );
-    // we only try to match if there is end of text or whitespace after cursor
     const typeaheadRegexMatches = React.useMemo(
       () =>
-        inputSliceEndingAtCursor.length === props.inputState.draft.length ||
-        /\s/.test(props.inputState.draft[props.inputState.textCursorPosition])
-          ? inputSliceEndingAtCursor.match(webTypeaheadRegex)
-          : null,
-      [
-        inputSliceEndingAtCursor,
-        props.inputState.textCursorPosition,
-        props.inputState.draft,
-      ],
+        getTypeaheadRegexMatches(
+          props.inputState.draft,
+          {
+            start: props.inputState.textCursorPosition,
+            end: props.inputState.textCursorPosition,
+          },
+          webTypeaheadRegex,
+        ),
+      [props.inputState.textCursorPosition, props.inputState.draft],
     );
 
     const typeaheadMatchedStrings: ?TypeaheadMatchedStrings = React.useMemo(
