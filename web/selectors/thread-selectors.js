@@ -64,12 +64,12 @@ function useOnClickPendingSidebar(
       if (!viewerID) {
         return;
       }
-      const pendingSidebarInfo = createPendingSidebar(
-        messageInfo,
-        threadInfo,
+      const pendingSidebarInfo = createPendingSidebar({
+        sourceMessageInfo: messageInfo,
+        parentThreadInfo: threadInfo,
         viewerID,
-        getDefaultTextMessageRules().simpleMarkdownRules,
-      );
+        markdownRules: getDefaultTextMessageRules().simpleMarkdownRules,
+      });
       dispatch({
         type: updateNavInfoActionType,
         payload: {

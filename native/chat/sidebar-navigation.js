@@ -26,12 +26,12 @@ function getSidebarThreadInfo(
   }
 
   const { messageInfo, threadInfo } = sourceMessage;
-  return createPendingSidebar(
-    messageInfo,
-    threadInfo,
+  return createPendingSidebar({
+    sourceMessageInfo: messageInfo,
+    parentThreadInfo: threadInfo,
     viewerID,
-    getDefaultTextMessageRules().simpleMarkdownRules,
-  );
+    markdownRules: getDefaultTextMessageRules().simpleMarkdownRules,
+  });
 }
 
 function useNavigateToSidebar(item: ChatMessageInfoItemWithHeight): () => void {
