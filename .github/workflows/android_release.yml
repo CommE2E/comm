@@ -1,8 +1,9 @@
 name: Android Build/Upload to Play Store Console
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - mobile-**
 
 jobs:
   build:
