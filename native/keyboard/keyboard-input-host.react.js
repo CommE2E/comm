@@ -6,6 +6,7 @@ import { TextInput } from 'react-native';
 import { KeyboardAccessoryView } from 'react-native-keyboard-input';
 
 import type { MediaLibrarySelection } from 'lib/types/media-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { type InputState, InputStateContext } from '../input/input-state';
 import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
@@ -16,6 +17,7 @@ import { type KeyboardState, KeyboardContext } from './keyboard-state';
 
 type BaseProps = {
   +textInputRef?: ?React.ElementRef<typeof TextInput>,
+  +threadInfo?: any,
 };
 type Props = {
   ...BaseProps,
@@ -46,11 +48,15 @@ class KeyboardInputHost extends React.PureComponent<Props> {
     const kbComponent = KeyboardInputHost.mediaGalleryOpen(this.props)
       ? mediaGalleryKeyboardName
       : null;
+    const kbInitialProps = {
+      ...this.props.styles.kbInitialProps,
+      threadInfo: this.props.keyboardState.getMediaGalleryThread(),
+    };
     return (
       <KeyboardAccessoryView
         kbInputRef={this.props.textInputRef}
         kbComponent={kbComponent}
-        kbInitialProps={this.props.styles.kbInitialProps}
+        kbInitialProps={kbInitialProps}
         onItemSelected={this.onMediaGalleryItemSelected}
         onKeyboardResigned={this.hideMediaGallery}
         manageScrollView={false}
@@ -60,11 +66,15 @@ class KeyboardInputHost extends React.PureComponent<Props> {
 
   onMediaGalleryItemSelected = async (
     keyboardName: string,
-    selections: $ReadOnlyArray<MediaLibrarySelection>,
+    result: {
+      selections: $ReadOnlyArray<MediaLibrarySelection>,
+      threadInfo: ?ThreadInfo,
+    },
   ) => {
     const { keyboardState } = this.props;
+    const mediaGalleryThread =
+      keyboardState.getMediaGalleryThread() ?? result.threadInfo;
     keyboardState.dismissKeyboard();
-    const mediaGalleryThread = keyboardState.getMediaGalleryThread();
     if (!mediaGalleryThread) {
       return;
     }
@@ -74,7 +84,7 @@ class KeyboardInputHost extends React.PureComponent<Props> {
       inputState,
       'inputState should be set in onMediaGalleryItemSelected',
     );
-    inputState.sendMultimediaMessage(selections, mediaGalleryThread);
+    inputState.sendMultimediaMessage(result.selections, mediaGalleryThread);
   };
 
   hideMediaGallery = () => {

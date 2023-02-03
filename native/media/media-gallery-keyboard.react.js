@@ -22,6 +22,7 @@ import {
 } from 'lib/media/file-utils';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import type { DimensionsInfo } from '../redux/dimensions-updater.react';
@@ -46,6 +47,7 @@ type Props = {
   +foreground: boolean,
   +colors: Colors,
   +styles: typeof unboundStyles,
+  +threadInfo: ?ThreadInfo,
 };
 type State = {
   +selections: ?$ReadOnlyArray<MediaLibrarySelection>,
@@ -341,16 +343,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         }
       });
 
-      const selectionURIs = selections.map(({ uri }) => uri);
-      this.guardedSetState(prevState => ({
-        error: null,
-        selections: [...selections, ...(prevState.selections ?? [])],
-        queuedMediaURIs: new Set([
-          ...selectionURIs,
-          ...(prevState.queuedMediaURIs ?? []),
-        ]),
-        focusedMediaURI: null,
-      }));
+      this.sendMedia(selections, this.props.threadInfo);
     } catch (e) {
       if (__DEV__) {
         console.warn(e);
@@ -571,7 +564,10 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
     this.sendMedia(queuedSelections);
   };
 
-  sendMedia(selections: $ReadOnlyArray<MediaLibrarySelection>) {
+  sendMedia(
+    selections: $ReadOnlyArray<MediaLibrarySelection>,
+    threadInfo?: ?ThreadInfo,
+  ) {
     if (this.mediaSelected) {
       return;
     }
@@ -587,10 +583,10 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       ...timeProps,
     }));
 
-    KeyboardRegistry.onItemSelected(
-      mediaGalleryKeyboardName,
-      selectionsWithTime,
-    );
+    KeyboardRegistry.onItemSelected(mediaGalleryKeyboardName, {
+      selections: selectionsWithTime,
+      threadInfo,
+    });
   }
 }
 
@@ -653,7 +649,7 @@ const unboundStyles = {
   },
 };
 
-function ConnectedMediaGalleryKeyboard() {
+function ConnectedMediaGalleryKeyboard(props) {
   const dimensions = useSelector(state => state.dimensions);
   const foreground = useIsAppForegrounded();
   const colors = useColors();
@@ -664,14 +660,15 @@ function ConnectedMediaGalleryKeyboard() {
       foreground={foreground}
       colors={colors}
       styles={styles}
+      {...props}
     />
   );
 }
 
-function ReduxMediaGalleryKeyboard() {
+function ReduxMediaGalleryKeyboard(props) {
   return (
     <Provider store={store}>
-      <ConnectedMediaGalleryKeyboard />
+      <ConnectedMediaGalleryKeyboard {...props} />
     </Provider>
   );
 }
