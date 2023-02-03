@@ -164,21 +164,22 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             newRawMessageInfos,
             { platform: 'ios', codeVersion },
           );
-          const notification = prepareIOSNotification(
-            allMessageInfos,
-            shimmedNewRawMessageInfos,
-            threadInfo,
-            notifInfo.collapseKey,
-            badgeOnly,
-            unreadCounts[userID],
-            codeVersion,
-          );
-          deliveryPromises.push(
-            sendIOSNotification(notification, [...deviceTokens], {
+          const deliveryPromise = (async () => {
+            const notification = await prepareIOSNotification(
+              allMessageInfos,
+              shimmedNewRawMessageInfos,
+              threadInfo,
+              notifInfo.collapseKey,
+              badgeOnly,
+              unreadCounts[userID],
+              codeVersion,
+            );
+            return await sendIOSNotification(notification, [...deviceTokens], {
               ...notificationInfo,
               codeVersion,
-            }),
-          );
+            });
+          })();
+          deliveryPromises.push(deliveryPromise);
         }
       }
       const androidVersionsToTokens = byDeviceType.get('android');
@@ -189,22 +190,27 @@ async function sendPushNotifs(pushInfo: PushInfo) {
             newRawMessageInfos,
             { platform: 'android', codeVersion },
           );
-          const notification = prepareAndroidNotification(
-            allMessageInfos,
-            shimmedNewRawMessageInfos,
-            threadInfo,
-            notifInfo.collapseKey,
-            badgeOnly,
-            unreadCounts[userID],
-            dbID,
-            codeVersion,
-          );
-          deliveryPromises.push(
-            sendAndroidNotification(notification, [...deviceTokens], {
-              ...notificationInfo,
+          const deliveryPromise = (async () => {
+            const notification = await prepareAndroidNotification(
+              allMessageInfos,
+              shimmedNewRawMessageInfos,
+              threadInfo,
+              notifInfo.collapseKey,
+              badgeOnly,
+              unreadCounts[userID],
+              dbID,
               codeVersion,
-            }),
-          );
+            );
+            return await sendAndroidNotification(
+              notification,
+              [...deviceTokens],
+              {
+                ...notificationInfo,
+                codeVersion,
+              },
+            );
+          })();
+          deliveryPromises.push(deliveryPromise);
         }
       }
 
@@ -466,7 +472,7 @@ function getDevicesByDeviceType(
   return byDeviceType;
 }
 
-function prepareIOSNotification(
+async function prepareIOSNotification(
   allMessageInfos: MessageInfo[],
   newRawMessageInfos: RawMessageInfo[],
   threadInfo: ThreadInfo,
@@ -474,12 +480,12 @@ function prepareIOSNotification(
   badgeOnly: boolean,
   unreadCount: number,
   codeVersion: number,
-): apn.Notification {
+): Promise<apn.Notification> {
   const uniqueID = uuidv4();
   const notification = new apn.Notification();
   notification.topic = getAPNsNotificationTopic(codeVersion);
 
-  const { merged, ...rest } = notifTextsForMessageInfo(
+  const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
   );
@@ -527,7 +533,7 @@ function prepareIOSNotification(
   return notification;
 }
 
-function prepareAndroidNotification(
+async function prepareAndroidNotification(
   allMessageInfos: MessageInfo[],
   newRawMessageInfos: RawMessageInfo[],
   threadInfo: ThreadInfo,
@@ -536,9 +542,9 @@ function prepareAndroidNotification(
   unreadCount: number,
   dbID: string,
   codeVersion: number,
-): Object {
+): Promise<Object> {
   const notifID = collapseKey ? collapseKey : dbID;
-  const { merged, ...rest } = notifTextsForMessageInfo(
+  const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
   );
