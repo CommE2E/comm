@@ -34,6 +34,7 @@ import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-ke
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
 import SWMansionIcon from '../SWMansionIcon.react.js';
+import ConnectedWalletInfo from './connected-wallet-info.react.js';
 import HeaderSeparator from './header-separator.react.js';
 import css from './siwe.css';
 
@@ -145,15 +146,19 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     <div className={css.siweLoginFormContainer}>
       <h4>Sign in with Ethereum</h4>
       <HeaderSeparator />
+      <ConnectedWalletInfo />
+      <br />
       <div className={css.connectButtonContainer}>
         <ConnectButton />
       </div>
-      <p>{siweMessageSigningExplanationStatements}</p>
-      <p>
-        By signing up, you agree to our{' '}
-        <a href="https://comm.app/terms">Terms of Use</a> &{' '}
-        <a href="https://comm.app/privacy">Privacy Policy</a>.
-      </p>
+      <div className={css.messageSigningStatements}>
+        <p>{siweMessageSigningExplanationStatements}</p>
+        <p>
+          By signing up, you agree to our{' '}
+          <a href="https://comm.app/terms">Terms of Use</a> &{' '}
+          <a href="https://comm.app/privacy">Privacy Policy</a>.
+        </p>
+      </div>
       <Button variant="filled" onClick={onSignInButtonClick}>
         Sign in using this wallet
       </Button>

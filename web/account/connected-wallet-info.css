@@ -1,0 +1,17 @@
+div.container {
+  display: flex;
+  background-color: #282537;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 8px;
+  outline: #302b42 solid 1px;
+}
+
+div p {
+  padding-bottom: 0;
+}
+
+div.container p {
+  padding-bottom: 0;
+  font-weight: bold;
+}
