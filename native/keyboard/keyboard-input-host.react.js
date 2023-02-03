@@ -12,7 +12,6 @@ import { type InputState, InputStateContext } from '../input/input-state';
 import { mediaGalleryKeyboardName } from '../media/media-gallery-keyboard.react';
 import { activeMessageListSelector } from '../navigation/nav-selectors';
 import { NavContext } from '../navigation/navigation-context';
-import { useStyles } from '../themes/colors';
 import { type KeyboardState, KeyboardContext } from './keyboard-state';
 
 type BaseProps = {
@@ -21,7 +20,6 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +styles: typeof unboundStyles,
   +activeMessageList: ?string,
   // withKeyboardState
   +keyboardState: KeyboardState,
@@ -48,7 +46,6 @@ class KeyboardInputHost extends React.PureComponent<Props> {
       ? mediaGalleryKeyboardName
       : null;
     const kbInitialProps = {
-      ...this.props.styles.kbInitialProps,
       threadInfo: this.props.keyboardState.getMediaGalleryThread(),
     };
     return (
@@ -92,25 +89,17 @@ class KeyboardInputHost extends React.PureComponent<Props> {
   };
 }
 
-const unboundStyles = {
-  kbInitialProps: {
-    backgroundColor: 'listBackground',
-  },
-};
-
 const ConnectedKeyboardInputHost: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedKeyboardInputHost(props: BaseProps) {
     const inputState = React.useContext(InputStateContext);
     const keyboardState = React.useContext(KeyboardContext);
     invariant(keyboardState, 'keyboardState should be initialized');
     const navContext = React.useContext(NavContext);
-    const styles = useStyles(unboundStyles);
     const activeMessageList = activeMessageListSelector(navContext);
 
     return (
       <KeyboardInputHost
         {...props}
-        styles={styles}
         activeMessageList={activeMessageList}
         keyboardState={keyboardState}
         inputState={inputState}
