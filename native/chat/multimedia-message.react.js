@@ -21,7 +21,7 @@ import {
   MultimediaMessageTooltipModalRouteName,
   VideoPlaybackModalRouteName,
 } from '../navigation/route-names';
-import { fixedTooltipHeight } from '../navigation/tooltip.react';
+import { fixedTooltipHeight } from '../tooltip/tooltip.react';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
 import { type VerticalBounds } from '../types/layout-types';
 import type { LayoutCoordinates } from '../types/layout-types';

@@ -5,19 +5,20 @@ import invariant from 'invariant';
 import * as React from 'react';
 
 import { createMessageReply } from 'lib/shared/message-utils';
-import type { DispatchFunctions, BindServerCall } from 'lib/utils/action-utils';
 
-import type { InputState } from '../input/input-state';
+import CommIcon from '../components/comm-icon.react';
+import SWMansionIcon from '../components/swmansion-icon.react';
+import { InputStateContext } from '../input/input-state';
 import { displayActionResultModal } from '../navigation/action-result-modal';
 import {
   createTooltip,
   type TooltipParams,
-  type TooltipRoute,
   type BaseTooltipProps,
-} from '../navigation/tooltip.react';
+  type TooltipMenuProps,
+} from '../tooltip/tooltip.react';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
-import { onPressReport } from './message-report-utils';
-import { navigateToSidebar } from './sidebar-navigation';
+import { useOnPressReport } from './message-report-utils';
+import { useAnimatedNavigateToSidebar } from './sidebar-navigation';
 import TextMessageTooltipButton from './text-message-tooltip-button.react';
 
 export type TextMessageTooltipModalParams = TooltipParams<{
@@ -26,43 +27,87 @@ export type TextMessageTooltipModalParams = TooltipParams<{
 
 const confirmCopy = () => displayActionResultModal('copied!');
 
-function onPressCopy(route: TooltipRoute<'TextMessageTooltipModal'>) {
-  Clipboard.setString(route.params.item.messageInfo.text);
-  setTimeout(confirmCopy);
-}
+function TooltipMenu(
+  props: TooltipMenuProps<'TextMessageTooltipModal'>,
+): React.Node {
+  const { route, tooltipItem: TooltipItem } = props;
 
-function onPressReply(
-  route: TooltipRoute<'TextMessageTooltipModal'>,
-  dispatchFunctions: DispatchFunctions,
-  bindServerCall: BindServerCall,
-  inputState: ?InputState,
-) {
-  invariant(
-    inputState,
-    'inputState should be set in TextMessageTooltipModal.onPressReply',
+  const inputState = React.useContext(InputStateContext);
+  const { text } = route.params.item.messageInfo;
+  const onPressReply = React.useCallback(() => {
+    invariant(
+      inputState,
+      'inputState should be set in TextMessageTooltipModal.onPressReply',
+    );
+    inputState.addReply(createMessageReply(text));
+  }, [inputState, text]);
+  const renderReplyIcon = React.useCallback(
+    style => <CommIcon name="reply" style={style} size={12} />,
+    [],
   );
-  inputState.addReply(createMessageReply(route.params.item.messageInfo.text));
-}
 
-const spec = {
-  entries: [
-    { id: 'reply', text: 'Reply', onPress: onPressReply },
-    {
-      id: 'sidebar',
-      text: 'Thread',
-      onPress: navigateToSidebar,
-    },
-    { id: 'copy', text: 'Copy', onPress: onPressCopy },
-    {
-      id: 'report',
-      text: 'Report',
-      onPress: onPressReport,
-    },
-  ],
-};
+  const onPressSidebar = useAnimatedNavigateToSidebar(route.params.item);
+  const renderSidebarIcon = React.useCallback(
+    style => (
+      <SWMansionIcon name="message-circle-lines" style={style} size={16} />
+    ),
+    [],
+  );
+
+  const onPressCopy = React.useCallback(() => {
+    Clipboard.setString(text);
+    setTimeout(confirmCopy);
+  }, [text]);
+  const renderCopyIcon = React.useCallback(
+    style => <SWMansionIcon name="copy" style={style} size={16} />,
+    [],
+  );
+
+  const onPressReport = useOnPressReport(route);
+  const renderReportIcon = React.useCallback(
+    style => <SWMansionIcon name="warning-circle" style={style} size={16} />,
+    [],
+  );
+
+  return (
+    <>
+      <TooltipItem
+        id="reply"
+        text="Reply"
+        onPress={onPressReply}
+        renderIcon={renderReplyIcon}
+        key="reply"
+      />
+      <TooltipItem
+        id="sidebar"
+        text="Thread"
+        onPress={onPressSidebar}
+        renderIcon={renderSidebarIcon}
+        key="sidebar"
+      />
+      <TooltipItem
+        id="copy"
+        text="Copy"
+        onPress={onPressCopy}
+        renderIcon={renderCopyIcon}
+        key="copy"
+      />
+      <TooltipItem
+        id="report"
+        text="Report"
+        onPress={onPressReport}
+        renderIcon={renderReportIcon}
+        key="report"
+      />
+    </>
+  );
+}
 
 const TextMessageTooltipModal: React.ComponentType<
   BaseTooltipProps<'TextMessageTooltipModal'>,
-> = createTooltip<'TextMessageTooltipModal'>(TextMessageTooltipButton, spec);
+> = createTooltip<'TextMessageTooltipModal'>(
+  TextMessageTooltipButton,
+  TooltipMenu,
+);
 
 export default TextMessageTooltipModal;

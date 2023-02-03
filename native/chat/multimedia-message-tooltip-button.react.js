@@ -9,8 +9,8 @@ import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
 import type { SetState } from 'lib/types/hook-types';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
-import type { TooltipRoute } from '../navigation/tooltip.react';
 import { useSelector } from '../redux/redux-utils';
+import type { TooltipRoute } from '../tooltip/tooltip.react';
 import { TooltipInlineEngagement } from './inline-engagement.react';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react';
 import { MessageHeader } from './message-header.react';
