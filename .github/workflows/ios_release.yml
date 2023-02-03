@@ -1,8 +1,9 @@
 name: iOS Build/Archive/Upload to AppStore Connect
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - mobile-**
 
 jobs:
   build:
