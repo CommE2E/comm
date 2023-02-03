@@ -52,10 +52,16 @@ function(add_library_rust)
     corrosion_set_env_vars(${_LIB_PATH_STEM} "AR=${AR}")
   endif()
 
+  # Resolve directory path which can be consumed globally
+  get_filename_component(REALPATH_BINARY_DIR
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    REALPATH
+  )
+
   # Set cxxbridge values
   set(
     cxx_bridge_binary_folder
-    ${CMAKE_BINARY_DIR}/cargo/build/${Rust_CARGO_TARGET}/cxxbridge)
+    ${REALPATH_BINARY_DIR}/cargo/build/${Rust_CARGO_TARGET}/cxxbridge)
   set(
     common_header
     ${cxx_bridge_binary_folder}/rust/cxx.h)
