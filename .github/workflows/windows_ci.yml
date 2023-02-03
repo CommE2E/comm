@@ -1,6 +1,7 @@
 name: Windows build CI
 
 on:
+  workflow_call:
   push:
     branches: [master]
     paths-ignore:
@@ -38,3 +39,11 @@ jobs:
           WINDOWS_PASSWORD: ${{secrets.WINDOWS_PASSWORD}}
         working-directory: './desktop'
         run: yarn make
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-artifacts
+          path: ./desktop/out/make/**/*
+          if-no-files-found: error
+          retention-days: 1
