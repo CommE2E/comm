@@ -1,6 +1,7 @@
 name: macOS Build CI
 
 on:
+  workflow_call:
   push:
     branches: [master]
     paths-ignore:
@@ -62,3 +63,11 @@ jobs:
       - name: Clean up keychain
         if: ${{ always() }}
         run: security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-artifacts
+          path: ./desktop/out/make/**/*
+          if-no-files-found: error
+          retention-days: 1

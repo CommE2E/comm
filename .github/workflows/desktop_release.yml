@@ -1,0 +1,34 @@
+name: Create a new release with macOS/ Windows artifacts
+
+on:
+  push:
+    tags:
+      - desktop-**
+
+jobs:
+  windows-build:
+    uses: ./.github/workflows/windows_ci.yml
+  macos-build:
+    uses: ./.github/workflows/macos_ci.yml
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    needs: [windows-build, macos-build]
+    permissions:
+      contents: write
+    steps:
+      - name: Download
+        uses: actions/download-artifact@v3
+
+      - name: Release
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          fail_on_unmatched_files: true
+          files: |
+            windows-artifacts/**/*
+            macos-artifacts/**/*
+
+      - name: Add link to Summary
+        run: echo "${{ steps.release.outputs.url }}" >> $GITHUB_STEP_SUMMARY
