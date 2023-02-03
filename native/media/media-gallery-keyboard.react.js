@@ -22,6 +22,7 @@ import {
 } from 'lib/media/file-utils';
 import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
 import type { MediaLibrarySelection } from 'lib/types/media-types';
+import type { ThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../components/button.react';
 import type { DimensionsInfo } from '../redux/dimensions-updater.react';
@@ -40,7 +41,11 @@ const animationSpec = {
   useNativeDriver: true,
 };
 
+type BaseProps = {
+  +threadInfo: ?ThreadInfo,
+};
 type Props = {
+  ...BaseProps,
   // Redux state
   +dimensions: DimensionsInfo,
   +foreground: boolean,
@@ -341,16 +346,7 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
         }
       });
 
-      const selectionURIs = selections.map(({ uri }) => uri);
-      this.guardedSetState(prevState => ({
-        error: null,
-        selections: [...selections, ...(prevState.selections ?? [])],
-        queuedMediaURIs: new Set([
-          ...selectionURIs,
-          ...(prevState.queuedMediaURIs ?? []),
-        ]),
-        focusedMediaURI: null,
-      }));
+      this.sendMedia(selections);
     } catch (e) {
       if (__DEV__) {
         console.warn(e);
@@ -587,10 +583,10 @@ class MediaGalleryKeyboard extends React.PureComponent<Props, State> {
       ...timeProps,
     }));
 
-    KeyboardRegistry.onItemSelected(
-      mediaGalleryKeyboardName,
-      selectionsWithTime,
-    );
+    KeyboardRegistry.onItemSelected(mediaGalleryKeyboardName, {
+      selections: selectionsWithTime,
+      threadInfo: this.props.threadInfo,
+    });
   }
 }
 
@@ -653,7 +649,7 @@ const unboundStyles = {
   },
 };
 
-function ConnectedMediaGalleryKeyboard() {
+function ConnectedMediaGalleryKeyboard(props: BaseProps) {
   const dimensions = useSelector(state => state.dimensions);
   const foreground = useIsAppForegrounded();
   const colors = useColors();
@@ -664,14 +660,15 @@ function ConnectedMediaGalleryKeyboard() {
       foreground={foreground}
       colors={colors}
       styles={styles}
+      {...props}
     />
   );
 }
 
-function ReduxMediaGalleryKeyboard() {
+function ReduxMediaGalleryKeyboard(props: BaseProps) {
   return (
     <Provider store={store}>
-      <ConnectedMediaGalleryKeyboard />
+      <ConnectedMediaGalleryKeyboard {...props} />
     </Provider>
   );
 }
