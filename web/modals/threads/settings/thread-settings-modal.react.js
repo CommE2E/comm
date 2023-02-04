@@ -13,8 +13,8 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils';
 import {
   threadHasPermission,
-  robotextName,
   getSingleOtherUser,
+  threadUIName,
 } from 'lib/shared/thread-utils';
 import {
   type ThreadInfo,
@@ -22,6 +22,7 @@ import {
   threadPermissions,
   type ThreadChanges,
 } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import Tabs from '../../../components/tabs.react';
 import { useSelector } from '../../../redux/redux-utils';
@@ -67,10 +68,19 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       Object.freeze({}),
     );
 
-    const namePlaceholder: string = React.useMemo(() => {
-      invariant(threadInfo, 'threadInfo should exist in namePlaceholder');
-      return robotextName(threadInfo, viewerID, userInfos);
-    }, [threadInfo, userInfos, viewerID]);
+    const threadInfoWithNoName = React.useMemo(() => {
+      invariant(threadInfo, 'threadInfo should exist in threadInfoWithNoName');
+      if (threadInfo.name === null || threadInfo.name === undefined) {
+        return threadInfo;
+      }
+      const withNoName = { ...threadInfo, name: undefined };
+      return {
+        ...withNoName,
+        uiName: threadUIName(withNoName, viewerID, userInfos),
+      };
+    }, [threadInfo, viewerID, userInfos]);
+    const resolvedThreadInfo = useResolvedThreadInfo(threadInfoWithNoName);
+    const namePlaceholder = resolvedThreadInfo.uiName;
 
     const otherMemberID = React.useMemo(() => {
       if (!threadInfo) {
