@@ -8,7 +8,7 @@ license = "BSD-3-Clause"
 tonic = "0.8"
 prost = "0.11"
 futures-core = "0.3"
-tokio = { version = "1.23", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.24", features = ["macros", "rt-multi-thread"] }
 tokio-stream = "0.1.9"
 opaque-ke = { version = "1.2.0", features = ["std"] }
 curve25519-dalek = "3"
