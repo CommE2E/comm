@@ -1,10 +1,12 @@
 // @flow
 
+import ip from 'internal-ip';
 import _keyBy from 'lodash/fp/keyBy';
 
 import type { Media } from 'lib/types/media-types';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
+import { isDev } from 'lib/utils/dev-utils';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
@@ -80,6 +82,11 @@ async function getUploadSize(id: string, secret: string): Promise<number> {
 
 function getUploadURL(id: string, secret: string): string {
   const { baseDomain, basePath } = getAndAssertCommAppURLFacts();
+  if (isDev) {
+    const ipV4 = ip.v4.sync() || 'localhost';
+    const port = parseInt(process.env.PORT, 10) || 3000;
+    return `http://${ipV4}:${port}${basePath}upload/${id}/${secret}`;
+  }
   return `${baseDomain}${basePath}upload/${id}/${secret}`;
 }
 
