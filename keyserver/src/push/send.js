@@ -39,6 +39,7 @@ import { fetchCollapsableNotifs } from '../fetchers/message-fetchers';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
 import { fetchUserInfos } from '../fetchers/user-fetchers';
 import type { Viewer } from '../session/viewer';
+import { getENSNames } from '../utils/ens-cache';
 import { getAPNsNotificationTopic } from './providers';
 import {
   apnPush,
@@ -488,6 +489,7 @@ async function prepareIOSNotification(
   const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
+    getENSNames,
   );
   if (!badgeOnly) {
     notification.body = merged;
@@ -547,6 +549,7 @@ async function prepareAndroidNotification(
   const { merged, ...rest } = await notifTextsForMessageInfo(
     allMessageInfos,
     threadInfo,
+    getENSNames,
   );
   const notification = {
     data: {
