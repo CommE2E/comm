@@ -33,15 +33,15 @@ import type { Dispatch } from 'lib/types/redux-types';
 import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react';
 import { useSelector } from '../redux/redux-utils';
 import {
-  webFilterThreadInfos,
-  webFilterThreadSearchIndex,
+  useFilterThreadInfos,
+  useFilterThreadSearchIndex,
 } from '../selectors/calendar-selectors';
 import { MagnifyingGlass } from '../vectors.react';
 import css from './filter-panel.css';
 
 type Props = {
-  +filterThreadInfos: () => $ReadOnlyArray<FilterThreadInfo>,
-  +filterThreadSearchIndex: () => SearchIndex,
+  +filterThreadInfos: $ReadOnlyArray<FilterThreadInfo>,
+  +filterThreadSearchIndex: SearchIndex,
   +filteredThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
@@ -69,7 +69,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
   render() {
     const filterThreadInfos = this.state.query
       ? this.state.searchResults
-      : this.props.filterThreadInfos();
+      : this.props.filterThreadInfos;
 
     let filters = [];
     if (!this.state.query || filterThreadInfos.length > 0) {
@@ -154,8 +154,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
       return;
     } else if (!selectedThreadIDs) {
       // No thread filter exists and thread is being removed
-      newThreadIDs = this.props
-        .filterThreadInfos()
+      newThreadIDs = this.props.filterThreadInfos
         .map(filterThreadInfo => filterThreadInfo.threadInfo.id)
         .filter(id => id !== threadID);
     } else if (selectedThreadIDs.has(threadID) && value) {
@@ -169,7 +168,7 @@ class FilterPanel extends React.PureComponent<Props, State> {
       return;
     } else if (
       selectedThreadIDs.size + 1 ===
-      this.props.filterThreadInfos().length
+      this.props.filterThreadInfos.length
     ) {
       // Thread filter exists and thread being added is the only one missing
       newThreadIDs = null;
@@ -210,13 +209,11 @@ class FilterPanel extends React.PureComponent<Props, State> {
 
   onChangeQuery = (event: SyntheticEvent<HTMLInputElement>) => {
     const query = event.currentTarget.value;
-    const searchIndex = this.props.filterThreadSearchIndex();
+    const searchIndex = this.props.filterThreadSearchIndex;
     const resultIDs = new Set(searchIndex.getSearchResults(query));
-    const results = this.props
-      .filterThreadInfos()
-      .filter(filterThreadInfo =>
-        resultIDs.has(filterThreadInfo.threadInfo.id),
-      );
+    const results = this.props.filterThreadInfos.filter(filterThreadInfo =>
+      resultIDs.has(filterThreadInfo.threadInfo.id),
+    );
     this.setState({ query, searchResults: results, collapsed: false });
   };
 
@@ -365,8 +362,8 @@ class Category extends React.PureComponent<CategoryProps> {
 const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
   function ConnectedFilterPanel(): React.Node {
     const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
-    const filterThreadInfos = useSelector(webFilterThreadInfos);
-    const filterThreadSearchIndex = useSelector(webFilterThreadSearchIndex);
+    const filterThreadInfos = useFilterThreadInfos();
+    const filterThreadSearchIndex = useFilterThreadSearchIndex();
     const includeDeleted = useSelector(includeDeletedSelector);
     const dispatch = useDispatch();
     const modalContext = useModalContext();

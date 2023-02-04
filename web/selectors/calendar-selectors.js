@@ -1,38 +1,22 @@
 // @flow
 
-import { createSelector } from 'reselect';
-
 import {
-  filterThreadInfos,
-  filterThreadSearchIndex,
+  useFilterThreadInfos as baseUseFilterThreadInfos,
+  useFilterThreadSearchIndex as baseUseFilterThreadSearchIndex,
 } from 'lib/selectors/calendar-selectors';
 import type SearchIndex from 'lib/shared/search-index';
 import type { FilterThreadInfo } from 'lib/types/filter-types';
 
-import type { AppState } from '../redux/redux-setup';
+import { useSelector } from '../redux/redux-utils';
 
-const webFilterThreadInfos: (
-  state: AppState,
-) => () => $ReadOnlyArray<FilterThreadInfo> = createSelector(
-  filterThreadInfos,
-  (state: AppState) => state.navInfo.tab === 'calendar',
-  (
-    threadInfoFunc: (
-      calendarActive: boolean,
-    ) => $ReadOnlyArray<FilterThreadInfo>,
-    calendarActive: boolean,
-  ) => () => threadInfoFunc(calendarActive),
-);
+function useFilterThreadInfos(): $ReadOnlyArray<FilterThreadInfo> {
+  const calendarActive = useSelector(state => state.navInfo.tab === 'calendar');
+  return baseUseFilterThreadInfos(calendarActive);
+}
 
-const webFilterThreadSearchIndex: (
-  state: AppState,
-) => () => SearchIndex = createSelector(
-  filterThreadSearchIndex,
-  (state: AppState) => state.navInfo.tab === 'calendar',
-  (
-    threadSearchIndexFunc: (calendarActive: boolean) => SearchIndex,
-    calendarActive: boolean,
-  ) => () => threadSearchIndexFunc(calendarActive),
-);
+function useFilterThreadSearchIndex(): SearchIndex {
+  const calendarActive = useSelector(state => state.navInfo.tab === 'calendar');
+  return baseUseFilterThreadSearchIndex(calendarActive);
+}
 
-export { webFilterThreadInfos, webFilterThreadSearchIndex };
+export { useFilterThreadInfos, useFilterThreadSearchIndex };
