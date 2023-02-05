@@ -19,13 +19,14 @@ import {
   type CalendarQuery,
 } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ResolvedThreadInfo } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
 import {
   type DispatchActionPromise,
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import LoadingIndicator from '../../loading-indicator.react';
 import { useSelector } from '../../redux/redux-utils';
@@ -39,7 +40,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +loggedIn: boolean,
   +restoreLoadingStatus: LoadingStatus,
   +calendarQuery: () => CalendarQuery,
@@ -149,9 +150,10 @@ const ConnectedHistoryEntry: React.ComponentType<BaseProps> = React.memo<BasePro
   function ConnectedHistoryEntry(props) {
     const entryID = props.entryInfo.id;
     invariant(entryID, 'entryInfo.id (serverID) should be set');
-    const threadInfo = useSelector(
+    const unresolvedThreadInfo = useSelector(
       state => threadInfoSelector(state)[props.entryInfo.threadID],
     );
+    const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
     const loggedIn = useSelector(
       state =>
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
