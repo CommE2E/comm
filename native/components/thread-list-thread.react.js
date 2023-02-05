@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 
-import { type ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo, ResolvedThreadInfo } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import { type Colors, useStyles, useColors } from '../themes/colors';
 import type { ViewStyle, TextStyle } from '../types/styles';
@@ -10,14 +11,18 @@ import Button from './button.react';
 import ColorSplotch from './color-splotch.react';
 import { SingleLine } from './single-line.react';
 
-type BaseProps = {
-  +threadInfo: ThreadInfo,
+type SharedProps = {
   +onSelect: (threadID: string) => void,
   +style?: ViewStyle,
   +textStyle?: TextStyle,
 };
+type BaseProps = {
+  ...SharedProps,
+  +threadInfo: ThreadInfo,
+};
 type Props = {
-  ...BaseProps,
+  ...SharedProps,
+  +threadInfo: ResolvedThreadInfo,
   +colors: Colors,
   +styles: typeof unboundStyles,
 };
@@ -62,10 +67,19 @@ const unboundStyles = {
 
 const ConnectedThreadListThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedThreadListThread(props: BaseProps) {
+    const { threadInfo, ...rest } = props;
     const styles = useStyles(unboundStyles);
     const colors = useColors();
+    const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
-    return <ThreadListThread {...props} styles={styles} colors={colors} />;
+    return (
+      <ThreadListThread
+        {...rest}
+        threadInfo={resolvedThreadInfo}
+        styles={styles}
+        colors={colors}
+      />
+    );
   },
 );
 
