@@ -42,6 +42,7 @@ import {
   threadUpdateResponder,
   threadCreationResponder,
   threadJoinResponder,
+  threadFetchMediaResponder,
 } from './responders/thread-responders';
 import {
   userSubscriptionUpdateResponder,
@@ -131,6 +132,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   fetch_messages: {
     responder: messageFetchResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  fetch_thread_media: {
+    responder: threadFetchMediaResponder,
     requiredPolicies: baseLegalPolicies,
   },
   get_session_public_keys: {
