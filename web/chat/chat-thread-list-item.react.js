@@ -6,6 +6,10 @@ import * as React from 'react';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
+import {
+  useResolvedThreadInfo,
+  useResolvedThreadInfos,
+} from 'lib/utils/entity-helpers';
 
 import { useSelector } from '../redux/redux-utils';
 import {
@@ -32,7 +36,8 @@ function ChatThreadListItem(props: Props): React.Node {
   } = item;
   const { id: threadID, currentUser } = threadInfo;
 
-  const ancestorThreads = useAncestorThreads(threadInfo);
+  const unresolvedAncestorThreads = useAncestorThreads(threadInfo);
+  const ancestorThreads = useResolvedThreadInfos(unresolvedAncestorThreads);
 
   const lastActivity = shortAbsoluteDate(lastUpdatedTimeIncludingSidebars);
 
@@ -122,6 +127,7 @@ function ChatThreadListItem(props: Props): React.Node {
     );
   });
 
+  const { uiName } = useResolvedThreadInfo(threadInfo);
   return (
     <>
       <a className={containerClassName} onClick={selectItemIfNotActiveCreation}>
@@ -134,7 +140,7 @@ function ChatThreadListItem(props: Props): React.Node {
         <div className={css.threadButton}>
           <p className={breadCrumbsClassName}>{ancestorPath}</p>
           <div className={css.threadRow}>
-            <div className={titleClassName}>{threadInfo.uiName}</div>
+            <div className={titleClassName}>{uiName}</div>
           </div>
           <div className={css.threadRow}>
             <MessagePreview
