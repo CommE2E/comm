@@ -5,6 +5,7 @@ import { Text, View } from 'react-native';
 
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import { SingleLine } from '../components/single-line.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
@@ -20,6 +21,7 @@ function SubchannelItem(props: Props): React.Node {
     threadInfo,
     mostRecentMessageInfo,
   } = props.subchannelInfo;
+  const { uiName } = useResolvedThreadInfo(threadInfo);
 
   const lastActivity = shortAbsoluteDate(lastUpdatedTime);
 
@@ -51,9 +53,7 @@ function SubchannelItem(props: Props): React.Node {
             style={[styles.icon, unreadStyle]}
           />
         </View>
-        <SingleLine style={[styles.name, unreadStyle]}>
-          {threadInfo.uiName}
-        </SingleLine>
+        <SingleLine style={[styles.name, unreadStyle]}>{uiName}</SingleLine>
       </View>
       <View style={styles.itemRowContainer}>
         {lastMessage}

@@ -5,6 +5,7 @@ import { Text, View } from 'react-native';
 
 import type { SidebarInfo } from 'lib/types/thread-types';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import { SingleLine } from '../components/single-line.react';
 import { useStyles } from '../themes/colors';
@@ -17,14 +18,13 @@ function SidebarItem(props: Props): React.Node {
   const lastActivity = shortAbsoluteDate(lastUpdatedTime);
 
   const { threadInfo } = props.sidebarInfo;
+  const { uiName } = useResolvedThreadInfo(threadInfo);
   const styles = useStyles(unboundStyles);
   const unreadStyle = threadInfo.currentUser.unread ? styles.unread : null;
 
   return (
     <View style={styles.itemContainer}>
-      <SingleLine style={[styles.name, unreadStyle]}>
-        {threadInfo.uiName}
-      </SingleLine>
+      <SingleLine style={[styles.name, unreadStyle]}>{uiName}</SingleLine>
       <Text style={[styles.lastActivity, unreadStyle]}>{lastActivity}</Text>
     </View>
   );
