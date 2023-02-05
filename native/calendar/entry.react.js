@@ -44,13 +44,18 @@ import type {
 } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
-import { type ThreadInfo, threadPermissions } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  type ResolvedThreadInfo,
+  threadPermissions,
+} from 'lib/types/thread-types';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { dateString } from 'lib/utils/date-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 import { ServerError } from 'lib/utils/errors';
 import sleep from 'lib/utils/sleep';
 
@@ -96,10 +101,9 @@ function dummyNodeForEntryHeightMeasurement(
   );
 }
 
-type BaseProps = {
+type SharedProps = {
   +navigation: TabNavigationProp<'Calendar'>,
   +entryInfo: EntryInfoWithHeight,
-  +threadInfo: ThreadInfo,
   +visible: boolean,
   +active: boolean,
   +makeActive: (entryKey: string, active: boolean) => void,
@@ -108,8 +112,13 @@ type BaseProps = {
   +onPressWhitespace: () => void,
   +entryRef: (entryKey: string, entry: ?InternalEntry) => void,
 };
+type BaseProps = {
+  ...SharedProps,
+  +threadInfo: ThreadInfo,
+};
 type Props = {
-  ...BaseProps,
+  ...SharedProps,
+  +threadInfo: ResolvedThreadInfo,
   // Redux state
   +calendarQuery: () => CalendarQuery,
   +online: boolean,
@@ -787,9 +796,12 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
     const callSaveEntry = useServerCall(saveEntry);
     const callDeleteEntry = useServerCall(deleteEntry);
 
+    const { threadInfo: unresolvedThreadInfo, ...restProps } = props;
+    const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
+
     return (
       <InternalEntry
-        {...props}
+        {...restProps}
         threadPickerActive={threadPickerActive}
         calendarQuery={calendarQuery}
         online={online}
@@ -800,6 +812,7 @@ const Entry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
         createEntry={callCreateEntry}
         saveEntry={callSaveEntry}
         deleteEntry={callDeleteEntry}
+        threadInfo={threadInfo}
       />
     );
   },
