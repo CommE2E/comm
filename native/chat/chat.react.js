@@ -29,7 +29,6 @@ import {
   threadIsPending,
   threadMembersWithoutAddedAshoat,
 } from 'lib/shared/thread-utils';
-import { firstLine } from 'lib/utils/string-utils';
 
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
@@ -64,6 +63,7 @@ import DeleteThread from './settings/delete-thread.react';
 import ThreadSettings from './settings/thread-settings.react';
 import ThreadScreenPruner from './thread-screen-pruner.react';
 import ThreadSettingsButton from './thread-settings-button.react';
+import ThreadSettingsHeaderTitle from './thread-settings-header-title.react';
 
 const unboundStyles = {
   keyboardAvoidingView: {
@@ -240,7 +240,13 @@ const composeThreadOptions = {
   headerBackTitleVisible: false,
 };
 const threadSettingsOptions = ({ route }) => ({
-  headerTitle: firstLine(route.params.threadInfo.uiName),
+  // eslint-disable-next-line react/display-name
+  headerTitle: props => (
+    <ThreadSettingsHeaderTitle
+      threadInfo={route.params.threadInfo}
+      {...props}
+    />
+  ),
   headerBackTitleVisible: false,
 });
 const deleteThreadOptions = {
