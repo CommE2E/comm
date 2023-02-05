@@ -7,6 +7,7 @@ import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
 import type { UserInfo } from 'lib/types/user-types';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import Button from '../components/button.react';
 import ColorSplotch from '../components/color-splotch.react';
@@ -114,6 +115,8 @@ function ChatThreadListItem({
     styles.unreadLastActivity,
   ]);
 
+  const resolvedThreadInfo = useResolvedThreadInfo(data.threadInfo);
+
   return (
     <>
       <SwipeableThread
@@ -141,7 +144,7 @@ function ChatThreadListItem({
               <ThreadAncestorsLabel threadInfo={data.threadInfo} />
               <View style={styles.row}>
                 <SingleLine style={threadNameStyle}>
-                  {data.threadInfo.uiName}
+                  {resolvedThreadInfo.uiName}
                 </SingleLine>
               </View>
               <View style={styles.row}>
