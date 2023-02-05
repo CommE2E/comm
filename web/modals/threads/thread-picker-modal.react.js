@@ -7,6 +7,7 @@ import { createSelector } from 'reselect';
 import { useGlobalThreadSearchIndex } from 'lib/selectors/nav-selectors';
 import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import Button from '../../components/button.react';
 import Search from '../../components/search.react';
@@ -35,6 +36,7 @@ function ThreadPickerOption(props: OptionProps) {
     [threadInfo.color],
   );
 
+  const { uiName } = useResolvedThreadInfo(threadInfo);
   return (
     <div key={threadInfo.id} className={css.threadPickerOptionContainer}>
       <Button
@@ -42,7 +44,7 @@ function ThreadPickerOption(props: OptionProps) {
         onClick={onClickThreadOption}
       >
         <div style={splotchColorStyle} className={css.threadSplotch} />
-        <div className={css.threadNameText}>{threadInfo.uiName}</div>
+        <div className={css.threadNameText}>{uiName}</div>
       </Button>
     </div>
   );
