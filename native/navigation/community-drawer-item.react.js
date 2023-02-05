@@ -4,6 +4,7 @@ import * as React from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import type { MessageListParams } from '../chat/message-list-types';
 import { SingleLine } from '../components/single-line.react';
@@ -83,6 +84,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     navigateToThread({ threadInfo });
   }, [navigateToThread, threadInfo]);
 
+  const { uiName } = useResolvedThreadInfo(threadInfo);
   return (
     <View>
       <View style={styles.threadEntry}>
@@ -92,7 +94,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
           style={styles.textTouchableWrapper}
           onLongPress={onExpandToggled}
         >
-          <SingleLine style={labelStyle}>{threadInfo.uiName}</SingleLine>
+          <SingleLine style={labelStyle}>{uiName}</SingleLine>
         </TouchableOpacity>
       </View>
       {children}

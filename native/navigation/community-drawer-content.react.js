@@ -10,7 +10,12 @@ import {
   communityThreadSelector,
 } from 'lib/selectors/thread-selectors';
 import { threadIsChannel } from 'lib/shared/thread-utils';
-import { type ThreadInfo, communitySubthreads } from 'lib/types/thread-types';
+import {
+  type ThreadInfo,
+  type ResolvedThreadInfo,
+  communitySubthreads,
+} from 'lib/types/thread-types';
+import { useResolvedThreadInfos } from 'lib/utils/entity-helpers';
 
 import { useNavigateToThread } from '../chat/message-list-types';
 import { useStyles } from '../themes/colors';
@@ -25,9 +30,11 @@ const safeAreaEdges = Platform.select({
 
 function CommunityDrawerContent(): React.Node {
   const communities = useSelector(communityThreadSelector);
-  const communitiesSuffixed = React.useMemo(() => appendSuffix(communities), [
-    communities,
-  ]);
+  const resolvedCommunities = useResolvedThreadInfos(communities);
+  const communitiesSuffixed = React.useMemo(
+    () => appendSuffix(resolvedCommunities),
+    [resolvedCommunities],
+  );
   const styles = useStyles(unboundStyles);
 
   const [openCommunity, setOpenCommunity] = React.useState(
@@ -91,7 +98,7 @@ function CommunityDrawerContent(): React.Node {
 
 function createRecursiveDrawerItemsData(
   childThreadInfosMap: { +[id: string]: $ReadOnlyArray<ThreadInfo> },
-  communities: $ReadOnlyArray<ThreadInfo>,
+  communities: $ReadOnlyArray<ResolvedThreadInfo>,
   labelStyles: $ReadOnlyArray<TextStyle>,
 ) {
   const result = communities.map(community => ({
@@ -138,7 +145,9 @@ function threadHasSubchannels(
   );
 }
 
-function appendSuffix(chats: $ReadOnlyArray<ThreadInfo>): ThreadInfo[] {
+function appendSuffix(
+  chats: $ReadOnlyArray<ResolvedThreadInfo>,
+): ResolvedThreadInfo[] {
   const result = [];
   const names = new Map<string, number>();
 
