@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { threadIsPending } from 'lib/shared/thread-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import ThreadAncestors from './chat-thread-ancestors.react';
 import ThreadMenu from './thread-menu.react';
@@ -26,6 +27,7 @@ function ThreadTopBar(props: threadTopBarProps): React.Node {
     threadMenu = <ThreadMenu threadInfo={threadInfo} />;
   }
 
+  const { uiName } = useResolvedThreadInfo(threadInfo);
   return (
     <div className={css.topBarContainer}>
       <div className={css.topBarThreadInfo}>
@@ -33,7 +35,7 @@ function ThreadTopBar(props: threadTopBarProps): React.Node {
           className={css.threadColorSquare}
           style={threadBackgroundColorStyle}
         />
-        <p className={css.threadTitle}>{threadInfo.uiName}</p>
+        <p className={css.threadTitle}>{uiName}</p>
         <ThreadAncestors threadInfo={threadInfo} />
       </div>
       {threadMenu}
