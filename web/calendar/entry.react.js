@@ -36,13 +36,14 @@ import {
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { Dispatch } from 'lib/types/redux-types';
 import { threadPermissions } from 'lib/types/thread-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ResolvedThreadInfo } from 'lib/types/thread-types';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
 } from 'lib/utils/action-utils';
 import { dateString } from 'lib/utils/date-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 import { ServerError } from 'lib/utils/errors';
 
 import LoadingIndicator from '../loading-indicator.react';
@@ -62,7 +63,7 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  +threadInfo: ThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +loggedIn: boolean,
   +calendarQuery: () => CalendarQuery,
   +online: boolean,
@@ -462,9 +463,10 @@ export type InnerEntry = Entry;
 const ConnectedEntry: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedEntry(props) {
     const { threadID } = props.entryInfo;
-    const threadInfo = useSelector(
+    const unresolvedThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
+    const threadInfo = useResolvedThreadInfo(unresolvedThreadInfo);
     const loggedIn = useSelector(
       state =>
         !!(state.currentUserInfo && !state.currentUserInfo.anonymous && true),
