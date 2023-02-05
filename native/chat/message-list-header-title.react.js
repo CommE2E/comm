@@ -9,6 +9,7 @@ import * as React from 'react';
 import { View, Platform } from 'react-native';
 
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 import { firstLine } from 'lib/utils/string-utils';
 
 import Button from '../components/button.react';
@@ -26,6 +27,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   +styles: typeof unboundStyles,
+  +title: string,
 };
 class MessageListHeaderTitle extends React.PureComponent<Props> {
   render() {
@@ -35,6 +37,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
       isSearchEmpty,
       areSettingsEnabled,
       styles,
+      title,
       ...rest
     } = this.props;
 
@@ -47,8 +50,6 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
         <Icon name="chevron-forward" size={20} style={styles.fakeIcon} />
       );
     }
-
-    const title = isSearchEmpty ? 'New Message' : threadInfo.uiName;
 
     return (
       <Button
@@ -67,7 +68,7 @@ class MessageListHeaderTitle extends React.PureComponent<Props> {
   }
 
   onPress = () => {
-    const threadInfo = this.props.threadInfo;
+    const { threadInfo } = this.props;
     this.props.navigate<'ThreadSettings'>({
       name: ThreadSettingsRouteName,
       params: { threadInfo },
@@ -106,7 +107,11 @@ const ConnectedMessageListHeaderTitle: React.ComponentType<BaseProps> = React.me
   function ConnectedMessageListHeaderTitle(props: BaseProps) {
     const styles = useStyles(unboundStyles);
 
-    return <MessageListHeaderTitle {...props} styles={styles} />;
+    const { uiName } = useResolvedThreadInfo(props.threadInfo);
+    const { isSearchEmpty } = props;
+    const title = isSearchEmpty ? 'New Message' : uiName;
+
+    return <MessageListHeaderTitle {...props} styles={styles} title={title} />;
   },
 );
 
