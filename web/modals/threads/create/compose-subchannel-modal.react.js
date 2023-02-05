@@ -10,6 +10,7 @@ import {
   useDispatchActionPromise,
   useServerCall,
 } from 'lib/utils/action-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 import { trimText } from 'lib/utils/text-utils';
 
 import Stepper from '../../../components/stepper.react';
@@ -62,7 +63,7 @@ const createSubchannelLoadingStatusSelector = createLoadingStatusSelector(
 
 function ComposeSubchannelModal(props: Props): React.Node {
   const { parentThreadInfo, onClose } = props;
-  const { uiName: parentThreadName } = parentThreadInfo;
+  const { uiName: parentThreadName } = useResolvedThreadInfo(parentThreadInfo);
 
   const [activeStep, setActiveStep] = React.useState<Steps>('settings');
 
