@@ -1,4 +1,5 @@
 // @flow
+
 import classNames from 'classnames';
 import * as React from 'react';
 
@@ -6,6 +7,7 @@ import { useModalContext } from 'lib/components/modal-provider.react';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { useMessagePreview } from 'lib/shared/message-utils';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import Button from '../../../components/button.react';
 import { getDefaultTextMessageRules } from '../../../markdown/rules.react';
@@ -65,6 +67,7 @@ function Sidebar(props: Props): React.Node {
     );
   }, [lastActivity, messagePreviewResult]);
 
+  const { uiName } = useResolvedThreadInfo(threadInfo);
   return (
     <Button className={css.sidebarContainer} onClick={onClickThread}>
       <img
@@ -77,7 +80,7 @@ function Sidebar(props: Props): React.Node {
         alt="sidebar arrow"
       />
       <div className={sidebarInfoClassName}>
-        <div className={css.longTextEllipsis}>{threadInfo.uiName}</div>
+        <div className={css.longTextEllipsis}>{uiName}</div>
         <div className={css.lastMessage}>{lastMessage}</div>
       </div>
     </Button>
