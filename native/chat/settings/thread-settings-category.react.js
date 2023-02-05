@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Platform, TouchableOpacity } from 'react-native';
 
 import { useStyles } from '../../themes/colors';
 
@@ -28,6 +28,40 @@ function ThreadSettingsCategoryHeader(props: HeaderProps): React.Node {
     <View>
       <View style={[styles.header, contentStyle]}>
         <Text style={styles.title}>{props.title.toUpperCase()}</Text>
+      </View>
+      <View style={paddingStyle} />
+    </View>
+  );
+}
+
+type ActionHeaderProps = {
+  +type: CategoryType,
+  +title: string,
+  +actionText: string,
+  +onPress: () => void,
+};
+function ThreadSettingsCategoryActionHeader(
+  props: ActionHeaderProps,
+): React.Node {
+  const styles = useStyles(unboundStyles);
+  let contentStyle, paddingStyle;
+  if (props.type === 'full') {
+    contentStyle = styles.fullHeader;
+    paddingStyle = styles.fullHeaderPadding;
+  } else if (props.type === 'outline') {
+    // nothing
+  } else if (props.type === 'unpadded') {
+    contentStyle = styles.fullHeader;
+  } else {
+    invariant(false, 'invalid ThreadSettingsCategory type');
+  }
+  return (
+    <View>
+      <View style={[styles.actionHeader, contentStyle]}>
+        <Text style={styles.title}>{props.title.toUpperCase()}</Text>
+        <TouchableOpacity onPress={props.onPress}>
+          <Text style={styles.actionText}>{props.actionText}</Text>
+        </TouchableOpacity>
       </View>
       <View style={paddingStyle} />
     </View>
@@ -93,6 +127,22 @@ const unboundStyles = {
     paddingBottom: 3,
     paddingLeft: 24,
   },
+  actionHeader: {
+    marginTop: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  actionText: {
+    color: 'link',
+    fontSize: 12,
+    fontWeight: '400',
+    paddingBottom: 3,
+    paddingRight: 12,
+  },
 };
 
-export { ThreadSettingsCategoryHeader, ThreadSettingsCategoryFooter };
+export {
+  ThreadSettingsCategoryHeader,
+  ThreadSettingsCategoryActionHeader,
+  ThreadSettingsCategoryFooter,
+};
