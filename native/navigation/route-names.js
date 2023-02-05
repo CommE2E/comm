@@ -6,6 +6,7 @@ import type { ActionResultModalParams } from './action-result-modal.react.js';
 import type { TermsAndPrivacyModalParams } from '../account/terms-and-privacy-modal.react.js';
 import type { ThreadPickerModalParams } from '../calendar/thread-picker-modal.react.js';
 import type { ComposeSubchannelParams } from '../chat/compose-subchannel.react.js';
+import type { FullScreenThreadMediaGalleryParams } from '../chat/fullscreen-thread-media-gallery.react.js';
 import type { ImagePasteModalParams } from '../chat/image-paste-modal.react.js';
 import type { MessageListParams } from '../chat/message-list-types.js';
 import type { MessageReactionsModalParams } from '../chat/message-reactions-modal.react.js';
@@ -49,6 +50,8 @@ export const DeleteThreadRouteName = 'DeleteThread';
 export const DevToolsRouteName = 'DevTools';
 export const EditPasswordRouteName = 'EditPassword';
 export const FriendListRouteName = 'FriendList';
+export const FullScreenThreadMediaGalleryRouteName =
+  'FullScreenThreadMediaGallery';
 export const HomeChatThreadListRouteName = 'HomeChatThreadList';
 export const ImageModalRouteName = 'ImageModal';
 export const ImagePasteModalRouteName = 'ImagePasteModal';
@@ -125,6 +128,7 @@ export type ChatParamList = {
   +ComposeSubchannel: ComposeSubchannelParams,
   +ThreadSettings: ThreadSettingsParams,
   +DeleteThread: DeleteThreadParams,
+  +FullScreenThreadMediaGallery: FullScreenThreadMediaGalleryParams,
 };
 
 export type ChatTopTabsParamList = {
@@ -184,4 +188,5 @@ export const threadRoutes = [
   ThreadSettingsRouteName,
   DeleteThreadRouteName,
   ComposeSubchannelRouteName,
+  FullScreenThreadMediaGalleryRouteName,
 ];
