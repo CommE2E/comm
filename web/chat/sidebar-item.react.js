@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import type { SidebarInfo } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import { useOnClickThread } from '../selectors/thread-selectors';
 import css from './chat-thread-list.css';
@@ -38,14 +39,14 @@ function SidebarItem(props: Props): React.Node {
       <img src="images/arrow.svg" className={css.arrow} alt="thread arrow" />
     );
   }
-
+  const { uiName } = useResolvedThreadInfo(threadInfo);
   return (
     <>
       {arrow}
       <div className={css.spacer} />
       <a className={css.threadButtonSidebar} onClick={onClick}>
         <div className={css.threadRow}>
-          <div className={unreadCls}>{threadInfo.uiName}</div>
+          <div className={unreadCls}>{uiName}</div>
         </div>
       </a>
     </>
