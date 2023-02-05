@@ -52,10 +52,6 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
         deleteThreadLoadingStatusSelector(state) === 'loading' ||
         changeThreadSettingsLoadingStatusSelector(state) === 'loading',
     );
-    const viewerID = useSelector(
-      state => state.currentUserInfo && state.currentUserInfo.id,
-    );
-    const userInfos = useSelector(state => state.userStore.userInfos);
     const threadInfo: ?ThreadInfo = useSelector(
       state => threadInfoSelector(state)[props.threadID],
     );
@@ -76,19 +72,22 @@ const ConnectedThreadSettingsModal: React.ComponentType<BaseProps> = React.memo<
       const withNoName = { ...threadInfo, name: undefined };
       return {
         ...withNoName,
-        uiName: threadUIName(withNoName, viewerID, userInfos),
+        uiName: threadUIName(withNoName),
       };
-    }, [threadInfo, viewerID, userInfos]);
+    }, [threadInfo]);
     const resolvedThreadInfo = useResolvedThreadInfo(threadInfoWithNoName);
     const namePlaceholder = resolvedThreadInfo.uiName;
 
+    const viewerID = useSelector(
+      state => state.currentUserInfo && state.currentUserInfo.id,
+    );
+    const userInfos = useSelector(state => state.userStore.userInfos);
     const otherMemberID = React.useMemo(() => {
       if (!threadInfo) {
         return null;
       }
       return getSingleOtherUser(threadInfo, viewerID);
     }, [threadInfo, viewerID]);
-
     const otherUserInfo = otherMemberID ? userInfos[otherMemberID] : null;
 
     const availableRelationshipActions = React.useMemo(() => {
