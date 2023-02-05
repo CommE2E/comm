@@ -41,6 +41,7 @@ import {
   ComposeSubchannelRouteName,
   DeleteThreadRouteName,
   ThreadSettingsRouteName,
+  FullScreenThreadMediaGalleryRouteName,
   MessageListRouteName,
   ChatThreadListRouteName,
   HomeChatThreadListRouteName,
@@ -55,6 +56,7 @@ import ChatHeader from './chat-header.react';
 import ChatRouter, { type ChatRouterNavigationHelpers } from './chat-router';
 import ComposeSubchannel from './compose-subchannel.react';
 import ComposeThreadButton from './compose-thread-button.react';
+import FullScreenThreadMediaGallery from './fullscreen-thread-media-gallery.react';
 import HomeChatThreadList from './home-chat-thread-list.react';
 import MessageListContainer from './message-list-container.react';
 import MessageListHeaderTitle from './message-list-header-title.react';
@@ -249,6 +251,10 @@ const threadSettingsOptions = ({ route }) => ({
   ),
   headerBackTitleVisible: false,
 });
+const fullScreenThreadMediaGalleryOptions = {
+  headerTitle: 'All Media',
+  headerBackTitleVisible: false,
+};
 const deleteThreadOptions = {
   headerTitle: 'Delete chat',
   headerBackTitleVisible: false,
@@ -345,6 +351,11 @@ export default function ChatComponent(props: Props): React.Node {
             name={ThreadSettingsRouteName}
             component={ThreadSettings}
             options={threadSettingsOptions}
+          />
+          <Chat.Screen
+            name={FullScreenThreadMediaGalleryRouteName}
+            component={FullScreenThreadMediaGallery}
+            options={fullScreenThreadMediaGalleryOptions}
           />
           <Chat.Screen
             name={DeleteThreadRouteName}
