@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { type ThreadInfo } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import Button, { buttonThemes } from '../../components/button.react';
 import Modal from '../modal.react';
@@ -15,7 +16,7 @@ type Props = {
 };
 function ConfirmLeaveThreadModal(props: Props): React.Node {
   const { threadInfo, onClose, onConfirm } = props;
-  const { uiName } = threadInfo;
+  const { uiName } = useResolvedThreadInfo(threadInfo);
 
   return (
     <Modal
