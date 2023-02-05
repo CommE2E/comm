@@ -644,7 +644,12 @@ async function updateThread(
       relationshipChangeset: addMembersRelationshipChangeset,
     } = addMembersChangeset;
     addedMemberIDs = addMembersMembershipRows
-      .filter(row => row.operation === 'save' && Number(row.role) > 0)
+      .filter(
+        row =>
+          row.operation === 'save' &&
+          row.threadID === request.threadID &&
+          Number(row.role) > 0,
+      )
       .map(row => row.userID);
     membershipRows.push(...addMembersMembershipRows);
     relationshipChangeset.addAll(addMembersRelationshipChangeset);
