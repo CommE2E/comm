@@ -7,6 +7,7 @@ import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { useKeyserverAdmin } from 'lib/shared/user-utils';
 import type { ThreadInfo } from 'lib/types/thread-types';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import CommIcon from '../CommIcon.react';
 import SWMansionIcon from '../SWMansionIcon.react';
@@ -41,6 +42,8 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
   const keyserverAdmin = useKeyserverAdmin(community);
   const keyserverOwnerUsername = keyserverAdmin?.username;
 
+  const resolvedCommunity = useResolvedThreadInfo(community);
+
   const keyserverInfo = React.useMemo(
     () => (
       <div className={css.ancestorKeyserver}>
@@ -52,11 +55,11 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
           style={threadColorStyle}
           className={classNames(css.ancestorName, css.ancestorKeyserverName)}
         >
-          {community.uiName}
+          {resolvedCommunity.uiName}
         </div>
       </div>
     ),
-    [community.uiName, keyserverOwnerUsername, threadColorStyle],
+    [resolvedCommunity.uiName, keyserverOwnerUsername, threadColorStyle],
   );
 
   const middlePath = React.useMemo(() => {
@@ -79,6 +82,7 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
 
   const threadHasNoAncestors = community === threadInfo;
 
+  const { uiName } = useResolvedThreadInfo(threadInfo);
   const currentThread = React.useMemo(() => {
     if (threadHasNoAncestors) {
       return null;
@@ -91,11 +95,11 @@ function ThreadAncestors(props: ThreadAncestorsProps): React.Node {
           size={12}
         />
         <div style={threadColorStyle} className={css.ancestorName}>
-          {threadInfo.uiName}
+          {uiName}
         </div>
       </>
     );
-  }, [threadHasNoAncestors, threadColorStyle, threadInfo.uiName]);
+  }, [threadHasNoAncestors, threadColorStyle, uiName]);
 
   let seeFullStructure = null;
   if (SHOW_SEE_FULL_STRUCTURE) {
