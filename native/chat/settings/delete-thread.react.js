@@ -49,7 +49,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +threadInfo: ?ThreadInfo,
+  +threadInfo: ThreadInfo,
   +loadingStatus: LoadingStatus,
   +activeTheme: ?GlobalTheme,
   +colors: Colors,
@@ -65,14 +65,6 @@ class DeleteThread extends React.PureComponent<Props> {
   mounted = false;
   passwordInput: ?React.ElementRef<typeof BaseTextInput>;
 
-  static getThreadInfo(props: Props): ThreadInfo {
-    const { threadInfo } = props;
-    if (threadInfo) {
-      return threadInfo;
-    }
-    return props.route.params.threadInfo;
-  }
-
   componentDidMount() {
     this.mounted = true;
   }
@@ -87,14 +79,6 @@ class DeleteThread extends React.PureComponent<Props> {
     }
   }
 
-  componentDidUpdate(prevProps: Props) {
-    const oldReduxThreadInfo = prevProps.threadInfo;
-    const newReduxThreadInfo = this.props.threadInfo;
-    if (newReduxThreadInfo && newReduxThreadInfo !== oldReduxThreadInfo) {
-      this.props.navigation.setParams({ threadInfo: newReduxThreadInfo });
-    }
-  }
-
   render() {
     const buttonContent =
       this.props.loadingStatus === 'loading' ? (
@@ -102,7 +86,7 @@ class DeleteThread extends React.PureComponent<Props> {
       ) : (
         <Text style={this.props.styles.deleteText}>Delete chat</Text>
       );
-    const threadInfo = DeleteThread.getThreadInfo(this.props);
+    const { threadInfo } = this.props;
     return (
       <ScrollView
         contentContainerStyle={this.props.styles.scrollViewContentContainer}
@@ -143,8 +127,7 @@ class DeleteThread extends React.PureComponent<Props> {
   };
 
   async deleteThread() {
-    const threadInfo = DeleteThread.getThreadInfo(this.props);
-    const { navDispatch } = this.props;
+    const { threadInfo, navDispatch } = this.props;
     navDispatch({
       type: clearThreadsActionType,
       payload: { threadIDs: [threadInfo.id] },
@@ -238,9 +221,18 @@ const loadingStatusSelector = createLoadingStatusSelector(
 const ConnectedDeleteThread: React.ComponentType<BaseProps> = React.memo<BaseProps>(
   function ConnectedDeleteThread(props: BaseProps) {
     const threadID = props.route.params.threadInfo.id;
-    const threadInfo = useSelector(
+    const reduxThreadInfo = useSelector(
       state => threadInfoSelector(state)[threadID],
     );
+
+    const { setParams } = props.navigation;
+    React.useEffect(() => {
+      if (reduxThreadInfo) {
+        setParams({ threadInfo: reduxThreadInfo });
+      }
+    }, [reduxThreadInfo, setParams]);
+    const threadInfo: ThreadInfo =
+      reduxThreadInfo ?? props.route.params.threadInfo;
 
     const loadingStatus = useSelector(loadingStatusSelector);
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
