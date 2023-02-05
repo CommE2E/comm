@@ -5,6 +5,7 @@ import _keyBy from 'lodash/fp/keyBy';
 import type { Media } from 'lib/types/media-types';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
+import type { ThreadFetchMediaResult } from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
@@ -119,7 +120,7 @@ async function fetchMedia(
 async function fetchMediaForThread(
   threadID: string,
   limit?: number,
-): Promise<$ReadOnlyArray<Media>> {
+): Promise<ThreadFetchMediaResult> {
   const limitQuery = limit ? SQL`LIMIT ${limit}` : SQL``;
   const query = SQL`
     SELECT id AS uploadID, secret AS uploadSecret,
@@ -129,7 +130,9 @@ async function fetchMediaForThread(
     ORDER BY creation_time DESC
   `.append(limitQuery);
   const [uploads] = await dbQuery(query);
-  return uploads.map(mediaFromRow);
+  return {
+    media: uploads.map(mediaFromRow),
+  };
 }
 
 async function fetchUploadsForMessage(
