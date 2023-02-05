@@ -31,11 +31,17 @@ import threadWatcher from 'lib/shared/thread-watcher';
 import type { RelationshipButton } from 'lib/types/relationship-types';
 import {
   type ThreadInfo,
+  type ResolvedThreadInfo,
   type RelativeMemberInfo,
   threadPermissions,
   threadTypes,
 } from 'lib/types/thread-types';
 import type { UserInfos } from 'lib/types/user-types';
+import {
+  useResolvedThreadInfo,
+  useResolvedOptionalThreadInfo,
+  useResolvedOptionalThreadInfos,
+} from 'lib/utils/entity-helpers';
 
 import ThreadAncestors from '../../components/thread-ancestors.react';
 import {
@@ -113,14 +119,14 @@ type ChatSettingsItem =
   | {
       +itemType: 'name',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +nameEditValue: ?string,
       +canChangeSettings: boolean,
     }
   | {
       +itemType: 'color',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +colorEditValue: string,
       +canChangeSettings: boolean,
       +navigate: ThreadSettingsNavigate,
@@ -129,7 +135,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'description',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +descriptionEditValue: ?string,
       +descriptionTextHeight: ?number,
       +canChangeSettings: boolean,
@@ -137,23 +143,23 @@ type ChatSettingsItem =
   | {
       +itemType: 'parent',
       +key: string,
-      +threadInfo: ThreadInfo,
-      +parentThreadInfo: ?ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
+      +parentThreadInfo: ?ResolvedThreadInfo,
     }
   | {
       +itemType: 'visibility',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
     }
   | {
       +itemType: 'pushNotifs',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
     }
   | {
       +itemType: 'homeNotifs',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
     }
   | {
       +itemType: 'seeMore',
@@ -163,7 +169,7 @@ type ChatSettingsItem =
   | {
       +itemType: 'childThread',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +firstListItem: boolean,
       +lastListItem: boolean,
     }
@@ -175,7 +181,7 @@ type ChatSettingsItem =
       +itemType: 'member',
       +key: string,
       +memberInfo: RelativeMemberInfo,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +canEdit: boolean,
       +navigate: ThreadSettingsNavigate,
       +firstListItem: boolean,
@@ -190,14 +196,14 @@ type ChatSettingsItem =
   | {
       +itemType: 'promoteSidebar' | 'leaveThread' | 'deleteThread',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
     }
   | {
       +itemType: 'editRelationship',
       +key: string,
-      +threadInfo: ThreadInfo,
+      +threadInfo: ResolvedThreadInfo,
       +navigate: ThreadSettingsNavigate,
       +buttonStyle: ViewStyle,
       +relationshipButton: RelationshipButton,
@@ -212,9 +218,9 @@ type Props = {
   // Redux state
   +userInfos: UserInfos,
   +viewerID: ?string,
-  +threadInfo: ThreadInfo,
-  +parentThreadInfo: ?ThreadInfo,
-  +childThreadInfos: ?$ReadOnlyArray<ThreadInfo>,
+  +threadInfo: ResolvedThreadInfo,
+  +parentThreadInfo: ?ResolvedThreadInfo,
+  +childThreadInfos: ?$ReadOnlyArray<ResolvedThreadInfo>,
   +somethingIsSaving: boolean,
   +styles: typeof unboundStyles,
   +indicatorStyle: IndicatorStyle,
@@ -291,8 +297,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.navigation.navigate,
     (propsAndState: PropsAndState) => propsAndState.route.key,
     (
-      threadInfo: ThreadInfo,
-      parentThreadInfo: ?ThreadInfo,
+      threadInfo: ResolvedThreadInfo,
+      parentThreadInfo: ?ResolvedThreadInfo,
       nameEditValue: ?string,
       colorEditValue: string,
       descriptionEditValue: ?string,
@@ -420,9 +426,9 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.childThreadInfos,
     (propsAndState: PropsAndState) => propsAndState.numSubchannelsShowing,
     (
-      threadInfo: ThreadInfo,
+      threadInfo: ResolvedThreadInfo,
       navigate: ThreadSettingsNavigate,
-      childThreads: ?$ReadOnlyArray<ThreadInfo>,
+      childThreads: ?$ReadOnlyArray<ResolvedThreadInfo>,
       numSubchannelsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
@@ -486,7 +492,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.numSidebarsShowing,
     (
       navigate: ThreadSettingsNavigate,
-      childThreads: ?$ReadOnlyArray<ThreadInfo>,
+      childThreads: ?$ReadOnlyArray<ResolvedThreadInfo>,
       numSidebarsShowing: number,
     ) => {
       const listData: ChatSettingsItem[] = [];
@@ -544,7 +550,7 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.numMembersShowing,
     (propsAndState: PropsAndState) => propsAndState.verticalBounds,
     (
-      threadInfo: ThreadInfo,
+      threadInfo: ResolvedThreadInfo,
       canStartEditing: boolean,
       navigate: ThreadSettingsNavigate,
       routeKey: string,
@@ -619,8 +625,8 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     (propsAndState: PropsAndState) => propsAndState.userInfos,
     (propsAndState: PropsAndState) => propsAndState.viewerID,
     (
-      threadInfo: ThreadInfo,
-      parentThreadInfo: ?ThreadInfo,
+      threadInfo: ResolvedThreadInfo,
+      parentThreadInfo: ?ResolvedThreadInfo,
       navigate: ThreadSettingsNavigate,
       styles: typeof unboundStyles,
       userInfos: UserInfos,
@@ -1060,6 +1066,7 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
     }, [reduxThreadInfo, setParams]);
     const threadInfo: ThreadInfo =
       reduxThreadInfo ?? props.route.params.threadInfo;
+    const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
     React.useEffect(() => {
       if (threadInChatList(threadInfo)) {
@@ -1075,9 +1082,15 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
     const parentThreadInfo: ?ThreadInfo = useSelector(state =>
       parentThreadID ? threadInfoSelector(state)[parentThreadID] : null,
     );
+    const resolvedParentThreadInfo = useResolvedOptionalThreadInfo(
+      parentThreadInfo,
+    );
     const threadMembers = threadInfo.members;
     const boundChildThreadInfos = useSelector(
       state => childThreadInfos(state)[threadID],
+    );
+    const resolvedChildThreadInfos = useResolvedOptionalThreadInfos(
+      boundChildThreadInfos,
     );
     const boundSomethingIsSaving = useSelector(state =>
       somethingIsSaving(state, threadMembers),
@@ -1108,9 +1121,9 @@ const ConnectedThreadSettings: React.ComponentType<BaseProps> = React.memo<BaseP
         {...props}
         userInfos={userInfos}
         viewerID={viewerID}
-        threadInfo={threadInfo}
-        parentThreadInfo={parentThreadInfo}
-        childThreadInfos={boundChildThreadInfos}
+        threadInfo={resolvedThreadInfo}
+        parentThreadInfo={resolvedParentThreadInfo}
+        childThreadInfos={resolvedChildThreadInfos}
         somethingIsSaving={boundSomethingIsSaving}
         styles={styles}
         indicatorStyle={indicatorStyle}

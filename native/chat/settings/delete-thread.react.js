@@ -19,12 +19,17 @@ import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import { identifyInvalidatedThreads } from 'lib/shared/thread-utils';
 import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ThreadInfo, LeaveThreadPayload } from 'lib/types/thread-types';
+import type {
+  ThreadInfo,
+  ResolvedThreadInfo,
+  LeaveThreadPayload,
+} from 'lib/types/thread-types';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
 } from 'lib/utils/action-utils';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import Button from '../../components/button.react';
 import { clearThreadsActionType } from '../../navigation/action-types';
@@ -49,7 +54,7 @@ type BaseProps = {
 type Props = {
   ...BaseProps,
   // Redux state
-  +threadInfo: ThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +loadingStatus: LoadingStatus,
   +activeTheme: ?GlobalTheme,
   +colors: Colors,
@@ -231,8 +236,8 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> = React.memo<BasePro
         setParams({ threadInfo: reduxThreadInfo });
       }
     }, [reduxThreadInfo, setParams]);
-    const threadInfo: ThreadInfo =
-      reduxThreadInfo ?? props.route.params.threadInfo;
+    const threadInfo = reduxThreadInfo ?? props.route.params.threadInfo;
+    const resolvedThreadInfo = useResolvedThreadInfo(threadInfo);
 
     const loadingStatus = useSelector(loadingStatusSelector);
     const activeTheme = useSelector(state => state.globalThemeInfo.activeTheme);
@@ -250,7 +255,7 @@ const ConnectedDeleteThread: React.ComponentType<BaseProps> = React.memo<BasePro
     return (
       <DeleteThread
         {...props}
-        threadInfo={threadInfo}
+        threadInfo={resolvedThreadInfo}
         loadingStatus={loadingStatus}
         activeTheme={activeTheme}
         colors={colors}

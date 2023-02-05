@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ResolvedThreadInfo } from 'lib/types/thread-types';
 
 import Button from '../../components/button.react';
 import { DeleteThreadRouteName } from '../../navigation/route-names';
@@ -12,7 +12,7 @@ import type { ViewStyle } from '../../types/styles';
 import type { ThreadSettingsNavigate } from './thread-settings.react';
 
 type Props = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +navigate: ThreadSettingsNavigate,
   +buttonStyle: ViewStyle,
 };

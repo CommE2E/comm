@@ -17,7 +17,7 @@ import {
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import {
-  type ThreadInfo,
+  type ResolvedThreadInfo,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
 } from 'lib/types/thread-types';
@@ -36,7 +36,7 @@ import { type Colors, useStyles, useColors } from '../../themes/colors';
 import SaveSettingButton from './save-setting-button.react';
 
 type BaseProps = {
-  +threadInfo: ThreadInfo,
+  +threadInfo: ResolvedThreadInfo,
   +nameEditValue: ?string,
   +setNameEditValue: (value: ?string, callback?: () => void) => void,
   +canChangeSettings: boolean,
