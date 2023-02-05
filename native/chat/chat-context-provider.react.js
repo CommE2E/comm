@@ -126,11 +126,6 @@ function ChatContextProvider(props: Props): React.Node {
     sidebarAnimationType,
     setSidebarAnimationType,
   ] = React.useState<SidebarAnimationType>('move_source_message');
-  const setSidebarAnimationTypeCallback = React.useCallback(
-    (animationType: SidebarAnimationType) =>
-      setSidebarAnimationType(animationType),
-    [],
-  );
 
   const contextValue = React.useMemo(
     () => ({
@@ -141,14 +136,13 @@ function ChatContextProvider(props: Props): React.Node {
       deleteChatInputBarHeight,
       chatInputBarHeights: chatInputBarHeights.current,
       sidebarAnimationType,
-      setSidebarAnimationType: setSidebarAnimationTypeCallback,
+      setSidebarAnimationType,
     }),
     [
       currentTransitionSidebarSourceID,
       deleteChatInputBarHeight,
       registerMeasurer,
       setChatInputBarHeight,
-      setSidebarAnimationTypeCallback,
       sidebarAnimationType,
     ],
   );
