@@ -46,6 +46,7 @@ import {
 import type { CategoryType } from './thread-settings-category.react.js';
 import {
   ThreadSettingsCategoryHeader,
+  ThreadSettingsCategoryActionHeader,
   ThreadSettingsCategoryFooter,
 } from './thread-settings-category.react.js';
 import ThreadSettingsChildThread from './thread-settings-child-thread.react.js';
@@ -80,6 +81,7 @@ import {
 import {
   AddUsersModalRouteName,
   ComposeSubchannelModalRouteName,
+  FullScreenThreadMediaGalleryRouteName,
 } from '../../navigation/route-names.js';
 import type { NavigationRoute } from '../../navigation/route-names.js';
 import type { TabNavigationProp } from '../../navigation/tab-navigator.react.js';
@@ -111,6 +113,13 @@ type ChatSettingsItem =
       +key: string,
       +title: string,
       +categoryType: CategoryType,
+    }
+  | {
+      +itemType: 'actionHeader',
+      +key: string,
+      +title: string,
+      +actionText: string,
+      +onPress: () => void,
     }
   | {
       +itemType: 'footer',
@@ -631,10 +640,11 @@ class ThreadSettings extends React.PureComponent<Props, State> {
       const limit = 6;
 
       listData.push({
-        itemType: 'header',
+        itemType: 'actionHeader',
         key: 'mediaGalleryHeader',
         title: 'Media Gallery',
-        categoryType: 'outline',
+        actionText: 'See more',
+        onPress: this.onPressSeeMoreMediaGallery,
       });
 
       listData.push({
@@ -856,6 +866,14 @@ class ThreadSettings extends React.PureComponent<Props, State> {
           title={item.title}
         />
       );
+    } else if (item.itemType === 'actionHeader') {
+      return (
+        <ThreadSettingsCategoryActionHeader
+          title={item.title}
+          actionText={item.actionText}
+          onPress={item.onPress}
+        />
+      );
     } else if (item.itemType === 'footer') {
       return <ThreadSettingsCategoryFooter type={item.categoryType} />;
     } else if (item.itemType === 'name') {
@@ -1019,6 +1037,12 @@ class ThreadSettings extends React.PureComponent<Props, State> {
     this.setState(prevState => ({
       numSidebarsShowing: prevState.numSidebarsShowing + itemPageLength,
     }));
+  };
+
+  onPressSeeMoreMediaGallery = () => {
+    this.props.navigation.navigate(FullScreenThreadMediaGalleryRouteName, {
+      threadInfo: this.props.threadInfo,
+    });
   };
 }
 
