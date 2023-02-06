@@ -35,6 +35,8 @@ const std::string ConfigManager::OPTION_SESSIONS_SKIP_AUTH_KEY =
     "sessions.skip_authentication";
 const std::string ConfigManager::OPTION_DISABLE_DEVICEID_VALIDATION =
     "sessions.disable_deviceid_validation";
+const std::string ConfigManager::OPTION_MESSAGES_SKIP_PERSISTENCE =
+    "messages.skip_persistence";
 
 ConfigManager &ConfigManager::getInstance() {
   static ConfigManager instance;
@@ -125,6 +127,11 @@ void ConfigManager::loadConfigFile(const std::string configFilePath) {
         this->OPTION_DISABLE_DEVICEID_VALIDATION.c_str(),
         boost::program_options::value<bool>()->default_value(false),
         "Disable deviceID format validation");
+
+    description.add_options()(
+        this->OPTION_MESSAGES_SKIP_PERSISTENCE.c_str(),
+        boost::program_options::value<bool>()->default_value(false),
+        "Disable messages persistence in DynamoDB database");
 
     boost::program_options::parsed_options parsedDescription =
         boost::program_options::parse_config_file(
