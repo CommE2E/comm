@@ -15,7 +15,10 @@ import type { Shape } from 'lib/types/core';
 import type { DraftStore } from 'lib/types/draft-types';
 import type { EnabledApps } from 'lib/types/enabled-apps';
 import type { EntryStore } from 'lib/types/entry-types';
-import type { CalendarFilter } from 'lib/types/filter-types';
+import type {
+  CalendarFilter,
+  CalendarCommunityFilter,
+} from 'lib/types/filter-types';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
@@ -57,6 +60,7 @@ export type AppState = {
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
+  communityFilter: ?CalendarCommunityFilter,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
   cookie?: void,
