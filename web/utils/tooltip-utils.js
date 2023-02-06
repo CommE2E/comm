@@ -43,7 +43,18 @@ export const tooltipPositions = Object.freeze({
   BOTTOM: 'bottom',
 });
 
-type TooltipSize = {
+const appTopBarHeight = 65;
+
+export const appContainerPositionInfo: PositionInfo = Object.freeze({
+  height: window.innerHeight - appTopBarHeight,
+  width: window.innerWidth,
+  top: appTopBarHeight,
+  bottom: window.innerHeight,
+  left: 0,
+  right: window.innerWidth,
+});
+
+export type TooltipSize = {
   +height: number,
   +width: number,
 };
@@ -65,8 +76,6 @@ export type MessageTooltipAction = {
   +onClick: (SyntheticEvent<HTMLDivElement>) => mixed,
   +actionButtonContent: React.Node,
 };
-
-const appTopBarHeight = 65;
 
 const font =
   '14px "Inter", -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", ' +
@@ -90,14 +99,6 @@ function findTooltipPosition({
   if (!window) {
     return defaultPosition;
   }
-  const appContainerPositionInfo: PositionInfo = {
-    height: window.innerHeight - appTopBarHeight,
-    width: window.innerWidth,
-    top: appTopBarHeight,
-    bottom: window.innerHeight,
-    left: 0,
-    right: window.innerWidth,
-  };
 
   const pointingTo = sourcePositionInfo;
   const {
