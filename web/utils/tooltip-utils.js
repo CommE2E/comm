@@ -47,7 +47,7 @@ export const tooltipPositions = Object.freeze({
   BOTTOM: 'bottom',
 });
 
-type TooltipSize = {
+export type TooltipSize = {
   +height: number,
   +width: number,
 };
