@@ -44,6 +44,10 @@ import {
 import { getVisibility } from './visibility';
 
 export type WindowDimensions = { width: number, height: number };
+export type CalendarCommunityFilter = {
+  +threadIDs: $ReadOnlyArray<string>,
+};
+
 export type AppState = {
   navInfo: NavInfo,
   deviceID: ?string,
@@ -57,6 +61,7 @@ export type AppState = {
   updatesCurrentAsOf: number,
   loadingStatuses: { [key: string]: { [idx: number]: LoadingStatus } },
   calendarFilters: $ReadOnlyArray<CalendarFilter>,
+  communityFilter: ?CalendarCommunityFilter,
   urlPrefix: string,
   windowDimensions: WindowDimensions,
   cookie?: void,
