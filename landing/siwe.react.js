@@ -2,11 +2,12 @@
 
 import {
   useConnectModal,
-  getDefaultWallets,
+  wallet,
   RainbowKitProvider,
   darkTheme,
   useModalState,
   ConnectButton,
+  connectorsForWallets,
 } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
 import _merge from 'lodash/fp/merge';
@@ -27,7 +28,16 @@ import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
 
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
-const { connectors } = getDefaultWallets({ appName: 'comm', chains });
+const connectors = connectorsForWallets([
+  {
+    wallets: [
+      wallet.injected({ chains }),
+      wallet.rainbow({ chains }),
+      wallet.metaMask({ chains }),
+      wallet.walletConnect({ chains }),
+    ],
+  },
+]);
 const wagmiClient = createWagmiClient({ connectors, provider });
 
 function postMessageToNativeWebView(message: SIWEWebViewMessage) {
