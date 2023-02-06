@@ -27,6 +27,8 @@ import {
   updateCalendarThreadFilter,
   clearCalendarThreadFilter,
   setCalendarDeletedFilter,
+  updateCalendarCommunityFilter,
+  clearCalendarCommunityFilter,
 } from 'lib/types/filter-types';
 import type { Dispatch } from 'lib/types/redux-types';
 
@@ -36,6 +38,7 @@ import {
   useFilterThreadInfos,
   useFilterThreadSearchIndex,
 } from '../selectors/calendar-selectors';
+import { filteredCommunityThreadIDsSelector } from '../selectors/thread-selectors';
 import { MagnifyingGlass } from '../vectors.react';
 import css from './filter-panel.css';
 
@@ -43,6 +46,7 @@ type Props = {
   +filterThreadInfos: $ReadOnlyArray<FilterThreadInfo>,
   +filterThreadSearchIndex: SearchIndex,
   +filteredThreadIDs: ?$ReadOnlySet<string>,
+  +filteredCommunityThreadIDs: ?$ReadOnlySet<string>,
   +includeDeleted: boolean,
   +dispatch: Dispatch,
   +pushModal: PushModal,
@@ -66,10 +70,20 @@ class FilterPanel extends React.PureComponent<Props, State> {
     return this.props.filteredThreadIDs.has(threadID);
   }
 
+  inCurrentCommunity(threadID: string): boolean {
+    if (!this.props.filteredCommunityThreadIDs) {
+      return true;
+    }
+    return this.props.filteredCommunityThreadIDs.has(threadID);
+  }
+
   render() {
-    const filterThreadInfos = this.state.query
+    let filterThreadInfos = this.state.query
       ? this.state.searchResults
       : this.props.filterThreadInfos;
+    filterThreadInfos = filterThreadInfos.filter(item =>
+      this.inCurrentCommunity(item.threadInfo.id),
+    );
 
     let filters = [];
     if (!this.state.query || filterThreadInfos.length > 0) {
@@ -217,6 +231,28 @@ class FilterPanel extends React.PureComponent<Props, State> {
     this.setState({ query, searchResults: results, collapsed: false });
   };
 
+  onSetCommunity = (communityID: string) => {
+    const threadIDs = this.props.filterThreadInfos
+      .filter(
+        thread =>
+          thread.threadInfo.community === communityID ||
+          thread.threadInfo.id === communityID,
+      )
+      .map(item => item.threadInfo.id);
+    this.props.dispatch({
+      type: updateCalendarCommunityFilter,
+      payload: {
+        threadIDs,
+      },
+    });
+  };
+
+  onResetCommunity = () => {
+    this.props.dispatch({
+      type: clearCalendarCommunityFilter,
+    });
+  };
+
   clearQuery = (event: SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState({ query: '', searchResults: [], collapsed: false });
@@ -362,6 +398,9 @@ class Category extends React.PureComponent<CategoryProps> {
 const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
   function ConnectedFilterPanel(): React.Node {
     const filteredThreadIDs = useSelector(filteredThreadIDsSelector);
+    const filteredCommunityThreadIDs = useSelector(
+      filteredCommunityThreadIDsSelector,
+    );
     const filterThreadInfos = useFilterThreadInfos();
     const filterThreadSearchIndex = useFilterThreadSearchIndex();
     const includeDeleted = useSelector(includeDeletedSelector);
@@ -371,6 +410,7 @@ const ConnectedFilterPanel: React.ComponentType<{}> = React.memo<{}>(
     return (
       <FilterPanel
         filteredThreadIDs={filteredThreadIDs}
+        filteredCommunityThreadIDs={filteredCommunityThreadIDs}
         filterThreadInfos={filterThreadInfos}
         filterThreadSearchIndex={filterThreadSearchIndex}
         includeDeleted={includeDeleted}
