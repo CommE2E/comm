@@ -4,9 +4,9 @@ import { emojiAvatarForAddress, useAccountModal } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
 import { useAccount, useEnsAvatar } from 'wagmi';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useENSName } from 'lib/hooks/ens-cache.js';
 
-import SWMansionIcon from '../SWMansionIcon.react.js';
 import css from './connected-wallet-info.css';
 
 function shortenAddressToFitWidth(address: string): string {

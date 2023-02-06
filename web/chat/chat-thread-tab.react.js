@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 
-import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
+import SWMansionIcon, {
+  type Icon,
+} from 'lib/components/SWMansionIcon.react.js';
+
 import css from './chat-tabs.css';
 
 type Props = {

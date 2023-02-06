@@ -8,6 +8,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
@@ -23,7 +24,6 @@ import Button, { buttonThemes } from '../components/button.react';
 import Input from '../modals/input.react';
 import Modal from '../modals/modal.react';
 import { useSelector } from '../redux/redux-utils';
-import SWMansionIcon from '../SWMansionIcon.react.js';
 import css from './account-delete-modal.css';
 
 type Props = {

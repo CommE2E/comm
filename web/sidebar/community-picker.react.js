@@ -4,9 +4,10 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
-import SWMansionIcon from '../SWMansionIcon.react';
 import css from './community-picker.css';
 
 function CommunityPicker(): React.Node {
