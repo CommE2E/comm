@@ -6,7 +6,10 @@ import type { Media } from 'lib/types/media-types.js';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
 import { ServerError } from 'lib/utils/errors.js';
-
+import type {
+  ThreadFetchMediaResult,
+  ThreadFetchMediaRequest,
+} from 'lib/types/thread-types.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { Viewer } from '../session/viewer.js';
 import { getAndAssertCommAppURLFacts } from '../utils/urls.js';
@@ -117,23 +120,20 @@ async function fetchMedia(
 }
 
 async function fetchMediaForThread(
-  threadID: string,
-  limit: number,
-  offset: number,
-): Promise<$ReadOnlyArray<Media>> {
-  const limitQuery = SQL`LIMIT ${limit} `;
-  const offsetQuery = SQL`OFFSET ${offset} `;
+  request: ThreadFetchMediaRequest,
+): Promise<ThreadFetchMediaResult> {
   const query = SQL`
     SELECT id AS uploadID, secret AS uploadSecret,
       type AS uploadType, extra AS uploadExtra
     FROM uploads
-    WHERE thread = ${threadID} AND filename NOT LIKE 'thumb%'
+    WHERE thread = ${request.threadID} AND filename NOT LIKE 'thumb%'
     ORDER BY creation_time DESC
-  `
-    .append(limitQuery)
-    .append(offsetQuery);
+    LIMIT ${request.limit} OFFSET ${request.offset}
+  `;
   const [uploads] = await dbQuery(query);
-  return uploads.map(mediaFromRow);
+  return {
+    media: uploads.map(mediaFromRow),
+  };
 }
 
 async function fetchUploadsForMessage(
