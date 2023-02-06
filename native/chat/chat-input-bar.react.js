@@ -69,6 +69,8 @@ import {
 
 import Button from '../components/button.react';
 import ClearableTextInput from '../components/clearable-text-input.react';
+import type { SyncedSelectionData } from '../components/selectable-text-input';
+import SelectableTextInput from '../components/selectable-text-input.react';
 import SWMansionIcon from '../components/swmansion-icon.react';
 import { type InputState, InputStateContext } from '../input/input-state';
 import { getKeyboardHeight } from '../keyboard/keyboard';
@@ -89,7 +91,7 @@ import {
 } from '../navigation/route-names';
 import { useSelector } from '../redux/redux-utils';
 import { type Colors, useStyles, useColors } from '../themes/colors';
-import type { LayoutEvent, SelectionChangeEvent } from '../types/react-native';
+import type { LayoutEvent } from '../types/react-native';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
 import { nativeTypeaheadRegex } from '../utils/typeahead-utils';
@@ -155,11 +157,12 @@ type State = {
   +text: string,
   +textEdited: boolean,
   +buttonsExpanded: boolean,
-  +selection: Selection,
+  +selectionState: SyncedSelectionData,
 };
 class ChatInputBar extends React.PureComponent<Props, State> {
   textInput: ?React.ElementRef<typeof TextInput>;
   clearableTextInput: ?ClearableTextInput;
+  selectableTextInput: ?React.ElementRef<typeof SelectableTextInput>;
 
   expandoButtonsOpen: Value;
   targetExpandoButtonsOpen: Value;
@@ -178,7 +181,7 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       text: props.draft,
       textEdited: false,
       buttonsExpanded: true,
-      selection: { start: 0, end: 0 },
+      selectionState: { text: props.draft, selection: { start: 0, end: 0 } },
     };
 
     this.setUpActionIconAnimations();
@@ -471,8 +474,8 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     }
 
     const typeaheadRegexMatches = getTypeaheadRegexMatches(
-      this.state.text,
-      this.state.selection,
+      this.state.selectionState.text,
+      this.state.selectionState.selection,
       nativeTypeaheadRegex,
     );
 
@@ -607,18 +610,19 @@ class ChatInputBar extends React.PureComponent<Props, State> {
               {this.state.buttonsExpanded ? null : expandoButton}
             </View>
           </AnimatedView>
-          <ClearableTextInput
+          <SelectableTextInput
             allowImagePasteForThreadID={this.props.threadInfo.id}
             value={this.state.text}
             onChangeText={this.updateText}
-            selection={this.state.selection}
-            onSelectionChange={this.updateSelection}
+            selection={this.state.selectionState.selection}
+            onUpdateSyncedSelectionData={this.updateSelectionState}
             placeholder="Send a message..."
             placeholderTextColor={this.props.colors.listInputButton}
             multiline={true}
             style={this.props.styles.textInput}
             textInputRef={this.textInputRef}
-            ref={this.clearableTextInputRef}
+            clearableTextInputRef={this.clearableTextInputRef}
+            ref={this.selectableTextInputRef}
             selectionColor={`#${this.props.threadInfo.color}`}
           />
           <AnimatedView style={this.sendButtonContainerStyle}>
@@ -649,13 +653,19 @@ class ChatInputBar extends React.PureComponent<Props, State> {
     this.clearableTextInput = clearableTextInput;
   };
 
+  selectableTextInputRef = (
+    selectableTextInput: ?React.ElementRef<typeof SelectableTextInput>,
+  ) => {
+    this.selectableTextInput = selectableTextInput;
+  };
+
   updateText = (text: string) => {
     this.setState({ text, textEdited: true });
     this.saveDraft(text);
   };
 
-  updateSelection: (event: SelectionChangeEvent) => void = event => {
-    this.setState({ selection: event.nativeEvent.selection });
+  updateSelectionState: (data: SyncedSelectionData) => void = data => {
+    this.setState({ selectionState: data });
   };
 
   saveDraft = _throttle(text => {
@@ -669,10 +679,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   }, 400);
 
   focusAndUpdateTextAndSelection = (text: string, selection: Selection) => {
+    this.selectableTextInput?.prepareForSelectionMutation(text, selection);
     this.setState({
       text,
       textEdited: true,
-      selection,
+      selectionState: { text, selection },
     });
     this.saveDraft(text);
 
