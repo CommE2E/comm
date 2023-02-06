@@ -10,6 +10,7 @@ import { configureWagmiChains, createWagmiClient } from 'lib/utils/wagmi-utils';
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
 const connectors = connectorsForWallets([
   {
+    groupName: 'Recommended',
     wallets: [
       wallet.injected({ chains }),
       wallet.rainbow({ chains }),
