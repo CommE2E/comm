@@ -28,6 +28,7 @@ public:
   static const std::string OPTION_NOTIFS_FCM_SERVER_KEY;
   static const std::string OPTION_SESSIONS_SKIP_AUTH_KEY;
   static const std::string OPTION_DISABLE_DEVICEID_VALIDATION;
+  static const std::string OPTION_MESSAGES_SKIP_PERSISTENCE;
 
   static ConfigManager &getInstance();
   void load();
