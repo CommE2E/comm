@@ -548,13 +548,12 @@ function createTooltip(params: CreateTooltipParams) {
     tooltipSize,
   });
 
-  const { alignment } = tooltipPositionStyle;
-
   const tooltip = (
     <MessageTooltip
       actions={tooltipActions}
       messageTimestamp={messageTimestamp}
-      alignment={alignment}
+      tooltipPositionStyle={tooltipPositionStyle}
+      tooltipSize={tooltipSize}
       item={item}
       threadInfo={threadInfo}
     />
