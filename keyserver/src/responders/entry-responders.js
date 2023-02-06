@@ -71,6 +71,10 @@ const newEntryQueryInputValidator: TInterface = tShape({
         type: tString(calendarThreadFilterTypes.THREAD_LIST),
         threadIDs: t.list(t.String),
       }),
+      tShape({
+        type: tString(calendarThreadFilterTypes.COMMUNITY),
+        threadIDs: t.list(t.String),
+      }),
     ]),
   ),
 });
