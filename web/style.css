@@ -117,6 +117,10 @@ div.upper-right {
   right: 0;
   padding: 15px 16px;
 }
+.sidebar {
+  display: flex;
+  grid-area: sBar;
+}
 span.loading-indicator-loading {
   display: inline-block;
 }
