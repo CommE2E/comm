@@ -1,18 +1,9 @@
-div.container {
-  display: flex;
-  flex-direction: row;
-}
-
-div.containerLeftAlign,
-div.containerCenterAlign {
-  flex-direction: row-reverse;
-}
-
 div.messageTooltipContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   font-size: var(--s-font-14);
+  padding: 8px 0;
 }
 
 div.messageActionContainer {
@@ -70,4 +61,8 @@ div.centerTooltipAlign {
 
 div.rightTooltipAlign {
   align-items: flex-end;
+}
+
+div.emojiKeyboard {
+  position: absolute;
 }
