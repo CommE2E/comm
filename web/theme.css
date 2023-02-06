@@ -197,4 +197,6 @@
   --purple-link: var(--violet-light-100);
   --drawer-expand-button: var(--shades-black-60);
   --drawer-expand-button-disabled: var(--shades-black-80);
+  --drawer-item-color: var(--shades-white-60);
+  --drawer-open-community-bg: #191919;
 }
