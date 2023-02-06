@@ -1,10 +1,33 @@
 div.container {
   display: flex;
-  background-color: #282537;
-  justify-content: center;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   padding: 10px 20px;
   border-radius: 8px;
+  background-color: #282537;
   outline: #302b42 solid 1px;
+}
+
+div.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  width: 16px;
+  padding: 8px;
+  border-radius: 16px;
+}
+
+div.address p {
+  font-size: 18px;
+}
+
+div.chevronDown {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  color: white;
 }
 
 div p {
