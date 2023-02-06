@@ -44,11 +44,7 @@ import {
   draftKeyFromThreadID,
   colorIsDark,
 } from 'lib/shared/thread-utils';
-import {
-  getTypeaheadUserSuggestions,
-  getTypeaheadRegexMatches,
-  type Selection,
-} from 'lib/shared/typeahead-utils';
+import { type Selection } from 'lib/shared/typeahead-utils';
 import type { CalendarQuery } from 'lib/types/entry-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { PhotoPaste } from 'lib/types/media-types';
@@ -93,10 +89,9 @@ import { type Colors, useStyles, useColors } from '../themes/colors';
 import type { LayoutEvent } from '../types/react-native';
 import { type AnimatedViewStyle, AnimatedView } from '../types/styles';
 import { runTiming } from '../utils/animation-utils';
-import { nativeTypeaheadRegex } from '../utils/typeahead-utils';
 import { ChatContext } from './chat-context';
 import type { ChatNavigationProp } from './chat.react';
-import TypeaheadTooltip from './typeahead-tooltip.react';
+import TypeaheadTooltipWrapper from './typeahead-tooltip-wrapper.react';
 
 /* eslint-disable import/no-named-as-default-member */
 const {
@@ -175,39 +170,6 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   targetSendButtonContainerOpen: Value;
   sendButtonContainerStyle: AnimatedViewStyle;
 
-  // Refs are needed for hacks used to display typeahead properly.
-  // We had a problem with the typeahead flickering when
-  // the typeahead was already visible and user was typing
-  // another character (e.g. @a was typed and the user adds another letter)
-
-  // There are two events coming from TextInput: text change
-  // and selection change events.
-  // A rerender was triggered after both of them.
-  // That caused a situation in which text and selection state were
-  // out of sync, e.g. text state was already updated, but selection was not.
-  // That caused flickering of typeahead, because regex wasn't matched
-  // after the first event.
-
-  // Another gimmick is those events come in different order
-  // based on platform. Selection change event happens first on iOS
-  // and text change event happens first on Android. That is the reason
-  // we need separate refs for two platforms.
-
-  // Workaround:
-  // Depending on the platform, we save either previous text or selection
-  // state before updating it in the event handler.
-  // Then we use it to keep text and selection in sync, as it is required
-  // to correctly match or mismatch the regular expression and
-  // decide whether we should display the overlay or not.
-  androidPreviousText: ?string;
-  iosPreviousSelection: ?Selection;
-
-  // On iOS, the update of text will trigger a selection change which
-  // will overwrite our update of selection.
-  // To address this, we schedule the second update of selection
-  // after waiting for 100ms.
-  // We tried waiting for the animation frame to flush,
-  // but it turned out to be unreliable and nondeterministic.
   iosDelayedSelectionTimeout: ?TimeoutID;
 
   constructor(props: Props) {
@@ -222,8 +184,12 @@ class ChatInputBar extends React.PureComponent<Props, State> {
 
     this.setUpActionIconAnimations();
     this.setUpSendIconAnimations();
-    this.androidPreviousText = null;
-    this.iosPreviousSelection = null;
+    // On iOS, the update of text will trigger a selection change which
+    // will overwrite our update of selection.
+    // To address this, we schedule the second update of selection
+    // after waiting for 100ms.
+    // We tried waiting for the animation frame to flush,
+    // but it turned out to be unreliable and nondeterministic.
     this.iosDelayedSelectionTimeout = null;
   }
 
@@ -512,54 +478,16 @@ class ChatInputBar extends React.PureComponent<Props, State> {
       );
     }
 
-    let typeaheadRegexMatches = null;
-
-    if (this.androidPreviousText) {
-      typeaheadRegexMatches = getTypeaheadRegexMatches(
-        this.androidPreviousText,
-        this.state.selection,
-        nativeTypeaheadRegex,
-      );
-    } else if (this.iosPreviousSelection) {
-      typeaheadRegexMatches = getTypeaheadRegexMatches(
-        this.state.text,
-        this.iosPreviousSelection,
-        nativeTypeaheadRegex,
-      );
-    } else {
-      typeaheadRegexMatches = getTypeaheadRegexMatches(
-        this.state.text,
-        this.state.selection,
-        nativeTypeaheadRegex,
-      );
-    }
-
-    let typeaheadTooltip = null;
-
-    if (typeaheadRegexMatches) {
-      const typeaheadMatchedStrings = {
-        textBeforeAtSymbol: typeaheadRegexMatches[1] ?? '',
-        usernamePrefix: typeaheadRegexMatches[4] ?? '',
-      };
-
-      const suggestedUsers = getTypeaheadUserSuggestions(
-        this.props.userSearchIndex,
-        this.props.threadMembers,
-        this.props.viewerID,
-        typeaheadMatchedStrings.usernamePrefix,
-      );
-
-      if (suggestedUsers.length > 0) {
-        typeaheadTooltip = (
-          <TypeaheadTooltip
-            text={this.state.text}
-            matchedStrings={typeaheadMatchedStrings}
-            suggestedUsers={suggestedUsers}
-            focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
-          />
-        );
-      }
-    }
+    const typeaheadTooltip = (
+      <TypeaheadTooltipWrapper
+        text={this.state.text}
+        selection={this.state.selection}
+        userSearchIndex={this.props.userSearchIndex}
+        threadMembers={this.props.threadMembers}
+        viewerID={this.props.viewerID}
+        focusAndUpdateTextAndSelection={this.focusAndUpdateTextAndSelection}
+      />
+    );
 
     let content;
     const defaultMembersAreVoiced = checkIfDefaultMembersAreVoiced(
@@ -710,25 +638,11 @@ class ChatInputBar extends React.PureComponent<Props, State> {
   };
 
   updateText = (text: string) => {
-    if (Platform.OS === 'android') {
-      this.androidPreviousText = this.state.text;
-    }
-    if (Platform.OS === 'ios') {
-      this.iosPreviousSelection = null;
-    }
-
     this.setState({ text, textEdited: true, controlSelection: false });
     this.saveDraft(text);
   };
 
   updateSelection: (event: SelectionChangeEvent) => void = event => {
-    if (Platform.OS === 'android') {
-      this.androidPreviousText = null;
-    }
-    if (Platform.OS === 'ios') {
-      this.iosPreviousSelection = this.state.selection;
-    }
-
     // we introduced controlSelection state to avoid flickering of selection
     // it is workaround that allow as only control selection in concrete
     // situations, like clicking into typeahead button

@@ -32,7 +32,7 @@ function TypeaheadTooltip(props: TypeaheadTooltipProps): React.Node {
   const { textBeforeAtSymbol, usernamePrefix } = matchedStrings;
 
   const styles = useStyles(unboundStyles);
-
+  console.log('typeahead rerender');
   const renderTypeaheadButton = React.useCallback(
     ({ item }: { item: RelativeMemberInfo, ... }) => {
       const onPress = () => {
