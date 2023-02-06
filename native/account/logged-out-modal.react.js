@@ -463,33 +463,30 @@ class LoggedOutModal extends React.PureComponent<Props, State> {
   render() {
     const { styles } = this.props;
 
+    const siweButton = (
+      <>
+        <TouchableOpacity
+          onPress={this.onPressSIWE}
+          style={[styles.button, styles.siweButton]}
+          activeOpacity={0.6}
+        >
+          <View style={styles.siweIcon}>
+            <EthereumLogo />
+          </View>
+          <Text style={[styles.buttonText, styles.siweButtonText]}>
+            Sign in with Ethereum
+          </Text>
+        </TouchableOpacity>
+        <View style={styles.siweOr}>
+          <View style={styles.siweOrLeftHR} />
+          <Text style={styles.siweOrText}>or</Text>
+          <View style={styles.siweOrRightHR} />
+        </View>
+      </>
+    );
+
     let panel = null;
     let buttons = null;
-    let siweButton = null;
-    if (__DEV__) {
-      siweButton = (
-        <>
-          <TouchableOpacity
-            onPress={this.onPressSIWE}
-            style={[styles.button, styles.siweButton]}
-            activeOpacity={0.6}
-          >
-            <View style={styles.siweIcon}>
-              <EthereumLogo />
-            </View>
-            <Text style={[styles.buttonText, styles.siweButtonText]}>
-              Sign in with Ethereum
-            </Text>
-          </TouchableOpacity>
-          <View style={styles.siweOr}>
-            <View style={styles.siweOrLeftHR} />
-            <Text style={styles.siweOrText}>or</Text>
-            <View style={styles.siweOrRightHR} />
-          </View>
-        </>
-      );
-    }
-
     if (this.state.mode === 'log-in') {
       panel = (
         <LogInPanel
