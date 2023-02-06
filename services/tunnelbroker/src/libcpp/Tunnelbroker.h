@@ -27,3 +27,4 @@ MessageItem waitMessageFromDeliveryBroker(rust::Str deviceID);
 void removeMessages(
     rust::Str deviceID,
     const rust::Vec<rust::String> &messagesIDs);
+void deleteDeliveryBrokerQueueIfEmpty(rust::Str deviceID);
