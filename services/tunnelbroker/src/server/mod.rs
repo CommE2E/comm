@@ -378,15 +378,19 @@ impl TunnelbrokerService for TunnelbrokerServiceHandlers {
               };
             }
             ProcessedMessages(processed_messages) => {
-              if let Err(err) = removeMessages(
-                &session_item.deviceID,
-                &processed_messages.message_id,
-              ) {
-                error!(
-                  "Error removing messages from the database: {}",
-                  err.what()
-                );
-              };
+              if !isConfigParameterSet("messages.skip_persistence").expect(
+                "Error on checking the `messages.skip_persistence` config parameter",
+              ){
+                if let Err(err) = removeMessages(
+                  &session_item.deviceID,
+                  &processed_messages.message_id,
+                ) {
+                  error!(
+                    "Error removing messages from the database: {}",
+                    err.what()
+                  );
+                };
+              }
               if let Err(err) =
                 deleteDeliveryBrokerQueueIfEmpty(&session_item.deviceID)
               {
