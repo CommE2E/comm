@@ -1,6 +1,6 @@
 // @flow
 
-import { emojiAvatarForAddress } from '@rainbow-me/rainbowkit';
+import { emojiAvatarForAddress, useAccountModal } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
 import { useAccount } from 'wagmi';
 
@@ -16,6 +16,7 @@ type RainbowKitEmojiAvatar = {
 
 function ConnectedWalletInfo(): React.Node {
   const { address } = useAccount();
+  const { openAccountModal } = useAccountModal();
   const potentiallyENSName = useENSName(address);
 
   const emojiAvatar: RainbowKitEmojiAvatar = React.useMemo(
@@ -28,8 +29,12 @@ function ConnectedWalletInfo(): React.Node {
     [emojiAvatar.color],
   );
 
+  const onClick = React.useCallback(() => {
+    openAccountModal && openAccountModal();
+  }, [openAccountModal]);
+
   return (
-    <div className={css.container}>
+    <div className={css.container} onClick={onClick}>
       <div className={css.avatar} style={emojiAvatarStyle}>
         <p>{emojiAvatar.emoji}</p>
       </div>

@@ -7,6 +7,17 @@ div.container {
   border-radius: 8px;
   background-color: #282537;
   outline: #302b42 solid 1px;
+  transition: background-color 0.25s ease, outline-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+div.container:hover {
+  cursor: pointer;
+  background-color: #302b42;
+  outline: #6a20e3 solid 1px;
+  box-shadow: 2px 4px 20px #6a20e333;
+  transition: background-color 0.25s, outline-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 div.avatar {
