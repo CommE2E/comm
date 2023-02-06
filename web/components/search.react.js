@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 
-import SWMansionIcon from '../SWMansionIcon.react';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+
 import ClearSearchButton from './clear-search-button.react';
 import css from './search.css';
 

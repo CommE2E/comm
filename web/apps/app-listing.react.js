@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
   disableAppActionType,
   enableAppActionType,
@@ -14,7 +15,6 @@ import {
 import type { SupportedApps } from 'lib/types/enabled-apps';
 
 import Button from '../components/button.react';
-import SWMansionIcon from '../SWMansionIcon.react';
 import css from './apps.css';
 
 type Props = {

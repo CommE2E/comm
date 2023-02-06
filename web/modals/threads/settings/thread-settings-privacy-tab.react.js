@@ -7,6 +7,7 @@ import {
   changeThreadSettingsActionTypes,
 } from 'lib/actions/thread-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import { type SetState } from 'lib/types/hook-types';
 import {
@@ -20,7 +21,6 @@ import {
 } from 'lib/utils/action-utils';
 
 import EnumSettingsOption from '../../../components/enum-settings-option.react';
-import SWMansionIcon from '../../../SWMansionIcon.react';
 import SubmitSection from './submit-section.react';
 import css from './thread-settings-privacy-tab.css';
 

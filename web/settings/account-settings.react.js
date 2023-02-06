@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useStringForUser } from 'lib/hooks/ens-cache';
 import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
@@ -14,7 +15,6 @@ import {
 
 import Button from '../components/button.react';
 import { useSelector } from '../redux/redux-utils';
-import SWMansionIcon from '../SWMansionIcon.react';
 import css from './account-settings.css';
 import PasswordChangeModal from './password-change-modal';
 import BlockListModal from './relationship/block-list-modal.react';

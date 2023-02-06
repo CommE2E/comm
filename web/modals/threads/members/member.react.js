@@ -7,6 +7,7 @@ import {
   removeUsersFromThread,
   changeThreadMemberRoles,
 } from 'lib/actions/thread-actions';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
   memberIsAdmin,
   memberHasAdminPowers,
@@ -28,7 +29,6 @@ import {
 import Label from '../../../components/label.react';
 import MenuItem from '../../../components/menu-item.react';
 import Menu from '../../../components/menu.react';
-import SWMansionIcon from '../../../SWMansionIcon.react';
 import css from './members-modal.css';
 
 type Props = {

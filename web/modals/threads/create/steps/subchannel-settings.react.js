@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { threadTypeDescriptions } from 'lib/shared/thread-utils';
 import { threadTypes } from 'lib/types/thread-types';
 
 import CommIcon from '../../../../CommIcon.react';
 import EnumSettingsOption from '../../../../components/enum-settings-option.react';
-import SWMansionIcon from '../../../../SWMansionIcon.react';
 import Input from '../../../input.react';
 import css from './subchannel-settings.css';
 

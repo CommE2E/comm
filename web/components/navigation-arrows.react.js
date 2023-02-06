@@ -3,9 +3,10 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
+
 import electron from '../electron.js';
 import history from '../router-history.js';
-import SWMansionIcon from '../SWMansionIcon.react.js';
 import css from './navigation-arrows.css';
 
 const stopDoubleClickPropagation = e => e.stopPropagation();

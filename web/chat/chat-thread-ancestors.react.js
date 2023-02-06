@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { colorIsDark } from 'lib/shared/thread-utils';
 import { useKeyserverAdmin } from 'lib/shared/user-utils';
@@ -10,7 +11,6 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import CommIcon from '../CommIcon.react';
-import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-ancestors.css';
 
 const SHOW_SEE_FULL_STRUCTURE = false;

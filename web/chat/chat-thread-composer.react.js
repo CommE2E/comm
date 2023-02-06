@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useENSNames } from 'lib/hooks/ens-cache';
 import { userSearchIndexForPotentialMembers } from 'lib/selectors/user-selectors';
 import { getPotentialMemberItems } from 'lib/shared/search-utils';
@@ -15,7 +16,6 @@ import Search from '../components/search.react';
 import type { InputState } from '../input/input-state';
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
-import SWMansionIcon from '../SWMansionIcon.react';
 import css from './chat-thread-composer.css';
 
 type Props = {
