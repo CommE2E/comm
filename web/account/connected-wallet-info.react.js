@@ -2,7 +2,7 @@
 
 import { emojiAvatarForAddress, useAccountModal } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useEnsAvatar } from 'wagmi';
 
 import { useENSName } from 'lib/hooks/ens-cache.js';
 
@@ -36,6 +36,18 @@ function ConnectedWalletInfo(): React.Node {
     [emojiAvatar.color],
   );
 
+  const emojiAvatarView = React.useMemo(() => <p>{emojiAvatar.emoji}</p>, [
+    emojiAvatar.emoji,
+  ]);
+
+  const { data: ensAvatarURI } = useEnsAvatar({
+    addressOrName: potentiallyENSName,
+  });
+  const potentiallyENSAvatar = React.useMemo(
+    () => <img src={ensAvatarURI} height="34px" width="34px" />,
+    [ensAvatarURI],
+  );
+
   const onClick = React.useCallback(() => {
     openAccountModal && openAccountModal();
   }, [openAccountModal]);
@@ -43,7 +55,7 @@ function ConnectedWalletInfo(): React.Node {
   return (
     <div className={css.container} onClick={onClick} title={potentiallyENSName}>
       <div className={css.avatar} style={emojiAvatarStyle}>
-        <p>{emojiAvatar.emoji}</p>
+        {ensAvatarURI ? potentiallyENSAvatar : emojiAvatarView}
       </div>
       <div className={css.address}>
         <p>{shortenAddressToFitWidth(potentiallyENSName)}</p>
