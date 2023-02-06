@@ -15,15 +15,23 @@ import {
   tooltipStyle,
 } from './chat-constants.js';
 import css from './message-tooltip.css';
-import { useSendReaction } from './reaction-message-utils.js';
+import {
+  useSendReaction,
+  getEmojiKeyboardPosition,
+} from './reaction-message-utils.js';
 import { useTooltipContext } from './tooltip-provider.js';
 import { useSelector } from '../redux/redux-utils.js';
-import { type MessageTooltipAction } from '../utils/tooltip-utils.js';
+import type {
+  MessageTooltipAction,
+  TooltipSize,
+  TooltipPositionStyle,
+} from '../utils/tooltip-utils.js';
 
 type MessageTooltipProps = {
   +actions: $ReadOnlyArray<MessageTooltipAction>,
   +messageTimestamp: string,
-  +alignment?: 'left' | 'center' | 'right',
+  +tooltipPositionStyle: TooltipPositionStyle,
+  +tooltipSize: TooltipSize,
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,
 };
@@ -31,15 +39,20 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   const {
     actions,
     messageTimestamp,
-    alignment = 'left',
+    tooltipPositionStyle,
+    tooltipSize,
     item,
     threadInfo,
   } = props;
   const { messageInfo, reactions } = item;
 
+  const { alignment = 'left' } = tooltipPositionStyle;
+
   const [activeTooltipLabel, setActiveTooltipLabel] = React.useState<?string>();
 
   const { renderEmojiKeyboard } = useTooltipContext();
+
+  const emojiKeyboardRef = React.useRef();
 
   const messageActionButtonsContainerClassName = classNames(
     css.messageActionContainer,
@@ -113,6 +126,23 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     );
   }, [messageTimestamp, messageTooltipLabelStyle]);
 
+  const emojiKeyboardPosition = React.useMemo(() => {
+    return getEmojiKeyboardPosition(
+      emojiKeyboardRef.current,
+      tooltipPositionStyle,
+      tooltipSize,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tooltipPositionStyle, tooltipSize, emojiKeyboardRef.current]);
+
+  const emojiKeyboardPositionStyle = React.useMemo(
+    () => ({
+      bottom: emojiKeyboardPosition.bottom,
+      left: emojiKeyboardPosition.left,
+    }),
+    [emojiKeyboardPosition.bottom, emojiKeyboardPosition.left],
+  );
+
   const nextLocalID = useSelector(state => state.nextLocalID);
   const localID = `${localIDPrefix}${nextLocalID}`;
 
@@ -133,18 +163,21 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
     if (!renderEmojiKeyboard) {
       return null;
     }
-    return <Picker data={data} onEmojiSelect={onEmojiSelect} />;
-  }, [onEmojiSelect, renderEmojiKeyboard]);
+
+    return (
+      <div
+        ref={emojiKeyboardRef}
+        style={emojiKeyboardPositionStyle}
+        className={css.emojiKeyboard}
+      >
+        <Picker data={data} onEmojiSelect={onEmojiSelect} />
+      </div>
+    );
+  }, [emojiKeyboardPositionStyle, onEmojiSelect, renderEmojiKeyboard]);
 
   const messageTooltipContainerStyle = React.useMemo(() => tooltipStyle, []);
 
   const containerClassName = classNames({
-    [css.container]: true,
-    [css.containerLeftAlign]: alignment === 'left',
-    [css.containerCenterAlign]: alignment === 'center',
-  });
-
-  const messageTooltipContainerClassNames = classNames({
     [css.messageTooltipContainer]: true,
     [css.leftTooltipAlign]: alignment === 'left',
     [css.centerTooltipAlign]: alignment === 'center',
@@ -152,17 +185,14 @@ function MessageTooltip(props: MessageTooltipProps): React.Node {
   });
 
   return (
-    <div className={containerClassName}>
+    <>
       {emojiKeyboard}
-      <div
-        className={messageTooltipContainerClassNames}
-        style={messageTooltipContainerStyle}
-      >
+      <div className={containerClassName} style={messageTooltipContainerStyle}>
         <div style={messageTooltipTopLabelStyle}>{tooltipLabel}</div>
         {tooltipButtons}
         {tooltipTimestamp}
       </div>
-    </div>
+    </>
   );
 }
 
