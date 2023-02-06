@@ -41,6 +41,7 @@ import {
   threadLeaveResponder,
   threadUpdateResponder,
   threadCreationResponder,
+  threadFetchMediaResponder,
   threadJoinResponder,
 } from './responders/thread-responders.js';
 import {
@@ -131,6 +132,10 @@ const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   },
   fetch_messages: {
     responder: messageFetchResponder,
+    requiredPolicies: baseLegalPolicies,
+  },
+  fetch_thread_media: {
+    responder: threadFetchMediaResponder,
     requiredPolicies: baseLegalPolicies,
   },
   get_session_public_keys: {
