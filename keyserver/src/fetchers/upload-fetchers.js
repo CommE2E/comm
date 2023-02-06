@@ -5,6 +5,10 @@ import _keyBy from 'lodash/fp/keyBy';
 import type { Media } from 'lib/types/media-types';
 import type { MediaMessageServerDBContent } from 'lib/types/messages/media.js';
 import { getUploadIDsFromMediaMessageServerDBContents } from 'lib/types/messages/media.js';
+import type {
+  ThreadFetchMediaResult,
+  ThreadFetchMediaRequest,
+} from 'lib/types/thread-types';
 import { ServerError } from 'lib/utils/errors';
 
 import { dbQuery, SQL } from '../database/database';
@@ -117,23 +121,23 @@ async function fetchMedia(
 }
 
 async function fetchMediaForThread(
-  threadID: string,
-  limit: number,
-  offset: number,
-): Promise<$ReadOnlyArray<Media>> {
-  const limitQuery = SQL`LIMIT ${limit} `;
-  const offsetQuery = SQL`OFFSET ${offset} `;
+  request: ThreadFetchMediaRequest,
+): Promise<ThreadFetchMediaResult> {
+  const limitQuery = SQL`LIMIT ${request.limit} `;
+  const offsetQuery = SQL`OFFSET ${request.offset} `;
   const query = SQL`
     SELECT id AS uploadID, secret AS uploadSecret,
       type AS uploadType, extra AS uploadExtra
     FROM uploads
-    WHERE thread = ${threadID} AND filename NOT LIKE 'thumb%'
+    WHERE thread = ${request.threadID} AND filename NOT LIKE 'thumb%'
     ORDER BY creation_time DESC
   `
     .append(limitQuery)
     .append(offsetQuery);
   const [uploads] = await dbQuery(query);
-  return uploads.map(mediaFromRow);
+  return {
+    media: uploads.map(mediaFromRow),
+  };
 }
 
 async function fetchUploadsForMessage(
