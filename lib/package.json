@@ -25,6 +25,7 @@
     "react-refresh": "^0.14.0"
   },
   "dependencies": {
+    "@rainbow-me/rainbowkit": "^0.5.0",
     "dateformat": "^3.0.3",
     "emoji-regex": "^10.2.1",
     "eth-ens-namehash": "^2.0.8",
