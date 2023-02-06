@@ -8,6 +8,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 import baseReducer from 'lib/reducers/master-reducer';
+import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
@@ -18,6 +19,11 @@ import type { EntryStore } from 'lib/types/entry-types';
 import type {
   CalendarFilter,
   CalendarCommunityFilter,
+} from 'lib/types/filter-types';
+import {
+  calendarThreadFilterTypes,
+  clearCalendarCommunityFilter,
+  updateCalendarCommunityFilter,
 } from 'lib/types/filter-types';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
@@ -139,6 +145,30 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       ))
   ) {
     return oldState;
+  } else if (action.type === updateCalendarCommunityFilter) {
+    const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
+    return {
+      ...state,
+      calendarFilters: [
+        ...nonThreadFilters,
+        {
+          type: calendarThreadFilterTypes.THREAD_LIST,
+          threadIDs: action.payload.threadIDs,
+        },
+      ],
+      communityFilter: {
+        threadIDs: action.payload.threadIDs,
+      },
+    };
+  } else if (action.type === clearCalendarCommunityFilter) {
+    const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
+    return {
+      ...state,
+      calendarFilters: [...nonThreadFilters],
+      communityFilter: {
+        threadIDs: [],
+      },
+    };
   }
 
   if (
