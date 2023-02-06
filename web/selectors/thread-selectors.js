@@ -3,9 +3,11 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import { ENSCacheContext } from 'lib/components/ens-cache-provider.react';
 import { createPendingSidebar } from 'lib/shared/thread-utils';
+import type { CalendarCommunityFilter } from 'lib/types/filter-types';
 import type {
   ComposableMessageInfo,
   RobotextMessageInfo,
@@ -14,6 +16,7 @@ import type { ThreadInfo } from 'lib/types/thread-types';
 
 import { getDefaultTextMessageRules } from '../markdown/rules.react';
 import { updateNavInfoActionType } from '../redux/action-types';
+import type { AppState } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
 
 function useOnClickThread(
@@ -107,9 +110,22 @@ function useOnClickNewThread(): (event: SyntheticEvent<HTMLElement>) => void {
   );
 }
 
+const filteredCommunityThreadIDsSelector: (
+  state: AppState,
+) => ?$ReadOnlySet<string> = createSelector(
+  (state: AppState) => state.communityFilter,
+  (communityFilter: ?CalendarCommunityFilter): ?Set<string> => {
+    if (!communityFilter || communityFilter.threadIDs.length === 0) {
+      return null;
+    }
+    return new Set(communityFilter.threadIDs);
+  },
+);
+
 export {
   useOnClickThread,
   useThreadIsActive,
   useOnClickPendingSidebar,
   useOnClickNewThread,
+  filteredCommunityThreadIDsSelector,
 };
