@@ -1,15 +1,15 @@
 // @flow
 
 import * as React from 'react';
-import Animated, { type SharedValue } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
 import EmojiPicker from 'rn-emoji-keyboard';
 
 import { localIDPrefix } from 'lib/shared/message-utils';
 import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
-import type { SetState } from 'lib/types/hook-types';
 
 import type { AppNavigationProp } from '../navigation/app-navigator.react';
 import { useSelector } from '../redux/redux-utils';
+import { useTooltipActions } from '../tooltip/tooltip-hooks';
 import type { TooltipRoute } from '../tooltip/tooltip.react';
 import { TooltipInlineEngagement } from './inline-engagement.react';
 import { InnerMultimediaMessage } from './inner-multimedia-message.react';
@@ -33,17 +33,9 @@ type Props = {
   +route: TooltipRoute<'MultimediaMessageTooltipModal'>,
   +progress: Node,
   +isOpeningSidebar: boolean,
-  +setHideTooltip: SetState<boolean>,
-  +showEmojiKeyboard: SharedValue<boolean>,
 };
 function MultimediaMessageTooltipButton(props: Props): React.Node {
-  const {
-    navigation,
-    progress,
-    isOpeningSidebar,
-    setHideTooltip,
-    showEmojiKeyboard,
-  } = props;
+  const { navigation, route, progress, isOpeningSidebar } = props;
 
   const windowWidth = useSelector(state => state.dimensions.width);
 
@@ -55,12 +47,7 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     setSidebarInputBarHeight(height);
   }, []);
 
-  const {
-    item,
-    verticalBounds,
-    initialCoordinates,
-    margin,
-  } = props.route.params;
+  const { item, verticalBounds, initialCoordinates, margin } = route.params;
 
   const { style: messageContainerStyle } = useAnimatedMessageTooltipButton({
     sourceMessage: item,
@@ -138,6 +125,11 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
     margin,
   });
 
+  const [emojiPickerOpen, setEmojiPickerOpen] = React.useState<boolean>(false);
+  const openEmojiPicker = React.useCallback(() => {
+    setEmojiPickerOpen(true);
+  }, []);
+
   const reactionSelectionPopover = React.useMemo(() => {
     if (!canCreateReactionFromMessage) {
       return null;
@@ -145,8 +137,9 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
 
     return (
       <ReactionSelectionPopover
-        setHideTooltip={setHideTooltip}
-        showEmojiKeyboard={showEmojiKeyboard}
+        navigation={navigation}
+        route={route}
+        openEmojiPicker={openEmojiPicker}
         reactionSelectionPopoverContainerStyle={
           reactionSelectionPopoverPosition
         }
@@ -154,25 +147,24 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
       />
     );
   }, [
+    navigation,
+    route,
+    openEmojiPicker,
     canCreateReactionFromMessage,
     reactionSelectionPopoverPosition,
     sendReaction,
-    setHideTooltip,
-    showEmojiKeyboard,
   ]);
+
+  const tooltipRouteKey = route.key;
+  const { dismissTooltip } = useTooltipActions(navigation, tooltipRouteKey);
 
   const onEmojiSelected = React.useCallback(
     emoji => {
       sendReaction(emoji.emoji);
-      setHideTooltip(true);
+      dismissTooltip();
     },
-    [sendReaction, setHideTooltip],
+    [sendReaction, dismissTooltip],
   );
-
-  const onCloseEmojiPicker = React.useCallback(() => {
-    showEmojiKeyboard.value = false;
-    navigation.goBackOnce();
-  }, [navigation, showEmojiKeyboard]);
 
   return (
     <>
@@ -190,8 +182,8 @@ function MultimediaMessageTooltipButton(props: Props): React.Node {
       </Animated.View>
       <EmojiPicker
         onEmojiSelected={onEmojiSelected}
-        open={showEmojiKeyboard.value}
-        onClose={onCloseEmojiPicker}
+        open={emojiPickerOpen}
+        onClose={dismissTooltip}
       />
     </>
   );

@@ -10,15 +10,7 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
-import Animated, {
-  SlideInDown,
-  SlideOutDown,
-  runOnJS,
-  useSharedValue,
-  type SharedValue,
-} from 'react-native-reanimated';
-
-import type { SetState } from 'lib/types/hook-types';
+import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 
 import { ChatContext, type ChatContextType } from '../chat/chat-context';
 import SWMansionIcon from '../components/swmansion-icon.react';
@@ -59,6 +51,7 @@ export type TooltipParams<CustomProps> = {
   +margin?: number,
   +visibleEntryIDs?: $ReadOnlyArray<string>,
   +chatInputBarHeight?: number,
+  +hideTooltip?: boolean,
 };
 export type TooltipRoute<RouteName: $Keys<TooltipModalParamList>> = RouteProp<
   TooltipModalParamList,
@@ -73,8 +66,6 @@ type ButtonProps<Base> = {
   ...Base,
   +progress: Node,
   +isOpeningSidebar: boolean,
-  +setHideTooltip: SetState<boolean>,
-  +showEmojiKeyboard: SharedValue<boolean>,
 };
 type TooltipProps<Base> = {
   ...Base,
@@ -82,11 +73,6 @@ type TooltipProps<Base> = {
   +dimensions: DimensionsInfo,
   +overlayContext: ?OverlayContextType,
   +chatContext: ?ChatContextType,
-  +actionSheetShown: SharedValue<boolean>,
-  +hideTooltip: boolean,
-  +setHideTooltip: SetState<boolean>,
-  +showEmojiKeyboard: SharedValue<boolean>,
-  +exitAnimationWorklet: (finished: boolean) => void,
   +styles: typeof unboundStyles,
   +tooltipContext: TooltipContextType,
   +closeTooltip: () => mixed,
@@ -301,11 +287,6 @@ function createTooltip<
         dimensions,
         overlayContext,
         chatContext,
-        actionSheetShown,
-        hideTooltip,
-        setHideTooltip,
-        showEmojiKeyboard,
-        exitAnimationWorklet,
         styles,
         tooltipContext,
         closeTooltip,
@@ -335,7 +316,6 @@ function createTooltip<
             onPress={this.onPressMore}
             renderIcon={this.renderMoreIcon}
             containerStyle={tooltipContainerStyle}
-            closeTooltip={this.props.closeTooltip}
             key="more"
           />,
         );
@@ -376,16 +356,13 @@ function createTooltip<
         ...navAndRouteForFlow,
         progress: position,
         isOpeningSidebar,
-        setHideTooltip,
-        showEmojiKeyboard,
       };
 
       const itemsStyles = [styles.items, styles.itemsFixed];
 
       const animationDelay = Platform.OS === 'ios' ? 200 : 500;
       const enterAnimation = SlideInDown.delay(animationDelay);
-
-      const exitAnimation = SlideOutDown.withCallback(exitAnimationWorklet);
+      const exitAnimation = SlideOutDown;
 
       let tooltip = null;
 
@@ -402,8 +379,7 @@ function createTooltip<
         );
       } else if (
         this.tooltipLocation === 'fixed' &&
-        !hideTooltip &&
-        !showEmojiKeyboard.value
+        !this.props.route.params.hideTooltip
       ) {
         tooltip = (
           <AnimatedView
@@ -438,8 +414,6 @@ function createTooltip<
 
     onPressMore = () => {
       Keyboard.dismiss();
-      this.props.actionSheetShown.value = true;
-      this.props.setHideTooltip(true);
       this.props.tooltipContext.showActionSheet();
     };
 
@@ -467,45 +441,24 @@ function createTooltip<
       }
     };
   }
-  function ConnectedTooltip(props: BaseTooltipPropsType) {
+  function ConnectedTooltip(props) {
     const dimensions = useSelector(state => state.dimensions);
     const overlayContext = React.useContext(OverlayContext);
     const chatContext = React.useContext(ChatContext);
-
-    const actionSheetShown = useSharedValue(false);
-    const [hideTooltip, setHideTooltip] = React.useState<boolean>(false);
-
-    const showEmojiKeyboard = useSharedValue(false);
-
-    const { goBackOnce } = props.navigation;
-    const goBackCallback = React.useCallback(() => {
-      if (!actionSheetShown.value) {
-        goBackOnce();
-      }
-    }, [actionSheetShown.value, goBackOnce]);
-
-    const exitAnimationWorklet = React.useCallback(
-      finished => {
-        'worklet';
-        if (finished) {
-          runOnJS(goBackCallback)();
-        }
-      },
-      [goBackCallback],
-    );
 
     const { params } = props.route;
     const { tooltipLocation } = params;
     const isFixed = tooltipLocation === 'fixed';
 
+    const { hideTooltip, ...rest } = props;
+
+    const { goBackOnce } = props.navigation;
     const closeTooltip = React.useCallback(() => {
-      if (isFixed && !actionSheetShown.value) {
-        setHideTooltip(true);
-      } else {
-        goBackOnce();
+      goBackOnce();
+      if (isFixed) {
+        hideTooltip();
       }
-      showEmojiKeyboard.value = false;
-    }, [isFixed, actionSheetShown.value, goBackOnce, showEmojiKeyboard]);
+    }, [isFixed, hideTooltip, goBackOnce]);
 
     const styles = useStyles(unboundStyles);
     const boundTooltipItem = React.useCallback(
@@ -528,15 +481,10 @@ function createTooltip<
     invariant(tooltipContext, 'TooltipContext should be set in Tooltip');
     return (
       <Tooltip
-        {...props}
+        {...rest}
         dimensions={dimensions}
         overlayContext={overlayContext}
         chatContext={chatContext}
-        actionSheetShown={actionSheetShown}
-        hideTooltip={hideTooltip}
-        setHideTooltip={setHideTooltip}
-        showEmojiKeyboard={showEmojiKeyboard}
-        exitAnimationWorklet={exitAnimationWorklet}
         styles={styles}
         tooltipContext={tooltipContext}
         closeTooltip={closeTooltip}
@@ -547,13 +495,21 @@ function createTooltip<
   function MemoizedTooltip(props: BaseTooltipPropsType) {
     const { visibleEntryIDs } = props.route.params;
     const { goBackOnce } = props.navigation;
+
+    const { setParams } = props.navigation;
+    const hideTooltip = React.useCallback(() => {
+      const paramsUpdate: any = { hideTooltip: true };
+      setParams(paramsUpdate);
+    }, [setParams]);
+
     return (
       <TooltipContextProvider
         maxOptionsToDisplay={4}
         visibleEntryIDs={visibleEntryIDs}
         cancel={goBackOnce}
+        hideTooltip={hideTooltip}
       >
-        <ConnectedTooltip {...props} />
+        <ConnectedTooltip {...props} hideTooltip={hideTooltip} />
       </TooltipContextProvider>
     );
   }

@@ -24,6 +24,7 @@ type ProviderProps = {
   +maxOptionsToDisplay: number,
   +visibleEntryIDs: ?$ReadOnlyArray<string>,
   +cancel: () => mixed,
+  +hideTooltip: () => mixed,
   +children: React.Node,
 };
 function TooltipContextProvider(props: ProviderProps): React.Node {
@@ -72,9 +73,11 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
     optionsRef.current = optionsRef.current.filter(option => option.id !== id);
   }, []);
 
-  const { cancel } = props;
+  const { cancel, hideTooltip } = props;
   const { showActionSheetWithOptions } = useActionSheet();
   const showActionSheet = React.useCallback(() => {
+    hideTooltip();
+
     const options = optionsRef.current;
 
     const optionsToDisplay = options.filter(option =>
@@ -131,6 +134,7 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
       onPressAction,
     );
   }, [
+    hideTooltip,
     maxOptionsToDisplay,
     visibleEntryIDsSet,
     cancel,
