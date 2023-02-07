@@ -14,6 +14,7 @@ import {
   siweAuth,
   siweAuthActionTypes,
 } from 'lib/actions/siwe-actions';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import type { LogInStartingPayload } from 'lib/types/account-types.js';
 import {
@@ -32,7 +33,6 @@ import LoadingIndicator from '../loading-indicator.react';
 import { setPrimaryIdentityPublicKey } from '../redux/primary-identity-public-key-reducer';
 import { useSelector } from '../redux/redux-utils';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import SWMansionIcon from '../SWMansionIcon.react.js';
 import ConnectedWalletInfo from './connected-wallet-info.react.js';
 import HeaderSeparator from './header-separator.react.js';
 import css from './siwe.css';

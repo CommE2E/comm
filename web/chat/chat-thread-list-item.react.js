@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors';
 import { useAncestorThreads } from 'lib/shared/ancestor-threads';
 import { shortAbsoluteDate } from 'lib/utils/date-utils';
@@ -16,7 +17,6 @@ import {
   useOnClickThread,
   useThreadIsActive,
 } from '../selectors/thread-selectors';
-import SWMansionIcon from '../SWMansionIcon.react';
 import ChatThreadListItemMenu from './chat-thread-list-item-menu.react';
 import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react';
 import ChatThreadListSidebar from './chat-thread-list-sidebar.react';

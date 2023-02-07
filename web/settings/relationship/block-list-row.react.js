@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { useRelationshipCallbacks } from 'lib/hooks/relationship-prompt';
 
 import MenuItem from '../../components/menu-item.react';
 import Menu from '../../components/menu.react';
-import SWMansionIcon from '../../SWMansionIcon.react';
 import css from './user-list-row.css';
 import type { UserRowProps } from './user-list.react';
 

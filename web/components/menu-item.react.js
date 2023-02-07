@@ -3,7 +3,10 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
+import SWMansionIcon, {
+  type Icon,
+} from 'lib/components/SWMansionIcon.react.js';
+
 import Button from './button.react';
 import css from './menu.css';
 

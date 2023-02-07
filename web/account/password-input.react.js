@@ -2,9 +2,12 @@
 
 import * as React from 'react';
 
+import SWMansionIcon, {
+  type Icon,
+} from 'lib/components/SWMansionIcon.react.js';
+
 import Button from '../components/button.react';
 import Input, { type BaseInputProps } from '../modals/input.react';
-import SWMansionIcon, { type Icon } from '../SWMansionIcon.react';
 import css from './password-input.css';
 
 type PasswordInputProps = BaseInputProps;
