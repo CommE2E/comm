@@ -2,27 +2,30 @@
 
 import * as React from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
-import type { SharedValue } from 'react-native-reanimated';
-
-import type { SetState } from 'lib/types/hook-types';
 
 import SWMansionIcon from '../components/swmansion-icon.react';
+import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import type { TooltipModalParamList } from '../navigation/route-names';
 import { useStyles } from '../themes/colors';
+import { useTooltipActions } from '../tooltip/tooltip-hooks';
+import type { TooltipRoute } from '../tooltip/tooltip.react';
 import type { ViewStyle } from '../types/styles';
 
-type ReactionSelectionPopoverProps = {
-  +setHideTooltip: SetState<boolean>,
-  +showEmojiKeyboard: SharedValue<boolean>,
+type Props<RouteName: $Keys<TooltipModalParamList>> = {
+  +navigation: AppNavigationProp<RouteName>,
+  +route: TooltipRoute<RouteName>,
+  +openEmojiPicker: () => mixed,
   +reactionSelectionPopoverContainerStyle: ViewStyle,
   +sendReaction: (reaction: string) => mixed,
 };
 
-function ReactionSelectionPopover(
-  props: ReactionSelectionPopoverProps,
+function ReactionSelectionPopover<RouteName: $Keys<TooltipModalParamList>>(
+  props: Props<RouteName>,
 ): React.Node {
   const {
-    setHideTooltip,
-    showEmojiKeyboard,
+    navigation,
+    route,
+    openEmojiPicker,
     reactionSelectionPopoverContainerStyle,
     sendReaction,
   } = props;
@@ -40,18 +43,24 @@ function ReactionSelectionPopover(
     ],
   );
 
+  const tooltipRouteKey = route.key;
+  const { hideTooltip, dismissTooltip } = useTooltipActions(
+    navigation,
+    tooltipRouteKey,
+  );
+
   const onPressDefaultEmoji = React.useCallback(
     (emoji: string) => {
       sendReaction(emoji);
-      setHideTooltip(true);
+      dismissTooltip();
     },
-    [sendReaction, setHideTooltip],
+    [sendReaction, dismissTooltip],
   );
 
   const onPressEmojiKeyboardButton = React.useCallback(() => {
-    showEmojiKeyboard.value = true;
-    setHideTooltip(true);
-  }, [setHideTooltip, showEmojiKeyboard]);
+    openEmojiPicker();
+    hideTooltip();
+  }, [openEmojiPicker, hideTooltip]);
 
   const defaultEmojis = React.useMemo(() => {
     const defaultEmojisData = ['❤️', '😆', '😮', '😠', '👍'];

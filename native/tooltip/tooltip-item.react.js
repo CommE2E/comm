@@ -20,7 +20,7 @@ export type TooltipItemBaseProps = {
 type Props = {
   ...TooltipItemBaseProps,
   +containerStyle?: ViewStyle,
-  +closeTooltip: () => mixed,
+  +closeTooltip?: () => mixed,
 };
 function TooltipItem(props: Props): React.Node {
   const tooltipContext = React.useContext(TooltipContext);
@@ -45,7 +45,7 @@ function TooltipItem(props: Props): React.Node {
 
   const onPress = React.useCallback(() => {
     onPressItem();
-    closeTooltip();
+    closeTooltip?.();
   }, [onPressItem, closeTooltip]);
 
   if (!shouldRender) {
