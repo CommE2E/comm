@@ -4,8 +4,9 @@ import { darkTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import _merge from 'lodash/fp/merge';
 import * as React from 'react';
 
+import { wagmiChains } from 'lib/utils/wagmi-utils.js';
+
 import LoginForm from '../account/log-in-form.react';
-import { wagmiChains } from '../utils/wagmi-utils.js';
 import css from './splash.css';
 
 function Splash(): React.Node {
