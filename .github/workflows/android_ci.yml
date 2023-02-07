@@ -33,8 +33,8 @@ jobs:
       - name: Install Yarn
         run: npm install -g yarn
 
-      - name: yarn --frozen-lockfile --network-timeout 180000
-        run: yarn --frozen-lockfile --network-timeout 180000
+      - name: yarn ci-cleaninstall
+        run: yarn ci-cleaninstall
 
       - name: Save ANDROID_KEY_STORE_B64 to file
         env:
