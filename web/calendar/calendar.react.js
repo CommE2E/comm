@@ -10,6 +10,7 @@ import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
 } from 'lib/actions/entry-actions';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { currentDaysToEntries } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import {
@@ -36,7 +37,6 @@ import {
   monthAssertingSelector,
   webCalendarQuery,
 } from '../selectors/nav-selectors';
-import SWMansionIcon from '../SWMansionIcon.react';
 import type { NavInfo } from '../types/nav-types';
 import { canonicalURLFromReduxState } from '../url-utils';
 import css from './calendar.css';

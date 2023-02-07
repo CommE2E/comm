@@ -9,6 +9,7 @@ import {
   joinThread,
   newThreadActionTypes,
 } from 'lib/actions/thread-actions';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
 import {
   userStoreSearchIndex,
@@ -50,7 +51,6 @@ import { allowedMimeTypeString } from '../media/file-utils';
 import Multimedia from '../media/multimedia.react';
 import { useSelector } from '../redux/redux-utils';
 import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
-import SWMansionIcon from '../SWMansionIcon.react';
 import { webTypeaheadRegex } from '../utils/typeahead-utils';
 import css from './chat-input-bar.css';
 import TypeaheadTooltip from './typeahead-tooltip.react';

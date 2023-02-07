@@ -7,6 +7,7 @@ import {
   leaveThreadActionTypes,
 } from 'lib/actions/thread-actions';
 import { useModalContext } from 'lib/components/modal-provider.react';
+import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react';
 import { childThreadInfos } from 'lib/selectors/thread-selectors';
 import {
@@ -35,7 +36,6 @@ import ThreadSettingsModal from '../modals/threads/settings/thread-settings-moda
 import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react';
 import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.react';
 import { useSelector } from '../redux/redux-utils';
-import SWMansionIcon from '../SWMansionIcon.react';
 import css from './thread-menu.css';
 
 type ThreadMenuProps = {
