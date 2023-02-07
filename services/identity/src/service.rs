@@ -39,9 +39,10 @@ use proto::{
   registration_request::Data::PakeRegistrationRequestAndUserId,
   registration_request::Data::PakeRegistrationUploadAndCredentialRequest,
   registration_response::Data::PakeLoginResponse as PakeRegistrationLoginResponse,
-  registration_response::Data::PakeRegistrationResponse, GetUserIdRequest,
-  GetUserIdResponse, GetUserPublicKeyRequest, GetUserPublicKeyResponse,
-  LoginRequest, LoginResponse, PakeLoginRequest as PakeLoginRequestStruct,
+  registration_response::Data::PakeRegistrationResponse, DeleteUserRequest,
+  DeleteUserResponse, GetUserIdRequest, GetUserIdResponse,
+  GetUserPublicKeyRequest, GetUserPublicKeyResponse, LoginRequest,
+  LoginResponse, PakeLoginRequest as PakeLoginRequestStruct,
   PakeLoginResponse as PakeLoginResponseStruct, RegistrationRequest,
   RegistrationResponse, VerifyUserTokenRequest, VerifyUserTokenResponse,
   WalletLoginRequest as WalletLoginRequestStruct,
@@ -395,6 +396,18 @@ impl IdentityService for MyIdentityService {
     };
     let response = Response::new(GetUserPublicKeyResponse { public_key });
     Ok(response)
+  }
+
+  #[instrument(skip(self))]
+  async fn delete_user(
+    &self,
+    request: tonic::Request<DeleteUserRequest>,
+  ) -> Result<tonic::Response<DeleteUserResponse>, tonic::Status> {
+    let message = request.into_inner();
+    match self.client.delete_user(message.user_id).await {
+      Ok(_) => Ok(Response::new(DeleteUserResponse {})),
+      Err(e) => Err(handle_db_error(e)),
+    }
   }
 }
 
