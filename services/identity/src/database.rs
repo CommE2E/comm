@@ -5,14 +5,14 @@ use std::sync::Arc;
 use aws_sdk_dynamodb::error::GetItemError;
 use aws_sdk_dynamodb::model::AttributeValue;
 use aws_sdk_dynamodb::output::{
-  GetItemOutput, PutItemOutput, QueryOutput, UpdateItemOutput,
+  DeleteItemOutput, GetItemOutput, PutItemOutput, QueryOutput, UpdateItemOutput,
 };
 use aws_sdk_dynamodb::types::{Blob, SdkError};
 use aws_sdk_dynamodb::{Client, Error as DynamoDBError};
 use aws_types::sdk_config::SdkConfig;
 use chrono::{DateTime, Utc};
 use opaque_ke::{errors::ProtocolError, ServerRegistration};
-use tracing::{error, info, warn};
+use tracing::{debug, error, info, warn};
 
 use crate::constants::{
   ACCESS_TOKEN_SORT_KEY, ACCESS_TOKEN_TABLE,
@@ -179,6 +179,37 @@ impl DatabaseClient {
       .send()
       .await
       .map_err(|e| Error::AwsSdk(e.into()))
+  }
+
+  pub async fn delete_user(
+    &self,
+    user_id: String,
+  ) -> Result<DeleteItemOutput, Error> {
+    debug!("Attempting to delete user: {}", user_id);
+
+    match self
+      .client
+      .delete_item()
+      .table_name(USERS_TABLE)
+      .key(
+        USERS_TABLE_PARTITION_KEY,
+        AttributeValue::S(user_id.clone()),
+      )
+      .send()
+      .await
+    {
+      Ok(out) => {
+        info!("User has been deleted {}", user_id);
+        Ok(out)
+      }
+      Err(e) => {
+        error!(
+          "DynamoDB client failed to delete user {} on device",
+          user_id
+        );
+        Err(Error::AwsSdk(e.into()))
+      }
+    }
   }
 
   pub async fn get_access_token_data(

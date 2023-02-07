@@ -25,6 +25,7 @@ use crate::{config::Config, database::Error as DBError};
 
 pub use proto::identity_service_server::IdentityServiceServer;
 use proto::{
+  delete_user_response::DeleteResult as ProtoDeleteResult,
   get_user_id_request::AuthType as ProtoAuthType,
   identity_service_server::IdentityService,
   login_request::Data::PakeLoginRequest,
@@ -401,9 +402,15 @@ impl IdentityService for MyIdentityService {
   #[instrument(skip(self))]
   async fn delete_user(
     &self,
-    _request: Request<DeleteUserRequest>,
-  ) -> Result<Response<DeleteUserResponse>, Status> {
-    unimplemented!();
+    request: tonic::Request<DeleteUserRequest>,
+  ) -> Result<tonic::Response<DeleteUserResponse>, tonic::Status> {
+    let message = request.into_inner();
+    match self.client.delete_user(message.user_id).await {
+      Ok(_) => Ok(Response::new(DeleteUserResponse {
+        delete_result: ProtoDeleteResult::Success as i32,
+      })),
+      Err(e) => Err(handle_db_error(e)),
+    }
   }
 }
 
