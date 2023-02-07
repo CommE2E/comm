@@ -8,6 +8,7 @@ export const setNavStateActionType = 'SET_NAV_STATE';
 
 // OverlayRouter
 export const clearOverlayModalsActionType = 'CLEAR_OVERLAY_MODALS';
+export const setRouteParamsActionType = 'SET_ROUTE_PARAMS';
 
 // ChatRouter
 export const clearScreensActionType = 'CLEAR_SCREENS';
