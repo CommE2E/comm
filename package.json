@@ -22,7 +22,8 @@
     "terraform-pre-commit": "./scripts/terraform_pre_commit.sh",
     "prepare": "husky install",
     "arcpatch": "git pull --all --tags && arc patch",
-    "postinstall": "bash ./postinstall.sh"
+    "postinstall": "bash ./postinstall.sh",
+    "flow-all": "yarn workspace lib flow && yarn workspace web flow && yarn workspace landing flow && yarn workspace native flow && yarn workspace keyserver flow && yarn workspace desktop flow && yarn workspace electron-update-server flow"
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
