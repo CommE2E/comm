@@ -12,7 +12,7 @@ steps:
     retry:
       automatic: true
     plugins:
-      - docker#v3.13.0:
+      - docker#v5.3.0:
           image: 'reactnativecommunity/react-native-android:latest'
           shell: ['/bin/bash', '-e', '-c']
           propagate-environment: true
