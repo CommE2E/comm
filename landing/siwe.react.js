@@ -22,7 +22,11 @@ import {
   siweMessageSigningExplanationStatements,
   createSIWEMessage,
 } from 'lib/utils/siwe-utils.js';
-import { configureWagmiChains, createWagmiClient } from 'lib/utils/wagmi-utils';
+import {
+  WagmiENSCacheProvider,
+  configureWagmiChains,
+  createWagmiClient,
+} from 'lib/utils/wagmi-utils';
 
 import { SIWEContext } from './siwe-context.js';
 import css from './siwe.css';
@@ -172,9 +176,11 @@ function SIWEWrapper(): React.Node {
   }, []);
   return (
     <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider theme={theme} modalSize="compact" chains={chains}>
-        <SIWE />
-      </RainbowKitProvider>
+      <WagmiENSCacheProvider>
+        <RainbowKitProvider theme={theme} modalSize="compact" chains={chains}>
+          <SIWE />
+        </RainbowKitProvider>
+      </WagmiENSCacheProvider>
     </WagmiConfig>
   );
 }
