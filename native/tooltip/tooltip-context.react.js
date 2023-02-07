@@ -3,6 +3,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as React from 'react';
 import { Platform, StyleSheet } from 'react-native';
+import { useSharedValue, type SharedValue } from 'react-native-reanimated';
 
 import type { TooltipItemBaseProps } from './tooltip-item.react';
 
@@ -17,6 +18,7 @@ export type TooltipContextType = {
   +showActionSheet: () => void,
   +shouldShowMore: () => boolean,
   +getNumVisibleEntries: () => number,
+  +showEmojiKeyboard: SharedValue<boolean>,
 };
 const TooltipContext: React.Context<?TooltipContextType> = React.createContext<?TooltipContextType>();
 
@@ -153,6 +155,8 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
     return Math.min(optionsToDisplay.length, maxOptionsToDisplay);
   }, [maxOptionsToDisplay, visibleEntryIDsSet]);
 
+  const showEmojiKeyboard = useSharedValue(false);
+
   const context = React.useMemo(
     () => ({
       registerOption,
@@ -160,6 +164,7 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
       showActionSheet,
       shouldShowMore,
       getNumVisibleEntries,
+      showEmojiKeyboard,
     }),
     [
       registerOption,
@@ -167,6 +172,7 @@ function TooltipContextProvider(props: ProviderProps): React.Node {
       showActionSheet,
       shouldShowMore,
       getNumVisibleEntries,
+      showEmojiKeyboard,
     ],
   );
   const { children } = props;

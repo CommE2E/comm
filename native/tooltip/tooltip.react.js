@@ -85,7 +85,6 @@ type TooltipProps<Base> = {
   +actionSheetShown: SharedValue<boolean>,
   +hideTooltip: boolean,
   +setHideTooltip: SetState<boolean>,
-  +showEmojiKeyboard: SharedValue<boolean>,
   +exitAnimationWorklet: (finished: boolean) => void,
   +styles: typeof unboundStyles,
   +tooltipContext: TooltipContextType,
@@ -304,7 +303,6 @@ function createTooltip<
         actionSheetShown,
         hideTooltip,
         setHideTooltip,
-        showEmojiKeyboard,
         exitAnimationWorklet,
         styles,
         tooltipContext,
@@ -377,7 +375,7 @@ function createTooltip<
         progress: position,
         isOpeningSidebar,
         setHideTooltip,
-        showEmojiKeyboard,
+        showEmojiKeyboard: tooltipContext.showEmojiKeyboard,
       };
 
       const itemsStyles = [styles.items, styles.itemsFixed];
@@ -403,7 +401,7 @@ function createTooltip<
       } else if (
         this.tooltipLocation === 'fixed' &&
         !hideTooltip &&
-        !showEmojiKeyboard.value
+        !tooltipContext.showEmojiKeyboard.value
       ) {
         tooltip = (
           <AnimatedView
@@ -475,14 +473,19 @@ function createTooltip<
     const actionSheetShown = useSharedValue(false);
     const [hideTooltip, setHideTooltip] = React.useState<boolean>(false);
 
-    const showEmojiKeyboard = useSharedValue(false);
+    const tooltipContext = React.useContext(TooltipContext);
+    invariant(tooltipContext, 'TooltipContext should be set in Tooltip');
 
     const { goBackOnce } = props.navigation;
     const goBackCallback = React.useCallback(() => {
-      if (!actionSheetShown.value) {
+      if (!actionSheetShown.value && !tooltipContext.showEmojiKeyboard.value) {
         goBackOnce();
       }
-    }, [actionSheetShown.value, goBackOnce]);
+    }, [
+      actionSheetShown.value,
+      goBackOnce,
+      tooltipContext.showEmojiKeyboard.value,
+    ]);
 
     const exitAnimationWorklet = React.useCallback(
       finished => {
@@ -504,8 +507,13 @@ function createTooltip<
       } else {
         goBackOnce();
       }
-      showEmojiKeyboard.value = false;
-    }, [isFixed, actionSheetShown.value, goBackOnce, showEmojiKeyboard]);
+      tooltipContext.showEmojiKeyboard.value = false;
+    }, [
+      isFixed,
+      actionSheetShown.value,
+      tooltipContext.showEmojiKeyboard,
+      goBackOnce,
+    ]);
 
     const styles = useStyles(unboundStyles);
     const boundTooltipItem = React.useCallback(
@@ -524,8 +532,6 @@ function createTooltip<
       [isFixed, styles, closeTooltip],
     );
 
-    const tooltipContext = React.useContext(TooltipContext);
-    invariant(tooltipContext, 'TooltipContext should be set in Tooltip');
     return (
       <Tooltip
         {...props}
@@ -535,7 +541,6 @@ function createTooltip<
         actionSheetShown={actionSheetShown}
         hideTooltip={hideTooltip}
         setHideTooltip={setHideTooltip}
-        showEmojiKeyboard={showEmojiKeyboard}
         exitAnimationWorklet={exitAnimationWorklet}
         styles={styles}
         tooltipContext={tooltipContext}
