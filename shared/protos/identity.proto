@@ -18,6 +18,8 @@ service IdentityService {
   // and device ID
   rpc GetUserPublicKey(GetUserPublicKeyRequest) returns
     (GetUserPublicKeyResponse) {}
+
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
 }
 
 // Helper types
@@ -152,4 +154,18 @@ message GetUserPublicKeyRequest {
 
 message GetUserPublicKeyResponse {
   string publicKey = 1;
+}
+
+// DeleteUser
+message DeleteUserRequest {
+  string userID = 1;
+}
+
+message DeleteUserResponse {
+  enum DeleteResult {
+    SUCCESS = 0;
+    FAILURE = 1;
+  }
+
+  DeleteResult deleteResult = 1;
 }
