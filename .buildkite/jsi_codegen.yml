@@ -5,7 +5,7 @@ steps:
       - 'apt update && apt install -y cmake'
       - 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
       - '. /root/.cargo/env'
-      - 'yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000'
+      - 'yarn ci-cleaninstall'
       - 'cd native && yarn codegen-jsi && git diff --exit-code'
     retry:
       automatic: true

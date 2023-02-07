@@ -6,7 +6,7 @@ steps:
       - 'rustup target add aarch64-linux-android arm-linux-androideabi i686-linux-android x86_64-linux-android'
       - 'apt update && apt install -y autoconf libtool build-essential cmake git libgtest-dev libssl-dev zlib1g-dev'
       - 'scripts/install_protobuf.sh'
-      - 'yarn cleaninstall --frozen-lockfile --skip-optional'
+      - 'yarn ci-cleaninstall'
       - 'cd native/android'
       - './gradlew clean && ./gradlew bundleRelease --no-daemon "-Dorg.gradle.jvmargs=-Xmx32g -XX:MaxPermSize=32g -XX:+HeapDumpOnOutOfMemoryError"'
     retry:

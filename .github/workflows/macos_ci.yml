@@ -48,8 +48,8 @@ jobs:
       - name: npm install -g yarn
         run: npm install -g yarn
 
-      - name: yarn --frozen-lockfile --network-timeout 180000
-        run: yarn --frozen-lockfile --network-timeout 180000
+      - name: yarn ci-cleaninstall
+        run: yarn ci-cleaninstall
 
       - name: Build App
         env:

@@ -15,6 +15,7 @@
   "scripts": {
     "clean": "yarn workspace lib clean && yarn workspace web clean && yarn workspace native clean && yarn workspace keyserver clean && yarn workspace landing clean && yarn workspace desktop clean && yarn workspace rust-node-addon clean && yarn workspace electron-update-server clean && rm -rf node_modules/",
     "cleaninstall": "(killall flow || pkill flow || true) && yarn clean && yarn",
+    "ci-cleaninstall": "yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000",
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",
     "clang-format-all": "eval `node scripts/get_clang_paths_cli.js` | xargs clang-format -i",

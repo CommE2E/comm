@@ -1,6 +1,6 @@
 steps:
   - label: ':eslint: :jest: ESLint & Flow & Jest'
-    command: '(pkill flow || true) && curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && . /root/.cargo/env && apt update && apt install -y cmake && yarn cleaninstall --frozen-lockfile --skip-optional --network-timeout 180000 && yarn eslint --max-warnings=0 && yarn flow-all && yarn jest-all'
+    command: '(pkill flow || true) && curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && . /root/.cargo/env && apt update && apt install -y cmake && yarn ci-cleaninstall && yarn eslint --max-warnings=0 && yarn flow-all && yarn jest-all'
     retry:
       automatic: true
     plugins:
