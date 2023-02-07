@@ -3,12 +3,10 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
-  updateCalendarThreadFilter,
-  calendarThreadFilterTypes,
-} from 'lib/types/filter-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import { updateCalendarCommunityFilter } from '../redux/action-types';
+import { useFilterThreadInfos } from '../selectors/calendar-selectors';
 import {
   useOnClickThread,
   useThreadIsActive,
@@ -40,18 +38,27 @@ function ChatDrawerItemHandler(props: HandlerProps): React.Node {
 function CalendarDrawerItemHandler(props: HandlerProps): React.Node {
   const { setHandler, threadInfo } = props;
   const dispatch = useDispatch();
-
-  const onClick = React.useCallback(
+  const filterThreadInfos = useFilterThreadInfos();
+  const threadIDs = React.useMemo(
     () =>
-      dispatch({
-        type: updateCalendarThreadFilter,
-        payload: {
-          type: calendarThreadFilterTypes.THREAD_LIST,
-          threadIDs: [threadInfo.id],
-        },
-      }),
-    [dispatch, threadInfo.id],
+      filterThreadInfos
+        .filter(
+          thread =>
+            thread.threadInfo.community === threadInfo.id ||
+            thread.threadInfo.id === threadInfo.id,
+        )
+        .map(item => item.threadInfo.id),
+    [filterThreadInfos, threadInfo.id],
   );
+
+  const onClick = React.useCallback(() => {
+    dispatch({
+      type: updateCalendarCommunityFilter,
+      payload: {
+        threadIDs,
+      },
+    });
+  }, [dispatch, threadIDs]);
   const isActive = false;
 
   const handler = React.useMemo(() => ({ onClick, isActive }), [
