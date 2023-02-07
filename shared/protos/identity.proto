@@ -18,6 +18,8 @@ service IdentityService {
   // and device ID
   rpc GetUserPublicKey(GetUserPublicKeyRequest) returns
     (GetUserPublicKeyResponse) {}
+
+  rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {}
 }
 
 // Helper types
@@ -153,3 +155,13 @@ message GetUserPublicKeyRequest {
 message GetUserPublicKeyResponse {
   string publicKey = 1;
 }
+
+// DeleteUser
+
+message DeleteUserRequest {
+  string userID = 1;
+}
+
+// Need to respond with a message to show success, an
+// empty reponse should work just fine
+message DeleteUserResponse {}
