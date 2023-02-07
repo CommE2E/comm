@@ -3,7 +3,6 @@
 import '@rainbow-me/rainbowkit/dist/index.css';
 
 import olm from '@matrix-org/olm';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import invariant from 'invariant';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
@@ -146,10 +145,11 @@ function SIWELoginForm(props: SIWELoginFormProps): React.Node {
     <div className={css.siweLoginFormContainer}>
       <h4>Sign in with Ethereum</h4>
       <HeaderSeparator />
-      <ConnectedWalletInfo />
-      <br />
+      <div className={css.walletConnectedText}>
+        <p>Wallet Connected</p>
+      </div>
       <div className={css.connectButtonContainer}>
-        <ConnectButton />
+        <ConnectedWalletInfo />
       </div>
       <div className={css.messageSigningStatements}>
         <p>{siweMessageSigningExplanationStatements}</p>

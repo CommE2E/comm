@@ -20,12 +20,13 @@ div.siweLoginFormContainer {
   flex-direction: column;
 }
 
+div.walletConnectedText p {
+  font-weight: bold;
+}
+
 div.connectButtonContainer {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  padding-bottom: 20px;
+  padding-top: 4px;
+  padding-bottom: 12px;
 }
 
 div.loadingIndicator {
