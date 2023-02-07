@@ -4,8 +4,6 @@ import { useConnectModal } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
 import { useSigner } from 'wagmi';
 
-import { isDev } from 'lib/utils/dev-utils';
-
 import OrBreak from '../components/or-break.react.js';
 import css from './log-in-form.css';
 import SIWEButton from './siwe-button.react.js';
@@ -30,23 +28,10 @@ function LoginForm(): React.Node {
     setSIWEAuthFlowSelected(false);
   }, []);
 
-  let siweLoginForm, siweButton;
-  if (isDev && siweAuthFlowSelected && signer) {
-    siweLoginForm = <SIWELoginForm cancelSIWEAuthFlow={cancelSIWEAuthFlow} />;
-  } else if (isDev) {
-    siweButton = <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />;
-  }
-
-  if (siweLoginForm) {
-    return <div className={css.modal_body}>{siweLoginForm}</div>;
-  }
-
-  if (siweButton) {
+  if (siweAuthFlowSelected && signer) {
     return (
       <div className={css.modal_body}>
-        <TraditionalLoginForm />
-        <OrBreak />
-        {siweButton}
+        <SIWELoginForm cancelSIWEAuthFlow={cancelSIWEAuthFlow} />
       </div>
     );
   }
@@ -54,6 +39,8 @@ function LoginForm(): React.Node {
   return (
     <div className={css.modal_body}>
       <TraditionalLoginForm />
+      <OrBreak />
+      <SIWEButton onSIWEButtonClick={onSIWEButtonClick} />
     </div>
   );
 }
