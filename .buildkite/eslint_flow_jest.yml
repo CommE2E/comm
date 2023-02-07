@@ -11,7 +11,7 @@ steps:
     retry:
       automatic: true
     plugins:
-      - docker#v3.13.0:
+      - docker#v5.3.0:
           image: 'node:16.13-bullseye'
           always-pull: true
           workdir: /comm

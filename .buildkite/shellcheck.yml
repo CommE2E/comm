@@ -7,7 +7,7 @@ steps:
     retry:
       automatic: true
     plugins:
-      - docker#v3.13.0:
+      - docker#v5.3.0:
           image: 'debian:stable'
           shell: ['/bin/bash', '-e', '-c']
           propagate-environment: true
