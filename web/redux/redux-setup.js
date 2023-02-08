@@ -89,6 +89,7 @@ export type AppState = {
   windowActive: boolean,
   userPolicies: UserPolicies,
   cryptoStore: CryptoStore,
+  pushApiPublicKey: ?string,
   _persist: ?PersistState,
 };
 
