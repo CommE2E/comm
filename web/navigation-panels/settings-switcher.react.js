@@ -5,8 +5,8 @@ import { useDispatch } from 'react-redux';
 
 import { updateNavInfoActionType } from '../redux/action-types';
 import { navSettingsSectionSelector } from '../selectors/nav-selectors.js';
-import css from './left-layout-aside.css';
 import NavigationPanel from './navigation-panel.react';
+import css from './settings-switcher.css';
 
 function SettingsSwitcher(): React.Node {
   const dispatch = useDispatch();
