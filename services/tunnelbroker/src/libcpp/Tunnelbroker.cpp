@@ -257,8 +257,12 @@ rust::Vec<rust::String> sendMessages(const rust::Vec<MessageItem> &messages) {
         }});
     messagesIDs.push_back(rust::String{messageID});
   };
-  comm::network::database::DatabaseManager::getInstance()
-      .putMessageItemsByBatch(vectorOfMessages);
+  if (!comm::network::config::ConfigManager::getInstance().isParameterSet(
+          comm::network::config::ConfigManager::
+              OPTION_MESSAGES_SKIP_PERSISTENCE)) {
+    comm::network::database::DatabaseManager::getInstance()
+        .putMessageItemsByBatch(vectorOfMessages);
+  };
   for (auto message : vectorOfMessages) {
     comm::network::AmqpManager::getInstance().send(&message);
   }
