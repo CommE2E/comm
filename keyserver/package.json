@@ -77,7 +77,8 @@
     "tcomb": "^3.2.29",
     "twin-bcrypt": "^2.1.1",
     "uuid": "^3.3.3",
-    "web": "0.0.1"
+    "web": "0.0.1",
+    "web-push": "^3.5.0"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.5",
