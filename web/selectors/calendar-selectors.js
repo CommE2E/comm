@@ -1,12 +1,19 @@
 // @flow
 
+import { createSelector } from 'reselect';
+
 import {
   useFilterThreadInfos as baseUseFilterThreadInfos,
   useFilterThreadSearchIndex as baseUseFilterThreadSearchIndex,
 } from 'lib/selectors/calendar-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors';
 import type SearchIndex from 'lib/shared/search-index';
+import { threadInFilterList } from 'lib/shared/thread-utils';
 import type { FilterThreadInfo } from 'lib/types/filter-types';
+import type { ThreadInfo, RawThreadInfo } from 'lib/types/thread-types';
+import { values } from 'lib/utils/objects';
 
+import type { AppState } from '../redux/redux-setup';
 import { useSelector } from '../redux/redux-utils';
 
 function useFilterThreadInfos(): $ReadOnlyArray<FilterThreadInfo> {
@@ -19,4 +26,37 @@ function useFilterThreadSearchIndex(): SearchIndex {
   return baseUseFilterThreadSearchIndex(calendarActive);
 }
 
-export { useFilterThreadInfos, useFilterThreadSearchIndex };
+function filterThreadIDsBelongingToCommunity(
+  communityID: string,
+  threadInfosObj: { +[id: string]: ThreadInfo | RawThreadInfo },
+): $ReadOnlySet<string> {
+  const threadInfos = values(threadInfosObj);
+  const threadIDs = threadInfos
+    .filter(
+      thread =>
+        (thread.community === communityID || thread.id === communityID) &&
+        threadInFilterList(thread),
+    )
+    .map(item => item.id);
+  return new Set(threadIDs);
+}
+
+const filterThreadIDsBelongingToCommunitySelector: (
+  state: AppState,
+) => ?$ReadOnlySet<string> = createSelector(
+  (state: AppState) => state.communityIDFilter,
+  threadInfoSelector,
+  (communityIDFilter: ?string, threadInfos: { +[id: string]: ThreadInfo }) => {
+    if (!communityIDFilter) {
+      return null;
+    }
+    return filterThreadIDsBelongingToCommunity(communityIDFilter, threadInfos);
+  },
+);
+
+export {
+  useFilterThreadInfos,
+  useFilterThreadSearchIndex,
+  filterThreadIDsBelongingToCommunitySelector,
+  filterThreadIDsBelongingToCommunity,
+};
