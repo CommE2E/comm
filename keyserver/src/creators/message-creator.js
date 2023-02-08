@@ -10,6 +10,7 @@ import {
   stripLocalIDs,
 } from 'lib/shared/message-utils.js';
 import { pushTypes } from 'lib/shared/messages/message-spec.js';
+import type { PushType } from 'lib/shared/messages/message-spec.js';
 import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import {
   messageTypes,
@@ -424,49 +425,57 @@ async function postMessageSend(
       continue;
     }
 
-    const userPushInfoMessageInfoPromises = [];
-    for (const threadID of preUserPushInfo.notFocusedThreadIDs) {
-      const messageIndices = threadsToMessageIndices.get(threadID);
-      invariant(messageIndices, `indices should exist for thread ${threadID}`);
-      userPushInfoMessageInfoPromises.push(
-        ...messageIndices.map(async messageIndex => {
-          const messageInfo = messageInfos[messageIndex];
-          const { type } = messageInfo;
-          if (messageInfo.creatorID === userID) {
-            // We never send a user notifs about their own activity
-            return undefined;
-          }
-          const { generatesNotifs } = messageSpecs[type];
-          const messageData = messageDatas[messageIndex];
-          const doesGenerateNotif = await generatesNotifs(
-            messageInfo,
-            messageData,
-            {
-              notifTargetUserID: userID,
-              userNotMemberOfSubthreads,
-              fetchMessageInfoByID: (messageID: string) =>
-                fetchMessageInfoByID(viewer, messageID),
-            },
-          );
-          return doesGenerateNotif === pushTypes.NOTIF
-            ? messageInfo
-            : undefined;
-        }),
-      );
-    }
-    const userPushInfoPromise = (async () => {
-      const pushMessageInfos = await Promise.all(
-        userPushInfoMessageInfoPromises,
-      );
-      const filteredMessageInfos = pushMessageInfos.filter(Boolean);
-      if (filteredMessageInfos.length === 0) {
-        return undefined;
+    const generateNotifUserInfoPromise = async (pushType: PushType) => {
+      const promises = [];
+
+      for (const threadID of preUserPushInfo.notFocusedThreadIDs) {
+        const messageIndices = threadsToMessageIndices.get(threadID);
+        invariant(
+          messageIndices,
+          `indices should exist for thread ${threadID}`,
+        );
+        promises.push(
+          ...messageIndices.map(async messageIndex => {
+            const messageInfo = messageInfos[messageIndex];
+            const { type } = messageInfo;
+            if (messageInfo.creatorID === userID) {
+              // We never send a user notifs about their own activity
+              return undefined;
+            }
+            const { generatesNotifs } = messageSpecs[type];
+            const messageData = messageDatas[messageIndex];
+            const doesGenerateNotif = await generatesNotifs(
+              messageInfo,
+              messageData,
+              {
+                notifTargetUserID: userID,
+                userNotMemberOfSubthreads,
+                fetchMessageInfoByID: (messageID: string) =>
+                  fetchMessageInfoByID(viewer, messageID),
+              },
+            );
+            return doesGenerateNotif === pushType ? messageInfo : undefined;
+          }),
+        );
       }
-      return {
-        devices: userDevices,
-        messageInfos: filteredMessageInfos,
-      };
-    })();
+
+      return (async () => {
+        const notifMessageInfos = await Promise.all(promises);
+        const filteredNotifMessageInfos = notifMessageInfos.filter(Boolean);
+
+        if (filteredNotifMessageInfos.length === 0) {
+          return undefined;
+        }
+
+        return {
+          devices: userDevices,
+          messageInfos: filteredNotifMessageInfos,
+        };
+      })();
+    };
+
+    const userPushInfoPromise = generateNotifUserInfoPromise(pushTypes.NOTIF);
+
     userPushInfoPromises[userID] = userPushInfoPromise;
   }
 
