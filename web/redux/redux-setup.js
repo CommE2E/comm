@@ -8,6 +8,7 @@ import {
   deleteAccountActionTypes,
 } from 'lib/actions/user-actions';
 import baseReducer from 'lib/reducers/master-reducer';
+import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
 import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors';
 import { isLoggedIn } from 'lib/selectors/user-selectors';
 import { invalidSessionDowngrade } from 'lib/shared/account-utils';
@@ -15,7 +16,10 @@ import type { Shape } from 'lib/types/core';
 import type { DraftStore } from 'lib/types/draft-types';
 import type { EnabledApps } from 'lib/types/enabled-apps';
 import type { EntryStore } from 'lib/types/entry-types';
-import type { CalendarFilter } from 'lib/types/filter-types';
+import {
+  type CalendarFilter,
+  calendarThreadFilterTypes,
+} from 'lib/types/filter-types';
 import type { LifecycleState } from 'lib/types/lifecycle-state-types';
 import type { LoadingStatus } from 'lib/types/loading-types';
 import type { MessageStore } from 'lib/types/message-types';
@@ -28,12 +32,15 @@ import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
 import { setNewSessionActionType } from 'lib/utils/action-utils';
 
 import { activeThreadSelector } from '../selectors/nav-selectors';
+import { filteredCommunityThreadIDs } from '../selectors/thread-selectors';
 import { type NavInfo } from '../types/nav-types';
 import {
   updateWindowActiveActionType,
   setDeviceIDActionType,
   updateNavInfoActionType,
   updateWindowDimensionsActionType,
+  updateCalendarCommunityFilter,
+  clearCalendarCommunityFilter,
 } from './action-types';
 import { reduceDeviceID } from './device-id-reducer';
 import reduceNavInfo from './nav-reducer';
@@ -92,7 +99,15 @@ export type Action =
       type: 'SET_DEVICE_ID',
       payload: string,
     }
-  | { +type: 'SET_PRIMARY_IDENTITY_PUBLIC_KEY', payload: ?string };
+  | { +type: 'SET_PRIMARY_IDENTITY_PUBLIC_KEY', payload: ?string }
+  | {
+      +type: 'UPDATE_CALENDAR_COMMUNITY_FILTER',
+      +payload: string,
+    }
+  | {
+      +type: 'CLEAR_CALENDAR_COMMUNITY_FILTER',
+      +payload: void,
+    };
 
 export function reducer(oldState: AppState | void, action: Action): AppState {
   invariant(oldState, 'should be set');
@@ -108,6 +123,30 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       ...state,
       windowActive: action.payload,
     });
+  } else if (action.type === updateCalendarCommunityFilter) {
+    const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
+
+    const threadIDs = Array.from(
+      filteredCommunityThreadIDs(action.payload, state.threadStore.threadInfos),
+    );
+    return {
+      ...state,
+      calendarFilters: [
+        ...nonThreadFilters,
+        {
+          type: calendarThreadFilterTypes.THREAD_LIST,
+          threadIDs,
+        },
+      ],
+      communityIDFilter: action.payload,
+    };
+  } else if (action.type === clearCalendarCommunityFilter) {
+    const nonThreadFilters = nonThreadCalendarFilters(state.calendarFilters);
+    return {
+      ...state,
+      calendarFilters: nonThreadFilters,
+      communityIDFilter: null,
+    };
   } else if (action.type === setNewSessionActionType) {
     if (
       invalidSessionDowngrade(
