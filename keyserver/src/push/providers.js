@@ -80,6 +80,14 @@ function getAPNsNotificationTopic(codeVersion: ?number): string {
   return codeVersion && codeVersion >= 87 ? 'app.comm' : 'org.squadcal.app';
 }
 
+type WebPushConfig = { +publicKey: string, +privateKey: string };
+async function getWebPushConfig(): Promise<?WebPushConfig> {
+  return await importJSON<WebPushConfig>({
+    folder: 'secrets',
+    name: 'web_push_config',
+  });
+}
+
 export {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
@@ -88,4 +96,5 @@ export {
   endFirebase,
   endAPNs,
   getAPNsNotificationTopic,
+  getWebPushConfig,
 };
