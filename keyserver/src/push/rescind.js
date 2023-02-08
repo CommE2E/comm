@@ -3,13 +3,12 @@
 import apn from '@parse/node-apn';
 import invariant from 'invariant';
 
-import { threadSubscriptions } from 'lib/types/subscription-types';
-import { threadPermissions } from 'lib/types/thread-types';
 import { promiseAll } from 'lib/utils/promises';
 
 import createIDs from '../creators/id-creator';
 import { dbQuery, SQL } from '../database/database';
 import type { SQLStatementType } from '../database/types';
+import { fetchUnreadNotifs } from '../fetchers/notification-fetchers';
 import { getAPNsNotificationTopic } from './providers';
 import { apnPush, fcmPush } from './utils';
 
@@ -17,45 +16,30 @@ async function rescindPushNotifs(
   notifCondition: SQLStatementType,
   inputCountCondition?: SQLStatementType,
 ) {
-  const notificationExtractString = `$.${threadSubscriptions.home}`;
-  const visPermissionExtractString = `$.${threadPermissions.VISIBLE}.value`;
-  const fetchQuery = SQL`
-    SELECT n.id, n.user, n.thread, n.message, n.delivery, n.collapse_key, COUNT(
-  `;
-  fetchQuery.append(inputCountCondition ? inputCountCondition : SQL`m.thread`);
-  fetchQuery.append(SQL`
-      ) AS unread_count
-    FROM notifications n
-    LEFT JOIN memberships m ON m.user = n.user 
-      AND m.last_message > m.last_read_message 
-      AND m.role > 0 
-      AND JSON_EXTRACT(subscription, ${notificationExtractString})
-      AND JSON_EXTRACT(permissions, ${visPermissionExtractString})
-    WHERE n.rescinded = 0 AND
-  `);
-  fetchQuery.append(notifCondition);
-  fetchQuery.append(SQL` GROUP BY n.id, m.user`);
-  const [fetchResult] = await dbQuery(fetchQuery);
+  const unreadNotifs = await fetchUnreadNotifs(
+    notifCondition,
+    inputCountCondition,
+  );
 
   const deliveryPromises = {};
   const notifInfo = {};
   const rescindedIDs = [];
-  for (const row of fetchResult) {
+  for (const row of unreadNotifs) {
     const rawDelivery = JSON.parse(row.delivery);
     const deliveries = Array.isArray(rawDelivery) ? rawDelivery : [rawDelivery];
-    const id = row.id.toString();
-    const threadID = row.thread.toString();
+    const id = row.id;
+    const threadID = row.thread;
     notifInfo[id] = {
-      userID: row.user.toString(),
+      userID: row.user,
       threadID,
-      messageID: row.message.toString(),
+      messageID: row.message,
     };
     for (const delivery of deliveries) {
       if (delivery.iosID && delivery.iosDeviceTokens) {
         // Old iOS
         const notification = prepareIOSNotification(
           delivery.iosID,
-          row.unread_count,
+          row.unreadCount,
           threadID,
         );
         deliveryPromises[id] = apnPush({
@@ -66,8 +50,8 @@ async function rescindPushNotifs(
       } else if (delivery.androidID) {
         // Old Android
         const notification = prepareAndroidNotification(
-          row.collapse_key ? row.collapse_key : id,
-          row.unread_count,
+          row.collapseKey ? row.collapseKey : id,
+          row.unreadCount,
           threadID,
         );
         deliveryPromises[id] = fcmPush({
@@ -80,7 +64,7 @@ async function rescindPushNotifs(
         const { iosID, deviceTokens, codeVersion } = delivery;
         const notification = prepareIOSNotification(
           iosID,
-          row.unread_count,
+          row.unreadCount,
           threadID,
           codeVersion,
         );
@@ -93,8 +77,8 @@ async function rescindPushNotifs(
         // New Android
         const { deviceTokens, codeVersion } = delivery;
         const notification = prepareAndroidNotification(
-          row.collapse_key ? row.collapse_key : id,
-          row.unread_count,
+          row.collapseKey ? row.collapseKey : id,
+          row.unreadCount,
           threadID,
         );
         deliveryPromises[id] = fcmPush({
