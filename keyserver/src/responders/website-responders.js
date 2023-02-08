@@ -100,6 +100,23 @@ async function getAssetInfo() {
   }
 }
 
+let pushApiPublicKey: ?string = null;
+async function getPushApiPublicKey() {
+  if (pushApiPublicKey) {
+    return pushApiPublicKey;
+  }
+
+  try {
+    const keysString = await readFile('secrets/web_push_config.json', 'utf8');
+    const keys = JSON.parse(keysString);
+    pushApiPublicKey = keys.publicKey;
+  } catch {
+    return null;
+  }
+
+  return pushApiPublicKey;
+}
+
 let webpackCompiledRootComponent: ?React.ComponentType<{}> = null;
 async function getWebpackCompiledRootComponentForSSR() {
   if (webpackCompiledRootComponent) {
@@ -301,6 +318,8 @@ async function websiteResponder(
     return hasNotAcknowledgedPolicies ? 0 : initialTime;
   })();
 
+  const pushApiPublicKeyPromise = getPushApiPublicKey();
+
   const { jsURL, fontsURL, cssInclude } = await assetInfoPromise;
 
   // prettier-ignore
@@ -386,6 +405,7 @@ async function websiteResponder(
     windowActive: true,
     userPolicies: {},
     primaryIdentityPublicKey: null,
+    pushApiPublicKey: pushApiPublicKeyPromise,
     _persist: null,
   });
   const jsonStream = streamJSON(res, initialReduxState);
