@@ -48,7 +48,7 @@ type UserThreadInfo = {
   +devices: Map<
     string,
     {
-      +deviceType: string,
+      +platform: string,
       +deviceToken: string,
       +codeVersion: ?string,
     },
@@ -378,7 +378,7 @@ async function postMessageSend(
     }
     if (deviceToken) {
       thisUserInfo.devices.set(deviceToken, {
-        deviceType: platform,
+        platform,
         deviceToken,
         codeVersion: versions ? versions.codeVersion : null,
       });
