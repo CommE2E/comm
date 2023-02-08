@@ -40,6 +40,7 @@ import {
   fetchCurrentUserInfo,
   fetchKnownUserInfos,
 } from '../fetchers/user-fetchers.js';
+import { getWebPushConfig } from '../push/providers.js';
 import { setNewSession } from '../session/cookies.js';
 import { Viewer } from '../session/viewer.js';
 import { streamJSON, waitForStream } from '../utils/json-stream.js';
@@ -304,6 +305,17 @@ async function websiteResponder(
     return hasNotAcknowledgedPolicies ? 0 : initialTime;
   })();
 
+  const pushApiPublicKeyPromise = (async () => {
+    const pushConfig = await getWebPushConfig();
+    if (!pushConfig) {
+      if (process.env.NODE_ENV !== 'development') {
+        console.warn('keyserver/secrets/web_push_config.json should exist');
+      }
+      return null;
+    }
+    return pushConfig.publicKey;
+  })();
+
   const { jsURL, fontsURL, cssInclude } = await assetInfoPromise;
 
   // prettier-ignore
@@ -389,6 +401,7 @@ async function websiteResponder(
     windowActive: true,
     userPolicies: {},
     primaryIdentityPublicKey: null,
+    pushApiPublicKey: pushApiPublicKeyPromise,
     _persist: null,
   });
   const jsonStream = streamJSON(res, initialReduxState);

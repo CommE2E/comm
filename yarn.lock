@@ -6708,6 +6708,16 @@ asap@~2.0.3, asap@~2.0.6:
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"
   integrity sha1-5QNHYR1+aQlDIIu9r+vLwvuGbUY=
 
+asn1.js@^5.3.0:
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/asn1.js/-/asn1.js-5.4.1.tgz#11a980b84ebb91781ce35b0fdc2ee294e3783f07"
+  integrity sha512-+I//4cYPccV8LdmBLiX8CYvf9Sp3vQsrqu2QNXRcrbiWvcx/UdlFiqUJJzxRQxgsZmvhXhn4cSKeSmoFjVdupA==
+  dependencies:
+    bn.js "^4.0.0"
+    inherits "^2.0.1"
+    minimalistic-assert "^1.0.0"
+    safer-buffer "^2.1.0"
+
 asn1@~0.2.3:
   version "0.2.6"
   resolved "https://registry.yarnpkg.com/asn1/-/asn1-0.2.6.tgz#0d3a7bb6e64e02a90c0303b31f292868ea09a08d"
@@ -7434,7 +7444,7 @@ bn.js@4.11.8:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz#2cde09eb5ee341f484746bb0309b3253b1b1442f"
   integrity sha512-ItfYfPLkWHUjckQCk8xC+LwxgK8NYcXywGigJgSwOP8Y2iyWT4f2vsZnoOXTTbo+o5yXmIUJ4gn5538SO5S3gA==
 
-bn.js@^4.11.0, bn.js@^4.11.8, bn.js@^4.11.9:
+bn.js@^4.0.0, bn.js@^4.11.0, bn.js@^4.11.8, bn.js@^4.11.9:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
   integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
@@ -13074,6 +13084,13 @@ http2-wrapper@^1.0.0-beta.5.2:
   dependencies:
     quick-lru "^5.1.1"
     resolve-alpn "^1.0.0"
+
+http_ece@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/http_ece/-/http_ece-1.1.0.tgz#74780c6eb32d8ddfe9e36a83abcd81fe0cd4fb75"
+  integrity sha512-bptAfCDdPJxOs5zYSe7Y3lpr772s1G346R4Td5LgRUeCwIGpCGDUTJxRrhTNcAXbx37spge0kWEIH7QAYWNTlA==
+  dependencies:
+    urlsafe-base64 "~1.0.0"
 
 https-proxy-agent@^5.0.0, https-proxy-agent@^5.0.1:
   version "5.0.1"
@@ -23149,6 +23166,11 @@ url@^0.11.0:
     punycode "1.3.2"
     querystring "0.2.0"
 
+urlsafe-base64@^1.0.0, urlsafe-base64@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/urlsafe-base64/-/urlsafe-base64-1.0.0.tgz#23f89069a6c62f46cf3a1d3b00169cefb90be0c6"
+  integrity sha512-RtuPeMy7c1UrHwproMZN9gN6kiZ0SvJwRaEzwZY0j9MypEkFqyBaKv176jvlPtg58Zh36bOkS0NFABXMHvvGCA==
+
 use-callback-ref@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/use-callback-ref/-/use-callback-ref-1.3.0.tgz#772199899b9c9a50526fedc4993fc7fa1f7e32d5"
@@ -23534,6 +23556,18 @@ wcwidth@^1.0.1:
   integrity sha1-8LDc+RW8X/FSivrbLA4XtTLaL+g=
   dependencies:
     defaults "^1.0.3"
+
+web-push@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/web-push/-/web-push-3.5.0.tgz#4576533746052eda3bd50414b54a1b0a21eeaeae"
+  integrity sha512-JC0V9hzKTqlDYJ+LTZUXtW7B175qwwaqzbbMSWDxHWxZvd3xY0C2rcotMGDavub2nAAFw+sXTsqR65/KY2A5AQ==
+  dependencies:
+    asn1.js "^5.3.0"
+    http_ece "1.1.0"
+    https-proxy-agent "^5.0.0"
+    jws "^4.0.0"
+    minimist "^1.2.5"
+    urlsafe-base64 "^1.0.0"
 
 webidl-conversions@^3.0.0:
   version "3.0.1"
