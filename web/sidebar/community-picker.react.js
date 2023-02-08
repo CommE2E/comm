@@ -8,6 +8,7 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
 import { updateNavInfoActionType } from '../redux/action-types.js';
 import { useSelector } from '../redux/redux-utils.js';
+import CommunityDrawer from './community-drawer.react';
 import css from './community-picker.css';
 
 function CommunityPicker(): React.Node {
@@ -26,6 +27,7 @@ function CommunityPicker(): React.Node {
   const isSettingsOpen = useSelector(state => state.navInfo.tab === 'settings');
   const settingsButtonContainerClass = classNames({
     [css.activeContainer]: isSettingsOpen,
+    [css.inactiveContainer]: !isSettingsOpen,
   });
 
   const openChat = React.useCallback(
@@ -46,6 +48,7 @@ function CommunityPicker(): React.Node {
   );
   const inboxButtonContainerClass = classNames({
     [css.activeContainer]: isInboxOpen,
+    [css.inactiveContainer]: !isInboxOpen,
   });
 
   return (
@@ -53,6 +56,9 @@ function CommunityPicker(): React.Node {
       <a className={inboxButtonContainerClass} onClick={openChat}>
         <SWMansionIcon icon="inbox" size={36} />
       </a>
+      <div className={css.drawerWrapper}>
+        <CommunityDrawer />
+      </div>
       <div className={css.spacer} />
       <div className={settingsButtonContainerClass}>
         <a className={css.settingsIcon} onClick={openAccountSettings}>
