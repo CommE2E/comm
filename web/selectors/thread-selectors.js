@@ -137,6 +137,11 @@ const filteredCommunityThreadIDsSelector: (
   },
 );
 
+function useCommunityIsPicked(communityID: string): boolean {
+  const communityIDFilter = useSelector(state => state.communityIDFilter);
+  return communityID === communityIDFilter;
+}
+
 export {
   useOnClickThread,
   useThreadIsActive,
@@ -144,4 +149,5 @@ export {
   useOnClickNewThread,
   filteredCommunityThreadIDsSelector,
   filteredCommunityThreadIDs,
+  useCommunityIsPicked,
 };
