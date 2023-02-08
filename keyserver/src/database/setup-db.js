@@ -31,7 +31,7 @@ async function createTables() {
         platform varchar(255) DEFAULT NULL,
         creation_time bigint(20) NOT NULL,
         last_used bigint(20) NOT NULL,
-        device_token varchar(255) DEFAULT NULL,
+        device_token mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
         versions json DEFAULT NULL,
         device_id varchar(255) DEFAULT NULL,
         signed_identity_keys mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
@@ -249,8 +249,8 @@ async function createTables() {
 
       ALTER TABLE cookies
         ADD PRIMARY KEY (id),
-        ADD UNIQUE KEY device_token (device_token),
-        ADD KEY user_device_token (user,device_token);
+        ADD UNIQUE KEY device_token (device_token(512)),
+        ADD KEY user_device_token (user,device_token(512));
 
       ALTER TABLE days
         ADD PRIMARY KEY (id),
