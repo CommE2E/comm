@@ -3,12 +3,10 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import {
-  updateCalendarThreadFilter,
-  calendarThreadFilterTypes,
-} from 'lib/types/filter-types';
 import type { ThreadInfo } from 'lib/types/thread-types';
 
+import { updateCalendarCommunityFilter } from '../redux/action-types';
+import { useCommunityIsPicked } from '../selectors/calendar-selectors';
 import {
   useOnClickThread,
   useThreadIsActive,
@@ -41,18 +39,13 @@ function CalendarDrawerItemHandler(props: HandlerProps): React.Node {
   const { setHandler, threadInfo } = props;
   const dispatch = useDispatch();
 
-  const onClick = React.useCallback(
-    () =>
-      dispatch({
-        type: updateCalendarThreadFilter,
-        payload: {
-          type: calendarThreadFilterTypes.THREAD_LIST,
-          threadIDs: [threadInfo.id],
-        },
-      }),
-    [dispatch, threadInfo.id],
-  );
-  const isActive = false;
+  const onClick = React.useCallback(() => {
+    dispatch({
+      type: updateCalendarCommunityFilter,
+      payload: threadInfo.id,
+    });
+  }, [dispatch, threadInfo.id]);
+  const isActive = useCommunityIsPicked(threadInfo.id);
 
   const handler = React.useMemo(() => ({ onClick, isActive }), [
     onClick,
