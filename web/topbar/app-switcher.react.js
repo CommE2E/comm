@@ -12,8 +12,8 @@ import {
 import { updateNavInfoActionType } from '../redux/action-types';
 import { useSelector } from '../redux/redux-utils';
 import { navTabSelector } from '../selectors/nav-selectors.js';
-import css from './left-layout-aside.css';
-import NavigationPanel from './navigation-panel.react';
+import css from '../sidebar/left-layout-aside.css';
+import NavigationPanel from '../sidebar/navigation-panel.react';
 
 function AppSwitcher(): React.Node {
   const activeChatThreadID = useSelector(
