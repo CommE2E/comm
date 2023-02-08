@@ -5,6 +5,7 @@ import type { Provider as APNProvider } from '@parse/node-apn';
 import fcmAdmin from 'firebase-admin';
 import type { FirebaseApp } from 'firebase-admin';
 import invariant from 'invariant';
+import webpush from 'web-push';
 
 import { importJSON } from '../utils/import-json.js';
 
@@ -80,6 +81,26 @@ function getAPNsNotificationTopic(codeVersion: ?number): string {
   return codeVersion && codeVersion >= 87 ? 'app.comm' : 'org.squadcal.app';
 }
 
+type WebPushConfig = { +publicKey: string, +privateKey: string };
+let cachedWebPushConfig: ?WebPushConfig = null;
+async function getWebPushConfig(): Promise<?WebPushConfig> {
+  if (cachedWebPushConfig) {
+    return cachedWebPushConfig;
+  }
+  cachedWebPushConfig = await importJSON<WebPushConfig>({
+    folder: 'secrets',
+    name: 'web_push_config',
+  });
+  if (cachedWebPushConfig) {
+    webpush.setVapidDetails(
+      'mailto:support@comm.app',
+      cachedWebPushConfig.publicKey,
+      cachedWebPushConfig.privateKey,
+    );
+  }
+  return cachedWebPushConfig;
+}
+
 export {
   getAPNPushProfileForCodeVersion,
   getFCMPushProfileForCodeVersion,
@@ -88,4 +109,5 @@ export {
   endFirebase,
   endAPNs,
   getAPNsNotificationTopic,
+  getWebPushConfig,
 };
