@@ -58,7 +58,7 @@ type Props = {
   +userSearchResults: $ReadOnlyArray<UserListItem>,
   +threadInfo: ThreadInfo,
   +genesisThreadInfo: ?ThreadInfo,
-  +messageListData: $ReadOnlyArray<ChatMessageItem>,
+  +messageListData: ?$ReadOnlyArray<ChatMessageItem>,
   +colors: Colors,
   +styles: typeof unboundStyles,
   // withOverlayContext
@@ -327,10 +327,6 @@ const ConnectedMessageListContainer: React.ComponentType<BaseProps> = React.memo
       userInfoInputArray,
       threadInfo,
     });
-    invariant(
-      messageListData,
-      'messageListData must be specified in messageListContainer',
-    );
     const colors = useColors();
     const styles = useStyles(unboundStyles);
     const overlayContext = React.useContext(OverlayContext);
