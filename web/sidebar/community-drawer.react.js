@@ -21,6 +21,7 @@ const maxDepth = 2;
 const labelStyles = ['titleLevel0', 'titleLevel1', 'titleLevel2'];
 
 function CommunityDrawer(): React.Node {
+  const tab = useSelector(state => state.navInfo.tab);
   const childThreadInfosMap = useSelector(childThreadInfos);
   const communities = useSelector(communityThreadSelector);
   const resolvedCommunities = useResolvedThreadInfos(communities);
@@ -40,23 +41,55 @@ function CommunityDrawer(): React.Node {
     communitiesSuffixed.length === 1 ? communitiesSuffixed[0].id : null,
   );
 
-  const setOpenCommunityOrClose = React.useCallback((communityID: string) => {
-    setOpenCommunity(open => (open === communityID ? null : communityID));
+  const setOpenCommunityOrClose = React.useCallback((index: string) => {
+    setOpenCommunity(open => (open === index ? null : index));
   }, []);
 
-  const communitiesComponents = drawerItemsData.map(item => (
-    <CommunityDrawerItemCommunity
-      itemData={item}
-      key={item.threadInfo.id}
-      toggleExpanded={setOpenCommunityOrClose}
-      expanded={item.threadInfo.id === openCommunity}
-      paddingLeft={10}
-    />
-  ));
+  const communitiesComponentsDefault = React.useMemo(
+    () =>
+      drawerItemsData.map(item => (
+        <CommunityDrawerItemCommunity
+          itemData={item}
+          key={`${item.threadInfo.id}_chat`}
+          toggleExpanded={setOpenCommunityOrClose}
+          expanded={item.threadInfo.id === openCommunity}
+          paddingLeft={10}
+          expandable={true}
+        />
+      )),
+    [drawerItemsData, openCommunity, setOpenCommunityOrClose],
+  );
+
+  const communitiesComponentsCal = React.useMemo(
+    () =>
+      drawerItemsData.map(item => (
+        <CommunityDrawerItemCommunity
+          itemData={item}
+          key={`${item.threadInfo.id}_cal`}
+          toggleExpanded={() => {}}
+          expanded={false}
+          paddingLeft={10}
+          expandable={false}
+        />
+      )),
+    [drawerItemsData],
+  );
+
+  const defaultStyle = React.useMemo(
+    () => (tab === 'calendar' ? { display: 'none' } : null),
+    [tab],
+  );
+  const calStyle = React.useMemo(
+    () => (tab !== 'calendar' ? { display: 'none' } : null),
+    [tab],
+  );
 
   return (
     <ThreadListProvider>
-      <div className={css.container}>{communitiesComponents}</div>
+      <div className={css.container}>
+        <div style={defaultStyle}>{communitiesComponentsDefault}</div>
+        <div style={calStyle}>{communitiesComponentsCal}</div>
+      </div>
     </ThreadListProvider>
   );
 }
