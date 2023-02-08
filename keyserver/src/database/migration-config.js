@@ -147,6 +147,25 @@ const migrations: $ReadOnlyMap<number, () => Promise<void>> = new Map([
       `);
     },
   ],
+  [
+    15,
+    async () => {
+      await dbQuery(
+        SQL`
+          ALTER TABLE cookies 
+            DROP INDEX device_token,
+            DROP INDEX user_device_token;
+
+          ALTER TABLE cookies
+            MODIFY device_token mediumtext 
+              CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+            ADD UNIQUE KEY device_token (device_token(512)),
+            ADD KEY user_device_token (user,device_token(512));
+        `,
+        { multipleStatements: true },
+      );
+    },
+  ],
 ]);
 const newDatabaseVersion: number = Math.max(...migrations.keys());
 
