@@ -22,7 +22,7 @@ import {
   rawThreadInfoFromServerThreadInfo,
   threadInfoFromRawThreadInfo,
 } from 'lib/shared/thread-utils.js';
-import type { DeviceType } from 'lib/types/device-types.js';
+import type { Platform } from 'lib/types/device-types.js';
 import {
   type RawMessageInfo,
   type MessageInfo,
@@ -51,7 +51,7 @@ import type { Viewer } from '../session/viewer.js';
 import { getENSNames } from '../utils/ens-cache.js';
 
 type Device = {
-  +deviceType: DeviceType,
+  +platform: Platform,
   +deviceToken: string,
   +codeVersion: ?number,
 };
@@ -144,7 +144,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
 
       const dbID = dbIDs.shift();
       invariant(dbID, 'should have sufficient DB IDs');
-      const byDeviceType = getDevicesByDeviceType(pushInfo[userID].devices);
+      const byPlatform = getDevicesByPlatform(pushInfo[userID].devices);
       const firstMessageID = firstNewMessageInfo.id;
       invariant(firstMessageID, 'RawMessageInfo.id should be set on server');
       const notificationInfo = {
@@ -156,7 +156,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
         collapseKey: notifInfo.collapseKey,
       };
 
-      const iosVersionsToTokens = byDeviceType.get('ios');
+      const iosVersionsToTokens = byPlatform.get('ios');
       if (iosVersionsToTokens) {
         for (const [codeVer, deviceTokens] of iosVersionsToTokens) {
           const codeVersion = parseInt(codeVer, 10); // only for Flow
@@ -182,7 +182,7 @@ async function sendPushNotifs(pushInfo: PushInfo) {
           deliveryPromises.push(deliveryPromise);
         }
       }
-      const androidVersionsToTokens = byDeviceType.get('android');
+      const androidVersionsToTokens = byPlatform.get('android');
       if (androidVersionsToTokens) {
         for (const [codeVer, deviceTokens] of androidVersionsToTokens) {
           const codeVersion = parseInt(codeVer, 10); // only for Flow
@@ -448,15 +448,15 @@ async function createDBIDs(pushInfo: PushInfo): Promise<string[]> {
   return await createIDs('notifications', numIDsNeeded);
 }
 
-function getDevicesByDeviceType(
+function getDevicesByPlatform(
   devices: Device[],
-): Map<DeviceType, Map<number, Set<string>>> {
-  const byDeviceType = new Map();
+): Map<Platform, Map<number, Set<string>>> {
+  const byPlatform = new Map();
   for (const device of devices) {
-    let innerMap = byDeviceType.get(device.deviceType);
+    let innerMap = byPlatform.get(device.platform);
     if (!innerMap) {
       innerMap = new Map();
-      byDeviceType.set(device.deviceType, innerMap);
+      byPlatform.set(device.platform, innerMap);
     }
     const codeVersion: number =
       device.codeVersion !== null && device.codeVersion !== undefined
@@ -469,7 +469,7 @@ function getDevicesByDeviceType(
     }
     innerMostSet.add(device.deviceToken);
   }
-  return byDeviceType;
+  return byPlatform;
 }
 
 async function prepareIOSNotification(
@@ -789,15 +789,15 @@ async function updateBadgeCount(
   const unreadCount = unreadCounts[userID];
 
   const devices = deviceTokenResult.map(row => ({
-    deviceType: row.platform,
+    platform: row.platform,
     deviceToken: row.device_token,
     codeVersion: JSON.parse(row.versions)?.codeVersion,
   }));
-  const byDeviceType = getDevicesByDeviceType(devices);
+  const byPlatform = getDevicesByPlatform(devices);
 
   const deliveryPromises = [];
 
-  const iosVersionsToTokens = byDeviceType.get('ios');
+  const iosVersionsToTokens = byPlatform.get('ios');
   if (iosVersionsToTokens) {
     for (const [codeVer, deviceTokens] of iosVersionsToTokens) {
       const codeVersion = parseInt(codeVer, 10); // only for Flow
@@ -816,7 +816,7 @@ async function updateBadgeCount(
     }
   }
 
-  const androidVersionsToTokens = byDeviceType.get('android');
+  const androidVersionsToTokens = byPlatform.get('android');
   if (androidVersionsToTokens) {
     for (const [codeVer, deviceTokens] of androidVersionsToTokens) {
       const codeVersion = parseInt(codeVer, 10); // only for Flow
