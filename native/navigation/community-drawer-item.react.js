@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
 import type { MessageListParams } from '../chat/message-list-types';
@@ -13,15 +13,8 @@ import type { TextStyle } from '../types/styles';
 import { ExpandButton, ExpandButtonDisabled } from './expand-buttons.react';
 import SubchannelsButton from './subchannels-button.react';
 
-export type CommunityDrawerItemData = {
-  +threadInfo: ThreadInfo,
-  +itemChildren?: $ReadOnlyArray<CommunityDrawerItemData>,
-  +labelStyle: TextStyle,
-  +hasSubchannelsButton: boolean,
-};
-
 export type DrawerItemProps = {
-  +itemData: CommunityDrawerItemData,
+  +itemData: CommunityDrawerItemData<TextStyle>,
   +toggleExpanded: (threadID: string) => void,
   +expanded: boolean,
   +navigateToThread: (params: MessageListParams) => void,
@@ -120,7 +113,7 @@ const unboundStyles = {
 };
 
 export type CommunityDrawerItemChatProps = {
-  +itemData: CommunityDrawerItemData,
+  +itemData: CommunityDrawerItemData<TextStyle>,
   +navigateToThread: (params: MessageListParams) => void,
 };
 
