@@ -40,6 +40,7 @@ import {
   clearCalendarCommunityFilter,
 } from './action-types.js';
 import { reduceDeviceID } from './device-id-reducer.js';
+import { reduceDeviceToken } from './device-token.reducer.js';
 import reduceNavInfo from './nav-reducer.js';
 import {
   reducePrimaryIdentityPublicKey,
@@ -69,7 +70,7 @@ export type AppState = {
   urlPrefix: string,
   windowDimensions: WindowDimensions,
   cookie?: void,
-  deviceToken?: void,
+  deviceToken: ?string,
   baseHref: string,
   connection: ConnectionInfo,
   watchedThreadIDs: $ReadOnlyArray<string>,
@@ -198,6 +199,7 @@ export function reducer(oldState: AppState | void, action: Action): AppState {
       state.threadStore.threadInfos,
     ),
     deviceID: reduceDeviceID(state.deviceID, action),
+    deviceToken: reduceDeviceToken(state.deviceToken, action),
     primaryIdentityPublicKey: reducePrimaryIdentityPublicKey(
       state.primaryIdentityPublicKey,
       action,
