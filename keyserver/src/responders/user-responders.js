@@ -43,6 +43,7 @@ import {
   getPublicKeyFromSIWEStatement,
   isValidSIWEMessage,
   isValidSIWEStatementWithPublicKey,
+  primaryIdentityPublicKeyRegex,
 } from 'lib/utils/siwe-utils.js';
 import {
   tShape,
@@ -50,6 +51,7 @@ import {
   tPassword,
   tEmail,
   tOldValidUsername,
+  tRegex,
 } from 'lib/utils/validation-utils';
 
 import {
@@ -302,6 +304,7 @@ const logInRequestInputValidator = tShape({
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
   source: t.maybe(t.enums.of(values(logInActionSources))),
+  primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
 });
 
 async function logInResponder(
