@@ -51,3 +51,11 @@
   align-self: flex-start;
   width: 100%;
 }
+
+.inboxButtonTitle {
+  font-weight: 500;
+  font-size: var(--l-font-18);
+  line-height: 22px;
+  padding-left: 12px;
+  color: var(--fg);
+}
