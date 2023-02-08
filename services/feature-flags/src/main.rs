@@ -2,6 +2,7 @@ use anyhow::Result;
 use tracing::{info, Level};
 use tracing_subscriber::EnvFilter;
 
+pub mod config;
 pub mod constants;
 
 fn configure_logging() -> Result<()> {
@@ -16,6 +17,7 @@ fn configure_logging() -> Result<()> {
 }
 
 fn main() -> Result<()> {
+  config::parse_cmdline_args();
   configure_logging()?;
   info!("Starting the service");
   Ok(())
