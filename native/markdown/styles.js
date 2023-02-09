@@ -63,7 +63,6 @@ const unboundStyles = {
     fontWeight: 'bold',
   },
   blockQuote: {
-    borderLeftColor: '#00000066',
     borderLeftWidth: 8,
     borderRadius: 8,
     padding: 10,

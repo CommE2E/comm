@@ -2,7 +2,7 @@
 
 import _memoize from 'lodash/memoize';
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Platform } from 'react-native';
 import { createSelector } from 'reselect';
 import * as SimpleMarkdown from 'simple-markdown';
 
@@ -255,11 +255,15 @@ const fullMarkdownRules: boolean => MarkdownRules = _memoize(useDarkStyle => {
       ) => {
         const { isNestedQuote } = state;
         const backgroundColor = isNestedQuote ? '#00000000' : '#00000066';
+        const borderLeftColor = (Platform.select({
+          ios: '#00000066',
+          default: isNestedQuote ? '#00000066' : '#000000A3',
+        }): string);
 
         return (
           <View
             key={state.key}
-            style={[styles.blockQuote, { backgroundColor }]}
+            style={[styles.blockQuote, { backgroundColor, borderLeftColor }]}
           >
             {output(node.content, { ...state, isNestedQuote: true })}
           </View>
