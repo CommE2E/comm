@@ -65,8 +65,7 @@
 
   /* Color Theme */
 
-  /* Feb 2023: New color that will be introduced in updated design system. */
-  --btn-bg-filled: #6a20e3;
+  --btn-bg-filled: var(--violet-dark-100);
   --btn-bg-outline: var(--shades-black-90);
   --btn-bg-success: var(--success-dark-50);
   --btn-bg-danger: var(--error-primary);
