@@ -108,7 +108,7 @@ async function getWebpackCompiledRootComponentForSSR() {
   try {
     // $FlowFixMe web/dist doesn't always exist
     const webpackBuild = await import('web/dist/app.build.cjs');
-    webpackCompiledRootComponent = webpackBuild.default.default;
+    webpackCompiledRootComponent = webpackBuild.app.default;
     return webpackCompiledRootComponent;
   } catch {
     throw new Error(
