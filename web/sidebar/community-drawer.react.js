@@ -15,6 +15,7 @@ import { useResolvedThreadInfos } from 'lib/utils/entity-helpers';
 import { ThreadListProvider } from '../chat/thread-list-provider';
 import { useSelector } from '../redux/redux-utils';
 import CommunityDrawerItemCommunity from './community-drawer-item-community.react';
+import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.react';
 import css from './community-drawer.css';
 
 const maxDepth = 2;
@@ -45,6 +46,11 @@ function CommunityDrawer(): React.Node {
     setOpenCommunity(open => (open === index ? null : index));
   }, []);
 
+  const HandlerChat = React.useMemo(
+    () => getCommunityDrawerItemHandler('chat'),
+    [],
+  );
+
   const communitiesComponentsDefault = React.useMemo(
     () =>
       drawerItemsData.map(item => (
@@ -55,9 +61,15 @@ function CommunityDrawer(): React.Node {
           expanded={item.threadInfo.id === openCommunity}
           paddingLeft={10}
           expandable={true}
+          Handler={HandlerChat}
         />
       )),
-    [drawerItemsData, openCommunity, setOpenCommunityOrClose],
+    [HandlerChat, drawerItemsData, openCommunity, setOpenCommunityOrClose],
+  );
+
+  const HandlerCal = React.useMemo(
+    () => getCommunityDrawerItemHandler('calendar'),
+    [],
   );
 
   const communitiesComponentsCal = React.useMemo(
@@ -69,9 +81,10 @@ function CommunityDrawer(): React.Node {
           expanded={false}
           paddingLeft={10}
           expandable={false}
+          Handler={HandlerCal}
         />
       )),
-    [drawerItemsData],
+    [drawerItemsData, HandlerCal],
   );
 
   const defaultStyle = tab === 'calendar' ? css.hidden : null;
