@@ -6,8 +6,8 @@
   "license": "BSD-3-Clause",
   "scripts": {
     "clean": "rm -rf dist/ && rm -rf node_modules/",
-    "dev": "yarn concurrently --names=\"NODESSR,BROWSER\" -c \"bgBlue.bold,bgMagenta.bold\" \"yarn webpack --config webpack.config.cjs --config-name=server --watch\" \"yarn webpack-dev-server --config webpack.config.cjs --config-name=browser\"",
-    "prod": "yarn webpack --config webpack.config.cjs --env prod --progress"
+    "dev": "COMM_ALCHEMY_KEY=1WOqngNjE2l1KtzYxsvuq3zB48ymnlDG COMM_WALLETCONNECT_KEY=03f32dbe53350f23cffea2ddc28152ba yarn concurrently --names=\"NODESSR,BROWSER\" -c \"bgBlue.bold,bgMagenta.bold\" \"yarn webpack --config webpack.config.cjs --config-name=server --watch\" \"yarn webpack-dev-server --config webpack.config.cjs --config-name=browser\"",
+    "prod": "COMM_ALCHEMY_KEY=1WOqngNjE2l1KtzYxsvuq3zB48ymnlDG COMM_WALLETCONNECT_KEY=03f32dbe53350f23cffea2ddc28152ba yarn webpack --config webpack.config.cjs --env prod --progress"
   },
   "devDependencies": {
     "@babel/core": "^7.13.14",
