@@ -194,6 +194,7 @@ const registerRequestInputValidator = tShape({
   calendarQuery: t.maybe(newEntryQueryInputValidator),
   deviceTokenUpdateRequest: t.maybe(deviceTokenUpdateRequestInputValidator),
   platformDetails: tPlatformDetails,
+  primaryIdentityPublicKey: t.maybe(tRegex(primaryIdentityPublicKeyRegex)),
 });
 
 async function accountCreationResponder(
