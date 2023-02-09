@@ -26,6 +26,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import SWMansionIcon from '../components/swmansion-icon.react';
+import { commCoreModule } from '../native-modules';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
@@ -50,13 +51,11 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => LogInExtraInfo,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +logIn: (logInInfo: LogInInfo) => Promise<LogInResult>,
+  +primaryIdentityPublicKey: ?string,
 };
 class LogInPanel extends React.PureComponent<Props> {
   usernameInput: ?TextInput;
@@ -368,13 +367,26 @@ const ConnectedLogInPanel: React.ComponentType<BaseProps> = React.memo<BaseProps
     const dispatchActionPromise = useDispatchActionPromise();
     const callLogIn = useServerCall(logIn);
 
+    const [
+      primaryIdentityPublicKey,
+      setPrimaryIdentityPublicKey,
+    ] = React.useState<?string>(null);
+    React.useEffect(() => {
+      (async () => {
+        await commCoreModule.initializeCryptoAccount('PLACEHOLDER');
+        const { ed25519 } = await commCoreModule.getUserPublicKey();
+        setPrimaryIdentityPublicKey(ed25519);
+      })();
+    }, []);
+
     return (
       <LogInPanel
         {...props}
-        loadingStatus={loadingStatus}
+        loadingStatus={!primaryIdentityPublicKey ? 'loading' : loadingStatus}
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         logIn={callLogIn}
+        primaryIdentityPublicKey={primaryIdentityPublicKey}
       />
     );
   },
