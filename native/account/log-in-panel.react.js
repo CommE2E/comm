@@ -239,11 +239,17 @@ class LogInPanel extends React.PureComponent<Props> {
 
   async logInAction(extraInfo: LogInExtraInfo): Promise<LogInResult> {
     try {
+      invariant(
+        this.props.primaryIdentityPublicKey !== null &&
+          this.props.primaryIdentityPublicKey !== undefined,
+        'primaryIdentityPublicKey must exist in logInAction',
+      );
       const result = await this.props.logIn({
         ...extraInfo,
         username: this.usernameInputText,
         password: this.passwordInputText,
         logInActionSource: logInActionSources.logInFromNativeForm,
+        primaryIdentityPublicKey: this.props.primaryIdentityPublicKey,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
