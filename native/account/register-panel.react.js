@@ -30,6 +30,7 @@ import {
 } from 'lib/utils/action-utils';
 
 import SWMansionIcon from '../components/swmansion-icon.react';
+import { commCoreModule } from '../native-modules';
 import { NavContext } from '../navigation/navigation-context';
 import { useSelector } from '../redux/redux-utils';
 import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
@@ -51,13 +52,11 @@ type BaseProps = {
 };
 type Props = {
   ...BaseProps,
-  // Redux state
   +loadingStatus: LoadingStatus,
   +logInExtraInfo: () => LogInExtraInfo,
-  // Redux dispatch functions
   +dispatchActionPromise: DispatchActionPromise,
-  // async functions that hit server APIs
   +register: (registerInfo: RegisterInfo) => Promise<RegisterResult>,
+  +primaryIdentityPublicKey: ?string,
 };
 type State = {
   +confirmPasswordFocused: boolean,
@@ -330,10 +329,16 @@ class RegisterPanel extends React.PureComponent<Props, State> {
 
   async registerAction(extraInfo: LogInExtraInfo) {
     try {
+      invariant(
+        this.props.primaryIdentityPublicKey !== null &&
+          this.props.primaryIdentityPublicKey !== undefined,
+        'primaryIdentityPublicKey must exist in logInAction',
+      );
       const result = await this.props.register({
+        ...extraInfo,
         username: this.props.registerState.state.usernameInputText,
         password: this.props.registerState.state.passwordInputText,
-        ...extraInfo,
+        primaryIdentityPublicKey: this.props.primaryIdentityPublicKey,
       });
       this.props.setActiveAlert(false);
       await setNativeCredentials({
@@ -461,13 +466,26 @@ const ConnectedRegisterPanel: React.ComponentType<BaseProps> = React.memo<BasePr
     const dispatchActionPromise = useDispatchActionPromise();
     const callRegister = useServerCall(register);
 
+    const [
+      primaryIdentityPublicKey,
+      setPrimaryIdentityPublicKey,
+    ] = React.useState<?string>(null);
+    React.useEffect(() => {
+      (async () => {
+        await commCoreModule.initializeCryptoAccount('PLACEHOLDER');
+        const { ed25519 } = await commCoreModule.getUserPublicKey();
+        setPrimaryIdentityPublicKey(ed25519);
+      })();
+    }, []);
+
     return (
       <RegisterPanel
         {...props}
-        loadingStatus={loadingStatus}
+        loadingStatus={!primaryIdentityPublicKey ? 'loading' : loadingStatus}
         logInExtraInfo={logInExtraInfo}
         dispatchActionPromise={dispatchActionPromise}
         register={callRegister}
+        primaryIdentityPublicKey={primaryIdentityPublicKey}
       />
     );
   },
