@@ -54,9 +54,15 @@ const threadIDsBelongingToCommunitySelector: (
   },
 );
 
+function useCommunityIsPicked(communityID: string): boolean {
+  const communityIDFilter = useSelector(state => state.communityIDFilter);
+  return communityID === communityIDFilter;
+}
+
 export {
   useFilterThreadInfos,
   useFilterThreadSearchIndex,
   threadIDsBelongingToCommunitySelector,
   threadIDsBelongingToCommunity,
+  useCommunityIsPicked,
 };
