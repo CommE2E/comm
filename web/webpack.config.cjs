@@ -47,12 +47,13 @@ const baseDevBrowserConfig = {
     publicPath: 'http://localhost:8080/',
   },
   devServer: {
-    hot: true,
     port: 8080,
-    contentBase: path.join(__dirname, 'dist'),
     headers: { 'Access-Control-Allow-Origin': '*' },
     allowedHosts: ['all'],
     host: '0.0.0.0',
+    static: {
+      directory: path.join(__dirname, 'dist'),
+    },
   },
 };
 
@@ -81,17 +82,16 @@ const baseNodeServerRenderingConfig = {
 };
 
 module.exports = function (env) {
-  const browserConfig =
-    env === 'prod'
-      ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
-      : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
+  const browserConfig = env.prod
+    ? createProdBrowserConfig(baseProdBrowserConfig, babelConfig)
+    : createDevBrowserConfig(baseDevBrowserConfig, babelConfig);
   const nodeConfig = createNodeServerRenderingConfig(
     baseNodeServerRenderingConfig,
     babelConfig,
   );
   const nodeServerRenderingConfig = {
     ...nodeConfig,
-    mode: env === 'prod' ? 'production' : 'development',
+    mode: env.prod ? 'production' : 'development',
   };
   return [browserConfig, nodeServerRenderingConfig];
 };
