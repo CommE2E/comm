@@ -14,7 +14,7 @@ const baseBrowserConfig = {
     browser: ['./script.js'],
   },
   output: {
-    filename: 'prod.[hash:12].build.js',
+    filename: 'prod.[contenthash:12].build.js',
     path: path.join(__dirname, 'dist'),
   },
   resolve: {

@@ -96,7 +96,7 @@ async function getWebpackCompiledRootComponentForSSR() {
   try {
     // $FlowFixMe landing/dist doesn't always exist
     const webpackBuild = await import('landing/dist/landing.build.cjs');
-    webpackCompiledRootComponent = webpackBuild.default.default;
+    webpackCompiledRootComponent = webpackBuild.landing.default;
     return webpackCompiledRootComponent;
   } catch {
     throw new Error(
