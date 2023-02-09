@@ -29,8 +29,8 @@ function CommunityPicker(): React.Node {
   );
   const isSettingsOpen = useSelector(state => state.navInfo.tab === 'settings');
   const settingsButtonContainerClass = classNames({
-    [css.activeContainer]: isSettingsOpen,
-    [css.inactiveContainer]: !isSettingsOpen,
+    [css.activeItemContainer]: isSettingsOpen,
+    [css.itemContainer]: true,
   });
 
   const tab = useSelector(state => state.navInfo.tab);
@@ -58,25 +58,43 @@ function CommunityPicker(): React.Node {
       state.navInfo.tab === 'calendar',
   );
   const inboxButtonContainerClass = classNames({
-    [css.activeContainer]: isInboxOpen,
-    [css.inactiveContainer]: !isInboxOpen,
+    [css.activeItemContainer]: isInboxOpen,
+    [css.itemContainer]: true,
   });
 
   const inboxButtonTitle = tab === 'calendar' ? 'All communities' : 'Inbox';
+  const sideLineInbox = classNames({
+    [css.sideLine]: true,
+    [css.sideLineActive]: isInboxOpen,
+  });
+  const sideLineSettings = classNames({
+    [css.sideLine]: true,
+    [css.sideLineActive]: isSettingsOpen,
+  });
 
   return (
     <div className={css.container}>
-      <a className={inboxButtonContainerClass} onClick={onPressInbox}>
-        <SWMansionIcon icon="inbox" size={36} />
-        <div className={css.inboxButtonTitle}> {inboxButtonTitle} </div>
-      </a>
+      <div className={css.header}>
+        <a className={inboxButtonContainerClass} onClick={onPressInbox}>
+          <div className={sideLineInbox} />
+          <SWMansionIcon icon="inbox" size={24} />
+          <div className={css.buttonTitle}> {inboxButtonTitle} </div>
+        </a>
+      </div>
       <div className={css.drawerWrapper}>
         <CommunityDrawer />
       </div>
       <div className={css.spacer} />
-      <div className={settingsButtonContainerClass}>
-        <a className={css.settingsIcon} onClick={openAccountSettings}>
-          <SWMansionIcon icon="settings" size={22} />
+      <div className={css.footer}>
+        <a
+          className={settingsButtonContainerClass}
+          onClick={openAccountSettings}
+        >
+          <div className={sideLineSettings} />
+          <div className={css.settingsIcon} onClick={openAccountSettings}>
+            <SWMansionIcon icon="settings" size={22} />
+          </div>
+          <div className={css.buttonTitle}>Settings</div>
         </a>
       </div>
     </div>
