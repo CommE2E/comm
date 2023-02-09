@@ -6,8 +6,7 @@ import * as React from 'react';
 import type { CommunityDrawerItemData } from 'lib/utils/drawer-utils.react';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
 
-import { useSelector } from '../redux/redux-utils';
-import { getCommunityDrawerItemHandler } from './community-drawer-item-handlers.react';
+import type { HandlerProps } from './community-drawer-item-handlers.react';
 import css from './community-drawer-item.css';
 import { ExpandButton } from './expand-buttons.react';
 import SubchannelsButton from './subchannels-button.react';
@@ -18,6 +17,7 @@ export type DrawerItemProps = {
   +expanded: boolean,
   +paddingLeft: number,
   +expandable?: boolean,
+  +Handler: React.ComponentType<HandlerProps>,
 };
 
 const indentation = 14;
@@ -30,6 +30,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     toggleExpanded,
     paddingLeft,
     expandable = true,
+    Handler,
   } = props;
 
   const children = React.useMemo(() => {
@@ -56,6 +57,7 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
         key={item.threadInfo.id}
         paddingLeft={paddingLeft + indentation}
         expandable={expandable}
+        Handler={Handler}
       />
     ));
   }, [
@@ -63,8 +65,9 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     hasSubchannelsButton,
     itemChildren,
     paddingLeft,
-    expandable,
     threadInfo,
+    expandable,
+    Handler,
   ]);
 
   const onExpandToggled = React.useCallback(
@@ -95,10 +98,6 @@ function CommunityDrawerItem(props: DrawerItemProps): React.Node {
     onExpandToggled,
     expanded,
   ]);
-
-  const Handler = useSelector(state =>
-    getCommunityDrawerItemHandler(state.navInfo.tab),
-  );
 
   const [handler, setHandler] = React.useState({
     // eslint-disable-next-line no-unused-vars
@@ -132,6 +131,7 @@ export type CommunityDrawerItemChatProps = {
   +itemData: CommunityDrawerItemData<string>,
   +paddingLeft: number,
   +expandable?: boolean,
+  +Handler: React.ComponentType<HandlerProps>,
 };
 
 function CommunityDrawerItemChat(

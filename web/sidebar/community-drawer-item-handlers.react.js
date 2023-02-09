@@ -14,7 +14,7 @@ import {
 import type { NavigationTab } from '../types/nav-types';
 import type { CommunityDrawerItemHandler } from './community-drawer-item-handler.react';
 
-type HandlerProps = {
+export type HandlerProps = {
   +setHandler: (handler: CommunityDrawerItemHandler) => void,
   +threadInfo: ThreadInfo,
 };
