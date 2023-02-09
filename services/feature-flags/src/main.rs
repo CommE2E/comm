@@ -16,9 +16,12 @@ fn configure_logging() -> Result<()> {
   Ok(())
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
   config::parse_cmdline_args();
   configure_logging()?;
+
+  let _aws_config = config::load_aws_config().await;
   info!("Starting the service");
   Ok(())
 }
