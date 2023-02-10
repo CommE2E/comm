@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SingleLine } from '../components/single-line.react.js';
@@ -18,24 +18,22 @@ function InAppNotif(props: Props): React.Node {
   const useLightStyle = Platform.OS === 'ios' && props.activeTheme !== 'dark';
 
   let title = null;
-  if (props.title) {
-    title = (
-      <>
-        <SingleLine style={styles.title}>{props.title}</SingleLine>
-        {'\n'}
-      </>
-    );
-  }
-
-  const textStyles = [
+  const textStyle = [
     styles.text,
     useLightStyle ? styles.lightText : styles.darkText,
   ];
+
+  if (props.title) {
+    title = (
+      <SingleLine style={[styles.title, textStyle]}>{props.title}</SingleLine>
+    );
+  }
+
   const notificationContent = (
-    <Text style={textStyles}>
+    <View style={styles.notificationContent}>
       {title}
-      {props.message}
-    </Text>
+      <SingleLine style={textStyle}>{props.message}</SingleLine>
+    </View>
   );
 
   if (Platform.OS === 'android') {
@@ -62,20 +60,28 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     width: '100%',
   },
-  text: {
+  notificationContent: {
     ...Platform.select({
       ios: {
-        fontSize: 16,
         marginTop: 16,
         marginBottom: 6,
-        color: 'black',
       },
       default: {
-        fontSize: 18,
         marginVertical: 16,
       },
     }),
     marginHorizontal: 10,
+  },
+  text: {
+    ...Platform.select({
+      ios: {
+        fontSize: 16,
+        color: 'black',
+      },
+      default: {
+        fontSize: 18,
+      },
+    }),
   },
   title: {
     fontWeight: 'bold',
