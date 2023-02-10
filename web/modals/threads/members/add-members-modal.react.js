@@ -5,25 +5,25 @@ import * as React from 'react';
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+} from 'lib/actions/thread-actions.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   userSearchIndexForPotentialMembers,
   userInfoSelectorForPotentialMembers,
-} from 'lib/selectors/user-selectors';
-import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import { threadActualMembers } from 'lib/shared/thread-utils';
+} from 'lib/selectors/user-selectors.js';
+import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import { threadActualMembers } from 'lib/shared/thread-utils.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../../../components/button.react';
-import Label from '../../../components/label.react';
-import { useSelector } from '../../../redux/redux-utils';
-import SearchModal from '../../search-modal.react';
-import AddMembersListContent from './add-members-list-content.react';
+import Button from '../../../components/button.react.js';
+import Label from '../../../components/label.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
+import SearchModal from '../../search-modal.react.js';
+import AddMembersListContent from './add-members-list-content.react.js';
 import css from './members-modal.css';
 
 type ContentProps = {

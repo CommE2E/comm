@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 
-import { assetMetaData } from './asset-meta-data';
-import HeroContent from './hero-content.react';
-import InfoBlock from './info-block.react';
+import { assetMetaData } from './asset-meta-data.js';
+import HeroContent from './hero-content.react.js';
+import InfoBlock from './info-block.react.js';
 import css from './landing.css';
-import Picture from './Picture.react';
-import StarBackground from './star-background.react';
-import usePreloadAssets from './use-pre-load-assets.react';
+import Picture from './Picture.react.js';
+import StarBackground from './star-background.react.js';
+import usePreloadAssets from './use-pre-load-assets.react.js';
 
 function AppLanding(): React.Node {
   usePreloadAssets(assetMetaData);

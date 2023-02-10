@@ -6,19 +6,19 @@ import ExitApp from 'react-native-exit-app';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useDispatch } from 'react-redux';
 
-import type { Dispatch } from 'lib/types/redux-types';
-import { setURLPrefix } from 'lib/utils/url-utils';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import { setURLPrefix } from 'lib/utils/url-utils.js';
 
-import Button from '../components/button.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { CustomServerModalRouteName } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { useColors, useStyles, type Colors } from '../themes/colors';
-import { wipeAndExit } from '../utils/crash-utils';
-import { checkForMissingNatDevHostname } from '../utils/dev-hostname';
-import { nodeServerOptions } from '../utils/url-utils';
-import type { ProfileNavigationProp } from './profile.react';
+import Button from '../components/button.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { CustomServerModalRouteName } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useColors, useStyles, type Colors } from '../themes/colors.js';
+import { wipeAndExit } from '../utils/crash-utils.js';
+import { checkForMissingNatDevHostname } from '../utils/dev-hostname.js';
+import { nodeServerOptions } from '../utils/url-utils.js';
+import type { ProfileNavigationProp } from './profile.react.js';
 
 const ServerIcon = () => (
   <SWMansionIcon

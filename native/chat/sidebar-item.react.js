@@ -3,12 +3,12 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import type { SidebarInfo } from 'lib/types/thread-types';
-import { shortAbsoluteDate } from 'lib/utils/date-utils';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import type { SidebarInfo } from 'lib/types/thread-types.js';
+import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import { SingleLine } from '../components/single-line.react';
-import { useStyles } from '../themes/colors';
+import { SingleLine } from '../components/single-line.react.js';
+import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +sidebarInfo: SidebarInfo,

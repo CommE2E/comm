@@ -6,32 +6,32 @@ import * as React from 'react';
 import {
   deleteThreadActionTypes,
   changeThreadSettingsActionTypes,
-} from 'lib/actions/thread-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils';
+} from 'lib/actions/thread-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils.js';
 import {
   threadHasPermission,
   getSingleOtherUser,
   threadUIName,
-} from 'lib/shared/thread-utils';
+} from 'lib/shared/thread-utils.js';
 import {
   type ThreadInfo,
   threadTypes,
   threadPermissions,
   type ThreadChanges,
-} from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+} from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Tabs from '../../../components/tabs.react';
-import { useSelector } from '../../../redux/redux-utils';
-import Modal from '../../modal.react';
-import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react';
-import ThreadSettingsGeneralTab from './thread-settings-general-tab.react';
+import Tabs from '../../../components/tabs.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
+import Modal from '../../modal.react.js';
+import ThreadSettingsDeleteTab from './thread-settings-delete-tab.react.js';
+import ThreadSettingsGeneralTab from './thread-settings-general-tab.react.js';
 import css from './thread-settings-modal.css';
-import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react';
-import ThreadSettingsRelationshipTab from './thread-settings-relationship-tab.react';
+import ThreadSettingsPrivacyTab from './thread-settings-privacy-tab.react.js';
+import ThreadSettingsRelationshipTab from './thread-settings-relationship-tab.react.js';
 
 type TabType = 'general' | 'privacy' | 'delete' | 'relationship';
 type BaseProps = {

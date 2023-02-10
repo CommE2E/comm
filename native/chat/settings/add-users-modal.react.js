@@ -7,31 +7,31 @@ import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+} from 'lib/actions/thread-actions.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors';
-import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import { threadActualMembers } from 'lib/shared/thread-utils';
-import { type ThreadInfo } from 'lib/types/thread-types';
-import { type AccountUserInfo } from 'lib/types/user-types';
+} from 'lib/selectors/user-selectors.js';
+import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import { threadActualMembers } from 'lib/shared/thread-utils.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
+import { type AccountUserInfo } from 'lib/types/user-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../../components/button.react';
-import Modal from '../../components/modal.react';
-import { createTagInput } from '../../components/tag-input.react';
-import UserList from '../../components/user-list.react';
-import type { RootNavigationProp } from '../../navigation/root-navigator.react';
-import type { NavigationRoute } from '../../navigation/route-names';
-import { useSelector } from '../../redux/redux-utils';
-import { useStyles } from '../../themes/colors';
+import Button from '../../components/button.react.js';
+import Modal from '../../components/modal.react.js';
+import { createTagInput } from '../../components/tag-input.react.js';
+import UserList from '../../components/user-list.react.js';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { useStyles } from '../../themes/colors.js';
 
 const TagInput = createTagInput<AccountUserInfo>();
 

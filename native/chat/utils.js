@@ -4,36 +4,39 @@ import invariant from 'invariant';
 import * as React from 'react';
 import Animated from 'react-native-reanimated';
 
-import { useMessageListData } from 'lib/selectors/chat-selectors';
-import type { ChatMessageItem } from 'lib/selectors/chat-selectors';
-import { messageKey } from 'lib/shared/message-utils';
-import { colorIsDark, viewerIsMember } from 'lib/shared/thread-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { useMessageListData } from 'lib/selectors/chat-selectors.js';
+import type { ChatMessageItem } from 'lib/selectors/chat-selectors.js';
+import { messageKey } from 'lib/shared/message-utils.js';
+import { colorIsDark, viewerIsMember } from 'lib/shared/thread-utils.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { KeyboardContext } from '../keyboard/keyboard-state';
-import { OverlayContext } from '../navigation/overlay-context';
+import { KeyboardContext } from '../keyboard/keyboard-state.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
 import {
   MultimediaMessageTooltipModalRouteName,
   RobotextMessageTooltipModalRouteName,
   TextMessageTooltipModalRouteName,
-} from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
+} from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import type {
   ChatMessageInfoItemWithHeight,
   ChatMessageItemWithHeight,
   ChatRobotextMessageInfoItemWithHeight,
   ChatTextMessageInfoItemWithHeight,
-} from '../types/chat-types';
-import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
-import type { AnimatedViewStyle } from '../types/styles';
-import { clusterEndHeight, inlineEngagementStyle } from './chat-constants';
-import { ChatContext, useHeightMeasurer } from './chat-context';
-import { failedSendHeight } from './failed-send.react';
-import { authorNameHeight } from './message-header.react';
-import { multimediaMessageItemHeight } from './multimedia-message-utils';
-import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation';
-import textMessageSendFailed from './text-message-send-failed';
-import { timestampHeight } from './timestamp.react';
+} from '../types/chat-types.js';
+import type {
+  LayoutCoordinates,
+  VerticalBounds,
+} from '../types/layout-types.js';
+import type { AnimatedViewStyle } from '../types/styles.js';
+import { clusterEndHeight, inlineEngagementStyle } from './chat-constants.js';
+import { ChatContext, useHeightMeasurer } from './chat-context.js';
+import { failedSendHeight } from './failed-send.react.js';
+import { authorNameHeight } from './message-header.react.js';
+import { multimediaMessageItemHeight } from './multimedia-message-utils.js';
+import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
+import textMessageSendFailed from './text-message-send-failed.js';
+import { timestampHeight } from './timestamp.react.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

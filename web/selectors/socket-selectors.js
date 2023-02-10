@@ -5,19 +5,19 @@ import { createSelector } from 'reselect';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
-} from 'lib/selectors/socket-selectors';
-import { createOpenSocketFunction } from 'lib/shared/socket-utils';
+} from 'lib/selectors/socket-selectors.js';
+import { createOpenSocketFunction } from 'lib/shared/socket-utils.js';
 import type {
   ClientServerRequest,
   ClientClientResponse,
-} from 'lib/types/request-types';
+} from 'lib/types/request-types.js';
 import type {
   SessionIdentification,
   SessionState,
-} from 'lib/types/session-types';
-import type { OneTimeKeyGenerator } from 'lib/types/socket-types';
+} from 'lib/types/session-types.js';
+import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/redux-setup.js';
 
 const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
   (state: AppState) => state.baseHref,

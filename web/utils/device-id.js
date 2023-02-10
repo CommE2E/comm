@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { generateRandomString } from './text-utils';
+import { generateRandomString } from './text-utils.js';
 
 const deviceTypes = Object.freeze({
   KEYSERVER: 0,

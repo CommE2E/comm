@@ -2,13 +2,13 @@
 
 import t from 'tcomb';
 
-import type { GetSessionPublicKeysArgs } from 'lib/types/request-types';
-import type { SessionPublicKeys } from 'lib/types/session-types';
-import { tShape } from 'lib/utils/validation-utils';
+import type { GetSessionPublicKeysArgs } from 'lib/types/request-types.js';
+import type { SessionPublicKeys } from 'lib/types/session-types.js';
+import { tShape } from 'lib/utils/validation-utils.js';
 
-import { fetchSessionPublicKeys } from '../fetchers/key-fetchers';
-import type { Viewer } from '../session/viewer';
-import { validateInput } from '../utils/validation-utils';
+import { fetchSessionPublicKeys } from '../fetchers/key-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
+import { validateInput } from '../utils/validation-utils.js';
 
 const getSessionPublicKeysInputValidator = tShape({
   session: t.String,

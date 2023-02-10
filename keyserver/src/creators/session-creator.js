@@ -1,9 +1,9 @@
 // @flow
 
-import type { CalendarQuery } from 'lib/types/entry-types';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function createSession(
   viewer: Viewer,

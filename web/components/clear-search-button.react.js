@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 
-import Button from './button.react';
+import Button from './button.react.js';
 import css from './search.css';
 
 type ClearSearchButtonProps = {

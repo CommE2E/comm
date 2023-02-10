@@ -13,27 +13,27 @@ import {
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import type { LoadingStatus } from 'lib/types/loading-types';
+} from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type ResolvedThreadInfo,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { firstLine } from 'lib/utils/string-utils';
+} from 'lib/utils/action-utils.js';
+import { firstLine } from 'lib/utils/string-utils.js';
 
-import EditSettingButton from '../../components/edit-setting-button.react';
-import { SingleLine } from '../../components/single-line.react';
-import TextInput from '../../components/text-input.react';
-import { useSelector } from '../../redux/redux-utils';
-import { type Colors, useStyles, useColors } from '../../themes/colors';
-import SaveSettingButton from './save-setting-button.react';
+import EditSettingButton from '../../components/edit-setting-button.react.js';
+import { SingleLine } from '../../components/single-line.react.js';
+import TextInput from '../../components/text-input.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { type Colors, useStyles, useColors } from '../../themes/colors.js';
+import SaveSettingButton from './save-setting-button.react.js';
 
 type BaseProps = {
   +threadInfo: ResolvedThreadInfo,

@@ -1,9 +1,9 @@
 // @flow
 
-import _keyBy from 'lodash/fp/keyBy';
-import _shuffle from 'lodash/fp/shuffle';
+import _keyBy from 'lodash/fp/keyBy.js';
+import _shuffle from 'lodash/fp/shuffle.js';
 
-import { assetsCacheURLPrefix } from './asset-meta-data';
+import { assetsCacheURLPrefix } from './asset-meta-data.js';
 
 type Investors = {
   +id: string,

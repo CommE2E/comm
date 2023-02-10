@@ -6,22 +6,22 @@ import { Alert, TouchableOpacity } from 'react-native';
 import {
   updateRelationshipsActionTypes,
   updateRelationships,
-} from 'lib/actions/relationship-actions';
-import { stringForUser } from 'lib/shared/user-utils';
-import type { RelativeUserInfo } from 'lib/types/user-types';
+} from 'lib/actions/relationship-actions.js';
+import { stringForUser } from 'lib/shared/user-utils.js';
+import type { RelativeUserInfo } from 'lib/types/user-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import PencilIcon from '../components/pencil-icon.react';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import PencilIcon from '../components/pencil-icon.react.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import {
   createTooltip,
   type TooltipParams,
   type BaseTooltipProps,
   type TooltipMenuProps,
-} from '../tooltip/tooltip.react';
+} from '../tooltip/tooltip.react.js';
 
 type Action = 'unfriend' | 'unblock';
 

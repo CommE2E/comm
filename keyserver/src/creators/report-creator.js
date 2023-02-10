@@ -1,13 +1,13 @@
 // @flow
 
-import _isEqual from 'lodash/fp/isEqual';
+import _isEqual from 'lodash/fp/isEqual.js';
 
-import bots from 'lib/facts/bots';
+import bots from 'lib/facts/bots.js';
 import {
   filterRawEntryInfosByCalendarQuery,
   serverEntryInfosObject,
-} from 'lib/shared/entry-utils';
-import { messageTypes } from 'lib/types/message-types';
+} from 'lib/shared/entry-utils.js';
+import { messageTypes } from 'lib/types/message-types.js';
 import {
   type ReportCreationRequest,
   type ReportCreationResponse,
@@ -15,21 +15,21 @@ import {
   type EntryInconsistencyReportCreationRequest,
   type UserInconsistencyReportCreationRequest,
   reportTypes,
-} from 'lib/types/report-types';
-import { values } from 'lib/utils/objects';
+} from 'lib/types/report-types.js';
+import { values } from 'lib/utils/objects.js';
 import {
   sanitizeReduxReport,
   type ReduxCrashReport,
-} from 'lib/utils/sanitization';
+} from 'lib/utils/sanitization.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { fetchUsername } from '../fetchers/user-fetchers';
-import { handleAsyncPromise } from '../responders/handlers';
-import { createBotViewer } from '../session/bots';
-import type { Viewer } from '../session/viewer';
-import { getAndAssertCommAppURLFacts } from '../utils/urls';
-import createIDs from './id-creator';
-import createMessages from './message-creator';
+import { dbQuery, SQL } from '../database/database.js';
+import { fetchUsername } from '../fetchers/user-fetchers.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
+import { createBotViewer } from '../session/bots.js';
+import type { Viewer } from '../session/viewer.js';
+import { getAndAssertCommAppURLFacts } from '../utils/urls.js';
+import createIDs from './id-creator.js';
+import createMessages from './message-creator.js';
 
 const { commbot } = bots;
 

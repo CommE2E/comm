@@ -4,8 +4,8 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { useStyles } from '../themes/colors';
-import ToggleReport from './toggle-report.react';
+import { useStyles } from '../themes/colors.js';
+import ToggleReport from './toggle-report.react.js';
 
 // eslint-disable-next-line no-unused-vars
 function PrivacyPreferences(props: { ... }): React.Node {

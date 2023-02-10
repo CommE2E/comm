@@ -4,20 +4,20 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Text, TouchableWithoutFeedback, View } from 'react-native';
 
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   entityTextToReact,
   entityTextToRawString,
   useENSNamesForEntityText,
   type EntityText,
-} from 'lib/utils/entity-text';
+} from 'lib/utils/entity-text.js';
 
-import Markdown from '../markdown/markdown.react';
-import { inlineMarkdownRules } from '../markdown/rules.react';
-import { useSelector } from '../redux/redux-utils';
-import { useOverlayStyles } from '../themes/colors';
-import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types';
-import { useNavigateToThread } from './message-list-types';
+import Markdown from '../markdown/markdown.react.js';
+import { inlineMarkdownRules } from '../markdown/rules.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useOverlayStyles } from '../themes/colors.js';
+import type { ChatRobotextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { useNavigateToThread } from './message-list-types.js';
 
 function dummyNodeForRobotextMessageHeightMeasurement(
   robotext: EntityText,

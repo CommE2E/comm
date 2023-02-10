@@ -1,36 +1,39 @@
 // @flow
 
 import invariant from 'invariant';
-import _debounce from 'lodash/debounce';
+import _debounce from 'lodash/debounce.js';
 import * as React from 'react';
 
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { createMessageReply } from 'lib/shared/message-utils';
-import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils';
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { createMessageReply } from 'lib/shared/message-utils.js';
+import { useCanCreateReactionFromMessage } from 'lib/shared/reaction-utils.js';
 import {
   threadHasPermission,
   useSidebarExistsOrCanBeCreated,
-} from 'lib/shared/thread-utils';
-import { isComposableMessageType, messageTypes } from 'lib/types/message-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { threadPermissions } from 'lib/types/thread-types';
-import { longAbsoluteDate } from 'lib/utils/date-utils';
+} from 'lib/shared/thread-utils.js';
+import {
+  isComposableMessageType,
+  messageTypes,
+} from 'lib/types/message-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
+import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
 import {
   tooltipButtonStyle,
   tooltipLabelStyle,
   tooltipStyle,
-} from '../chat/chat-constants';
-import MessageTooltip from '../chat/message-tooltip.react';
-import type { PositionInfo } from '../chat/position-types';
-import { useTooltipContext } from '../chat/tooltip-provider';
-import CommIcon from '../CommIcon.react';
-import { InputStateContext } from '../input/input-state';
+} from '../chat/chat-constants.js';
+import MessageTooltip from '../chat/message-tooltip.react.js';
+import type { PositionInfo } from '../chat/position-types.js';
+import { useTooltipContext } from '../chat/tooltip-provider.js';
+import CommIcon from '../CommIcon.react.js';
+import { InputStateContext } from '../input/input-state.js';
 import {
   useOnClickPendingSidebar,
   useOnClickThread,
-} from '../selectors/thread-selectors';
-import { calculateMaxTextWidth } from '../utils/text-utils';
+} from '../selectors/thread-selectors.js';
+import { calculateMaxTextWidth } from '../utils/text-utils.js';
 
 export const tooltipPositions = Object.freeze({
   LEFT: 'left',

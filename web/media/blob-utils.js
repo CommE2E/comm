@@ -6,10 +6,10 @@ import type {
   MediaType,
   MediaMissionStep,
   MediaMissionFailure,
-} from 'lib/types/media-types';
-import { getMessageForException } from 'lib/utils/errors';
+} from 'lib/types/media-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
-import { determineFileType } from './file-utils';
+import { determineFileType } from './file-utils.js';
 
 function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   const fileReader = new FileReader();

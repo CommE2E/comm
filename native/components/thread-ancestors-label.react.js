@@ -1,14 +1,14 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome5';
+import Icon from '@expo/vector-icons/FontAwesome5.js';
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import { useAncestorThreads } from 'lib/shared/ancestor-threads';
-import { type ThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfos } from 'lib/utils/entity-helpers';
+import { useAncestorThreads } from 'lib/shared/ancestor-threads.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfos } from 'lib/utils/entity-helpers.js';
 
-import { useColors, useStyles } from '../themes/colors';
+import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

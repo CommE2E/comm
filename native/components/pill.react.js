@@ -4,7 +4,7 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import tinycolor from 'tinycolor2';
 
-import { useStyles } from '../themes/colors';
+import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +label: string,

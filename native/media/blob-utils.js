@@ -6,14 +6,14 @@ import invariant from 'invariant';
 import {
   fileInfoFromData,
   bytesNeededForFileTypeCheck,
-} from 'lib/media/file-utils';
+} from 'lib/media/file-utils.js';
 import type {
   MediaMissionStep,
   MediaMissionFailure,
-} from 'lib/types/media-types';
-import { getMessageForException } from 'lib/utils/errors';
+} from 'lib/types/media-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
-import { getFetchableURI } from './identifier-utils';
+import { getFetchableURI } from './identifier-utils.js';
 
 function blobToDataURI(blob: Blob): Promise<string> {
   const fileReader = new FileReader();

@@ -4,8 +4,11 @@ import { connectorsForWallets, wallet } from '@rainbow-me/rainbowkit';
 import * as React from 'react';
 import { useProvider } from 'wagmi';
 
-import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react';
-import { configureWagmiChains, createWagmiClient } from 'lib/utils/wagmi-utils';
+import { ENSCacheProvider } from 'lib/components/ens-cache-provider.react.js';
+import {
+  configureWagmiChains,
+  createWagmiClient,
+} from 'lib/utils/wagmi-utils.js';
 
 const { chains, provider } = configureWagmiChains(process.env.COMM_ALCHEMY_KEY);
 const connectors = connectorsForWallets([

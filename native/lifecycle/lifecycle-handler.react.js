@@ -3,11 +3,11 @@
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 
-import { updateLifecycleStateActionType } from 'lib/reducers/lifecycle-state-reducer';
-import type { LifecycleState } from 'lib/types/lifecycle-state-types';
+import { updateLifecycleStateActionType } from 'lib/reducers/lifecycle-state-reducer.js';
+import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
 
-import { appBecameInactive } from '../redux/redux-setup';
-import { addLifecycleListener } from './lifecycle';
+import { appBecameInactive } from '../redux/redux-setup.js';
+import { addLifecycleListener } from './lifecycle.js';
 
 const LifecycleHandler: React.ComponentType<{}> = React.memo<{}>(
   function LifecycleHandler() {

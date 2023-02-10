@@ -8,39 +8,42 @@ import { FlatList } from 'react-native-gesture-handler';
 import {
   updateRelationshipsActionTypes,
   updateRelationships,
-} from 'lib/actions/relationship-actions';
-import { searchUsersActionTypes, searchUsers } from 'lib/actions/user-actions';
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors';
-import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors';
+} from 'lib/actions/relationship-actions.js';
+import {
+  searchUsersActionTypes,
+  searchUsers,
+} from 'lib/actions/user-actions.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
+import { userRelationshipsSelector } from 'lib/selectors/relationship-selectors.js';
+import { userStoreSearchIndex as userStoreSearchIndexSelector } from 'lib/selectors/user-selectors.js';
 import {
   userRelationshipStatus,
   relationshipActions,
-} from 'lib/types/relationship-types';
+} from 'lib/types/relationship-types.js';
 import type {
   GlobalAccountUserInfo,
   AccountUserInfo,
-} from 'lib/types/user-types';
+} from 'lib/types/user-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import LinkButton from '../components/link-button.react';
-import { createTagInput, BaseTagInput } from '../components/tag-input.react';
-import { KeyboardContext } from '../keyboard/keyboard-state';
-import { OverlayContext } from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
+import LinkButton from '../components/link-button.react.js';
+import { createTagInput, BaseTagInput } from '../components/tag-input.react.js';
+import { KeyboardContext } from '../keyboard/keyboard-state.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
 import {
   FriendListRouteName,
   BlockListRouteName,
-} from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { useStyles, useIndicatorStyle } from '../themes/colors';
-import type { VerticalBounds } from '../types/layout-types';
-import type { ProfileNavigationProp } from './profile.react';
-import RelationshipListItem from './relationship-list-item.react';
+} from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles, useIndicatorStyle } from '../themes/colors.js';
+import type { VerticalBounds } from '../types/layout-types.js';
+import type { ProfileNavigationProp } from './profile.react.js';
+import RelationshipListItem from './relationship-list-item.react.js';
 
 const TagInput = createTagInput<GlobalAccountUserInfo>();
 

@@ -2,61 +2,61 @@
 
 import invariant from 'invariant';
 
-import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors';
+import { nonThreadCalendarFilters } from 'lib/selectors/calendar-filter-selectors.js';
 import {
   keyForUpdateData,
   keyForUpdateInfo,
   rawUpdateInfoFromUpdateData,
-} from 'lib/shared/update-utils';
+} from 'lib/shared/update-utils.js';
 import {
   type RawEntryInfo,
   type FetchEntryInfosBase,
   type CalendarQuery,
   defaultCalendarQuery,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types.js';
 import {
   defaultNumberPerThread,
   type FetchMessageInfosResult,
-} from 'lib/types/message-types';
+} from 'lib/types/message-types.js';
 import {
   type UpdateTarget,
   redisMessageTypes,
   type NewUpdatesRedisMessage,
-} from 'lib/types/redis-types';
-import type { RawThreadInfo } from 'lib/types/thread-types';
+} from 'lib/types/redis-types.js';
+import type { RawThreadInfo } from 'lib/types/thread-types.js';
 import {
   type ServerUpdateInfo,
   type UpdateData,
   type RawUpdateInfo,
   type CreateUpdatesResult,
   updateTypes,
-} from 'lib/types/update-types';
+} from 'lib/types/update-types.js';
 import type {
   UserInfos,
   LoggedInUserInfo,
   OldLoggedInUserInfo,
-} from 'lib/types/user-types';
-import { promiseAll } from 'lib/utils/promises';
+} from 'lib/types/user-types.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
-import { dbQuery, SQL, mergeAndConditions } from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import { deleteUpdatesByConditions } from '../deleters/update-deleters';
+import { dbQuery, SQL, mergeAndConditions } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import { deleteUpdatesByConditions } from '../deleters/update-deleters.js';
 import {
   fetchEntryInfos,
   fetchEntryInfosByID,
-} from '../fetchers/entry-fetchers';
-import { fetchMessageInfos } from '../fetchers/message-fetchers';
+} from '../fetchers/entry-fetchers.js';
+import { fetchMessageInfos } from '../fetchers/message-fetchers.js';
 import {
   fetchThreadInfos,
   type FetchThreadInfosResult,
-} from '../fetchers/thread-fetchers';
+} from '../fetchers/thread-fetchers.js';
 import {
   fetchKnownUserInfos,
   fetchCurrentUserInfo,
-} from '../fetchers/user-fetchers';
-import type { Viewer } from '../session/viewer';
-import { channelNameForUpdateTarget, publisher } from '../socket/redis';
-import createIDs from './id-creator';
+} from '../fetchers/user-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
+import { channelNameForUpdateTarget, publisher } from '../socket/redis.js';
+import createIDs from './id-creator.js';
 
 export type UpdatesForCurrentSession =
   // This is the default if no Viewer is passed, or if an isSocket Viewer is

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
-import AppListing from './app-listing.react';
+import AppListing from './app-listing.react.js';
 import css from './apps.css';
 
 const APP_DIRECTORY_DATA = [

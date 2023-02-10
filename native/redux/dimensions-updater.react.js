@@ -8,16 +8,16 @@ import {
 } from 'react-native-safe-area-context';
 import { useDispatch } from 'react-redux';
 
-import type { Dimensions } from 'lib/types/media-types';
+import type { Dimensions } from 'lib/types/media-types.js';
 
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
   rnsacThinksAndroidKeyboardResizesFrame,
-} from '../keyboard/keyboard';
-import { updateDimensionsActiveType } from './action-types';
-import { useSelector } from './redux-utils';
+} from '../keyboard/keyboard.js';
+import { updateDimensionsActiveType } from './action-types.js';
+import { useSelector } from './redux-utils.js';
 
 type BaseDimensionsInfo = {
   ...Dimensions,

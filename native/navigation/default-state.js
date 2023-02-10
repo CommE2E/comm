@@ -2,8 +2,8 @@
 
 import type { StaleNavigationState } from '@react-navigation/native';
 
-import type { BaseNavInfo } from 'lib/types/nav-types';
-import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils';
+import type { BaseNavInfo } from 'lib/types/nav-types.js';
+import { fifteenDaysEarlier, fifteenDaysLater } from 'lib/utils/date-utils.js';
 
 import {
   AppRouteName,
@@ -17,7 +17,7 @@ import {
   BackgroundChatThreadListRouteName,
   AppsRouteName,
   CommunityDrawerNavigatorRouteName,
-} from './route-names';
+} from './route-names.js';
 
 export type NavInfo = $Exact<BaseNavInfo>;
 

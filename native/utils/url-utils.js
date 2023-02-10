@@ -4,7 +4,10 @@ import invariant from 'invariant';
 import { Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 
-import { natDevHostname, checkForMissingNatDevHostname } from './dev-hostname';
+import {
+  natDevHostname,
+  checkForMissingNatDevHostname,
+} from './dev-hostname.js';
 
 const localhostHostname = 'localhost';
 const localhostHostnameFromAndroidEmulator = '10.0.2.2';

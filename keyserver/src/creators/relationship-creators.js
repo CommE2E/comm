@@ -1,25 +1,25 @@
 // @flow
 
-import _flatten from 'lodash/fp/flatten';
-import _flow from 'lodash/fp/flow';
-import _groupBy from 'lodash/fp/groupBy';
-import _isEqual from 'lodash/fp/isEqual';
-import _map from 'lodash/fp/map';
-import _mapValues from 'lodash/fp/mapValues';
-import _uniqWith from 'lodash/fp/uniqWith';
-import _values from 'lodash/fp/values';
+import _flatten from 'lodash/fp/flatten.js';
+import _flow from 'lodash/fp/flow.js';
+import _groupBy from 'lodash/fp/groupBy.js';
+import _isEqual from 'lodash/fp/isEqual.js';
+import _map from 'lodash/fp/map.js';
+import _mapValues from 'lodash/fp/mapValues.js';
+import _uniqWith from 'lodash/fp/uniqWith.js';
+import _values from 'lodash/fp/values.js';
 
 import {
   type UndirectedStatus,
   undirectedStatus,
-} from 'lib/types/relationship-types';
-import { getAllTuples } from 'lib/utils/array';
+} from 'lib/types/relationship-types.js';
+import { getAllTuples } from 'lib/utils/array.js';
 
 import {
   updateUndirectedRelationships,
   updateDatasForUserPairs,
-} from '../updaters/relationship-updaters';
-import { createUpdates } from './update-creator';
+} from '../updaters/relationship-updaters.js';
+import { createUpdates } from './update-creator.js';
 
 type QueryResult = {
   +thread: number,

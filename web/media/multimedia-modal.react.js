@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { XCircle as XCircleIcon } from 'react-feather';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 
 import css from './media.css';
 

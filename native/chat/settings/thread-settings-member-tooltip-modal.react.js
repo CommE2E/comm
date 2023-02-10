@@ -6,18 +6,18 @@ import { Alert } from 'react-native';
 import {
   removeUsersFromThread,
   changeThreadMemberRoles,
-} from 'lib/actions/thread-actions';
+} from 'lib/actions/thread-actions.js';
 import {
   memberIsAdmin,
   removeMemberFromThread,
   switchMemberAdminRoleInThread,
-} from 'lib/shared/thread-utils';
-import { stringForUser } from 'lib/shared/user-utils';
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
+} from 'lib/shared/thread-utils.js';
+import { stringForUser } from 'lib/shared/user-utils.js';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
 import {
   createTooltip,
@@ -25,8 +25,8 @@ import {
   type TooltipRoute,
   type BaseTooltipProps,
   type TooltipMenuProps,
-} from '../../tooltip/tooltip.react';
-import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react';
+} from '../../tooltip/tooltip.react.js';
+import ThreadSettingsMemberTooltipButton from './thread-settings-member-tooltip-button.react.js';
 
 export type ThreadSettingsMemberTooltipModalParams = TooltipParams<{
   +memberInfo: RelativeMemberInfo,

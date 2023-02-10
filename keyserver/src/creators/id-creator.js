@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { dbQuery, SQL } from '../database/database';
+import { dbQuery, SQL } from '../database/database.js';
 
 async function createIDs(
   tableName: string,

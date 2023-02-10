@@ -8,12 +8,12 @@ import {
   serverTranscodableTypes,
   serverCanHandleTypes,
   readableFilename,
-} from 'lib/media/file-utils';
-import { getImageProcessingPlan } from 'lib/media/image-utils';
-import type { Dimensions } from 'lib/types/media-types';
-import { deepFileInfoFromData } from 'web/media/file-utils';
+} from 'lib/media/file-utils.js';
+import { getImageProcessingPlan } from 'lib/media/image-utils.js';
+import type { Dimensions } from 'lib/types/media-types.js';
+import { deepFileInfoFromData } from 'web/media/file-utils.js';
 
-import type { UploadInput } from '../creators/upload-creator';
+import type { UploadInput } from '../creators/upload-creator.js';
 
 function initializeSharp(buffer: Buffer, mime: string) {
   if (mime !== 'image/bmp') {

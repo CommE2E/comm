@@ -12,86 +12,86 @@ import {
   leaveThreadActionTypes,
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
-} from 'lib/actions/thread-actions';
-import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+} from 'lib/actions/thread-actions.js';
+import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   threadInfoSelector,
   childThreadInfos,
-} from 'lib/selectors/thread-selectors';
-import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils';
+} from 'lib/selectors/thread-selectors.js';
+import { getAvailableRelationshipButtons } from 'lib/shared/relationship-utils.js';
 import {
   threadHasPermission,
   viewerIsMember,
   threadInChatList,
   getSingleOtherUser,
   threadIsChannel,
-} from 'lib/shared/thread-utils';
-import threadWatcher from 'lib/shared/thread-watcher';
-import type { RelationshipButton } from 'lib/types/relationship-types';
+} from 'lib/shared/thread-utils.js';
+import threadWatcher from 'lib/shared/thread-watcher.js';
+import type { RelationshipButton } from 'lib/types/relationship-types.js';
 import {
   type ThreadInfo,
   type ResolvedThreadInfo,
   type RelativeMemberInfo,
   threadPermissions,
   threadTypes,
-} from 'lib/types/thread-types';
-import type { UserInfos } from 'lib/types/user-types';
+} from 'lib/types/thread-types.js';
+import type { UserInfos } from 'lib/types/user-types.js';
 import {
   useResolvedThreadInfo,
   useResolvedOptionalThreadInfo,
   useResolvedOptionalThreadInfos,
-} from 'lib/utils/entity-helpers';
+} from 'lib/utils/entity-helpers.js';
 
-import ThreadAncestors from '../../components/thread-ancestors.react';
+import ThreadAncestors from '../../components/thread-ancestors.react.js';
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../../keyboard/keyboard-state';
-import { defaultStackScreenOptions } from '../../navigation/options';
+} from '../../keyboard/keyboard-state.js';
+import { defaultStackScreenOptions } from '../../navigation/options.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../../navigation/overlay-context';
-import type { NavigationRoute } from '../../navigation/route-names';
+} from '../../navigation/overlay-context.js';
+import type { NavigationRoute } from '../../navigation/route-names.js';
 import {
   AddUsersModalRouteName,
   ComposeSubchannelModalRouteName,
-} from '../../navigation/route-names';
-import type { TabNavigationProp } from '../../navigation/tab-navigator.react';
-import { useSelector } from '../../redux/redux-utils';
-import type { AppState } from '../../redux/state-types';
+} from '../../navigation/route-names.js';
+import type { TabNavigationProp } from '../../navigation/tab-navigator.react.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import type { AppState } from '../../redux/state-types.js';
 import {
   useStyles,
   type IndicatorStyle,
   useIndicatorStyle,
-} from '../../themes/colors';
-import type { VerticalBounds } from '../../types/layout-types';
-import type { ViewStyle } from '../../types/styles';
-import type { ChatNavigationProp } from '../chat.react';
-import type { CategoryType } from './thread-settings-category.react';
+} from '../../themes/colors.js';
+import type { VerticalBounds } from '../../types/layout-types.js';
+import type { ViewStyle } from '../../types/styles.js';
+import type { ChatNavigationProp } from '../chat.react.js';
+import type { CategoryType } from './thread-settings-category.react.js';
 import {
   ThreadSettingsCategoryHeader,
   ThreadSettingsCategoryFooter,
-} from './thread-settings-category.react';
-import ThreadSettingsChildThread from './thread-settings-child-thread.react';
-import ThreadSettingsColor from './thread-settings-color.react';
-import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react';
-import ThreadSettingsDescription from './thread-settings-description.react';
-import ThreadSettingsEditRelationship from './thread-settings-edit-relationship.react';
-import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react';
-import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react';
+} from './thread-settings-category.react.js';
+import ThreadSettingsChildThread from './thread-settings-child-thread.react.js';
+import ThreadSettingsColor from './thread-settings-color.react.js';
+import ThreadSettingsDeleteThread from './thread-settings-delete-thread.react.js';
+import ThreadSettingsDescription from './thread-settings-description.react.js';
+import ThreadSettingsEditRelationship from './thread-settings-edit-relationship.react.js';
+import ThreadSettingsHomeNotifs from './thread-settings-home-notifs.react.js';
+import ThreadSettingsLeaveThread from './thread-settings-leave-thread.react.js';
 import {
   ThreadSettingsSeeMore,
   ThreadSettingsAddMember,
   ThreadSettingsAddSubchannel,
-} from './thread-settings-list-action.react';
-import ThreadSettingsMember from './thread-settings-member.react';
-import ThreadSettingsName from './thread-settings-name.react';
-import ThreadSettingsParent from './thread-settings-parent.react';
-import ThreadSettingsPromoteSidebar from './thread-settings-promote-sidebar.react';
-import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react';
-import ThreadSettingsVisibility from './thread-settings-visibility.react';
+} from './thread-settings-list-action.react.js';
+import ThreadSettingsMember from './thread-settings-member.react.js';
+import ThreadSettingsName from './thread-settings-name.react.js';
+import ThreadSettingsParent from './thread-settings-parent.react.js';
+import ThreadSettingsPromoteSidebar from './thread-settings-promote-sidebar.react.js';
+import ThreadSettingsPushNotifs from './thread-settings-push-notifs.react.js';
+import ThreadSettingsVisibility from './thread-settings-visibility.react.js';
 
 const itemPageLength = 5;
 

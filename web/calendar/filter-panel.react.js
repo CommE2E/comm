@@ -15,28 +15,28 @@ import Switch from 'react-switch';
 import {
   useModalContext,
   type PushModal,
-} from 'lib/components/modal-provider.react';
+} from 'lib/components/modal-provider.react.js';
 import {
   filteredThreadIDsSelector,
   includeDeletedSelector,
-} from 'lib/selectors/calendar-filter-selectors';
-import SearchIndex from 'lib/shared/search-index';
+} from 'lib/selectors/calendar-filter-selectors.js';
+import SearchIndex from 'lib/shared/search-index.js';
 import {
   calendarThreadFilterTypes,
   type FilterThreadInfo,
   updateCalendarThreadFilter,
   clearCalendarThreadFilter,
   setCalendarDeletedFilter,
-} from 'lib/types/filter-types';
-import type { Dispatch } from 'lib/types/redux-types';
+} from 'lib/types/filter-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
 
-import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react';
-import { useSelector } from '../redux/redux-utils';
+import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   useFilterThreadInfos,
   useFilterThreadSearchIndex,
-} from '../selectors/calendar-selectors';
-import { MagnifyingGlass } from '../vectors.react';
+} from '../selectors/calendar-selectors.js';
+import { MagnifyingGlass } from '../vectors.react.js';
 import css from './filter-panel.css';
 
 type Props = {

@@ -8,7 +8,7 @@ import type {
 } from 'lib/types/relationship-types.js';
 
 import type { ButtonColor } from '../../components/button.react.js';
-import SearchModal from '../../modals/search-modal.react';
+import SearchModal from '../../modals/search-modal.react.js';
 import AddUsersList from './add-users-list.react.js';
 
 type Props = {

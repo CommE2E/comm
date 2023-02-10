@@ -2,26 +2,26 @@
 
 import type { $Request } from 'express';
 import invariant from 'invariant';
-import _debounce from 'lodash/debounce';
+import _debounce from 'lodash/debounce.js';
 import t from 'tcomb';
 import WebSocket from 'ws';
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
-import { mostRecentMessageTimestamp } from 'lib/shared/message-utils';
+import { mostRecentMessageTimestamp } from 'lib/shared/message-utils.js';
 import {
   serverRequestSocketTimeout,
   serverResponseTimeout,
-} from 'lib/shared/timeouts';
-import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils';
-import type { Shape } from 'lib/types/core';
-import { endpointIsSocketSafe } from 'lib/types/endpoints';
-import { defaultNumberPerThread } from 'lib/types/message-types';
-import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types';
+} from 'lib/shared/timeouts.js';
+import { mostRecentUpdateTimestamp } from 'lib/shared/update-utils.js';
+import type { Shape } from 'lib/types/core.js';
+import { endpointIsSocketSafe } from 'lib/types/endpoints.js';
+import { defaultNumberPerThread } from 'lib/types/message-types.js';
+import { redisMessageTypes, type RedisMessage } from 'lib/types/redis-types.js';
 import {
   cookieSources,
   sessionCheckFrequency,
   stateCheckInactivityActivationInterval,
-} from 'lib/types/session-types';
+} from 'lib/types/session-types.js';
 import {
   type ClientSocketMessage,
   type InitialClientSocketMessage,
@@ -36,55 +36,55 @@ import {
   clientSocketMessageTypes,
   stateSyncPayloadTypes,
   serverSocketMessageTypes,
-} from 'lib/types/socket-types';
-import { ServerError } from 'lib/utils/errors';
-import { values } from 'lib/utils/objects';
-import { promiseAll } from 'lib/utils/promises';
-import SequentialPromiseResolver from 'lib/utils/sequential-promise-resolver';
-import sleep from 'lib/utils/sleep';
-import { tShape, tCookie } from 'lib/utils/validation-utils';
+} from 'lib/types/socket-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
+import { promiseAll } from 'lib/utils/promises.js';
+import SequentialPromiseResolver from 'lib/utils/sequential-promise-resolver.js';
+import sleep from 'lib/utils/sleep.js';
+import { tShape, tCookie } from 'lib/utils/validation-utils.js';
 
-import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator';
-import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
-import { deleteCookie } from '../deleters/cookie-deleters';
-import { deleteUpdatesBeforeTimeTargetingSession } from '../deleters/update-deleters';
-import { jsonEndpoints } from '../endpoints';
-import { fetchEntryInfos } from '../fetchers/entry-fetchers';
+import { fetchUpdateInfosWithRawUpdateInfos } from '../creators/update-creator.js';
+import { deleteActivityForViewerSession } from '../deleters/activity-deleters.js';
+import { deleteCookie } from '../deleters/cookie-deleters.js';
+import { deleteUpdatesBeforeTimeTargetingSession } from '../deleters/update-deleters.js';
+import { jsonEndpoints } from '../endpoints.js';
+import { fetchEntryInfos } from '../fetchers/entry-fetchers.js';
 import {
   fetchMessageInfosSince,
   getMessageFetchResultFromRedisMessages,
-} from '../fetchers/message-fetchers';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
-import { fetchUpdateInfos } from '../fetchers/update-fetchers';
+} from '../fetchers/message-fetchers.js';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
+import { fetchUpdateInfos } from '../fetchers/update-fetchers.js';
 import {
   fetchCurrentUserInfo,
   fetchKnownUserInfos,
-} from '../fetchers/user-fetchers';
+} from '../fetchers/user-fetchers.js';
 import {
   newEntryQueryInputValidator,
   verifyCalendarQueryThreadIDs,
-} from '../responders/entry-responders';
-import { handleAsyncPromise } from '../responders/handlers';
+} from '../responders/entry-responders.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
 import {
   fetchViewerForSocket,
   extendCookieLifespan,
   createNewAnonymousCookie,
-} from '../session/cookies';
-import { Viewer } from '../session/viewer';
-import { commitSessionUpdate } from '../updaters/session-updaters';
-import { assertSecureRequest } from '../utils/security-utils';
+} from '../session/cookies.js';
+import { Viewer } from '../session/viewer.js';
+import { commitSessionUpdate } from '../updaters/session-updaters.js';
+import { assertSecureRequest } from '../utils/security-utils.js';
 import {
   checkInputValidator,
   checkClientSupported,
   policiesValidator,
-} from '../utils/validation-utils';
-import { RedisSubscriber } from './redis';
+} from '../utils/validation-utils.js';
+import { RedisSubscriber } from './redis.js';
 import {
   clientResponseInputValidator,
   processClientResponses,
   initializeSession,
   checkState,
-} from './session-utils';
+} from './session-utils.js';
 
 const clientSocketMessageInputValidator = t.union([
   tShape({

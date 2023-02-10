@@ -9,29 +9,29 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { messageKey } from 'lib/shared/message-utils';
-import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils';
-import type { MediaInfo } from 'lib/types/media-types';
+import { messageKey } from 'lib/shared/message-utils.js';
+import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils.js';
+import type { MediaInfo } from 'lib/types/media-types.js';
 
-import { ChatContext, type ChatContextType } from '../chat/chat-context';
-import { OverlayContext } from '../navigation/overlay-context';
-import type { OverlayContextType } from '../navigation/overlay-context';
+import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
+import { OverlayContext } from '../navigation/overlay-context.js';
+import type { OverlayContextType } from '../navigation/overlay-context.js';
 import {
   ImageModalRouteName,
   MultimediaMessageTooltipModalRouteName,
   VideoPlaybackModalRouteName,
-} from '../navigation/route-names';
-import { fixedTooltipHeight } from '../tooltip/tooltip.react';
-import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
-import { type VerticalBounds } from '../types/layout-types';
-import type { LayoutCoordinates } from '../types/layout-types';
-import ComposedMessage from './composed-message.react';
-import { InnerMultimediaMessage } from './inner-multimedia-message.react';
+} from '../navigation/route-names.js';
+import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
+import { type VerticalBounds } from '../types/layout-types.js';
+import type { LayoutCoordinates } from '../types/layout-types.js';
+import ComposedMessage from './composed-message.react.js';
+import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';
 import {
   getMediaKey,
   multimediaMessageSendFailed,
-} from './multimedia-message-utils';
-import { getMessageTooltipKey } from './utils';
+} from './multimedia-message-utils.js';
+import { getMessageTooltipKey } from './utils.js';
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,

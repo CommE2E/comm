@@ -1,6 +1,6 @@
 // @flow
 
-import Icon from '@expo/vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons.js';
 import invariant from 'invariant';
 import * as React from 'react';
 import {
@@ -27,34 +27,34 @@ import Reanimated, {
 } from 'react-native-reanimated';
 import { useDispatch } from 'react-redux';
 
-import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils';
-import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
-import type { PhotoCapture } from 'lib/types/media-types';
-import type { Dispatch } from 'lib/types/redux-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { pathFromURI, filenameFromPathOrURI } from 'lib/media/file-utils.js';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
+import type { PhotoCapture } from 'lib/types/media-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import ContentLoading from '../components/content-loading.react';
-import ConnectedStatusBar from '../connected-status-bar.react';
-import { type InputState, InputStateContext } from '../input/input-state';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import ContentLoading from '../components/content-loading.react.js';
+import ConnectedStatusBar from '../connected-status-bar.react.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
-import { updateDeviceCameraInfoActionType } from '../redux/action-types';
-import { type DimensionsInfo } from '../redux/dimensions-updater.react';
-import { useSelector } from '../redux/redux-utils';
-import { colors } from '../themes/colors';
-import { type DeviceCameraInfo } from '../types/camera';
-import type { NativeMethods } from '../types/react-native';
+} from '../navigation/overlay-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { updateDeviceCameraInfoActionType } from '../redux/action-types.js';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { colors } from '../themes/colors.js';
+import { type DeviceCameraInfo } from '../types/camera.js';
+import type { NativeMethods } from '../types/react-native.js';
 import {
   AnimatedView,
   type ViewStyle,
   type AnimatedViewStyle,
-} from '../types/styles';
-import { clamp, gestureJustEnded } from '../utils/animation-utils';
-import SendMediaButton from './send-media-button.react';
+} from '../types/styles.js';
+import { clamp, gestureJustEnded } from '../utils/animation-utils.js';
+import SendMediaButton from './send-media-button.react.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

@@ -1,33 +1,33 @@
 // @flow
 
 import invariant from 'invariant';
-import _difference from 'lodash/fp/difference';
-import _max from 'lodash/fp/max';
+import _difference from 'lodash/fp/difference.js';
+import _max from 'lodash/fp/max.js';
 
-import { localIDPrefix } from 'lib/shared/message-utils';
+import { localIDPrefix } from 'lib/shared/message-utils.js';
 import type {
   UpdateActivityResult,
   UpdateActivityRequest,
   SetThreadUnreadStatusRequest,
   SetThreadUnreadStatusResult,
-} from 'lib/types/activity-types';
-import { messageTypes } from 'lib/types/message-types';
-import { threadPermissions } from 'lib/types/thread-types';
-import { updateTypes } from 'lib/types/update-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/activity-types.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import { deleteActivityForViewerSession } from '../deleters/activity-deleters';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import { deleteActivityForViewerSession } from '../deleters/activity-deleters.js';
 import {
   checkThread,
   getValidThreads,
-} from '../fetchers/thread-permission-fetchers';
-import { rescindPushNotifs } from '../push/rescind';
-import { updateBadgeCount } from '../push/send';
-import type { Viewer } from '../session/viewer';
-import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times';
+} from '../fetchers/thread-permission-fetchers.js';
+import { rescindPushNotifs } from '../push/rescind.js';
+import { updateBadgeCount } from '../push/send.js';
+import type { Viewer } from '../session/viewer.js';
+import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times.js';
 
 type PartialThreadStatus = {
   +focusActive: boolean,

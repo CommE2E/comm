@@ -5,37 +5,37 @@ import * as React from 'react';
 import {
   leaveThread,
   leaveThreadActionTypes,
-} from 'lib/actions/thread-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
+} from 'lib/actions/thread-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react';
-import { childThreadInfos } from 'lib/selectors/thread-selectors';
+import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
+import { childThreadInfos } from 'lib/selectors/thread-selectors.js';
 import {
   threadHasPermission,
   viewerIsMember,
   threadIsChannel,
-} from 'lib/shared/thread-utils';
+} from 'lib/shared/thread-utils.js';
 import {
   type ThreadInfo,
   threadTypes,
   threadPermissions,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import MenuItem from '../components/menu-item.react';
-import Menu from '../components/menu.react';
-import SidebarPromoteModal from '../modals/chat/sidebar-promote-modal.react';
-import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react';
-import ComposeSubchannelModal from '../modals/threads/create/compose-subchannel-modal.react';
-import ThreadMembersModal from '../modals/threads/members/members-modal.react';
-import ThreadNotificationsModal from '../modals/threads/notifications/notifications-modal.react';
-import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react';
-import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react';
-import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.react';
-import { useSelector } from '../redux/redux-utils';
+import MenuItem from '../components/menu-item.react.js';
+import Menu from '../components/menu.react.js';
+import SidebarPromoteModal from '../modals/chat/sidebar-promote-modal.react.js';
+import ConfirmLeaveThreadModal from '../modals/threads/confirm-leave-thread-modal.react.js';
+import ComposeSubchannelModal from '../modals/threads/create/compose-subchannel-modal.react.js';
+import ThreadMembersModal from '../modals/threads/members/members-modal.react.js';
+import ThreadNotificationsModal from '../modals/threads/notifications/notifications-modal.react.js';
+import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react.js';
+import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react.js';
+import SubchannelsModal from '../modals/threads/subchannels/subchannels-modal.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import css from './thread-menu.css';
 
 type ThreadMenuProps = {

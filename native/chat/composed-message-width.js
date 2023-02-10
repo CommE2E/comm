@@ -1,6 +1,6 @@
 // @flow
 
-import { useSelector } from '../redux/redux-utils';
+import { useSelector } from '../redux/redux-utils.js';
 
 function useMessageListScreenWidth(): number {
   return useSelector(state => {

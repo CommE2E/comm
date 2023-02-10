@@ -2,38 +2,38 @@
 
 import invariant from 'invariant';
 
-import { permissionLookup } from 'lib/permissions/thread-permissions';
+import { permissionLookup } from 'lib/permissions/thread-permissions.js';
 import {
   filteredThreadIDs,
   filterExists,
   nonExcludeDeletedCalendarFilters,
-} from 'lib/selectors/calendar-filter-selectors';
-import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils';
+} from 'lib/selectors/calendar-filter-selectors.js';
+import { rawEntryInfoWithinCalendarQuery } from 'lib/shared/entry-utils.js';
 import type {
   CalendarQuery,
   FetchEntryInfosBase,
   DeltaEntryInfosResponse,
   RawEntryInfo,
-} from 'lib/types/entry-types';
-import { calendarThreadFilterTypes } from 'lib/types/filter-types';
-import type { HistoryRevisionInfo } from 'lib/types/history-types';
+} from 'lib/types/entry-types.js';
+import { calendarThreadFilterTypes } from 'lib/types/filter-types.js';
+import type { HistoryRevisionInfo } from 'lib/types/history-types.js';
 import {
   threadPermissions,
   type ThreadPermission,
-} from 'lib/types/thread-types';
-import { dateString } from 'lib/utils/date-utils';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/thread-types.js';
+import { dateString } from 'lib/utils/date-utils.js';
+import { ServerError } from 'lib/utils/errors.js';
 
 import {
   dbQuery,
   SQL,
   mergeAndConditions,
   mergeOrConditions,
-} from '../database/database';
-import type { SQLStatementType } from '../database/types';
-import type { Viewer } from '../session/viewer';
-import { creationString } from '../utils/idempotent';
-import { checkIfThreadIsBlocked } from './thread-permission-fetchers';
+} from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
+import type { Viewer } from '../session/viewer.js';
+import { creationString } from '../utils/idempotent.js';
+import { checkIfThreadIsBlocked } from './thread-permission-fetchers.js';
 
 async function fetchEntryInfo(
   viewer: Viewer,

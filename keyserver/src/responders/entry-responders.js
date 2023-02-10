@@ -3,7 +3,7 @@
 import t from 'tcomb';
 import type { TInterface } from 'tcomb';
 
-import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors';
+import { filteredThreadIDs } from 'lib/selectors/calendar-filter-selectors.js';
 import type {
   CalendarQuery,
   SaveEntryRequest,
@@ -15,30 +15,30 @@ import type {
   FetchEntryInfosResponse,
   DeltaEntryInfosResult,
   SaveEntryResponse,
-} from 'lib/types/entry-types';
-import { calendarThreadFilterTypes } from 'lib/types/filter-types';
+} from 'lib/types/entry-types.js';
+import { calendarThreadFilterTypes } from 'lib/types/filter-types.js';
 import type {
   FetchEntryRevisionInfosResult,
   FetchEntryRevisionInfosRequest,
-} from 'lib/types/history-types';
-import { ServerError } from 'lib/utils/errors';
-import { tString, tShape, tDate } from 'lib/utils/validation-utils';
+} from 'lib/types/history-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { tString, tShape, tDate } from 'lib/utils/validation-utils.js';
 
-import createEntry from '../creators/entry-creator';
-import { deleteEntry, restoreEntry } from '../deleters/entry-deleters';
+import createEntry from '../creators/entry-creator.js';
+import { deleteEntry, restoreEntry } from '../deleters/entry-deleters.js';
 import {
   fetchEntryInfos,
   fetchEntryRevisionInfo,
   fetchEntriesForSession,
-} from '../fetchers/entry-fetchers';
-import { verifyThreadIDs } from '../fetchers/thread-fetchers';
-import type { Viewer } from '../session/viewer';
+} from '../fetchers/entry-fetchers.js';
+import { verifyThreadIDs } from '../fetchers/thread-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
 import {
   updateEntry,
   compareNewCalendarQuery,
-} from '../updaters/entry-updaters';
-import { commitSessionUpdate } from '../updaters/session-updaters';
-import { validateInput } from '../utils/validation-utils';
+} from '../updaters/entry-updaters.js';
+import { commitSessionUpdate } from '../updaters/session-updaters.js';
+import { validateInput } from '../utils/validation-utils.js';
 
 const entryQueryInputValidator: TInterface = tShape({
   navID: t.maybe(t.String),

@@ -2,25 +2,25 @@
 
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
-import { userStoreSearchIndex } from 'lib/selectors/user-selectors';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
+import { userStoreSearchIndex } from 'lib/selectors/user-selectors.js';
 import {
   memberHasAdminPowers,
   memberIsAdmin,
   threadHasPermission,
-} from 'lib/shared/thread-utils';
+} from 'lib/shared/thread-utils.js';
 import {
   type RelativeMemberInfo,
   threadPermissions,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 
-import Button from '../../../components/button.react';
-import Tabs from '../../../components/tabs.react';
-import { useSelector } from '../../../redux/redux-utils';
-import SearchModal from '../../search-modal.react';
-import AddMembersModal from './add-members-modal.react';
-import ThreadMembersList from './members-list.react';
+import Button from '../../../components/button.react.js';
+import Tabs from '../../../components/tabs.react.js';
+import { useSelector } from '../../../redux/redux-utils.js';
+import SearchModal from '../../search-modal.react.js';
+import AddMembersModal from './add-members-modal.react.js';
+import ThreadMembersList from './members-list.react.js';
 import css from './members-modal.css';
 
 type ContentProps = {

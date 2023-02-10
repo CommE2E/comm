@@ -3,15 +3,15 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
-import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react';
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
-import { stringForReactionList } from 'lib/shared/reaction-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { stringForReactionList } from 'lib/shared/reaction-utils.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import CommIcon from '../CommIcon.react';
-import MessageReactionsModal from '../modals/chat/message-reactions-modal.react';
-import { useOnClickThread } from '../selectors/thread-selectors';
+import CommIcon from '../CommIcon.react.js';
+import MessageReactionsModal from '../modals/chat/message-reactions-modal.react.js';
+import { useOnClickThread } from '../selectors/thread-selectors.js';
 import css from './inline-engagement.css';
 
 type Props = {

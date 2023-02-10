@@ -1,63 +1,63 @@
 // @flow
 
 import invariant from 'invariant';
-import _difference from 'lodash/fp/difference';
+import _difference from 'lodash/fp/difference.js';
 import * as React from 'react';
 
 import {
   joinThreadActionTypes,
   joinThread,
   newThreadActionTypes,
-} from 'lib/actions/thread-actions';
+} from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   userStoreSearchIndex,
   relativeMemberInfoSelectorForMembersOfThread,
-} from 'lib/selectors/user-selectors';
-import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
+} from 'lib/selectors/user-selectors.js';
+import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
   viewerIsMember,
   threadFrozenDueToViewerBlock,
   threadActualMembers,
   checkIfDefaultMembersAreVoiced,
-} from 'lib/shared/thread-utils';
+} from 'lib/shared/thread-utils.js';
 import {
   getTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
-} from 'lib/shared/typeahead-utils';
-import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils';
-import type { CalendarQuery } from 'lib/types/entry-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import { messageTypes } from 'lib/types/message-types';
+} from 'lib/shared/typeahead-utils.js';
+import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import { messageTypes } from 'lib/types/message-types.js';
 import {
   type ThreadInfo,
   threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
-} from 'lib/types/thread-types';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
-import { type UserInfos } from 'lib/types/user-types';
+} from 'lib/types/thread-types.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
+import { type UserInfos } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../components/button.react';
+import Button from '../components/button.react.js';
 import {
   type InputState,
   type PendingMultimediaUpload,
-} from '../input/input-state';
-import LoadingIndicator from '../loading-indicator.react';
-import { allowedMimeTypeString } from '../media/file-utils';
-import Multimedia from '../media/multimedia.react';
-import { useSelector } from '../redux/redux-utils';
-import { nonThreadCalendarQuery } from '../selectors/nav-selectors';
-import { webTypeaheadRegex } from '../utils/typeahead-utils';
+} from '../input/input-state.js';
+import LoadingIndicator from '../loading-indicator.react.js';
+import { allowedMimeTypeString } from '../media/file-utils.js';
+import Multimedia from '../media/multimedia.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { nonThreadCalendarQuery } from '../selectors/nav-selectors.js';
+import { webTypeaheadRegex } from '../utils/typeahead-utils.js';
 import css from './chat-input-bar.css';
-import TypeaheadTooltip from './typeahead-tooltip.react';
+import TypeaheadTooltip from './typeahead-tooltip.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

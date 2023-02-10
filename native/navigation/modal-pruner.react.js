@@ -10,9 +10,9 @@ import * as React from 'react';
 import {
   clearRootModalsActionType,
   clearOverlayModalsActionType,
-} from './action-types';
-import type { NavContextType } from './navigation-context';
-import { AppRouteName } from './route-names';
+} from './action-types.js';
+import type { NavContextType } from './navigation-context.js';
+import { AppRouteName } from './route-names.js';
 
 type DependencyInfo = {
   status: 'missing' | 'resolved' | 'unresolved',

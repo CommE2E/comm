@@ -11,10 +11,10 @@ import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
   disableAppActionType,
   enableAppActionType,
-} from 'lib/reducers/enabled-apps-reducer';
-import type { SupportedApps } from 'lib/types/enabled-apps';
+} from 'lib/reducers/enabled-apps-reducer.js';
+import type { SupportedApps } from 'lib/types/enabled-apps.js';
 
-import Button from '../components/button.react';
+import Button from '../components/button.react.js';
 import css from './apps.css';
 
 type Props = {

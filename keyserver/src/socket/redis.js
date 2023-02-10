@@ -2,16 +2,16 @@
 
 import type { RedisClient } from 'redis';
 import redis from 'redis';
-import uuidv4 from 'uuid/v4';
+import uuidv4 from 'uuid/v4.js';
 
 import {
   redisMessageTypes,
   type RedisMessage,
   type UpdateTarget,
   type SessionIdentifier,
-} from 'lib/types/redis-types';
+} from 'lib/types/redis-types.js';
 
-import { getScriptContext } from '../scripts/script-context';
+import { getScriptContext } from '../scripts/script-context.js';
 
 function channelNameForUpdateTarget(updateTarget: UpdateTarget): string {
   if (updateTarget.sessionID) {

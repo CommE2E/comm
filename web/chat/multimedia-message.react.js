@@ -3,15 +3,15 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { type ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import { type InputState, InputStateContext } from '../input/input-state';
-import Multimedia from '../media/multimedia.react';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import Multimedia from '../media/multimedia.react.js';
 import css from './chat-message-list.css';
-import ComposedMessage from './composed-message.react';
-import sendFailed from './multimedia-message-send-failed';
+import ComposedMessage from './composed-message.react.js';
+import sendFailed from './multimedia-message-send-failed.js';
 type BaseProps = {
   +item: ChatMessageInfoItem,
   +threadInfo: ThreadInfo,

@@ -2,7 +2,7 @@
 
 import { contextBridge, ipcRenderer } from 'electron/renderer';
 
-import type { ElectronBridge } from 'lib/types/electron-types';
+import type { ElectronBridge } from 'lib/types/electron-types.js';
 
 const bridge: ElectronBridge = {
   onNavigate: callback => {

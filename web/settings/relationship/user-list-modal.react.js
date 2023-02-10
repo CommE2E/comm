@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
-import type { AccountUserInfo } from 'lib/types/user-types';
+import type { AccountUserInfo } from 'lib/types/user-types.js';
 
 import Button from '../../components/button.react.js';
-import SearchModal from '../../modals/search-modal.react';
+import SearchModal from '../../modals/search-modal.react.js';
 import css from './user-list.css';
-import { UserList, type UserRowProps } from './user-list.react';
+import { UserList, type UserRowProps } from './user-list.react.js';
 
 type Props = {
   +onClose: () => void,

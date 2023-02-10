@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { updateWindowActiveActionType } from './action-types';
-import { useSelector } from './redux-utils';
+import { updateWindowActiveActionType } from './action-types.js';
+import { useSelector } from './redux-utils.js';
 
 function FocusHandler(): React.Node {
   const [focused, setFocused] = React.useState(

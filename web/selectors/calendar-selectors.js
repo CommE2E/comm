@@ -3,11 +3,11 @@
 import {
   useFilterThreadInfos as baseUseFilterThreadInfos,
   useFilterThreadSearchIndex as baseUseFilterThreadSearchIndex,
-} from 'lib/selectors/calendar-selectors';
-import type SearchIndex from 'lib/shared/search-index';
-import type { FilterThreadInfo } from 'lib/types/filter-types';
+} from 'lib/selectors/calendar-selectors.js';
+import type SearchIndex from 'lib/shared/search-index.js';
+import type { FilterThreadInfo } from 'lib/types/filter-types.js';
 
-import { useSelector } from '../redux/redux-utils';
+import { useSelector } from '../redux/redux-utils.js';
 
 function useFilterThreadInfos(): $ReadOnlyArray<FilterThreadInfo> {
   const calendarActive = useSelector(state => state.navInfo.tab === 'calendar');

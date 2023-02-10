@@ -5,40 +5,40 @@ import * as React from 'react';
 import { View, StyleSheet, Alert, Keyboard, Platform } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { logInActionTypes, logIn } from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { logInActionTypes, logIn } from 'lib/actions/user-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   validEmailRegex,
   oldValidUsernameRegex,
-} from 'lib/shared/account-utils';
+} from 'lib/shared/account-utils.js';
 import {
   type LogInInfo,
   type LogInExtraInfo,
   type LogInResult,
   type LogInStartingPayload,
   logInActionSources,
-} from 'lib/types/account-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
+} from 'lib/types/account-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { commCoreModule } from '../native-modules';
-import { NavContext } from '../navigation/navigation-context';
-import { useSelector } from '../redux/redux-utils';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import type { KeyPressEvent } from '../types/react-native';
-import type { StateContainer } from '../utils/state-container';
-import { TextInput } from './modal-components.react';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { commCoreModule } from '../native-modules.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import type { KeyPressEvent } from '../types/react-native.js';
+import type { StateContainer } from '../utils/state-container.js';
+import { TextInput } from './modal-components.react.js';
 import {
   fetchNativeCredentials,
   setNativeCredentials,
-} from './native-credentials';
-import { PanelButton, Panel } from './panel-components.react';
-import PasswordInput from './password-input.react';
+} from './native-credentials.js';
+import { PanelButton, Panel } from './panel-components.react.js';
+import PasswordInput from './password-input.react.js';
 
 export type LogInState = {
   +usernameInputText: ?string,

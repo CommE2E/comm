@@ -1,18 +1,18 @@
 // @flow
 
 import classNames from 'classnames';
-import _groupBy from 'lodash/fp/groupBy';
-import _toPairs from 'lodash/fp/toPairs';
+import _groupBy from 'lodash/fp/groupBy.js';
+import _toPairs from 'lodash/fp/toPairs.js';
 import * as React from 'react';
 
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { stringForUser } from 'lib/shared/user-utils';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { stringForUser } from 'lib/shared/user-utils.js';
 import {
   type ThreadInfo,
   type RelativeMemberInfo,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 
-import ThreadMember from './member.react';
+import ThreadMember from './member.react.js';
 import css from './members-modal.css';
 
 type Props = {

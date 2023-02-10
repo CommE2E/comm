@@ -1,9 +1,9 @@
 // @flow
 
-import bots from 'lib/facts/bots';
-import { ServerError } from 'lib/utils/errors';
+import bots from 'lib/facts/bots.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { Viewer } from './viewer';
+import { Viewer } from './viewer.js';
 
 // Note that since the returned Viewer doesn't have a valid cookieID or
 // sessionID, a lot of things can go wrong when trying to use it with certain

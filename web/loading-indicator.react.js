@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 import tinycolor from 'tinycolor2';
 
-import type { LoadingStatus } from 'lib/types/loading-types';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 
 import css from './style.css';
 

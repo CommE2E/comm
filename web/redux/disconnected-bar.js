@@ -6,7 +6,7 @@ import * as React from 'react';
 import {
   useShouldShowDisconnectedBar,
   useDisconnectedBar,
-} from 'lib/hooks/disconnected-bar';
+} from 'lib/hooks/disconnected-bar.js';
 
 import css from './disconnected-bar.css';
 

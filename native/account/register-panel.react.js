@@ -13,31 +13,31 @@ import {
 } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { registerActionTypes, register } from 'lib/actions/user-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { validUsernameRegex } from 'lib/shared/account-utils';
+import { registerActionTypes, register } from 'lib/actions/user-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { validUsernameRegex } from 'lib/shared/account-utils.js';
 import type {
   RegisterInfo,
   LogInExtraInfo,
   RegisterResult,
   LogInStartingPayload,
-} from 'lib/types/account-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
+} from 'lib/types/account-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { NavContext } from '../navigation/navigation-context';
-import { useSelector } from '../redux/redux-utils';
-import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors';
-import type { KeyPressEvent } from '../types/react-native';
-import { type StateContainer } from '../utils/state-container';
-import { TextInput } from './modal-components.react';
-import { setNativeCredentials } from './native-credentials';
-import { PanelButton, Panel } from './panel-components.react';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { nativeLogInExtraInfoSelector } from '../selectors/account-selectors.js';
+import type { KeyPressEvent } from '../types/react-native.js';
+import { type StateContainer } from '../utils/state-container.js';
+import { TextInput } from './modal-components.react.js';
+import { setNativeCredentials } from './native-credentials.js';
+import { PanelButton, Panel } from './panel-components.react.js';
 
 export type RegisterState = {
   +usernameInputText: string,

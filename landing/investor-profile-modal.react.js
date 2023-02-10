@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
-import ModalOverlay from 'lib/components/modal-overlay.react';
-import { useModalContext } from 'lib/components/modal-provider.react';
+import ModalOverlay from 'lib/components/modal-overlay.react.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 
-import { keyedInvestorData } from './investor-data';
+import { keyedInvestorData } from './investor-data.js';
 import css from './investor-profile-modal.css';
-import InvestorProfile from './investor-profile.react';
+import InvestorProfile from './investor-profile.react.js';
 
 type Props = {
   +investorID: string,

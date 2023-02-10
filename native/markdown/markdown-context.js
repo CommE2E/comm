@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { SetState } from 'lib/types/hook-types';
+import type { SetState } from 'lib/types/hook-types.js';
 
 export type MarkdownContextType = {
   +setLinkModalActive: SetState<{ [key: string]: boolean }>,

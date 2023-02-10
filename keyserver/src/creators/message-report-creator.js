@@ -1,26 +1,26 @@
 // @flow
 
-import bots from 'lib/facts/bots';
-import { createMessageQuote } from 'lib/shared/message-utils';
-import { type MessageReportCreationRequest } from 'lib/types/message-report-types';
-import { messageTypes } from 'lib/types/message-types';
-import type { RawMessageInfo } from 'lib/types/message-types';
-import type { ServerThreadInfo } from 'lib/types/thread-types';
-import { ServerError } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
+import bots from 'lib/facts/bots.js';
+import { createMessageQuote } from 'lib/shared/message-utils.js';
+import { type MessageReportCreationRequest } from 'lib/types/message-report-types.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import type { RawMessageInfo } from 'lib/types/message-types.js';
+import type { ServerThreadInfo } from 'lib/types/thread-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
-import { createCommbotThread } from '../bots/commbot';
-import { fetchMessageInfoByID } from '../fetchers/message-fetchers';
+import { createCommbotThread } from '../bots/commbot.js';
+import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import {
   fetchPersonalThreadID,
   serverThreadInfoFromMessageInfo,
-} from '../fetchers/thread-fetchers';
+} from '../fetchers/thread-fetchers.js';
 import {
   fetchUsername,
   fetchKeyserverAdminID,
-} from '../fetchers/user-fetchers';
-import type { Viewer } from '../session/viewer';
-import createMessages from './message-creator';
+} from '../fetchers/user-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
+import createMessages from './message-creator.js';
 
 const { commbot } = bots;
 

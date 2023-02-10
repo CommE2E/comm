@@ -2,20 +2,20 @@
 
 import invariant from 'invariant';
 
-import ashoat from 'lib/facts/ashoat';
-import { messageTypes } from 'lib/types/message-types';
-import { threadTypes } from 'lib/types/thread-types';
+import ashoat from 'lib/facts/ashoat.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 import {
   getDate,
   dateString,
   prettyDateWithoutYear,
   prettyDateWithoutDay,
-} from 'lib/utils/date-utils';
+} from 'lib/utils/date-utils.js';
 
-import createMessages from '../creators/message-creator';
-import { createThread } from '../creators/thread-creator';
-import { fetchEntryInfosForThreadThisWeek } from '../fetchers/entry-fetchers';
-import { createScriptViewer } from '../session/scripts';
+import createMessages from '../creators/message-creator.js';
+import { createThread } from '../creators/thread-creator.js';
+import { fetchEntryInfosForThreadThisWeek } from '../fetchers/entry-fetchers.js';
+import { createScriptViewer } from '../session/scripts.js';
 
 const devUpdateThread = '1358777';
 const weeklyDevSyncScheduleThread = '4138372';

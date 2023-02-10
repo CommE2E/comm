@@ -8,15 +8,15 @@ import type {
   UpdateActivityRequest,
   SetThreadUnreadStatusRequest,
   SetThreadUnreadStatusResult,
-} from 'lib/types/activity-types';
-import { tShape } from 'lib/utils/validation-utils';
+} from 'lib/types/activity-types.js';
+import { tShape } from 'lib/utils/validation-utils.js';
 
-import type { Viewer } from '../session/viewer';
+import type { Viewer } from '../session/viewer.js';
 import {
   activityUpdater,
   setThreadUnreadStatus,
-} from '../updaters/activity-updaters';
-import { validateInput } from '../utils/validation-utils';
+} from '../updaters/activity-updaters.js';
+import { validateInput } from '../utils/validation-utils.js';
 
 const activityUpdatesInputValidator: TList<TInterface> = t.list(
   tShape({

@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
-import type { SelectionChangeEvent } from '../types/react-native';
-import ClearableTextInput from './clearable-text-input.react';
+import type { SelectionChangeEvent } from '../types/react-native.js';
+import ClearableTextInput from './clearable-text-input.react.js';
 import type {
   SelectableTextInputProps,
   SelectableTextInputRef,
-} from './selectable-text-input';
+} from './selectable-text-input.js';
 
 const SelectableTextInput = React.forwardRef(function BaseSelectableTextInput(
   props,

@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import nodemailer from 'nodemailer';
 
-import { isDev } from 'lib/utils/dev-utils';
+import { isDev } from 'lib/utils/dev-utils.js';
 
 import { importJSON } from '../utils/import-json.js';
 

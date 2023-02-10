@@ -2,11 +2,11 @@
 
 import invariant from 'invariant';
 
-import bots from 'lib/facts/bots';
-import { threadTypes } from 'lib/types/thread-types';
+import bots from 'lib/facts/bots.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 
-import { createThread } from '../creators/thread-creator';
-import { createBotViewer } from '../session/bots';
+import { createThread } from '../creators/thread-creator.js';
+import { createBotViewer } from '../session/bots.js';
 
 const { commbot } = bots;
 

@@ -7,17 +7,17 @@ import type {
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 
-import { unreadCount } from 'lib/selectors/thread-selectors';
+import { unreadCount } from 'lib/selectors/thread-selectors.js';
 
-import AppsDirectory from '../apps/apps-directory.react';
-import Calendar from '../calendar/calendar.react';
-import Chat from '../chat/chat.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import Profile from '../profile/profile.react';
-import { useSelector } from '../redux/redux-utils';
-import { useColors } from '../themes/colors';
-import CommunityDrawerButton from './community-drawer-button.react';
-import type { CommunityDrawerNavigationProp } from './community-drawer-navigator.react';
+import AppsDirectory from '../apps/apps-directory.react.js';
+import Calendar from '../calendar/calendar.react.js';
+import Chat from '../chat/chat.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import Profile from '../profile/profile.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useColors } from '../themes/colors.js';
+import CommunityDrawerButton from './community-drawer-button.react.js';
+import type { CommunityDrawerNavigationProp } from './community-drawer-navigator.react.js';
 import {
   CalendarRouteName,
   ChatRouteName,
@@ -25,9 +25,9 @@ import {
   AppsRouteName,
   type ScreenParamList,
   type TabParamList,
-} from './route-names';
-import type { NavigationRoute } from './route-names';
-import { tabBar } from './tab-bar.react';
+} from './route-names.js';
+import type { NavigationRoute } from './route-names.js';
+import { tabBar } from './tab-bar.react.js';
 
 const calendarTabOptions = {
   tabBarLabel: 'Calendar',

@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
 
-import Button from '../components/button.react';
-import { useStyles } from '../themes/colors';
+import Button from '../components/button.react.js';
+import { useStyles } from '../themes/colors.js';
 
 type Props = {
   +onSave: () => void,

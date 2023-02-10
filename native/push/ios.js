@@ -5,7 +5,7 @@ import { NativeModules, NativeEventEmitter } from 'react-native';
 import type {
   CoreIOSNotificationData,
   CoreIOSNotificationDataWithRequestIdentifier,
-} from './comm-ios-notification';
+} from './comm-ios-notification.js';
 
 type PushPermissions = { alert?: boolean, badge?: boolean, sound?: boolean };
 

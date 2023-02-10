@@ -1,10 +1,10 @@
 // @flow
 
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import type { PlatformDetails } from 'lib/types/device-types';
-import { ServerError } from 'lib/utils/errors';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import type { PlatformDetails } from 'lib/types/device-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import type { Viewer } from './viewer';
+import type { Viewer } from './viewer.js';
 
 async function verifyClientSupported(
   viewer: Viewer,

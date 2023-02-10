@@ -1,6 +1,6 @@
 // @flow
 
-import { getDevServerHostname } from '../utils/url-utils';
+import { getDevServerHostname } from '../utils/url-utils.js';
 
 const remoteReduxDevServerConfig = {
   port: 8043,

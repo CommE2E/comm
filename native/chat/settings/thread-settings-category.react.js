@@ -4,7 +4,7 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
 
-import { useStyles } from '../../themes/colors';
+import { useStyles } from '../../themes/colors.js';
 
 export type CategoryType = 'full' | 'outline' | 'unpadded';
 type HeaderProps = {

@@ -6,24 +6,24 @@ import * as React from 'react';
 import {
   deleteAccount,
   deleteAccountActionTypes,
-} from 'lib/actions/user-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
+} from 'lib/actions/user-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
-import type { LogOutResult } from 'lib/types/account-types';
-import type { PreRequestUserState } from 'lib/types/session-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+import type { LogOutResult } from 'lib/types/account-types.js';
+import type { PreRequestUserState } from 'lib/types/session-types.js';
+import type { DispatchActionPromise } from 'lib/utils/action-utils.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button, { buttonThemes } from '../components/button.react';
-import Input from '../modals/input.react';
-import Modal from '../modals/modal.react';
-import { useSelector } from '../redux/redux-utils';
+import Button, { buttonThemes } from '../components/button.react.js';
+import Input from '../modals/input.react.js';
+import Modal from '../modals/modal.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import css from './account-delete-modal.css';
 
 type Props = {

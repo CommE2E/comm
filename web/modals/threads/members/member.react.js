@@ -6,7 +6,7 @@ import * as React from 'react';
 import {
   removeUsersFromThread,
   changeThreadMemberRoles,
-} from 'lib/actions/thread-actions';
+} from 'lib/actions/thread-actions.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
 import {
   memberIsAdmin,
@@ -14,21 +14,21 @@ import {
   removeMemberFromThread,
   switchMemberAdminRoleInThread,
   getAvailableThreadMemberActions,
-} from 'lib/shared/thread-utils';
-import { stringForUser } from 'lib/shared/user-utils';
-import type { SetState } from 'lib/types/hook-types';
+} from 'lib/shared/thread-utils.js';
+import { stringForUser } from 'lib/shared/user-utils.js';
+import type { SetState } from 'lib/types/hook-types.js';
 import {
   type RelativeMemberInfo,
   type ThreadInfo,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Label from '../../../components/label.react';
-import MenuItem from '../../../components/menu-item.react';
-import Menu from '../../../components/menu.react';
+import Label from '../../../components/label.react.js';
+import MenuItem from '../../../components/menu-item.react.js';
+import Menu from '../../../components/menu.react.js';
 import css from './members-modal.css';
 
 type Props = {

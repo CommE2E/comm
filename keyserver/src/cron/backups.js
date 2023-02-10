@@ -9,8 +9,8 @@ import { PassThrough } from 'stream';
 import { promisify } from 'util';
 import zlib from 'zlib';
 
-import { getDBConfig, type DBConfig } from '../database/db-config';
-import { importJSON } from '../utils/import-json';
+import { getDBConfig, type DBConfig } from '../database/db-config.js';
+import { importJSON } from '../utils/import-json.js';
 
 const readdir = promisify(fs.readdir);
 const lstat = promisify(fs.lstat);

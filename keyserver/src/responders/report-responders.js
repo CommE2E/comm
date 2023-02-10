@@ -10,22 +10,22 @@ import {
   type FetchErrorReportInfosResponse,
   type FetchErrorReportInfosRequest,
   reportTypes,
-} from 'lib/types/report-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/report-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 import {
   tShape,
   tPlatform,
   tPlatformDetails,
-} from 'lib/utils/validation-utils';
+} from 'lib/utils/validation-utils.js';
 
-import createReport from '../creators/report-creator';
+import createReport from '../creators/report-creator.js';
 import {
   fetchErrorReportInfos,
   fetchReduxToolsImport,
-} from '../fetchers/report-fetchers';
-import type { Viewer } from '../session/viewer';
-import { validateInput } from '../utils/validation-utils';
-import { newEntryQueryInputValidator } from './entry-responders';
+} from '../fetchers/report-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
+import { validateInput } from '../utils/validation-utils.js';
+import { newEntryQueryInputValidator } from './entry-responders.js';
 
 const tActionSummary = tShape({
   type: t.String,

@@ -4,7 +4,7 @@ import { type IconDefinition } from '@fortawesome/fontawesome-common-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as React from 'react';
 
-import Button, { type ButtonColor } from '../../components/button.react';
+import Button, { type ButtonColor } from '../../components/button.react.js';
 import css from './relationship-prompt.css';
 
 type Props = {

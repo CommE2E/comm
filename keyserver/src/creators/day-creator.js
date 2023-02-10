@@ -1,9 +1,9 @@
 // @flow
 
-import { ServerError } from 'lib/utils/errors';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { dbQuery, SQL } from '../database/database';
-import createIDs from './id-creator';
+import { dbQuery, SQL } from '../database/database.js';
+import createIDs from './id-creator.js';
 
 const MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE = 1062;
 

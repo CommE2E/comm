@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
-import { userRelationshipStatus } from 'lib/types/relationship-types';
-import type { AccountUserInfo } from 'lib/types/user-types';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import { userRelationshipStatus } from 'lib/types/relationship-types.js';
+import type { AccountUserInfo } from 'lib/types/user-types.js';
 
-import AddFriendsModal from './add-friends-modal.react';
-import FriendListRow from './friend-list-row.react';
-import UserListModal from './user-list-modal.react';
+import AddFriendsModal from './add-friends-modal.react.js';
+import FriendListRow from './friend-list-row.react.js';
+import UserListModal from './user-list-modal.react.js';
 
 const relationships = [
   userRelationshipStatus.REQUEST_RECEIVED,

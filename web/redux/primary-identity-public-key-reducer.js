@@ -3,7 +3,7 @@
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
-} from 'lib/actions/user-actions';
+} from 'lib/actions/user-actions.js';
 import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
 import type { Action } from './redux-setup.js';

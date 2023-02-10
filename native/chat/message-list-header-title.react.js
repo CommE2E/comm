@@ -1,6 +1,6 @@
 // @flow
 
-import Icon from '@expo/vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons.js';
 import {
   HeaderTitle,
   type HeaderTitleInputProps,
@@ -8,14 +8,14 @@ import {
 import * as React from 'react';
 import { View, Platform } from 'react-native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
-import { firstLine } from 'lib/utils/string-utils';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import { firstLine } from 'lib/utils/string-utils.js';
 
-import Button from '../components/button.react';
-import { ThreadSettingsRouteName } from '../navigation/route-names';
-import { useStyles } from '../themes/colors';
-import type { ChatNavigationProp } from './chat.react';
+import Button from '../components/button.react.js';
+import { ThreadSettingsRouteName } from '../navigation/route-names.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatNavigationProp } from './chat.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

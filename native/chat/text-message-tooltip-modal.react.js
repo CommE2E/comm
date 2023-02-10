@@ -4,22 +4,22 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import { createMessageReply } from 'lib/shared/message-utils';
+import { createMessageReply } from 'lib/shared/message-utils.js';
 
-import CommIcon from '../components/comm-icon.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { InputStateContext } from '../input/input-state';
-import { displayActionResultModal } from '../navigation/action-result-modal';
+import CommIcon from '../components/comm-icon.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { InputStateContext } from '../input/input-state.js';
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import {
   createTooltip,
   type TooltipParams,
   type BaseTooltipProps,
   type TooltipMenuProps,
-} from '../tooltip/tooltip.react';
-import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
-import { useOnPressReport } from './message-report-utils';
-import { useAnimatedNavigateToSidebar } from './sidebar-navigation';
-import TextMessageTooltipButton from './text-message-tooltip-button.react';
+} from '../tooltip/tooltip.react.js';
+import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { useOnPressReport } from './message-report-utils.js';
+import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
+import TextMessageTooltipButton from './text-message-tooltip-button.react.js';
 
 export type TextMessageTooltipModalParams = TooltipParams<{
   +item: ChatTextMessageInfoItemWithHeight,

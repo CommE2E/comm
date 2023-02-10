@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import Button from '../../components/button.react.js';
-import Modal from '../modal.react';
+import Modal from '../modal.react.js';
 import css from './cant-leave-thread-modal.css';
 
 type Props = {

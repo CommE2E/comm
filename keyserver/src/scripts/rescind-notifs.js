@@ -1,11 +1,11 @@
 // @flow
 
-import { threadTypes } from 'lib/types/thread-types';
+import { threadTypes } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { createScriptViewer } from '../session/scripts';
-import { activityUpdater } from '../updaters/activity-updaters';
-import { main } from './utils';
+import { dbQuery, SQL } from '../database/database.js';
+import { createScriptViewer } from '../session/scripts.js';
+import { activityUpdater } from '../updaters/activity-updaters.js';
+import { main } from './utils.js';
 
 async function rescindNotifs() {
   const fetchRescindThreadInfo = SQL`

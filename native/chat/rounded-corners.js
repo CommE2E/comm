@@ -1,8 +1,8 @@
 // @flow
 
-import type { Corners } from 'lib/types/media-types';
+import type { Corners } from 'lib/types/media-types.js';
 
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type FilteredCorners = {
   +bottomLeft: void | boolean,

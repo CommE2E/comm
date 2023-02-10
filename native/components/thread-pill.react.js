@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import Pill from './pill.react';
+import Pill from './pill.react.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

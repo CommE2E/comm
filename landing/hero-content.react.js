@@ -3,9 +3,9 @@
 import * as React from 'react';
 import TextLoop from 'react-text-loop';
 
-import { assetMetaData } from './asset-meta-data';
+import { assetMetaData } from './asset-meta-data.js';
 import css from './hero-content.css';
-import SubscriptionForm from './subscription-form.react';
+import SubscriptionForm from './subscription-form.react.js';
 
 function HeroContent(): React.Node {
   const [hero] = assetMetaData;

@@ -1,13 +1,13 @@
 // @flow
 
 import type { IoniconsGlyphs } from '@expo/vector-icons';
-import Icon from '@expo/vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons.js';
 import * as React from 'react';
 import { View, Text, Platform } from 'react-native';
 
-import Button from '../../components/button.react';
-import { useStyles } from '../../themes/colors';
-import type { ViewStyle, TextStyle } from '../../types/styles';
+import Button from '../../components/button.react.js';
+import { useStyles } from '../../themes/colors.js';
+import type { ViewStyle, TextStyle } from '../../types/styles.js';
 
 type ListActionProps = {
   +onPress: () => void,

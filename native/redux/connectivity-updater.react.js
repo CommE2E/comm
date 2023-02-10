@@ -4,8 +4,8 @@ import NetInfo from '@react-native-community/netinfo';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { updateConnectivityActiveType } from './action-types';
-import { useSelector } from './redux-utils';
+import { updateConnectivityActiveType } from './action-types.js';
+import { useSelector } from './redux-utils.js';
 
 export default function ConnectivityUpdater(): null {
   const connectivity = useSelector(state => state.connectivity);

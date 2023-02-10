@@ -1,13 +1,13 @@
 // @flow
 
 import { baseLegalPolicies } from 'lib/facts/policies.js';
-import type { Endpoint } from 'lib/types/endpoints';
+import type { Endpoint } from 'lib/types/endpoints.js';
 
 import {
   updateActivityResponder,
   threadSetUnreadStatusResponder,
-} from './responders/activity-responders';
-import { deviceTokenUpdateResponder } from './responders/device-responders';
+} from './responders/activity-responders.js';
+import { deviceTokenUpdateResponder } from './responders/device-responders.js';
 import {
   entryFetchResponder,
   entryRevisionFetchResponder,
@@ -16,24 +16,24 @@ import {
   entryDeletionResponder,
   entryRestorationResponder,
   calendarQueryUpdateResponder,
-} from './responders/entry-responders';
-import type { JSONResponder } from './responders/handlers';
-import { getSessionPublicKeysResponder } from './responders/keys-responders';
-import { messageReportCreationResponder } from './responders/message-report-responder';
+} from './responders/entry-responders.js';
+import type { JSONResponder } from './responders/handlers.js';
+import { getSessionPublicKeysResponder } from './responders/keys-responders.js';
+import { messageReportCreationResponder } from './responders/message-report-responder.js';
 import {
   textMessageCreationResponder,
   messageFetchResponder,
   multimediaMessageCreationResponder,
   reactionMessageCreationResponder,
-} from './responders/message-responders';
-import { updateRelationshipsResponder } from './responders/relationship-responders';
+} from './responders/message-responders.js';
+import { updateRelationshipsResponder } from './responders/relationship-responders.js';
 import {
   reportCreationResponder,
   reportMultiCreationResponder,
   errorReportFetchInfosResponder,
-} from './responders/report-responders';
-import { userSearchResponder } from './responders/search-responders';
-import { siweNonceResponder } from './responders/siwe-nonce-responders';
+} from './responders/report-responders.js';
+import { userSearchResponder } from './responders/search-responders.js';
+import { siweNonceResponder } from './responders/siwe-nonce-responders.js';
 import {
   threadDeletionResponder,
   roleUpdateResponder,
@@ -42,7 +42,7 @@ import {
   threadUpdateResponder,
   threadCreationResponder,
   threadJoinResponder,
-} from './responders/thread-responders';
+} from './responders/thread-responders.js';
 import {
   userSubscriptionUpdateResponder,
   passwordUpdateResponder,
@@ -56,9 +56,9 @@ import {
   oldPasswordUpdateResponder,
   updateUserSettingsResponder,
   policyAcknowledgmentResponder,
-} from './responders/user-responders';
-import { codeVerificationResponder } from './responders/verification-responders';
-import { uploadDeletionResponder } from './uploads/uploads';
+} from './responders/user-responders.js';
+import { codeVerificationResponder } from './responders/verification-responders.js';
+import { uploadDeletionResponder } from './uploads/uploads.js';
 
 const jsonEndpoints: { [id: Endpoint]: JSONResponder } = {
   create_account: {

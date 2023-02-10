@@ -1,9 +1,9 @@
 // @flow
-import ashoat from 'lib/facts/ashoat';
+import ashoat from 'lib/facts/ashoat.js';
 
-import { createThread } from '../creators/thread-creator';
-import { createScriptViewer } from '../session/scripts';
-import { main } from './utils';
+import { createThread } from '../creators/thread-creator.js';
+import { createScriptViewer } from '../session/scripts.js';
+import { main } from './utils.js';
 
 const testUserID = '';
 const numOfThreads = 1000;

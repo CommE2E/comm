@@ -12,31 +12,31 @@ import {
 } from 'react-native';
 import Animated, { SlideInDown, SlideOutDown } from 'react-native-reanimated';
 
-import { ChatContext, type ChatContextType } from '../chat/chat-context';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../navigation/overlay-context';
-import type { TooltipModalParamList } from '../navigation/route-names';
-import { type DimensionsInfo } from '../redux/dimensions-updater.react';
-import { useSelector } from '../redux/redux-utils';
-import { useStyles } from '../themes/colors';
+} from '../navigation/overlay-context.js';
+import type { TooltipModalParamList } from '../navigation/route-names.js';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
 import {
   type VerticalBounds,
   type LayoutCoordinates,
-} from '../types/layout-types';
-import type { LayoutEvent } from '../types/react-native';
-import { AnimatedView } from '../types/styles';
+} from '../types/layout-types.js';
+import type { LayoutEvent } from '../types/react-native.js';
+import { AnimatedView } from '../types/styles.js';
 import {
   TooltipContextProvider,
   TooltipContext,
   type TooltipContextType,
-} from './tooltip-context.react';
+} from './tooltip-context.react.js';
 import BaseTooltipItem, {
   type TooltipItemBaseProps,
-} from './tooltip-item.react';
+} from './tooltip-item.react.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Value, Node, Extrapolate, add, multiply, interpolateNode } = Animated;

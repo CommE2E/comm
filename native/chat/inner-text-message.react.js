@@ -4,24 +4,24 @@ import * as React from 'react';
 import { View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { colorIsDark } from 'lib/shared/thread-utils';
+import { colorIsDark } from 'lib/shared/thread-utils.js';
 
-import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
-import Markdown from '../markdown/markdown.react';
-import { useSelector } from '../redux/redux-utils';
-import { useColors, colors } from '../themes/colors';
-import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
-import { useComposedMessageMaxWidth } from './composed-message-width';
-import { useTextMessageMarkdownRules } from './message-list-types';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
+import Markdown from '../markdown/markdown.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useColors, colors } from '../themes/colors.js';
+import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { useComposedMessageMaxWidth } from './composed-message-width.js';
+import { useTextMessageMarkdownRules } from './message-list-types.js';
 import {
   allCorners,
   filterCorners,
   getRoundedContainerStyle,
-} from './rounded-corners';
+} from './rounded-corners.js';
 import {
   TextMessageMarkdownContext,
   useTextMessageMarkdown,
-} from './text-message-markdown-context';
+} from './text-message-markdown-context.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;

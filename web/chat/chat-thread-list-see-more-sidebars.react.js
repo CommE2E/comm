@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import * as React from 'react';
 import { IoIosMore } from 'react-icons/io';
 
-import { useModalContext } from 'lib/components/modal-provider.react';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react';
+import SidebarsModal from '../modals/threads/sidebars/sidebars-modal.react.js';
 import css from './chat-thread-list.css';
 
 type Props = {

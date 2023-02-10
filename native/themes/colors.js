@@ -4,11 +4,11 @@ import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import { createSelector } from 'reselect';
 
-import { selectBackgroundIsDark } from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import { useSelector } from '../redux/redux-utils';
-import type { AppState } from '../redux/state-types';
-import type { GlobalTheme } from '../types/themes';
+import { selectBackgroundIsDark } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { AppState } from '../redux/state-types.js';
+import type { GlobalTheme } from '../types/themes.js';
 
 const light = Object.freeze({
   blockQuoteBackground: '#E0E0E0',

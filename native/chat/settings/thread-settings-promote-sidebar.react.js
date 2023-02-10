@@ -3,13 +3,13 @@
 import * as React from 'react';
 import { Text, ActivityIndicator, View, Alert } from 'react-native';
 
-import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import { usePromoteSidebar } from 'lib/hooks/promote-sidebar.react.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../../components/button.react';
-import { type Colors, useColors, useStyles } from '../../themes/colors';
-import type { ViewStyle } from '../../types/styles';
+import Button from '../../components/button.react.js';
+import { type Colors, useColors, useStyles } from '../../themes/colors.js';
+import type { ViewStyle } from '../../types/styles.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

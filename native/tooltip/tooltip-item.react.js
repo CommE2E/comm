@@ -4,10 +4,10 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { TouchableOpacity } from 'react-native';
 
-import { SingleLine } from '../components/single-line.react';
-import { useStyles } from '../themes/colors';
-import type { ViewStyle, TextStyle } from '../types/styles';
-import { TooltipContext } from './tooltip-context.react';
+import { SingleLine } from '../components/single-line.react.js';
+import { useStyles } from '../themes/colors.js';
+import type { ViewStyle, TextStyle } from '../types/styles.js';
+import { TooltipContext } from './tooltip-context.react.js';
 
 export type TooltipItemBaseProps = {
   +id: string,

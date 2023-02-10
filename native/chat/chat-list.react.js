@@ -1,7 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
-import _sum from 'lodash/fp/sum';
+import _sum from 'lodash/fp/sum.js';
 import * as React from 'react';
 import {
   Animated,
@@ -13,20 +13,20 @@ import {
 } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
-import { localIDPrefix } from 'lib/shared/message-utils';
+import { localIDPrefix } from 'lib/shared/message-utils.js';
 
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../keyboard/keyboard-state';
-import type { TabNavigationProp } from '../navigation/tab-navigator.react';
-import { useSelector } from '../redux/redux-utils';
-import type { ChatMessageItemWithHeight } from '../types/chat-types';
-import type { ScrollEvent } from '../types/react-native';
-import type { ViewStyle } from '../types/styles';
-import type { ChatNavigationProp } from './chat.react';
-import NewMessagesPill from './new-messages-pill.react';
-import { chatMessageItemHeight, chatMessageItemKey } from './utils';
+} from '../keyboard/keyboard-state.js';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
+import type { ScrollEvent } from '../types/react-native.js';
+import type { ViewStyle } from '../types/styles.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import NewMessagesPill from './new-messages-pill.react.js';
+import { chatMessageItemHeight, chatMessageItemKey } from './utils.js';
 
 type FlatListElementRef = React.ElementRef<typeof ReactNativeFlatList>;
 type FlatListProps = React.ElementConfig<typeof ReactNativeFlatList>;

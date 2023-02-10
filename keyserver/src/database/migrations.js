@@ -2,14 +2,14 @@
 
 import type { QueryResults } from 'mysql';
 
-import { isDev } from 'lib/utils/dev-utils';
-import { getMessageForException } from 'lib/utils/errors';
-import sleep from 'lib/utils/sleep';
+import { isDev } from 'lib/utils/dev-utils.js';
+import { getMessageForException } from 'lib/utils/errors.js';
+import sleep from 'lib/utils/sleep.js';
 
-import { dbQuery, SQL, setConnectionContext } from './database';
-import { fetchDBVersion, updateDBVersion } from './db-version';
-import { migrations } from './migration-config';
-import { setupDB } from './setup-db';
+import { dbQuery, SQL, setConnectionContext } from './database.js';
+import { fetchDBVersion, updateDBVersion } from './db-version.js';
+import { migrations } from './migration-config.js';
+import { setupDB } from './setup-db.js';
 
 async function migrate(): Promise<boolean> {
   if (isDev) {

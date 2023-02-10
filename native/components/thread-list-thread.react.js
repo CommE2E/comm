@@ -2,14 +2,14 @@
 
 import * as React from 'react';
 
-import type { ThreadInfo, ResolvedThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import type { ThreadInfo, ResolvedThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import { type Colors, useStyles, useColors } from '../themes/colors';
-import type { ViewStyle, TextStyle } from '../types/styles';
-import Button from './button.react';
-import ColorSplotch from './color-splotch.react';
-import { SingleLine } from './single-line.react';
+import { type Colors, useStyles, useColors } from '../themes/colors.js';
+import type { ViewStyle, TextStyle } from '../types/styles.js';
+import Button from './button.react.js';
+import ColorSplotch from './color-splotch.react.js';
+import { SingleLine } from './single-line.react.js';
 
 type SharedProps = {
   +onSelect: (threadID: string) => void,

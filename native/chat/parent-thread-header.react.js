@@ -4,13 +4,13 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import type { ThreadInfo, ThreadType } from 'lib/types/thread-types';
+import type { ThreadInfo, ThreadType } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react';
-import CommunityPill from '../components/community-pill.react';
-import ThreadVisibility from '../components/thread-visibility.react';
-import { useColors, useStyles } from '../themes/colors';
-import { useNavigateToThread } from './message-list-types';
+import Button from '../components/button.react.js';
+import CommunityPill from '../components/community-pill.react.js';
+import ThreadVisibility from '../components/thread-visibility.react.js';
+import { useColors, useStyles } from '../themes/colors.js';
+import { useNavigateToThread } from './message-list-types.js';
 
 type Props = {
   +parentThreadInfo: ThreadInfo,

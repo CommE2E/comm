@@ -6,36 +6,36 @@ import express from 'express';
 import expressWs from 'express-ws';
 import os from 'os';
 
-import './cron/cron';
-import { migrate } from './database/migrations';
-import { jsonEndpoints } from './endpoints';
-import { emailSubscriptionResponder } from './responders/comm-landing-responders';
+import './cron/cron.js';
+import { migrate } from './database/migrations.js';
+import { jsonEndpoints } from './endpoints.js';
+import { emailSubscriptionResponder } from './responders/comm-landing-responders.js';
 import {
   jsonHandler,
   httpGetHandler,
   downloadHandler,
   htmlHandler,
   uploadHandler,
-} from './responders/handlers';
-import landingHandler from './responders/landing-handler';
-import { errorReportDownloadResponder } from './responders/report-responders';
+} from './responders/handlers.js';
+import landingHandler from './responders/landing-handler.js';
+import { errorReportDownloadResponder } from './responders/report-responders.js';
 import {
   createNewVersionResponder,
   markVersionDeployedResponder,
-} from './responders/version-responders';
-import { websiteResponder } from './responders/website-responders';
-import { onConnection } from './socket/socket';
+} from './responders/version-responders.js';
+import { websiteResponder } from './responders/website-responders.js';
+import { onConnection } from './socket/socket.js';
 import {
   multerProcessor,
   multimediaUploadResponder,
   uploadDownloadResponder,
-} from './uploads/uploads';
+} from './uploads/uploads.js';
 import {
   prefetchAllURLFacts,
   getSquadCalURLFacts,
   getLandingURLFacts,
   getCommAppURLFacts,
-} from './utils/urls';
+} from './utils/urls.js';
 
 (async () => {
   await prefetchAllURLFacts();

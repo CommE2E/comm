@@ -14,21 +14,21 @@ import {
 import {
   policyAcknowledgment,
   policyAcknowledgmentActionTypes,
-} from 'lib/actions/user-actions';
-import { type PolicyType, policyTypes } from 'lib/facts/policies';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+} from 'lib/actions/user-actions.js';
+import { type PolicyType, policyTypes } from 'lib/facts/policies.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
-import { acknowledgePolicy } from 'lib/utils/policy-acknowledge-utlis';
+} from 'lib/utils/action-utils.js';
+import { acknowledgePolicy } from 'lib/utils/policy-acknowledge-utlis.js';
 
-import Button from '../components/button.react';
-import Modal from '../components/modal.react';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { useStyles } from '../themes/colors';
+import Button from '../components/button.react.js';
+import Modal from '../components/modal.react.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
 
 export type TermsAndPrivacyModalParams = {
   +policyType: PolicyType,

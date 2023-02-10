@@ -1,11 +1,11 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
 import { TouchableOpacity, View, Text, Platform, Animated } from 'react-native';
 
-import { useStyles } from '../themes/colors';
-import type { ViewStyle } from '../types/styles';
+import { useStyles } from '../themes/colors.js';
+import type { ViewStyle } from '../types/styles.js';
 
 type Props = {
   +onPress: () => mixed,

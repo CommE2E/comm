@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { updateLifecycleStateActionType } from 'lib/reducers/lifecycle-state-reducer';
-import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
+import { updateLifecycleStateActionType } from 'lib/reducers/lifecycle-state-reducer.js';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 
-import { useVisibility } from './visibility';
+import { useVisibility } from './visibility.js';
 
 function VisibilityHandler(): React.Node {
   const visibility = useVisibility();

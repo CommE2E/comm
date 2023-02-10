@@ -1,14 +1,14 @@
 // @flow
 
-import Icon from '@expo/vector-icons/Feather';
+import Icon from '@expo/vector-icons/Feather.js';
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { TouchableOpacity, Text, View } from 'react-native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { useStyles } from '../themes/colors';
-import { SubchannelsListModalRouteName } from './route-names';
+import { useStyles } from '../themes/colors.js';
+import { SubchannelsListModalRouteName } from './route-names.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

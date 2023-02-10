@@ -2,8 +2,8 @@
 
 import sizeOf from 'buffer-image-size';
 
-import { dbQuery, SQL } from '../database/database';
-import { endScript } from './utils';
+import { dbQuery, SQL } from '../database/database.js';
+import { endScript } from './utils.js';
 
 async function main() {
   try {

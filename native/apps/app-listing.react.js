@@ -7,11 +7,11 @@ import { useDispatch } from 'react-redux';
 import {
   disableAppActionType,
   enableAppActionType,
-} from 'lib/reducers/enabled-apps-reducer';
-import type { SupportedApps } from 'lib/types/enabled-apps';
+} from 'lib/reducers/enabled-apps-reducer.js';
+import type { SupportedApps } from 'lib/types/enabled-apps.js';
 
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { useColors, useStyles } from '../themes/colors';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { useColors, useStyles } from '../themes/colors.js';
 
 type Props = {
   +id: SupportedApps | 'chat',

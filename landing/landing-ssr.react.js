@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { StaticRouter } from 'react-router';
 
-import Landing from './landing.react';
+import Landing from './landing.react.js';
 import { SIWEContext } from './siwe-context.js';
 
 export type LandingSSRProps = {

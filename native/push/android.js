@@ -2,7 +2,7 @@
 
 import { NativeModules, NativeEventEmitter } from 'react-native';
 
-import { mergePrefixIntoBody } from 'lib/shared/notif-utils';
+import { mergePrefixIntoBody } from 'lib/shared/notif-utils.js';
 
 type CommAndroidNotificationsModuleType = {
   +removeAllActiveNotificationsForThread: (threadID: string) => void,

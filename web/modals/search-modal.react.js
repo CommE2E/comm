@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 
-import Search from '../components/search.react';
-import Modal, { type ModalOverridableProps } from './modal.react';
+import Search from '../components/search.react.js';
+import Modal, { type ModalOverridableProps } from './modal.react.js';
 import css from './search-modal.css';
 
 type Props = {

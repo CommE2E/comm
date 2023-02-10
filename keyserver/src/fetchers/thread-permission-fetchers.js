@@ -4,24 +4,24 @@ import {
   permissionLookup,
   makePermissionsBlob,
   getRoleForPermissions,
-} from 'lib/permissions/thread-permissions';
-import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils';
+} from 'lib/permissions/thread-permissions.js';
+import { relationshipBlockedInEitherDirection } from 'lib/shared/relationship-utils.js';
 import {
   threadFrozenDueToBlock,
   permissionsDisabledByBlock,
-} from 'lib/shared/thread-utils';
-import { userRelationshipStatus } from 'lib/types/relationship-types';
+} from 'lib/shared/thread-utils.js';
+import { userRelationshipStatus } from 'lib/types/relationship-types.js';
 import type {
   ThreadType,
   ThreadPermission,
   ThreadPermissionsBlob,
   ThreadRolePermissionsBlob,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
-import { fetchThreadInfos } from './thread-fetchers';
-import { fetchKnownUserInfos } from './user-fetchers';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
+import { fetchThreadInfos } from './thread-fetchers.js';
+import { fetchKnownUserInfos } from './user-fetchers.js';
 
 // Note that it's risky to verify permissions by inspecting the blob directly.
 // There are other factors that can override permissions in the permissions

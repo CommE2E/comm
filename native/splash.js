@@ -3,9 +3,9 @@
 import { Platform, PixelRatio } from 'react-native';
 import { createSelector } from 'reselect';
 
-import type { DimensionsInfo } from './redux/dimensions-updater.react';
-import type { AppState } from './redux/state-types';
-import type { ImageStyle } from './types/styles';
+import type { DimensionsInfo } from './redux/dimensions-updater.react.js';
+import type { AppState } from './redux/state-types.js';
+import type { ImageStyle } from './types/styles.js';
 
 const splashStyleSelector: (state: AppState) => ImageStyle = createSelector(
   (state: AppState) => state.dimensions,

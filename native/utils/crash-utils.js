@@ -3,10 +3,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ExitApp from 'react-native-exit-app';
 
-import sleep from 'lib/utils/sleep';
+import sleep from 'lib/utils/sleep.js';
 
-import { navStateAsyncStorageKey } from '../navigation/persistance';
-import { getPersistor } from '../redux/persist';
+import { navStateAsyncStorageKey } from '../navigation/persistance.js';
+import { getPersistor } from '../redux/persist.js';
 
 async function wipeAndExit() {
   await Promise.all([

@@ -5,13 +5,13 @@ import { createSelector } from 'reselect';
 import {
   currentDaysToEntries,
   threadInfoSelector,
-} from 'lib/selectors/thread-selectors';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-import type { EntryInfo } from 'lib/types/entry-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { dateString } from 'lib/utils/date-utils';
+} from 'lib/selectors/thread-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import type { EntryInfo } from 'lib/types/entry-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { dateString } from 'lib/utils/date-utils.js';
 
-import type { AppState } from '../redux/state-types';
+import type { AppState } from '../redux/state-types.js';
 
 export type SectionHeaderItem = {
   itemType: 'header',

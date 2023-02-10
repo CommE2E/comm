@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import TabsHeader from './tabs-header';
+import TabsHeader from './tabs-header.js';
 import css from './tabs.css';
 
 type TabsContainerProps<T: string> = {

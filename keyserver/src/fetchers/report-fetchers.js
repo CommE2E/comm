@@ -1,17 +1,17 @@
 // @flow
 
-import { isStaff } from 'lib/shared/user-utils';
+import { isStaff } from 'lib/shared/user-utils.js';
 import {
   type FetchErrorReportInfosResponse,
   type FetchErrorReportInfosRequest,
   type ReduxToolsImport,
   reportTypes,
-} from 'lib/types/report-types';
-import { ServerError } from 'lib/utils/errors';
-import { values } from 'lib/utils/objects';
+} from 'lib/types/report-types.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function fetchErrorReportInfos(
   viewer: Viewer,
