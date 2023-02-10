@@ -1,20 +1,27 @@
 // @flow
 
 import * as React from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Image,
-  useWindowDimensions,
-} from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 
+import { fetchThreadMedia } from 'lib/actions/thread-actions.js';
+import { useServerCall } from 'lib/utils/action-utils.js';
+
+import GestureTouchableOpacity from '../../components/gesture-touchable-opacity.react.js';
+import Multimedia from '../../media/multimedia.react.js';
 import { useStyles } from '../../themes/colors.js';
 
 const galleryItemGap = 8;
 const numColumns = 3;
 
-function ThreadSettingsMediaGallery(): React.Node {
+type ThreadSettingsMediaGalleryProps = {
+  +threadID: string,
+  +limit: number,
+};
+
+function ThreadSettingsMediaGallery(
+  props: ThreadSettingsMediaGalleryProps,
+): React.Node {
   const styles = useStyles(unboundStyles);
   const { width } = useWindowDimensions();
 
@@ -27,7 +34,23 @@ function ThreadSettingsMediaGallery(): React.Node {
   // E.g. 16px, media, galleryItemGap, media, galleryItemGap, media, 16px
   const galleryItemWidth =
     (width - 32 - (numColumns - 1) * galleryItemGap) / numColumns;
-  const mediaInfos = React.useMemo(() => [], []);
+
+  const { threadID, limit } = props;
+  const [mediaInfos, setMediaInfos] = React.useState([]);
+  const callFetchThreadMedia = useServerCall(fetchThreadMedia);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      const result = await callFetchThreadMedia({
+        threadID,
+        limit,
+        offset: 0,
+        currentMediaIDs: [],
+      });
+      setMediaInfos(result.media);
+    };
+    fetchData();
+  }, [callFetchThreadMedia, threadID, limit]);
 
   const memoizedStyles = React.useMemo(() => {
     return {
@@ -58,9 +81,9 @@ function ThreadSettingsMediaGallery(): React.Node {
 
       return (
         <View key={item.id} style={containerStyle}>
-          <TouchableOpacity>
-            <Image source={item.source} style={memoizedStyles.media} />
-          </TouchableOpacity>
+          <GestureTouchableOpacity style={memoizedStyles.media}>
+            <Multimedia mediaInfo={item} spinnerColor="black" />
+          </GestureTouchableOpacity>
         </View>
       );
     },
