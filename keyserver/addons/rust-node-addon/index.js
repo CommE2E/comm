@@ -2,7 +2,7 @@
 
 const { platform, arch } = process;
 
-type RustAPI = {
+type IdentityAPI = {
   +registerUser: (
     userId: string,
     deviceId: string,
@@ -12,7 +12,7 @@ type RustAPI = {
   ) => Promise<string>,
 };
 
-async function getRustAPI(): Promise<RustAPI> {
+async function getIdentityRustAPI(): Promise<IdentityAPI> {
   let nativeBinding = null;
   if (platform === 'darwin' && arch === 'x64') {
     // $FlowFixMe
@@ -38,4 +38,4 @@ async function getRustAPI(): Promise<RustAPI> {
   return { registerUser };
 }
 
-export { getRustAPI };
+export { getIdentityRustAPI };
