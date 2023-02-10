@@ -13,36 +13,36 @@ import {
 import {
   removeUsersFromThreadActionTypes,
   changeThreadMemberRolesActionTypes,
-} from 'lib/actions/thread-actions';
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+} from 'lib/actions/thread-actions.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   memberIsAdmin,
   memberHasAdminPowers,
   getAvailableThreadMemberActions,
-} from 'lib/shared/thread-utils';
-import { stringForUser } from 'lib/shared/user-utils';
-import type { LoadingStatus } from 'lib/types/loading-types';
+} from 'lib/shared/thread-utils.js';
+import { stringForUser } from 'lib/shared/user-utils.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
 import {
   type ThreadInfo,
   type RelativeMemberInfo,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 
-import PencilIcon from '../../components/pencil-icon.react';
-import { SingleLine } from '../../components/single-line.react';
+import PencilIcon from '../../components/pencil-icon.react.js';
+import { SingleLine } from '../../components/single-line.react.js';
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../../keyboard/keyboard-state';
+} from '../../keyboard/keyboard-state.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../../navigation/overlay-context';
-import { ThreadSettingsMemberTooltipModalRouteName } from '../../navigation/route-names';
-import { useSelector } from '../../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../../themes/colors';
-import type { VerticalBounds } from '../../types/layout-types';
-import type { ThreadSettingsNavigate } from './thread-settings.react';
+} from '../../navigation/overlay-context.js';
+import { ThreadSettingsMemberTooltipModalRouteName } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../../themes/colors.js';
+import type { VerticalBounds } from '../../types/layout-types.js';
+import type { ThreadSettingsNavigate } from './thread-settings.react.js';
 
 type BaseProps = {
   +memberInfo: RelativeMemberInfo,

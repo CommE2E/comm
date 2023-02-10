@@ -3,14 +3,14 @@
 import invariant from 'invariant';
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet';
+import type { TextStyle as FlattenedTextStyle } from 'react-native/Libraries/StyleSheet/StyleSheet.js';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import { onlyEmojiRegex } from 'lib/shared/emojis';
+import { onlyEmojiRegex } from 'lib/shared/emojis.js';
 
-import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context';
-import type { TextStyle } from '../types/styles';
-import type { MarkdownRules } from './rules.react';
+import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
+import type { TextStyle } from '../types/styles.js';
+import type { MarkdownRules } from './rules.react.js';
 
 type Props = {
   +style: TextStyle,

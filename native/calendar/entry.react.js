@@ -1,9 +1,9 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
-import _omit from 'lodash/fp/omit';
+import _isEqual from 'lodash/fp/isEqual.js';
+import _omit from 'lodash/fp/omit.js';
 import * as React from 'react';
 import {
   View,
@@ -27,11 +27,11 @@ import {
   deleteEntryActionTypes,
   deleteEntry,
   concurrentModificationResetActionType,
-} from 'lib/actions/entry-actions';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { entryKey } from 'lib/shared/entry-utils';
-import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils';
-import type { Shape } from 'lib/types/core';
+} from 'lib/actions/entry-actions.js';
+import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
+import { entryKey } from 'lib/shared/entry-utils.js';
+import { colorIsDark, threadHasPermission } from 'lib/shared/thread-utils.js';
+import type { Shape } from 'lib/types/core.js';
 import type {
   CreateEntryInfo,
   SaveEntryInfo,
@@ -41,46 +41,46 @@ import type {
   DeleteEntryInfo,
   DeleteEntryResult,
   CalendarQuery,
-} from 'lib/types/entry-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { Dispatch } from 'lib/types/redux-types';
+} from 'lib/types/entry-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
 import {
   type ThreadInfo,
   type ResolvedThreadInfo,
   threadPermissions,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { dateString } from 'lib/utils/date-utils';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
-import { ServerError } from 'lib/utils/errors';
-import sleep from 'lib/utils/sleep';
+} from 'lib/utils/action-utils.js';
+import { dateString } from 'lib/utils/date-utils.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import { ServerError } from 'lib/utils/errors.js';
+import sleep from 'lib/utils/sleep.js';
 
 import {
   type MessageListParams,
   useNavigateToThread,
-} from '../chat/message-list-types';
-import Button from '../components/button.react';
-import { SingleLine } from '../components/single-line.react';
-import TextInput from '../components/text-input.react';
-import Markdown from '../markdown/markdown.react';
-import { inlineMarkdownRules } from '../markdown/rules.react';
+} from '../chat/message-list-types.js';
+import Button from '../components/button.react.js';
+import { SingleLine } from '../components/single-line.react.js';
+import TextInput from '../components/text-input.react.js';
+import Markdown from '../markdown/markdown.react.js';
+import { inlineMarkdownRules } from '../markdown/rules.react.js';
 import {
   createIsForegroundSelector,
   nonThreadCalendarQuery,
-} from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import { ThreadPickerModalRouteName } from '../navigation/route-names';
-import type { TabNavigationProp } from '../navigation/tab-navigator.react';
-import { useSelector } from '../redux/redux-utils';
-import { colors, useStyles } from '../themes/colors';
-import type { LayoutEvent } from '../types/react-native';
-import { waitForInteractions } from '../utils/timers';
-import type { EntryInfoWithHeight } from './calendar.react';
-import LoadingIndicator from './loading-indicator.react';
+} from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { ThreadPickerModalRouteName } from '../navigation/route-names.js';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { colors, useStyles } from '../themes/colors.js';
+import type { LayoutEvent } from '../types/react-native.js';
+import { waitForInteractions } from '../utils/timers.js';
+import type { EntryInfoWithHeight } from './calendar.react.js';
+import LoadingIndicator from './loading-indicator.react.js';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;

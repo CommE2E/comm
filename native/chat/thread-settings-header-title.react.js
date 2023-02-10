@@ -6,9 +6,9 @@ import {
 } from '@react-navigation/elements';
 import * as React from 'react';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
-import { firstLine } from 'lib/utils/string-utils';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
+import { firstLine } from 'lib/utils/string-utils.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

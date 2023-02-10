@@ -8,23 +8,23 @@ import Animated, {
   interpolateNode,
 } from 'react-native-reanimated';
 
-import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react';
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
-import { stringForReactionList } from 'lib/shared/reaction-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import useInlineEngagementText from 'lib/hooks/inline-engagement-text.react.js';
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { stringForReactionList } from 'lib/shared/reaction-utils.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import CommIcon from '../components/comm-icon.react';
-import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
-import { MessageReactionsModalRouteName } from '../navigation/route-names';
-import { useStyles } from '../themes/colors';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
+import CommIcon from '../components/comm-icon.react.js';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
+import { MessageReactionsModalRouteName } from '../navigation/route-names.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import {
   inlineEngagementStyle,
   inlineEngagementCenterStyle,
   inlineEngagementRightStyle,
   composedMessageStyle,
-} from './chat-constants';
-import { useNavigateToThread } from './message-list-types';
+} from './chat-constants.js';
+import { useNavigateToThread } from './message-list-types.js';
 
 type Props = {
   +threadInfo: ?ThreadInfo,

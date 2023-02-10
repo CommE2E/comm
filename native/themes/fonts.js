@@ -1,12 +1,12 @@
 // @flow
 
-import EntypoIcon from '@expo/vector-icons/Entypo';
-import Feather from '@expo/vector-icons/Feather';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import MaterialIcon from '@expo/vector-icons/MaterialIcons';
+import EntypoIcon from '@expo/vector-icons/Entypo.js';
+import Feather from '@expo/vector-icons/Feather.js';
+import FontAwesome from '@expo/vector-icons/FontAwesome.js';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5.js';
+import Ionicons from '@expo/vector-icons/Ionicons.js';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons.js';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons.js';
 import { useFonts } from 'expo-font';
 
 import CommIcons from '../fonts/CommIcons.ttf';

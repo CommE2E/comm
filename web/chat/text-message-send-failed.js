@@ -1,7 +1,7 @@
 // @flow
 
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { messageTypes } from 'lib/types/message-types.js';
 
 export default function textMessageSendFailed(
   item: ChatMessageInfoItem,

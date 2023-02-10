@@ -16,30 +16,30 @@ import {
   type ServerThreadJoinRequest,
   type ThreadJoinResult,
   threadTypes,
-} from 'lib/types/thread-types';
-import { values } from 'lib/utils/objects';
+} from 'lib/types/thread-types.js';
+import { values } from 'lib/utils/objects.js';
 import {
   tShape,
   tNumEnum,
   tColor,
   tPassword,
-} from 'lib/utils/validation-utils';
+} from 'lib/utils/validation-utils.js';
 
-import { createThread } from '../creators/thread-creator';
-import { deleteThread } from '../deleters/thread-deleters';
-import type { Viewer } from '../session/viewer';
+import { createThread } from '../creators/thread-creator.js';
+import { deleteThread } from '../deleters/thread-deleters.js';
+import type { Viewer } from '../session/viewer.js';
 import {
   updateRole,
   removeMembers,
   leaveThread,
   updateThread,
   joinThread,
-} from '../updaters/thread-updaters';
-import { validateInput } from '../utils/validation-utils';
+} from '../updaters/thread-updaters.js';
+import { validateInput } from '../utils/validation-utils.js';
 import {
   entryQueryInputValidator,
   verifyCalendarQueryThreadIDs,
-} from './entry-responders';
+} from './entry-responders.js';
 
 const threadDeletionRequestInputValidator = tShape({
   threadID: t.String,

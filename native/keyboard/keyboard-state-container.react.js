@@ -4,18 +4,18 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { KeyboardUtils } from 'react-native-keyboard-input';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
-import sleep from 'lib/utils/sleep';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import sleep from 'lib/utils/sleep.js';
 
-import { tabBarAnimationDuration } from '../navigation/tab-bar.react';
-import { waitForInteractions } from '../utils/timers';
+import { tabBarAnimationDuration } from '../navigation/tab-bar.react.js';
+import { waitForInteractions } from '../utils/timers.js';
+import KeyboardInputHost from './keyboard-input-host.react.js';
+import { KeyboardContext } from './keyboard-state.js';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-} from './keyboard';
-import KeyboardInputHost from './keyboard-input-host.react';
-import { KeyboardContext } from './keyboard-state';
+} from './keyboard.js';
 
 type Props = {
   +children: React.Node,

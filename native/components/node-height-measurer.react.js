@@ -5,13 +5,13 @@ import * as React from 'react';
 import { View, StyleSheet, PixelRatio } from 'react-native';
 import shallowequal from 'shallowequal';
 
-import type { Shape } from 'lib/types/core';
+import type { Shape } from 'lib/types/core.js';
 
 import {
   addLifecycleListener,
   getCurrentLifecycleState,
-} from '../lifecycle/lifecycle';
-import type { LayoutEvent, EventSubscription } from '../types/react-native';
+} from '../lifecycle/lifecycle.js';
+import type { LayoutEvent, EventSubscription } from '../types/react-native.js';
 
 const measureBatchSize = 50;
 

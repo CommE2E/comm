@@ -1,14 +1,14 @@
 // @flow
 
 import invariant from 'invariant';
-import _filter from 'lodash/fp/filter';
-import _find from 'lodash/fp/find';
-import _findIndex from 'lodash/fp/findIndex';
-import _map from 'lodash/fp/map';
-import _pickBy from 'lodash/fp/pickBy';
-import _size from 'lodash/fp/size';
-import _sum from 'lodash/fp/sum';
-import _throttle from 'lodash/throttle';
+import _filter from 'lodash/fp/filter.js';
+import _find from 'lodash/fp/find.js';
+import _findIndex from 'lodash/fp/findIndex.js';
+import _map from 'lodash/fp/map.js';
+import _pickBy from 'lodash/fp/pickBy.js';
+import _size from 'lodash/fp/size.js';
+import _sum from 'lodash/fp/sum.js';
+import _throttle from 'lodash/throttle.js';
 import * as React from 'react';
 import {
   View,
@@ -23,79 +23,83 @@ import {
 import {
   updateCalendarQueryActionTypes,
   updateCalendarQuery,
-} from 'lib/actions/entry-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { entryKey } from 'lib/shared/entry-utils';
+} from 'lib/actions/entry-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { entryKey } from 'lib/shared/entry-utils.js';
 import type {
   EntryInfo,
   CalendarQuery,
   CalendarQueryUpdateResult,
-} from 'lib/types/entry-types';
-import type { CalendarFilter } from 'lib/types/filter-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { ConnectionStatus } from 'lib/types/socket-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
+} from 'lib/types/entry-types.js';
+import type { CalendarFilter } from 'lib/types/filter-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { ConnectionStatus } from 'lib/types/socket-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
   type DispatchActionPromise,
-} from 'lib/utils/action-utils';
-import { dateString, prettyDate, dateFromString } from 'lib/utils/date-utils';
-import sleep from 'lib/utils/sleep';
+} from 'lib/utils/action-utils.js';
+import {
+  dateString,
+  prettyDate,
+  dateFromString,
+} from 'lib/utils/date-utils.js';
+import sleep from 'lib/utils/sleep.js';
 
-import ContentLoading from '../components/content-loading.react';
-import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react';
-import ListLoadingIndicator from '../components/list-loading-indicator.react';
-import NodeHeightMeasurer from '../components/node-height-measurer.react';
+import ContentLoading from '../components/content-loading.react.js';
+import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
+import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
+import NodeHeightMeasurer from '../components/node-height-measurer.react.js';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
-} from '../keyboard/keyboard';
-import DisconnectedBar from '../navigation/disconnected-bar.react';
+} from '../keyboard/keyboard.js';
+import DisconnectedBar from '../navigation/disconnected-bar.react.js';
 import {
   createIsForegroundSelector,
   createActiveTabSelector,
-} from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
+} from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
 import {
   CalendarRouteName,
   ThreadPickerModalRouteName,
-} from '../navigation/route-names';
-import type { NavigationRoute } from '../navigation/route-names';
-import type { TabNavigationProp } from '../navigation/tab-navigator.react';
-import { useSelector } from '../redux/redux-utils';
-import { calendarListData } from '../selectors/calendar-selectors';
+} from '../navigation/route-names.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import type { TabNavigationProp } from '../navigation/tab-navigator.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { calendarListData } from '../selectors/calendar-selectors.js';
 import type {
   CalendarItem,
   SectionHeaderItem,
   SectionFooterItem,
   LoaderItem,
-} from '../selectors/calendar-selectors';
+} from '../selectors/calendar-selectors.js';
 import {
   type DerivedDimensionsInfo,
   derivedDimensionsInfoSelector,
-} from '../selectors/dimensions-selectors';
+} from '../selectors/dimensions-selectors.js';
 import {
   useColors,
   useStyles,
   useIndicatorStyle,
   type Colors,
   type IndicatorStyle,
-} from '../themes/colors';
+} from '../themes/colors.js';
 import type {
   EventSubscription,
   ScrollEvent,
   ViewableItemsChange,
   KeyboardEvent,
-} from '../types/react-native';
-import CalendarInputBar from './calendar-input-bar.react';
+} from '../types/react-native.js';
+import CalendarInputBar from './calendar-input-bar.react.js';
 import {
   Entry,
   InternalEntry,
   dummyNodeForEntryHeightMeasurement,
-} from './entry.react';
-import SectionFooter from './section-footer.react';
+} from './entry.react.js';
+import SectionFooter from './section-footer.react.js';
 
 export type EntryInfoWithHeight = {
   ...EntryInfo,

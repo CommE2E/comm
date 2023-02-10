@@ -1,18 +1,18 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import { useNavigation } from '@react-navigation/native';
 import * as React from 'react';
 import { View, Text, FlatList, TouchableHighlight } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
-import { useMessageReactionsList } from 'lib/shared/reaction-utils';
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 
-import Modal from '../components/modal.react';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useColors, useStyles } from '../themes/colors';
+import Modal from '../components/modal.react.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useColors, useStyles } from '../themes/colors.js';
 
 export type MessageReactionsModalParams = {
   +reactions: $ReadOnlyMap<string, MessageReactionInfo>,

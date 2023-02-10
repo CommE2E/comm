@@ -2,7 +2,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { getDevServerHostname } from './utils/url-utils';
+import { getDevServerHostname } from './utils/url-utils.js';
 
 let reactotron: any = null;
 

@@ -2,10 +2,10 @@
 
 import invariant from 'invariant';
 
-import { cookieLifetime } from 'lib/types/session-types';
+import { cookieLifetime } from 'lib/types/session-types.js';
 
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import type { SQLStatementType } from '../database/types';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
+import type { SQLStatementType } from '../database/types.js';
 
 async function deleteCookiesByConditions(
   conditions: $ReadOnlyArray<SQLStatementType>,

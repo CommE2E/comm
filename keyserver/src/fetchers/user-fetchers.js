@@ -1,15 +1,15 @@
 // @flow
 
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
 import {
   undirectedStatus,
   directedStatus,
   userRelationshipStatus,
-} from 'lib/types/relationship-types';
+} from 'lib/types/relationship-types.js';
 import {
   communityThreadTypes,
   threadPermissions,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import type {
   UserInfos,
   CurrentUserInfo,
@@ -17,11 +17,11 @@ import type {
   LoggedInUserInfo,
   OldLoggedInUserInfo,
   GlobalUserInfo,
-} from 'lib/types/user-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/user-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function fetchUserInfos(
   userIDs: string[],

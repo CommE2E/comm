@@ -1,11 +1,11 @@
 // @flow
 
-import type { SessionPublicKeys } from 'lib/types/session-types';
-import { minimumOneTimeKeysRequired } from 'lib/utils/crypto-utils';
-import { ServerError } from 'lib/utils/errors';
+import type { SessionPublicKeys } from 'lib/types/session-types.js';
+import { minimumOneTimeKeysRequired } from 'lib/utils/crypto-utils.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { deleteOneTimeKey } from '../deleters/one-time-key-deleters';
+import { dbQuery, SQL } from '../database/database.js';
+import { deleteOneTimeKey } from '../deleters/one-time-key-deleters.js';
 
 async function checkIfSessionHasEnoughOneTimeKeys(
   session: string,

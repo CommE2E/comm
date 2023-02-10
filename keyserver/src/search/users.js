@@ -1,9 +1,9 @@
 // @flow
 
-import type { UserSearchRequest } from 'lib/types/search-types';
-import type { GlobalAccountUserInfo } from 'lib/types/user-types';
+import type { UserSearchRequest } from 'lib/types/search-types.js';
+import type { GlobalAccountUserInfo } from 'lib/types/user-types.js';
 
-import { dbQuery, SQL } from '../database/database';
+import { dbQuery, SQL } from '../database/database.js';
 
 async function searchForUsers(
   query: UserSearchRequest,

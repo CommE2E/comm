@@ -1,10 +1,10 @@
 // @flow
 
-import { undirectedStatus } from 'lib/types/relationship-types';
+import { undirectedStatus } from 'lib/types/relationship-types.js';
 
-import { createUndirectedRelationships } from '../creators/relationship-creators';
-import { dbQuery, SQL } from '../database/database';
-import { endScript } from './utils';
+import { createUndirectedRelationships } from '../creators/relationship-creators.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { endScript } from './utils.js';
 
 async function main() {
   try {

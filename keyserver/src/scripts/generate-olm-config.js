@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import uuid from 'uuid';
 
-import { main } from './utils';
+import { main } from './utils.js';
 
 const olmConfigRelativePath = './secrets/olm_config.json';
 

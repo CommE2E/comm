@@ -5,15 +5,15 @@ import * as React from 'react';
 import { Button, View, Image } from 'react-native';
 import filesystem from 'react-native-fs';
 
-import type { PhotoPaste } from 'lib/types/media-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import sleep from 'lib/utils/sleep';
+import type { PhotoPaste } from 'lib/types/media-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import sleep from 'lib/utils/sleep.js';
 
-import Modal from '../components/modal.react';
-import { InputStateContext } from '../input/input-state';
-import type { RootNavigationProp } from '../navigation/root-navigator.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useStyles } from '../themes/colors';
+import Modal from '../components/modal.react.js';
+import { InputStateContext } from '../input/input-state.js';
+import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useStyles } from '../themes/colors.js';
 
 export type ImagePasteModalParams = {
   +imagePasteStagingInfo: PhotoPaste,

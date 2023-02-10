@@ -1,8 +1,8 @@
 // @flow
 
-import Icon from '@expo/vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons.js';
 import invariant from 'invariant';
-import _throttle from 'lodash/throttle';
+import _throttle from 'lodash/throttle.js';
 import * as React from 'react';
 import {
   View,
@@ -21,19 +21,19 @@ import { useDispatch } from 'react-redux';
 import {
   moveDraftActionType,
   updateDraftActionType,
-} from 'lib/actions/draft-actions';
+} from 'lib/actions/draft-actions.js';
 import {
   joinThreadActionTypes,
   joinThread,
   newThreadActionTypes,
-} from 'lib/actions/thread-actions';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+} from 'lib/actions/thread-actions.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 import {
   relativeMemberInfoSelectorForMembersOfThread,
   userStoreSearchIndex,
-} from 'lib/selectors/user-selectors';
-import { localIDPrefix, trimMessage } from 'lib/shared/message-utils';
-import SearchIndex from 'lib/shared/search-index';
+} from 'lib/selectors/user-selectors.js';
+import { localIDPrefix, trimMessage } from 'lib/shared/message-utils.js';
+import SearchIndex from 'lib/shared/search-index.js';
 import {
   threadHasPermission,
   viewerIsMember,
@@ -42,62 +42,62 @@ import {
   checkIfDefaultMembersAreVoiced,
   draftKeyFromThreadID,
   colorIsDark,
-} from 'lib/shared/thread-utils';
+} from 'lib/shared/thread-utils.js';
 import {
   getTypeaheadUserSuggestions,
   getTypeaheadRegexMatches,
   type Selection,
-} from 'lib/shared/typeahead-utils';
-import type { CalendarQuery } from 'lib/types/entry-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { PhotoPaste } from 'lib/types/media-types';
-import { messageTypes } from 'lib/types/message-types';
-import type { Dispatch } from 'lib/types/redux-types';
+} from 'lib/shared/typeahead-utils.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { PhotoPaste } from 'lib/types/media-types.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
 import {
   type ThreadInfo,
   threadPermissions,
   type ClientThreadJoinRequest,
   type ThreadJoinPayload,
-} from 'lib/types/thread-types';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
-import { type UserInfos } from 'lib/types/user-types';
+} from 'lib/types/thread-types.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
+import { type UserInfos } from 'lib/types/user-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../components/button.react';
-import ClearableTextInput from '../components/clearable-text-input.react';
-import type { SyncedSelectionData } from '../components/selectable-text-input';
-import SelectableTextInput from '../components/selectable-text-input.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import { type InputState, InputStateContext } from '../input/input-state';
-import { getKeyboardHeight } from '../keyboard/keyboard';
-import KeyboardInputHost from '../keyboard/keyboard-input-host.react';
+import Button from '../components/button.react.js';
+import ClearableTextInput from '../components/clearable-text-input.react.js';
+import type { SyncedSelectionData } from '../components/selectable-text-input.js';
+import SelectableTextInput from '../components/selectable-text-input.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import KeyboardInputHost from '../keyboard/keyboard-input-host.react.js';
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../keyboard/keyboard-state';
+} from '../keyboard/keyboard-state.js';
+import { getKeyboardHeight } from '../keyboard/keyboard.js';
 import {
   nonThreadCalendarQuery,
   activeThreadSelector,
-} from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
+} from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
 import {
   type NavigationRoute,
   CameraModalRouteName,
   ImagePasteModalRouteName,
-} from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { type Colors, useStyles, useColors } from '../themes/colors';
-import type { LayoutEvent } from '../types/react-native';
-import { type AnimatedViewStyle, AnimatedView } from '../types/styles';
-import { runTiming } from '../utils/animation-utils';
-import { nativeTypeaheadRegex } from '../utils/typeahead-utils';
-import { ChatContext } from './chat-context';
-import type { ChatNavigationProp } from './chat.react';
-import TypeaheadTooltip from './typeahead-tooltip.react';
+} from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type Colors, useStyles, useColors } from '../themes/colors.js';
+import type { LayoutEvent } from '../types/react-native.js';
+import { type AnimatedViewStyle, AnimatedView } from '../types/styles.js';
+import { runTiming } from '../utils/animation-utils.js';
+import { nativeTypeaheadRegex } from '../utils/typeahead-utils.js';
+import { ChatContext } from './chat-context.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import TypeaheadTooltip from './typeahead-tooltip.react.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

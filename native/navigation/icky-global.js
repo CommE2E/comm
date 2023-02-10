@@ -1,6 +1,6 @@
 // @flow
 
-import type { NavContextType } from './navigation-context';
+import type { NavContextType } from './navigation-context.js';
 
 let globalNavContext: ?NavContextType = null;
 

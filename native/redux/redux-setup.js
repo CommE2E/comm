@@ -7,54 +7,54 @@ import { createStore, applyMiddleware, type Store, compose } from 'redux';
 import { persistStore, persistReducer } from 'redux-persist';
 import thunk from 'redux-thunk';
 
-import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions';
-import { setDeviceTokenActionTypes } from 'lib/actions/device-actions';
-import { siweAuthActionTypes } from 'lib/actions/siwe-actions';
+import { setClientDBStoreActionType } from 'lib/actions/client-db-store-actions.js';
+import { setDeviceTokenActionTypes } from 'lib/actions/device-actions.js';
+import { siweAuthActionTypes } from 'lib/actions/siwe-actions.js';
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
   logInActionTypes,
-} from 'lib/actions/user-actions';
-import baseReducer from 'lib/reducers/master-reducer';
-import { processThreadStoreOperations } from 'lib/reducers/thread-reducer';
+} from 'lib/actions/user-actions.js';
+import baseReducer from 'lib/reducers/master-reducer.js';
+import { processThreadStoreOperations } from 'lib/reducers/thread-reducer.js';
 import {
   invalidSessionDowngrade,
   invalidSessionRecovery,
-} from 'lib/shared/account-utils';
-import { isStaff } from 'lib/shared/user-utils';
-import { defaultEnabledApps } from 'lib/types/enabled-apps';
-import { defaultCalendarFilters } from 'lib/types/filter-types';
-import type { Dispatch, BaseAction } from 'lib/types/redux-types';
-import { rehydrateActionType } from 'lib/types/redux-types';
-import type { SetSessionPayload } from 'lib/types/session-types';
+} from 'lib/shared/account-utils.js';
+import { isStaff } from 'lib/shared/user-utils.js';
+import { defaultEnabledApps } from 'lib/types/enabled-apps.js';
+import { defaultCalendarFilters } from 'lib/types/filter-types.js';
+import type { Dispatch, BaseAction } from 'lib/types/redux-types.js';
+import { rehydrateActionType } from 'lib/types/redux-types.js';
+import type { SetSessionPayload } from 'lib/types/session-types.js';
 import {
   defaultConnectionInfo,
   incrementalStateSyncActionType,
-} from 'lib/types/socket-types';
-import type { ThreadStoreOperation } from 'lib/types/thread-types';
-import { updateTypes } from 'lib/types/update-types';
-import { reduxLoggerMiddleware } from 'lib/utils/action-logger';
-import { setNewSessionActionType } from 'lib/utils/action-utils';
-import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils';
-import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils';
+} from 'lib/types/socket-types.js';
+import type { ThreadStoreOperation } from 'lib/types/thread-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import { reduxLoggerMiddleware } from 'lib/utils/action-logger.js';
+import { setNewSessionActionType } from 'lib/utils/action-utils.js';
+import { convertMessageStoreOperationsToClientDBOperations } from 'lib/utils/message-ops-utils.js';
+import { convertThreadStoreOperationsToClientDBOperations } from 'lib/utils/thread-ops-utils.js';
 
-import { commCoreModule } from '../native-modules';
-import { defaultNavInfo } from '../navigation/default-state';
-import { getGlobalNavContext } from '../navigation/icky-global';
-import { activeMessageListSelector } from '../navigation/nav-selectors';
-import { defaultNotifPermissionAlertInfo } from '../push/alerts';
-import reactotron from '../reactotron';
-import { defaultDeviceCameraInfo } from '../types/camera';
-import { defaultConnectivityInfo } from '../types/connectivity';
-import { defaultGlobalThemeInfo } from '../types/themes';
-import { isTaskCancelledError } from '../utils/error-handling';
-import { isStaffRelease } from '../utils/staff-utils';
+import { commCoreModule } from '../native-modules.js';
+import { defaultNavInfo } from '../navigation/default-state.js';
+import { getGlobalNavContext } from '../navigation/icky-global.js';
+import { activeMessageListSelector } from '../navigation/nav-selectors.js';
+import { defaultNotifPermissionAlertInfo } from '../push/alerts.js';
+import reactotron from '../reactotron.js';
+import { defaultDeviceCameraInfo } from '../types/camera.js';
+import { defaultConnectivityInfo } from '../types/connectivity.js';
+import { defaultGlobalThemeInfo } from '../types/themes.js';
+import { isTaskCancelledError } from '../utils/error-handling.js';
+import { isStaffRelease } from '../utils/staff-utils.js';
 import {
   defaultURLPrefix,
   natNodeServer,
   setCustomServer,
   getDevServerHostname,
-} from '../utils/url-utils';
+} from '../utils/url-utils.js';
 import {
   resetUserStateActionType,
   recordNotifPermissionAlertActionType,
@@ -68,11 +68,11 @@ import {
   setReduxStateActionType,
   setStoreLoadedActionType,
   type Action,
-} from './action-types';
-import { remoteReduxDevServerConfig } from './dev-tools';
-import { defaultDimensionsInfo } from './dimensions-updater.react';
-import { persistConfig, setPersistor } from './persist';
-import type { AppState } from './state-types';
+} from './action-types.js';
+import { remoteReduxDevServerConfig } from './dev-tools.js';
+import { defaultDimensionsInfo } from './dimensions-updater.react.js';
+import { persistConfig, setPersistor } from './persist.js';
+import type { AppState } from './state-types.js';
 
 const defaultState = ({
   navInfo: defaultNavInfo,

@@ -3,15 +3,15 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { messageStorePruneActionType } from 'lib/actions/message-actions';
-import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils';
+import { messageStorePruneActionType } from 'lib/actions/message-actions.js';
+import { useIsAppForegrounded } from 'lib/shared/lifecycle-utils.js';
 
-import { NavContext } from '../navigation/navigation-context';
-import { useSelector } from '../redux/redux-utils';
+import { NavContext } from '../navigation/navigation-context.js';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   nextMessagePruneTimeSelector,
   pruneThreadIDsSelector,
-} from '../selectors/message-selectors';
+} from '../selectors/message-selectors.js';
 
 function MessageStorePruner(): null {
   const nextMessagePruneTime = useSelector(nextMessagePruneTimeSelector);

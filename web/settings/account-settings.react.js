@@ -2,23 +2,23 @@
 
 import * as React from 'react';
 
-import { logOut, logOutActionTypes } from 'lib/actions/user-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
+import { logOut, logOutActionTypes } from 'lib/actions/user-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { useStringForUser } from 'lib/hooks/ens-cache';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
+import { useStringForUser } from 'lib/hooks/ens-cache.js';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
 import { accountHasPassword } from 'lib/shared/account-utils.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Button from '../components/button.react';
-import { useSelector } from '../redux/redux-utils';
+import Button from '../components/button.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import css from './account-settings.css';
-import PasswordChangeModal from './password-change-modal';
-import BlockListModal from './relationship/block-list-modal.react';
-import FriendListModal from './relationship/friend-list-modal.react';
+import PasswordChangeModal from './password-change-modal.js';
+import BlockListModal from './relationship/block-list-modal.react.js';
+import FriendListModal from './relationship/friend-list-modal.react.js';
 
 function AccountSettings(): React.Node {
   const sendLogoutRequest = useServerCall(logOut);

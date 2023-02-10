@@ -1,48 +1,48 @@
 // @flow
 
 import invariant from 'invariant';
-import _pickBy from 'lodash/fp/pickBy';
+import _pickBy from 'lodash/fp/pickBy.js';
 
-import { permissionLookup } from 'lib/permissions/thread-permissions';
+import { permissionLookup } from 'lib/permissions/thread-permissions.js';
 import {
   rawMessageInfoFromMessageData,
   shimUnsupportedRawMessageInfos,
   stripLocalIDs,
-} from 'lib/shared/message-utils';
-import { pushTypes } from 'lib/shared/messages/message-spec';
-import { messageSpecs } from 'lib/shared/messages/message-specs';
+} from 'lib/shared/message-utils.js';
+import { pushTypes } from 'lib/shared/messages/message-spec.js';
+import { messageSpecs } from 'lib/shared/messages/message-specs.js';
 import {
   messageTypes,
   messageDataLocalID,
   type MessageData,
   type RawMessageInfo,
-} from 'lib/types/message-types';
-import { redisMessageTypes } from 'lib/types/redis-types';
-import { threadPermissions } from 'lib/types/thread-types';
-import { updateTypes } from 'lib/types/update-types';
-import { promiseAll } from 'lib/utils/promises';
+} from 'lib/types/message-types.js';
+import { redisMessageTypes } from 'lib/types/redis-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
 import {
   dbQuery,
   SQL,
   appendSQLArray,
   mergeOrConditions,
-} from '../database/database';
+} from '../database/database.js';
 import {
   fetchMessageInfoForLocalID,
   fetchMessageInfoByID,
-} from '../fetchers/message-fetchers';
-import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers';
-import { fetchServerThreadInfos } from '../fetchers/thread-fetchers';
-import { sendPushNotifs } from '../push/send';
-import { handleAsyncPromise } from '../responders/handlers';
-import type { Viewer } from '../session/viewer';
-import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times';
-import { publisher } from '../socket/redis';
-import { creationString } from '../utils/idempotent';
-import createIDs from './id-creator';
-import type { UpdatesForCurrentSession } from './update-creator';
-import { createUpdates } from './update-creator';
+} from '../fetchers/message-fetchers.js';
+import { fetchOtherSessionsForViewer } from '../fetchers/session-fetchers.js';
+import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
+import { sendPushNotifs } from '../push/send.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
+import type { Viewer } from '../session/viewer.js';
+import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times.js';
+import { publisher } from '../socket/redis.js';
+import { creationString } from '../utils/idempotent.js';
+import createIDs from './id-creator.js';
+import type { UpdatesForCurrentSession } from './update-creator.js';
+import { createUpdates } from './update-creator.js';
 
 type UserThreadInfo = {
   +devices: Map<

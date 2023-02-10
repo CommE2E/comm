@@ -1,10 +1,10 @@
 // @flow
 
-import { messageTypes } from 'lib/types/message-types';
-import { threadPermissions } from 'lib/types/thread-types';
+import { messageTypes } from 'lib/types/message-types.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { endScript } from './utils';
+import { dbQuery, SQL } from '../database/database.js';
+import { endScript } from './utils.js';
 
 async function main() {
   try {

@@ -1,12 +1,15 @@
 // @flow
 
-import _groupBy from 'lodash/fp/groupBy';
+import _groupBy from 'lodash/fp/groupBy.js';
 
-import type { RelationshipErrors } from 'lib/types/relationship-types';
-import { undirectedStatus, directedStatus } from 'lib/types/relationship-types';
+import type { RelationshipErrors } from 'lib/types/relationship-types.js';
+import {
+  undirectedStatus,
+  directedStatus,
+} from 'lib/types/relationship-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 type RelationshipOperation =
   | 'delete_directed'

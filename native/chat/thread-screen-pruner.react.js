@@ -4,23 +4,23 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { Alert } from 'react-native';
 
-import { threadIsPending } from 'lib/shared/thread-utils';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
 
-import { clearThreadsActionType } from '../navigation/action-types';
-import { useActiveThread } from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
+import { clearThreadsActionType } from '../navigation/action-types.js';
+import { useActiveThread } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
 import {
   getThreadIDFromRoute,
   getChildRouteFromNavigatorRoute,
-} from '../navigation/navigation-utils';
+} from '../navigation/navigation-utils.js';
 import {
   AppRouteName,
   ChatRouteName,
   CommunityDrawerNavigatorRouteName,
   TabNavigatorRouteName,
-} from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import type { AppState } from '../redux/state-types';
+} from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { AppState } from '../redux/state-types.js';
 
 const ThreadScreenPruner: React.ComponentType<{}> = React.memo<{}>(
   function ThreadScreenPruner() {

@@ -5,11 +5,11 @@ import * as React from 'react';
 import {
   useModalContext,
   type PushModal,
-} from 'lib/components/modal-provider.react';
+} from 'lib/components/modal-provider.react.js';
 
 import css from '../../style.css';
-import Modal from '../modal.react';
-import LogInModal from './log-in-modal.react';
+import Modal from '../modal.react.js';
+import LogInModal from './log-in-modal.react.js';
 
 type BaseProps = {
   +inOrderTo: string,

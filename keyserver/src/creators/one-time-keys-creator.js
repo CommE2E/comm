@@ -1,7 +1,7 @@
 // @flow
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function saveOneTimeKeys(
   viewer: Viewer,

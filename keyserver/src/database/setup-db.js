@@ -1,18 +1,18 @@
 // @flow
 
-import ashoat from 'lib/facts/ashoat';
-import bots from 'lib/facts/bots';
-import genesis from 'lib/facts/genesis';
-import { usernameMaxLength } from 'lib/shared/account-utils';
-import { sortIDs } from 'lib/shared/relationship-utils';
-import { undirectedStatus } from 'lib/types/relationship-types';
-import { threadTypes } from 'lib/types/thread-types';
+import ashoat from 'lib/facts/ashoat.js';
+import bots from 'lib/facts/bots.js';
+import genesis from 'lib/facts/genesis.js';
+import { usernameMaxLength } from 'lib/shared/account-utils.js';
+import { sortIDs } from 'lib/shared/relationship-utils.js';
+import { undirectedStatus } from 'lib/types/relationship-types.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 
-import { createThread } from '../creators/thread-creator';
-import { dbQuery, SQL } from '../database/database';
-import { updateDBVersion } from '../database/db-version';
-import { newDatabaseVersion } from '../database/migration-config';
-import { createScriptViewer } from '../session/scripts';
+import { createThread } from '../creators/thread-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import { updateDBVersion } from '../database/db-version.js';
+import { newDatabaseVersion } from '../database/migration-config.js';
+import { createScriptViewer } from '../session/scripts.js';
 
 async function setupDB() {
   await createTables();

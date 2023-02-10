@@ -1,30 +1,30 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
 import { TouchableHighlight, Alert } from 'react-native';
 
 import {
   changeThreadSettingsActionTypes,
   changeThreadSettings,
-} from 'lib/actions/thread-actions';
+} from 'lib/actions/thread-actions.js';
 import {
   type ThreadInfo,
   type ChangeThreadSettingsPayload,
   type UpdateThreadRequest,
-} from 'lib/types/thread-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+} from 'lib/types/thread-types.js';
+import type { DispatchActionPromise } from 'lib/utils/action-utils.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import ColorSelector from '../../components/color-selector.react';
-import Modal from '../../components/modal.react';
-import type { RootNavigationProp } from '../../navigation/root-navigator.react';
-import type { NavigationRoute } from '../../navigation/route-names';
-import { useSelector } from '../../redux/redux-utils';
-import { type Colors, useStyles, useColors } from '../../themes/colors';
+import ColorSelector from '../../components/color-selector.react.js';
+import Modal from '../../components/modal.react.js';
+import type { RootNavigationProp } from '../../navigation/root-navigator.react.js';
+import type { NavigationRoute } from '../../navigation/route-names.js';
+import { useSelector } from '../../redux/redux-utils.js';
+import { type Colors, useStyles, useColors } from '../../themes/colors.js';
 
 export type ColorSelectorModalParams = {
   +presentedFrom: string,

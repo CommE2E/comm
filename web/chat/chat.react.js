@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 
-import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
+import ThreadDraftUpdater from 'lib/components/thread-draft-updater.react.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
-import { useSelector } from '../redux/redux-utils';
-import ChatMessageListContainer from './chat-message-list-container.react';
-import ChatTabs from './chat-tabs.react';
-import { ThreadListProvider } from './thread-list-provider';
+import { useSelector } from '../redux/redux-utils.js';
+import ChatMessageListContainer from './chat-message-list-container.react.js';
+import ChatTabs from './chat-tabs.react.js';
+import { ThreadListProvider } from './thread-list-provider.js';
 
 function Chat(): React.Node {
   const loggedIn = useSelector(isLoggedIn);

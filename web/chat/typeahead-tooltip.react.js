@@ -3,17 +3,17 @@
 import classNames from 'classnames';
 import * as React from 'react';
 
-import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
-import { leastPositiveResidue } from 'lib/utils/math-utils';
+import type { TypeaheadMatchedStrings } from 'lib/shared/typeahead-utils.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
+import { leastPositiveResidue } from 'lib/utils/math-utils.js';
 
-import type { InputState } from '../input/input-state';
+import type { InputState } from '../input/input-state.js';
 import {
   getTypeaheadOverlayScroll,
   getTypeaheadTooltipActions,
   getTypeaheadTooltipButtons,
   getTypeaheadTooltipPosition,
-} from '../utils/typeahead-utils';
+} from '../utils/typeahead-utils.js';
 import css from './typeahead-tooltip.css';
 
 export type TypeaheadTooltipProps = {

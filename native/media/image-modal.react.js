@@ -19,39 +19,39 @@ import {
 import Orientation from 'react-native-orientation-locker';
 import Animated from 'react-native-reanimated';
 
-import { type MediaInfo, type Dimensions } from 'lib/types/media-types';
+import { type MediaInfo, type Dimensions } from 'lib/types/media-types.js';
 
-import SWMansionIcon from '../components/swmansion-icon.react';
-import ConnectedStatusBar from '../connected-status-bar.react';
-import { displayActionResultModal } from '../navigation/action-result-modal';
-import type { AppNavigationProp } from '../navigation/app-navigator.react';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import ConnectedStatusBar from '../connected-status-bar.react.js';
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import type { AppNavigationProp } from '../navigation/app-navigator.react.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
+} from '../navigation/overlay-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   type DerivedDimensionsInfo,
   derivedDimensionsInfoSelector,
-} from '../selectors/dimensions-selectors';
-import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
+} from '../selectors/dimensions-selectors.js';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
 import {
   type VerticalBounds,
   type LayoutCoordinates,
-} from '../types/layout-types';
-import type { NativeMethods } from '../types/react-native';
+} from '../types/layout-types.js';
+import type { NativeMethods } from '../types/react-native.js';
 import {
   clamp,
   gestureJustStarted,
   gestureJustEnded,
   runTiming,
-} from '../utils/animation-utils';
-import Multimedia from './multimedia.react';
+} from '../utils/animation-utils.js';
+import Multimedia from './multimedia.react.js';
 import {
   useIntentionalSaveMedia,
   type IntentionalSaveMedia,
-} from './save-media';
+} from './save-media.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

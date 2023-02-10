@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import type { UserListItem } from 'lib/types/user-types';
+import type { UserListItem } from 'lib/types/user-types.js';
 
-import AddMembersItemGroup from './add-members-group.react';
+import AddMembersItemGroup from './add-members-group.react.js';
 
 type MemberGroupItem = {
   +header: ?string,

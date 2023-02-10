@@ -5,21 +5,21 @@ import { createSelector } from 'reselect';
 import {
   getClientResponsesSelector,
   sessionStateFuncSelector,
-} from 'lib/selectors/socket-selectors';
-import { createOpenSocketFunction } from 'lib/shared/socket-utils';
+} from 'lib/selectors/socket-selectors.js';
+import { createOpenSocketFunction } from 'lib/shared/socket-utils.js';
 import type {
   ClientServerRequest,
   ClientClientResponse,
-} from 'lib/types/request-types';
+} from 'lib/types/request-types.js';
 import type {
   SessionIdentification,
   SessionState,
-} from 'lib/types/session-types';
-import type { OneTimeKeyGenerator } from 'lib/types/socket-types';
+} from 'lib/types/session-types.js';
+import type { OneTimeKeyGenerator } from 'lib/types/socket-types.js';
 
-import { calendarActiveSelector } from '../navigation/nav-selectors';
-import type { AppState } from '../redux/state-types';
-import type { NavPlusRedux } from '../types/selector-types';
+import { calendarActiveSelector } from '../navigation/nav-selectors.js';
+import type { AppState } from '../redux/state-types.js';
+import type { NavPlusRedux } from '../types/selector-types.js';
 
 const openSocketSelector: (state: AppState) => () => WebSocket = createSelector(
   (state: AppState) => state.urlPrefix,

@@ -5,8 +5,8 @@ import type {
   ThreadCurrentUserInfo,
   RawThreadInfo,
   RoleInfo,
-} from 'lib/types/thread-types';
-import { threadTypes } from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 
 function addDetailedThreadEditPermissionsToUser<
   T: MemberInfo | ThreadCurrentUserInfo,

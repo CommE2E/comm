@@ -6,8 +6,8 @@ import * as React from 'react';
 import {
   type ChatThreadItem,
   useFlattenedChatListData,
-} from 'lib/selectors/chat-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+} from 'lib/selectors/chat-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   threadInBackgroundChatList,
   threadInHomeChatList,
@@ -15,14 +15,14 @@ import {
   getThreadListSearchResults,
   useThreadListSearch,
   threadIsPending,
-} from 'lib/shared/thread-utils';
-import { threadTypes } from 'lib/types/thread-types';
+} from 'lib/shared/thread-utils.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 
-import { useSelector } from '../redux/redux-utils';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   useChatThreadItem,
   activeChatThreadItem as activeChatThreadItemSelector,
-} from '../selectors/chat-selectors';
+} from '../selectors/chat-selectors.js';
 
 type ChatTabType = 'Focus' | 'Background';
 type ThreadListContextType = {

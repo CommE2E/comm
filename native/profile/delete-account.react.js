@@ -14,25 +14,25 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   deleteAccountActionTypes,
   deleteAccount,
-} from 'lib/actions/user-actions';
-import { preRequestUserStateSelector } from 'lib/selectors/account-selectors';
-import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors';
-import { accountHasPassword } from 'lib/shared/account-utils';
-import type { LogOutResult } from 'lib/types/account-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { PreRequestUserState } from 'lib/types/session-types';
-import type { DispatchActionPromise } from 'lib/utils/action-utils';
+} from 'lib/actions/user-actions.js';
+import { preRequestUserStateSelector } from 'lib/selectors/account-selectors.js';
+import { createLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
+import { accountHasPassword } from 'lib/shared/account-utils.js';
+import type { LogOutResult } from 'lib/types/account-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { PreRequestUserState } from 'lib/types/session-types.js';
+import type { DispatchActionPromise } from 'lib/utils/action-utils.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { deleteNativeCredentialsFor } from '../account/native-credentials';
-import Button from '../components/button.react';
-import TextInput from '../components/text-input.react';
-import { useSelector } from '../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../themes/colors';
-import type { GlobalTheme } from '../types/themes';
+import { deleteNativeCredentialsFor } from '../account/native-credentials.js';
+import Button from '../components/button.react.js';
+import TextInput from '../components/text-input.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type { GlobalTheme } from '../types/themes.js';
 
 type Props = {
   // Redux state

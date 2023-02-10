@@ -2,10 +2,13 @@
 
 import { Platform, AppState as NativeAppState } from 'react-native';
 
-import { type LifecycleState } from 'lib/types/lifecycle-state-types';
+import { type LifecycleState } from 'lib/types/lifecycle-state-types.js';
 
-import type { EventSubscription } from '../types/react-native';
-import { addAndroidLifecycleListener, initialStatus } from './lifecycle-module';
+import type { EventSubscription } from '../types/react-native.js';
+import {
+  addAndroidLifecycleListener,
+  initialStatus,
+} from './lifecycle-module.js';
 
 let currentLifecycleStatus = initialStatus;
 if (Platform.OS === 'android') {

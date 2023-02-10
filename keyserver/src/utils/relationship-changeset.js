@@ -2,11 +2,11 @@
 
 import invariant from 'invariant';
 
-import { sortIDs } from 'lib/shared/relationship-utils';
+import { sortIDs } from 'lib/shared/relationship-utils.js';
 import {
   type UndirectedRelationshipRow,
   undirectedStatus,
-} from 'lib/types/relationship-types';
+} from 'lib/types/relationship-types.js';
 
 type RelationshipStatus = 'existing' | 'potentially_missing';
 

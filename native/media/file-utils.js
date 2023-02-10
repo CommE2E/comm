@@ -11,8 +11,8 @@ import {
   pathFromURI,
   fileInfoFromData,
   bytesNeededForFileTypeCheck,
-} from 'lib/media/file-utils';
-import type { Shape } from 'lib/types/core';
+} from 'lib/media/file-utils.js';
+import type { Shape } from 'lib/types/core.js';
 import type {
   MediaMissionStep,
   MediaMissionFailure,
@@ -23,11 +23,11 @@ import type {
   AndroidScanFileMediaMissionStep,
   FetchFileHashMediaMissionStep,
   CopyFileMediaMissionStep,
-} from 'lib/types/media-types';
-import { getMessageForException } from 'lib/utils/errors';
+} from 'lib/types/media-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
-import { stringToIntArray } from './blob-utils';
-import { ffmpeg } from './ffmpeg';
+import { stringToIntArray } from './blob-utils.js';
+import { ffmpeg } from './ffmpeg.js';
 
 const defaultInputs = Object.freeze({});
 const defaultFields = Object.freeze({});

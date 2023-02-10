@@ -4,7 +4,7 @@ import 'basscss/css/basscss.min.css';
 import './theme.css';
 import { config as faConfig } from '@fortawesome/fontawesome-svg-core';
 import classnames from 'classnames';
-import _isEqual from 'lodash/fp/isEqual';
+import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
@@ -14,50 +14,50 @@ import { WagmiConfig } from 'wagmi';
 import {
   fetchEntriesActionTypes,
   updateCalendarQueryActionTypes,
-} from 'lib/actions/entry-actions';
+} from 'lib/actions/entry-actions.js';
 import {
   ModalProvider,
   useModalContext,
-} from 'lib/components/modal-provider.react';
+} from 'lib/components/modal-provider.react.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
-} from 'lib/selectors/loading-selectors';
-import { unreadCount } from 'lib/selectors/thread-selectors';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { Dispatch } from 'lib/types/redux-types';
-import { registerConfig } from 'lib/utils/config';
+} from 'lib/selectors/loading-selectors.js';
+import { unreadCount } from 'lib/selectors/thread-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import { registerConfig } from 'lib/utils/config.js';
 
-import AppsDirectory from './apps/apps-directory.react';
-import Calendar from './calendar/calendar.react';
-import Chat from './chat/chat.react';
-import { TooltipProvider } from './chat/tooltip-provider';
-import NavigationArrows from './components/navigation-arrows.react';
-import electron from './electron';
-import InputStateContainer from './input/input-state-container.react';
-import LoadingIndicator from './loading-indicator.react';
-import { MenuProvider } from './menu-provider.react';
-import UpdateModalHandler from './modals/update-modal.react';
-import { updateNavInfoActionType } from './redux/action-types';
-import DeviceIDUpdater from './redux/device-id-updater';
-import DisconnectedBar from './redux/disconnected-bar';
-import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler';
-import FocusHandler from './redux/focus-handler.react';
+import AppsDirectory from './apps/apps-directory.react.js';
+import Calendar from './calendar/calendar.react.js';
+import Chat from './chat/chat.react.js';
+import { TooltipProvider } from './chat/tooltip-provider.js';
+import NavigationArrows from './components/navigation-arrows.react.js';
+import electron from './electron.js';
+import InputStateContainer from './input/input-state-container.react.js';
+import LoadingIndicator from './loading-indicator.react.js';
+import { MenuProvider } from './menu-provider.react.js';
+import UpdateModalHandler from './modals/update-modal.react.js';
+import { updateNavInfoActionType } from './redux/action-types.js';
+import DeviceIDUpdater from './redux/device-id-updater.js';
+import DisconnectedBarVisibilityHandler from './redux/disconnected-bar-visibility-handler.js';
+import DisconnectedBar from './redux/disconnected-bar.js';
+import FocusHandler from './redux/focus-handler.react.js';
 import PolicyAcknowledgmentHandler from './redux/policy-acknowledgment-handler.js';
-import { useSelector } from './redux/redux-utils';
-import VisibilityHandler from './redux/visibility-handler.react';
-import history from './router-history';
-import AccountSettings from './settings/account-settings.react';
-import DangerZone from './settings/danger-zone.react';
-import LeftLayoutAside from './sidebar/left-layout-aside.react';
-import Splash from './splash/splash.react';
+import { useSelector } from './redux/redux-utils.js';
+import VisibilityHandler from './redux/visibility-handler.react.js';
+import history from './router-history.js';
+import AccountSettings from './settings/account-settings.react.js';
+import DangerZone from './settings/danger-zone.react.js';
+import LeftLayoutAside from './sidebar/left-layout-aside.react.js';
+import Splash from './splash/splash.react.js';
 import './typography.css';
 import css from './style.css';
-import getTitle from './title/getTitle';
-import { type NavInfo } from './types/nav-types';
-import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils';
-import { WagmiENSCacheProvider, wagmiClient } from './utils/wagmi-utils';
+import getTitle from './title/getTitle.js';
+import { type NavInfo } from './types/nav-types.js';
+import { canonicalURLFromReduxState, navInfoFromURL } from './url-utils.js';
+import { WagmiENSCacheProvider, wagmiClient } from './utils/wagmi-utils.js';
 
 // We want Webpack's css-loader and style-loader to handle the Fontawesome CSS,
 // so we disable the autoAddCss logic and import the CSS file. Otherwise every

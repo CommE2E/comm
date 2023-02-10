@@ -4,14 +4,14 @@ import * as React from 'react';
 import { View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import { persistConfig, codeVersion } from '../redux/persist';
-import { StaffContext } from '../staff/staff-context';
-import { useStyles } from '../themes/colors';
+import { persistConfig, codeVersion } from '../redux/persist.js';
+import { StaffContext } from '../staff/staff-context.js';
+import { useStyles } from '../themes/colors.js';
 import {
   isStaffRelease,
   useIsCurrentUserStaff,
   useStaffCanSee,
-} from '../utils/staff-utils';
+} from '../utils/staff-utils.js';
 
 // eslint-disable-next-line no-unused-vars
 function BuildInfo(props: { ... }): React.Node {

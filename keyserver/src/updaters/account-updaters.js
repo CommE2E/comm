@@ -7,14 +7,14 @@ import type {
   UpdatePasswordRequest,
   UpdateUserSettingsRequest,
   LogInResponse,
-} from 'lib/types/account-types';
-import { updateTypes } from 'lib/types/update-types';
-import type { PasswordUpdate } from 'lib/types/user-types';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/account-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
+import type { PasswordUpdate } from 'lib/types/user-types.js';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function accountUpdater(
   viewer: Viewer,

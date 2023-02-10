@@ -3,13 +3,13 @@
 import * as React from 'react';
 import { View, Platform } from 'react-native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../../components/button.react';
-import ThreadIcon from '../../components/thread-icon.react';
-import ThreadPill from '../../components/thread-pill.react';
-import { useColors, useStyles } from '../../themes/colors';
-import { useNavigateToThread } from '../message-list-types';
+import Button from '../../components/button.react.js';
+import ThreadIcon from '../../components/thread-icon.react.js';
+import ThreadPill from '../../components/thread-pill.react.js';
+import { useColors, useStyles } from '../../themes/colors.js';
+import { useNavigateToThread } from '../message-list-types.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

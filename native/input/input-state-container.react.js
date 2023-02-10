@@ -13,87 +13,90 @@ import {
   sendMultimediaMessage,
   sendTextMessageActionTypes,
   sendTextMessage,
-} from 'lib/actions/message-actions';
-import { queueReportsActionType } from 'lib/actions/report-actions';
-import { newThread } from 'lib/actions/thread-actions';
+} from 'lib/actions/message-actions.js';
+import { queueReportsActionType } from 'lib/actions/report-actions.js';
+import { newThread } from 'lib/actions/thread-actions.js';
 import {
   uploadMultimedia,
   updateMultimediaMessageMediaActionType,
   type MultimediaUploadCallbacks,
   type MultimediaUploadExtras,
-} from 'lib/actions/upload-actions';
-import { pathFromURI, replaceExtension } from 'lib/media/file-utils';
-import { isLocalUploadID, getNextLocalUploadID } from 'lib/media/media-utils';
-import { videoDurationLimit } from 'lib/media/video-utils';
+} from 'lib/actions/upload-actions.js';
+import { pathFromURI, replaceExtension } from 'lib/media/file-utils.js';
+import {
+  isLocalUploadID,
+  getNextLocalUploadID,
+} from 'lib/media/media-utils.js';
+import { videoDurationLimit } from 'lib/media/video-utils.js';
 import {
   createLoadingStatusSelector,
   combineLoadingStatuses,
-} from 'lib/selectors/loading-selectors';
+} from 'lib/selectors/loading-selectors.js';
 import {
   createMediaMessageInfo,
   localIDPrefix,
-} from 'lib/shared/message-utils';
+} from 'lib/shared/message-utils.js';
 import {
   createRealThreadFromPendingThread,
   threadIsPending,
-} from 'lib/shared/thread-utils';
-import type { CalendarQuery } from 'lib/types/entry-types';
+} from 'lib/shared/thread-utils.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 import type {
   UploadMultimediaResult,
   Media,
   NativeMediaSelection,
   MediaMissionResult,
   MediaMission,
-} from 'lib/types/media-types';
+} from 'lib/types/media-types.js';
 import {
   messageTypes,
   type RawMessageInfo,
   type RawMultimediaMessageInfo,
   type SendMessageResult,
   type SendMessagePayload,
-} from 'lib/types/message-types';
-import type { RawImagesMessageInfo } from 'lib/types/messages/images';
+} from 'lib/types/message-types.js';
+import type { RawImagesMessageInfo } from 'lib/types/messages/images.js';
 import type {
   MediaMessageServerDBContent,
   RawMediaMessageInfo,
-} from 'lib/types/messages/media';
-import { getMediaMessageServerDBContentsFromMedia } from 'lib/types/messages/media';
-import type { RawTextMessageInfo } from 'lib/types/messages/text';
-import type { Dispatch } from 'lib/types/redux-types';
+} from 'lib/types/messages/media.js';
+import { getMediaMessageServerDBContentsFromMedia } from 'lib/types/messages/media.js';
+import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
 import {
   type MediaMissionReportCreationRequest,
   reportTypes,
-} from 'lib/types/report-types';
+} from 'lib/types/report-types.js';
 import type {
   ClientNewThreadRequest,
   NewThreadResult,
   ThreadInfo,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 import type {
   CallServerEndpointOptions,
   CallServerEndpointResponse,
-} from 'lib/utils/call-server-endpoint';
-import { getConfig } from 'lib/utils/config';
-import { getMessageForException, cloneError } from 'lib/utils/errors';
-import { values } from 'lib/utils/objects';
-import { useIsReportEnabled } from 'lib/utils/report-utils';
+} from 'lib/utils/call-server-endpoint.js';
+import { getConfig } from 'lib/utils/config.js';
+import { getMessageForException, cloneError } from 'lib/utils/errors.js';
+import { values } from 'lib/utils/objects.js';
+import { useIsReportEnabled } from 'lib/utils/report-utils.js';
 
-import { disposeTempFile } from '../media/file-utils';
-import { processMedia } from '../media/media-utils';
-import { displayActionResultModal } from '../navigation/action-result-modal';
-import { useCalendarQuery } from '../navigation/nav-selectors';
-import { useSelector } from '../redux/redux-utils';
-import { useStaffCanSee } from '../utils/staff-utils';
+import { disposeTempFile } from '../media/file-utils.js';
+import { processMedia } from '../media/media-utils.js';
+import { displayActionResultModal } from '../navigation/action-result-modal.js';
+import { useCalendarQuery } from '../navigation/nav-selectors.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStaffCanSee } from '../utils/staff-utils.js';
 import {
   InputStateContext,
   type PendingMultimediaUploads,
   type MultimediaProcessingStep,
-} from './input-state';
+} from './input-state.js';
 
 type MediaIDs =
   | { +type: 'photo', +localMediaID: string }

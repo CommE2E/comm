@@ -3,7 +3,7 @@
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { SetState } from 'lib/types/hook-types';
+import type { SetState } from 'lib/types/hook-types.js';
 
 import css from './menu.css';
 

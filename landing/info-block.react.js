@@ -3,7 +3,7 @@
 import * as React from 'react';
 
 import css from './info-block.css';
-import Picture from './Picture.react';
+import Picture from './Picture.react.js';
 
 type InfoBlockProps = {
   +title: string,

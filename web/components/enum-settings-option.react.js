@@ -3,10 +3,10 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import Checkbox from './checkbox.react';
+import Checkbox from './checkbox.react.js';
 import EnumSettingsOptionInfo from './enum-settings-option-info.react.js';
 import css from './enum-settings-option.css';
-import Radio from './radio.react';
+import Radio from './radio.react.js';
 
 const iconPositionClassnames = {
   top: css.optionIconTop,

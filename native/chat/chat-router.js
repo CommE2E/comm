@@ -11,23 +11,23 @@ import type {
 } from '@react-navigation/native';
 import { StackRouter, CommonActions } from '@react-navigation/native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 import {
   clearScreensActionType,
   replaceWithThreadActionType,
   clearThreadsActionType,
   pushNewThreadActionType,
-} from '../navigation/action-types';
+} from '../navigation/action-types.js';
 import {
   removeScreensFromStack,
   getThreadIDFromRoute,
-} from '../navigation/navigation-utils';
+} from '../navigation/navigation-utils.js';
 import {
   ChatThreadListRouteName,
   ComposeSubchannelRouteName,
-} from '../navigation/route-names';
-import { createNavigateToThreadAction } from './message-list-types';
+} from '../navigation/route-names.js';
+import { createNavigateToThreadAction } from './message-list-types.js';
 
 type ClearScreensAction = {
   +type: 'CLEAR_SCREENS',

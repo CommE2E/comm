@@ -1,8 +1,8 @@
 // @flow
 
-import { dbQuery, SQL } from '../database/database';
-import type { Viewer } from '../session/viewer';
-import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times';
+import { dbQuery, SQL } from '../database/database.js';
+import type { Viewer } from '../session/viewer.js';
+import { earliestFocusedTimeConsideredExpired } from '../shared/focused-times.js';
 
 async function deleteActivityForViewerSession(
   viewer: Viewer,

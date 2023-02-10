@@ -3,10 +3,10 @@
 import type { StackHeaderProps } from '@react-navigation/stack';
 import * as React from 'react';
 
-import Header from '../navigation/header.react';
-import { createActiveTabSelector } from '../navigation/nav-selectors';
-import { NavContext } from '../navigation/navigation-context';
-import { ProfileRouteName } from '../navigation/route-names';
+import Header from '../navigation/header.react.js';
+import { createActiveTabSelector } from '../navigation/nav-selectors.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { ProfileRouteName } from '../navigation/route-names.js';
 
 const activeTabSelector = createActiveTabSelector(ProfileRouteName);
 

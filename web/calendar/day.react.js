@@ -2,34 +2,34 @@
 
 import classNames from 'classnames';
 import invariant from 'invariant';
-import _some from 'lodash/fp/some';
+import _some from 'lodash/fp/some.js';
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
 import {
   createLocalEntry,
   createLocalEntryActionType,
-} from 'lib/actions/entry-actions';
+} from 'lib/actions/entry-actions.js';
 import {
   useModalContext,
   type PushModal,
-} from 'lib/components/modal-provider.react';
-import { onScreenThreadInfos as onScreenThreadInfosSelector } from 'lib/selectors/thread-selectors';
-import { entryKey } from 'lib/shared/entry-utils';
-import type { EntryInfo } from 'lib/types/entry-types';
-import type { Dispatch } from 'lib/types/redux-types';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { dateString, dateFromString } from 'lib/utils/date-utils';
+} from 'lib/components/modal-provider.react.js';
+import { onScreenThreadInfos as onScreenThreadInfosSelector } from 'lib/selectors/thread-selectors.js';
+import { entryKey } from 'lib/shared/entry-utils.js';
+import type { EntryInfo } from 'lib/types/entry-types.js';
+import type { Dispatch } from 'lib/types/redux-types.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { dateString, dateFromString } from 'lib/utils/date-utils.js';
 
-import LogInFirstModal from '../modals/account/log-in-first-modal.react';
-import HistoryModal from '../modals/history/history-modal.react';
-import ThreadPickerModal from '../modals/threads/thread-picker-modal.react';
-import { useSelector } from '../redux/redux-utils';
-import { htmlTargetFromEvent } from '../vector-utils';
-import { AddVector, HistoryVector } from '../vectors.react';
+import LogInFirstModal from '../modals/account/log-in-first-modal.react.js';
+import HistoryModal from '../modals/history/history-modal.react.js';
+import ThreadPickerModal from '../modals/threads/thread-picker-modal.react.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { htmlTargetFromEvent } from '../vector-utils.js';
+import { AddVector, HistoryVector } from '../vectors.react.js';
 import css from './calendar.css';
-import type { InnerEntry } from './entry.react';
-import Entry from './entry.react';
+import type { InnerEntry } from './entry.react.js';
+import Entry from './entry.react.js';
 
 type BaseProps = {
   +dayString: string,

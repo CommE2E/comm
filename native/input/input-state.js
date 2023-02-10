@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import type { NativeMediaSelection } from 'lib/types/media-types';
-import type { RawTextMessageInfo } from 'lib/types/messages/text';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { NativeMediaSelection } from 'lib/types/media-types.js';
+import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 export type MultimediaProcessingStep = 'transcoding' | 'uploading';
 

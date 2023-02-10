@@ -1,7 +1,7 @@
 // @flow
 
 import invariant from 'invariant';
-import _find from 'lodash/fp/find';
+import _find from 'lodash/fp/find.js';
 import * as React from 'react';
 import { View, TouchableWithoutFeedback } from 'react-native';
 import { createSelector } from 'reselect';
@@ -11,45 +11,45 @@ import {
   fetchMessagesBeforeCursor,
   fetchMostRecentMessagesActionTypes,
   fetchMostRecentMessages,
-} from 'lib/actions/message-actions';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
-import { messageKey } from 'lib/shared/message-utils';
-import { useWatchThread } from 'lib/shared/thread-utils';
-import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
+} from 'lib/actions/message-actions.js';
+import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
+import { messageKey } from 'lib/shared/message-utils.js';
+import { useWatchThread } from 'lib/shared/thread-utils.js';
+import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import ListLoadingIndicator from '../components/list-loading-indicator.react';
+import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../keyboard/keyboard-state';
-import { defaultStackScreenOptions } from '../navigation/options';
+} from '../keyboard/keyboard-state.js';
+import { defaultStackScreenOptions } from '../navigation/options.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
+} from '../navigation/overlay-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
 import {
   useStyles,
   type IndicatorStyle,
   useIndicatorStyle,
-} from '../themes/colors';
+} from '../themes/colors.js';
 import type {
   ChatMessageInfoItemWithHeight,
   ChatMessageItemWithHeight,
-} from '../types/chat-types';
-import type { VerticalBounds } from '../types/layout-types';
-import type { ViewableItemsChange } from '../types/react-native';
-import ChatList from './chat-list.react';
-import type { ChatNavigationProp } from './chat.react';
-import { Message } from './message.react';
-import RelationshipPrompt from './relationship-prompt.react';
+} from '../types/chat-types.js';
+import type { VerticalBounds } from '../types/layout-types.js';
+import type { ViewableItemsChange } from '../types/react-native.js';
+import ChatList from './chat-list.react.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import { Message } from './message.react.js';
+import RelationshipPrompt from './relationship-prompt.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

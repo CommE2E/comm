@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 
-import { threadIsPending } from 'lib/shared/thread-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import { useResolvedThreadInfo } from 'lib/utils/entity-helpers';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
-import ThreadAncestors from './chat-thread-ancestors.react';
-import ThreadMenu from './thread-menu.react';
+import ThreadAncestors from './chat-thread-ancestors.react.js';
+import ThreadMenu from './thread-menu.react.js';
 import css from './thread-top-bar.css';
 
 type threadTopBarProps = {

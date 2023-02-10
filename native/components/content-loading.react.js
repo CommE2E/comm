@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
-import type { Colors } from '../themes/colors';
+import type { Colors } from '../themes/colors.js';
 
 type Props = {
   +fillType: 'flex' | 'absolute',

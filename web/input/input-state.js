@@ -6,9 +6,9 @@ import {
   type MediaType,
   type Dimensions,
   type MediaMissionStep,
-} from 'lib/types/media-types';
-import type { RawTextMessageInfo } from 'lib/types/messages/text';
-import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types';
+} from 'lib/types/media-types.js';
+import type { RawTextMessageInfo } from 'lib/types/messages/text.js';
+import type { ThreadInfo, RelativeMemberInfo } from 'lib/types/thread-types.js';
 
 export type PendingMultimediaUpload = {
   localID: string,

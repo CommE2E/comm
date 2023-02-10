@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
 export type KeyboardState = {
   +keyboardShowing: boolean,

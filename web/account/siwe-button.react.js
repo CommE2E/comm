@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { FaEthereum } from 'react-icons/fa';
 
-import Button from '../components/button.react';
+import Button from '../components/button.react.js';
 import css from './siwe.css';
 
 type SIWEButtonProps = {

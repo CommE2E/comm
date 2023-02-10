@@ -2,8 +2,8 @@
 
 import invariant from 'invariant';
 
-import { sortIDs } from 'lib/shared/relationship-utils';
-import { messageTypes } from 'lib/types/message-types';
+import { sortIDs } from 'lib/shared/relationship-utils.js';
+import { messageTypes } from 'lib/types/message-types.js';
 import {
   type RelationshipRequest,
   type RelationshipErrors,
@@ -11,20 +11,20 @@ import {
   relationshipActions,
   undirectedStatus,
   directedStatus,
-} from 'lib/types/relationship-types';
-import { threadTypes } from 'lib/types/thread-types';
-import { updateTypes, type UpdateData } from 'lib/types/update-types';
-import { cartesianProduct } from 'lib/utils/array';
-import { ServerError } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
+} from 'lib/types/relationship-types.js';
+import { threadTypes } from 'lib/types/thread-types.js';
+import { updateTypes, type UpdateData } from 'lib/types/update-types.js';
+import { cartesianProduct } from 'lib/utils/array.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { promiseAll } from 'lib/utils/promises.js';
 
-import createMessages from '../creators/message-creator';
-import { createThread } from '../creators/thread-creator';
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, SQL, mergeOrConditions } from '../database/database';
-import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers';
-import { fetchUserInfos } from '../fetchers/user-fetchers';
-import type { Viewer } from '../session/viewer';
+import createMessages from '../creators/message-creator.js';
+import { createThread } from '../creators/thread-creator.js';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, SQL, mergeOrConditions } from '../database/database.js';
+import { fetchFriendRequestRelationshipOperations } from '../fetchers/relationship-fetchers.js';
+import { fetchUserInfos } from '../fetchers/user-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
 
 async function updateRelationships(
   viewer: Viewer,

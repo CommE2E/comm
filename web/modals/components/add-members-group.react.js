@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 
-import type { UserListItem } from 'lib/types/user-types';
+import type { UserListItem } from 'lib/types/user-types.js';
 
-import AddMembersItem from './add-members-item.react';
+import AddMembersItem from './add-members-item.react.js';
 import css from './add-members.css';
 
 type AddMemberItemGroupProps = {

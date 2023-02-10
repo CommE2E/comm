@@ -10,18 +10,18 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import type { ScreenRect } from '../keyboard/keyboard';
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../keyboard/keyboard-state';
+} from '../keyboard/keyboard-state.js';
+import type { ScreenRect } from '../keyboard/keyboard.js';
 import type {
   Layout,
   LayoutEvent,
   EventSubscription,
   KeyboardEvent,
-} from '../types/react-native';
-import type { ViewStyle } from '../types/styles';
+} from '../types/react-native.js';
+import type { ViewStyle } from '../types/styles.js';
 
 type ViewProps = React.ElementConfig<typeof View>;
 type BaseProps = {

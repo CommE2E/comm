@@ -1,32 +1,32 @@
 // @flow
 
-import Icon from '@expo/vector-icons/Feather';
+import Icon from '@expo/vector-icons/Feather.js';
 import invariant from 'invariant';
 import * as React from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
-import { createMessageReply } from 'lib/shared/message-utils';
-import { assertComposableMessageType } from 'lib/types/message-types';
+import { createMessageReply } from 'lib/shared/message-utils.js';
+import { assertComposableMessageType } from 'lib/types/message-types.js';
 
-import { type InputState, InputStateContext } from '../input/input-state';
-import { type Colors, useColors } from '../themes/colors';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
-import { type AnimatedStyleObj, AnimatedView } from '../types/styles';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import { type Colors, useColors } from '../themes/colors.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { type AnimatedStyleObj, AnimatedView } from '../types/styles.js';
 import {
   clusterEndHeight,
   inlineEngagementStyle,
   inlineEngagementLeftStyle,
   inlineEngagementRightStyle,
   composedMessageStyle,
-} from './chat-constants';
-import { useComposedMessageMaxWidth } from './composed-message-width';
-import { FailedSend } from './failed-send.react';
-import { InlineEngagement } from './inline-engagement.react';
-import { MessageHeader } from './message-header.react';
-import { useNavigateToSidebar } from './sidebar-navigation';
-import SwipeableMessage from './swipeable-message.react';
-import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils';
+} from './chat-constants.js';
+import { useComposedMessageMaxWidth } from './composed-message-width.js';
+import { FailedSend } from './failed-send.react.js';
+import { InlineEngagement } from './inline-engagement.react.js';
+import { MessageHeader } from './message-header.react.js';
+import { useNavigateToSidebar } from './sidebar-navigation.js';
+import SwipeableMessage from './swipeable-message.react.js';
+import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;

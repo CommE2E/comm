@@ -4,8 +4,8 @@ import childProcess from 'child_process';
 import cluster from 'cluster';
 import geoip from 'geoip-lite';
 
-import { handleAsyncPromise } from '../responders/handlers';
-import { importJSON } from '../utils/import-json';
+import { handleAsyncPromise } from '../responders/handlers.js';
+import { importJSON } from '../utils/import-json.js';
 
 async function updateGeoipDB(): Promise<void> {
   const geoipLicense = await importJSON({

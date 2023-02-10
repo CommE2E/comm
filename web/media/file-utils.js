@@ -9,9 +9,9 @@ import {
   fileInfoFromData,
   type FileDataInfo,
   readableFilename,
-} from 'lib/media/file-utils';
-import type { DetermineFileTypeMediaMissionStep } from 'lib/types/media-types';
-import { getMessageForException } from 'lib/utils/errors';
+} from 'lib/media/file-utils.js';
+import type { DetermineFileTypeMediaMissionStep } from 'lib/types/media-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 function deepFileInfoFromData(data: Buffer | ArrayBuffer): FileDataInfo {
   const result = fileInfoFromData(data);

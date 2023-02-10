@@ -8,20 +8,20 @@ import {
   usersInRawEntryInfos,
   serverEntryInfo,
   serverEntryInfosObject,
-} from 'lib/shared/entry-utils';
-import { usersInThreadInfo } from 'lib/shared/thread-utils';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import type { UpdateActivityResult } from 'lib/types/activity-types';
-import { isDeviceType } from 'lib/types/device-types';
+} from 'lib/shared/entry-utils.js';
+import { usersInThreadInfo } from 'lib/shared/thread-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import type { UpdateActivityResult } from 'lib/types/activity-types.js';
+import { isDeviceType } from 'lib/types/device-types.js';
 import type {
   CalendarQuery,
   DeltaEntryInfosResponse,
-} from 'lib/types/entry-types';
+} from 'lib/types/entry-types.js';
 import {
   reportTypes,
   type ThreadInconsistencyReportCreationRequest,
   type EntryInconsistencyReportCreationRequest,
-} from 'lib/types/report-types';
+} from 'lib/types/report-types.js';
 import {
   serverRequestTypes,
   type ThreadInconsistencyClientResponse,
@@ -29,46 +29,46 @@ import {
   type ClientResponse,
   type ServerServerRequest,
   type ServerCheckStateServerRequest,
-} from 'lib/types/request-types';
-import { sessionCheckFrequency } from 'lib/types/session-types';
-import { hash } from 'lib/utils/objects';
-import { promiseAll } from 'lib/utils/promises';
+} from 'lib/types/request-types.js';
+import { sessionCheckFrequency } from 'lib/types/session-types.js';
+import { hash } from 'lib/utils/objects.js';
+import { promiseAll } from 'lib/utils/promises.js';
 import {
   tShape,
   tPlatform,
   tPlatformDetails,
-} from 'lib/utils/validation-utils';
+} from 'lib/utils/validation-utils.js';
 
-import { saveOneTimeKeys } from '../creators/one-time-keys-creator';
-import createReport from '../creators/report-creator';
-import { SQL } from '../database/database';
+import { saveOneTimeKeys } from '../creators/one-time-keys-creator.js';
+import createReport from '../creators/report-creator.js';
+import { SQL } from '../database/database.js';
 import {
   fetchEntryInfos,
   fetchEntryInfosByID,
   fetchEntriesForSession,
-} from '../fetchers/entry-fetchers';
-import { checkIfSessionHasEnoughOneTimeKeys } from '../fetchers/key-fetchers';
-import { fetchThreadInfos } from '../fetchers/thread-fetchers';
+} from '../fetchers/entry-fetchers.js';
+import { checkIfSessionHasEnoughOneTimeKeys } from '../fetchers/key-fetchers.js';
+import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
 import {
   fetchCurrentUserInfo,
   fetchUserInfos,
   fetchKnownUserInfos,
-} from '../fetchers/user-fetchers';
-import { activityUpdatesInputValidator } from '../responders/activity-responders';
-import { handleAsyncPromise } from '../responders/handlers';
+} from '../fetchers/user-fetchers.js';
+import { activityUpdatesInputValidator } from '../responders/activity-responders.js';
+import { handleAsyncPromise } from '../responders/handlers.js';
 import {
   threadInconsistencyReportValidatorShape,
   entryInconsistencyReportValidatorShape,
-} from '../responders/report-responders';
+} from '../responders/report-responders.js';
 import {
   setNewSession,
   setCookiePlatform,
   setCookiePlatformDetails,
-} from '../session/cookies';
-import type { Viewer } from '../session/viewer';
-import { activityUpdater } from '../updaters/activity-updaters';
-import { compareNewCalendarQuery } from '../updaters/entry-updaters';
-import type { SessionUpdate } from '../updaters/session-updaters';
+} from '../session/cookies.js';
+import type { Viewer } from '../session/viewer.js';
+import { activityUpdater } from '../updaters/activity-updaters.js';
+import { compareNewCalendarQuery } from '../updaters/entry-updaters.js';
+import type { SessionUpdate } from '../updaters/session-updaters.js';
 
 const clientResponseInputValidator: TUnion<TInterface> = t.union([
   tShape({

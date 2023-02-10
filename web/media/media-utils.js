@@ -5,11 +5,11 @@ import type {
   Dimensions,
   MediaMissionStep,
   MediaMissionFailure,
-} from 'lib/types/media-types';
-import { getMessageForException } from 'lib/utils/errors';
+} from 'lib/types/media-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
-import { probeFile } from './blob-utils';
-import { getOrientation } from './image-utils';
+import { probeFile } from './blob-utils.js';
+import { getOrientation } from './image-utils.js';
 
 async function preloadImage(
   uri: string,

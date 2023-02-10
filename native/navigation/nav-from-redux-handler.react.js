@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { useSelector } from 'react-redux';
 
-import { setNavStateActionType } from './action-types';
-import { NavContext } from './navigation-context';
+import { setNavStateActionType } from './action-types.js';
+import { NavContext } from './navigation-context.js';
 
 const NavFromReduxHandler: React.ComponentType<{}> = React.memo<{}>(
   function NavFromReduxHandler() {

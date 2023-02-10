@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 
-import { longAbsoluteDate } from 'lib/utils/date-utils';
+import { longAbsoluteDate } from 'lib/utils/date-utils.js';
 
-import { SingleLine } from '../components/single-line.react';
-import { useStyles } from '../themes/colors';
+import { SingleLine } from '../components/single-line.react.js';
+import { useStyles } from '../themes/colors.js';
 
 export type DisplayType = 'lowContrast' | 'modal';
 

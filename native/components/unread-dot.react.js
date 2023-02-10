@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { useColors } from '../themes/colors';
-import ColorSplotch from './color-splotch.react';
+import { useColors } from '../themes/colors.js';
+import ColorSplotch from './color-splotch.react.js';
 
 type Props = {
   +unread: ?boolean,

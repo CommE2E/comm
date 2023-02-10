@@ -1,47 +1,47 @@
 // @flow
 
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
+import _isEqual from 'lodash/fp/isEqual.js';
 
-import bots from 'lib/facts/bots';
-import genesis from 'lib/facts/genesis';
+import bots from 'lib/facts/bots.js';
+import genesis from 'lib/facts/genesis.js';
 import {
   makePermissionsBlob,
   makePermissionsForChildrenBlob,
   getRoleForPermissions,
-} from 'lib/permissions/thread-permissions';
-import type { CalendarQuery } from 'lib/types/entry-types';
+} from 'lib/permissions/thread-permissions.js';
+import type { CalendarQuery } from 'lib/types/entry-types.js';
 import {
   type ThreadPermissionsBlob,
   type ThreadRolePermissionsBlob,
   type ThreadType,
   assertThreadType,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   updateTypes,
   type ServerUpdateInfo,
   type CreateUpdatesResult,
-} from 'lib/types/update-types';
-import { pushAll } from 'lib/utils/array';
-import { ServerError } from 'lib/utils/errors';
+} from 'lib/types/update-types.js';
+import { pushAll } from 'lib/utils/array.js';
+import { ServerError } from 'lib/utils/errors.js';
 
 import {
   createUpdates,
   type UpdatesForCurrentSession,
-} from '../creators/update-creator';
-import { dbQuery, SQL } from '../database/database';
+} from '../creators/update-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
 import {
   fetchServerThreadInfos,
   rawThreadInfosFromServerThreadInfos,
   type FetchThreadInfosResult,
-} from '../fetchers/thread-fetchers';
-import { rescindPushNotifs } from '../push/rescind';
-import { createScriptViewer } from '../session/scripts';
-import type { Viewer } from '../session/viewer';
-import { updateRoles } from '../updaters/role-updaters';
-import DepthQueue from '../utils/depth-queue';
-import RelationshipChangeset from '../utils/relationship-changeset';
-import { updateChangedUndirectedRelationships } from './relationship-updaters';
+} from '../fetchers/thread-fetchers.js';
+import { rescindPushNotifs } from '../push/rescind.js';
+import { createScriptViewer } from '../session/scripts.js';
+import type { Viewer } from '../session/viewer.js';
+import { updateRoles } from '../updaters/role-updaters.js';
+import DepthQueue from '../utils/depth-queue.js';
+import RelationshipChangeset from '../utils/relationship-changeset.js';
+import { updateChangedUndirectedRelationships } from './relationship-updaters.js';
 
 export type MembershipRowToSave = {
   +operation: 'save',

@@ -2,18 +2,18 @@
 
 import * as React from 'react';
 
-import SWMansionIcon from '../components/swmansion-icon.react';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
   createTooltip,
   type TooltipParams,
   type BaseTooltipProps,
   type TooltipMenuProps,
-} from '../tooltip/tooltip.react';
-import type { ChatMultimediaMessageInfoItem } from '../types/chat-types';
-import type { VerticalBounds } from '../types/layout-types';
-import { useOnPressReport } from './message-report-utils';
-import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react';
-import { useAnimatedNavigateToSidebar } from './sidebar-navigation';
+} from '../tooltip/tooltip.react.js';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
+import type { VerticalBounds } from '../types/layout-types.js';
+import { useOnPressReport } from './message-report-utils.js';
+import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react.js';
+import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
 
 export type MultimediaMessageTooltipModalParams = TooltipParams<{
   +item: ChatMultimediaMessageInfoItem,

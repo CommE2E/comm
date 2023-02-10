@@ -2,12 +2,12 @@
 
 import { RNFFmpeg, RNFFprobe, RNFFmpegConfig } from 'react-native-ffmpeg';
 
-import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils';
+import { getHasMultipleFramesProbeCommand } from 'lib/media/video-utils.js';
 import type {
   Dimensions,
   FFmpegStatistics,
   VideoInfo,
-} from 'lib/types/media-types';
+} from 'lib/types/media-types.js';
 
 const maxSimultaneousCalls = {
   process: 1,

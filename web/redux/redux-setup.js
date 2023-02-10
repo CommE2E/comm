@@ -1,47 +1,47 @@
 // @flow
 
 import invariant from 'invariant';
-import type { PersistState } from 'redux-persist/src/types';
+import type { PersistState } from 'redux-persist/es/types.js';
 
 import {
   logOutActionTypes,
   deleteAccountActionTypes,
-} from 'lib/actions/user-actions';
-import baseReducer from 'lib/reducers/master-reducer';
-import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors';
-import { isLoggedIn } from 'lib/selectors/user-selectors';
-import { invalidSessionDowngrade } from 'lib/shared/account-utils';
-import type { Shape } from 'lib/types/core';
-import type { DraftStore } from 'lib/types/draft-types';
-import type { EnabledApps } from 'lib/types/enabled-apps';
-import type { EntryStore } from 'lib/types/entry-types';
-import type { CalendarFilter } from 'lib/types/filter-types';
-import type { LifecycleState } from 'lib/types/lifecycle-state-types';
-import type { LoadingStatus } from 'lib/types/loading-types';
-import type { MessageStore } from 'lib/types/message-types';
+} from 'lib/actions/user-actions.js';
+import baseReducer from 'lib/reducers/master-reducer.js';
+import { mostRecentlyReadThreadSelector } from 'lib/selectors/thread-selectors.js';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
+import { invalidSessionDowngrade } from 'lib/shared/account-utils.js';
+import type { Shape } from 'lib/types/core.js';
+import type { DraftStore } from 'lib/types/draft-types.js';
+import type { EnabledApps } from 'lib/types/enabled-apps.js';
+import type { EntryStore } from 'lib/types/entry-types.js';
+import type { CalendarFilter } from 'lib/types/filter-types.js';
+import type { LifecycleState } from 'lib/types/lifecycle-state-types.js';
+import type { LoadingStatus } from 'lib/types/loading-types.js';
+import type { MessageStore } from 'lib/types/message-types.js';
 import type { UserPolicies } from 'lib/types/policy-types.js';
-import type { BaseAction } from 'lib/types/redux-types';
-import type { ReportStore } from 'lib/types/report-types';
-import type { ConnectionInfo } from 'lib/types/socket-types';
-import type { ThreadStore } from 'lib/types/thread-types';
-import type { CurrentUserInfo, UserStore } from 'lib/types/user-types';
-import { setNewSessionActionType } from 'lib/utils/action-utils';
+import type { BaseAction } from 'lib/types/redux-types.js';
+import type { ReportStore } from 'lib/types/report-types.js';
+import type { ConnectionInfo } from 'lib/types/socket-types.js';
+import type { ThreadStore } from 'lib/types/thread-types.js';
+import type { CurrentUserInfo, UserStore } from 'lib/types/user-types.js';
+import { setNewSessionActionType } from 'lib/utils/action-utils.js';
 
-import { activeThreadSelector } from '../selectors/nav-selectors';
-import { type NavInfo } from '../types/nav-types';
+import { activeThreadSelector } from '../selectors/nav-selectors.js';
+import { type NavInfo } from '../types/nav-types.js';
 import {
   updateWindowActiveActionType,
   setDeviceIDActionType,
   updateNavInfoActionType,
   updateWindowDimensionsActionType,
-} from './action-types';
-import { reduceDeviceID } from './device-id-reducer';
-import reduceNavInfo from './nav-reducer';
+} from './action-types.js';
+import { reduceDeviceID } from './device-id-reducer.js';
+import reduceNavInfo from './nav-reducer.js';
 import {
   reducePrimaryIdentityPublicKey,
   setPrimaryIdentityPublicKey,
-} from './primary-identity-public-key-reducer';
-import { getVisibility } from './visibility';
+} from './primary-identity-public-key-reducer.js';
+import { getVisibility } from './visibility.js';
 
 export type WindowDimensions = { width: number, height: number };
 export type AppState = {

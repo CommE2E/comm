@@ -1,12 +1,12 @@
 // @flow
 
-import { messageSpecs } from 'lib/shared/messages/message-specs';
-import { messageTypes } from 'lib/types/message-types';
-import { updateTypes } from 'lib/types/update-types';
+import { messageSpecs } from 'lib/shared/messages/message-specs.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import { updateTypes } from 'lib/types/update-types.js';
 
-import { createUpdates } from '../creators/update-creator';
-import { dbQuery, mergeOrConditions, SQL } from '../database/database';
-import { main } from './utils';
+import { createUpdates } from '../creators/update-creator.js';
+import { dbQuery, mergeOrConditions, SQL } from '../database/database.js';
+import { main } from './utils.js';
 
 async function addRepliesCountColumn() {
   const update = SQL`

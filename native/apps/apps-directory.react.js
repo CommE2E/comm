@@ -4,8 +4,8 @@ import * as React from 'react';
 import { Text, FlatList, View } from 'react-native';
 import { useSelector } from 'react-redux';
 
-import { useStyles } from '../themes/colors';
-import AppListing from './app-listing.react';
+import { useStyles } from '../themes/colors.js';
+import AppListing from './app-listing.react.js';
 
 const APP_DIRECTORY_DATA = [
   {

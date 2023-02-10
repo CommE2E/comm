@@ -3,12 +3,12 @@
 import * as React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { actionLogger } from 'lib/utils/action-logger';
+import { actionLogger } from 'lib/utils/action-logger.js';
 
-import { setNavStateActionType } from '../navigation/action-types';
-import { NavContext } from '../navigation/navigation-context';
-import { setReduxStateActionType } from './action-types';
-import { useSelector } from './redux-utils';
+import { setNavStateActionType } from '../navigation/action-types.js';
+import { NavContext } from '../navigation/navigation-context.js';
+import { setReduxStateActionType } from './action-types.js';
+import { useSelector } from './redux-utils.js';
 
 const DevTools: React.ComponentType<{}> = React.memo<{}>(function DevTools() {
   const devToolsRef = React.useRef();

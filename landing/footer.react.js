@@ -6,7 +6,7 @@ import * as React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import css from './footer.css';
-import SubscriptionForm from './subscription-form.react';
+import SubscriptionForm from './subscription-form.react.js';
 
 const navLinkProps = {
   activeStyle: {

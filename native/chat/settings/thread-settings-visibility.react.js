@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 
-import type { ThreadInfo } from 'lib/types/thread-types';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import ThreadVisibility from '../../components/thread-visibility.react';
-import { useStyles, useColors } from '../../themes/colors';
+import ThreadVisibility from '../../components/thread-visibility.react.js';
+import { useStyles, useColors } from '../../themes/colors.js';
 
 type Props = {
   +threadInfo: ThreadInfo,

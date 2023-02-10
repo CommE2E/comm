@@ -7,27 +7,27 @@ import { ScrollView } from 'react-native-gesture-handler';
 import {
   setUserSettings,
   setUserSettingsActionTypes,
-} from 'lib/actions/user-actions';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
+} from 'lib/actions/user-actions.js';
+import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import {
   type UpdateUserSettingsRequest,
   type NotificationTypes,
   type DefaultNotificationPayload,
   notificationTypes,
   userSettingsTypes,
-} from 'lib/types/account-types';
+} from 'lib/types/account-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import Action from '../components/action-row.react';
-import SWMansionIcon from '../components/swmansion-icon.react';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { useStyles } from '../themes/colors';
-import type { ProfileNavigationProp } from './profile.react';
+import Action from '../components/action-row.react.js';
+import SWMansionIcon from '../components/swmansion-icon.react.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
+import type { ProfileNavigationProp } from './profile.react.js';
 
 const CheckIcon = () => (
   <SWMansionIcon

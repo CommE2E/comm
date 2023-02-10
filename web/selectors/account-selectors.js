@@ -2,10 +2,10 @@
 
 import { createSelector } from 'reselect';
 
-import { logInExtraInfoSelector } from 'lib/selectors/account-selectors';
-import type { LogInExtraInfo } from 'lib/types/account-types';
+import { logInExtraInfoSelector } from 'lib/selectors/account-selectors.js';
+import type { LogInExtraInfo } from 'lib/types/account-types.js';
 
-import type { AppState } from '../redux/redux-setup';
+import type { AppState } from '../redux/redux-setup.js';
 
 const webLogInExtraInfoSelector: (
   state: AppState,

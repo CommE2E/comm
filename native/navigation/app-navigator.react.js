@@ -5,28 +5,28 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 
-import MultimediaMessageTooltipModal from '../chat/multimedia-message-tooltip-modal.react';
-import RobotextMessageTooltipModal from '../chat/robotext-message-tooltip-modal.react';
-import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react';
-import TextMessageTooltipModal from '../chat/text-message-tooltip-modal.react';
-import KeyboardStateContainer from '../keyboard/keyboard-state-container.react';
-import CameraModal from '../media/camera-modal.react';
-import ImageModal from '../media/image-modal.react';
-import VideoPlaybackModal from '../media/video-playback-modal.react';
-import RelationshipListItemTooltipModal from '../profile/relationship-list-item-tooltip-modal.react';
-import PushHandler from '../push/push-handler.react';
-import { getPersistor } from '../redux/persist';
-import { RootContext } from '../root-context';
-import { useLoadCommFonts } from '../themes/fonts';
-import { waitForInteractions } from '../utils/timers';
-import ActionResultModal from './action-result-modal.react';
-import { CommunityDrawerNavigator } from './community-drawer-navigator.react';
-import { createOverlayNavigator } from './overlay-navigator.react';
+import MultimediaMessageTooltipModal from '../chat/multimedia-message-tooltip-modal.react.js';
+import RobotextMessageTooltipModal from '../chat/robotext-message-tooltip-modal.react.js';
+import ThreadSettingsMemberTooltipModal from '../chat/settings/thread-settings-member-tooltip-modal.react.js';
+import TextMessageTooltipModal from '../chat/text-message-tooltip-modal.react.js';
+import KeyboardStateContainer from '../keyboard/keyboard-state-container.react.js';
+import CameraModal from '../media/camera-modal.react.js';
+import ImageModal from '../media/image-modal.react.js';
+import VideoPlaybackModal from '../media/video-playback-modal.react.js';
+import RelationshipListItemTooltipModal from '../profile/relationship-list-item-tooltip-modal.react.js';
+import PushHandler from '../push/push-handler.react.js';
+import { getPersistor } from '../redux/persist.js';
+import { RootContext } from '../root-context.js';
+import { useLoadCommFonts } from '../themes/fonts.js';
+import { waitForInteractions } from '../utils/timers.js';
+import ActionResultModal from './action-result-modal.react.js';
+import { CommunityDrawerNavigator } from './community-drawer-navigator.react.js';
+import { createOverlayNavigator } from './overlay-navigator.react.js';
 import type {
   OverlayNavigationProp,
   OverlayNavigationHelpers,
-} from './overlay-navigator.react';
-import type { RootNavigationProp } from './root-navigator.react';
+} from './overlay-navigator.react.js';
+import type { RootNavigationProp } from './root-navigator.react.js';
 import {
   ImageModalRouteName,
   MultimediaMessageTooltipModalRouteName,
@@ -40,7 +40,7 @@ import {
   CommunityDrawerNavigatorRouteName,
   type ScreenParamList,
   type OverlayParamList,
-} from './route-names';
+} from './route-names.js';
 
 let splashScreenHasHidden = false;
 

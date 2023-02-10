@@ -1,6 +1,6 @@
 // @flow
 
-import _isEqual from 'lodash/fp/isEqual';
+import _isEqual from 'lodash/fp/isEqual.js';
 import * as React from 'react';
 import {
   LayoutAnimation,
@@ -9,21 +9,21 @@ import {
 } from 'react-native';
 import shallowequal from 'shallowequal';
 
-import { messageKey } from 'lib/shared/message-utils';
+import { messageKey } from 'lib/shared/message-utils.js';
 
 import {
   type KeyboardState,
   KeyboardContext,
-} from '../keyboard/keyboard-state';
-import type { NavigationRoute } from '../navigation/route-names';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types';
-import { type VerticalBounds } from '../types/layout-types';
-import type { LayoutEvent } from '../types/react-native';
-import type { ChatNavigationProp } from './chat.react';
-import MultimediaMessage from './multimedia-message.react';
-import { RobotextMessage } from './robotext-message.react';
-import { TextMessage } from './text-message.react';
-import { messageItemHeight } from './utils';
+} from '../keyboard/keyboard-state.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { type VerticalBounds } from '../types/layout-types.js';
+import type { LayoutEvent } from '../types/react-native.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import MultimediaMessage from './multimedia-message.react.js';
+import { RobotextMessage } from './robotext-message.react.js';
+import { TextMessage } from './text-message.react.js';
+import { messageItemHeight } from './utils.js';
 
 type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,

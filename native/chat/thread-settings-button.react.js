@@ -1,14 +1,14 @@
 // @flow
 
-import Icon from '@expo/vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons.js';
 import * as React from 'react';
 
-import { type ThreadInfo } from 'lib/types/thread-types';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react';
-import { ThreadSettingsRouteName } from '../navigation/route-names';
-import { useStyles } from '../themes/colors';
-import type { ChatNavigationProp } from './chat.react';
+import Button from '../components/button.react.js';
+import { ThreadSettingsRouteName } from '../navigation/route-names.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatNavigationProp } from './chat.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

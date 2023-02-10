@@ -1,12 +1,12 @@
 // @flow
 
-import bots from 'lib/facts/bots';
-import { threadTypes, assertThreadType } from 'lib/types/thread-types';
+import bots from 'lib/facts/bots.js';
+import { threadTypes, assertThreadType } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { createScriptViewer } from '../session/scripts';
-import { updateThread } from '../updaters/thread-updaters';
-import { main } from './utils';
+import { dbQuery, SQL } from '../database/database.js';
+import { createScriptViewer } from '../session/scripts.js';
+import { updateThread } from '../updaters/thread-updaters.js';
+import { main } from './utils.js';
 
 const batchSize = 10;
 const updateThreadOptions = { forceUpdateRoot: true };

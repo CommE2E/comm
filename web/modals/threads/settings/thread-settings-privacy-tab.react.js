@@ -5,23 +5,23 @@ import * as React from 'react';
 import {
   changeThreadSettings,
   changeThreadSettingsActionTypes,
-} from 'lib/actions/thread-actions';
-import { useModalContext } from 'lib/components/modal-provider.react';
+} from 'lib/actions/thread-actions.js';
+import { useModalContext } from 'lib/components/modal-provider.react.js';
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import { threadTypeDescriptions } from 'lib/shared/thread-utils';
-import { type SetState } from 'lib/types/hook-types';
+import { threadTypeDescriptions } from 'lib/shared/thread-utils.js';
+import { type SetState } from 'lib/types/hook-types.js';
 import {
   type ThreadInfo,
   type ThreadChanges,
   threadTypes,
-} from 'lib/types/thread-types';
+} from 'lib/types/thread-types.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import EnumSettingsOption from '../../../components/enum-settings-option.react';
-import SubmitSection from './submit-section.react';
+import EnumSettingsOption from '../../../components/enum-settings-option.react.js';
+import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-privacy-tab.css';
 
 const { COMMUNITY_OPEN_SUBTHREAD, COMMUNITY_SECRET_SUBTHREAD } = threadTypes;

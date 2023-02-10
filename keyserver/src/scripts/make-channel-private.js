@@ -1,11 +1,11 @@
 // @flow
 
-import ashoat from 'lib/facts/ashoat';
-import { threadTypes } from 'lib/types/thread-types';
+import ashoat from 'lib/facts/ashoat.js';
+import { threadTypes } from 'lib/types/thread-types.js';
 
-import { createScriptViewer } from '../session/scripts';
-import { updateThread } from '../updaters/thread-updaters';
-import { main } from './utils';
+import { createScriptViewer } from '../session/scripts.js';
+import { updateThread } from '../updaters/thread-updaters.js';
+import { main } from './utils.js';
 
 const channelID = '-1';
 

@@ -1,6 +1,6 @@
 // @flow
 
-import type { ElectronBridge } from 'lib/types/electron-types';
+import type { ElectronBridge } from 'lib/types/electron-types.js';
 
 declare var electronContextBridge: void | ElectronBridge;
 

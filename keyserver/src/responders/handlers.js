@@ -2,9 +2,9 @@
 
 import type { $Response, $Request } from 'express';
 
-import { ServerError } from 'lib/utils/errors';
+import { ServerError } from 'lib/utils/errors.js';
 
-import { deleteCookie } from '../deleters/cookie-deleters';
+import { deleteCookie } from '../deleters/cookie-deleters.js';
 import type { PolicyType } from '../lib/facts/policies.js';
 import {
   fetchViewerForJSONRequest,
@@ -12,11 +12,14 @@ import {
   fetchViewerForHomeRequest,
   addCookieToHomeResponse,
   createNewAnonymousCookie,
-} from '../session/cookies';
-import type { Viewer } from '../session/viewer';
-import { type AppURLFacts, getAppURLFactsFromRequestURL } from '../utils/urls';
+} from '../session/cookies.js';
+import type { Viewer } from '../session/viewer.js';
+import {
+  type AppURLFacts,
+  getAppURLFactsFromRequestURL,
+} from '../utils/urls.js';
 import { policiesValidator } from '../utils/validation-utils.js';
-import { getMessageForException } from './utils';
+import { getMessageForException } from './utils.js';
 
 export type JSONResponder = {
   responder: (viewer: Viewer, input: any) => Promise<*>,

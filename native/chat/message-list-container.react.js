@@ -5,42 +5,42 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import genesis from 'lib/facts/genesis';
+import genesis from 'lib/facts/genesis.js';
 import {
   type ChatMessageItem,
   useMessageListData,
-} from 'lib/selectors/chat-selectors';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+} from 'lib/selectors/chat-selectors.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors';
-import { getPotentialMemberItems } from 'lib/shared/search-utils';
+} from 'lib/selectors/user-selectors.js';
+import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
 import {
   useExistingThreadInfoFinder,
   pendingThreadType,
-} from 'lib/shared/thread-utils';
-import type { ThreadInfo } from 'lib/types/thread-types';
-import type { AccountUserInfo, UserListItem } from 'lib/types/user-types';
+} from 'lib/shared/thread-utils.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
+import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
-import ContentLoading from '../components/content-loading.react';
-import { InputStateContext } from '../input/input-state';
+import ContentLoading from '../components/content-loading.react.js';
+import { InputStateContext } from '../input/input-state.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
-import { ThreadSettingsRouteName } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { type Colors, useColors, useStyles } from '../themes/colors';
-import type { ChatMessageItemWithHeight } from '../types/chat-types';
-import { type MessagesMeasurer, useHeightMeasurer } from './chat-context';
-import { ChatInputBar } from './chat-input-bar.react';
-import type { ChatNavigationProp } from './chat.react';
-import MessageListThreadSearch from './message-list-thread-search.react';
-import { MessageListContextProvider } from './message-list-types';
-import MessageList from './message-list.react';
-import ParentThreadHeader from './parent-thread-header.react';
+} from '../navigation/overlay-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { ThreadSettingsRouteName } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type Colors, useColors, useStyles } from '../themes/colors.js';
+import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
+import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
+import { ChatInputBar } from './chat-input-bar.react.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import MessageListThreadSearch from './message-list-thread-search.react.js';
+import { MessageListContextProvider } from './message-list-types.js';
+import MessageList from './message-list.react.js';
+import ParentThreadHeader from './parent-thread-header.react.js';
 
 type BaseProps = {
   +navigation: ChatNavigationProp<'MessageList'>,

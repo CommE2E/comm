@@ -4,9 +4,9 @@ import * as React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import tinycolor from 'tinycolor2';
 
-import type { SetState } from 'lib/types/hook-types';
+import type { SetState } from 'lib/types/hook-types.js';
 
-import { useStyles } from '../themes/colors';
+import { useStyles } from '../themes/colors.js';
 
 type ColorSelectorButtonProps = {
   +color: string,

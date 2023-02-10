@@ -3,8 +3,8 @@
 import classnames from 'classnames';
 import * as React from 'react';
 
-import type { ButtonProps } from '../../../components/button.react';
-import Button from '../../../components/button.react';
+import type { ButtonProps } from '../../../components/button.react.js';
+import Button from '../../../components/button.react.js';
 import css from './submit-section.css';
 
 type Props = {

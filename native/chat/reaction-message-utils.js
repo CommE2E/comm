@@ -2,24 +2,27 @@
 
 import invariant from 'invariant';
 import * as React from 'react';
-import Alert from 'react-native/Libraries/Alert/Alert';
+import Alert from 'react-native/Libraries/Alert/Alert.js';
 
 import {
   sendReactionMessage,
   sendReactionMessageActionTypes,
-} from 'lib/actions/message-actions';
-import type { MessageReactionInfo } from 'lib/selectors/chat-selectors';
-import { messageTypes } from 'lib/types/message-types';
-import type { RawReactionMessageInfo } from 'lib/types/messages/reaction';
+} from 'lib/actions/message-actions.js';
+import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import type { RawReactionMessageInfo } from 'lib/types/messages/reaction.js';
 import {
   useDispatchActionPromise,
   useServerCall,
-} from 'lib/utils/action-utils';
-import { cloneError } from 'lib/utils/errors';
+} from 'lib/utils/action-utils.js';
+import { cloneError } from 'lib/utils/errors.js';
 
-import { useSelector } from '../redux/redux-utils';
-import type { LayoutCoordinates, VerticalBounds } from '../types/layout-types';
-import type { ViewStyle } from '../types/styles';
+import { useSelector } from '../redux/redux-utils.js';
+import type {
+  LayoutCoordinates,
+  VerticalBounds,
+} from '../types/layout-types.js';
+import type { ViewStyle } from '../types/styles.js';
 
 function useSendReaction(
   messageID: ?string,

@@ -3,26 +3,26 @@
 import cluster from 'cluster';
 import schedule from 'node-schedule';
 
-import { deleteOrphanedActivity } from '../deleters/activity-deleters';
-import { deleteExpiredCookies } from '../deleters/cookie-deleters';
-import { deleteOrphanedDays } from '../deleters/day-deleters';
-import { deleteOrphanedEntries } from '../deleters/entry-deleters';
-import { deleteOrphanedMemberships } from '../deleters/membership-deleters';
-import { deleteOrphanedMessages } from '../deleters/message-deleters';
-import { deleteOrphanedNotifs } from '../deleters/notif-deleters';
-import { deleteOrphanedRevisions } from '../deleters/revision-deleters';
-import { deleteOrphanedRoles } from '../deleters/role-deleters';
+import { deleteOrphanedActivity } from '../deleters/activity-deleters.js';
+import { deleteExpiredCookies } from '../deleters/cookie-deleters.js';
+import { deleteOrphanedDays } from '../deleters/day-deleters.js';
+import { deleteOrphanedEntries } from '../deleters/entry-deleters.js';
+import { deleteOrphanedMemberships } from '../deleters/membership-deleters.js';
+import { deleteOrphanedMessages } from '../deleters/message-deleters.js';
+import { deleteOrphanedNotifs } from '../deleters/notif-deleters.js';
+import { deleteOrphanedRevisions } from '../deleters/revision-deleters.js';
+import { deleteOrphanedRoles } from '../deleters/role-deleters.js';
 import {
   deleteOrphanedSessions,
   deleteOldWebSessions,
-} from '../deleters/session-deleters';
+} from '../deleters/session-deleters.js';
 import { deleteStaleSIWENonceEntries } from '../deleters/siwe-nonce-deleters.js';
-import { deleteInaccessibleThreads } from '../deleters/thread-deleters';
-import { deleteExpiredUpdates } from '../deleters/update-deleters';
-import { deleteUnassignedUploads } from '../deleters/upload-deleters';
-import { backupDB } from './backups';
-import { createDailyUpdatesThread } from './daily-updates';
-import { updateAndReloadGeoipDB } from './update-geoip-db';
+import { deleteInaccessibleThreads } from '../deleters/thread-deleters.js';
+import { deleteExpiredUpdates } from '../deleters/update-deleters.js';
+import { deleteUnassignedUploads } from '../deleters/upload-deleters.js';
+import { backupDB } from './backups.js';
+import { createDailyUpdatesThread } from './daily-updates.js';
+import { updateAndReloadGeoipDB } from './update-geoip-db.js';
 
 if (cluster.isMaster) {
   schedule.scheduleJob(

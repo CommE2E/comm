@@ -2,7 +2,7 @@
 
 import { useSelector as reactReduxUseSelector } from 'react-redux';
 
-import type { AppState } from './state-types';
+import type { AppState } from './state-types.js';
 
 function useSelector<SS>(
   selector: (state: AppState) => SS,

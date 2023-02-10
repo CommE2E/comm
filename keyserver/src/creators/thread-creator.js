@@ -2,55 +2,55 @@
 
 import invariant from 'invariant';
 
-import bots from 'lib/facts/bots';
-import genesis from 'lib/facts/genesis';
+import bots from 'lib/facts/bots.js';
+import genesis from 'lib/facts/genesis.js';
 import {
   generatePendingThreadColor,
   generateRandomColor,
   getThreadTypeParentRequirement,
-} from 'lib/shared/thread-utils';
-import { hasMinCodeVersion } from 'lib/shared/version-utils';
-import type { Shape } from 'lib/types/core';
-import { messageTypes } from 'lib/types/message-types';
+} from 'lib/shared/thread-utils.js';
+import { hasMinCodeVersion } from 'lib/shared/version-utils.js';
+import type { Shape } from 'lib/types/core.js';
+import { messageTypes } from 'lib/types/message-types.js';
 import {
   type ServerNewThreadRequest,
   type NewThreadResponse,
   threadTypes,
   threadPermissions,
   threadTypeIsCommunityRoot,
-} from 'lib/types/thread-types';
-import type { UserInfos } from 'lib/types/user-types';
-import { pushAll } from 'lib/utils/array';
-import { ServerError } from 'lib/utils/errors';
-import { promiseAll } from 'lib/utils/promises';
-import { firstLine } from 'lib/utils/string-utils';
+} from 'lib/types/thread-types.js';
+import type { UserInfos } from 'lib/types/user-types.js';
+import { pushAll } from 'lib/utils/array.js';
+import { ServerError } from 'lib/utils/errors.js';
+import { promiseAll } from 'lib/utils/promises.js';
+import { firstLine } from 'lib/utils/string-utils.js';
 
-import { dbQuery, SQL } from '../database/database';
-import { fetchMessageInfoByID } from '../fetchers/message-fetchers';
+import { dbQuery, SQL } from '../database/database.js';
+import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import {
   determineThreadAncestry,
   personalThreadQuery,
-} from '../fetchers/thread-fetchers';
+} from '../fetchers/thread-fetchers.js';
 import {
   checkThreadPermission,
   validateCandidateMembers,
-} from '../fetchers/thread-permission-fetchers';
-import type { Viewer } from '../session/viewer';
+} from '../fetchers/thread-permission-fetchers.js';
+import type { Viewer } from '../session/viewer.js';
 import {
   changeRole,
   recalculateThreadPermissions,
   commitMembershipChangeset,
   getChangesetCommitResultForExistingThread,
-} from '../updaters/thread-permission-updaters';
-import { joinThread } from '../updaters/thread-updaters';
-import RelationshipChangeset from '../utils/relationship-changeset';
-import createIDs from './id-creator';
-import createMessages from './message-creator';
+} from '../updaters/thread-permission-updaters.js';
+import { joinThread } from '../updaters/thread-updaters.js';
+import RelationshipChangeset from '../utils/relationship-changeset.js';
+import createIDs from './id-creator.js';
+import createMessages from './message-creator.js';
 import {
   createInitialRolesForNewThread,
   getRolePermissionBlobs,
-} from './role-creator';
-import type { UpdatesForCurrentSession } from './update-creator';
+} from './role-creator.js';
+import type { UpdatesForCurrentSession } from './update-creator.js';
 
 const { commbot } = bots;
 

@@ -1,6 +1,6 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
+import Icon from '@expo/vector-icons/FontAwesome.js';
 import * as React from 'react';
 import {
   TouchableOpacity,
@@ -11,7 +11,7 @@ import {
   Animated,
 } from 'react-native';
 
-import type { ViewStyle } from '../types/styles';
+import type { ViewStyle } from '../types/styles.js';
 
 type Props = {
   ...React.ElementConfig<typeof View>,

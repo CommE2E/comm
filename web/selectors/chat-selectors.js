@@ -7,17 +7,17 @@ import {
   messageInfoSelector,
   type ChatThreadItem,
   createChatThreadItem,
-} from 'lib/selectors/chat-selectors';
+} from 'lib/selectors/chat-selectors.js';
 import {
   threadInfoSelector,
   sidebarInfoSelector,
-} from 'lib/selectors/thread-selectors';
-import { threadIsPending } from 'lib/shared/thread-utils';
-import type { MessageStore, MessageInfo } from 'lib/types/message-types';
-import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types';
+} from 'lib/selectors/thread-selectors.js';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
+import type { MessageStore, MessageInfo } from 'lib/types/message-types.js';
+import type { ThreadInfo, SidebarInfo } from 'lib/types/thread-types.js';
 
-import type { AppState } from '../redux/redux-setup';
-import { useSelector } from '../redux/redux-utils';
+import type { AppState } from '../redux/redux-setup.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 const activeChatThreadItem: (
   state: AppState,

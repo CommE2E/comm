@@ -12,10 +12,10 @@ import {
   isValidSIWENonce,
 } from 'lib/utils/siwe-utils.js';
 
-import { type LandingSSRProps } from '../landing/landing-ssr.react';
-import { waitForStream } from '../utils/json-stream';
-import { getAndAssertLandingURLFacts } from '../utils/urls';
-import { getMessageForException } from './utils';
+import { type LandingSSRProps } from '../landing/landing-ssr.react.js';
+import { waitForStream } from '../utils/json-stream.js';
+import { getAndAssertLandingURLFacts } from '../utils/urls.js';
+import { getMessageForException } from './utils.js';
 
 async function landingHandler(req: $Request, res: $Response) {
   try {

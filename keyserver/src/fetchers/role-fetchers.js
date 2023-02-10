@@ -1,8 +1,8 @@
 // @flow
 
-import type { RoleInfo } from 'lib/types/thread-types';
+import type { RoleInfo } from 'lib/types/thread-types.js';
 
-import { dbQuery, SQL } from '../database/database';
+import { dbQuery, SQL } from '../database/database.js';
 
 async function fetchRoles(threadID: string): Promise<RoleInfo[]> {
   const query = SQL`

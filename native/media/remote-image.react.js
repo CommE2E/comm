@@ -4,10 +4,10 @@ import * as React from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import FastImage from 'react-native-fast-image';
 
-import { type ConnectionStatus } from 'lib/types/socket-types';
+import { type ConnectionStatus } from 'lib/types/socket-types.js';
 
-import { useSelector } from '../redux/redux-utils';
-import type { ImageStyle } from '../types/styles';
+import { useSelector } from '../redux/redux-utils.js';
+import type { ImageStyle } from '../types/styles.js';
 
 type BaseProps = {
   +uri: string,

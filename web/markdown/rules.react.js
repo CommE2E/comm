@@ -1,15 +1,15 @@
 // @flow
 
-import _memoize from 'lodash/memoize';
+import _memoize from 'lodash/memoize.js';
 import * as React from 'react';
 import * as SimpleMarkdown from 'simple-markdown';
 
-import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors';
-import * as SharedMarkdown from 'lib/shared/markdown';
-import type { RelativeMemberInfo } from 'lib/types/thread-types';
+import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user-selectors.js';
+import * as SharedMarkdown from 'lib/shared/markdown.js';
+import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import { useSelector } from '../redux/redux-utils';
-import MarkdownSpoiler from './markdown-spoiler.react';
+import { useSelector } from '../redux/redux-utils.js';
+import MarkdownSpoiler from './markdown-spoiler.react.js';
 
 export type MarkdownRules = {
   +simpleMarkdownRules: SharedMarkdown.ParserRules,

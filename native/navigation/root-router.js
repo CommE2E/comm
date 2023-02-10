@@ -12,21 +12,21 @@ import type {
 } from '@react-navigation/native';
 import { StackRouter, CommonActions } from '@react-navigation/native';
 import invariant from 'invariant';
-import _isEqual from 'lodash/fp/isEqual';
+import _isEqual from 'lodash/fp/isEqual.js';
 
 import {
   logInActionType,
   logOutActionType,
   clearRootModalsActionType,
   setNavStateActionType,
-} from './action-types';
-import { defaultNavigationState } from './default-state';
-import { removeScreensFromStack } from './navigation-utils';
+} from './action-types.js';
+import { defaultNavigationState } from './default-state.js';
+import { removeScreensFromStack } from './navigation-utils.js';
 import {
   accountModals,
   LoggedOutModalRouteName,
   AppRouteName,
-} from './route-names';
+} from './route-names.js';
 
 type LogInAction = {
   +type: 'LOG_IN',

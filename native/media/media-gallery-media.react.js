@@ -1,7 +1,7 @@
 // @flow
 
-import Icon from '@expo/vector-icons/FontAwesome';
-import MaterialIcon from '@expo/vector-icons/MaterialIcons';
+import Icon from '@expo/vector-icons/FontAwesome.js';
+import MaterialIcon from '@expo/vector-icons/MaterialIcons.js';
 import LottieView from 'lottie-react-native';
 import * as React from 'react';
 import {
@@ -18,17 +18,17 @@ import Reanimated, {
 } from 'react-native-reanimated';
 import Video from 'react-native-video';
 
-import { type MediaLibrarySelection } from 'lib/types/media-types';
+import { type MediaLibrarySelection } from 'lib/types/media-types.js';
 
-import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react';
-import { type DimensionsInfo } from '../redux/dimensions-updater.react';
-import type { AnimatedValue } from '../types/react-native';
+import GestureTouchableOpacity from '../components/gesture-touchable-opacity.react.js';
+import { type DimensionsInfo } from '../redux/dimensions-updater.react.js';
+import type { AnimatedValue } from '../types/react-native.js';
 import {
   AnimatedView,
   AnimatedImage,
   type AnimatedViewStyle,
   type AnimatedStyleObj,
-} from '../types/styles';
+} from '../types/styles.js';
 
 const animatedSpec = {
   duration: 400,

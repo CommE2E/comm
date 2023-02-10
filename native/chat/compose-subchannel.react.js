@@ -1,43 +1,43 @@
 // @flow
 
 import invariant from 'invariant';
-import _filter from 'lodash/fp/filter';
-import _flow from 'lodash/fp/flow';
-import _sortBy from 'lodash/fp/sortBy';
+import _filter from 'lodash/fp/filter.js';
+import _flow from 'lodash/fp/flow.js';
+import _sortBy from 'lodash/fp/sortBy.js';
 import * as React from 'react';
 import { View, Text, Alert } from 'react-native';
 
-import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions';
-import { useENSNames } from 'lib/hooks/ens-cache';
-import { threadInfoSelector } from 'lib/selectors/thread-selectors';
+import { newThreadActionTypes, newThread } from 'lib/actions/thread-actions.js';
+import { useENSNames } from 'lib/hooks/ens-cache.js';
+import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import {
   userInfoSelectorForPotentialMembers,
   userSearchIndexForPotentialMembers,
-} from 'lib/selectors/user-selectors';
-import { getPotentialMemberItems } from 'lib/shared/search-utils';
-import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils';
+} from 'lib/selectors/user-selectors.js';
+import { getPotentialMemberItems } from 'lib/shared/search-utils.js';
+import { threadInFilterList, userIsMember } from 'lib/shared/thread-utils.js';
 import {
   type ThreadInfo,
   type ThreadType,
   threadTypes,
-} from 'lib/types/thread-types';
-import { type AccountUserInfo } from 'lib/types/user-types';
+} from 'lib/types/thread-types.js';
+import { type AccountUserInfo } from 'lib/types/user-types.js';
 import {
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import LinkButton from '../components/link-button.react';
-import { createTagInput } from '../components/tag-input.react';
-import ThreadList from '../components/thread-list.react';
-import UserList from '../components/user-list.react';
-import { useCalendarQuery } from '../navigation/nav-selectors';
-import type { NavigationRoute } from '../navigation/route-names';
-import { useSelector } from '../redux/redux-utils';
-import { useStyles } from '../themes/colors';
-import type { ChatNavigationProp } from './chat.react';
-import { useNavigateToThread } from './message-list-types';
-import ParentThreadHeader from './parent-thread-header.react';
+import LinkButton from '../components/link-button.react.js';
+import { createTagInput } from '../components/tag-input.react.js';
+import ThreadList from '../components/thread-list.react.js';
+import UserList from '../components/user-list.react.js';
+import { useCalendarQuery } from '../navigation/nav-selectors.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles } from '../themes/colors.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import { useNavigateToThread } from './message-list-types.js';
+import ParentThreadHeader from './parent-thread-header.react.js';
 
 const TagInput = createTagInput<AccountUserInfo>();
 

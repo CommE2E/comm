@@ -4,17 +4,17 @@ import classNames from 'classnames';
 import invariant from 'invariant';
 import * as React from 'react';
 
-import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors';
-import { onlyEmojiRegex } from 'lib/shared/emojis';
-import { colorIsDark } from 'lib/shared/thread-utils';
-import { messageTypes } from 'lib/types/message-types';
-import { type ThreadInfo } from 'lib/types/thread-types';
+import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
+import { onlyEmojiRegex } from 'lib/shared/emojis.js';
+import { colorIsDark } from 'lib/shared/thread-utils.js';
+import { messageTypes } from 'lib/types/message-types.js';
+import { type ThreadInfo } from 'lib/types/thread-types.js';
 
-import Markdown from '../markdown/markdown.react';
+import Markdown from '../markdown/markdown.react.js';
 import css from './chat-message-list.css';
-import ComposedMessage from './composed-message.react';
-import { MessageListContext } from './message-list-types';
-import textMessageSendFailed from './text-message-send-failed';
+import ComposedMessage from './composed-message.react.js';
+import { MessageListContext } from './message-list-types.js';
+import textMessageSendFailed from './text-message-send-failed.js';
 
 type Props = {
   +item: ChatMessageInfoItem,

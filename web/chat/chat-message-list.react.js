@@ -10,31 +10,31 @@ import {
   fetchMessagesBeforeCursor,
   fetchMostRecentMessagesActionTypes,
   fetchMostRecentMessages,
-} from 'lib/actions/message-actions';
-import { registerFetchKey } from 'lib/reducers/loading-reducer';
+} from 'lib/actions/message-actions.js';
+import { registerFetchKey } from 'lib/reducers/loading-reducer.js';
 import {
   type ChatMessageItem,
   useMessageListData,
-} from 'lib/selectors/chat-selectors';
-import { messageKey } from 'lib/shared/message-utils';
-import { threadIsPending } from 'lib/shared/thread-utils';
-import type { FetchMessageInfosPayload } from 'lib/types/message-types';
-import { type ThreadInfo, threadTypes } from 'lib/types/thread-types';
+} from 'lib/selectors/chat-selectors.js';
+import { messageKey } from 'lib/shared/message-utils.js';
+import { threadIsPending } from 'lib/shared/thread-utils.js';
+import type { FetchMessageInfosPayload } from 'lib/types/message-types.js';
+import { type ThreadInfo, threadTypes } from 'lib/types/thread-types.js';
 import {
   type DispatchActionPromise,
   useServerCall,
   useDispatchActionPromise,
-} from 'lib/utils/action-utils';
+} from 'lib/utils/action-utils.js';
 
-import { type InputState, InputStateContext } from '../input/input-state';
-import LoadingIndicator from '../loading-indicator.react';
-import { useTextMessageRulesFunc } from '../markdown/rules.react';
-import { useSelector } from '../redux/redux-utils';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import LoadingIndicator from '../loading-indicator.react.js';
+import { useTextMessageRulesFunc } from '../markdown/rules.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 import css from './chat-message-list.css';
-import { MessageListContext } from './message-list-types';
-import Message from './message.react';
-import RelationshipPrompt from './relationship-prompt/relationship-prompt';
-import { useTooltipContext } from './tooltip-provider';
+import { MessageListContext } from './message-list-types.js';
+import Message from './message.react.js';
+import RelationshipPrompt from './relationship-prompt/relationship-prompt.js';
+import { useTooltipContext } from './tooltip-provider.js';
 
 const browser = detectBrowser();
 const supportsReverseFlex =

@@ -17,23 +17,23 @@ import * as React from 'react';
 import { Platform } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 
-import LoggedOutModal from '../account/logged-out-modal.react';
-import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react';
-import ThreadPickerModal from '../calendar/thread-picker-modal.react';
-import ImagePasteModal from '../chat/image-paste-modal.react';
-import MessageReactionsModal from '../chat/message-reactions-modal.react';
-import AddUsersModal from '../chat/settings/add-users-modal.react';
-import ColorSelectorModal from '../chat/settings/color-selector-modal.react';
-import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.react';
-import SidebarListModal from '../chat/sidebar-list-modal.react';
-import SubchannelsListModal from '../chat/subchannels-list-modal.react';
-import CustomServerModal from '../profile/custom-server-modal.react';
-import AppNavigator from './app-navigator.react';
-import { defaultStackScreenOptions } from './options';
-import { RootNavigatorContext } from './root-navigator-context';
+import LoggedOutModal from '../account/logged-out-modal.react.js';
+import TermsAndPrivacyModal from '../account/terms-and-privacy-modal.react.js';
+import ThreadPickerModal from '../calendar/thread-picker-modal.react.js';
+import ImagePasteModal from '../chat/image-paste-modal.react.js';
+import MessageReactionsModal from '../chat/message-reactions-modal.react.js';
+import AddUsersModal from '../chat/settings/add-users-modal.react.js';
+import ColorSelectorModal from '../chat/settings/color-selector-modal.react.js';
+import ComposeSubchannelModal from '../chat/settings/compose-subchannel-modal.react.js';
+import SidebarListModal from '../chat/sidebar-list-modal.react.js';
+import SubchannelsListModal from '../chat/subchannels-list-modal.react.js';
+import CustomServerModal from '../profile/custom-server-modal.react.js';
+import AppNavigator from './app-navigator.react.js';
+import { defaultStackScreenOptions } from './options.js';
+import { RootNavigatorContext } from './root-navigator-context.js';
 import RootRouter, {
   type RootRouterExtraNavigationHelpers,
-} from './root-router';
+} from './root-router.js';
 import {
   LoggedOutModalRouteName,
   AppRouteName,
@@ -49,7 +49,7 @@ import {
   type ScreenParamList,
   type RootParamList,
   TermsAndPrivacyRouteName,
-} from './route-names';
+} from './route-names.js';
 
 enableScreens();
 

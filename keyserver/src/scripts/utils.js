@@ -1,8 +1,8 @@
 // @flow
 
-import { endPool } from '../database/database';
-import { endFirebase, endAPNs } from '../push/providers';
-import { publisher } from '../socket/redis';
+import { endPool } from '../database/database.js';
+import { endFirebase, endAPNs } from '../push/providers.js';
+import { publisher } from '../socket/redis.js';
 
 function endScript() {
   endPool();

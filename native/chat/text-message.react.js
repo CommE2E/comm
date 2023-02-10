@@ -4,33 +4,33 @@ import invariant from 'invariant';
 import * as React from 'react';
 import { View } from 'react-native';
 
-import { messageKey } from 'lib/shared/message-utils';
+import { messageKey } from 'lib/shared/message-utils.js';
 import {
   threadHasPermission,
   useCanCreateSidebarFromMessage,
-} from 'lib/shared/thread-utils';
-import { threadPermissions } from 'lib/types/thread-types';
+} from 'lib/shared/thread-utils.js';
+import { threadPermissions } from 'lib/types/thread-types.js';
 
-import { ChatContext, type ChatContextType } from '../chat/chat-context';
-import { MarkdownContext } from '../markdown/markdown-context';
+import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
+import { MarkdownContext } from '../markdown/markdown-context.js';
 import {
   OverlayContext,
   type OverlayContextType,
-} from '../navigation/overlay-context';
-import type { NavigationRoute } from '../navigation/route-names';
-import { TextMessageTooltipModalRouteName } from '../navigation/route-names';
-import { fixedTooltipHeight } from '../tooltip/tooltip.react';
-import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types';
-import type { VerticalBounds } from '../types/layout-types';
-import type { ChatNavigationProp } from './chat.react';
-import ComposedMessage from './composed-message.react';
-import { InnerTextMessage } from './inner-text-message.react';
+} from '../navigation/overlay-context.js';
+import type { NavigationRoute } from '../navigation/route-names.js';
+import { TextMessageTooltipModalRouteName } from '../navigation/route-names.js';
+import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
+import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
+import type { VerticalBounds } from '../types/layout-types.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import ComposedMessage from './composed-message.react.js';
+import { InnerTextMessage } from './inner-text-message.react.js';
 import {
   MessagePressResponderContext,
   type MessagePressResponderContextType,
-} from './message-press-responder-context';
-import textMessageSendFailed from './text-message-send-failed';
-import { getMessageTooltipKey } from './utils';
+} from './message-press-responder-context.js';
+import textMessageSendFailed from './text-message-send-failed.js';
+import { getMessageTooltipKey } from './utils.js';
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,

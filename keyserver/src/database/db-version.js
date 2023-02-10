@@ -2,7 +2,7 @@
 
 import type { QueryResults } from 'mysql';
 
-import { dbQuery, SQL } from './database';
+import { dbQuery, SQL } from './database.js';
 
 const dbVersionMetadataKey = 'db_version';
 

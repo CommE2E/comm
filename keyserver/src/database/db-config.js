@@ -2,7 +2,7 @@
 
 import invariant from 'invariant';
 
-import { importJSON } from '../utils/import-json';
+import { importJSON } from '../utils/import-json.js';
 
 type DBType = 'mariadb10.8';
 export type DBConfig = {

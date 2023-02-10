@@ -1,7 +1,7 @@
 // @flow
 
-import type ReactNativeAnimatedValue from 'react-native/Libraries/Animated/nodes/AnimatedValue';
-import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper';
+import type ReactNativeAnimatedValue from 'react-native/Libraries/Animated/nodes/AnimatedValue.js';
+import type { ViewToken } from 'react-native/Libraries/Lists/ViewabilityHelper.js';
 
 export type {
   Layout,

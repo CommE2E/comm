@@ -2,13 +2,13 @@
 
 import * as ImageManipulator from 'expo-image-manipulator';
 
-import { getImageProcessingPlan } from 'lib/media/image-utils';
+import { getImageProcessingPlan } from 'lib/media/image-utils.js';
 import type {
   Dimensions,
   MediaMissionStep,
   MediaMissionFailure,
-} from 'lib/types/media-types';
-import { getMessageForException } from 'lib/utils/errors';
+} from 'lib/types/media-types.js';
+import { getMessageForException } from 'lib/utils/errors.js';
 
 type ProcessImageInfo = {
   uri: string,

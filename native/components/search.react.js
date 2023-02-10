@@ -9,13 +9,13 @@ import {
   Platform,
 } from 'react-native';
 
-import { isLoggedIn } from 'lib/selectors/user-selectors';
+import { isLoggedIn } from 'lib/selectors/user-selectors.js';
 
-import { useSelector } from '../redux/redux-utils';
-import { useStyles, useColors } from '../themes/colors';
-import type { ViewStyle } from '../types/styles';
-import SWMansionIcon from './swmansion-icon.react';
-import TextInput from './text-input.react';
+import { useSelector } from '../redux/redux-utils.js';
+import { useStyles, useColors } from '../themes/colors.js';
+import type { ViewStyle } from '../types/styles.js';
+import SWMansionIcon from './swmansion-icon.react.js';
+import TextInput from './text-input.react.js';
 
 type Props = {
   ...React.ElementConfig<typeof BaseTextInput>,

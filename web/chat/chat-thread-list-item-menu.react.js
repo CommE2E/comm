@@ -4,11 +4,11 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 import SWMansionIcon from 'lib/components/SWMansionIcon.react.js';
-import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status';
-import type { ThreadInfo } from 'lib/types/thread-types';
+import useToggleUnreadStatus from 'lib/hooks/toggle-unread-status.js';
+import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import Button from '../components/button.react';
-import { useThreadIsActive } from '../selectors/thread-selectors';
+import Button from '../components/button.react.js';
+import { useThreadIsActive } from '../selectors/thread-selectors.js';
 import css from './chat-thread-list-item-menu.css';
 
 type Props = {

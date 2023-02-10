@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { StatusBar, Platform } from 'react-native';
 
-import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors';
+import { globalLoadingStatusSelector } from 'lib/selectors/loading-selectors.js';
 
-import { useSelector } from './redux/redux-utils';
+import { useSelector } from './redux/redux-utils.js';
 
 type Props = {
   +barStyle?: 'default' | 'light-content' | 'dark-content',
