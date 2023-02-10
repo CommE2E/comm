@@ -378,7 +378,10 @@ async function createUpdates(
   }
 
   if (publishInfos.size > 0) {
-    promises.redis = redisPublish(publishInfos.values(), dontBroadcastSession);
+    promises.messageBroker = messageBrokerPublish(
+      publishInfos.values(),
+      dontBroadcastSession,
+    );
   }
 
   if (deleteSQLConditions.length > 0) {
@@ -713,7 +716,7 @@ type PublishInfo = {
   updateTarget: UpdateTarget,
   rawUpdateInfos: RawUpdateInfo[],
 };
-async function redisPublish(
+async function messageBrokerPublish(
   publishInfos: Iterator<PublishInfo>,
   dontBroadcastSession: ?string,
 ): Promise<void> {

@@ -448,14 +448,14 @@ async function postMessageSend(
   const [pushInfo] = await Promise.all([
     promiseAll(userPushInfoPromises),
     createReadStatusUpdates(latestMessages),
-    redisPublish(viewer, messageInfosPerUser, updatesForCurrentSession),
+    messageBrokerPublish(viewer, messageInfosPerUser, updatesForCurrentSession),
     updateLatestMessages(latestMessages),
   ]);
 
   await sendPushNotifs(_pickBy(Boolean)(pushInfo));
 }
 
-async function redisPublish(
+async function messageBrokerPublish(
   viewer: Viewer,
   messageInfosPerUser: { [userID: string]: $ReadOnlyArray<RawMessageInfo> },
   updatesForCurrentSession: UpdatesForCurrentSession,
