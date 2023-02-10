@@ -8,6 +8,8 @@ import Animated from 'react-native-reanimated';
 
 import { type MediaInfo } from 'lib/types/media-types.js';
 
+import InlineMultimedia from './inline-multimedia.react.js';
+import { getMediaKey } from './multimedia-message-utils.js';
 import { type PendingMultimediaUpload } from '../input/input-state.js';
 import {
   type KeyboardState,
@@ -20,15 +22,15 @@ import {
 import { ImageModalRouteName } from '../navigation/route-names.js';
 import { type Colors, useColors } from '../themes/colors.js';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
-import { type VerticalBounds } from '../types/layout-types.js';
-import type { LayoutCoordinates } from '../types/layout-types.js';
+import type {
+  VerticalBounds,
+  LayoutCoordinates,
+} from '../types/layout-types.js';
 import {
   type ViewStyle,
   type AnimatedStyleObj,
   AnimatedView,
 } from '../types/styles.js';
-import InlineMultimedia from './inline-multimedia.react.js';
-import { getMediaKey } from './multimedia-message-utils.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node, sub, interpolateNode, Extrapolate } = Animated;

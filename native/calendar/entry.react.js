@@ -59,6 +59,8 @@ import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { ServerError } from 'lib/utils/errors.js';
 import sleep from 'lib/utils/sleep.js';
 
+import type { EntryInfoWithHeight } from './calendar.react.js';
+import LoadingIndicator from './loading-indicator.react.js';
 import {
   type MessageListParams,
   useNavigateToThread,
@@ -79,8 +81,6 @@ import { useSelector } from '../redux/redux-utils.js';
 import { colors, useStyles } from '../themes/colors.js';
 import type { LayoutEvent } from '../types/react-native.js';
 import { waitForInteractions } from '../utils/timers.js';
-import type { EntryInfoWithHeight } from './calendar.react.js';
-import LoadingIndicator from './loading-indicator.react.js';
 
 function hueDistance(firstColor: string, secondColor: string): number {
   const firstHue = tinycolor(firstColor).toHsv().h;

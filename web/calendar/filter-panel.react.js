@@ -30,6 +30,7 @@ import {
 } from 'lib/types/filter-types.js';
 import type { Dispatch } from 'lib/types/redux-types.js';
 
+import css from './filter-panel.css';
 import ThreadSettingsModal from '../modals/threads/settings/thread-settings-modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
@@ -37,7 +38,6 @@ import {
   useFilterThreadSearchIndex,
 } from '../selectors/calendar-selectors.js';
 import { MagnifyingGlass } from '../vectors.react.js';
-import css from './filter-panel.css';
 
 type Props = {
   +filterThreadInfos: $ReadOnlyArray<FilterThreadInfo>,

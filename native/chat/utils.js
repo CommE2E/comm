@@ -10,6 +10,14 @@ import { messageKey } from 'lib/shared/message-utils.js';
 import { colorIsDark, viewerIsMember } from 'lib/shared/thread-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import { clusterEndHeight, inlineEngagementStyle } from './chat-constants.js';
+import { ChatContext, useHeightMeasurer } from './chat-context.js';
+import { failedSendHeight } from './failed-send.react.js';
+import { authorNameHeight } from './message-header.react.js';
+import { multimediaMessageItemHeight } from './multimedia-message-utils.js';
+import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
+import textMessageSendFailed from './text-message-send-failed.js';
+import { timestampHeight } from './timestamp.react.js';
 import { KeyboardContext } from '../keyboard/keyboard-state.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import {
@@ -29,14 +37,6 @@ import type {
   VerticalBounds,
 } from '../types/layout-types.js';
 import type { AnimatedViewStyle } from '../types/styles.js';
-import { clusterEndHeight, inlineEngagementStyle } from './chat-constants.js';
-import { ChatContext, useHeightMeasurer } from './chat-context.js';
-import { failedSendHeight } from './failed-send.react.js';
-import { authorNameHeight } from './message-header.react.js';
-import { multimediaMessageItemHeight } from './multimedia-message-utils.js';
-import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
-import textMessageSendFailed from './text-message-send-failed.js';
-import { timestampHeight } from './timestamp.react.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const {

@@ -1,7 +1,7 @@
 // @flow
 
-import { typeaheadStyle } from '../chat/chat-constants.js';
 import { getTypeaheadOverlayScroll } from './typeahead-utils.js';
+import { typeaheadStyle } from '../chat/chat-constants.js';
 
 describe('getTypeaheadOverlayScroll', () => {
   it(

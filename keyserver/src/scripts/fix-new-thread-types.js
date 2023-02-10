@@ -3,10 +3,10 @@
 import bots from 'lib/facts/bots.js';
 import { threadTypes, assertThreadType } from 'lib/types/thread-types.js';
 
+import { main } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { updateThread } from '../updaters/thread-updaters.js';
-import { main } from './utils.js';
 
 const batchSize = 10;
 const updateThreadOptions = { forceUpdateRoot: true };

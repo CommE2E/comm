@@ -6,6 +6,9 @@ import * as React from 'react';
 
 import { createMessageReply } from 'lib/shared/message-utils.js';
 
+import { useOnPressReport } from './message-report-utils.js';
+import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
+import TextMessageTooltipButton from './text-message-tooltip-button.react.js';
 import CommIcon from '../components/comm-icon.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import { InputStateContext } from '../input/input-state.js';
@@ -17,9 +20,6 @@ import {
   type TooltipMenuProps,
 } from '../tooltip/tooltip.react.js';
 import type { ChatTextMessageInfoItemWithHeight } from '../types/chat-types.js';
-import { useOnPressReport } from './message-report-utils.js';
-import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
-import TextMessageTooltipButton from './text-message-tooltip-button.react.js';
 
 export type TextMessageTooltipModalParams = TooltipParams<{
   +item: ChatTextMessageInfoItemWithHeight,

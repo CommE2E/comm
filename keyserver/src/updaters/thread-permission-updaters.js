@@ -25,6 +25,7 @@ import {
 import { pushAll } from 'lib/utils/array.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import { updateChangedUndirectedRelationships } from './relationship-updaters.js';
 import {
   createUpdates,
   type UpdatesForCurrentSession,
@@ -41,7 +42,6 @@ import type { Viewer } from '../session/viewer.js';
 import { updateRoles } from '../updaters/role-updaters.js';
 import DepthQueue from '../utils/depth-queue.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
-import { updateChangedUndirectedRelationships } from './relationship-updaters.js';
 
 export type MembershipRowToSave = {
   +operation: 'save',

@@ -12,10 +12,10 @@ import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 
+import type { ChatNavigationProp } from './chat.react.js';
 import Button from '../components/button.react.js';
 import { ThreadSettingsRouteName } from '../navigation/route-names.js';
 import { useStyles } from '../themes/colors.js';
-import type { ChatNavigationProp } from './chat.react.js';
 
 type BaseProps = {
   +threadInfo: ThreadInfo,

@@ -11,6 +11,11 @@ import shallowequal from 'shallowequal';
 
 import { messageKey } from 'lib/shared/message-utils.js';
 
+import type { ChatNavigationProp } from './chat.react.js';
+import MultimediaMessage from './multimedia-message.react.js';
+import { RobotextMessage } from './robotext-message.react.js';
+import { TextMessage } from './text-message.react.js';
+import { messageItemHeight } from './utils.js';
 import {
   type KeyboardState,
   KeyboardContext,
@@ -19,11 +24,6 @@ import type { NavigationRoute } from '../navigation/route-names.js';
 import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { type VerticalBounds } from '../types/layout-types.js';
 import type { LayoutEvent } from '../types/react-native.js';
-import type { ChatNavigationProp } from './chat.react.js';
-import MultimediaMessage from './multimedia-message.react.js';
-import { RobotextMessage } from './robotext-message.react.js';
-import { TextMessage } from './text-message.react.js';
-import { messageItemHeight } from './utils.js';
 
 type BaseProps = {
   +item: ChatMessageInfoItemWithHeight,

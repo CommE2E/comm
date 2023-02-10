@@ -25,6 +25,13 @@ import { ServerError } from 'lib/utils/errors.js';
 import { promiseAll } from 'lib/utils/promises.js';
 import { firstLine } from 'lib/utils/string-utils.js';
 
+import createIDs from './id-creator.js';
+import createMessages from './message-creator.js';
+import {
+  createInitialRolesForNewThread,
+  getRolePermissionBlobs,
+} from './role-creator.js';
+import type { UpdatesForCurrentSession } from './update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchMessageInfoByID } from '../fetchers/message-fetchers.js';
 import {
@@ -44,13 +51,6 @@ import {
 } from '../updaters/thread-permission-updaters.js';
 import { joinThread } from '../updaters/thread-updaters.js';
 import RelationshipChangeset from '../utils/relationship-changeset.js';
-import createIDs from './id-creator.js';
-import createMessages from './message-creator.js';
-import {
-  createInitialRolesForNewThread,
-  getRolePermissionBlobs,
-} from './role-creator.js';
-import type { UpdatesForCurrentSession } from './update-creator.js';
 
 const { commbot } = bots;
 

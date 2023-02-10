@@ -9,16 +9,16 @@ import type { UserInfo } from 'lib/types/user-types.js';
 import { shortAbsoluteDate } from 'lib/utils/date-utils.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
+import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react.js';
+import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
+import MessagePreview from './message-preview.react.js';
+import SwipeableThread from './swipeable-thread.react.js';
 import Button from '../components/button.react.js';
 import ColorSplotch from '../components/color-splotch.react.js';
 import { SingleLine } from '../components/single-line.react.js';
 import ThreadAncestorsLabel from '../components/thread-ancestors-label.react.js';
 import UnreadDot from '../components/unread-dot.react.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import ChatThreadListSeeMoreSidebars from './chat-thread-list-see-more-sidebars.react.js';
-import ChatThreadListSidebar from './chat-thread-list-sidebar.react.js';
-import MessagePreview from './message-preview.react.js';
-import SwipeableThread from './swipeable-thread.react.js';
 
 type Props = {
   +data: ChatThreadItem,

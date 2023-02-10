@@ -3,9 +3,9 @@
 import ashoat from 'lib/facts/ashoat.js';
 import { threadTypes } from 'lib/types/thread-types.js';
 
+import { main } from './utils.js';
 import { createScriptViewer } from '../session/scripts.js';
 import { updateThread } from '../updaters/thread-updaters.js';
-import { main } from './utils.js';
 
 const channelID = '-1';
 

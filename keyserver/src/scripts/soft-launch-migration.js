@@ -9,6 +9,7 @@ import testers from 'lib/facts/testers.js';
 import { messageTypes } from 'lib/types/message-types.js';
 import { threadTypes, type ThreadType } from 'lib/types/thread-types.js';
 
+import { main } from './utils.js';
 import createMessages from '../creators/message-creator.js';
 import { createThread } from '../creators/thread-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
@@ -22,7 +23,6 @@ import {
   saveMemberships,
 } from '../updaters/thread-permission-updaters.js';
 import { updateThread } from '../updaters/thread-updaters.js';
-import { main } from './utils.js';
 
 const batchSize = 10;
 const createThreadOptions = { forceAddMembers: true };

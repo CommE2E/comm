@@ -29,6 +29,13 @@ import { values } from 'lib/utils/objects.js';
 import { reservedUsernamesSet } from 'lib/utils/reserved-users.js';
 import { isValidEthereumAddress } from 'lib/utils/siwe-utils.js';
 
+import createIDs from './id-creator.js';
+import createMessages from './message-creator.js';
+import {
+  createThread,
+  createPrivateThread,
+  privateThreadDescription,
+} from './thread-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { deleteCookie } from '../deleters/cookie-deleters.js';
 import { fetchThreadInfos } from '../fetchers/thread-fetchers.js';
@@ -42,13 +49,6 @@ import { createScriptViewer } from '../session/scripts.js';
 import type { Viewer } from '../session/viewer.js';
 import { updateThread } from '../updaters/thread-updaters.js';
 import { viewerAcknowledgmentUpdater } from '../updaters/viewer-acknowledgment-updater.js';
-import createIDs from './id-creator.js';
-import createMessages from './message-creator.js';
-import {
-  createThread,
-  createPrivateThread,
-  privateThreadDescription,
-} from './thread-creator.js';
 
 const { commbot } = bots;
 

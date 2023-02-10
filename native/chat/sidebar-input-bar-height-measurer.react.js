@@ -3,11 +3,11 @@
 import * as React from 'react';
 import { View, StyleSheet } from 'react-native';
 
-import { useSelector } from '../redux/redux-utils.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 import { DummyChatInputBar } from './chat-input-bar.react.js';
 import { useMessageListScreenWidth } from './composed-message-width.js';
 import { getUnresolvedSidebarThreadInfo } from './sidebar-navigation.js';
+import { useSelector } from '../redux/redux-utils.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
 
 type Props = {
   +sourceMessage: ChatMessageInfoItemWithHeight,

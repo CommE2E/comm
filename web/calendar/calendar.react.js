@@ -31,6 +31,9 @@ import {
   endDateForYearAndMonth,
 } from 'lib/utils/date-utils.js';
 
+import css from './calendar.css';
+import Day from './day.react.js';
+import FilterPanel from './filter-panel.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import {
   yearAssertingSelector,
@@ -39,9 +42,6 @@ import {
 } from '../selectors/nav-selectors.js';
 import type { NavInfo } from '../types/nav-types.js';
 import { canonicalURLFromReduxState } from '../url-utils.js';
-import css from './calendar.css';
-import Day from './day.react.js';
-import FilterPanel from './filter-panel.react.js';
 
 type BaseProps = {
   +url: string,

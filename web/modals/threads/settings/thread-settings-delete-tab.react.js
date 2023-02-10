@@ -15,9 +15,9 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
-import { buttonThemes } from '../../../components/button.react.js';
 import SubmitSection from './submit-section.react.js';
 import css from './thread-settings-delete-tab.css';
+import { buttonThemes } from '../../../components/button.react.js';
 
 type ThreadSettingsDeleteTabProps = {
   +threadSettingsOperationInProgress: boolean,

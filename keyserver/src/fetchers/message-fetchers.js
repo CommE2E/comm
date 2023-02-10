@@ -26,6 +26,10 @@ import { threadPermissions } from 'lib/types/thread-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
 import {
+  constructMediaFromMediaMessageContentsAndUploadRows,
+  mediaFromRow,
+} from './upload-fetchers.js';
+import {
   dbQuery,
   SQL,
   mergeOrConditions,
@@ -38,10 +42,6 @@ import {
   creationString,
   localIDFromCreationString,
 } from '../utils/idempotent.js';
-import {
-  constructMediaFromMediaMessageContentsAndUploadRows,
-  mediaFromRow,
-} from './upload-fetchers.js';
 
 export type CollapsableNotifInfo = {
   collapseKey: ?string,

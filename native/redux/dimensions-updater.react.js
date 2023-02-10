@@ -10,14 +10,14 @@ import { useDispatch } from 'react-redux';
 
 import type { Dimensions } from 'lib/types/media-types.js';
 
+import { updateDimensionsActiveType } from './action-types.js';
+import { useSelector } from './redux-utils.js';
 import {
   addKeyboardShowListener,
   addKeyboardDismissListener,
   removeKeyboardListener,
   rnsacThinksAndroidKeyboardResizesFrame,
 } from '../keyboard/keyboard.js';
-import { updateDimensionsActiveType } from './action-types.js';
-import { useSelector } from './redux-utils.js';
 
 type BaseDimensionsInfo = {
   ...Dimensions,

@@ -5,8 +5,8 @@ import * as React from 'react';
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 import { policyTypes } from 'lib/facts/policies.js';
 
-import TermsAndPrivacyModal from '../modals/terms-and-privacy-modal.react.js';
 import { useSelector } from './redux-utils.js';
+import TermsAndPrivacyModal from '../modals/terms-and-privacy-modal.react.js';
 
 function PolicyAcknowledgmentHandler(): null {
   const termsAndPrivacyState = useSelector(

@@ -4,9 +4,9 @@ import * as React from 'react';
 
 import { useModalContext } from 'lib/components/modal-provider.react.js';
 
-import Button from '../components/button.react.js';
 import css from './concurrent-modification-modal.css';
 import Modal from './modal.react.js';
+import Button from '../components/button.react.js';
 
 type Props = {
   +onRefresh: () => void,

@@ -9,10 +9,6 @@ import Animated from 'react-native-reanimated';
 import { createMessageReply } from 'lib/shared/message-utils.js';
 import { assertComposableMessageType } from 'lib/types/message-types.js';
 
-import { type InputState, InputStateContext } from '../input/input-state.js';
-import { type Colors, useColors } from '../themes/colors.js';
-import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
-import { type AnimatedStyleObj, AnimatedView } from '../types/styles.js';
 import {
   clusterEndHeight,
   inlineEngagementStyle,
@@ -27,6 +23,10 @@ import { MessageHeader } from './message-header.react.js';
 import { useNavigateToSidebar } from './sidebar-navigation.js';
 import SwipeableMessage from './swipeable-message.react.js';
 import { useContentAndHeaderOpacity, useDeliveryIconOpacity } from './utils.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import { type Colors, useColors } from '../themes/colors.js';
+import type { ChatMessageInfoItemWithHeight } from '../types/chat-types.js';
+import { type AnimatedStyleObj, AnimatedView } from '../types/styles.js';
 
 /* eslint-disable import/no-named-as-default-member */
 const { Node } = Animated;

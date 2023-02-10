@@ -9,11 +9,11 @@ import { onScreenEntryEditableThreadInfos } from 'lib/selectors/thread-selectors
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import { useResolvedThreadInfo } from 'lib/utils/entity-helpers.js';
 
+import css from './thread-picker-modal.css';
 import Button from '../../components/button.react.js';
 import Search from '../../components/search.react.js';
 import { useSelector } from '../../redux/redux-utils.js';
 import Modal, { type ModalOverridableProps } from '../modal.react.js';
-import css from './thread-picker-modal.css';
 
 type OptionProps = {
   +threadInfo: ThreadInfo,

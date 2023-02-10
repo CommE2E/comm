@@ -10,10 +10,10 @@ import type {
 } from 'lib/types/media-types.js';
 import { ServerError } from 'lib/utils/errors.js';
 
+import createIDs from './id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { getUploadURL } from '../fetchers/upload-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
-import createIDs from './id-creator.js';
 
 export type UploadInput = {
   name: string,

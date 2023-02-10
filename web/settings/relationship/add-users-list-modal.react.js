@@ -7,9 +7,9 @@ import type {
   RelationshipAction,
 } from 'lib/types/relationship-types.js';
 
+import AddUsersList from './add-users-list.react.js';
 import type { ButtonColor } from '../../components/button.react.js';
 import SearchModal from '../../modals/search-modal.react.js';
-import AddUsersList from './add-users-list.react.js';
 
 type Props = {
   +closeModal: () => void,

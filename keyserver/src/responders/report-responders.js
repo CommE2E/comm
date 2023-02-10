@@ -18,6 +18,7 @@ import {
   tPlatformDetails,
 } from 'lib/utils/validation-utils.js';
 
+import { newEntryQueryInputValidator } from './entry-responders.js';
 import createReport from '../creators/report-creator.js';
 import {
   fetchErrorReportInfos,
@@ -25,7 +26,6 @@ import {
 } from '../fetchers/report-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import { validateInput } from '../utils/validation-utils.js';
-import { newEntryQueryInputValidator } from './entry-responders.js';
 
 const tActionSummary = tShape({
   type: t.String,

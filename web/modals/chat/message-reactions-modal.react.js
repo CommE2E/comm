@@ -5,8 +5,8 @@ import * as React from 'react';
 import type { MessageReactionInfo } from 'lib/selectors/chat-selectors.js';
 import { useMessageReactionsList } from 'lib/shared/reaction-utils.js';
 
-import Modal from '../modal.react.js';
 import css from './message-reactions-modal.css';
+import Modal from '../modal.react.js';
 
 type Props = {
   +onClose: () => void,

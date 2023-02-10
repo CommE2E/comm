@@ -8,8 +8,8 @@ import SWMansionIcon, {
   type Icon,
 } from 'lib/components/SWMansionIcon.react.js';
 
-import Button from '../components/button.react.js';
 import css from './modal.css';
+import Button from '../components/button.react.js';
 
 export type ModalSize = 'small' | 'large' | 'fit-content';
 

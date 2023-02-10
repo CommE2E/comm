@@ -5,9 +5,9 @@ import {
   threadPermissionPropagationPrefixes,
 } from 'lib/types/thread-types.js';
 
+import { endScript } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { recalculateAllThreadPermissions } from '../updaters/thread-permission-updaters.js';
-import { endScript } from './utils.js';
 
 async function main() {
   try {

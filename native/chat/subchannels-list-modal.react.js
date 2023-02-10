@@ -7,12 +7,12 @@ import { useSearchSubchannels } from 'lib/hooks/search-threads.js';
 import type { ChatThreadItem } from 'lib/selectors/chat-selectors.js';
 import { type ThreadInfo } from 'lib/types/thread-types.js';
 
+import SubchannelItem from './subchannel-item.react.js';
+import ThreadListModal from './thread-list-modal.react.js';
 import Button from '../components/button.react.js';
 import type { RootNavigationProp } from '../navigation/root-navigator.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
 import { useColors, useStyles } from '../themes/colors.js';
-import SubchannelItem from './subchannel-item.react.js';
-import ThreadListModal from './thread-list-modal.react.js';
 
 export type SubchannelListModalParams = {
   +threadInfo: ThreadInfo,

@@ -23,6 +23,13 @@ import {
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 import type { AccountUserInfo, UserListItem } from 'lib/types/user-types.js';
 
+import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
+import { ChatInputBar } from './chat-input-bar.react.js';
+import type { ChatNavigationProp } from './chat.react.js';
+import MessageListThreadSearch from './message-list-thread-search.react.js';
+import { MessageListContextProvider } from './message-list-types.js';
+import MessageList from './message-list.react.js';
+import ParentThreadHeader from './parent-thread-header.react.js';
 import ContentLoading from '../components/content-loading.react.js';
 import { InputStateContext } from '../input/input-state.js';
 import {
@@ -34,13 +41,6 @@ import { ThreadSettingsRouteName } from '../navigation/route-names.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { type Colors, useColors, useStyles } from '../themes/colors.js';
 import type { ChatMessageItemWithHeight } from '../types/chat-types.js';
-import { type MessagesMeasurer, useHeightMeasurer } from './chat-context.js';
-import { ChatInputBar } from './chat-input-bar.react.js';
-import type { ChatNavigationProp } from './chat.react.js';
-import MessageListThreadSearch from './message-list-thread-search.react.js';
-import { MessageListContextProvider } from './message-list-types.js';
-import MessageList from './message-list.react.js';
-import ParentThreadHeader from './parent-thread-header.react.js';
 
 type BaseProps = {
   +navigation: ChatNavigationProp<'MessageList'>,

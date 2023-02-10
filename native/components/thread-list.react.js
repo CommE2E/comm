@@ -8,6 +8,8 @@ import { createSelector } from 'reselect';
 import SearchIndex from 'lib/shared/search-index.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
+import Search from './search.react.js';
+import ThreadListThread from './thread-list-thread.react.js';
 import {
   type IndicatorStyle,
   useStyles,
@@ -15,8 +17,6 @@ import {
 } from '../themes/colors.js';
 import type { ViewStyle, TextStyle } from '../types/styles.js';
 import { waitForModalInputFocus } from '../utils/timers.js';
-import Search from './search.react.js';
-import ThreadListThread from './thread-list-thread.react.js';
 
 type BaseProps = {
   +threadInfos: $ReadOnlyArray<ThreadInfo>,

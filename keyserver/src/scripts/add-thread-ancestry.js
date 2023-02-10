@@ -6,9 +6,9 @@ import {
 } from 'lib/shared/thread-utils.js';
 import type { ServerThreadInfo } from 'lib/types/thread-types.js';
 
+import { main } from './utils.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchServerThreadInfos } from '../fetchers/thread-fetchers.js';
-import { main } from './utils.js';
 
 async function addColumnAndIndexes() {
   await dbQuery(SQL`

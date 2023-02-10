@@ -22,14 +22,14 @@ import {
   type ReduxCrashReport,
 } from 'lib/utils/sanitization.js';
 
+import createIDs from './id-creator.js';
+import createMessages from './message-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchUsername } from '../fetchers/user-fetchers.js';
 import { handleAsyncPromise } from '../responders/handlers.js';
 import { createBotViewer } from '../session/bots.js';
 import type { Viewer } from '../session/viewer.js';
 import { getAndAssertCommAppURLFacts } from '../utils/urls.js';
-import createIDs from './id-creator.js';
-import createMessages from './message-creator.js';
 
 const { commbot } = bots;
 

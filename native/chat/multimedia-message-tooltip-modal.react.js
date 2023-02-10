@@ -2,6 +2,9 @@
 
 import * as React from 'react';
 
+import { useOnPressReport } from './message-report-utils.js';
+import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react.js';
+import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import {
   createTooltip,
@@ -11,9 +14,6 @@ import {
 } from '../tooltip/tooltip.react.js';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
 import type { VerticalBounds } from '../types/layout-types.js';
-import { useOnPressReport } from './message-report-utils.js';
-import MultimediaMessageTooltipButton from './multimedia-message-tooltip-button.react.js';
-import { useAnimatedNavigateToSidebar } from './sidebar-navigation.js';
 
 export type MultimediaMessageTooltipModalParams = TooltipParams<{
   +item: ChatMultimediaMessageInfoItem,

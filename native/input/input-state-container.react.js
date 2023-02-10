@@ -86,17 +86,17 @@ import { getMessageForException, cloneError } from 'lib/utils/errors.js';
 import { values } from 'lib/utils/objects.js';
 import { useIsReportEnabled } from 'lib/utils/report-utils.js';
 
+import {
+  InputStateContext,
+  type PendingMultimediaUploads,
+  type MultimediaProcessingStep,
+} from './input-state.js';
 import { disposeTempFile } from '../media/file-utils.js';
 import { processMedia } from '../media/media-utils.js';
 import { displayActionResultModal } from '../navigation/action-result-modal.js';
 import { useCalendarQuery } from '../navigation/nav-selectors.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { useStaffCanSee } from '../utils/staff-utils.js';
-import {
-  InputStateContext,
-  type PendingMultimediaUploads,
-  type MultimediaProcessingStep,
-} from './input-state.js';
 
 type MediaIDs =
   | { +type: 'photo', +localMediaID: string }

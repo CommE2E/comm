@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { generateDeviceID, deviceTypes } from '../utils/device-id.js';
 import { setDeviceIDActionType } from './action-types.js';
+import { generateDeviceID, deviceTypes } from '../utils/device-id.js';
 
 function DeviceIDUpdater(): null {
   const dispatch = useDispatch();

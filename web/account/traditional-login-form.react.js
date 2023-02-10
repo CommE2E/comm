@@ -20,14 +20,14 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import HeaderSeparator from './header-separator.react.js';
+import css from './log-in-form.css';
+import PasswordInput from './password-input.react.js';
 import Button from '../components/button.react.js';
 import LoadingIndicator from '../loading-indicator.react.js';
 import Input from '../modals/input.react.js';
 import { useSelector } from '../redux/redux-utils.js';
 import { webLogInExtraInfoSelector } from '../selectors/account-selectors.js';
-import HeaderSeparator from './header-separator.react.js';
-import css from './log-in-form.css';
-import PasswordInput from './password-input.react.js';
 
 const loadingStatusSelector = createLoadingStatusSelector(logInActionTypes);
 function TraditionalLoginForm(): React.Node {

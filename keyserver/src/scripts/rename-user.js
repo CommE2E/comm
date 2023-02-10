@@ -2,11 +2,11 @@
 
 import { updateTypes } from 'lib/types/update-types.js';
 
+import { main } from './utils.js';
 import { createUpdates } from '../creators/update-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import { fetchKnownUserInfos } from '../fetchers/user-fetchers.js';
 import { createScriptViewer } from '../session/scripts.js';
-import { main } from './utils.js';
 
 const userID = '5';
 const newUsername = 'commbot';

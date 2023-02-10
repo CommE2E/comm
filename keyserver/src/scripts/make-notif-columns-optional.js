@@ -1,7 +1,7 @@
 // @flow
 
-import { dbQuery, SQL } from '../database/database.js';
 import { endScript } from './utils.js';
+import { dbQuery, SQL } from '../database/database.js';
 
 async function main() {
   try {

@@ -10,11 +10,11 @@ import { relativeMemberInfoSelectorForMembersOfThread } from 'lib/selectors/user
 import * as SharedMarkdown from 'lib/shared/markdown.js';
 import type { RelativeMemberInfo } from 'lib/types/thread-types.js';
 
-import { useSelector } from '../redux/redux-utils.js';
 import MarkdownLink from './markdown-link.react.js';
 import MarkdownParagraph from './markdown-paragraph.react.js';
 import MarkdownSpoiler from './markdown-spoiler.react.js';
 import { getMarkdownStyles } from './styles.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 export type MarkdownRules = {
   +simpleMarkdownRules: SharedMarkdown.ParserRules,

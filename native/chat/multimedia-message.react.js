@@ -13,6 +13,13 @@ import { messageKey } from 'lib/shared/message-utils.js';
 import { useCanCreateSidebarFromMessage } from 'lib/shared/thread-utils.js';
 import type { MediaInfo } from 'lib/types/media-types.js';
 
+import ComposedMessage from './composed-message.react.js';
+import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';
+import {
+  getMediaKey,
+  multimediaMessageSendFailed,
+} from './multimedia-message-utils.js';
+import { getMessageTooltipKey } from './utils.js';
 import { ChatContext, type ChatContextType } from '../chat/chat-context.js';
 import { OverlayContext } from '../navigation/overlay-context.js';
 import type { OverlayContextType } from '../navigation/overlay-context.js';
@@ -23,15 +30,10 @@ import {
 } from '../navigation/route-names.js';
 import { fixedTooltipHeight } from '../tooltip/tooltip.react.js';
 import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
-import { type VerticalBounds } from '../types/layout-types.js';
-import type { LayoutCoordinates } from '../types/layout-types.js';
-import ComposedMessage from './composed-message.react.js';
-import { InnerMultimediaMessage } from './inner-multimedia-message.react.js';
-import {
-  getMediaKey,
-  multimediaMessageSendFailed,
-} from './multimedia-message-utils.js';
-import { getMessageTooltipKey } from './utils.js';
+import type {
+  VerticalBounds,
+  LayoutCoordinates,
+} from '../types/layout-types.js';
 
 type BaseProps = {
   ...React.ElementConfig<typeof View>,

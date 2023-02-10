@@ -2,8 +2,8 @@
 
 import { ServerError } from 'lib/utils/errors.js';
 
-import { dbQuery, SQL } from '../database/database.js';
 import createIDs from './id-creator.js';
+import { dbQuery, SQL } from '../database/database.js';
 
 const MYSQL_DUPLICATE_ENTRY_FOR_KEY_ERROR_CODE = 1062;
 

@@ -7,11 +7,11 @@ import { threadSubscriptions } from 'lib/types/subscription-types.js';
 import { threadPermissions } from 'lib/types/thread-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import { getAPNsNotificationTopic } from './providers.js';
+import { apnPush, fcmPush } from './utils.js';
 import createIDs from '../creators/id-creator.js';
 import { dbQuery, SQL } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
-import { getAPNsNotificationTopic } from './providers.js';
-import { apnPush, fcmPush } from './utils.js';
 
 async function rescindPushNotifs(
   notifCondition: SQLStatementType,

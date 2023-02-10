@@ -10,8 +10,8 @@ import { threadInfoSelector } from 'lib/selectors/thread-selectors.js';
 import { colorIsDark } from 'lib/shared/thread-utils.js';
 import type { HistoryRevisionInfo } from 'lib/types/history-types.js';
 
-import { useSelector } from '../../redux/redux-utils.js';
 import css from './history.css';
+import { useSelector } from '../../redux/redux-utils.js';
 
 type Props = {
   +revisionInfo: HistoryRevisionInfo,

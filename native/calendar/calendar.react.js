@@ -47,6 +47,13 @@ import {
 } from 'lib/utils/date-utils.js';
 import sleep from 'lib/utils/sleep.js';
 
+import CalendarInputBar from './calendar-input-bar.react.js';
+import {
+  Entry,
+  InternalEntry,
+  dummyNodeForEntryHeightMeasurement,
+} from './entry.react.js';
+import SectionFooter from './section-footer.react.js';
 import ContentLoading from '../components/content-loading.react.js';
 import KeyboardAvoidingView from '../components/keyboard-avoiding-view.react.js';
 import ListLoadingIndicator from '../components/list-loading-indicator.react.js';
@@ -93,13 +100,6 @@ import type {
   ViewableItemsChange,
   KeyboardEvent,
 } from '../types/react-native.js';
-import CalendarInputBar from './calendar-input-bar.react.js';
-import {
-  Entry,
-  InternalEntry,
-  dummyNodeForEntryHeightMeasurement,
-} from './entry.react.js';
-import SectionFooter from './section-footer.react.js';
 
 export type EntryInfoWithHeight = {
   ...EntryInfo,

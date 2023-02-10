@@ -9,8 +9,6 @@ import type { ChatMessageInfoItem } from 'lib/selectors/chat-selectors.js';
 import { localIDPrefix } from 'lib/shared/message-utils.js';
 import type { ThreadInfo } from 'lib/types/thread-types.js';
 
-import { useSelector } from '../redux/redux-utils.js';
-import { type MessageTooltipAction } from '../utils/tooltip-utils.js';
 import {
   tooltipButtonStyle,
   tooltipLabelStyle,
@@ -19,6 +17,8 @@ import {
 import css from './message-tooltip.css';
 import { useSendReaction } from './reaction-message-utils.js';
 import { useTooltipContext } from './tooltip-provider.js';
+import { useSelector } from '../redux/redux-utils.js';
+import { type MessageTooltipAction } from '../utils/tooltip-utils.js';
 
 type MessageTooltipProps = {
   +actions: $ReadOnlyArray<MessageTooltipAction>,

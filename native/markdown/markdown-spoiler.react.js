@@ -6,10 +6,10 @@ import { Text } from 'react-native';
 
 import type { ReactElement } from 'lib/shared/markdown.js';
 
-import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
-import { useStyles } from '../themes/colors.js';
 import { MarkdownContext } from './markdown-context.js';
 import { MarkdownSpoilerContext } from './markdown-spoiler-context.js';
+import { TextMessageMarkdownContext } from '../chat/text-message-markdown-context.js';
+import { useStyles } from '../themes/colors.js';
 
 type MarkdownSpoilerProps = {
   +spoilerIdentifier: string | number | void,

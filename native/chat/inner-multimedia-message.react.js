@@ -5,12 +5,6 @@ import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 
 import type { Corners, Media, MediaInfo } from 'lib/types/media-types.js';
 
-import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
-import type {
-  LayoutCoordinates,
-  VerticalBounds,
-} from '../types/layout-types.js';
-import type { ViewStyle } from '../types/styles.js';
 import MultimediaMessageMultimedia from './multimedia-message-multimedia.react.js';
 import {
   getMediaPerRow,
@@ -21,6 +15,12 @@ import {
   filterCorners,
   getRoundedContainerStyle,
 } from './rounded-corners.js';
+import type { ChatMultimediaMessageInfoItem } from '../types/chat-types.js';
+import type {
+  LayoutCoordinates,
+  VerticalBounds,
+} from '../types/layout-types.js';
+import type { ViewStyle } from '../types/styles.js';
 
 const borderRadius = 16;
 

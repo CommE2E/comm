@@ -26,15 +26,15 @@ import {
   useDispatchActionPromise,
 } from 'lib/utils/action-utils.js';
 
-import { type InputState, InputStateContext } from '../input/input-state.js';
-import LoadingIndicator from '../loading-indicator.react.js';
-import { useTextMessageRulesFunc } from '../markdown/rules.react.js';
-import { useSelector } from '../redux/redux-utils.js';
 import css from './chat-message-list.css';
 import { MessageListContext } from './message-list-types.js';
 import Message from './message.react.js';
 import RelationshipPrompt from './relationship-prompt/relationship-prompt.js';
 import { useTooltipContext } from './tooltip-provider.js';
+import { type InputState, InputStateContext } from '../input/input-state.js';
+import LoadingIndicator from '../loading-indicator.react.js';
+import { useTextMessageRulesFunc } from '../markdown/rules.react.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 const browser = detectBrowser();
 const supportsReverseFlex =

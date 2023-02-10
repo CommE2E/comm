@@ -34,7 +34,7 @@
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-flowtype": "^5.4.0",
-    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jest": "^24.2.2",
     "eslint-plugin-monorepo": "^0.3.2",
     "eslint-plugin-prettier": "^3.3.1",

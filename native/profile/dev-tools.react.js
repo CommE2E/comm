@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import type { Dispatch } from 'lib/types/redux-types.js';
 import { setURLPrefix } from 'lib/utils/url-utils.js';
 
+import type { ProfileNavigationProp } from './profile.react.js';
 import Button from '../components/button.react.js';
 import SWMansionIcon from '../components/swmansion-icon.react.js';
 import type { NavigationRoute } from '../navigation/route-names.js';
@@ -18,7 +19,6 @@ import { useColors, useStyles, type Colors } from '../themes/colors.js';
 import { wipeAndExit } from '../utils/crash-utils.js';
 import { checkForMissingNatDevHostname } from '../utils/dev-hostname.js';
 import { nodeServerOptions } from '../utils/url-utils.js';
-import type { ProfileNavigationProp } from './profile.react.js';
 
 const ServerIcon = () => (
   <SWMansionIcon

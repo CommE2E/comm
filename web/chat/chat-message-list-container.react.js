@@ -19,14 +19,14 @@ import {
 import { threadTypes } from 'lib/types/thread-types.js';
 import type { AccountUserInfo } from 'lib/types/user-types.js';
 
-import { InputStateContext } from '../input/input-state.js';
-import { updateNavInfoActionType } from '../redux/action-types.js';
-import { useSelector } from '../redux/redux-utils.js';
 import ChatInputBar from './chat-input-bar.react.js';
 import css from './chat-message-list-container.css';
 import ChatMessageList from './chat-message-list.react.js';
 import ChatThreadComposer from './chat-thread-composer.react.js';
 import ThreadTopBar from './thread-top-bar.react.js';
+import { InputStateContext } from '../input/input-state.js';
+import { updateNavInfoActionType } from '../redux/action-types.js';
+import { useSelector } from '../redux/redux-utils.js';
 
 type Props = {
   +activeChatThreadID: string,

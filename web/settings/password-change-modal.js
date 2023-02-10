@@ -17,11 +17,11 @@ import {
   useServerCall,
 } from 'lib/utils/action-utils.js';
 
+import css from './password-change-modal.css';
 import Button from '../components/button.react.js';
 import Input from '../modals/input.react.js';
 import Modal from '../modals/modal.react.js';
 import { useSelector } from '../redux/redux-utils.js';
-import css from './password-change-modal.css';
 
 type Props = {
   +inputDisabled: boolean,

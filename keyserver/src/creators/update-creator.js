@@ -38,6 +38,7 @@ import type {
 } from 'lib/types/user-types.js';
 import { promiseAll } from 'lib/utils/promises.js';
 
+import createIDs from './id-creator.js';
 import { dbQuery, SQL, mergeAndConditions } from '../database/database.js';
 import type { SQLStatementType } from '../database/types.js';
 import { deleteUpdatesByConditions } from '../deleters/update-deleters.js';
@@ -56,7 +57,6 @@ import {
 } from '../fetchers/user-fetchers.js';
 import type { Viewer } from '../session/viewer.js';
 import { channelNameForUpdateTarget, publisher } from '../socket/redis.js';
-import createIDs from './id-creator.js';
 
 export type UpdatesForCurrentSession =
   // This is the default if no Viewer is passed, or if an isSocket Viewer is
