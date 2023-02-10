@@ -1,5 +1,6 @@
 use aws_sdk_dynamodb::Error as DynamoDBError;
 use chrono::Utc;
+use comm_opaque::Cipher;
 use constant_time_eq::constant_time_eq;
 use futures_core::Stream;
 use opaque_ke::{
@@ -16,7 +17,6 @@ use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, StreamExt};
 use tonic::{Request, Response, Status};
 use tracing::{error, info, instrument};
-use comm_opaque::Cipher;
 
 use crate::constants::MPSC_CHANNEL_BUFFER_CAPACITY;
 use crate::database::DatabaseClient;
