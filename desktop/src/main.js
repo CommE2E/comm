@@ -8,6 +8,7 @@ import {
   ipcMain,
   systemPreferences,
   autoUpdater,
+  dialog,
 } from 'electron/main';
 import fs from 'fs';
 import path from 'path';
@@ -285,3 +286,13 @@ if (app.isPackaged && process.platform === 'win32') {
 } else {
   run();
 }
+
+process.on('uncaughtException', (error: Error) => {
+  if (error.message === 'The internet connection appears to be offline.') {
+    return;
+  }
+  dialog.showErrorBox(
+    'Error from the main thread',
+    `${error.name}: ${error.message}`,
+  );
+});
